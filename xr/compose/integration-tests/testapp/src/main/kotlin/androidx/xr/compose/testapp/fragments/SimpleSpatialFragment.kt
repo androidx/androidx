@@ -45,8 +45,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.currentStateAsState
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
@@ -154,10 +154,9 @@ class SimpleSpatialFragment : Fragment() {
                                         Text("Orbiter Host")
 
                                         Orbiter(
-                                            alignment =
-                                                OrbiterAlignment.TopCenter(
-                                                    edgeOffsetType =
-                                                        OrbiterEdgeOffsetType.OuterEdge,
+                                            position =
+                                                OrbiterPosition.TopCenter(
+                                                    EdgeAlignment.Outside,
                                                     offset = DpVolumeOffset(y = 10.dp),
                                                 )
                                         ) {

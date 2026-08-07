@@ -74,19 +74,19 @@ private fun Content() {
     CompositionLocalProvider(
         LocalSpatialNavigationBarOrbiterProperties provides
             DefaultSpatialNavigationBarOrbiterProperties.copy(
-                alignment = orbiterPosition.toHorizontalAlignment()
+                position = orbiterPosition.toHorizontalAlignment()
             ),
         LocalSpatialNavigationRailOrbiterProperties provides
             DefaultSpatialNavigationRailOrbiterProperties.copy(
-                alignment = orbiterPosition.toVerticalAlignment()
+                position = orbiterPosition.toVerticalAlignment()
             ),
         LocalSpatialShortNavigationBarOrbiterProperties provides
             DefaultSpatialNavigationBarOrbiterProperties.copy(
-                alignment = orbiterPosition.toHorizontalAlignment()
+                position = orbiterPosition.toHorizontalAlignment()
             ),
         LocalSpatialWideNavigationRailOrbiterProperties provides
             DefaultSpatialWideNavigationRailOrbiterProperties.copy(
-                alignment = orbiterPosition.toVerticalAlignment()
+                position = orbiterPosition.toVerticalAlignment()
             ),
     ) {
         NavigationSuiteScaffold(

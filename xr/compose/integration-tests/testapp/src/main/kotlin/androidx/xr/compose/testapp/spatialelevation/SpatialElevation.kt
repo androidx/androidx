@@ -80,8 +80,8 @@ import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.LocalSpatialConfiguration
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.SpatialDialog
 import androidx.xr.compose.spatial.SpatialElevation
 import androidx.xr.compose.spatial.SpatialElevationLevel
@@ -115,9 +115,9 @@ class SpatialElevation : ComponentActivity() {
         var showPopup by remember { mutableStateOf(false) }
 
         Orbiter(
-            alignment =
-                OrbiterAlignment.CenterStart(
-                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+            position =
+                OrbiterPosition.CenterStart(
+                    EdgeAlignment.Outside,
                     offset = DpVolumeOffset(x = (0).dp, y = 0.dp, z = 0.dp),
                 )
         ) {
@@ -161,9 +161,9 @@ class SpatialElevation : ComponentActivity() {
             }
         }
         Orbiter(
-            alignment =
-                OrbiterAlignment.CenterEnd(
-                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+            position =
+                OrbiterPosition.CenterEnd(
+                    EdgeAlignment.Outside,
                     offset = DpVolumeOffset(x = 0.dp, y = 0.dp, z = 0.dp),
                 )
         ) {

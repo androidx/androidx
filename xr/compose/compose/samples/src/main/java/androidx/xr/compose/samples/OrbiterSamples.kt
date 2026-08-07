@@ -27,9 +27,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
 import androidx.xr.compose.spatial.OrbiterDefaults
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -37,6 +37,20 @@ import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.unit.DpVolumeOffset
 
+/**
+ * Sample demonstrating a bottom bar orbiter positioning using [OrbiterPosition].
+ *
+ * ```
+ * +------------------------+
+ * |                        |
+ * |                        |
+ * |      SpatialPanel      |
+ * |                        |
+ * |      +---------+       |
+ * +------| Orbiter |-------+
+ *        +---------+
+ * ```
+ */
 @Sampled
 @Composable
 @SubspaceComposable
@@ -44,10 +58,10 @@ public fun OrbiterBottomBarSample() {
     SpatialPanel(SubspaceModifier.width(400.dp).height(300.dp)) {
         // Place a horizontal bar orbiter at the bottom-center edge of the panel.
         Orbiter(
-            alignment =
-                OrbiterAlignment.BottomCenter(
-                    offset = DpVolumeOffset(x = 0.dp, y = (-20).dp, z = OrbiterDefaults.Elevation),
-                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+            position =
+                OrbiterPosition.BottomCenter(
+                    offset = DpVolumeOffset(x = 0.dp, y = 0.dp, z = OrbiterDefaults.Elevation),
+                    verticalEdgeAlignment = EdgeAlignment.Center,
                 )
         ) {
             Box(
@@ -60,17 +74,71 @@ public fun OrbiterBottomBarSample() {
     }
 }
 
+/**
+ * Sample demonstrating a top rail orbiter positioning using [OrbiterPosition].
+ *
+ * ```
+ *     +---------+
+ *     | Orbiter |
+ *     +---------+--------------+
+ *     |                        |
+ *     |      SpatialPanel      |
+ *     |                        |
+ *     |                        |
+ *     +------------------------+
+ * ```
+ */
+@Sampled
+@Composable
+@SubspaceComposable
+public fun OrbiterTopRailSample() {
+    SpatialPanel(SubspaceModifier.width(400.dp).height(300.dp)) {
+        // Place the orbiter at the top-start corner: horizontally aligned inside the left edge,
+        // but vertically sitting completely above (outside) the top edge.
+        Orbiter(
+            position =
+                OrbiterPosition.TopStart(
+                    offset = DpVolumeOffset(x = 0.dp, y = 0.dp, z = OrbiterDefaults.Elevation),
+                    horizontalEdgeAlignment = EdgeAlignment.Inside,
+                    verticalEdgeAlignment = EdgeAlignment.Outside,
+                )
+        ) {
+            Box(
+                modifier = Modifier.size(200.dp, 64.dp).background(Color.DarkGray),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text("Top Rail", color = Color.White, fontSize = 18.sp)
+            }
+        }
+    }
+}
+
+/**
+ * Sample demonstrating a side rail orbiter positioning using [OrbiterPosition].
+ *
+ * ```
+ * +---------+------------------------+
+ * | Orbiter |                        |
+ * +---------+                        |
+ *           |      SpatialPanel      |
+ *           |                        |
+ *           |                        |
+ *           +------------------------+
+ * ```
+ */
 @Sampled
 @Composable
 @SubspaceComposable
 public fun OrbiterSideRailSample() {
     SpatialPanel(SubspaceModifier.width(400.dp).height(300.dp)) {
-        // Place a vertical rail orbiter at the end-center (usually right) edge of the panel.
+        // Place the orbiter at the top-start corner: horizontally sitting completely to the side
+        // (outside) of the left edge, but vertically aligned inside the top boundary.
         Orbiter(
-            alignment =
-                OrbiterAlignment.CenterEnd(
-                    offset = DpVolumeOffset(x = 24.dp, y = 0.dp, z = OrbiterDefaults.Elevation),
-                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+            position =
+                OrbiterPosition.TopStart(
+                    offset = DpVolumeOffset(x = 0.dp, y = 0.dp, z = OrbiterDefaults.Elevation),
+                    horizontalEdgeAlignment = EdgeAlignment.Outside,
+                    verticalEdgeAlignment = EdgeAlignment.Inside,
                 )
         ) {
             Box(

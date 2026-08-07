@@ -37,8 +37,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.SpatialElevationLevel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
@@ -123,9 +123,9 @@ fun SequentialAnimationExample(modifier: SubspaceModifier = SubspaceModifier) {
     }
     SpatialRow(modifier = modifier) {
         Orbiter(
-            alignment =
-                OrbiterAlignment.CenterStart(
-                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+            position =
+                OrbiterPosition.CenterStart(
+                    EdgeAlignment.Outside,
                     offset = DpVolumeOffset(x = -50.dp, z = box1Elevation.value),
                 )
         ) {
@@ -134,9 +134,9 @@ fun SequentialAnimationExample(modifier: SubspaceModifier = SubspaceModifier) {
             }
         }
         Orbiter(
-            alignment =
-                OrbiterAlignment.CenterEnd(
-                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+            position =
+                OrbiterPosition.CenterEnd(
+                    EdgeAlignment.Outside,
                     offset = DpVolumeOffset(x = 100.dp, z = box2Elevation.value),
                 )
         ) {

@@ -42,8 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
@@ -197,9 +197,9 @@ class Animation : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Orbiter(
-                            alignment =
-                                OrbiterAlignment.TopCenter(
-                                    edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                            position =
+                                OrbiterPosition.TopCenter(
+                                    EdgeAlignment.Outside,
                                     offset = DpVolumeOffset(y = 5.dp),
                                 )
                         ) {
