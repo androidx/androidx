@@ -19,9 +19,11 @@ package androidx.compose.runtime.saveable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.serialization.serializableSaver
+import androidx.savedstate.SavedState
 import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.savedstate.serialization.SavedStateConfiguration.Companion.DEFAULT
+import androidx.savedstate.serialization.decodeFromSavedState
+import androidx.savedstate.serialization.encodeToSavedState
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
@@ -165,4 +167,14 @@ public fun <T : Any> rememberSerializable(
     val saver = mutableStateSaver(inner = serializableSaver(stateSerializer, configuration))
     @Suppress("DEPRECATION")
     return rememberSaveable(*inputs, saver = saver, key = null, init = init)
+}
+
+private fun <Serializable : Any> serializableSaver(
+    serializer: KSerializer<Serializable>,
+    configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
+): Saver<Serializable, SavedState> {
+    return Saver(
+        save = { original -> encodeToSavedState(serializer, original, configuration) },
+        restore = { savedState -> decodeFromSavedState(serializer, savedState, configuration) },
+    )
 }
