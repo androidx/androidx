@@ -51,6 +51,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -102,6 +103,7 @@ import com.google.common.truth.IntegerSubject
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
+import kotlin.random.Random
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -2397,6 +2399,36 @@ class LazyGridTest(private val orientation: Orientation) :
             rule.mainClock.advanceTimeByFrame()
             assertEquals(0f, state.scrollDeltaBetweenPasses)
             rule.waitForIdle()
+        }
+    }
+
+    @Test
+    fun reorderingInLookahead() {
+        var items by mutableStateOf(List(500) { it })
+
+        val itemSizePx = 50f
+        val itemSize = with(rule.density) { itemSizePx.toDp() }
+
+        rule.setContent {
+            LookaheadScope {
+                LazyGrid(cells = 1, modifier = Modifier.mainAxisSize(itemSize * 2)) {
+                    items(items, key = { it }) {
+                        Box(Modifier.animateItem().mainAxisSize(itemSize)) {
+                            Box { BasicText("Item $it") }
+                        }
+                    }
+                }
+            }
+        }
+
+        val random = Random(42)
+        repeat(20) {
+            val newItems = items.shuffled(random)
+            items = newItems
+            rule.runOnUiThread {
+                Snapshot.sendApplyNotifications()
+                rule.mainClock.advanceTimeByFrame()
+            }
         }
     }
 

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.checkScrollableContainerConstraints
@@ -396,10 +397,12 @@ private fun rememberLazyListMeasurePolicy(
 
             state.applyMeasureResult(measureResult, isLookingAhead)
             // apply keep around after updating the strategy with measure result.
-            (state.prefetchStrategy as? CacheWindowLogic)?.keepAroundItems(
-                measureResult.visibleItemsInfo,
-                measuredItemProvider,
-            )
+            if (!ComposeFoundationFlags.isKeepAroundDuringLookaheadDisabled || !isLookingAhead) {
+                (state.prefetchStrategy as? CacheWindowLogic)?.keepAroundItems(
+                    measureResult.visibleItemsInfo,
+                    measuredItemProvider,
+                )
+            }
             measureResult
         }
     }
