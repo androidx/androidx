@@ -45,8 +45,8 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.platform.requestHomeSpace
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
@@ -184,9 +184,9 @@ class SpatialComposeStateTest : ComponentActivity() {
 @Composable
 fun CounterOrbiter() {
     Orbiter(
-        alignment =
-            OrbiterAlignment.BottomCenter(
-                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+        position =
+            OrbiterPosition.BottomCenter(
+                EdgeAlignment.Inside,
                 offset = DpVolumeOffset(x = 0.dp, y = 8.dp, z = 0.dp),
             ),
         shape = SpatialRoundedCornerShape(CornerSize(percent = 50)),

@@ -76,8 +76,8 @@ import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
@@ -125,7 +125,6 @@ import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import java.io.File
 import kotlin.math.roundToInt
-import kotlinx.coroutines.launch
 
 class SpatialComposeVideoPlayer : ComponentActivity() {
     private val TAG = "SpatialComposeVideoPlayer"
@@ -1010,9 +1009,9 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
 
             // Offset avoids depth perception issues when playing stereoscopic video.
             Orbiter(
-                alignment =
-                    OrbiterAlignment.BottomCenter(
-                        edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                position =
+                    OrbiterPosition.BottomCenter(
+                        EdgeAlignment.Outside,
                         offset = DpVolumeOffset(y = -48.dp),
                     )
             ) {

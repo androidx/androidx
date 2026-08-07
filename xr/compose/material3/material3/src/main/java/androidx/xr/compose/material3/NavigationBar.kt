@@ -38,11 +38,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.xr.compose.material3.XrNavigationBarTokens.OrbiterOffset
 import androidx.xr.compose.material3.tokens.XrTokens
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
 import androidx.xr.compose.spatial.OrbiterDefaults
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.unit.DpVolumeOffset
 
 /**
@@ -119,9 +120,9 @@ internal object XrNavigationBarTokens {
 @ExperimentalMaterial3XrApi
 public val DefaultSpatialNavigationBarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
-        alignment =
-            OrbiterAlignment.BottomCenter(
-                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        position =
+            OrbiterPosition.BottomCenter(
+                EdgeAlignment.Outside,
                 offset =
                     DpVolumeOffset(
                         0.dp,

@@ -39,9 +39,9 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.xr.compose.spatial.OrbiterAlignment
 import androidx.xr.compose.spatial.OrbiterDefaults
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.unit.DpVolumeOffset
 
@@ -137,9 +137,9 @@ private object XrWideNavigationRailTokens {
 @ExperimentalMaterial3XrApi
 public val DefaultSpatialWideNavigationRailOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
-        alignment =
-            OrbiterAlignment.CenterStart(
-                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        position =
+            OrbiterPosition.CenterStart(
+                EdgeAlignment.Outside,
                 offset =
                     DpVolumeOffset(
                         x = XrNavigationRailTokens.OrbiterOffset,

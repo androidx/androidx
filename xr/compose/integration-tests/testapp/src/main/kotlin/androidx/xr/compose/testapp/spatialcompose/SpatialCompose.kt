@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:kotlin.OptIn(androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi::class)
+@file:OptIn(ExperimentalSpatialGltfModelApi::class)
 
 package androidx.xr.compose.testapp.spatialcompose
 
@@ -74,10 +74,11 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.requestFullSpace
 import androidx.xr.compose.platform.requestHomeSpace
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
 import androidx.xr.compose.spatial.OrbiterDefaults
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.ExperimentalSpatialGltfModelApi
 import androidx.xr.compose.subspace.SceneCoreEntity
 import androidx.xr.compose.subspace.SpatialActivityPanel
 import androidx.xr.compose.subspace.SpatialAndroidViewPanel
@@ -246,9 +247,9 @@ class SpatialCompose : ComponentActivity() {
                     verticalArrangement = SpatialArrangement.spacedBy(40.dp),
                 ) {
                     Orbiter(
-                        alignment =
-                            OrbiterAlignment.CenterStart(
-                                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                        position =
+                            OrbiterPosition.CenterStart(
+                                EdgeAlignment.Outside,
                                 offset = DpVolumeOffset((-8).dp),
                             ),
                         shape = SpatialRoundedCornerShape(CornerSize(16.dp)),
@@ -342,9 +343,9 @@ class SpatialCompose : ComponentActivity() {
             PanelContent { Text(text) }
 
             Orbiter(
-                alignment =
-                    OrbiterAlignment.BottomCenter(
-                        edgeOffsetType = OrbiterEdgeOffsetType.None,
+                position =
+                    OrbiterPosition.BottomCenter(
+                        EdgeAlignment.Center,
                         offset = DpVolumeOffset(y = (-24).dp, z = OrbiterDefaults.Elevation),
                     ),
                 shape = SpatialRoundedCornerShape(size = CornerSize(50)),
@@ -412,11 +413,8 @@ class SpatialCompose : ComponentActivity() {
             content()
 
             Orbiter(
-                alignment =
-                    OrbiterAlignment.CenterEnd(
-                        edgeOffsetType = OrbiterEdgeOffsetType.None,
-                        offset = DpVolumeOffset(24.dp),
-                    ),
+                position =
+                    OrbiterPosition.CenterEnd(EdgeAlignment.Center, offset = DpVolumeOffset(24.dp)),
                 shape = SpatialRoundedCornerShape(size = CornerSize(50)),
             ) {
                 IconButton(
@@ -571,10 +569,11 @@ class SpatialCompose : ComponentActivity() {
         SpatialPanel(modifier = SubspaceModifier.fillMaxWidth().height(200.dp)) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 Orbiter(
-                    alignment =
-                        OrbiterAlignment.TopStart(
+                    position =
+                        OrbiterPosition.TopStart(
+                            horizontalEdgeAlignment = EdgeAlignment.Center,
+                            verticalEdgeAlignment = EdgeAlignment.Center,
                             offset = DpVolumeOffset((-16).dp, 0.dp, OrbiterDefaults.Elevation),
-                            edgeOffsetType = OrbiterEdgeOffsetType.None,
                         )
                 ) {
                     Surface(shape = RoundedCornerShape(CornerSize(16.dp))) {
@@ -585,8 +584,8 @@ class SpatialCompose : ComponentActivity() {
             // Aligns the orbiter to the bottom center of the panel and manually offsets it to the
             // right and up.
             Orbiter(
-                alignment =
-                    OrbiterAlignment.BottomCenter(
+                position =
+                    OrbiterPosition.BottomCenter(
                         offset = DpVolumeOffset(120.dp, 120.dp, OrbiterDefaults.Elevation)
                     )
             ) {
