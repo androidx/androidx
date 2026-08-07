@@ -19,7 +19,7 @@ package androidx.xr.compose.material3
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
+import androidx.xr.compose.spatial.OrbiterPosition
 import androidx.xr.compose.subspace.layout.SpatialShape
 
 /**
@@ -33,7 +33,7 @@ import androidx.xr.compose.subspace.layout.SpatialShape
 @ExperimentalMaterial3XrApi
 @Immutable
 public class OrbiterProperties(
-    public val alignment: OrbiterAlignment,
+    public val position: OrbiterPosition,
     public val shape: SpatialShape,
 ) {
     /**
@@ -42,40 +42,40 @@ public class OrbiterProperties(
      * If `null` is provided for any value, the existing value will be used.
      */
     public fun copy(
-        alignment: OrbiterAlignment? = null,
+        position: OrbiterPosition? = null,
         shape: SpatialShape? = null,
     ): OrbiterProperties =
-        OrbiterProperties(alignment = alignment ?: this.alignment, shape = shape ?: this.shape)
+        OrbiterProperties(position = position ?: this.position, shape = shape ?: this.shape)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is OrbiterProperties) return false
 
-        if (alignment != other.alignment) return false
+        if (position != other.position) return false
         if (shape != other.shape) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = alignment.hashCode()
+        var result = position.hashCode()
         result = 31 * result + shape.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "OrbiterProperties(alignment=$alignment, shape=$shape)"
+        return "OrbiterProperties(alignment=$position, shape=$shape)"
     }
 }
 
 @OptIn(ExperimentalMaterial3XrApi::class)
 @Composable
 internal fun VerticalOrbiter(properties: OrbiterProperties, content: @Composable () -> Unit) {
-    Orbiter(alignment = properties.alignment, shape = properties.shape, content = content)
+    Orbiter(position = properties.position, shape = properties.shape, content = content)
 }
 
 @OptIn(ExperimentalMaterial3XrApi::class)
 @Composable
 internal fun HorizontalOrbiter(properties: OrbiterProperties, content: @Composable () -> Unit) {
-    Orbiter(alignment = properties.alignment, shape = properties.shape, content = content)
+    Orbiter(position = properties.position, shape = properties.shape, content = content)
 }

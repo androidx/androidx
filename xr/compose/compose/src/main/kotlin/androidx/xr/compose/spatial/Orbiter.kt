@@ -136,7 +136,7 @@ private val EmptyContent: @Composable () -> Unit = {}
 @Suppress("DEPRECATION")
 @Composable
 @ComposableOpenTarget(index = -1)
-@Deprecated(message = "Use the OrbiterAlignment-based Orbiter instead.")
+@Deprecated(message = "Use the OrbiterPosition-based Orbiter instead.")
 public fun Orbiter(
     position: ContentEdge.Horizontal,
     offset: Dp = 0.dp,
@@ -244,7 +244,7 @@ public fun Orbiter(
 @Suppress("DEPRECATION")
 @Composable
 @ComposableOpenTarget(index = -1)
-@Deprecated(message = "Use the OrbiterAlignment-based Orbiter instead.")
+@Deprecated(message = "Use the OrbiterPosition-based Orbiter instead.")
 public fun Orbiter(
     position: ContentEdge.Vertical,
     offset: Dp = 0.dp,
@@ -341,7 +341,7 @@ public fun Orbiter(
 @Suppress("DEPRECATION")
 @Composable
 @ComposableOpenTarget(index = -1)
-@Deprecated("Use the OrbiterAlignment-based Orbiter instead.")
+@Deprecated("Use the OrbiterPosition-based Orbiter instead.")
 public fun Orbiter(
     anchorPoint: OrbiterAnchorPoint,
     offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
@@ -370,246 +370,6 @@ public fun Orbiter(
 }
 
 /**
- * Represents the alignment and offset configuration for an [Orbiter] in relation to the parent.
- *
- * TopStart OrbiterEdgeOffsetType.None LTR Visual representation:
- * ```
- * +---------+
- * | Orbiter | -----------------+
- * +---------+                  |
- *     |                        |
- *     |      SpatialPanel      |
- *     |                        |
- *     |                        |
- *     +------------------------+
- * ```
- *
- * BottomCenter OrbiterEdgeOffsetType.OuterEdge Visual representation:
- * ```
- * +------------------------+
- * |                        |
- * |                        |
- * |      SpatialPanel      |
- * |                        |
- * |                        |
- * +------+----------+------+
- *        | Orbiter  |
- *        +----------+
- * ```
- */
-public sealed class OrbiterAlignment
-private constructor(
-    internal val alignment: SpatialAlignment,
-    internal val edgeOffsetType: OrbiterEdgeOffsetType,
-    internal val offset: DpVolumeOffset,
-) {
-    /**
-     * Center of the parent (non-edge).
-     *
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied. This offset will automatically adjust the horizontal offset according to the
-     *   layout direction: when the layout direction is LTR, positive x offsets will move the
-     *   content to the right and when the layout direction is RTL, positive x offsets will move the
-     *   content to the left.
-     */
-    public class Center(
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation)
-    ) : OrbiterAlignment(SpatialAlignment.Center, OrbiterEdgeOffsetType.None, offset)
-
-    /**
-     * Top-Start edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied. This offset will automatically adjust the horizontal offset according to the
-     *   layout direction: when the layout direction is LTR, positive x offsets will move the
-     *   content to the right and when the layout direction is RTL, positive x offsets will move the
-     *   content to the left.
-     */
-    public class TopStart(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAlignment.TopStart, edgeOffsetType, offset)
-
-    /**
-     * Top-Center edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied. This offset will automatically adjust the horizontal offset according to the
-     *   layout direction: when the layout direction is LTR, positive x offsets will move the
-     *   content to the right and when the layout direction is RTL, positive x offsets will move the
-     *   content to the left.
-     */
-    public class TopCenter(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAlignment.TopCenter, edgeOffsetType, offset)
-
-    /**
-     * Top-End edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied. This offset will automatically adjust the horizontal offset according to the
-     *   layout direction: when the layout direction is LTR, positive x offsets will move the
-     *   content to the right and when the layout direction is RTL, positive x offsets will move the
-     *   content to the left.
-     */
-    public class TopEnd(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAlignment.TopEnd, edgeOffsetType, offset)
-
-    /**
-     * Center-Start edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied. This offset will automatically adjust the horizontal offset according to the
-     *   layout direction: when the layout direction is LTR, positive x offsets will move the
-     *   content to the right and when the layout direction is RTL, positive x offsets will move the
-     *   content to the left.
-     */
-    public class CenterStart(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAlignment.CenterStart, edgeOffsetType, offset)
-
-    /**
-     * Center-End edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied. This offset will automatically adjust the horizontal offset according to the
-     *   layout direction: when the layout direction is LTR, positive x offsets will move the
-     *   content to the right and when the layout direction is RTL, positive x offsets will move the
-     *   content to the left.
-     */
-    public class CenterEnd(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAlignment.CenterEnd, edgeOffsetType, offset)
-
-    /**
-     * Bottom-Start edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied. This offset will automatically adjust the horizontal offset according to the
-     *   layout direction: when the layout direction is LTR, positive x offsets will move the
-     *   content to the right and when the layout direction is RTL, positive x offsets will move the
-     *   content to the left.
-     */
-    public class BottomStart(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAlignment.BottomStart, edgeOffsetType, offset)
-
-    /**
-     * Bottom-Center edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied. This offset will automatically adjust the horizontal offset according to the
-     *   layout direction: when the layout direction is LTR, positive x offsets will move the
-     *   content to the right and when the layout direction is RTL, positive x offsets will move the
-     *   content to the left.
-     */
-    public class BottomCenter(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAlignment.BottomCenter, edgeOffsetType, offset)
-
-    /**
-     * Bottom-End edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied. This offset will automatically adjust the horizontal offset according to the
-     *   layout direction: when the layout direction is LTR, positive x offsets will move the
-     *   content to the right and when the layout direction is RTL, positive x offsets will move the
-     *   content to the left.
-     */
-    public class BottomEnd(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAlignment.BottomEnd, edgeOffsetType, offset)
-
-    /**
-     * Top-Left absolute edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied without considering layout direction
-     */
-    public class TopLeft(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAbsoluteAlignment.TopLeft, edgeOffsetType, offset)
-
-    /**
-     * Top-Right absolute edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied without considering layout direction
-     */
-    public class TopRight(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAbsoluteAlignment.TopRight, edgeOffsetType, offset)
-
-    /**
-     * Center-Left absolute edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied without considering layout direction
-     */
-    public class CenterLeft(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAbsoluteAlignment.CenterLeft, edgeOffsetType, offset)
-
-    /**
-     * Center-Right absolute edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied without considering layout direction
-     */
-    public class CenterRight(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAbsoluteAlignment.CenterRight, edgeOffsetType, offset)
-
-    /**
-     * Bottom-Left absolute edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied without considering layout direction
-     */
-    public class BottomLeft(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAbsoluteAlignment.BottomLeft, edgeOffsetType, offset)
-
-    /**
-     * Bottom-Right absolute edge alignment.
-     *
-     * @param edgeOffsetType boundary offset behavior relative to the parent bounds
-     * @param offset manual offset applied to the orbiter after the [edgeOffsetType]'s offset is
-     *   applied without considering layout direction
-     */
-    public class BottomRight(
-        edgeOffsetType: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
-        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
-    ) : OrbiterAlignment(SpatialAbsoluteAlignment.BottomRight, edgeOffsetType, offset)
-}
-
-/**
  * A composable that creates an orbiter along the edge or center of a parent spatial component.
  *
  * Orbiters are floating elements that are typically used to control the content within spatial
@@ -622,16 +382,17 @@ private constructor(
  * * Within `setContent`: the main panel is the parent.
  *
  * @sample androidx.xr.compose.samples.OrbiterBottomBarSample
+ * @sample androidx.xr.compose.samples.OrbiterTopRailSample
  * @sample androidx.xr.compose.samples.OrbiterSideRailSample
- * @param alignment alignment and offset configuration of the orbiter relative to the parent spatial
- *   component
+ * @param position position of the orbiter relative to the parent spatial component, defined by its
+ *   alignment, edge alignment, and offset
  * @param shape shape of the orbiter when rendered in 3D space
  * @param content content to display inside the orbiter
  */
 @Composable
 @ComposableOpenTarget(index = -1)
 public fun Orbiter(
-    alignment: OrbiterAlignment,
+    position: OrbiterPosition,
     shape: SpatialShape = OrbiterDefaults.Shape,
     content: @Composable @UiComposable () -> Unit,
 ) {
@@ -656,12 +417,11 @@ public fun Orbiter(
     val pixelDensity = session.scene.virtualPixelDensity
 
     val poseProvider =
-        remember(alignment, layoutDirection, density) {
+        remember(position, layoutDirection, density) {
             @Suppress("DEPRECATION")
             OrbiterPoseProvider { targetSize, _, orbiterContentSize ->
-                val spatialAlignment = alignment.alignment
-                val edgeOffsetType = alignment.edgeOffsetType
-                val offset = alignment.offset
+                val spatialAlignment = position.alignment
+                val offset = position.offset
 
                 val baseAlignmentOffset =
                     spatialAlignment.align(
@@ -711,27 +471,38 @@ public fun Orbiter(
                     }
 
                 // SpatialAlignment positions the orbiter completely inside the parent.
-                // We use the OrbiterEdgeOffsetType to determine how far outward to shift it:
-                // - InnerEdge (0f): No shift, orbiter remains inside the parent.
-                // - None (1f): Shifted by half its size, so its center rests on the parent's edge.
-                // - OuterEdge (2f): Shifted by full size, so it sits completely outside the parent.
+                // We use the OrbiterPosition.EdgeAlignment to determine how far outward to shift:
+                // - Inside (0f): No shift, orbiter remains inside the parent.
+                // - Center (1f): Shifted by half its size, so its center rests on the parent's
+                // edge.
+                // - Outside (2f): Shifted by full size, so it sits completely outside the parent.
                 var xEdgeOffset = 0f
                 var yEdgeOffset = 0f
                 val orbiterHalfSize = orbiterContentSize.toMeterSize(pixelDensity) / 2f
 
-                val edgeOffsetMultiplier =
-                    when (edgeOffsetType) {
-                        OrbiterEdgeOffsetType.OuterEdge -> 2f
-                        OrbiterEdgeOffsetType.InnerEdge -> 0f
-                        else -> 1f // None
+                val horizontalEdgeOffsetMultiplier =
+                    when (position.horizontalEdgeAlignment) {
+                        OrbiterPosition.EdgeAlignment.Outside -> 2f
+                        OrbiterPosition.EdgeAlignment.Inside -> 0f
+                        else -> 1f // Center
+                    }
+
+                val verticalEdgeOffsetMultiplier =
+                    when (position.verticalEdgeAlignment) {
+                        OrbiterPosition.EdgeAlignment.Outside -> 2f
+                        OrbiterPosition.EdgeAlignment.Inside -> 0f
+                        else -> 1f // Center
                     }
 
                 if (resolvedHorizontalBias == -1f || resolvedHorizontalBias == 1f) {
                     xEdgeOffset =
-                        resolvedHorizontalBias * orbiterHalfSize.width * edgeOffsetMultiplier
+                        resolvedHorizontalBias *
+                            orbiterHalfSize.width *
+                            horizontalEdgeOffsetMultiplier
                 }
                 if (verticalBias == -1f || verticalBias == 1f) {
-                    yEdgeOffset = verticalBias * orbiterHalfSize.height * edgeOffsetMultiplier
+                    yEdgeOffset =
+                        verticalBias * orbiterHalfSize.height * verticalEdgeOffsetMultiplier
                 }
 
                 val edgeOffsetVector = Vector3(x = xEdgeOffset, y = yEdgeOffset, z = 0f)
@@ -777,6 +548,444 @@ public fun Orbiter(
 }
 
 /**
+ * Represents the position of an [Orbiter] in relation to the parent, defined by its alignment, edge
+ * alignment, and offset.
+ *
+ * TopStart horizontalEdgeAlignment = EdgeAlignment.Outside and verticalEdgeAlignment =
+ * EdgeAlignment.Outside, Left-to-Right (LTR):
+ * ```
+ * +---------+
+ * | Orbiter |
+ * +---------+------------------------+
+ *           |                        |
+ *           |                        |
+ *           |      SpatialPanel      |
+ *           |                        |
+ *           |                        |
+ *           +------------------------+
+ * ```
+ *
+ * TopStart horizontalEdgeAlignment = EdgeAlignment.Outside, verticalEdgeAlignment =
+ * EdgeAlignment.Inside, Left-to-Right (LTR):
+ * ```
+ * +---------+------------------------+
+ * | Orbiter |                        |
+ * +---------+                        |
+ *           |      SpatialPanel      |
+ *           |                        |
+ *           |                        |
+ *           +------------------------+
+ * ```
+ *
+ * TopStart horizontalEdgeAlignment = EdgeAlignment.Inside, verticalEdgeAlignment =
+ * EdgeAlignment.Outside, Left-to-Right (LTR):
+ * ```
+ *     +---------+
+ *     | Orbiter |
+ *     +---------+--------------+
+ *     |                        |
+ *     |      SpatialPanel      |
+ *     |                        |
+ *     |                        |
+ *     +------------------------+
+ * ```
+ *
+ * TopStart horizontalEdgeAlignment = EdgeAlignment.Inside and verticalEdgeAlignment =
+ * EdgeAlignment.Inside, Left-to-Right (LTR):
+ * ```
+ * +---------+--------------+
+ * | Orbiter |              |
+ * +---------+              |
+ * |      SpatialPanel      |
+ * |                        |
+ * |                        |
+ * +------------------------+
+ * ```
+ *
+ * TopStart horizontalEdgeAlignment = EdgeAlignment.Center and verticalEdgeAlignment =
+ * EdgeAlignment.Center, Left-to-Right (LTR):
+ * ```
+ * +---------+
+ * | Orbiter |------------------+
+ * +---------+                  |
+ *     |                        |
+ *     |      SpatialPanel      |
+ *     |                        |
+ *     |                        |
+ *     +------------------------+
+ * ```
+ *
+ * BottomCenter verticalEdgeAlignment = EdgeAlignment.Center:
+ * ```
+ * +------------------------+
+ * |                        |
+ * |                        |
+ * |      SpatialPanel      |
+ * |                        |
+ * |      +---------+       |
+ * +------| Orbiter |-------+
+ *        +---------+
+ * ```
+ */
+public sealed class OrbiterPosition
+private constructor(
+    internal val alignment: SpatialAlignment,
+    internal val horizontalEdgeAlignment: EdgeAlignment,
+    internal val verticalEdgeAlignment: EdgeAlignment,
+    internal val offset: DpVolumeOffset,
+) {
+    /**
+     * Center of the parent (non-edge).
+     *
+     * @param offset manual offset applied to the orbiter. This offset will automatically adjust the
+     *   horizontal offset according to the layout direction: when the layout direction is LTR,
+     *   positive x offsets will move the content to the right and when the layout direction is RTL,
+     *   positive x offsets will move the content to the left.
+     */
+    public class Center(
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation)
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAlignment.Center,
+            horizontalEdgeAlignment = EdgeAlignment.Center,
+            verticalEdgeAlignment = EdgeAlignment.Center,
+            offset = offset,
+        )
+
+    /**
+     * Top-Start edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
+     *   bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param offset manual offset applied to the orbiter after the edge offset is applied. This
+     *   offset will automatically adjust the horizontal offset according to the layout direction:
+     *   when the layout direction is LTR, positive x offsets will move the content to the right and
+     *   when the layout direction is RTL, positive x offsets will move the content to the left.
+     */
+    public class TopStart(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        verticalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAlignment.TopStart,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = verticalEdgeAlignment,
+            offset = offset,
+        )
+
+    /**
+     * Top-Center edge alignment.
+     *
+     * @param verticalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param offset manual offset applied to the orbiter after the [verticalEdgeAlignment]'s offset
+     *   is applied. This offset will automatically adjust the horizontal offset according to the
+     *   layout direction: when the layout direction is LTR, positive x offsets will move the
+     *   content to the right and when the layout direction is RTL, positive x offsets will move the
+     *   content to the left.
+     */
+    public class TopCenter(
+        verticalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAlignment.TopCenter,
+            horizontalEdgeAlignment = EdgeAlignment.Center,
+            verticalEdgeAlignment = verticalEdgeAlignment,
+            offset = offset,
+        )
+
+    /**
+     * Top-End edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
+     *   bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param offset manual offset applied to the orbiter after the edge offset is applied. This
+     *   offset will automatically adjust the horizontal offset according to the layout direction:
+     *   when the layout direction is LTR, positive x offsets will move the content to the right and
+     *   when the layout direction is RTL, positive x offsets will move the content to the left.
+     */
+    public class TopEnd(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        verticalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAlignment.TopEnd,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = verticalEdgeAlignment,
+            offset = offset,
+        )
+
+    /**
+     * Center-Start edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param offset manual offset applied to the orbiter after the [horizontalEdgeAlignment]'s
+     *   offset is applied. This offset will automatically adjust the horizontal offset according to
+     *   the layout direction: when the layout direction is LTR, positive x offsets will move the
+     *   content to the right and when the layout direction is RTL, positive x offsets will move the
+     *   content to the left.
+     */
+    public class CenterStart(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAlignment.CenterStart,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = EdgeAlignment.Center,
+            offset = offset,
+        )
+
+    /**
+     * Center-End edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param offset manual offset applied to the orbiter after the [horizontalEdgeAlignment]'s
+     *   offset is applied. This offset will automatically adjust the horizontal offset according to
+     *   the layout direction: when the layout direction is LTR, positive x offsets will move the
+     *   content to the right and when the layout direction is RTL, positive x offsets will move the
+     *   content to the left.
+     */
+    public class CenterEnd(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAlignment.CenterEnd,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = EdgeAlignment.Center,
+            offset = offset,
+        )
+
+    /**
+     * Bottom-Start edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
+     *   bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param offset manual offset applied to the orbiter after the edge offset is applied. This
+     *   offset will automatically adjust the horizontal offset according to the layout direction:
+     *   when the layout direction is LTR, positive x offsets will move the content to the right and
+     *   when the layout direction is RTL, positive x offsets will move the content to the left.
+     */
+    public class BottomStart(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        verticalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAlignment.BottomStart,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = verticalEdgeAlignment,
+            offset = offset,
+        )
+
+    /**
+     * Bottom-Center edge alignment.
+     *
+     * @param verticalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param offset manual offset applied to the orbiter after the [verticalEdgeAlignment]'s offset
+     *   is applied. This offset will automatically adjust the horizontal offset according to the
+     *   layout direction: when the layout direction is LTR, positive x offsets will move the
+     *   content to the right and when the layout direction is RTL, positive x offsets will move the
+     *   content to the left.
+     */
+    public class BottomCenter(
+        verticalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAlignment.BottomCenter,
+            horizontalEdgeAlignment = EdgeAlignment.Center,
+            verticalEdgeAlignment = verticalEdgeAlignment,
+            offset = offset,
+        )
+
+    /**
+     * Bottom-End edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
+     *   bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param offset manual offset applied to the orbiter after the edge offset is applied. This
+     *   offset will automatically adjust the horizontal offset according to the layout direction:
+     *   when the layout direction is LTR, positive x offsets will move the content to the right and
+     *   when the layout direction is RTL, positive x offsets will move the content to the left.
+     */
+    public class BottomEnd(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        verticalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAlignment.BottomEnd,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = verticalEdgeAlignment,
+            offset = offset,
+        )
+
+    /**
+     * Top-Left absolute edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
+     *   bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param offset manual offset applied to the orbiter after the edge offset is applied without
+     *   considering layout direction
+     */
+    public class TopLeft(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        verticalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAbsoluteAlignment.TopLeft,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = verticalEdgeAlignment,
+            offset = offset,
+        )
+
+    /**
+     * Top-Right absolute edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
+     *   bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param offset manual offset applied to the orbiter after the edge offset is applied without
+     *   considering layout direction
+     */
+    public class TopRight(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        verticalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAbsoluteAlignment.TopRight,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = verticalEdgeAlignment,
+            offset = offset,
+        )
+
+    /**
+     * Center-Left absolute edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param offset manual offset applied to the orbiter after the [horizontalEdgeAlignment]'s
+     *   offset is applied without considering layout direction
+     */
+    public class CenterLeft(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAbsoluteAlignment.CenterLeft,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = EdgeAlignment.Center,
+            offset = offset,
+        )
+
+    /**
+     * Center-Right absolute edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param offset manual offset applied to the orbiter after the [horizontalEdgeAlignment]'s
+     *   offset is applied without considering layout direction
+     */
+    public class CenterRight(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAbsoluteAlignment.CenterRight,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = EdgeAlignment.Center,
+            offset = offset,
+        )
+
+    /**
+     * Bottom-Left absolute edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
+     *   bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param offset manual offset applied to the orbiter after the edge offset is applied without
+     *   considering layout direction
+     */
+    public class BottomLeft(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        verticalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAbsoluteAlignment.BottomLeft,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = verticalEdgeAlignment,
+            offset = offset,
+        )
+
+    /**
+     * Bottom-Right absolute edge alignment.
+     *
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
+     *   bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param offset manual offset applied to the orbiter after the edge offset is applied without
+     *   considering layout direction
+     */
+    public class BottomRight(
+        horizontalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        verticalEdgeAlignment: EdgeAlignment = EdgeAlignment.Outside,
+        offset: DpVolumeOffset = DpVolumeOffset(0.dp, 0.dp, OrbiterDefaults.Elevation),
+    ) :
+        OrbiterPosition(
+            alignment = SpatialAbsoluteAlignment.BottomRight,
+            horizontalEdgeAlignment = horizontalEdgeAlignment,
+            verticalEdgeAlignment = verticalEdgeAlignment,
+            offset = offset,
+        )
+
+    /**
+     * Specifies how the [Orbiter] is aligned relative to its parent's layout boundary.
+     *
+     * Note: Calculates alignment based on the parent's rectangular layout bounds, not its visual
+     * shape or rounded corners. Use a custom offset in [DpVolumeOffset] to align with curved or
+     * non-rectangular contours.
+     */
+    @JvmInline
+    public value class EdgeAlignment private constructor(private val value: Int) {
+        public companion object {
+            /**
+             * Positions the [Orbiter] fully outside the parent's layout boundary.
+             *
+             * The orbiter does not overlap the parent panel's layout bounds. For example, a side
+             * rail will sit completely to the side of the parent.
+             */
+            public val Outside: EdgeAlignment = EdgeAlignment(0)
+
+            /**
+             * Positions the [Orbiter] fully inside the parent's layout boundary.
+             *
+             * The orbiter completely overlaps the parent panel's layout bounds, functioning as an
+             * overlay.
+             */
+            public val Inside: EdgeAlignment = EdgeAlignment(1)
+
+            /**
+             * Centers the [Orbiter] directly on the parent's layout boundary line.
+             *
+             * The boundary line bisects the orbiter, placing it half-inside and half-outside the
+             * parent.
+             */
+            public val Center: EdgeAlignment = EdgeAlignment(2)
+        }
+    }
+}
+
+/**
  * A composable that creates an orbiter along the edge of a spatial component (e.g.
  * [androidx.xr.compose.subspace.SpatialPanel]).
  *
@@ -802,7 +1011,7 @@ public fun Orbiter(
 @Suppress("DEPRECATION")
 @Composable
 @ComposableOpenTarget(index = -1)
-@Deprecated("Use the OrbiterAlignment-based Orbiter instead.")
+@Deprecated("Use the OrbiterPosition-based Orbiter instead.")
 public fun Orbiter(
     poseProvider: OrbiterPoseProvider,
     shape: SpatialShape = OrbiterDefaults.Shape,
@@ -844,7 +1053,7 @@ public fun Orbiter(
 }
 
 /** Calculates the [Pose] of an [Orbiter] in 3D space relative to its spatial parent. */
-@Deprecated("Use OrbiterAlignment-based Orbiter API instead.")
+@Deprecated("Use OrbiterPosition-based Orbiter API instead.")
 public fun interface OrbiterPoseProvider {
     /**
      * Calculate the [Pose] of the [Orbiter].
@@ -871,7 +1080,7 @@ public fun interface OrbiterPoseProvider {
  * For layout direction-agnostic positioning, use the [Absolute] variants.
  */
 @Suppress("DEPRECATION")
-@Deprecated("Use OrbiterAlignment instead.")
+@Deprecated("Use OrbiterPosition instead.")
 public sealed class OrbiterAnchorPoint private constructor() {
     internal abstract fun calculateAnchorVector(
         anchorHalfSize: FloatSize2d,
@@ -1396,16 +1605,16 @@ private class SpatialOrbiter(
 
 /** An enum that represents the edges of a view where an orbiter can be placed. */
 @Suppress("DEPRECATION")
-@Deprecated("Use OrbiterAlignment instead.")
+@Deprecated("Use OrbiterPosition instead.")
 public sealed interface ContentEdge {
-    @Deprecated("Use OrbiterAlignment instead.")
+    @Deprecated("Use OrbiterPosition instead.")
     public class Horizontal private constructor(private val displayName: String) : ContentEdge {
         public companion object {
             /** Positioning constant to place an orbiter above the content's top edge. */
-            @Deprecated("Use OrbiterAlignment instead.")
+            @Deprecated("Use OrbiterPosition instead.")
             public val Top: Horizontal = Horizontal("Top")
             /** Positioning constant to place an orbiter below the content's bottom edge. */
-            @Deprecated("Use OrbiterAlignment instead.")
+            @Deprecated("Use OrbiterPosition instead.")
             public val Bottom: Horizontal = Horizontal("Bottom")
         }
 
@@ -1416,16 +1625,16 @@ public sealed interface ContentEdge {
     }
 
     /** Represents vertical edges (start or end). */
-    @Deprecated("Use OrbiterAlignment instead.")
+    @Deprecated("Use OrbiterPosition instead.")
     public class Vertical private constructor(private val displayName: String) : ContentEdge {
         public companion object {
             /**
              * Positioning constant to place an orbiter at the start of the content's starting edge.
              */
-            @Deprecated("Use OrbiterAlignment instead.")
+            @Deprecated("Use OrbiterPosition instead.")
             public val Start: Vertical = Vertical("Start")
             /** Positioning constant to place an orbiter at the end of the content's ending edge. */
-            @Deprecated("Use OrbiterAlignment instead.") public val End: Vertical = Vertical("End")
+            @Deprecated("Use OrbiterPosition instead.") public val End: Vertical = Vertical("End")
         }
 
         /** Returns the string representation of the edge. */
@@ -1434,17 +1643,17 @@ public sealed interface ContentEdge {
         }
     }
 
-    @Deprecated("Use OrbiterAlignment instead.")
+    @Deprecated("Use OrbiterPosition instead.")
     public companion object {
         /** The top edge. */
-        @Deprecated("Use OrbiterAlignment instead.") public val Top: Horizontal = Horizontal.Top
+        @Deprecated("Use OrbiterPosition instead.") public val Top: Horizontal = Horizontal.Top
         /** The bottom edge. */
-        @Deprecated("Use OrbiterAlignment instead.")
+        @Deprecated("Use OrbiterPosition instead.")
         public val Bottom: Horizontal = Horizontal.Bottom
         /** The start edge. */
-        @Deprecated("Use OrbiterAlignment instead.") public val Start: Vertical = Vertical.Start
+        @Deprecated("Use OrbiterPosition instead.") public val Start: Vertical = Vertical.Start
         /** The end edge. */
-        @Deprecated("Use OrbiterAlignment instead.") public val End: Vertical = Vertical.End
+        @Deprecated("Use OrbiterPosition instead.") public val End: Vertical = Vertical.End
     }
 }
 
@@ -1455,6 +1664,11 @@ public sealed interface ContentEdge {
  * rounded corners. Use a custom offset in [DpVolumeOffset] to align with curved or non-rectangular
  * contours.
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    message = "Use OrbiterPosition.EdgeAlignment instead.",
+    replaceWith = ReplaceWith("OrbiterPosition.EdgeAlignment"),
+)
 @JvmInline
 public value class OrbiterEdgeOffsetType private constructor(private val value: Int) {
     public companion object {
@@ -1464,6 +1678,10 @@ public value class OrbiterEdgeOffsetType private constructor(private val value: 
          * The orbiter does not overlap the parent panel's layout bounds. For example, a side rail
          * will sit completely to the side of the parent.
          */
+        @Deprecated(
+            message = "Use OrbiterPosition.EdgeAlignment.Outside instead.",
+            replaceWith = ReplaceWith("OrbiterPosition.EdgeAlignment.Outside"),
+        )
         public val OuterEdge: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType(0)
 
         /**
@@ -1472,6 +1690,10 @@ public value class OrbiterEdgeOffsetType private constructor(private val value: 
          * The orbiter completely overlaps the parent panel's layout bounds, functioning as an
          * overlay.
          */
+        @Deprecated(
+            message = "Use OrbiterPosition.EdgeAlignment.Inside instead.",
+            replaceWith = ReplaceWith("OrbiterPosition.EdgeAlignment.Inside"),
+        )
         public val InnerEdge: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType(1)
 
         /**
@@ -1480,6 +1702,10 @@ public value class OrbiterEdgeOffsetType private constructor(private val value: 
          * The boundary line bisects the orbiter, placing it half-inside and half-outside the
          * parent.
          */
+        @Deprecated(
+            message = "Use OrbiterPosition.EdgeAlignment.Center instead.",
+            replaceWith = ReplaceWith("OrbiterPosition.EdgeAlignment.Center"),
+        )
         public val None: OrbiterEdgeOffsetType = OrbiterEdgeOffsetType(2)
     }
 }

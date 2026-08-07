@@ -24,17 +24,17 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.xr.compose.spatial.OrbiterAlignment
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SpatialShape
 
 @OptIn(ExperimentalMaterial3XrAdaptiveApi::class)
-internal fun OrbiterOffsetTypeStub.toXrOrbiterEdgeOffsetType(): OrbiterEdgeOffsetType =
+internal fun OrbiterOffsetTypeStub.toXrOrbiterEdgeAlignment(): EdgeAlignment =
     when (this) {
-        OrbiterOffsetTypeStub.Overlap -> OrbiterEdgeOffsetType.None
-        OrbiterOffsetTypeStub.InnerEdge -> OrbiterEdgeOffsetType.InnerEdge
-        OrbiterOffsetTypeStub.OuterEdge -> OrbiterEdgeOffsetType.OuterEdge
+        OrbiterOffsetTypeStub.Overlap -> EdgeAlignment.Center
+        OrbiterOffsetTypeStub.InnerEdge -> EdgeAlignment.Inside
+        OrbiterOffsetTypeStub.OuterEdge -> EdgeAlignment.Outside
         else -> error("Unsupported OrbiterOffsetType: $this")
     }
 
@@ -44,24 +44,44 @@ internal fun ContentEdgeStub.Vertical.toXrOrbiterAlignment(
     offsetType: OrbiterOffsetTypeStub,
     alignment: Alignment.Vertical,
     elevation: Dp,
-): OrbiterAlignment {
-    val edgeOffsetType = offsetType.toXrOrbiterEdgeOffsetType()
+): OrbiterPosition {
+    val edgeOffsetType = offsetType.toXrOrbiterEdgeAlignment()
     val volumeOffset = androidx.xr.compose.unit.DpVolumeOffset(x = offset, y = 0.dp, z = elevation)
     return when (this) {
         ContentEdgeStub.Vertical.Start ->
             when (alignment) {
-                Alignment.Top -> OrbiterAlignment.TopStart(edgeOffsetType, volumeOffset)
+                Alignment.Top ->
+                    OrbiterPosition.TopStart(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
                 Alignment.CenterVertically ->
-                    OrbiterAlignment.CenterStart(edgeOffsetType, volumeOffset)
-                Alignment.Bottom -> OrbiterAlignment.BottomStart(edgeOffsetType, volumeOffset)
+                    OrbiterPosition.CenterStart(edgeOffsetType, volumeOffset)
+                Alignment.Bottom ->
+                    OrbiterPosition.BottomStart(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
                 else -> throw IllegalArgumentException("Invalid alignment: $alignment")
             }
         ContentEdgeStub.Vertical.End ->
             when (alignment) {
-                Alignment.Top -> OrbiterAlignment.TopEnd(edgeOffsetType, volumeOffset)
+                Alignment.Top ->
+                    OrbiterPosition.TopEnd(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
                 Alignment.CenterVertically ->
-                    OrbiterAlignment.CenterEnd(edgeOffsetType, volumeOffset)
-                Alignment.Bottom -> OrbiterAlignment.BottomEnd(edgeOffsetType, volumeOffset)
+                    OrbiterPosition.CenterEnd(edgeOffsetType, volumeOffset)
+                Alignment.Bottom ->
+                    OrbiterPosition.BottomEnd(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
                 else -> throw IllegalArgumentException("Invalid alignment: $alignment")
             }
         else -> error("Unsupported ContentEdge.Vertical: $this")
@@ -74,29 +94,68 @@ internal fun ContentEdgeStub.Horizontal.toXrOrbiterAlignment(
     offsetType: OrbiterOffsetTypeStub,
     alignment: Alignment.Horizontal,
     elevation: Dp,
-): OrbiterAlignment {
-    val edgeOffsetType = offsetType.toXrOrbiterEdgeOffsetType()
+): OrbiterPosition {
+    val edgeOffsetType = offsetType.toXrOrbiterEdgeAlignment()
     val volumeOffset = androidx.xr.compose.unit.DpVolumeOffset(x = 0.dp, y = offset, z = elevation)
     return when (this) {
         ContentEdgeStub.Horizontal.Top ->
             when (alignment) {
-                Alignment.Start -> OrbiterAlignment.TopStart(edgeOffsetType, volumeOffset)
+                Alignment.Start ->
+                    OrbiterPosition.TopStart(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
                 Alignment.CenterHorizontally ->
-                    OrbiterAlignment.TopCenter(edgeOffsetType, volumeOffset)
-                Alignment.End -> OrbiterAlignment.TopEnd(edgeOffsetType, volumeOffset)
-                AbsoluteAlignment.Left -> OrbiterAlignment.TopLeft(edgeOffsetType, volumeOffset)
-                AbsoluteAlignment.Right -> OrbiterAlignment.TopRight(edgeOffsetType, volumeOffset)
+                    OrbiterPosition.TopCenter(edgeOffsetType, volumeOffset)
+                Alignment.End ->
+                    OrbiterPosition.TopEnd(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
+                AbsoluteAlignment.Left ->
+                    OrbiterPosition.TopLeft(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
+                AbsoluteAlignment.Right ->
+                    OrbiterPosition.TopRight(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
                 else -> throw IllegalArgumentException("Invalid alignment: $alignment")
             }
         ContentEdgeStub.Horizontal.Bottom ->
             when (alignment) {
-                Alignment.Start -> OrbiterAlignment.BottomStart(edgeOffsetType, volumeOffset)
+                Alignment.Start ->
+                    OrbiterPosition.BottomStart(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
                 Alignment.CenterHorizontally ->
-                    OrbiterAlignment.BottomCenter(edgeOffsetType, volumeOffset)
-                Alignment.End -> OrbiterAlignment.BottomEnd(edgeOffsetType, volumeOffset)
-                AbsoluteAlignment.Left -> OrbiterAlignment.BottomLeft(edgeOffsetType, volumeOffset)
+                    OrbiterPosition.BottomCenter(edgeOffsetType, volumeOffset)
+                Alignment.End ->
+                    OrbiterPosition.BottomEnd(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
+                AbsoluteAlignment.Left ->
+                    OrbiterPosition.BottomLeft(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
                 AbsoluteAlignment.Right ->
-                    OrbiterAlignment.BottomRight(edgeOffsetType, volumeOffset)
+                    OrbiterPosition.BottomRight(
+                        horizontalEdgeAlignment = edgeOffsetType,
+                        verticalEdgeAlignment = edgeOffsetType,
+                        offset = volumeOffset,
+                    )
                 else -> throw IllegalArgumentException("Invalid alignment: $alignment")
             }
         else -> error("Unsupported ContentEdge.Horizontal: $this")

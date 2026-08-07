@@ -46,9 +46,9 @@ import androidx.xr.arcore.testapp.common.SessionLifecycleHelper
 import androidx.xr.arcore.testapp.depth.rendering.DepthRenderer
 import androidx.xr.arcore.testapp.depth.rendering.DepthTextureHandler
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
 import androidx.xr.compose.spatial.OrbiterDefaults
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
@@ -192,9 +192,9 @@ class DepthActivity : ComponentActivity(), GLSurfaceView.Renderer {
                     factory = { _ -> surfaceView },
                 )
                 Orbiter(
-                    alignment =
-                        OrbiterAlignment.TopCenter(
-                            edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                    position =
+                        OrbiterPosition.TopCenter(
+                            verticalEdgeAlignment = EdgeAlignment.Outside,
                             offset =
                                 DpVolumeOffset(x = 0.dp, y = 8.dp, z = OrbiterDefaults.Elevation),
                         ),

@@ -54,9 +54,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.material3.tokens.XrTokens
-import androidx.xr.compose.spatial.OrbiterAlignment
 import androidx.xr.compose.spatial.OrbiterDefaults
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.unit.DpVolumeOffset
 
@@ -449,9 +449,9 @@ private object XrFloatingToolbarTokens {
 @OptIn(ExperimentalMaterial3XrApi::class)
 public val DefaultSpatialHorizontalFloatingToolbarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
-        alignment =
-            OrbiterAlignment.BottomCenter(
-                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        position =
+            OrbiterPosition.BottomCenter(
+                EdgeAlignment.Outside,
                 offset =
                     DpVolumeOffset(
                         0.dp,
@@ -477,9 +477,9 @@ public val LocalSpatialHorizontalFloatingToolbarOrbiterProperties:
 @OptIn(ExperimentalMaterial3XrApi::class)
 public val DefaultSpatialVerticalFloatingToolbarOrbiterProperties: OrbiterProperties =
     OrbiterProperties(
-        alignment =
-            OrbiterAlignment.CenterEnd(
-                edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+        position =
+            OrbiterPosition.CenterEnd(
+                EdgeAlignment.Outside,
                 offset =
                     DpVolumeOffset(
                         x = XrFloatingToolbarTokens.OrbiterOffset,

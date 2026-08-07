@@ -40,8 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.SpatialElevation
 import androidx.xr.compose.spatial.SpatialElevationLevel
 import androidx.xr.compose.spatial.Subspace
@@ -148,9 +148,9 @@ class ModeChange : ComponentActivity() {
         ) {
             Column {
                 Orbiter(
-                    alignment =
-                        OrbiterAlignment.TopCenter(
-                            edgeOffsetType = OrbiterEdgeOffsetType.OuterEdge,
+                    position =
+                        OrbiterPosition.TopCenter(
+                            EdgeAlignment.Outside,
                             offset = DpVolumeOffset(y = 5.dp),
                         )
                 ) {

@@ -32,8 +32,8 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.xr.compose.spatial.Orbiter
-import androidx.xr.compose.spatial.OrbiterAlignment
-import androidx.xr.compose.spatial.OrbiterEdgeOffsetType
+import androidx.xr.compose.spatial.OrbiterPosition
+import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -60,9 +60,9 @@ class MainPanelFragment : Fragment() {
                             SubspaceModifier.width(300.dp).height(200.dp).offset(x = xOffset.dp)
                     )
                     Orbiter(
-                        alignment =
-                            OrbiterAlignment.TopCenter(
-                                edgeOffsetType = OrbiterEdgeOffsetType.InnerEdge,
+                        position =
+                            OrbiterPosition.TopCenter(
+                                EdgeAlignment.Outside,
                                 offset = DpVolumeOffset(x = 0.dp, y = 10.dp, z = 0.dp),
                             )
                     ) {
