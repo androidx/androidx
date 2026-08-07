@@ -64,6 +64,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -351,7 +352,7 @@ fun CarouselWithShowAllButtonSample() {
             CarouselItem(3, R.drawable.carousel_image_4, R.string.carousel_image_4_description),
             CarouselItem(4, R.drawable.carousel_image_5, R.string.carousel_image_5_description),
         )
-    var showAllItems by remember { mutableStateOf(false) }
+    var showAllItems by rememberSaveable { mutableStateOf(false) }
     BackHandler(enabled = showAllItems) { showAllItems = false }
     if (showAllItems) {
         // Shows the grid page directly. For better user experience and navigation patterns,
