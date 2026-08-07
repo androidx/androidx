@@ -23,7 +23,6 @@ import android.graphics.PointF
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
@@ -57,7 +56,6 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -77,7 +75,7 @@ class PdfViewerTest {
     fun pdfViewerState_noDocument_defaults() {
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(state = pdfViewerState, pdfDocument = null)
         }
 
@@ -92,7 +90,7 @@ class PdfViewerTest {
 
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 1100.toDp(context)),
@@ -117,7 +115,7 @@ class PdfViewerTest {
 
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -161,7 +159,7 @@ class PdfViewerTest {
 
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -201,7 +199,7 @@ class PdfViewerTest {
         val pdfDocument = FakePdfDocument(List(10) { Point(425, 225) })
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -225,7 +223,7 @@ class PdfViewerTest {
         val pdfDocument = FakePdfDocument(List(10) { Point(425, 225) })
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -255,7 +253,7 @@ class PdfViewerTest {
         val pdfDocument = FakePdfDocument(List(10) { Point(425, 225) })
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -282,7 +280,7 @@ class PdfViewerTest {
         val pdfDocument = FakePdfDocument(List(10) { Point(425, 225) })
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -312,7 +310,7 @@ class PdfViewerTest {
         val pdfDocument = FakePdfDocument(List(10) { Point(425, 225) })
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -332,7 +330,7 @@ class PdfViewerTest {
         val pdfDocument = FakePdfDocument(List(10) { Point(425, 225) })
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -373,7 +371,7 @@ class PdfViewerTest {
         val pdfDocument = FakePdfDocument(List(10) { Point(425, 225) })
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -409,7 +407,7 @@ class PdfViewerTest {
         val pdfDocument = FakePdfDocument(List(10) { Point(425, 225) })
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -442,7 +440,7 @@ class PdfViewerTest {
         val pdfDocument = FakePdfDocument(List(10) { Point(425, 225) })
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(
                 modifier =
                     Modifier.requiredSize(width = 850.toDp(context), height = 550.toDp(context))
@@ -467,7 +465,7 @@ class PdfViewerTest {
 
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             // Only record the selection state when that state changes. Don't log it on every
             // Composition
             LaunchedEffect(pdfViewerState.currentSelection) {
@@ -515,7 +513,7 @@ class PdfViewerTest {
 
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             // Only record the selection state when that state changes. Don't log it on every
             // Composition
             LaunchedEffect(pdfViewerState.currentSelection) {
@@ -586,7 +584,7 @@ class PdfViewerTest {
 
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             // Only record the selection state when that state changes. Don't log it on every
             // Composition
             LaunchedEffect(pdfViewerState.currentSelection) {
@@ -639,7 +637,7 @@ class PdfViewerTest {
 
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             // Only record the selection state when that state changes. Don't log it on every
             // Composition
             LaunchedEffect(pdfViewerState.currentSelection) {
@@ -692,7 +690,7 @@ class PdfViewerTest {
 
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(state = pdfViewerState, pdfDocument = null, contentPadding = contentPadding)
         }
 
@@ -714,7 +712,7 @@ class PdfViewerTest {
     fun pdfViewer_noContentPadding_defaultApplied() {
         lateinit var pdfViewerState: PdfViewerState
         rule.setContent {
-            pdfViewerState = remember { PdfViewerState(CoroutineScope(Dispatchers.Unconfined)) }
+            pdfViewerState = rememberPdfViewerState()
             PdfViewer(state = pdfViewerState, pdfDocument = null)
         }
 
