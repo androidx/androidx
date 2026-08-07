@@ -26,10 +26,14 @@ import androidx.compose.remote.creation.dsl.RcProfile
 import androidx.compose.remote.creation.dsl.RcStrokeCap
 import androidx.compose.remote.creation.dsl.createRcBuffer
 import androidx.compose.remote.creation.dsl.fillMaxSize
+import androidx.compose.remote.creation.dsl.floor
 import androidx.compose.remote.creation.dsl.ifElse
+import androidx.compose.remote.creation.dsl.lerp
 import androidx.compose.remote.creation.dsl.minus
 import androidx.compose.remote.creation.dsl.onClick
+import androidx.compose.remote.creation.dsl.smoothStep
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.integration.view.demos.dsl.RcPathData
 
 /**
  * A Flappy Droid style interaction experiment using a particle system of one. The Android mascot
@@ -56,9 +60,12 @@ fun dslGameFlappyDroid(): ByteArray {
                 val px = 160f.rf
                 val variables = FloatArray(2)
                 val pipeWidth = 80f.rf
-                val pipeX = w - ((t * 130f) % (w + 100f))
+                val flow = (t * 130f).flush()
+                val current = 0.rf.flush()
+                val pipeX = w - ((flow) % (w + 100f))
                 val gapY = h / 2f + sin(t * 0.8f) * 120f
                 val gapHalf = 110f.rf
+                val highScore = 0f.rf.flush()
 
                 // Draw background sky & clouds
                 paint {
@@ -67,66 +74,102 @@ fun dslGameFlappyDroid(): ByteArray {
                 }
                 drawRect(0f.rf, 0f.rf, w, h)
 
+                paint {
+                    color(0x22FFFFFFL.toInt()) // clouds
+                    style(RcPaintStyle.Fill)
+                }
+                loop(1.rf, 1.rf, 30.rf) { index ->
+                    val wrap = (index * 123f + (t * (index / 30f) * 123f)) % (w + 600f)
+
+                    val pos = w - wrap + 300f
+                    drawCircle(pos, sin(index * 323.25f) * h / 2f + h / 2f, index * 6f)
+                    val wrap2 = smoothStep(((t / 60f)) % 1f, -300.rf, w + 300f)
+                    val pos2 = w - wrap2 + 300f
+                    drawCircle(pos2, sin(index * 124.32f) * h / 2f + h / 2f, index + 1f)
+                }
+                paint {
+                    color(0x44FFFFFFL.toInt()) // clouds
+                }
+                loop(1.rf, 1.rf, 30.rf) { index ->
+                    val wrap2 =
+                        lerp((-300).rf, w + 300f, (t * (index / 100f) * abs(sin(index))) % 1f)
+                    val pos2 = w - wrap2
+                    drawCircle(pos2, sin(index * 124.32f) * h / 2f + h / 2f, index / 6f + 5f)
+                }
+                paint {
+                    color(0xFF_4C9950.toInt()) // ground
+                }
+                drawRect(0f.rf, h * 0.9f, w, h)
                 // Draw Pipes (green columns)
                 paint {
                     color(0xFF4CAF50.toInt()) // Pipe green
                     style(RcPaintStyle.Fill)
                 }
+                val rounding = 10f.rf
                 // Upper pipe
-                drawRect(pipeX, 0f.rf, pipeX + pipeWidth, gapY - gapHalf)
+                drawRoundRect(
+                    pipeX,
+                    (-30f).rf,
+                    pipeX + pipeWidth,
+                    gapY - gapHalf,
+                    rounding,
+                    rounding,
+                )
                 // Lower pipe
-                drawRect(pipeX, gapY + gapHalf, pipeX + pipeWidth, h)
+                drawRoundRect(
+                    pipeX,
+                    gapY + gapHalf,
+                    pipeX + pipeWidth,
+                    h + 100f,
+                    rounding,
+                    rounding,
+                )
 
                 // ===================== ANDROID WITH JETPACK =============================
 
-                // 1. Detect if currently touching using the time-delta trick
                 val isTouching = sign(max(0f.rf, touchTime() - animationTime() + 0.15f))
                 val score = 0.rf.flush()
 
                 impulse(20000.rf, 0.rf) {
+                    runAction { setValue(current, flow) }
+
                     // =========== Create Paths ==========
-                    val headDomePath = this@Canvas.remotePath(-14f, -4f)
-                    headDomePath.quadTo(0f, -20f, 14f, -4f)
-                    headDomePath.close()
-
-                    val leftAntennaPath = this@Canvas.remotePath(-7f, -12f)
-                    leftAntennaPath.lineTo(-12f, -20f)
-
-                    val rightAntennaPath = this@Canvas.remotePath(7f, -12f)
-                    rightAntennaPath.lineTo(12f, -20f)
-
-                    val bodyTorsoPath = this@Canvas.remotePath(-14f, -2f)
-                    bodyTorsoPath.lineTo(14f, -2f)
-                    bodyTorsoPath.lineTo(14f, 12f)
-                    bodyTorsoPath.quadTo(14f, 16f, 10f, 16f)
-                    bodyTorsoPath.lineTo(-10f, 16f)
-                    bodyTorsoPath.quadTo(-14f, 16f, -14f, 12f)
-                    bodyTorsoPath.close()
-
-                    val jetpackBodyPath = this@Canvas.remotePath(-24f, -4f)
-                    jetpackBodyPath.lineTo(-14f, -4f)
-                    jetpackBodyPath.lineTo(-14f, 16f)
-                    jetpackBodyPath.lineTo(-24f, 16f)
-                    jetpackBodyPath.close()
-
-                    val jetpackNozzlePath = this@Canvas.remotePath(-23f, 16f)
-                    jetpackNozzlePath.lineTo(-15f, 16f)
-                    jetpackNozzlePath.lineTo(-17f, 21f)
-                    jetpackNozzlePath.lineTo(-21f, 21f)
-                    jetpackNozzlePath.close()
-
-                    val flameShapePath = this@Canvas.remotePath(-22f, 21f)
-                    flameShapePath.lineTo(-16f, 21f)
-                    flameShapePath.lineTo(-19f, 36f)
-                    flameShapePath.close()
-
-                    val headDome = headDomePath.getPath()
-                    val leftAntenna = leftAntennaPath.getPath()
-                    val rightAntenna = rightAntennaPath.getPath()
-                    val bodyTorso = bodyTorsoPath.getPath()
-                    val jetpackBody = jetpackBodyPath.getPath()
-                    val jetpackNozzle = jetpackNozzlePath.getPath()
-                    val flameShape = flameShapePath.getPath()
+                    val flameOrange =
+                        this@Canvas.remotePathData(
+                            RcPathData(
+                                "M -78,700 A 78 78 0 0 1 78,700 C 78,790 22,855 0,905 C -22,855 -78,790 -78,700 Z"
+                            )
+                        )
+                    val flameYellow =
+                        this@Canvas.remotePathData(
+                            RcPathData(
+                                "M -46,712 A 46 46 0 0 1 46,712 C 46,772 14,820 0,855 C -14,820 -46,772 -46,712 Z"
+                            )
+                        )
+                    val rocketBody =
+                        this@Canvas.remotePathData(
+                            RcPathData(
+                                "M 0,0 C -54,54 -124,158 -124,248 L -124,615 L 124,615 L 124,248 C 124,158 54,54 0,0 Z"
+                            )
+                        )
+                    val rocketShade =
+                        this@Canvas.remotePathData(
+                            RcPathData("M 0,0 C 54,54 124,158 124,248 L 124,615 L 0,615 Z")
+                        )
+                    val rocketNozzle =
+                        this@Canvas.remotePathData(
+                            RcPathData(
+                                "M -124,598 L 124,598 L 124,658 Q 124,690 92,690 L -92,690 Q -124,690 -124,658 Z"
+                            )
+                        )
+                    val droidTorso =
+                        this@Canvas.remotePathData(
+                            RcPathData(
+                                "M -290,34 L 290,34 L 290,322 Q 290,370 242,370 L -242,370 Q -290,370 -290,322 Z"
+                            )
+                        )
+                    val droidHead =
+                        this@Canvas.remotePathData(RcPathData("M -290,0 A 290 290 0 0 1 290,0 Z"))
                     // =========== Create Paths ==========
 
                     val ps = createParticles(variables, arrayOf(h / 2f, 0f.rf), 1)
@@ -143,13 +186,16 @@ fun dslGameFlappyDroid(): ByteArray {
                             then = arrayOf(py, pdy),
                         ) {
                             conditionalOperations(RcConditionOp.Gt, gapHalf, abs(gapY - py)) {
-                                runAction { setValue(score, score + (1 / 74f)) }
+                                val hs =
+                                    max(highScore, floor((max(0f, (flow - current))) / (w + 100f)))
+                                runAction { setValue(highScore, hs) }
+
                                 paint {
                                     color(0x00000000L.toInt()) // Sky blue
                                 }
                             }
                             conditionalOperations(RcConditionOp.Gt, abs(gapY - py), gapHalf) {
-                                runAction { setValue(score, 0f) }
+                                runAction { setValue(current, flow) }
                                 paint {
                                     color(0xFF990000L.toInt()) // Sky blue
                                 }
@@ -160,29 +206,59 @@ fun dslGameFlappyDroid(): ByteArray {
                             ps,
                             null,
                             arrayOf(
-                                min(h, py + pdy * dt),
+                                min(h * 0.95f, py + pdy * dt),
                                 (pdy + dt * 900f) * (1f - isTouching) - isTouching * 200f,
                             ),
                         ) {
+                            val positionGap = max(0f, (flow - current))
+                            val floatCount = ((positionGap) / (w + 100f)).flush()
+                            val count = floor(floatCount)
+                            //                            drawTextAnchored(count.genTextId(3, 0), w,
+                            // 0.rf, 2.rf, 2.rf, 0)
+                            val hitWall = sign(flow - current)
+
+                            val scale = max(0f, (floatCount - count - 0.9f) * 10f) + 1f
+                            drawTextAnchored(scale.genTextId(3, 3), w, 0.rf, 4.rf, 2.rf, 0)
+
+                            save()
+
+                            scale(scale, scale, w, 0.rf)
                             paint {
-                                color(0xFF000000.toInt()) // Sky blue
-                                style(RcPaintStyle.Fill)
+                                color(0xFFFFFFFFL.toInt()) // Sky blue
+                                style(RcPaintStyle.Stroke)
+                                alpha(2f - scale)
+                                strokeWidth(8f)
                                 textSize(120f)
                             }
+                            drawTextAnchored(count.genTextId(3, 0), w, 0.rf, 3.rf, 2.rf, 0)
 
-                            drawTextAnchored(score.genTextId(3, 2), w, 0.rf, 2.rf, 2.rf, 0)
-
+                            restore()
+                            paint {
+                                color(0xFFFFFF00L.toInt()) // Sky blue
+                                style(RcPaintStyle.Fill)
+                                strokeWidth(8f)
+                                textSize(60f)
+                            }
+                            drawTextAnchored(
+                                "HIGH SCORE :".join(highScore.genTextId(3, 0)),
+                                w,
+                                h,
+                                1.2f.rf,
+                                (-2).rf,
+                                0,
+                            )
                             this@Canvas.drawAndroid(
                                 px,
                                 py,
+                                hitWall,
                                 isTouching,
-                                headDome,
-                                leftAntenna,
-                                rightAntenna,
-                                bodyTorso,
-                                jetpackBody,
-                                jetpackNozzle,
-                                flameShape,
+                                flameOrange,
+                                flameYellow,
+                                rocketBody,
+                                rocketShade,
+                                rocketNozzle,
+                                droidTorso,
+                                droidHead,
                             )
                         }
                     }
@@ -196,124 +272,200 @@ fun dslGameFlappyDroid(): ByteArray {
 private fun RcCanvasScope.drawAndroid(
     px: RcFloat,
     py: RcFloat,
+    hitWall: RcFloat,
     isTouching: RcFloat,
-    headDome: RcPath,
-    leftAntenna: RcPath,
-    rightAntenna: RcPath,
-    bodyTorso: RcPath,
-    jetpackBody: RcPath,
-    jetpackNozzle: RcPath,
-    flameShape: RcPath,
+    flameOrange: RcPath,
+    flameYellow: RcPath,
+    rocketBody: RcPath,
+    rocketShade: RcPath,
+    rocketNozzle: RcPath,
+    droidTorso: RcPath,
+    droidHead: RcPath,
 ) {
     val t = continuousSeconds()
     this.save {
         translate(px, py)
-        scale(2f, 2f)
-
         // Tilt forward slightly when diving, upward when thrusting
-        val tiltAngle = ifElse(isTouching, (-15f).rf, 15f.rf)
-        rotate(tiltAngle)
+        val tiltAngle = (hitWall * 360f) + ifElse(isTouching, 15f.rf, (-15f).rf)
 
-        // 1. Jetpack Thrust Flame (behind body)
-        conditionalOperations(RcConditionOp.Gt, isTouching, 0f.rf) {
+        rotate(tiltAngle.anim(0.2f))
+
+        scale(0.14f, 0.14f)
+        translate(-650f, -550f)
+
+        // ============ ROCKET (+ flame) ============
+        this@drawAndroid.save {
+            translate(432f, 283f)
+            rotate(16f)
+
+            // 1. Thrust Flames (orange #E8710A and yellow #FBBC04)
+            //            conditionalOperations(RcConditionOp.Lt, isTouching, 0f.rf) {
+            //                this@drawAndroid.save {
+            //                    val flamePulse = 10f.rf + sin(t * 35f) * 1.5f
+            //                 //   translate(0f, 700f)
+            //                    scale(flamePulse, flamePulse,0.rf,700.rf)
+            //               //     translate(0f, -700f)
+            //
+            //                    paint {
+            //                        color(ORANGE)
+            //                        style(RcPaintStyle.Fill)
+            //                    }
+            //                    drawPath(flameOrange)
+            //
+            //                    paint {
+            //                        color(YELLOW)
+            //                        style(RcPaintStyle.Fill)
+            //                    }
+            //                    drawPath(flameYellow)
+            //                }
+            //            }
+            conditionalOperations(RcConditionOp.Gt, isTouching, 0f.rf) {
+                this@drawAndroid.save {
+                    //  translate(0f, 700f)
+                    scale(1.35f, 1.25f, 0f, 700f)
+                    //   translate(0f, -700f)
+
+                    paint {
+                        color(ORANGE)
+                        style(RcPaintStyle.Fill)
+                    }
+                    drawPath(flameOrange)
+
+                    paint {
+                        color(YELLOW)
+                        style(RcPaintStyle.Fill)
+                    }
+                    drawPath(flameYellow)
+                }
+            }
+
+            // 2. Rocket Body (#FFFFFF)
             paint {
-                color(0xFFFF5722.toInt()) // Bright orange flame
+                color(WHITE)
                 style(RcPaintStyle.Fill)
             }
-            this@drawAndroid.save {
-                val flamePulse = 1f.rf + sin(t * 35f) * 0.25f
-                scale(flamePulse, flamePulse)
-                drawPath(flameShape)
-            }
+            drawPath(rocketBody)
 
-            // Inner yellow core flame
+            // 3. Shaded right half (#DADCE0)
             paint {
-                color(0xFFFFEB3B.toInt()) // Yellow core
+                color(GRAY_LIGHT)
                 style(RcPaintStyle.Fill)
             }
-            this@drawAndroid.save {
-                scale(0.6f.rf, 0.7f.rf)
-                drawPath(flameShape)
-            }
-        }
+            drawPath(rocketShade)
 
-        // Idle pilot light flame when falling/not touching
-        conditionalOperations(RcConditionOp.Lte, isTouching, 0f.rf) {
+            // 4. Band
             paint {
-                color(0xFF2196F3.toInt()) // Blue pilot light
+                color(GRAY_MID)
                 style(RcPaintStyle.Fill)
             }
-            this@drawAndroid.save {
-                scale(0.4f.rf, 0.3f.rf)
-                drawPath(flameShape)
+            drawRect(-124f, 212f, 124f, 270f)
+
+            // 5. Nozzle (#5F6368)
+            paint {
+                color(GRAY_DARK)
+                style(RcPaintStyle.Fill)
             }
+            drawPath(rocketNozzle)
+
+            // 6. Blue stripe
+            paint {
+                color(BLUE)
+                style(RcPaintStyle.Stroke)
+                strokeWidth(78f)
+                strokeCap(RcStrokeCap.Round)
+            }
+            drawLine(-15f, 322f, -36f, 592f)
         }
 
-        // 2. Jetpack Tank & Nozzle
-        paint {
-            color(0xFF505050.toInt()) // Metallic gray
-            style(RcPaintStyle.Fill)
-        }
-        drawPath(jetpackBody)
+        // ============ DROID ============
+        this@drawAndroid.save {
+            translate(800f, 560f)
+            rotate(14f)
 
-        // Jetpack straps / detail
-        paint {
-            color(0xFF808080.toInt())
-            style(RcPaintStyle.Fill)
-        }
-        drawRect(-22f, -2f, -14f, 0f)
-        drawRect(-22f, 10f, -14f, 12f)
+            // 1. Legs
+            paint {
+                color(GREEN)
+                style(RcPaintStyle.Stroke)
+                strokeWidth(76f)
+                strokeCap(RcStrokeCap.Round)
+            }
+            drawLine(-100f, 310f, -150f, 660f)
+            drawLine(100f, 310f, 50f, 660f)
 
-        // Jetpack Nozzle
-        paint {
-            color(0xFF282828.toInt()) // Dark nozzle
-            style(RcPaintStyle.Fill)
-        }
-        drawPath(jetpackNozzle)
+            // 2. Arms
+            paint {
+                color(GREEN)
+                style(RcPaintStyle.Stroke)
+                strokeWidth(110f)
+                strokeCap(RcStrokeCap.Round)
+            }
+            drawLine(200f, 110f, 404f, -42f)
 
-        // 3. Android Body (Torso)
-        paint {
-            color(0xFF3DDC84.toInt()) // Official Android Green
-            style(RcPaintStyle.Fill)
-        }
-        drawPath(bodyTorso)
+            paint {
+                color(GREEN)
+                style(RcPaintStyle.Stroke)
+                strokeWidth(108f)
+                strokeCap(RcStrokeCap.Round)
+            }
+            drawLine(-250f, 120f, -395f, 345f)
 
-        // 4. Android Head Dome
-        paint {
-            color(0xFF3DDC84.toInt())
-            style(RcPaintStyle.Fill)
-        }
-        drawPath(headDome)
+            // 3. Torso
+            paint {
+                color(GREEN)
+                style(RcPaintStyle.Fill)
+            }
+            drawPath(droidTorso)
 
-        // 5. Antennas
-        paint {
-            color(0xFF3DDC84.toInt())
-            style(RcPaintStyle.Stroke)
-            strokeWidth(3f)
-            strokeCap(RcStrokeCap.Round)
-        }
-        drawPath(leftAntenna)
-        drawPath(rightAntenna)
+            // 4. Belt
+            paint {
+                color(WHITE)
+                style(RcPaintStyle.Fill)
+            }
+            drawRect(-290f, 285f, 290f, 340f)
 
-        // 6. Eyes
-        paint {
-            color(0xFFFFFFFF.toInt()) // White eyes
-            style(RcPaintStyle.Fill)
-        }
-        drawCircle(-5f.rf, -8f.rf, 2.5f.rf)
-        drawCircle(5f.rf, -8f.rf, 2.5f.rf)
+            // 5. Antennae
+            paint {
+                color(GREEN)
+                style(RcPaintStyle.Stroke)
+                strokeWidth(30f)
+                strokeCap(RcStrokeCap.Round)
+            }
+            drawLine(-152f, -247f, -198f, -345f)
+            drawLine(152f, -247f, 198f, -345f)
 
-        // 7. Arms & Legs
-        paint {
-            color(0xFF3DDC84.toInt())
-            style(RcPaintStyle.Fill)
+            // 6. White head/body seam
+            paint {
+                color(WHITE)
+                style(RcPaintStyle.Fill)
+            }
+            drawRect(-290f, -2f, 290f, 34f)
+
+            // 7. Head
+            paint {
+                color(GREEN)
+                style(RcPaintStyle.Fill)
+            }
+            drawPath(droidHead)
+
+            // 8. Eyes
+            paint {
+                color(WHITE)
+                style(RcPaintStyle.Fill)
+            }
+            drawCircle(-131f, -142f, 30f)
+            drawCircle(131f, -142f, 30f)
         }
-        // Left Arm (holding jetpack)
-        drawRoundRect(-18f, 0f, -14f, 10f, 2f, 2f)
-        // Right Arm (front/pointing forward)
-        drawRoundRect(14f, 0f, 18f, 10f, 2f, 2f)
-        // Legs
-        drawRoundRect(-8f, 16f, -4f, 22f, 2f, 2f)
-        drawRoundRect(4f, 16f, 8f, 22f, 2f, 2f)
     }
 }
+
+private const val VIEWBOX = 1400f
+
+// ---- palette -----------------------------------------------------------
+private const val GREEN = 0xFF72BD5A.toInt()
+private const val WHITE = 0xFFFFFFFF.toInt()
+private const val GRAY_LIGHT = 0xFFDADCE0.toInt()
+private const val GRAY_MID = 0xFF9AA0A6.toInt()
+private const val GRAY_DARK = 0xFF5F6368.toInt()
+private const val BLUE = 0xFF1A73E8.toInt()
+private const val YELLOW = 0xFFFBBC04.toInt()
+private const val ORANGE = 0xFFE8710A.toInt()

@@ -54,12 +54,12 @@ public data class GraphTheme(
     val axisTitleColor: Int = 0xFF3C4043.toInt(),
     val valueLabelColor: Int = 0xFF3C4043.toInt(),
     // ----- Font sizes (px) -----
-    val titleSize: Float = 26f,
-    val subtitleSize: Float = 15f,
-    val axisTitleSize: Float = 15f,
-    val labelSize: Float = 13f,
-    val valueLabelSize: Float = 12f,
-    val legendSize: Float = 14f,
+    val titleSize: Float = 52f,
+    val subtitleSize: Float = 30f,
+    val axisTitleSize: Float = 30f,
+    var labelSize: Float = 26f,
+    val valueLabelSize: Float = 24f,
+    val legendSize: Float = 28f,
     // ----- Layout (px) -----
     val outerPad: Float = 24f,
     val labelGap: Float = 8f,
@@ -119,7 +119,7 @@ public data class GraphTheme(
     val forestMarkerMin: Float = 4f,
     val forestMarkerMax: Float = 11f,
     // ----- Grid / matrix -----
-    val sequentialRamp: IntArray = Palette.Blues,
+    val sequentialRamp: IntArray = DefaultBlues,
     val cellGap: Float = 1f,
     val inkFlipThreshold: Float = 0.55f,
     val waffleRows: Int = 10,
@@ -127,7 +127,7 @@ public data class GraphTheme(
     val waffleCellGapFrac: Float = 0.12f,
     val treemapGap: Float = 1f,
     // ----- Likert -----
-    val likertPalette: IntArray = Palette.Diverging,
+    val likertPalette: IntArray = DefaultDiverging,
     val likertBarFrac: Float = 0.34f,
     // ----- Annotations / reference marks -----
     /** Dash intervals for gridlines; null = solid. */
@@ -160,11 +160,29 @@ public data class GraphTheme(
                 0xFFBAB0AC.toInt(), // grey
             )
 
+        public val DefaultBlues: IntArray =
+            intArrayOf(
+                0xFFEFF6FB.toInt(),
+                0xFFB8D6EA.toInt(),
+                0xFF6BAED6.toInt(),
+                0xFF2E7EBC.toInt(),
+                0xFF08458A.toInt(),
+            )
+
+        public val DefaultDiverging: IntArray =
+            intArrayOf(
+                0xFFD6604D.toInt(),
+                0xFFF4A582.toInt(),
+                0xFFF7F7F7.toInt(),
+                0xFF92C5DE.toInt(),
+                0xFF4393C3.toInt(),
+            )
+
         /** Clean light theme: white surface, dark ink, soft grey gridlines (the field defaults). */
-        public val Light: GraphTheme = GraphTheme()
+        public val Light: GraphTheme by lazy { GraphTheme() }
 
         /** Dark dashboard theme (light theme with surface + ink colors flipped). */
-        public val Dark: GraphTheme =
+        public val Dark: GraphTheme by lazy {
             Light.copy(
                 background = 0xFF1C1C1E.toInt(),
                 axisColor = 0xFF5F6368.toInt(),
@@ -176,5 +194,6 @@ public data class GraphTheme(
                 axisTitleColor = 0xFFD1D1D6.toInt(),
                 valueLabelColor = 0xFFE5E5EA.toInt(),
             )
+        }
     }
 }

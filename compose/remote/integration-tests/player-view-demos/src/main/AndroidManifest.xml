@@ -160,6 +160,22 @@
         </activity>
 
         <activity
+            android:name=".DemoActivity"
+            android:configChanges="uiMode|assetsPaths"
+            android:exported="true"
+            android:label="DemoRC"
+            android:icon="@drawable/recycler"
+            android:roundIcon="@drawable/recycler"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".ExampleJsonRecyclerActivity"
             android:configChanges="uiMode|assetsPaths"
             android:exported="true"
@@ -286,6 +302,66 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/ticker_widget" />
+        </receiver>
+
+        <receiver android:name=".providers.Demo1"
+            android:exported="true"
+            android:label="Demo1">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="androidx.compose.remote.ACTION_CLICKED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
+        </receiver>
+
+        <receiver android:name=".providers.Demo2"
+            android:exported="true"
+            android:label="Demo2">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="androidx.compose.remote.ACTION_CLICKED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
+        </receiver>
+
+        <receiver android:name=".providers.Demo3"
+            android:exported="true"
+            android:label="Demo3">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="androidx.compose.remote.ACTION_CLICKED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
+        </receiver>
+
+        <receiver android:name=".providers.Demo4"
+            android:exported="true"
+            android:label="Demo4">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="androidx.compose.remote.ACTION_CLICKED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
+        </receiver>
+
+        <receiver android:name=".providers.Demo5"
+            android:exported="true"
+            android:label="Demo5">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="androidx.compose.remote.ACTION_CLICKED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
         </receiver>
 
         <activity
