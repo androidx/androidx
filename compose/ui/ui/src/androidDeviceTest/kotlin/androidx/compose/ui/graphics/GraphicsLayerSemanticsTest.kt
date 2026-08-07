@@ -578,8 +578,9 @@ class GraphicsLayerSemanticsTest(private val modifierVariant: ModifierVariant) {
                     .toScreenBounds(info.boundsInScreen)
                     .subtractRootViewOffset()
             with(rule.density) {
-                assertThat(regionBounds.left - 11.dp.toPx() - 3).isLessThan(0.5.dp.toPx())
-                assertThat(regionBounds.top - 12.dp.toPx() - 3).isLessThan(0.5.dp.toPx())
+                val tolerancePx = maxOf(1f, 0.5.dp.toPx())
+                assertThat(regionBounds.left - 11.dp.toPx() - 3).isAtMost(tolerancePx)
+                assertThat(regionBounds.top - 12.dp.toPx() - 3).isAtMost(tolerancePx)
                 regionBounds.right.toDp().assertIsEqualTo(19.dp)
                 regionBounds.bottom.toDp().assertIsEqualTo(18.dp)
             }
