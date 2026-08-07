@@ -100,7 +100,14 @@ private fun createSchedulers(
     trackers: Trackers,
     processor: Processor,
 ): List<Scheduler> = buildList {
-    add(Schedulers.createBestAvailableBackgroundScheduler(context, workDatabase, configuration))
+    add(
+        Schedulers.createBestAvailableBackgroundScheduler(
+            context,
+            workDatabase,
+            configuration,
+            workTaskExecutor,
+        )
+    )
     if (configuration.isGreedySchedulerEnabled()) {
         add(
             GreedyScheduler(

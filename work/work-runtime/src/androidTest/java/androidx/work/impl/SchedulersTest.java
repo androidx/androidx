@@ -31,6 +31,8 @@ import androidx.test.filters.MediumTest;
 import androidx.work.Configuration;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.background.systemjob.SystemJobService;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +43,8 @@ public class SchedulersTest {
 
     private final Context mAppContext = ApplicationProvider.getApplicationContext();
     private final Configuration mConfiguration = new Configuration.Builder().build();
+    private final TaskExecutor mTaskExecutor =
+            new WorkManagerTaskExecutor(mConfiguration.getTaskExecutor());
     private final WorkDatabase mWorkDatabase = WorkDatabase.create(mAppContext,
             mConfiguration.getExecutor(), mConfiguration.getClock(), false);
 
@@ -48,7 +52,7 @@ public class SchedulersTest {
     @Test
     public void testGetBackgroundScheduler_withJobSchedulerApiLevel() throws Exception {
         Scheduler scheduler = Schedulers.createBestAvailableBackgroundScheduler(mAppContext,
-                mWorkDatabase, mConfiguration);
+                mWorkDatabase, mConfiguration, mTaskExecutor);
         assertThat(scheduler, is(instanceOf(SystemJobScheduler.class)));
         assertServicesEnabled();
     }

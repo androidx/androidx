@@ -32,6 +32,7 @@ import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.background.systemjob.SystemJobService;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -250,10 +251,14 @@ public class Schedulers {
         return representativeWork;
     }
 
-    static @NonNull Scheduler createBestAvailableBackgroundScheduler(@NonNull Context context,
-            @NonNull WorkDatabase workDatabase, Configuration configuration) {
+    static @NonNull Scheduler createBestAvailableBackgroundScheduler(
+            @NonNull Context context,
+            @NonNull WorkDatabase workDatabase,
+            Configuration configuration,
+            TaskExecutor taskExecutor) {
 
-        Scheduler scheduler = new SystemJobScheduler(context, workDatabase, configuration);
+        Scheduler scheduler = new SystemJobScheduler(
+                context, workDatabase, configuration, taskExecutor);
         setServiceEnabled(context, SystemJobService.class, true);
         Logger.get().debug(TAG, "Created SystemJobScheduler and enabled SystemJobService");
         return scheduler;

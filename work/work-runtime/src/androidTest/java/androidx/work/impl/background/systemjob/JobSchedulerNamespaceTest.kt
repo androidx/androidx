@@ -43,7 +43,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class JobSchedulerNamespaceTest {
     private val env = TestEnv(Configuration.Builder().build())
-    private val systemJobScheduler = with(env) { SystemJobScheduler(context, db, configuration) }
+    private val systemJobScheduler =
+        with(env) { SystemJobScheduler(context, db, configuration, taskExecutor) }
     private val globalJobScheduler =
         env.context.getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
 
