@@ -1099,6 +1099,7 @@ package androidx.compose.ui.focus {
   }
 
   public final class RequestChildFocusKt {
+    method public static boolean requestFocusForChildInLocalBounds(androidx.compose.ui.node.DelegatableNode, int left, int top, int right, int bottom);
     method public static boolean requestFocusForChildInRootBounds(androidx.compose.ui.node.DelegatableNode, int left, int top, int right, int bottom);
   }
 
