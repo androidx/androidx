@@ -96,17 +96,12 @@ public val NetworkRequest.capabilitiesCompat: IntArray
                 .toIntArray()
         }
 
-// List of default capabilities that are set when a network request is constructed.
-// https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/Connectivity/framework/src/android/net/NetworkCapabilities.java;?q=DEFAULT_CAPABILITIES
-private val defaultCapabilities =
-    intArrayOf(
-        NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED,
-        NetworkCapabilities.NET_CAPABILITY_NOT_VPN,
-        NetworkCapabilities.NET_CAPABILITY_TRUSTED,
-    )
-
 @RequiresApi(28)
 public object NetworkRequest28 {
+    // Workaround to get the default capabilities on the current OS version by actually constructing
+    // a default NetworkRequest
+    private val defaultCapabilities: IntArray = NetworkRequest.Builder().build().capabilitiesCompat
+
     internal fun hasCapability(request: NetworkRequest, capability: Int) =
         request.hasCapability(capability)
 
