@@ -3189,11 +3189,12 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         rule.mainClock.advanceTimeBy(100L)
 
         // swipe outer list
+        val velocity = with(rule.density) { 2000.dp.toPx() }
         rule.onNodeWithTag(LazyListTag).performTouchInput {
             if (vertical) {
-                swipeWithVelocity(center, topCenter, 5000f)
+                swipeWithVelocity(center, topCenter, velocity)
             } else {
-                swipeWithVelocity(center, centerLeft, 5000f)
+                swipeWithVelocity(center, centerLeft, velocity)
             }
         }
 
