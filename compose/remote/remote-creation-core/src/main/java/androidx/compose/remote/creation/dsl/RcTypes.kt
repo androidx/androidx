@@ -1139,15 +1139,6 @@ public class CustomProperty {
     public val mIntValue: Int
     public val mFloatValue: Float
 
-    public val isFloat: Boolean
-        get() {
-            return (mDataType.toInt() and 1) == 1
-        }
-
-    public fun isString(): Boolean {
-        return (mDataType == STRING_PROP)
-    }
-
     public constructor(type: Short, dataType: Short, value: Int) {
         mType = type
         mDataType = dataType
@@ -1169,6 +1160,13 @@ public class CustomProperty {
         mIntValue = 0
     }
 
+    public constructor(type: Short, dataType: Short, value: RcInteger) {
+        mType = type
+        mDataType = dataType
+        mIntValue = value.toRawInt()
+        mFloatValue = 0f
+    }
+
     public fun getFloatValue(): RcFloat {
         return RcFloat(mFloatValue)
     }
@@ -1177,15 +1175,43 @@ public class CustomProperty {
         return RcText(mIntValue)
     }
 
+    public fun getIntValue(): RcInteger {
+        return RcInteger(mIntValue.toLong())
+    }
+
+    public fun getColorValue(): RcColor {
+        return RcColor(mIntValue)
+    }
+
     public companion object {
         public const val INT_PROP: Short = 0
         public const val FLOAT_PROP: Short = 1
         public const val STRING_PROP: Short = 2
         public const val FLOAT_RETURN: Short = 3
         public const val TEXT_RETURN: Short = 4
+        public const val INT_RETURN: Short = 5
+        public const val COLOR_RETURN: Short = 6
+        public const val COLOR_ID_PROP: Short = 7
+        public const val COLOR_PROP: Short = 8
+        public const val INT_ID_PROP: Short = 9
+
+        public fun int(type: Short, value: Int): CustomProperty =
+            CustomProperty(type, INT_PROP, value)
+
+        public fun int(type: Short, value: RcInteger): CustomProperty =
+            CustomProperty(type, INT_ID_PROP, value.toRawInt())
+
+        public fun float(type: Short, value: Float): CustomProperty =
+            CustomProperty(type, FLOAT_PROP, value)
+
+        public fun float(type: Short, value: RcFloat): CustomProperty =
+            CustomProperty(type, FLOAT_PROP, value)
 
         public fun color(type: Short, value: RcColorValue): CustomProperty =
-            CustomProperty(type, INT_PROP, value.id)
+            CustomProperty(type, COLOR_PROP, value.id)
+
+        public fun color(type: Short, value: RcColor): CustomProperty =
+            CustomProperty(type, COLOR_ID_PROP, value.id)
 
         public fun text(type: Short, value: RcText): CustomProperty =
             CustomProperty(type, STRING_PROP, value.id)
@@ -1198,6 +1224,16 @@ public class CustomProperty {
         public fun returnText(type: Short, scope: RcScope): CustomProperty {
             val id = (scope as RcScopeImpl).writer.nextId()
             return CustomProperty(type, TEXT_RETURN, id)
+        }
+
+        public fun returnInt(type: Short, scope: RcScope): CustomProperty {
+            val id = (scope as RcScopeImpl).writer.nextId()
+            return CustomProperty(type, INT_RETURN, id)
+        }
+
+        public fun returnColor(type: Short, scope: RcScope): CustomProperty {
+            val id = (scope as RcScopeImpl).writer.nextId()
+            return CustomProperty(type, COLOR_RETURN, id)
         }
     }
 }

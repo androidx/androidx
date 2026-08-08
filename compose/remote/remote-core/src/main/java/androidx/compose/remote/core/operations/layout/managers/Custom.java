@@ -16,8 +16,6 @@
 
 package androidx.compose.remote.core.operations.layout.managers;
 
-import static androidx.compose.remote.core.operations.layout.managers.Custom.CustomProperty.TEXT_RETURN;
-
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.CustomContext;
@@ -52,25 +50,53 @@ public class Custom extends LayoutManager implements VariableSupport {
     public static class CustomProperty {
         public final short mType;
         public final short mDataType;
+
         public final int mIntValue;
         public final float mFloatValue;
+
         private String mStringOutValue = "";
         private float mFloatOutValue;
+        private int mIntOutValue;
+
+
         private boolean mNeedsUpdate = true;
         public static final short INT_PROP = 0;
         public static final short FLOAT_PROP = 1;
         public static final short STRING_PROP = 2;
         public static final short FLOAT_RETURN = 3;
         public static final short TEXT_RETURN = 4;
+        public static final short INT_RETURN = 5;
+        public static final short COLOR_RETURN = 6;
+        public static final short COLOR_ID_PROP = 7;
+        public static final short COLOR_PROP = 8;
+        public static final short INT_ID_PROP = 9;
 
-        public boolean isFloat() {
-            return (mDataType & 1) == 1;
+        String getTypeName() {
+            switch (mDataType) {
+                case INT_PROP:
+                    return "INT_PROP";
+                case FLOAT_PROP:
+                    return "FLOAT_PROP";
+                case STRING_PROP:
+                    return "STRING_PROP";
+                case FLOAT_RETURN:
+                    return "FLOAT_RETURN";
+                case TEXT_RETURN:
+                    return "TEXT_RETURN";
+                case INT_RETURN:
+                    return "INT_RETURN";
+                case COLOR_RETURN:
+                    return "COLOR_RETURN";
+                case COLOR_ID_PROP:
+                    return "COLOR_ID_PROP";
+                case COLOR_PROP:
+                    return "COLOR_PROP";
+                case INT_ID_PROP:
+                    return "INT_ID_PROP";
+                default:
+                    return "UNKNOWN";
+            }
         }
-
-        public boolean isString() {
-            return (mDataType == STRING_PROP || mDataType == TEXT_RETURN);
-        }
-
 
         public CustomProperty(short type, short dataType, int intValue) {
             mType = type;
@@ -129,11 +155,22 @@ public class Custom extends LayoutManager implements VariableSupport {
     public void registerListening(@NonNull RemoteContext context) {
 
         for (CustomProperty prop : mProperties) {
-            if (prop.isFloat() && Float.isNaN(prop.mFloatValue)) {
-                context.listensTo(Utils.idFromNan(prop.mFloatValue), this);
-            } else if (prop.isString()) {
-                context.listensTo(prop.mIntValue, this);
+            switch (prop.mDataType) {
+                case CustomProperty.FLOAT_PROP:
+                case CustomProperty.FLOAT_RETURN:
+                    context.listensTo(Utils.idFromNan(prop.mFloatValue), this);
+                    break;
+                case CustomProperty.STRING_PROP:
+                case CustomProperty.TEXT_RETURN:
+                case CustomProperty.INT_RETURN:
+                case CustomProperty.COLOR_ID_PROP:
+                case CustomProperty.COLOR_RETURN:
+                case CustomProperty.INT_ID_PROP:
+                    context.listensTo(prop.mIntValue, this);
+                    break;
+
             }
+
         }
     }
 
@@ -148,22 +185,46 @@ public class Custom extends LayoutManager implements VariableSupport {
 
         // Resolve any dynamic string properties
         for (CustomProperty prop : mProperties) {
-            if (prop.isString()) {
-                String val = context.getText(prop.mIntValue);
-                if (prop.mStringOutValue == null || !prop.mStringOutValue.equals(val)) {
+            switch (prop.mDataType) {
+                case CustomProperty.STRING_PROP:
+                case CustomProperty.TEXT_RETURN:
+                    String val = context.getText(prop.mIntValue);
+                    if (prop.mStringOutValue == null || !prop.mStringOutValue.equals(val)) {
+                        prop.mStringOutValue = val;
+                        prop.mNeedsUpdate = true;
+                    }
                     prop.mStringOutValue = val;
-                    prop.mNeedsUpdate = true;
-                }
-                prop.mStringOutValue = val;
-            } else if (prop.isFloat()) {
-                float tmp =
-                        Float.isNaN(prop.mFloatValue)
-                                ? context.getFloat(Utils.idFromNan(prop.mFloatValue))
-                                : prop.mFloatValue;
-                if (prop.mFloatOutValue != tmp) {
-                    prop.mNeedsUpdate = true;
-                    prop.mFloatOutValue = tmp;
-                }
+                    break;
+                case CustomProperty.FLOAT_PROP:
+                case CustomProperty.FLOAT_RETURN:
+                    float tmp =
+                            Float.isNaN(prop.mFloatValue)
+                                    ? context.getFloat(Utils.idFromNan(prop.mFloatValue))
+                                    : prop.mFloatValue;
+                    if (prop.mFloatOutValue != tmp) {
+                        prop.mNeedsUpdate = true;
+                        prop.mFloatOutValue = tmp;
+                    }
+                    break;
+
+                case CustomProperty.COLOR_ID_PROP:
+                    int color = context.getColor(prop.mIntValue);
+//                    Utils.log("custom update " + prop.mDataType + " "
+//                            + prop.getTypeName() + " " + Integer.toHexString(color));
+                    if (prop.mIntOutValue != color) {
+                        prop.mNeedsUpdate = true;
+                        prop.mIntOutValue = color;
+                    }
+                    break;
+                case CustomProperty.INT_RETURN:
+                case CustomProperty.COLOR_RETURN:
+                case CustomProperty.INT_ID_PROP:
+                    int IntVal = context.getInteger(prop.mIntValue);
+                    if (prop.mIntOutValue != IntVal) {
+                        prop.mNeedsUpdate = true;
+                        prop.mIntOutValue = IntVal;
+                    }
+                    break;
 
             }
         }
@@ -181,39 +242,65 @@ public class Custom extends LayoutManager implements VariableSupport {
         if (!mInitialized) {
             customCtx.createCustom(mComponentId, mConfigValue);
             for (CustomProperty prop : mProperties) {
-                if (prop.mDataType == CustomProperty.FLOAT_RETURN) { //
-                    customCtx.configureCustom(mComponentId, prop.mType,
-                            Utils.idFromNan(prop.mFloatValue));
-                } else if (prop.mDataType == TEXT_RETURN) { // TEXT_RETURN
-                    customCtx.configureCustom(mComponentId, prop.mType, prop.mIntValue);
-                } else if (prop.isString()) {
-                    customCtx.configureCustom(mComponentId, prop.mType, prop.mStringOutValue);
-                } else if (prop.isFloat()) {
-                    customCtx.configureCustom(mComponentId, prop.mType, prop.mFloatOutValue);
-                } else {
-                    customCtx.configureCustom(mComponentId, prop.mType, prop.mIntValue);
+                switch (prop.mDataType) {
+
+                    case CustomProperty.STRING_PROP:
+                        customCtx.configureCustom(mComponentId, prop.mType, prop.mStringOutValue);
+                        break;
+                    case CustomProperty.FLOAT_PROP:
+                        customCtx.configureCustom(mComponentId, prop.mType, prop.mFloatOutValue);
+                        break;
+                    case CustomProperty.INT_ID_PROP:
+                    case CustomProperty.COLOR_ID_PROP:
+                        customCtx.configureCustom(mComponentId, prop.mType, prop.mIntOutValue);
+                        break;
+                    case CustomProperty.FLOAT_RETURN: // returns pass the id's
+                        customCtx.configureCustom(mComponentId, prop.mType,
+                                Utils.idFromNan(prop.mFloatValue));
+                        break;
+                    case CustomProperty.TEXT_RETURN:
+                    case CustomProperty.INT_RETURN:
+                    case CustomProperty.COLOR_RETURN:
+                    default:
+                        customCtx.configureCustom(mComponentId, prop.mType, prop.mIntValue);
                 }
                 prop.mNeedsUpdate = false;
             }
             mInitialized = true;
         }
+
         for (CustomProperty prop : mProperties) {
-            if (prop.mNeedsUpdate) {
-                if (prop.mDataType == 3) { // FLOAT_RETURN
-                    customCtx.configureCustom(mComponentId, prop.mType, prop.mFloatOutValue);
-                } else if (prop.mDataType == 4) { // TEXT_RETURN
-                    customCtx.configureCustom(mComponentId, prop.mType, prop.mStringOutValue);
-                } else if (prop.isString()) {
-                    customCtx.configureCustom(mComponentId, prop.mType, prop.mStringOutValue);
-                } else if (prop.isFloat()) {
-                    customCtx.configureCustom(mComponentId, prop.mType, prop.mFloatOutValue);
-                } else {
-                    customCtx.configureCustom(mComponentId, prop.mType, prop.mIntValue);
-                }
-                prop.mNeedsUpdate = false;
+            if (!prop.mNeedsUpdate) {
+                continue;
             }
+            switch (prop.mDataType) {
+                case CustomProperty.FLOAT_PROP:
+                    customCtx.configureCustom(mComponentId, prop.mType, prop.mFloatOutValue);
+                    break;
+                case CustomProperty.FLOAT_RETURN:
+                    customCtx.configureCustom(mComponentId, prop.mType,
+                            Utils.idFromNan(prop.mFloatValue));
+                    break;
+                case CustomProperty.STRING_PROP:
+                    customCtx.configureCustom(mComponentId, prop.mType, prop.mStringOutValue);
+                    break;
+
+                case CustomProperty.COLOR_ID_PROP:
+                case CustomProperty.INT_ID_PROP:
+                    customCtx.configureCustom(mComponentId, prop.mType, prop.mIntOutValue);
+                    break;
+                case CustomProperty.TEXT_RETURN:
+                case CustomProperty.INT_RETURN:
+                case CustomProperty.COLOR_RETURN:
+                default:
+                    customCtx.configureCustom(mComponentId, prop.mType, prop.mIntValue);
+                    break;
+            }
+            prop.mNeedsUpdate = false;
+
         }
     }
+
 
     @Override
     public void computeWrapSize(
@@ -339,10 +426,11 @@ public class Custom extends LayoutManager implements VariableSupport {
         for (CustomProperty prop : properties) {
             buffer.writeShort(prop.mType);
             buffer.writeShort(prop.mDataType);
-            if ((prop.mDataType & 1) == 0) {
-                buffer.writeInt(prop.mIntValue);
-            } else {
+            if ((prop.mDataType == CustomProperty.FLOAT_PROP)
+                    || (prop.mDataType == CustomProperty.FLOAT_RETURN)) {
                 buffer.writeFloat(prop.mFloatValue);
+            } else {
+                buffer.writeInt(prop.mIntValue);
             }
         }
     }
@@ -430,14 +518,15 @@ public class Custom extends LayoutManager implements VariableSupport {
         for (int i = 0; i < propCount; i++) {
             short pType = (short) buffer.readShort();
             short pDataType = (short) buffer.readShort();
-
-            if ((pDataType & 1) == 0) {
-                int value = buffer.readInt();
-                properties.add(new CustomProperty(pType, pDataType, value));
-            } else {
+            if ((pDataType == CustomProperty.FLOAT_PROP)
+                    || (pDataType == CustomProperty.FLOAT_RETURN)) {
                 float value = buffer.readFloat();
                 properties.add(new CustomProperty(pType, pDataType, value));
+            } else {
+                int value = buffer.readInt();
+                properties.add(new CustomProperty(pType, pDataType, value));
             }
+
         }
 
         operations.add(new Custom(null, componentId, animationId, configId, null, properties));

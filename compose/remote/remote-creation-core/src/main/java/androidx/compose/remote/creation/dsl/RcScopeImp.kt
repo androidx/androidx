@@ -121,6 +121,36 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
                             it.mIntValue,
                         )
 
+                    CustomProperty.INT_RETURN ->
+                        Custom.CustomProperty(
+                            it.mType,
+                            Custom.CustomProperty.INT_RETURN,
+                            it.mIntValue,
+                        )
+                    CustomProperty.COLOR_RETURN ->
+                        Custom.CustomProperty(
+                            it.mType,
+                            Custom.CustomProperty.COLOR_RETURN,
+                            it.mIntValue,
+                        )
+                    CustomProperty.COLOR_PROP ->
+                        Custom.CustomProperty(
+                            it.mType,
+                            Custom.CustomProperty.COLOR_PROP,
+                            it.mIntValue,
+                        )
+                    CustomProperty.COLOR_ID_PROP ->
+                        Custom.CustomProperty(
+                            it.mType,
+                            Custom.CustomProperty.COLOR_ID_PROP,
+                            it.mIntValue,
+                        )
+                    CustomProperty.INT_ID_PROP ->
+                        Custom.CustomProperty(
+                            it.mType,
+                            Custom.CustomProperty.INT_ID_PROP,
+                            it.mIntValue,
+                        )
                     else -> {
                         throw RuntimeException("UNKNOWN TYPE")
                     }
