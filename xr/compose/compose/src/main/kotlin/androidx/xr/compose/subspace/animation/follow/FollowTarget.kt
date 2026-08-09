@@ -18,6 +18,7 @@ package androidx.xr.compose.subspace.animation.follow
 
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.ArDevice
+import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
@@ -31,11 +32,19 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 
 /**
- * A FollowTarget can be used with [androidx.xr.compose.spatial.FollowingSubspace] to have a set of
- * content follow a target such as an anchor or AR device.
+ * A FollowTarget can be used with [androidx.xr.compose.spatial.Subspace] to have a set of content
+ * follow a target such as an anchor or AR device.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public sealed interface FollowTarget {
+public abstract class FollowTarget
+internal constructor(
+    public val behavior: FollowBehavior,
+    public val dimensions: TrackedDimensions,
+) {
+    internal suspend fun start(trailingEntity: CoreGroupEntity) {
+        behavior.start(trailingEntity = trailingEntity, target = this, dimensions = dimensions)
+    }
+
     public companion object {
         /**
          * By designating content to follow the AR device, it will keep that content near the device
@@ -44,29 +53,57 @@ public sealed interface FollowTarget {
          * The [Session] is required to access the device's tracking state and to perform pose
          * transformations between coordinate spaces.
          *
-         * @param session The current [Session] instance used to track the device and transform
+         * @param session the current [Session] instance used to track the device and transform
          *   poses.
+         * @param behavior determines how the [androidx.xr.compose.spatial.Subspace] follows the
+         *   target. It can be made to move faster and be more responsive. The default is
+         *   [FollowBehavior.Soft()].
+         * @param dimensions set of boolean flags to determine the dimensions of movement that are
+         *   tracked. Three rotation and three translation dimensions are available to be tracked.
+         *   By default, all dimensions are tracked. Any dimensions not listed will not be tracked.
+         *   For example if translationY is not listed, this means the content will not move as the
+         *   user moves vertically up and down.
          */
-        public fun ArDevice(session: Session): FollowTarget = ArDeviceTarget(session)
+        public fun ArDevice(
+            session: Session,
+            behavior: FollowBehavior = FollowBehavior.Soft(),
+            dimensions: TrackedDimensions = TrackedDimensions.All,
+        ): FollowTarget = ArDeviceTarget(session, behavior, dimensions)
 
         /**
          * Targeting an anchor allows content to be positioned relative to that anchor's location.
          *
          * @param anchorSpace represents the anchor which this
-         *   [androidx.xr.compose.spatial.FollowingSubspace] will be tethered to. As the anchor
-         *   moves, so will the [androidx.xr.compose.spatial.FollowingSubspace]
+         *   [androidx.xr.compose.spatial.Subspace] will be tethered to. As the anchor moves, so
+         *   will the [androidx.xr.compose.spatial.Subspace]
+         * @param behavior determines how the [androidx.xr.compose.spatial.Subspace] follows the
+         *   target. It can be made to move faster and be more responsive. The default is
+         *   [FollowBehavior.Tight].
+         * @param dimensions set of boolean flags to determine the dimensions of movement that are
+         *   tracked. Three rotation and three translation dimensions are available to be tracked.
+         *   By default, all dimensions are tracked. Any dimensions not listed will not be tracked.
+         *   For example if translationY is not listed, this means the content will not move as the
+         *   user moves vertically up and down.
          */
-        public fun Anchor(anchorSpace: AnchorSpace): FollowTarget = AnchorTarget(anchorSpace)
+        public fun Anchor(
+            anchorSpace: AnchorSpace,
+            behavior: FollowBehavior = FollowBehavior.Tight,
+            dimensions: TrackedDimensions = TrackedDimensions.All,
+        ): FollowTarget = AnchorTarget(anchorSpace, behavior, dimensions)
     }
 }
 
-internal interface FollowTargetFlow : FollowTarget {
+internal interface FollowTargetFlow {
     val poseUpdates: Flow<Pose>
 }
 
 /** A concrete [FollowTarget] that wraps the head pose updates from [ArDevice]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
+internal class ArDeviceTarget(
+    private val session: Session,
+    behavior: FollowBehavior = FollowBehavior.Soft(),
+    dimensions: TrackedDimensions = TrackedDimensions.All,
+) : FollowTarget(behavior, dimensions), FollowTargetFlow {
     // Distance to stay away from the target when following it.
     val offset: Pose = DEFAULT_OFFSET
 
@@ -82,11 +119,18 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
         if (this === other) return true
         if (other !is ArDeviceTarget) return false
 
-        return session == other.session
+        if (session != other.session) return false
+        if (behavior != other.behavior) return false
+        if (dimensions != other.dimensions) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return session.hashCode()
+        var result = session.hashCode()
+        result = 31 * result + behavior.hashCode()
+        result = 31 * result + dimensions.hashCode()
+        return result
     }
 
     internal companion object {
@@ -103,7 +147,11 @@ internal class ArDeviceTarget(private val session: Session) : FollowTargetFlow {
  * instance provided by the developer.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class AnchorTarget(val anchorSpace: AnchorSpace) : FollowTargetFlow {
+internal class AnchorTarget(
+    val anchorSpace: AnchorSpace,
+    behavior: FollowBehavior = FollowBehavior.Tight,
+    dimensions: TrackedDimensions = TrackedDimensions.All,
+) : FollowTarget(behavior, dimensions), FollowTargetFlow {
     private val pose: Pose
         get() = anchorSpace.getPose(Space.ACTIVITY)
 
@@ -134,10 +182,17 @@ internal class AnchorTarget(val anchorSpace: AnchorSpace) : FollowTargetFlow {
         if (this === other) return true
         if (other !is AnchorTarget) return false
 
-        return anchorSpace == other.anchorSpace
+        if (anchorSpace != other.anchorSpace) return false
+        if (behavior != other.behavior) return false
+        if (dimensions != other.dimensions) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        return anchorSpace.hashCode()
+        var result = anchorSpace.hashCode()
+        result = 31 * result + behavior.hashCode()
+        result = 31 * result + dimensions.hashCode()
+        return result
     }
 }
