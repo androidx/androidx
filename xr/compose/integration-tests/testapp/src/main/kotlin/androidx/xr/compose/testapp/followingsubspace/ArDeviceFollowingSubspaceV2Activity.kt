@@ -63,7 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
-import androidx.xr.compose.spatial.FollowingSubspaceV2
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialCurvedRow
 import androidx.xr.compose.subspace.SpatialPanel
@@ -122,9 +122,8 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
                 }
             }
 
-        FollowingSubspaceV2(
-            target = FollowTarget.ArDevice(session),
-            behavior = FollowBehavior.Static,
+        Subspace(
+            follow = FollowTarget.ArDevice(session, behavior = FollowBehavior.Static),
             modifier = SubspaceModifier.offset(z = (-200).dp),
         ) {
             SpatialPanel(SubspaceModifier.height(400.dp).width(600.dp)) {
@@ -151,18 +150,21 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
             }
         }
 
-        FollowingSubspaceV2(
-            target = FollowTarget.ArDevice(session),
-            dimensions =
-                TrackedDimensions(
-                    isTranslationXTracked = true,
-                    isTranslationYTracked = true,
-                    isTranslationZTracked = true,
-                    isRotationXTracked = true,
-                    isRotationYTracked = true,
-                    isRotationZTracked = false,
-                ),
-            behavior = selectedBehavior,
+        Subspace(
+            follow =
+                FollowTarget.ArDevice(
+                    session = session,
+                    behavior = selectedBehavior,
+                    dimensions =
+                        TrackedDimensions(
+                            isTranslationXTracked = true,
+                            isTranslationYTracked = true,
+                            isTranslationZTracked = true,
+                            isRotationXTracked = true,
+                            isRotationYTracked = true,
+                            isRotationZTracked = false,
+                        ),
+                )
         ) {
             SpatialPanel(SubspaceModifier.height(200.dp).width(450.dp).offset(y = (-50).dp)) {
                 Box(Modifier.fillMaxSize().background(Color.Cyan)) {
@@ -232,15 +234,18 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
                 }
             }
         }
-        FollowingSubspaceV2(
-            target = FollowTarget.ArDevice(session),
-            dimensions =
-                TrackedDimensions(
-                    isTranslationXTracked = true,
-                    isTranslationYTracked = true,
-                    isTranslationZTracked = true,
-                ),
-            behavior = FollowBehavior.Soft(durationMs = softFollowDuration),
+        Subspace(
+            follow =
+                FollowTarget.ArDevice(
+                    session = session,
+                    behavior = FollowBehavior.Soft(durationMs = softFollowDuration),
+                    dimensions =
+                        TrackedDimensions(
+                            isTranslationXTracked = true,
+                            isTranslationYTracked = true,
+                            isTranslationZTracked = true,
+                        ),
+                )
         ) {
             SpatialCurvedRow(SubspaceModifier.width(1000.dp).height(300.dp), curveRadius = 500.dp) {
                 // To-Do List Card

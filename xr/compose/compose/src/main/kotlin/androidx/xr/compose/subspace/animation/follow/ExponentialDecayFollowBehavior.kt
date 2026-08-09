@@ -19,7 +19,6 @@ package androidx.xr.compose.subspace.animation.follow
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.withFrameNanos
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
-import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import java.util.concurrent.atomic.AtomicBoolean
@@ -31,8 +30,7 @@ import kotlinx.coroutines.withContext
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class ExponentialDecayFollowBehavior : FollowBehavior() {
-    override suspend fun configure(
-        session: Session,
+    override suspend fun start(
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
         dimensions: TrackedDimensions,
