@@ -21,7 +21,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
-import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import kotlinx.coroutines.coroutineScope
@@ -46,8 +45,7 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
     private var trailingEntity: CoreGroupEntity? = null
     private val animationProgress = Animatable(initialValue = ANIMATION_START_VALUE)
 
-    override suspend fun configure(
-        session: Session,
+    override suspend fun start(
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
         dimensions: TrackedDimensions,
