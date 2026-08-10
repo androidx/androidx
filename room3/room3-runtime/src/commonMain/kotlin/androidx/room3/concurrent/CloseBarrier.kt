@@ -37,8 +37,9 @@ package androidx.room3.concurrent
 internal class CloseBarrier(private val closeAction: () -> Unit) : SynchronizedObject() {
     private val blockers = AtomicInt(0)
     private val closeInitiated = AtomicBoolean(false)
-    private val isClosed: Boolean
-        get() = closeInitiated.get()
+    private val closeCompleted = AtomicBoolean(false)
+    val isClosed: Boolean
+        get() = closeCompleted.get()
 
     /**
      * Blocks the [closeAction] from occurring.
@@ -51,7 +52,7 @@ internal class CloseBarrier(private val closeAction: () -> Unit) : SynchronizedO
      */
     internal fun block(): Boolean =
         synchronized(this) {
-            if (isClosed) {
+            if (closeInitiated.get()) {
                 return false
             }
             blockers.incrementAndGet()
@@ -88,7 +89,9 @@ internal class CloseBarrier(private val closeAction: () -> Unit) : SynchronizedO
         }
         blockers.loop { count ->
             if (count == 0) {
-                return closeAction.invoke()
+                closeAction.invoke()
+                closeCompleted.compareAndSet(expect = false, update = true)
+                return
             }
         }
     }
