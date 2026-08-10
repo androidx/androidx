@@ -18,10 +18,10 @@ package androidx.camera.camera2.pipe.internal
 
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraTimestamp
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.Finalizer
+import androidx.camera.common.CameraFrameNumber
 import kotlinx.atomicfu.atomic
 
 /**
@@ -61,7 +61,7 @@ internal class OutputDistributor<T>(
          * output has arrived, or an explicit output failure event).
          */
         fun onOutputComplete(
-            cameraFrameNumber: FrameNumber,
+            cameraFrameNumber: CameraFrameNumber,
             cameraTimestamp: CameraTimestamp,
             cameraOutputSequence: Long,
             outputNumber: Long,
@@ -77,7 +77,7 @@ internal class OutputDistributor<T>(
 
     @GuardedBy("lock") private var newestCameraOutputNumber = Long.MIN_VALUE
 
-    @GuardedBy("lock") private var newestFrameNumber = FrameNumber(Long.MIN_VALUE)
+    @GuardedBy("lock") private var newestFrameNumber: CameraFrameNumber? = null
 
     @GuardedBy("lock") private var lastFailedFrameNumber = Long.MIN_VALUE
 
@@ -91,7 +91,7 @@ internal class OutputDistributor<T>(
      * supplying the callback to listen for the output to become available. The [outputListener] can
      * be invoked synchronously if the output is already available.
      *
-     * @param cameraFrameNumber The Camera2 FrameNumber for this output
+     * @param cameraFrameNumber The Camera2 CameraFrameNumber for this output
      * @param cameraTimestamp The Camera2 CameraTimestamp for this output
      * @param cameraOutputNumber untyped number that corresponds to the number provided by
      *   [onOutputResult]. For Images, this will likely be the timestamp of the image (Which may be
@@ -102,7 +102,7 @@ internal class OutputDistributor<T>(
      *   OutputDistributor is now closed.
      */
     fun onOutputStarted(
-        cameraFrameNumber: FrameNumber,
+        cameraFrameNumber: CameraFrameNumber,
         cameraTimestamp: CameraTimestamp,
         cameraOutputNumber: Long,
         outputListener: OutputListener<T>,
@@ -163,7 +163,8 @@ internal class OutputDistributor<T>(
             }
 
             // Determine if the frameNumber is out of order relative to other onOutputStarted calls
-            val isFrameNumberOutOfOrder = cameraFrameNumber.value < newestFrameNumber.value
+            val isFrameNumberOutOfOrder =
+                newestFrameNumber?.let { cameraFrameNumber.value < it.value } ?: false
             if (!isFrameNumberOutOfOrder) {
                 newestFrameNumber = cameraFrameNumber
             }
@@ -239,7 +240,8 @@ internal class OutputDistributor<T>(
      *
      * This value is the primary key used to match `onOutputStart` events with `onOutputResult`
      * events. For images, these values will often refer to the nanosecond timestamp of the Image,
-     * and for TotalCaptureResults, this value will often reference the associated FrameNumber.
+     * and for TotalCaptureResults, this value will often reference the associated
+     * CameraFrameNumber.
      */
     fun onOutputResult(outputNumber: Long, outputResult: OutputResult<T>) {
         var outputToFinalize: OutputResult<T>? = null
@@ -291,8 +293,8 @@ internal class OutputDistributor<T>(
         outputsToCancel?.forEach { it.completeWithFailure(OutputStatus.ERROR_OUTPUT_MISSING) }
     }
 
-    /** Indicates an output will not arrive for a specific [FrameNumber]. */
-    fun onOutputFailure(frameNumber: FrameNumber) {
+    /** Indicates an output will not arrive for a specific [CameraFrameNumber]. */
+    fun onOutputFailure(frameNumber: CameraFrameNumber) {
         var outputWithFailure: StartedOutput<T>? = null
 
         synchronized(lock) {
@@ -368,7 +370,7 @@ internal class OutputDistributor<T>(
      */
     private data class StartedOutput<T>(
         val isOutOfOrder: Boolean,
-        val cameraFrameNumber: FrameNumber,
+        val cameraFrameNumber: CameraFrameNumber,
         val cameraTimestamp: CameraTimestamp,
         val cameraOutputSequence: Long,
         val cameraOutputNumber: Long,

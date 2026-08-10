@@ -21,12 +21,12 @@ import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import java.util.concurrent.Executor
@@ -91,26 +91,26 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
 
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         streamId: StreamId,
         outputId: OutputId,
     ): Unit = dispatch { it.onBufferLost(requestMetadata, frameNumber, streamId, outputId) }
 
     override fun onComplete(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         result: FrameInfo,
     ): Unit = dispatch { it.onComplete(requestMetadata, frameNumber, result) }
 
     override fun onFailed(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         requestFailure: RequestFailure,
     ): Unit = dispatch { it.onFailed(requestMetadata, frameNumber, requestFailure) }
 
     override fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         captureResult: FrameMetadata,
     ): Unit = dispatch { it.onPartialCaptureResult(requestMetadata, frameNumber, captureResult) }
 
@@ -120,7 +120,7 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
 
     override fun onRequestSequenceCompleted(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
     ): Unit = dispatch { it.onRequestSequenceCompleted(requestMetadata, frameNumber) }
 
     override fun onRequestSequenceCreated(requestMetadata: RequestMetadata): Unit = dispatch {
@@ -133,13 +133,13 @@ public class ComboRequestListener @Inject constructor() : Request.Listener {
 
     override fun onStarted(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         timestamp: CameraTimestamp,
     ): Unit = dispatch { it.onStarted(requestMetadata, frameNumber, timestamp) }
 
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         totalCaptureResult: FrameInfo,
     ): Unit = dispatch { it.onTotalCaptureResult(requestMetadata, frameNumber, totalCaptureResult) }
 }

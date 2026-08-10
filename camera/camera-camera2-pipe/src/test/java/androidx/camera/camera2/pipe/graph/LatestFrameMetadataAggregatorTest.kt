@@ -24,7 +24,6 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphBase.Companion.subscribeToLatestFrameResult
 import androidx.camera.camera2.pipe.CameraGraphBase.Companion.subscribeToLatestFrameResults
 import androidx.camera.camera2.pipe.CameraStream
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.LatestFrameMetadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestListeners
@@ -36,6 +35,7 @@ import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -105,27 +105,36 @@ class LatestFrameMetadataAggregatorTest {
             }
 
         val frame1Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(1), resultMetadata = mapOf(keyX to 10L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(1),
+                resultMetadata = mapOf(keyX to 10L),
+            )
         val frame1Info =
             FakeFrameInfo(metadata = frame1Metadata, requestMetadata = fakeRequestMetadata)
 
         val frame2Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(2), resultMetadata = mapOf(keyX to 20L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(2),
+                resultMetadata = mapOf(keyX to 20L),
+            )
 
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(1), frame1Metadata)
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(2), frame2Metadata)
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), frame1Metadata)
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(2), frame2Metadata)
 
         // Resolves exp time to F2 exposure time
         assertThat(latestParams?.get(keyX)).isEqualTo(20L)
 
-        aggregator.onTotalCaptureResult(fakeRequestMetadata, FrameNumber(1), frame1Info)
+        aggregator.onTotalCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), frame1Info)
 
         assertThat(latestParams?.get(keyX))
             .isEqualTo(20L) // Still resolved to F2 since it is the highest frame number in window
 
         val frame3Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(3), resultMetadata = mapOf(keyY to 100))
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(3), frame3Metadata)
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(3),
+                resultMetadata = mapOf(keyY to 100),
+            )
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(3), frame3Metadata)
 
         assertThat(latestParams?.get(keyX)).isEqualTo(20L)
         assertThat(latestParams?.get(keyY)).isEqualTo(100)
@@ -144,22 +153,25 @@ class LatestFrameMetadataAggregatorTest {
             }
 
         val frame1Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(1), resultMetadata = mapOf(keyX to 10L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(1),
+                resultMetadata = mapOf(keyX to 10L),
+            )
         val frame2Metadata =
             FakeFrameMetadata(
-                frameNumber = FrameNumber(2),
+                frameNumber = CameraFrameNumber(2),
                 resultMetadata = mapOf(keyY to 100),
             ) // No keyX
 
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(1), frame1Metadata)
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(2), frame2Metadata)
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), frame1Metadata)
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(2), frame2Metadata)
 
         assertThat(latestParams?.get(keyX)).isEqualTo(10L) // Found in F1 since F2 is not completed
         assertThat(latestParams?.get(keyY)).isEqualTo(100)
 
         val frame2Info =
             FakeFrameInfo(metadata = frame2Metadata, requestMetadata = fakeRequestMetadata)
-        aggregator.onTotalCaptureResult(fakeRequestMetadata, FrameNumber(2), frame2Info)
+        aggregator.onTotalCaptureResult(fakeRequestMetadata, CameraFrameNumber(2), frame2Info)
 
         assertThat(latestParams?.get(keyX))
             .isNull() // F2 total stops search, and F2 doesn't have keyX
@@ -178,27 +190,40 @@ class LatestFrameMetadataAggregatorTest {
             }
 
         val frame1Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(1), resultMetadata = mapOf(keyX to 10L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(1),
+                resultMetadata = mapOf(keyX to 10L),
+            )
         val frame1Info =
             FakeFrameInfo(metadata = frame1Metadata, requestMetadata = fakeRequestMetadata)
 
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(1), frame1Metadata)
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), frame1Metadata)
         assertThat(updates).hasSize(1)
 
         // Sending the total capture result with the same value should not fire another update
-        aggregator.onTotalCaptureResult(fakeRequestMetadata, FrameNumber(1), frame1Info)
+        aggregator.onTotalCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), frame1Info)
         assertThat(updates).hasSize(1)
 
         // Sending F2 partial with same value should not fire another update
         val frame2Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(2), resultMetadata = mapOf(keyX to 10L))
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(2), frame2Metadata)
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(2),
+                resultMetadata = mapOf(keyX to 10L),
+            )
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(2), frame2Metadata)
         assertThat(updates).hasSize(1)
 
         // Sending F2 partial with different value SHOULD fire an update
         val frame2MetadataNew =
-            FakeFrameMetadata(frameNumber = FrameNumber(2), resultMetadata = mapOf(keyX to 20L))
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(2), frame2MetadataNew)
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(2),
+                resultMetadata = mapOf(keyX to 20L),
+            )
+        aggregator.onPartialCaptureResult(
+            fakeRequestMetadata,
+            CameraFrameNumber(2),
+            frame2MetadataNew,
+        )
         assertThat(updates).hasSize(2)
     }
 
@@ -215,18 +240,21 @@ class LatestFrameMetadataAggregatorTest {
 
         // F1 partial reports keyX = 10L
         val frame1Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(1), resultMetadata = mapOf(keyX to 10L))
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(1), frame1Metadata)
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(1),
+                resultMetadata = mapOf(keyX to 10L),
+            )
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), frame1Metadata)
 
         assertThat(updates).hasSize(1)
         assertThat(updates.last()[keyX]).isEqualTo(10L)
 
         // F2 total arrives without keyX (absent)
-        val frame2Metadata = FakeFrameMetadata(frameNumber = FrameNumber(2))
+        val frame2Metadata = FakeFrameMetadata(frameNumber = CameraFrameNumber(2))
         val frame2Info =
             FakeFrameInfo(metadata = frame2Metadata, requestMetadata = fakeRequestMetadata)
 
-        aggregator.onTotalCaptureResult(fakeRequestMetadata, FrameNumber(2), frame2Info)
+        aggregator.onTotalCaptureResult(fakeRequestMetadata, CameraFrameNumber(2), frame2Info)
 
         assertThat(updates).hasSize(2)
         assertThat(updates.last()[keyX]).isNull()
@@ -244,38 +272,47 @@ class LatestFrameMetadataAggregatorTest {
             }
 
         val f1Partial1 =
-            FakeFrameMetadata(frameNumber = FrameNumber(1), resultMetadata = mapOf(keyX to 10L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(1),
+                resultMetadata = mapOf(keyX to 10L),
+            )
         val f2Partial1 =
-            FakeFrameMetadata(frameNumber = FrameNumber(2), resultMetadata = mapOf(keyX to 20L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(2),
+                resultMetadata = mapOf(keyX to 20L),
+            )
         val f1Partial2 =
-            FakeFrameMetadata(frameNumber = FrameNumber(1), resultMetadata = mapOf(keyX to 10L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(1),
+                resultMetadata = mapOf(keyX to 10L),
+            )
         val f1Total =
             FakeFrameInfo(
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(1),
+                    frameNumber = CameraFrameNumber(1),
                     resultMetadata = mapOf(keyX to 10L),
                 ),
                 fakeRequestMetadata,
             )
 
         // Frame #1 fires partial result #1 with [keyX, 10L]
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(1), f1Partial1)
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), f1Partial1)
         assertThat(updates).hasSize(1)
         assertThat(updates.last()[keyX]).isEqualTo(10L)
 
         // Frame #2 fires partial result #1 with [keyX, 20L]
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(2), f2Partial1)
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(2), f2Partial1)
         assertThat(updates).hasSize(2)
         assertThat(updates.last()[keyX]).isEqualTo(20L)
 
         // Frame #1 fires partial result #2 with [keyX, 10L]
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(1), f1Partial2)
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), f1Partial2)
         // State should remain [keyX, 20L], and no new update should fire
         assertThat(updates).hasSize(2)
         assertThat(updates.last()[keyX]).isEqualTo(20L)
 
         // Frame #1 fires total result #1 with [keyX, 10L]
-        aggregator.onTotalCaptureResult(fakeRequestMetadata, FrameNumber(1), f1Total)
+        aggregator.onTotalCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), f1Total)
         // State should remain [keyX, 20L], and no new update should fire
         assertThat(updates).hasSize(2)
         assertThat(updates.last()[keyX]).isEqualTo(20L)
@@ -295,20 +332,23 @@ class LatestFrameMetadataAggregatorTest {
         val f1Total =
             FakeFrameInfo(
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(1),
+                    frameNumber = CameraFrameNumber(1),
                     resultMetadata = mapOf(keyX to 10L),
                 ),
                 fakeRequestMetadata,
             )
         val f1Partial =
-            FakeFrameMetadata(frameNumber = FrameNumber(1), resultMetadata = mapOf(keyX to 20L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(1),
+                resultMetadata = mapOf(keyX to 20L),
+            )
 
-        aggregator.onTotalCaptureResult(fakeRequestMetadata, FrameNumber(1), f1Total)
+        aggregator.onTotalCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), f1Total)
         assertThat(updates).hasSize(1)
         assertThat(updates.last()[keyX]).isEqualTo(10L)
 
         // Delayed partial for F1 arriving after F1 total should be ignored
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(1), f1Partial)
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), f1Partial)
         assertThat(updates).hasSize(1)
         assertThat(updates.last()[keyX]).isEqualTo(10L)
     }
@@ -328,20 +368,23 @@ class LatestFrameMetadataAggregatorTest {
         val f1Total =
             FakeFrameInfo(
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(1),
+                    frameNumber = CameraFrameNumber(1),
                     resultMetadata = mapOf(keyX to 10L),
                 ),
                 fakeRequestMetadata,
             )
-        aggregator.onTotalCaptureResult(fakeRequestMetadata, FrameNumber(1), f1Total)
+        aggregator.onTotalCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), f1Total)
 
         assertThat(updates).hasSize(1)
         assertThat(updates.last()[keyX]).isEqualTo(10L)
 
         // Frame #2 Total has null (absent)
         val f2Total =
-            FakeFrameInfo(FakeFrameMetadata(frameNumber = FrameNumber(2)), fakeRequestMetadata)
-        aggregator.onTotalCaptureResult(fakeRequestMetadata, FrameNumber(2), f2Total)
+            FakeFrameInfo(
+                FakeFrameMetadata(frameNumber = CameraFrameNumber(2)),
+                fakeRequestMetadata,
+            )
+        aggregator.onTotalCaptureResult(fakeRequestMetadata, CameraFrameNumber(2), f2Total)
 
         assertThat(updates).hasSize(2)
         assertThat(updates.last()[keyX]).isNull()
@@ -350,12 +393,12 @@ class LatestFrameMetadataAggregatorTest {
         val f3Total =
             FakeFrameInfo(
                 FakeFrameMetadata(
-                    frameNumber = FrameNumber(3),
+                    frameNumber = CameraFrameNumber(3),
                     resultMetadata = mapOf(keyX to 20L),
                 ),
                 fakeRequestMetadata,
             )
-        aggregator.onTotalCaptureResult(fakeRequestMetadata, FrameNumber(3), f3Total)
+        aggregator.onTotalCaptureResult(fakeRequestMetadata, CameraFrameNumber(3), f3Total)
 
         assertThat(updates).hasSize(3)
         assertThat(updates.last()[keyX]).isEqualTo(20L)
@@ -578,19 +621,25 @@ class LatestFrameMetadataAggregatorTest {
 
         // F1 reports keyX = 10L
         val frame1Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(1), resultMetadata = mapOf(keyX to 10L))
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(1), frame1Metadata)
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(1),
+                resultMetadata = mapOf(keyX to 10L),
+            )
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(1), frame1Metadata)
 
         assertThat(latestParams?.get(keyX)).isEqualTo(10L)
-        assertThat(latestParams?.getFrameNumber(keyX)).isEqualTo(FrameNumber(1))
+        assertThat(latestParams?.getFrameNumber(keyX)).isEqualTo(CameraFrameNumber(1))
 
         // F2 reports keyX = 20L
         val frame2Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(2), resultMetadata = mapOf(keyX to 20L))
-        aggregator.onPartialCaptureResult(fakeRequestMetadata, FrameNumber(2), frame2Metadata)
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(2),
+                resultMetadata = mapOf(keyX to 20L),
+            )
+        aggregator.onPartialCaptureResult(fakeRequestMetadata, CameraFrameNumber(2), frame2Metadata)
 
         assertThat(latestParams?.get(keyX)).isEqualTo(20L)
-        assertThat(latestParams?.getFrameNumber(keyX)).isEqualTo(FrameNumber(2))
+        assertThat(latestParams?.getFrameNumber(keyX)).isEqualTo(CameraFrameNumber(2))
     }
 
     @Test
@@ -610,20 +659,26 @@ class LatestFrameMetadataAggregatorTest {
 
         // Send updates for targetRequest -> should update latestParams
         val metadata1 =
-            FakeFrameMetadata(frameNumber = FrameNumber(1), resultMetadata = mapOf(keyX to 10L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(1),
+                resultMetadata = mapOf(keyX to 10L),
+            )
         aggregator.onPartialCaptureResult(
             FakeRequestMetadata(request = targetRequest),
-            FrameNumber(1),
+            CameraFrameNumber(1),
             metadata1,
         )
         assertThat(latestParams?.get(keyX)).isEqualTo(10L)
 
         // Send updates for excludeRequest -> should be ignored, latestParams remains 10L
         val metadata2 =
-            FakeFrameMetadata(frameNumber = FrameNumber(2), resultMetadata = mapOf(keyX to 20L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(2),
+                resultMetadata = mapOf(keyX to 20L),
+            )
         aggregator.onPartialCaptureResult(
             FakeRequestMetadata(request = excludeRequest),
-            FrameNumber(2),
+            CameraFrameNumber(2),
             metadata2,
         )
         assertThat(latestParams?.get(keyX)).isEqualTo(10L) // Still 10L
@@ -687,10 +742,13 @@ class LatestFrameMetadataAggregatorTest {
 
         // F1 reports KeyX = 10L (Total Result)
         val frame1Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(1), resultMetadata = mapOf(keyX to 10L))
+            FakeFrameMetadata(
+                frameNumber = CameraFrameNumber(1),
+                resultMetadata = mapOf(keyX to 10L),
+            )
         aggregator.onTotalCaptureResult(
             fakeRequestMetadata,
-            FrameNumber(1),
+            CameraFrameNumber(1),
             FakeFrameInfo(frame1Metadata, fakeRequestMetadata),
         )
 
@@ -698,10 +756,10 @@ class LatestFrameMetadataAggregatorTest {
 
         // F2 is a Total Capture Result but does NOT report KeyX (value is null)
         val frame2Metadata =
-            FakeFrameMetadata(frameNumber = FrameNumber(2), resultMetadata = emptyMap())
+            FakeFrameMetadata(frameNumber = CameraFrameNumber(2), resultMetadata = emptyMap())
         aggregator.onTotalCaptureResult(
             fakeRequestMetadata,
-            FrameNumber(2),
+            CameraFrameNumber(2),
             FakeFrameInfo(frame2Metadata, fakeRequestMetadata),
         )
 

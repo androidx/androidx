@@ -18,8 +18,8 @@ package androidx.camera.camera2.pipe.internal
 
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.CameraFrameNumber
 import kotlinx.atomicfu.atomic
 
 internal class ListenerState(val listener: Frame.Listener) {
@@ -31,10 +31,10 @@ internal class ListenerState(val listener: Frame.Listener) {
     /**
      * Invokes [listener.onFrameStarted].
      *
-     * @param frameNumber The [FrameNumber] associated with the frame.
+     * @param frameNumber The [CameraFrameNumber] associated with the frame.
      * @param frameTimestamp The [CameraTimestamp] associated with the frame.
      */
-    fun invokeOnStarted(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp) {
+    fun invokeOnStarted(frameNumber: CameraFrameNumber, frameTimestamp: CameraTimestamp) {
         if (isStarted.compareAndSet(false, true)) {
             listener.onFrameStarted(frameNumber, frameTimestamp)
         }
@@ -45,10 +45,10 @@ internal class ListenerState(val listener: Frame.Listener) {
      * called before [listener.onImagesAvailable] is invoked by checking and potentially calling
      * [invokeOnStarted].
      *
-     * @param frameNumber The [FrameNumber] associated with the frame.
+     * @param frameNumber The [CameraFrameNumber] associated with the frame.
      * @param frameTimestamp The [CameraTimestamp] associated with the frame.
      */
-    fun invokeOnImagesAvailable(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp) {
+    fun invokeOnImagesAvailable(frameNumber: CameraFrameNumber, frameTimestamp: CameraTimestamp) {
         invokeOnStarted(frameNumber, frameTimestamp)
         if (isImagesInvoked.compareAndSet(false, true)) {
             listener.onImagesAvailable()
@@ -60,10 +60,13 @@ internal class ListenerState(val listener: Frame.Listener) {
      * is called before [listener.onFrameInfoAvailable] is invoked by checking and potentially
      * calling [invokeOnStarted].
      *
-     * @param frameNumber The [FrameNumber] associated with the frame.
+     * @param frameNumber The [CameraFrameNumber] associated with the frame.
      * @param frameTimestamp The [CameraTimestamp] associated with the frame.
      */
-    fun invokeOnFrameInfoAvailable(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp) {
+    fun invokeOnFrameInfoAvailable(
+        frameNumber: CameraFrameNumber,
+        frameTimestamp: CameraTimestamp,
+    ) {
         invokeOnStarted(frameNumber, frameTimestamp)
         if (isFrameInfoInvoked.compareAndSet(false, true)) {
             listener.onFrameInfoAvailable()
@@ -74,10 +77,10 @@ internal class ListenerState(val listener: Frame.Listener) {
      * Invokes [listener.onFrameComplete]. This method ensures that [listener.onFrameInfoAvailable]
      * and [Listener.onImagesAvailable] is called before [listener.onFrameComplete]
      *
-     * @param frameNumber The [FrameNumber] associated with the frame.
+     * @param frameNumber The [CameraFrameNumber] associated with the frame.
      * @param frameTimestamp The [CameraTimestamp] associated with the frame.
      */
-    fun invokeOnFrameComplete(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp) {
+    fun invokeOnFrameComplete(frameNumber: CameraFrameNumber, frameTimestamp: CameraTimestamp) {
         invokeOnImagesAvailable(frameNumber, frameTimestamp)
         invokeOnFrameInfoAvailable(frameNumber, frameTimestamp)
         if (isCompletedInvoked.compareAndSet(false, true)) {

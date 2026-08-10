@@ -198,6 +198,16 @@ internal object Api28Compat {
     fun getHardwareBuffer(image: Image): HardwareBuffer? {
         return image.hardwareBuffer
     }
+
+    @JvmStatic
+    fun getKeys(captureRequest: CaptureRequest): List<CaptureRequest.Key<*>> {
+        return captureRequest.keys
+    }
+
+    @JvmStatic
+    fun getKeys(captureResult: CaptureResult): List<CaptureResult.Key<*>> {
+        return captureResult.keys
+    }
 }
 
 @RequiresApi(29)

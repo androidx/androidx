@@ -17,9 +17,9 @@
 package androidx.camera.camera2.pipe.graph
 
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -96,7 +96,7 @@ class CaptureLimiterTest {
 
     private fun simulateFrames(count: Long) {
         for (i in 1L..count) {
-            captureLimiter.onComplete(fakeRequestMetadata, FrameNumber(i), fakeFrameInfo)
+            captureLimiter.onComplete(fakeRequestMetadata, CameraFrameNumber(i), fakeFrameInfo)
         }
     }
 }

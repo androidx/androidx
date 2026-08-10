@@ -23,7 +23,6 @@ import androidx.camera.camera2.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.adapter.awaitUntil
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
@@ -31,6 +30,7 @@ import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.NightModeIndicator
 import androidx.lifecycle.Observer
 import com.google.common.truth.Truth
@@ -137,7 +137,7 @@ class NightModeIndicatorMonitorTest {
     private fun simulateNightModeIndicatorUpdate(state: Int) =
         comboRequestListener.onTotalCaptureResult(
             FakeRequestMetadata(),
-            FrameNumber(0L),
+            CameraFrameNumber(0L),
             FakeFrameInfo(FakeFrameMetadata(mapOf(EXTENSION_NIGHT_MODE_INDICATOR to state))),
         )
 }

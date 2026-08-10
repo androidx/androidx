@@ -54,10 +54,14 @@ public class FakeRequestMetadata(
         return super<FakeMetadata>.getOrDefault(key, default)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: CaptureRequest.Key<T>): T? = requestParameters[key] as T?
+    override val keys: List<CaptureRequest.Key<*>>
+        get() = requestParameters.keys.toList()
 
-    override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> get(key: CaptureRequest.Key<T>): T? = requestParameters[key] as T?
+
+    override fun <T : Any> getOrDefault(key: CaptureRequest.Key<T>, default: T): T =
+        get(key) ?: default
 
     override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 

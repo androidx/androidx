@@ -27,7 +27,6 @@ import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
@@ -37,6 +36,7 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.common.CameraFrameNumber
 import kotlinx.coroutines.CompletableDeferred
 
 /**
@@ -104,7 +104,7 @@ internal class Camera2CaptureSequence(
     ) {
         Debug.traceStart { "onCaptureStarted" }
         val timestamp = CameraTimestamp(captureTimestamp)
-        val frameNumber = FrameNumber(captureFrameNumber)
+        val frameNumber = CameraFrameNumber(captureFrameNumber)
 
         hasStarted.complete(Unit)
 
@@ -127,12 +127,12 @@ internal class Camera2CaptureSequence(
         partialCaptureResult: CaptureResult,
     ) {
         Debug.traceStart { "onCaptureProgressed" }
-        val frameNumber = FrameNumber(partialCaptureResult.frameNumber)
-        val frameMetadata = AndroidFrameMetadata(partialCaptureResult, cameraId)
+        val frameNumber = CameraFrameNumber(partialCaptureResult.frameNumber)
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
         val request = readRequestMetadata(captureRequest)
+        val frameMetadata = AndroidFrameMetadata(partialCaptureResult, cameraId, request)
 
         invokeOnRequest(request) { it.onPartialCaptureResult(request, frameNumber, frameMetadata) }
         Debug.traceStop()
@@ -146,7 +146,7 @@ internal class Camera2CaptureSequence(
     ) {
         Debug.traceStart { "onReadoutStarted" }
         val readoutTimestamp = SensorTimestamp(captureTimestamp)
-        val frameNumber = FrameNumber(captureFrameNumber)
+        val frameNumber = CameraFrameNumber(captureFrameNumber)
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
@@ -160,12 +160,17 @@ internal class Camera2CaptureSequence(
         captureSession: CameraCaptureSession,
         captureRequest: CaptureRequest,
         captureResult: TotalCaptureResult,
-    ) = onCaptureCompleted(captureRequest, captureResult, FrameNumber(captureResult.frameNumber))
+    ) =
+        onCaptureCompleted(
+            captureRequest,
+            captureResult,
+            CameraFrameNumber(captureResult.frameNumber),
+        )
 
     override fun onCaptureCompleted(
         captureRequest: CaptureRequest,
         captureResult: TotalCaptureResult,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
     ) {
         Debug.traceStart { "onCaptureCompleted" }
         Debug.traceStart { "onCaptureSequenceComplete" }
@@ -211,7 +216,7 @@ internal class Camera2CaptureSequence(
 
         invokeCaptureFailure(
             request,
-            FrameNumber(captureFailure.frameNumber),
+            CameraFrameNumber(captureFailure.frameNumber),
             androidCaptureFailure,
         )
         Debug.traceStop() // onCaptureFailed
@@ -219,14 +224,14 @@ internal class Camera2CaptureSequence(
 
     private fun invokeCaptureFailure(
         request: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         requestFailure: RequestFailure,
     ) {
         sequenceListener.onCaptureSequenceComplete(this)
         invokeOnRequest(request) { it.onFailed(request, frameNumber, requestFailure) }
     }
 
-    override fun onCaptureFailed(captureRequest: CaptureRequest, frameNumber: FrameNumber) {
+    override fun onCaptureFailed(captureRequest: CaptureRequest, frameNumber: CameraFrameNumber) {
         Debug.traceStart { "onCaptureFailed" }
         hasStarted.complete(Unit)
 
@@ -253,7 +258,7 @@ internal class Camera2CaptureSequence(
         frameId: Long,
     ) {
         Debug.traceStart { "onCaptureBufferLost" }
-        val frameNumber = FrameNumber(frameId)
+        val frameNumber = CameraFrameNumber(frameId)
         val streamId = getStreamId(surface)
         val outputId = surfaceToOutputMap[surface]
         checkNotNull(streamId) { "Unable to find the streamId for $surface on $frameNumber" }
@@ -296,7 +301,7 @@ internal class Camera2CaptureSequence(
                 "$captureSequenceId!"
         }
 
-        val frameNumber = FrameNumber(captureFrameNumber)
+        val frameNumber = CameraFrameNumber(captureFrameNumber)
         invokeOnRequests { request, _, listener ->
             listener.onRequestSequenceCompleted(request, frameNumber)
         }

@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.graph
 
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.InputRequest
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
@@ -28,6 +27,7 @@ import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeImage
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -46,7 +46,7 @@ class LatestFrameListenerTests {
 
     private val fakeRequestMetadata =
         FakeRequestMetadata(streams = mapOf(streamId to stream1Surface))
-    private val fakeFrameNumber = FrameNumber(420)
+    private val fakeFrameNumber = CameraFrameNumber(420)
     private val fakeImageTimestampNs = 1234L
     private val fakeReprocessingImage =
         FakeImage(640, 480, StreamFormat.YUV_420_888.value, fakeImageTimestampNs)
@@ -67,7 +67,7 @@ class LatestFrameListenerTests {
         )
 
     private var latestFrameInfo: FrameInfo? = null
-    private var latestFrameNumber: FrameNumber? = null
+    private var latestFrameNumber: CameraFrameNumber? = null
 
     private val latestFrameInfoListener = LatestFrameInfoListener { latestFrameInfo = it }
     private val latestFrameNumberListener = LatestFrameNumberListener { latestFrameNumber = it }
@@ -76,17 +76,17 @@ class LatestFrameListenerTests {
     fun latestFrameNumberListenerUpdatesLatestState() {
         latestFrameNumberListener.onStarted(
             fakeRequestMetadata,
-            FrameNumber(1),
+            CameraFrameNumber(1),
             CameraTimestamp(42),
         )
         latestFrameNumberListener.onStarted(
             fakeRequestMetadata,
-            FrameNumber(2),
+            CameraFrameNumber(2),
             CameraTimestamp(43),
         )
         latestFrameNumberListener.onStarted(
             fakeRequestMetadata,
-            FrameNumber(3),
+            CameraFrameNumber(3),
             CameraTimestamp(44),
         )
 
@@ -95,7 +95,7 @@ class LatestFrameListenerTests {
 
     @Test
     fun latestFrameInfoListenerUpdatesLatestState() {
-        val frame1Metadata = FakeFrameMetadata(frameNumber = FrameNumber(1))
+        val frame1Metadata = FakeFrameMetadata(frameNumber = CameraFrameNumber(1))
         val frame1Info =
             FakeFrameInfo(metadata = frame1Metadata, requestMetadata = fakeRequestMetadata)
         latestFrameInfoListener.onTotalCaptureResult(
@@ -104,7 +104,7 @@ class LatestFrameListenerTests {
             frame1Info,
         )
 
-        val frame2Metadata = FakeFrameMetadata(frameNumber = FrameNumber(2))
+        val frame2Metadata = FakeFrameMetadata(frameNumber = CameraFrameNumber(2))
         val frame2Info =
             FakeFrameInfo(metadata = frame2Metadata, requestMetadata = fakeRequestMetadata)
         latestFrameInfoListener.onTotalCaptureResult(
@@ -120,18 +120,18 @@ class LatestFrameListenerTests {
     fun latestFrameNumberListenerSkipsOutOfOrderRequests() {
         latestFrameNumberListener.onStarted(
             fakeRequestMetadata,
-            FrameNumber(1),
+            CameraFrameNumber(1),
             CameraTimestamp(42),
         )
         latestFrameNumberListener.onStarted(
             fakeRequestMetadata,
-            FrameNumber(3),
+            CameraFrameNumber(3),
             CameraTimestamp(44),
         )
         // Out of order
         latestFrameNumberListener.onStarted(
             fakeRequestMetadata,
-            FrameNumber(2),
+            CameraFrameNumber(2),
             CameraTimestamp(43),
         )
 
@@ -139,7 +139,7 @@ class LatestFrameListenerTests {
     }
 
     fun latestFrameInfoListenerSkipsOutOfOrderRequests() = runTest {
-        val frame2Metadata = FakeFrameMetadata(frameNumber = FrameNumber(2))
+        val frame2Metadata = FakeFrameMetadata(frameNumber = CameraFrameNumber(2))
         val frame2Info =
             FakeFrameInfo(metadata = frame2Metadata, requestMetadata = fakeRequestMetadata)
         latestFrameInfoListener.onTotalCaptureResult(
@@ -149,7 +149,7 @@ class LatestFrameListenerTests {
         )
 
         // Out of order
-        val frame1Metadata = FakeFrameMetadata(frameNumber = FrameNumber(1))
+        val frame1Metadata = FakeFrameMetadata(frameNumber = CameraFrameNumber(1))
         val frame1Info =
             FakeFrameInfo(metadata = frame1Metadata, requestMetadata = fakeRequestMetadata)
         latestFrameInfoListener.onTotalCaptureResult(
@@ -165,12 +165,12 @@ class LatestFrameListenerTests {
     fun latestFrameNumberListenerSkipsReprocessingRequests() {
         latestFrameNumberListener.onStarted(
             fakeRequestMetadata,
-            FrameNumber(1),
+            CameraFrameNumber(1),
             CameraTimestamp(42),
         )
         latestFrameNumberListener.onStarted(
             fakeReprocessingRequestMetadata,
-            FrameNumber(100),
+            CameraFrameNumber(100),
             CameraTimestamp(42),
         )
         assertThat(latestFrameNumber?.value).isEqualTo(1)
@@ -179,7 +179,7 @@ class LatestFrameListenerTests {
     @Test
     fun latestFrameInfoListenerSkipsReprocessingRequests() {
 
-        val frame1Metadata = FakeFrameMetadata(frameNumber = FrameNumber(1))
+        val frame1Metadata = FakeFrameMetadata(frameNumber = CameraFrameNumber(1))
         val frame1Info =
             FakeFrameInfo(metadata = frame1Metadata, requestMetadata = fakeRequestMetadata)
         latestFrameInfoListener.onTotalCaptureResult(
@@ -189,7 +189,7 @@ class LatestFrameListenerTests {
         )
 
         // Reprocessing should be skipped
-        val frame2Metadata = FakeFrameMetadata(frameNumber = FrameNumber(100))
+        val frame2Metadata = FakeFrameMetadata(frameNumber = CameraFrameNumber(100))
         val frame2Info =
             FakeFrameInfo(
                 metadata = frame2Metadata,

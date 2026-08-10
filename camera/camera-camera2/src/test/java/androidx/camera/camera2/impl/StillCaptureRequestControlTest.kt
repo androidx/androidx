@@ -26,7 +26,6 @@ import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.compat.workaround.NotUseTorchAsFlash
 import androidx.camera.camera2.config.UseCaseCameraContext
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeRequestFailure
@@ -38,6 +37,7 @@ import androidx.camera.camera2.testing.FakeState3AControlCreator
 import androidx.camera.camera2.testing.FakeSurface
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.testing.FakeUseCaseSurfaceManager
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
@@ -206,7 +206,7 @@ class StillCaptureRequestControlTest {
                 request.listeners.forEach { listener ->
                     listener.onTotalCaptureResult(
                         FakeRequestMetadata(),
-                        FrameNumber(0),
+                        CameraFrameNumber(0),
                         FakeFrameInfo(),
                     )
                 }
@@ -228,7 +228,7 @@ class StillCaptureRequestControlTest {
                 request.listeners.forEach { listener ->
                     listener.onTotalCaptureResult(
                         FakeRequestMetadata(),
-                        FrameNumber(0),
+                        CameraFrameNumber(0),
                         FakeFrameInfo(),
                     )
                 }
@@ -243,7 +243,7 @@ class StillCaptureRequestControlTest {
         runTest(testDispatcher) {
             val requestFuture = stillCaptureRequestControl.issueCaptureRequests()
             val fakeRequestMetadata = FakeRequestMetadata()
-            val frameNumber = FrameNumber(0)
+            val frameNumber = CameraFrameNumber(0)
 
             advanceUntilIdle()
             assumeTrue(fakeCameraGraphSession.submittedRequests.size == captureConfigList.size)

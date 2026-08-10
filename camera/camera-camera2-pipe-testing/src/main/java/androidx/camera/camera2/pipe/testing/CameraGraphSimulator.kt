@@ -27,12 +27,12 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.Metadata
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlinx.atomicfu.atomic
@@ -347,7 +347,8 @@ internal constructor(
     ) {
         private val requestMetadata = requestSequence.requestMetadata[request]!!
 
-        public val frameNumber: FrameNumber = FrameNumber(frameCounter.incrementAndGet())
+        public val frameNumber: CameraFrameNumber =
+            CameraFrameNumber(frameCounter.incrementAndGet())
         public var timestampNanos: Long? = null
 
         public fun simulateStarted(timestampNanos: Long) {
@@ -524,7 +525,7 @@ internal constructor(
         ): FakeFrameMetadata =
             FakeFrameMetadata(
                 camera = cameraMetadata.camera,
-                frameNumber = frameNumber,
+                frameNumber = CameraFrameNumber(frameNumber.value),
                 resultMetadata = resultMetadata.toMap(),
                 extraResultMetadata = extraResultMetadata.toMap(),
                 extraMetadata = extraMetadata.toMap(),

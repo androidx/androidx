@@ -22,6 +22,7 @@ import androidx.camera.camera2.pipe.OutputStatus.Companion.UNAVAILABLE
 import androidx.camera.camera2.pipe.core.AutoCloseables
 import androidx.camera.camera2.pipe.core.AutoCloseables.useEachIndexedAsync
 import androidx.camera.camera2.pipe.media.OutputImage
+import androidx.camera.common.CameraFrameNumber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 
@@ -176,7 +177,7 @@ public interface Frame : FrameReference, AutoCloseable {
          * @param frameNumber is the camera-provided identifier for this Frame.
          * @param frameTimestamp is the primary camera-provided timestamp for this Frame.
          */
-        public fun onFrameStarted(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp)
+        public fun onFrameStarted(frameNumber: CameraFrameNumber, frameTimestamp: CameraTimestamp)
 
         /** Invoked after [FrameInfo] is available, or has failed to be produced. */
         public fun onFrameInfoAvailable()
@@ -451,8 +452,8 @@ public interface FrameReference {
      */
     public val frameId: FrameId
 
-    /** The original camera provided [FrameNumber] from this [Frame] */
-    public val frameNumber: FrameNumber
+    /** The original camera provided [CameraFrameNumber] from this [Frame] */
+    public val frameNumber: CameraFrameNumber
 
     /** The original camera provided [CameraTimestamp] from this [Frame] */
     public val frameTimestamp: CameraTimestamp

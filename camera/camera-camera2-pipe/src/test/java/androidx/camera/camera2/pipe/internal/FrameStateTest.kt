@@ -21,7 +21,6 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.StreamFormat
@@ -33,6 +32,7 @@ import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeImage
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
+import androidx.camera.common.CameraFrameNumber
 import com.google.common.truth.Truth.assertThat
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
@@ -91,7 +91,7 @@ class FrameStateTest {
             outputStream5.stream = this
         }
 
-    private val frameNumber = FrameNumber(420)
+    private val frameNumber = CameraFrameNumber(420)
     private val frameTimestampNs = 1234L
     private val frameTimestamp = CameraTimestamp(frameTimestampNs)
 
@@ -112,7 +112,8 @@ class FrameStateTest {
                     stream3Id to stream3Surface,
                 )
         )
-    private val fakeFrameMetadata = FakeFrameMetadata(frameNumber = frameNumber)
+    private val fakeFrameMetadata =
+        FakeFrameMetadata(frameNumber = CameraFrameNumber(frameNumber.value))
     private val fakeFrameInfo =
         FakeFrameInfo(metadata = fakeFrameMetadata, requestMetadata = fakeRequestMetadata)
 
@@ -123,7 +124,10 @@ class FrameStateTest {
             val imagesAvailableCalled = atomic(0)
             val frameCompletedCalled = atomic(0)
 
-            override fun onFrameStarted(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp) {
+            override fun onFrameStarted(
+                frameNumber: CameraFrameNumber,
+                frameTimestamp: CameraTimestamp,
+            ) {
                 frameStartedCalled.incrementAndGet()
             }
 
@@ -265,7 +269,7 @@ class FrameStateTest {
     @Test
     fun frameInfoResultCanBeCompletedWithAResultWithADifferentFrameNumber() {
         frameState.frameInfoOutput.onOutputComplete(
-            FrameNumber(1),
+            CameraFrameNumber(1),
             frameTimestamp,
             10,
             1,

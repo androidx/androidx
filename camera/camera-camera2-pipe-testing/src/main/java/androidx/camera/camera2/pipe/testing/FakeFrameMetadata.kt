@@ -21,24 +21,34 @@ import android.hardware.camera2.TotalCaptureResult
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.common.CameraFrameNumber
+import androidx.camera.common.CaptureRequestWrapper
 import androidx.camera.common.Metadata
 import java.lang.Class
 import kotlinx.atomicfu.atomic
 
 private val fakeFrameNumbers = atomic(0L)
 
-internal fun nextFakeFrameNumber(): FrameNumber = FrameNumber(fakeFrameNumbers.incrementAndGet())
+internal fun nextFakeFrameNumber(): CameraFrameNumber =
+    CameraFrameNumber(fakeFrameNumbers.incrementAndGet())
 
 /** Utility class for interacting with objects require specific [CaptureResult] metadata */
 public class FakeFrameMetadata(
     private val resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
     extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val camera: CameraId = FakeCameraIds.default,
-    override val frameNumber: FrameNumber = nextFakeFrameNumber(),
+    override val frameNumber: CameraFrameNumber = nextFakeFrameNumber(),
     override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
+    override val captureRequest: CaptureRequestWrapper = FakeRequestMetadata(),
 ) : FakeMetadata(extraResultMetadata), FrameMetadata {
+
+    override val keys: List<CaptureResult.Key<*>>
+        get() = buildSet {
+            addAll(resultMetadata.keys)
+            extraMetadata.keys.forEach { if (it is CaptureResult.Key<*>) add(it) }
+        }
+            .toList()
 
     override val metadataKeys: Set<Metadata.Key<*>>
         get() = buildSet {
@@ -46,19 +56,18 @@ public class FakeFrameMetadata(
             extraMetadata.keys.forEach { if (it is Metadata.Key<*>) add(it) }
         }
 
-    override fun <T : Any> get(key: Metadata.Key<T>): T? {
-        return super<FakeMetadata>.get(key)
-    }
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> get(key: Metadata.Key<T>): T? =
+        extraMetadata[key] as T? ?: super<FakeMetadata>.get(key)
 
-    override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T {
-        return super<FakeMetadata>.getOrDefault(key, default)
-    }
+    override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: CaptureResult.Key<T>): T? =
+    override fun <T : Any> get(key: CaptureResult.Key<T>): T? =
         extraMetadata[key] as T? ?: resultMetadata[key] as T?
 
-    override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T = get(key) ?: default
+    override fun <T : Any> getOrDefault(key: CaptureResult.Key<T>, default: T): T =
+        get(key) ?: default
 
     override fun <T : Any> unwrapAs(type: Class<T>): T? = null
 
@@ -77,7 +86,7 @@ public class FakeFrameInfo(
     override val camera: CameraId
         get() = metadata.camera
 
-    override val frameNumber: FrameNumber
+    override val frameNumber: CameraFrameNumber
         get() = metadata.frameNumber
 
     override fun <T : Any> unwrapAs(type: Class<T>): T? = null

@@ -50,7 +50,6 @@ import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -67,6 +66,7 @@ import androidx.camera.camera2.testing.FakeCameraGraphSession
 import androidx.camera.camera2.testing.FakeCameraProperties
 import androidx.camera.camera2.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.testing.FakeUseTorchAsFlash.createUseTorchAsFlash
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
@@ -938,7 +938,7 @@ class CapturePipelineTest {
     private fun configureZslControl() {
         val fakeImageProxy: ImageProxy = mock()
         val fakeCaptureResult =
-            CaptureResultAdapter(FakeRequestMetadata(), FrameNumber(1), FakeFrameInfo())
+            CaptureResultAdapter(FakeRequestMetadata(), CameraFrameNumber(1), FakeFrameInfo())
         val fakeImageInfo = CameraCaptureResultImageInfo(fakeCaptureResult)
         val fakeImage: Image = mock()
         whenever(fakeImageProxy.imageInfo).thenReturn(fakeImageInfo)
@@ -954,7 +954,7 @@ class CapturePipelineTest {
                 // Callback capture fail immediately.
                 request.listeners.forEach {
                     val requestMetadata = FakeRequestMetadata()
-                    val frameNumber = FrameNumber(100L)
+                    val frameNumber = CameraFrameNumber(100L)
                     it.onFailed(
                         requestMetadata = requestMetadata,
                         frameNumber = frameNumber,
@@ -1329,7 +1329,7 @@ class CapturePipelineTest {
             request.listeners.forEach {
                 it.onTotalCaptureResult(
                     requestMetadata = FakeRequestMetadata(),
-                    frameNumber = FrameNumber(100L),
+                    frameNumber = CameraFrameNumber(100L),
                     totalCaptureResult = FakeFrameInfo(),
                 )
             }
@@ -1376,7 +1376,7 @@ class CapturePipelineTest {
                             )
                         listener.onTotalCaptureResult(
                             requestMetadata = fakeRequestMetadata,
-                            frameNumber = FrameNumber(101L),
+                            frameNumber = CameraFrameNumber(101L),
                             totalCaptureResult = fakeFrameInfo,
                         )
                         onResultSubmitted(fakeFrameInfo)

@@ -19,17 +19,18 @@ package androidx.camera.camera2.pipe.graph
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
+import androidx.camera.common.CameraFrameNumber
 
-internal class LatestFrameNumberListener(private val onNextFrameNumber: (FrameNumber) -> Unit) :
-    Request.Listener {
+internal class LatestFrameNumberListener(
+    private val onNextFrameNumber: (CameraFrameNumber) -> Unit
+) : Request.Listener {
     @GuardedBy("this") private var latestFrameNumber = Long.MIN_VALUE
 
     override fun onStarted(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         timestamp: CameraTimestamp,
     ) {
         // Skip reprocessing requests which can often be out of order.
@@ -52,7 +53,7 @@ internal class LatestFrameInfoListener(private val onNextFrameInfo: (FrameInfo) 
 
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         totalCaptureResult: FrameInfo,
     ) {
         // Skip reprocessing requests which can often be out of order.

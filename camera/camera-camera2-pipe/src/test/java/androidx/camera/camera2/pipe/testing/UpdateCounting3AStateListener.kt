@@ -18,10 +18,10 @@ package androidx.camera.camera2.pipe.testing
 
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.graph.Result3AStateListener
+import androidx.camera.common.CameraFrameNumber
 
 /**
  * Wrapper on Result3AStateListenerImpl to keep track of the number of times the update methods are
@@ -38,7 +38,7 @@ internal class UpdateCounting3AStateListener(private val listener: Result3AState
 
     override fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         captureResult: FrameMetadata,
     ) {
         partialUpdateCount++
@@ -47,7 +47,7 @@ internal class UpdateCounting3AStateListener(private val listener: Result3AState
 
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
-        frameNumber: FrameNumber,
+        frameNumber: CameraFrameNumber,
         totalCaptureResult: FrameInfo,
     ): Boolean {
         totalUpdateCount++

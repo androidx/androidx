@@ -24,9 +24,9 @@ import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraInterop
-import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.common.CameraFrameNumber
 import androidx.camera.common.UnsafeWrapper
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.Executor
@@ -287,7 +287,7 @@ internal open class AndroidCameraExtensionSession(
 
         override fun onCaptureFailed(session: CameraExtensionSession, request: CaptureRequest) {
             val frameNumber = dequeueFrameNumber(session)
-            captureCallback.onCaptureFailed(request, FrameNumber(frameNumber))
+            captureCallback.onCaptureFailed(request, CameraFrameNumber(frameNumber))
         }
 
         override fun onCaptureSequenceCompleted(session: CameraExtensionSession, sequenceId: Int) {
@@ -305,7 +305,7 @@ internal open class AndroidCameraExtensionSession(
             result: TotalCaptureResult,
         ) {
             val frameNumber = dequeueFrameNumber(session)
-            captureCallback.onCaptureCompleted(request, result, FrameNumber(frameNumber))
+            captureCallback.onCaptureCompleted(request, result, CameraFrameNumber(frameNumber))
         }
 
         private fun incrementAndGetNextFrameNumber(session: CameraExtensionSession): Long {
@@ -357,7 +357,7 @@ internal open class AndroidCameraExtensionSession(
         override fun onCaptureFailed(session: CameraExtensionSession, request: CaptureRequest) {
             if (captureRequestMap[request]!!.size == 1) {
                 val frameNumber = captureRequestMap[request]!![0]
-                captureCallback.onCaptureFailed(request, FrameNumber(frameNumber))
+                captureCallback.onCaptureFailed(request, CameraFrameNumber(frameNumber))
             } else {
                 Log.info {
                     "onCaptureFailed is not triggered for repeating requests. Request " +
