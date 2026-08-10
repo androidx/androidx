@@ -51,39 +51,41 @@ dependencies {
 
 android {
     namespace = "androidx.graphics.path"
+}
 
-    defaultConfig {
-        externalNativeBuild {
-            cmake {
-                cppFlags.addAll([
-                    "-std=c++17",
-                    "-Wno-unused-command-line-argument",
-                    "-Wl,--hash-style=both", // Required to support API levels below 23
-                    "-fno-exceptions",
-                    "-fno-unwind-tables",
-                    "-fno-asynchronous-unwind-tables",
-                    "-fno-rtti",
-                    "-ffast-math",
-                    "-ffp-contract=fast",
-                    "-fvisibility-inlines-hidden",
-                    "-fvisibility=hidden",
-                    "-fomit-frame-pointer",
-                    "-ffunction-sections",
-                    "-fdata-sections",
-                    "-Wl,--gc-sections",
-                    "-Wl,-Bsymbolic-functions",
-                    "-nostdlib++"
-                ])
-            }
+androidXNative {
+    def nativeCompilation = createNativeCompilation("androidx.graphics.path") {
+        configureEachTarget { targetCompilation ->
+            targetCompilation.sources.from(
+                file("src/main/cpp/Conic.cpp"),
+                file("src/main/cpp/PathIterator.cpp"),
+                file("src/main/cpp/pathway.cpp")
+            )
+            targetCompilation.freeArgs.addAll(
+                "-std=c++17",
+                "-Wno-unused-command-line-argument",
+                "-fno-exceptions",
+                "-fno-unwind-tables",
+                "-fno-asynchronous-unwind-tables",
+                "-fno-rtti",
+                "-ffast-math",
+                "-ffp-contract=fast",
+                "-fvisibility-inlines-hidden",
+                "-fvisibility=hidden",
+                "-fomit-frame-pointer",
+                "-ffunction-sections",
+                "-fdata-sections"
+            )
+            targetCompilation.linkerArgs.addAll(
+                "-Wl,--hash-style=both",
+                "-Wl,-Bsymbolic-functions",
+                "-Wl,--gc-sections",
+                "-Wl,--version-script=${file("src/main/cpp/libandroidx.graphics.path.map").absolutePath}",
+                "-nostdlib++"
+            )
         }
     }
-
-    externalNativeBuild {
-        cmake {
-            path file('src/main/cpp/CMakeLists.txt')
-            version = libs.versions.cmake.get()
-        }
-    }
+    addNativeLibrariesToJniLibs(nativeCompilation)
 }
 
 androidx {
