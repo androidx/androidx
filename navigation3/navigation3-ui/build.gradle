@@ -87,6 +87,11 @@ androidXMultiplatform {
     }
 }
 
+dependencies {
+    lintPublish(project(":navigation3:navigation3-ui-lint"))
+    lintChecks(project(":navigation3:navigation3-ui-lint"))
+}
+
 androidx {
     name = "Androidx Navigation 3 UI"
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
