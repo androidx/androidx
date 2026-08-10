@@ -122,17 +122,9 @@ class AutoFlashAEModeDisablerTest {
                 template = HighEndDeviceTemplate,
                 lensFacing = lensFacing,
             )
+        val map = StreamConfigurationMapBuilder.newBuilder().build()
         return AutoFlashAEModeDisabler.Bindings.provideAEModeDisabler(
-            CameraQuirks(
-                metadata,
-                StreamConfigurationMapCompat(
-                    StreamConfigurationMapBuilder.newBuilder().build(),
-                    OutputSizesCorrector(
-                        FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                        StreamConfigurationMapBuilder.newBuilder().build(),
-                    ),
-                ),
-            )
+            CameraQuirks(metadata, StreamConfigurationMapCompat(map, metadata))
         )
     }
 }

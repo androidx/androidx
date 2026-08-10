@@ -30,7 +30,6 @@ import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
 import androidx.camera.camera2.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.compat.workaround.NoOpAutoFlashAEModeDisabler
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.impl.CameraCallbackMap
 import androidx.camera.camera2.impl.CameraProperties
@@ -98,10 +97,7 @@ object FakeCameraInfoAdapterCreator {
         metadata: androidx.camera.camera2.pipe.CameraMetadata =
             FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
         streamConfigurationMapCompat: StreamConfigurationMapCompat =
-            StreamConfigurationMapCompat(
-                streamConfigurationMap,
-                OutputSizesCorrector(metadata, streamConfigurationMap),
-            ),
+            StreamConfigurationMapCompat(streamConfigurationMap, metadata),
     ): CameraQuirks {
         return CameraQuirks(metadata, streamConfigurationMapCompat)
     }
@@ -141,10 +137,7 @@ object FakeCameraInfoAdapterCreator {
     ): CameraInfoAdapter {
         val fakeRequestControl = FakeUseCaseCameraRequestControl()
         val fakeStreamConfigurationMap =
-            StreamConfigurationMapCompat(
-                streamConfigurationMap,
-                OutputSizesCorrector(cameraProperties.metadata, streamConfigurationMap),
-            )
+            StreamConfigurationMapCompat(streamConfigurationMap, cameraProperties.metadata)
         val fakeCameraQuirks =
             createCameraQuirks(cameraProperties.metadata, fakeStreamConfigurationMap)
         val fakeEncoderProfilesProvider = FakeEncoderProfilesProvider.Builder().build()

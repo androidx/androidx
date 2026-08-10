@@ -36,7 +36,6 @@ import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMetho
 import androidx.camera.camera2.adapter.SupportedSurfaceCombination.CheckingMethod.WITH_FEATURE_COMBO
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.compat.workaround.ResolutionCorrector
 import androidx.camera.camera2.compat.workaround.TargetAspectRatio
 import androidx.camera.camera2.impl.Camera2Logger
@@ -2198,7 +2197,7 @@ public class SupportedSurfaceCombination(
         val map =
             cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
                 ?: throw IllegalArgumentException("Cannot retrieve SCALER_STREAM_CONFIGURATION_MAP")
-        return StreamConfigurationMapCompat(map, OutputSizesCorrector(cameraMetadata, map))
+        return StreamConfigurationMapCompat(map, cameraMetadata)
     }
 
     /**
