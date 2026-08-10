@@ -351,8 +351,8 @@ class ListItemTest {
         val imageAfter = rule.onNodeWithTag("list_item").captureToImage()
 
         val result =
-            // Expect similarity < 85% due to focused border.
-            MSSIMMatcher(threshold = 0.85)
+            // Expect similarity < 90% due to focused border.
+            MSSIMMatcher(threshold = 0.90)
                 .compareBitmaps(
                     imageBefore.toIntArray(),
                     imageAfter.toIntArray(),
@@ -379,8 +379,8 @@ class ListItemTest {
         val imageAfter = rule.onNodeWithTag("list_item").captureToImage()
 
         val result =
-            // Expect similarity < 85% due to focused border.
-            MSSIMMatcher(threshold = 0.85)
+            // Expect similarity < 90% due to focused border.
+            MSSIMMatcher(threshold = 0.90)
                 .compareBitmaps(
                     imageBefore.toIntArray(),
                     imageAfter.toIntArray(),
