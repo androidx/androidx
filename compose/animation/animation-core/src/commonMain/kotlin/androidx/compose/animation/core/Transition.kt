@@ -1075,7 +1075,7 @@ protected constructor(
             if (!isRunning) {
                 updateChildrenNeeded = true
             }
-            _animations.fastForEach { it.resetAnimation() }
+            _animations.toList().fastForEach { it.resetAnimation() }
         }
     }
 
@@ -1145,8 +1145,8 @@ protected constructor(
     @InternalAnimationApi
     public val hasInitialValueAnimations: Boolean
         get() =
-            _animations.fastAny { it.initialValueState != null } ||
-                _transitions.fastAny { it.hasInitialValueAnimations }
+            _animations.toList().fastAny { it.initialValueState != null } ||
+                _transitions.toList().fastAny { it.hasInitialValueAnimations }
 
     /**
      * Total duration of the [Transition], accounting for all the animations and child transitions
@@ -1160,8 +1160,10 @@ protected constructor(
 
     private fun calculateTotalDurationNanos(): Long {
         var maxDurationNanos = 0L
-        _animations.fastForEach { maxDurationNanos = max(maxDurationNanos, it.durationNanos) }
-        _transitions.fastForEach {
+        _animations.toList().fastForEach {
+            maxDurationNanos = max(maxDurationNanos, it.durationNanos)
+        }
+        _transitions.toList().fastForEach {
             maxDurationNanos = max(maxDurationNanos, it.calculateTotalDurationNanos())
         }
         return maxDurationNanos
@@ -1194,7 +1196,7 @@ protected constructor(
 
         var allFinished = true
         // Pulse new playtime
-        _animations.fastForEach {
+        _animations.toList().fastForEach {
             if (!it.isFinished) {
                 it.onPlayTimeChanged(scaledPlayTimeNanos, scaleToEnd)
             }
@@ -1203,7 +1205,7 @@ protected constructor(
                 allFinished = false
             }
         }
-        _transitions.fastForEach {
+        _transitions.toList().fastForEach {
             if (it.targetState != it.currentState) {
                 it.onFrame(scaledPlayTimeNanos, scaleToEnd)
             }
@@ -1243,7 +1245,7 @@ protected constructor(
         }
         playTimeNanos = 0
         transitionState.isRunning = false
-        _transitions.fastForEach { it.onTransitionEnd() }
+        _transitions.toList().fastForEach { it.onTransitionEnd() }
     }
 
     /**
@@ -1285,7 +1287,7 @@ protected constructor(
             segment = SegmentImpl(initialState, targetState)
         }
 
-        _transitions.fastForEach {
+        _transitions.toList().fastForEach {
             @Suppress("UNCHECKED_CAST")
             (it as Transition<Any>).let {
                 if (it.isSeeking) {
@@ -1298,7 +1300,7 @@ protected constructor(
             }
         }
 
-        _animations.fastForEach { it.seekTo(playTimeNanos) }
+        _animations.toList().fastForEach { it.seekTo(playTimeNanos) }
         lastSeekedTimeNanos = playTimeNanos
     }
 
@@ -1391,8 +1393,8 @@ protected constructor(
         updateChildrenNeeded = false
 
         // Pulse new playtime
-        _animations.fastForEach { it.seekTo(playTimeNanos) }
-        _transitions.fastForEach {
+        _animations.toList().fastForEach { it.seekTo(playTimeNanos) }
+        _transitions.toList().fastForEach {
             if (it.targetState != it.currentState) {
                 it.seekAnimations(playTimeNanos)
             }
@@ -1407,8 +1409,8 @@ protected constructor(
     internal fun setInitialAnimations(
         animationState: SeekableTransitionState.SeekingAnimationState
     ) {
-        _animations.fastForEach { it.setInitialValueAnimation(animationState) }
-        _transitions.fastForEach { it.setInitialAnimations(animationState) }
+        _animations.toList().fastForEach { it.setInitialValueAnimation(animationState) }
+        _transitions.toList().fastForEach { it.setInitialAnimations(animationState) }
     }
 
     /**
@@ -1416,14 +1418,14 @@ protected constructor(
      * are no longer valid.
      */
     internal fun resetAnimationFraction(fraction: Float) {
-        _animations.fastForEach { it.resetAnimationValue(fraction) }
-        _transitions.fastForEach { it.resetAnimationFraction(fraction) }
+        _animations.toList().fastForEach { it.resetAnimationValue(fraction) }
+        _transitions.toList().fastForEach { it.resetAnimationFraction(fraction) }
     }
 
     /** Clears all initial value animations. */
     internal fun clearInitialAnimations() {
-        _animations.fastForEach { it.clearInitialAnimation() }
-        _transitions.fastForEach { it.clearInitialAnimations() }
+        _animations.toList().fastForEach { it.clearInitialAnimation() }
+        _transitions.toList().fastForEach { it.clearInitialAnimations() }
     }
 
     /**
@@ -1433,8 +1435,8 @@ protected constructor(
      *   anything.
      */
     internal fun updateInitialValues() {
-        _animations.fastForEach { it.updateInitialValue() }
-        _transitions.fastForEach { it.updateInitialValues() }
+        _animations.toList().fastForEach { it.updateInitialValue() }
+        _transitions.toList().fastForEach { it.updateInitialValues() }
     }
 
     override fun toString(): String {
@@ -1447,7 +1449,7 @@ protected constructor(
         if (isSeeking) {
             // Update total duration
             var maxDurationNanos = 0L
-            _animations.fastForEach {
+            _animations.toList().fastForEach {
                 maxDurationNanos = max(maxDurationNanos, it.durationNanos)
                 it.seekTo(lastSeekedTimeNanos)
             }

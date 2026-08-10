@@ -1164,7 +1164,7 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
             (localPendingTargetState != null && localPendingTargetState !in contentMap)
     ) {
         contentMap.clear()
-        currentlyVisible.fastForEach { stateForContent ->
+        currentlyVisible.toList().fastForEach { stateForContent ->
             contentMap[stateForContent] = {
                 val specOnEnter =
                     remember(stateForContent == pendingTargetState) {
@@ -1278,7 +1278,9 @@ internal fun <S> Transition<S>.AnimatedContentImpl(
     Layout(
         modifier = modifier.then(sizeModifier),
         content = {
-            currentlyVisible.fastForEach { key(contentKey(it)) { contentMap[it]?.invoke() } }
+            currentlyVisible.toList().fastForEach {
+                key(contentKey(it)) { contentMap[it]?.invoke() }
+            }
         },
         measurePolicy = remember { AnimatedContentMeasurePolicy(rootScope) },
     )

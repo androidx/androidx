@@ -334,7 +334,7 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
             if (annotators.isEmpty()) text
             else {
                 val scope = TextAnnotatorScope(text)
-                annotators.fastForEach { it.invoke(scope) }
+                annotators.toList().fastForEach { it.invoke(scope) }
                 scope.styledText
             }
         text = styledText
