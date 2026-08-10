@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
@@ -47,8 +48,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
@@ -75,7 +74,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.xr.glimmer.samples.placeholderImagePainter
-import androidx.xr.glimmer.testutils.assertGlimmerSurfaceShape
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import com.google.common.truth.Truth.assertThat
@@ -133,20 +131,21 @@ class CardTest {
             colors = Colors(surface = surfaceColor, background = backgroundColor)
         ) {
             expectedShape = GlimmerTheme.shapes.medium
-            Card(modifier = Modifier.testTag("card")) { Box(Modifier.size(100.dp, 100.dp)) }
+            Card(modifier = Modifier.testTag("card"), border = null) {
+                Box(Modifier.size(100.dp, 100.dp))
+            }
         }
 
-        val image = rule.onNodeWithTag("card").captureToImage()
-        image.assertGlimmerSurfaceShape(
-            density = rule.density,
-            shape = expectedShape,
-            backgroundColor = backgroundColor,
-        )
-        val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
-        val expectedSurfaceColor = SurfaceDefaults.color(surfaceColor)
-        val expectedCompositeColor =
-            Color.White.copy(alpha = 0.16f).compositeOver(expectedSurfaceColor)
-        assertThat(centerColor).isEqualTo(expectedCompositeColor)
+        rule
+            .onNodeWithTag("card")
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = expectedShape,
+                shapeColor = surfaceColor,
+                backgroundColor = backgroundColor,
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
+            )
     }
 
     @Test

@@ -17,6 +17,7 @@
 package androidx.xr.glimmer
 
 import android.os.Build
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -51,6 +52,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.graphics.toPixelMap
@@ -120,6 +122,7 @@ class SurfaceTest {
                     shape = RectangleShape,
                     color = Color.Blue,
                     contentColor = Color.Magenta,
+                    border = BorderStroke(1.dp, Color.Red),
                     interactionSource = interactionSource1,
                 )
             surfaceWithSameParameters =
@@ -127,6 +130,7 @@ class SurfaceTest {
                     shape = RectangleShape,
                     color = Color.Blue,
                     contentColor = Color.Magenta,
+                    border = BorderStroke(1.dp, Color.Red),
                     interactionSource = interactionSource1,
                 )
             surfaceWithDifferentParameters =
@@ -134,28 +138,9 @@ class SurfaceTest {
                     shape = CircleShape,
                     color = Color.Blue,
                     contentColor = Color.Magenta,
+                    border = BorderStroke(1.dp, Color.Red),
                     interactionSource = interactionSource2,
                 )
-        }
-
-        rule.runOnIdle {
-            assertThat(surface).isEqualTo(surfaceWithSameParameters)
-            assertThat(surface).isNotEqualTo(surfaceWithDifferentParameters)
-        }
-    }
-
-    @Test
-    fun surface_equality_providedFocusedColor() {
-        lateinit var surface: Modifier
-        lateinit var surfaceWithSameParameters: Modifier
-        lateinit var surfaceWithDifferentParameters: Modifier
-
-        rule.setGlimmerThemeContent {
-            surface = Modifier.surface(color = Color.Blue, focusedColor = Color.Red)
-            surfaceWithSameParameters =
-                Modifier.surface(color = Color.Blue, focusedColor = Color.Red)
-            surfaceWithDifferentParameters =
-                Modifier.surface(color = Color.Blue, focusedColor = Color.Green)
         }
 
         rule.runOnIdle {
@@ -168,64 +153,15 @@ class SurfaceTest {
     fun surface_inspectorValue() {
         rule.setContent {
             val modifiers = Modifier.surface().toList()
-            assertThat(modifiers.size).isEqualTo(2)
             assertThat((modifiers[0] as InspectableValue).nameFallback).isEqualTo("graphicsLayer")
-            val surfaceModifier = modifiers[1] as InspectableValue
+            assertThat((modifiers[1] as InspectableValue).nameFallback)
+                .isEqualTo("contentColorProvider")
+            val surfaceModifier = modifiers[2] as InspectableValue
             assertThat(surfaceModifier.nameFallback).isEqualTo("surface")
             assertThat(surfaceModifier.valueOverride).isNull()
             assertThat(surfaceModifier.inspectableElements.map { it.name }.asIterable())
-                .containsExactly(
-                    "enabled",
-                    "color",
-                    "focusedColor",
-                    "contentColor",
-                    "focusedContentColor",
-                    "shape",
-                    "interactionSource",
-                )
-        }
-    }
-
-    @Test
-    fun surface_focusedColor_usedWhenFocused() {
-        rule.mainClock.autoAdvance = false
-
-        val focusRequester = FocusRequester()
-        val interactionSource = MutableInteractionSource()
-        val surfaceColor = Color.Blue
-        val focusedSurfaceColor = Color.Yellow
-
-        rule.setGlimmerThemeContent {
-            Box(
-                Modifier.size(100.dp)
-                    .surface(
-                        color = surfaceColor,
-                        focusedColor = focusedSurfaceColor,
-                        interactionSource = interactionSource,
-                    )
-                    .focusRequester(focusRequester)
-                    .focusable(interactionSource = interactionSource)
-                    .testTag("surface")
-            )
-        }
-
-        // Unfocused: center of surface should be surfaceColor
-        rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(width / 2, height / 2)).isEqualTo(surfaceColor)
-        }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
-
-        // Advance past enter animation
-        rule.mainClock.advanceTimeBy(1000)
-
-        // When focused (focusProgress == 1f), color is
-        // focusOverlayColor.compositeOver(focusedSurfaceColor)
-        val expectedFocusedColor =
-            Color(red = 1f, green = 1f, blue = 1f, alpha = 0.16f).compositeOver(focusedSurfaceColor)
-
-        rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertColorsEqualWithTolerance(expectedFocusedColor, get(width / 2, height / 2))
+                .containsExactly("enabled", "shape", "border", "interactionSource")
+            assertThat((modifiers[3] as InspectableValue).nameFallback).isEqualTo("background")
         }
     }
 
@@ -238,7 +174,7 @@ class SurfaceTest {
                 Box(Modifier.size(outerSize).testTag("outerBox").background(Color.Red)) {
                     Box(
                         Modifier.size(innerSize)
-                            .surface(shape = RectangleShape, color = Color.Blue)
+                            .surface(shape = RectangleShape, color = Color.Blue, border = null)
                             .drawWithContent {
                                 // Try and draw a rect that would fill the outerSize, if there was
                                 // no clipping
@@ -262,6 +198,42 @@ class SurfaceTest {
     }
 
     @Test
+    fun surfaceDefaults_cachesBorder() {
+        lateinit var defaultBorder: BorderStroke
+        lateinit var anotherDefaultBorder: BorderStroke
+        lateinit var customBorder: BorderStroke
+        rule.setGlimmerThemeContent {
+            defaultBorder = SurfaceDefaults.border()
+            anotherDefaultBorder = SurfaceDefaults.border()
+            customBorder = SurfaceDefaults.border(color = Color.Red)
+        }
+
+        rule.runOnIdle {
+            assertThat(defaultBorder).isSameInstanceAs(anotherDefaultBorder)
+            assertThat(defaultBorder).isNotEqualTo(customBorder)
+        }
+    }
+
+    @Test
+    fun surfaceDefaults_borderValues() {
+        lateinit var defaultBorder: BorderStroke
+        lateinit var customBorder: BorderStroke
+        var outline: Color = Color.Unspecified
+        rule.setGlimmerThemeContent {
+            outline = GlimmerTheme.colors.outline
+            defaultBorder = SurfaceDefaults.border()
+            customBorder = SurfaceDefaults.border(color = Color.Red)
+        }
+
+        rule.runOnIdle {
+            assertThat((defaultBorder.brush as SolidColor).value).isEqualTo(outline)
+            assertThat(defaultBorder.width).isEqualTo(2.dp)
+            assertThat((customBorder.brush as SolidColor).value).isEqualTo(Color.Red)
+            assertThat(customBorder.width).isEqualTo(2.dp)
+        }
+    }
+
+    @Test
     fun surface_changeShape_borderChanges() {
         var roundedCorners by mutableStateOf(true)
 
@@ -271,7 +243,8 @@ class SurfaceTest {
                     Modifier.size(40f.toDp())
                         .background(Color.Blue)
                         .surface(
-                            shape = if (roundedCorners) RoundedCornerShape(5f) else RectangleShape
+                            shape = if (roundedCorners) RoundedCornerShape(5f) else RectangleShape,
+                            border = BorderStroke(1f.toDp(), Color.Red),
                         )
                         .testTag("surface")
                 )
@@ -280,10 +253,10 @@ class SurfaceTest {
 
         rule.onNodeWithTag("surface").captureToImage().run {
             val map = toPixelMap()
-            // We should be rounded, so top-left and bottom-left will be blue, and center will not
-            // be blue
+            // We should be rounded, so the top and bottom of the left edge will be blue, and the
+            // center will be red
             assertThat(Color.Blue).isEqualTo(map[0, 0])
-            assertThat(map[0, (height - 1) / 2]).isNotEqualTo(Color.Blue)
+            assertThat(Color.Red).isEqualTo(map[0, (height - 1) / 2])
             assertThat(Color.Blue).isEqualTo(map[0, height - 1])
         }
 
@@ -291,10 +264,10 @@ class SurfaceTest {
 
         rule.onNodeWithTag("surface").captureToImage().run {
             val map = toPixelMap()
-            // We should no longer be rounded, so left edge should be fully surface (not blue)
-            assertThat(map[0, 0]).isNotEqualTo(Color.Blue)
-            assertThat(map[0, (height - 1) / 2]).isNotEqualTo(Color.Blue)
-            assertThat(map[0, height - 1]).isNotEqualTo(Color.Blue)
+            // We should no longer be rounded, so left edge should be fully red
+            assertThat(Color.Red).isEqualTo(map[0, 0])
+            assertThat(Color.Red).isEqualTo(map[0, (height - 1) / 2])
+            assertThat(Color.Red).isEqualTo(map[0, height - 1])
         }
     }
 
@@ -323,7 +296,10 @@ class SurfaceTest {
                 Box(
                     Modifier.size(40f.toDp())
                         .background(Color.Blue)
-                        .surface(shape = roundedCornersShape)
+                        .surface(
+                            shape = roundedCornersShape,
+                            border = BorderStroke(1f.toDp(), Color.Red),
+                        )
                         .testTag("surface")
                 )
             }
@@ -331,10 +307,10 @@ class SurfaceTest {
 
         rule.onNodeWithTag("surface").captureToImage().run {
             val map = toPixelMap()
-            // We should be rounded, so top-left and bottom-left will be blue, and center will not
-            // be blue
+            // We should be rounded, so the top and bottom of the left edge will be blue, and the
+            // center will be red
             assertThat(Color.Blue).isEqualTo(map[0, 0])
-            assertThat(map[0, (height - 1) / 2]).isNotEqualTo(Color.Blue)
+            assertThat(Color.Red).isEqualTo(map[0, (height - 1) / 2])
             assertThat(Color.Blue).isEqualTo(map[0, height - 1])
         }
 
@@ -342,10 +318,10 @@ class SurfaceTest {
 
         rule.onNodeWithTag("surface").captureToImage().run {
             val map = toPixelMap()
-            // We should no longer be rounded, so left edge should be fully surface (not blue)
-            assertThat(map[0, 0]).isNotEqualTo(Color.Blue)
-            assertThat(map[0, (height - 1) / 2]).isNotEqualTo(Color.Blue)
-            assertThat(map[0, height - 1]).isNotEqualTo(Color.Blue)
+            // We should no longer be rounded, so left edge should be fully red
+            assertThat(Color.Red).isEqualTo(map[0, 0])
+            assertThat(Color.Red).isEqualTo(map[0, (height - 1) / 2])
+            assertThat(Color.Red).isEqualTo(map[0, height - 1])
         }
     }
 
@@ -378,7 +354,10 @@ class SurfaceTest {
                 Box(
                     Modifier.size(400f.toDp())
                         .background(Color.Blue)
-                        .surface(shape = roundedCornersShape)
+                        .surface(
+                            shape = roundedCornersShape,
+                            border = BorderStroke(1f.toDp(), Color.Red),
+                        )
                         .testTag("surface")
                 )
             }
@@ -386,10 +365,10 @@ class SurfaceTest {
 
         rule.onNodeWithTag("surface").captureToImage().run {
             val map = toPixelMap()
-            // We should be rounded, so top-left and bottom-left will be blue, and center will not
-            // be blue
+            // We should be rounded, so the top and bottom of the left edge will be blue, and the
+            // center will be red
             assertThat(Color.Blue).isEqualTo(map[0, 0])
-            assertThat(map[0, (height - 1) / 2]).isNotEqualTo(Color.Blue)
+            assertThat(Color.Red).isEqualTo(map[0, (height - 1) / 2])
             // The last pixel fails to render properly on some emulators, so just assert the one
             // before instead - b/267371353
             assertThat(Color.Blue).isEqualTo(map[0, height - 2])
@@ -399,12 +378,12 @@ class SurfaceTest {
 
         rule.onNodeWithTag("surface").captureToImage().run {
             val map = toPixelMap()
-            // We should no longer be rounded, so left edge should be fully surface (not blue)
-            assertThat(map[0, 0]).isNotEqualTo(Color.Blue)
-            assertThat(map[0, (height - 1) / 2]).isNotEqualTo(Color.Blue)
+            // We should no longer be rounded, so left edge should be fully red
+            assertThat(Color.Red).isEqualTo(map[0, 0])
+            assertThat(Color.Red).isEqualTo(map[0, (height - 1) / 2])
             // The last pixel fails to render properly on some emulators, so just assert the one
             // before instead - b/267371353
-            assertThat(map[0, height - 2]).isNotEqualTo(Color.Blue)
+            assertThat(Color.Red).isEqualTo(map[0, height - 2])
         }
     }
 
@@ -482,58 +461,6 @@ class SurfaceTest {
     }
 
     @Test
-    fun surface_focusedContentColor_usedWhenFocused() {
-        val focusRequester = FocusRequester()
-        val interactionSource = MutableInteractionSource()
-        val contentColor = Color.Red
-        val focusedContentColor = Color.Green
-
-        var node: DelegatableNode? = null
-
-        rule.setGlimmerThemeContent(addInitialFocusInterceptor = true) {
-            Box(
-                Modifier.size(100.dp)
-                    .surface(
-                        contentColor = contentColor,
-                        focusedContentColor = focusedContentColor,
-                        interactionSource = interactionSource,
-                    )
-                    .then(DelegatableNodeProviderElement { node = it })
-                    .focusRequester(focusRequester)
-                    .focusable(interactionSource = interactionSource)
-            )
-        }
-
-        rule.runOnIdle { assertThat(node!!.currentContentColor()).isEqualTo(contentColor) }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
-        rule.runOnIdle { assertThat(node!!.currentContentColor()).isEqualTo(focusedContentColor) }
-    }
-
-    @Test
-    fun surface_focusedColor_resolvesFocusedContentColor() {
-        val focusRequester = FocusRequester()
-        val interactionSource = MutableInteractionSource()
-        val focusedColor = Color.Green
-
-        var node: DelegatableNode? = null
-
-        rule.setGlimmerThemeContent(addInitialFocusInterceptor = true) {
-            Box(
-                Modifier.size(100.dp)
-                    .surface(focusedColor = focusedColor, interactionSource = interactionSource)
-                    .then(DelegatableNodeProviderElement { node = it })
-                    .focusRequester(focusRequester)
-                    .focusable(interactionSource = interactionSource)
-            )
-        }
-
-        rule.runOnIdle { focusRequester.requestFocus() }
-        // Focused background is White, so calculated content color should be Black
-        rule.runOnIdle { assertThat(node!!.currentContentColor()).isEqualTo(Color.Black) }
-    }
-
-    @Test
     fun surface_depthEffect_focusChange_newDepthEffectIsRendered() {
         val (focusRequester, otherFocusRequester) = FocusRequester.createRefs()
 
@@ -560,6 +487,7 @@ class SurfaceTest {
                         .size(20.dp)
                         .surface(
                             depthEffect = surfaceDepthEffect,
+                            border = null,
                             interactionSource = interactionSource,
                         )
                         .focusRequester(focusRequester)
@@ -617,6 +545,7 @@ class SurfaceTest {
                         .size(20.dp)
                         .surface(
                             depthEffect = surfaceDepthEffect,
+                            border = null,
                             interactionSource = interactionSource,
                         )
                         .focusRequester(focusRequester)
@@ -685,6 +614,7 @@ class SurfaceTest {
                         .size(20.dp)
                         .surface(
                             depthEffect = surfaceDepthEffect,
+                            border = null,
                             interactionSource = interactionSource,
                         )
                         .focusRequester(focusRequester)
@@ -735,7 +665,11 @@ class SurfaceTest {
                 val interactionSource = remember { MutableInteractionSource() }
                 Box(
                     Modifier.size(100.dp)
-                        .surface(shape = RectangleShape, interactionSource = interactionSource)
+                        .surface(
+                            shape = RectangleShape,
+                            border = BorderStroke(2.dp, Color.Red),
+                            interactionSource = interactionSource,
+                        )
                         .focusRequester(focusRequester)
                         .focusable(interactionSource = interactionSource)
                         .testTag("surface")
@@ -744,9 +678,9 @@ class SurfaceTest {
             }
         }
 
-        var unfocusedBorderColor = Color.Unspecified
+        // Border should be red
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            unfocusedBorderColor = get(1, 1)
+            assertThat(get(1, 1)).isEqualTo(Color.Red)
         }
 
         rule.runOnIdle { focusRequester.requestFocus() }
@@ -754,10 +688,9 @@ class SurfaceTest {
         // There is an enter animation, so advance a small time after the animation starts
         rule.mainClock.advanceTimeBy(50)
 
-        // The focused highlight should show, so the start of the border will not be
-        // unfocusedBorderColor
+        // The focused highlight should show, so the start of the border will not be fully red
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(1, 1)).isNotEqualTo(unfocusedBorderColor)
+            assertThat(get(1, 1)).isNotEqualTo(Color.Red)
         }
 
         rule.runOnIdle { otherFocusRequester.requestFocus() }
@@ -765,9 +698,9 @@ class SurfaceTest {
         // Advance past the exit animation
         rule.mainClock.advanceTimeBy(1_000)
 
-        // Focused highlight should disappear, so the border should be unfocusedBorderColor
+        // Focused highlight should disappear, so the border should be red
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(1, 1)).isEqualTo(unfocusedBorderColor)
+            assertThat(get(1, 1)).isEqualTo(Color.Red)
         }
     }
 
@@ -783,7 +716,11 @@ class SurfaceTest {
                 val interactionSource = remember { MutableInteractionSource() }
                 Box(
                     Modifier.size(100.dp)
-                        .surface(shape = RectangleShape, interactionSource = interactionSource)
+                        .surface(
+                            shape = RectangleShape,
+                            border = BorderStroke(2.dp, Color.Red),
+                            interactionSource = interactionSource,
+                        )
                         .focusRequester(focusRequester)
                         .focusable(interactionSource = interactionSource)
                         .testTag("surface")
@@ -791,12 +728,17 @@ class SurfaceTest {
             }
         }
 
+        // Border should be red
+        rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
+            assertThat(get(1, 1)).isEqualTo(Color.Red)
+        }
+
         rule.runOnIdle { focusRequester.requestFocus() }
 
         // Capture the initial focus state before the animation starts
         val initialFrame = rule.onNodeWithTag("surface").captureToImage()
 
-        rule.mainClock.advanceTimeBy(300)
+        rule.mainClock.advanceTimeBy(1000)
 
         // Capture the focus state during the animation
         val midAnimation = rule.onNodeWithTag("surface").captureToImage()
@@ -813,15 +755,14 @@ class SurfaceTest {
             assertThat(result.matches).isFalse()
         }
 
-        // Advance past the enter animation (800ms total), but before ambient delay (1800ms)
-        rule.mainClock.advanceTimeBy(800)
+        // Advance past the end of the animation
+        rule.mainClock.advanceTimeBy(7000)
 
-        // Capture the focus state after the enter animation has settled
+        // Capture the focus state after the animation has settled
         val afterAnimation = rule.onNodeWithTag("surface").captureToImage()
 
-        // Advance a bit forward again (before ambient delay at 1800ms) to make sure there is no
-        // change
-        rule.mainClock.advanceTimeBy(100)
+        // Advance a bit forward again to make sure there is no change
+        rule.mainClock.advanceTimeBy(1000)
 
         // Capture a second image after the extra delay - this should be the same
         val afterAnimation2 = rule.onNodeWithTag("surface").captureToImage()
@@ -851,7 +792,11 @@ class SurfaceTest {
                 val interactionSource = remember { MutableInteractionSource() }
                 Box(
                     Modifier.size(100.dp)
-                        .surface(shape = RectangleShape, interactionSource = interactionSource)
+                        .surface(
+                            shape = RectangleShape,
+                            border = BorderStroke(2.dp, Color.Red),
+                            interactionSource = interactionSource,
+                        )
                         .focusRequester(focusRequester)
                         .focusable(interactionSource = interactionSource)
                         .testTag("surface")
@@ -860,12 +805,17 @@ class SurfaceTest {
             }
         }
 
+        // Border should be red
+        rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
+            assertThat(get(1, 1)).isEqualTo(Color.Red)
+        }
+
         rule.runOnIdle { focusRequester.requestFocus() }
 
         // Capture the initial focus state before the animation starts
         val initialFrame = rule.onNodeWithTag("surface").captureToImage()
 
-        rule.mainClock.advanceTimeBy(300)
+        rule.mainClock.advanceTimeBy(1000)
 
         // Capture the focus state during the animation
         val midAnimation = rule.onNodeWithTag("surface").captureToImage()
@@ -884,16 +834,13 @@ class SurfaceTest {
             otherFocusRequester.requestFocus()
         }
 
-        // Advance past exit animation (500ms)
-        rule.mainClock.advanceTimeBy(1000)
-
         // Move focus back to the initial surface
         rule.runOnIdle { focusRequester.requestFocus() }
 
         // Capture the initial focus state before the animation starts
         val initialFrame2 = rule.onNodeWithTag("surface").captureToImage()
 
-        rule.mainClock.advanceTimeBy(300)
+        rule.mainClock.advanceTimeBy(1000)
 
         // Capture the focus state during the animation
         val midAnimation2 = rule.onNodeWithTag("surface").captureToImage()
@@ -931,7 +878,11 @@ class SurfaceTest {
             Column {
                 Box(
                     Modifier.size(100.dp)
-                        .surface(shape = RectangleShape, interactionSource = interactionSource)
+                        .surface(
+                            shape = RectangleShape,
+                            border = BorderStroke(2.dp, Color.Red),
+                            interactionSource = interactionSource,
+                        )
                         .focusRequester(focusRequester)
                         .focusable(interactionSource = interactionSource)
                         .testTag("surface")
@@ -940,9 +891,9 @@ class SurfaceTest {
             }
         }
 
-        var unfocusedBorderColor = Color.Unspecified
+        // Border should be red
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            unfocusedBorderColor = get(1, 1)
+            assertThat(get(1, 1)).isEqualTo(Color.Red)
         }
 
         rule.runOnIdle { focusRequester.requestFocus() }
@@ -950,10 +901,9 @@ class SurfaceTest {
         // There is an enter animation, so advance a small time after the animation starts
         rule.mainClock.advanceTimeBy(50)
 
-        // The focused highlight should show, so the start of the border will not be
-        // unfocusedBorderColor
+        // The focused highlight should show, so the start of the border will not be fully red
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(1, 1)).isNotEqualTo(unfocusedBorderColor)
+            assertThat(get(1, 1)).isNotEqualTo(Color.Red)
         }
 
         // Change the interaction source - even though the node is technically still focused, we
@@ -964,9 +914,9 @@ class SurfaceTest {
         // Advance past the exit animation
         rule.mainClock.advanceTimeBy(1_000)
 
-        // Focused highlight should disappear, so the border should be unfocusedBorderColor
+        // Focused highlight should disappear, so the border should be red
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(1, 1)).isEqualTo(unfocusedBorderColor)
+            assertThat(get(1, 1)).isEqualTo(Color.Red)
         }
 
         // Move focus away from and back to the surface
@@ -979,7 +929,7 @@ class SurfaceTest {
         // The new interaction source will see the new focus, so the focused highlight should show
         // again
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(1, 1)).isNotEqualTo(unfocusedBorderColor)
+            assertThat(get(1, 1)).isNotEqualTo(Color.Red)
         }
     }
 
@@ -1008,11 +958,6 @@ class SurfaceTest {
             assertThat(get(width / 2, height / 2)).isEqualTo(surfaceColor)
         }
 
-        var unpressedEdgeColor = Color.Unspecified
-        rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            unpressedEdgeColor = get(width / 2, 8)
-        }
-
         // Send press interaction
         rule.runOnIdle {
             scope.launch { interactionSource.emit(PressInteraction.Press(Offset.Zero)) }
@@ -1021,9 +966,10 @@ class SurfaceTest {
         // Advance until after the animation has finished
         rule.mainClock.advanceTimeBy(5000)
 
-        // The press overlay should be showing, so edge pixel changes
+        // The press overlay should be showing
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(width / 2, 8)).isNotEqualTo(unpressedEdgeColor)
+            val expectedColor = Color.White.copy(alpha = 0.16f).compositeOver(surfaceColor)
+            assertThat(get(width / 2, height / 2)).isEqualTo(expectedColor)
         }
 
         // Change the interaction source - this should cause us to animate away from pressed
@@ -1032,9 +978,10 @@ class SurfaceTest {
         // Advance until after the animation has finished
         rule.mainClock.advanceTimeBy(5000)
 
-        // The press overlay should disappear, so edge pixel returns to unpressedEdgeColor
+        // The press overlay should disappear, so the center of the surface should be the surface
+        // color again
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(width / 2, 8)).isEqualTo(unpressedEdgeColor)
+            assertThat(get(width / 2, height / 2)).isEqualTo(surfaceColor)
         }
 
         // Send press interaction again
@@ -1047,7 +994,8 @@ class SurfaceTest {
 
         // The press overlay should be showing again
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(width / 2, 8)).isNotEqualTo(unpressedEdgeColor)
+            val expectedColor = Color.White.copy(alpha = 0.16f).compositeOver(surfaceColor)
+            assertThat(get(width / 2, height / 2)).isEqualTo(expectedColor)
         }
     }
 
@@ -1075,9 +1023,9 @@ class SurfaceTest {
             }
         }
 
-        var unpressedEdgeColor = Color.Unspecified
+        // The center of the surface should be the surface color
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            unpressedEdgeColor = get(width / 2, 8)
+            assertThat(get(width / 2, height / 2)).isEqualTo(surfaceColor)
         }
 
         val press = PressInteraction.Press(Offset.Zero)
@@ -1090,7 +1038,8 @@ class SurfaceTest {
 
         // The press overlay should be showing
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(width / 2, 8)).isNotEqualTo(unpressedEdgeColor)
+            val expectedColor = Color.White.copy(alpha = 0.16f).compositeOver(surfaceColor)
+            assertThat(get(width / 2, height / 2)).isEqualTo(expectedColor)
         }
 
         // Send release interaction
@@ -1099,9 +1048,10 @@ class SurfaceTest {
         // Advance until after the animation has finished
         rule.mainClock.advanceTimeBy(5000)
 
-        // The press overlay should disappear
+        // The press overlay should disappear, so the center of the surface should be the surface
+        // color again
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(width / 2, 8)).isEqualTo(unpressedEdgeColor)
+            assertThat(get(width / 2, height / 2)).isEqualTo(surfaceColor)
         }
     }
 
@@ -1125,9 +1075,9 @@ class SurfaceTest {
             }
         }
 
-        var unpressedEdgeColor = Color.Unspecified
+        // The center of the surface should be the surface color
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            unpressedEdgeColor = get(width / 2, 8)
+            assertThat(get(width / 2, height / 2)).isEqualTo(surfaceColor)
         }
 
         val press = PressInteraction.Press(Offset.Zero)
@@ -1146,17 +1096,18 @@ class SurfaceTest {
 
         // The press overlay should continue to animate for a minimum duration, and then fade out.
         // If there was no minimum duration, the animation would have ended already - so
-        // make sure the edge color is not equal to the unpressed edge color.
+        // make sure the color is not equal to the base color.
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(width / 2, 8)).isNotEqualTo(unpressedEdgeColor)
+            assertThat(get(width / 2, height / 2)).isNotEqualTo(surfaceColor)
         }
 
         // Advance until after the animation has finished
         rule.mainClock.advanceTimeBy(5000)
 
-        // The press overlay should disappear after the minimum duration
+        // The press overlay should disappear after the minimum duration, so the center of the
+        // surface should be the surface color again
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertThat(get(width / 2, 8)).isEqualTo(unpressedEdgeColor)
+            assertThat(get(width / 2, height / 2)).isEqualTo(surfaceColor)
         }
     }
 

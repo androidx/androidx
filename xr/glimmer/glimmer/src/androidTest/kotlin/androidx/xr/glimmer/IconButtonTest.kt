@@ -25,10 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -50,7 +49,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
-import androidx.xr.glimmer.testutils.assertGlimmerSurfaceShape
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import androidx.xr.glimmer.testutils.toIntArray
@@ -146,22 +144,22 @@ class IconButtonTest {
                 shape = expectedShape,
                 color = expectedColor,
                 modifier = Modifier.testTag("icon_button"),
+                border = null,
             ) {
                 Box(Modifier.size(100.dp))
             }
         }
 
-        val image = rule.onNodeWithTag("icon_button").captureToImage()
-        image.assertGlimmerSurfaceShape(
-            density = rule.density,
-            shape = expectedShape,
-            backgroundColor = Color.Black,
-        )
-        val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
-        val expectedSurfaceColor = SurfaceDefaults.color(expectedColor)
-        val expectedCompositeColor =
-            Color.White.copy(alpha = 0.16f).compositeOver(expectedSurfaceColor)
-        assertThat(centerColor).isEqualTo(expectedCompositeColor)
+        rule
+            .onNodeWithTag("icon_button")
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = expectedShape,
+                shapeColor = expectedColor,
+                backgroundColor = Color.Black,
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
+            )
     }
 
     @Test

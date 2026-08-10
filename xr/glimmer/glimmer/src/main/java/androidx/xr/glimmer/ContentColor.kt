@@ -101,7 +101,7 @@ private class ContentColorProviderElement(private val contentColor: Color) :
     }
 }
 
-internal class ContentColorProviderNode(contentColor: Color) : TraversableNode, Modifier.Node() {
+private class ContentColorProviderNode(contentColor: Color) : TraversableNode, Modifier.Node() {
 
     override val shouldAutoInvalidate = false
 
