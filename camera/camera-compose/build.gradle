@@ -41,6 +41,9 @@ dependencies {
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesGuava)
 
+    // Forcing upgrade due to CVE-2023-2976, see b/543176661 for more details
+    implementation(libs.guava)
+
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
