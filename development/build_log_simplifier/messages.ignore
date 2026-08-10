@@ -1044,6 +1044,8 @@ WARN: Couldn't resolve JavaDoc link 'BoxInsetLayout Layout Attributes' in file:\
 WARN: Couldn't resolve JavaDoc link 'layout_boxedEdges' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/wear\/widget\/BoxInsetLayout\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'clipEnabled' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/wear\/widget\/RoundedDrawable\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'radius' in file:\/\/\/\$OUT_DIR\/androidx\/docs-tip-of-tree\/build\/unzippedJvmSources\/androidx\/wear\/widget\/RoundedDrawable\.java:[0-9]+:[0-9]+
+# b/544718725
+WARN: Couldn't resolve link: \[androidx\.camera\.camera2\.interop\.Camera2Interop\.forSessionConfig\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/camera\/core\/SessionConfig\.kt:[0-9]+:[0-9]+ \(androidx\/main\)
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-tooling/src/androidDeviceTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # ./gradlew tasks warns as we have warnings present
