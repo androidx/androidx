@@ -266,4 +266,20 @@ public class FlagsTest {
                         "com.android.appsearch.flags"
                                 + ".remove_schema_store_move_assignment");
     }
+
+    @Test
+    public void testFlagValue_enableFineGrainedIndexRebuild() {
+        assertThat(Flags.FLAG_ENABLE_FINE_GRAINED_INDEX_REBUILD)
+                .isEqualTo(
+                        "com.android.appsearch.flags"
+                                + ".enable_fine_grained_index_rebuild");
+    }
+
+    @Test
+    public void testFlagValue_enableReadDuringAnnMaintenance() {
+        assertThat(Flags.FLAG_ENABLE_READ_DURING_ANN_MAINTENANCE)
+                .isEqualTo(
+                        "com.android.appsearch.flags"
+                                + ".enable_read_during_ann_maintenance");
+    }
 }
