@@ -25,10 +25,10 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.testutils.assertIsEqualTo
-import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.getBoundsInRoot
@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.xr.glimmer.testutils.assertGlimmerSurfaceShape
 import androidx.xr.glimmer.testutils.captureToImage
 import com.google.common.truth.Truth.assertThat
 import kotlin.properties.Delegates
@@ -78,21 +79,19 @@ class TitleChipTest {
             colors = Colors(surface = surfaceColor, background = backgroundColor)
         ) {
             expectedShape = GlimmerTheme.shapes.large
-            TitleChip(modifier = Modifier.testTag("titleChip"), border = null) {
+            TitleChip(modifier = Modifier.testTag("titleChip")) {
                 Box(Modifier.size(100.dp, 100.dp))
             }
         }
 
-        rule
-            .onNodeWithTag("titleChip")
-            .captureToImage()
-            .assertShape(
-                density = rule.density,
-                shape = expectedShape,
-                shapeColor = surfaceColor,
-                backgroundColor = backgroundColor,
-                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
-            )
+        val image = rule.onNodeWithTag("titleChip").captureToImage()
+        image.assertGlimmerSurfaceShape(
+            density = rule.density,
+            shape = expectedShape,
+            backgroundColor = backgroundColor,
+        )
+        val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
+        assertThat(centerColor).isEqualTo(surfaceColor)
     }
 
     @Test

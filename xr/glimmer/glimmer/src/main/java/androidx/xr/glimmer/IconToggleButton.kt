@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
+import androidx.xr.glimmer.internal.color.withToneAndChroma
 
 /**
  * A Jetpack Compose Glimmer icon toggle button that changes its appearance depending on the
@@ -85,13 +86,17 @@ public fun IconToggleButton(
 
     val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
+    val color = colors.resolveBackgroundColor(checked)
+    val contentColor = colors.resolveContentColor(checked)
     Box(
         modifier
             .surface(
                 enabled = enabled,
                 shape = shape,
-                color = colors.resolveBackgroundColor(checked),
-                contentColor = colors.resolveContentColor(checked),
+                color = color,
+                focusedColor = color,
+                contentColor = contentColor,
+                focusedContentColor = contentColor,
                 depthEffect = depthEffect,
                 interactionSource = internalInteractionSource,
             )
@@ -168,7 +173,7 @@ public object IconToggleButtonDefaults {
     @Composable
     public fun colors(
         backgroundColor: Color = GlimmerTheme.colors.surface,
-        checkedBackgroundColor: Color = OutlineColor,
+        checkedBackgroundColor: Color = checkedBackgroundColor(GlimmerTheme.colors.primary),
         contentColor: Color = calculateContentColor(backgroundColor),
         checkedContentColor: Color = calculateContentColor(checkedBackgroundColor),
     ): IconToggleButtonColors =
@@ -178,6 +183,20 @@ public object IconToggleButtonDefaults {
             contentColor = contentColor,
             checkedContentColor = checkedContentColor,
         )
+
+    /**
+     * Calculates the checked background color for an [IconToggleButton] derived from [color].
+     *
+     * @param color the base color to derive the checked background color from
+     */
+    public fun checkedBackgroundColor(color: Color): Color =
+        color.withToneAndChroma(
+            newTone = CheckedBackgroundColorTone,
+            newChroma = CheckedBackgroundColorChroma,
+        )
+
+    private const val CheckedBackgroundColorTone = 70f
+    private const val CheckedBackgroundColorChroma = 50f
 }
 
 /**
