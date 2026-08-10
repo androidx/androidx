@@ -18,6 +18,7 @@ package androidx.car.app.model
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -295,6 +296,32 @@ class SectionedItemTemplateTest {
         assertNotEqual(minimalTemplate, buildTemplate { setActions(testActions) })
         assertNotEqual(minimalTemplate, buildTemplate { setLoading(true) })
         assertNotEqual(minimalTemplate, buildTemplate { setAlphabeticalIndexingAllowed(true) })
+    }
+
+    @Test
+    fun getSearchHeader() {
+        val searchHeader =
+            SearchHeader.Builder(object : SearchCallback {})
+                .setInitialSearchText("initial")
+                .setSearchHint("hint")
+                .setShowKeyboardByDefault(false)
+                .setStartHeaderAction(Action.BACK)
+                .build()
+
+        val template = SectionedItemTemplate.Builder().setSearchHeader(searchHeader).build()
+
+        assertThat(template.searchHeader).isEqualTo(searchHeader)
+        assertThat(template.header).isNull()
+    }
+
+    @Test
+    fun build_withBothHeaderAndSearchHeader_throwsException() {
+        val searchHeader = SearchHeader.Builder(object : SearchCallback {}).build()
+        val builder = SectionedItemTemplate.Builder()
+        builder.setHeader(testHeader)
+        builder.setSearchHeader(searchHeader)
+
+        assertThrows(IllegalArgumentException::class.java) { builder.build() }
     }
 
     @Test

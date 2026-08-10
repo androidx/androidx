@@ -49,28 +49,7 @@ import java.util.Objects;
 public final class SearchTemplate implements Template {
 
     /** A listener for search updates. */
-    public interface SearchCallback {
-        /**
-         * Notifies the current {@code searchText} has changed.
-         *
-         * <p>The host may invoke this callback as the user types a search text. The frequency of
-         * these updates is not guaranteed to be after every individual keystroke. The host may
-         * decide to wait for several keystrokes before sending a single update.
-         *
-         * @param searchText the current search text that the user has typed
-         */
-        default void onSearchTextChanged(@NonNull String searchText) {
-        }
-
-        /**
-         * Notifies that the user has submitted the search and the given {@code searchText} is
-         * the final term.
-         *
-         * @param searchText the search text that the user typed
-         */
-        default void onSearchSubmitted(@NonNull String searchText) {
-        }
-    }
+    public interface SearchCallback extends androidx.car.app.model.SearchCallback {}
 
     private final boolean mIsLoading;
     private final @Nullable SearchCallbackDelegate mSearchCallbackDelegate;
