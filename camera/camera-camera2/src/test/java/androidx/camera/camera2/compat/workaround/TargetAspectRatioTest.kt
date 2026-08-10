@@ -203,9 +203,7 @@ class TargetAspectRatioTest(val config: TestConfig) {
                     ),
             )
 
-        val outputSizesCorrector = OutputSizesCorrector(cameraMetadata, map)
-
-        val streamConfigurationMapCompat = StreamConfigurationMapCompat(map, outputSizesCorrector)
+        val streamConfigurationMapCompat = StreamConfigurationMapCompat(map, cameraMetadata)
 
         val aspectRatio: Int = TargetAspectRatio().get(cameraMetadata, streamConfigurationMapCompat)
         Truth.assertThat(aspectRatio).isEqualTo(getExpectedAspectRatio())

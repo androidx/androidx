@@ -26,7 +26,6 @@ import androidx.camera.camera2.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CamcorderProfileResolutionQuirk
 import androidx.camera.camera2.compat.quirk.CameraQuirks
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.core.CameraSelector
@@ -96,10 +95,7 @@ class EncoderProfilesProviderAdapterDeviceTest(private val quality: Int) {
         cameraQuirks =
             CameraQuirks(
                     cameraMetadata,
-                    StreamConfigurationMapCompat(
-                        streamConfigurationMap,
-                        OutputSizesCorrector(cameraMetadata, streamConfigurationMap),
-                    ),
+                    StreamConfigurationMapCompat(streamConfigurationMap, cameraMetadata),
                 )
                 .quirks
         encoderProfilesProvider = EncoderProfilesProviderAdapter(cameraId, cameraQuirks)

@@ -32,7 +32,6 @@ import androidx.camera.camera2.compat.ZoomCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
 import androidx.camera.camera2.compat.workaround.MeteringRegionCorrection
 import androidx.camera.camera2.compat.workaround.NoOpMeteringRegionCorrection
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.impl.CameraProperties
 import androidx.camera.camera2.impl.FocusMeteringControl
 import androidx.camera.camera2.impl.State3AControl
@@ -1680,19 +1679,12 @@ class FocusMeteringControlTest {
         zoomCompat: ZoomCompat = FakeZoomCompat(),
     ): FocusMeteringControl {
         runningUseCases.addAll(useCases)
+        val metadata = cameraPropertiesMap[cameraId]!!.metadata
+        val map = StreamConfigurationMapBuilder.newBuilder().build()
         return FocusMeteringControl(
                 cameraPropertiesMap[cameraId]!!,
                 MeteringRegionCorrection.Bindings.provideMeteringRegionCorrection(
-                    CameraQuirks(
-                        cameraPropertiesMap[cameraId]!!.metadata,
-                        StreamConfigurationMapCompat(
-                            StreamConfigurationMapBuilder.newBuilder().build(),
-                            OutputSizesCorrector(
-                                cameraPropertiesMap[cameraId]!!.metadata,
-                                StreamConfigurationMapBuilder.newBuilder().build(),
-                            ),
-                        ),
-                    )
+                    CameraQuirks(metadata, StreamConfigurationMapCompat(map, metadata))
                 ),
                 state3AControl,
                 useCaseThreads,

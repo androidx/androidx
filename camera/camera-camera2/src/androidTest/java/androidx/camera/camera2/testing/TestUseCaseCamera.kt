@@ -27,7 +27,6 @@ import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
 import androidx.camera.camera2.compat.workaround.NoOpInactiveSurfaceCloser
 import androidx.camera.camera2.compat.workaround.NoOpTemplateParamsOverride
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.config.UseCaseCameraConfig
 import androidx.camera.camera2.config.UseCaseCameraContext
@@ -80,10 +79,7 @@ class TestUseCaseCamera(
     val cameraQuirks =
         CameraQuirks(
             cameraMetadata,
-            StreamConfigurationMapCompat(
-                streamConfigurationMap,
-                OutputSizesCorrector(cameraMetadata, streamConfigurationMap),
-            ),
+            StreamConfigurationMapCompat(streamConfigurationMap, cameraMetadata),
         )
     val sessionConfigAdapter = SessionConfigAdapter(useCases)
     val useCaseCameraContext: UseCaseCameraContext

@@ -17,7 +17,6 @@
 package androidx.camera.camera2.compat.quirk
 
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk
@@ -43,18 +42,10 @@ class YuvImageOnePixelShiftQuirkTest(
         ShadowBuild.setBrand(brand)
         ShadowBuild.setModel(model)
 
+        val metadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
+        val map = StreamConfigurationMapBuilder.newBuilder().build()
         val cameraQuirks =
-            CameraQuirks(
-                    FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                    StreamConfigurationMapCompat(
-                        StreamConfigurationMapBuilder.newBuilder().build(),
-                        OutputSizesCorrector(
-                            FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                            StreamConfigurationMapBuilder.newBuilder().build(),
-                        ),
-                    ),
-                )
-                .quirks
+            CameraQuirks(metadata, StreamConfigurationMapCompat(map, metadata)).quirks
 
         assertThat(cameraQuirks.contains(OnePixelShiftQuirk::class.java))
             .isEqualTo(quirkEnablingExpected)

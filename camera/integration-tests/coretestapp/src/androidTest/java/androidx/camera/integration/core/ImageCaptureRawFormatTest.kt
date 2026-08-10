@@ -132,7 +132,7 @@ class ImageCaptureRawFormatTest(implName: String, private val cameraXConfig: Cam
             getImageCaptureCapabilities(cameraInfo).supportedOutputFormats.contains(outputFormat)
         )
 
-        val imageCapture = bindImageCapture(OUTPUT_FORMAT_RAW)
+        val imageCapture = bindImageCapture(outputFormat)
 
         when (captureCallback) {
             IN_MEMORY_CALLBACK -> imageCapture.verifyInMemoryImageCapture()

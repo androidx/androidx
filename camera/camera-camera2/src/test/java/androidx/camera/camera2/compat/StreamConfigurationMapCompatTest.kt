@@ -18,8 +18,8 @@ package androidx.camera.camera2.compat
 
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
+import android.hardware.camera2.CameraCharacteristics
 import android.util.Size
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.ImageFormatConstants
@@ -31,6 +31,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
+import org.robolectric.shadows.ShadowBuild
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 /** Unit tests for [StreamConfigurationMapCompat]. */
@@ -56,14 +57,9 @@ class StreamConfigurationMapCompatTest {
             StreamConfigurationMapBuilder.newBuilder().apply {
                 privateFormatOutputSizes.forEach { size -> addOutputSize(FORMAT_PRIVATE, size) }
             }
-        streamConfigurationMapCompat =
-            StreamConfigurationMapCompat(
-                builder.build(),
-                OutputSizesCorrector(
-                    FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                    builder.build(),
-                ),
-            )
+        val map = builder.build()
+        val metadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
+        streamConfigurationMapCompat = StreamConfigurationMapCompat(map, metadata)
     }
 
     @Test
@@ -104,14 +100,9 @@ class StreamConfigurationMapCompatTest {
     @Test
     fun getOutputFormats_notThrowingNullPointerException() {
         val builder = StreamConfigurationMapBuilder.newBuilder()
-        val compat =
-            StreamConfigurationMapCompat(
-                builder.build(),
-                OutputSizesCorrector(
-                    FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                    builder.build(),
-                ),
-            )
+        val map = builder.build()
+        val metadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
+        val compat = StreamConfigurationMapCompat(map, metadata)
 
         // b/361590210: check the workaround for NullPointerException issue (on API 23+) of
         // StreamConfigurationMap provided by Robolectric is applied. Different versions of
@@ -119,5 +110,62 @@ class StreamConfigurationMapCompatTest {
         // might return null but some might not. Directly invoke the getOutputFormats to ensure
         // that NullPointerException won't be thrown.
         compat.getOutputFormats()
+    }
+
+    @Test
+    fun getOutputFormats_withUnsupportedFormatsQuirk_filtersRawSensorForBackCamera() {
+        // Arrange
+        ShadowBuild.setManufacturer("OPPO")
+        ShadowBuild.setModel("CPH1931")
+
+        // Create FakeCameraMetadata for BACK camera
+        val backCameraMetadata =
+            FakeCameraMetadata(
+                characteristics =
+                    mapOf(
+                        CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK
+                    )
+            )
+
+        val builder =
+            StreamConfigurationMapBuilder.newBuilder().apply {
+                addOutputSize(ImageFormat.RAW_SENSOR, Size(4000, 3000))
+                addOutputSize(FORMAT_PRIVATE, SIZE_1080P)
+            }
+
+        val mapCompat = StreamConfigurationMapCompat(builder.build(), backCameraMetadata)
+
+        // Act & Assert: RAW_SENSOR should be filtered out
+        assertThat(mapCompat.getOutputFormats()?.toList()).doesNotContain(ImageFormat.RAW_SENSOR)
+        assertThat(mapCompat.getOutputSizes(ImageFormat.RAW_SENSOR)).isNull()
+    }
+
+    @Test
+    fun getOutputFormats_withUnsupportedFormatsQuirk_doesNotFilterRawSensorForFrontCamera() {
+        // Arrange
+        ShadowBuild.setManufacturer("OPPO")
+        ShadowBuild.setModel("CPH1931")
+
+        // Create FakeCameraMetadata for FRONT camera
+        val frontCameraMetadata =
+            FakeCameraMetadata(
+                characteristics =
+                    mapOf(
+                        CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT
+                    )
+            )
+
+        val builder =
+            StreamConfigurationMapBuilder.newBuilder().apply {
+                addOutputSize(ImageFormat.RAW_SENSOR, Size(3264, 2448))
+                addOutputSize(FORMAT_PRIVATE, SIZE_1080P)
+            }
+
+        val mapCompat = StreamConfigurationMapCompat(builder.build(), frontCameraMetadata)
+
+        // Act & Assert: RAW_SENSOR should NOT be filtered out
+        assertThat(mapCompat.getOutputFormats()?.toList()).contains(ImageFormat.RAW_SENSOR)
+        assertThat(mapCompat.getOutputSizes(ImageFormat.RAW_SENSOR)?.toList())
+            .containsExactly(Size(3264, 2448))
     }
 }

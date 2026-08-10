@@ -99,17 +99,9 @@ class TemplateParamsOverrideTest(
 
     @Before
     fun setup() {
-        cameraQuirks =
-            CameraQuirks(
-                FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                StreamConfigurationMapCompat(
-                    StreamConfigurationMapBuilder.newBuilder().build(),
-                    OutputSizesCorrector(
-                        FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                        StreamConfigurationMapBuilder.newBuilder().build(),
-                    ),
-                ),
-            )
+        val metadata = FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate)
+        val map = StreamConfigurationMapBuilder.newBuilder().build()
+        cameraQuirks = CameraQuirks(metadata, StreamConfigurationMapCompat(map, metadata))
         if (quirk != null) {
             cameraQuirks.quirks.addQuirkForTesting(quirk)
         }

@@ -19,7 +19,6 @@ package androidx.camera.camera2.compat.quirk
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Range
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.StreamSpec
@@ -122,10 +121,7 @@ class AeFpsRangeLegacyQuirkTest {
             )
         return CameraQuirks(
                 metadata,
-                StreamConfigurationMapCompat(
-                    streamConfigurationMap,
-                    OutputSizesCorrector(metadata, streamConfigurationMap),
-                ),
+                StreamConfigurationMapCompat(streamConfigurationMap, metadata),
             )
             .quirks
             .getAll(AeFpsRangeQuirk::class.java)
