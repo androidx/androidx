@@ -83,23 +83,26 @@ class SectionedItemTemplateDemoScreen(carContext: CarContext) : Screen(carContex
                             R.string.end_image_and_action_demo_title,
                         )
                     )
-                    .addItem(
-                        buildRowForTemplate(ChipDemoScreen(carContext), R.string.chip_demo_title)
-                    )
-                    .addItem(
-                        buildRowForTemplate(
-                            ProgressBarDemoScreen(carContext),
-                            R.string.progress_bar_demo_title,
-                        )
-                    )
-                    .addItem(
-                        buildRowForTemplate(
-                            SectionHeaderDemoScreen(carContext),
-                            R.string.section_header_demo_title,
-                        )
-                    )
                     .apply {
                         if (carContext.getCarAppApiLevel() >= CarAppApiLevels.LEVEL_9) {
+                            addItem(
+                                buildRowForTemplate(
+                                    ChipDemoScreen(carContext),
+                                    R.string.chip_demo_title,
+                                )
+                            )
+                            addItem(
+                                buildRowForTemplate(
+                                    ProgressBarDemoScreen(carContext),
+                                    R.string.progress_bar_demo_title,
+                                )
+                            )
+                            addItem(
+                                buildRowForTemplate(
+                                    SectionHeaderDemoScreen(carContext),
+                                    R.string.section_header_demo_title,
+                                )
+                            )
                             addItem(
                                 buildRowForTemplate(
                                     SpotlightSectionDemoScreen(carContext),

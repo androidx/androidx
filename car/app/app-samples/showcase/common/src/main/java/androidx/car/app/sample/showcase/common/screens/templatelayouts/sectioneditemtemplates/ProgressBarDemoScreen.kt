@@ -37,7 +37,7 @@ import androidx.car.app.sample.showcase.common.R
 import androidx.core.graphics.drawable.IconCompat
 
 /** A screen demonstrating sectioned item lists with progress bars and different configurations. */
-@RequiresCarApi(8)
+@RequiresCarApi(9)
 @OptIn(ExperimentalCarApi::class)
 class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
 
