@@ -17,7 +17,9 @@
 package androidx.build.clang
 
 import androidx.testutils.assertThrows
+import com.android.build.gradle.LibraryPlugin
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.testfixtures.ProjectBuilder
@@ -276,6 +278,35 @@ class AndroidXClangTest : BaseClangTest() {
         assertThrows<IllegalStateException> { testProject.getNdkDirectory() }
             .hasMessageThat()
             .contains("does not match the expected NDK version")
+    }
+
+    @Test
+    fun testAndroidXNativeExtensionDefaults() {
+        val nativeProject = ProjectBuilder.builder().withProjectDir(projectSetup.rootDir).build()
+        val extension = nativeProject.rootProject.property("ext") as ExtraPropertiesExtension
+        extension.set("androidx.ndkVersion", projectSetup.props.ndkVersion)
+        projectSetup.props.prebuiltsPath?.let { extension.set("prebuiltsRoot", it) }
+        extension.set("supportRootFolder", File(projectSetup.props.rootProjectPath))
+
+        nativeProject.pluginManager.apply(LibraryPlugin::class.java)
+
+        val nativeExtension =
+            nativeProject.objects.newInstance(AndroidXNativeExtension::class.java, nativeProject)
+        val compilation =
+            nativeExtension.createNativeCompilation("testlib") {
+                it.configureEachTarget { targetCompilation ->
+                    targetCompilation.sources.from(nativeProject.file("src/main/cpp/dummy.cpp"))
+                }
+            }
+
+        // Verify that it defaults to compiling for all known Android targets:
+        assertThat(compilation.hasTarget(NativeTarget.ANDROID_ARM32)).isTrue()
+        assertThat(compilation.hasTarget(NativeTarget.ANDROID_ARM64)).isTrue()
+        assertThat(compilation.hasTarget(NativeTarget.ANDROID_X86)).isTrue()
+        assertThat(compilation.hasTarget(NativeTarget.ANDROID_X64)).isTrue()
+
+        // Verify that it does NOT configure any non-Android target:
+        assertThat(compilation.hasTarget(NativeTarget.LINUX_X64)).isFalse()
     }
 
     private fun ConfigurableFileCollection.regularFileNames() = asFileTree.files.map { it.name }
