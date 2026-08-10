@@ -20,11 +20,11 @@ package androidx.navigation3.runtime.deeplink
  * Represents a requested deep link.
  *
  * @param uri The URI for the deep link.
- * @param extras The map of additional information for the request.
+ * @param extras The [RequestExtras] to provide extra information to the [DeepLinkRequest]
  */
 public class DeepLinkRequest(
     public val uri: DeepLinkUri? = null,
-    public val extras: Map<String, Any> = emptyMap(),
+    public val extras: RequestExtras = emptyRequestExtras(),
 ) {
 
     init {
@@ -37,12 +37,11 @@ public class DeepLinkRequest(
      * Constructs a [DeepLinkRequest] with a string uri.
      *
      * @param uri the string uri of the requested deep link
-     * @param extras The map holding pairs of [String] to [Any] to provide extra information to the
-     *   [DeepLinkRequest], such a mimeType.
+     * @param extras The [RequestExtras] to provide extra information to the [DeepLinkRequest]
      */
     public constructor(
         uri: String,
-        extras: Map<String, Any> = emptyMap(),
+        extras: RequestExtras = emptyRequestExtras(),
     ) : this(DeepLinkUri(uri), extras)
 
     public override fun toString(): String {
@@ -62,16 +61,19 @@ public class DeepLinkRequest(
     }
 
     public companion object {
-        /** The key of the mimeType stored inside the map returned by [mimeTypeExtra]. */
+        /**
+         * The [RequestExtrasKey] for the mimeType stored inside the [RequestExtras] returned by
+         * [mimeTypeExtra].
+         */
         public object MimeTypeExtrasKey : RequestExtrasKey<String>
 
         /**
-         * Returns a Map<String, Any> that stores the provided [mimeTypeExtra] with the key
+         * Returns a [RequestExtras] that stores the provided [mimeTypeExtra] with the key
          * [MimeTypeExtrasKey].
          *
-         * The value can be retrieved via map.get([MimeTypeExtrasKey]).
+         * The value can be retrieved via extras[[MimeTypeExtrasKey]].
          */
-        public fun mimeTypeExtra(mimeType: String): Map<String, Any> = requestExtras {
+        public fun mimeTypeExtra(mimeType: String): RequestExtras = requestExtras {
             put(MimeTypeExtrasKey, mimeType)
         }
     }
