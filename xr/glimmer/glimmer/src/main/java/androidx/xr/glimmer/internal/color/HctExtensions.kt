@@ -21,21 +21,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 
 /**
- * Returns a new [Color] with the given chroma and tone, keeping the hue of this color, based on HCT
- * color space calculations.
+ * Returns a new [Color] with the given tone and maximized chroma, based on HCT color space
+ * calculations.
  *
- * @param newTone Perceptual lightness L* in L*a*b* space, ranging from 0.0 (black) to 100.0
+ * @param[newTone] Perceptual lightness L* in L*a*b* space, ranging from 0.0 (black) to 100.0
  *   (white).
- * @param newChroma Chroma value in HCT color space. Defaults to [MAX_CHROMA] for maximized chroma.
  * @return A new Compose [Color] representing the solved HCT value.
  */
-internal fun Color.withToneAndChroma(
-    @FloatRange(from = 0.0, to = 100.0) newTone: Float,
-    @FloatRange(from = 0.0, to = 200.0) newChroma: Float = MAX_CHROMA,
-): Color {
+internal fun Color.withToneAndMaxChroma(@FloatRange(from = 0.0, to = 100.0) newTone: Float): Color {
     val hue = HctUtils.argbToHue(toArgb())
-    val solvedArgb = HctSolver.solveToInt(hue, newChroma.toDouble(), newTone.toDouble())
-    return Color(solvedArgb).copy(alpha = alpha)
+    val solvedArgb = HctSolver.solveToInt(hue, MAX_CHROMA, newTone.toDouble())
+    return Color(solvedArgb).copy(alpha = this.alpha)
 }
 
-internal const val MAX_CHROMA = 200.0f
+private const val MAX_CHROMA = 200.0

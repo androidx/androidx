@@ -16,6 +16,7 @@
 
 package androidx.xr.glimmer.samples
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,6 +43,8 @@ fun ColorsSample() {
         item { ColorItem(colors.positive, colorName = "positive") }
         item { ColorItem(colors.background, colorName = "background") }
         item { ColorItem(colors.surface, colorName = "surface") }
+        item { ColorItem(colors.outline, colorName = "outline") }
+        item { ColorItem(colors.outlineVariant, colorName = "outlineVariant") }
     }
 }
 
@@ -54,7 +57,13 @@ private fun ColorsPreview() {
 @Composable
 private fun ColorItem(color: Color, colorName: String, modifier: Modifier = Modifier) {
     Row(
-        modifier.surface(shape = RectangleShape, color = color).fillMaxWidth(),
+        modifier
+            .surface(
+                shape = RectangleShape,
+                color = color,
+                border = BorderStroke(1.dp, color = Color.White),
+            )
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {

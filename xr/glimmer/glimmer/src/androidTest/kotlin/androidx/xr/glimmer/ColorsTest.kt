@@ -51,11 +51,6 @@ class ColorsTest {
         rule.runOnIdle { assertThat(currentColors).isEqualTo(customColors) }
     }
 
-    @Test
-    fun defaultSurfaceColor_matchesThemeSurfaceColor() {
-        assertThat(Colors().surface).isEqualTo(DefaultSurfaceColor)
-    }
-
     /**
      * Test to ensure that the baseline theme colors have acceptable contrast with the calculated
      * content colors. Note that primarily surface should be used to fill surfaces - other colors

@@ -16,6 +16,7 @@
 
 package androidx.xr.glimmer
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -57,6 +58,7 @@ import androidx.compose.ui.unit.dp
  *   border
  * @param color background color of this title chip
  * @param contentColor content color used by components inside [content] and [leadingIcon].
+ * @param border the border to draw around this title chip
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content
  * @param content the main content, typically [Text], to display inside this title chip
@@ -68,6 +70,7 @@ public fun TitleChip(
     shape: Shape = GlimmerTheme.shapes.large,
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
+    border: BorderStroke? = SurfaceDefaults.border(),
     contentPadding: PaddingValues = TitleChipDefaults.contentPadding,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -82,6 +85,7 @@ public fun TitleChip(
                     color = color,
                     contentColor = contentColor,
                     depthEffect = null,
+                    border = border,
                 )
                 .defaultMinSize(minHeight = MinimumHeight)
                 .widthIn(max = MaximumWidth)

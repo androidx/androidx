@@ -164,8 +164,11 @@ class TextTest {
                 Text(
                     testString,
                     modifier =
-                        Modifier.background(Color.Blue)
-                            .contentColorProvider(Color.Blue)
+                        Modifier.surface(
+                                color = Color.Blue,
+                                contentColor = Color.Blue,
+                                border = null,
+                            )
                             .testTag("test"),
                 )
             }
@@ -183,7 +186,13 @@ class TextTest {
             Box(Modifier.fillMaxSize().background(Color.Blue).padding(20.dp)) {
                 Text(
                     testAnnotatedString,
-                    Modifier.background(Color.Blue).contentColorProvider(Color.Blue).testTag("test"),
+                    modifier =
+                        Modifier.surface(
+                                color = Color.Blue,
+                                contentColor = Color.Blue,
+                                border = null,
+                            )
+                            .testTag("test"),
                 )
             }
         }

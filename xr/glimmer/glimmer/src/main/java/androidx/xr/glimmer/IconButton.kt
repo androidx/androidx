@@ -16,6 +16,7 @@
 
 package androidx.xr.glimmer
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.dp
  * @param shape the [Shape] used to clip this icon button
  * @param color background color of this icon button
  * @param contentColor content color used by components inside [content]
+ * @param border the border to draw around this icon button
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -67,6 +69,7 @@ public fun IconButton(
     shape: Shape = GlimmerTheme.shapes.large,
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
+    border: BorderStroke? = SurfaceDefaults.border(),
     contentPadding: PaddingValues = IconButtonDefaults.contentPadding,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
@@ -88,6 +91,7 @@ public fun IconButton(
                 color = color,
                 contentColor = contentColor,
                 depthEffect = depthEffect,
+                border = border,
                 interactionSource = internalInteractionSource,
             )
             .clickable(

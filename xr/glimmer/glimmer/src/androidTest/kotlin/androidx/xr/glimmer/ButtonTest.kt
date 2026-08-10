@@ -29,10 +29,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -59,7 +59,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
-import androidx.xr.glimmer.testutils.assertGlimmerSurfaceShape
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import androidx.xr.glimmer.testutils.toIntArray
@@ -158,19 +157,21 @@ class ButtonTest {
             colors = Colors(background = backgroundColor, surface = surfaceColor),
         ) {
             expectedShape = GlimmerTheme.shapes.large
-            Button(onClick = {}, modifier = Modifier.testTag("button")) {
+            Button(onClick = {}, modifier = Modifier.testTag("button"), border = null) {
                 Box(Modifier.size(100.dp, 100.dp))
             }
         }
 
-        val image = rule.onNodeWithTag("button").captureToImage()
-        image.assertGlimmerSurfaceShape(
-            density = rule.density,
-            shape = expectedShape,
-            backgroundColor = backgroundColor,
-        )
-        val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
-        assertThat(centerColor).isEqualTo(surfaceColor)
+        rule
+            .onNodeWithTag("button")
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = expectedShape,
+                shapeColor = surfaceColor,
+                backgroundColor = backgroundColor,
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
+            )
     }
 
     @Test
