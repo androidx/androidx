@@ -16,6 +16,8 @@
 
 package androidx.car.app.sample.navigation.common.car;
 
+import static java.util.Objects.requireNonNull;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -27,6 +29,7 @@ import android.content.res.Configuration;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -179,8 +182,8 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
             };
 
     NavigationSession() {
-            Lifecycle lifecycle = getLifecycle();
-            lifecycle.addObserver(mLifeCycleObserver);
+        Lifecycle lifecycle = getLifecycle();
+        lifecycle.addObserver(mLifeCycleObserver);
     }
 
     @Override
@@ -210,9 +213,9 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
         String action = intent.getAction();
         if (action != null && CarContext.ACTION_NAVIGATE.equals(action)) {
             CarToast.makeText(
-                    getCarContext(),
-                    "Navigation intent: " + intent.getDataString(),
-                    CarToast.LENGTH_LONG)
+                            getCarContext(),
+                            "Navigation intent: " + intent.getDataString(),
+                            CarToast.LENGTH_LONG)
                     .show();
         }
 
@@ -313,13 +316,44 @@ class NavigationSession extends Session implements NavigationScreen.Listener {
     void requestLocationUpdates() {
         LocationManager locationManager =
                 (LocationManager) getCarContext().getSystemService(Context.LOCATION_SERVICE);
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        String locationProvider = getAvailableLocationProvider(locationManager);
+        Log.i(TAG, "Using " + locationProvider + " location provider");
+        Location location = locationManager.getLastKnownLocation(locationProvider);
         mNavigationCarSurface.updateLocationString(getLocationString(location));
         locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
+                locationProvider,
                 /* minTimeMs= */ 1000,
                 /* minDistanceM= */ 1,
                 mLocationListener);
+    }
+
+    /**
+     * Returns an available location provider
+     *
+     * @throws NullPointerException  if {@code locationManager} is {@code null}
+     * @throws IllegalStateException if there are no location providers enabled
+     */
+    @NonNull
+    private String getAvailableLocationProvider(@NonNull LocationManager locationManager) {
+        requireNonNull(locationManager);
+        List<String> enabledProviders = locationManager.getProviders(/* enabledOnly= */ true);
+
+        if (enabledProviders.isEmpty()) {
+            throw new IllegalStateException("There are no enabled location providers");
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                && enabledProviders.contains(LocationManager.FUSED_PROVIDER)) {
+            return LocationManager.FUSED_PROVIDER;
+        } else if (enabledProviders.contains(LocationManager.GPS_PROVIDER)) {
+            return LocationManager.GPS_PROVIDER;
+        } else if (enabledProviders.contains(LocationManager.NETWORK_PROVIDER)) {
+            return LocationManager.NETWORK_PROVIDER;
+        } else if (enabledProviders.contains(LocationManager.PASSIVE_PROVIDER)) {
+            return LocationManager.PASSIVE_PROVIDER;
+        } else {
+            return enabledProviders.get(0);
+        }
     }
 
     static String getLocationString(@Nullable Location location) {
