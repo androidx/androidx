@@ -52,7 +52,8 @@ package androidx.core.pip {
 package androidx.core.pip.contentpip {
 
   public final class ContentPip {
-    method public static void enablePipOnAppSwitch(androidx.activity.ComponentActivity, androidx.core.pip.contentpip.ContentPipCallback callback);
+    method public static void disablePipOnAppSwitch(androidx.activity.ComponentActivity, androidx.core.pip.contentpip.ContentPipToken contentPipToken);
+    method public static androidx.core.pip.contentpip.ContentPipToken enablePipOnAppSwitch(androidx.activity.ComponentActivity, androidx.core.pip.contentpip.ContentPipCallback callback);
   }
 
   public interface ContentPipCallback {
@@ -60,6 +61,9 @@ package androidx.core.pip.contentpip {
     method public void onFinishContentPip(boolean isDismissed);
     method public boolean onInitContentPip();
     method public boolean onPrepareContentPip();
+  }
+
+  public final class ContentPipToken {
   }
 
 }

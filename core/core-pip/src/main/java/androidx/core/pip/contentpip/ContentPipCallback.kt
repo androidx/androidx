@@ -21,6 +21,13 @@ import androidx.activity.ComponentActivity
 /**
  * A callback interface for managing the handoff of a content between the main activity and the
  * Content PiP.
+ *
+ * After registering [ContentPipCallback] via [enablePipOnAppSwitch], application can expect the
+ * callbacks in the following order
+ * 1. [onInitContentPip], app can return the PiP eligibility
+ * 2. [onPrepareContentPip], app prepares for the handoff
+ * 3. [onAttachContentPip], app attaches the content to the new Activity (that will enter PiP)
+ * 4. [onFinishContentPip], app is notified that content PiP is finished
  */
 public interface ContentPipCallback {
     /**
