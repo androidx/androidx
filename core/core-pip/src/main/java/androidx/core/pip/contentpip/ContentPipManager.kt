@@ -28,7 +28,8 @@ internal object ContentPipManager {
 
     /** Attempts to trigger the fallback PiP pipeline. */
     internal fun triggerFallback(activity: ComponentActivity, callback: ContentPipCallback) {
-        // Mutual exclusivity: Don't trigger if already in PiP or already transitioning
+        // Mutual exclusivity: Don't trigger if the caller Activity is in PiP
+        // or the proxy ContentPipInternalActivity is already transitioning.
         if (activity.isInPictureInPictureMode || !isTransitioning.compareAndSet(false, true)) {
             return
         }
@@ -64,7 +65,7 @@ internal object ContentPipManager {
     }
 
     /** Registers a hook to finish the proxy activity. */
-    internal fun registerFinishProxyHook(hook: () -> Unit) {
+    internal fun setFinishProxyHook(hook: () -> Unit) {
         finishProxyHook = hook
     }
 
@@ -75,8 +76,8 @@ internal object ContentPipManager {
     }
 
     /** Clears the current session. */
-    internal fun onTeardown(isStopped: Boolean) {
-        activeCallback?.onFinishContentPip(isStopped)
+    internal fun onTeardown(isDismissed: Boolean) {
+        activeCallback?.onFinishContentPip(isDismissed)
         cleanupInternalStates()
     }
 
