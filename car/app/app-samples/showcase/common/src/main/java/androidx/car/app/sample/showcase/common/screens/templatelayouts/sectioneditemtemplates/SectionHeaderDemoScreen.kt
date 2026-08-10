@@ -38,7 +38,7 @@ import androidx.car.app.model.Template
 import androidx.car.app.sample.showcase.common.R
 import androidx.core.graphics.drawable.IconCompat
 
-@RequiresCarApi(8)
+@RequiresCarApi(9)
 @OptIn(ExperimentalCarApi::class)
 /** A comprehensive screen demonstrating all RSL validation scenarios for SectionHeader. */
 class SectionHeaderDemoScreen(carContext: CarContext) : Screen(carContext) {
