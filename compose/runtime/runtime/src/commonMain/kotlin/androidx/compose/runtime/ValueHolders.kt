@@ -43,7 +43,7 @@ internal data class StaticValueHolder<T>(val value: T) : ValueHolder<T> {
  * parameter which is called once and the result is remembered for the life of LazyValueHolder.
  */
 internal class LazyValueHolder<T>(valueProducer: () -> T) : ValueHolder<T> {
-    private val current by lazy(valueProducer)
+    private val current by lazy(LazyThreadSafetyMode.SYNCHRONIZED, valueProducer)
 
     override fun readValue(map: PersistentCompositionLocalMap): T = current
 

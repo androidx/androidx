@@ -64,11 +64,13 @@ private const val DisallowDefaultMonotonicFrameClock = false
     "MonotonicFrameClocks are not globally applicable across platforms. " +
         "Use an appropriate local clock."
 )
-public actual val DefaultMonotonicFrameClock: MonotonicFrameClock by lazy {
-    if (DisallowDefaultMonotonicFrameClock) error("Disallowed use of DefaultMonotonicFrameClock")
+public actual val DefaultMonotonicFrameClock: MonotonicFrameClock by
+    lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        if (DisallowDefaultMonotonicFrameClock)
+            error("Disallowed use of DefaultMonotonicFrameClock")
 
-    // When linked against Android SDK stubs and running host-side tests, APIs such as
-    // Looper.getMainLooper() that will never return null on a real device will return null.
-    // This branch offers an alternative solution.
-    if (Looper.getMainLooper() != null) DefaultChoreographerFrameClock else FallbackFrameClock
-}
+        // When linked against Android SDK stubs and running host-side tests, APIs such as
+        // Looper.getMainLooper() that will never return null on a real device will return null.
+        // This branch offers an alternative solution.
+        if (Looper.getMainLooper() != null) DefaultChoreographerFrameClock else FallbackFrameClock
+    }

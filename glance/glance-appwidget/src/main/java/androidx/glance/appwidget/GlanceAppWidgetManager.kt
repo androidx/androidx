@@ -68,7 +68,7 @@ public class GlanceAppWidgetManager(private val context: Context) {
     }
 
     private val appWidgetManager = AppWidgetManager.getInstance(context)
-    private val dataStore by lazy { getOrCreateDataStore() }
+    private val dataStore by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { getOrCreateDataStore() }
 
     private fun getOrCreateDataStore(): DataStore<Preferences> {
         synchronized(GlanceAppWidgetManager) {

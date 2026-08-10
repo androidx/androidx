@@ -94,10 +94,11 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                         "wear:compose:compose-navigation",
                     )
 
-                // Disable ListIterator if we are not in a matching path, or we are in an
-                // unpublished project
+                // Disable ListIterator and LazyDelegate if we are not in a matching path, or we are
+                // in an unpublished project
                 if (ignoreListIteratorFilter.any { path.contains(it) } || !isPublished) {
                     disable.add("ListIterator")
+                    disable.add("LazyDelegate")
                 }
 
                 // b/333784604 Disable ConfigurationScreenWidthHeight for wear libraries, it
@@ -109,6 +110,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 // These checks are not required for samples projects.
                 if (type == SoftwareType.SAMPLES) {
                     disable.add("ListIterator")
+                    disable.add("LazyDelegate")
                     disable.add("PrimitiveInCollection")
                 }
 
