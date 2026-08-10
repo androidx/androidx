@@ -41,6 +41,16 @@ fun SceneStrategyOnBackSample() {
         override val content: @Composable () -> Unit = {
             Dialog(onDismissRequest = onBack) { entry.Content() }
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is SimpleDialogScene<*>) return false
+            return entry == other.entry && previousEntries == other.previousEntries
+        }
+
+        override fun hashCode(): Int {
+            return entry.hashCode() * 31 + previousEntries.hashCode()
+        }
     }
 
     /**

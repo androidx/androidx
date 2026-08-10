@@ -86,6 +86,23 @@ class CardStackScene<T : Any>(
     // Stack all card entries in the same Scene
     override val key = Unit
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CardStackScene<*>) return false
+        return key == other.key &&
+            entries == other.entries &&
+            previousEntries == other.previousEntries &&
+            duration == other.duration
+    }
+
+    override fun hashCode(): Int {
+        var result = key.hashCode()
+        result = 31 * result + entries.hashCode()
+        result = 31 * result + previousEntries.hashCode()
+        result = 31 * result + duration.hashCode()
+        return result
+    }
+
     override val content: @Composable () -> Unit = {
         // Keep track of all of the currently displayed entries
         // this may include entries that have been popped, but are
