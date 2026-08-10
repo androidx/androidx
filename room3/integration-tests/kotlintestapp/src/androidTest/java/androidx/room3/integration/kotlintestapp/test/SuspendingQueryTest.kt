@@ -638,6 +638,20 @@ class SuspendingQueryTest(driver: UseDriver) : TestDatabaseTest(driver) {
     }
 
     @Test
+    fun suspendTransaction_contextSwitch() = runTest {
+        val bookPublisher = TestUtil.PUBLISHER
+        val addedBook = TestUtil.BOOK_1.copy(bookPublisherId = bookPublisher.publisherId)
+        booksDao.addPublishers(bookPublisher)
+
+        booksDao.suspendFunctionWithSuspendFunctionalParam(addedBook) { book ->
+            withContext(Dispatchers.Default) { booksDao.insertBookSuspend(book) }
+            book
+        }
+
+        assertThat(booksDao.getBooksSuspend()).contains(addedBook)
+    }
+
+    @Test
     fun withTransaction_instantTaskExecutorRule() = runTest {
         // Not the actual InstantTaskExecutorRule since this test class already uses
         // CountingTaskExecutorRule but same behaviour.
