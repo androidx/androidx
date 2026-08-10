@@ -54,11 +54,11 @@ public class SupportProgressBar implements AndroidComponentSupport {
         progressBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int id = (Integer) seekBar.getTag();
-                if (fromUser && id != -1 && mSupport.getRemoteContext() != null) {
+
+                Integer id = (Integer) seekBar.getTag();
+                if (id != null && fromUser && id != -1 && mSupport.getRemoteContext() != null) {
                     mSupport.getRemoteContext().loadFloat(id, (float) progress);
                 }
-
             }
 
             @Override
