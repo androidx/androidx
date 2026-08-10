@@ -186,7 +186,8 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         width: Int = 360,
         height: Int = 130,
         isYawUpdateEnabled: Boolean = true,
-        pitchLimits: PitchLimits? = PitchLimits.UNCONSTRAINED,
+        isPitchUpdateEnabled: Boolean = true,
+        pitchLimits: PitchLimits = PitchLimits.FullRange,
         container:
             @Composable
             @SubspaceComposable
@@ -197,6 +198,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
             finalModifier =
                 finalModifier.rotateToLookAtUser(
                     isYawUpdateEnabled = isYawUpdateEnabled,
+                    isPitchUpdateEnabled = isPitchUpdateEnabled,
                     pitchLimits = pitchLimits,
                 )
         }
@@ -226,6 +228,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
     @Composable
     private fun InteractiveConstraintsPanel(isFeatureOn: Boolean) {
         var isYawEnabled: Boolean by remember { mutableStateOf(true) }
+        var isPitchEnabled: Boolean by remember { mutableStateOf(true) }
         var isPitchClamped: Boolean by remember { mutableStateOf(false) }
 
         var modifier: SubspaceModifier = SubspaceModifier.width(360.dp).height(140.dp)
@@ -233,8 +236,9 @@ class RotateToLookAtUserActivity : ComponentActivity() {
             modifier =
                 modifier.rotateToLookAtUser(
                     isYawUpdateEnabled = isYawEnabled,
+                    isPitchUpdateEnabled = isPitchEnabled,
                     pitchLimits =
-                        if (isPitchClamped) PitchLimits(-15f, 15f) else PitchLimits.UNCONSTRAINED,
+                        if (isPitchClamped) PitchLimits(-15f, 15f) else PitchLimits.FullRange,
                 )
         }
 
@@ -255,31 +259,47 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                     textAlign = TextAlign.Center,
                 )
 
-                // Yaw Switch
+                // Yaw & Pitch Tracking Switches
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Text("Yaw Tracking", color = Color.White, fontSize = 16.sp)
-                    Switch(
-                        checked = isYawEnabled,
-                        onCheckedChange = { isYawEnabled = it },
-                        enabled = isFeatureOn,
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text("Yaw", color = Color.White, fontSize = 15.sp)
+                        Switch(
+                            checked = isYawEnabled,
+                            onCheckedChange = { isYawEnabled = it },
+                            enabled = isFeatureOn,
+                        )
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text("Pitch", color = Color.White, fontSize = 15.sp)
+                        Switch(
+                            checked = isPitchEnabled,
+                            onCheckedChange = { isPitchEnabled = it },
+                            enabled = isFeatureOn,
+                        )
+                    }
                 }
 
-                // Pitch Switch
+                // Pitch Clamp Switch
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Text("Clamp Pitch [-15°, 15°]", color = Color.White, fontSize = 16.sp)
+                    Text("Clamp Pitch [-15°, 15°]", color = Color.White, fontSize = 15.sp)
                     Switch(
                         checked = isPitchClamped,
                         onCheckedChange = { isPitchClamped = it },
-                        enabled = isFeatureOn,
+                        enabled = isFeatureOn && isPitchEnabled,
                     )
                 }
             }
