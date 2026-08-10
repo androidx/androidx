@@ -404,11 +404,13 @@ package androidx.xr.runtime {
     property public static int SPATIAL_API_V1;
     property public static int SPATIAL_API_V2;
     property public static int SPATIAL_API_V3;
+    property public static int SPATIAL_API_V4;
     property public static int UNKNOWN;
     field public static final androidx.xr.runtime.SpatialApiVersions INSTANCE;
     field public static final int SPATIAL_API_V1 = 1; // 0x1
     field public static final int SPATIAL_API_V2 = 2; // 0x2
     field public static final int SPATIAL_API_V3 = 3; // 0x3
+    field public static final int SPATIAL_API_V4 = 4; // 0x4
     field public static final int UNKNOWN = 0; // 0x0
   }
 
