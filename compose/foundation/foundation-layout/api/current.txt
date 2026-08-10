@@ -204,9 +204,6 @@ package androidx.compose.foundation.layout {
     property @Deprecated public abstract androidx.compose.ui.unit.Dp maxWidthInLine;
   }
 
-  @Deprecated @SuppressCompatibility @kotlin.RequiresOptIn(message="This FlexBox API is experimental and is likely to change or be removed in the future.\nThis API is experimental because it introduces a new category of layout concepts to the Compose Foundation library. \nIt requires a period of user validation to ensure the API surface is intuitive and flexible enough to cover the intended use cases before being stabilized. (https://issuetracker.google.com/475491619)") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalFlexBoxApi {
-  }
-
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This foundation layout API is experimental and is likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGridApi {
   }
 
@@ -337,7 +334,7 @@ package androidx.compose.foundation.layout {
     method public static androidx.compose.foundation.layout.FlexConfig FlexConfig(androidx.compose.foundation.layout.FlexConfig... configs);
   }
 
-  @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface FlexBoxScope {
+  @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface FlexBoxScope {
     method @androidx.compose.runtime.Stable public androidx.compose.ui.Modifier flex(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.FlexConfig flexConfig);
     method @androidx.compose.runtime.Stable public default androidx.compose.ui.Modifier flex(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.FlexConfigScope,kotlin.Unit> flexConfig);
   }
@@ -363,17 +360,17 @@ package androidx.compose.foundation.layout {
     method public void basis(@FloatRange(from=0.0, to=1.0) float value);
     method @BytecodeOnly public void basis-0680j_4(float);
     method @BytecodeOnly public void basis-MFoeH6Y(long);
-    method @InaccessibleFromKotlin public int getFlexBoxCrossAxisMax();
-    method @InaccessibleFromKotlin public int getFlexBoxCrossAxisMin();
-    method @InaccessibleFromKotlin public int getFlexBoxMainAxisMax();
-    method @InaccessibleFromKotlin public int getFlexBoxMainAxisMin();
+    method @InaccessibleFromKotlin public int getFlexBoxCrossAxisMaxPx();
+    method @InaccessibleFromKotlin public int getFlexBoxCrossAxisMinPx();
+    method @InaccessibleFromKotlin public int getFlexBoxMainAxisMaxPx();
+    method @InaccessibleFromKotlin public int getFlexBoxMainAxisMinPx();
     method public void grow(@FloatRange(from=0.0) float value);
     method public void order(int value);
     method public void shrink(@FloatRange(from=0.0) float value);
-    property public abstract int flexBoxCrossAxisMax;
-    property public abstract int flexBoxCrossAxisMin;
-    property public abstract int flexBoxMainAxisMax;
-    property public abstract int flexBoxMainAxisMin;
+    property public abstract int flexBoxCrossAxisMaxPx;
+    property public abstract int flexBoxCrossAxisMinPx;
+    property public abstract int flexBoxMainAxisMaxPx;
+    property public abstract int flexBoxMainAxisMinPx;
   }
 
   @kotlin.jvm.JvmInline public final value class FlexDirection {
