@@ -16,6 +16,7 @@
 
 package androidx.xr.glimmer
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -89,6 +90,7 @@ import kotlin.math.max
  * @param color background color of this card
  * @param contentColor content color used by components inside [content], [title], [subtitle],
  *   [leadingIcon], and [trailingIcon].
+ * @param border the border to draw around this card
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content. Note that there is additional padding applied around the content / text / icons inside
  *   a card, this only affects the outermost content padding.
@@ -110,6 +112,7 @@ public fun Card(
     shape: Shape = CardDefaults.shape,
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
+    border: BorderStroke? = SurfaceDefaults.border(),
     contentPadding: PaddingValues = CardDefaults.contentPadding,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
@@ -122,6 +125,7 @@ public fun Card(
                     shape = shape,
                     color = color,
                     contentColor = contentColor,
+                    border = border,
                     interactionSource = internalInteractionSource,
                 )
                 .focusable(interactionSource = internalInteractionSource),
@@ -182,6 +186,7 @@ public fun Card(
  * @param color background color of this card
  * @param contentColor content color used by components inside [content], [title], [subtitle],
  *   [leadingIcon], and [trailingIcon].
+ * @param border the border to draw around this card
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content. Note that there is additional padding applied around the content / text / icons inside
  *   a card, this only affects the outermost content padding.
@@ -204,6 +209,7 @@ public fun Card(
     shape: Shape = CardDefaults.shape,
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
+    border: BorderStroke? = SurfaceDefaults.border(),
     contentPadding: PaddingValues = CardDefaults.contentPadding,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
@@ -216,6 +222,7 @@ public fun Card(
                     shape = shape,
                     color = color,
                     contentColor = contentColor,
+                    border = border,
                     interactionSource = internalInteractionSource,
                 )
                 .clickable(interactionSource = internalInteractionSource, onClick = onClick),
@@ -265,6 +272,7 @@ public fun Card(
  * @param color background color of this card
  * @param contentColor content color used by components inside [content], [title], [subtitle],
  *   [leadingIcon], and [trailingIcon].
+ * @param border the border to draw around this card
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content. Note that there is additional padding applied around the content / text / icons inside
  *   a card, this only affects the outermost content padding.
@@ -283,13 +291,20 @@ public fun ActionCard(
     shape: Shape = CardDefaults.shape,
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
+    border: BorderStroke? = SurfaceDefaults.border(),
     contentPadding: PaddingValues = CardDefaults.contentPadding,
     content: @Composable () -> Unit,
 ) {
     // b/436852852 - in a list the button won't be focused until it crosses the focus line.
     ActionCardLayout(modifier, action) {
         CardImpl(
-            modifier = Modifier.surface(shape = shape, color = color, contentColor = contentColor),
+            modifier =
+                Modifier.surface(
+                    shape = shape,
+                    color = color,
+                    contentColor = contentColor,
+                    border = border,
+                ),
             title = title,
             subtitle = subtitle,
             header = header,

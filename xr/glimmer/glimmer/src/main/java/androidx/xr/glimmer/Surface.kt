@@ -68,7 +68,7 @@ import org.intellij.lang.annotations.Language
  * or 'physical' boundary for components such as buttons and cards. A [surface] implements shared
  * visual decoration for Jetpack Compose Glimmer components:
  * 1) Clipping: a surface clips its children to the shape specified by [shape]
- * 2) Border: a surface draws an inner border to emphasize the boundary of the component. When
+ * 2) Border: a surface draws an inner [border] to emphasize the boundary of the component. When
  *    focused, a surface draws a wider border with a focused highlight on top to indicate the focus
  *    state.
  * 3) Background: a surface has a background color of [color].
@@ -107,6 +107,7 @@ import org.intellij.lang.annotations.Language
  * @param contentColor the [Color] for content inside this surface
  * @param depthEffect the [SurfaceDepthEffect] for this surface, representing the [DepthEffect]
  *   shadows rendered in different states.
+ * @param border an optional inner border for this surface
  * @param interactionSource the [InteractionSource] that emits [Interaction]s for this surface. For
  *   interactive surfaces, the [InteractionSource] instance provided to this surface must be shared
  *   with the modifier responsible for emitting [Interaction]s, such as
@@ -119,9 +120,9 @@ public fun Modifier.surface(
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
     depthEffect: SurfaceDepthEffect? = null,
+    border: BorderStroke? = SurfaceDefaults.border(),
     interactionSource: InteractionSource? = null,
 ): Modifier {
-    val border = SurfaceDefaults.border()
     return this.surfaceDepthEffect(depthEffect, shape, interactionSource)
         .clip(shape)
         .contentColorProvider(contentColor)
@@ -170,17 +171,35 @@ public class SurfaceDepthEffect(
 
 /** Default values used for [surface]. */
 public object SurfaceDefaults {
-    /** Create the default [BorderStroke] used for a [surface]. */
+    /**
+     * Create the default [BorderStroke] used for a [surface]. Use the other overload in order to
+     * change the width or color.
+     */
     @Composable
-    internal fun border(): BorderStroke {
+    public fun border(): BorderStroke {
         return GlimmerTheme.LocalGlimmerTheme.current.defaultSurfaceBorder
+    }
+
+    /**
+     * Create the default [BorderStroke] used for a [surface], with optional overrides for [width]
+     * and [color].
+     *
+     * @param width width of the border in [Dp]. Use [Dp.Hairline] for one-pixel border.
+     * @param color color to paint the border with
+     */
+    @Composable
+    public fun border(
+        width: Dp = DefaultSurfaceBorderWidth,
+        color: Color = GlimmerTheme.colors.outline,
+    ): BorderStroke {
+        return BorderStroke(width, color)
     }
 
     /** Returns the default (cached) border for a [surface]. */
     internal val GlimmerTheme.defaultSurfaceBorder: BorderStroke
         get() {
             return defaultSurfaceBorderCached
-                ?: BorderStroke(DefaultSurfaceBorderWidth, OutlineColor).also {
+                ?: BorderStroke(DefaultSurfaceBorderWidth, colors.outline).also {
                     defaultSurfaceBorderCached = it
                 }
         }

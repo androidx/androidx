@@ -47,7 +47,11 @@ fun IconSampleUsage() {
             Icon(
                 FavoriteIcon,
                 "Localized description",
-                Modifier.surface(shape = CircleShape, color = GlimmerTheme.colors.primary)
+                Modifier.surface(
+                        shape = CircleShape,
+                        color = GlimmerTheme.colors.primary,
+                        border = null,
+                    )
                     .padding(12.dp),
             )
         }
