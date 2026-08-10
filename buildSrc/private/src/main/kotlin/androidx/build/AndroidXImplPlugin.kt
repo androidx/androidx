@@ -26,6 +26,7 @@ import androidx.build.checkapi.KmpJvmApiTaskConfig
 import androidx.build.checkapi.KmpNoJvmApiTaskConfig
 import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.checkapi.configureProjectForApiTasks
+import androidx.build.clang.AndroidXNativeExtension
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.docs.CheckTipOfTreeDocsTask.Companion.setUpCheckDocsTask
 import androidx.build.gitclient.getHeadShaProvider
@@ -606,6 +607,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
     }
 
     private fun configureWithAppPlugin(project: Project, androidXExtension: AndroidXExtension) {
+        project.extensions.create("androidXNative", AndroidXNativeExtension::class.java, project)
         project.extensions.getByType<ApplicationExtension>().apply {
             configureAndroidBaseOptions(project, androidXExtension)
             defaultConfig.targetSdk = project.defaultAndroidConfig.targetSdk
@@ -843,6 +845,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
     }
 
     private fun configureWithLibraryPlugin(project: Project, androidXExtension: AndroidXExtension) {
+        project.extensions.create("androidXNative", AndroidXNativeExtension::class.java, project)
         val buildTypeForTests = "release"
         val libraryExtension = project.extensions.getByType<LibraryExtension>()
         libraryExtension.apply {
@@ -1465,9 +1468,14 @@ private fun Configuration.isTest(): Boolean = name.lowercase().contains("test")
 internal fun Configuration.isPublished(): Boolean =
     !isTest() && !name.lowercase().contains("metadata") && !name.endsWith("CInterop")
 
-internal val Project.androidExtension: AndroidComponentsExtension<*, *, *>
+internal val Project.multiplatformAndroidExtension: AndroidComponentsExtension<*, *, *>
     get() =
         extensions.findByType<KotlinMultiplatformAndroidComponentsExtension>()
+            ?: throw IllegalArgumentException("Failed to find any registered Android extension")
+
+internal val Project.androidExtension: AndroidComponentsExtension<*, *, *>
+    get() =
+        extensions.findByType(AndroidComponentsExtension::class.java)
             ?: throw IllegalArgumentException("Failed to find any registered Android extension")
 
 val Project.multiplatformExtension

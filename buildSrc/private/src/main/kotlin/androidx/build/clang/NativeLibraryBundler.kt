@@ -17,7 +17,9 @@
 package androidx.build.clang
 
 import androidx.build.androidExtension
+import androidx.build.multiplatformAndroidExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.HasDeviceTests
 import com.android.build.api.variant.SourceDirectories
 import com.android.build.api.variant.Sources
@@ -79,27 +81,63 @@ class NativeLibraryBundler(private val project: Project) {
         forTest: Boolean,
         provideSourceDirectories: Sources.() -> (SourceDirectories.Layered?),
     ) {
-        project.androidExtension.onVariants(project.androidExtension.selector().all()) { variant ->
+        addNativeLibrariesToAndroidSources(
+            androidComponents = project.multiplatformAndroidExtension,
+            nativeCompilation = nativeCompilation,
+            forTest = forTest,
+            provideSourceDirectories = provideSourceDirectories,
+            additionalTaskSuffix = androidTarget.name,
+        )
+    }
+
+    /**
+     * Adds the shared library outputs from [nativeCompilation] to a given variant src set of the
+     * project, expressed with the [provideSourceDirectories].
+     */
+    fun addNativeLibrariesToAndroidSources(
+        nativeCompilation: MultiTargetNativeCompilation,
+        forTest: Boolean,
+        provideSourceDirectories: Sources.() -> (SourceDirectories.Layered?),
+    ) {
+        addNativeLibrariesToAndroidSources(
+            androidComponents = project.androidExtension,
+            nativeCompilation = nativeCompilation,
+            forTest = forTest,
+            provideSourceDirectories = provideSourceDirectories,
+            additionalTaskSuffix = "",
+        )
+    }
+
+    private fun addNativeLibrariesToAndroidSources(
+        androidComponents: AndroidComponentsExtension<*, *, *>,
+        nativeCompilation: MultiTargetNativeCompilation,
+        forTest: Boolean,
+        provideSourceDirectories: Sources.() -> (SourceDirectories.Layered?),
+        additionalTaskSuffix: String,
+    ) {
+        androidComponents.onVariants(androidComponents.selector().all()) { variant ->
             fun setup(name: String, sources: SourceDirectories.Layered?) {
                 checkNotNull(sources) {
                     "Cannot find jni libs sources for variant: $variant (forTest=$forTest)"
                 }
+                val taskSuffixes = buildList {
+                    add(nativeCompilation.archiveName)
+                    add("For")
+                    add(name)
+                    if (additionalTaskSuffix.isNotEmpty()) {
+                        add(additionalTaskSuffix)
+                    }
+                }
                 val combineTask =
                     project.tasks.register(
-                        "createJniLibsDirectoryFor"
-                            .appendCapitalized(
-                                nativeCompilation.archiveName,
-                                "for",
-                                name,
-                                androidTarget.name,
-                            ),
+                        "createJniLibsDirectoryFor".appendCapitalized(*taskSuffixes.toTypedArray()),
                         CombineObjectFilesTask::class.java,
                     )
                 combineTask.configureFrom(nativeCompilation) { it.isAndroid }
 
                 sources.addGeneratedSourceDirectory(
                     taskProvider = combineTask,
-                    wiredWith = { it.outputDirectory },
+                    wiredWith = CombineObjectFilesTask::outputDirectory,
                 )
             }
 

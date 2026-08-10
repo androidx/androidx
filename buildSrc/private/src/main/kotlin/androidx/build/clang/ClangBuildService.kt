@@ -31,7 +31,6 @@ import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 import org.gradle.api.tasks.Optional
 import org.gradle.process.ExecOperations
-import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
 import org.jetbrains.kotlin.konan.target.PlatformManager
 
@@ -47,7 +46,7 @@ import org.jetbrains.kotlin.konan.target.PlatformManager
  */
 abstract class ClangBuildService @Inject constructor(private val execOperations: ExecOperations) :
     BuildService<ClangBuildService.Parameters> {
-    private val dist by lazy {
+    private val konanDist by lazy {
         // double check that we don't initialize konan distribution without prebuilts in AOSP
         check(
             parameters.projectLayoutType.get() == ProjectLayoutType.PLAYGROUND ||
@@ -76,7 +75,7 @@ abstract class ClangBuildService @Inject constructor(private val execOperations:
     private val konanBuilder by lazy {
         KonanPlatformBuilder(
             execOperations = execOperations,
-            platformManager = PlatformManager(dist),
+            platformManager = PlatformManager(konanDist),
         )
     }
 
@@ -139,25 +138,16 @@ abstract class ClangBuildService @Inject constructor(private val execOperations:
                 KEY,
                 ClangBuildService::class.java,
             ) {
-                check(project.plugins.hasPlugin(KotlinMultiplatformPluginWrapper::class.java)) {
-                    "ClangBuildService can only be used in projects that applied the KMP plugin"
-                }
-                check(KonanPrebuiltsSetup.isConfigured(project)) {
-                    "Konan prebuilt directories are not configured for project \"${project.path}\""
-                }
-                // TODO(b/539475193): Download Konan prebuilts only when building non-Android.
                 val nativeCompilerDownloader = NativeCompilerDownloader(project)
-                nativeCompilerDownloader.downloadIfNeeded()
-
                 it.parameters.konanHome.set(nativeCompilerDownloader.compilerDirectory)
                 it.parameters.projectLayoutType.set(ProjectLayoutType.from(project))
                 it.parameters.androidMinSdk.set(project.defaultAndroidConfig.minSdk)
 
-                val finalNdkDir = project.getNdkDirectory()
-                checkNotNull(finalNdkDir) {
+                val ndkDir = project.getNdkDirectory()
+                checkNotNull(ndkDir) {
                     "NDK directory could not be resolved. Please ensure NDK is installed."
                 }
-                it.parameters.ndkDirectory.set(finalNdkDir)
+                it.parameters.ndkDirectory.set(ndkDir)
 
                 if (!ProjectLayoutType.isPlayground(project)) {
                     it.parameters.prebuilts.set(project.getKonanPrebuiltsFolder())
