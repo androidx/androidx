@@ -6,10 +6,6 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.compose.foundation:foundation-layout>
-open annotation class androidx.compose.foundation.layout/ExperimentalFlexBoxApi : kotlin/Annotation { // androidx.compose.foundation.layout/ExperimentalFlexBoxApi|null[0]
-    constructor <init>() // androidx.compose.foundation.layout/ExperimentalFlexBoxApi.<init>|<init>(){}[0]
-}
-
 open annotation class androidx.compose.foundation.layout/ExperimentalGridApi : kotlin/Annotation { // androidx.compose.foundation.layout/ExperimentalGridApi|null[0]
     constructor <init>() // androidx.compose.foundation.layout/ExperimentalGridApi.<init>|<init>(){}[0]
 }
@@ -147,14 +143,14 @@ sealed interface androidx.compose.foundation.layout/FlexBoxConfigScope : android
 }
 
 sealed interface androidx.compose.foundation.layout/FlexConfigScope : androidx.compose.ui.unit/Density { // androidx.compose.foundation.layout/FlexConfigScope|null[0]
-    abstract val flexBoxCrossAxisMax // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMax|{}flexBoxCrossAxisMax[0]
-        abstract fun <get-flexBoxCrossAxisMax>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMax.<get-flexBoxCrossAxisMax>|<get-flexBoxCrossAxisMax>(){}[0]
-    abstract val flexBoxCrossAxisMin // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMin|{}flexBoxCrossAxisMin[0]
-        abstract fun <get-flexBoxCrossAxisMin>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMin.<get-flexBoxCrossAxisMin>|<get-flexBoxCrossAxisMin>(){}[0]
-    abstract val flexBoxMainAxisMax // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMax|{}flexBoxMainAxisMax[0]
-        abstract fun <get-flexBoxMainAxisMax>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMax.<get-flexBoxMainAxisMax>|<get-flexBoxMainAxisMax>(){}[0]
-    abstract val flexBoxMainAxisMin // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMin|{}flexBoxMainAxisMin[0]
-        abstract fun <get-flexBoxMainAxisMin>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMin.<get-flexBoxMainAxisMin>|<get-flexBoxMainAxisMin>(){}[0]
+    abstract val flexBoxCrossAxisMaxPx // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMaxPx|{}flexBoxCrossAxisMaxPx[0]
+        abstract fun <get-flexBoxCrossAxisMaxPx>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMaxPx.<get-flexBoxCrossAxisMaxPx>|<get-flexBoxCrossAxisMaxPx>(){}[0]
+    abstract val flexBoxCrossAxisMinPx // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMinPx|{}flexBoxCrossAxisMinPx[0]
+        abstract fun <get-flexBoxCrossAxisMinPx>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxCrossAxisMinPx.<get-flexBoxCrossAxisMinPx>|<get-flexBoxCrossAxisMinPx>(){}[0]
+    abstract val flexBoxMainAxisMaxPx // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMaxPx|{}flexBoxMainAxisMaxPx[0]
+        abstract fun <get-flexBoxMainAxisMaxPx>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMaxPx.<get-flexBoxMainAxisMaxPx>|<get-flexBoxMainAxisMaxPx>(){}[0]
+    abstract val flexBoxMainAxisMinPx // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMinPx|{}flexBoxMainAxisMinPx[0]
+        abstract fun <get-flexBoxMainAxisMinPx>(): kotlin/Int // androidx.compose.foundation.layout/FlexConfigScope.flexBoxMainAxisMinPx.<get-flexBoxMainAxisMinPx>|<get-flexBoxMainAxisMinPx>(){}[0]
 
     abstract fun alignSelf(androidx.compose.foundation.layout/FlexAlignSelf) // androidx.compose.foundation.layout/FlexConfigScope.alignSelf|alignSelf(androidx.compose.foundation.layout.FlexAlignSelf){}[0]
     abstract fun alignSelf(androidx.compose.ui.layout/AlignmentLine) // androidx.compose.foundation.layout/FlexConfigScope.alignSelf|alignSelf(androidx.compose.ui.layout.AlignmentLine){}[0]
