@@ -44,27 +44,41 @@ dependencies {
 android {
     compileSdk { version = release(35) }
     namespace = "androidx.graphics.core"
+}
 
-    defaultConfig {
-        externalNativeBuild {
-            def versionScript = file("src/main/cpp/jni.lds").getAbsolutePath()
-
-            cmake {
-                cppFlags "-O3", "-flto", "-fPIC", "-fno-exceptions", "-fno-rtti",
-                        "-fomit-frame-pointer", "-fdata-sections", "-ffunction-sections", "-fvisibility=hidden"
-                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON",
-                        "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--gc-sections " +
-                                "-Wl,--version-script=${versionScript} " +
-                                "-Wl,--undefined-version"
-            }
+androidXNative {
+    def nativeCompilation = createNativeCompilation("graphics-core") {
+        configureEachTarget { targetCompilation ->
+            targetCompilation.sources.from(
+                file("src/main/cpp/graphics-core.cpp"),
+                file("src/main/cpp/egl_utils.cpp"),
+                file("src/main/cpp/sync_fence.cpp"),
+                file("src/main/cpp/sc_test_utils.cpp")
+            )
+            targetCompilation.freeArgs.addAll(
+                "-D__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__",
+                "-Oz",
+                "-fvisibility=hidden",
+                "-flto",
+                "-fPIC",
+                "-fno-exceptions",
+                "-fno-rtti",
+                "-fomit-frame-pointer",
+                "-fdata-sections",
+                "-ffunction-sections"
+            )
+            targetCompilation.linkerArgs.addAll(
+                "-Wl,--gc-sections",
+                "-Wl,--version-script=${file("src/main/cpp/jni.lds").absolutePath}",
+                "-Wl,--undefined-version",
+                "-llog",
+                "-lEGL",
+                "-lGLESv2",
+                "-landroid"
+            )
         }
     }
-    externalNativeBuild {
-        cmake {
-            path file('src/main/cpp/CMakeLists.txt')
-            version = libs.versions.cmake.get()
-        }
-    }
+    addNativeLibrariesToJniLibs(nativeCompilation)
 }
 
 androidx {
