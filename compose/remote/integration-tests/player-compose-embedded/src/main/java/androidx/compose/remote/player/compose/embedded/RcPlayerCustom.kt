@@ -173,7 +173,10 @@ internal constructor(
     public val floats: Map<Int, Float>
         get() =
             rawProperties
-                .filter { it.isFloat() }
+                .filter {
+                    it.mDataType == Custom.CustomProperty.FLOAT_PROP ||
+                        it.mDataType == Custom.CustomProperty.FLOAT_RETURN
+                }
                 .associate {
                     val value = it.mFloatValue
                     val resolved =
@@ -189,14 +192,22 @@ internal constructor(
     public val ints: Map<Int, Int>
         get() =
             rawProperties
-                .filter { !it.isFloat() && !it.isString() }
+                .filter {
+                    it.mDataType != Custom.CustomProperty.FLOAT_PROP &&
+                        it.mDataType != Custom.CustomProperty.FLOAT_RETURN &&
+                        it.mDataType != Custom.CustomProperty.STRING_PROP &&
+                        it.mDataType != Custom.CustomProperty.TEXT_RETURN
+                }
                 .associate { it.mType.toInt() to it.mIntValue }
 
     /** Eager map of text properties for backwards compatibility. */
     public val texts: Map<Int, String>
         get() =
             rawProperties
-                .filter { it.isString() }
+                .filter {
+                    it.mDataType == Custom.CustomProperty.STRING_PROP ||
+                        it.mDataType == Custom.CustomProperty.TEXT_RETURN
+                }
                 .associate { it.mType.toInt() to (remoteContext.getText(it.mIntValue) ?: "") }
 }
 
