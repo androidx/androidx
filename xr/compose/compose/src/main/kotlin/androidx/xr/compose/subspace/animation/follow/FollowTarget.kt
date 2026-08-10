@@ -27,10 +27,7 @@ import androidx.xr.scenecore.scene
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-/**
- * A FollowTarget can be used with [androidx.xr.compose.spatial.Subspace] to have a set of content
- * follow a target such as an anchor or AR device.
- */
+/** A FollowTarget can be used to have an element follow a target such as an anchor or AR device. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class FollowTarget
 internal constructor(
@@ -49,11 +46,10 @@ internal constructor(
     public companion object {
         /**
          * By designating content to follow the AR device, it will keep that content near the device
-         * camera and typically within the field of view, even as the device moves around.
+         * and typically within the field of view, even as the device moves around.
          *
-         * @param behavior determines how the [androidx.xr.compose.spatial.Subspace] follows the
-         *   target. It can be made to move faster and be more responsive. The default is
-         *   [FollowBehavior.Soft()].
+         * @param behavior determines how the trailing element follows the target. It can be made to
+         *   move faster and be more responsive. The default is [FollowBehavior.soft()].
          * @param dimensions set of boolean flags to determine the dimensions of movement that are
          *   tracked. Three rotation and three translation dimensions are available to be tracked.
          *   By default, all dimensions are tracked. Any dimensions not listed will not be tracked.
@@ -61,19 +57,17 @@ internal constructor(
          *   user moves vertically up and down.
          */
         public fun ArDevice(
-            behavior: FollowBehavior = FollowBehavior.Soft(),
+            behavior: FollowBehavior = FollowBehavior.soft(),
             dimensions: TrackedDimensions = TrackedDimensions.All,
         ): FollowTarget = ArDeviceTarget(behavior, dimensions)
 
         /**
          * Targeting an anchor allows content to be positioned relative to that anchor's location.
          *
-         * @param anchor represents the anchor which this [androidx.xr.compose.spatial.Subspace]
-         *   will be tethered to. As the anchor moves, so will the
-         *   [androidx.xr.compose.spatial.Subspace]
-         * @param behavior determines how the [androidx.xr.compose.spatial.Subspace] follows the
-         *   target. It can be made to move faster and be more responsive. The default is
-         *   [FollowBehavior.Tight].
+         * @param anchor represents the anchor which the trailing element will be tethered to. As
+         *   the anchor moves, so will the element.
+         * @param behavior determines how the trailing element follows the target. It can be made to
+         *   move faster and be more responsive. The default is [FollowBehavior.tight].
          * @param dimensions set of boolean flags to determine the dimensions of movement that are
          *   tracked. Three rotation and three translation dimensions are available to be tracked.
          *   By default, all dimensions are tracked. Any dimensions not listed will not be tracked.
@@ -82,7 +76,7 @@ internal constructor(
          */
         public fun Anchor(
             anchor: Anchor,
-            behavior: FollowBehavior = FollowBehavior.Tight,
+            behavior: FollowBehavior = FollowBehavior.tight,
             dimensions: TrackedDimensions = TrackedDimensions.All,
         ): FollowTarget = AnchorTarget(anchor, behavior, dimensions)
     }
@@ -95,7 +89,7 @@ internal interface FollowTargetFlow {
 /** A concrete [FollowTarget] that wraps the head pose updates from [ArDevice]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class ArDeviceTarget(
-    behavior: FollowBehavior = FollowBehavior.Soft(),
+    behavior: FollowBehavior = FollowBehavior.soft(),
     dimensions: TrackedDimensions = TrackedDimensions.All,
 ) : FollowTarget(behavior, dimensions), FollowTargetFlow {
     // Distance to stay away from the target when following it.
@@ -132,13 +126,13 @@ internal class ArDeviceTarget(
 }
 
 /**
- * A Trackable Anchor entity that wraps an [Anchor] from ARCore for Jetpack XR to provide a stream
+ * A Trackable Anchor element that wraps an [Anchor] from ARCore for Jetpack XR to provide a stream
  * of pose updates.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class AnchorTarget(
     val anchor: Anchor,
-    behavior: FollowBehavior = FollowBehavior.Tight,
+    behavior: FollowBehavior = FollowBehavior.tight,
     dimensions: TrackedDimensions = TrackedDimensions.All,
 ) : FollowTarget(behavior, dimensions), FollowTargetFlow {
 

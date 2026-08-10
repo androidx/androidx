@@ -44,6 +44,8 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
 
         withContext(dispatcherOverride) {
             val poseUpdatesFlow = followTargetFlow.poseUpdates(session)
+
+            // TODO: b/548122230 Avoid double flow subscription in following subspace.
             val pose: Pose = poseUpdatesFlow.first()
             currentTargetPoseMeter =
                 getPoseByTrackedDimensions(

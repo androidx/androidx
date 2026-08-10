@@ -545,7 +545,7 @@ public fun FollowingSubspace(
 }
 
 /**
- * Create a user-centric 3D space that is ideal for spatial UI content that follows a target.
+ * Creates a 3D space that positions spatial UI content relative to a [FollowTarget].
  *
  * Each call to `Subspace` creates a new, independent spatial UI hierarchy. It does **not** inherit
  * the spatial position, orientation, or scale of any parent `Subspace` it is nested within. Its
@@ -559,10 +559,12 @@ public fun FollowingSubspace(
  * configuration. If it is disabled, this API will not return anything. The session configuration
  * should resemble `session.configure( config =
  * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )` The
- * [FollowTarget.ArDevice] is not compatible with [FollowBehavior.Tight]. Combining these together
+ * [FollowTarget.ArDevice] is not compatible with
+ * [androidx.xr.compose.subspace.animation.follow.FollowBehavior.tight]. Combining these together
  * will cause this composable to not be displayed. For a near tight experience, use
- * [FollowBehavior.Soft] with a low duration value such as
- * `FollowBehavior.Soft([FollowBehavior.Companion.MIN_SOFT_DURATION_MS])`
+ * [androidx.xr.compose.subspace.animation.follow.FollowBehavior.soft] with a low duration value
+ * such as
+ * `FollowBehavior.soft([androidx.xr.compose.subspace.animation.follow.FollowBehavior.Companion.MIN_SOFT_DURATION_MS])`
  *
  * When the `follow` parameter is specified to be [FollowTarget.Anchor], the content will be
  * positioned around an anchor. This is useful for placing UI elements on real-world surfaces or at
@@ -616,7 +618,7 @@ public fun Subspace(
 
     // If we're following an anchor and want the content to follow it as tightly as possible,
     // it's best to link them together in the scene graph rather than implement custom logic.
-    if (follow is AnchorTargetV2 && follow.behavior == FollowBehaviorV2.Tight) {
+    if (follow is AnchorTargetV2 && follow.behavior == FollowBehaviorV2.tight) {
         val anchorSpace = remember(follow.anchor) { AnchorSpace.create(session, follow.anchor) }
         Subspace(modifier = modifier, subspaceRootNode = anchorSpace, content = content)
         return
@@ -790,7 +792,7 @@ private fun validateFollowingSubspaceConfiguration(
     }
 
     // Tight follow for AR devices was not performant enough to be supported at this time.
-    if (follow is ArDeviceTargetV2 && follow.behavior == FollowBehaviorV2.Tight) {
+    if (follow is ArDeviceTargetV2 && follow.behavior == FollowBehaviorV2.tight) {
         return false
     }
 
