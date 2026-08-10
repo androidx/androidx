@@ -508,7 +508,7 @@ class RotateToLookAtUserTest {
                 Subspace {
                     SpatialPanel(
                         SubspaceModifier.testTag("TheWatcher")
-                            .rotateToLookAtUser(isYawUpdateEnabled = false, pitchLimits = null)
+                            .rotateToLookAtUser(isYawUpdateEnabled = false)
                     ) {
                         Text(text = "Target")
                     }
@@ -529,6 +529,41 @@ class RotateToLookAtUserTest {
             composeTestRule.waitForIdle()
 
             // Since yaw is disabled, the rotation must remain exactly Identity.
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(Quaternion.Identity)
+        }
+
+    @Test
+    fun rotateToLookAtUser_whenPitchDisabled_doesNotTurnOnXAxis() =
+        runTest(testDispatcher) {
+            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("TheWatcher")
+                            .rotateToLookAtUser(isPitchUpdateEnabled = false)
+                    ) {
+                        Text(text = "Target")
+                    }
+                }
+            }
+
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(Quaternion.Identity)
+
+            // Move the user vertically, which would normally trigger a pitch rotation.
+            val userLocation: Vector3 = Vector3(x = 0F, y = 3F, z = 3F)
+            fakePerceptionManager.arDevice.apply {
+                devicePose = devicePose.translate(translation = userLocation)
+            }
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            // Since pitch is disabled, the rotation must remain exactly Identity.
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
                 .assertRotationInRootIsEqualTo(Quaternion.Identity)
@@ -624,7 +659,7 @@ class RotateToLookAtUserTest {
                         SubspaceModifier.testTag("TheWatcher")
                             .rotateToLookAtUser(
                                 isYawUpdateEnabled = true,
-                                pitchLimits = PitchLimits.UNCONSTRAINED,
+                                pitchLimits = PitchLimits.FullRange,
                             )
                     ) {
                         Text(text = "Panel")
@@ -658,8 +693,8 @@ class RotateToLookAtUserTest {
     }
 
     @Test
-    fun pitchLimits_unconstrained_hasFullRange() {
-        val limits = PitchLimits.UNCONSTRAINED
+    fun pitchLimits_fullRange_hasFullRange() {
+        val limits = PitchLimits.FullRange
         assertThat(limits.minimumPitch).isEqualTo(-90f)
         assertThat(limits.maximumPitch).isEqualTo(90f)
     }
