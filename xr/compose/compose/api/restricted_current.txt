@@ -899,11 +899,11 @@ package androidx.xr.compose.subspace.layout {
     property @FloatRange(from=-90.0, to=90.0) public float maximumPitch;
     property @FloatRange(from=-90.0, to=90.0) public float minimumPitch;
     field public static final androidx.xr.compose.subspace.layout.PitchLimits.Companion Companion;
-    field public static final androidx.xr.compose.subspace.layout.PitchLimits UNCONSTRAINED;
+    field public static final androidx.xr.compose.subspace.layout.PitchLimits FullRange;
   }
 
   @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static final class PitchLimits.Companion {
-    property public androidx.xr.compose.subspace.layout.PitchLimits UNCONSTRAINED;
+    property public androidx.xr.compose.subspace.layout.PitchLimits FullRange;
   }
 
   @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy @kotlin.jvm.JvmInline public final value class PlaneOrientation {
@@ -972,7 +972,7 @@ package androidx.xr.compose.subspace.layout {
   }
 
   @SuppressCompatibility public final class RotateToLookAtUserKt {
-    method @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.SubspaceModifier rotateToLookAtUser(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean isYawUpdateEnabled, optional androidx.xr.compose.subspace.layout.PitchLimits? pitchLimits);
+    method @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.SubspaceModifier rotateToLookAtUser(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean isYawUpdateEnabled, optional androidx.xr.compose.subspace.layout.PitchLimits pitchLimits);
     method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.SubspaceModifier! rotateToLookAtUser$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, androidx.xr.compose.subspace.layout.PitchLimits!, int, Object!);
   }
 

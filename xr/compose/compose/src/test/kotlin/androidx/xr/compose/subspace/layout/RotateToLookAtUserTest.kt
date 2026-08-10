@@ -508,7 +508,7 @@ class RotateToLookAtUserTest {
                 Subspace {
                     SpatialPanel(
                         SubspaceModifier.testTag("TheWatcher")
-                            .rotateToLookAtUser(isYawUpdateEnabled = false, pitchLimits = null)
+                            .rotateToLookAtUser(isYawUpdateEnabled = false)
                     ) {
                         Text(text = "Target")
                     }
@@ -624,7 +624,7 @@ class RotateToLookAtUserTest {
                         SubspaceModifier.testTag("TheWatcher")
                             .rotateToLookAtUser(
                                 isYawUpdateEnabled = true,
-                                pitchLimits = PitchLimits.UNCONSTRAINED,
+                                pitchLimits = PitchLimits.FullRange,
                             )
                     ) {
                         Text(text = "Panel")
@@ -658,8 +658,8 @@ class RotateToLookAtUserTest {
     }
 
     @Test
-    fun pitchLimits_unconstrained_hasFullRange() {
-        val limits = PitchLimits.UNCONSTRAINED
+    fun pitchLimits_fullRange_hasFullRange() {
+        val limits = PitchLimits.FullRange
         assertThat(limits.minimumPitch).isEqualTo(-90f)
         assertThat(limits.maximumPitch).isEqualTo(90f)
     }

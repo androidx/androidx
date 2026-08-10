@@ -186,7 +186,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
         width: Int = 360,
         height: Int = 130,
         isYawUpdateEnabled: Boolean = true,
-        pitchLimits: PitchLimits? = PitchLimits.UNCONSTRAINED,
+        pitchLimits: PitchLimits = PitchLimits.FullRange,
         container:
             @Composable
             @SubspaceComposable
@@ -234,7 +234,7 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                 modifier.rotateToLookAtUser(
                     isYawUpdateEnabled = isYawEnabled,
                     pitchLimits =
-                        if (isPitchClamped) PitchLimits(-15f, 15f) else PitchLimits.UNCONSTRAINED,
+                        if (isPitchClamped) PitchLimits(-15f, 15f) else PitchLimits.FullRange,
                 )
         }
 

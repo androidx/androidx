@@ -74,20 +74,20 @@ public annotation class ExperimentalRotateToLookAtUserApi
  * @sample androidx.xr.compose.samples.RotateToLookAtUserUnderParentContainerSample
  * @param isYawUpdateEnabled Whether to update the Yaw (Y-axis rotation) to track the user.
  * @param pitchLimits The limits for the Pitch (X-axis rotation) to track the user. Defaults to
- *   [PitchLimits.UNCONSTRAINED]. If null, pitch tracking is disabled.
+ *   [PitchLimits.FullRange].
  */
 // TODO(b/461808266): RotateToLookAtUser and FollowingSubspace not compatible with each other
 // TODO(b/487087894): [Moohan Emulator] ARCore ArDevice emit identity pose until user moves
 @ExperimentalRotateToLookAtUserApi
 public fun SubspaceModifier.rotateToLookAtUser(
     isYawUpdateEnabled: Boolean = true,
-    pitchLimits: PitchLimits? = PitchLimits.UNCONSTRAINED,
+    pitchLimits: PitchLimits = PitchLimits.FullRange,
 ): SubspaceModifier = this.then(RotateToLookAtUserElement(isYawUpdateEnabled, pitchLimits))
 
 @OptIn(ExperimentalRotateToLookAtUserApi::class)
 private class RotateToLookAtUserElement(
     private val isYawUpdateEnabled: Boolean,
-    private val pitchLimits: PitchLimits?,
+    private val pitchLimits: PitchLimits,
 ) : SubspaceModifierNodeElement<RotateToLookAtUserNode>() {
     override fun create(): RotateToLookAtUserNode =
         RotateToLookAtUserNode(isYawUpdateEnabled, pitchLimits)
@@ -97,8 +97,7 @@ private class RotateToLookAtUserElement(
         node.pitchLimits = pitchLimits
     }
 
-    override fun hashCode(): Int =
-        31 * isYawUpdateEnabled.hashCode() + (pitchLimits?.hashCode() ?: 0)
+    override fun hashCode(): Int = 31 * isYawUpdateEnabled.hashCode() + pitchLimits.hashCode()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -110,7 +109,7 @@ private class RotateToLookAtUserElement(
 @OptIn(ExperimentalRotateToLookAtUserApi::class)
 internal class RotateToLookAtUserNode(
     var isYawUpdateEnabled: Boolean,
-    var pitchLimits: PitchLimits?,
+    var pitchLimits: PitchLimits,
 ) :
     SubspaceModifier.Node(),
     SubspaceLayoutModifierNode,
@@ -232,9 +231,7 @@ internal class RotateToLookAtUserNode(
 
         val finalYaw: Float = if (isYawUpdateEnabled) targetEulerAngles.y else nodeEulerAngles.y
         val finalPitch: Float =
-            pitchLimits?.let { limits ->
-                targetEulerAngles.x.coerceIn(limits.minimumPitch, limits.maximumPitch)
-            } ?: nodeEulerAngles.x
+            targetEulerAngles.x.coerceIn(pitchLimits.minimumPitch, pitchLimits.maximumPitch)
 
         return Quaternion.fromEulerAngles(
             pitch = finalPitch,
@@ -330,6 +327,6 @@ public class PitchLimits(
     }
 
     public companion object {
-        @JvmField public val UNCONSTRAINED: PitchLimits = PitchLimits(-90f, 90f)
+        @JvmField public val FullRange: PitchLimits = PitchLimits(-90f, 90f)
     }
 }
