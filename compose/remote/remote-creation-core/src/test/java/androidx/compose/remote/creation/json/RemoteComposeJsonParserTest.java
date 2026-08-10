@@ -693,6 +693,82 @@ public class RemoteComposeJsonParserTest {
         org.junit.Assert.assertNotNull(result);
     }
 
+    @Test
+    public void testPathEffects() throws JSONException {
+        String json = "{\n"
+                + "  \"root\": {\n"
+                + "    \"type\": \"canvas\",\n"
+                + "    \"commands\": [\n"
+                + "      {\n"
+                + "        \"type\": \"paint\",\n"
+                + "        \"patheffect\": [10.0, 5.0]\n"
+                + "      },\n"
+                + "      {\n"
+                + "        \"type\": \"paint\",\n"
+                + "        \"patheffect\": {\n"
+                + "          \"intervals\": [15.0, 10.0],\n"
+                + "          \"phase\": 2.5\n"
+                + "        }\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  }\n"
+                + "}";
+        mParser.parse(json);
+        byte[] result = mWriter.encodeToByteArray();
+        org.junit.Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void testPathResources() throws JSONException {
+        String json = "{\n"
+                + "  \"resources\": {\n"
+                + "    \"paths\": {\n"
+                + "      \"customPath\": [\n"
+                + "        { \"type\": \"moveTo\", \"x\": 0, \"y\": 0 },\n"
+                + "        { \"type\": \"lineTo\", \"x\": 100, \"y\": 0 },\n"
+                + "        { \"type\": \"quadTo\", \"x1\": 150, \"y1\": 50, \"x2\": 100, \"y2\": "
+                + "100 },\n"
+                + "        { \"type\": \"cubicTo\", \"x1\": 80, \"y1\": 120, \"x2\": 20, \"y2\": "
+                + "120, \"x3\": 0, \"y3\": 100 },\n"
+                + "        { \"type\": \"close\" }\n"
+                + "      ]\n"
+                + "    }\n"
+                + "  },\n"
+                + "  \"root\": {\n"
+                + "    \"type\": \"canvas\",\n"
+                + "    \"commands\": [\n"
+                + "      {\n"
+                + "        \"type\": \"drawPath\",\n"
+                + "        \"path\": \"$paths.customPath\"\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  }\n"
+                + "}";
+        mParser.parse(json);
+        byte[] result = mWriter.encodeToByteArray();
+        org.junit.Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void testSystemVariablesAndDeltaTime() throws JSONException {
+        String json = "{\n"
+                + "  \"root\": {\n"
+                + "    \"type\": \"canvas\",\n"
+                + "    \"commands\": [\n"
+                + "      {\n"
+                + "        \"type\": \"drawCircle\",\n"
+                + "        \"cx\": \"delta_time * 60 + touchX\",\n"
+                + "        \"cy\": \"deltaTime * 60 + gyroX\",\n"
+                + "        \"radius\": \"10 + accelX + month + year + density\"\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  }\n"
+                + "}";
+        mParser.parse(json);
+        byte[] result = mWriter.encodeToByteArray();
+        org.junit.Assert.assertNotNull(result);
+    }
+
     private static class MockPlatform implements RcPlatformServices {
         @Override
         public float[] pathToFloatArray(Object path) {
@@ -725,6 +801,7 @@ public class RemoteComposeJsonParserTest {
         }
 
         @Override
-        public void log(@NonNull LogCategory category, @NonNull String message) {}
+        public void log(@NonNull LogCategory category, @NonNull String message) {
+        }
     }
 }
