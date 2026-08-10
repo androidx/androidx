@@ -16,7 +16,6 @@
 
 package androidx.xr.glimmer
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -69,7 +68,6 @@ import androidx.compose.ui.unit.dp
  * @param color background color of this list item
  * @param contentColor content color used by components inside [content], [supportingLabel],
  *   [leadingIcon], and [trailingIcon].
- * @param border the border to draw around this list item
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -87,7 +85,6 @@ public fun ListItem(
     shape: Shape = GlimmerTheme.shapes.medium,
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
-    border: BorderStroke? = SurfaceDefaults.border(),
     contentPadding: PaddingValues = ListItemDefaults.contentPadding,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
@@ -101,7 +98,6 @@ public fun ListItem(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         content = content,
@@ -142,7 +138,6 @@ public fun ListItem(
  * @param color background color of this list item
  * @param contentColor content color used by components inside [content], [supportingLabel],
  *   [leadingIcon], and [trailingIcon].
- * @param border the border to draw around this list item
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -161,7 +156,6 @@ public fun ListItem(
     shape: Shape = GlimmerTheme.shapes.medium,
     color: Color = GlimmerTheme.colors.surface,
     contentColor: Color = calculateContentColor(color),
-    border: BorderStroke? = SurfaceDefaults.border(),
     contentPadding: PaddingValues = ListItemDefaults.contentPadding,
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
@@ -175,7 +169,6 @@ public fun ListItem(
         shape = shape,
         color = color,
         contentColor = contentColor,
-        border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         content = content,
@@ -192,7 +185,6 @@ private fun ListItemImpl(
     shape: Shape,
     color: Color,
     contentColor: Color,
-    border: BorderStroke?,
     contentPadding: PaddingValues,
     interactionSource: MutableInteractionSource?,
     content: @Composable () -> Unit,
@@ -209,7 +201,6 @@ private fun ListItemImpl(
                 contentColor = contentColor,
                 // TODO(b/532516157): Reenable depthEffect after b/446294492 is fixed.
                 depthEffect = null,
-                border = border,
                 interactionSource = internalInteractionSource,
             )
             .then(

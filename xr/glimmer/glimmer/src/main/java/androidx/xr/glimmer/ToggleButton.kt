@@ -19,7 +19,6 @@ package androidx.xr.glimmer
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -95,7 +94,6 @@ import androidx.compose.ui.util.lerp
  *   details.
  * @param colors the [ToggleButtonColors] that will be used to resolve the container and content
  *   colors based on the toggle button state.
- * @param border the border to draw around this button.
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
@@ -115,7 +113,6 @@ public fun ToggleButton(
     trailingIcon: @Composable (() -> Unit)? = null,
     shape: Shape = ToggleButtonDefaults.animatedShape(checked),
     colors: ToggleButtonColors = ToggleButtonDefaults.colors(),
-    border: BorderStroke? = SurfaceDefaults.border(),
     contentPadding: PaddingValues = ToggleButtonDefaults.contentPadding(buttonSize),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
@@ -142,7 +139,6 @@ public fun ToggleButton(
                     color = colors.resolveBackgroundColor(checked),
                     contentColor = colors.resolveContentColor(checked),
                     depthEffect = depth,
-                    border = border,
                     interactionSource = internalInteractionSource,
                 )
                 .toggleable(
@@ -231,7 +227,7 @@ public object ToggleButtonDefaults {
     @Composable
     public fun colors(
         backgroundColor: Color = GlimmerTheme.colors.surface,
-        checkedBackgroundColor: Color = GlimmerTheme.colors.outline,
+        checkedBackgroundColor: Color = OutlineColor,
         contentColor: Color = calculateContentColor(backgroundColor),
         checkedContentColor: Color = calculateContentColor(checkedBackgroundColor),
     ): ToggleButtonColors =
