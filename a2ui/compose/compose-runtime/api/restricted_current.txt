@@ -64,8 +64,8 @@ package androidx.a2ui.compose.runtime {
   }
 
   public final class A2uiComponentStateKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.a2ui.compose.runtime.A2uiComponentState observeA2uiComponentState(androidx.a2ui.engine.model.A2uiCoreSurfaceModel surface);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.a2ui.compose.runtime.A2uiComponentState observeA2uiComponentState(androidx.a2ui.engine.model.A2uiCoreSurfaceModel, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.a2ui.compose.runtime.A2uiComponentState observeA2uiComponentState(androidx.a2ui.model.processor.A2uiSurfaceModel surface);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.a2ui.compose.runtime.A2uiComponentState observeA2uiComponentState(androidx.a2ui.model.processor.A2uiSurfaceModel, androidx.compose.runtime.Composer?, int);
   }
 
   public final class A2uiMessageParserKt {
