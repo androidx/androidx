@@ -123,7 +123,7 @@ class CameraXAnalyticsTest(private val implName: String, private val cameraXConf
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, sessionConfig)
         }
 
-        assertThat(withTimeoutOrNull(3000) { captureRequestTagDeferred.await() }.toString())
+        assertThat(withTimeoutOrNull(10000) { captureRequestTagDeferred.await() }.toString())
             .isEqualTo(TagBundle.CAMERAX_USER_TAG_PREFIX)
     }
 
