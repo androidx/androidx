@@ -1314,7 +1314,9 @@ package androidx.compose.ui.graphics {
   }
 
   public final class Vertices {
+    ctor @KotlinOnly public Vertices(androidx.compose.ui.graphics.VertexMode vertexMode, float[] positions, float[] textureCoordinates, int[] colors, short[] indices);
     ctor @KotlinOnly public Vertices(androidx.compose.ui.graphics.VertexMode vertexMode, java.util.List<androidx.compose.ui.geometry.Offset> positions, java.util.List<androidx.compose.ui.geometry.Offset> textureCoordinates, java.util.List<androidx.compose.ui.graphics.Color> colors, java.util.List<java.lang.Integer> indices);
+    ctor @BytecodeOnly public Vertices(int, float[]!, float[]!, int[]!, short[]!, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public Vertices(int, java.util.List!, java.util.List!, java.util.List!, java.util.List!, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public int[] getColors();
     method @InaccessibleFromKotlin public short[] getIndices();
