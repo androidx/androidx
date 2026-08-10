@@ -2710,7 +2710,13 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     public void onScrollStateChanged(int state) {
         if (state == SCROLL_STATE_DRAGGING) {
             mFlag |= PF_IN_DRAGGING_AND_SETTLING;
+            mFlag &= ~PF_KEEP_UNALIGNED;
             if (mFocusScrollStrategy == FOCUS_SCROLL_ALIGNED_AND_SNAP) {
+                int bestAligned = findBestAlignedChild();
+                if (bestAligned != -1) {
+                    View bestChild = mBaseGridView.getChildAt(bestAligned);
+                    mFocusPosition = getAdapterPositionByView(bestChild);
+                }
                 if (mSnapHelper == null) {
                     mSnapHelper = new SnapHelper();
                 }
