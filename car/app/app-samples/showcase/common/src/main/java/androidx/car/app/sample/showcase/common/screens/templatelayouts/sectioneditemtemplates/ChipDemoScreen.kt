@@ -49,7 +49,7 @@ import androidx.core.graphics.drawable.IconCompat
  *   a single chip using [Chip#setStyle] when the chip is selected
  */
 @OptIn(ExperimentalCarApi::class)
-@RequiresCarApi(8)
+@RequiresCarApi(9)
 class ChipDemoScreen(carContext: CarContext) : Screen(carContext) {
     private val mSectionStyle =
         ChipStyle.Builder()
