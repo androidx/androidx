@@ -384,6 +384,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         private val kotlinVersionConstraint =
             project.versionCatalog.findVersion(kotlinDefaultCatalogVersion).get()
 
+        private val guavaAndroidVersionConstraint =
+            project.versionCatalog.findLibrary("guavaAndroid").get().map { it.version }
+
         private val kmpExtension = project.extensions.getByType<KotlinMultiplatformExtension>()
 
         // Use the android target to resolve the non-KMP classpath, so that for any KMP dependencies
@@ -553,6 +556,17 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                         it.eachDependency { details ->
                             if (details.requested.group == "org.jetbrains.kotlin") {
                                 details.useVersion(kotlinVersionConstraint.requiredVersion)
+                            }
+                        }
+                        // Force a new enough version of android guava in all source sets. The older
+                        // version interferes with resolving new APIs in the non-KMP source set.
+                        it.eachDependency { details ->
+                            if (
+                                details.requested.group == "com.google.guava" &&
+                                    details.requested.name == "guava" &&
+                                    details.requested.version?.endsWith("-android") == true
+                            ) {
+                                details.useVersion(guavaAndroidVersionConstraint.get())
                             }
                         }
                     }
