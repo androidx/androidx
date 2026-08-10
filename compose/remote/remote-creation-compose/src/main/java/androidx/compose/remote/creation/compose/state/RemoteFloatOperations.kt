@@ -617,6 +617,9 @@ public fun animateRemoteFloat(
     initialValue: Float = Float.NaN,
     wrap: Float = Float.NaN,
 ): RemoteFloat {
-    val anim = RemoteComposeBuffer.packAnimation(duration, type, spec, initialValue, wrap)
+    var anim = RemoteComposeBuffer.packAnimation(duration, type, spec, initialValue, wrap)
+    if (anim.isEmpty()) {
+        anim = floatArrayOf(duration)
+    }
     return AnimatedRemoteFloat(rf, anim)
 }

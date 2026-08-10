@@ -1112,6 +1112,147 @@ class RemoteFloatTest {
     }
 
     @Test
+    fun animateRemoteFloat_defaultParameters_generatesAnimationInDocument() {
+        val rf = RemoteFloat(10f).createReference(forceRemote = true)
+        val animated = animateRemoteFloat(rf, duration = 1f, type = CUBIC_STANDARD)
+
+        assertThat(animated).isInstanceOf(AnimatedRemoteFloat::class.java)
+        val animatedId = animated.getIdForCreationState(creationState)
+
+        val coreDoc =
+            CoreDocument().apply {
+                val buffer = creationState.document.buffer
+                buffer.buffer.index = 0
+                initFromBuffer(buffer)
+            }
+
+        val floatExpr =
+            coreDoc.operations.filterIsInstance<FloatExpression>().first { it.mId == animatedId }
+        assertThat(floatExpr.mSrcAnimation).isNotNull()
+        assertThat(floatExpr.mSrcAnimation!!.isNotEmpty()).isTrue()
+        assertThat(floatExpr.mFloatAnimation).isNotNull()
+        assertThat(floatExpr.mFloatAnimation!!.duration).isEqualTo(1.0f)
+        assertThat(floatExpr.mFloatAnimation!!.type).isEqualTo(CUBIC_STANDARD)
+    }
+
+    @Test
+    fun animateRemoteFloat_onPreAllocatedRemoteFloatExpression_preservesAnimation() {
+        val seconds = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val source = floor(seconds % 4f.rf).toRemoteInt()
+        val targetAngle = (source.toRemoteFloat()) * 90f.rf
+        val angle = animateRemoteFloat(targetAngle, duration = 1.0f, type = CUBIC_STANDARD)
+
+        val angleId = angle.getIdForCreationState(creationState)
+
+        val coreDoc =
+            CoreDocument().apply {
+                val buffer = creationState.document.buffer
+                buffer.buffer.index = 0
+                initFromBuffer(buffer)
+            }
+
+        val floatExpr =
+            coreDoc.operations.filterIsInstance<FloatExpression>().first { it.mId == angleId }
+        assertThat(floatExpr.mSrcAnimation).isNotNull()
+        assertThat(floatExpr.mSrcAnimation!!.isNotEmpty()).isTrue()
+        assertThat(floatExpr.mFloatAnimation).isNotNull()
+        assertThat(floatExpr.mFloatAnimation!!.duration).isEqualTo(1.0f)
+        assertThat(floatExpr.mFloatAnimation!!.type).isEqualTo(CUBIC_STANDARD)
+    }
+
+    @Test
+    fun animateRemoteFloat_onAlreadyWrittenRemoteFloatExpression_preservesAnimation() {
+        val seconds = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)
+        val source = floor(seconds % 4f.rf).toRemoteInt()
+        val targetAngle = (source.toRemoteFloat()) * 90f.rf
+
+        // Write targetAngle to document first as an un-animated expression
+        val targetAngleId = targetAngle.getIdForCreationState(creationState)
+
+        // Now animate targetAngle
+        val angle = animateRemoteFloat(targetAngle, duration = 1.0f, type = CUBIC_STANDARD)
+        val angleId = angle.getIdForCreationState(creationState)
+
+        val coreDoc =
+            CoreDocument().apply {
+                val buffer = creationState.document.buffer
+                buffer.buffer.index = 0
+                initFromBuffer(buffer)
+            }
+
+        val targetExpr =
+            coreDoc.operations.filterIsInstance<FloatExpression>().first { it.mId == targetAngleId }
+        assertThat(targetExpr.mFloatAnimation).isNull()
+
+        val angleExpr =
+            coreDoc.operations.filterIsInstance<FloatExpression>().first { it.mId == angleId }
+        assertThat(angleExpr.mSrcAnimation).isNotNull()
+        assertThat(angleExpr.mFloatAnimation).isNotNull()
+        assertThat(angleExpr.mFloatAnimation!!.duration).isEqualTo(1.0f)
+        assertThat(angleExpr.mFloatAnimation!!.type).isEqualTo(CUBIC_STANDARD)
+    }
+
+    @Test
+    fun animateRemoteFloat_deduplication_sameAnimationAndExpression() {
+        val rf = RemoteFloat(10f).createReference(forceRemote = true)
+        val anim1 = animateRemoteFloat(rf, duration = 1.0f, type = CUBIC_STANDARD)
+        val anim2 = animateRemoteFloat(rf, duration = 1.0f, type = CUBIC_STANDARD)
+
+        val id1 = anim1.getIdForCreationState(creationState)
+        val id2 = anim2.getIdForCreationState(creationState)
+
+        assertThat(id1).isEqualTo(id2)
+    }
+
+    @Test
+    fun animateRemoteFloat_doesNotDeduplicateWithUnanimatedExpression() {
+        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) * 2f
+        val animated = animateRemoteFloat(expr, duration = 1.0f, type = CUBIC_STANDARD)
+
+        val exprId = expr.getIdForCreationState(creationState)
+        val animatedId = animated.getIdForCreationState(creationState)
+
+        assertThat(animatedId).isNotEqualTo(exprId)
+
+        val coreDoc =
+            CoreDocument().apply {
+                val buffer = creationState.document.buffer
+                buffer.buffer.index = 0
+                initFromBuffer(buffer)
+            }
+
+        val exprOp =
+            coreDoc.operations.filterIsInstance<FloatExpression>().first { it.mId == exprId }
+        val animOp =
+            coreDoc.operations.filterIsInstance<FloatExpression>().first { it.mId == animatedId }
+
+        assertThat(exprOp.mFloatAnimation).isNull()
+        assertThat(animOp.mFloatAnimation).isNotNull()
+    }
+
+    @Test
+    fun animateRemoteFloat_onMutableRemoteFloat_preservesAnimation() {
+        val mutableFloat = MutableRemoteFloat(5f)
+        val animated = animateRemoteFloat(mutableFloat, duration = 1.0f, type = CUBIC_STANDARD)
+        val mutableId = mutableFloat.getIdForCreationState(creationState)
+        val animatedId = animated.getIdForCreationState(creationState)
+
+        assertThat(animatedId).isNotEqualTo(mutableId)
+
+        val coreDoc =
+            CoreDocument().apply {
+                val buffer = creationState.document.buffer
+                buffer.buffer.index = 0
+                initFromBuffer(buffer)
+            }
+
+        val animOp =
+            coreDoc.operations.filterIsInstance<FloatExpression>().first { it.mId == animatedId }
+        assertThat(animOp.mFloatAnimation).isNotNull()
+        assertThat(animOp.mFloatAnimation!!.duration).isEqualTo(1.0f)
+    }
+
+    @Test
     fun cacheKeys() {
         val constant = RemoteFloat(10f)
         assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(10f))
