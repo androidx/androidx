@@ -4058,6 +4058,11 @@ package androidx.compose.ui.platform {
     property public float touchSlop;
   }
 
+  public final class AndroidWindowInfo_androidKt {
+    method @InaccessibleFromKotlin public static boolean isCrossWindowBlurEnabled(androidx.compose.ui.platform.WindowInfo);
+    property public static boolean androidx.compose.ui.platform.WindowInfo.isCrossWindowBlurEnabled;
+  }
+
   @kotlin.jvm.JvmInline public final value class AutoClearFocusBehavior {
     method @BytecodeOnly public static androidx.compose.ui.platform.AutoClearFocusBehavior! box-impl(int);
     method @BytecodeOnly public int unbox-impl();
