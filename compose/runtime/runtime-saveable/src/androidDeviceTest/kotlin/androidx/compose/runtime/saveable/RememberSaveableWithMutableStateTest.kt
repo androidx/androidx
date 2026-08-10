@@ -210,4 +210,44 @@ class RememberSaveableWithMutableStateTest {
 
         rule.runOnUiThread { assertThat(state!!.value).isEqualTo("value") }
     }
+
+    @Test
+    fun nullableSerializableStateRestoresNonNullValue() {
+        var state: MutableState<String?>? = null
+        restorationTester.setContent {
+            state = rememberSerializable { mutableStateOf<String?>(null) }
+        }
+
+        rule.runOnUiThread {
+            assertThat(state!!.value).isNull()
+
+            state!!.value = "value"
+            // we null it to ensure recomposition happened
+            state = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        rule.runOnUiThread { assertThat(state!!.value).isEqualTo("value") }
+    }
+
+    @Test
+    fun nullableSerializableStateRestoresNullValue() {
+        var state: MutableState<String?>? = null
+        restorationTester.setContent {
+            state = rememberSerializable { mutableStateOf<String?>("initial") }
+        }
+
+        rule.runOnUiThread {
+            assertThat(state!!.value).isEqualTo("initial")
+
+            state!!.value = null
+            // we null it to ensure recomposition happened
+            state = null
+        }
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        rule.runOnUiThread { assertThat(state!!.value).isNull() }
+    }
 }
