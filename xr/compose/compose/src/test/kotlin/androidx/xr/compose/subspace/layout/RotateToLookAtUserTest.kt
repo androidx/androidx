@@ -535,6 +535,41 @@ class RotateToLookAtUserTest {
         }
 
     @Test
+    fun rotateToLookAtUser_whenPitchDisabled_doesNotTurnOnXAxis() =
+        runTest(testDispatcher) {
+            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+
+            composeTestRule.setContent {
+                Subspace {
+                    SpatialPanel(
+                        SubspaceModifier.testTag("TheWatcher")
+                            .rotateToLookAtUser(isPitchUpdateEnabled = false)
+                    ) {
+                        Text(text = "Target")
+                    }
+                }
+            }
+
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(Quaternion.Identity)
+
+            // Move the user vertically, which would normally trigger a pitch rotation.
+            val userLocation: Vector3 = Vector3(x = 0F, y = 3F, z = 3F)
+            fakePerceptionManager.arDevice.apply {
+                devicePose = devicePose.translate(translation = userLocation)
+            }
+
+            testDispatcher.scheduler.advanceUntilIdle()
+            composeTestRule.waitForIdle()
+
+            // Since pitch is disabled, the rotation must remain exactly Identity.
+            composeTestRule
+                .onSubspaceNodeWithTag("TheWatcher")
+                .assertRotationInRootIsEqualTo(Quaternion.Identity)
+        }
+
+    @Test
     fun rotateToLookAtUser_whenPitchLimited_onlyRotatesThatMuch() =
         runTest(testDispatcher) {
             val fakePerceptionManager = createSessionAndGetPerceptionManager()
