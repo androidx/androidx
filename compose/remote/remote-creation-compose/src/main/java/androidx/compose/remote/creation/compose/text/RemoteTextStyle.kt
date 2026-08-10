@@ -39,15 +39,17 @@ import androidx.compose.ui.unit.TextUnit
  * @param color The color of the text
  * @param fontSize the size of glyphs to use when painting the text in [RemoteTextUnit] .
  * @param fontWeight the typeface thickness to use when painting the text (e.g., [FontWeight.Bold]).
- * @param fontStyle The indentation of the paragraph.
+ * @param fontStyle the font style to use when painting the text (e.g., [FontStyle.Italic]).
  * @param fontFamily the font family to be used when rendering the text.
  * @param letterSpacing the amount of space to add between each letter in [RemoteTextUnit] .
  * @param background The background color for the text.
  * @param textAlign the alignment of the text within the lines of the paragraph.
  * @param lineHeight Line height for the text in [RemoteTextUnit] unit, e.g. SP or EM.
- * @param textDecoration The configuration of hyphenation.
+ * @param textDecoration the decorations to paint on the text (e.g., [TextDecoration.Underline]).
  * @param lineBreak The configuration of line break.
  * @param hyphens The configuration of hyphenation.
+ * @param fontFeatureSettings The advanced typography settings provided by font in CSS format (e.g.
+ *   "smcp" or "tnum").
  * @param fontVariationSettings The font variation settings to be applied to the text.
  */
 public class RemoteTextStyle
@@ -65,8 +67,12 @@ constructor(
     public val textDecoration: TextDecoration? = null,
     public val lineBreak: LineBreak = LineBreak.Unspecified,
     public val hyphens: Hyphens = Hyphens.Unspecified,
+    public val fontFeatureSettings: String? = null,
     public val fontVariationSettings: FontVariation.Settings? = null,
 ) {
+
+    public val combinedFontVariationSettings: FontVariation.Settings?
+        get() = combineFontSettings(fontFeatureSettings, fontVariationSettings)
 
     /**
      * Returns a new [RemoteTextStyle] that is a combination of this style and the given [other]
@@ -94,11 +100,11 @@ constructor(
             lineBreak =
                 if (other.lineBreak != LineBreak.Unspecified) other.lineBreak else this.lineBreak,
             hyphens = if (other.hyphens != Hyphens.Unspecified) other.hyphens else this.hyphens,
+            fontFeatureSettings = other.fontFeatureSettings ?: this.fontFeatureSettings,
             fontVariationSettings = other.fontVariationSettings ?: this.fontVariationSettings,
         )
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun merge(
         color: RemoteColor? = null,
         fontSize: RemoteTextUnit? = null,
@@ -112,6 +118,7 @@ constructor(
         textDecoration: TextDecoration? = null,
         lineBreak: LineBreak = LineBreak.Unspecified,
         hyphens: Hyphens = Hyphens.Unspecified,
+        fontFeatureSettings: String? = null,
         fontVariationSettings: FontVariation.Settings? = null,
     ): RemoteTextStyle {
         return RemoteTextStyle(
@@ -127,6 +134,7 @@ constructor(
             textDecoration = textDecoration ?: this.textDecoration,
             lineBreak = if (lineBreak != LineBreak.Unspecified) lineBreak else this.lineBreak,
             hyphens = if (hyphens != Hyphens.Unspecified) hyphens else this.hyphens,
+            fontFeatureSettings = fontFeatureSettings ?: this.fontFeatureSettings,
             fontVariationSettings = fontVariationSettings ?: this.fontVariationSettings,
         )
     }
@@ -147,6 +155,7 @@ constructor(
         textDecoration: TextDecoration? = this.textDecoration,
         lineBreak: LineBreak = this.lineBreak,
         hyphens: Hyphens = this.hyphens,
+        fontFeatureSettings: String? = this.fontFeatureSettings,
         fontVariationSettings: FontVariation.Settings? = this.fontVariationSettings,
     ): RemoteTextStyle {
         return RemoteTextStyle(
@@ -162,6 +171,7 @@ constructor(
             textDecoration = textDecoration,
             lineBreak = lineBreak,
             hyphens = hyphens,
+            fontFeatureSettings = fontFeatureSettings,
             fontVariationSettings = fontVariationSettings,
         )
     }
@@ -182,6 +192,11 @@ constructor(
             val lineHeight =
                 if (style.lineHeight == TextUnit.Unspecified) null
                 else style.lineHeight.asRemoteTextUnit()
+            val featureList = parseFontFeatureSettings(style.fontFeatureSettings)
+            val fontVariationSettings =
+                if (featureList.isNotEmpty()) {
+                    FontVariation.Settings(*featureList.toTypedArray())
+                } else null
             return RemoteTextStyle(
                 color = color,
                 fontSize = fontSize,
@@ -195,11 +210,64 @@ constructor(
                 textDecoration = style.textDecoration,
                 lineBreak = style.lineBreak,
                 hyphens = style.hyphens,
-                fontVariationSettings = null,
+                fontFeatureSettings = style.fontFeatureSettings,
+                fontVariationSettings = fontVariationSettings,
             )
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public val Default: RemoteTextStyle = RemoteTextStyle()
     }
+}
+
+/**
+ * Parses a CSS-style fontFeatureSettings string (e.g., "tnum", "tnum, zero", "'tnum' 1, 'smcp' 1")
+ * into a list of [FontVariation.Setting].
+ */
+internal fun parseFontFeatureSettings(fontFeatureSettings: String?): List<FontVariation.Setting> {
+    if (fontFeatureSettings.isNullOrBlank()) return emptyList()
+    val result = mutableListOf<FontVariation.Setting>()
+    val parts = fontFeatureSettings.split(',')
+    for (i in parts.indices) {
+        val part = parts[i]
+        val trimmed = part.trim()
+        if (trimmed.isEmpty()) continue
+        val tokens = trimmed.split(Regex("\\s+"))
+        val rawTag = tokens[0].replace("'", "").replace("\"", "").trim()
+        if (rawTag.isEmpty()) continue
+        val value =
+            if (tokens.size > 1) {
+                tokens[1].toFloatOrNull() ?: 1f
+            } else {
+                1f
+            }
+        result.add(FontVariation.Setting(rawTag, value))
+    }
+    return result
+}
+
+/**
+ * Combines [fontFeatureSettings] string and [fontVariationSettings] into a single
+ * [FontVariation.Settings].
+ */
+internal fun combineFontSettings(
+    fontFeatureSettings: String?,
+    fontVariationSettings: FontVariation.Settings?,
+): FontVariation.Settings? {
+    val featureList = parseFontFeatureSettings(fontFeatureSettings)
+    if (featureList.isEmpty()) return fontVariationSettings
+    if (fontVariationSettings == null) {
+        return FontVariation.Settings(*featureList.toTypedArray())
+    }
+    val combinedMap = mutableMapOf<String, FontVariation.Setting>()
+    val settings = fontVariationSettings.settings
+    for (i in settings.indices) {
+        val setting = settings[i]
+        combinedMap[setting.axisName] = setting
+    }
+    for (i in featureList.indices) {
+        val setting = featureList[i]
+        combinedMap[setting.axisName] = setting
+    }
+    return FontVariation.Settings(*combinedMap.values.toTypedArray())
 }

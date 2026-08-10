@@ -55,11 +55,13 @@ class RemoteTextStyleTest {
         assertThat(defaultRemoteStyle.textDecoration).isNull()
         assertThat(defaultRemoteStyle.lineBreak).isEqualTo(LineBreak.Unspecified)
         assertThat(defaultRemoteStyle.hyphens).isEqualTo(Hyphens.Unspecified)
+        assertThat(defaultRemoteStyle.fontFeatureSettings).isNull()
+        assertThat(defaultRemoteStyle.fontVariationSettings).isNull()
 
         // Explicit values
         val remoteStyle =
             RemoteTextStyle.fromTextStyle(
-                TextStyle.Default.copy(
+                TextStyle(
                     fontSize = 16.sp,
                     color = Color.Red,
                     letterSpacing = 1.2f.sp,
@@ -72,6 +74,7 @@ class RemoteTextStyleTest {
                     textDecoration = TextDecoration.Underline,
                     lineBreak = LineBreak.Heading,
                     hyphens = Hyphens.Auto,
+                    fontFeatureSettings = "tnum",
                 )
             )
 
@@ -88,6 +91,12 @@ class RemoteTextStyleTest {
         assertThat(remoteStyle.textDecoration).isEqualTo(TextDecoration.Underline)
         assertThat(remoteStyle.lineBreak).isEqualTo(LineBreak.Heading)
         assertThat(remoteStyle.hyphens).isEqualTo(Hyphens.Auto)
+        assertThat(remoteStyle.fontFeatureSettings).isEqualTo("tnum")
+        assertThat(remoteStyle.fontVariationSettings).isNotNull()
+        assertThat(remoteStyle.fontVariationSettings!!.settings).hasSize(1)
+        assertThat(remoteStyle.fontVariationSettings!!.settings[0].axisName).isEqualTo("tnum")
+        assertThat(remoteStyle.fontVariationSettings!!.settings[0].toVariationValue(null))
+            .isEqualTo(1f)
     }
 
     @Test
@@ -164,5 +173,36 @@ class RemoteTextStyleTest {
         assertThat(newStyle.fontWeight).isEqualTo(FontWeight.Bold)
         assertThat(newStyle.lineBreak).isEqualTo(LineBreak.Paragraph)
         assertThat(newStyle.hyphens).isEqualTo(Hyphens.Auto)
+    }
+
+    @Test
+    fun fontFeatureSettings_combinesCorrectly() {
+        val style = RemoteTextStyle(fontFeatureSettings = "tnum, zero")
+        val combined = style.combinedFontVariationSettings
+
+        assertThat(combined).isNotNull()
+        assertThat(combined!!.settings).hasSize(2)
+        assertThat(combined.settings[0].axisName).isEqualTo("tnum")
+        assertThat(combined.settings[0].toVariationValue(null)).isEqualTo(1f)
+        assertThat(combined.settings[1].axisName).isEqualTo("zero")
+        assertThat(combined.settings[1].toVariationValue(null)).isEqualTo(1f)
+    }
+
+    @Test
+    fun fontFeatureSettings_and_fontVariationSettings_merge() {
+        val style =
+            RemoteTextStyle(
+                fontFeatureSettings = "tnum",
+                fontVariationSettings =
+                    androidx.compose.ui.text.font.FontVariation.Settings(
+                        androidx.compose.ui.text.font.FontVariation.weight(700)
+                    ),
+            )
+        val combined = style.combinedFontVariationSettings
+
+        assertThat(combined).isNotNull()
+        assertThat(combined!!.settings).hasSize(2)
+        assertThat(combined.settings[0].axisName).isEqualTo("wght")
+        assertThat(combined.settings[1].axisName).isEqualTo("tnum")
     }
 }
