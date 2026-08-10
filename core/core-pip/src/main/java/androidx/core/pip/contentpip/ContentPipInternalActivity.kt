@@ -46,7 +46,7 @@ internal class ContentPipInternalActivity : ComponentActivity() {
         cb.onAttachContentPip(this)
 
         // Register the finish hook so the main activity can "pull back" the player
-        ContentPipManager.registerFinishProxyHook { finishAndRemoveTask() }
+        ContentPipManager.setFinishProxyHook { finishAndRemoveTask() }
 
         // Move task to back immediately so it doesn't interrupt the user's current gesture
         moveTaskToBack(true)
