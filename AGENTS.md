@@ -35,7 +35,7 @@ projects; `PROJECT_PREFIX=:core,:appcompat` limits to those groups. In Studio,
 
 The canonical workflow — branching (`repo start <branch> .`), formatting, `updateApi`, the
 commit-message stanzas (`Test:` required, `Bug:`/`Fixes:`, `Relnote:`, `Change-Id:`), and
-`repo upload --cbr -t .` → Treehugger presubmit → amend-the-same-commit to iterate — lives in
+`repo upload --cbr .` → Treehugger presubmit → amend-the-same-commit to iterate — lives in
 the [`manage_commits`](.agents/skills/manage_commits/SKILL.md) skill. **Read it before you
 commit or upload.**
 
