@@ -132,8 +132,8 @@ internal class UndoManager<T>(
                     add(value.capacity)
                     add(value.undoStack.size)
                     add(value.redoStack.size)
-                    value.undoStack.fastForEach { with(itemSaver) { add(save(it)) } }
-                    value.redoStack.fastForEach { with(itemSaver) { add(save(it)) } }
+                    value.undoStack.toList().fastForEach { with(itemSaver) { add(save(it)) } }
+                    value.redoStack.toList().fastForEach { with(itemSaver) { add(save(it)) } }
                 }
 
                 override fun restore(value: Any): UndoManager<T> {

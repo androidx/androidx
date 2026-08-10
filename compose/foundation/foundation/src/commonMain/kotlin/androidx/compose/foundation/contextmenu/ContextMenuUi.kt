@@ -254,7 +254,7 @@ internal constructor(
 
     @Composable
     internal fun Content(colors: ContextMenuColors) {
-        composables.fastForEach { composable -> composable(colors) }
+        composables.toList().fastForEach { composable -> composable(colors) }
     }
 
     internal fun clear() {
