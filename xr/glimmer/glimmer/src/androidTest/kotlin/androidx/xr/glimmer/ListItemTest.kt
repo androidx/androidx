@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
@@ -40,8 +41,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -66,7 +65,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
-import androidx.xr.glimmer.testutils.assertGlimmerSurfaceShape
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
 import androidx.xr.glimmer.testutils.toIntArray
@@ -127,20 +125,21 @@ class ListItemTest {
             colors = Colors(surface = surfaceColor, background = backgroundColor)
         ) {
             expectedShape = GlimmerTheme.shapes.medium
-            ListItem(modifier = Modifier.testTag("listItem")) { Box(Modifier.size(100.dp, 100.dp)) }
+            ListItem(modifier = Modifier.testTag("listItem"), border = null) {
+                Box(Modifier.size(100.dp, 100.dp))
+            }
         }
 
-        val image = rule.onNodeWithTag("listItem").captureToImage()
-        image.assertGlimmerSurfaceShape(
-            density = rule.density,
-            shape = expectedShape,
-            backgroundColor = backgroundColor,
-        )
-        val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
-        val expectedSurfaceColor = SurfaceDefaults.color(surfaceColor)
-        val expectedCompositeColor =
-            Color.White.copy(alpha = 0.16f).compositeOver(expectedSurfaceColor)
-        assertThat(centerColor).isEqualTo(expectedCompositeColor)
+        rule
+            .onNodeWithTag("listItem")
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = expectedShape,
+                shapeColor = surfaceColor,
+                backgroundColor = backgroundColor,
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
+            )
     }
 
     @Test

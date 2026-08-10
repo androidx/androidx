@@ -36,6 +36,10 @@ import androidx.compose.ui.graphics.Color
  *   [Color.Black] to ensure maximum contrast.
  * @property surface The surface color that's applied to surfaces of components, such as buttons,
  *   cards, and list items.
+ * @property outline Subtle color used for borders. This color helps to add contrast around
+ *   components for accessibility purposes.
+ * @property outlineVariant Utility color used for borders for decorative elements when strong
+ *   contrast is not required.
  */
 @Immutable
 public class Colors(
@@ -45,6 +49,8 @@ public class Colors(
     public val negative: Color = Color(0xFFFFA7A0),
     public val background: Color = Color.Black,
     public val surface: Color = Color(0xFF262626),
+    public val outline: Color = Color(0xFF606460),
+    public val outlineVariant: Color = Color(0xFF42434A),
 ) {
 
     /** Returns a copy of this Colors, optionally overriding some of the values. */
@@ -55,6 +61,8 @@ public class Colors(
         negative: Color = this.negative,
         background: Color = this.background,
         surface: Color = this.surface,
+        outline: Color = this.outline,
+        outlineVariant: Color = this.outlineVariant,
     ): Colors =
         Colors(
             primary = primary,
@@ -63,6 +71,8 @@ public class Colors(
             negative = negative,
             background = background,
             surface = surface,
+            outline = outline,
+            outlineVariant = outlineVariant,
         )
 
     override fun equals(other: Any?): Boolean {
@@ -75,6 +85,8 @@ public class Colors(
         if (negative != other.negative) return false
         if (background != other.background) return false
         if (surface != other.surface) return false
+        if (outline != other.outline) return false
+        if (outlineVariant != other.outlineVariant) return false
 
         return true
     }
@@ -86,12 +98,12 @@ public class Colors(
         result = 31 * result + negative.hashCode()
         result = 31 * result + background.hashCode()
         result = 31 * result + surface.hashCode()
+        result = 31 * result + outline.hashCode()
+        result = 31 * result + outlineVariant.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "Colors(primary=$primary, secondary=$secondary, positive=$positive, negative=$negative, background=$background, surface=$surface)"
+        return "Colors(primary=$primary, secondary=$secondary, positive=$positive, negative=$negative, background=$background, surface=$surface, outline=$outline, outlineVariant=$outlineVariant)"
     }
 }
-
-internal val DefaultSurfaceColor: Color = Color(0xFF262626)

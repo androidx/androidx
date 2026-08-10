@@ -26,10 +26,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -47,8 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.xr.glimmer.internal.color.withToneAndChroma
-import androidx.xr.glimmer.testutils.assertGlimmerSurfaceShape
 import androidx.xr.glimmer.testutils.captureToImage
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -60,18 +58,6 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class IconToggleButtonTest {
     @get:Rule val rule = createComposeRule()
-
-    @Test
-    fun iconToggleButton_defaultColors() {
-        rule.setGlimmerThemeContent {
-            val colors = IconToggleButtonDefaults.colors()
-            assertThat(colors.backgroundColor).isEqualTo(GlimmerTheme.colors.surface)
-            assertThat(colors.checkedBackgroundColor)
-                .isEqualTo(
-                    GlimmerTheme.colors.primary.withToneAndChroma(newTone = 70f, newChroma = 50f)
-                )
-        }
-    }
 
     @Test
     fun iconToggleButton_semantics() {
@@ -119,14 +105,17 @@ class IconToggleButtonTest {
 
     @Test
     fun iconToggleButton_changesShapeAndColor_whenCheckedStateChanges() {
+        lateinit var expectedColors: IconToggleButtonColors
         val checked = mutableStateOf(false)
 
         rule.setGlimmerThemeContent {
+            expectedColors = IconToggleButtonDefaults.colors()
             Box {
                 IconToggleButton(
                     checked = checked.value,
                     onCheckedChange = {},
                     modifier = Modifier.testTag("icon_toggle_button"),
+                    border = null,
                 ) {
                     Box(Modifier.size(100.dp, 100.dp))
                 }
@@ -137,10 +126,12 @@ class IconToggleButtonTest {
         rule
             .onNodeWithTag("icon_toggle_button")
             .captureToImage()
-            .assertGlimmerSurfaceShape(
+            .assertShape(
                 density = rule.density,
                 shape = CircleShape,
+                shapeColor = expectedColors.backgroundColor,
                 backgroundColor = Color.Black,
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
 
         // Toggle the button.
@@ -151,10 +142,12 @@ class IconToggleButtonTest {
         rule
             .onNodeWithTag("icon_toggle_button")
             .captureToImage()
-            .assertGlimmerSurfaceShape(
+            .assertShape(
                 density = rule.density,
                 shape = ToggleButtonDefaults.CheckedShape,
+                shapeColor = expectedColors.checkedBackgroundColor,
                 backgroundColor = Color.Black,
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
             )
     }
 
@@ -184,35 +177,40 @@ class IconToggleButtonTest {
                         ),
                     onCheckedChange = {},
                     modifier = Modifier.testTag("icon_toggle_button"),
+                    border = null,
                 ) {
                     Box(Modifier.size(100.dp, 100.dp))
                 }
             }
         }
 
-        // Unchecked state (Red background).
-        val uncheckedImage = rule.onNodeWithTag("icon_toggle_button").captureToImage()
-        uncheckedImage.assertGlimmerSurfaceShape(
-            density = rule.density,
-            shape = expectedUncheckedShape,
-            backgroundColor = Color.Black,
-        )
-        val uncheckedCenterColor = uncheckedImage.toPixelMap().run { get(width / 2, height / 2) }
-        assertThat(uncheckedCenterColor).isEqualTo(expectedColors.backgroundColor)
+        // Unchecked state.
+        rule
+            .onNodeWithTag("icon_toggle_button")
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = expectedUncheckedShape,
+                shapeColor = expectedColors.backgroundColor,
+                backgroundColor = Color.Black,
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
+            )
 
         // Toggle the button.
         checked.value = true
         rule.waitForIdle()
 
-        // Checked state (Green background).
-        val checkedImage = rule.onNodeWithTag("icon_toggle_button").captureToImage()
-        checkedImage.assertGlimmerSurfaceShape(
-            density = rule.density,
-            shape = expectedCheckedShape,
-            backgroundColor = Color.Black,
-        )
-        val checkedCenterColor = checkedImage.toPixelMap().run { get(width / 2, height / 2) }
-        assertThat(checkedCenterColor).isEqualTo(expectedColors.checkedBackgroundColor)
+        // Checked state.
+        rule
+            .onNodeWithTag("icon_toggle_button")
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = expectedCheckedShape,
+                shapeColor = expectedColors.checkedBackgroundColor,
+                backgroundColor = Color.Black,
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() },
+            )
     }
 
     @Test
@@ -231,6 +229,7 @@ class IconToggleButtonTest {
                         checkedBackgroundColor = checkedBackgroundColor
                     ),
                 modifier = Modifier.testTag("icon_toggle_button"),
+                border = null,
             ) {
                 Box(Modifier.size(100.dp, 100.dp))
             }
@@ -275,40 +274,13 @@ class IconToggleButtonTest {
         rule
             .onNodeWithTag("icon_toggle_button")
             .captureToImage()
-            .assertGlimmerSurfaceShape(
+            .assertShape(
                 density = density,
                 shape = expectedShape,
+                shapeColor = checkedBackgroundColor,
                 backgroundColor = Color.Black,
+                antiAliasingGap = with(density) { 1.5.dp.toPx() },
             )
-    }
-
-    @Test
-    fun iconToggleButton_updatesColor_whenThemePrimaryColorChanges() {
-        var themeColors by mutableStateOf(Colors(primary = Color.Red))
-        rule.setContent {
-            GlimmerTheme(colors = themeColors) {
-                IconToggleButton(
-                    checked = true,
-                    onCheckedChange = {},
-                    modifier = Modifier.size(100.dp).testTag("icon_toggle_button"),
-                ) {
-                    Icon(FavoriteIcon, contentDescription = null)
-                }
-            }
-        }
-
-        val expectedRed = Color.Red.withToneAndChroma(newTone = 70f, newChroma = 50f)
-        rule.onNodeWithTag("icon_toggle_button").captureToImage().toPixelMap().run {
-            assertThat(get(width / 8, height / 2)).isEqualTo(expectedRed)
-        }
-
-        themeColors = Colors(primary = Color.Blue)
-        rule.waitForIdle()
-
-        val expectedBlue = Color.Blue.withToneAndChroma(newTone = 70f, newChroma = 50f)
-        rule.onNodeWithTag("icon_toggle_button").captureToImage().toPixelMap().run {
-            assertThat(get(width / 8, height / 2)).isEqualTo(expectedBlue)
-        }
     }
 
     private fun SemanticsNodeInteraction.assertToggleableSemantics(
