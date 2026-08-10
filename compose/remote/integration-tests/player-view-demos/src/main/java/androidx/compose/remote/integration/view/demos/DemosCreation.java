@@ -219,7 +219,7 @@ public abstract class DemosCreation {
         boolean customViews; // = (types & 2) != 0;
         boolean dsl1 = (types & 4) != 0;
         boolean dsl2 = (types & 8) != 0;
-        customViews = false;
+        customViews = true;
 //        demos.add(get("-0/030/conditional", DslConditionalKt::dslConditionalDemo));
         if (dsl) {
             demos.addAll(Arrays.asList(

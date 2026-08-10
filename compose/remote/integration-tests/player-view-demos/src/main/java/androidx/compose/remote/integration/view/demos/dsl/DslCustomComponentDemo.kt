@@ -66,6 +66,8 @@ public fun dslCustomComponentDemo(): ByteArray {
             vertical = RcColumnVerticalPositioning.Top,
         ) {
             // Title Header
+            val col = remoteColorExpression(255, (continuousSec() / 2f) % 1f, 0.8f, 1f)
+
             Text(
                 text = "Native Interoperability",
                 weight = RcWeight.Bold,
@@ -85,7 +87,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                 textAlign = RcTextAlign.Center,
                 color = 0xFF94A3B8.toInt(),
             )
-            val timeCount = createTextFromFloat(seconds(), 2, 0, 0)
+            val timeCount = createTextFromFloat(minutes(), 2, 0, 0)
 
             Row(Modifier.padding(8f), vertical = RcVerticalPositioning.Center) {
                 Text(
@@ -99,7 +101,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                     Modifier.width(200.rdp)
                         .height(100.rdp)
                         .clip(RoundedRectShape(32f, 32f, 32f, 32f))
-                        .background(Color.GREEN)
+                        .background(col)
                 ) {
                     paint { textSize(48f) }
                     drawTextAnchored(timeCount, width / 2f, height / 2f, 0.rf, 0.rf, 0)
@@ -114,6 +116,8 @@ public fun dslCustomComponentDemo(): ByteArray {
                     color = 0xFF94A3B8.toInt(),
                     modifier = Modifier.width(300.rdp),
                 )
+                val col = remoteColorExpression(255, (continuousSec() / 2f) % 1f, 0.8f, 1f)
+
                 Custom(
                     config = "TextView",
                     properties =
@@ -128,10 +132,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                                 CustomProperty.FLOAT_PROP,
                                 120f / 3,
                             ),
-                            CustomProperty.color(
-                                SupportTextView.PROP_BACKGROUND_COLOR,
-                                Color.rgb(30, 41, 59).rcColor(),
-                            ),
+                            CustomProperty.color(SupportTextView.PROP_BACKGROUND_COLOR, col),
                         ),
                     modifier =
                         Modifier.fillMaxWidth()
@@ -147,6 +148,8 @@ public fun dslCustomComponentDemo(): ByteArray {
                     color = 0xFF94A3B8.toInt(),
                     modifier = Modifier.width(300.rdp),
                 )
+                val col = remoteColorExpression(255, (continuousSec() / 2f) % 1f, 0.8f, 1f)
+                println("custom .............. ")
                 Custom(
                     config = "TextView",
                     properties =
@@ -163,7 +166,7 @@ public fun dslCustomComponentDemo(): ByteArray {
                             ),
                             CustomProperty.color(
                                 SupportTextView.PROP_BACKGROUND_COLOR,
-                                Color.rgb(30, 41, 59).rcColor(),
+                                col, // Color.rgb(30, 41, 59).rcColor(),
                             ),
                         ),
                     modifier = Modifier,

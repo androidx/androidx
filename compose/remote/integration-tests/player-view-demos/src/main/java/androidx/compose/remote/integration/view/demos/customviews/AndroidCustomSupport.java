@@ -161,6 +161,7 @@ public class AndroidCustomSupport implements AndroidCustomContext {
      */
     @Override
     public void configureCustom(int id, int type, float value) {
+
         View view = mCustomViews.get(id);
         AndroidComponentSupport delegate = mCustomDelegates.get(id);
         if (view != null && delegate != null) {

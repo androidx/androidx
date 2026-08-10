@@ -30,6 +30,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.player.core.platform.AndroidComponentSupport;
 import androidx.compose.remote.player.view.RemoteComposePlayer;
 
@@ -145,6 +146,7 @@ public class SupportEditText implements AndroidComponentSupport {
             } else if (type == PROP_TEXT_SIZE) {
                 textView.setTextSize(value);
             } else if (type == PROP_BACKGROUND_COLOR) {
+                Utils.log("custom PROP_BACKGROUND_COLOR " + value);
                 textView.setBackgroundColor(value);
             } else if (type == RET_TEXT) {
                 view.setTag(value);
