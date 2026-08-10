@@ -21,8 +21,8 @@ package androidx.pdf
  *
  * @param failureIndex The index of the operation that caused the failure, relative to the order in
  *   which operations were enqueued in the [EditsDraft].
- * @param appliedEditIds A list of unique identifiers for the annotations that were successfully
- *   edited (inserted, updated, or removed) before the failure occurred.
+ * @param appliedEditIds The list of unique identifiers for the edits (e.g., annotation IDs) that
+ *   were successfully applied before the failure occurred.
  * @param cause The underlying cause of the failure.
  */
 @ExperimentalPdfApi

@@ -452,7 +452,8 @@ public interface PdfDocument : Closeable {
          * according to the order of the provided list of [EditsDraft].
          *
          * @param pageNum page number where the annotation is applied.
-         * @param editId id of the annotation that was applied.
+         * @param editId The unique identifier of the target created or modified by this edit (e.g.,
+         *   an annotation ID)
          */
         public fun onEditApplied(pageNum: Int, editId: String)
     }

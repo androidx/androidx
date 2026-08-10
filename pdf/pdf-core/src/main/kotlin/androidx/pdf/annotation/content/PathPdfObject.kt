@@ -50,10 +50,12 @@ public class PathPdfObject(
     }
 
     /**
-     * Data model for a single coordinate in a [PathPdfObject].
+     * Data model for a single path operation and coordinate in a [PathPdfObject].
      *
-     * @property x The x-coordinate of the point.
-     * @property y The y-coordinate of the point.
+     * @property x The x-coordinate in PDF points (1/72 of an inch) relative to the top-left of the
+     *   page.
+     * @property y The y-coordinate in PDF points (1/72 of an inch) relative to the top-left of the
+     *   page.
      * @property command The type of path operation (e.g., [MOVE_TO] or [LINE_TO]).
      */
     public class PathInput(

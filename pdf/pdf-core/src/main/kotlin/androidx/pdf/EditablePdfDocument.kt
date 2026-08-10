@@ -46,7 +46,8 @@ public interface EditablePdfDocument : PdfDocument {
      * [editsDraft].
      *
      * @param editsDraft: edits to be applied on pdf document.
-     * @return List of annotationId for each operation in sequence of the order they were enqueued.
+     * @return List of unique edit IDs (such as annotation IDs) corresponding to each operation in
+     *   the order they were enqueued.
      * @throws [PdfEditApplyException] if any of the edit failed to be applied.
      */
     @ExperimentalPdfApi public suspend fun applyEdits(editsDraft: EditsDraft): List<String>
