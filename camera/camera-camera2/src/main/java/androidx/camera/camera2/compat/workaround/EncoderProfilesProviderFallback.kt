@@ -167,10 +167,7 @@ public class EncoderProfilesProviderFallback(
         val streamConfigurationMap = cameraMetadata[SCALER_STREAM_CONFIGURATION_MAP]
         return CameraQuirks(
                 cameraMetadata,
-                StreamConfigurationMapCompat(
-                    streamConfigurationMap,
-                    OutputSizesCorrector(cameraMetadata, streamConfigurationMap),
-                ),
+                StreamConfigurationMapCompat(streamConfigurationMap, cameraMetadata),
             )
             .quirks
     }

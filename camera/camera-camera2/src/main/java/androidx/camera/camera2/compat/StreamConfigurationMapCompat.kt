@@ -22,9 +22,12 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Range
 import android.util.Size
+import androidx.camera.camera2.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.compat.quirk.UnsupportedFormatsQuirk
 import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.config.CameraScope
 import androidx.camera.camera2.impl.Camera2Logger
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.Logger
 import javax.inject.Inject
 
@@ -32,16 +35,21 @@ import javax.inject.Inject
  * Helper for accessing features in [StreamConfigurationMap] in a backwards compatible fashion.
  *
  * @param map [StreamConfigurationMap] class to wrap workarounds when output sizes are retrieved.
- * @param outputSizesCorrector [OutputSizesCorrector] class to perform correction on sizes.
+ * @param cameraMetadata [CameraMetadata] class.
  */
 @CameraScope
 public class StreamConfigurationMapCompat
 @Inject
-constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: OutputSizesCorrector) {
+constructor(map: StreamConfigurationMap?, private val cameraMetadata: CameraMetadata? = null) {
+    private val outputSizesCorrector = OutputSizesCorrector(cameraMetadata, map)
     private val tag = "StreamConfigurationMapCompat"
     private val cachedFormatOutputSizes = mutableMapOf<Int, Array<Size>>()
     private val cachedFormatHighResolutionOutputSizes = mutableMapOf<Int, Array<Size>?>()
     private val cachedClassOutputSizes = mutableMapOf<Class<*>, Array<Size>>()
+    private val unsupportedFormats: Set<Int> by lazy {
+        DeviceQuirks[UnsupportedFormatsQuirk::class.java]?.getUnsupportedFormats(cameraMetadata)
+            ?.toSet() ?: emptySet()
+    }
     private var impl: StreamConfigurationMapCompatImpl =
         if (Build.VERSION.SDK_INT >= 34) {
             StreamConfigurationMapCompatApi34Impl(map)
@@ -60,7 +68,9 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
      * @see [PixelFormat]
      */
     public fun getOutputFormats(): Array<Int>? {
-        return impl.getOutputFormats()
+        val formats = impl.getOutputFormats() ?: return null
+        if (unsupportedFormats.isEmpty()) return formats
+        return formats.filter { !unsupportedFormats.contains(it) }.toTypedArray()
     }
 
     /**
@@ -72,6 +82,9 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
      * @return an array of supported sizes, or `null` if the `format` is not a supported output
      */
     public fun getOutputSizes(format: Int): Array<Size>? {
+        if (unsupportedFormats.contains(format)) {
+            return null
+        }
         if (cachedFormatOutputSizes.contains(format)) {
             return cachedFormatOutputSizes[format]?.clone()
         }
@@ -143,6 +156,9 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
      * @return an array of supported sizes, or `null` if the `format` is not a supported output
      */
     public fun getHighResolutionOutputSizes(format: Int): Array<Size>? {
+        if (unsupportedFormats.contains(format)) {
+            return null
+        }
         if (cachedFormatHighResolutionOutputSizes.contains(format)) {
             return cachedFormatHighResolutionOutputSizes[format]?.clone()
         }

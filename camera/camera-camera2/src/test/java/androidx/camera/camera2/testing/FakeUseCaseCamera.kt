@@ -26,7 +26,6 @@ import androidx.camera.camera2.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.adapter.propagateTo
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.compat.workaround.TemplateParamsQuirkOverride
 import androidx.camera.camera2.config.CameraConfig
 import androidx.camera.camera2.config.UseCaseCameraComponent
@@ -74,10 +73,7 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
             cameraMetadata,
             StreamConfigurationMapCompat(
                 StreamConfigurationMapBuilder.newBuilder().build(),
-                OutputSizesCorrector(
-                    cameraMetadata,
-                    StreamConfigurationMapBuilder.newBuilder().build(),
-                ),
+                cameraMetadata,
             ),
         )
     val configProvider =

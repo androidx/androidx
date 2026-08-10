@@ -19,7 +19,6 @@ package androidx.camera.camera2.testing
 import android.hardware.camera2.CameraCharacteristics
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.compat.workaround.UseTorchAsFlash
 import androidx.camera.camera2.compat.workaround.UseTorchAsFlashImpl
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
@@ -58,17 +57,8 @@ object FakeUseTorchAsFlash {
                     mapOf(CameraBackendId(metadata.camera.value) to listOf(metadata)),
             )
 
-        val cameraQuirks =
-            CameraQuirks(
-                metadata,
-                StreamConfigurationMapCompat(
-                    StreamConfigurationMapBuilder.newBuilder().build(),
-                    OutputSizesCorrector(
-                        FakeCameraMetadata.fromTemplate(HighEndDeviceTemplate),
-                        StreamConfigurationMapBuilder.newBuilder().build(),
-                    ),
-                ),
-            )
+        val map = StreamConfigurationMapBuilder.newBuilder().build()
+        val cameraQuirks = CameraQuirks(metadata, StreamConfigurationMapCompat(map, metadata))
 
         return if (forceEnable) {
             UseTorchAsFlashImpl(cameraQuirks, cameraDevices, intrinsicZoomCalculator)

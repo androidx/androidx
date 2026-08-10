@@ -25,7 +25,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
 import androidx.camera.camera2.compat.workaround.ExtraSupportedSurfaceCombinationsContainer
-import androidx.camera.camera2.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.config.CameraAppComponent
 import androidx.camera.camera2.config.CameraModule
 import androidx.camera.camera2.impl.Camera2Logger
@@ -141,10 +140,7 @@ public class CameraSurfaceAdapter(
                 val cameraQuirks =
                     CameraQuirks(
                         cameraMetadata,
-                        StreamConfigurationMapCompat(
-                            streamConfigurationMap,
-                            OutputSizesCorrector(cameraMetadata, streamConfigurationMap),
-                        ),
+                        StreamConfigurationMapCompat(streamConfigurationMap, cameraMetadata),
                     )
                 newMap[cameraId] =
                     SupportedSurfaceCombination(
