@@ -71,6 +71,8 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param overflow How visual overflow should be handled.
  * @param maxLines An optional maximum number of lines for the text.
  * @param style The [RemoteTextStyle] to be applied to the text.
+ * @param fontFeatureSettings The advanced typography settings provided by font in CSS format (e.g.
+ *   "smcp" or "tnum").
  * @param fontVariationSettings The font variation settings to be applied to the text.
  */
 @Composable
@@ -87,6 +89,7 @@ public fun RemoteText(
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
     style: RemoteTextStyle = RemoteTextStyle.Default,
+    fontFeatureSettings: String? = null,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
     val style =
@@ -96,6 +99,7 @@ public fun RemoteText(
             textAlign = textAlign ?: TextAlign.Unspecified,
             fontFamily = fontFamily,
             fontStyle = fontStyle,
+            fontFeatureSettings = fontFeatureSettings,
             fontVariationSettings = fontVariationSettings,
         )
     val fontSizeUnit = style.fontSize ?: 12.rsp
@@ -126,7 +130,7 @@ public fun RemoteText(
         lineBreak = style.lineBreak,
         hyphens = style.hyphens,
         textDecoration = style.textDecoration,
-        fontVariationSettings = style.fontVariationSettings,
+        fontVariationSettings = style.combinedFontVariationSettings,
     )
 }
 
