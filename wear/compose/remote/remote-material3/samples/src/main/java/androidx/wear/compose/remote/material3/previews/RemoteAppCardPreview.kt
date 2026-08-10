@@ -99,6 +99,25 @@ fun RemoteAppCardWithAppNameTitleSubtitle() {
     }
 }
 
+@WearPreviewDevices
+@Composable
+fun RemoteAppCardWithTwoLineContentPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteAppCardWithTwoLineContent() } }
+
+@Composable
+@RemoteComposable
+fun RemoteAppCardWithTwoLineContent() {
+    RemoteAppCard(
+        onClick = Action.Empty,
+        appName = { RemoteText("App Name".rs) },
+        time = { RemoteText("now".rs) },
+        title = { RemoteText("Card Title".rs) },
+    ) {
+        RemoteText("First Line Content\nSecond Line Content".rs)
+    }
+}
+
 @Composable
 @RemoteComposable
 private fun Container(

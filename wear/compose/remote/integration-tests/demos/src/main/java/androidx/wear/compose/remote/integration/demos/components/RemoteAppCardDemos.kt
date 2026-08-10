@@ -31,6 +31,7 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardDefault
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardWithAppNameTimeTitle
 import androidx.wear.compose.remote.material3.previews.RemoteAppCardWithAppNameTitleSubtitle
+import androidx.wear.compose.remote.material3.previews.RemoteAppCardWithTwoLineContent
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Composable
@@ -63,6 +64,9 @@ fun RemoteAppCardDemos(modifier: Modifier = Modifier) {
             }
             remoteDemoItem("App name, title and subtitle", documentHeight = 150) {
                 RemoteAppCardWithAppNameTitleSubtitle()
+            }
+            remoteDemoItem("Two-line content", documentHeight = 170) {
+                RemoteAppCardWithTwoLineContent()
             }
         }
     }
