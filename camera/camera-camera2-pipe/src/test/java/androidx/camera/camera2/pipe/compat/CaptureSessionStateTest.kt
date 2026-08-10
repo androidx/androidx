@@ -43,8 +43,10 @@ import androidx.camera.camera2.pipe.testing.FakeCaptureSessionFactory
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -351,5 +353,51 @@ class CaptureSessionStateTest {
         // Then make sure we do close the capture session.
         advanceUntilIdle()
         verify(fakeCaptureSession, times(1)).close()
+    }
+
+    @Test
+    fun captureSessionStateSkipsAwaitSessionWhenSessionCreationFails() = runTest {
+        val fakeThreads = FakeThreads.fromTestScope(this, Dispatchers.IO)
+
+        // Create a fake capture session factory that fails session creation early.
+        val fakeSessionFactory =
+            object : CaptureSessionFactory {
+                override fun create(
+                    cameraDevice: CameraDeviceWrapper,
+                    surfaces: Map<StreamId, Surface>,
+                    captureSessionState: CaptureSessionState,
+                ): CaptureSessionFactory.Result {
+                    // When session configuration fails, the factory would invoke onSessionFinalized
+                    // before returning the failed result.
+                    captureSessionState.onSessionFinalized()
+                    return CaptureSessionFactory.Result.Failed
+                }
+            }
+        val state =
+            CaptureSessionState(
+                fakeGraphListener,
+                fakeSessionFactory,
+                captureSequenceProcessorFactory,
+                cameraSurfaceManager,
+                timeSource,
+                CameraGraph.Flags(closeCaptureSessionOnDisconnect = true),
+                concurrentSessionSequencer = null,
+                streamGraph,
+                StrictMode(false),
+                fakeThreads,
+                this,
+            )
+
+        // Simulate a sequence that would trigger capture session creation at the session factory.
+        state.cameraDevice = fakeCameraDevice
+        state.configureSurfaceMap(mapOf(stream1 to surface1, stream2 to surface2))
+
+        // When CaptureSessionState is finalized, and closing the capture session is needed, we'll
+        // wait for the capture session creation for 3s. However, if session creation fails early,
+        // we should skip the wait early. Use 1s here, which should get us past the shutdown if
+        // the wait was skipped.
+        advanceTimeBy(1.seconds)
+        verify(fakeGraphListener, times(1)).onGraphStopping()
+        verify(fakeGraphListener, times(1)).onGraphStopped(null)
     }
 }
