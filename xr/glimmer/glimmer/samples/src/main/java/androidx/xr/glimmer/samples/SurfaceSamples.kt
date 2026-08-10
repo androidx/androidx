@@ -25,11 +25,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.xr.glimmer.GlimmerTheme
-import androidx.xr.glimmer.SurfaceDefaults
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.list.GlimmerLazyColumn
 import androidx.xr.glimmer.surface
@@ -87,22 +85,6 @@ fun ClickableSurfaceSample() {
             .padding(horizontal = 24.dp, vertical = 20.dp)
     ) {
         Text("This is a clickable surface")
-    }
-}
-
-@Sampled
-@Composable
-fun CustomFocusedColorSurfaceSample() {
-    val interactionSource = remember { MutableInteractionSource() }
-    Box(
-        Modifier.surface(
-                focusedColor = SurfaceDefaults.focusedColor(Color(0xFF245740)),
-                interactionSource = interactionSource,
-            )
-            .focusable(interactionSource = interactionSource)
-            .padding(horizontal = 24.dp, vertical = 20.dp)
-    ) {
-        Text("Surface with custom colors")
     }
 }
 

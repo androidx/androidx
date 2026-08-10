@@ -94,4 +94,4 @@ public class Colors(
     }
 }
 
-internal val DefaultSurfaceColor: Color = Color(0xFF262626)
+internal val OutlineColor: Color = Color(0xFF606460)

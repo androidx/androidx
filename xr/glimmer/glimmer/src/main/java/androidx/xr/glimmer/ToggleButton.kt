@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import androidx.xr.glimmer.internal.color.withToneAndChroma
 
 /**
  * A Jetpack Compose Glimmer toggle button that changes its appearance depending on the [checked]
@@ -131,19 +130,14 @@ public fun ToggleButton(
 
     val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
-    val color = colors.resolveBackgroundColor(checked)
-    val contentColor = colors.resolveContentColor(checked)
-
     CompositionLocalProvider(LocalTextStyle provides GlimmerTheme.typography.bodySmall) {
         Row(
             modifier
                 .surface(
                     enabled = enabled,
                     shape = shape,
-                    color = color,
-                    focusedColor = color,
-                    contentColor = contentColor,
-                    focusedContentColor = contentColor,
+                    color = colors.resolveBackgroundColor(checked),
+                    contentColor = colors.resolveContentColor(checked),
                     depthEffect = depth,
                     interactionSource = internalInteractionSource,
                 )
@@ -233,7 +227,7 @@ public object ToggleButtonDefaults {
     @Composable
     public fun colors(
         backgroundColor: Color = GlimmerTheme.colors.surface,
-        checkedBackgroundColor: Color = checkedBackgroundColor(GlimmerTheme.colors.primary),
+        checkedBackgroundColor: Color = OutlineColor,
         contentColor: Color = calculateContentColor(backgroundColor),
         checkedContentColor: Color = calculateContentColor(checkedBackgroundColor),
     ): ToggleButtonColors =
@@ -243,20 +237,6 @@ public object ToggleButtonDefaults {
             contentColor = contentColor,
             checkedContentColor = checkedContentColor,
         )
-
-    /**
-     * Calculates the checked background color for a [ToggleButton] derived from [color].
-     *
-     * @param color the base color to derive the checked background color from
-     */
-    public fun checkedBackgroundColor(color: Color): Color =
-        color.withToneAndChroma(
-            newTone = CheckedBackgroundColorTone,
-            newChroma = CheckedBackgroundColorChroma,
-        )
-
-    private const val CheckedBackgroundColorTone = 70f
-    private const val CheckedBackgroundColorChroma = 50f
 
     /** Default shape for [ToggleButton] and [IconToggleButton] in the checked state. */
     public val CheckedShape: Shape = RoundedCornerShape(20.dp)
