@@ -266,27 +266,20 @@ class ExpressionParser {
         if (mParser.mVariables.containsKey(token)) return true;
         if (mParser.mDeferredVariables.containsKey(token)) return true;
         if (mParser.mEmittedVariables.containsKey(token)) return true;
-        return token.equals("time") || token.equals("seconds") || token.equals("timeInHr")
-                || token.equals("timeInHr()") || token.equals("timeInMin") || token.equals(
-                "timeInMin()") || token.equals("timeInSec") || token.equals("timeInSec()")
-                || token.equals("continuousSec") || token.equals("continuousSec()") || token.equals(
-                "width") || token.equals("height") || token.equals("windowWidth") || token.equals(
-                "windowHeight") || token.equals("windowWidth()") || token.equals("windowHeight()")
-                || token.equals("componentWidth") || token.equals("componentHeight")
-                || token.equals("componentWidth()") || token.equals("componentHeight()")
-                || token.equals("touchX") || token.equals("touchY") || token.equals("fontSize")
-                || token.equals("animationTime") || token.equals("touchTime") || token.equals(
-                "density") || token.equals("a[0]") || token.equals("a[1]") || token.equals("a[2]")
-                || token.equals("rand") || token.equals("rand()");
+        return isSystemVariable(token);
     }
 
     /**
-     * Resolve a variable name to its corresponding NaN encoded floating point ID.
-     *
-     * @param token the variable reference string
-     * @return the NaN encoded variable identifier
+     * Check if the token represents a recognized system variable.
      */
-    public float getVariableNan(String token) {
+    public boolean isSystemVariable(String token) {
+        return getSystemVariableNan(token) != null;
+    }
+
+    /**
+     * Resolve a system variable token to its corresponding NaN encoded floating point ID.
+     */
+    public Float getSystemVariableNan(String token) {
         switch (token) {
             case "a[0]":
                 return Utils.asNan(AnimatedFloatExpression.OFFSET + 70);
@@ -294,6 +287,22 @@ class ExpressionParser {
                 return Utils.asNan(AnimatedFloatExpression.OFFSET + 71);
             case "a[2]":
                 return Utils.asNan(AnimatedFloatExpression.OFFSET + 72);
+            case "rand":
+            case "rand()":
+                return Utils.asNan(AnimatedFloatExpression.OFFSET + 39);
+
+            // Animation & Time
+            case "delta_time":
+            case "deltaTime":
+            case "deltaTime()":
+            case "animationDeltaTime":
+            case "animationDeltaTime()":
+            case "dt":
+                return RemoteContext.FLOAT_ANIMATION_DELTA_TIME;
+            case "animationTime":
+            case "animationTime()":
+            case "animTime":
+                return RemoteContext.FLOAT_ANIMATION_TIME;
             case "time":
             case "continuousSec":
             case "continuousSec()":
@@ -308,12 +317,39 @@ class ExpressionParser {
             case "timeInHr":
             case "timeInHr()":
                 return RemoteContext.FLOAT_TIME_IN_HR;
+
+            // Calendar & Date
+            case "month":
+            case "calendarMonth":
+            case "calendarMonth()":
+                return RemoteContext.FLOAT_CALENDAR_MONTH;
+            case "weekDay":
+            case "weekDay()":
+            case "weekday":
+            case "dayOfWeek":
+                return RemoteContext.FLOAT_WEEK_DAY;
+            case "dayOfMonth":
+            case "dayOfMonth()":
+            case "day":
+                return RemoteContext.FLOAT_DAY_OF_MONTH;
+            case "dayOfYear":
+            case "dayOfYear()":
+                return RemoteContext.FLOAT_DAY_OF_YEAR;
+            case "year":
+            case "year()":
+                return RemoteContext.FLOAT_YEAR;
+            case "offsetToUtc":
+            case "offsetToUtc()":
+            case "utcOffset":
+                return RemoteContext.FLOAT_OFFSET_TO_UTC;
+
+            // Dimensions
             case "windowWidth":
             case "windowWidth()":
-                return Utils.asNan(5 /* Rc.System.WINDOW_WIDTH */);
+                return RemoteContext.FLOAT_WINDOW_WIDTH;
             case "windowHeight":
             case "windowHeight()":
-                return Utils.asNan(6 /* Rc.System.WINDOW_HEIGHT */);
+                return RemoteContext.FLOAT_WINDOW_HEIGHT;
             case "width":
             case "componentWidth":
             case "componentWidth()":
@@ -322,47 +358,130 @@ class ExpressionParser {
             case "componentHeight":
             case "componentHeight()":
                 return mWriter.addComponentHeightValue();
+
+            // Touch
             case "touchX":
-                return Utils.asNan(RemoteContext.ID_TOUCH_POS_X);
+            case "touchPosX":
+            case "touchPositionX":
+            case "touchX()":
+                return RemoteContext.FLOAT_TOUCH_POS_X;
             case "touchY":
-                return Utils.asNan(RemoteContext.ID_TOUCH_POS_Y);
-            case "fontSize":
-                return Utils.asNan(33 /* ID_FONT_SIZE */);
-            case "animationTime":
-                return Utils.asNan(30 /* ID_ANIMATION_TIME */);
+            case "touchPosY":
+            case "touchPositionY":
+            case "touchY()":
+                return RemoteContext.FLOAT_TOUCH_POS_Y;
+            case "touchVelX":
+            case "touchVelocityX":
+            case "touchVelX()":
+                return RemoteContext.FLOAT_TOUCH_VEL_X;
+            case "touchVelY":
+            case "touchVelocityY":
+            case "touchVelY()":
+                return RemoteContext.FLOAT_TOUCH_VEL_Y;
             case "touchTime":
-                return Utils.asNan(29 /* ID_TOUCH_EVENT_TIME */);
+            case "touchTime()":
+            case "touchEventTime":
+            case "touchEventTime()":
+                return RemoteContext.FLOAT_TOUCH_EVENT_TIME;
+
+            // Sensors
+            case "accelX":
+            case "accelX()":
+            case "accelerationX":
+            case "accelerationX()":
+                return RemoteContext.FLOAT_ACCELERATION_X;
+            case "accelY":
+            case "accelY()":
+            case "accelerationY":
+            case "accelerationY()":
+                return RemoteContext.FLOAT_ACCELERATION_Y;
+            case "accelZ":
+            case "accelZ()":
+            case "accelerationZ":
+            case "accelerationZ()":
+                return RemoteContext.FLOAT_ACCELERATION_Z;
+            case "gyroX":
+            case "gyroX()":
+            case "gyroRotX":
+            case "gyroRotX()":
+            case "gyroRotationX":
+                return RemoteContext.FLOAT_GYRO_ROT_X;
+            case "gyroY":
+            case "gyroY()":
+            case "gyroRotY":
+            case "gyroRotY()":
+            case "gyroRotationY":
+                return RemoteContext.FLOAT_GYRO_ROT_Y;
+            case "gyroZ":
+            case "gyroZ()":
+            case "gyroRotZ":
+            case "gyroRotZ()":
+            case "gyroRotationZ":
+                return RemoteContext.FLOAT_GYRO_ROT_Z;
+            case "magneticX":
+            case "magneticX()":
+                return RemoteContext.FLOAT_MAGNETIC_X;
+            case "magneticY":
+            case "magneticY()":
+                return RemoteContext.FLOAT_MAGNETIC_Y;
+            case "magneticZ":
+            case "magneticZ()":
+                return RemoteContext.FLOAT_MAGNETIC_Z;
+            case "light":
+            case "light()":
+            case "lightLevel":
+                return RemoteContext.FLOAT_LIGHT;
+
+            // System
             case "density":
-                return Utils.asNan(27 /* ID_DENSITY */);
-            case "rand":
-            case "rand()":
-                return Utils.asNan(AnimatedFloatExpression.OFFSET + 39);
+            case "density()":
+                return RemoteContext.FLOAT_DENSITY;
+            case "apiLevel":
+            case "apiLevel()":
+                return RemoteContext.FLOAT_API_LEVEL;
+            case "fontSize":
+            case "fontSize()":
+                return RemoteContext.FLOAT_FONT_SIZE;
             default:
-                if (RemoteComposeJsonParser.isVariableRef(token)) {
-                    String name = RemoteComposeJsonParser.getVariableNameFromRef(token);
-                    if (mParser.mIntegerVariables.containsKey(name)) {
-                        long intId = mParser.mIntegerVariables.get(name);
-                        return Utils.asNan((int) (intId & 0xFFFFFFFFL));
-                    }
-                    Float id = mParser.mVariables.get(name);
-                    if (id != null) return id;
-                    if (mParser.mDeferredVariables.containsKey(name)) {
-                        return mParser.resolveDeferredVariable(name);
-                    }
-                    throw new JSONException("Variable not found: " + name);
-                }
-                if (mParser.mIntegerVariables.containsKey(token)) {
-                    long intId = mParser.mIntegerVariables.get(token);
-                    return Utils.asNan((int) (intId & 0xFFFFFFFFL));
-                }
-                if (mParser.mVariables.containsKey(token)) {
-                    return mParser.mVariables.get(token);
-                }
-                if (mParser.mDeferredVariables.containsKey(token)) {
-                    return mParser.resolveDeferredVariable(token);
-                }
-                throw new JSONException("Unknown variable: " + token);
+                return null;
         }
+    }
+
+    /**
+     * Resolve a variable name to its corresponding NaN encoded floating point ID.
+     *
+     * @param token the variable reference string
+     * @return the NaN encoded variable identifier
+     */
+    public float getVariableNan(String token) {
+        Float systemVar = getSystemVariableNan(token);
+        if (systemVar != null) {
+            return systemVar;
+        }
+        if (RemoteComposeJsonParser.isVariableRef(token)) {
+            String name = RemoteComposeJsonParser.getVariableNameFromRef(token);
+            if (mParser.mIntegerVariables.containsKey(name)) {
+                long intId = mParser.mIntegerVariables.get(name);
+                return Utils.asNan((int) (intId & 0xFFFFFFFFL));
+            }
+            Float id = mParser.mVariables.get(name);
+            if (id != null) return id;
+            if (mParser.mDeferredVariables.containsKey(name)) {
+                return mParser.resolveDeferredVariable(name);
+            }
+            throw new JSONException("Variable not found: " + name);
+        }
+        if (mParser.mIntegerVariables.containsKey(token)) {
+            long intId = mParser.mIntegerVariables.get(token);
+            return Utils.asNan((int) (intId & 0xFFFFFFFFL));
+        }
+        if (mParser.mVariables.containsKey(token)) {
+            return mParser.mVariables.get(token);
+        }
+        if (mParser.mDeferredVariables.containsKey(token)) {
+            return mParser.resolveDeferredVariable(token);
+        }
+        throw new JSONException("Unknown variable: " + token);
     }
 
     public long parseIntegerExpression(@NonNull String expression) {

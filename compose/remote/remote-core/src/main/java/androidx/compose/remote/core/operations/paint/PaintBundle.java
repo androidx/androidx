@@ -1389,7 +1389,7 @@ public class PaintBundle implements Serializable {
                 case PATH_EFFECT:
                     count = cmd >> 16;
                     if (count > 0) {
-                        i =
+                        int next =
                                 PaintPathEffects.getIds(
                                         mArray,
                                         i,
@@ -1401,6 +1401,11 @@ public class PaintBundle implements Serializable {
                                                         support);
                                             }
                                         });
+                        if (next < 0) {
+                            throw new RuntimeException(
+                                    "Unrecognized path effect record at offset " + i);
+                        }
+                        i = next;
                     }
                     break;
             }
@@ -1464,14 +1469,20 @@ public class PaintBundle implements Serializable {
                 case PATH_EFFECT:
                     count = cmd >> 16;
                     if (count > 0) {
-                        i =
+                        int next =
                                 PaintPathEffects.getIds(
                                         mArray,
                                         i,
                                         off -> {
                                             mOutArray[off] = fixFloatVar(mArray[off], context);
                                         });
+                        if (next < 0) {
+                            throw new RuntimeException(
+                                    "Unrecognized path effect record at offset " + i);
+                        }
+                        i = next;
                     }
+                    break;
             }
         }
     }
