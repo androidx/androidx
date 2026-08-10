@@ -34,11 +34,12 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
+import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.remote.creation.compose.text.RemoteTimeDefaults
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.creation.compose.text.toRemoteTypeface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 
 /**
  * A remote composable for displaying the time and surrounding text, designed to curve along the top
@@ -56,18 +57,27 @@ import androidx.compose.ui.text.font.FontFamily
  *   Defaults to "·".
  * @param color The color of the text. Defaults to the `onBackground` color from the current
  *   `RemoteMaterialTheme`.
+ * @param style The [RemoteTextStyle] to be applied to the text. Defaults to
+ *   [RemoteTimeTextDefaults.timeTextStyle].
+ * @param fontFeatureSettings The font feature settings to be applied to the text. Defaults to
+ *   [RemoteTimeTextDefaults.fontFeatureSettings].
+ * @param fontVariationSettings The font variation settings to be applied to the text. Defaults to
+ *   [RemoteTimeTextDefaults.fontVariationSettings].
  */
 @RemoteComposable
 @Composable
 public fun RemoteTimeText(
     modifier: RemoteModifier = RemoteModifier,
     time: RemoteString = RemoteTimeDefaults.defaultTimeString(),
-    fontSize: RemoteTextUnit = 14.rsp,
-    fontFamily: FontFamily? = null,
+    fontSize: RemoteTextUnit? = null,
+    fontFamily: RemoteFontFamily? = null,
     leadingText: RemoteString? = null,
     trailingText: RemoteString? = null,
     separator: RemoteString = "·".rs,
-    color: RemoteColor = RemoteMaterialTheme.colorScheme.onBackground,
+    color: RemoteColor? = null,
+    style: RemoteTextStyle = RemoteTimeTextDefaults.timeTextStyle,
+    fontFeatureSettings: String? = null,
+    fontVariationSettings: FontVariation.Settings? = null,
 ) {
     val text =
         buildTimeTextString(
@@ -76,15 +86,25 @@ public fun RemoteTimeText(
             trailingText = trailingText ?: "".rs,
             separator = separator,
         )
-    val fontSize = fontSize.toPx()
+    val mergedStyle =
+        style.merge(
+            color = color,
+            fontSize = fontSize,
+            fontFamily = fontFamily,
+            fontFeatureSettings = fontFeatureSettings,
+            fontVariationSettings = fontVariationSettings,
+        )
+    val resolvedFontSize = mergedStyle.fontSize ?: 14.rsp
+    val resolvedColor = mergedStyle.color ?: RemoteMaterialTheme.colorScheme.onBackground
 
     RemoteBox(modifier.clearAndSetSemantics {}) {
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
             drawTimeText(
                 text = text,
-                textColor = color,
-                fontSize = fontSize,
-                fontFamily = fontFamily,
+                textColor = resolvedColor,
+                fontSize = resolvedFontSize.toPx(),
+                fontFamily = mergedStyle.fontFamily,
+                fontVariationSettings = mergedStyle.combinedFontVariationSettings,
             )
         }
     }
@@ -106,16 +126,17 @@ private fun RemoteDrawScope.drawTimeText(
     text: RemoteString,
     textColor: RemoteColor,
     fontSize: RemoteFloat,
-    fontFamily: FontFamily?,
+    fontFamily: RemoteFontFamily?,
+    fontVariationSettings: FontVariation.Settings?,
 ) {
     val width = width
     val height = height
 
     val textPaint = RemotePaint {
         textSize = fontSize
-        val remoteFontFamily = RemoteFontFamily.fromComposeFontFamily(fontFamily)
-        typeface = remoteFontFamily?.toRemoteTypeface() ?: RemoteTypeface.Default
+        typeface = fontFamily?.toRemoteTypeface() ?: RemoteTypeface.Default
         color = textColor
+        this.fontVariationSettings = fontVariationSettings
     }
 
     drawTextOnCircle(
@@ -127,4 +148,25 @@ private fun RemoteDrawScope.drawTimeText(
         0f.rf,
         textPaint,
     )
+}
+
+/** Contains the default values used by [RemoteTimeText]. */
+public object RemoteTimeTextDefaults {
+    /** Default font family used by [RemoteTimeText]. */
+    public val fontFamily: RemoteFontFamily = RemoteFontFamily.Named("google:Roboto Flex")
+
+    /** Default font feature settings used by [RemoteTimeText]. */
+    public val fontFeatureSettings: String? = "tnum"
+
+    /** Default font variation settings used by [RemoteTimeText]. */
+    public val fontVariationSettings: FontVariation.Settings? = null
+
+    /** Default text style used by [RemoteTimeText]. */
+    public val timeTextStyle: RemoteTextStyle =
+        RemoteTextStyle(
+            fontSize = 14.rsp,
+            fontFamily = fontFamily,
+            fontFeatureSettings = fontFeatureSettings,
+            fontVariationSettings = fontVariationSettings,
+        )
 }
