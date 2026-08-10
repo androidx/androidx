@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo
     SpatialApiVersions.SPATIAL_API_V1,
     SpatialApiVersions.SPATIAL_API_V2,
     SpatialApiVersions.SPATIAL_API_V3,
+    SpatialApiVersions.SPATIAL_API_V4,
 )
 public annotation class SpatialApiVersion
 
@@ -44,10 +45,12 @@ public object SpatialApiVersions {
     public const val SPATIAL_API_V2: Int = 2
     /** API version 3. */
     public const val SPATIAL_API_V3: Int = 3
+    /** API version 4. */
+    public const val SPATIAL_API_V4: Int = 4
 
     /** The latest stable Spatial API version. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public const val LATEST_STABLE_API_LEVEL: Int = SPATIAL_API_V3
+    public const val LATEST_STABLE_API_LEVEL: Int = SPATIAL_API_V4
 }
 
 /**
