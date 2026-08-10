@@ -934,7 +934,6 @@ WARN: Couldn't resolve link: \[top\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-pub
 WARN: Couldn't resolve link: \[Value\] in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedMultiplatformSources\/jvmAndAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvmAndAndroid\.kt:[0-9]+:[0-9]+ \(androidx\/jvmAndAndroidMain\)
 # b/542222706
 WARN: Couldn't resolve JavaDoc link 'RangeMap' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/common\/audio\/DefaultGainProvider\.java:[0-9]+:[0-9]+
-WARN: Couldn't resolve JavaDoc link 'immediateVoidFuture' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/common\/SimpleBasePlayer\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'BackgroundColorSpan' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/common\/text\/CustomSpanBundler\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'StrikethroughSpan' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/common\/text\/CustomSpanBundler\.java:[0-9]+:[0-9]+
 WARN: Couldn't resolve JavaDoc link 'UnderlineSpan' in file:\/\/\/\$OUT_DIR\/androidx\/docs-public\/build\/unzippedJvmSources\/androidx\/media3\/common\/text\/CustomSpanBundler\.java:[0-9]+:[0-9]+
