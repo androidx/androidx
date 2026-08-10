@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.json;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.NamedVariable;
+import androidx.compose.remote.core.operations.PathData;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
@@ -155,38 +156,76 @@ class ResourceParser {
                     if (value instanceof JSONArray) {
                         JSONArray arr = (JSONArray) value;
                         List<Float> path = new ArrayList<>();
+                        float cx = 0f;
+                        float cy = 0f; // current point
+                        float sx = 0f;
+                        float sy = 0f; // start of the current subpath, restored by close
                         for (int i = 0; i < arr.length(); i++) {
                             JSONObject op = arr.getJSONObject(i);
                             String opType = op.getString("type");
                             switch (opType) {
-                                case "moveTo":
-                                    path.add(Utils.asNan(10)); // MOVE
-                                    path.add((float) op.getDouble("x"));
-                                    path.add((float) op.getDouble("y"));
+                                case "moveTo": {
+                                    float x = (float) op.getDouble("x");
+                                    float y = (float) op.getDouble("y");
+                                    path.add(PathData.MOVE_NAN);
+                                    path.add(x);
+                                    path.add(y);
+                                    cx = sx = x;
+                                    cy = sy = y;
                                     break;
-                                case "lineTo":
-                                    path.add(Utils.asNan(11)); // LINE
-                                    path.add((float) op.getDouble("x"));
-                                    path.add((float) op.getDouble("y"));
+                                }
+                                case "lineTo": {
+                                    float x = (float) op.getDouble("x");
+                                    float y = (float) op.getDouble("y");
+                                    path.add(PathData.LINE_NAN);
+                                    path.add(cx);
+                                    path.add(cy);
+                                    path.add(x);
+                                    path.add(y);
+                                    cx = x;
+                                    cy = y;
                                     break;
-                                case "quadTo":
-                                    path.add(Utils.asNan(12)); // QUAD
-                                    path.add((float) op.getDouble("x1"));
-                                    path.add((float) op.getDouble("y1"));
-                                    path.add((float) op.getDouble("x2"));
-                                    path.add((float) op.getDouble("y2"));
+                                }
+                                case "quadTo": {
+                                    float x1 = (float) op.getDouble("x1");
+                                    float y1 = (float) op.getDouble("y1");
+                                    float x2 = (float) op.getDouble("x2");
+                                    float y2 = (float) op.getDouble("y2");
+                                    path.add(PathData.QUADRATIC_NAN);
+                                    path.add(cx);
+                                    path.add(cy);
+                                    path.add(x1);
+                                    path.add(y1);
+                                    path.add(x2);
+                                    path.add(y2);
+                                    cx = x2;
+                                    cy = y2;
                                     break;
-                                case "cubicTo":
-                                    path.add(Utils.asNan(13)); // CUBIC
-                                    path.add((float) op.getDouble("x1"));
-                                    path.add((float) op.getDouble("y1"));
-                                    path.add((float) op.getDouble("x2"));
-                                    path.add((float) op.getDouble("y2"));
-                                    path.add((float) op.getDouble("x3"));
-                                    path.add((float) op.getDouble("y3"));
+                                }
+                                case "cubicTo": {
+                                    float x1 = (float) op.getDouble("x1");
+                                    float y1 = (float) op.getDouble("y1");
+                                    float x2 = (float) op.getDouble("x2");
+                                    float y2 = (float) op.getDouble("y2");
+                                    float x3 = (float) op.getDouble("x3");
+                                    float y3 = (float) op.getDouble("y3");
+                                    path.add(PathData.CUBIC_NAN);
+                                    path.add(cx);
+                                    path.add(cy);
+                                    path.add(x1);
+                                    path.add(y1);
+                                    path.add(x2);
+                                    path.add(y2);
+                                    path.add(x3);
+                                    path.add(y3);
+                                    cx = x3;
+                                    cy = y3;
                                     break;
+                                }
                                 case "close":
-                                    path.add(Utils.asNan(14)); // CLOSE
+                                    path.add(PathData.CLOSE_NAN);
+                                    cx = sx;
+                                    cy = sy;
                                     break;
                             }
                         }

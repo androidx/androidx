@@ -24,6 +24,7 @@ import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.NamedVariable;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.managers.TextStyle;
+import androidx.compose.remote.core.operations.paint.PaintPathEffects;
 import androidx.compose.remote.core.operations.utilities.MatrixOperations;
 import androidx.compose.remote.creation.RcPaint;
 import androidx.compose.remote.creation.RemoteComposeShader;
@@ -841,16 +842,26 @@ public class RemoteComposeJsonParser {
                                     break;
                                 }
                                 case "patheffect": {
-                                    JSONArray pe = op.optJSONArray(key);
-                                    if (pe == null) {
+                                    Object peVal = op.get(key);
+                                    if (peVal == null || peVal == JSONObject.NULL) {
                                         paint.setPathEffect(null);
-                                    } else {
-                                        float[] pathEffect = new float[pe.length()];
-                                        for (int j = 0; j < pe.length(); j++) {
-                                            pathEffect[j] = (float) pe.getDouble(j);
-                                        }
-                                        paint.setPathEffect(pathEffect);
+                                        break;
                                     }
+                                    JSONArray pe;
+                                    float phase = 0f;
+                                    if (peVal instanceof JSONObject) {
+                                        JSONObject peo = (JSONObject) peVal;
+                                        pe = peo.getJSONArray("intervals");
+                                        phase = (float) peo.optDouble("phase", 0.0);
+                                    } else {
+                                        pe = (JSONArray) peVal;
+                                    }
+                                    float[] intervals = new float[pe.length()];
+                                    for (int j = 0; j < pe.length(); j++) {
+                                        intervals[j] = parseFloat(pe.get(j));
+                                    }
+                                    paint.setPathEffect(
+                                            PaintPathEffects.dash(phase, intervals));
                                     break;
                                 }
                                 case "color":
