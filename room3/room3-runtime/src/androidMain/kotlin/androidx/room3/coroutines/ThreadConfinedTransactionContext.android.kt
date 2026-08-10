@@ -38,9 +38,13 @@ import kotlinx.coroutines.withContext
  * [androidx.sqlite.driver.AndroidSQLiteDriver] or any driver that reports has having a connection
  * pool (via [androidx.sqlite.SQLiteDriver.hasConnectionPool].
  *
- * This functions add a coroutine context (see [createTransactionContext]) that enables dispatching
+ * This function adds a coroutine context (see [createTransactionContext]) that enables dispatching
  * database operation on an acquired thread so that thread confinement operations are part of the
  * same transaction.
+ *
+ * As a performance optimization, if transaction coroutine is not external (does not have the
+ * [RoomExternalOperationElement] marker) then the transaction block is invoked immediately since
+ * Room internal transactions do not change dispatchers.
  *
  * For further reading on the origin of this function see
  * [Threading models in Coroutines and Android SQLite API](https://medium.com/androiddevelopers/threading-models-in-coroutines-and-android-sqlite-api-6cab11f7eb90)
