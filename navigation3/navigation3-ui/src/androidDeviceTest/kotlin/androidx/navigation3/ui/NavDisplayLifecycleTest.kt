@@ -375,9 +375,9 @@ class NavDisplayLifecycleTest {
     }
 }
 
-class MyCustomOverlayScene<T : Any>(
+data class MyCustomOverlayScene<T : Any>(
     override val key: Any,
-    entry: NavEntry<T>,
+    val entry: NavEntry<T>,
     override val previousEntries: List<NavEntry<T>>,
     override val overlaidEntries: List<NavEntry<T>>,
 ) : OverlayScene<T> {

@@ -46,4 +46,5 @@ internal val ComposeLintWarningIdsToTreatAsErrors =
         "MultipleAwaitPointerEventScopes",
         "LocalContextResourcesRead",
         "ConfigurationScreenWidthHeight",
+        "SceneEqualsHashCode",
     )
