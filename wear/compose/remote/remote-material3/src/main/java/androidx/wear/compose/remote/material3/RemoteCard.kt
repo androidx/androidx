@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.heightIn
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.wrapContentHeight
+import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -316,8 +317,6 @@ internal fun RemoteCardImpl(
     val containerModifier =
         modifier
             .remoteCardSizeModifier()
-            .clip(shape = shape)
-            .clickable(action = onClick, enabled = enabled.constantValueOrNull ?: false)
             .drawWithContent {
                 drawShapedBackground(
                     shape = shape,
@@ -327,6 +326,8 @@ internal fun RemoteCardImpl(
                 )
                 drawContent()
             }
+            .clip(shape = shape)
+            .clickable(action = onClick, enabled = enabled.constantValueOrNull ?: false)
             .padding(contentPadding)
 
     RemoteColumn(modifier = containerModifier) {
@@ -350,29 +351,40 @@ private object RemoteOutlinedCardTokens {
 private fun RemoteDrawScope.drawShapedBackground(
     shape: RemoteShape,
     color: RemoteColor,
-    borderColor: RemoteColor?,
-    borderStrokeWidth: RemoteDp?,
+    borderColor: RemoteColor? = null,
+    borderStrokeWidth: RemoteDp? = null,
 ) {
     drawSolidColorShape(shape, width, height, color)
 
     // Draw border if specified
     if (borderColor != null && borderStrokeWidth != null) {
-        drawBorder(borderColor, borderStrokeWidth.value, shape, width, height)
+        drawBorder(borderColor, borderStrokeWidth, shape)
     }
 }
 
+@Suppress("RestrictedApiAndroidX")
 private fun RemoteDrawScope.drawBorder(
     borderColor: RemoteColor,
-    borderStrokeWidth: RemoteFloat,
+    borderStrokeWidth: RemoteDp,
     shape: RemoteShape,
-    w: RemoteFloat,
-    h: RemoteFloat,
 ) {
-    with(shape.createOutline(RemoteSize(w, h), remoteDensity, layoutDirection)) {
+    val strokeWidthPx = borderStrokeWidth.toPx()
+    val outline =
+        if (shape is RemoteCornerBasedShape) {
+            shape.createOutline(
+                size = RemoteSize(width, height),
+                density = remoteDensity,
+                layoutDirection = layoutDirection,
+                strokeWidth = strokeWidthPx,
+            )
+        } else {
+            shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection)
+        }
+    with(outline) {
         drawOutline(
             RemotePaint {
                 color = borderColor
-                strokeWidth = borderStrokeWidth
+                strokeWidth = strokeWidthPx
                 style = PaintingStyle.Stroke
             }
         )
