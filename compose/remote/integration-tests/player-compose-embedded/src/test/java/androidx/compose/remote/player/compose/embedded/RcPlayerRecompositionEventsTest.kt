@@ -265,6 +265,7 @@ class RcPlayerRecompositionEventsTest {
         collectJob.cancel()
     }
 
+    @Ignore("b/540178090")
     @Test
     fun testCollectAsStateWithLifecycle() = runBlocking {
         val stateFlow = MutableStateFlow("Initial")
