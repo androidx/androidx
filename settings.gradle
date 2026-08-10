@@ -632,6 +632,7 @@ includeProject(":compose:material3:adaptive:adaptive-benchmark", "compose/materi
 includeProject(":compose:material3:material3", [BuildType.COMPOSE])
 includeProject(":compose:material3:benchmark", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-a2ui", [BuildType.COMPOSE])
+includeProject(":compose:material3:material3-a2ui:material3-a2ui-samples", "compose/material3/material3-a2ui/samples", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-adaptive-navigation-suite", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples", "compose/material3/material3-adaptive-navigation-suite/samples", [BuildType.COMPOSE])
 includeProject(":compose:material3:material3-lint", [BuildType.COMPOSE])
