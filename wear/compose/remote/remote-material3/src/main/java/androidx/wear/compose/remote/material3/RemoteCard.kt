@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.heightIn
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.modifier.wrapContentHeight
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
@@ -297,7 +298,7 @@ public class RemoteCardColors(
 @Composable
 @RemoteComposable
 internal fun RemoteModifier.remoteCardSizeModifier(): RemoteModifier =
-    this.heightIn(min = RemoteCardDefaults.Height).fillMaxWidth()
+    this.fillMaxWidth().heightIn(min = RemoteCardDefaults.Height).wrapContentHeight()
 
 @Composable
 @RemoteComposable
