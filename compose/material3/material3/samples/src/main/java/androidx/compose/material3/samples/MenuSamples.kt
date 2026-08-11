@@ -61,6 +61,7 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.CheckableDropdownMenuItem
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
@@ -75,6 +76,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MenuAnchorPosition
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
@@ -218,7 +220,7 @@ fun GroupedMenuSample() {
                     )
                     val groupItemCount = groupItemLabels[groupIndex].size
                     groupItemLabels[groupIndex].fastForEachIndexed { itemIndex, itemLabel ->
-                        DropdownMenuItem(
+                        CheckableDropdownMenuItem(
                             text = { Text(itemLabel) },
                             supportingText =
                                 groupItemSupportingText[groupIndex][itemIndex]?.let { supportingText
@@ -445,7 +447,7 @@ private fun TextSubmenu(interactionSource: MutableInteractionSource) {
         shapes = MenuDefaults.groupShape(0, 1),
         interactionSource = interactionSource,
     ) {
-        DropdownMenuItem(
+        CheckableDropdownMenuItem(
             checked = boldChecked,
             onCheckedChange = { boldChecked = it },
             text = { Text("Bold") },
@@ -466,7 +468,7 @@ private fun TextSubmenu(interactionSource: MutableInteractionSource) {
                 }
             },
         )
-        DropdownMenuItem(
+        CheckableDropdownMenuItem(
             checked = italicChecked,
             onCheckedChange = { italicChecked = it },
             text = { Text("Italic") },
@@ -487,7 +489,7 @@ private fun TextSubmenu(interactionSource: MutableInteractionSource) {
                 }
             },
         )
-        DropdownMenuItem(
+        CheckableDropdownMenuItem(
             checked = underlineChecked,
             onCheckedChange = { underlineChecked = it },
             text = { Text("Underline") },
@@ -519,7 +521,7 @@ private fun AlignSubmenu(interactionSource: MutableInteractionSource) {
         shapes = MenuDefaults.groupShape(0, 1),
         interactionSource = interactionSource,
     ) {
-        DropdownMenuItem(
+        SelectableDropdownMenuItem(
             selected = selectedAlignment == 0,
             onClick = { selectedAlignment = 0 },
             text = { Text("Left") },
@@ -539,7 +541,7 @@ private fun AlignSubmenu(interactionSource: MutableInteractionSource) {
                 )
             },
         )
-        DropdownMenuItem(
+        SelectableDropdownMenuItem(
             selected = selectedAlignment == 1,
             onClick = { selectedAlignment = 1 },
             text = { Text("Center") },
@@ -559,7 +561,7 @@ private fun AlignSubmenu(interactionSource: MutableInteractionSource) {
                 )
             },
         )
-        DropdownMenuItem(
+        SelectableDropdownMenuItem(
             selected = selectedAlignment == 2,
             onClick = { selectedAlignment = 2 },
             text = { Text("Right") },
@@ -579,7 +581,7 @@ private fun AlignSubmenu(interactionSource: MutableInteractionSource) {
                 )
             },
         )
-        DropdownMenuItem(
+        SelectableDropdownMenuItem(
             selected = selectedAlignment == 3,
             onClick = { selectedAlignment = 3 },
             text = { Text("Justify") },
@@ -610,7 +612,7 @@ private fun LineSpacingSubmenu(interactionSource: MutableInteractionSource) {
         shapes = MenuDefaults.groupShape(0, 1),
         interactionSource = interactionSource,
     ) {
-        DropdownMenuItem(
+        SelectableDropdownMenuItem(
             selected = selectedSpacing == 0,
             onClick = { selectedSpacing = 0 },
             text = { Text("Single") },
@@ -623,7 +625,7 @@ private fun LineSpacingSubmenu(interactionSource: MutableInteractionSource) {
                 )
             },
         )
-        DropdownMenuItem(
+        SelectableDropdownMenuItem(
             selected = selectedSpacing == 1,
             onClick = { selectedSpacing = 1 },
             text = { Text("1.15") },
@@ -636,7 +638,7 @@ private fun LineSpacingSubmenu(interactionSource: MutableInteractionSource) {
                 )
             },
         )
-        DropdownMenuItem(
+        SelectableDropdownMenuItem(
             selected = selectedSpacing == 2,
             onClick = { selectedSpacing = 2 },
             text = { Text("1.5") },
@@ -649,7 +651,7 @@ private fun LineSpacingSubmenu(interactionSource: MutableInteractionSource) {
                 )
             },
         )
-        DropdownMenuItem(
+        SelectableDropdownMenuItem(
             selected = selectedSpacing == 3,
             onClick = { selectedSpacing = 3 },
             text = { Text("Double") },

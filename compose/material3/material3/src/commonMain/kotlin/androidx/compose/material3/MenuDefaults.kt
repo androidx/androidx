@@ -236,8 +236,8 @@ public object MenuDefaults {
     public fun itemColors(): MenuItemColors = MaterialTheme.colorScheme.defaultMenuItemColors
 
     /**
-     * Creates a [MenuItemShapes] that represents the shapes used in a toggleable or selectable
-     * [DropdownMenuItem], allowing for overrides.
+     * Creates a [MenuItemShapes] that represents the shapes used in a [CheckableDropdownMenuItem]
+     * or [SelectableDropdownMenuItem], allowing for overrides.
      *
      * There is a convenience function that can be used to easily determine the shape to be used at
      * [MenuDefaults.itemShape].
@@ -255,8 +255,8 @@ public object MenuDefaults {
         )
 
     /**
-     * Creates a [MenuItemShapes] that represents the shapes used in a toggleable or selectable
-     * [DropdownMenuItem].
+     * Creates a [MenuItemShapes] that represents the shapes used in a [CheckableDropdownMenuItem]
+     * or [SelectableDropdownMenuItem].
      *
      * There is a convenience function that can be used to easily determine the shape to be used at
      * [MenuDefaults.itemShape].
@@ -397,30 +397,73 @@ public object MenuDefaults {
         )
 
     /**
-     * Creates a [SelectableMenuItemColors] that represents the default text, icon, and container
-     * colors used in a standard color variant [DropdownMenuItem]. This uses the Color.Unspecified
-     * to mean “use the value from the source”
+     * Creates a [MenuItemColors] that represents the default text, icon, and container colors used
+     * in a vibrant color variant [DropdownMenuItem].
+     */
+    @Composable
+    public fun itemVibrantColors(): MenuItemColors =
+        MaterialTheme.colorScheme.defaultMenuItemVibrantColors
+
+    /**
+     * Creates a [MenuItemColors] that represents the default text, icon, and container colors used
+     * in a vibrant color variant [DropdownMenuItem]. This uses the [Color.Unspecified] to mean “use
+     * the value from the source”.
      *
      * @param textColor the text color of this [DropdownMenuItem] when enabled
-     * @param containerColor the container color of this [DropdownMenuItem] when enabled and
-     *   unselected
      * @param leadingIconColor the leading icon color of this [DropdownMenuItem] when enabled
-     * @param trailingContentColor the trailing content color of this [DropdownMenuItem] when
-     *   enabled
+     * @param trailingIconColor the trailing icon color of this [DropdownMenuItem] when enabled
      * @param disabledTextColor the text color of this [DropdownMenuItem] when not enabled
-     * @param disabledContainerColor the container color of this [DropdownMenuItem] when not
-     *   enabled.
      * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItem] when not
      *   enabled
-     * @param disabledTrailingContentColor the trailing content color of this [DropdownMenuItem]
-     *   when not enabled
-     * @param selectedContainerColor the container color of this [DropdownMenuItem] when enabled and
-     *   selected
-     * @param selectedTextColor the text color of this [DropdownMenuItem] when enabled and selected
-     * @param selectedLeadingIconColor the leading icon color of this [DropdownMenuItem] when
-     *   enabled and selected
-     * @param selectedTrailingContentColor the trailing content color of this [DropdownMenuItem]
-     *   when enabled and selected
+     * @param disabledTrailingIconColor the trailing icon color of this [DropdownMenuItem] when not
+     *   enabled
+     */
+    @Composable
+    public fun itemVibrantColors(
+        textColor: Color = Color.Unspecified,
+        leadingIconColor: Color = Color.Unspecified,
+        trailingIconColor: Color = Color.Unspecified,
+        disabledTextColor: Color = Color.Unspecified,
+        disabledLeadingIconColor: Color = Color.Unspecified,
+        disabledTrailingIconColor: Color = Color.Unspecified,
+    ): MenuItemColors =
+        MaterialTheme.colorScheme.defaultMenuItemVibrantColors.copy(
+            textColor = textColor,
+            leadingIconColor = leadingIconColor,
+            trailingIconColor = trailingIconColor,
+            disabledTextColor = disabledTextColor,
+            disabledLeadingIconColor = disabledLeadingIconColor,
+            disabledTrailingIconColor = disabledTrailingIconColor,
+        )
+
+    /**
+     * Creates a [SelectableMenuItemColors] that represents the default text, icon, and container
+     * colors used in a standard color variant [SelectableDropdownMenuItem] or
+     * [CheckableDropdownMenuItem]. This uses the [Color.Unspecified] to mean “use the value from
+     * the source”.
+     *
+     * When the item is disabled, disabled colors take priority over selected colors.
+     *
+     * @param textColor the text color of this menu item when enabled and unselected/unchecked
+     * @param containerColor the container color of this menu item when enabled and
+     *   unselected/unchecked
+     * @param leadingIconColor the leading icon color of this menu item when enabled
+     * @param trailingContentColor the trailing content color of this menu item when enabled
+     * @param disabledTextColor the text color of this menu item when not enabled; takes priority if
+     *   the item is both selected/checked and disabled
+     * @param disabledContainerColor the container color of this menu item when not enabled; takes
+     *   priority if the item is both selected/checked and disabled
+     * @param disabledLeadingIconColor the leading icon color of this menu item when not enabled;
+     *   takes priority if the item is both selected/checked and disabled
+     * @param disabledTrailingContentColor the trailing content color of this menu item when not
+     *   enabled; takes priority if the item is both selected/checked and disabled
+     * @param selectedTextColor the text color of this menu item when enabled and selected/checked
+     * @param selectedContainerColor the container color of this menu item when enabled and
+     *   selected/checked
+     * @param selectedLeadingIconColor the leading icon color of this menu item when enabled and
+     *   selected/checked
+     * @param selectedTrailingContentColor the trailing content color of this menu item when enabled
+     *   and selected/checked
      */
     @Composable
     public fun selectableItemColors(
@@ -546,29 +589,32 @@ public object MenuDefaults {
 
     /**
      * Creates a [SelectableMenuItemColors] that represents the default text, icon, and container
-     * colors used in a vibrant color variant [DropdownMenuItem]. This uses the Color.Unspecified to
-     * mean “use the value from the source”
+     * colors used in a vibrant color variant [SelectableDropdownMenuItem] or
+     * [CheckableDropdownMenuItem]. This uses the [Color.Unspecified] to mean “use the value from
+     * the source”.
      *
-     * @param textColor the text color of this [DropdownMenuItem] when enabled
-     * @param containerColor the container color of this [DropdownMenuItem] when enabled and
-     *   unselected
-     * @param leadingIconColor the leading icon color of this [DropdownMenuItem] when enabled
-     * @param trailingContentColor the trailing content color of this [DropdownMenuItem] when
-     *   enabled
-     * @param disabledTextColor the text color of this [DropdownMenuItem] when not enabled
-     * @param disabledContainerColor the container color of this [DropdownMenuItem] when not
-     *   enabled.
-     * @param disabledLeadingIconColor the leading icon color of this [DropdownMenuItem] when not
-     *   enabled
-     * @param disabledTrailingContentColor the trailing content color of this [DropdownMenuItem]
-     *   when not enabled
-     * @param selectedContainerColor the container color of this [DropdownMenuItem] when enabled and
-     *   selected
-     * @param selectedTextColor the text color of this [DropdownMenuItem] when enabled and selected
-     * @param selectedLeadingIconColor the leading icon color of this [DropdownMenuItem] when
-     *   enabled and selected
-     * @param selectedTrailingContentColor the trailing content color of this [DropdownMenuItem]
-     *   when enabled and selected
+     * When the item is disabled, disabled colors take priority over selected colors.
+     *
+     * @param textColor the text color of this menu item when enabled and unselected/unchecked
+     * @param containerColor the container color of this menu item when enabled and
+     *   unselected/unchecked
+     * @param leadingIconColor the leading icon color of this menu item when enabled
+     * @param trailingContentColor the trailing content color of this menu item when enabled
+     * @param disabledTextColor the text color of this menu item when not enabled; takes priority if
+     *   the item is both selected/checked and disabled
+     * @param disabledContainerColor the container color of this menu item when not enabled; takes
+     *   priority if the item is both selected/checked and disabled
+     * @param disabledLeadingIconColor the leading icon color of this menu item when not enabled;
+     *   takes priority if the item is both selected/checked and disabled
+     * @param disabledTrailingContentColor the trailing content color of this menu item when not
+     *   enabled; takes priority if the item is both selected/checked and disabled
+     * @param selectedTextColor the text color of this menu item when enabled and selected/checked
+     * @param selectedContainerColor the container color of this menu item when enabled and
+     *   selected/checked
+     * @param selectedLeadingIconColor the leading icon color of this menu item when enabled and
+     *   selected/checked
+     * @param selectedTrailingContentColor the trailing content color of this menu item when enabled
+     *   and selected/checked
      */
     @Composable
     public fun selectableItemVibrantColors(
@@ -715,6 +761,28 @@ public object MenuDefaults {
                     .also { defaultMenuItemColorsCached = it }
         }
 
+    internal val ColorScheme.defaultMenuItemVibrantColors: MenuItemColors
+        get() {
+            return defaultMenuItemVibrantColorsCached
+                ?: MenuItemColors(
+                        textColor = fromToken(VibrantMenuTokens.ItemLabelTextColor),
+                        containerColor = fromToken(VibrantMenuTokens.ContainerColor),
+                        leadingIconColor = fromToken(VibrantMenuTokens.ItemLeadingIconColor),
+                        trailingIconColor = fromToken(VibrantMenuTokens.ItemTrailingIconColor),
+                        disabledTextColor =
+                            fromToken(VibrantMenuTokens.ItemDisabledLabelTextColor)
+                                .copy(alpha = VibrantMenuTokens.ItemDisabledLabelTextOpacity),
+                        disabledLeadingIconColor =
+                            fromToken(VibrantMenuTokens.ItemDisabledLeadingIconColor)
+                                .copy(alpha = VibrantMenuTokens.ItemDisabledLeadingIconOpacity),
+                        disabledTrailingIconColor =
+                            fromToken(VibrantMenuTokens.ItemDisabledTrailingIconColor)
+                                .copy(alpha = VibrantMenuTokens.ItemDisabledTrailingIconOpacity),
+                        disabledContainerColor = fromToken(VibrantMenuTokens.ContainerColor),
+                    )
+                    .also { defaultMenuItemVibrantColorsCached = it }
+        }
+
     internal val ColorScheme.defaultMenuSelectableItemColors: SelectableMenuItemColors
         get() {
             return defaultMenuSelectableItemColorsCached
@@ -792,7 +860,10 @@ public object MenuDefaults {
 
     private val SelectableItemVerticalPadding = 12.dp
 
-    /** Default padding used for [DropdownMenuItem] that are selectable. */
+    /**
+     * Default padding used for [SelectableDropdownMenuItem] and [CheckableDropdownMenuItem] (or
+     * [DropdownMenuItem] with custom shapes).
+     */
     public val DropdownMenuSelectableItemContentPadding: PaddingValues
         get() =
             if (shouldUsePrecisionPointerComponentSizing.value) {
