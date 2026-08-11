@@ -16,13 +16,51 @@
 
 package androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
 
+import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Until
+import androidx.wear.compose.material3.macrobenchmark.common.FIND_OBJECT_TIMEOUT_MS
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
+import androidx.wear.compose.material3.macrobenchmark.common.retryIfStale
+import androidx.wear.compose.material3.macrobenchmark.common.swipeRightToDismiss
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
 
 val SwipeToDismissScreen =
     object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
             get() = { StatefulSwipeToDismissBox() }
+
+        override val exercise: MacrobenchmarkScope.() -> Unit
+            get() = {
+                retryIfStale {
+                        requireNotNull(
+                            device.wait(
+                                Until.findObject(By.text("Item details")),
+                                FIND_OBJECT_TIMEOUT_MS,
+                            )
+                        ) {
+                            "Button 'Item details' not found"
+                        }
+                    }
+                    .click()
+                check(
+                    device.wait(
+                        Until.hasObject(By.text("Swipe right to dismiss")),
+                        FIND_OBJECT_TIMEOUT_MS,
+                    )
+                ) {
+                    "Destination 'Swipe right to dismiss' not found"
+                }
+                device.waitForIdle()
+
+                device.swipeRightToDismiss()
+                check(
+                    device.wait(Until.hasObject(By.text("Item details")), FIND_OBJECT_TIMEOUT_MS)
+                ) {
+                    "Main screen 'Item details' not found"
+                }
+                device.waitForIdle()
+            }
     }

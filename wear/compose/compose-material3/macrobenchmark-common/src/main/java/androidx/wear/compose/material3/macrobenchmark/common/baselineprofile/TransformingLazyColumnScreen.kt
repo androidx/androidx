@@ -21,15 +21,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnFirstLayoutItemProvider
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Card
+import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.ListHeaderDefaults
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.lazy.layoutItemInfoOf
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
+import androidx.wear.compose.material3.lazy.rememberTransformingLazyColumnFirstLayoutItemProvider
 import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 
@@ -39,40 +45,68 @@ val TransformingLazyColumnScreen =
             get() = {
                 val transformationSpec = rememberTransformationSpec()
                 val state = rememberTransformingLazyColumnState()
+                val firstLayoutItemProvider =
+                    rememberTransformingLazyColumnFirstLayoutItemProvider {
+                        state.layoutItemInfoOf(
+                            itemKey = "card_0",
+                            itemEdge = TransformingLazyColumnFirstLayoutItemProvider.ItemEdge.End,
+                        )
+                    }
                 AppScaffold {
                     ScreenScaffold(state) { contentPadding ->
-                        TransformingLazyColumn(state = state, contentPadding = contentPadding) {
-                            item {
+                        TransformingLazyColumn(
+                            state = state,
+                            contentPadding = contentPadding,
+                            firstLayoutItemProvider = firstLayoutItemProvider,
+                        ) {
+                            item(key = "header_cards") {
                                 ListHeader(
-                                    modifier = Modifier.transformedHeight(this, transformationSpec)
+                                    modifier =
+                                        Modifier.minimumVerticalContentPadding(
+                                                ListHeaderDefaults.minimumTopListContentPadding,
+                                                ListHeaderDefaults.minimumBottomListContentPadding,
+                                            )
+                                            .transformedHeight(this, transformationSpec),
+                                    transformation = SurfaceTransformation(transformationSpec),
                                 ) {
                                     Text("Cards")
                                 }
                             }
-                            items(count = 100) {
+                            items(count = 100, key = { "card_$it" }) {
                                 Card(
                                     onClick = {},
                                     modifier =
-                                        Modifier.transformedHeight(this, transformationSpec)
+                                        Modifier.minimumVerticalContentPadding(
+                                                CardDefaults.minimumVerticalListContentPadding
+                                            )
+                                            .transformedHeight(this, transformationSpec)
                                             .animateItem(),
                                     transformation = SurfaceTransformation(transformationSpec),
                                 ) {
                                     Text("Card $it")
                                 }
                             }
-                            item {
+                            item(key = "header_buttons") {
                                 ListHeader(
-                                    modifier = Modifier.transformedHeight(this, transformationSpec),
+                                    modifier =
+                                        Modifier.minimumVerticalContentPadding(
+                                                ListHeaderDefaults.minimumTopListContentPadding,
+                                                ListHeaderDefaults.minimumBottomListContentPadding,
+                                            )
+                                            .transformedHeight(this, transformationSpec),
                                     transformation = SurfaceTransformation(transformationSpec),
                                 ) {
                                     Text("Buttons")
                                 }
                             }
-                            items(count = 100) {
+                            items(count = 100, key = { "button_$it" }) {
                                 Button(
                                     onClick = {},
                                     modifier =
-                                        Modifier.transformedHeight(this, transformationSpec)
+                                        Modifier.minimumVerticalContentPadding(
+                                                ButtonDefaults.minimumVerticalListContentPadding
+                                            )
+                                            .transformedHeight(this, transformationSpec)
                                             .animateItem(),
                                     transformation = SurfaceTransformation(transformationSpec),
                                 ) {
