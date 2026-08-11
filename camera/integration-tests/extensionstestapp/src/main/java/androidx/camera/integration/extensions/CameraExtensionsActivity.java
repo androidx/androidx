@@ -240,6 +240,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 Log.e(TAG, "Cannot find next camera id that supports the extensions mode");
                 return;
             }
+            mCurrentCameraId = nextCameraId;
             mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(mCurrentCameraId);
         } else {
             mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
