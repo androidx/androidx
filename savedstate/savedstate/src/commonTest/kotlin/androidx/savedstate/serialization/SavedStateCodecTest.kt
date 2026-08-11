@@ -898,6 +898,40 @@ internal class SavedStateCodecTest : RobolectricTest() {
                 },
             )
     }
+
+    @Test
+    fun nullableDataClass() {
+        // Check serialization of nullable types. Test null values and non-null values.
+        // Serialization of null does not depend on the type. The codec always
+        // writes a null marker.
+        // If NullableSerializer works for specific types, it works for all types.
+        @Serializable data class MyModel(val id: Int, val name: String)
+
+        val original = MyModel(id = 42, name = "SavedState")
+
+        // Test non-null value with static type T
+        original.encodeDecode {
+            assertThat(size()).isEqualTo(2)
+            assertThat(getInt("id")).isEqualTo(42)
+            assertThat(getString("name")).isEqualTo("SavedState")
+        }
+
+        // Test non-null value with static type T?
+        original.encodeDecode<MyModel?> {
+            assertThat(size()).isEqualTo(2)
+            assertThat(getInt("id")).isEqualTo(42)
+            assertThat(getString("name")).isEqualTo("SavedState")
+        }
+
+        // Test null value with static type T?
+        null.encodeDecode<MyModel?>(
+            checkDecoded = { decoded, _ -> assertThat(decoded).isNull() },
+            checkEncoded = {
+                assertThat(size()).isEqualTo(1)
+                assertThat(isNull("")).isTrue()
+            },
+        )
+    }
 }
 
 private fun keyOrValueNotFoundErrorMessage(key: String): String {
