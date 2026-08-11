@@ -39,6 +39,7 @@ dependencies {
     implementation(project(":compose:remote:remote-core"))
     implementation(project(":compose:remote:remote-creation"))
     implementation(project(":compose:remote:remote-creation-compose"))
+    implementation(project(":compose:remote:foundation:foundation"))
     implementation(project(":compose:remote:remote-creation-core"))
     implementation(project(":compose:remote:remote-player-compose"))
     implementation(project(":compose:remote:remote-player-view"))
