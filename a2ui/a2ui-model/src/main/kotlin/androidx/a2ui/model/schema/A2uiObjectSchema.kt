@@ -16,6 +16,7 @@
 
 package androidx.a2ui.model.schema
 
+import androidx.a2ui.model.schema.internal.putCommonKeywords
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -36,14 +37,18 @@ import kotlinx.serialization.json.put
  * @property additionalPropertiesSchema schema definition for additional dynamic properties. Only
  *   applicable if [isAdditionalPropertiesAllowed] is true.
  * @property description semantic description of the schema
+ * @property keywords JSON Schema keywords applied to this schema node
  */
 @OptIn(ExperimentalSerializationApi::class)
-public class A2uiObjectSchema(
+public class A2uiObjectSchema
+@JvmOverloads
+public constructor(
     public val properties: Map<String, A2uiSchema> = emptyMap(),
     public val required: Set<String> = emptySet(),
     public val isAdditionalPropertiesAllowed: Boolean = true,
     public val additionalPropertiesSchema: A2uiSchema? = null,
     public override val description: String? = null,
+    public override val keywords: List<A2uiSchemaKeyword<Map<String, Any>>> = emptyList(),
 ) : A2uiSchema() {
     init {
         val missingKeys = required.filter { !properties.containsKey(it) }
@@ -63,9 +68,7 @@ public class A2uiObjectSchema(
         } else if (additionalPropertiesSchema != null) {
             put(KEY_ADDITIONAL_PROPERTIES, additionalPropertiesSchema.toJsonElement())
         }
-        if (description != null) {
-            put(KEY_DESCRIPTION, description)
-        }
+        putCommonKeywords(this@A2uiObjectSchema)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -74,21 +77,21 @@ public class A2uiObjectSchema(
         other as A2uiObjectSchema
         return properties == other.properties &&
             required == other.required &&
-            additionalPropertiesSchema == other.additionalPropertiesSchema &&
-            isAdditionalPropertiesAllowed == other.isAdditionalPropertiesAllowed
+            isAdditionalPropertiesAllowed == other.isAdditionalPropertiesAllowed &&
+            additionalPropertiesSchema == other.additionalPropertiesSchema
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + properties.hashCode()
         result = 31 * result + required.hashCode()
-        result = 31 * result + (additionalPropertiesSchema?.hashCode() ?: 0)
         result = 31 * result + isAdditionalPropertiesAllowed.hashCode()
+        result = 31 * result + (additionalPropertiesSchema?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "Object(properties=$properties, required=$required, isAdditionalPropertiesAllowed=$isAdditionalPropertiesAllowed, additionalPropertiesSchema=$additionalPropertiesSchema, description=$description)"
+        return "Object(description=$description)"
     }
 
     public companion object {

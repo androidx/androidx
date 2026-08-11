@@ -24,6 +24,10 @@ public sealed class A2uiSchema {
     /** Semantic description of the schema. */
     public abstract val description: String?
 
+    /** List of JSON Schema keywords applied to this schema node. */
+    public open val keywords: List<A2uiSchemaKeyword<Any>>
+        get() = emptyList()
+
     /**
      * Serializes this schema to a JSON Schema string representation.
      *
@@ -43,12 +47,13 @@ public sealed class A2uiSchema {
         if (javaClass != other?.javaClass) return false
 
         other as A2uiSchema
-        return description == other.description
+        return description == other.description && keywords == other.keywords
     }
 
     override fun hashCode(): Int {
         var result = javaClass.hashCode()
         result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + keywords.hashCode()
         return result
     }
 }

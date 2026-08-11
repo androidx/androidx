@@ -145,6 +145,22 @@ class A2uiObjectSchemaTest {
             .addEqualityGroup(
                 A2uiObjectSchema(properties = mapOf(), required = emptySet(), description = null)
             )
+            .addEqualityGroup(
+                A2uiObjectSchema(
+                    properties = mapOf(TEST_PROPERTY_1 to A2uiStringSchema()),
+                    additionalPropertiesSchema = A2uiStringSchema(),
+                ),
+                A2uiObjectSchema(
+                    properties = mapOf(TEST_PROPERTY_1 to A2uiStringSchema()),
+                    additionalPropertiesSchema = A2uiStringSchema(),
+                ),
+            )
+            .addEqualityGroup(
+                A2uiObjectSchema(
+                    properties = mapOf(TEST_PROPERTY_1 to A2uiStringSchema()),
+                    additionalPropertiesSchema = A2uiNumberSchema(),
+                )
+            )
             .testEquals()
     }
 
@@ -156,20 +172,14 @@ class A2uiObjectSchemaTest {
                 required = emptySet(),
                 description = TEST_DESCRIPTION_1,
             )
-        assertThat(schema.toString())
-            .isEqualTo(
-                "Object(properties={}, required=[], isAdditionalPropertiesAllowed=true, additionalPropertiesSchema=null, description=$TEST_DESCRIPTION_1)"
-            )
+        assertThat(schema.toString()).isEqualTo("Object(description=$TEST_DESCRIPTION_1)")
     }
 
     @Test
     fun toString_withoutDescription_returnsExpectedFormat() {
         val schema =
             A2uiObjectSchema(properties = mapOf(), required = emptySet(), description = null)
-        assertThat(schema.toString())
-            .isEqualTo(
-                "Object(properties={}, required=[], isAdditionalPropertiesAllowed=true, additionalPropertiesSchema=null, description=null)"
-            )
+        assertThat(schema.toString()).isEqualTo("Object(description=null)")
     }
 
     private companion object {

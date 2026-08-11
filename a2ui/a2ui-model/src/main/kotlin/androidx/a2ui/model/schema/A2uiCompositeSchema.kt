@@ -56,6 +56,8 @@ public abstract class A2uiCompositeSchema : A2uiSchema() {
      */
     public abstract fun getDefinition(): A2uiSchema
 
+    override val keywords: List<A2uiSchemaKeyword<Any>> = emptyList()
+
     /**
      * Returns the serialized JSON Schema of the underlying definition without referencing.
      *

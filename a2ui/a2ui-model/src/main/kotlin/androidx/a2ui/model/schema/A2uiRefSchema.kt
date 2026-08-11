@@ -16,6 +16,7 @@
 
 package androidx.a2ui.model.schema
 
+import androidx.a2ui.model.schema.internal.putCommonKeywords
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -25,16 +26,18 @@ import kotlinx.serialization.json.put
  *
  * @property ref reference path
  * @property description semantic description of the schema
+ * @property keywords JSON Schema keywords applied to this schema node
  */
-public class A2uiRefSchema(
+public class A2uiRefSchema
+@JvmOverloads
+public constructor(
     public val ref: String,
     public override val description: String? = null,
+    public override val keywords: List<A2uiSchemaKeyword<Any>> = emptyList(),
 ) : A2uiSchema() {
     override fun toJsonElement(): JsonElement = buildJsonObject {
         put(KEY_REF, ref)
-        if (description != null) {
-            put(KEY_DESCRIPTION, description)
-        }
+        putCommonKeywords(this@A2uiRefSchema)
     }
 
     override fun equals(other: Any?): Boolean {

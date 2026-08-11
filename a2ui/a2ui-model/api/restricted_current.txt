@@ -539,33 +539,15 @@ package androidx.a2ui.model.protocol {
 
 package androidx.a2ui.model.schema {
 
-  public final class A2uiAllOfSchema extends androidx.a2ui.model.schema.A2uiSchema {
-    ctor @BytecodeOnly public A2uiAllOfSchema(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public A2uiAllOfSchema(java.util.List<? extends androidx.a2ui.model.schema.A2uiSchema> schemas, optional String? description);
-    method @InaccessibleFromKotlin public String? getDescription();
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchema> getSchemas();
-    method public kotlinx.serialization.json.JsonElement toJsonElement();
-    property public String? description;
-    property public java.util.List<androidx.a2ui.model.schema.A2uiSchema> schemas;
-  }
-
-  public final class A2uiAnyOfSchema extends androidx.a2ui.model.schema.A2uiSchema {
-    ctor @BytecodeOnly public A2uiAnyOfSchema(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public A2uiAnyOfSchema(java.util.List<? extends androidx.a2ui.model.schema.A2uiSchema> schemas, optional String? description);
-    method @InaccessibleFromKotlin public String? getDescription();
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchema> getSchemas();
-    method public kotlinx.serialization.json.JsonElement toJsonElement();
-    property public String? description;
-    property public java.util.List<androidx.a2ui.model.schema.A2uiSchema> schemas;
-  }
-
   public final class A2uiAnySchema extends androidx.a2ui.model.schema.A2uiSchema {
     ctor public A2uiAnySchema();
     ctor public A2uiAnySchema(optional String? description);
-    ctor @BytecodeOnly public A2uiAnySchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public A2uiAnySchema(String!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiAnySchema(optional String? description, optional java.util.List<? extends androidx.a2ui.model.schema.A2uiSchemaKeyword<?>> keywords);
     method @InaccessibleFromKotlin public String? getDescription();
     method public kotlinx.serialization.json.JsonElement toJsonElement();
     property public String? description;
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.Object>> keywords;
     field public static final androidx.a2ui.model.schema.A2uiAnySchema.Companion Companion;
     field public static final androidx.a2ui.model.schema.A2uiAnySchema INSTANCE;
   }
@@ -576,13 +558,23 @@ package androidx.a2ui.model.schema {
 
   public final class A2uiArraySchema extends androidx.a2ui.model.schema.A2uiSchema {
     ctor public A2uiArraySchema();
+    ctor public A2uiArraySchema(optional androidx.a2ui.model.schema.A2uiSchema? items);
     ctor public A2uiArraySchema(optional androidx.a2ui.model.schema.A2uiSchema? items, optional String? description);
-    ctor @BytecodeOnly public A2uiArraySchema(androidx.a2ui.model.schema.A2uiSchema!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiArraySchema(optional androidx.a2ui.model.schema.A2uiSchema? items, optional String? description, optional int minItems);
+    ctor public A2uiArraySchema(optional androidx.a2ui.model.schema.A2uiSchema? items, optional String? description, optional int minItems, optional int maxItems);
+    ctor @BytecodeOnly public A2uiArraySchema(androidx.a2ui.model.schema.A2uiSchema!, String!, int, int, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiArraySchema(optional androidx.a2ui.model.schema.A2uiSchema? items, optional String? description, optional int minItems, optional int maxItems, optional java.util.List<? extends androidx.a2ui.model.schema.A2uiSchemaKeyword<? extends java.util.List<?>>> keywords);
     method @InaccessibleFromKotlin public String? getDescription();
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema? getItems();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.util.List<java.lang.Object>>> getKeywords();
+    method @InaccessibleFromKotlin public int getMaxItems();
+    method @InaccessibleFromKotlin public int getMinItems();
     method public kotlinx.serialization.json.JsonElement toJsonElement();
     property public String? description;
     property public androidx.a2ui.model.schema.A2uiSchema? items;
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.util.List<java.lang.Object>>> keywords;
+    property public int maxItems;
+    property public int minItems;
     field public static final androidx.a2ui.model.schema.A2uiArraySchema.Companion Companion;
     field public static final androidx.a2ui.model.schema.A2uiArraySchema INSTANCE;
   }
@@ -594,10 +586,13 @@ package androidx.a2ui.model.schema {
   public final class A2uiBooleanSchema extends androidx.a2ui.model.schema.A2uiSchema {
     ctor public A2uiBooleanSchema();
     ctor public A2uiBooleanSchema(optional String? description);
-    ctor @BytecodeOnly public A2uiBooleanSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public A2uiBooleanSchema(String!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiBooleanSchema(optional String? description, optional java.util.List<? extends androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.Boolean>> keywords);
     method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.Boolean>> getKeywords();
     method public kotlinx.serialization.json.JsonElement toJsonElement();
     property public String? description;
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.Boolean>> keywords;
     field public static final androidx.a2ui.model.schema.A2uiBooleanSchema.Companion Companion;
     field public static final androidx.a2ui.model.schema.A2uiBooleanSchema INSTANCE;
   }
@@ -613,36 +608,20 @@ package androidx.a2ui.model.schema {
     method @InaccessibleFromKotlin public String? getSchemaId();
     method public kotlinx.serialization.json.JsonElement toJsonElement();
     property public String? definitionName;
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.Object>> keywords;
     property public String? schemaId;
-  }
-
-  public final class A2uiConstSchema extends androidx.a2ui.model.schema.A2uiSchema {
-    ctor public A2uiConstSchema(Object value, optional String? description);
-    ctor @BytecodeOnly public A2uiConstSchema(Object!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public String? getDescription();
-    method @InaccessibleFromKotlin public Object getValue();
-    method public kotlinx.serialization.json.JsonElement toJsonElement();
-    property public String? description;
-    property public Object value;
-  }
-
-  public final class A2uiEnumSchema extends androidx.a2ui.model.schema.A2uiSchema {
-    ctor @BytecodeOnly public A2uiEnumSchema(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public A2uiEnumSchema(java.util.List<?> enumValues, optional String? description);
-    method @InaccessibleFromKotlin public String? getDescription();
-    method @InaccessibleFromKotlin public java.util.List<java.lang.Object> getEnumValues();
-    method public kotlinx.serialization.json.JsonElement toJsonElement();
-    property public String? description;
-    property public java.util.List<java.lang.Object> enumValues;
   }
 
   public final class A2uiNumberSchema extends androidx.a2ui.model.schema.A2uiSchema {
     ctor public A2uiNumberSchema();
     ctor public A2uiNumberSchema(optional String? description);
-    ctor @BytecodeOnly public A2uiNumberSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public A2uiNumberSchema(String!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiNumberSchema(optional String? description, optional java.util.List<? extends androidx.a2ui.model.schema.A2uiSchemaKeyword<? extends java.lang.Number>> keywords);
     method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.Number>> getKeywords();
     method public kotlinx.serialization.json.JsonElement toJsonElement();
     property public String? description;
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.Number>> keywords;
     field public static final androidx.a2ui.model.schema.A2uiNumberSchema.Companion Companion;
     field public static final androidx.a2ui.model.schema.A2uiNumberSchema INSTANCE;
   }
@@ -653,10 +632,16 @@ package androidx.a2ui.model.schema {
 
   public final class A2uiObjectSchema extends androidx.a2ui.model.schema.A2uiSchema {
     ctor public A2uiObjectSchema();
-    ctor @BytecodeOnly public A2uiObjectSchema(java.util.Map!, java.util.Set!, boolean, androidx.a2ui.model.schema.A2uiSchema!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public A2uiObjectSchema(java.util.Map!, java.util.Set!, boolean, androidx.a2ui.model.schema.A2uiSchema!, String!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiObjectSchema(optional java.util.Map<java.lang.String,? extends androidx.a2ui.model.schema.A2uiSchema> properties);
+    ctor public A2uiObjectSchema(optional java.util.Map<java.lang.String,? extends androidx.a2ui.model.schema.A2uiSchema> properties, optional java.util.Set<java.lang.String> required);
+    ctor public A2uiObjectSchema(optional java.util.Map<java.lang.String,? extends androidx.a2ui.model.schema.A2uiSchema> properties, optional java.util.Set<java.lang.String> required, optional boolean isAdditionalPropertiesAllowed);
+    ctor public A2uiObjectSchema(optional java.util.Map<java.lang.String,? extends androidx.a2ui.model.schema.A2uiSchema> properties, optional java.util.Set<java.lang.String> required, optional boolean isAdditionalPropertiesAllowed, optional androidx.a2ui.model.schema.A2uiSchema? additionalPropertiesSchema);
     ctor public A2uiObjectSchema(optional java.util.Map<java.lang.String,? extends androidx.a2ui.model.schema.A2uiSchema> properties, optional java.util.Set<java.lang.String> required, optional boolean isAdditionalPropertiesAllowed, optional androidx.a2ui.model.schema.A2uiSchema? additionalPropertiesSchema, optional String? description);
+    ctor public A2uiObjectSchema(optional java.util.Map<java.lang.String,? extends androidx.a2ui.model.schema.A2uiSchema> properties, optional java.util.Set<java.lang.String> required, optional boolean isAdditionalPropertiesAllowed, optional androidx.a2ui.model.schema.A2uiSchema? additionalPropertiesSchema, optional String? description, optional java.util.List<? extends androidx.a2ui.model.schema.A2uiSchemaKeyword<? extends java.util.Map<java.lang.String,?>>> keywords);
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema? getAdditionalPropertiesSchema();
     method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.util.Map<java.lang.String,java.lang.Object>>> getKeywords();
     method @InaccessibleFromKotlin public java.util.Map<java.lang.String,androidx.a2ui.model.schema.A2uiSchema> getProperties();
     method @InaccessibleFromKotlin public java.util.Set<java.lang.String> getRequired();
     method @InaccessibleFromKotlin public boolean isAdditionalPropertiesAllowed();
@@ -664,6 +649,7 @@ package androidx.a2ui.model.schema {
     property public androidx.a2ui.model.schema.A2uiSchema? additionalPropertiesSchema;
     property public String? description;
     property public boolean isAdditionalPropertiesAllowed;
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.util.Map<java.lang.String,java.lang.Object>>> keywords;
     property public java.util.Map<java.lang.String,androidx.a2ui.model.schema.A2uiSchema> properties;
     property public java.util.Set<java.lang.String> required;
     field public static final androidx.a2ui.model.schema.A2uiObjectSchema.Companion Companion;
@@ -674,39 +660,110 @@ package androidx.a2ui.model.schema {
     property public androidx.a2ui.model.schema.A2uiObjectSchema INSTANCE;
   }
 
-  public final class A2uiOneOfSchema extends androidx.a2ui.model.schema.A2uiSchema {
-    ctor @BytecodeOnly public A2uiOneOfSchema(java.util.List!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public A2uiOneOfSchema(java.util.List<? extends androidx.a2ui.model.schema.A2uiSchema> schemas, optional String? description);
-    method @InaccessibleFromKotlin public String? getDescription();
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchema> getSchemas();
-    method public kotlinx.serialization.json.JsonElement toJsonElement();
-    property public String? description;
-    property public java.util.List<androidx.a2ui.model.schema.A2uiSchema> schemas;
-  }
-
   public final class A2uiRefSchema extends androidx.a2ui.model.schema.A2uiSchema {
+    ctor public A2uiRefSchema(String ref);
     ctor public A2uiRefSchema(String ref, optional String? description);
-    ctor @BytecodeOnly public A2uiRefSchema(String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public A2uiRefSchema(String!, String!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiRefSchema(String ref, optional String? description, optional java.util.List<? extends androidx.a2ui.model.schema.A2uiSchemaKeyword<?>> keywords);
     method @InaccessibleFromKotlin public String? getDescription();
     method @InaccessibleFromKotlin public String getRef();
     method public kotlinx.serialization.json.JsonElement toJsonElement();
     property public String? description;
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.Object>> keywords;
     property public String ref;
   }
 
   public abstract sealed exhaustive class A2uiSchema {
     method @InaccessibleFromKotlin public abstract String? getDescription();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.Object>> getKeywords();
     method public final String toJsonSchema();
     property public abstract String? description;
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.Object>> keywords;
+  }
+
+  public abstract sealed exhaustive class A2uiSchemaKeyword<T> {
+  }
+
+  public static final class A2uiSchemaKeyword.AllOf extends androidx.a2ui.model.schema.A2uiSchemaKeyword {
+    ctor public A2uiSchemaKeyword.AllOf(java.util.List<? extends androidx.a2ui.model.schema.A2uiSchema> schemas);
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchema> getSchemas();
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchema> schemas;
+    field public static final androidx.a2ui.model.schema.A2uiSchemaKeyword.AllOf.Companion Companion;
+  }
+
+  public static final class A2uiSchemaKeyword.AllOf.Companion {
+  }
+
+  public static final class A2uiSchemaKeyword.AnyOf extends androidx.a2ui.model.schema.A2uiSchemaKeyword {
+    ctor public A2uiSchemaKeyword.AnyOf(java.util.List<? extends androidx.a2ui.model.schema.A2uiSchema> schemas);
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchema> getSchemas();
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchema> schemas;
+    field public static final androidx.a2ui.model.schema.A2uiSchemaKeyword.AnyOf.Companion Companion;
+  }
+
+  public static final class A2uiSchemaKeyword.AnyOf.Companion {
+  }
+
+  public static final class A2uiSchemaKeyword.Const<T> extends androidx.a2ui.model.schema.A2uiSchemaKeyword<T> {
+    ctor public A2uiSchemaKeyword.Const(T value);
+    method @InaccessibleFromKotlin public T getValue();
+    property public T value;
+    field public static final androidx.a2ui.model.schema.A2uiSchemaKeyword.Const.Companion Companion;
+  }
+
+  public static final class A2uiSchemaKeyword.Const.Companion {
+  }
+
+  public static final class A2uiSchemaKeyword.Default<T> extends androidx.a2ui.model.schema.A2uiSchemaKeyword<T> {
+    ctor public A2uiSchemaKeyword.Default(T value);
+    method @InaccessibleFromKotlin public T getValue();
+    property public T value;
+    field public static final androidx.a2ui.model.schema.A2uiSchemaKeyword.Default.Companion Companion;
+  }
+
+  public static final class A2uiSchemaKeyword.Default.Companion {
+  }
+
+  public static final class A2uiSchemaKeyword.Enum<T> extends androidx.a2ui.model.schema.A2uiSchemaKeyword<T> {
+    ctor public A2uiSchemaKeyword.Enum(java.util.List<? extends T> values);
+    method @InaccessibleFromKotlin public java.util.List<T> getValues();
+    property public java.util.List<T> values;
+    field public static final androidx.a2ui.model.schema.A2uiSchemaKeyword.Enum.Companion Companion;
+  }
+
+  public static final class A2uiSchemaKeyword.Enum.Companion {
+  }
+
+  public static final class A2uiSchemaKeyword.Not extends androidx.a2ui.model.schema.A2uiSchemaKeyword {
+    ctor public A2uiSchemaKeyword.Not(androidx.a2ui.model.schema.A2uiSchema schema);
+    method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getSchema();
+    property public androidx.a2ui.model.schema.A2uiSchema schema;
+    field public static final androidx.a2ui.model.schema.A2uiSchemaKeyword.Not.Companion Companion;
+  }
+
+  public static final class A2uiSchemaKeyword.Not.Companion {
+  }
+
+  public static final class A2uiSchemaKeyword.OneOf extends androidx.a2ui.model.schema.A2uiSchemaKeyword {
+    ctor public A2uiSchemaKeyword.OneOf(java.util.List<? extends androidx.a2ui.model.schema.A2uiSchema> schemas);
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchema> getSchemas();
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchema> schemas;
+    field public static final androidx.a2ui.model.schema.A2uiSchemaKeyword.OneOf.Companion Companion;
+  }
+
+  public static final class A2uiSchemaKeyword.OneOf.Companion {
   }
 
   public final class A2uiStringSchema extends androidx.a2ui.model.schema.A2uiSchema {
     ctor public A2uiStringSchema();
     ctor public A2uiStringSchema(optional String? description);
-    ctor @BytecodeOnly public A2uiStringSchema(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public A2uiStringSchema(String!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public A2uiStringSchema(optional String? description, optional java.util.List<? extends androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.String>> keywords);
     method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.String>> getKeywords();
     method public kotlinx.serialization.json.JsonElement toJsonElement();
     property public String? description;
+    property public java.util.List<androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.String>> keywords;
     field public static final androidx.a2ui.model.schema.A2uiStringSchema.Companion Companion;
     field public static final androidx.a2ui.model.schema.A2uiStringSchema INSTANCE;
   }

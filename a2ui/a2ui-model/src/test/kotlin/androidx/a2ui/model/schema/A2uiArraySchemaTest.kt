@@ -64,15 +64,13 @@ class A2uiArraySchemaTest {
     @Test
     fun toString_withDescription_returnsExpectedFormat() {
         val schema = A2uiArraySchema(A2uiStringSchema(), TEST_DESCRIPTION_1)
-        assertThat(schema.toString())
-            .isEqualTo("Array(items=String(description=null), description=$TEST_DESCRIPTION_1)")
+        assertThat(schema.toString()).isEqualTo("Array(description=$TEST_DESCRIPTION_1)")
     }
 
     @Test
     fun toString_withoutDescription_returnsExpectedFormat() {
         val schema = A2uiArraySchema(A2uiStringSchema(), null)
-        assertThat(schema.toString())
-            .isEqualTo("Array(items=String(description=null), description=null)")
+        assertThat(schema.toString()).isEqualTo("Array(description=null)")
     }
 
     private companion object {
