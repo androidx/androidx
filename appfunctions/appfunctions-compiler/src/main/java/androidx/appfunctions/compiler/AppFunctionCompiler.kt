@@ -16,6 +16,7 @@
 
 package androidx.appfunctions.compiler
 
+import androidx.appfunctions.compiler.core.AnnotatedAppFunctionServiceEntryPoint
 import androidx.appfunctions.compiler.core.AnnotatedAppFunctions
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
 import androidx.appfunctions.compiler.core.ProcessingException
@@ -75,16 +76,30 @@ class AppFunctionCompiler(
         val appFunctionSymbolResolver = AppFunctionSymbolResolver(resolver)
         val annotatedAppFunctions =
             appFunctionSymbolResolver.resolveUnvalidatedAnnotatedAppFunctions()
+        val annotatedServiceEntryPoints =
+            appFunctionSymbolResolver.resolveUnvalidatedAnnotatedAppFunctionServiceEntryPoints()
         val annotatedSignatures =
             appFunctionSymbolResolver.resolveUnvalidatedAnnotatedAppFunctionSignatures()
 
         val allSymbolsToDefer =
             annotatedAppFunctions.flatMap(AnnotatedAppFunctions::getAllAnnotated) +
+                annotatedServiceEntryPoints.flatMap(
+                    AnnotatedAppFunctionServiceEntryPoint::getAllAnnotated
+                ) +
                 annotatedSignatures.map { it.classDeclaration }
 
         for (annotatedAppFunction in annotatedAppFunctions) {
             try {
                 annotatedAppFunction.validate()
+            } catch (e: SymbolNotReadyException) {
+                logger.logging(e.message.toString(), e.node)
+                return allSymbolsToDefer
+            }
+        }
+
+        for (annotatedServiceEntryPoint in annotatedServiceEntryPoints) {
+            try {
+                annotatedServiceEntryPoint.validate()
             } catch (e: SymbolNotReadyException) {
                 logger.logging(e.message.toString(), e.node)
                 return allSymbolsToDefer
