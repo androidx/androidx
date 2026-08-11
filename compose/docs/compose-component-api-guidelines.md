@@ -21,35 +21,35 @@ App development is often subject to strong organizational priorities and norms a
 ## Table of content
 - [Note on vocabulary in this doc](#note-on-vocabulary-in-this-doc)
 - [Before you create a component](#before-you-create-a-component)
-    - [Component’s purpose](#components-purpose)
+    - [Component’s purpose](#component_s-purpose)
     - [Component layering](#component-layering)
     - [Do you need a component?](#do-you-need-a-component)
     - [Component or Modifier](#component-or-modifier)
 - [Name of a Component](#name-of-a-component)
     - [BasicComponent vs Component](#basiccomponent-vs-component)
-    - [Design, Usecase or Company/Project specific prefixes](#design-usecase-or-companyproject-specific-prefixes)
+    - [Design, Usecase or Company/Project specific prefixes](#design_usecase-or-company_project-specific-prefixes)
 - [Component dependencies](#component-dependencies)
     - [Prefer multiple components over style classes](#prefer-multiple-components-over-style-classes)
     - [Explicit vs implicit dependencies](#explicit-vs-implicit-dependencies)
 - [Component parameters](#component-parameters)
-    - [Parameters vs. Modifier on the component](#parameters-vs-modifier-on-the-component)
-    - [`modifier` parameter](#modifier-parameter)
+    - [Parameters vs. Modifier on the component](#parameters-vs_modifier-on-the-component)
+    - [`modifier` parameter](#parameter)
     - [Parameters order](#parameters-order)
     - [Nullable parameter](#nullable-parameter)
     - [Default expressions](#default-expressions)
-    - [MutableState\<T\> as a parameter](#mutablestatet-as-a-parameter)
-    - [State\<T\> as a parameter](#statet-as-a-parameter)
+    - [MutableState\<T\> as a parameter](#mutablestate_t_as-a-parameter)
+    - [State\<T\> as a parameter](#state_t_as-a-parameter)
     - [Slot parameters](#slot-parameters)
         - [What are slots](#what-are-slots)
         - [Why slots](#why-slots)
-        - [Single “content” slot overloads](#single-content-slot-overloads)
+        - [Single “content” slot overloads](#single-content_slot-overloads)
         - [Layout strategy scope for slot APIs](#layout-strategy-scope-for-slot-apis)
         - [Lifecycle expectations for slot parameters](#lifecycle-expectations-for-slot-parameters)
         - [DSL based slots](#dsl-based-slots)
-- [Component-related classes and functions](#component-related-classes-and-functions)
+- [Component-related classes and functions](#component_related-classes-and-functions)
     - [State](#state)
     - [ComponentDefault object](#componentdefault-object)
-    - [ComponentColor/ComponentElevation objects](#componentcolorcomponentelevation-objects)
+    - [ComponentColor/ComponentElevation objects](#componentcolor_componentelevation-objects)
 - [Documentation for the component](#documentation-for-the-component)
     - [Documentation structure and ordering](#documentation-structure-and-ordering)
     - [Documentation example](#documentation-example)
@@ -289,7 +289,7 @@ Avoid `CompanyName` (`GoogleButton`) or Module (`WearButton`) prefixes where pos
 
 If wrapping existing components or building on top of another design system, consider names that are derived from the use case first: `ScalingLazyColumn`, `CurvedText`. If impossible or the use case clashes with the existing component, module/library prefix can be used e.g. `GlideImage.`
 
-If your design system specification introduces a number of similar components with different appearances, consider using specification prefixes: `ContainedButton`, `OutlinedButton`, `SuggestionChip`, etc. Using prefixes helps you avoid “style” patterns and keep the API simple. See "[ComponentColor/ComponentElevation](#componentcolorcomponentelevation-objects)" section for more details.
+If your design system specification introduces a number of similar components with different appearances, consider using specification prefixes: `ContainedButton`, `OutlinedButton`, `SuggestionChip`, etc. Using prefixes helps you avoid “style” patterns and keep the API simple. See "[ComponentColor/ComponentElevation](#componentcolor_componentelevation-objects)" section for more details.
 
 If you have a set of components with prefixes, consider choosing the default component, which is the one most likely to be used, and keep it without the prefix.
 
@@ -641,7 +641,7 @@ The order of parameters in a component must be as follows:
 Explanation for the order of the parameters:
 
 1. Required parameters. Parameters that don’t have default values and the user is required to pass the values for those parameters in order to use the components. Coming first, they allow users to set them without using named parameters.
-2. `modifier: Modifier = Modifier`. Modifiers should come as a first optional parameter in a @composable function. It must be named `modifier` and have a default value of `Modifier`. There should be only one modifier parameter and it should be applied to the root-most layout in the implementation. See "[modifier parameter](#modifier-parameter)" section for more information.
+2. `modifier: Modifier = Modifier`. Modifiers should come as a first optional parameter in a @composable function. It must be named `modifier` and have a default value of `Modifier`. There should be only one modifier parameter and it should be applied to the root-most layout in the implementation. See "[modifier parameter](#parameter)" section for more information.
 3. Optional parameters. Parameters that have default values that will be used if not overridden by the user of the component. Coming after required parameters and a `modifier` parameter, they do not require the user to make an immediate choice and allow one-by-one override using named parameters.
 4. (optional) trailing `@Composable` lambda representing the main content of the component, usually named `content`. It can have a default value. Having non-@composable trailing lambda (e.g. `onClick`) might be misleading as it is a user expectation to have a trailing lambda in a component to be `@Composable`. For `LazyColumn` and other DSL-like exceptions, it is ok to have non-@composable lambda since it still represents the main content.
 
