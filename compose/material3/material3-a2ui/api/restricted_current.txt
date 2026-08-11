@@ -1,1 +1,17 @@
 // Signature format: 4.0
+package androidx.compose.material3.a2ui {
+
+  public final class MaterialButtonComponent implements androidx.a2ui.compose.ui.A2uiComponent {
+    method @KotlinOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public String getDescription();
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.runtime.StaticA2uiProperty<? extends java.lang.Object?>> getProperties();
+    property public String description;
+    property public String name;
+    property public java.util.List<androidx.a2ui.compose.runtime.StaticA2uiProperty<? extends java.lang.Object?>> properties;
+    field public static final androidx.compose.material3.a2ui.MaterialButtonComponent INSTANCE;
+  }
+
+}
+
