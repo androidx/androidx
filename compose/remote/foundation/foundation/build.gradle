@@ -1,0 +1,70 @@
+
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+/**
+ * This file was created using the `createProject` gradle task (./gradlew createProject)
+ *
+ * Please use the task when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
+
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("AndroidXComposePlugin")
+}
+
+
+dependencies {
+    api(project(":compose:remote:remote-creation-compose"))
+    api(project(":compose:remote:remote-creation"))
+    api("androidx.compose.runtime:runtime:1.11.0")
+    api("androidx.compose.ui:ui:1.11.0")
+    api("androidx.compose.foundation:foundation-layout:1.11.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(project(":compose:remote:remote-player-compose-testutils"))
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(project(":compose:remote:foundation:foundation-samples"))
+}
+
+
+android {
+    namespace = "androidx.compose.remote.foundation"
+    compileSdk { version = release(35) }
+    defaultConfig {
+        minSdk { version = release(29) }
+    }
+}
+
+
+androidx {
+    name = "Remote Compose Foundation"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2026"
+    description = "Provides Remote Compose foundation components"
+    samples(project(":compose:remote:foundation:foundation-samples"))
+    addGoldenImageAssets()
+}

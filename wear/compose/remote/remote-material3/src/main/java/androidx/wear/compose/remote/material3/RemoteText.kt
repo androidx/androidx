@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.text.RemoteFontFamily
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
+import androidx.compose.remote.foundation.text.RemoteBasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -81,7 +82,7 @@ public fun RemoteText(
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
     val color = color ?: style.color ?: LocalRemoteContentColor.current
-    androidx.compose.remote.creation.compose.layout.RemoteText(
+    RemoteBasicText(
         text = text,
         modifier = modifier,
         color = color,

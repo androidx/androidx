@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.asRemoteDp
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.vector.painterRemoteVector
+import androidx.compose.remote.foundation.icon.RemoteBasicIcon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -95,12 +96,12 @@ public fun RemoteIcon(
     modifier: RemoteModifier = RemoteModifier,
     tint: RemoteColor = LocalRemoteContentColor.current,
 ) {
-    val painter = painterRemoteVector(imageVector, tint)
-    RemoteBox(
-        modifier.semantics { this.contentDescription = contentDescription }.defaultSizeFor(painter)
-    ) {
-        RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) { with(painter) { onDraw() } }
-    }
+    RemoteBasicIcon(
+        imageVector = imageVector,
+        contentDescription = contentDescription,
+        modifier = modifier,
+        tint = tint,
+    )
 }
 
 /** Sets a default icon size if painter doesn't specify a size, else sets to intrinsic size. */
