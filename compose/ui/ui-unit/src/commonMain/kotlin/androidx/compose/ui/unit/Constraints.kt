@@ -186,9 +186,9 @@ public value class Constraints(@PublishedApi internal val value: Long) {
             maxWidth >= minWidth && maxHeight >= minHeight && minWidth >= 0 && minHeight >= 0
         ) {
             """
-            maxWidth must be >= than minWidth,
-            maxHeight must be >= than minHeight,
-            minWidth and minHeight must be >= 0
+            maxWidth($maxWidth) must be >= than minWidth($minWidth),
+            maxHeight($maxHeight) must be >= than minHeight($minHeight),
+            minWidth($minWidth) and minHeight($minHeight) must be >= 0
             """
                 .trimIndent()
         }
@@ -222,14 +222,16 @@ public value class Constraints(@PublishedApi internal val value: Long) {
         /** Creates constraints for fixed size in both dimensions. */
         @Stable
         public fun fixed(width: Int, height: Int): Constraints {
-            requirePrecondition((width >= 0) and (height >= 0)) { "width and height must be >= 0" }
+            requirePrecondition((width >= 0) and (height >= 0)) {
+                "width($width) and height($height) must be >= 0"
+            }
             return createConstraints(width, width, height, height)
         }
 
         /** Creates constraints for fixed width and unspecified height. */
         @Stable
         public fun fixedWidth(width: Int): Constraints {
-            requirePrecondition(width >= 0) { "width must be >= 0" }
+            requirePrecondition(width >= 0) { "width($width) must be >= 0" }
             return createConstraints(
                 minWidth = width,
                 maxWidth = width,
@@ -241,7 +243,7 @@ public value class Constraints(@PublishedApi internal val value: Long) {
         /** Creates constraints for fixed height and unspecified width. */
         @Stable
         public fun fixedHeight(height: Int): Constraints {
-            requirePrecondition(height >= 0) { "height must be >= 0" }
+            requirePrecondition(height >= 0) { "height($height) must be >= 0" }
             return createConstraints(
                 minWidth = 0,
                 maxWidth = Infinity,
@@ -488,9 +490,9 @@ public fun Constraints(
         (maxWidth >= minWidth) and (maxHeight >= minHeight) and (minWidth >= 0) and (minHeight >= 0)
     ) {
         """
-        maxWidth must be >= than minWidth,
-        maxHeight must be >= than minHeight,
-        minWidth and minHeight must be >= 0
+        maxWidth($maxWidth) must be >= than minWidth($minWidth),
+        maxHeight($maxHeight) must be >= than minHeight($minHeight),
+        minWidth($minWidth) and minHeight($minHeight) must be >= 0
         """
             .trimIndent()
     }
