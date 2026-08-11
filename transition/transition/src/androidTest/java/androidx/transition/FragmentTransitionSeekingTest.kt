@@ -27,6 +27,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
@@ -34,13 +35,35 @@ import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import leakcanary.DetectLeaksAfterTestSuccess
+import leakcanary.LeakCanary
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import shark.AndroidReferenceMatchers
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class FragmentTransitionSeekingTest {
+
+    @get:Rule val leakRule = DetectLeaksAfterTestSuccess()
+
+    @Before
+    fun setup() {
+        LeakCanary.config =
+            LeakCanary.config.copy(
+                referenceMatchers =
+                    AndroidReferenceMatchers.appDefaults + MockitoLeaks.OngoingStubbing
+            )
+
+        // Other tests still leak animators if they don't fully finish a seekable transition;
+        // Reset the ThreadLocal to prevent LeakCanary picking those up
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            Transition.getRunningAnimators().clear()
+        }
+    }
 
     @Test
     fun replaceOperationWithTransitionsThenGestureBack() {

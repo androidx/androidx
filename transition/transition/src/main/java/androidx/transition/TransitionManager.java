@@ -518,6 +518,7 @@ public class TransitionManager {
         final Transition transitionClone = transition.clone();
         final TransitionSet set = new TransitionSet();
         set.addTransition(transitionClone);
+        transition.mSeekingCloneRoot = set;
         sceneChangeSetup(sceneRoot, set);
         Scene.setCurrentScene(sceneRoot, null);
         sceneChangeRunTransition(sceneRoot, set);
