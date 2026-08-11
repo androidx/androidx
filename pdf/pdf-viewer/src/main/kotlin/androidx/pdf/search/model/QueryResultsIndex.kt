@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo
 
 /** A model class that holds the index of a data element within [QueryResults]'s resultBounds. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class QueryResultsIndex(
+public data class QueryResultsIndex(
 
     /** The page number of the document where the current search result is located. */
     public val pageNum: Int,

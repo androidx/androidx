@@ -151,7 +151,14 @@ internal open class FakePdfDocument(
         query: String,
         pageRange: IntRange,
     ): SparseArray<List<PageMatchBounds>> {
-        return searchResults
+        val filtered = SparseArray<List<PageMatchBounds>>()
+        for (page in pageRange) {
+            val results = searchResults.get(page)
+            if (results != null) {
+                filtered.put(page, results)
+            }
+        }
+        return filtered
     }
 
     override suspend fun getPageInfos(pageRange: IntRange): List<PdfDocument.PageInfo> {
