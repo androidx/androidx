@@ -657,14 +657,14 @@ internal class SelectionStateManager(
     private fun maybeHandleGestureEnd(): Boolean {
         val result = draggingState != null
         draggingState = null
-        // If this gesture actually ended a handle drag operation, trigger haptic feedback and
-        // reveal the action mode
+        // If this gesture actually ended a handle drag operation, trigger haptic feedback
         if (result) {
             _selectionUiSignalBus.tryEmit(
                 SelectionUiSignal.PlayHapticFeedback(HapticFeedbackConstants.TEXT_HANDLE_MOVE)
             )
-            _selectionUiSignalBus.tryEmit(SelectionUiSignal.ToggleActionMode(show = true))
         }
+        // Do not show the action mode here, as it will be shown once background processing of the
+        // current selection is completed.
         return result
     }
 
