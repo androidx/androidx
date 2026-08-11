@@ -31,7 +31,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteSpacer
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -90,7 +89,7 @@ class RemoteComposeTest {
         val document =
             captureSingleRemoteDocument(creationDisplayInfo = displayInfo, context = context) {
                 RemoteRow {
-                    RemoteSpacer(modifier = RemoteModifier.weight(1f))
+                    RemoteBox(modifier = RemoteModifier.weight(1f))
                     RemoteText(text = "End".rs)
                 }
             }

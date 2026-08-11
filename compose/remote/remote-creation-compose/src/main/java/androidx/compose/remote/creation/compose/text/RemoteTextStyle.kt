@@ -215,7 +215,6 @@ constructor(
             )
         }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public val Default: RemoteTextStyle = RemoteTextStyle()
     }
 }

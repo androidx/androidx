@@ -31,6 +31,7 @@ COMPOSE_MATERIAL3_A2UI_QUARANTINE = "1.0.0-alpha01"
 COMPOSE_MATERIAL3_ADAPTIVE = "1.4.0-alpha01"
 COMPOSE_MATERIAL3_XR = "1.0.0-alpha17"
 COMPOSE_MATERIAL3_XR_ADAPTIVE = "1.0.0-alpha01"
+COMPOSE_REMOTE_FOUNDATION = "1.0.0-alpha01"
 COMPOSE_RUNTIME = "1.13.0-alpha02"
 CONCURRENT = "1.0.0-alpha01"
 CONSTRAINTLAYOUT = "2.3.0-alpha01"
@@ -224,6 +225,7 @@ COMPOSE_MATERIAL3_ADAPTIVE = { group = "androidx.compose.material3.adaptive", at
 COMPOSE_MATERIAL3_ADAPTIVE_NAVIGATION_SUITE = { group = "androidx.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3", overrideInclude = [ ":compose:material3:material3-adaptive-navigation-suite" ] }
 COMPOSE_MATERIAL3_XR = { group = "androidx.xr.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_XR" }
 COMPOSE_MATERIAL3_XR_ADAPTIVE = { group = "androidx.compose.material3.xr", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_XR_ADAPTIVE" }
+COMPOSE_REMOTE_FOUNDATION = { group = "androidx.compose.remote.foundation", atomicGroupVersion = "versions.COMPOSE_REMOTE_FOUNDATION" }
 COMPOSE_RUNTIME = { group = "androidx.compose.runtime", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_UI = { group = "androidx.compose.ui", atomicGroupVersion = "versions.COMPOSE" }
 CONCURRENT = { group = "androidx.concurrent", atomicGroupVersion = "versions.FUTURES" }

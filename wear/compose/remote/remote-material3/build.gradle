@@ -44,6 +44,7 @@ dependencies {
     lintPublish(project(":wear:compose:remote:remote-lint"))
 
     api("androidx.wear.compose:compose-material3:1.5.5")
+    api(project(":compose:remote:foundation:foundation"))
     implementation(project(":compose:remote:remote-creation-compose"))
     implementation(project(":compose:remote:remote-creation"))
     implementation("androidx.graphics:graphics-path:1.0.1")

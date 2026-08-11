@@ -37,7 +37,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteSpacer
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
@@ -144,7 +143,7 @@ class BorderComparisonScreenshotTest {
                 horizontalArrangement = RemoteArrangement.spacedBy(16.rdp),
             ) {
                 // Left Column: Empty space matching Compose column
-                RemoteSpacer(modifier = RemoteModifier.weight(1f))
+                RemoteBox(modifier = RemoteModifier.weight(1f))
 
                 // Right Column: Remote Compose content
                 RemoteColumn(

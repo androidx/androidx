@@ -1,0 +1,37 @@
+// Signature format: 4.0
+package androidx.compose.remote.foundation.icon {
+
+  public final class RemoteBasicIconKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBasicIcon(androidx.compose.remote.creation.compose.capture.RemoteImageVector imageVector, androidx.compose.remote.creation.compose.state.RemoteString? contentDescription, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteColor tint);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBasicIcon(androidx.compose.remote.creation.compose.capture.RemoteImageVector, androidx.compose.remote.creation.compose.state.RemoteString?, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+
+package androidx.compose.remote.foundation.image {
+
+  public final class RemoteBasicImageKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBasicImage(androidx.compose.remote.creation.compose.state.RemoteImageBitmap remoteBitmap, androidx.compose.remote.creation.compose.state.RemoteString? contentDescription, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.ui.layout.ContentScale contentScale, optional androidx.compose.remote.creation.compose.state.RemoteFloat alpha);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBasicImage(androidx.compose.remote.creation.compose.state.RemoteImageBitmap, androidx.compose.remote.creation.compose.state.RemoteString?, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.ui.layout.ContentScale?, androidx.compose.remote.creation.compose.state.RemoteFloat?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+
+package androidx.compose.remote.foundation.layout {
+
+  public final class RemoteSpacerKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteSpacer(optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteSpacer(androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+
+package androidx.compose.remote.foundation.text {
+
+  public final class RemoteBasicTextKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBasicText(androidx.compose.remote.creation.compose.state.RemoteString text, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteColor? color, optional androidx.compose.remote.creation.compose.state.RemoteTextUnit? fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.remote.creation.compose.text.RemoteFontFamily? fontFamily, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional androidx.compose.ui.text.style.TextOverflow overflow, optional int maxLines, optional androidx.compose.remote.creation.compose.text.RemoteTextStyle style, optional androidx.compose.ui.text.font.FontVariation.Settings? fontVariationSettings);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBasicText-yT6CtNU(androidx.compose.remote.creation.compose.state.RemoteString, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.remote.creation.compose.state.RemoteTextUnit?, androidx.compose.ui.text.font.FontStyle?, androidx.compose.ui.text.font.FontWeight?, androidx.compose.remote.creation.compose.text.RemoteFontFamily?, androidx.compose.ui.text.style.TextAlign?, int, int, androidx.compose.remote.creation.compose.text.RemoteTextStyle?, androidx.compose.ui.text.font.FontVariation.Settings?, androidx.compose.runtime.Composer?, int, int, int);
+  }
+
+}
+

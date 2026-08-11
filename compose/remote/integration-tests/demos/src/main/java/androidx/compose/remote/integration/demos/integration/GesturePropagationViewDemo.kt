@@ -37,7 +37,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow
-import androidx.compose.remote.creation.compose.layout.RemoteSpacer
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
@@ -55,6 +54,7 @@ import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.foundation.layout.RemoteSpacer
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.action.NamedActionHandler
 import androidx.compose.remote.player.core.action.StateUpdaterActionCallback
