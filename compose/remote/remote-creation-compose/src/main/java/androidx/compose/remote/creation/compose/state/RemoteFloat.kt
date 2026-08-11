@@ -1757,8 +1757,9 @@ internal constructor(
             // TODO check if contentEquals is safe here with NaN?
             if (
                 fe != this &&
-                    fe is RemoteFloatExpression &&
-                    fe.arrayForCreationState(creationState) contentEquals array
+                    fe is AnimatedRemoteFloat &&
+                    fe.anim contentEquals anim &&
+                    fe.input.arrayForCreationState(creationState) contentEquals array
             ) {
                 return fe.getIdForCreationState(creationState)
             }
@@ -1782,6 +1783,7 @@ private fun calcHashID(array: FloatArray, anim: FloatArray?): Int {
     }
     var animLocal = anim
     if (animLocal != null) {
+        sum = sum * 31 + 17
         for (fl in animLocal) {
             sum = sum * 31 + fl.toRawBits()
         }

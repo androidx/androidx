@@ -24,7 +24,6 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
-import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
@@ -51,7 +50,6 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     public override lateinit var layoutDirection: LayoutDirection
     public final override val densityBehavior: RemoteDensityBehavior
 
-    public val animCache: MutableIntObjectMap<AnimatedRemoteFloat> = MutableIntObjectMap()
     public val expressionCache: MutableIntObjectMap<RemoteFloat> = MutableIntObjectMap()
     public val intExpressionCache: MutableIntObjectMap<RemoteInt> = MutableIntObjectMap()
     public var ready: Boolean = true
