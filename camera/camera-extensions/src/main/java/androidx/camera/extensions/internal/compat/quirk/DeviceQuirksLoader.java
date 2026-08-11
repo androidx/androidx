@@ -57,6 +57,12 @@ public class DeviceQuirksLoader {
             quirks.add(new AvoidCaptureProcessProgressAvailabilityCheckQuirk());
         }
 
+        if (quirkSettings.shouldEnableQuirk(
+                ExtensionDisabledQuirk.class,
+                ExtensionDisabledQuirk.load())) {
+            quirks.add(new ExtensionDisabledQuirk());
+        }
+
         return quirks;
     }
 }
