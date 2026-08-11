@@ -18,31 +18,28 @@ package androidx.ink.rendering.android.view
 
 import android.view.Choreographer
 import androidx.annotation.AnyThread
-import androidx.annotation.FloatRange
-import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.ink.brush.ExperimentalInkAnimationApi
+import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.jvm.JvmName
-import kotlin.jvm.JvmStatic
-import kotlin.math.roundToLong
 
 /**
- * Controls animated paint textures for rendered strokes. Typically a single [StrokePaintAnimator]
- * object is used for all strokes in a document.
+ * A [StrokePaintAnimationClock] implementation that uses [Choreographer] callbacks to update its
+ * clock state between frames.
  *
  * This class is mostly not thread-safe, and should in general be accessed only from the UI thread;
- * the one exception is the `getClockStateMillis()` method, which can be safely called from any
+ * the one exception is its `getClockStateMillis()` method, which can be safely called from any
  * thread.
  *
  * It is recommended to call `pause()` when finished using an animator, which will disable its
- * internal `Choreographer` callback and allow the animator to be garbage collected more quickly.
+ * internal [Choreographer] callback and allow the animator to be garbage collected more quickly.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkAnimationApi
-public class StrokePaintAnimator public constructor() {
+public class StrokePaintAnimator public constructor() : StrokePaintAnimationClock {
     private var prevClockStateNanos: Long = 0L
     private val clockStateNanos: AtomicLong = AtomicLong()
 
@@ -70,7 +67,7 @@ public class StrokePaintAnimator public constructor() {
      * This method is safe to call from any thread. All other methods and properties of this class
      * should only be accessed from a single thread (typically the UI thread).
      */
-    @AnyThread public fun getClockStateMillis(): Long = clockStateNanos.toLong() / NANOS_PER_MILLI
+    @AnyThread override fun getClockStateMillis(): Long = clockStateNanos.toLong() / NANOS_PER_MILLI
 
     /**
      * Controls the speed of animation. Set this to 1 for normal speed. Set this to zero to
@@ -187,56 +184,6 @@ public class StrokePaintAnimator public constructor() {
     public companion object {
         // The number of nanoseconds in one millisecond.
         private const val NANOS_PER_MILLI: Long = 1_000_000L
-
-        /**
-         * Given a whole-stroke animation duration, calculates the 0-1 base phase value for the
-         * stroke. This is the animation progress value that the stroke should appear at for the
-         * animator's zero clock state, such that the stroke would be at the start of its animation
-         * at the animator's current clock state.
-         *
-         * If `animationLoopDurationMillis` is zero, indicating that the stroke is not animated,
-         * then this method returns zero.
-         */
-        @JvmStatic
-        @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
-        public fun calculateBasePhaseForNewStroke(
-            clockStateMillis: Long,
-            @IntRange(from = 0, to = 1 shl 24) animationLoopDurationMillis: Long,
-        ): Float =
-            if (animationLoopDurationMillis == 0L) {
-                0.0f
-            } else {
-                (-clockStateMillis).mod(animationLoopDurationMillis).toFloat() /
-                    animationLoopDurationMillis.toFloat()
-            }
-
-        /**
-         * Given a stroke's base phase and its whole-stroke animation duration, and the animation
-         * duration for a particular brush paint in that stroke, returns the phase value the paint
-         * should have at the animator's current clock state.
-         *
-         * If `paintAnimationLoopDurationMillis` is zero, indicating that the paint is not animated,
-         * then this method returns zero. Otherwise, `strokeAnimationLoopDurationMillis` must be a
-         * multiple of `paintAnimationLoopDurationMillis`.
-         */
-        @JvmStatic
-        @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
-        public fun calculateCurrentPhaseForPaint(
-            clockStateMillis: Long,
-            @IntRange(from = 0, to = 1 shl 24) strokeAnimationLoopDurationMillis: Long,
-            @IntRange(from = 0, to = 1 shl 24) paintAnimationLoopDurationMillis: Long,
-            @FloatRange(from = 0.0, to = 1.0, toInclusive = false) strokeBasePhase: Float,
-        ): Float {
-            require(strokeAnimationLoopDurationMillis >= paintAnimationLoopDurationMillis)
-            if (paintAnimationLoopDurationMillis == 0L) {
-                return 0.0f
-            }
-            require(strokeAnimationLoopDurationMillis.mod(paintAnimationLoopDurationMillis) == 0L)
-            return (clockStateMillis +
-                    (strokeBasePhase * strokeAnimationLoopDurationMillis.toDouble()).roundToLong())
-                .mod(paintAnimationLoopDurationMillis)
-                .toFloat() / paintAnimationLoopDurationMillis.toFloat()
-        }
     }
 }
 

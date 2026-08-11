@@ -49,6 +49,7 @@ androidXMultiplatform {
             implementation(libs.junit)
             implementation(libs.kotlinTest)
             implementation(libs.testParameterInjector)
+	    implementation(libs.truth)
             implementation("androidx.core:core-ktx:1.15.0")
             implementation(project(":test:screenshot:screenshot"))
             implementation(project(":ink:ink-storage"))

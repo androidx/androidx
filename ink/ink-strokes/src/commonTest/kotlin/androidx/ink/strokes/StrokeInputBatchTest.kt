@@ -127,7 +127,7 @@ class StrokeInputBatchTest {
             assertFailsWith<IllegalArgumentException> { builder.add(badOrientation) }
         assertThat(orientationError.message)
             .contains(
-                "`StrokeInput::orientation` must be -1 or in the range [0, 2 * pi). Got: 3183.1π"
+                "`StrokeInput::orientation` must be -1 or in the range [0, 2 * pi]. Got: 3183.1π"
             )
         assertThat(builder.size).isEqualTo(0)
         assertThat(builder.toImmutable().size).isEqualTo(0)

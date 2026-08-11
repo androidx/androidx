@@ -85,7 +85,9 @@ public fun BrushFamily.Companion.decode(
 public fun List<BrushFamily>.encodeMultiple(
     output: OutputStream,
     textureIdToPngBytes: TexturePngBytesLookup? = null,
-): Unit = GZIPOutputStream(output).use { it.write(encodeMultipleUncompressed(textureIdToPngBytes)) }
+) {
+    GZIPOutputStream(output).use { it.write(encodeMultipleUncompressed(textureIdToPngBytes)) }
+}
 
 /**
  * Read a serialized [BrushFamily] from the given [InputStream] and parse it into a [List] of
@@ -134,7 +136,9 @@ public object BrushFamilySerialization {
         brushFamily: BrushFamily,
         output: OutputStream,
         textureIdToPngBytes: TexturePngBytesLookup? = null,
-    ): Unit = brushFamily.encode(output, textureIdToPngBytes)
+    ) {
+        brushFamily.encode(output, textureIdToPngBytes)
+    }
 
     /**
      * Write a gzip-compressed serialized `ink.proto.BrushFamily` proto message representing the
@@ -234,7 +238,9 @@ public object BrushFamilySerialization {
         brushFamilies: List<BrushFamily>,
         output: OutputStream,
         textureIdToPngBytes: TexturePngBytesLookup? = null,
-    ): Unit = brushFamilies.encodeMultiple(output, textureIdToPngBytes)
+    ) {
+        brushFamilies.encodeMultiple(output, textureIdToPngBytes)
+    }
 
     /**
      * Write a gzip-compressed serialized `ink.proto.BrushFamily` proto message representing the

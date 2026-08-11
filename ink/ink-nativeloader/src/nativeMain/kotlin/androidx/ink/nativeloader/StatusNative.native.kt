@@ -61,11 +61,12 @@ actual internal object StatusNative {
 
     actual fun statusCodeUnimplemented(): Int = StatusNative_statusCodeUnimplemented()
 
-    actual fun throwExceptionFromOkStatusForTesting(): Unit =
+    actual fun throwExceptionFromOkStatusForTesting() {
         StatusNative_throwExceptionFromOkStatusForTesting(
             jni_env_pass_through = null,
             throwForNonOkStatusCallback,
         )
+    }
 
     actual fun throwExceptionFromFailedPreconditionForTesting(message: String) =
         StatusNative_throwExceptionFromFailedPreconditionForTesting(

@@ -132,14 +132,16 @@ public class StrokeInput {
      *   is the visual distance that the mouse pointer must travel along the surface of the display.
      *   A value of [NO_STROKE_UNIT_LENGTH] indicates that the relationship between stroke space and
      *   physical space is unknown or ill-defined.
-     * @param pressure Should be within [0, 1] but it's not enforced until added to a
+     * @param pressure Must be within [0, 1], though that's not enforced until added to a
      *   [StrokeInputBatch] object. Absence of [pressure] data is represented with [NO_PRESSURE].
-     * @param tiltRadians The angle in radians between a stylus and the line perpendicular to the
-     *   plane of the screen. 0 is perpendicular to the screen and PI/2 is flat against the drawing
-     *   surface. Absence of [tiltRadians] data is represented with [NO_TILT].
-     * @param orientationRadians Indicates the direction in which the stylus is pointing in relation
-     *   to the positive x axis in radians. A value of 0 means the ray from the stylus tip to the
-     *   end is along positive x and values increase towards the positive y-axis. Absence of
+     * @param tiltRadians Must be within [0, π/2], though that's not enforced until added to a
+     *   [StrokeInputBatch] object. The angle in radians between a stylus and the line perpendicular
+     *   to the plane of the screen. 0 is perpendicular to the screen and π/2 is flat against the
+     *   drawing surface. Absence of [tiltRadians] data is represented with [NO_TILT].
+     * @param orientationRadians Must be within [0, 2π], though that's not enforced until added to a
+     *   [StrokeInputBatch] object. Indicates the direction in which the stylus is pointing in
+     *   relation to the positive x axis in radians. A value of 0 means the ray from the stylus tip
+     *   to the end is along positive x and values increase towards the positive y-axis. Absence of
      *   [orientationRadians] data is represented with [NO_ORIENTATION].
      */
     @JvmOverloads

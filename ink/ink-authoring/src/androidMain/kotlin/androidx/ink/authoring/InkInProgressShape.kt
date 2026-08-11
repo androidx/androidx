@@ -22,7 +22,7 @@ import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.geometry.Box
 import androidx.ink.geometry.BoxAccumulator
-import androidx.ink.rendering.android.view.StrokePaintAnimator
+import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 import androidx.ink.strokes.StrokeInputBatch
@@ -36,10 +36,10 @@ import kotlin.random.Random
 @OptIn(ExperimentalInkAnimationApi::class)
 public class InkInProgressShape
 @ExperimentalInkAnimationApi
-public constructor(private val strokePaintAnimator: StrokePaintAnimator?) :
+public constructor(private val animationClock: StrokePaintAnimationClock) :
     InProgressShape<Brush, Stroke> {
 
-    public constructor() : this(strokePaintAnimator = null)
+    public constructor() : this(StrokePaintAnimationClock.STOPPED_CLOCK)
 
     internal val inProgressStroke = InProgressStroke()
 
@@ -86,8 +86,8 @@ public constructor(private val strokePaintAnimator: StrokePaintAnimator?) :
             this.noiseSeed = Random.Default.nextInt()
         }
         val baseAnimationPhase =
-            StrokePaintAnimator.calculateBasePhaseForNewStroke(
-                clockStateMillis = strokePaintAnimator?.getClockStateMillis() ?: 0L,
+            StrokePaintAnimationClock.calculateBasePhaseForNewStroke(
+                clockStateMillis = animationClock.getClockStateMillis(),
                 animationLoopDurationMillis = shapeSpec.family.textureAnimationLoopDurationMillis,
             )
         inProgressStroke.start(
