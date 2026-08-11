@@ -549,7 +549,9 @@ public fun Orbiter(
 
 /**
  * Represents the position of an [Orbiter] in relation to the parent, defined by its alignment, edge
- * alignment, and offset.
+ * alignment, and offset. The edge alignment can be configured for both vertical bounds (i.e., the
+ * top or bottom edges of a panel) and horizontal bounds (i.e., the start or end sides of the panel)
+ * depending on the specified alignment.
  *
  * TopStart horizontalEdgeAlignment = EdgeAlignment.Outside and verticalEdgeAlignment =
  * EdgeAlignment.Outside, Left-to-Right (LTR):
@@ -655,9 +657,10 @@ private constructor(
     /**
      * Top-Start edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
-     *   bounds
-     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the start edge of the
+     *   parent's bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the top edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the edge offset is applied. This
      *   offset will automatically adjust the horizontal offset according to the layout direction:
      *   when the layout direction is LTR, positive x offsets will move the content to the right and
@@ -678,7 +681,8 @@ private constructor(
     /**
      * Top-Center edge alignment.
      *
-     * @param verticalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the top edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the [verticalEdgeAlignment]'s offset
      *   is applied. This offset will automatically adjust the horizontal offset according to the
      *   layout direction: when the layout direction is LTR, positive x offsets will move the
@@ -699,9 +703,10 @@ private constructor(
     /**
      * Top-End edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
-     *   bounds
-     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the end edge of the
+     *   parent's bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the top edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the edge offset is applied. This
      *   offset will automatically adjust the horizontal offset according to the layout direction:
      *   when the layout direction is LTR, positive x offsets will move the content to the right and
@@ -722,7 +727,8 @@ private constructor(
     /**
      * Center-Start edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the start edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the [horizontalEdgeAlignment]'s
      *   offset is applied. This offset will automatically adjust the horizontal offset according to
      *   the layout direction: when the layout direction is LTR, positive x offsets will move the
@@ -743,7 +749,8 @@ private constructor(
     /**
      * Center-End edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the end edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the [horizontalEdgeAlignment]'s
      *   offset is applied. This offset will automatically adjust the horizontal offset according to
      *   the layout direction: when the layout direction is LTR, positive x offsets will move the
@@ -764,9 +771,10 @@ private constructor(
     /**
      * Bottom-Start edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
-     *   bounds
-     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the start edge of the
+     *   parent's bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the bottom edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the edge offset is applied. This
      *   offset will automatically adjust the horizontal offset according to the layout direction:
      *   when the layout direction is LTR, positive x offsets will move the content to the right and
@@ -787,7 +795,8 @@ private constructor(
     /**
      * Bottom-Center edge alignment.
      *
-     * @param verticalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the bottom edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the [verticalEdgeAlignment]'s offset
      *   is applied. This offset will automatically adjust the horizontal offset according to the
      *   layout direction: when the layout direction is LTR, positive x offsets will move the
@@ -808,9 +817,10 @@ private constructor(
     /**
      * Bottom-End edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
-     *   bounds
-     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the end edge of the
+     *   parent's bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the bottom edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the edge offset is applied. This
      *   offset will automatically adjust the horizontal offset according to the layout direction:
      *   when the layout direction is LTR, positive x offsets will move the content to the right and
@@ -831,9 +841,10 @@ private constructor(
     /**
      * Top-Left absolute edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
-     *   bounds
-     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the left edge of the
+     *   parent's bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the top edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the edge offset is applied without
      *   considering layout direction
      */
@@ -852,9 +863,10 @@ private constructor(
     /**
      * Top-Right absolute edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
-     *   bounds
-     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the right edge of the
+     *   parent's bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the top edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the edge offset is applied without
      *   considering layout direction
      */
@@ -873,7 +885,8 @@ private constructor(
     /**
      * Center-Left absolute edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the left edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the [horizontalEdgeAlignment]'s
      *   offset is applied without considering layout direction
      */
@@ -891,7 +904,8 @@ private constructor(
     /**
      * Center-Right absolute edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the right edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the [horizontalEdgeAlignment]'s
      *   offset is applied without considering layout direction
      */
@@ -909,9 +923,10 @@ private constructor(
     /**
      * Bottom-Left absolute edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
-     *   bounds
-     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the left edge of the
+     *   parent's bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the bottom edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the edge offset is applied without
      *   considering layout direction
      */
@@ -930,9 +945,10 @@ private constructor(
     /**
      * Bottom-Right absolute edge alignment.
      *
-     * @param horizontalEdgeAlignment boundary offset behavior relative to the parent horizontal
-     *   bounds
-     * @param verticalEdgeAlignment boundary offset behavior relative to the parent vertical bounds
+     * @param horizontalEdgeAlignment boundary offset behavior relative to the right edge of the
+     *   parent's bounds
+     * @param verticalEdgeAlignment boundary offset behavior relative to the bottom edge of the
+     *   parent's bounds
      * @param offset manual offset applied to the orbiter after the edge offset is applied without
      *   considering layout direction
      */
@@ -963,6 +979,16 @@ private constructor(
              *
              * The orbiter does not overlap the parent panel's layout bounds. For example, a side
              * rail will sit completely to the side of the parent.
+             *
+             * ```
+             *           +------------------------+
+             *           |                        |
+             * +---------+                        |
+             * | Orbiter |      SpatialPanel      |
+             * +---------+                        |
+             *           |                        |
+             *           +------------------------+
+             * ```
              */
             public val Outside: EdgeAlignment = EdgeAlignment(0)
 
@@ -971,6 +997,16 @@ private constructor(
              *
              * The orbiter completely overlaps the parent panel's layout bounds, functioning as an
              * overlay.
+             *
+             * ```
+             * +------------------------+
+             * |      SpatialPanel      |
+             * +-----------+            |
+             * |  Orbiter  |            |
+             * +-----------+            |
+             * |                        |
+             * +------------------------+
+             * ```
              */
             public val Inside: EdgeAlignment = EdgeAlignment(1)
 
@@ -979,6 +1015,16 @@ private constructor(
              *
              * The boundary line bisects the orbiter, placing it half-inside and half-outside the
              * parent.
+             *
+             * ```
+             *       +------------------------+
+             *       |                        |
+             * +-----|-----+                  |
+             * |  Orbiter  | SpatialPanel     |
+             * +-----|-----+                  |
+             *       |                        |
+             *       +------------------------+
+             * ```
              */
             public val Center: EdgeAlignment = EdgeAlignment(2)
         }
