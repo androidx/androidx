@@ -71,6 +71,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.matchers.MSSIMMatcher
+import androidx.xr.glimmer.internal.SurfaceDisabledOverlayColor
 import androidx.xr.glimmer.internal.color.withTone
 import androidx.xr.glimmer.testutils.captureToImage
 import androidx.xr.glimmer.testutils.createGlimmerRule
@@ -1161,7 +1162,7 @@ class SurfaceTest {
             Box(Modifier.size(100.dp).surface(enabled = false).testTag("surface"))
         }
 
-        val expectedColor = DisabledOverlayColor.compositeOver(surfaceColor)
+        val expectedColor = SurfaceDisabledOverlayColor.compositeOver(surfaceColor)
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
             assertColorsEqualWithTolerance(expectedColor, get(width / 2, height / 2))
         }
