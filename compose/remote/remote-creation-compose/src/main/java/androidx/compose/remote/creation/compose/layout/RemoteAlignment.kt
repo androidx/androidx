@@ -100,25 +100,40 @@ public interface RemoteAlignment {
 }
 
 /** A collection of common [RemoteAlignment]s unaware of the layout direction. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object RemoteAbsoluteAlignment {
     // 2D AbsoluteAlignments.
+
+    /** The child is positioned at the top-left corner of the parent. */
     public val TopLeft: RemoteAlignment =
         RemoteBiasAbsoluteAlignment(ColumnLayout.START, ColumnLayout.TOP)
+
+    /** The child is positioned at the top-right corner of the parent. */
     public val TopRight: RemoteAlignment =
         RemoteBiasAbsoluteAlignment(ColumnLayout.END, ColumnLayout.TOP)
+
+    /** The child is positioned at the center-left edge of the parent. */
     public val CenterLeft: RemoteAlignment =
         RemoteBiasAbsoluteAlignment(ColumnLayout.START, ColumnLayout.CENTER)
+
+    /** The child is positioned at the center-right edge of the parent. */
     public val CenterRight: RemoteAlignment =
         RemoteBiasAbsoluteAlignment(ColumnLayout.END, ColumnLayout.CENTER)
+
+    /** The child is positioned at the bottom-left corner of the parent. */
     public val BottomLeft: RemoteAlignment =
         RemoteBiasAbsoluteAlignment(ColumnLayout.START, ColumnLayout.BOTTOM)
+
+    /** The child is positioned at the bottom-right corner of the parent. */
     public val BottomRight: RemoteAlignment =
         RemoteBiasAbsoluteAlignment(ColumnLayout.END, ColumnLayout.BOTTOM)
 
     // 1D RemoteBiasAbsoluteAlignment.Horizontals.
+
+    /** The child is positioned at the left edge of the parent. */
     public val Left: RemoteAlignment.Horizontal =
         RemoteBiasAbsoluteAlignment.Horizontal(ColumnLayout.START)
+
+    /** The child is positioned at the right edge of the parent. */
     public val Right: RemoteAlignment.Horizontal =
         RemoteBiasAbsoluteAlignment.Horizontal(ColumnLayout.END)
 }
@@ -129,8 +144,7 @@ public object RemoteAbsoluteAlignment {
  *
  * @see RemoteAlignment
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class RemoteBiasAlignment(val horizontalBias: Int, val verticalBias: Int) :
+internal data class RemoteBiasAlignment(val horizontalBias: Int, val verticalBias: Int) :
     RemoteAlignment {
     override val horizontal: RemoteAlignment.Horizontal =
         RemoteBiasAlignment.Horizontal(horizontalBias)
@@ -142,8 +156,7 @@ public data class RemoteBiasAlignment(val horizontalBias: Int, val verticalBias:
      *
      * @see Vertical
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public data class Horizontal(val type: Int) : RemoteAlignment.Horizontal {
+    internal data class Horizontal(val type: Int) : RemoteAlignment.Horizontal {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toRemote(layoutDirection: LayoutDirection): Int =
             when (type) {
@@ -161,8 +174,7 @@ public data class RemoteBiasAlignment(val horizontalBias: Int, val verticalBias:
      *
      * @see Horizontal
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public data class Vertical(var type: Int) : RemoteAlignment.Vertical {
+    internal data class Vertical(var type: Int) : RemoteAlignment.Vertical {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toRemote(): Int = type
     }
 }
@@ -174,8 +186,7 @@ public data class RemoteBiasAlignment(val horizontalBias: Int, val verticalBias:
  * @see RemoteAbsoluteAlignment
  * @see RemoteAlignment
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class RemoteBiasAbsoluteAlignment(val horizontalBias: Int, val verticalBias: Int) :
+internal data class RemoteBiasAbsoluteAlignment(val horizontalBias: Int, val verticalBias: Int) :
     RemoteAlignment {
     override val horizontal: RemoteAlignment.Horizontal =
         RemoteBiasAbsoluteAlignment.Horizontal(horizontalBias)
@@ -188,8 +199,7 @@ public data class RemoteBiasAbsoluteAlignment(val horizontalBias: Int, val verti
      *
      * @see RemoteBiasAlignment.Horizontal
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public data class Horizontal(val bias: Int) : RemoteAlignment.Horizontal {
+    internal data class Horizontal(val bias: Int) : RemoteAlignment.Horizontal {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toRemote(layoutDirection: LayoutDirection): Int = bias
     }
@@ -200,8 +210,7 @@ public data class RemoteBiasAbsoluteAlignment(val horizontalBias: Int, val verti
      *
      * @see RemoteBiasAlignment.Horizontal
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public data class Vertical(val bias: Int) : RemoteAlignment.Vertical {
+    internal data class Vertical(val bias: Int) : RemoteAlignment.Vertical {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toRemote(): Int = bias
     }
 }

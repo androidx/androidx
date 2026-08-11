@@ -289,8 +289,7 @@ public object RemoteArrangement {
     }
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class HorizontalArrangement(var type: Int) : RemoteArrangement.Horizontal {
+internal data class HorizontalArrangement(var type: Int) : RemoteArrangement.Horizontal {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toRemote(layoutDirection: LayoutDirection): Int =
@@ -313,14 +312,12 @@ public data class HorizontalArrangement(var type: Int) : RemoteArrangement.Horiz
     internal fun isAbsolute() = type == LEFT || type == CENTER || type == RIGHT
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class VerticalArrangement(var type: Int) : RemoteArrangement.Vertical {
+internal data class VerticalArrangement(var type: Int) : RemoteArrangement.Vertical {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toRemote(): Int = type
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class HorizontalOrVerticalArrangement(var type: Int) :
+internal data class HorizontalOrVerticalArrangement(var type: Int) :
     RemoteArrangement.HorizontalOrVertical {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -366,8 +363,7 @@ internal data class RemoteSpacedHorizontalArrangement(
         alignment.toRemote(layoutDirection)
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class RemoteSpacedAbsoluteHorizontalArrangement(
+internal data class RemoteSpacedAbsoluteHorizontalArrangement(
     override val space: RemoteFloat,
     val alignment: RemoteAlignment.Horizontal,
 ) : RemoteArrangement.Horizontal, RemoteSpaced {

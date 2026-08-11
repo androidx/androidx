@@ -18,18 +18,15 @@ package androidx.compose.remote.integration.demos.common
 
 import androidx.compose.remote.creation.compose.layout.RemoteAbsoluteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
-import androidx.compose.remote.creation.compose.layout.RemoteBiasAbsoluteAlignment
 import kotlin.reflect.full.declaredMemberProperties
 
-@Suppress("RestrictedApiAndroidX") // Referring to RemoteBiasAbsoluteAlignment
 fun RemoteAlignment.propertyName(): String =
-    if (this is RemoteBiasAbsoluteAlignment)
-        RemoteAbsoluteAlignment::class
-            .declaredMemberProperties
-            .firstOrNull { it.get(RemoteAbsoluteAlignment) == this }
-            ?.name ?: "Unknown"
-    else
-        RemoteAlignment.Companion::class
+    RemoteAbsoluteAlignment::class
+        .declaredMemberProperties
+        .firstOrNull { it.get(RemoteAbsoluteAlignment) == this }
+        ?.name
+        ?: RemoteAlignment.Companion::class
             .declaredMemberProperties
             .firstOrNull { it.get(RemoteAlignment.Companion) == this }
-            ?.name ?: "Unknown"
+            ?.name
+        ?: "Unknown"
