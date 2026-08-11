@@ -36,6 +36,7 @@ import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
@@ -909,5 +910,105 @@ class FocusableTest {
 
         rule.onNodeWithTag(focusTag).assertIsNotFocused()
         assertThat(wasClickableSpaceClicked).isTrue()
+    }
+
+    @Test
+    fun movableContent_canRequestFocusAfterBeingMovedBetweenLayouts() {
+        var moveContent by mutableStateOf(false)
+        var isFocused = false
+        var parentHasFocusedChild = false
+        val focusRequester = FocusRequester()
+
+        rule.setFocusableContent {
+            val movableContent = remember {
+                movableContentOf {
+                    Box(
+                        Modifier.size(50.dp)
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { isFocused = it.isFocused }
+                            .focusable()
+                            .testTag(focusTag)
+                    )
+                }
+            }
+
+            Box(Modifier.onFocusChanged { parentHasFocusedChild = it.hasFocus }.focusGroup()) {
+                if (moveContent) {
+                    Box { movableContent() }
+                } else {
+                    Box { movableContent() }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(isFocused).isFalse()
+            assertThat(parentHasFocusedChild).isFalse()
+        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            assertThat(isFocused).isTrue()
+            assertThat(parentHasFocusedChild).isTrue()
+        }
+
+        rule.runOnIdle {
+            isFocused = false
+            parentHasFocusedChild = false
+            moveContent = true
+        }
+
+        rule.runOnIdle {
+            assertThat(isFocused).isFalse()
+            assertThat(parentHasFocusedChild).isFalse()
+        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            assertThat(isFocused).isTrue()
+            assertThat(parentHasFocusedChild).isTrue()
+        }
+    }
+
+    @Test
+    fun reusableContent_canRequestFocusAfterBeingReused() {
+        var key by mutableStateOf(0)
+        var isFocused = false
+        var parentHasFocusedChild = false
+        val focusRequester = FocusRequester()
+
+        rule.setFocusableContent {
+            Box(Modifier.onFocusChanged { parentHasFocusedChild = it.hasFocus }.focusGroup()) {
+                ReusableContent(key) {
+                    Box(
+                        Modifier.size(50.dp)
+                            .focusRequester(focusRequester)
+                            .onFocusChanged { isFocused = it.isFocused }
+                            .focusable()
+                            .testTag(focusTag)
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(isFocused).isFalse()
+            assertThat(parentHasFocusedChild).isFalse()
+        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            assertThat(isFocused).isTrue()
+            assertThat(parentHasFocusedChild).isTrue()
+        }
+
+        rule.runOnIdle { key = 1 }
+
+        rule.runOnIdle {
+            assertThat(isFocused).isFalse()
+            assertThat(parentHasFocusedChild).isFalse()
+        }
+        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.runOnIdle {
+            assertThat(isFocused).isTrue()
+            assertThat(parentHasFocusedChild).isTrue()
+        }
     }
 }

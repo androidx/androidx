@@ -23,6 +23,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -39,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertPixels
@@ -46,6 +48,7 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.FixedSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Padding
+import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -2468,6 +2471,109 @@ class GraphicsLayerTest {
         rule.runOnIdle { switch = !switch }
 
         assertPixels()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun layerUpdatesCorrectlyWhenMovedBetweenLayouts() {
+        var moveContent by mutableStateOf(false)
+        var lastPositionInRoot = Offset.Unspecified
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                val movableContent = remember {
+                    movableContentOf {
+                        Box(
+                            Modifier.size(40.dp)
+                                .graphicsLayer {
+                                    alpha = 0.5f
+                                    translationX = 10f
+                                }
+                                .onGloballyPositioned { coordinates ->
+                                    lastPositionInRoot = coordinates.positionInRoot()
+                                }
+                                .background(Color.Red)
+                        )
+                    }
+                }
+
+                Box(modifier = Modifier.size(100.dp).testTag("container").background(Color.Blue)) {
+                    if (moveContent) {
+                        Box(Modifier.offset(60.dp, 60.dp)) { movableContent() }
+                    } else {
+                        Box(Modifier.offset(0.dp, 0.dp)) { movableContent() }
+                    }
+                }
+            }
+        }
+
+        val expectedAlphaColor = Color.Red.copy(alpha = 0.5f).compositeOver(Color.Blue)
+
+        rule.runOnIdle { assertThat(lastPositionInRoot).isEqualTo(Offset(10f, 0f)) }
+
+        // (10, 0) - (50, 40) has alpha applied. Elsewhere is Blue.
+        rule.onNodeWithTag("container").captureToImage().assertPixels(IntSize(100, 100)) { pos ->
+            if (pos.x in 10 until 50 && pos.y in 0 until 40) {
+                expectedAlphaColor
+            } else {
+                Color.Blue
+            }
+        }
+
+        rule.runOnIdle { moveContent = true }
+
+        rule.runOnIdle { assertThat(lastPositionInRoot).isEqualTo(Offset(70f, 60f)) }
+
+        // (70, 60) - (100, 100) has alpha applied.
+        // (10, 0) - (50, 40) does not have alpha applied and is Blue.
+        rule.onNodeWithTag("container").captureToImage().assertPixels(IntSize(100, 100)) { pos ->
+            if (pos.x in 70 until 100 && pos.y in 60 until 100) {
+                expectedAlphaColor
+            } else {
+                Color.Blue
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun layerUpdatesCorrectlyWhenDeactivatedAndReused() {
+        var active by mutableStateOf(true)
+
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(Modifier.size(50.dp).testTag("container").background(Color.Blue)) {
+                    SubcompositionReusableContentHost(active) {
+                        ReusableContent(0) {
+                            Box(
+                                Modifier.size(50.dp)
+                                    .graphicsLayer { alpha = 0.5f }
+                                    .background(Color.Red)
+                                    .testTag("graphics_box")
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        val expectedAlphaColor = Color.Red.copy(alpha = 0.5f).compositeOver(Color.Blue)
+
+        rule.onNodeWithTag("container").captureToImage().assertPixels(IntSize(50, 50)) {
+            expectedAlphaColor
+        }
+
+        rule.runOnIdle { active = false }
+
+        rule.onNodeWithTag("container").captureToImage().assertPixels(IntSize(50, 50)) {
+            Color.Blue
+        }
+
+        rule.runOnIdle { active = true }
+
+        rule.onNodeWithTag("container").captureToImage().assertPixels(IntSize(50, 50)) {
+            expectedAlphaColor
+        }
     }
 
     fun assertEqualsWithTolerance(expected: Color, actual: Color, tolerance: Float) {
