@@ -22,7 +22,6 @@ import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScree
 val BaselineProfileScreens =
     listOf(
         AlertDialogScreen,
-        TextToggleButtonScreen,
         *(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(AnimatedTextScreen)
         } else {
@@ -39,7 +38,10 @@ val BaselineProfileScreens =
         EdgeButtonScreen,
         IconButtonScreen,
         IconToggleButtonScreen,
+        LevelIndicatorScreen,
         ListHeaderScreen,
+        Navigation3Screen,
+        OneHandedGestureScreen,
         OpenOnPhoneDialogScreen,
         PageIndicatorScreen,
         PickerGroupScreen,
@@ -49,13 +51,14 @@ val BaselineProfileScreens =
         RadioButtonScreen,
         ScaffoldScreen,
         ScrollIndicatorScreen,
-        SwipeToDismissScreen,
         SliderScreen,
         StepperScreen,
+        SwipeToDismissScreen,
         SwipeToRevealScreen,
         SwitchButtonScreen,
         TextButtonScreen,
-        TimeTextScreen,
+        TextToggleButtonScreen,
         TimePickerScreen,
+        TimeTextScreen,
         TransformingLazyColumnScreen,
     )

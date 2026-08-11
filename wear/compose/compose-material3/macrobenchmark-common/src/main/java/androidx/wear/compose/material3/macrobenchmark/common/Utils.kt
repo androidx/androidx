@@ -58,6 +58,23 @@ internal fun UiDevice.scrollDown() {
     )
 }
 
+internal fun UiDevice.scrollUp() {
+    swipe(
+        displayWidth / 2,
+        displayHeight / 10,
+        displayWidth / 2,
+        displayHeight - displayHeight / 10,
+        10,
+    )
+}
+
+internal fun UiDevice.swipeRightToDismiss() {
+    val startX = (displayWidth * 0.1).toInt()
+    val endX = (displayWidth * 0.9).toInt()
+    val y = (displayHeight * 0.5).toInt()
+    swipe(startX, y, endX, y, 25)
+}
+
 internal fun retryIfStale(block: () -> UiObject2): UiObject2 =
     block().let {
         try {

@@ -16,13 +16,29 @@
 
 package androidx.wear.compose.material3.macrobenchmark.common.baselineprofile
 
+import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
+import androidx.wear.compose.material3.macrobenchmark.common.scrollDown
+import androidx.wear.compose.material3.macrobenchmark.common.scrollUp
 import androidx.wear.compose.material3.samples.ScrollIndicatorWithTLCSample
 
 val ScrollIndicatorScreen =
     object : MacrobenchmarkScreen {
         override val content: @Composable BoxScope.() -> Unit
             get() = { ScrollIndicatorWithTLCSample() }
+
+        override val exercise: MacrobenchmarkScope.() -> Unit
+            get() = {
+                // Scroll down and up to exercise TLC, ScrollInfoProvider, and ScrollIndicator
+                repeat(3) {
+                    device.scrollDown()
+                    device.waitForIdle()
+                }
+                repeat(3) {
+                    device.scrollUp()
+                    device.waitForIdle()
+                }
+            }
     }
