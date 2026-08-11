@@ -1253,3 +1253,5 @@ WARNING: Logging before InitGoogle\(\) is written to STDERR
 e: Incremental compilation failed: The following LookupSymbols are not yet converted to ProgramSymbols: LookupSymbol\(name=TestFunctions[0-9]+_AppFunctionInventory, scope=androidx\.appfunctions\.integration\.testapp\.library\.\), LookupSymbol\(name=TestFunctions[0-9]+_AppFunctionInvoker, scope=androidx\.appfunctions\.integration\.testapp\.library\.\)
 # Deprecation of lifecycle-compiler annotation processor (b/541926513)
 warning: lifecycle\-compiler is deprecated\. Use DefaultLifecycleObserver or LifecycleEventObserver instead\.
+# TODO: remove when AGP upgrades to Gradle 9.7.0
+w: .*/test/java/com/android/build/gradle/internal/fixtures/FakeGradleExecOperations\.kt:120:15 Suppression of error 'NOTHING_TO_OVERRIDE' might compile and work, but the compiler behavior is UNSPECIFIED and WILL NOT BE PRESERVED.*

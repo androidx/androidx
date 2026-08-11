@@ -117,6 +117,7 @@ class CapturingExecSpec : ExecSpec {
         TODO("Not yet implemented")
     }
 
+    @Suppress("NOTHING_TO_OVERRIDE") // TODO: remove when AGP upgrades to Gradle 9.7.0
     override fun getWorkingDirectory(): DirectoryProperty {
         TODO("Not yet implemented")
     }
