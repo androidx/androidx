@@ -31,17 +31,39 @@ plugins {
 }
 
 dependencies {
-    // Add dependencies here
+    api(project(":a2ui:a2ui-model"))
+    api(project(":a2ui:compose:compose-runtime"))
+    api(project(":a2ui:compose:compose-ui"))
+
+    implementation(project(":a2ui:a2ui-engine"))
+    implementation("androidx.compose.animation:animation:1.11.4")
+    implementation("androidx.compose.foundation:foundation:1.11.4")
+    implementation("androidx.compose.material3:material3:1.4.0")
+    implementation("androidx.compose.runtime:runtime:1.11.4")
+    implementation("androidx.compose.ui:ui:1.11.4")
+
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.11.4")
+
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.11.4")
+    androidTestImplementation("androidx.compose.ui:ui-test:1.11.4")
+    androidTestImplementation(project(":a2ui:compose:compose-ui-testing"))
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.truth)
 }
 
 android {
     namespace = "androidx.compose.material3.a2ui"
     compileSdk { version = release(37) }
+    defaultConfig {
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
 }
 
 androidx {
     name = "Compose Material 3 A2UI"
-    type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_A2UI_QUARANTINE
     inceptionYear = "2026"
     description = "Compose Material 3 component catalog for A2UI."
