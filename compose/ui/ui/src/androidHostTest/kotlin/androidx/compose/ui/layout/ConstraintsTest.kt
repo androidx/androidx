@@ -171,6 +171,61 @@ class ConstraintsTest {
     }
 
     @Test
+    fun errorMessage() {
+        try {
+            Constraints(minWidth = 5, maxWidth = 3)
+            fail("Expected IllegalArgumentException")
+        } catch (e: IllegalArgumentException) {
+            assertEquals(
+                """
+                maxWidth(3) must be >= than minWidth(5),
+                maxHeight(2147483647) must be >= than minHeight(0),
+                minWidth(5) and minHeight(0) must be >= 0
+                """
+                    .trimIndent(),
+                e.message,
+            )
+        }
+
+        try {
+            val constraints = Constraints(minWidth = 5, maxWidth = 10)
+            constraints.copy(maxWidth = 3)
+            fail("Expected IllegalArgumentException")
+        } catch (e: IllegalArgumentException) {
+            assertEquals(
+                """
+                maxWidth(3) must be >= than minWidth(5),
+                maxHeight(2147483647) must be >= than minHeight(0),
+                minWidth(5) and minHeight(0) must be >= 0
+                """
+                    .trimIndent(),
+                e.message,
+            )
+        }
+
+        try {
+            Constraints.fixed(-1, 5)
+            fail("Expected IllegalArgumentException")
+        } catch (e: IllegalArgumentException) {
+            assertEquals("width(-1) and height(5) must be >= 0", e.message)
+        }
+
+        try {
+            Constraints.fixedWidth(-1)
+            fail("Expected IllegalArgumentException")
+        } catch (e: IllegalArgumentException) {
+            assertEquals("width(-1) must be >= 0", e.message)
+        }
+
+        try {
+            Constraints.fixedHeight(-1)
+            fail("Expected IllegalArgumentException")
+        } catch (e: IllegalArgumentException) {
+            assertEquals("height(-1) must be >= 0", e.message)
+        }
+    }
+
+    @Test
     fun validity() {
         assertInvalid(minWidth = Constraints.Infinity)
         assertInvalid(minHeight = Constraints.Infinity)
