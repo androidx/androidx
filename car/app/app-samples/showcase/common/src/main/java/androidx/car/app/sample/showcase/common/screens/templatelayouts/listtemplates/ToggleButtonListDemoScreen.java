@@ -48,7 +48,7 @@ public final class ToggleButtonListDemoScreen extends Screen {
     private boolean mFirstToggleState;
     private boolean mSecondToggleState;
     private boolean mSecondToggleEnabled = true;
-    private int mImageType = Row.IMAGE_TYPE_ICON;
+    private int mImageType = Row.IMAGE_TYPE_SMALL;
     private boolean mSetTintToVector;
 
     @Override
@@ -92,7 +92,7 @@ public final class ToggleButtonListDemoScreen extends Screen {
 
         builder.addItem(buildRowForTemplate(titleForVectorDrawable(),
                 R.string.vector_toggle_details, mToggleForVector, buildCarIconForVectorDrawable(),
-                null, Row.IMAGE_TYPE_ICON));
+                null, Row.IMAGE_TYPE_SMALL));
 
         builder.addItem(buildRowForTemplate(R.string.image_test_title,
                 R.string.image_test_text, null, buildCarIconForImageTest(),
@@ -149,9 +149,9 @@ public final class ToggleButtonListDemoScreen extends Screen {
     private OnClickListener buildOnClickListenerForImageTest() {
         return () -> {
             mImageType =
-                    mImageType == Row.IMAGE_TYPE_ICON
+                    mImageType == Row.IMAGE_TYPE_SMALL
                             ? Row.IMAGE_TYPE_LARGE
-                            : Row.IMAGE_TYPE_ICON;
+                            : Row.IMAGE_TYPE_SMALL;
             invalidate();
         };
     }

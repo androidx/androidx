@@ -52,7 +52,7 @@ public final class CondensedItem implements Item {
      * The type of images supported within condensed items.
      */
     @RestrictTo(LIBRARY)
-    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_SMALL, IMAGE_TYPE_LARGE})
+    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_SMALL, IMAGE_TYPE_MEDIUM, IMAGE_TYPE_LARGE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface CondensedItemImageType {
     }
@@ -60,17 +60,22 @@ public final class CondensedItem implements Item {
     /**
      * Represents an icon to be displayed in the condensed item.
      *
-     * <p>A tint color is expected to be provided via {@link CarIconStyle.Builder#setTint}
-     * provided to the icon with {@link CarIcon.Builder#setStyle}.
-     * Otherwise, a default tint color as determined by the host will be applied.
+     * @deprecated Use {@link #IMAGE_TYPE_SMALL} instead.
      */
+    @Deprecated
     public static final int IMAGE_TYPE_ICON = 1;
 
     /**
-     * Represents a small image. The host renders it with standard padding and scales
-     * the image to fit within the bounds.
+     * Represents a small icon-sized image to be displayed in the condensed item.
      */
-    public static final int IMAGE_TYPE_SMALL = 2;
+    public static final int IMAGE_TYPE_SMALL = 1;
+
+    /**
+     * Represents a medium padded 1:1 square image to be displayed in the condensed item.
+     *
+     * <p>The host renders it with standard padding and scales the image to fit within the bounds.
+     */
+    public static final int IMAGE_TYPE_MEDIUM = 2;
 
     /**
      * Represents a large image. The host renders it edge-to-edge, scaling the image

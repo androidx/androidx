@@ -93,10 +93,10 @@ class CondensedItemTest {
         val item =
             CondensedItem.Builder()
                 .setTitle("Title")
-                .setLeadingImage(icon, CondensedItem.IMAGE_TYPE_LARGE)
+                .setLeadingImage(icon, CondensedItem.IMAGE_TYPE_MEDIUM)
                 .build()
         assertThat(item.leadingImage).isEqualTo(icon)
-        assertThat(item.leadingImageType).isEqualTo(CondensedItem.IMAGE_TYPE_LARGE)
+        assertThat(item.leadingImageType).isEqualTo(CondensedItem.IMAGE_TYPE_MEDIUM)
     }
 
     @Test

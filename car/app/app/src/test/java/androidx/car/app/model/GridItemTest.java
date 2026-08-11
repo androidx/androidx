@@ -202,7 +202,7 @@ public class GridItemTest {
     public void create_setImagewithTypeAndBadge() {
         Badge b = new Badge.Builder().setHasDot(true).build();
         GridItem gridItem = new GridItem.Builder().setTitle("Title")
-                .setImage(BACK, GridItem.IMAGE_TYPE_ICON, b).build();
+                .setImage(BACK, GridItem.IMAGE_TYPE_SMALL, b).build();
 
         assertThat(gridItem.getBadge()).isEqualTo(b);
     }

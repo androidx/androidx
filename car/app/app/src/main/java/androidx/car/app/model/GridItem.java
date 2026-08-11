@@ -52,7 +52,7 @@ public final class GridItem implements Item {
      * The type of images supported within grid items.
      */
     @RestrictTo(LIBRARY)
-    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
+    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE, IMAGE_TYPE_SMALL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface GridItemImageType {
     }
@@ -67,7 +67,11 @@ public final class GridItem implements Item {
      * <p>A tint color is expected to be provided via {@link CarIconStyle.Builder#setTint}
      * provided to the icon with {@link CarIcon.Builder#setStyle}.
      * Otherwise, a default tint color as determined by the host will be applied.
+     *
+     * @deprecated Use {@link #IMAGE_TYPE_SMALL} instead. In API 9 and above, hosts treat
+     * it as {@link #IMAGE_TYPE_SMALL} without applying automatic host tinting.
      */
+    @Deprecated
     public static final int IMAGE_TYPE_ICON = (1 << 0);
 
     /**
@@ -78,6 +82,17 @@ public final class GridItem implements Item {
      * while preserving its aspect ratio.
      */
     public static final int IMAGE_TYPE_LARGE = (1 << 1);
+
+    /**
+     * Represents a small icon-sized image to be displayed in the grid item.
+     *
+     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
+     * images targeting a 128 x 128 dp bounding box. If necessary, the image will be scaled down
+     * while preserving its aspect ratio.
+     */
+    @RequiresCarApi(9)
+    @ExperimentalCarApi
+    public static final int IMAGE_TYPE_SMALL = (1 << 2);
 
     private final boolean mIsLoading;
     private final @Nullable CarText mTitle;

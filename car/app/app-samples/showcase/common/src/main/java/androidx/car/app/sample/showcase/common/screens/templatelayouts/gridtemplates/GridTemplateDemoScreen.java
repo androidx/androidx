@@ -25,9 +25,11 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
@@ -86,15 +88,23 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
         triggerFourthItemLoading();
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    @SuppressWarnings("deprecation")
+    private int smallImageType() {
+        return getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_9
+                ? GridItem.IMAGE_TYPE_SMALL
+                : GridItem.IMAGE_TYPE_ICON;
+    }
+
     private GridItem createGridItem(int index) {
         switch (index) {
             case 0:
                 // Grid item with an icon and a title.
-                return createGridItem(createCarIconFromImage(mIcon), GridItem.IMAGE_TYPE_ICON,
+                return createGridItem(createCarIconFromImage(mIcon), smallImageType(),
                         getTextStringFromId(R.string.non_actionable));
             case 1:
                 // Grid item with an icon, a title, onClickListener and no text.
-                return createGridItem(createCarIconFromImage(mIcon), GridItem.IMAGE_TYPE_ICON,
+                return createGridItem(createCarIconFromImage(mIcon), smallImageType(),
                         getTextStringFromId(R.string.second_item), createOnClickListener(
                                 (String) getTextStringFromId(R.string.second_item_toast_msg),
                                 LENGTH_SHORT));
@@ -137,7 +147,7 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                 // Grid item with an image marked as an icon, a long title, a long text and
                 // onClickListener.
                 return createGridItem(createCarIconFromImage(mIcon),
-                        GridItem.IMAGE_TYPE_ICON, getTextStringFromId(R.string.sixth_item),
+                        smallImageType(), getTextStringFromId(R.string.sixth_item),
                         getTextStringFromId(R.string.sixth_item),
                         createOnClickListener(
                                 (String) getTextStringFromId(R.string.sixth_item_toast_msg),
@@ -148,7 +158,7 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
                 String toastText = "Clicked " + (index + 1) + "th item";
 
                 return createGridItem(createCarIconFromImage(mIcon),
-                        GridItem.IMAGE_TYPE_ICON, titleText, createOnClickListener(toastText,
+                        smallImageType(), titleText, createOnClickListener(toastText,
                                 LENGTH_SHORT));
         }
     }

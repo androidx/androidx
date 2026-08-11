@@ -98,7 +98,7 @@ public final class StartScreen extends Screen {
     public @NonNull Row createRowForScreen(int titleId, @NonNull CarIcon image,
             @NonNull Screen screen) {
         return new Row.Builder()
-                .setImage(image, Row.IMAGE_TYPE_ICON)
+                .setImage(image, Row.IMAGE_TYPE_SMALL)
                 .setTitle(getCarContext().getString(titleId))
                 .setOnClickListener(() -> getScreenManager().push(screen))
                 .setBrowsable(true)

@@ -142,7 +142,7 @@ public final class TextAndIconsDemosScreen extends Screen {
     private Row buildRowForTemplate(int title, CarIcon image) {
         return new Row.Builder()
                 .setTitle(getCarContext().getString(title))
-                .setImage(image)
+                .setImage(image, Row.IMAGE_TYPE_SMALL)
                 .build();
     }
 

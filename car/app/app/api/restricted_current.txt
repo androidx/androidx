@@ -1313,8 +1313,9 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText? getTitle();
     method public java.util.List<androidx.car.app.model.BannerElement!> getTrailingElements();
-    field public static final int IMAGE_TYPE_ICON = 1; // 0x1
-    field public static final int IMAGE_TYPE_LARGE = 3; // 0x3
+    field @Deprecated public static final int IMAGE_TYPE_ICON = 1; // 0x1
+    field public static final int IMAGE_TYPE_LARGE = 4; // 0x4
+    field public static final int IMAGE_TYPE_MEDIUM = 3; // 0x3
     field public static final int IMAGE_TYPE_SMALL = 2; // 0x2
   }
 
@@ -1561,9 +1562,10 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarIcon? getTrailingImage();
     method public int getTrailingImageType();
     method public boolean isIndexable();
-    field public static final int IMAGE_TYPE_ICON = 1; // 0x1
+    field @Deprecated public static final int IMAGE_TYPE_ICON = 1; // 0x1
     field public static final int IMAGE_TYPE_LARGE = 3; // 0x3
-    field public static final int IMAGE_TYPE_SMALL = 2; // 0x2
+    field public static final int IMAGE_TYPE_MEDIUM = 2; // 0x2
+    field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedItem.Builder {
@@ -1659,8 +1661,9 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarText? getTitle();
     method @androidx.car.app.annotations.RequiresCarApi(8) public boolean isIndexable();
     method public boolean isLoading();
-    field public static final int IMAGE_TYPE_ICON = 1; // 0x1
+    field @Deprecated public static final int IMAGE_TYPE_ICON = 1; // 0x1
     field public static final int IMAGE_TYPE_LARGE = 2; // 0x2
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final int IMAGE_TYPE_SMALL = 4; // 0x4
   }
 
   public static final class GridItem.Builder {
@@ -2020,7 +2023,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Row row();
     method public CharSequence yourBoat();
     field @androidx.car.app.annotations.RequiresCarApi(8) public static final int IMAGE_TYPE_EXTRA_SMALL = 8; // 0x8
-    field public static final int IMAGE_TYPE_ICON = 4; // 0x4
+    field @Deprecated public static final int IMAGE_TYPE_ICON = 4; // 0x4
     field public static final int IMAGE_TYPE_LARGE = 2; // 0x2
     field @androidx.car.app.annotations.RequiresCarApi(8) public static final int IMAGE_TYPE_MEDIUM = 16; // 0x10
     field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
