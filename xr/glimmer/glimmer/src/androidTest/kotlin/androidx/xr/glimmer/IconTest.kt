@@ -521,7 +521,6 @@ class IconTest {
                             shape = RectangleShape,
                             color = Color.Black,
                             contentColor = contentColor,
-                            border = null,
                         )
                         .testTag(iconTag),
             )
@@ -572,7 +571,6 @@ class IconTest {
                             shape = RectangleShape,
                             color = Color.Black,
                             contentColor = contentColor,
-                            border = null,
                         )
                         .testTag(iconTag),
             )
@@ -624,7 +622,6 @@ class IconTest {
                             shape = RectangleShape,
                             color = Color.Black,
                             contentColor = contentColor,
-                            border = null,
                         )
                         .testTag(iconTag),
             )
@@ -676,7 +673,6 @@ class IconTest {
                             shape = RectangleShape,
                             color = Color.Black,
                             contentColor = Color.Blue,
-                            border = null,
                         )
                         .testTag(iconTag),
             )
@@ -719,7 +715,6 @@ class IconTest {
                             shape = RectangleShape,
                             color = Color.Black,
                             contentColor = Color.Blue,
-                            border = null,
                         )
                         .testTag(iconTag),
             )
@@ -763,7 +758,6 @@ class IconTest {
                             shape = RectangleShape,
                             color = Color.Black,
                             contentColor = Color.Blue,
-                            border = null,
                         )
                         .testTag(iconTag),
             )
@@ -806,7 +800,6 @@ class IconTest {
                             shape = RectangleShape,
                             color = Color.Black,
                             contentColor = Color.Blue,
-                            border = null,
                         )
                         .testTag(iconTag),
             )
@@ -857,7 +850,6 @@ class IconTest {
                             shape = RectangleShape,
                             color = Color.Black,
                             contentColor = Color.Blue,
-                            border = null,
                         )
                         .testTag(iconTag),
             )
@@ -909,7 +901,6 @@ class IconTest {
                             shape = RectangleShape,
                             color = Color.Black,
                             contentColor = Color.Blue,
-                            border = null,
                         )
                         .testTag(iconTag),
             )
