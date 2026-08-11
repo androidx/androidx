@@ -87,7 +87,6 @@ dependencies {
 androidx {
     name = "Saved State Compose"
     type = SoftwareType.PUBLISHED_LIBRARY
-    samples(project(":savedstate:savedstate-compose"))
     inceptionYear = "2024"
     description = "Compose integration with Saved State"
 }
