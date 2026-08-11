@@ -23,6 +23,7 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
@@ -675,7 +676,7 @@ class RemoteBooleanTest {
             complexFloat += RemoteFloat(i.toFloat())
         }
 
-        val bool = RemoteBoolean.createNamedRemoteBoolean("testBool", true)
+        val bool = createNamedRemoteBoolean("testBool", true)
         // usage of select with complex expression
         val result = bool.select(complexFloat, RemoteFloat(0f))
 
@@ -695,7 +696,7 @@ class RemoteBooleanTest {
         // implemented as RemoteInt
         assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(1))
 
-        val named = RemoteBoolean.createNamedRemoteBoolean("test", false)
+        val named = createNamedRemoteBoolean("test", false)
         val op = constant and named
         assertThat(op.cacheKey)
             .isEqualTo(
@@ -725,7 +726,7 @@ class RemoteBooleanTest {
 
     @Test
     fun computeRequiredCodePointSet_dynamic() {
-        val bool = RemoteBoolean.createNamedRemoteBoolean("test", true)
+        val bool = createNamedRemoteBoolean("test", true)
         val str = bool.select(RemoteString("A"), RemoteString("B"))
 
         assertThat(str.computeRequiredCodePointSet(creationState)).containsExactly("A", "B")
@@ -740,28 +741,28 @@ class RemoteBooleanTest {
 
     @Test
     fun toDebugString_logicalAnd() {
-        val b = RemoteBoolean.createNamedRemoteBoolean("b", true)
+        val b = createNamedRemoteBoolean("b", true)
         val expr = b and RemoteBoolean(false)
         assertThat(expr.toDebugString()).isEqualTo("user:b and 0")
     }
 
     @Test
     fun toDebugString_logicalOr() {
-        val b = RemoteBoolean.createNamedRemoteBoolean("b", true)
+        val b = createNamedRemoteBoolean("b", true)
         val expr = b or RemoteBoolean(false)
         assertThat(expr.toDebugString()).isEqualTo("user:b or 0")
     }
 
     @Test
     fun toDebugString_logicalXor() {
-        val b = RemoteBoolean.createNamedRemoteBoolean("b", true)
+        val b = createNamedRemoteBoolean("b", true)
         val expr = b xor RemoteBoolean(false)
         assertThat(expr.toDebugString()).isEqualTo("user:b xor 0")
     }
 
     @Test
     fun toDebugString_select() {
-        val b = RemoteBoolean.createNamedRemoteBoolean("b", true)
+        val b = createNamedRemoteBoolean("b", true)
         val selectStr = b.select(RemoteString("yes"), RemoteString("no"))
         assertThat(selectStr.toDebugString()).isEqualTo("""user:b ? "yes" : "no"""")
 
@@ -771,7 +772,7 @@ class RemoteBooleanTest {
 
     @Test
     fun toDebugString_not() {
-        val b = RemoteBoolean.createNamedRemoteBoolean("b", true)
+        val b = createNamedRemoteBoolean("b", true)
         // Note not() is implemented as xor 1.
         assertThat((!b).toDebugString()).isEqualTo("user:b xor 1")
     }
@@ -793,7 +794,7 @@ class RemoteBooleanTest {
 
     @Test
     fun select_alwaysZeroExpression() {
-        val interactiveState = RemoteBoolean.createNamedRemoteBoolean("interactive_state", false)
+        val interactiveState = createNamedRemoteBoolean("interactive_state", false)
         val term1 = interactiveState.select(255f.rf, 0f.rf) // Non-constant
         val term2 = interactiveState.select(0f.rf, 0f.rf) // Constant
         val expr = (term1 / 255f) * (term2 / 255f)
@@ -812,7 +813,7 @@ class RemoteBooleanTest {
 
     @Test
     fun select_notConstantExpression() {
-        val interactiveState = RemoteBoolean.createNamedRemoteBoolean("interactive_state", false)
+        val interactiveState = createNamedRemoteBoolean("interactive_state", false)
         val term = interactiveState.select(255f.rf, 0f.rf) // Non-constant
         val expr = (term / 255f) * (term / 255f)
 

@@ -24,6 +24,10 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createIdentity
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createScaleX
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createScaleY
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createTranslateXy
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
@@ -104,15 +108,13 @@ internal data class RemoteImageBrush(
                 finalScaleX = 1.rf
                 finalScaleY = 1.rf
             }
-            else -> return RemoteMatrix3x3.createIdentity()
+            else -> return createIdentity()
         }
 
         val dx = (size.width - (intrinsicWidth * finalScaleX)) / 2f
         val dy = (size.height - (intrinsicHeight * finalScaleY)) / 2f
 
-        return RemoteMatrix3x3.createTranslateXy(dx, dy) *
-            RemoteMatrix3x3.createScaleX(finalScaleX) *
-            RemoteMatrix3x3.createScaleY(finalScaleY)
+        return createTranslateXy(dx, dy) * createScaleX(finalScaleX) * createScaleY(finalScaleY)
     }
 }
 

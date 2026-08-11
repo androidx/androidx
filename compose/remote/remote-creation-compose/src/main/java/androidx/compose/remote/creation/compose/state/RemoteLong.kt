@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -230,6 +231,19 @@ internal constructor(
         id: Int
     ) : this(constantValueOrNull = null, cacheKey = RemoteStateIdKey(id), idProvider = { id })
 
+    /**
+     * Creates a [MutableRemoteLong] initialized with [initialValue].
+     *
+     * @param initialValue The initial [Long] value.
+     */
+    internal constructor(
+        initialValue: Long
+    ) : this(
+        constantValueOrNull = initialValue,
+        cacheKey = RemoteStateInstanceKey(),
+        idProvider = { creationState -> creationState.document.addLong(initialValue) },
+    )
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
@@ -246,12 +260,7 @@ internal constructor(
          * @return A new [MutableRemoteLong] instance.
          */
         public operator fun invoke(initialValue: Long): MutableRemoteLong {
-            return MutableRemoteLong(
-                constantValueOrNull = null,
-                cacheKey = RemoteStateInstanceKey(),
-            ) { creationState ->
-                creationState.document.addLong(initialValue)
-            }
+            return MutableRemoteLong(initialValue)
         }
 
         /**
@@ -290,9 +299,7 @@ public fun rememberNamedRemoteLong(
     defaultValue: Long,
     domain: RemoteState.Domain = RemoteState.Domain.User,
 ): RemoteLong {
-    return rememberNamedState(name, domain) {
-        RemoteLong.createNamedRemoteLong(name, defaultValue, domain)
-    }
+    return rememberNamedState(name, domain) { createNamedRemoteLong(name, defaultValue, domain) }
 }
 
 internal enum class RemoteLongOp(val symbol: String? = null) : RemoteOperation {

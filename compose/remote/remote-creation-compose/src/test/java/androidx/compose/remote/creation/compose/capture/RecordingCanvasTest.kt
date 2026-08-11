@@ -33,16 +33,20 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.CompatAndroidRemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatArray
 import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
-import androidx.compose.remote.creation.compose.state.RemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createOffscreenRemoteBitmap
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteIntArray
 import androidx.compose.remote.creation.compose.state.RemoteOperationCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteStateCacheKey
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteStringArray
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -140,7 +144,7 @@ class RecordingCanvasTest {
 
     @Test
     fun testDrawConditionallyBuffered() {
-        val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+        val condition = createNamedRemoteBoolean("cond", true)
 
         recordingCanvas.drawConditionally(condition) {
             recordingCanvas.drawRect(9f, 10f, 11f, 12f, Paint())
@@ -163,8 +167,8 @@ class RecordingCanvasTest {
 
     @Test
     fun testDependencyHoisted() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val sub = x + y // Common subexpression
 
         recordingCanvas.drawConditionally(RemoteBoolean(true)) {
@@ -189,12 +193,12 @@ class RecordingCanvasTest {
 
     @Test
     fun testCommonSubexpressionElimination_Float_InTree() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val sub = x + y // Common subexpression
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", false)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", false)
 
         recordingCanvas.drawConditionally(condition1) {
             recordingCanvas.drawConditionally(condition2) {
@@ -236,12 +240,12 @@ class RecordingCanvasTest {
 
     @Test
     fun testCommonSubexpressionElimination_Int_InTree() {
-        val x = RemoteInt.createNamedRemoteInt("x", 10)
-        val y = RemoteInt.createNamedRemoteInt("y", 20)
+        val x = createNamedRemoteInt("x", 10)
+        val y = createNamedRemoteInt("y", 20)
         val sub = x + y // Common subexpression
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", false)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", false)
 
         recordingCanvas.drawConditionally(condition1) {
             recordingCanvas.drawRect(sub.toRemoteFloat(), 24f.rf, 25f.rf, 26f.rf, Paint())
@@ -278,11 +282,11 @@ class RecordingCanvasTest {
 
     @Test
     fun testCommonSubexpressionElimination_Select_InTree() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val x = createNamedRemoteFloat("x", 10f)
         val cond = x.isLessThan(RemoteFloat(5f))
         val sub = cond.select(RemoteFloat(100f), RemoteFloat(200f))
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
 
         recordingCanvas.drawConditionally(condition1) {
             recordingCanvas.drawRect(sub, 30f.rf, 31f.rf, 32f.rf, Paint())
@@ -312,14 +316,14 @@ class RecordingCanvasTest {
 
     @Test
     fun testCommonSubexpressionElimination_LongExpression_InTree() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
-        val z = RemoteFloat.createNamedRemoteFloat("z", 30f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
+        val z = createNamedRemoteFloat("z", 30f)
 
         val sub = (x * y) + (y * z) - (x * z)
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", false)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", false)
 
         recordingCanvas.drawConditionally(condition1) {
             recordingCanvas.drawRect(sub, 36f.rf, 37f.rf, 38f.rf, Paint())
@@ -357,9 +361,9 @@ class RecordingCanvasTest {
 
     @Test
     fun testCommonSubexpressionElimination_MultiLevel_InTree() {
-        val a = RemoteFloat.createNamedRemoteFloat("a", 1f)
-        val b = RemoteFloat.createNamedRemoteFloat("b", 2f)
-        val c = RemoteFloat.createNamedRemoteFloat("c", 3f)
+        val a = createNamedRemoteFloat("a", 1f)
+        val b = createNamedRemoteFloat("b", 2f)
+        val c = createNamedRemoteFloat("c", 3f)
 
         val sub1 = a + b
         val sub2 = a + c
@@ -371,8 +375,8 @@ class RecordingCanvasTest {
         val root4 = sub3 + RemoteFloat(2f)
         val root5 = sub1 * RemoteFloat(3f)
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", false)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", false)
 
         recordingCanvas.drawConditionally(condition1) {
             recordingCanvas.drawRect(root3, 42f.rf, 43f.rf, 44f.rf, Paint())
@@ -433,8 +437,8 @@ class RecordingCanvasTest {
 
     @Test
     fun testSimpleCSEHoisting() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val sub = x + y // Common subexpression
         val sub2 = x + y // Common subexpression
 
@@ -596,7 +600,7 @@ class RecordingCanvasTest {
     @Test
     fun testDrawToOffscreenBitmap_OuterSaveRestorePreserved() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val offscreenBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(100, 100)
+            val offscreenBitmap = createOffscreenRemoteBitmap(100, 100)
 
             // 1. Outer canvas pushes 2 matrix transforms/saves
             canvas.save()
@@ -649,7 +653,7 @@ class RecordingCanvasTest {
             canvas.translate(100f, 100f)
             canvas.save() // Identity save 3 (should be pruned/collapsed)
 
-            val offscreenBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(200, 200)
+            val offscreenBitmap = createOffscreenRemoteBitmap(200, 200)
 
             // 2. Draw into offscreen bitmap (creates childSpan)
             canvas.drawToOffscreenBitmap(offscreenBitmap, android.graphics.Color.TRANSPARENT) {
@@ -723,8 +727,8 @@ class RecordingCanvasTest {
     @Test
     fun testNestedDrawToOffscreenBitmap_preservesOrderAndScopeDependencies() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val remoteBitmap42 = RemoteImageBitmap.createOffscreenRemoteBitmap(450, 450)
-            val remoteBitmap43 = RemoteImageBitmap.createOffscreenRemoteBitmap(450, 450)
+            val remoteBitmap42 = createOffscreenRemoteBitmap(450, 450)
+            val remoteBitmap43 = createOffscreenRemoteBitmap(450, 450)
             val sourceBitmap = RemoteImageBitmap.createForId(22)
 
             canvas.save()
@@ -790,11 +794,11 @@ class RecordingCanvasTest {
 
     @Test
     fun testRemoteStringLengthHoisted_InTree() {
-        val str = RemoteString.createNamedRemoteString("str", "hello")
+        val str = createNamedRemoteString("str", "hello")
         val length = str.length
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", false)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", false)
 
         recordingCanvas.drawConditionally(condition1) {
             recordingCanvas.drawRect(length.toRemoteFloat(), 70f.rf, 71f.rf, 72f.rf, Paint())
@@ -830,11 +834,11 @@ class RecordingCanvasTest {
 
     @Test
     fun testLengthDynamicString_InTree() {
-        val str = RemoteString.createNamedRemoteString("a", "12345") + RemoteString("678")
+        val str = createNamedRemoteString("a", "12345") + RemoteString("678")
         val length = str.length
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", false)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", false)
 
         recordingCanvas.drawConditionally(condition1) {
             recordingCanvas.drawRect(length.toRemoteFloat(), 76f.rf, 77f.rf, 78f.rf, Paint())
@@ -872,16 +876,16 @@ class RecordingCanvasTest {
 
     @Test
     fun testRemoteStringExpressionHoisted_InTree() {
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", false)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", false)
 
         recordingCanvas.drawConditionally(condition1) {
-            val str = RemoteString.createNamedRemoteString("a", "123") + RemoteString("456")
+            val str = createNamedRemoteString("a", "123") + RemoteString("456")
             recordingCanvas.drawText(str, 3, 0f.rf, 0f.rf, Paint())
         }
 
         recordingCanvas.drawConditionally(condition2) {
-            val str = RemoteString.createNamedRemoteString("a", "123") + RemoteString("456")
+            val str = createNamedRemoteString("a", "123") + RemoteString("456")
             recordingCanvas.drawText(str, 3, 20f.rf, 20f.rf, Paint())
         }
 
@@ -928,7 +932,7 @@ class RecordingCanvasTest {
 
     @Test
     fun testDrawText() {
-        val str = RemoteString.createNamedRemoteString("a", "hello")
+        val str = createNamedRemoteString("a", "hello")
 
         recordingCanvas.drawText(str, 5, 0f.rf, 0f.rf, Paint())
 
@@ -980,8 +984,8 @@ class RecordingCanvasTest {
     @Test
     fun testDrawBitmap_RemoteFloat_DoesNotDoubleBuffer() {
         val bitmap = RemoteImageBitmap.createForId(42)
-        val left = RemoteFloat.createNamedRemoteFloat("left", 10f)
-        val top = RemoteFloat.createNamedRemoteFloat("top", 20f)
+        val left = createNamedRemoteFloat("left", 10f)
+        val top = createNamedRemoteFloat("top", 20f)
         recordingCanvas.drawBitmap(bitmap, left, top, Paint())
 
         assertThat(fakeBuffer.calls).isEmpty()
@@ -996,7 +1000,7 @@ class RecordingCanvasTest {
     fun testDrawTweenPath_PathOverload_DoesNotDoubleBuffer() {
         val path1 = RemotePath().asComposePath()
         val path2 = RemotePath().asComposePath()
-        val tween = RemoteFloat.createNamedRemoteFloat("tween", 0.5f)
+        val tween = createNamedRemoteFloat("tween", 0.5f)
         val start = RemoteFloat(0f)
         val stop = RemoteFloat(1f)
         recordingCanvas.drawTweenPath(
@@ -1020,7 +1024,7 @@ class RecordingCanvasTest {
     fun testDrawTweenPath_RemotePathOverload_DoesNotDoubleBuffer() {
         val path1 = RemotePath()
         val path2 = RemotePath()
-        val tween = RemoteFloat.createNamedRemoteFloat("tween", 0.5f)
+        val tween = createNamedRemoteFloat("tween", 0.5f)
         val start = RemoteFloat(0f)
         val stop = RemoteFloat(1f)
         recordingCanvas.drawTweenPath(
@@ -1042,13 +1046,13 @@ class RecordingCanvasTest {
 
     @Test
     fun testIterationSafetyInDiscoverIdealSpans() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val depD = x + y // Dependency D
         val cseB = depD * 2f // Expression B (depends on D)
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         // Child Span C (via condition1)
         recordingCanvas.drawConditionally(condition1) {
@@ -1087,13 +1091,13 @@ class RecordingCanvasTest {
 
     @Test
     fun testExecutionOrderWithNestedCSE() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val cseB = x + y // CSE_B
         val cseA = cseB * 2f // CSE_A (depends on B)
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         // Use cseA in two branches to make it common
         recordingCanvas.drawConditionally(condition1) {
@@ -1129,7 +1133,7 @@ class RecordingCanvasTest {
 
     @Test
     fun testDrawBitmapFontTextRun() {
-        val str = RemoteString.createNamedRemoteString("str", "hello")
+        val str = createNamedRemoteString("str", "hello")
         val bitmapFont = RemoteBitmapFont(emptyList())
 
         recordingCanvas.drawBitmapFontTextRun(str, bitmapFont, 0, 5, 0f.rf, 0f.rf, 0f.rf, Paint())
@@ -1148,13 +1152,13 @@ class RecordingCanvasTest {
 
     @Test
     fun testExecutionOrderWithHoistedDependency() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val cseB = x + y // CSE_B
         val cseA = cseB * 2f // CSE_A (depends on B)
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             // Use cseB directly in child 1.
@@ -1195,12 +1199,12 @@ class RecordingCanvasTest {
 
     @Test
     fun testCSE_HoistingWithNonCommonParent() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val x = createNamedRemoteFloat("x", 10f)
         val cseA = x + 1f // CSE_A (Common)
         val nonCommonB = cseA * 2f // Non-common parent (Used only once!)
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             // Use nonCommonB in branch 1.
@@ -1237,8 +1241,8 @@ class RecordingCanvasTest {
 
     @Test
     fun testTraverseCacheKey_InspectCounts() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
         val expr1 = x + y
         val expr2 = expr1 * 2f
 
@@ -1257,10 +1261,10 @@ class RecordingCanvasTest {
 
     @Test
     fun testRemoteFloatToRemoteStringHoisted() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
+        val x = createNamedRemoteFloat("x", 10f)
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             val str = x.toRemoteString(java.text.DecimalFormat("#0"))
@@ -1295,10 +1299,10 @@ class RecordingCanvasTest {
 
     @Test
     fun testRemoteIntToRemoteStringHoisted() {
-        val x = RemoteInt.createNamedRemoteInt("x", 10)
+        val x = createNamedRemoteInt("x", 10)
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             val str = x.toRemoteString(java.text.DecimalFormat("#0"))
@@ -1333,12 +1337,12 @@ class RecordingCanvasTest {
 
     @Test
     fun testRemoteBooleanSelectWithRemoteStringsHoisted() {
-        val cond = RemoteBoolean.createNamedRemoteBoolean("cond", true)
-        val str1 = RemoteString.createNamedRemoteString("s1", "hello")
-        val str2 = RemoteString.createNamedRemoteString("s2", "world")
+        val cond = createNamedRemoteBoolean("cond", true)
+        val str1 = createNamedRemoteString("s1", "hello")
+        val str2 = createNamedRemoteString("s2", "world")
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             val selected = cond.select(str1, str2)
@@ -1376,10 +1380,10 @@ class RecordingCanvasTest {
 
     @Test
     fun testRemoteStringSubstringHoisted() {
-        val str = RemoteString.createNamedRemoteString("str", "hello world")
+        val str = createNamedRemoteString("str", "hello world")
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             val sub = str.substring(6)
@@ -1414,10 +1418,10 @@ class RecordingCanvasTest {
 
     @Test
     fun testRemoteStringUppercaseHoisted() {
-        val str = RemoteString.createNamedRemoteString("str", "hello")
+        val str = createNamedRemoteString("str", "hello")
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             val upper = str.uppercase()
@@ -1452,10 +1456,10 @@ class RecordingCanvasTest {
 
     @Test
     fun testRemoteStringTrimHoisted() {
-        val str = RemoteString.createNamedRemoteString("str", " hello ")
+        val str = createNamedRemoteString("str", " hello ")
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             val trimmed = str.trim()
@@ -1490,13 +1494,13 @@ class RecordingCanvasTest {
 
     @Test
     fun testSelectIfLtHoisted() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
-        val str1 = RemoteString.createNamedRemoteString("s1", "hello")
-        val str2 = RemoteString.createNamedRemoteString("s2", "world")
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
+        val str1 = createNamedRemoteString("s1", "hello")
+        val str2 = createNamedRemoteString("s2", "world")
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             val selected = selectIfLt(x, y, str1, str2)
@@ -1536,13 +1540,13 @@ class RecordingCanvasTest {
 
     @Test
     fun testSelectIfGtHoisted() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
-        val str1 = RemoteString.createNamedRemoteString("s1", "hello")
-        val str2 = RemoteString.createNamedRemoteString("s2", "world")
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
+        val str1 = createNamedRemoteString("s1", "hello")
+        val str2 = createNamedRemoteString("s2", "world")
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             val selected = selectIfGt(x, y, str1, str2)
@@ -1582,12 +1586,12 @@ class RecordingCanvasTest {
 
     @Test
     fun testHoisting_3LevelsDeep() {
-        val x = RemoteFloat.createNamedRemoteFloat("x", 10f)
-        val y = RemoteFloat.createNamedRemoteFloat("y", 20f)
-        val z = RemoteFloat.createNamedRemoteFloat("z", 30f)
+        val x = createNamedRemoteFloat("x", 10f)
+        val y = createNamedRemoteFloat("y", 20f)
+        val z = createNamedRemoteFloat("z", 30f)
 
-        val condition1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-        val condition2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+        val condition1 = createNamedRemoteBoolean("cond1", true)
+        val condition2 = createNamedRemoteBoolean("cond2", true)
 
         recordingCanvas.drawConditionally(condition1) {
             // Level 1
@@ -1747,7 +1751,7 @@ class RecordingCanvasTest {
     @Test
     fun testTransformsOptimizedAndRecordedInChildSpans() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            val condition = createNamedRemoteBoolean("cond", true)
             canvas.drawConditionally(condition) {
                 canvas.save()
                 canvas.translate(20f, 20f)
@@ -2096,8 +2100,8 @@ class RecordingCanvasTest {
     @Test
     fun testTranslateWithVariables() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val varA = RemoteFloat.createNamedRemoteFloat("varA", 0f)
-            val varB = RemoteFloat.createNamedRemoteFloat("varB", 0f)
+            val varA = createNamedRemoteFloat("varA", 0f)
+            val varB = createNamedRemoteFloat("varB", 0f)
 
             canvas.translate(10f, 20f)
             canvas.translate(varA, varB)
@@ -2122,7 +2126,7 @@ class RecordingCanvasTest {
     @Test
     fun testRotateWithVariables() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val varAngle = RemoteFloat.createNamedRemoteFloat("varAngle", 0f)
+            val varAngle = createNamedRemoteFloat("varAngle", 0f)
 
             canvas.rotate(10f)
             canvas.rotate(varAngle)
@@ -2146,8 +2150,8 @@ class RecordingCanvasTest {
     @Test
     fun testScaleWithVariables() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val varSx = RemoteFloat.createNamedRemoteFloat("varSx", 1f)
-            val varSy = RemoteFloat.createNamedRemoteFloat("varSy", 1f)
+            val varSx = createNamedRemoteFloat("varSx", 1f)
+            val varSy = createNamedRemoteFloat("varSy", 1f)
 
             canvas.scale(2f, 3f)
             canvas.scale(varSx, varSy)
@@ -2173,7 +2177,7 @@ class RecordingCanvasTest {
     @Test
     fun testDrawConditionally_elidedWhenNoChildCommands() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            val condition = createNamedRemoteBoolean("cond", true)
             canvas.drawConditionally(condition) {
                 // Empty block, no child commands
             }
@@ -2188,7 +2192,7 @@ class RecordingCanvasTest {
     @Test
     fun testDrawConditionally_preservedWhenHasChildCommands() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            val condition = createNamedRemoteBoolean("cond", true)
             canvas.drawConditionally(condition) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
 
             canvas.flush()
@@ -2208,8 +2212,8 @@ class RecordingCanvasTest {
     @Test
     fun testDrawConditionally_withExpression_elidedWhenNoChildCommands() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val cond1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-            val cond2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+            val cond1 = createNamedRemoteBoolean("cond1", true)
+            val cond2 = createNamedRemoteBoolean("cond2", true)
             val expr = cond1 and cond2
 
             canvas.drawConditionally(expr) {
@@ -2229,8 +2233,8 @@ class RecordingCanvasTest {
     @Test
     fun testDrawConditionally_withExpression_preservedWhenHasChildCommands() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val cond1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-            val cond2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+            val cond1 = createNamedRemoteBoolean("cond1", true)
+            val cond2 = createNamedRemoteBoolean("cond2", true)
             val expr = cond1 and cond2
 
             canvas.drawConditionally(expr) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
@@ -2259,8 +2263,8 @@ class RecordingCanvasTest {
     @Test
     fun testDrawConditionally_withExpression_usedBeforeElidedConditional_preserved() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val cond1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-            val cond2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+            val cond1 = createNamedRemoteBoolean("cond1", true)
+            val cond2 = createNamedRemoteBoolean("cond2", true)
             val expr = cond1 and cond2
 
             // First: convert expr to RemoteString and drawText (preserves expr)
@@ -2293,8 +2297,8 @@ class RecordingCanvasTest {
     @Test
     fun testDrawConditionally_withExpression_usedAfterElidedConditional_preserved() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val cond1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-            val cond2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
+            val cond1 = createNamedRemoteBoolean("cond1", true)
+            val cond2 = createNamedRemoteBoolean("cond2", true)
             val expr = cond1 and cond2
 
             // First: empty conditional block using expr (elided)
@@ -2327,7 +2331,7 @@ class RecordingCanvasTest {
     @Test
     fun testDrawConditionally_elidedWhenChildCommandsAreElided() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            val condition = createNamedRemoteBoolean("cond", true)
             canvas.drawConditionally(condition) {
                 canvas.save()
                 canvas.translate(10f, 20f)
@@ -2346,7 +2350,7 @@ class RecordingCanvasTest {
     @Test
     fun testDrawConditionally_insideSave_elidesSaveIfOnlyChild() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            val condition = createNamedRemoteBoolean("cond", true)
             canvas.save()
             canvas.translate(10f, 20f)
             canvas.drawConditionally(condition) {
@@ -2364,9 +2368,9 @@ class RecordingCanvasTest {
     @Test
     fun testDrawConditionally_multipleChildSpans_preservesOnlyActiveBranches() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val cond1 = RemoteBoolean.createNamedRemoteBoolean("cond1", true)
-            val cond2 = RemoteBoolean.createNamedRemoteBoolean("cond2", true)
-            val cond3 = RemoteBoolean.createNamedRemoteBoolean("cond3", true)
+            val cond1 = createNamedRemoteBoolean("cond1", true)
+            val cond2 = createNamedRemoteBoolean("cond2", true)
+            val cond3 = createNamedRemoteBoolean("cond3", true)
 
             // Child span 1: elided
             canvas.drawConditionally(cond1) {
@@ -2396,7 +2400,7 @@ class RecordingCanvasTest {
 
     @Test
     fun testDrawConditionally_toString() {
-        val condition = RemoteBoolean.createNamedRemoteBoolean("myCond", true)
+        val condition = createNamedRemoteBoolean("myCond", true)
         val span = CanvasOperationBuffer.Span(null, 0)
         val op = CanvasOp.DrawConditionally(condition, span) { _, _ -> }
         assertThat(op.toString()).isEqualTo("DrawConditionally(${condition.toDebugString()})")
@@ -2405,7 +2409,7 @@ class RecordingCanvasTest {
     @Test
     fun testSaveTransformBeforeDrawConditionally_preserved() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            val condition = createNamedRemoteBoolean("cond", true)
             // Save block with transforms right before a conditional draw
             canvas.save()
             canvas.translate(10f, 20f)
@@ -2478,8 +2482,8 @@ class RecordingCanvasTest {
     @Test
     fun testScaleWithVariablePivot() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val varPx = RemoteFloat.createNamedRemoteFloat("varPx", 5f)
-            val varPy = RemoteFloat.createNamedRemoteFloat("varPy", 5f)
+            val varPx = createNamedRemoteFloat("varPx", 5f)
+            val varPy = createNamedRemoteFloat("varPy", 5f)
 
             canvas.scale(2f.rf, 3f.rf, varPx, varPy)
             canvas.drawRect(0f, 0f, 10f, 10f, Paint())
@@ -2616,7 +2620,7 @@ class RecordingCanvasTest {
     @Test
     fun testTrailingTopLevelSaveWithConditionIsNotInlined() {
         runWithOptimizingCanvas { canvas, buffer ->
-            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            val condition = createNamedRemoteBoolean("cond", true)
             canvas.save()
             canvas.translate(10f, 20f)
             canvas.drawConditionally(condition) { canvas.drawRect(0f, 0f, 10f, 10f, Paint()) }
@@ -2754,7 +2758,7 @@ class RecordingCanvasTest {
         assertThat(recordingCanvas.saveCount).isEqualTo(0)
 
         // 3. Call drawConditionally(condition) { drawBitmap(...) } where condition is dynamic.
-        val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+        val condition = createNamedRemoteBoolean("cond", true)
         val bitmap = RemoteImageBitmap.createForId(42)
         recordingCanvas.drawConditionally(condition) {
             recordingCanvas.drawBitmap(bitmap, 0f.rf, 0f.rf, Paint())
@@ -2805,7 +2809,7 @@ class RecordingCanvasTest {
             assertThat(canvas.saveCount).isEqualTo(0)
 
             // 3. Call drawConditionally(condition) { drawBitmap(...) } where condition is dynamic.
-            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            val condition = createNamedRemoteBoolean("cond", true)
             val bitmap = RemoteImageBitmap.createForId(42)
             canvas.drawConditionally(condition) { canvas.drawBitmap(bitmap, 0f.rf, 0f.rf, Paint()) }
             assertThat(canvas.saveCount).isEqualTo(0)
@@ -2830,7 +2834,7 @@ class RecordingCanvasTest {
             val prevLastOp = canvas.buffer.lastRenderingOp
             assertThat(prevLastOp).isNotNull()
 
-            val condition = RemoteBoolean.createNamedRemoteBoolean("cond", true)
+            val condition = createNamedRemoteBoolean("cond", true)
             canvas.drawConditionally(condition) { canvas.translate(10f, 10f) }
 
             val opAfterCond = canvas.buffer.lastRenderingOp
@@ -2885,9 +2889,9 @@ class RecordingCanvasTest {
             assertThat(canvas.globalSaveCounter).isEqualTo(0)
 
             // Step 3: Draw span inside a conditional (using a dynamic boolean condition)
-            val dynamicCondition = RemoteBoolean.createNamedRemoteBoolean("test", true)
+            val dynamicCondition = createNamedRemoteBoolean("test", true)
             canvas.drawConditionally(dynamicCondition) {
-                val offscreenBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(450, 450)
+                val offscreenBitmap = createOffscreenRemoteBitmap(450, 450)
                 canvas.drawBitmap(offscreenBitmap, 0f.rf, 0f.rf, null)
             }
 

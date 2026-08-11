@@ -17,6 +17,7 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
 import androidx.compose.remote.creation.compose.state.rdp
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
@@ -36,8 +37,7 @@ class RemotePaddingValuesTest {
 
     @Test
     fun equals_nonConstantValues_areNotEqual() {
-        val namedRemoteFloat =
-            RemoteFloat.createNamedRemoteFloat("testFloat", defaultValue = 100.0f)
+        val namedRemoteFloat = createNamedRemoteFloat("testFloat", defaultValue = 100.0f)
         val nonConstantRemoteFloat = namedRemoteFloat * RemoteFloat(10f)
         assertThat(nonConstantRemoteFloat.hasConstantValue).isFalse()
 

@@ -194,12 +194,12 @@ public open class RemoteComposeCreationState : RemoteStateScope {
     }
 
     internal open fun <T : RemoteState<*>> getOrCreateNamedState(
-        type: Class<T>,
         name: String,
         domain: RemoteState.Domain,
-        function: (RemoteComposeCreationState) -> T,
+        function: () -> T,
     ): T {
-        return type.cast(namedState.getOrPut(domain.prefixed(name), { function(this) }))!!
+        @Suppress("UNCHECKED_CAST")
+        return namedState.getOrPut(domain.prefixed(name), function) as T
     }
 }
 
@@ -212,13 +212,12 @@ public class NoRemoteCompose :
         RcPlatformProfiles.ANDROIDX,
     ) {
     override fun <T : RemoteState<*>> getOrCreateNamedState(
-        type: Class<T>,
         name: String,
         domain: RemoteState.Domain,
-        function: (RemoteComposeCreationState) -> T,
+        function: () -> T,
     ): T {
         // no need to cache here
-        return function(this)
+        return function()
     }
 }
 

@@ -44,10 +44,11 @@ import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shaders.RemoteSweepShader
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteImageBitmap
-import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
+import androidx.compose.remote.creation.compose.state.RemoteImageBitmap.Companion.createOffscreenRemoteBitmap
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3.Companion.createRotate
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.StandardRemotePaint
@@ -205,14 +206,14 @@ class RecordingCanvasTest {
 
     @Test
     fun drawConditionally_true() {
-        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", true)
+        val flag = createNamedRemoteBoolean("flag", true)
         val document = constructSimpleConditionalDocument(flag)
         assertScreenshot(document, "drawConditonally_true")
     }
 
     @Test
     fun drawConditionally_false() {
-        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", false)
+        val flag = createNamedRemoteBoolean("flag", false)
         val document = constructSimpleConditionalDocument(flag)
         assertScreenshot(document, "drawConditonally_false")
     }
@@ -302,7 +303,7 @@ class RecordingCanvasTest {
 
     @Test
     fun conditionalColorAttribute_true() {
-        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", true)
+        val flag = createNamedRemoteBoolean("flag", true)
         val hues = createConditionalHues(flag)
         val hueId1 = hues.hue1.getIdForCreationState(creationState)
         val hueId2 = hues.hue2.getIdForCreationState(creationState)
@@ -317,7 +318,7 @@ class RecordingCanvasTest {
 
     @Test
     fun conditionalColorAttribute_false() {
-        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", false)
+        val flag = createNamedRemoteBoolean("flag", false)
         val hues = createConditionalHues(flag)
         val hueId2 = hues.hue2.getIdForCreationState(creationState)
         remoteContext.useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
@@ -497,7 +498,7 @@ class RecordingCanvasTest {
             (HEIGHT - 20).rf,
             Paint().apply { color = Color.YELLOW },
         )
-        val bitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        val bitmap = createOffscreenRemoteBitmap(WIDTH, HEIGHT)
         recordingCanvas.drawToOffscreenBitmap(bitmap, Color.TRANSPARENT) {
             recordingCanvas.drawOval(
                 20.rf,
@@ -545,7 +546,7 @@ class RecordingCanvasTest {
             (HEIGHT - 20).rf,
             Paint().apply { color = Color.YELLOW },
         )
-        val bitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        val bitmap = createOffscreenRemoteBitmap(WIDTH, HEIGHT)
         recordingCanvas.drawToOffscreenBitmap(bitmap, Color.TRANSPARENT) {
             recordingCanvas.drawOval(
                 20.rf,
@@ -590,7 +591,7 @@ class RecordingCanvasTest {
         )
 
         // Create the outer offscreen bitmap.
-        val outerBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        val outerBitmap = createOffscreenRemoteBitmap(WIDTH, HEIGHT)
         recordingCanvas.drawToOffscreenBitmap(outerBitmap, Color.TRANSPARENT) {
             // Draw a blue background on the outer bitmap.
             recordingCanvas.drawRect(
@@ -604,7 +605,7 @@ class RecordingCanvasTest {
             recordingCanvas.save()
 
             // Create the inner (nested) offscreen bitmap.
-            val innerBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH / 2, HEIGHT / 2)
+            val innerBitmap = createOffscreenRemoteBitmap(WIDTH / 2, HEIGHT / 2)
             recordingCanvas.drawToOffscreenBitmap(innerBitmap, Color.TRANSPARENT) {
                 // Draw a red circle in the inner bitmap.
                 recordingCanvas.drawOval(
@@ -643,7 +644,7 @@ class RecordingCanvasTest {
                     listOf(ComposeColor.Red.rc, ComposeColor.Green.rc, ComposeColor.Blue.rc),
                     null,
                 )
-                .apply { remoteMatrix3x3 = RemoteMatrix3x3.createRotate(90f.rf) }
+                .apply { remoteMatrix3x3 = createRotate(90f.rf) }
         val paintWithShader = RemotePaint { shader = remoteShader }
         val paintWithShader2 = RemotePaint {
             shader =
@@ -749,7 +750,7 @@ class RecordingCanvasTest {
 
     @Test
     fun drawConditionally_colorFilterState() {
-        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", true)
+        val flag = createNamedRemoteBoolean("flag", true)
 
         // 1. Draw something with a color filter
         val paintWithFilter =
@@ -784,7 +785,7 @@ class RecordingCanvasTest {
 
     @Test
     fun drawConditionally_colorFilterState_differentFilterInside() {
-        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", true)
+        val flag = createNamedRemoteBoolean("flag", true)
 
         // 1. Draw something with color filter A
         val paintWithFilterA =
@@ -819,8 +820,8 @@ class RecordingCanvasTest {
 
     @Test
     fun testNestedOffscreenMask_golden() {
-        val outerBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
-        val maskBitmap = RemoteImageBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        val outerBitmap = createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        val maskBitmap = createOffscreenRemoteBitmap(WIDTH, HEIGHT)
 
         val starShape =
             RoundedPolygon.star(

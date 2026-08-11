@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
+import androidx.compose.remote.creation.compose.text.RemoteTypeface.Companion.create
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.DownloadableTypefaceResolver
 import androidx.compose.remote.player.compose.test.utils.FallbackCreateTypefaceResolver
@@ -115,22 +116,22 @@ class RemoteCanvasScreenshotTest {
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             val paintNormal = RemotePaint {
-                typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Normal)
+                typeface = create("sans-serif", RemoteTypeface.Style.Normal)
                 color = Color.White.rc
                 textSize = 30f.rf
             }
             val paintBold = RemotePaint {
-                typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Bold)
+                typeface = create("sans-serif", RemoteTypeface.Style.Bold)
                 color = Color.White.rc
                 textSize = 30f.rf
             }
             val paintItalic = RemotePaint {
-                typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.Italic)
+                typeface = create("sans-serif", RemoteTypeface.Style.Italic)
                 color = Color.White.rc
                 textSize = 30f.rf
             }
             val paintBoldItalic = RemotePaint {
-                typeface = RemoteTypeface.create("sans-serif", RemoteTypeface.Style.BoldItalic)
+                typeface = create("sans-serif", RemoteTypeface.Style.BoldItalic)
                 color = Color.White.rc
                 textSize = 30f.rf
             }
@@ -211,7 +212,7 @@ class RemoteCanvasScreenshotTest {
                     textSize = 14.rf * remoteDensity.density
                 }
                 val paintInconsolata = RemotePaint {
-                    typeface = RemoteTypeface.create("google:inconsolata")
+                    typeface = create("google:inconsolata")
                     color = Color.White.rc
                     textSize = 14f.rf * remoteDensity.density
                 }

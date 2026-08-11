@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.RemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rsp
 import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 
@@ -53,28 +54,30 @@ public fun measureTextWidth(
     val resolvedFontSize = fontSize ?: style.fontSize ?: 12.rsp
     val textSize = resolvedFontSize.toPx(LocalRemoteDensity.current)
 
-    return RemoteFloatExpression(
-        constantValueOrNull = null,
-        // May depend on composition locals so avoid caching
-        cacheKey = RemoteStateInstanceKey(),
-    ) { creationState ->
-        val doc = creationState.document
-        val textSizePxId = textSize.getFloatIdForCreationState(creationState)
-        doc.painter
-            .setTextSize(textSizePxId)
-            .setTypeface(
-                0,
-                (style.fontWeight ?: FontWeight.Normal).weight,
-                style.fontStyle == FontStyle.Italic,
-            )
-            .commit() // For text width measuring
+    return remember(text, style, fontSize, textSize) {
+        RemoteFloatExpression(
+            constantValueOrNull = null,
+            // May depend on composition locals so avoid caching
+            cacheKey = RemoteStateInstanceKey(),
+        ) { creationState ->
+            val doc = creationState.document
+            val textSizePxId = textSize.getFloatIdForCreationState(creationState)
+            doc.painter
+                .setTextSize(textSizePxId)
+                .setTypeface(
+                    0,
+                    (style.fontWeight ?: FontWeight.Normal).weight,
+                    style.fontStyle == FontStyle.Italic,
+                )
+                .commit() // For text width measuring
 
-        floatArrayOf(
-            doc.textAttribute(
-                text.getIdForCreationState(creationState),
-                TextAttribute.MEASURE_WIDTH,
+            floatArrayOf(
+                doc.textAttribute(
+                    text.getIdForCreationState(creationState),
+                    TextAttribute.MEASURE_WIDTH,
+                )
             )
-        )
+        }
     }
 }
 
@@ -88,27 +91,29 @@ public fun measureTextHeight(
     val resolvedFontSize = fontSize ?: style.fontSize ?: 12.rsp
     val textSize = resolvedFontSize.toPx(LocalRemoteDensity.current)
 
-    return RemoteFloatExpression(
-        constantValueOrNull = null,
-        // May depend on composition locals so avoid caching
-        cacheKey = RemoteStateInstanceKey(),
-    ) { creationState ->
-        val doc = creationState.document
-        val textSizePxId = textSize.getFloatIdForCreationState(creationState)
-        doc.painter
-            .setTextSize(textSizePxId)
-            .setTypeface(
-                0,
-                (style.fontWeight ?: FontWeight.Normal).weight,
-                style.fontStyle == FontStyle.Italic,
-            )
-            .commit() // For text width measuring
+    return remember(text, style, fontSize, textSize) {
+        RemoteFloatExpression(
+            constantValueOrNull = null,
+            // May depend on composition locals so avoid caching
+            cacheKey = RemoteStateInstanceKey(),
+        ) { creationState ->
+            val doc = creationState.document
+            val textSizePxId = textSize.getFloatIdForCreationState(creationState)
+            doc.painter
+                .setTextSize(textSizePxId)
+                .setTypeface(
+                    0,
+                    (style.fontWeight ?: FontWeight.Normal).weight,
+                    style.fontStyle == FontStyle.Italic,
+                )
+                .commit() // For text width measuring
 
-        floatArrayOf(
-            doc.textAttribute(
-                text.getIdForCreationState(creationState),
-                TextAttribute.MEASURE_HEIGHT,
+            floatArrayOf(
+                doc.textAttribute(
+                    text.getIdForCreationState(creationState),
+                    TextAttribute.MEASURE_HEIGHT,
+                )
             )
-        )
+        }
     }
 }

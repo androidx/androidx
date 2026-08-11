@@ -20,6 +20,7 @@ import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
@@ -159,7 +160,7 @@ class RemoteBitmapFontTest {
     @Test
     fun measureNonConstantWidth() {
         // We use a RemoteString that doesn't have a constant value.
-        val nonConstantString = RemoteString.createNamedRemoteString("testWidth", "abc")
+        val nonConstantString = createNamedRemoteString("testWidth", "abc")
 
         val result = bitmapFont.measureWidth(nonConstantString, RemoteFloat(0f))
         val resultId = result.getIdForCreationState(creationState)

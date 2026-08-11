@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -26,9 +25,13 @@ import androidx.compose.runtime.annotation.RememberInComposition
 import androidx.compose.runtime.remember
 
 /**
- * Scroll state for remote components.
+ * State object for controlling and observing scroll position in Remote Compose layouts.
  *
- * @property positionState remote float state tracking scroll position
+ * Note: [RemoteScrollState] uses `@RememberInComposition` because it holds mutable scroll position
+ * state ([positionState]) that must be remembered across recompositions to avoid resetting scroll
+ * position.
+ *
+ * @property positionState Remote float state tracking scroll position.
  * @property notches The number of equally spaced snap points (notches) along the scroll range. If
  *   greater than 0, the scroll position will snap to the nearest notch when the scroll gesture
  *   ends. If 0, scrolling is continuous.
@@ -36,6 +39,13 @@ import androidx.compose.runtime.remember
 public class RemoteScrollState
 @RememberInComposition
 constructor(public val positionState: MutableRemoteFloat, public val notches: Int) {
+    internal constructor(
+        position: Float,
+        notches: Int,
+    ) : this(MutableRemoteFloat(position), notches)
+
+    internal constructor(notches: Int = 0) : this(MutableRemoteFloat(), notches)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteScrollState) return false
@@ -65,14 +75,7 @@ constructor(public val positionState: MutableRemoteFloat, public val notches: In
  */
 @Composable
 public fun rememberRemoteScrollState(notches: Int = 0): RemoteScrollState {
-    val state = LocalRemoteComposeCreationState.current
-    val scrollState = remember {
-        // TODO(b/520313106) - It shouldn't be writing id at this point.
-        val positionId = state.document.nextId()
-        val position = MutableRemoteFloat(positionId)
-        RemoteScrollState(position, notches)
-    }
-    return scrollState
+    return remember(notches) { RemoteScrollState(notches) }
 }
 
 internal data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :

@@ -29,10 +29,18 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.painter.painterRemoteImageBitmap
+import androidx.compose.remote.creation.compose.state.RemoteBoolean.Companion.createNamedRemoteBoolean
+import androidx.compose.remote.creation.compose.state.RemoteColor.Companion.createNamedRemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteDp.Companion.createNamedRemoteDp
+import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.createNamedRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteInt.Companion.createNamedRemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteLong.Companion.createNamedRemoteLong
+import androidx.compose.remote.creation.compose.state.RemoteString.Companion.createNamedRemoteString
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.remote.testing.LimitsRule
 import androidx.compose.remote.testing.RemoteCaptureTestRule
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
@@ -302,13 +310,13 @@ class RemoteStateCreationTest {
     fun creation_createNamedRemoteX_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            RemoteInt.createNamedRemoteInt("i", defaultValue = 1).writeToDocument(state)
-            RemoteFloat.createNamedRemoteFloat("f", defaultValue = 1f).writeToDocument(state)
-            RemoteLong.createNamedRemoteLong("l", defaultValue = 1L).writeToDocument(state)
-            RemoteBoolean.createNamedRemoteBoolean("b", defaultValue = true).writeToDocument(state)
-            RemoteString.createNamedRemoteString("s", defaultValue = "h").writeToDocument(state)
-            RemoteColor.createNamedRemoteColor("c", defaultValue = Color.Red).writeToDocument(state)
-            RemoteDp.createNamedRemoteDp("d", defaultValue = 1.dp).writeToDocument(state)
+            createNamedRemoteInt("i", defaultValue = 1).writeToDocument(state)
+            createNamedRemoteFloat("f", defaultValue = 1f).writeToDocument(state)
+            createNamedRemoteLong("l", defaultValue = 1L).writeToDocument(state)
+            createNamedRemoteBoolean("b", defaultValue = true).writeToDocument(state)
+            createNamedRemoteString("s", defaultValue = "h").writeToDocument(state)
+            createNamedRemoteColor("c", defaultValue = Color.Red).writeToDocument(state)
+            createNamedRemoteDp("d", defaultValue = 1.dp).writeToDocument(state)
         }
     }
 
@@ -316,11 +324,11 @@ class RemoteStateCreationTest {
     fun creation_mutableCreate_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            MutableRemoteInt(1).writeToDocument(state)
-            MutableRemoteFloat(1f).writeToDocument(state)
-            MutableRemoteLong(1L).writeToDocument(state)
-            MutableRemoteBoolean(true).writeToDocument(state)
-            MutableRemoteString("h").writeToDocument(state)
+            remember { MutableRemoteInt(1) }.writeToDocument(state)
+            remember { MutableRemoteFloat(1f) }.writeToDocument(state)
+            remember { MutableRemoteLong(1L) }.writeToDocument(state)
+            remember { MutableRemoteBoolean(true) }.writeToDocument(state)
+            remember { MutableRemoteString("h") }.writeToDocument(state)
             // Color and Dp do not have MutableRemoteX.create versions.
         }
     }
@@ -329,19 +337,19 @@ class RemoteStateCreationTest {
     fun creation_mutableForId_isStandardized() = runTest {
         remoteCaptureRule.captureDocument(context) {
             val state = LocalRemoteComposeCreationState.current
-            val iId = MutableRemoteInt(1).writeToDocument(state).toLong()
+            val iId = remember { MutableRemoteInt(1) }.writeToDocument(state).toLong()
             MutableRemoteInt.createMutableForId(iId).writeToDocument(state)
 
-            val fId = MutableRemoteFloat(1f).getFloatIdForCreationState(state)
+            val fId = remember { MutableRemoteFloat(1f) }.getFloatIdForCreationState(state)
             MutableRemoteFloat.createMutableForId(fId).writeToDocument(state)
 
-            val lId = MutableRemoteLong(1L).writeToDocument(state)
+            val lId = remember { MutableRemoteLong(1L) }.writeToDocument(state)
             MutableRemoteLong.createMutableForId(lId).writeToDocument(state)
 
-            val bId = MutableRemoteBoolean(true).writeToDocument(state).toLong()
+            val bId = remember { MutableRemoteBoolean(true) }.writeToDocument(state).toLong()
             MutableRemoteBoolean.createMutableForId(bId).writeToDocument(state)
 
-            val sId = MutableRemoteString("h").writeToDocument(state)
+            val sId = remember { MutableRemoteString("h") }.writeToDocument(state)
             MutableRemoteString.createMutableForId(sId).writeToDocument(state)
             // Color and Dp do not have MutableRemoteX.forId versions.
         }
