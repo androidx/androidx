@@ -37,6 +37,8 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerModifierOrderTest {
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val rule = createComposeRule()
 
     private lateinit var remoteContext: AndroidRemoteContext
