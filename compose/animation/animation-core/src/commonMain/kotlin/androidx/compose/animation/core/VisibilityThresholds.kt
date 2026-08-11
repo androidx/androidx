@@ -106,19 +106,16 @@ public val Rect.Companion.VisibilityThreshold: Rect
     get() = RectVisibilityThreshold
 
 // TODO: Add Dp.DefaultAnimation = spring<Dp>(visibilityThreshold = Dp.VisibilityThreshold)
-// The floats coming out of this map are fed to APIs that expect objects (generics), so it's
-// better to store them as boxed floats here instead of causing unboxing/boxing every time
-// the values are read out and forwarded to other APIs
-@Suppress("PrimitiveInCollection")
-internal val VisibilityThresholdMap: Map<TwoWayConverter<*, *>, Float> =
-    mapOf(
-        Int.VectorConverter to 1f,
-        IntSize.VectorConverter to 1f,
-        IntOffset.VectorConverter to 1f,
-        Float.VectorConverter to 0.01f,
-        Rect.VectorConverter to PxVisibilityThreshold,
-        Size.VectorConverter to PxVisibilityThreshold,
-        Offset.VectorConverter to PxVisibilityThreshold,
-        Dp.VectorConverter to DpVisibilityThreshold,
-        DpOffset.VectorConverter to DpVisibilityThreshold,
-    )
+internal fun defaultVisibilityThresholdFor(converter: TwoWayConverter<*, *>): Float? =
+    when (converter) {
+        Int.VectorConverter -> 1f
+        IntSize.VectorConverter -> 1f
+        IntOffset.VectorConverter -> 1f
+        Float.VectorConverter -> 0.01f
+        Rect.VectorConverter -> PxVisibilityThreshold
+        Size.VectorConverter -> PxVisibilityThreshold
+        Offset.VectorConverter -> PxVisibilityThreshold
+        Dp.VectorConverter -> DpVisibilityThreshold
+        DpOffset.VectorConverter -> DpVisibilityThreshold
+        else -> null
+    }
