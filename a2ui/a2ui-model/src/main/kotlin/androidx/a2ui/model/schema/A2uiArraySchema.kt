@@ -16,7 +16,9 @@
 
 package androidx.a2ui.model.schema
 
+import androidx.a2ui.model.schema.internal.putCommonKeywords
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
@@ -25,43 +27,59 @@ import kotlinx.serialization.json.put
  *
  * @property items schema that every element in this array must conform to, or null if any schema is
  *   allowed.
+ * @property minItems minimum number of items required in the array (unconstrained if -1)
+ * @property maxItems maximum number of items allowed in the array (unconstrained if -1)
  * @property description semantic description of the schema
+ * @property keywords JSON Schema keywords applied to this schema node
  */
-public class A2uiArraySchema(
+public class A2uiArraySchema
+@JvmOverloads
+public constructor(
     public val items: A2uiSchema? = null,
     public override val description: String? = null,
+    public val minItems: Int = -1,
+    public val maxItems: Int = -1,
+    public override val keywords: List<A2uiSchemaKeyword<List<Any>>> = emptyList(),
 ) : A2uiSchema() {
     override fun toJsonElement(): JsonElement = buildJsonObject {
         put(KEY_TYPE, TYPE_ARRAY)
         if (items != null) {
             put(KEY_ITEMS, items.toJsonElement())
         }
-        if (description != null) {
-            put(KEY_DESCRIPTION, description)
+        if (minItems >= 0) {
+            put(KEY_MIN_ITEMS, JsonPrimitive(minItems))
         }
+        if (maxItems >= 0) {
+            put(KEY_MAX_ITEMS, JsonPrimitive(maxItems))
+        }
+        putCommonKeywords(this@A2uiArraySchema)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (!super.equals(other)) return false
         other as A2uiArraySchema
-        return items == other.items
+        return items == other.items && minItems == other.minItems && maxItems == other.maxItems
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + (items?.hashCode() ?: 0)
+        result = 31 * result + minItems.hashCode()
+        result = 31 * result + maxItems.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "Array(items=$items, description=$description)"
+        return "Array(description=$description)"
     }
 
     public companion object {
         @JvmField public val INSTANCE: A2uiArraySchema = A2uiArraySchema()
 
         internal const val KEY_ITEMS = "items"
+        internal const val KEY_MIN_ITEMS = "minItems"
+        internal const val KEY_MAX_ITEMS = "maxItems"
         internal const val TYPE_ARRAY = "array"
     }
 }

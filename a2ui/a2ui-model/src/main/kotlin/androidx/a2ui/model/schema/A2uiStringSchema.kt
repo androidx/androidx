@@ -16,6 +16,7 @@
 
 package androidx.a2ui.model.schema
 
+import androidx.a2ui.model.schema.internal.putCommonKeywords
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -26,13 +27,17 @@ import kotlinx.serialization.json.put
  * Use this for static text that cannot be dynamically bound.
  *
  * @property description semantic description of the schema
+ * @property keywords JSON Schema keywords applied to this schema node
  */
-public class A2uiStringSchema(public override val description: String? = null) : A2uiSchema() {
+public class A2uiStringSchema
+@JvmOverloads
+public constructor(
+    public override val description: String? = null,
+    public override val keywords: List<A2uiSchemaKeyword<String>> = emptyList(),
+) : A2uiSchema() {
     override fun toJsonElement(): JsonElement = buildJsonObject {
         put(KEY_TYPE, TYPE_STRING)
-        if (description != null) {
-            put(KEY_DESCRIPTION, description)
-        }
+        putCommonKeywords(this@A2uiStringSchema)
     }
 
     override fun toString(): String {

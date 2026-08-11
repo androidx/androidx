@@ -16,12 +16,13 @@
 
 package androidx.a2ui.model.schema.commontypes
 
+import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiBooleanSchema
 import androidx.a2ui.model.schema.A2uiCompositeSchema
 import androidx.a2ui.model.schema.A2uiNumberSchema
-import androidx.a2ui.model.schema.A2uiOneOfSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.internal.SCHEMA_ID_COMMON_TYPES
 
@@ -36,15 +37,19 @@ public class A2uiDynamicValueSchema(public override val description: String? = n
     override val schemaId: String = SCHEMA_ID_COMMON_TYPES
 
     public override fun getDefinition(): A2uiSchema =
-        A2uiOneOfSchema(
-            schemas =
+        A2uiAnySchema(
+            keywords =
                 listOf(
-                    A2uiStringSchema.INSTANCE,
-                    A2uiNumberSchema.INSTANCE,
-                    A2uiBooleanSchema.INSTANCE,
-                    A2uiArraySchema.INSTANCE,
-                    A2uiDataBindingSchema.DEFAULT_INSTANCE,
-                    A2uiFunctionCallSchema.DEFAULT_INSTANCE,
+                    A2uiSchemaKeyword.OneOf(
+                        listOf(
+                            A2uiStringSchema.INSTANCE,
+                            A2uiNumberSchema.INSTANCE,
+                            A2uiBooleanSchema.INSTANCE,
+                            A2uiArraySchema.INSTANCE,
+                            A2uiDataBindingSchema.DEFAULT_INSTANCE,
+                            A2uiFunctionCallSchema.DEFAULT_INSTANCE,
+                        )
+                    )
                 ),
             description =
                 "A value that can be a literal, a path to a value in the data model, or a function call returning a value.",

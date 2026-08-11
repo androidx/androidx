@@ -19,10 +19,10 @@ package androidx.a2ui.compose.runtime
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiArraySchema
 import androidx.a2ui.model.schema.A2uiBooleanSchema
-import androidx.a2ui.model.schema.A2uiEnumSchema
 import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiActionSchema
 import androidx.a2ui.model.schema.commontypes.A2uiChildListSchema
@@ -622,7 +622,10 @@ internal class StringEnumProperty(
     enumValues: List<String>,
 ) : StaticA2uiProperty<String>() {
     override val schema: A2uiSchema =
-        A2uiEnumSchema(enumValues = enumValues, description = description)
+        A2uiStringSchema(
+            description = description,
+            keywords = listOf(A2uiSchemaKeyword.Enum(enumValues)),
+        )
 
     override fun safeCast(value: Any): String? = value as? String
 }
@@ -635,7 +638,10 @@ internal class NumberEnumProperty(
     enumValues: List<Number>,
 ) : StaticA2uiProperty<Number>() {
     override val schema: A2uiSchema =
-        A2uiEnumSchema(enumValues = enumValues, description = description)
+        A2uiNumberSchema(
+            description = description,
+            keywords = listOf(A2uiSchemaKeyword.Enum(enumValues)),
+        )
 
     override fun safeCast(value: Any): Number? = value as? Number
 }

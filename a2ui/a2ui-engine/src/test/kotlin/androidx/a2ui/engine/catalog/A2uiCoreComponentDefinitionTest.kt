@@ -16,11 +16,13 @@
 
 package androidx.a2ui.engine.catalog
 
-import androidx.a2ui.model.schema.A2uiAllOfSchema
-import androidx.a2ui.model.schema.A2uiConstSchema
+import androidx.a2ui.model.schema.A2uiAnySchema
+import androidx.a2ui.model.schema.A2uiCompositeSchema
+import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiRefSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
@@ -44,7 +46,7 @@ class A2uiCoreComponentDefinitionTest {
                 description = TEST_DESCRIPTION,
                 properties =
                     mapOf(
-                        KEY_COMPONENT to A2uiConstSchema(TEST_NAME),
+                        KEY_COMPONENT to constSchema(TEST_NAME),
                         TEST_PROPERTY_1 to A2uiStringSchema(),
                     ),
                 required = setOf(KEY_COMPONENT, TEST_PROPERTY_1),
@@ -58,7 +60,7 @@ class A2uiCoreComponentDefinitionTest {
         val testComponent =
             createComponentDefinition(
                 propertySchema =
-                    A2uiAllOfSchema(
+                    allOfSchema(
                         schemas =
                             listOf(
                                 A2uiRefSchema(TEST_REF_PATH),
@@ -71,7 +73,7 @@ class A2uiCoreComponentDefinitionTest {
             )
 
         val expectedSchema =
-            A2uiAllOfSchema(
+            allOfSchema(
                 description = TEST_DESCRIPTION,
                 schemas =
                     listOf(
@@ -79,7 +81,7 @@ class A2uiCoreComponentDefinitionTest {
                         A2uiObjectSchema(
                             properties =
                                 mapOf(
-                                    KEY_COMPONENT to A2uiConstSchema(TEST_NAME),
+                                    KEY_COMPONENT to constSchema(TEST_NAME),
                                     TEST_PROPERTY_1 to A2uiStringSchema(),
                                 ),
                             required = setOf(KEY_COMPONENT, TEST_PROPERTY_1),
@@ -98,7 +100,7 @@ class A2uiCoreComponentDefinitionTest {
                     A2uiObjectSchema(
                         properties =
                             mapOf(
-                                KEY_COMPONENT to A2uiConstSchema(TEST_NAME),
+                                KEY_COMPONENT to constSchema(TEST_NAME),
                                 TEST_PROPERTY_1 to A2uiStringSchema(),
                             ),
                         required = setOf(TEST_PROPERTY_1),
@@ -110,7 +112,7 @@ class A2uiCoreComponentDefinitionTest {
                 description = TEST_DESCRIPTION,
                 properties =
                     mapOf(
-                        KEY_COMPONENT to A2uiConstSchema(TEST_NAME),
+                        KEY_COMPONENT to constSchema(TEST_NAME),
                         TEST_PROPERTY_1 to A2uiStringSchema(),
                     ),
                 required = setOf(KEY_COMPONENT, TEST_PROPERTY_1),
@@ -127,7 +129,7 @@ class A2uiCoreComponentDefinitionTest {
                     A2uiObjectSchema(
                         properties =
                             mapOf(
-                                KEY_COMPONENT to A2uiConstSchema(TEST_NAME),
+                                KEY_COMPONENT to constSchema(TEST_NAME),
                                 TEST_PROPERTY_1 to A2uiStringSchema(),
                             ),
                         required = setOf(KEY_COMPONENT, TEST_PROPERTY_1),
@@ -139,7 +141,7 @@ class A2uiCoreComponentDefinitionTest {
                 description = TEST_DESCRIPTION,
                 properties =
                     mapOf(
-                        KEY_COMPONENT to A2uiConstSchema(TEST_NAME),
+                        KEY_COMPONENT to constSchema(TEST_NAME),
                         TEST_PROPERTY_1 to A2uiStringSchema(),
                     ),
                 required = setOf(KEY_COMPONENT, TEST_PROPERTY_1),
@@ -154,7 +156,7 @@ class A2uiCoreComponentDefinitionTest {
             createComponentDefinition(
                 propertySchema =
                     A2uiObjectSchema(
-                        properties = mapOf(KEY_COMPONENT to A2uiConstSchema(NAME_MISMATCHED)),
+                        properties = mapOf(KEY_COMPONENT to constSchema(NAME_MISMATCHED)),
                         required = setOf(KEY_COMPONENT),
                     )
             )
@@ -164,20 +166,18 @@ class A2uiCoreComponentDefinitionTest {
 
     @Test
     fun toSchema_withNestedAllOf_appendsDiscriminatorAtTopLevel() {
-        val nestedAllOf = A2uiAllOfSchema(schemas = listOf(A2uiRefSchema(TEST_REF_PATH)))
+        val nestedAllOf = allOfSchema(schemas = listOf(A2uiRefSchema(TEST_REF_PATH)))
         val testComponent =
-            createComponentDefinition(
-                propertySchema = A2uiAllOfSchema(schemas = listOf(nestedAllOf))
-            )
+            createComponentDefinition(propertySchema = allOfSchema(schemas = listOf(nestedAllOf)))
 
         val expectedSchema =
-            A2uiAllOfSchema(
+            allOfSchema(
                 description = TEST_DESCRIPTION,
                 schemas =
                     listOf(
                         nestedAllOf,
                         A2uiObjectSchema(
-                            properties = mapOf(KEY_COMPONENT to A2uiConstSchema(TEST_NAME)),
+                            properties = mapOf(KEY_COMPONENT to constSchema(TEST_NAME)),
                             required = setOf(KEY_COMPONENT),
                         ),
                     ),
@@ -191,19 +191,17 @@ class A2uiCoreComponentDefinitionTest {
         val obj1 = A2uiObjectSchema(properties = mapOf(TEST_PROPERTY_1 to A2uiStringSchema()))
         val obj2 = A2uiObjectSchema(properties = mapOf(TEST_PROPERTY_2 to A2uiStringSchema()))
         val testComponent =
-            createComponentDefinition(
-                propertySchema = A2uiAllOfSchema(schemas = listOf(obj1, obj2))
-            )
+            createComponentDefinition(propertySchema = allOfSchema(schemas = listOf(obj1, obj2)))
 
         val expectedSchema =
-            A2uiAllOfSchema(
+            allOfSchema(
                 description = TEST_DESCRIPTION,
                 schemas =
                     listOf(
                         obj1,
                         obj2,
                         A2uiObjectSchema(
-                            properties = mapOf(KEY_COMPONENT to A2uiConstSchema(TEST_NAME)),
+                            properties = mapOf(KEY_COMPONENT to constSchema(TEST_NAME)),
                             required = setOf(KEY_COMPONENT),
                         ),
                     ),
@@ -250,7 +248,7 @@ class A2uiCoreComponentDefinitionTest {
                 description = null,
                 properties =
                     mapOf(
-                        KEY_COMPONENT to A2uiConstSchema(TEST_NAME),
+                        KEY_COMPONENT to constSchema(TEST_NAME),
                         TEST_PROPERTY_1 to A2uiStringSchema(),
                     ),
                 required = setOf(KEY_COMPONENT, TEST_PROPERTY_1),
@@ -276,7 +274,7 @@ class A2uiCoreComponentDefinitionTest {
                 description = TEST_DESCRIPTION,
                 properties =
                     mapOf(
-                        KEY_COMPONENT to A2uiConstSchema(TEST_NAME),
+                        KEY_COMPONENT to constSchema(TEST_NAME),
                         TEST_PROPERTY_1 to A2uiStringSchema(),
                     ),
                 required = setOf(KEY_COMPONENT, TEST_PROPERTY_1),
@@ -300,6 +298,183 @@ class A2uiCoreComponentDefinitionTest {
         assertThrows(IllegalArgumentException::class.java) { testComponent.toSchema() }
     }
 
+    @Test
+    fun toSchema_withCompositeSchemaResolvingToObject_wrapsInAllOfWithDiscriminator() {
+        val compositeSchema =
+            object : A2uiCompositeSchema() {
+                override val description: String? = null
+                override val definitionName: String = "TestComposite"
+
+                override fun getDefinition(): A2uiSchema =
+                    A2uiObjectSchema(
+                        properties = mapOf(TEST_PROPERTY_1 to A2uiStringSchema()),
+                        required = setOf(TEST_PROPERTY_1),
+                    )
+            }
+        val testComponent = createComponentDefinition(propertySchema = compositeSchema)
+
+        val expectedSchema =
+            A2uiObjectSchema(
+                description = TEST_DESCRIPTION,
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.AllOf(
+                            listOf(
+                                compositeSchema,
+                                A2uiObjectSchema(
+                                    properties = mapOf(KEY_COMPONENT to constSchema(TEST_NAME)),
+                                    required = setOf(KEY_COMPONENT),
+                                ),
+                            )
+                        )
+                    ),
+            )
+
+        assertThat(testComponent.toSchema()).isEqualTo(expectedSchema)
+    }
+
+    @Test
+    fun toSchema_withCompositeSchemaResolvingToPrimitive_throwsException() {
+        val compositeSchema =
+            object : A2uiCompositeSchema() {
+                override val description: String? = null
+                override val definitionName: String = "TestComposite"
+
+                override fun getDefinition(): A2uiSchema = A2uiStringSchema()
+            }
+        val testComponent = createComponentDefinition(propertySchema = compositeSchema)
+
+        assertThrows(IllegalArgumentException::class.java) { testComponent.toSchema() }
+    }
+
+    @Test
+    fun toSchema_withAnySchemaHavingOneOf_wrapsInAllOfWithDiscriminator() {
+        val obj1 = A2uiObjectSchema(properties = mapOf(TEST_PROPERTY_1 to A2uiStringSchema()))
+        val obj2 = A2uiObjectSchema(properties = mapOf(TEST_PROPERTY_2 to A2uiStringSchema()))
+        val oneOfSchema =
+            A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.OneOf(listOf(obj1, obj2))))
+        val testComponent = createComponentDefinition(propertySchema = oneOfSchema)
+
+        val expectedSchema =
+            A2uiObjectSchema(
+                description = TEST_DESCRIPTION,
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.AllOf(
+                            listOf(
+                                oneOfSchema,
+                                A2uiObjectSchema(
+                                    properties = mapOf(KEY_COMPONENT to constSchema(TEST_NAME)),
+                                    required = setOf(KEY_COMPONENT),
+                                ),
+                            )
+                        )
+                    ),
+            )
+
+        assertThat(testComponent.toSchema()).isEqualTo(expectedSchema)
+    }
+
+    @Test
+    fun toSchema_withCompositeSchemaResolvingToOneOf_wrapsInAllOfWithDiscriminator() {
+        val obj1 = A2uiObjectSchema(properties = mapOf(TEST_PROPERTY_1 to A2uiStringSchema()))
+        val obj2 = A2uiObjectSchema(properties = mapOf(TEST_PROPERTY_2 to A2uiStringSchema()))
+        val compositeSchema =
+            object : A2uiCompositeSchema() {
+                override val description: String? = null
+                override val definitionName: String = "TestOneOfComposite"
+
+                override fun getDefinition(): A2uiSchema =
+                    A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.OneOf(listOf(obj1, obj2))))
+            }
+        val testComponent = createComponentDefinition(propertySchema = compositeSchema)
+
+        val expectedSchema =
+            A2uiObjectSchema(
+                description = TEST_DESCRIPTION,
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.AllOf(
+                            listOf(
+                                compositeSchema,
+                                A2uiObjectSchema(
+                                    properties = mapOf(KEY_COMPONENT to constSchema(TEST_NAME)),
+                                    required = setOf(KEY_COMPONENT),
+                                ),
+                            )
+                        )
+                    ),
+            )
+
+        assertThat(testComponent.toSchema()).isEqualTo(expectedSchema)
+    }
+
+    @Test
+    fun toSchema_withOneOfSchemaContainingPrimitive_wrapsInAllOfWithDiscriminator() {
+        val obj1 = A2uiObjectSchema(properties = mapOf(TEST_PROPERTY_1 to A2uiStringSchema()))
+        val oneOfSchema =
+            A2uiAnySchema(
+                keywords = listOf(A2uiSchemaKeyword.OneOf(listOf(obj1, A2uiStringSchema())))
+            )
+        val testComponent = createComponentDefinition(propertySchema = oneOfSchema)
+
+        val expectedSchema =
+            A2uiObjectSchema(
+                description = TEST_DESCRIPTION,
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.AllOf(
+                            listOf(
+                                oneOfSchema,
+                                A2uiObjectSchema(
+                                    properties = mapOf(KEY_COMPONENT to constSchema(TEST_NAME)),
+                                    required = setOf(KEY_COMPONENT),
+                                ),
+                            )
+                        )
+                    ),
+            )
+
+        assertThat(testComponent.toSchema()).isEqualTo(expectedSchema)
+    }
+
+    @Test
+    fun toSchema_withOneOfSchemaContainingOnlyPrimitives_throwsException() {
+        val oneOfSchema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(A2uiSchemaKeyword.OneOf(listOf(A2uiStringSchema(), A2uiNumberSchema())))
+            )
+        val testComponent = createComponentDefinition(propertySchema = oneOfSchema)
+
+        assertThrows(IllegalArgumentException::class.java) { testComponent.toSchema() }
+    }
+
+    @Test
+    fun toSchema_withRefSchema_wrapsInAllOfWithDiscriminator() {
+        val refSchema = A2uiRefSchema(TEST_REF_PATH)
+        val testComponent = createComponentDefinition(propertySchema = refSchema)
+
+        val expectedSchema =
+            A2uiObjectSchema(
+                description = TEST_DESCRIPTION,
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.AllOf(
+                            listOf(
+                                refSchema,
+                                A2uiObjectSchema(
+                                    properties = mapOf(KEY_COMPONENT to constSchema(TEST_NAME)),
+                                    required = setOf(KEY_COMPONENT),
+                                ),
+                            )
+                        )
+                    ),
+            )
+
+        assertThat(testComponent.toSchema()).isEqualTo(expectedSchema)
+    }
+
     private fun createComponentDefinition(
         propertySchema: A2uiSchema,
         name: String = TEST_NAME,
@@ -321,5 +496,17 @@ class A2uiCoreComponentDefinitionTest {
 
         private const val TEST_PROPERTY_1 = "prop1"
         private const val TEST_PROPERTY_2 = "prop2"
+
+        private fun constSchema(value: String): A2uiSchema =
+            A2uiStringSchema(keywords = listOf(A2uiSchemaKeyword.Const(value)))
+
+        private fun allOfSchema(
+            schemas: List<A2uiSchema>,
+            description: String? = null,
+        ): A2uiSchema =
+            A2uiAnySchema(
+                description = description,
+                keywords = listOf(A2uiSchemaKeyword.AllOf(schemas)),
+            )
     }
 }

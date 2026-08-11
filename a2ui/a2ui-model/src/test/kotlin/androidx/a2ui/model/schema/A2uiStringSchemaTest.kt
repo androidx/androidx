@@ -45,6 +45,31 @@ class A2uiStringSchemaTest {
     }
 
     @Test
+    fun toJsonSchema_withKeywords_returnsCorrectJsonObject() {
+        val schema =
+            A2uiStringSchema(
+                description = TEST_DESCRIPTION_1,
+                keywords =
+                    listOf(A2uiSchemaKeyword.Enum(listOf("a", "b")), A2uiSchemaKeyword.Default("a")),
+            )
+        assertThat(Json.parseToJsonElement(schema.toJsonSchema()))
+            .isEqualTo(
+                buildJsonObject {
+                    put(TYPE_FIELD, STRING_TYPE)
+                    put(
+                        "enum",
+                        kotlinx.serialization.json.buildJsonArray {
+                            add(kotlinx.serialization.json.JsonPrimitive("a"))
+                            add(kotlinx.serialization.json.JsonPrimitive("b"))
+                        },
+                    )
+                    put("default", kotlinx.serialization.json.JsonPrimitive("a"))
+                    put(DESCRIPTION_FIELD, TEST_DESCRIPTION_1)
+                }
+            )
+    }
+
+    @Test
     fun equalsAndHashCode_behavesAccordingToContract() {
         EqualsTester()
             .addEqualityGroup(
