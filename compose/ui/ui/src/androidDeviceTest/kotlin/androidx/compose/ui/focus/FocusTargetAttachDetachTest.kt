@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.ReusableContent
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
@@ -1658,6 +1659,33 @@ class FocusTargetAttachDetachTest {
 
         // Act.
         rule.runOnIdle { moveContent = true }
+
+        // Assert.
+        rule.runOnIdle { assertThat(focusTarget.focusState).isEqualTo(Inactive) }
+    }
+
+    @Test
+    fun reusedContent_clearsFocusOnReset() {
+        // Arrange.
+        val focusTarget = FocusTargetNode()
+        val focusRequester = FocusRequester()
+        var active by mutableStateOf(true)
+        rule.setFocusableContent {
+            ReusableContentHost(active) {
+                Box(
+                    Modifier.size(50.dp)
+                        .focusRequester(focusRequester)
+                        .then(elementFor(instance = focusTarget))
+                )
+            }
+        }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+            assertThat(focusTarget.focusState).isEqualTo(Active)
+        }
+
+        // Act.
+        rule.runOnIdle { active = false }
 
         // Assert.
         rule.runOnIdle { assertThat(focusTarget.focusState).isEqualTo(Inactive) }

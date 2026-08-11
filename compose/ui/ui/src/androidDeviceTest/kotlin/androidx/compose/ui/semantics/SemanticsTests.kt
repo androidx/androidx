@@ -39,6 +39,7 @@ import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -70,8 +71,14 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertValueEquals
+import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.hasParent
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -1909,6 +1916,89 @@ class SemanticsTests {
 
     private fun SemanticsNode.isTestTag(testTag: String) =
         this.unmergedConfig.getOrNull(SemanticsProperties.TestTag) == testTag
+
+    @Test
+    fun testSemanticsUpdatedWhenMovedBetweenLayouts() {
+        var moveContent by mutableStateOf(false)
+
+        rule.setContent {
+            val movableContent = remember {
+                movableContentOf {
+                    Box(
+                        Modifier.size(50.dp)
+                            .semantics { contentDescription = "Movable Box" }
+                            .testTag("semantics_child")
+                    )
+                }
+            }
+
+            Box {
+                if (moveContent) {
+                    Box(Modifier.testTag("slot_1_parent")) { movableContent() }
+                } else {
+                    Box(Modifier.testTag("slot_0_parent")) { movableContent() }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("slot_0_parent").assertExists()
+        rule.onNodeWithTag("slot_1_parent").assertDoesNotExist()
+
+        rule
+            .onNode(hasTestTag("semantics_child") and hasParent(hasTestTag("slot_0_parent")))
+            .assertExists()
+        rule
+            .onNode(hasTestTag("semantics_child") and hasParent(hasTestTag("slot_1_parent")))
+            .assertDoesNotExist()
+
+        rule.runOnIdle { moveContent = true }
+
+        rule.onNodeWithTag("slot_1_parent").assertExists()
+        rule.onNodeWithTag("slot_0_parent").assertDoesNotExist()
+
+        rule
+            .onNode(hasTestTag("semantics_child") and hasParent(hasTestTag("slot_1_parent")))
+            .assertExists()
+        rule
+            .onNode(hasTestTag("semantics_child") and hasParent(hasTestTag("slot_0_parent")))
+            .assertDoesNotExist()
+    }
+
+    @Test
+    fun testSemanticsUpdatedWhenReused() {
+        var key by mutableStateOf(true)
+
+        rule.setContent {
+            Box {
+                ReusableContent(key) {
+                    Box(
+                        Modifier.offset(if (key) 0.dp else 20.dp, if (key) 0.dp else 30.dp)
+                            .size(if (key) 50.dp else 100.dp)
+                            .semantics { contentDescription = "Reusable Box" }
+                            .testTag("semantics_child")
+                    )
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag("semantics_child")
+            .assertLeftPositionInRootIsEqualTo(0.dp)
+            .assertTopPositionInRootIsEqualTo(0.dp)
+            .assertWidthIsEqualTo(50.dp)
+            .assertHeightIsEqualTo(50.dp)
+        rule.onNodeWithContentDescription("Reusable Box").assertExists()
+
+        rule.runOnIdle { key = false }
+
+        rule
+            .onNodeWithTag("semantics_child")
+            .assertLeftPositionInRootIsEqualTo(20.dp)
+            .assertTopPositionInRootIsEqualTo(30.dp)
+            .assertWidthIsEqualTo(100.dp)
+            .assertHeightIsEqualTo(100.dp)
+        rule.onNodeWithContentDescription("Reusable Box").assertExists()
+    }
 }
 
 private fun SemanticsNodeInteraction.assertDoesNotHaveProperty(property: SemanticsPropertyKey<*>) {
