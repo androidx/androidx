@@ -46,6 +46,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 class RcPlayerPreviewTest {
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val rule = createComposeRule()
 
     @Test

@@ -65,6 +65,8 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [35])
 class RcPlayerFrameCorrectnessTest {
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val rule = createComposeRule()
 
     private fun loadDocument(bytes: ByteArray): CoreDocument =

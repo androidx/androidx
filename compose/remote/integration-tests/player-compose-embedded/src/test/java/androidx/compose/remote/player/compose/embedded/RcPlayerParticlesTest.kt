@@ -56,6 +56,8 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [35])
 class RcPlayerParticlesTest {
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val rule = createComposeRule()
 
     @Test

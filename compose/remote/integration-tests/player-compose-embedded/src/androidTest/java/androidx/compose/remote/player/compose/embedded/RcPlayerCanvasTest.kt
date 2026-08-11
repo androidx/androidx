@@ -46,6 +46,8 @@ class RcPlayerCanvasTest {
 
     @get:Rule val rule = createComposeRule()
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
     @Ignore("Disable until ScreenshotTestRule is fixed for applications")

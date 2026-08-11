@@ -16,6 +16,7 @@
 package androidx.compose.remote.player.compose
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.player.compose.embedded.RcPlayer
 
 /**
  * This is a collection of flags which are used to guard against regressions in some of the
@@ -63,10 +64,10 @@ public object RemoteComposePlayerFlags {
     public var shouldPlayerWrapContentSize: Boolean = false
 
     /**
-     * Whether the embedded Compose-native player is enabled and used as the default player in
-     * [RemoteDocumentPlayer].
+     * Whether the embedded Compose-native player ([RcPlayer]) is enabled and used as the default
+     * player in [RemoteDocumentPlayer].
      *
-     * When false, the embedded player fails immediately with an [IllegalStateException], and
+     * When false, [RcPlayer] fails immediately with an [IllegalStateException], and
      * [RemoteDocumentPlayer] uses the legacy View-based player.
      */
     // TODO(b/543837906): Clean up after embedded player migration
