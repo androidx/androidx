@@ -59,7 +59,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun filledSplitButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
                             Icon(
@@ -94,7 +94,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 wrap.testTag(wrapperTestTag).size(width = 200.dp, height = 50.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(
                             modifier = Modifier.fillMaxWidth(),
@@ -129,7 +129,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun filledSplitButton_disabled() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(
                             onClick = { /* Do Nothing */ },
@@ -168,7 +168,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun filledSplitButtonChecked() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
                             Icon(
@@ -202,7 +202,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun tonalSplitButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.TonalLeadingButton(onClick = { /* Do Nothing */ }) {
                             Icon(
@@ -237,7 +237,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun tonalSplitButton_disabled() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.TonalLeadingButton(
                             onClick = { /* Do Nothing */ },
@@ -276,7 +276,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun elevatedSplitButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.ElevatedLeadingButton(onClick = { /* Do Nothing */ }) {
                             Icon(
@@ -311,7 +311,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun elevatedSplitButton_disabled() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.ElevatedLeadingButton(
                             onClick = { /* Do Nothing */ },
@@ -350,7 +350,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun outlinedSplitButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.OutlinedLeadingButton(onClick = { /* Do Nothing */ }) {
                             Icon(
@@ -385,7 +385,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun outlinedSplitButton_disabled() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.OutlinedLeadingButton(
                             onClick = { /* Do Nothing */ },
@@ -424,7 +424,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun splitButton_iconLeadingButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
                             Icon(
@@ -454,7 +454,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun splitButton_textLeadingButton() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
                             Text("My Button")
@@ -480,7 +480,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun splitButton_leadingButton_pressed() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(
                             onClick = { /* Do Nothing */ },
@@ -515,7 +515,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     fun splitButton_trailingButton_pressed() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
-                SplitButton(
+                SplitButtonLayout(
                     leadingButton = {
                         SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
                             Icon(
