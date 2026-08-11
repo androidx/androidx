@@ -26,6 +26,8 @@ import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.testing.RemoteBaseContentTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -42,6 +44,7 @@ import org.junit.runners.model.Statement
  *
  * Uses [RemoteBaseContentTestRule] to set Remote Compose content and renders it via [RcPlayer].
  */
+@OptIn(ExperimentalRemotePlayerApi::class)
 class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseContentTestRule()) :
     TestRule by baseRule, ComposeContentTestRule by baseRule {
 
@@ -49,7 +52,20 @@ class RcPlayerTestRule(val baseRule: RemoteBaseContentTestRule = RemoteBaseConte
         get() = baseRule.composeTestRule
 
     override fun apply(base: Statement, description: Description): Statement =
-        baseRule.apply(base, description)
+        baseRule.apply(
+            object : Statement() {
+                override fun evaluate() {
+                    val previous = RemoteComposePlayerFlags.isEmbeddedPlayerEnabled
+                    try {
+                        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
+                        base.evaluate()
+                    } finally {
+                        RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = previous
+                    }
+                }
+            },
+            description,
+        )
 
     /**
      * Captures a remote document from [content] and sets it on [RcPlayer].

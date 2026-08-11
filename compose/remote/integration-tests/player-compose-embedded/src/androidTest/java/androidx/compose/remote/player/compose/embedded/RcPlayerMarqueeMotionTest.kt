@@ -61,6 +61,8 @@ class RcPlayerMarqueeMotionTest {
 
     @get:Rule val rule = createComposeRule()
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val captureRule = RemoteCaptureTestRule()
 
     @Test

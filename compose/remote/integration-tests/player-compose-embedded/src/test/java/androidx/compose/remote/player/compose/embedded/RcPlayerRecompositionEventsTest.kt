@@ -84,6 +84,8 @@ import org.robolectric.shadows.ShadowTrace
 @Suppress("RestrictedApi")
 class RcPlayerRecompositionEventsTest {
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val rule = createComposeRule()
 
     private lateinit var context: Context

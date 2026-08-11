@@ -109,6 +109,8 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerInteractivityTest {
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val rule = createComposeRule()
 
     private val experimentalProfile =

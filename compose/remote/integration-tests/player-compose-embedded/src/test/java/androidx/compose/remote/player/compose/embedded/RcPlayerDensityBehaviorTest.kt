@@ -70,6 +70,8 @@ import org.robolectric.annotation.Config
 @Config(sdk = [35])
 class RcPlayerDensityBehaviorTest {
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val rule = createComposeRule()
 
     @get:Rule val captureRule = RemoteCaptureTestRule()

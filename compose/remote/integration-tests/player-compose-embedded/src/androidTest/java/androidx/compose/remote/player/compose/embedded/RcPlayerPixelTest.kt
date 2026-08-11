@@ -72,6 +72,8 @@ class RcPlayerPixelTest {
 
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
+    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+
     @get:Rule val captureRule = RemoteCaptureTestRule()
 
     /** Renders [content] in a 100dp player box at top-start and rasterizes the content view. */
