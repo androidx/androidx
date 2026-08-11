@@ -1,0 +1,29 @@
+// Signature format: 4.0
+package androidx.pdf.ink {
+
+  @SuppressCompatibility @RequiresExtension(extension=android.os.Build.VERSION_CODES.S, version=18) @androidx.pdf.ExperimentalPdfApi public class EditablePdfViewerFragment extends androidx.pdf.viewer.fragment.PdfViewerFragment {
+    ctor public EditablePdfViewerFragment();
+    ctor protected EditablePdfViewerFragment(androidx.pdf.viewer.fragment.PdfStylingOptions pdfStylingOptions);
+    method public final void applyDraftEdits();
+    method @InaccessibleFromKotlin public final boolean hasUnsavedChanges();
+    method @InaccessibleFromKotlin public final boolean isApplyEditsInProgress();
+    method @InaccessibleFromKotlin public final boolean isEditModeEnabled();
+    method public void onApplyEditsFailed(Throwable error);
+    method public void onApplyEditsSuccess(androidx.pdf.PdfWriteHandle handle);
+    method public void onEnterEditMode();
+    method public void onExitEditMode();
+    method @InaccessibleFromKotlin public final void setEditModeEnabled(boolean);
+    property public final boolean hasUnsavedChanges;
+    property public final boolean isApplyEditsInProgress;
+    property public final boolean isEditModeEnabled;
+  }
+
+}
+
+package @SuppressCompatibility androidx.pdf.ink.model {
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class ApplyInProgressException extends java.lang.IllegalStateException {
+  }
+
+}
+
