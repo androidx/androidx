@@ -299,7 +299,6 @@ public fun captureRemoteDocument(
                                     creationDisplayInfo.toCreationDisplayInfo(),
                                     writerEvents,
                                 )
-                            creationState.animCache.clear()
                             creationState.expressionCache.clear()
                             creationState.intExpressionCache.clear()
                             creationState.remoteVariableToId.clear()
