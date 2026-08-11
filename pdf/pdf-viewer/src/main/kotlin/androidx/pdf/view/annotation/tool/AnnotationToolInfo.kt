@@ -20,7 +20,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.RestrictTo
 
 /** Represents the configuration and state of a selected annotation tool. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public abstract class AnnotationToolInfo
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public sealed interface AnnotationToolInfo
 
 /**
  * Represents the Pen tool with its specific brush size and color.
@@ -29,7 +29,7 @@ import androidx.annotation.RestrictTo
  * @property color The integer value of the selected color.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Pen(public val brushSize: Float, public val color: Int) : AnnotationToolInfo() {
+public class Pen(public val brushSize: Float, public val color: Int) : AnnotationToolInfo {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -67,7 +67,7 @@ public class Highlighter(
     public val brushSize: Float,
     public val color: Int?,
     @param:DrawableRes public val emoji: Int?,
-) : AnnotationToolInfo() {
+) : AnnotationToolInfo {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Highlighter) return false
@@ -97,4 +97,4 @@ public class Highlighter(
 }
 
 /** Represents the Eraser tool, which currently has no configurable properties. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public object Eraser : AnnotationToolInfo()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public object Eraser : AnnotationToolInfo
