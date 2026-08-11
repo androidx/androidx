@@ -17,6 +17,7 @@
 package androidx.a2ui.engine.schema
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
@@ -859,6 +860,85 @@ class A2UiCoreSchemaValidatorTest {
             override val functions = A2uiFunctionCollection(wrappedFunctions)
             override val themeSchema: A2uiSchema? = null
         }
+    }
+
+    @Test
+    fun validateSchema_refComponentInCatalog_succeeds() {
+        val textComp =
+            object : A2uiCoreComponentDefinition {
+                override val name: String = "Text"
+                override val description: String = "Text component"
+                override val propertySchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties = mapOf("text" to A2uiStringSchema()),
+                        required = setOf("text"),
+                    )
+            }
+        val catalog =
+            object : A2uiCoreCatalog {
+                override val id: String = "test"
+                override val componentDefinitions =
+                    A2uiCoreComponentDefinitionCollection(listOf(textComp))
+                override val functions = A2uiFunctionCollection(emptyList())
+                override val themeSchema: A2uiSchema? = null
+            }
+        val catalogValidator = A2uiCoreSchemaValidator(catalog)
+        val schema = A2uiRefSchema("catalog.json#/components/Text")
+        catalogValidator.validateSchema(mapOf("text" to "Hello"), schema)
+    }
+
+    @Test
+    fun validateSchema_refComponentRelative_succeeds() {
+        val textComp =
+            object : A2uiCoreComponentDefinition {
+                override val name: String = "Text"
+                override val description: String = "Text component"
+                override val propertySchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties = mapOf("text" to A2uiStringSchema()),
+                        required = setOf("text"),
+                    )
+            }
+        val catalog =
+            object : A2uiCoreCatalog {
+                override val id: String = "test"
+                override val componentDefinitions =
+                    A2uiCoreComponentDefinitionCollection(listOf(textComp))
+                override val functions = A2uiFunctionCollection(emptyList())
+                override val themeSchema: A2uiSchema? = null
+            }
+        val catalogValidator = A2uiCoreSchemaValidator(catalog)
+        val schema = A2uiRefSchema("#/components/Text")
+        catalogValidator.validateSchema(mapOf("text" to "Hello"), schema)
+    }
+
+    @Test
+    fun validateSchema_refWithOtherNamespace_throwsValidationException() {
+        val textComp =
+            object : A2uiCoreComponentDefinition {
+                override val name: String = "Text"
+                override val description: String = "Text component"
+                override val propertySchema: A2uiSchema =
+                    A2uiObjectSchema(
+                        properties = mapOf("text" to A2uiStringSchema()),
+                        required = setOf("text"),
+                    )
+            }
+        val catalog =
+            object : A2uiCoreCatalog {
+                override val id: String = "test"
+                override val componentDefinitions =
+                    A2uiCoreComponentDefinitionCollection(listOf(textComp))
+                override val functions = A2uiFunctionCollection(emptyList())
+                override val themeSchema: A2uiSchema? = null
+            }
+        val catalogValidator = A2uiCoreSchemaValidator(catalog)
+        val schema = A2uiRefSchema("other.json#/components/Text")
+        val ex =
+            assertFailsWith<A2uiException.A2uiValidationException> {
+                catalogValidator.validateSchema(mapOf("text" to "Hello"), schema)
+            }
+        assertThat(ex.message).contains("must belong to the catalog.json namespace or be relative")
     }
 
     companion object {
