@@ -46,9 +46,12 @@ import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.internal.invokeComposable
 import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
 import androidx.compose.runtime.internal.trace
+import androidx.compose.runtime.snapshots.IndirectState
+import androidx.compose.runtime.snapshots.IndirectStateObserver
 import androidx.compose.runtime.snapshots.currentSnapshot
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastToSet
+import androidx.compose.runtime.snapshots.observeIndirectStateRecalculations
 import androidx.compose.runtime.tooling.ComposeStackTrace
 import androidx.compose.runtime.tooling.ComposeStackTraceFrame
 import androidx.compose.runtime.tooling.ComposeToolingApi
@@ -250,13 +253,13 @@ internal class GapComposer(
     override var sourceMarkersEnabled =
         parentContext.collectingSourceInformation || parentContext.collectingCallByInformation
 
-    private val derivedStateObserver =
-        object : DerivedStateObserver {
-            override fun start(derivedState: DerivedState<*>) {
+    private val indirectStateObserver =
+        object : IndirectStateObserver {
+            override fun start(state: IndirectState<*>) {
                 childrenComposing++
             }
 
-            override fun done(derivedState: DerivedState<*>) {
+            override fun done(state: IndirectState<*>, calculatedValue: Any?) {
                 childrenComposing--
             }
         }
@@ -2645,7 +2648,7 @@ internal class GapComposer(
                 // ^^ Experimental for forced
 
                 // Ignore reads of derivedStateOf recalculations
-                observeDerivedStateRecalculations(derivedStateObserver) {
+                observeIndirectStateRecalculations(indirectStateObserver) {
                     if (content != null) {
                         startGroup(invocationKey, invocation)
                         invokeComposable(this, content)
@@ -3283,14 +3286,14 @@ private fun MutableList<Invalidation>.insertIfMissing(
             Invalidation(
                 scope,
                 location,
-                // Only derived state instance is important for composition
-                instance.takeIf { it is DerivedState<*> },
+                // Only indirect state instance is important for composition
+                instance.takeIf { it is IndirectState<*> },
             ),
         )
     } else {
         val invalidation = get(index)
-        // Only derived state instance is important for composition
-        if (instance is DerivedState<*>) {
+        // Only indirect state instance is important for composition
+        if (instance is IndirectState<*>) {
             when (val oldInstance = invalidation.instances) {
                 null -> {
                     invalidation.instances = instance
