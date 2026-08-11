@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SubcompositionReusableContentHost
@@ -46,6 +47,10 @@ private class LoggerNode(var log: MutableList<String>, name: String) : Modifier.
 
     override fun onDetach() {
         log.add("detach($name)")
+    }
+
+    override fun onReset() {
+        log.add("reset($name)")
     }
 }
 
@@ -251,5 +256,36 @@ class ModifierNodeAttachOrderTest {
         rule.runOnIdle { active = true }
 
         rule.waitForIdle()
+    }
+
+    @Test
+    fun nodesAreAttachedAndDetachedWhenMovedBetweenLayouts() {
+        val log = mutableListOf<String>()
+        var moveContent by mutableStateOf(false)
+
+        rule.setContent {
+            val movableContent = remember { movableContentOf { Box(Modifier.logger(log, "a")) } }
+
+            Box {
+                if (moveContent) {
+                    Box { movableContent() }
+                } else {
+                    Box { movableContent() }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(log).containsExactly("attach(a)")
+            assertThat(log).doesNotContain("reset(a)")
+            log.clear()
+        }
+
+        rule.runOnIdle { moveContent = true }
+
+        rule.runOnIdle {
+            assertThat(log).containsExactly("detach(a)", "attach(a)")
+            assertThat(log).doesNotContain("reset(a)")
+        }
     }
 }

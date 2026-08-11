@@ -16,13 +16,16 @@
 
 package androidx.compose.ui.input.pointer
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -1530,6 +1533,113 @@ class SuspendingPointerInputFilterTest {
                 PointerEventType.Release,
                 PointerEventType.Release,
             )
+    }
+
+    @Test
+    fun pointerInput_whenMovedBetweenLayouts_restartsBlock() {
+        var moveContent by mutableStateOf(false)
+        var tapCount = 0
+        var pointerInputExecutionCount = 0
+        var pointerInputCancellationCount = 0
+
+        rule.setContent {
+            val movableButton = remember {
+                movableContentOf {
+                    Box(
+                        Modifier.size(60.dp)
+                            .pointerInput(Unit) {
+                                pointerInputExecutionCount++
+                                try {
+                                    detectTapGestures(onTap = { tapCount++ })
+                                } finally {
+                                    pointerInputCancellationCount++
+                                }
+                            }
+                            .testTag("pointer_box")
+                    )
+                }
+            }
+
+            Box(Modifier.size(200.dp)) {
+                if (moveContent) {
+                    Box(Modifier.offset(100.dp, 100.dp)) { movableButton() }
+                } else {
+                    Box(Modifier.offset(0.dp, 0.dp)) { movableButton() }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("pointer_box").performClick()
+        rule.runOnIdle {
+            assertThat(tapCount).isEqualTo(1)
+            assertThat(pointerInputExecutionCount).isEqualTo(1)
+            assertThat(pointerInputCancellationCount).isEqualTo(0)
+        }
+
+        rule.runOnIdle { moveContent = true }
+
+        rule.runOnIdle {
+            assertThat(tapCount).isEqualTo(1)
+            assertThat(pointerInputExecutionCount).isEqualTo(1)
+            assertThat(pointerInputCancellationCount).isEqualTo(1)
+        }
+
+        rule.onNodeWithTag("pointer_box").performClick()
+        rule.runOnIdle {
+            assertThat(tapCount).isEqualTo(2)
+            assertThat(pointerInputExecutionCount).isEqualTo(2)
+            assertThat(pointerInputCancellationCount).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun pointerInput_whenReused_restartsBlock() {
+        var key by mutableStateOf(true)
+        var tapCount = 0
+        var pointerInputExecutionCount = 0
+        var pointerInputCancellationCount = 0
+
+        rule.setContent {
+            Box(Modifier.size(200.dp)) {
+                ReusableContent(key) {
+                    Box(
+                        Modifier.offset(if (key) 0.dp else 100.dp, if (key) 0.dp else 100.dp)
+                            .size(60.dp)
+                            .pointerInput(Unit) {
+                                pointerInputExecutionCount++
+                                try {
+                                    detectTapGestures(onTap = { tapCount++ })
+                                } finally {
+                                    pointerInputCancellationCount++
+                                }
+                            }
+                            .testTag("pointer_box")
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag("pointer_box").performClick()
+        rule.runOnIdle {
+            assertThat(tapCount).isEqualTo(1)
+            assertThat(pointerInputExecutionCount).isEqualTo(1)
+            assertThat(pointerInputCancellationCount).isEqualTo(0)
+        }
+
+        rule.runOnIdle { key = false }
+
+        rule.runOnIdle {
+            assertThat(tapCount).isEqualTo(1)
+            assertThat(pointerInputExecutionCount).isEqualTo(1)
+            assertThat(pointerInputCancellationCount).isEqualTo(1)
+        }
+
+        rule.onNodeWithTag("pointer_box").performClick()
+        rule.runOnIdle {
+            assertThat(tapCount).isEqualTo(2)
+            assertThat(pointerInputExecutionCount).isEqualTo(2)
+            assertThat(pointerInputCancellationCount).isEqualTo(1)
+        }
     }
 }
 
