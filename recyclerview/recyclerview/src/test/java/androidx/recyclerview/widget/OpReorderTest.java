@@ -50,17 +50,20 @@ public class OpReorderTest {
     Set<UpdateOp> mRecycledOps = new HashSet<UpdateOp>();
     static Random random = new Random(System.nanoTime());
 
-    OpReorderer mOpReorderer = new OpReorderer(new OpReorderer.Callback() {
-        @Override
-        public UpdateOp obtainUpdateOp(int cmd, int startPosition, int itemCount, Object payload) {
-            return new UpdateOp(cmd, startPosition, itemCount, payload);
-        }
+    OpReorderer mOpReorderer =
+            new OpReorderer(
+                    new OpReorderer.Callback() {
+                        @Override
+                        public UpdateOp obtainUpdateOp(
+                                int cmd, int startPosition, int itemCount, Object payload) {
+                            return new UpdateOp(cmd, startPosition, itemCount, payload);
+                        }
 
-        @Override
-        public void recycleUpdateOp(UpdateOp op) {
-            mRecycledOps.add(op);
-        }
-    });
+                        @Override
+                        public void recycleUpdateOp(UpdateOp op) {
+                            mRecycledOps.add(op);
+                        }
+                    });
 
     int itemCount = 10;
     int updatedItemCount = 0;
@@ -335,13 +338,12 @@ public class OpReorderTest {
         assertHasTheSameItems(originalAdded, mAddedItems);
         assertHasTheSameItems(originalRemoved, mRemovedItems);
 
-        assertRecycledOpsAreNotReused(items);
-        assertRecycledOpsAreNotReused(clones);
+        assertRecycledOpsAreNotReused(rewritten);
     }
 
-    private void assertRecycledOpsAreNotReused(List<Item> items) {
-        for (Item item : items) {
-            assertFalse(mRecycledOps.contains(item));
+    private void assertRecycledOpsAreNotReused(List<UpdateOp> ops) {
+        for (UpdateOp op : ops) {
+            assertFalse("Active op should not be in recycled pool", mRecycledOps.contains(op));
         }
     }
 
@@ -356,8 +358,7 @@ public class OpReorderTest {
         }
     }
 
-    private void assertHasTheSameItems(List<Item> items,
-            List<Item> clones) {
+    private void assertHasTheSameItems(List<Item> items, List<Item> clones) {
         String log = "has the same items\n" + toString(items) + "--\n" + toString(clones);
         assertEquals(log, items.size(), clones.size());
         for (Item item : items) {
@@ -648,10 +649,7 @@ public class OpReorderTest {
 
         @Override
         public String toString() {
-            return "Item{" +
-                    "id=" + id +
-                    ", version=" + version +
-                    '}';
+            return "Item{" + "id=" + id + ", version=" + version + '}';
         }
     }
 }
