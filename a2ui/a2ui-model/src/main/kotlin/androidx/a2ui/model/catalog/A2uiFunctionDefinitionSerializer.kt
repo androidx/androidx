@@ -18,9 +18,10 @@
 
 package androidx.a2ui.model.catalog
 
-import androidx.a2ui.model.schema.A2uiConstSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
+import androidx.a2ui.model.schema.A2uiStringSchema
 
 /**
  * Converts a function definition into an [A2uiSchema].
@@ -35,9 +36,16 @@ internal fun serializeFunctionDefinitionToSchema(
         description = functionDefinition.description.ifEmpty { null },
         properties =
             mapOf(
-                "call" to A2uiConstSchema(functionDefinition.name),
+                "call" to
+                    A2uiStringSchema(
+                        keywords = listOf(A2uiSchemaKeyword.Const(functionDefinition.name))
+                    ),
                 "args" to functionDefinition.argumentSchema,
-                "returnType" to A2uiConstSchema(functionDefinition.returnType.value),
+                "returnType" to
+                    A2uiStringSchema(
+                        keywords =
+                            listOf(A2uiSchemaKeyword.Const(functionDefinition.returnType.value))
+                    ),
             ),
         required = setOf("call", "args"),
         isAdditionalPropertiesAllowed = false,

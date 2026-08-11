@@ -16,14 +16,12 @@
 
 package androidx.a2ui.model.schema.commontypes
 
-import androidx.a2ui.model.schema.A2uiAllOfSchema
-import androidx.a2ui.model.schema.A2uiAnyOfSchema
+import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiCompositeSchema
-import androidx.a2ui.model.schema.A2uiEnumSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
-import androidx.a2ui.model.schema.A2uiOneOfSchema
 import androidx.a2ui.model.schema.A2uiRefSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.internal.SCHEMA_ID_COMMON_TYPES
 
@@ -38,47 +36,57 @@ public class A2uiFunctionCallSchema(public override val description: String? = n
     override val schemaId: String = SCHEMA_ID_COMMON_TYPES
 
     public override fun getDefinition(): A2uiSchema =
-        A2uiAllOfSchema(
-            schemas =
+        A2uiObjectSchema(
+            properties =
+                mapOf(
+                    "call" to A2uiStringSchema("The name of the function to call."),
+                    "callableFrom" to
+                        A2uiStringSchema(
+                            description = "Specifies where this function can be invoked from.",
+                            keywords =
+                                listOf(
+                                    A2uiSchemaKeyword.Enum(
+                                        FunctionCallableFrom.entries.map { it.value }
+                                    )
+                                ),
+                        ),
+                    "args" to
+                        A2uiObjectSchema(
+                            description = "Arguments passed to the function.",
+                            additionalPropertiesSchema =
+                                A2uiAnySchema(
+                                    keywords =
+                                        listOf(
+                                            A2uiSchemaKeyword.AnyOf(
+                                                listOf(
+                                                    A2uiDynamicValueSchema.DEFAULT_INSTANCE,
+                                                    A2uiObjectSchema(
+                                                        description =
+                                                            "A literal object argument (e.g. configuration)."
+                                                    ),
+                                                )
+                                            )
+                                        )
+                                ),
+                        ),
+                    "returnType" to
+                        A2uiStringSchema(
+                            description = "The expected return type of the function call.",
+                            keywords =
+                                listOf(
+                                    A2uiSchemaKeyword.Enum(
+                                        FunctionReturnType.entries.map { it.value }
+                                    ),
+                                    A2uiSchemaKeyword.Default(FunctionReturnType.BOOLEAN.value),
+                                ),
+                        ),
+                ),
+            required = setOf("call"),
+            keywords =
                 listOf(
-                    A2uiObjectSchema(
-                        properties =
-                            mapOf(
-                                "callableFrom" to
-                                    A2uiEnumSchema(
-                                        enumValues =
-                                            listOf("clientOnly", "remoteOnly", "clientOrRemote"),
-                                        description =
-                                            "Specifies where this function can be invoked from.",
-                                    ),
-                                "call" to A2uiStringSchema("The name of the function to call."),
-                                "args" to
-                                    A2uiObjectSchema(
-                                        description = "Arguments passed to the function.",
-                                        additionalPropertiesSchema =
-                                            A2uiAnyOfSchema(
-                                                schemas =
-                                                    listOf(
-                                                        A2uiDynamicValueSchema.DEFAULT_INSTANCE,
-                                                        A2uiObjectSchema(
-                                                            description =
-                                                                "A literal object argument (e.g. configuration)."
-                                                        ),
-                                                    )
-                                            ),
-                                    ),
-                                "returnType" to
-                                    A2uiEnumSchema(
-                                        enumValues = FunctionReturnType.entries.map { it.value },
-                                        description =
-                                            "The expected return type of the function call.",
-                                    ),
-                            ),
-                        required = setOf("call"),
-                    ),
-                    A2uiOneOfSchema(
-                        schemas = listOf(A2uiRefSchema("catalog.json#/\$defs/anyFunction"))
-                    ),
+                    A2uiSchemaKeyword.OneOf(
+                        listOf(A2uiRefSchema("catalog.json#/\$defs/anyFunction"))
+                    )
                 ),
             description = "Invokes a named function on the client.",
         )
@@ -102,7 +110,14 @@ public class A2uiFunctionCallSchema(public override val description: String? = n
     }
 }
 
+internal enum class FunctionCallableFrom(val value: String) {
+    CLIENT_ONLY("clientOnly"),
+    REMOTE_ONLY("remoteOnly"),
+    CLIENT_OR_REMOTE("clientOrRemote"),
+}
+
 internal enum class FunctionReturnType(val value: String) {
+    ANY("any"),
     ARRAY("array"),
     BOOLEAN("boolean"),
     NUMBER("number"),
