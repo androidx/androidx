@@ -43,6 +43,7 @@ class ComposeIssueRegistry : IssueRegistry() {
                 ComposableLambdaInMeasurePolicyDetector.ISSUE,
                 FeatureFlagDetector.ISSUE,
                 SnapshotStateListFastIterableDetector.ISSUE,
+                LazyDelegateDetector.ISSUE,
             )
         }
 

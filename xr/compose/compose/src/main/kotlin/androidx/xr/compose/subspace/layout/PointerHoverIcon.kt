@@ -65,9 +65,8 @@ internal class SpatialPointerHoverIconNode(internal var icon: SpatialPointerIcon
     /** Whether the SpatialPointerComponent is attached to the entity. */
     private var isComponentAttached: Boolean = false
 
-    private val component: SpatialPointerComponent by lazy {
-        SpatialPointerComponent.create(session)
-    }
+    private val component: SpatialPointerComponent by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) { SpatialPointerComponent.create(session) }
 
     override fun CoreEntityScope.modifyCoreEntity() {
         if (!isComponentAttached) {

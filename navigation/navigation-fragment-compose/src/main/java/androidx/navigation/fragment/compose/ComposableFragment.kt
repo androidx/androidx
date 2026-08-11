@@ -39,24 +39,25 @@ import androidx.savedstate.savedState
  */
 public class ComposableFragment internal constructor() : Fragment() {
 
-    private val composableMethod by lazy {
-        val fullyQualifiedName =
-            try {
-                val entry =
-                    findNavController().currentBackStack.value.fastFirst { it.id == this.tag }
-                val destination = entry.destination as ComposableFragmentNavigator.Destination
-                destination.composableFqn
-            } catch (_: Exception) {
-                val arguments = requireArguments()
-                checkNotNull(arguments.getString(FULLY_QUALIFIED_NAME)) {
-                    "Instances of ComposableFragment must be created with the factory function " +
-                        "ComposableFragment(fullyQualifiedName)"
+    private val composableMethod by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            val fullyQualifiedName =
+                try {
+                    val entry =
+                        findNavController().currentBackStack.value.fastFirst { it.id == this.tag }
+                    val destination = entry.destination as ComposableFragmentNavigator.Destination
+                    destination.composableFqn
+                } catch (_: Exception) {
+                    val arguments = requireArguments()
+                    checkNotNull(arguments.getString(FULLY_QUALIFIED_NAME)) {
+                        "Instances of ComposableFragment must be created with the factory function " +
+                            "ComposableFragment(fullyQualifiedName)"
+                    }
                 }
-            }
-        val (className, methodName) = fullyQualifiedName.split("$")
-        val clazz = Class.forName(className, false, ComposableFragment::class.java.classLoader)
-        clazz.getDeclaredComposableMethod(methodName)
-    }
+            val (className, methodName) = fullyQualifiedName.split("$")
+            val clazz = Class.forName(className, false, ComposableFragment::class.java.classLoader)
+            clazz.getDeclaredComposableMethod(methodName)
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,

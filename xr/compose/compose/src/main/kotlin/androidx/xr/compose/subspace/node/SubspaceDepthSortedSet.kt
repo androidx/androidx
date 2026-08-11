@@ -37,9 +37,8 @@ internal class SubspaceDepthSortedSet(
     // Stores the depth used when the node was added to the set to assert it wasn't changed.
     // This is crucial because changing the depth can break the comparator's contract for the
     // SortedSet.
-    private val mapOfOriginalDepth: MutableObjectIntMap<SubspaceLayoutNode> by lazy {
-        mutableObjectIntMapOf()
-    }
+    private val mapOfOriginalDepth: MutableObjectIntMap<SubspaceLayoutNode> by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) { mutableObjectIntMapOf() }
 
     fun drain(action: (SubspaceLayoutNode) -> Unit) {
         while (isNotEmpty()) {

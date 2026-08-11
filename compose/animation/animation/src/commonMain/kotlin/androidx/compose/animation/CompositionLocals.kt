@@ -22,11 +22,11 @@ import androidx.compose.ui.graphics.Color
 
 @OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
 internal val LocalLookaheadAnimationVisualDebugConfig:
-    ProvidableCompositionLocal<LookaheadAnimationVisualDebugConfig> by lazy {
-    staticCompositionLocalOf { LookaheadAnimationVisualDebugConfig(isEnabled = false) }
-}
+    ProvidableCompositionLocal<LookaheadAnimationVisualDebugConfig> by
+    lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+        staticCompositionLocalOf { LookaheadAnimationVisualDebugConfig(isEnabled = false) }
+    }
 
 @OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
-internal val LocalLookaheadAnimationVisualDebugColor: ProvidableCompositionLocal<Color> by lazy {
-    staticCompositionLocalOf { Color.Unspecified }
-}
+internal val LocalLookaheadAnimationVisualDebugColor: ProvidableCompositionLocal<Color> by
+    lazy(LazyThreadSafetyMode.SYNCHRONIZED) { staticCompositionLocalOf { Color.Unspecified } }

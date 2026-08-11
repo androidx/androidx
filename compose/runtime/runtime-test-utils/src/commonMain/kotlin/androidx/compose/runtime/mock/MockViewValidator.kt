@@ -36,7 +36,7 @@ class MockViewListValidator(private val views: List<View>) : MockViewValidator {
         return false
     }
 
-    private val iterator by lazy { views.iterator() }
+    private val iterator by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { views.iterator() }
 
     fun validate(block: (MockViewValidator.() -> Unit)?) {
         if (block != null) {

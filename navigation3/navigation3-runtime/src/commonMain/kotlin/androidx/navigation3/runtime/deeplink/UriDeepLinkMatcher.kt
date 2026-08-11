@@ -200,17 +200,18 @@ public open class UriDeepLinkMatcher<out T : Any>(
 
     // Pair of path pattern regex to list of extracted arg names. List is empty if path
     // has no args.
-    private val parsedPath: Pair<Regex, List<String>> by lazy {
-        UriPatternParser.parsePath(normalizedUriPattern)
-    }
+    private val parsedPath: Pair<Regex, List<String>> by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) { UriPatternParser.parsePath(normalizedUriPattern) }
     // empty if uriPattern does not have any query or query params
-    private val parsedQuery: Map<String, QueryParamPattern> by lazy {
-        UriPatternParser.parseQuery(normalizedUriPattern)
-    }
+    private val parsedQuery: Map<String, QueryParamPattern> by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            UriPatternParser.parseQuery(normalizedUriPattern)
+        }
     // null if uriPattern does not have a fragment. null list if fragment has no args.
-    private val parsedFragment: Pair<Regex, List<String>>? by lazy {
-        UriPatternParser.parseFragment(normalizedUriPattern)
-    }
+    private val parsedFragment: Pair<Regex, List<String>>? by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            UriPatternParser.parseFragment(normalizedUriPattern)
+        }
 
     /**
      * Matches this matcher against a [DeepLinkRequest].
