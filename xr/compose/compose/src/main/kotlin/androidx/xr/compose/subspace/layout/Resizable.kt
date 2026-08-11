@@ -513,12 +513,13 @@ internal class DeprecatedResizableNode(
     /** Whether the resizableComponent is attached to the entity. */
     private var isComponentAttached: Boolean = false
 
-    private val component: ResizableComponent by lazy {
-        ResizableComponent.create(session = session, executor = MainExecutor) {
-            resizeEvent: ResizeEvent ->
-            handleResizeEvent(resizeEvent)
+    private val component: ResizableComponent by
+        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            ResizableComponent.create(session = session, executor = MainExecutor) {
+                resizeEvent: ResizeEvent ->
+                handleResizeEvent(resizeEvent)
+            }
         }
-    }
 
     /** Updates the resizable state of this CoreEntity. */
     private fun updateState() {

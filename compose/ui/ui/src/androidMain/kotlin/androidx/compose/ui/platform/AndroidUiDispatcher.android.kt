@@ -151,16 +151,17 @@ private constructor(
          * The [CoroutineContext] containing the [AndroidUiDispatcher] and its [frameClock] for the
          * process's main thread.
          */
-        public val Main: CoroutineContext by lazy {
-            val dispatcher =
-                AndroidUiDispatcher(
-                    if (isMainThread()) Choreographer.getInstance()
-                    else runBlocking(Dispatchers.Main) { Choreographer.getInstance() },
-                    HandlerCompat.createAsync(Looper.getMainLooper()),
-                )
+        public val Main: CoroutineContext by
+            lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+                val dispatcher =
+                    AndroidUiDispatcher(
+                        if (isMainThread()) Choreographer.getInstance()
+                        else runBlocking(Dispatchers.Main) { Choreographer.getInstance() },
+                        HandlerCompat.createAsync(Looper.getMainLooper()),
+                    )
 
-            dispatcher + dispatcher.frameClock
-        }
+                dispatcher + dispatcher.frameClock
+            }
 
         private val currentThread: ThreadLocal<CoroutineContext> =
             object : ThreadLocal<CoroutineContext>() {
