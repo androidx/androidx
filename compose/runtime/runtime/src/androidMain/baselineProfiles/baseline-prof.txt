@@ -26,6 +26,7 @@ HSPLandroidx/compose/runtime/CompositionKt;->**(**)**
 HSPLandroidx/compose/runtime/CompositionLocal;->**(**)**
 HSPLandroidx/compose/runtime/CompositionLocalKt;->**(**)**
 HSPLandroidx/compose/runtime/CompositionScopedCoroutineScopeCanceller;->**(**)**
+HSPLandroidx/compose/runtime/ComputedSnapshotState**->**(**)**
 HSPLandroidx/compose/runtime/DerivedSnapshotState**->**(**)**
 HSPLandroidx/compose/runtime/DisposableEffectImpl;->**(**)**
 HSPLandroidx/compose/runtime/DisposableEffectScope;->**(**)**
