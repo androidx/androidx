@@ -40,6 +40,7 @@ import androidx.wear.compose.material3.TitleCard
 import androidx.wear.compose.material3.macrobenchmark.common.MacrobenchmarkScreen
 import androidx.wear.compose.material3.macrobenchmark.common.R
 import androidx.wear.compose.material3.macrobenchmark.common.scrollDown
+import androidx.wear.compose.material3.macrobenchmark.common.scrollUp
 
 val CardScreen =
     object : MacrobenchmarkScreen {
@@ -99,5 +100,12 @@ val CardScreen =
             }
 
         override val exercise: MacrobenchmarkScope.() -> Unit
-            get() = { device.scrollDown() }
+            get() = {
+                repeat(2) {
+                    device.scrollDown()
+                    device.waitForIdle()
+                    device.scrollUp()
+                    device.waitForIdle()
+                }
+            }
     }
