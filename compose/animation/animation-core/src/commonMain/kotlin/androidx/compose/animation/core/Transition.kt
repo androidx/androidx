@@ -1591,7 +1591,7 @@ protected constructor(
 
         init {
             val visibilityThreshold: T? =
-                VisibilityThresholdMap.get(typeConverter)?.let {
+                defaultVisibilityThresholdFor(typeConverter)?.let {
                     val vector = typeConverter.convertToVector(initialValue)
                     for (id in 0 until vector.size) {
                         vector[id] = it
