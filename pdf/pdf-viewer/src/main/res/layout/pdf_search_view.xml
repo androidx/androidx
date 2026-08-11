@@ -30,7 +30,7 @@
         android:background="@drawable/shape_textbox"
         android:orientation="horizontal">
 
-        <androidx.pdf.widget.SearchEditText
+        <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/searchQueryBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

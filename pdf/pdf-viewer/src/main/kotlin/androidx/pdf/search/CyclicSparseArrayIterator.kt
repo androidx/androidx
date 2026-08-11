@@ -19,6 +19,8 @@ package androidx.pdf.search
 import android.util.SparseArray
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.search.model.QueryResultsIndex
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 /**
  * A cyclic iterator implementation over SparseArray.
@@ -26,6 +28,8 @@ import androidx.pdf.search.model.QueryResultsIndex
  * @param visiblePage current visible page to the user, used to init current result.
  */
 internal class CyclicSparseArrayIterator(private val visiblePage: Int) {
+    private val lock = ReentrantLock()
+
     /** The search data over which [CyclicSparseArrayIterator] will iterate. */
     private val searchData: SparseArray<List<PageMatchBounds>> = SparseArray()
 
@@ -40,43 +44,47 @@ internal class CyclicSparseArrayIterator(private val visiblePage: Int) {
 
     /** Get the current state of selected search result. */
     fun current(): QueryResultsIndex =
-        QueryResultsIndex(pageNum = currentPageNum, resultBoundsIndex = searchIndexOnPage)
+        lock.withLock {
+            QueryResultsIndex(pageNum = currentPageNum, resultBoundsIndex = searchIndexOnPage)
+        }
 
     /** Move to the next element in the current page, or to the next page cyclically. */
-    fun next(): QueryResultsIndex {
-        val pageNumIndex = searchData.indexOfKey(currentPageNum)
-        val resultsOnPage = searchData.valueAt(pageNumIndex)
+    fun next(): QueryResultsIndex =
+        lock.withLock {
+            val pageNumIndex = searchData.indexOfKey(currentPageNum)
+            val resultsOnPage = searchData.valueAt(pageNumIndex)
 
-        // Move to the next result in the current page
-        searchIndexOnPage = (searchIndexOnPage + 1) % resultsOnPage.size
+            // Move to the next result in the current page
+            searchIndexOnPage = (searchIndexOnPage + 1) % resultsOnPage.size
 
-        // If we're at the end of the current page, move to the next page
-        if (searchIndexOnPage == 0) {
-            val nextPageIndex = (pageNumIndex + 1) % matchedPagesCount
-            currentPageNum = searchData.keyAt(nextPageIndex)
+            // If we're at the end of the current page, move to the next page
+            if (searchIndexOnPage == 0) {
+                val nextPageIndex = (pageNumIndex + 1) % matchedPagesCount
+                currentPageNum = searchData.keyAt(nextPageIndex)
+            }
+
+            current()
         }
-
-        return current()
-    }
 
     /** Move to the previous element in the page list, or to the previous page cyclically. */
-    fun prev(): QueryResultsIndex {
-        val pageNumIndex = searchData.indexOfKey(currentPageNum)
-        val resultsOnPage = searchData.valueAt(pageNumIndex)
+    fun prev(): QueryResultsIndex =
+        lock.withLock {
+            val pageNumIndex = searchData.indexOfKey(currentPageNum)
+            val resultsOnPage = searchData.valueAt(pageNumIndex)
 
-        // Move to the previous item in the current page
-        searchIndexOnPage = (searchIndexOnPage - 1 + resultsOnPage.size) % resultsOnPage.size
+            // Move to the previous item in the current page
+            searchIndexOnPage = (searchIndexOnPage - 1 + resultsOnPage.size) % resultsOnPage.size
 
-        // If we're at the beginning of the current page, move to the previous page
-        if (searchIndexOnPage == resultsOnPage.size - 1) {
-            val prevPageIndex = (pageNumIndex - 1 + matchedPagesCount) % matchedPagesCount
-            currentPageNum = searchData.keyAt(prevPageIndex)
-            // update the search index of page to last result on updated page
-            searchIndexOnPage = searchData.valueAt(prevPageIndex).lastIndex
+            // If we're at the beginning of the current page, move to the previous page
+            if (searchIndexOnPage == resultsOnPage.size - 1) {
+                val prevPageIndex = (pageNumIndex - 1 + matchedPagesCount) % matchedPagesCount
+                currentPageNum = searchData.keyAt(prevPageIndex)
+                // update the search index of page to last result on updated page
+                searchIndexOnPage = searchData.valueAt(prevPageIndex).lastIndex
+            }
+
+            current()
         }
-
-        return current()
-    }
 
     /**
      * Moves the [searchIndexOnPage] to the provided index on the current page. This can be utilized
@@ -85,33 +93,35 @@ internal class CyclicSparseArrayIterator(private val visiblePage: Int) {
      * @throws [IndexOutOfBoundsException] if the provided index is outside the bounds of the
      *   results on the current page.
      */
-    fun moveToIndex(index: Int) {
-        val pageNumIndex = searchData.indexOfKey(currentPageNum)
-        val resultSizeOnCurrentPage = searchData.valueAt(pageNumIndex).size
-        if (index !in 0 until resultSizeOnCurrentPage)
-            throw IndexOutOfBoundsException(
-                "Provided index is out of range in selected page results."
-            )
+    fun moveToIndex(index: Int) =
+        lock.withLock {
+            val pageNumIndex = searchData.indexOfKey(currentPageNum)
+            val resultSizeOnCurrentPage = searchData.valueAt(pageNumIndex).size
+            if (index !in 0 until resultSizeOnCurrentPage)
+                throw IndexOutOfBoundsException(
+                    "Provided index is out of range in selected page results."
+                )
 
-        searchIndexOnPage = index
-    }
+            searchIndexOnPage = index
+        }
 
     /**
      * Adds search results for a page and initializes the selected result index if this is the first
      * match found.
      */
-    fun addMatches(pageNum: Int, matches: List<PageMatchBounds>) {
-        val wasEmpty = searchData.size() == 0
-        searchData.put(pageNum, matches)
+    fun addMatches(pageNum: Int, matches: List<PageMatchBounds>) =
+        lock.withLock {
+            val wasEmpty = searchData.size() == 0
+            searchData.put(pageNum, matches)
 
-        if (wasEmpty) {
-            currentPageNum = findClosestMatchPageNum(visiblePage)
-            searchIndexOnPage = 0
+            if (wasEmpty) {
+                currentPageNum = findClosestMatchPageNum(visiblePage)
+                searchIndexOnPage = 0
+            }
         }
-    }
 
     /** Returns a shallow copy of the accumulated search results. */
-    fun cloneData(): SparseArray<List<PageMatchBounds>> = searchData.clone()
+    fun cloneData(): SparseArray<List<PageMatchBounds>> = lock.withLock { searchData.clone() }
 
     /**
      * Find the closest page with search results from current visible page in forward direction.

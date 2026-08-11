@@ -46,6 +46,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
+    testImplementation(libs.testCore)
     androidTestImplementation("androidx.fragment:fragment-testing:1.7.1")
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.espressoIdlingResource)
