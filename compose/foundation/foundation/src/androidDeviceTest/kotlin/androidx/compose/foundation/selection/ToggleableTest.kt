@@ -45,6 +45,8 @@ import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentDataType
+import androidx.compose.ui.autofill.FillableData
+import androidx.compose.ui.autofill.createFromBoolean
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -63,6 +65,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -81,12 +84,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -112,7 +115,6 @@ class ToggleableTest {
         isDebugInspectorInfoEnabled = false
     }
 
-    @SdkSuppress(minSdkVersion = 25) // b/538597974
     @Test
     fun toggleableTest_defaultSemantics() {
         rule.setContent {
@@ -156,32 +158,35 @@ class ToggleableTest {
         fun roleNotSet(): SemanticsMatcher =
             SemanticsMatcher.keyNotDefined(SemanticsProperties.Role)
 
+        fun SemanticsNodeInteraction.assertAutofill(): SemanticsNodeInteraction {
+            this.assert(autofillDataToggleSet()).assert(autofillFillActionSet())
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+                // FillableData only available on API 26+.
+                this.assert(autofillFillDataSet())
+            }
+            return this
+        }
+
         rule
             .onNodeWithTag("checkedToggleable")
             .assert(roleNotSet())
             .assertIsEnabled()
             .assertIsOn()
-            .assert(autofillDataToggleSet())
-            .assert(autofillFillActionSet())
-            .assert(autofillFillDataSet())
+            .assertAutofill()
             .assertHasClickAction()
         rule
             .onNodeWithTag("unCheckedToggleable")
             .assert(roleNotSet())
             .assertIsEnabled()
             .assertIsOff()
-            .assert(autofillDataToggleSet())
-            .assert(autofillFillActionSet())
-            .assert(autofillFillDataSet())
+            .assertAutofill()
             .assertHasClickAction()
         rule
             .onNodeWithTag("indeterminateToggleable")
             .assert(roleNotSet())
             .assertIsEnabled()
             .assert(hasIndeterminateState())
-            .assert(autofillDataToggleSet())
-            .assert(autofillFillActionSet())
-            .assert(autofillFillDataSet())
+            .assertAutofill()
             .assertHasClickAction()
     }
 
@@ -212,6 +217,134 @@ class ToggleableTest {
             .assertIsEnabled()
             .assertIsOff()
             .assertHasClickAction()
+    }
+
+    @Test
+    fun toggleableTest_autofill_updatesState() {
+        var checkedState = false
+        rule.setContent {
+            Box(
+                Modifier.toggleable(value = checkedState, onValueChange = { checkedState = it })
+                    .testTag("toggleableNode")
+            )
+        }
+
+        val fillableData = FillableData.createFromBoolean(true)
+        if (fillableData != null) {
+            // Attempt to trigger Autofill action OnFillData
+            rule.onNodeWithTag("toggleableNode").performSemanticsAction(
+                SemanticsActions.OnFillData
+            ) {
+                it(fillableData)
+            }
+
+            rule.waitForIdle()
+
+            // Verify if the backing application state variable `checkedState` was updated
+            assertThat(checkedState).isTrue()
+        }
+    }
+
+    @Test
+    fun triStateToggleable_autofill_updatesState() {
+        var state by mutableStateOf(ToggleableState.Off)
+        rule.setContent {
+            Box(
+                Modifier.triStateToggleable(
+                        state = state,
+                        onClick = {
+                            state =
+                                when (state) {
+                                    ToggleableState.Off -> ToggleableState.On
+                                    ToggleableState.On -> ToggleableState.Off
+                                    ToggleableState.Indeterminate -> ToggleableState.On
+                                }
+                        },
+                    )
+                    .testTag("triStateToggleableNode")
+            )
+        }
+
+        val fillableData = FillableData.createFromBoolean(true)
+        if (fillableData != null) {
+            // Attempt to trigger Autofill action OnFillData to set state to On (true)
+            rule.onNodeWithTag("triStateToggleableNode").performSemanticsAction(
+                SemanticsActions.OnFillData
+            ) {
+                it(fillableData)
+            }
+
+            rule.waitForIdle()
+
+            // Verify if the backing application state variable `state` was updated to
+            // ToggleableState.On
+            assertThat(state).isEqualTo(ToggleableState.On)
+        }
+    }
+
+    @Test
+    fun triStateToggleable_autofill_updatesState_toOff() {
+        var state by mutableStateOf(ToggleableState.On)
+        rule.setContent {
+            Box(
+                Modifier.triStateToggleable(
+                        state = state,
+                        onClick = {
+                            state =
+                                when (state) {
+                                    ToggleableState.Off -> ToggleableState.On
+                                    ToggleableState.On -> ToggleableState.Off
+                                    ToggleableState.Indeterminate -> ToggleableState.On
+                                }
+                        },
+                    )
+                    .testTag("triStateToggleableNode")
+            )
+        }
+
+        val fillableData = FillableData.createFromBoolean(false)
+        if (fillableData != null) {
+            // Attempt to trigger Autofill action OnFillData to set state to Off (false)
+            rule.onNodeWithTag("triStateToggleableNode").performSemanticsAction(
+                SemanticsActions.OnFillData
+            ) {
+                it(fillableData)
+            }
+
+            rule.waitForIdle()
+
+            // Verify if the backing application state variable `state` was updated to
+            // ToggleableState.Off
+            assertThat(state).isEqualTo(ToggleableState.Off)
+        }
+    }
+
+    @Test
+    fun triStateToggleable_autofill_indeterminate_ignored() {
+        var state by mutableStateOf(ToggleableState.Indeterminate)
+        var onClickCalled = false
+        rule.setContent {
+            Box(
+                Modifier.triStateToggleable(state = state, onClick = { onClickCalled = true })
+                    .testTag("triStateToggleableNode")
+            )
+        }
+
+        val fillableData = FillableData.createFromBoolean(true)
+        if (fillableData != null) {
+            var handled = true
+            rule.onNodeWithTag("triStateToggleableNode").performSemanticsAction(
+                SemanticsActions.OnFillData
+            ) {
+                handled = it(fillableData)
+            }
+
+            rule.waitForIdle()
+
+            assertThat(handled).isFalse()
+            assertThat(onClickCalled).isFalse()
+            assertThat(state).isEqualTo(ToggleableState.Indeterminate)
+        }
     }
 
     @Test
