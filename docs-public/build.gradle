@@ -45,7 +45,7 @@ dependencies {
     docs("androidx.camera.viewfinder:viewfinder-compose:1.7.0-alpha03")
     docs("androidx.camera.viewfinder:viewfinder-core:1.7.0-alpha03")
     docs("androidx.camera.viewfinder:viewfinder-view:1.7.0-alpha03")
-    docs("androidx.camera:camera-camera2:1.5.3")
+    docs("androidx.camera:camera-camera2:1.7.0-alpha03")
     docs("androidx.camera:camera-common:1.7.0-alpha03")
     docs("androidx.camera:camera-common-testing:1.7.0-alpha03")
     docs("androidx.camera:camera-compose:1.7.0-alpha03")
