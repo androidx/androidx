@@ -84,6 +84,8 @@ sealed class NativeTarget(val name: String) : Serializable {
     override fun toString(): String = name
 
     companion object {
+        private const val serialVersionUID: Long = 119394285024L
+
         @JvmField val ANDROID_ARM32: NativeTarget = Android("android_arm32")
         @JvmField val ANDROID_ARM64: NativeTarget = Android("android_arm64")
         @JvmField val ANDROID_X86: NativeTarget = Android("android_x86")
