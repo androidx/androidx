@@ -21,6 +21,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import org.json.JSONObject
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -168,9 +170,12 @@ class OpenId4VciRegistryTest {
             )
 
         val creationOptions = registry.creationOptions
-        assertThat(creationOptions.sliceArray(0 until 4)).isEqualTo(byteArrayOf(4, 0, 0, 0))
+        val jsonOffset =
+            ByteBuffer.wrap(creationOptions.sliceArray(0 until 4))
+                .order(ByteOrder.LITTLE_ENDIAN)
+                .int
 
-        val jsonBytes = creationOptions.sliceArray(4 until creationOptions.size)
+        val jsonBytes = creationOptions.sliceArray(jsonOffset until creationOptions.size)
         val json = JSONObject(String(jsonBytes, Charsets.UTF_8))
 
         assertThat(json.getString("entry_id")).isEqualTo("test_id")
@@ -178,6 +183,18 @@ class OpenId4VciRegistryTest {
         assertThat(entries.length()).isEqualTo(1)
         val entry = entries.getJSONObject(0)
         assertThat(entry.length()).isEqualTo(0) // Should be empty
+
+        val packageInfo = json.getJSONObject("package_info")
+        val expectedName = context.applicationInfo.loadLabel(context.packageManager).toString()
+        assertThat(packageInfo.getString("name")).isEqualTo(expectedName)
+
+        val hasIcon = jsonOffset > 4
+        assertThat(packageInfo.has("icon")).isEqualTo(hasIcon)
+        if (hasIcon) {
+            val iconRange = packageInfo.getJSONArray("icon")
+            assertThat(iconRange.getInt(0)).isEqualTo(4)
+            assertThat(iconRange.getInt(1)).isEqualTo(jsonOffset)
+        }
     }
 
     @Test
