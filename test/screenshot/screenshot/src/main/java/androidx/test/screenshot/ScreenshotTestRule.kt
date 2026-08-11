@@ -171,7 +171,7 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
      *
      * Note: The golden identifier should be unique per your test module (unless you want multiple
      * tests to match the same golden). The name must not contain extension. You should also avoid
-     * adding strings like "golden", "image" and instead describe what is the golder referring to.
+     * adding strings like "golden", "image" and instead describe what the golden is referring to.
      *
      * @param actual The bitmap captured during the test.
      * @param goldenIdentifier Name of the golden. Allowed characters: 'A-Za-z0-9_-'
