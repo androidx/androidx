@@ -35,6 +35,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -67,8 +69,10 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.GraphicsResourceCache
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalGraphicsResourceCache
 import androidx.compose.ui.platform.LocalImageVectorCache
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -88,6 +92,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.test.assertSame
 import org.junit.Assert
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -1614,6 +1619,145 @@ class VectorTest {
                 fill = SolidColor(Color.Blue),
             )
         }
+    }
+
+    @Test
+    fun testVectorPainterCacheHit() {
+        val imageVector = Icons.Default.Add
+        var cache: GraphicsResourceCache? = null
+        var cacheKeyAlpha8: VectorDrawCacheKey? = null
+        var cacheKeyArgb: VectorDrawCacheKey? = null
+        rule.setContent {
+            cache = LocalGraphicsResourceCache.current
+            val density = LocalDensity.current
+            cache?.clear()
+
+            val sizePxInt = with(density) { 24.dp.roundToPx() }
+
+            cacheKeyAlpha8 =
+                VectorDrawCacheKey(
+                    genId = imageVector.genId,
+                    densityBits = density.density.toBits(),
+                    width = sizePxInt,
+                    height = sizePxInt,
+                    config = ImageBitmapConfig.Alpha8,
+                )
+
+            Image(
+                painter = rememberVectorPainter(image = imageVector),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+            )
+        }
+
+        rule.waitForIdle()
+        assertTrue(cache?.contains(cacheKeyAlpha8!!) == true)
+    }
+
+    @Test
+    fun testVectorPainterCacheCleared() {
+
+        val icon = Icons.Default.Add
+
+        var cache: GraphicsResourceCache? = null
+        var cacheKeyAlpha8: VectorDrawCacheKey? = null
+        rule.setContent {
+            cache = LocalGraphicsResourceCache.current
+            val density = LocalDensity.current
+
+            val sizePxInt = with(density) { 24.dp.roundToPx() }
+
+            cacheKeyAlpha8 =
+                VectorDrawCacheKey(
+                    genId = icon.genId,
+                    densityBits = density.density.toBits(),
+                    width = sizePxInt,
+                    height = sizePxInt,
+                    config = ImageBitmapConfig.Alpha8,
+                )
+
+            Image(
+                painter = rememberVectorPainter(image = icon),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+            )
+        }
+
+        rule.waitForIdle()
+        val resourceInCache = cache?.contains(cacheKeyAlpha8!!) == true
+        assertTrue("Vector was not inserted in cache after initial creation", resourceInCache)
+
+        rule.runOnUiThread {
+            (rule.activity.applicationContext as Application).onTrimMemory(0)
+            rule.activity.onTrimMemory(0)
+        }
+
+        val cacheCleared = (cache?.contains(cacheKeyAlpha8!!) != true)
+
+        assertTrue("Cache was not cleared after trim memory call", cacheCleared)
+    }
+
+    @Test
+    fun testVectorCacheSharedAcrossRecyclerViewItems() {
+
+        val capturedCaches =
+            java.util.Collections.synchronizedList(mutableListOf<GraphicsResourceCache?>())
+
+        rule.runOnUiThread {
+            val activity = rule.activity
+            val recyclerView =
+                androidx.recyclerview.widget.RecyclerView(activity).apply {
+                    layoutManager = androidx.recyclerview.widget.LinearLayoutManager(activity)
+
+                    adapter =
+                        object :
+                            androidx.recyclerview.widget.RecyclerView.Adapter<
+                                androidx.recyclerview.widget.RecyclerView.ViewHolder
+                            >() {
+                            override fun onCreateViewHolder(
+                                parent: android.view.ViewGroup,
+                                viewType: Int,
+                            ): androidx.recyclerview.widget.RecyclerView.ViewHolder {
+                                return object :
+                                    androidx.recyclerview.widget.RecyclerView.ViewHolder(
+                                        androidx.compose.ui.platform.ComposeView(parent.context)
+                                    ) {}
+                            }
+
+                            override fun onBindViewHolder(
+                                holder: androidx.recyclerview.widget.RecyclerView.ViewHolder,
+                                position: Int,
+                            ) {
+                                (holder.itemView as androidx.compose.ui.platform.ComposeView)
+                                    .setContent {
+                                        val painter = painterResource(R.drawable.ic_triangle)
+                                        val cache = LocalGraphicsResourceCache.current
+                                        androidx.compose.runtime.SideEffect {
+                                            capturedCaches.add(cache)
+                                        }
+
+                                        Image(painter, contentDescription = null)
+                                    }
+                            }
+
+                            override fun getItemCount(): Int = 2
+                        }
+                }
+            activity.setContentView(recyclerView)
+        }
+
+        rule.waitForIdle()
+
+        assertEquals("Should have bound 2 items", 2, capturedCaches.size)
+
+        val cache1 = capturedCaches[0]
+        val cache2 = capturedCaches[1]
+
+        assertSame(
+            cache1,
+            cache2,
+            "Different ComposeViews in RecyclerView should share the same GraphicsResourceCache",
+        )
     }
 
     // captureToImage() requires API level 26

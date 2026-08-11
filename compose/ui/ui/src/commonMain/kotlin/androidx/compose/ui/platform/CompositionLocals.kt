@@ -279,6 +279,14 @@ internal val LocalPointerIconService = computedNullableDefaultOf {
 internal val LocalProvidableScrollCaptureInProgress = compositionLocalOf { false }
 
 /**
+ * The [GraphicsResourceCache] of the [Owner] hosting this composition, or null if the owner doesn't
+ * support graphics resource sharing.
+ */
+internal val LocalGraphicsResourceCache = computedNullableDefaultOf {
+    LocalOwner.currentValue.graphicsResourceCache
+}
+
+/**
  * True when the system is currently capturing the contents of a scrollable in this compose view or
  * any parent compose view.
  */
