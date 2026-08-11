@@ -18,6 +18,7 @@ package androidx.compose.runtime.benchmark
 
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -38,6 +39,21 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class EffectsBenchmark(private val count: Int) : ComposeBenchmarkBase() {
+
+    @Test
+    fun sideEffect_add() = runBlockingTestWithFrameClock {
+        var effectsCount by mutableStateOf(0)
+        measureRecompose {
+            var seen = 0
+            compose { repeat(effectsCount) { SideEffect(Unit) { seen++ } } }
+            update { effectsCount = count }
+            reset {
+                effectsCount = 0
+                assertEquals("Didn't see the right number of effects", seen, count)
+                seen = 0
+            }
+        }
+    }
 
     @Test
     fun launchedEffect_add() = runBlockingTestWithFrameClock {
