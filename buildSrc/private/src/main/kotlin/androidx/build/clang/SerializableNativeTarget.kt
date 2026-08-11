@@ -33,4 +33,8 @@ value class SerializableNativeTarget(val name: String) : Serializable {
         get() = NativeTarget.fromName(name)
 
     override fun toString() = name
+
+    companion object {
+        private const val serialVersionUID: Long = 119394285023L
+    }
 }
