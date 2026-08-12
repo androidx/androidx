@@ -20,6 +20,7 @@ import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServic
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionServiceEntryPointAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.ExtensionsAppFunctionServiceClass
 import com.google.devtools.ksp.getAllSuperTypes
+import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFile
@@ -56,6 +57,16 @@ class AnnotatedAppFunctionServiceEntryPoint(
             AppFunctionServiceEntryPointAnnotation.PROPERTY_APP_FUNCTION_XML_FILE_NAME,
             String::class,
         )
+    }
+
+    /** Gets all annotated nodes. */
+    fun getAllAnnotated(): List<KSAnnotated> {
+        return buildList {
+            add(serviceDeclaration)
+            for (appFunction in appFunctions) {
+                add(appFunction.appFunctionDeclaration)
+            }
+        }
     }
 
     /** Validates the app function entry point. */
