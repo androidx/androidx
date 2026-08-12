@@ -313,6 +313,8 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val PARAMETER_METADATA_ARG5_ARRAY_DATA_TYPE: AppFunctionArrayTypeMetadata =
@@ -462,6 +464,8 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = true,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val ARG5_PARAMETER_METADATA: AppFunctionParameterMetadata =
@@ -610,6 +614,8 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val PARAMETER_METADATA_ARG5_ARRAY_DATA_TYPE: AppFunctionArrayTypeMetadata =
@@ -667,6 +673,8 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = true,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val PARAMETER_METADATA_ARG8_ARRAY_DATA_TYPE: AppFunctionArrayTypeMetadata =
@@ -782,6 +790,8 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val ARG5_PARAMETER_METADATA: AppFunctionParameterMetadata =
@@ -1412,6 +1422,8 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = true,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val ARRAY_RESPONSE_VALUE_TYPE: AppFunctionArrayTypeMetadata =
@@ -1448,6 +1460,8 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val ARRAY_RESPONSE_VALUE_TYPE: AppFunctionArrayTypeMetadata =
@@ -1484,6 +1498,8 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = true,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
@@ -1513,6 +1529,8 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val ARRAY_RESPONSE_VALUE_TYPE: AppFunctionArrayTypeMetadata =
@@ -1549,6 +1567,8 @@ public class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             isNullable = false,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(

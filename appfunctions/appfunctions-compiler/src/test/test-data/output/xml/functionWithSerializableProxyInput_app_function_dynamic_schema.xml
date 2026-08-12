@@ -53,26 +53,6 @@
             <dataTypeMetadata>
                 <id>unused</id>
                 <isNullable>true</isNullable>
-                <objectQualifiedName>android.net.Uri</objectQualifiedName>
-                <properties>
-                    <dataTypeMetadata>
-                        <id>unused</id>
-                        <isNullable>false</isNullable>
-                        <type>8</type>
-                    </dataTypeMetadata>
-                    <id>unused</id>
-                    <name>uriString</name>
-                </properties>
-                <required>uriString</required>
-                <type>3</type>
-            </dataTypeMetadata>
-            <id>unused</id>
-            <name>android.net.Uri</name>
-        </dataTypes>
-        <dataTypes>
-            <dataTypeMetadata>
-                <id>unused</id>
-                <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.SerializableWithProxyType</objectQualifiedName>
                 <properties>
                     <dataTypeMetadata>
@@ -111,10 +91,10 @@
                 </properties>
                 <properties>
                     <dataTypeMetadata>
-                        <dataTypeReference>android.net.Uri</dataTypeReference>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <type>11</type>
+                        <format>uri</format>
+                        <type>8</type>
                     </dataTypeMetadata>
                     <id>unused</id>
                     <name>androidUri</name>
@@ -124,10 +104,10 @@
                         <id>unused</id>
                         <isNullable>false</isNullable>
                         <itemType>
-                            <dataTypeReference>android.net.Uri</dataTypeReference>
                             <id>unused</id>
                             <isNullable>false</isNullable>
-                            <type>11</type>
+                            <format>uri</format>
+                            <type>8</type>
                         </itemType>
                         <type>10</type>
                     </dataTypeMetadata>
@@ -136,10 +116,10 @@
                 </properties>
                 <properties>
                     <dataTypeMetadata>
-                        <dataTypeReference>android.net.Uri</dataTypeReference>
                         <id>unused</id>
                         <isNullable>true</isNullable>
-                        <type>11</type>
+                        <format>uri</format>
+                        <type>8</type>
                     </dataTypeMetadata>
                     <id>unused</id>
                     <name>androidUriNullable</name>
@@ -149,10 +129,10 @@
                         <id>unused</id>
                         <isNullable>true</isNullable>
                         <itemType>
-                            <dataTypeReference>android.net.Uri</dataTypeReference>
                             <id>unused</id>
                             <isNullable>false</isNullable>
-                            <type>11</type>
+                            <format>uri</format>
+                            <type>8</type>
                         </itemType>
                         <type>10</type>
                     </dataTypeMetadata>

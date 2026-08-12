@@ -30,71 +30,54 @@ public class `$FunctionWithSerializableProxyInput_AppFunctionInventory` : AppFun
     "com.testdata.FunctionWithSerializableProxyInput#simpleFunctionWithSerializableWithProxy" to ComTestdataFunctionWithSerializableProxyInputSimpleFunctionWithSerializableWithProxyMetadataObject.APP_FUNCTION_METADATA,
   )
 
-  private val ANDROID_NET_URI_OBJECT_DATA_TYPE_PROPERTIES_MAP_URISTRING:
+  private val COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURI:
       AppFunctionStringTypeMetadata = AppFunctionStringTypeMetadata(
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = "uri",
       )
 
-  private val ANDROID_NET_URI_OBJECT_DATA_TYPE_PROPERTIES_MAP:
-      Map<String, AppFunctionDataTypeMetadata> = mapOf(
-    "uriString" to ANDROID_NET_URI_OBJECT_DATA_TYPE_PROPERTIES_MAP_URISTRING,
-  )
-
-  private val ANDROID_NET_URI_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST: List<String> = listOf(
-    "uriString",
-  )
-
-  private val ANDROID_NET_URI_OBJECT_DATA_TYPE: AppFunctionObjectTypeMetadata =
-      AppFunctionObjectTypeMetadata(
-          properties = ANDROID_NET_URI_OBJECT_DATA_TYPE_PROPERTIES_MAP,
-          required = ANDROID_NET_URI_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST,
-          qualifiedName = "android.net.Uri",
-          isNullable = true,
-          description = ""
-      )
-
-  private val COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURI:
-      AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
-          referenceDataType = "android.net.Uri",
+  private val COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURILIST_PRIMITIVE_ITEM_TYPE:
+      AppFunctionStringTypeMetadata = AppFunctionStringTypeMetadata(
           isNullable = false,
-          description = ""
-      )
-
-  private val COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURILIST_REFERENCE_ITEM_TYPE:
-      AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
-          referenceDataType = "android.net.Uri",
-          isNullable = false,
-          description = ""
+          description = "",
+          enumValues = null,
+          pattern = null,
+          format = "uri",
       )
 
   private val COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURILIST:
       AppFunctionArrayTypeMetadata = AppFunctionArrayTypeMetadata(
-          itemType = COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURILIST_REFERENCE_ITEM_TYPE,
+          itemType = COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURILIST_PRIMITIVE_ITEM_TYPE,
           isNullable = false,
           description = ""
       )
 
-  private val COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURILISTNULLABLE_REFERENCE_ITEM_TYPE:
-      AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
-          referenceDataType = "android.net.Uri",
+  private val COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURILISTNULLABLE_PRIMITIVE_ITEM_TYPE:
+      AppFunctionStringTypeMetadata = AppFunctionStringTypeMetadata(
           isNullable = false,
-          description = ""
+          description = "",
+          enumValues = null,
+          pattern = null,
+          format = "uri",
       )
 
   private val COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURILISTNULLABLE:
       AppFunctionArrayTypeMetadata = AppFunctionArrayTypeMetadata(
-          itemType = COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURILISTNULLABLE_REFERENCE_ITEM_TYPE,
+          itemType = COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURILISTNULLABLE_PRIMITIVE_ITEM_TYPE,
           isNullable = true,
           description = ""
       )
 
   private val COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_ANDROIDURINULLABLE:
-      AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
-          referenceDataType = "android.net.Uri",
+      AppFunctionStringTypeMetadata = AppFunctionStringTypeMetadata(
           isNullable = true,
-          description = ""
+          description = "",
+          enumValues = null,
+          pattern = null,
+          format = "uri",
       )
 
   private val COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE_PROPERTIES_MAP_LOCALDATE:
@@ -400,7 +383,6 @@ public class `$FunctionWithSerializableProxyInput_AppFunctionInventory` : AppFun
       )
 
   private val componentsMetadataDataTypesMap: Map<String, AppFunctionDataTypeMetadata> = mapOf(
-    "android.net.Uri" to ANDROID_NET_URI_OBJECT_DATA_TYPE,
     "com.testdata.SerializableWithProxyType" to COM_TESTDATA_SERIALIZABLEWITHPROXYTYPE_OBJECT_DATA_TYPE,
     "java.time.LocalDate" to JAVA_TIME_LOCALDATE_OBJECT_DATA_TYPE,
     "java.time.LocalDateTime" to JAVA_TIME_LOCALDATETIME_OBJECT_DATA_TYPE,

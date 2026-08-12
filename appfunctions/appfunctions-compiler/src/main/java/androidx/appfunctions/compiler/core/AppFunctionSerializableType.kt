@@ -222,8 +222,8 @@ interface AppFunctionSerializableType {
     /** Returns the properties that have @AppFunctionSerializableProxy class types. */
     fun getSerializableProxyPropertyTypeReferences(): Set<AppFunctionTypeReference> =
         getProperties()
-            .filterNot { it.isGenericType }
-            .map { it -> AppFunctionTypeReference(it.type) }
+            .filterNot { property -> property.isGenericType }
+            .map { property -> AppFunctionTypeReference(property.type) }
             .filter { afType ->
                 afType.isOfTypeCategory(SERIALIZABLE_PROXY_SINGULAR) ||
                     afType.isOfTypeCategory(SERIALIZABLE_PROXY_LIST)

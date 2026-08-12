@@ -33,6 +33,8 @@ public class `$StringEnumValueFunctions_AppFunctionInventory` : AppFunctionInven
           isNullable = false,
           description = "",
           enumValues = setOf("ON", "OFF"),
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_STRINGENUMPROPSERIALIZABLE_OBJECT_DATA_TYPE_PROPERTIES_MAP:
@@ -70,6 +72,8 @@ public class `$StringEnumValueFunctions_AppFunctionInventory` : AppFunctionInven
             isNullable = false,
             description = "",
             enumValues = setOf("ON", "OFF"),
+            pattern = null,
+            format = null,
         )
 
     private val STRINGPARAM_PARAMETER_METADATA: AppFunctionParameterMetadata =
@@ -116,6 +120,8 @@ public class `$StringEnumValueFunctions_AppFunctionInventory` : AppFunctionInven
             isNullable = false,
             description = "",
             enumValues = setOf("ON", "OFF"),
+            pattern = null,
+            format = null,
         )
 
     private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(

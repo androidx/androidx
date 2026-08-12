@@ -124,6 +124,14 @@ object IntrospectionHelper {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionStringValueConstraint")
 
         const val PROPERTY_ENUM_VALUES = "enumValues"
+        const val PROPERTY_PATTERN = "pattern"
+        const val PROPERTY_FORMAT = "format"
+    }
+
+    object AppFunctionUriValueConstraintAnnotation {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionUriValueConstraint")
+
+        const val PROPERTY_ALLOWED_SCHEMES = "allowedSchemes"
     }
 
     // Classes
@@ -472,4 +480,5 @@ object IntrospectionHelper {
         AnnotationSpec.builder(RequiresApiAnnotation.CLASS_NAME).addMember("%L", 33).build()
 
     val PARCELABLE_CLASS_NAME = ClassName("android.os", "Parcelable")
+    val URI_CLASS_NAME = ClassName("android.net", "Uri")
 }

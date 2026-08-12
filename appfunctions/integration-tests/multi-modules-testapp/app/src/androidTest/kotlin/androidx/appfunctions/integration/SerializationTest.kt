@@ -17,6 +17,7 @@
 package androidx.appfunctions.integration
 
 import androidx.appfunction.integration.test.sharedschema.IntEnumSerializable
+import androidx.appfunction.integration.test.sharedschema.UriConstraintSerializable
 import androidx.appfunctions.AppFunctionData
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
@@ -94,5 +95,38 @@ class SerializationTest {
                 .deserialize(IntEnumSerializable::class.java)
 
         assertThat(intEnumSerializable.value).isEqualTo(10)
+    }
+
+    @Test
+    fun serializeAppFunctionSerializable_uriConstraint_success() {
+        val uriConstraintSerializable =
+            UriConstraintSerializable(
+                uri = android.net.Uri.parse("content://media/external/images/media/1"),
+                numericString = "12345",
+            )
+
+        val afd =
+            AppFunctionData.serialize(
+                uriConstraintSerializable,
+                UriConstraintSerializable::class.java,
+            )
+
+        assertThat(afd.getString("uri")).isEqualTo("content://media/external/images/media/1")
+        assertThat(afd.getString("numericString")).isEqualTo("12345")
+    }
+
+    @Test
+    fun deserializeAppFunctionSerializable_uriConstraint_success() {
+        val uri = android.net.Uri.parse("content://media/external/images/media/1")
+        val afd =
+            AppFunctionData.serialize(
+                UriConstraintSerializable(uri = uri, numericString = "12345"),
+                UriConstraintSerializable::class.java,
+            )
+
+        val deserialized = afd.deserialize(UriConstraintSerializable::class.java)
+
+        assertThat(deserialized.uri).isEqualTo(uri)
+        assertThat(deserialized.numericString).isEqualTo("12345")
     }
 }

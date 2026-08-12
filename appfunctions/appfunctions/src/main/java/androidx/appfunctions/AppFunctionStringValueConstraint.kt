@@ -62,5 +62,15 @@ public annotation class AppFunctionStringValueConstraint(
      * mode), such meanings should be documented clearly in the corresponding property, parameter,
      * or function return KDoc.
      */
-    val enumValues: Array<String> = []
+    val enumValues: Array<String> = [],
+    /**
+     * The regex pattern that string values must match. An empty string indicates no pattern
+     * constraint is applied.
+     */
+    val pattern: String = "",
+    /**
+     * The format description for string values (e.g. `"uri"`). An empty string indicates no format
+     * description is set.
+     */
+    val format: String = "",
 )

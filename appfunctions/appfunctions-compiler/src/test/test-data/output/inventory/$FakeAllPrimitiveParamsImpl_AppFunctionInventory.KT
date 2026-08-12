@@ -103,6 +103,8 @@ public class `$FakeAllPrimitiveParamsImpl_AppFunctionInventory` : AppFunctionInv
             isNullable = false,
             description = "",
             enumValues = null,
+            pattern = null,
+            format = null,
         )
 
     private val ARG5_PARAMETER_METADATA: AppFunctionParameterMetadata =

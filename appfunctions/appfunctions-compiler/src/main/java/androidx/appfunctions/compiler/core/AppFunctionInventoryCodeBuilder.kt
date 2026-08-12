@@ -615,6 +615,8 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                                     isNullable = %L,
                                     description = %S,
                                     enumValues = %L,
+                                    pattern = %S,
+                                    format = %S,
                                 )
                                 """
                                     .trimIndent(),
@@ -626,6 +628,8 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                                     postfix = ")",
                                     transform = { "\"$it\"" },
                                 ),
+                                pattern,
+                                format,
                             )
                         }
                     )
@@ -1269,9 +1273,8 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
      * @param componentName The name of the component.
      * @return The name of the property.
      */
-    private fun getObjectTypeMetadataPropertyNameForComponent(componentName: String): String {
-        return "${componentName.uppercase().replace(Regex("[.<>$]"), "_").replace("?", "_NULLABLE")}_OBJECT_DATA_TYPE"
-    }
+    private fun getObjectTypeMetadataPropertyNameForComponent(componentName: String): String =
+        "${componentName.uppercase().replace(Regex("[.<>$]"), "_").replace("?", "_NULLABLE")}_OBJECT_DATA_TYPE"
 
     /**
      * Generates the name of the property for the all of type metadata of a component.
@@ -1279,9 +1282,8 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
      * @param componentName The name of the component.
      * @return The name of the property.
      */
-    private fun getAllOfTypeMetadataPropertyNameForComponent(componentName: String): String {
-        return "${componentName.uppercase().replace(Regex("[.<>$]"), "_")}_ALL_OF_DATA_TYPE"
-    }
+    private fun getAllOfTypeMetadataPropertyNameForComponent(componentName: String): String =
+        "${componentName.uppercase().replace(Regex("[.<>$]"), "_")}_ALL_OF_DATA_TYPE"
 
     /**
      * Generates the name of the property for the one of type metadata of a component.
@@ -1289,11 +1291,11 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
      * @param componentName The name of the component.
      * @return The name of the property.
      */
-    private fun getOneOfTypeMetadataPropertyNameForComponent(componentName: String): String {
-        return "${componentName.uppercase().replace(Regex("[.<>$]"), "_")}_ONE_OF_DATA_TYPE"
-    }
+    private fun getOneOfTypeMetadataPropertyNameForComponent(componentName: String): String =
+        "${componentName.uppercase().replace(Regex("[.<>$]"), "_")}_ONE_OF_DATA_TYPE"
 
     companion object {
+
         /** Gets the name for generated AppFunctionInventory. */
         fun getAppFunctionInventoryClassName(functionClassName: String): String {
             return "$%s_AppFunctionInventory".format(functionClassName)
