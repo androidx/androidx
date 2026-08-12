@@ -62,7 +62,8 @@ class TextInputServiceAndroidOnStateUpdateTest {
                 view,
                 mock(),
                 inputMethodManager,
-                inputCommandProcessorExecutor = neverExecutor,
+                afterFrameCommandExecutor = neverExecutor,
+                nextFrameCommandExecutor = neverExecutor,
             )
         textInputService.startInput(
             value = TextFieldValue(""),

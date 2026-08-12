@@ -28,6 +28,8 @@ import android.view.inputmethod.BaseInputConnection
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.AndroidComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.input.pointer.MatrixPositionCalculator
@@ -48,25 +50,33 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
 /**
  * Provide Android specific input service with the Operating System.
  *
- * @param inputCommandProcessorExecutor [Executor] used to schedule the [processInputCommands]
- *   function when a input command is first requested for a frame.
+ * Two executors are used to schedule [processInputCommands] so that commands requiring low-latency
+ * responses (e.g. showing the keyboard) can be dispatched immediately out-of-frame, while cleanup
+ * commands (e.g. stopping input) are delayed to the animation frame so a subsequent start command
+ * can override them during focus transfers.
+ *
+ * @param afterFrameCommandExecutor [Executor] used to schedule immediate out-of-frame execution of
+ *   commands that require low-latency responses.
+ * @param nextFrameCommandExecutor [Executor] used to delay cleanup commands to the next animation
+ *   frame.
  */
 internal class TextInputServiceAndroid(
     val view: View,
     rootPositionCalculator: MatrixPositionCalculator,
     private val inputMethodManager: InputMethodManager,
-    val inputCommandProcessorExecutor: Executor,
+    val afterFrameCommandExecutor: Executor,
+    val nextFrameCommandExecutor: Executor,
 ) : PlatformTextInputService {
 
     /**
      * Commands that can be sent into [textInputCommandQueue] to be processed by
      * [processInputCommands].
      */
-    private enum class TextInputCommand {
-        StartInput,
-        StopInput,
-        ShowKeyboard,
-        HideKeyboard,
+    private enum class TextInputCommand(val preferImmediateDispatch: Boolean) {
+        StartInput(true),
+        StopInput(false),
+        ShowKeyboard(true),
+        HideKeyboard(false),
     }
 
     /**
@@ -111,12 +121,20 @@ internal class TextInputServiceAndroid(
      */
     private val textInputCommandQueue = mutableVectorOf<TextInputCommand>()
     private var frameCallback: Runnable? = null
+    private var scheduledForImmediateDispatch = false
 
     constructor(
         view: View,
         positionCalculator: MatrixPositionCalculator,
-        executor: Executor,
-    ) : this(view, positionCalculator, InputMethodManagerImpl(view), executor)
+        afterFrameCommandExecutor: Executor,
+        nextFrameCommandExecutor: Executor,
+    ) : this(
+        view,
+        positionCalculator,
+        InputMethodManagerImpl(view),
+        afterFrameCommandExecutor,
+        nextFrameCommandExecutor,
+    )
 
     init {
         if (DEBUG) {
@@ -253,13 +271,38 @@ internal class TextInputServiceAndroid(
     private fun sendInputCommand(command: TextInputCommand) {
         textInputCommandQueue += command
         if (frameCallback == null) {
-            frameCallback =
-                Runnable {
+            @OptIn(ExperimentalComposeUiApi::class)
+            val preferImmediateDispatch =
+                AndroidComposeUiFlags.isOutOfFrameSchedulerForTextInputEventsEnabled &&
+                    command.preferImmediateDispatch
+            scheduleInputCommandProcessing(preferImmediate = preferImmediateDispatch)
+        } else if (scheduledForImmediateDispatch && !command.preferImmediateDispatch) {
+            // An after-frame dispatch was scheduled, but a cleanup command (e.g. StopInput) arrived
+            // before it ran. Demote to next-frame dispatch so cleanup commands are deferred to the
+            // animation frame.
+            scheduleInputCommandProcessing(preferImmediate = false)
+        }
+    }
+
+    private fun scheduleInputCommandProcessing(preferImmediate: Boolean) {
+        scheduledForImmediateDispatch = preferImmediate
+        val runner =
+            if (preferImmediate) {
+                afterFrameCommandExecutor
+            } else {
+                nextFrameCommandExecutor
+            }
+        frameCallback =
+            object : Runnable {
+                override fun run() {
+                    if (frameCallback === this) {
                         frameCallback = null
+                        scheduledForImmediateDispatch = false
                         processInputCommands()
                     }
-                    .also(inputCommandProcessorExecutor::execute)
-        }
+                }
+            }
+        runner.execute(frameCallback)
     }
 
     private fun processInputCommands() {

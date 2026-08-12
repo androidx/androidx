@@ -21,6 +21,8 @@ package androidx.compose.ui.text.input
 import android.view.View
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
+import androidx.compose.ui.AndroidComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,6 +33,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.After
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
@@ -48,7 +51,8 @@ class TextInputServiceAndroidCommandDebouncingTest {
             view,
             mock(),
             inputMethodManager,
-            inputCommandProcessorExecutor = executor,
+            afterFrameCommandExecutor = executor,
+            nextFrameCommandExecutor = executor,
         )
     private val dispatcher = StandardTestDispatcher()
     private val scope = TestScope(dispatcher + Job())
@@ -289,6 +293,134 @@ class TextInputServiceAndroidCommandDebouncingTest {
         scope.advanceUntilIdle()
         assertThat(inputMethodManager.restartCalls).isEqualTo(1) // does not increase
         assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(2)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun stopThenStartInput_staysOnNextFrameRunner() {
+        assumeTrue(AndroidComposeUiFlags.isOutOfFrameSchedulerForTextInputEventsEnabled)
+        var afterFrameRuns = 0
+        var nextFrameRuns = 0
+        val afterFrameExecutor = Executor { runnable ->
+            afterFrameRuns++
+            scope.launch { runnable.run() }
+        }
+        val nextFrameExecutor = Executor { runnable ->
+            nextFrameRuns++
+            scope.launch { runnable.run() }
+        }
+        val serviceWithRunners =
+            TextInputServiceAndroid(
+                view,
+                mock(),
+                inputMethodManager,
+                afterFrameCommandExecutor = afterFrameExecutor,
+                nextFrameCommandExecutor = nextFrameExecutor,
+            )
+
+        serviceWithRunners.stopInput()
+        assertThat(nextFrameRuns).isEqualTo(1)
+        assertThat(afterFrameRuns).isEqualTo(0)
+
+        serviceWithRunners.startInputForTest()
+        assertThat(afterFrameRuns).isEqualTo(0)
+
+        scope.advanceUntilIdle()
+
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun startThenStopThenStartInput_withoutAdvancing_isDispatchedToNextFrameRunner() {
+        assumeTrue(AndroidComposeUiFlags.isOutOfFrameSchedulerForTextInputEventsEnabled)
+        var afterFrameRunnable: Runnable? = null
+        var nextFrameRunnable: Runnable? = null
+        val afterFrameExecutor = Executor { runnable -> afterFrameRunnable = runnable }
+        val nextFrameExecutor = Executor { runnable -> nextFrameRunnable = runnable }
+        val serviceWithRunners =
+            TextInputServiceAndroid(
+                view,
+                mock(),
+                inputMethodManager,
+                afterFrameCommandExecutor = afterFrameExecutor,
+                nextFrameCommandExecutor = nextFrameExecutor,
+            )
+
+        // 1. startInput: scheduled on after-frame runner
+        serviceWithRunners.startInputForTest()
+        assertThat(afterFrameRunnable).isNotNull()
+        assertThat(nextFrameRunnable).isNull()
+
+        // 2. stopInput without running the after-frame runnable: demotes to next-frame runner
+        serviceWithRunners.stopInput()
+        assertThat(nextFrameRunnable).isNotNull()
+
+        // 3. startInput without running runnables: remains on next-frame runner
+        serviceWithRunners.startInputForTest()
+
+        val afterFrame = requireNotNull(afterFrameRunnable)
+        val nextFrame = requireNotNull(nextFrameRunnable)
+
+        // 4. Executing the after-frame runnable is a no-op (skipped because frameCallback was
+        // replaced)
+        afterFrame.run()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(0)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
+
+        // 5. Executing the next-frame runnable processes the batched commands
+        nextFrame.run()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
+
+        // 6. Running next-frame or after-frame runnable again is a no-op
+        afterFrame.run()
+        nextFrame.run()
+        assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+        assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
+        assertThat(inputMethodManager.hideSoftInputCalls).isEqualTo(0)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun whenOutOfFrameSchedulerFlagIsDisabled_startInputDispatchesToNextFrameRunner() {
+        val previousFlag = AndroidComposeUiFlags.isOutOfFrameSchedulerForTextInputEventsEnabled
+        try {
+            AndroidComposeUiFlags.isOutOfFrameSchedulerForTextInputEventsEnabled = false
+
+            var afterFrameRuns = 0
+            var nextFrameRuns = 0
+            val afterFrameExecutor = Executor { runnable ->
+                afterFrameRuns++
+                scope.launch { runnable.run() }
+            }
+            val nextFrameExecutor = Executor { runnable ->
+                nextFrameRuns++
+                scope.launch { runnable.run() }
+            }
+            val serviceWithRunners =
+                TextInputServiceAndroid(
+                    view,
+                    mock(),
+                    inputMethodManager,
+                    afterFrameCommandExecutor = afterFrameExecutor,
+                    nextFrameCommandExecutor = nextFrameExecutor,
+                )
+
+            serviceWithRunners.startInputForTest()
+            assertThat(nextFrameRuns).isEqualTo(1)
+            assertThat(afterFrameRuns).isEqualTo(0)
+
+            scope.advanceUntilIdle()
+
+            assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+            assertThat(inputMethodManager.showSoftInputCalls).isEqualTo(1)
+        } finally {
+            AndroidComposeUiFlags.isOutOfFrameSchedulerForTextInputEventsEnabled = previousFlag
+        }
     }
 
     private fun TextInputServiceAndroid.startInputForTest() {

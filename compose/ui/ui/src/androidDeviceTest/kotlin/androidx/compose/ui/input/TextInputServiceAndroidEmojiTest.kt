@@ -61,7 +61,8 @@ class TextInputServiceAndroidEmojiTest {
                 view,
                 positionCalculator,
                 inputMethodManager,
-                inputCommandProcessorExecutor = choreographer.asExecutor(),
+                afterFrameCommandExecutor = choreographer.asExecutor(),
+                nextFrameCommandExecutor = choreographer.asExecutor(),
             )
 
         textInputService.startInput(TextFieldValue(""), ImeOptions.Default, {}, {})
