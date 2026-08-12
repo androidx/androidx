@@ -14,7 +14,7 @@ This skill defines the end-to-end workflow for developing Health Connect feature
     *   Start a new branch: `repo start <branch_name> .`
     *   First commit: `git commit`
     *   Subsequent changes: `git commit --amend`
-    *   Upload for review: `repo upload --cbr -t .`
+    *   Upload for review: `repo upload --cbr .`
 *   **Sync to google3**: Submission in AOSP triggers a "Safe Review" CL in Piper via Copybara. Approval in Piper triggers auto-submit and TAP.
 
 ## 2. Feature Implementation Workflow
