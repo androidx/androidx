@@ -36,6 +36,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.SelectableDropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -88,7 +89,7 @@ fun ExposedDropdownMenuSample() {
         ) {
             val optionCount = options.size
             options.forEachIndexed { index, option ->
-                DropdownMenuItem(
+                SelectableDropdownMenuItem(
                     shapes = MenuDefaults.itemShape(index, optionCount),
                     text = { Text(option, style = MaterialTheme.typography.bodyLarge) },
                     selected = index == checkedIndex,

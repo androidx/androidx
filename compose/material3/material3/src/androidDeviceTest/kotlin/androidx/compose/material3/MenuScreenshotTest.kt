@@ -279,7 +279,7 @@ class MenuScreenshotTest {
                 DropdownMenuGroup(
                     shapes = MenuDefaults.groupShapes(shape = MenuDefaults.leadingGroupShape)
                 ) {
-                    DropdownMenuItem(
+                    CheckableDropdownMenuItem(
                         checked = editChecked,
                         onCheckedChange = {},
                         enabled = enabledItems,
@@ -300,7 +300,7 @@ class MenuScreenshotTest {
                         },
                         shapes = MenuDefaults.itemShapes(MenuDefaults.leadingItemShape),
                     )
-                    DropdownMenuItem(
+                    CheckableDropdownMenuItem(
                         checked = settingChecked,
                         onCheckedChange = {},
                         enabled = enabledItems,
@@ -326,7 +326,7 @@ class MenuScreenshotTest {
                 DropdownMenuGroup(
                     shapes = MenuDefaults.groupShapes(shape = MenuDefaults.trailingGroupShape)
                 ) {
-                    DropdownMenuItem(
+                    CheckableDropdownMenuItem(
                         shapes = MenuDefaults.itemShapes(shape = MenuDefaults.leadingItemShape),
                         text = { Text("Home") },
                         checked = homeChecked,
@@ -355,7 +355,7 @@ class MenuScreenshotTest {
                             }
                         },
                     )
-                    DropdownMenuItem(
+                    CheckableDropdownMenuItem(
                         text = { Text("More Options") },
                         checked = moreOptionChecked,
                         enabled = enabledItems,
