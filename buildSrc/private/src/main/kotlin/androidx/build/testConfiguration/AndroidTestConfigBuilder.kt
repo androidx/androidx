@@ -159,6 +159,11 @@ class ConfigBuilder {
             .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
             .append(PACKAGE_OPTION.replace("APPLICATION_ID", applicationId))
             .apply {
+                if (useOrchestrator) {
+                    sb.append(ORCHESTRATOR_OPTION)
+                }
+            }
+            .apply {
                 if (isPostsubmit) {
                     // These listeners should be unified eventually (b/331974955)
                     if (isMicrobenchmark) {
@@ -366,5 +371,11 @@ private val FLAKY_TEST_OPTION =
     """
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
 
+    """
+        .trimIndent()
+
+private val ORCHESTRATOR_OPTION =
+    """
+    <option name="orchestrator" value="true" />
     """
         .trimIndent()
