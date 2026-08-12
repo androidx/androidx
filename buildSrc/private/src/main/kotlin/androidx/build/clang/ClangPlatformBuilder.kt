@@ -54,6 +54,7 @@ internal class AndroidPlatformBuilder(
         val additionalArgs = buildList {
             addAll(parameters.freeArgs.get())
             add("-fPIC") // Always compile Android with 'Position Independent Code'
+            add("-DNDEBUG") // Always compile with NDEBUG since only release is built
             add("--compile")
             parameters.includes.files.forEach { includeDirectory ->
                 check(includeDirectory.isDirectory) {
@@ -155,6 +156,7 @@ internal class KonanPlatformBuilder(
         val target = parameters.target.get().asNativeTarget
         val additionalArgs = buildList {
             addAll(parameters.freeArgs.get())
+            add("-DNDEBUG") // Always compile with NDEBUG since only release is built
             add("--compile")
             parameters.includes.files.forEach { includeDirectory ->
                 check(includeDirectory.isDirectory) {
