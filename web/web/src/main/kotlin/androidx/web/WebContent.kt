@@ -93,11 +93,13 @@ public interface WebContent : AutoCloseable {
     }
 
     /**
-     * Construct a [WebContentView] that will be bound to this [WebContent]. This allows the
-     * underlying [WebContentView] engine to outlive its lifetime. Previously bound [WebContentView]
-     * instances are destroyed when this method is called.
+     * Constructs a [WebContentView] bound to this [WebContent]. This allows the underlying web
+     * engine, including its state, settings, and clients (such as [android.webkit.WebViewClient]
+     * and [android.webkit.WebChromeClient]), to outlive the view's lifetime. Previously bound
+     * [WebContentView] instances are destroyed when this method is called.
      *
-     * The provided context _must_ be used to construct the WebContentView.
+     * The provided context _must_ be used to construct the [WebContentView], and any previously
+     * attached [WebContentView] must be removed from the view hierarchy before calling this method.
      *
      * [detach] must be called when this [WebContentView] is no longer in use to prevent context
      * leaks. When the content is permanently retired, call [close].
@@ -106,6 +108,9 @@ public interface WebContent : AutoCloseable {
      * @param factory A function that creates a new [WebContentView].
      * @return A wrapped factory that automatically attaches this [WebContent] state.
      * @throws IllegalArgumentException if [context] is not an [Activity] context.
+     * @throws IllegalStateException if a previously bound [WebContentView] is still in the view
+     *   hierarchy, if the returned view uses a different context, or if this [WebContent] is
+     *   closed.
      */
     @UiThread
     @NonNull
@@ -117,6 +122,11 @@ public interface WebContent : AutoCloseable {
     /**
      * Detaches this [WebContent] from its current [WebContentView]. Any callbacks triggered will
      * return a [DetachedWebContentView] in this state.
+     *
+     * The currently attached [WebContentView] must be removed from the view hierarchy before this
+     * method is called.
+     *
+     * @throws IllegalStateException if the current [WebContentView] is still in the view hierarchy.
      */
     @UiThread public fun detach()
 
