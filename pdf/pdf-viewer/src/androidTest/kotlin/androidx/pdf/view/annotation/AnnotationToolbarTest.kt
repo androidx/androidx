@@ -164,7 +164,7 @@ class AnnotationToolbarTest {
 
         // Enable canUndo and canRedo
         activityRule.scenario.onActivity { activity ->
-            val toolbar = activity.findViewById<AnnotationToolbar>(ANNOTATION_TOOLBAR_VIEW_ID)
+            val toolbar = activity.findViewById<AnnotationToolbarView>(ANNOTATION_TOOLBAR_VIEW_ID)
             toolbar.canUndo = true
             toolbar.canRedo = true
         }
@@ -180,7 +180,7 @@ class AnnotationToolbarTest {
         var redoClicked = false
         setupAnnotationToolbar {
             it.setAnnotationToolbarListener(
-                object : AnnotationToolbar.AnnotationToolbarListener {
+                object : AnnotationToolbarView.AnnotationToolbarListener {
                     override fun onToolChanged(
                         toolInfo: androidx.pdf.view.annotation.tool.AnnotationToolInfo
                     ) {}
@@ -296,7 +296,7 @@ class AnnotationToolbarTest {
 
     @Test
     fun testAnnotationToolbar_isConfigPopupVisible() {
-        var annotationToolbar: AnnotationToolbar? = null
+        var annotationToolbar: AnnotationToolbarView? = null
         setupAnnotationToolbar { annotationToolbar = it }
 
         assertNotNull(annotationToolbar)
@@ -315,7 +315,7 @@ class AnnotationToolbarTest {
 
     @Test
     fun testSetDockState_updatesOrientationAndConstraints() {
-        var toolbar: AnnotationToolbar? = null
+        var toolbar: AnnotationToolbarView? = null
         setupAnnotationToolbar { toolbar = it }
 
         assertNotNull(toolbar)
@@ -349,7 +349,8 @@ class AnnotationToolbarTest {
         with(ActivityScenario.launch(PdfTestActivity::class.java)) {
             // Set dock state to END
             onActivity { activity ->
-                val toolbar = activity.findViewById<AnnotationToolbar>(ANNOTATION_TOOLBAR_VIEW_ID)
+                val toolbar =
+                    activity.findViewById<AnnotationToolbarView>(ANNOTATION_TOOLBAR_VIEW_ID)
                 toolbar.dockState = DOCK_STATE_END
             }
             onIdle()
@@ -359,7 +360,8 @@ class AnnotationToolbarTest {
 
             // Assert dock state is restored
             onActivity { activity ->
-                val toolbar = activity.findViewById<AnnotationToolbar>(ANNOTATION_TOOLBAR_VIEW_ID)
+                val toolbar =
+                    activity.findViewById<AnnotationToolbarView>(ANNOTATION_TOOLBAR_VIEW_ID)
                 assertThat(toolbar.dockState).isEqualTo(DOCK_STATE_END)
 
                 val toolTray = toolbar.findViewById<LinearLayout>(R.id.tool_tray)
@@ -370,7 +372,7 @@ class AnnotationToolbarTest {
 
     @Test
     fun testToolbarScrollable_whenDockedAtBottom() {
-        var toolbar: AnnotationToolbar? = null
+        var toolbar: AnnotationToolbarView? = null
         setupAnnotationToolbar { toolbar = it }
 
         activityRule.scenario.onActivity {
@@ -390,7 +392,7 @@ class AnnotationToolbarTest {
 
     @Test
     fun testToolbarScrollable_whenDockedAtStart() {
-        var toolbar: AnnotationToolbar? = null
+        var toolbar: AnnotationToolbarView? = null
         setupAnnotationToolbar {
             toolbar = it
             toolbar.dockState = DOCK_STATE_START
@@ -447,7 +449,7 @@ class AnnotationToolbarTest {
         onView(withId(R.id.color_palette)).check(matches(isDisplayed()))
     }
 
-    private fun setupAnnotationToolbar(callback: ((AnnotationToolbar) -> Unit) = {}) {
+    private fun setupAnnotationToolbar(callback: ((AnnotationToolbarView) -> Unit) = {}) {
         activityRule.scenario.onActivity { activity ->
             val annotationToolbar = createToolbar(activity)
             activity.container.addView(
@@ -477,8 +479,8 @@ class AnnotationToolbarTest {
         }
     }
 
-    private fun createToolbar(context: Context): AnnotationToolbar =
-        AnnotationToolbar(context).apply {
+    private fun createToolbar(context: Context): AnnotationToolbarView =
+        AnnotationToolbarView(context).apply {
             id = ANNOTATION_TOOLBAR_VIEW_ID
             areAnimationsEnabled = false
         }

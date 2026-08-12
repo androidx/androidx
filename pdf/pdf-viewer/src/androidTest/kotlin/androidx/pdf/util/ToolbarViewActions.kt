@@ -19,14 +19,14 @@ package androidx.pdf.util
 import android.app.Activity
 import android.graphics.PointF
 import android.view.View
-import androidx.pdf.view.annotation.AnnotationToolbar
-import androidx.pdf.view.annotation.draganddrop.ToolbarCoordinator
+import androidx.pdf.view.annotation.AnnotationToolbarView
+import androidx.pdf.view.annotation.draganddrop.AnnotationToolbarCoordinatorView
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
 /**
- * Helper actions for performing drag and drop on an [AnnotationToolbar] within a
- * [ToolbarCoordinator].
+ * Helper actions for performing drag and drop on an [AnnotationToolbarView] within a
+ * [AnnotationToolbarCoordinatorView].
  */
 internal object ToolbarViewActions {
 

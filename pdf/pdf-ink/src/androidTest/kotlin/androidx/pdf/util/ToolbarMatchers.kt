@@ -20,7 +20,7 @@ import android.graphics.RectF
 import android.view.View
 import androidx.ink.authoring.InProgressStrokesView
 import androidx.pdf.ExperimentalPdfApi
-import androidx.pdf.view.annotation.AnnotationToolbar
+import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.test.espresso.matcher.BoundedMatcher
 import org.hamcrest.Matcher
 
@@ -29,7 +29,7 @@ internal object ToolbarMatchers {
     /**
      * Verifies that the [InProgressStrokesView] has a mask that matches the bounds of the toolbar.
      */
-    fun matchesToolbarMask(toolbar: AnnotationToolbar): Matcher<View> {
+    fun matchesToolbarMask(toolbar: AnnotationToolbarView): Matcher<View> {
         return object :
             BoundedMatcher<View, InProgressStrokesView>(InProgressStrokesView::class.java) {
             override fun describeTo(description: org.hamcrest.Description) {
@@ -54,12 +54,13 @@ internal object ToolbarMatchers {
 
     /** Custom Matcher to check the internal dockState of the AnnotationToolbar. */
     fun withDockState(expectedState: Int): Matcher<View> {
-        return object : BoundedMatcher<View, AnnotationToolbar>(AnnotationToolbar::class.java) {
+        return object :
+            BoundedMatcher<View, AnnotationToolbarView>(AnnotationToolbarView::class.java) {
             override fun describeTo(description: org.hamcrest.Description) {
                 description.appendText("with dockState: $expectedState")
             }
 
-            override fun matchesSafely(toolbar: AnnotationToolbar): Boolean {
+            override fun matchesSafely(toolbar: AnnotationToolbarView): Boolean {
                 return toolbar.dockState == expectedState
             }
         }

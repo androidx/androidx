@@ -39,7 +39,7 @@ import androidx.pdf.util.FragmentTestUtils.scenarioLoadDocument
 import androidx.pdf.util.ToolbarMatchers.matchesToolbarMask
 import androidx.pdf.util.ToolbarMatchers.withDockState
 import androidx.pdf.view.PdfView
-import androidx.pdf.view.annotation.AnnotationToolbar
+import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
@@ -214,7 +214,7 @@ class EditablePdfViewerFragmentTests {
         loadDocumentAndSetupFragment()
         enterEditMode()
 
-        var toolbar: AnnotationToolbar? = null
+        var toolbar: AnnotationToolbarView? = null
         scenario.onFragment { fragment ->
             toolbar = fragment.view?.findViewById(PdfR.id.annotationToolbar)
         }
