@@ -45,14 +45,40 @@ class CondensedSectionTest {
     }
 
     @Test
+    fun getIncompleteLastRowStrategy_default() {
+        val section = CondensedSection.Builder().build()
+
+        assertThat(section.incompleteLastRowStrategy)
+            .isEqualTo(CondensedSection.INCOMPLETE_LAST_ROW_AS_IS)
+    }
+
+    @Test
+    fun getIncompleteLastRowStrategy() {
+        val section =
+            CondensedSection.Builder()
+                .setIncompleteLastRowStrategy(CondensedSection.INCOMPLETE_LAST_ROW_TRUNCATE)
+                .build()
+
+        assertThat(section.incompleteLastRowStrategy)
+            .isEqualTo(CondensedSection.INCOMPLETE_LAST_ROW_TRUNCATE)
+    }
+
+    @Test
     fun equals() {
         val item = CondensedItem.Builder().setTitle("Title").build()
         val section1 = CondensedSection.Builder().setTitle("Title").addItem(item).build()
         val section2 = CondensedSection.Builder().setTitle("Title").addItem(item).build()
         val section3 = CondensedSection.Builder().setTitle("Title").build()
+        val section4 =
+            CondensedSection.Builder()
+                .setTitle("Title")
+                .addItem(item)
+                .setIncompleteLastRowStrategy(CondensedSection.INCOMPLETE_LAST_ROW_TRUNCATE)
+                .build()
 
         assertThat(section1).isEqualTo(section2)
         assertThat(section1).isNotEqualTo(section3)
+        assertThat(section1).isNotEqualTo(section4)
     }
 
     @Test
