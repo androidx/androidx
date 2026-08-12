@@ -330,6 +330,29 @@ class PdfViewExternalInputManagerTest {
     }
 
     @Test
+    fun handleMouseEvents_touchpadSource_actionScrollWithPositiveVscroll_ReturnsTrue() {
+        val event = mock<MotionEvent>()
+        whenever(event.source).thenReturn(InputDevice.SOURCE_TOUCHPAD)
+        whenever(event.action).thenReturn(MotionEvent.ACTION_SCROLL)
+        whenever(event.getAxisValue(MotionEvent.AXIS_VSCROLL)).thenReturn(1.0f)
+        whenever(event.getAxisValue(MotionEvent.AXIS_HSCROLL)).thenReturn(0f)
+
+        val handled = externalInputManager.handleMouseEvent(event)
+
+        assertThat(handled).isTrue()
+    }
+
+    @Test
+    fun handleMouseEvents_unsupportedSource_ReturnsFalse() {
+        val event = mock<MotionEvent>()
+        whenever(event.source).thenReturn(InputDevice.SOURCE_TOUCHSCREEN)
+
+        val handled = externalInputManager.handleMouseEvent(event)
+
+        assertThat(handled).isFalse()
+    }
+
+    @Test
     fun handleKeyEvent_ctrlA_ReturnsTrue() {
         val event = mock<KeyEvent>()
         whenever(event.action).thenReturn(KeyEvent.ACTION_DOWN)
