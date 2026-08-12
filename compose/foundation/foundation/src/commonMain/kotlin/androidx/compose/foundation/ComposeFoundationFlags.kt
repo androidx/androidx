@@ -165,7 +165,7 @@ public object ComposeFoundationFlags {
     // TODO: Remove this flag after 1.12 (b/507967106)
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isBasicTextFieldSizeOptimizationEnabled: Boolean = false
+    public var isBasicTextFieldSizeOptimizationEnabled: Boolean = true
 
     /**
      * This flag controls the fix where we correctly dispatch deltas in pager's default
