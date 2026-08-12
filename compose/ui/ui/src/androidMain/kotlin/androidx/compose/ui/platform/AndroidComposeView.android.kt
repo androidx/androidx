@@ -916,14 +916,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         get() =
             _legacyTextInputServiceAndroid
                 ?: TextInputServiceAndroid(
-                        view,
                         this,
-                        @OptIn(ExperimentalComposeUiApi::class)
-                        if (AndroidComposeUiFlags.isOutOfFrameSchedulerForTextInputEventsEnabled) {
-                            Executor { outOfFrameExecutor?.schedule(it::run) }
-                        } else {
-                            Executor(::postOnAnimation)
-                        },
+                        this,
+                        afterFrameCommandExecutor =
+                            Executor { outOfFrameExecutor?.schedule(it::run) },
+                        nextFrameCommandExecutor = Executor(::postOnAnimation),
                     )
                     .also { _legacyTextInputServiceAndroid = it }
 
