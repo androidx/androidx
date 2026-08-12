@@ -157,22 +157,6 @@ internal class AndroidParagraph(
     private var resolvedLineHeight = 0f
 
     /**
-     * The absolute Y-coordinate on the canvas representing the top bound of the selection
-     * highlight. When the single-line line height optimization is active, the platform-returned
-     * selection path must be clipped to this value to match the visual text bounds (excluding
-     * trimmed padding).
-     */
-    private var selectionPathTop = 0f
-
-    /**
-     * The absolute Y-coordinate on the canvas representing the bottom bound of the selection
-     * highlight. When the single-line line height optimization is active, the platform-returned
-     * selection path must be clipped to this value to match the visual text bounds (excluding
-     * trimmed padding).
-     */
-    private var selectionPathBottom = 0f
-
-    /**
      * Indicates whether the single-line line height optimization should be applied.
      *
      * This optimization avoids expensive `StaticLayout` passes and allocation of
@@ -542,17 +526,19 @@ internal class AndroidParagraph(
                 " or start > end!"
         }
         val path = android.graphics.Path()
-        layout.getSelectionPath(start, end, path)
-        if (applyLineHeightOptimization && layout.height != 0) {
-            if (!path.isEmpty) {
-                val matrix = android.graphics.Matrix()
-                val scaleY = (selectionPathBottom - selectionPathTop) / layout.height.toFloat()
-                matrix.setScale(1f, scaleY)
-                matrix.postTranslate(0f, selectionPathTop)
-                path.transform(matrix)
-            }
-        } else if (topOffset != 0f && !path.isEmpty) {
-            path.offset(0f, topOffset)
+
+        if (applyLineHeightOptimization) {
+            val h1 = layout.getPrimaryHorizontal(start)
+            val h2 = layout.getPrimaryHorizontal(end)
+            path.addRect(
+                minOf(h1, h2),
+                getLineTop(0),
+                maxOf(h1, h2),
+                getLineBottom(0),
+                android.graphics.Path.Direction.CW,
+            )
+        } else {
+            layout.getSelectionPath(start, end, path)
         }
         return path.asComposePath()
     }
@@ -809,13 +795,6 @@ internal class AndroidParagraph(
                     ceil(ceiledDiff * (1f - ascentRatio))
                 }
 
-            val layoutAscent = layout.getLineAscent(0)
-            val layoutDescent = layout.getLineDescent(0)
-            val descent = layoutDescent + descentDiff
-            val ascent = descent - ceil(resolvedLineHeight)
-            val firstAscent: Float
-            val lastDescent: Float
-
             if (
                 (trimTop && trimBottom && mode != LineHeightStyle.Mode.Tight) ||
                     (mode == LineHeightStyle.Mode.Minimum && diff <= 0) ||
@@ -827,8 +806,6 @@ internal class AndroidParagraph(
                 // diff < 0 in Mode.Fixed/Default.
                 resolvedLineHeight = layout.height.toFloat()
                 topOffset = 0f
-                firstAscent = layoutAscent
-                lastDescent = layoutDescent
             } else if (diff < 0 && mode == LineHeightStyle.Mode.Tight) {
                 // 2. Mirroring LineHeightStyleSpan Mode.Tight when shrinking
                 val appliedTopSpace = if (trimTop) ceiledDiff - descentDiff else 0f
@@ -838,10 +815,6 @@ internal class AndroidParagraph(
 
                 topOffset = appliedTopSpace
                 resolvedLineHeight = layout.height + appliedTopSpace + appliedBottomSpace
-                firstAscent = if (trimTop) max(layoutAscent, ascent) else min(layoutAscent, ascent)
-                lastDescent =
-                    if (!layout.didExceedMaxLines && !trim.isTrimLastLineBottom()) layoutDescent
-                    else descent
             } else {
                 // 4. Mirroring LineHeightStyleSpan expanding (diff > 0) and non-legacy distribution
                 val rawBottomSpace = descentDiff
@@ -852,17 +825,9 @@ internal class AndroidParagraph(
 
                 topOffset = appliedTopSpace
                 resolvedLineHeight = layout.height + appliedTopSpace + appliedBottomSpace
-                firstAscent = if (trimTop) layoutAscent else ascent
-                lastDescent = if (trimBottom) layoutDescent else descent
             }
-
-            val baseline = layout.getLineBaseline(0)
-            selectionPathTop = baseline + topOffset + firstAscent
-            selectionPathBottom = baseline + topOffset + lastDescent
         } else {
             resolvedLineHeight = layout.height.toFloat()
-            selectionPathTop = 0f
-            selectionPathBottom = layout.height.toFloat()
         }
     }
 }
