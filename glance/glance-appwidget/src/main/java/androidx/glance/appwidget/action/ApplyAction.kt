@@ -19,6 +19,7 @@ package androidx.glance.appwidget.action
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.widget.RemoteViews
@@ -84,13 +85,14 @@ private fun getPendingIntentForAction(
                     // If there is no data URI set already, add a unique URI to ensure we get a
                     // distinct PendingIntent.
                     if (data == null) {
-                        data =
+                        val uniqueUri =
                             createUniqueUri(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
                                 flags.toString(),
                             )
+                        setIdentifier(this, uniqueUri)
                     }
                 },
                 mutability or PendingIntent.FLAG_UPDATE_CURRENT,
@@ -101,13 +103,14 @@ private fun getPendingIntentForAction(
             val intent =
                 getServiceIntent(action, translationContext).apply {
                     if (data == null) {
-                        data =
+                        val uniqueUri =
                             createUniqueUri(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
                                 flags.toString(),
                             )
+                        setIdentifier(this, uniqueUri)
                     }
                 }
             return if (
@@ -132,13 +135,14 @@ private fun getPendingIntentForAction(
                 0,
                 getBroadcastReceiverIntent(action, translationContext).apply {
                     if (data == null) {
-                        data =
+                        val uniqueUri =
                             createUniqueUri(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
                                 flags.toString(),
                             )
+                        setIdentifier(this, uniqueUri)
                     }
                 },
                 mutability or PendingIntent.FLAG_UPDATE_CURRENT,
@@ -154,12 +158,13 @@ private fun getPendingIntentForAction(
                         editParams(action.parameters),
                     )
                     .apply {
-                        data =
+                        val uniqueUri =
                             createUniqueUri(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
                             )
+                        setIdentifier(this, uniqueUri)
                     },
                 mutability or PendingIntent.FLAG_UPDATE_CURRENT,
             )
@@ -177,13 +182,14 @@ private fun getPendingIntentForAction(
                         translationContext.appWidgetId,
                     )
                     .apply {
-                        data =
+                        val uniqueUri =
                             createUniqueUri(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
                                 action.key,
                             )
+                        setIdentifier(this, uniqueUri)
                     },
                 mutability or PendingIntent.FLAG_UPDATE_CURRENT,
             )
@@ -214,6 +220,16 @@ private fun getPendingIntentForAction(
     }
 }
 
+private fun setIdentifier(intent: Intent, uniqueUri: Uri) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        ApplyActionApi29Impl.setIntentIdentifier(intent, uniqueUri.toString())
+    } else {
+        // On Android versions < 29, setting intent.data can cause a bug where
+        // PendingIntents could not be executed correctly. See b/265349282 for more details.
+        intent.data = uniqueUri
+    }
+}
+
 private fun getFillInIntentForAction(
     action: Action,
     translationContext: TranslationContext,
@@ -229,13 +245,14 @@ private fun getFillInIntentForAction(
                 )
                 .apply {
                     if (data == null) {
-                        data =
+                        val uniqueUri =
                             createUniqueUri(
                                 translationContext,
                                 viewId,
                                 ActionTrampolineType.CALLBACK,
                                 flags.toString(),
                             )
+                        setIdentifier(this, uniqueUri)
                     }
                 }
         }
@@ -369,9 +386,9 @@ private object ApplyActionApi31Impl {
 }
 
 @RequiresApi(Build.VERSION_CODES.Q)
-private object ApplyActionApi29Impl {
-    fun setIntentIdentifier(intent: Intent, viewId: Int): Intent =
-        intent.apply { identifier = viewId.toString() }
+internal object ApplyActionApi29Impl {
+    fun setIntentIdentifier(intent: Intent, viewId: String): Intent =
+        intent.apply { identifier = viewId }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
