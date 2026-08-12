@@ -9,6 +9,7 @@ package @SuppressCompatibility androidx.xr.projected.testing {
     method @InaccessibleFromKotlin public androidx.lifecycle.Lifecycle.State getLifecycleState();
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.projected.ProjectedDisplayController.PresentationMode> getPresentationModeFlags();
     method @InaccessibleFromKotlin public int getProjectedLayoutParamFlags();
+    method @InaccessibleFromKotlin public android.app.PendingIntent? getRegisteredInputReceiver();
     method @InaccessibleFromKotlin public boolean isDeviceConnected();
     method public void launchTestProjectedDeviceActivity(kotlin.jvm.functions.Function1<? super android.app.Activity,kotlin.Unit> block);
     method public void sendProjectedInputEvent(androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction projectedInputAction);
@@ -26,6 +27,7 @@ package @SuppressCompatibility androidx.xr.projected.testing {
     property public androidx.lifecycle.Lifecycle.State lifecycleState;
     property public java.util.Set<androidx.xr.projected.ProjectedDisplayController.PresentationMode> presentationModeFlags;
     property public int projectedLayoutParamFlags;
+    property public android.app.PendingIntent? registeredInputReceiver;
     property public boolean shouldThrowIllegalStateExceptionWhenCreatingControllers;
   }
 

@@ -48,9 +48,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.verify
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -272,6 +272,38 @@ class ProjectedActivityCompatTest {
             assertThat(activity.lastRequestCode).isEqualTo(requestCode)
             assertThat(activity.lastPermissions).isEqualTo(permissions)
             assertThat(activity.lastGrantResults).isEqualTo(grantResults)
+        }
+
+    @Test
+    fun setActivityAsInputReceiver_callsServiceWithPendingIntent() =
+        launchTestProjectedPermissionActivity { activity ->
+            val pendingIntent = mock<PendingIntent>()
+
+            val controller = runBlocking { ProjectedActivityCompat.create(activity) }
+            val mockProjectedService =
+                ReflectionHelpers.getField<IProjectedService>(
+                    projectedTestRule,
+                    "mockProjectedService",
+                )
+
+            controller.setActivityAsInputReceiver(pendingIntent)
+
+            verify(mockProjectedService).setActivityAsInputReceiver(pendingIntent)
+        }
+
+    @Test
+    fun clearActivityAsInputReceiver_callsService() =
+        launchTestProjectedPermissionActivity { activity ->
+            val controller = runBlocking { ProjectedActivityCompat.create(activity) }
+            val mockProjectedService =
+                ReflectionHelpers.getField<IProjectedService>(
+                    projectedTestRule,
+                    "mockProjectedService",
+                )
+
+            controller.clearActivityAsInputReceiver()
+
+            verify(mockProjectedService).clearActivityAsInputReceiver()
         }
 
     private fun launchTestActivity(block: (Activity) -> Unit) {
