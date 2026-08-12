@@ -16,13 +16,21 @@
 
 package androidx.car.app.model;
 
+import androidx.annotation.IntDef;
+import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 
 /**
  * A {@link Section} within the {@code SectionedItemTemplate} that contains {@link CondensedItem}s.
@@ -33,15 +41,53 @@ import org.jspecify.annotations.Nullable;
 @KeepFields
 public final class CondensedSection extends Section<CondensedItem> {
     /**
+     * Defines the strategy to use for handling the incomplete last row
+     */
+    @IntDef(
+            value = {
+                    INCOMPLETE_LAST_ROW_AS_IS,
+                    INCOMPLETE_LAST_ROW_TRUNCATE,
+            })
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public @interface IncompleteLastRowStrategy {
+    }
+
+    /**
+     * The last row will be shown as-is. This is a default behavior
+     */
+    @IncompleteLastRowStrategy
+    public static final int INCOMPLETE_LAST_ROW_AS_IS = 0;
+
+    /**
+     * Truncates the last row if that row is not completely filled
+     */
+    @IncompleteLastRowStrategy
+    public static final int INCOMPLETE_LAST_ROW_TRUNCATE = 1;
+
+    @IncompleteLastRowStrategy
+    private final int mIncompleteLastRowStrategy;
+
+    /**
      * Creates a {@link CondensedSection} from the {@link Builder}.
      */
     private CondensedSection(@NonNull Builder builder) {
         super(builder);
+        mIncompleteLastRowStrategy = builder.mIncompleteLastRowStrategy;
     }
 
     /** For serialization. */
     private CondensedSection() {
         super();
+        mIncompleteLastRowStrategy = INCOMPLETE_LAST_ROW_AS_IS;
+    }
+
+    /**
+     * Returns the strategy for handling incomplete last row
+     */
+    @IncompleteLastRowStrategy
+    public int getIncompleteLastRowStrategy() {
+        return mIncompleteLastRowStrategy;
     }
 
     @Override
@@ -52,28 +98,46 @@ public final class CondensedSection extends Section<CondensedItem> {
         if (!(other instanceof CondensedSection)) {
             return false;
         }
-        return super.equals(other);
+        CondensedSection section = (CondensedSection) other;
+        return super.equals(other)
+                && mIncompleteLastRowStrategy == section.mIncompleteLastRowStrategy;
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hash(super.hashCode(), mIncompleteLastRowStrategy);
     }
 
     @Override
     public @NonNull String toString() {
-        return "CondensedSection { " + super.toString() + " }";
+        return "CondensedSection { incompleteLastRowStrategy: " + mIncompleteLastRowStrategy
+                + ", " + super.toString() + " }";
     }
 
     /** A builder for {@link CondensedSection}. */
     @RequiresCarApi(9)
     @ExperimentalCarApi
     public static final class Builder extends BaseBuilder<CondensedItem, Builder> {
+        @IncompleteLastRowStrategy
+        private int mIncompleteLastRowStrategy = INCOMPLETE_LAST_ROW_AS_IS;
+
         /**
          * Create a new {@link CondensedSection} builder.
          */
         public Builder() {
             super();
+        }
+
+        /**
+         * Sets the strategy to use for handling the incomplete last row
+         *
+         * <p>By default, {@link #INCOMPLETE_LAST_ROW_AS_IS} is used.
+         */
+        @CanIgnoreReturnValue
+        public @NonNull Builder setIncompleteLastRowStrategy(
+                @IncompleteLastRowStrategy int incompleteLastRowStrategy) {
+            mIncompleteLastRowStrategy = incompleteLastRowStrategy;
+            return this;
         }
 
         /**
