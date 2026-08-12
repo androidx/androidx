@@ -23,6 +23,8 @@ sealed class Screen(val route: String) {
 
     object RemoteCompactButtonDemosScreen : Screen("remoteCompactButtonDemosScreen")
 
+    object RemoteEdgeButtonDemosScreen : Screen("remoteEdgeButtonDemosScreen")
+
     object RemoteIconButtonDemosScreen : Screen("remoteIconButtonDemosScreen")
 
     object RemoteTextButtonDemosScreen : Screen("remoteTextButtonDemosScreen")
