@@ -140,3 +140,79 @@ private fun Container(
 ) {
     RemoteBox(modifier, contentAlignment = RemoteAlignment.Center, content = content)
 }
+
+@Composable
+@RemoteComposable
+public fun RemoteCircularProgressLargeStrokeLargeScreen() {
+    Container(modifier = RemoteModifier.size(250.rdp)) {
+        RemoteCircularProgressIndicator(
+            progress = 0.75f.rf,
+            strokeWidth = RemoteProgressIndicatorDefaults.largeStrokeWidth(250.rdp),
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+public fun RemoteCircularProgressLargeStrokeLargeScreenPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) {
+    RemoteContentPreview(profile = profile) { RemoteCircularProgressLargeStrokeLargeScreen() }
+}
+
+@Composable
+@RemoteComposable
+public fun RemoteCircularProgressLargeStrokeSmallScreen() {
+    Container(modifier = RemoteModifier.size(192.rdp)) {
+        RemoteCircularProgressIndicator(
+            progress = 0.75f.rf,
+            strokeWidth = RemoteProgressIndicatorDefaults.largeStrokeWidth(192.rdp),
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+public fun RemoteCircularProgressLargeStrokeSmallScreenPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) {
+    RemoteContentPreview(profile = profile) { RemoteCircularProgressLargeStrokeSmallScreen() }
+}
+
+@Composable
+@RemoteComposable
+public fun RemoteCircularProgressSmallStrokeLargeScreen() {
+    Container(modifier = RemoteModifier.size(250.rdp)) {
+        RemoteCircularProgressIndicator(
+            progress = 0.75f.rf,
+            strokeWidth = RemoteProgressIndicatorDefaults.smallStrokeWidth(250.rdp),
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+public fun RemoteCircularProgressSmallStrokeLargeScreenPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) {
+    RemoteContentPreview(profile = profile) { RemoteCircularProgressSmallStrokeLargeScreen() }
+}
+
+@Composable
+@RemoteComposable
+public fun RemoteCircularProgressSmallStrokeSmallScreen() {
+    Container(modifier = RemoteModifier.size(192.rdp)) {
+        RemoteCircularProgressIndicator(
+            progress = 0.75f.rf,
+            strokeWidth = RemoteProgressIndicatorDefaults.smallStrokeWidth(192.rdp),
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+public fun RemoteCircularProgressSmallStrokeSmallScreenPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) {
+    RemoteContentPreview(profile = profile) { RemoteCircularProgressSmallStrokeSmallScreen() }
+}

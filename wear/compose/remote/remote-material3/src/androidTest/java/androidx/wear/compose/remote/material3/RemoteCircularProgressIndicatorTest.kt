@@ -33,7 +33,11 @@ import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressEna
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndeterminate
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndicatorCustomColor
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressIndicatorDisabled
+import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressLargeStrokeLargeScreen
+import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressLargeStrokeSmallScreen
 import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressNoGapCustomAngle
+import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressSmallStrokeLargeScreen
+import androidx.wear.compose.remote.material3.previews.RemoteCircularProgressSmallStrokeSmallScreen
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
@@ -56,6 +60,34 @@ class RemoteCircularProgressIndicatorTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     private val creationDisplayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+
+    @Test
+    fun indicator_large_stroke_large_screen() {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+            ComponentContainer { RemoteCircularProgressLargeStrokeLargeScreen() }
+        }
+    }
+
+    @Test
+    fun indicator_large_stroke_small_screen() {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+            ComponentContainer { RemoteCircularProgressLargeStrokeSmallScreen() }
+        }
+    }
+
+    @Test
+    fun indicator_small_stroke_large_screen() {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+            ComponentContainer { RemoteCircularProgressSmallStrokeLargeScreen() }
+        }
+    }
+
+    @Test
+    fun indicator_small_stroke_small_screen() {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+            ComponentContainer { RemoteCircularProgressSmallStrokeSmallScreen() }
+        }
+    }
 
     @Test
     fun indicator_enabled() {
