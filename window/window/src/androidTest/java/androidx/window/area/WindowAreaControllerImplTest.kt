@@ -433,6 +433,40 @@ class WindowAreaControllerImplTest {
             }
         }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testStartRearDisplayPresentationSession_extensionsThrowsException(): Unit =
+        testScope.runTest {
+            assumeAtLeastWindowExtensionVersion(minVendorApiLevel)
+            val extensionComponent = FakeWindowAreaComponentIllegalStateException()
+            val controller = WindowAreaControllerImpl(windowAreaComponent = extensionComponent)
+
+            extensionComponent.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
+            extensionComponent.updateRearDisplayPresentationStatusListeners(STATUS_AVAILABLE)
+            val collector = TestWindowAreaListConsumer()
+            controller.addWindowAreasListener(Runnable::run, collector)
+            val windowArea: WindowArea? = collector.values.last().firstOrNull()
+
+            assertNotNull(windowArea)
+            assertTrue {
+                windowArea.getCapability(OPERATION_PRESENT_ON_AREA).status ==
+                    WINDOW_AREA_STATUS_AVAILABLE
+            }
+
+            val callback = TestWindowAreaPresentationSessionCallback()
+            activityScenario.scenario.onActivity { testActivity ->
+                controller.presentContentOnWindowArea(
+                    windowArea.token,
+                    testActivity,
+                    Runnable::run,
+                    callback,
+                )
+                assert(!callback.sessionActive)
+                assert(callback.sessionError != null)
+                assert(callback.sessionError is IllegalStateException)
+            }
+        }
+
     @RequiresApi(Build.VERSION_CODES.N)
     private class TestWindowAreaListConsumer : AndroidXConsumer<List<WindowArea>> {
 
@@ -550,6 +584,15 @@ class WindowAreaControllerImplTest {
     private class FakeWindowAreaComponentClassCastException : FakeWindowAreaComponent() {
         override fun getRearDisplayMetrics(): DisplayMetrics {
             throw ClassCastException()
+        }
+    }
+
+    private class FakeWindowAreaComponentIllegalStateException : FakeWindowAreaComponent() {
+        override fun startRearDisplayPresentationSession(
+            activity: Activity,
+            consumer: Consumer<Int>,
+        ) {
+            throw IllegalStateException()
         }
     }
 

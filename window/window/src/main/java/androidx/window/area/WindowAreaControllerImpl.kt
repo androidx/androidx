@@ -254,7 +254,15 @@ internal class WindowAreaControllerImpl(private val windowAreaComponent: WindowA
             return
         }
 
-        startRearDisplayPresentationMode(activity, executor, windowAreaPresentationSessionCallback)
+        try {
+            startRearDisplayPresentationMode(
+                activity,
+                executor,
+                windowAreaPresentationSessionCallback,
+            )
+        } catch (e: Exception) {
+            windowAreaPresentationSessionCallback.onSessionEnded(e)
+        }
     }
 
     private fun startRearDisplayMode(activity: Activity) {
