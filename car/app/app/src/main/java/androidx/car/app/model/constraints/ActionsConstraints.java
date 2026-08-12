@@ -160,7 +160,7 @@ public final class ActionsConstraints {
      *
      * <ul>
      *     <li>Maximum of {@code 2}
-     *     <li>Must be of type {@link Action#TYPE_CUSTOM} or {@link Action#TYPE_COMPOSE_MESSAGE} or
+     *     <li>Must be of type {@link Action#TYPE_CUSTOM}, {@link Action#TYPE_COMPOSE_MESSAGE}, or
      *     {@link Action#TYPE_MEDIA_PLAYBACK}
      *     <li>Must have an icon
      *     <li>Must have a background color, though the host may choose to ignore this color
@@ -168,6 +168,16 @@ public final class ActionsConstraints {
      *     custom color and the rest are shown with a neutral color)
      *     <li>Can have a click listener
      * </ul>
+     *
+     * <p>Note: While {@link Action#TYPE_MEDIA_PLAYBACK} continues to be allowed as a floating
+     * action button for backwards compatibility with Car API 8 hosts, starting in Car API 9 it is
+     * ignored by the host and developers should not set it as a floating action button.
+     *
+     * <p>Starting in Car API 9, media apps (apps with
+     * {@link androidx.car.app.CarAppPermission#MEDIA_TEMPLATES}) are strictly allowed to set a
+     * maximum of 1 floating action button. If extra actions are sent by a media app, the host
+     * will drop the extra action. See
+     * {@link androidx.car.app.media.model.MediaPlaybackTemplate} for more details.
      */
     @SuppressLint("UnsafeOptInUsageError")
     public static final @NonNull ActionsConstraints ACTIONS_CONSTRAINTS_FAB =
