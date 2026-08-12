@@ -809,3 +809,7 @@ private fun validateProvidedConverters(
         }
     }
 }
+
+internal fun RoomDatabase.throwIfClosed() {
+    check(!closeBarrier.isClosed) { "Database is closed" }
+}
