@@ -31,29 +31,37 @@ import org.json.JSONObject
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class OpenId4VciSelectionMetadata
 private constructor(
-    /** The index of the matched entry within the registry. */
-    public val entryIndex: Int,
-    /** The index of the matched sub-request within the original request. */
+    /**
+     * The ID of the matched entry within the [OpenId4VciDisplayData.entries] list of the
+     * registration request. Matches [OpenId4VciDisplayData.Entry.id].
+     */
+    public val entryId: String,
+    /**
+     * The index of the matched sub-request within the `requests` array of the original digital
+     * credential creation request. See the
+     * [W3C Specification](https://www.w3.org/TR/digital-credentials/#the-digitalcredentialcreationoptions-dictionary)
+     * for details.
+     */
     public val requestIndex: Int,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is OpenId4VciSelectionMetadata) return false
-        return this.entryIndex == other.entryIndex && this.requestIndex == other.requestIndex
+        return this.entryId == other.entryId && this.requestIndex == other.requestIndex
     }
 
     override fun hashCode(): Int {
-        var result = entryIndex
+        var result = entryId.hashCode()
         result = 31 * result + requestIndex
         return result
     }
 
     override fun toString(): String {
-        return "OpenId4VciSelectionMetadata(entryIndex=$entryIndex, requestIndex=$requestIndex)"
+        return "OpenId4VciSelectionMetadata(entryId=$entryId, requestIndex=$requestIndex)"
     }
 
     public companion object {
-        private const val KEY_ENTRY_INDEX = "eidx"
+        private const val KEY_ENTRY_ID = "eid"
         private const val KEY_REQUEST_INDEX = "ridx"
 
         /**
@@ -68,7 +76,7 @@ private constructor(
         public fun parse(metadataJson: String): OpenId4VciSelectionMetadata {
             val json = JSONObject(metadataJson)
             return OpenId4VciSelectionMetadata(
-                entryIndex = json.getInt(KEY_ENTRY_INDEX),
+                entryId = json.getString(KEY_ENTRY_ID),
                 requestIndex = json.getInt(KEY_REQUEST_INDEX),
             )
         }

@@ -37,14 +37,20 @@ import org.json.JSONObject
  *
  * Contains holder information and individual credential entries.
  *
- * @property entries list of credential entries containing subtitle and explainer
+ * @property entries list of credential entries containing subtitle and explainer. Must not be
+ *   empty.
  * @property holderDisplayData optional display metadata for the credential holder. Only privileged
  *   apps can set this to override the default app name and icon.
+ * @throws IllegalArgumentException if [entries] is empty
  */
 public class OpenId4VciDisplayData(
-    public val entries: List<Entry> = emptyList(),
+    public val entries: List<Entry>,
     public val holderDisplayData: HolderDisplayData? = null,
 ) {
+    init {
+        require(entries.isNotEmpty()) { "Entries must not be empty." }
+    }
+
     /**
      * Explains the credential issuance request to the user.
      *
@@ -87,10 +93,20 @@ public class OpenId4VciDisplayData(
     /**
      * Holds display metadata for a single credential entry.
      *
+     * @property id a unique identifier for this entry within the registration request
      * @property subtitle optional subtitle showing user identity or account info
      * @property explainer optional explainer text for this entry
+     * @throws IllegalArgumentException if [id] is blank
      */
-    public class Entry(public val subtitle: String? = null, public val explainer: Explainer? = null)
+    public class Entry(
+        public val id: String,
+        public val subtitle: String? = null,
+        public val explainer: Explainer? = null,
+    ) {
+        init {
+            require(id.isNotBlank()) { "Entry ID must not be blank." }
+        }
+    }
 
     /**
      * Holds display metadata for the credential holder.
@@ -145,6 +161,7 @@ private constructor(
          *     displayData = OpenId4VciDisplayData(
          *         entries = listOf(
          *             OpenId4VciDisplayData.Entry(
+         *                 id = "entry_id_1",
          *                 subtitle = "user@example.com",
          *                 explainer = OpenId4VciDisplayData.Explainer(
          *                     perIssuer = mapOf(
@@ -218,6 +235,7 @@ private constructor(
                 for (entry in entries) {
                     val jsonEntry =
                         JSONObject().apply {
+                            put("id", entry.id)
                             entry.subtitle?.let { put("subtitle", it) }
                             entry.explainer?.let { put("explainer", it.asJson()) }
                         }
