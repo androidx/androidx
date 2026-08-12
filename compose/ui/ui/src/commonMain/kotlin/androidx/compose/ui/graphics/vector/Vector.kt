@@ -43,7 +43,6 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.isUnspecified
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.packFloats
 import kotlin.math.ceil
 
 public const val DefaultGroupName: String = ""
@@ -102,10 +101,7 @@ public sealed class VNode {
     public abstract fun DrawScope.draw()
 }
 
-internal class VectorComponent(
-    val root: GroupComponent,
-    private val drawCacheProvider: DrawCacheProvider = OwnedDrawCacheProvider(),
-) : VNode() {
+internal class VectorComponent(val root: GroupComponent) : VNode() {
 
     init {
         root.invalidateListener = { doInvalidate() }
@@ -120,19 +116,10 @@ internal class VectorComponent(
 
     private var isDirty = true
 
-    private var currentDrawCache: DrawCache? = null
-    private var currentSize: IntSize = IntSize.Zero
-    private var currentConfig: ImageBitmapConfig = ImageBitmapConfig.Argb8888
-
-    /**
-     * When true, the content drawn by this component is a pure function of the shared cache key (a
-     * static [ImageVector] tree), so a shared [DrawCache] whose [DrawCache.contentStamp] matches
-     * can be drawn directly without re-rendering.
-     */
-    internal var sharedContentEnabled = false
+    private val cacheDrawScope = DrawCache()
 
     internal val cacheBitmapConfig: ImageBitmapConfig
-        get() = currentDrawCache?.mCachedImage?.config ?: ImageBitmapConfig.Argb8888
+        get() = cacheDrawScope.mCachedImage?.config ?: ImageBitmapConfig.Argb8888
 
     internal var invalidateCallback = {}
 
@@ -168,53 +155,23 @@ internal class VectorComponent(
             } else {
                 ImageBitmapConfig.Argb8888
             }
-        val targetSize = IntSize(ceil(size.width).toInt(), ceil(size.height).toInt())
 
-        var drawCache = currentDrawCache
-        var cacheChanged = false
-
-        if (drawCache == null || targetSize != currentSize || targetImageConfig != currentConfig) {
-            drawCache = drawCacheProvider.provide(targetSize, targetImageConfig)
-            cacheChanged = drawCache !== currentDrawCache
-            currentDrawCache = drawCache
-            currentSize = targetSize
-            currentConfig = targetImageConfig
-        }
-
-        val contentStamp = packFloats(size.width, size.height)
-        val needsRender =
-            if (cacheChanged && sharedContentEnabled) {
-                drawCache.contentStamp != contentStamp
-            } else {
-                isDirty ||
-                    previousDrawSize != size ||
-                    cacheChanged ||
-                    targetImageConfig != cacheBitmapConfig
-            }
-
-        if (needsRender || cacheChanged) {
+        if (isDirty || previousDrawSize != size || targetImageConfig != cacheBitmapConfig) {
             tintFilter =
                 if (targetImageConfig == ImageBitmapConfig.Alpha8) {
                     ColorFilter.tint(root.tintColor.toOpaque())
                 } else {
                     null
                 }
-        }
-        if (needsRender) {
             rootScaleX = size.width / viewportSize.width
             rootScaleY = size.height / viewportSize.height
-            drawCache.drawCachedImage(
+            cacheDrawScope.drawCachedImage(
                 targetImageConfig,
-                targetSize,
+                IntSize(ceil(size.width).toInt(), ceil(size.height).toInt()),
                 this@draw,
                 layoutDirection,
                 drawVectorBlock,
             )
-            if (sharedContentEnabled) {
-                drawCache.contentStamp = contentStamp
-            }
-        }
-        if (needsRender || cacheChanged) {
             isDirty = false
             previousDrawSize = size
         }
@@ -226,7 +183,7 @@ internal class VectorComponent(
             } else {
                 tintFilter
             }
-        drawCache.drawInto(this, alpha, targetFilter)
+        cacheDrawScope.drawInto(this, alpha, targetFilter)
     }
 
     override fun DrawScope.draw() {

@@ -172,7 +172,6 @@ package androidx.compose.ui {
     property public boolean isTrackpadPanHoverFixEnabled;
     property public boolean isTrackpadPinchReinterpretationEnabled;
     property public boolean isTriggerMoveEventsWhenLocationHasNotChangedEnabled;
-    property public boolean isVectorDrawCacheSharingEnabled;
     property public boolean isVelocityTrackerMinSampleSizeFixEnabled;
     property public boolean isViewFocusFixEnabled;
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
@@ -186,7 +185,6 @@ package androidx.compose.ui {
     field public static boolean isTrackpadPanHoverFixEnabled;
     field public static boolean isTrackpadPinchReinterpretationEnabled;
     field public static boolean isTriggerMoveEventsWhenLocationHasNotChangedEnabled;
-    field public static boolean isVectorDrawCacheSharingEnabled;
     field public static boolean isVelocityTrackerMinSampleSizeFixEnabled;
     field public static boolean isViewFocusFixEnabled;
   }

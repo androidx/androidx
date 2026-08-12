@@ -26,8 +26,6 @@ import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
@@ -40,7 +38,6 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalGraphicsResourceCache
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -102,10 +99,6 @@ public fun rememberVectorPainter(
  * Create a [VectorPainter] with the Vector defined by the provided sub-composition.
  *
  * Inside [content] use the [Group] and [Path] composables to define the vector.
- *
- * **Note:** To animate the size of the vector, animate the graphics layer ( `Modifier.graphicsLayer
- * { scaleX = ...; scaleY = ... }`) instead of the layout bounds ( `Modifier.size(...)`). Animating
- * the layout bounds forces the vector to re-render and causes memory churn on every frame.
  *
  * @param [defaultWidth] Intrinsic width of the Vector in [Dp]
  * @param [defaultHeight] Intrinsic height of the Vector in [Dp]
@@ -169,80 +162,20 @@ public fun rememberVectorPainter(
 
 /**
  * Create a [VectorPainter] with the given [ImageVector]. This will create a sub-composition of the
- * vector hierarchy given the tree structure in [ImageVector].
- *
- * **Note:** To animate the size of the vector, animate the graphics layer (e.g.,
- * `Modifier.graphicsLayer { scaleX = ...; scaleY = ... }`) instead of the layout bounds (e.g.,
- * `Modifier.size(...)`). Animating the layout bounds forces the vector to re-render and causes
- * memory churn on every frame.
+ * vector hierarchy given the tree structure in [ImageVector]
  *
  * @param [image] ImageVector used to create a vector graphic sub-composition
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 public fun rememberVectorPainter(image: ImageVector): VectorPainter {
     val density = LocalDensity.current
     val key = packFloats(image.genId.toFloat(), density.density)
-    val graphicsResourceCache =
-        if (ComposeUiFlags.isVectorDrawCacheSharingEnabled) {
-            LocalGraphicsResourceCache.current
-        } else {
-            null
-        }
-
-    val drawCacheProvider =
-        remember(key) {
-            if (graphicsResourceCache != null) {
-                DrawCacheProvider { size, config ->
-                    val drawCacheKey =
-                        VectorDrawCacheKey(
-                            genId = image.genId,
-                            densityBits = density.density.toBits(),
-                            width = size.width,
-                            height = size.height,
-                            config = config,
-                        )
-                    graphicsResourceCache.acquire(drawCacheKey) { DrawCache() }
-                }
-            } else {
-                OwnedDrawCacheProvider()
-            }
-        }
     return remember(key) {
         createVectorPainterFromImageVector(
             density,
             image,
             GroupComponent().apply { createGroupComponent(image.root) },
-            drawCacheProvider = drawCacheProvider,
-            trustsSharedContent = graphicsResourceCache != null,
         )
-    }
-}
-
-internal class VectorDrawCacheKey(
-    val genId: Int,
-    val densityBits: Int,
-    val width: Int,
-    val height: Int,
-    val config: ImageBitmapConfig,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is VectorDrawCacheKey) return false
-        return genId == other.genId &&
-            densityBits == other.densityBits &&
-            width == other.width &&
-            height == other.height &&
-            config == other.config
-    }
-
-    override fun hashCode(): Int {
-        var result = genId
-        result = 31 * result + densityBits
-        result = 31 * result + width
-        result = 31 * result + height
-        result = 31 * result + config.hashCode()
-        return result
     }
 }
 
@@ -250,11 +183,8 @@ internal class VectorDrawCacheKey(
  * [Painter] implementation that abstracts the drawing of a Vector graphic. This can be represented
  * by either a [ImageVector] or a programmatic composition of a vector
  */
-public class VectorPainter
-internal constructor(
-    root: GroupComponent = GroupComponent(),
-    drawCacheProvider: DrawCacheProvider = OwnedDrawCacheProvider(),
-) : Painter() {
+public class VectorPainter internal constructor(root: GroupComponent = GroupComponent()) :
+    Painter() {
 
     internal var size by mutableStateOf(Size.Zero)
 
@@ -280,7 +210,7 @@ internal constructor(
         }
 
     internal val vector =
-        VectorComponent(root, drawCacheProvider).apply {
+        VectorComponent(root).apply {
             invalidateCallback = {
                 // Trigger redraw
                 drawInvalidation = Unit
@@ -423,14 +353,11 @@ internal fun createVectorPainterFromImageVector(
     density: Density,
     imageVector: ImageVector,
     root: GroupComponent,
-    drawCacheProvider: DrawCacheProvider,
-    trustsSharedContent: Boolean = false,
 ): VectorPainter {
     val defaultSize = density.obtainSizePx(imageVector.defaultWidth, imageVector.defaultHeight)
     val viewport =
         obtainViewportSize(defaultSize, imageVector.viewportWidth, imageVector.viewportHeight)
-    return VectorPainter(root, drawCacheProvider)
-        .apply { vector.sharedContentEnabled = trustsSharedContent }
+    return VectorPainter(root)
         .configureVectorPainter(
             defaultSize = defaultSize,
             viewportSize = viewport,
@@ -442,7 +369,7 @@ internal fun createVectorPainterFromImageVector(
 }
 
 /**
- * statically create a GroupComponent from the VectorGroup representation provided from an
+ * statically create a a GroupComponent from the VectorGroup representation provided from an
  * [ImageVector] instance
  */
 internal fun GroupComponent.createGroupComponent(currentGroup: VectorGroup): GroupComponent {
