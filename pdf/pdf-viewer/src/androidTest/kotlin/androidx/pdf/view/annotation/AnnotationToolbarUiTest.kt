@@ -155,7 +155,7 @@ class AnnotationToolbarUiTest {
 
     @Test
     fun test_annotationToolbar_expanded_after_collapsed() {
-        var annotationToolbar: AnnotationToolbar? = null
+        var annotationToolbar: AnnotationToolbarView? = null
         setupAnnotationToolbar { annotationToolbar = it }
 
         if (annotationToolbar == null) return
@@ -221,7 +221,7 @@ class AnnotationToolbarUiTest {
 
     private fun setupAnnotationToolbar(
         isDarkMode: Boolean = false,
-        callback: (AnnotationToolbar) -> Unit = {},
+        callback: (AnnotationToolbarView) -> Unit = {},
     ) {
         activityRule.scenario.onActivity { activity ->
             // 1. Create a context that matches the desired mode
@@ -232,7 +232,7 @@ class AnnotationToolbarUiTest {
 
             // 2. Instantiate and configure the view
             val annotationToolbar =
-                AnnotationToolbar(themedContext).apply {
+                AnnotationToolbarView(themedContext).apply {
                     id = ANNOTATION_TOOLBAR_VIEW_ID
                     applyDefaultStyling()
                     areAnimationsEnabled = false
@@ -267,7 +267,7 @@ class AnnotationToolbarUiTest {
     }
 
     /** Extension function to keep the setup logic clean. */
-    private fun AnnotationToolbar.applyDefaultStyling() {
+    private fun AnnotationToolbarView.applyDefaultStyling() {
         val padding = context.resources.getDimensionPixelSize(PdfR.dimen.padding_8dp)
         setPadding(padding, padding, padding, padding)
         elevation = context.resources.getDimension(PdfR.dimen.annotation_toolbar_elevation)

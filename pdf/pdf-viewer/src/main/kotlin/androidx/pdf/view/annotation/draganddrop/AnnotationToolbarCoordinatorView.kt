@@ -29,14 +29,14 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
-import androidx.pdf.view.annotation.AnnotationToolbar
+import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
 
 /**
  * A [ConstraintLayout] layout that manages the dragging, dropping, and docking of an
- * [AnnotationToolbar].
+ * [AnnotationToolbarView].
  *
  * This coordinator is responsible for providing visible anchor points for docking, listening for
  * drag gestures initiated on the attached toolbar, moving the toolbar in response to the user's
@@ -46,7 +46,7 @@ import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @OptIn(ExperimentalPdfApi::class)
-public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
+public class AnnotationToolbarCoordinatorView(context: Context, attrs: AttributeSet? = null) :
     ConstraintLayout(context, attrs) {
 
     // Required to disable any animation while performing ui tests
@@ -57,7 +57,7 @@ public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
             toolbar?.areAnimationsEnabled = value
         }
 
-    private var toolbar: AnnotationToolbar? = null
+    private var toolbar: AnnotationToolbarView? = null
 
     private val anchorManager: AnchorManager
 
@@ -79,11 +79,11 @@ public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
     }
 
     /**
-     * Attaches the [AnnotationToolbar] to this coordinator and sets up drag-and-drop handling.
+     * Attaches the [AnnotationToolbarView] to this coordinator and sets up drag-and-drop handling.
      *
-     * @param view The [AnnotationToolbar] instance to manage.
+     * @param view The [AnnotationToolbarView] instance to manage.
      */
-    public fun attachToolbar(view: AnnotationToolbar) {
+    public fun attachToolbar(view: AnnotationToolbarView) {
         // Remove if already added
         toolbar?.let { removeView(it) }
 
@@ -176,7 +176,7 @@ public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
     }
 
     private fun dockToolbar(
-        toolbar: AnnotationToolbar,
+        toolbar: AnnotationToolbarView,
         targetX: Float,
         targetY: Float,
         state: Int,
@@ -216,7 +216,7 @@ public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
         localToolbar.translationY = 0f
 
         ConstraintSet().apply {
-            clone(this@ToolbarCoordinator)
+            clone(this@AnnotationToolbarCoordinatorView)
             clear(toolbarId)
 
             constrainWidth(toolbarId, ConstraintSet.WRAP_CONTENT)
@@ -243,7 +243,7 @@ public class ToolbarCoordinator(context: Context, attrs: AttributeSet? = null) :
                 }
             }
 
-            applyTo(this@ToolbarCoordinator)
+            applyTo(this@AnnotationToolbarCoordinatorView)
         }
         localToolbar.dockState = state
     }

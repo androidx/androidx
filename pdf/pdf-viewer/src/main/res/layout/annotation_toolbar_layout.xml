@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 
-<androidx.pdf.view.annotation.AnnotationToolbar xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.pdf.view.annotation.AnnotationToolbarView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/annotationToolbar"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"

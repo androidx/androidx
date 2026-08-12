@@ -87,7 +87,7 @@ import kotlinx.coroutines.launch
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalPdfApi
-public class AnnotationToolbar
+public class AnnotationToolbarView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     ConstraintLayout(context, attrs, defStyle), ToolbarDockState {
@@ -140,17 +140,17 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private var annotationToolbarListener: AnnotationToolbarListener? = null
 
-    /** Set the listener for [AnnotationToolbar] events. */
+    /** Set the listener for [AnnotationToolbarView] events. */
     public fun setAnnotationToolbarListener(listener: AnnotationToolbarListener?) {
         annotationToolbarListener = listener
     }
 
-    /** Clears any selection of tools on [AnnotationToolbar]. No-op if no tool is selected. */
+    /** Clears any selection of tools on [AnnotationToolbarView]. No-op if no tool is selected. */
     public fun clearToolSelection() {
         viewModel.onAction(ClearToolSelection)
     }
 
-    /** Reset the [AnnotationToolbar] to its initial state. */
+    /** Reset the [AnnotationToolbarView] to its initial state. */
     public fun reset() {
         viewModel.updateState(ToolbarInitializer.createInitialState(context = context))
     }
@@ -498,7 +498,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     addTransition(
                         ChangeBounds().apply {
                             // Animate bound changes for the parent background
-                            addTarget(this@AnnotationToolbar)
+                            addTarget(this@AnnotationToolbarView)
 
                             // Target the tool tray to lock its position and prevent drifting
                             // during the parent container's resize animation.
@@ -518,9 +518,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     },
                     onCancel = {
                         /**
-                         * If a new animation starts on the [AnnotationToolbar] before a previous
-                         * one finishes, the existing transition is canceled. As a defensive
-                         * mechanism, update views to their final visibility.
+                         * If a new animation starts on the [AnnotationToolbarView] before a
+                         * previous one finishes, the existing transition is canceled. As a
+                         * defensive mechanism, update views to their final visibility.
                          */
                         with(viewModel.state.value) {
                             colorPaletteView.isVisible = showColorPalette
@@ -531,7 +531,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                     },
                 )
 
-        TransitionManager.beginDelayedTransition(this@AnnotationToolbar, transition)
+        TransitionManager.beginDelayedTransition(this@AnnotationToolbarView, transition)
     }
 
     override fun onSaveInstanceState(): Parcelable {
@@ -592,7 +592,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     /**
      * Interface definition for a callback to be invoked when interaction occurs with the
-     * [AnnotationToolbar].
+     * [AnnotationToolbarView].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface AnnotationToolbarListener {
