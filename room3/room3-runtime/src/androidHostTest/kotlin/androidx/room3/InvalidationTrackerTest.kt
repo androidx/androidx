@@ -472,6 +472,23 @@ class InvalidationTrackerTest {
         }
     }
 
+    @Test
+    fun throwIfDatabaseIsClosed() = runTest {
+        roomDatabase.close()
+
+        assertThrows<IllegalStateException> { tracker.createFlow("x").singleOrNull() }
+            .hasMessageThat()
+            .contains("Database is closed")
+
+        assertThrows<IllegalStateException> { tracker.sync() }
+            .hasMessageThat()
+            .contains("Database is closed")
+
+        assertThrows<IllegalStateException> { tracker.refresh("x") }
+            .hasMessageThat()
+            .contains("Database is closed")
+    }
+
     private fun runTest(testBody: suspend TestScope.() -> Unit) =
         testCoroutineScope.runTest {
             testBody.invoke(this)

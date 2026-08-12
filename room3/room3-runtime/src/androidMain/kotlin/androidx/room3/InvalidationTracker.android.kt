@@ -114,6 +114,7 @@ actual constructor(
      * @see refreshAsync
      */
     internal actual suspend fun sync() {
+        database.throwIfClosed()
         implementation.syncTriggers()
     }
 
@@ -128,6 +129,7 @@ actual constructor(
      * function manually to trigger invalidation.
      */
     public actual fun refreshAsync() {
+        if (database.closeBarrier.isClosed) return
         implementation.refreshInvalidationAsync(onRefreshScheduled, onRefreshCompleted)
     }
 
@@ -140,6 +142,7 @@ actual constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual suspend fun refresh(vararg tables: String): Boolean {
+        database.throwIfClosed()
         return implementation.refreshInvalidation(tables, onRefreshScheduled, onRefreshCompleted)
     }
 
@@ -184,6 +187,7 @@ actual constructor(
         vararg tables: String,
         emitInitialState: Boolean,
     ): Flow<Set<String>> {
+        database.throwIfClosed()
         val (resolvedTableNames, tableIds) = implementation.validateTableNames(tables)
         val trackerFlow = implementation.createFlow(resolvedTableNames, tableIds, emitInitialState)
         val multiInstanceFlow = multiInstanceInvalidationClient?.createFlow(resolvedTableNames)
