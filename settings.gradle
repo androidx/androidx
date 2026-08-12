@@ -871,6 +871,7 @@ includeProject(":fragment:fragment-testing-manifest", [BuildType.MAIN, BuildType
 includeProject(":fragment:fragment-testing-manifest-lint", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:fragment-truth", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":fragment:integration-tests:testapp", [BuildType.MAIN, BuildType.FLAN])
+includeProject(":glance:adaptive:adaptive-core", [BuildType.GLANCE])
 includeProject(":glance:glance", [BuildType.GLANCE])
 includeProject(":glance:glance-appwidget", [BuildType.GLANCE])
 includeProject(":glance:glance-appwidget-external-protobuf", [BuildType.GLANCE])
