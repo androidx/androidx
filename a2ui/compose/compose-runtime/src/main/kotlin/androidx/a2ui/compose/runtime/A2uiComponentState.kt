@@ -17,6 +17,7 @@
 package androidx.a2ui.compose.runtime
 
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
+import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.compose.runtime.Composable
@@ -81,12 +82,11 @@ public sealed interface A2uiComponentState {
  * Resolves the current [A2uiComponentState] of the root component for an A2UI surface and
  * subscribes for future updates.
  *
- * @param surface The [A2uiCoreSurfaceModel] containing the data, components, and catalog for this
- *   UI.
+ * @param surface The [A2uiSurfaceModel] containing the data, components, and catalog for this UI.
  * @return The reactive state of the root component.
  */
 @Composable
-public fun observeA2uiComponentState(surface: A2uiCoreSurfaceModel): A2uiComponentState =
+public fun observeA2uiComponentState(surface: A2uiSurfaceModel): A2uiComponentState =
     observeA2uiComponentState(
         id = RootComponentId,
         baseDataPath = RootComponentDataPath,
@@ -97,8 +97,10 @@ public fun observeA2uiComponentState(surface: A2uiCoreSurfaceModel): A2uiCompone
 internal fun observeA2uiComponentState(
     id: String,
     baseDataPath: A2uiDataPath,
-    surface: A2uiCoreSurfaceModel,
+    surface: A2uiSurfaceModel,
 ): A2uiComponentState {
+    surface as? A2uiCoreSurfaceModel
+        ?: throw IllegalArgumentException("The Compose renderer requires an A2uiCoreSurfaceModel")
     val registry =
         surface.componentRegistry as? A2uiComponentRegistry
             ?: throw IllegalArgumentException(
