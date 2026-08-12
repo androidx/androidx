@@ -23,7 +23,7 @@ import kotlin.test.Test
 
 class DeepLinkRequestTestAndroid {
     @Test
-    fun testFromIntentUri() {
+    fun testIntentUri() {
         val uri = "navigation3.test.com/test".toUri()
         val action = "Test.Action"
         val intent = Intent()
@@ -31,20 +31,27 @@ class DeepLinkRequestTestAndroid {
         intent.action = action
         val request = DeepLinkRequest(intent)
         assertThat(request.uri.toString()).isEqualTo(uri.toString())
-        assertThat(request.extras).isNotEmpty()
+        assertThat(request.extras.isNotEmpty()).isTrue()
         assertThat(request.extras[DeepLinkRequest.ActionExtrasKey]).isEqualTo(action)
     }
 
     @Test
-    fun testFromIntentMimeType() {
+    fun testIntentMimeType() {
         val mimeType = "image/png"
-        val action = "Test.Action"
         val intent = Intent()
         intent.type = mimeType
+        val request = DeepLinkRequest(intent)
+        assertThat(request.extras.isNotEmpty()).isTrue()
+        assertThat(request.extras[DeepLinkRequest.Companion.MimeTypeExtrasKey]).isEqualTo(mimeType)
+    }
+
+    @Test
+    fun testIntentAction() {
+        val action = "Test.Action"
+        val intent = Intent()
         intent.action = action
         val request = DeepLinkRequest(intent)
-        assertThat(request.extras).isNotEmpty()
-        assertThat(request.extras[DeepLinkRequest.Companion.MimeTypeExtrasKey]).isEqualTo(mimeType)
+        assertThat(request.extras.isNotEmpty()).isTrue()
         assertThat(request.extras[DeepLinkRequest.ActionExtrasKey]).isEqualTo(action)
     }
 
@@ -53,10 +60,10 @@ class DeepLinkRequestTestAndroid {
         val intentMimeType = "image/png"
         val intent = Intent()
         intent.type = intentMimeType
-        val extrasIntKey = "intKey"
+        val extrasIntKey = object : RequestExtrasKey<Int> {}
         val extrasInt = 1
-        val request = DeepLinkRequest(intent, mapOf(extrasIntKey to extrasInt))
-        assertThat(request.extras).isNotEmpty()
+        val request = DeepLinkRequest(intent, requestExtras { put(extrasIntKey, extrasInt) })
+        assertThat(request.extras.isNotEmpty()).isTrue()
         assertThat(request.extras[DeepLinkRequest.Companion.MimeTypeExtrasKey])
             .isEqualTo(intentMimeType)
         assertThat(request.extras[extrasIntKey]).isEqualTo(extrasInt)
@@ -64,14 +71,26 @@ class DeepLinkRequestTestAndroid {
 
     @Test
     fun testExtrasTakesPrecedenceOverIntentMimeType() {
-        val intentMimeType = "image/png"
         val intent = Intent()
-        intent.type = intentMimeType
+        intent.type = "image/png"
         val extrasMimeType = "image/jpg"
         val request = DeepLinkRequest(intent, DeepLinkRequest.mimeTypeExtra(extrasMimeType))
-        assertThat(request.extras).isNotEmpty()
+
+        assertThat(request.extras.isNotEmpty()).isTrue()
         assertThat(request.extras[DeepLinkRequest.Companion.MimeTypeExtrasKey])
             .isEqualTo(extrasMimeType)
+    }
+
+    @Test
+    fun testExtrasTakesPrecedenceOverIntentAction() {
+        val intent = Intent()
+        intent.action = "Intent.Action"
+        val extrasAction = "Extras.Action"
+        val request = DeepLinkRequest(intent, DeepLinkRequest.actionExtra(extrasAction))
+
+        assertThat(request.extras.isNotEmpty()).isTrue()
+        assertThat(request.extras[DeepLinkRequest.Companion.ActionExtrasKey])
+            .isEqualTo(extrasAction)
     }
 
     @Test
@@ -85,22 +104,7 @@ class DeepLinkRequestTestAndroid {
 
         val request = DeepLinkRequest(intent)
 
-        assertThat(request.extras).isNotEmpty()
-        assertThat(request.extras[key]).isEqualTo(123)
-    }
-
-    @Test
-    fun testExtrasTakesPrecedenceOverIntentExtras() {
-        val intent = Intent()
-
-        val key = "key"
-        val intentBundle = Bundle()
-        intentBundle.putInt(key, 123)
-        intent.putExtras(intentBundle)
-
-        val request = DeepLinkRequest(intent, mapOf(key to 456))
-
-        assertThat(request.extras).isNotEmpty()
-        assertThat(request.extras[key]).isEqualTo(456)
+        assertThat(request.extras.isNotEmpty()).isTrue()
+        assertThat(request.extras[DeepLinkRequest.IntentExtrasKey]?.getInt(key)).isEqualTo(123)
     }
 }
