@@ -173,7 +173,7 @@ javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 javaxInject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 jcodec = { module = "org.jcodec:jcodec", version.ref = "jcodec" }
 jcodecJavaSe = { module = "org.jcodec:jcodec-javase", version.ref = "jcodec" }
-jsoup = { module = "org.jsoup:jsoup", version = "1.16.2" }
+jsoup = { module = "org.jsoup:jsoup", version = "1.23.1" }
 jspecify = { module = "org.jspecify:jspecify", version = "1.0.0" }
 jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version = "3.1" }
 jsr250 = { module = "javax.annotation:javax.annotation-api", version = "1.2" }
