@@ -108,11 +108,14 @@ class TestFilter(val filter: String) : DeepLinkMatcher.Filter {
 }
 
 fun DeepLinkRequest.Companion.withStringExtra(uri: String, extra: String) =
-    DeepLinkRequest(uri = DeepLinkUri(uri), extras = mapOf(MATCHER_STRING_FILTER_KEY to extra))
+    DeepLinkRequest(
+        uri = DeepLinkUri(uri),
+        extras = requestExtras { put(MATCHER_STRING_FILTER_KEY, extra) },
+    )
 
 const val MATCHER_STRING_FILTER_VALUE = "filterString"
 
-const val MATCHER_STRING_FILTER_KEY = "StringExtraKey"
+public object MATCHER_STRING_FILTER_KEY : RequestExtrasKey<String>
 
 @Serializable
 abstract class SerializableAbstract {

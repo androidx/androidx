@@ -15,70 +15,99 @@
  */
 package androidx.navigation3.runtime.deeplink
 
-import kotlin.collections.contains
-
 @DslMarker public annotation class RequestExtrasDsl
 
 /**
- * Provides a [RequestExtrasScope] to build a Map<String, Any> of extra information for a
- * [DeepLinkRequest].
+ * Provides a [RequestExtrasScope] to build a [RequestExtras] for a [DeepLinkRequest].
  *
- * @param builder the DSL extension that provides a [RequestExtrasScope] to build a Map<String, Any>
- *   of [DeepLinkRequest] extras.
+ * @param builder the DSL that provides a [RequestExtrasScope] to build a [RequestExtras]
  */
-public inline fun requestExtras(builder: RequestExtrasScope.() -> Unit): Map<String, Any> =
+public inline fun requestExtras(builder: RequestExtrasScope.() -> Unit): RequestExtras =
     RequestExtrasScope().apply(builder).build()
 
 /**
  * The base Key associated with a value of type [T].
  *
- * All keys used for storing extras with the [requestExtras] DSL must implement this interface.
+ * [RequestExtras] keys must implement this interface.
  */
 public interface RequestExtrasKey<T : Any>
 
 /** Scope provided to the [requestExtras] dsl builder. */
 @RequestExtrasDsl
-public class RequestExtrasScope {
-    private val map: MutableMap<String, Any> = mutableMapOf()
+public class RequestExtrasScope @PublishedApi internal constructor() {
+    private val map = mutableMapOf<RequestExtrasKey<*>, Any>()
 
     /**
-     * Adds the key and value pair to the extras map.
+     * Stores [value] associated with [key].
      *
-     * [T] the [value] type.
-     *
-     * @param key the key associated with the [value]
-     * @param value the data to be added to the map of metadata
+     * @param key key associated with value type [T]
+     * @param value data to store
      */
     public fun <T : Any> put(key: RequestExtrasKey<T>, value: T) {
-        map[key.toString()] = value
+        map[key] = value
     }
 
-    @PublishedApi internal fun build(): Map<String, Any> = map
+    @PublishedApi internal fun build(): RequestExtras = RequestExtras(map)
 }
 
 /**
- * Returns the value for the given [key].
+ * A map-like class that stores key-value pairs of [RequestExtrasKey] to its associated value for
+ * use as [DeepLinkRequest.extras].
  *
- * Should be used to retrieve values from [DeepLinkRequest.extras].
- *
- * [T] the value type.
- *
- * @param key the key associated with the value
+ * Construct with [emptyRequestExtras] or with [requestExtras] DSL.
  */
-@Suppress("UNCHECKED_CAST")
-public operator fun <T : Any> Map<String, Any>.get(key: RequestExtrasKey<T>): T? =
-    get(key.toString()) as? T
+public class RequestExtras
+internal constructor(private val internalMap: Map<RequestExtrasKey<*>, Any> = mutableMapOf()) {
+    /** Number of key-value pairs stored. */
+    public val size: Int
+        get() = internalMap.size
 
-/**
- * Checks if this map contains a value for the given [key].
- *
- * Returns true if the map contains an entry with the given [key], false otherwise.
- *
- * Should be used to check entries from [DeepLinkRequest.extras].
- *
- * [T] the value type.
- *
- * @param key the key associated with the value
- */
-public operator fun <T : Any> Map<String, Any>.contains(key: RequestExtrasKey<T>): Boolean =
-    contains(key.toString())
+    /** Returns `true` if empty, `false` otherwise. */
+    public fun isEmpty(): Boolean = internalMap.isEmpty()
+
+    /** Returns `true` if not empty, `false` otherwise. */
+    public fun isNotEmpty(): Boolean = internalMap.isNotEmpty()
+
+    /**
+     * Returns the value for [key], or `null` if absent.
+     *
+     * @param key key associated with value type [T]
+     * @return the value of type [T], or `null`
+     */
+    @Suppress("UNCHECKED_CAST")
+    public operator fun <T : Any> get(key: RequestExtrasKey<T>): T? = internalMap[key] as? T
+
+    /**
+     * Checks if a value is present for [key].
+     *
+     * @param key key to check
+     * @return `true` if present, `false` otherwise
+     */
+    public operator fun contains(key: RequestExtrasKey<*>): Boolean = internalMap.containsKey(key)
+
+    /**
+     * Returns a new [RequestExtras] containing all entries of this instance plus entries from
+     * [other]. Entries in [other] take precedence over duplicate keys.
+     */
+    public operator fun plus(other: RequestExtras): RequestExtras =
+        RequestExtras((internalMap + other.internalMap).toMutableMap())
+
+    /**
+     * Returns a new [RequestExtras] containing all entries of this instance except keys in [other].
+     */
+    public operator fun minus(other: RequestExtras): RequestExtras =
+        RequestExtras(internalMap - other.internalMap.keys)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RequestExtras) return false
+        return internalMap == other.internalMap
+    }
+
+    override fun hashCode(): Int = internalMap.hashCode()
+
+    override fun toString(): String = "RequestExtras($internalMap)"
+}
+
+/** Returns an empty [RequestExtras]. */
+public fun emptyRequestExtras(): RequestExtras = RequestExtras()

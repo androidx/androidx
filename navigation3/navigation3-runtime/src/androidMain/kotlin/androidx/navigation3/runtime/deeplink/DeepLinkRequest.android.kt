@@ -17,7 +17,7 @@
 package androidx.navigation3.runtime.deeplink
 
 import android.content.Intent
-import androidx.savedstate.read
+import androidx.savedstate.SavedState
 
 /**
  * Creates a [DeepLinkRequest] with an [Intent].
@@ -28,29 +28,23 @@ import androidx.savedstate.read
  *    [Intent.getAction], and [Intent.getExtras].
  *
  * @param intent The Intent with the metadata to construct a DeepLinkRequest
- * @param extras The map holding pairs of [String] to [Any] to provide extra information to the
- *   [DeepLinkRequest], such a mimeType. If stored under the same key, all information inside the
- *   [extras] map will take precedence over the information in the [intent].
+ * @param extras The [RequestExtras] holding key-value pairs of `RequestExtrasKey<T>` to `T` to
+ *   provide extra information to the [DeepLinkRequest]. If [extras] contains an Action stored under
+ *   [ActionExtrasKey] or a MimeType stored under [MimeTypeExtrasKey], their values will override
+ *   any Action or MimeType stored in the [intent].
  * @return a [DeepLinkRequest] instance
  */
 public operator fun DeepLinkRequest.Companion.invoke(
     intent: Intent,
-    extras: Map<String, Any> = emptyMap(),
+    extras: RequestExtras = emptyRequestExtras(),
 ): DeepLinkRequest {
     val uri = intent.data?.toString()?.let { DeepLinkUri(it) }
-    val intentExtra = buildMap {
-        intent.extras?.read {
-            val extrasMap = toMap()
-            for ((key, value) in extrasMap) {
-                if (value != null) put(key, value)
-            }
-        }
-    }
-    val mimeExtra =
-        if (intent.type != null) DeepLinkRequest.mimeTypeExtra(intent.type!!) else emptyMap()
-    val actionExtra =
-        if (intent.action != null) DeepLinkRequest.actionExtra(intent.action!!) else emptyMap()
-    return DeepLinkRequest(uri, mimeExtra + actionExtra + intentExtra + extras)
+    var combinedExtras = emptyRequestExtras()
+    intent.extras?.let { combinedExtras += requestExtras { put(IntentExtrasKey, it) } }
+    intent.type?.let { combinedExtras += DeepLinkRequest.mimeTypeExtra(it) }
+    intent.action?.let { combinedExtras += DeepLinkRequest.actionExtra(it) }
+    combinedExtras += extras
+    return DeepLinkRequest(uri, combinedExtras)
 }
 
 /**
@@ -67,17 +61,31 @@ public fun DeepLinkMatcher.Companion.actionFilter(action: String): DeepLinkMatch
         action.equals(requestedAction, true)
     }
 
-/** The key of the Action stored inside the map returned by [actionExtra]. */
+/**
+ * The [RequestExtrasKey] for the Action stored inside the [RequestExtras] returned by
+ * [actionExtra].
+ */
 public val DeepLinkRequest.Companion.ActionExtrasKey: RequestExtrasKey<String>
     get() = ActionKey
 
 private object ActionKey : RequestExtrasKey<String>
 
 /**
- * Returns a Map<String, Any> that stores the provided [actionExtra] with the key [ActionExtrasKey].
+ * Returns a [RequestExtras] that stores the provided [actionExtra] with the key [ActionExtrasKey].
  *
- * The value can be retrieved via map.get([ActionExtrasKey]).
+ * The value can be retrieved via extras[[ActionExtrasKey]].
  */
-public fun DeepLinkRequest.Companion.actionExtra(action: String): Map<String, Any> = requestExtras {
+public fun DeepLinkRequest.Companion.actionExtra(action: String): RequestExtras = requestExtras {
     put(ActionExtrasKey, action)
 }
+
+/**
+ * The [RequestExtrasKey] for the [Intent.extras] stored in [DeepLinkRequest.extras] when the
+ * Request is created with [DeepLinkRequest.Companion.invoke] factory method.
+ *
+ * The [android.os.Bundle] is stored as a [SavedState].
+ */
+public val DeepLinkRequest.Companion.IntentExtrasKey: RequestExtrasKey<SavedState>
+    get() = IntentKey
+
+private object IntentKey : RequestExtrasKey<SavedState>
