@@ -33,9 +33,8 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 
 /** The helper class to resolve AppFunction related symbols. */
 class AppFunctionSymbolResolver(private val resolver: Resolver) {
-
-    /** Resolves symbols annotated with @AppFunctionServiceEntryPoint. */
-    fun resolveAnnotatedAppFunctionServiceEntryPoints():
+    /** Resolves symbols annotated with @AppFunctionServiceEntryPoint without validation. */
+    fun resolveUnvalidatedAnnotatedAppFunctionServiceEntryPoints():
         List<AnnotatedAppFunctionServiceEntryPoint> {
         return resolver
             .getSymbolsWithAnnotation(
@@ -61,9 +60,15 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
                         .toList()
                 val appFunctions =
                     appFunctionDeclarations.map { AnnotatedAppFunction(it, it.docString) }
-                AnnotatedAppFunctionServiceEntryPoint(declaration, appFunctions).validate()
+                AnnotatedAppFunctionServiceEntryPoint(declaration, appFunctions)
             }
             .toList()
+    }
+
+    /** Resolves symbols annotated with @AppFunctionServiceEntryPoint. */
+    fun resolveAnnotatedAppFunctionServiceEntryPoints():
+        List<AnnotatedAppFunctionServiceEntryPoint> {
+        return resolveUnvalidatedAnnotatedAppFunctionServiceEntryPoints().map { it.validate() }
     }
 
     /** Resolves symbols annotated with @AppFunctionSchemaDefinition. */

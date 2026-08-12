@@ -207,6 +207,17 @@ class AppFunctionServiceEntryPointCompilerTest {
     }
 
     @Test
+    fun kotlinSyntaxError_shouldReportKotlinError() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("entrypoints/invalid/KotlinSyntaxErrorEntryPoint.KT"),
+                processorOptions = emptyMap(),
+            )
+
+        compilationTestHelper.assertErrorWithMessage(report, "Unresolved reference 'NotExistClass'")
+    }
+
+    @Test
     fun testHiltAppFunctionServiceEntryPoint_success() {
         val report =
             compilationTestHelper.compileAll(
