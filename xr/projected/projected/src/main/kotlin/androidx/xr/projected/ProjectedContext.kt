@@ -152,8 +152,9 @@ public object ProjectedContext {
     public fun isProjectedDeviceConnected(
         context: Context,
         coroutineContext: CoroutineContext,
-    ): Flow<Boolean> =
-        callbackFlow {
+    ): Flow<Boolean> {
+        val hostContext = createHostDeviceContext(context)
+        return callbackFlow {
                 @OptIn(ExperimentalStdlibApi::class)
                 val coroutineDispatcher =
                     coroutineContext[CoroutineDispatcher]
@@ -162,7 +163,7 @@ public object ProjectedContext {
                         )
 
                 fun checkAndSend() {
-                    trySend(isProjectedDisplayAvailable(context))
+                    trySend(isProjectedDisplayAvailable(hostContext))
                 }
 
                 val virtualDeviceListener =
@@ -194,13 +195,13 @@ public object ProjectedContext {
                 checkAndSend()
 
                 val virtualDeviceManager =
-                    context.getSystemService(VirtualDeviceManager::class.java)
+                    hostContext.getSystemService(VirtualDeviceManager::class.java)
                 virtualDeviceManager.registerVirtualDeviceListener(
                     coroutineDispatcher.asExecutor(),
                     virtualDeviceListener,
                 )
 
-                val displayManager = context.getSystemService(DisplayManager::class.java)
+                val displayManager = hostContext.getSystemService(DisplayManager::class.java)
                 val eventFilter =
                     EVENT_TYPE_DISPLAY_ADDED or
                         EVENT_TYPE_DISPLAY_CHANGED or
@@ -217,6 +218,7 @@ public object ProjectedContext {
                 }
             }
             .distinctUntilChanged()
+    }
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private fun isProjectedDisplayAvailable(context: Context): Boolean {
