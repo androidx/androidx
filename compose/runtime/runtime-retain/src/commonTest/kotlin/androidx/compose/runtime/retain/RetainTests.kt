@@ -1789,6 +1789,54 @@ class RetainTests {
         assertFalse(store.isRetainingExitedValues)
     }
 
+    @Test
+    fun provideRetainedValuesStore_withReturnPassthrough() = compositionTest {
+        val store = ManagedRetainedValuesStore()
+        var retainCount = 0
+        var rememberCount = 0
+        var capturedValue by mutableStateOf(0)
+        var showContent by mutableStateOf(true)
+        var invocations = 0
+        compose {
+            if (showContent) {
+                val result =
+                    withLocalRetainedValuesStore(store) {
+                        val retained = retain { retainCount++ }
+                        val remembered = remember { rememberCount++ }
+                        val captured = capturedValue
+
+                        "Retain: $retained, Remembered: $remembered, " +
+                            "Captured: $captured, Invocations: ${invocations++}"
+                    }
+
+                Text(result)
+            }
+        }
+
+        validate { Text("Retain: 0, Remembered: 0, Captured: 0, Invocations: 0") }
+
+        capturedValue++
+        advance()
+        validate { Text("Retain: 0, Remembered: 0, Captured: 1, Invocations: 1") }
+
+        showContent = false
+        advance()
+        validate {}
+
+        showContent = true
+        advance()
+        validate { Text("Retain: 0, Remembered: 1, Captured: 1, Invocations: 2") }
+
+        store.disableRetainingExitedValues()
+        showContent = false
+        advance()
+        validate {}
+
+        showContent = true
+        advance()
+        validate { Text("Retain: 1, Remembered: 2, Captured: 1, Invocations: 3") }
+    }
+
     private inline fun <reified T : Throwable> assertThrows(
         throwableAssertion: (T) -> Unit = {},
         block: () -> Unit,
