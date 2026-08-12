@@ -530,6 +530,7 @@ class SpatialGltfModelActivity : ComponentActivity() {
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 fun SliderRow(label: String, value: Float, min: Float, max: Float, onValueChange: (Float) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {

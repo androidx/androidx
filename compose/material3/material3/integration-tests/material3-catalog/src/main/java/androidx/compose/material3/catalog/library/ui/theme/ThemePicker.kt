@@ -53,7 +53,9 @@ import androidx.compose.material3.catalog.library.model.TextDirection
 import androidx.compose.material3.catalog.library.model.Theme
 import androidx.compose.material3.catalog.library.model.ThemeColorMode
 import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -418,13 +420,14 @@ private fun CustomFontScaleSlider(
     onValueChange: (textScale: Float) -> Unit,
     onValueChangeFinished: () -> Unit,
 ) {
+    val state = rememberSliderState(value = fontScale, trackRange = fontScaleMin..fontScaleMax)
+    LaunchedEffect(fontScale) { if (state.value != fontScale) state.value = fontScale }
     Column(modifier = modifier) {
         Slider(
+            state = state,
             enabled = enabled,
-            value = fontScale,
             onValueChange = onValueChange,
             onValueChangeFinished = onValueChangeFinished,
-            valueRange = fontScaleMin..fontScaleMax,
         )
         Text(
             text = stringResource(id = R.string.scale, fontScale),

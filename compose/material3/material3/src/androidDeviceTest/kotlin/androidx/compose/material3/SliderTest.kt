@@ -39,7 +39,6 @@ import androidx.compose.material3.tokens.SliderTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -325,7 +324,7 @@ class SliderTest {
         lateinit var state: SliderState
 
         rule.setMaterialContent(lightColorScheme()) {
-            state = remember(rangeEnd.value) { SliderState(0f, valueRange = 0f..rangeEnd.value) }
+            state = remember(rangeEnd.value) { SliderState(0f, trackRange = 0f..rangeEnd.value) }
             Slider(state = state, modifier = Modifier.testTag(tag))
         }
 
@@ -452,10 +451,13 @@ class SliderTest {
     fun slider_noUnwantedCallbackCalls() {
         val callCount = mutableStateOf(0f)
         val state = SliderState(0f)
-        state.onValueChange = { callCount.value += 1 }
 
         rule.setMaterialContent(lightColorScheme()) {
-            Slider(state = state, modifier = Modifier.testTag(tag))
+            Slider(
+                state = state,
+                onValueChange = { callCount.value += 1 },
+                modifier = Modifier.testTag(tag),
+            )
         }
 
         rule.runOnIdle { Truth.assertThat(callCount.value).isEqualTo(0f) }
@@ -464,10 +466,14 @@ class SliderTest {
     @Test
     fun slider_valueChangeFinished_calledOnce() {
         val callCount = mutableStateOf(0f)
-        val state = SliderState(0f, onValueChangeFinished = { callCount.value += 1 })
+        val state = SliderState(0f)
 
         rule.setMaterialContent(lightColorScheme()) {
-            Slider(state = state, modifier = Modifier.testTag(tag))
+            Slider(
+                state = state,
+                modifier = Modifier.testTag(tag),
+                onValueChangeFinished = { callCount.value += 1 },
+            )
         }
 
         rule.runOnIdle { Truth.assertThat(callCount.value).isEqualTo(0) }
@@ -484,10 +490,14 @@ class SliderTest {
     @Test
     fun slider_setProgress_callsOnValueChangeFinished() {
         val callCount = mutableStateOf(0)
-        val state = SliderState(0f, onValueChangeFinished = { callCount.value += 1 })
+        val state = SliderState(0f)
 
         rule.setMaterialContent(lightColorScheme()) {
-            Slider(state = state, modifier = Modifier.testTag(tag))
+            Slider(
+                state = state,
+                modifier = Modifier.testTag(tag),
+                onValueChangeFinished = { callCount.value += 1 },
+            )
         }
 
         rule.runOnIdle { Truth.assertThat(callCount.value).isEqualTo(0) }
@@ -592,9 +602,9 @@ class SliderTest {
         var changedFlag = false
         rule.setContent {
             Slider(
-                state =
-                    remember { SliderState(0f, onValueChangeFinished = { changedFlag = true }) },
+                state = remember { SliderState(0f) },
                 modifier = Modifier.testTag(tag),
+                onValueChangeFinished = { changedFlag = true },
             )
         }
 
@@ -693,18 +703,15 @@ class SliderTest {
             Scaffold(
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 content = { _ ->
-                    state = remember {
-                        SliderState(
-                            value = 0f,
-                            onValueChangeFinished = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Snackbar Description")
-                                }
-                            },
-                        )
-                    }
+                    state = remember { SliderState(value = 0f) }
                     slop = LocalViewConfiguration.current.touchSlop
-                    Slider(state = state, modifier = Modifier.testTag(tag))
+                    Slider(
+                        state = state,
+                        modifier = Modifier.testTag(tag),
+                        onValueChangeFinished = {
+                            scope.launch { snackbarHostState.showSnackbar("Snackbar Description") }
+                        },
+                    )
                 },
             )
         }
@@ -733,8 +740,8 @@ class SliderTest {
         }
 
         rule.runOnUiThread {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(1f)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isEqualTo(1f)
         }
 
         var expected = 0f
@@ -746,8 +753,8 @@ class SliderTest {
             expected = calculateFraction(left, right, centerX + slop + 100)
         }
         rule.runOnIdle {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isWithin(SliderTolerance).of(expected)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(expected)
         }
     }
 
@@ -762,8 +769,8 @@ class SliderTest {
         }
 
         rule.runOnUiThread {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(1f)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isEqualTo(1f)
         }
 
         var expected = 0f
@@ -779,8 +786,8 @@ class SliderTest {
             expected = calculateFraction(left, right, centerX + slop + 100)
         }
         rule.runOnIdle {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isWithin(SliderTolerance).of(expected)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(expected)
         }
     }
 
@@ -806,8 +813,8 @@ class SliderTest {
             up()
         }
         rule.runOnIdle {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0.5f)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(0.5f)
+            Truth.assertThat(state.startValue).isEqualTo(0.5f)
+            Truth.assertThat(state.endValue).isEqualTo(0.5f)
         }
 
         rule.onNodeWithTag(tag).performTouchInput {
@@ -817,8 +824,8 @@ class SliderTest {
             up()
         }
         rule.runOnIdle {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(0.5f)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isEqualTo(0.5f)
         }
     }
 
@@ -831,8 +838,8 @@ class SliderTest {
         }
 
         rule.runOnUiThread {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(1f)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isEqualTo(1f)
         }
 
         var expected = 0f
@@ -843,8 +850,8 @@ class SliderTest {
             expected = calculateFraction(left, right, centerX + 50)
         }
         rule.runOnIdle {
-            Truth.assertThat(state.activeRangeEnd).isWithin(SliderTolerance).of(expected)
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(expected)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
         }
     }
 
@@ -856,7 +863,7 @@ class SliderTest {
         rule.setMaterialContent(lightColorScheme()) {
             state =
                 remember(rangeEnd.value) {
-                    RangeSliderState(0f, 25f, valueRange = 0f..rangeEnd.value)
+                    RangeSliderState(0f, 25f, trackRange = 0f..rangeEnd.value)
                 }
             RangeSlider(state = state, modifier = Modifier.testTag(tag))
         }
@@ -871,9 +878,7 @@ class SliderTest {
             expected = calculateFraction(left, right, centerX + 50)
         }
 
-        rule.runOnIdle {
-            Truth.assertThat(state.activeRangeEnd).isWithin(SliderTolerance).of(expected)
-        }
+        rule.runOnIdle { Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(expected) }
     }
 
     @Test
@@ -889,8 +894,8 @@ class SliderTest {
         }
 
         rule.runOnUiThread {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(1f)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isEqualTo(1f)
         }
 
         var expected = 0f
@@ -904,8 +909,8 @@ class SliderTest {
             expected = calculateFraction(left, right, centerX - slop - 100)
         }
         rule.runOnIdle {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isWithin(SliderTolerance).of(expected)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(expected)
         }
     }
 
@@ -922,8 +927,8 @@ class SliderTest {
         }
 
         rule.runOnUiThread {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(1f)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isEqualTo(1f)
         }
 
         var expected = 0f
@@ -940,8 +945,8 @@ class SliderTest {
             expected = calculateFraction(left, right, centerX - slop - 100)
         }
         rule.runOnIdle {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isWithin(SliderTolerance).of(expected)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(expected)
         }
     }
 
@@ -956,8 +961,8 @@ class SliderTest {
         }
 
         rule.runOnUiThread {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0.5f)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(0.5f)
+            Truth.assertThat(state.startValue).isEqualTo(0.5f)
+            Truth.assertThat(state.endValue).isEqualTo(0.5f)
         }
 
         var expected = 0f
@@ -971,8 +976,8 @@ class SliderTest {
             expected = calculateFraction(left, right, centerX + slop + 100)
         }
         rule.runOnIdle {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0.5f)
-            Truth.assertThat(state.activeRangeEnd).isWithin(SliderTolerance).of(expected)
+            Truth.assertThat(state.startValue).isEqualTo(0.5f)
+            Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(expected)
         }
     }
 
@@ -987,8 +992,8 @@ class SliderTest {
         }
 
         rule.runOnUiThread {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0.5f)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(0.5f)
+            Truth.assertThat(state.startValue).isEqualTo(0.5f)
+            Truth.assertThat(state.endValue).isEqualTo(0.5f)
         }
 
         var expected = 0f
@@ -1002,8 +1007,8 @@ class SliderTest {
             expected = calculateFraction(left, right, centerX - slop - 100)
         }
         rule.runOnIdle {
-            Truth.assertThat(state.activeRangeStart).isWithin(SliderTolerance).of(expected)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(0.5f)
+            Truth.assertThat(state.startValue).isWithin(SliderTolerance).of(expected)
+            Truth.assertThat(state.endValue).isEqualTo(0.5f)
         }
     }
 
@@ -1055,8 +1060,8 @@ class SliderTest {
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.SetProgress))
 
         rule.runOnUiThread {
-            state.activeRangeStart = 0.5f
-            state.activeRangeEnd = 0.75f
+            state.startValue = 0.5f
+            state.endValue = 0.75f
         }
 
         rule
@@ -1090,15 +1095,15 @@ class SliderTest {
 
     @Test
     fun rangeSlider_semantics_stepped() {
-        val state = RangeSliderState(0f, 20f, steps = 3, valueRange = 0f..20f)
+        val state = RangeSliderState(0f, 20f, steps = 3, trackRange = 0f..20f)
         // Slider with [0,5,10,15,20] possible values
         rule.setMaterialContent(lightColorScheme()) {
             RangeSlider(state = state, modifier = Modifier.testTag(tag))
         }
 
         rule.runOnUiThread {
-            state.activeRangeStart = 5f
-            state.activeRangeEnd = 10f
+            state.startValue = 5f
+            state.endValue = 10f
         }
 
         rule
@@ -1236,7 +1241,7 @@ class SliderTest {
     @Ignore("b/447508701")
     @Test
     fun rangeSlider_thumb_recomposition() {
-        val state = RangeSliderState(0f, 100f, valueRange = 0f..100f)
+        val state = RangeSliderState(0f, 100f, trackRange = 0f..100f)
         val startRecompositionCounter = RangeSliderRecompositionCounter()
         val endRecompositionCounter = RangeSliderRecompositionCounter()
 
@@ -1270,7 +1275,7 @@ class SliderTest {
 
     @Test
     fun rangeSlider_track_recomposition() {
-        val state = RangeSliderState(0f, 100f, valueRange = 0f..100f)
+        val state = RangeSliderState(0f, 100f, trackRange = 0f..100f)
         val recompositionCounter = RangeSliderRecompositionCounter()
 
         rule.setContent {
@@ -1325,26 +1330,22 @@ class SliderTest {
             Scaffold(
                 snackbarHost = { SnackbarHost(snackbarHostState) },
                 content = { _ ->
-                    state = remember {
-                        RangeSliderState(
-                            activeRangeStart = 0f,
-                            activeRangeEnd = 1f,
-                            onValueChangeFinished = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Snackbar Description")
-                                }
-                            },
-                        )
-                    }
+                    state = remember { RangeSliderState(startValue = 0f, endValue = 1f) }
                     slop = LocalViewConfiguration.current.touchSlop
-                    RangeSlider(state = state, modifier = Modifier.testTag(tag))
+                    RangeSlider(
+                        state = state,
+                        modifier = Modifier.testTag(tag),
+                        onValueChangeFinished = {
+                            scope.launch { snackbarHostState.showSnackbar("Snackbar Description") }
+                        },
+                    )
                 },
             )
         }
 
         rule.runOnUiThread {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isEqualTo(1f)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isEqualTo(1f)
         }
 
         var expected = 0f
@@ -1357,32 +1358,31 @@ class SliderTest {
             expected = calculateFraction(left, right, centerX + slop + 100)
         }
         rule.runOnIdle {
-            Truth.assertThat(state.activeRangeStart).isEqualTo(0f)
-            Truth.assertThat(state.activeRangeEnd).isWithin(SliderTolerance).of(expected)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isWithin(SliderTolerance).of(expected)
         }
     }
 
     @Test
     fun rangeSlider_valueUpdatedByLaunchEffectAndInteraction() {
-        lateinit var sliderPosition: MutableState<ClosedFloatingPointRange<Float>>
+        lateinit var state: RangeSliderState
 
         rule.setMaterialContent(lightColorScheme()) {
-            sliderPosition = remember { mutableStateOf(0f..100f) }
-            RangeSlider(
-                modifier = Modifier.testTag(tag),
-                value = sliderPosition.value,
-                steps = 0,
-                onValueChange = { range -> sliderPosition.value = range },
-                valueRange = 0f..100f,
-            )
-            LaunchedEffect(Unit) { sliderPosition.value = 0f..50f }
+            state = remember {
+                RangeSliderState(startValue = 0f, endValue = 100f, steps = 0, trackRange = 0f..100f)
+            }
+            RangeSlider(state = state, modifier = Modifier.testTag(tag))
+            LaunchedEffect(Unit) {
+                state.startValue = 0f
+                state.endValue = 50f
+            }
         }
 
         rule.waitForIdle()
 
         rule.runOnIdle {
-            Truth.assertThat(sliderPosition.value.start).isEqualTo(0f)
-            Truth.assertThat(sliderPosition.value.endInclusive).isEqualTo(50f)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isEqualTo(50f)
         }
 
         rule.onNodeWithTag(tag).performTouchInput {
@@ -1393,8 +1393,8 @@ class SliderTest {
         rule.waitForIdle()
 
         rule.runOnIdle {
-            Truth.assertThat(sliderPosition.value.endInclusive).isNotEqualTo(50f)
-            Truth.assertThat(sliderPosition.value.start).isEqualTo(0f)
+            Truth.assertThat(state.endValue).isNotEqualTo(50f)
+            Truth.assertThat(state.startValue).isEqualTo(0f)
         }
     }
 
@@ -1402,10 +1402,11 @@ class SliderTest {
     fun rangeslider_initialValueOutsideOfRange_doesNotCrash() {
         rule.setMaterialContent(lightColorScheme()) {
             RangeSlider(
+                state =
+                    remember {
+                        RangeSliderState(startValue = -1f, endValue = -1f, trackRange = 0f..1f)
+                    },
                 modifier = Modifier.testTag(tag),
-                value = -1f..-1f,
-                onValueChange = {},
-                valueRange = 0f..1f,
             )
         }
     }
@@ -1701,6 +1702,6 @@ class RangeSliderRecompositionCounter {
     @Composable
     private fun InnerContent(state: RangeSliderState) {
         SideEffect { ++innerRecomposition }
-        Text("InnerContent: ${state.activeRangeStart..state.activeRangeEnd}")
+        Text("InnerContent: ${state.startValue..state.endValue}")
     }
 }

@@ -40,6 +40,7 @@ public object SupportSlider {
     public const val PROP_PROGRESS_COLOR: Short = 8
     public const val RET_PROGRESS: Short = 9
 
+    @Suppress("DEPRECATION")
     @Composable
     @SuppressLint("RestrictedApiAndroidX")
     public fun Content(state: ComposeCustomSupport.ComponentState, remoteContext: RemoteContext?) {

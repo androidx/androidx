@@ -259,6 +259,7 @@ class FollowingSubspaceActivity : ComponentActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Composable
     private fun SoftFollowSlider(duration: Int, onDurationChange: (Float) -> Unit) {
         Column(

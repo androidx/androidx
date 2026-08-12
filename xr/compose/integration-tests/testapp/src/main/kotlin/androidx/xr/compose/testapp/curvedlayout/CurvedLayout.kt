@@ -98,6 +98,7 @@ class CurvedLayout : ComponentActivity() {
         Subspace { PanelGrid() }
     }
 
+    @Suppress("DEPRECATION")
     @Composable
     private fun PanelGrid() {
         var curvePercent by remember { mutableFloatStateOf(0.625f) }

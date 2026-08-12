@@ -45,9 +45,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.pullToRefresh
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -81,10 +81,10 @@ fun ContainedLoadingIndicatorSample() {
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun DeterminateLoadingIndicatorSample() {
-    var progress by remember { mutableFloatStateOf(0f) }
+    val sliderState = rememberSliderState()
     val animatedProgress by
         animateFloatAsState(
-            targetValue = progress,
+            targetValue = sliderState.value,
             animationSpec =
                 spring(
                     dampingRatio = Spring.DampingRatioNoBouncy,
@@ -97,12 +97,7 @@ fun DeterminateLoadingIndicatorSample() {
         LoadingIndicator(progress = { animatedProgress })
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set loading progress:")
-        Slider(
-            modifier = Modifier.width(300.dp),
-            value = progress,
-            valueRange = 0f..1f,
-            onValueChange = { progress = it },
-        )
+        Slider(state = sliderState, modifier = Modifier.width(300.dp))
     }
 }
 
@@ -111,10 +106,10 @@ fun DeterminateLoadingIndicatorSample() {
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun DeterminateContainedLoadingIndicatorSample() {
-    var progress by remember { mutableFloatStateOf(0f) }
+    val sliderState = rememberSliderState()
     val animatedProgress by
         animateFloatAsState(
-            targetValue = progress,
+            targetValue = sliderState.value,
             animationSpec =
                 spring(
                     dampingRatio = Spring.DampingRatioNoBouncy,
@@ -127,12 +122,7 @@ fun DeterminateContainedLoadingIndicatorSample() {
         ContainedLoadingIndicator(progress = { animatedProgress })
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set loading progress:")
-        Slider(
-            modifier = Modifier.width(300.dp),
-            value = progress,
-            valueRange = 0f..1f,
-            onValueChange = { progress = it },
-        )
+        Slider(state = sliderState, modifier = Modifier.width(300.dp))
     }
 }
 

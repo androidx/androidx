@@ -265,6 +265,7 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Composable
     private fun SoftFollowSlider(duration: Int, onDurationChange: (Float) -> Unit) {
         Column(

@@ -60,6 +60,7 @@ class ProgressActivity : FragmentActivity() {
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 fun ProgressHolder() {
     val progress = remember { Animatable(1f) }
