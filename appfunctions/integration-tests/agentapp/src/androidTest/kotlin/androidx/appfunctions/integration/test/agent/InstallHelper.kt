@@ -67,7 +67,7 @@ object InstallHelper {
 
         try {
             // Create Install Session
-            val installCreateOutput = executeCommand("pm install-create -t").first().trim()
+            val installCreateOutput = executeCommand("pm install-create -t -d").first().trim()
             val sessionId =
                 REGEX_SESSION_ID.find(installCreateOutput)?.groups?.get(1)?.value?.toLong()
                     ?: throw IllegalStateException(

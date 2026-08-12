@@ -24,7 +24,9 @@ import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ObserveAppFunctionsEvent
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADDITIONAL_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADD_FUNCTION_ID
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.COMPONENT_CHANGED_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DEPRECATED_FUNCTION_ID
@@ -56,8 +58,6 @@ import org.junit.Before
 import org.junit.Test
 
 /** Integration tests for observeAppFunctions API. */
-// TODO(b/494238381): Add tests for package update scenarios which require multiple versions of the
-//  testapp.
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA)
 @LargeTest
 class ObserveAppFunctionsIntegrationTest {
@@ -68,6 +68,12 @@ class ObserveAppFunctionsIntegrationTest {
     private val targetAppApkFile =
         InstrumentationRegistry.getArguments().getString("TARGET_APP_APK")
             ?: throw IllegalStateException("TARGET_APP_APK argument not found")
+    private val targetAppApkFileV2 =
+        InstrumentationRegistry.getArguments().getString("TARGET_APP_APK_V2")
+            ?: throw IllegalStateException("TARGET_APP_APK_V2 argument not found")
+    private val targetAppApkFileV3 =
+        InstrumentationRegistry.getArguments().getString("TARGET_APP_APK_V3")
+            ?: throw IllegalStateException("TARGET_APP_APK_V3 argument not found")
 
     private val functionsUnderTest =
         setOf(
@@ -393,6 +399,150 @@ class ObserveAppFunctionsIntegrationTest {
                     AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
                 )
             assertThat(searchResult.size).isEqualTo(getTotalFunctionCountInPackage())
+        }
+    }
+
+    @Test
+    fun observeAppFunctions_onPackageUpdated_functionAdded_emitsPackageChange() = doBlocking {
+        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        observeAppFunctionsWithRegisteredFlow { eventChannel ->
+            dispatchSentinelNotification(eventChannel)
+
+            // Re-install the test package to simulate an update using V2
+            InstallHelper.install(targetAppApkFileV2)
+            targetContext.awaitAppFunctionsIndexed(
+                TARGET_APP_PACKAGE,
+                expectedFunctionIds = setOf(ADDITIONAL_FUNCTION_ID),
+            )
+
+            // Read the package change event for update
+            retryAssert {
+                drainEvents(eventChannel, receivedEvents)
+                val targetPackageChangeEvents =
+                    receivedEvents
+                        .filterIsInstance<ObserveAppFunctionsEvent.MetadataChanged>()
+                        .filter { event -> event.changedPackageNames.contains(TARGET_APP_PACKAGE) }
+                assertThat(targetPackageChangeEvents).isNotEmpty()
+            }
+
+            // Search and verify the newly added function is properly indexed
+            val searchResult =
+                appFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
+                )
+
+            val additionalFunction = searchResult.find { it.id == ADDITIONAL_FUNCTION_ID }
+            assertThat(additionalFunction)
+                .isEqualTo(AppFunctionMetadataHelper.FunctionMetadataV2.ADDITIONAL_FUNCTION)
+        }
+    }
+
+    @Test
+    fun observeAppFunctions_onPackageUpdated_functionRemoved_emitsPackageChange() = doBlocking {
+        // Pre-install V2
+        InstallHelper.install(targetAppApkFileV2)
+        targetContext.awaitAppFunctionsIndexed(
+            TARGET_APP_PACKAGE,
+            expectedFunctionIds = setOf(ADDITIONAL_FUNCTION_ID),
+        )
+
+        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        observeAppFunctionsWithRegisteredFlow { eventChannel ->
+            dispatchSentinelNotification(eventChannel)
+
+            // Re-install the original test package to simulate an update that removes a function
+            InstallHelper.install(targetAppApkFile)
+            targetContext.awaitAppFunctionsIndexed(
+                TARGET_APP_PACKAGE,
+                unexpectedFunctionIds = setOf(ADDITIONAL_FUNCTION_ID),
+            )
+
+            // Read the package change event for update
+            retryAssert {
+                drainEvents(eventChannel, receivedEvents)
+                val targetPackageChangeEvents =
+                    receivedEvents
+                        .filterIsInstance<ObserveAppFunctionsEvent.MetadataChanged>()
+                        .filter { event -> event.changedPackageNames.contains(TARGET_APP_PACKAGE) }
+                assertThat(targetPackageChangeEvents).isNotEmpty()
+            }
+
+            // Search and verify the newly added function is properly removed
+            val searchResult =
+                appFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
+                )
+
+            assertThat(searchResult.size).isEqualTo(getTotalFunctionCountInPackage())
+
+            val functionId = ADDITIONAL_FUNCTION_ID
+            val additionalFunction = searchResult.find { it.id == functionId }
+            assertThat(additionalFunction).isNull()
+        }
+    }
+
+    @Test
+    fun observeAppFunctions_onPackageUpdated_componentChanged_emitsPackageChange() = doBlocking {
+        val functionName = AppFunctionName(TARGET_APP_PACKAGE, COMPONENT_CHANGED_FUNCTION_ID)
+
+        // Pre-install V2
+        InstallHelper.install(targetAppApkFileV2)
+        targetContext.awaitAppFunctionsIndexed(
+            TARGET_APP_PACKAGE,
+            expectedFunctionIds = setOf(COMPONENT_CHANGED_FUNCTION_ID),
+        )
+
+        val receivedEvents = mutableListOf<ObserveAppFunctionsEvent>()
+        observeAppFunctionsWithRegisteredFlow { eventChannel ->
+            dispatchSentinelNotification(eventChannel)
+
+            // Search V2 first to verify component
+            val functionV2 =
+                appFunctionManager
+                    .searchAppFunctions(
+                        AppFunctionSearchSpec(
+                            packageNames = setOf(TARGET_APP_PACKAGE),
+                            functionNames = setOf(functionName),
+                        )
+                    )
+                    .single()
+            assertThat(functionV2)
+                .isEqualTo(
+                    AppFunctionMetadataHelper.FunctionMetadataV2.ADDITIONAL_COMPONENT_FUNCTION_V2
+                )
+
+            // Re-install the test package to simulate an update using V3 where the component
+            // changed
+            InstallHelper.install(targetAppApkFileV3)
+
+            // Retry search to await the new component version is indexed
+            retryAssert {
+                // Search and verify the component changed
+                val functionV3 =
+                    appFunctionManager
+                        .searchAppFunctions(
+                            AppFunctionSearchSpec(
+                                packageNames = setOf(TARGET_APP_PACKAGE),
+                                functionNames = setOf(functionName),
+                            )
+                        )
+                        .single()
+                assertThat(functionV3)
+                    .isEqualTo(
+                        AppFunctionMetadataHelper.FunctionMetadataV3
+                            .ADDITIONAL_COMPONENT_FUNCTION_V3
+                    )
+            }
+
+            // Read the package change event for update
+            retryAssert {
+                drainEvents(eventChannel, receivedEvents)
+                val targetPackageChangeEvents =
+                    receivedEvents
+                        .filterIsInstance<ObserveAppFunctionsEvent.MetadataChanged>()
+                        .filter { event -> event.changedPackageNames.contains(TARGET_APP_PACKAGE) }
+                assertThat(targetPackageChangeEvents).isNotEmpty()
+            }
         }
     }
 
