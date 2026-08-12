@@ -318,9 +318,11 @@ class TransformingLazyColumnItemAnimationTest {
                 }
             }
         }
-        rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(0.dp)
-        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(50.dp)
-        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(100.dp)
+        // Ensure the tolerance is larger than 1px, 0.5px is too small at densities below 2.0f
+        val tolerance = maxOf(0.5.dp, with(rule.density) { 1.5f.toDp() })
+        rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(0.dp, tolerance)
+        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(50.dp, tolerance)
+        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(100.dp, tolerance)
 
         // Delete Item 0 & 1, insert Item 3 at the top
         rule.runOnUiThread { list = listOf(3, 2) }
@@ -328,7 +330,7 @@ class TransformingLazyColumnItemAnimationTest {
         // Verify that Item 2 slides up smoothly to fill the gap
         onAnimationFrame { fraction ->
             val expectedY2 = 100.dp - (50.dp * fraction)
-            rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(expectedY2)
+            rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(expectedY2, tolerance)
         }
     }
 
