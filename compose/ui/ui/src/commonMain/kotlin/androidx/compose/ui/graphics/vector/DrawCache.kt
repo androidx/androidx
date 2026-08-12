@@ -41,16 +41,10 @@ internal class DrawCache {
 
     @PublishedApi internal var mCachedImage: ImageBitmap? = null
     private var cachedCanvas: Canvas? = null
+    private var scopeDensity: Density? = null
+    private var layoutDirection: LayoutDirection = LayoutDirection.Ltr
     private var size: IntSize = IntSize.Zero
     private var config: ImageBitmapConfig = ImageBitmapConfig.Argb8888
-
-    /**
-     * Identity of the content currently rendered into [mCachedImage]. Consumers that share a
-     * [DrawCache] across multiple owners can record a stamp describing the rendered content and
-     * skip re-rendering when the stamp still matches. Reset whenever the cache is redrawn so stale
-     * stamps can never survive a render by a non-stamp-aware caller.
-     */
-    internal var contentStamp: Long = InvalidContentStamp
 
     private val cacheScope = CanvasDrawScope()
 
@@ -66,7 +60,8 @@ internal class DrawCache {
         layoutDirection: LayoutDirection,
         block: DrawScope.() -> Unit,
     ) {
-        contentStamp = InvalidContentStamp
+        this.scopeDensity = density
+        this.layoutDirection = layoutDirection
         var targetImage = mCachedImage
         var targetCanvas = cachedCanvas
         if (
@@ -109,35 +104,3 @@ internal class DrawCache {
         drawRect(color = Color.Black, blendMode = BlendMode.Clear)
     }
 }
-
-/**
- * Provides a [DrawCache] for a given draw size and bitmap configuration.
- *
- * Decouples [VectorComponent] from the caching strategy. Implementations can return a locally-owned
- * [DrawCache] or one from a shared cache.
- */
-internal fun interface DrawCacheProvider {
-    /**
-     * Returns a [DrawCache] for the given [size] and [config].
-     *
-     * Shared caches use these parameters for lookup. Locally-owned caches may ignore them and rely
-     * on the returned [DrawCache] to internally resize its bitmap.
-     */
-    fun provide(size: IntSize, config: ImageBitmapConfig): DrawCache
-}
-
-/**
- * Returns a single, locally-owned [DrawCache].
- * *
- * Note: Ignores size and config parameters. It relies on the returned [DrawCache] to internally
- * re-allocate its bitmap when the requested size or config changes.
- */
-internal class OwnedDrawCacheProvider : DrawCacheProvider {
-    private var cache: DrawCache? = null
-
-    override fun provide(size: IntSize, config: ImageBitmapConfig): DrawCache =
-        cache ?: DrawCache().also { cache = it }
-}
-
-/** Sentinel indicating a [DrawCache] whose rendered content has no recorded identity. */
-internal const val InvalidContentStamp: Long = Long.MIN_VALUE
