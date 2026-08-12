@@ -67,6 +67,7 @@ import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -1398,6 +1399,87 @@ class ExecuteAppFunctionIntegrationTest {
         }
     }
 
+    @Test
+    fun executeFunction_uriConstraint_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        val functionMetadata = searchAppFunction(ECHO_URI_WITH_CONSTRAINT_FUNCTION_ID)
+        val validUri = "content://media/external/images/1"
+        val request =
+            ExecuteAppFunctionRequest(
+                targetPackageName = functionMetadata.packageName,
+                functionIdentifier = ECHO_URI_WITH_CONSTRAINT_FUNCTION_ID,
+                functionParameters =
+                    buildSingleStringParameterData(functionMetadata, "uriParam", validUri),
+            )
+
+        val response = appFunctionManager.executeAppFunction(request)
+
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
+        val returnedUri = successResponse.returnValue.getString(PROPERTY_RETURN_VALUE)
+        assertThat(returnedUri).isEqualTo(validUri)
+    }
+
+    @Test
+    fun executeFunction_uriConstraint_failsForInvalidScheme() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        val functionMetadata = searchAppFunction(ECHO_URI_WITH_CONSTRAINT_FUNCTION_ID)
+        val invalidUri = "http://example.com"
+
+        assertThrows(IllegalArgumentException::class.java) {
+            buildSingleStringParameterData(functionMetadata, "uriParam", invalidUri)
+        }
+    }
+
+    @Test
+    fun executeFunction_stringValueConstraint_success() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        val functionMetadata = searchAppFunction(ECHO_STRING_WITH_CONSTRAINT_FUNCTION_ID)
+        val validString = "hello"
+        val request =
+            ExecuteAppFunctionRequest(
+                targetPackageName = functionMetadata.packageName,
+                functionIdentifier = ECHO_STRING_WITH_CONSTRAINT_FUNCTION_ID,
+                functionParameters =
+                    buildSingleStringParameterData(functionMetadata, "stringParam", validString),
+            )
+
+        val response = appFunctionManager.executeAppFunction(request)
+
+        assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+        val successResponse = response as ExecuteAppFunctionResponse.Success
+        assertThat(successResponse.returnValue.getString(PROPERTY_RETURN_VALUE))
+            .isEqualTo(validString)
+    }
+
+    @Test
+    fun executeFunction_stringValueConstraint_failsForInvalidPattern() = doBlocking {
+        assumeTrue(isDynamicIndexerAvailable(targetContext))
+        val functionMetadata = searchAppFunction(ECHO_STRING_WITH_CONSTRAINT_FUNCTION_ID)
+        val invalidString = "12345" // Does not match ^[a-z]+$
+
+        assertThrows(IllegalArgumentException::class.java) {
+            buildSingleStringParameterData(functionMetadata, "stringParam", invalidString)
+        }
+    }
+
+    /**
+     * Builds an [AppFunctionData] containing a single string parameter under [parameterName] using
+     * metadata from [functionMetadata].
+     *
+     * This helper is also used for URI parameters with schema constraints, since KSP encodes them
+     * as [AppFunctionStringTypeMetadata] with format = FORMAT_URI to allow runtime pattern
+     * validation against the string value.
+     */
+    private fun buildSingleStringParameterData(
+        functionMetadata: AppFunctionMetadata,
+        parameterName: String,
+        value: String,
+    ): AppFunctionData =
+        AppFunctionData.Builder(functionMetadata.parameters, functionMetadata.components)
+            .setString(parameterName, value)
+            .build()
+
     /**
      * Requires that [parameters] contains the [AppFunctionObjectTypeMetadata] under
      * [parameterName].
@@ -1471,5 +1553,11 @@ class ExecuteAppFunctionIntegrationTest {
 
         const val ECHO_FUNCTION_WITH_OPTIONAL_PARAMETERS =
             "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#echoFunctionWithOptionalParameters"
+
+        const val ECHO_URI_WITH_CONSTRAINT_FUNCTION_ID =
+            "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#echoUriWithConstraint"
+
+        const val ECHO_STRING_WITH_CONSTRAINT_FUNCTION_ID =
+            "androidx.appfunctions.integration.testapp.BaseTestAppFunctionService#echoStringWithConstraint"
     }
 }

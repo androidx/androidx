@@ -75,7 +75,7 @@ data class AnnotatedAppFunction(
         if (!skipFirstParameterValidation) {
             validateFirstParameter()
         }
-        validateParameterTypes()
+        validateParameterTypes(skipFirstParameterValidation)
         return this
     }
 
@@ -206,10 +206,9 @@ data class AnnotatedAppFunction(
         }
     }
 
-    private fun validateParameterTypes() {
+    private fun validateParameterTypes(skipFirstParameterValidation: Boolean) {
         for ((paramIndex, ksValueParameter) in appFunctionDeclaration.parameters.withIndex()) {
-            if (paramIndex == 0) {
-                // Skip the first parameter which is always the `AppFunctionContext`.
+            if (paramIndex == 0 && !skipFirstParameterValidation) {
                 continue
             }
 
@@ -233,6 +232,20 @@ data class AnnotatedAppFunction(
             if (isOptional && !isAllowToBeOptional(ksValueParameter.type)) {
                 throw ProcessingException(
                     "Type ${ksValueParameter.type.toTypeName()} cannot be optional",
+                    ksValueParameter,
+                )
+            }
+
+            val uriConstraint =
+                ksValueParameter.annotations.findAnnotation(
+                    IntrospectionHelper.AppFunctionUriValueConstraintAnnotation.CLASS_NAME
+                )
+            if (
+                uriConstraint != null &&
+                    !ksValueParameter.type.isOfType(IntrospectionHelper.URI_CLASS_NAME)
+            ) {
+                throw ProcessingException(
+                    "@${IntrospectionHelper.AppFunctionUriValueConstraintAnnotation.CLASS_NAME.simpleName} can only be applied to ${IntrospectionHelper.URI_CLASS_NAME.canonicalName}",
                     ksValueParameter,
                 )
             }

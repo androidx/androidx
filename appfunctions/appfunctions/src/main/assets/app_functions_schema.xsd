@@ -53,6 +53,8 @@
         <xs:element name="objectQualifiedName" cardinality="2" type="xs:string" />
         <xs:element name="description" cardinality="2" type="xs:string" />
         <xs:element name="enumValues" cardinality="1" type="xs:string" />
+        <xs:element name="pattern" cardinality="2" type="xs:string" />
+        <xs:element name="format" cardinality="2" type="xs:string" />
     </xs:documentType>
 
     <!-- Definition for AppFunctionParameterMetadataDocument -->

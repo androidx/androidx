@@ -283,9 +283,13 @@ package androidx.appfunctions {
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionStringValueConstraint {
-    ctor @KotlinOnly public AppFunctionStringValueConstraint(optional String[] enumValues);
+    ctor @KotlinOnly public AppFunctionStringValueConstraint(optional String[] enumValues, optional String pattern, optional String format);
     method @InaccessibleFromKotlin public abstract String[] enumValues() default {};
+    method @InaccessibleFromKotlin public abstract String format() default "";
+    method @InaccessibleFromKotlin public abstract String pattern() default "";
     property public abstract String[] enumValues;
+    property public abstract String format;
+    property public abstract String pattern;
   }
 
   public abstract class AppFunctionSystemException extends androidx.appfunctions.AppFunctionException {
@@ -317,6 +321,12 @@ package androidx.appfunctions {
     method @InaccessibleFromKotlin public android.net.Uri getUri();
     property public int modeFlags;
     property public android.net.Uri uri;
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY}) public @interface AppFunctionUriValueConstraint {
+    ctor @KotlinOnly public AppFunctionUriValueConstraint(optional String[] allowedSchemes);
+    method @InaccessibleFromKotlin public abstract String[] allowedSchemes() default {};
+    property public abstract String[] allowedSchemes;
   }
 
   public final class ExecuteAppFunctionRequest {
@@ -643,10 +653,22 @@ package androidx.appfunctions.metadata {
   public final class AppFunctionStringTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
     ctor public AppFunctionStringTypeMetadata(boolean isNullable);
     ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description);
-    ctor @BytecodeOnly public AppFunctionStringTypeMetadata(boolean, String!, java.util.Set!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public AppFunctionStringTypeMetadata(boolean, String!, java.util.Set!, String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description, optional java.util.Set<java.lang.String>? enumValues);
+    ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description, optional java.util.Set<java.lang.String>? enumValues, optional String? pattern);
+    ctor public AppFunctionStringTypeMetadata(boolean isNullable, optional String description, optional java.util.Set<java.lang.String>? enumValues, optional String? pattern, optional String? format);
     method @InaccessibleFromKotlin public java.util.Set<java.lang.String>? getEnumValues();
+    method @InaccessibleFromKotlin public String? getFormat();
+    method @InaccessibleFromKotlin public String? getPattern();
     property public java.util.Set<java.lang.String>? enumValues;
+    property public String? format;
+    property public String? pattern;
+    field public static final androidx.appfunctions.metadata.AppFunctionStringTypeMetadata.Companion Companion;
+    field public static final String FORMAT_URI = "uri";
+  }
+
+  public static final class AppFunctionStringTypeMetadata.Companion {
+    property public static String FORMAT_URI;
   }
 
   public final class AppFunctionUnitTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
