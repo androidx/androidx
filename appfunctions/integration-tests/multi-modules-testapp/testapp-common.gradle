@@ -1,0 +1,84 @@
+/*
+ * Copyright 2026 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import com.android.build.api.artifact.SingleArtifact
+
+android {
+    namespace = "androidx.appfunctions.integration.testapp"
+    compileSdk { version = release(37) }
+    defaultConfig {
+        minSdk { version = release(33) }
+    }
+    // Prevent assets file from being compressed. This is for Uri access test.
+    aaptOptions {
+        noCompress += "txt"
+    }
+    buildTypes {
+        release {
+            optimization {
+                enable = true
+            }
+        }
+    }
+}
+
+ksp {
+    arg("appfunctions:generateV1Xml", "true")
+}
+
+dependencies {
+    implementation(libs.guavaAndroid)
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation(project(":appfunctions:appfunctions"))
+    implementation(project(":appfunctions:integration-tests:multi-modules-testapp:shared-library"))
+    implementation(project(":appfunctions:integration-tests:shared-schema"))
+    implementation("androidx.appsearch:appsearch:1.1.0")
+    implementation("androidx.appsearch:appsearch-platform-storage:1.1.0")
+    implementation('androidx.concurrent:concurrent-futures-ktx:1.1.0')
+    compileOnly(project(":appfunctions:appfunctions-stubs"))
+    ksp(project(":appfunctions:appfunctions-compiler"))
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testMonitor)
+    androidTestImplementation(libs.kotlinTest)
+}
+
+// Define a configuration that can be consumed, as this project is a provider of test apks for
+// profile verification integration test.
+configurations {
+    apkAssets {
+        canBeConsumed = true
+        canBeResolved = false
+        attributes {
+            attribute(
+                    LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
+                    objects.named(LibraryElements, 'appfunction-integrationTests-apkAssets')
+            )
+        }
+    }
+}
+
+// Release apk variants are added as output artifacts to the apkAssets configuration.
+// The apkAssets configuration is consumed by profile-verification integration test and
+// artifacts are placed in the assets folder.
+androidComponents {
+    onVariants(selector().all().withBuildType("release"), { variant ->
+        artifacts {
+            apkAssets(variant.artifacts.get(SingleArtifact.APK.INSTANCE))
+        }
+    })
+}

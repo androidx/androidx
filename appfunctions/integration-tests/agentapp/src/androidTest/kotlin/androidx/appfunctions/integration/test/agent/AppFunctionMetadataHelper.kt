@@ -17,6 +17,9 @@
 package androidx.appfunctions.integration.test.agent
 
 import android.os.Build
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.Components.SHARED_COMPONENTS
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADDITIONAL_FUNCTION_ID
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.COMPONENT_CHANGED_FUNCTION_ID
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionBooleanTypeMetadata
@@ -55,6 +58,10 @@ internal object AppFunctionMetadataHelper {
             "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#createNote"
         const val CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID =
             "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#createNoteDisabled"
+        const val ADDITIONAL_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#additionalFunction"
+        const val COMPONENT_CHANGED_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#componentChangeFunction"
     }
 
     object Components {
@@ -1656,6 +1663,130 @@ internal object AppFunctionMetadataHelper {
                     ),
                 isEnabled = true,
                 deprecation = null,
+            )
+    }
+
+    object FunctionMetadataV2 {
+
+        val ADDITIONAL_FUNCTION =
+            AppFunctionMetadata(
+                name = AppFunctionName(TARGET_APP_PACKAGE, ADDITIONAL_FUNCTION_ID),
+                schema = null,
+                parameters = emptyList(),
+                response =
+                    AppFunctionResponseMetadata(
+                        valueType = AppFunctionStringTypeMetadata(isNullable = false)
+                    ),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = TARGET_APP_PACKAGE,
+                        components = SHARED_COMPONENTS,
+                    ),
+                isEnabled = true,
+            )
+
+        val ADDITIONAL_COMPONENT_FUNCTION_V2 =
+            AppFunctionMetadata(
+                name = AppFunctionName(TARGET_APP_PACKAGE, COMPONENT_CHANGED_FUNCTION_ID),
+                schema = null,
+                parameters =
+                    listOf(
+                        AppFunctionParameterMetadata(
+                            name = "param",
+                            isRequired = true,
+                            dataType =
+                                AppFunctionReferenceTypeMetadata(
+                                    referenceDataType =
+                                        "androidx.appfunctions.integration.testapp.ComponentChangeSerializable",
+                                    isNullable = false,
+                                ),
+                        )
+                    ),
+                response =
+                    AppFunctionResponseMetadata(
+                        valueType = AppFunctionStringTypeMetadata(isNullable = false)
+                    ),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = TARGET_APP_PACKAGE,
+                        components =
+                            AppFunctionComponentsMetadata(
+                                dataTypes =
+                                    SHARED_COMPONENTS.dataTypes +
+                                        mapOf(
+                                            "androidx.appfunctions.integration.testapp.ComponentChangeSerializable" to
+                                                AppFunctionObjectTypeMetadata(
+                                                    properties =
+                                                        mapOf(
+                                                            "prop1" to
+                                                                AppFunctionStringTypeMetadata(
+                                                                    isNullable = false
+                                                                )
+                                                        ),
+                                                    required = listOf("prop1"),
+                                                    qualifiedName =
+                                                        "androidx.appfunctions.integration.testapp.ComponentChangeSerializable",
+                                                    isNullable = false,
+                                                )
+                                        )
+                            ),
+                    ),
+                isEnabled = true,
+            )
+    }
+
+    object FunctionMetadataV3 {
+        val ADDITIONAL_COMPONENT_FUNCTION_V3 =
+            AppFunctionMetadata(
+                name = AppFunctionName(TARGET_APP_PACKAGE, COMPONENT_CHANGED_FUNCTION_ID),
+                schema = null,
+                parameters =
+                    listOf(
+                        AppFunctionParameterMetadata(
+                            name = "param",
+                            isRequired = true,
+                            dataType =
+                                AppFunctionReferenceTypeMetadata(
+                                    referenceDataType =
+                                        "androidx.appfunctions.integration.testapp.ComponentChangeSerializable",
+                                    isNullable = false,
+                                ),
+                        )
+                    ),
+                response =
+                    AppFunctionResponseMetadata(
+                        valueType = AppFunctionStringTypeMetadata(isNullable = false)
+                    ),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = TARGET_APP_PACKAGE,
+                        components =
+                            AppFunctionComponentsMetadata(
+                                dataTypes =
+                                    SHARED_COMPONENTS.dataTypes +
+                                        mapOf(
+                                            "androidx.appfunctions.integration.testapp.ComponentChangeSerializable" to
+                                                AppFunctionObjectTypeMetadata(
+                                                    properties =
+                                                        mapOf(
+                                                            "prop1" to
+                                                                AppFunctionStringTypeMetadata(
+                                                                    isNullable = false
+                                                                ),
+                                                            "prop2" to
+                                                                AppFunctionStringTypeMetadata(
+                                                                    isNullable = false
+                                                                ),
+                                                        ),
+                                                    required = listOf("prop1", "prop2"),
+                                                    qualifiedName =
+                                                        "androidx.appfunctions.integration.testapp.ComponentChangeSerializable",
+                                                    isNullable = false,
+                                                )
+                                        )
+                            ),
+                    ),
+                isEnabled = true,
             )
     }
 }
