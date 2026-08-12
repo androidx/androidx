@@ -688,8 +688,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     public void setContentView(View v) {
         ensureSubDecor();
         ViewGroup contentParent = mSubDecor.findViewById(android.R.id.content);
-        contentParent.removeAllViews();
-        contentParent.addView(v);
+        if (contentParent != null) {
+            contentParent.removeAllViews();
+            contentParent.addView(v);
+        }
         mAppCompatWindowCallback.bypassOnContentChanged(mWindow.getCallback());
     }
 
@@ -697,8 +699,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     public void setContentView(int resId) {
         ensureSubDecor();
         ViewGroup contentParent = mSubDecor.findViewById(android.R.id.content);
-        contentParent.removeAllViews();
-        LayoutInflater.from(mContext).inflate(resId, contentParent);
+        if (contentParent != null) {
+            contentParent.removeAllViews();
+            LayoutInflater.from(mContext).inflate(resId, contentParent);
+        }
         mAppCompatWindowCallback.bypassOnContentChanged(mWindow.getCallback());
     }
 
@@ -706,8 +710,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     public void setContentView(View v, ViewGroup.LayoutParams lp) {
         ensureSubDecor();
         ViewGroup contentParent = mSubDecor.findViewById(android.R.id.content);
-        contentParent.removeAllViews();
-        contentParent.addView(v, lp);
+        if (contentParent != null) {
+            contentParent.removeAllViews();
+            contentParent.addView(v, lp);
+        }
         mAppCompatWindowCallback.bypassOnContentChanged(mWindow.getCallback());
     }
 
@@ -715,7 +721,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     public void addContentView(View v, ViewGroup.LayoutParams lp) {
         ensureSubDecor();
         ViewGroup contentParent = mSubDecor.findViewById(android.R.id.content);
-        contentParent.addView(v, lp);
+        if (contentParent != null) {
+            contentParent.addView(v, lp);
+        }
         mAppCompatWindowCallback.bypassOnContentChanged(mWindow.getCallback());
     }
 
@@ -983,7 +991,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // Change our content FrameLayout to use the android.R.id.content id.
             // Useful for fragments.
             windowContentView.setId(View.NO_ID);
-            contentView.setId(android.R.id.content);
 
             // The decorContent may have a foreground drawable set (windowContentOverlay).
             // Remove this as we handle it ourselves
@@ -992,18 +999,24 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
+        if (contentView != null) {
+            contentView.setId(android.R.id.content);
+        }
+
         // Now set the Window's content view with the decor
         mWindow.setContentView(subDecor);
 
-        contentView.setAttachListener(new ContentFrameLayout.OnAttachListener() {
-            @Override
-            public void onAttachedFromWindow() {}
+        if (contentView != null) {
+            contentView.setAttachListener(new ContentFrameLayout.OnAttachListener() {
+                @Override
+                public void onAttachedFromWindow() {}
 
-            @Override
-            public void onDetachedFromWindow() {
-                dismissPopups();
-            }
-        });
+                @Override
+                public void onDetachedFromWindow() {
+                    dismissPopups();
+                }
+            });
+        }
 
         return subDecor;
     }
@@ -1012,6 +1025,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     private void applyFixedSizeWindow() {
         ContentFrameLayout cfl = (ContentFrameLayout) mSubDecor.findViewById(android.R.id.content);
+
+        if (cfl == null) {
+            return;
+        }
 
         // This is a bit weird. In the framework, the window sizing attributes control
         // the decor view's size, meaning that any padding is inset for the min/max widths below.
