@@ -38,7 +38,7 @@ public class MessageFormat private constructor() {
             msg: String,
             namedArguments: Map<String, Any>,
         ): String {
-            val result: StringBuffer = StringBuffer()
+            val result = StringBuffer()
             return MessageFormat(context, msg, locale)
                 .format(namedArguments, result, null)
                 .toString()

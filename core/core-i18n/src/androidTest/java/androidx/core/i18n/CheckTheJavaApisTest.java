@@ -101,17 +101,11 @@ public class CheckTheJavaApisTest {
 
         DateTimeFormatterSkeletonOptions dateTimeFormatterOptions = builder.build();
         String expected;
-        if (Build.VERSION.SDK_INT >= 34) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             expected = "Mo., 23. August 2021 n. Chr. um 19:53:47,123 MEZ";
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            expected = "Mo., 23. August 2021 n. Chr., 19:53:47,123 MEZ";
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            expected = "Mo., 23. August 2021 n. Chr., 10:53:47,123 GMT-07:00";
         } else {
-            expected = "Mo., 23. August 2021 n. Chr. 10:53:47,123 GMT-07:00";
+            expected = "Mo., 23. August 2021 n. Chr., 19:53:47,123 MEZ";
         }
-        // TODO: Bug? The hour is very different below M, as if the timezone is not supported.
-        // 19 vs 10 is Paris vs California time
 
         DateTimeFormatter df =
                 new DateTimeFormatter(mAppContext, dateTimeFormatterOptions, mLocale);
@@ -122,13 +116,7 @@ public class CheckTheJavaApisTest {
 
         // Verify DateTimeFormatterSkeletonOptions.fromString
         dateTimeFormatterOptions = DateTimeFormatterSkeletonOptions.fromString("yMMMdjms");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            expected = "23. Aug. 2021, 19:53:47";
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            expected = "23. Aug. 2021, 10:53:47";
-        } else {
-            expected = "23. Aug. 2021 10:53:47";
-        }
+        expected = "23. Aug. 2021, 19:53:47";
         df = new DateTimeFormatter(mAppContext, dateTimeFormatterOptions, mLocale);
         assertEquals(expected, df.format(mCal));
         assertEquals(
@@ -137,14 +125,10 @@ public class CheckTheJavaApisTest {
 
         // Verify DateTimeFormatterSkeletonOptions.fromString
         dateTimeFormatterOptions = DateTimeFormatterSkeletonOptions.fromString("yMMMMdjmsEEEE");
-        if (Build.VERSION.SDK_INT >= 34) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             expected = "Montag, 23. August 2021 um 19:53:47";
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            expected = "Montag, 23. August 2021, 19:53:47";
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            expected = "Montag, 23. August 2021, 10:53:47";
         } else {
-            expected = "Montag, 23. August 2021 10:53:47";
+            expected = "Montag, 23. August 2021, 19:53:47";
         }
         df = new DateTimeFormatter(mAppContext, dateTimeFormatterOptions, mLocale);
         assertEquals(expected, df.format(mCal));

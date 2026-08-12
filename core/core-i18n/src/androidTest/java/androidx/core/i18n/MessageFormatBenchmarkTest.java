@@ -32,11 +32,12 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class MessageFormatBenchmarkTest {
-    private Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+    private final Context mAppContext =
+            InstrumentationRegistry.getInstrumentation().getTargetContext();
     private final int REPEAT_COUNT = 100;
 
     @Test @MediumTest
-    public void testTimePlurals() throws Exception {
+    public void testTimePlurals() {
         final Locale sr = new Locale("sr");
         final Map<String, Object> arguments = new HashMap<>();
         arguments.put("name", "Peter");
@@ -50,12 +51,12 @@ public class MessageFormatBenchmarkTest {
                 "  other {{name} and #... others}" +
                 "}";
             arguments.put("num", i % 9);
-            MessageFormat.format(appContext, sr, msg, arguments);
+            MessageFormat.format(mAppContext, sr, msg, arguments);
         }
     }
 
     @Test @SmallTest
-    public void testTimeGenders() throws Exception {
+    public void testTimeGenders() {
         final String [] genders = { "female", "male", "no_match" };
         final Map<String, Object> arguments = new HashMap<>();
 
@@ -66,7 +67,7 @@ public class MessageFormatBenchmarkTest {
                 "  other  {their book}" +
                 "}";
             arguments.put("gender", genders[i % 3]);
-            MessageFormat.format(appContext, Locale.US, msg, arguments);
+            MessageFormat.format(mAppContext, Locale.US, msg, arguments);
         }
     }
 }

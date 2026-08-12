@@ -65,7 +65,7 @@ public class DateTimeFormatterCommonOptions {
 
         /**
          * Constant for date skeleton with hour and minute in 24-hour presentation. E.g. "19:42".
-         * WARNING: Not user friendly (ignores user preferences) and not i18n friendly (ignoring
+         * WARNING: Not user-friendly (ignores user preferences) and not i18n friendly (ignoring
          * locale customs)
          *
          * @see android.icu.text.DateFormat.HOUR24_MINUTE
@@ -79,7 +79,7 @@ public class DateTimeFormatterCommonOptions {
 
         /**
          * Constant for date skeleton with hour, minute, and second in 24-hour presentation. E.g.
-         * "19:42:57". WARNING: Not user friendly (ignores user preferences) and not i18n friendly
+         * "19:42:57". WARNING: Not user-friendly (ignores user preferences) and not i18n friendly
          * (ignoring locale customs)
          *
          * @see android.icu.text.DateFormat.HOUR24_MINUTE_SECOND

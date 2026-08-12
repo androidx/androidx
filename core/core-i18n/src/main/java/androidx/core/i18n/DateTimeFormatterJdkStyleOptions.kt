@@ -31,7 +31,9 @@ import java.text.DateFormat
     DateFormat.MEDIUM,
     /** LONG is longer, such as January 12, 1952 or 3:30:32pm. */
     DateFormat.LONG,
-    /** FULL is pretty completely specified, such as Tuesday, April 12, 1952 AD or 3:30:42pm PST. */
+    /**
+     * FULL is pretty completely specified, such as Saturday, April 12, 1952 AD or 3:30:42pm PST.
+     */
     DateFormat.FULL,
 )
 public annotation class DateTimeStyle

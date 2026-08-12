@@ -51,7 +51,7 @@ class CheckDeviceSettingsTest {
         // But that would require a device (emulated or not) with that setting changed.
         // And a lot of tests disabled in that situation (because they expect locale hour style).
         // So we need to figure out how to do all that, and then refactor.
-        // For now I did such testing "manually", and for that you need to disable this test.
+        // For now, I did such testing "manually", and for that you need to disable this test.
         Assert.assertNull(deviceHour)
     }
 
@@ -60,7 +60,7 @@ class CheckDeviceSettingsTest {
     fun testReportCldrAndIcuVersions() {
         // E.g.: API_24_v_NYC cldr:28.0 icu:56.1 unicode:8.0
         val result = StringBuilder()
-        result.append("API_" + Build.VERSION.SDK_INT) // 17
+        result.append("API_" + Build.VERSION.SDK_INT)
         result.append("_v" + stripVersionTrailing(Build.VERSION.RELEASE))
         result.append("_" + Build.ID)
         val props = System.getProperties()

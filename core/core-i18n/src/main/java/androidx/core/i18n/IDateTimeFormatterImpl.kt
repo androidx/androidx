@@ -16,8 +16,6 @@
 
 package androidx.core.i18n
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import java.text.DateFormat
 import java.text.FieldPosition
 import java.util.Calendar
@@ -27,27 +25,12 @@ internal interface IDateTimeFormatterImpl {
     fun format(calendar: Calendar): String
 }
 
-internal class DateTimeFormatterImplAndroid(skeleton: String, locale: Locale) :
-    IDateTimeFormatterImpl {
-
-    private val sdf =
-        java.text.SimpleDateFormat(
-            android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton),
-            locale,
-        )
-
-    override fun format(calendar: Calendar): String {
-        return sdf.format(calendar.time)
-    }
-}
-
 // ICU4J will give better results, so we use it if we can.
 // And android.text.format.DateFormat.getBestDateTimePattern has a bug in API 26 and 27.
 // For some skeletons it returns "b" instead of "a" in patterns (the am/pm).
 // That is invalid, and throws when used to build the SimpleDateFormat
 // Using ICU avoids that.
 // Should also be faster, as the Android used JNI.
-@RequiresApi(Build.VERSION_CODES.N)
 internal class DateTimeFormatterImplIcu(skeleton: String, private var locale: Locale) :
     IDateTimeFormatterImpl {
 
@@ -56,8 +39,7 @@ internal class DateTimeFormatterImplIcu(skeleton: String, private var locale: Lo
     override fun format(calendar: Calendar): String {
         val result = StringBuffer()
         val tz = android.icu.util.TimeZone.getTimeZone(calendar.timeZone.id)
-        val ucal = android.icu.util.Calendar.getInstance(tz, locale)
-        sdf.calendar = ucal
+        sdf.calendar = android.icu.util.Calendar.getInstance(tz, locale)
         val fp = FieldPosition(0)
         sdf.format(calendar.timeInMillis, result, fp)
         return result.toString()
