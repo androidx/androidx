@@ -352,5 +352,12 @@ class DefaultComponentParsers {
             int refId = parser.resolveTextId(component.get("value"));
             writer.addIncludeReferencedOperations(refId);
         });
+        p.registerComponentParser("rem", (component, modifier, writer, parser) -> {
+            String text = component.optString("text",
+                    component.optString("value",
+                    component.optString("message",
+                    component.optString("comment", ""))));
+            writer.rem(text);
+        });
     }
 }
