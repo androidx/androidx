@@ -933,7 +933,11 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
                             DateFormat.format(timeOnlyFormat, Date.from(instant)).toString()
                         }
                         TIME_COMPONENT_AM_PM_ONLY -> {
-                            DateFormat.format("a", Date.from(instant)).toString()
+                            if (DateFormat.is24HourFormat(providerContext)) {
+                                ""
+                            } else {
+                                DateFormat.format("a", Date.from(instant)).toString()
+                            }
                         }
                         else -> {
                             Log.w(TAG, "Unknown timeComponent: $timeComponent")
