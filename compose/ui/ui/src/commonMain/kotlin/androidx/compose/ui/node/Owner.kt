@@ -38,7 +38,6 @@ import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.Clipboard
-import androidx.compose.ui.platform.GraphicsResourceCache
 import androidx.compose.ui.platform.NoSoundEffect
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -105,14 +104,6 @@ internal interface Owner : PositionCalculator {
      * achieving certain visual effects like masks and blurs
      */
     val graphicsContext: GraphicsContext
-
-    /**
-     * Cache used to share expensive graphics resources (such as vector draw caches) between all
-     * compositions hosted in the same context. Owners that don't support graphics resource sharing
-     * return null, in which case consumers should allocate locally-owned resources instead.
-     */
-    val graphicsResourceCache: GraphicsResourceCache?
-        get() = null
 
     /** Provide toolbar for text-related actions, such as copy, paste, cut etc. */
     val textToolbar: TextToolbar

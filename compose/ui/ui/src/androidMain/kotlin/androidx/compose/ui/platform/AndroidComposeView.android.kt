@@ -739,9 +739,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      */
     override val graphicsContext = GraphicsContext(this)
 
-    override val graphicsResourceCache: GraphicsResourceCache
-        get() = composeViewContext.graphicsResourceCache
-
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
     // TODO: Replace with SemanticsTree.

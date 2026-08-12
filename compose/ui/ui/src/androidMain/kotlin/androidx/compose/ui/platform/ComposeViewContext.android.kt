@@ -178,19 +178,6 @@ private constructor(
     internal val resourceIdCache: ResourceIdCache =
         composeViewContext?.resourceIdCache ?: ResourceIdCache()
 
-    private var _graphicsResourceCache: GraphicsResourceCache? =
-        composeViewContext?.graphicsResourceCache
-
-    /**
-     * [GraphicsResourceCache] exposed to compositions through
-     * [androidx.compose.ui.node.Owner.graphicsResourceCache] and shared with any parent
-     * [ComposeViewContext]. Allocated lazily on first use so compositions that never share graphics
-     * resources don't pay for it.
-     */
-    internal val graphicsResourceCache: GraphicsResourceCache
-        get() =
-            _graphicsResourceCache ?: GraphicsResourceCache().also { _graphicsResourceCache = it }
-
     /**
      * [Configuration] that was last received. Used to determine if there has been an update to the
      * configuration or if we don't have to update the [configuration] instance.
@@ -599,7 +586,6 @@ private constructor(
                     },
                 LocalViewConfiguration provides owner.viewConfiguration,
                 LocalHostDefaultProvider provides owner.hostDefaultProvider,
-                LocalGraphicsResourceCache providesComputed { graphicsResourceCache },
             ) {
                 if (isMediaQueryIntegrationEnabled) {
                     CompositionLocalProvider(
@@ -633,13 +619,11 @@ private constructor(
         override fun onLowMemory() {
             imageVectorCache.clear()
             resourceIdCache.clear()
-            _graphicsResourceCache?.clear()
         }
 
         override fun onTrimMemory(level: Int) {
             imageVectorCache.clear()
             resourceIdCache.clear()
-            _graphicsResourceCache?.clear()
         }
 
         override fun onWindowFocusChanged(hasFocus: Boolean) {

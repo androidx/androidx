@@ -16,18 +16,12 @@
 
 package androidx.compose.ui.demos
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -35,7 +29,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.Group
 import androidx.compose.ui.graphics.vector.Path
@@ -75,36 +68,7 @@ fun VectorGraphicsDemo() {
             contentDescription = null,
             modifier = Modifier.size(200.dp, 150.dp),
         )
-
-        AnimatedGraphicsLayerDemo()
     }
-}
-
-@Composable
-private fun AnimatedGraphicsLayerDemo() {
-    val infiniteTransition = rememberInfiniteTransition()
-    val scale by
-        infiniteTransition.animateFloat(
-            initialValue = 0.5f,
-            targetValue = 1.5f,
-            animationSpec =
-                infiniteRepeatable(animation = tween(1000), repeatMode = RepeatMode.Reverse),
-        )
-
-    val imageVector = painterResource(R.drawable.ic_crane)
-    Image(
-        painter = imageVector,
-        contentDescription = "Animated Crane",
-        // Notice we fix the layout bounds so the cache is hit perfectly!
-        modifier =
-            Modifier.size(100.dp, 100.dp)
-                // We use graphicsLayer to let the GPU stretch the pixels, avoiding memory churn
-                .graphicsLayer {
-                    scaleX = scale
-                    scaleY = scale
-                },
-        contentScale = ContentScale.Inside,
-    )
 }
 
 @Composable
