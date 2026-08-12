@@ -1170,9 +1170,32 @@ public final class MediaRouter {
     /**
      * Returns whether the media transfer feature is enabled.
      *
-     * @see MediaRouter
+     * <p>Media transfer allows privileged apps such as SystemUI to control media routing for this
+     * application. This for example enables users to transfer media playback using SystemUI
+     * controls.
+     *
+     * <p>This feature requires Android 11 (API level 30) or higher and will always return {@code
+     * false} on earlier Android versions.
+     *
+     * <p>Media transfer is considered enabled if <em>either</em> of the following conditions is
+     * met:
+     *
+     * <ul>
+     *   <li>The application explicitly enables it by calling {@link
+     *       MediaRouterParams.Builder#setMediaTransferReceiverEnabled(boolean)} with {@code true}
+     *   <li>The application declares {@link MediaTransferReceiver} in its {@code
+     *       AndroidManifest.xml} and has not explicitly disabled it via {@link MediaRouterParams}.
+     * </ul>
+     *
+     * <p>Please note that this method returning {@code true} is a necessary but not sufficient
+     * condition for media transfer. Actual media transfer through SystemUI controls also depends on
+     * the presence of route providers that support this capability.
+     *
+     * @return {@code true} if media transfer is enabled; {@code false} otherwise.
+     * @see MediaRouterParams.Builder#setMediaTransferReceiverEnabled(boolean)
+     * @see MediaRouterParams#isMediaTransferReceiverEnabled()
+     * @see MediaTransferReceiver
      */
-    @RestrictTo(LIBRARY)
     public static boolean isMediaTransferEnabled() {
         if (sGlobal == null) {
             return false;
