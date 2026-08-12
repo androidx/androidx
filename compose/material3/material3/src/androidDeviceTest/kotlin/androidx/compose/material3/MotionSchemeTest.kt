@@ -60,9 +60,8 @@ class MotionSchemeTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
-    fun readLocalMotionScheme() {
+    fun readMotionScheme() {
         lateinit var mainMotionScheme: MotionScheme
         lateinit var nestedMotionScheme: MotionScheme
         rule.setContent {

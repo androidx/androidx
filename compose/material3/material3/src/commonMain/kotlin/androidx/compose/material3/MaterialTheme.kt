@@ -26,7 +26,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 
@@ -162,30 +161,6 @@ public object MaterialTheme {
      */
     public val LocalMaterialTheme: CompositionLocal<Values>
         get() = _localMaterialTheme
-
-    /**
-     * A read-only `CompositionLocal` that provides the current [MotionScheme] to Material 3
-     * components.
-     *
-     * The motion scheme is typically supplied by [MaterialTheme.motionScheme] and can be overridden
-     * for specific UI subtrees by wrapping it with another [MaterialTheme].
-     *
-     * This API is exposed to allow retrieving motion values from inside
-     * `CompositionLocalConsumerModifierNode` implementations, but in most cases it's recommended to
-     * read the motion values from [MaterialTheme.motionScheme].
-     *
-     * @material3expressive
-     */
-    @Suppress("ExperimentalPropertyAnnotation")
-    @ExperimentalMaterial3ExpressiveApi
-    @Deprecated(
-        level = DeprecationLevel.WARNING,
-        message = "Use [LocalMaterialTheme.current.motionScheme] instead",
-    )
-    public val LocalMotionScheme: CompositionLocal<MotionScheme>
-        get() = compositionLocalWithComputedDefaultOf {
-            LocalMaterialTheme.currentValue.motionScheme
-        }
 
     /**
      * Material 3 contains different theme subsystems to allow visual customization across a UI
