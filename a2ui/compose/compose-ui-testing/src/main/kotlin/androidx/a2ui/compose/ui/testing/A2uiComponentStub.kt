@@ -38,6 +38,12 @@ public sealed interface A2uiComponentStub {
          *
          * Under the hood, this generates a synthetic component type bound only to this ID.
          *
+         * Note: Registering an ID stub only defines its rendering logic. To make the component
+         * appear on the surface initially, you must explicitly include an [A2uiComponentPayload]
+         * with the matching ID in the `initialComponents` list passed to the [A2uiTestController],
+         * or supply it dynamically via `updateComponent`.
+         *
+         * @sample androidx.a2ui.compose.ui.testing.samples.A2uiComponentStubWithIdSample
          * @param id The exact ID of the component instance to stub (e.g., `"submit_button"`).
          * @param isReady A lambda to evaluate whether the stub is ready to render, defaults to
          *   ready.
@@ -56,6 +62,7 @@ public sealed interface A2uiComponentStub {
          *
          * The component type may or may not already be present in the test catalog.
          *
+         * @sample androidx.a2ui.compose.ui.testing.samples.A2uiComponentStubWithTypeSample
          * @param type The string type identifier (e.g., `"Image"`, `"Video"`) to override.
          * @param isReady A lambda to evaluate whether the stub is ready to render, defaults to
          *   ready.
@@ -76,6 +83,7 @@ public sealed interface A2uiComponentStub {
  *
  * This overload is strictly reserved for components stubbed via [A2uiComponentStub.withId].
  *
+ * @sample androidx.a2ui.compose.ui.testing.samples.A2uiComponentPayloadForIdStubSample
  * @param id The unique identifier of the stubbed component.
  * @param properties The initial property map to configure the stub.
  * @return An [A2uiComponentPayload] configured for the ID stub.

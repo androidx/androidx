@@ -22,6 +22,7 @@ import androidx.a2ui.compose.runtime.observeA2uiComponentState
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiComponent
 import androidx.a2ui.compose.ui.asReadinessEvaluator
+import androidx.a2ui.compose.ui.testing.A2uiComponentPayload
 import androidx.a2ui.compose.ui.testing.A2uiComponentStub
 import androidx.a2ui.compose.ui.testing.A2uiTestController
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
@@ -91,7 +92,8 @@ class MaterialButtonComponentTest {
                                                 )
                                         ),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
                     ),
                 initialData = mapOf("user" to mapOf("name" to "Test User")),
                 componentStubs =
@@ -143,7 +145,8 @@ class MaterialButtonComponentTest {
                                                 )
                                         ),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
                     ),
                 initialData = mapOf("user" to mapOf("name" to "Test User")),
                 componentStubs =
@@ -195,7 +198,8 @@ class MaterialButtonComponentTest {
                                                 )
                                         ),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
                     ),
                 initialData = mapOf("user" to mapOf("name" to "Test User")),
                 componentStubs =
@@ -235,7 +239,8 @@ class MaterialButtonComponentTest {
                                     "child" to "failing_child",
                                     "action" to mapOf("event" to mapOf("name" to "click")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "failing_child"),
                     ),
                 componentStubs =
                     listOf(
@@ -280,7 +285,8 @@ class MaterialButtonComponentTest {
                                     "child" to "delayed_text_id",
                                     "action" to mapOf("event" to mapOf("name" to "click")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "delayed_text_id"),
                     ),
                 componentStubs = listOf(stub),
             )
@@ -322,7 +328,8 @@ class MaterialButtonComponentTest {
                                     "child" to "delayed_child",
                                     "action" to mapOf("event" to mapOf("name" to "click")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "delayed_child"),
                     ),
                 componentStubs = listOf(stub),
             )
@@ -358,7 +365,8 @@ class MaterialButtonComponentTest {
                                     "child" to "child_id",
                                     "action" to mapOf("event" to mapOf("name" to "click")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "child_id"),
                     ),
                 componentStubs =
                     listOf(
@@ -406,7 +414,8 @@ class MaterialButtonComponentTest {
                                     "child" to "child_id",
                                     "action" to mapOf("event" to mapOf("name" to "click")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "child_id"),
                     ),
                 componentStubs = listOf(stub),
             )
@@ -442,7 +451,8 @@ class MaterialButtonComponentTest {
                                     "child" to "child_id",
                                     "action" to mapOf("event" to mapOf("name" to "click")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "child_id"),
                     ),
                 componentStubs =
                     listOf(
@@ -481,7 +491,9 @@ class MaterialButtonComponentTest {
                                     "child" to "child_1",
                                     "action" to mapOf("event" to mapOf("name" to "click")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "child_1"),
+                        A2uiComponentPayload(id = "child_2"),
                     ),
                 componentStubs =
                     listOf(
@@ -573,7 +585,8 @@ class MaterialButtonComponentTest {
                                     "variant" to "default",
                                     "action" to mapOf("event" to mapOf("name" to "click")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
                     ),
                 componentStubs =
                     listOf(
@@ -618,7 +631,8 @@ class MaterialButtonComponentTest {
                                     "child" to "btn_text",
                                     "action" to mapOf("event" to mapOf("name" to "action_one")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
                     ),
                 componentStubs =
                     listOf(
@@ -678,7 +692,8 @@ class MaterialButtonComponentTest {
                                     "child" to "stub_child",
                                     "action" to mapOf("event" to mapOf("name" to "click")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "stub_child"),
                     ),
                 componentStubs = listOf(stub),
             )
@@ -722,7 +737,8 @@ class MaterialButtonComponentTest {
                                     "child" to "btn_text",
                                     "action" to mapOf("event" to mapOf("name" to "click")),
                                 ),
-                        )
+                        ),
+                        A2uiComponentPayload(id = "btn_text"),
                     ),
                 componentStubs =
                     listOf(

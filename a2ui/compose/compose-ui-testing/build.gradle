@@ -59,4 +59,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2026"
     description = "Testing APIs for catalogs built with the Jetpack Compose A2UI renderer"
+    samples(project(":a2ui:compose:compose-ui-testing:compose-ui-testing-samples"))
 }

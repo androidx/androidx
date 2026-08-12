@@ -18,18 +18,12 @@ package androidx.a2ui.compose.ui.testing
 
 import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentScope
-import androidx.a2ui.compose.runtime.A2uiComponentState
 import androidx.a2ui.compose.runtime.A2uiProperty
-import androidx.a2ui.compose.runtime.LocalA2uiReadinessEvaluator
-import androidx.a2ui.compose.runtime.observeA2uiComponentState
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiComponent
-import androidx.a2ui.compose.ui.asReadinessEvaluator
-import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
-import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiEventAction
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
@@ -40,8 +34,6 @@ import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
@@ -394,7 +386,26 @@ class A2uiTestControllerImplTest {
     }
 
     @Test
-    fun start_idStubWithoutInitialComponent_defaultsToEmptyMap() = runComposeUiTest {
+    fun start_idStubWithoutInitialComponent_startsInLoadingState() = runComposeUiTest {
+        val stub =
+            A2uiComponentStub.withId("root") { _, modifier -> BasicText("Stub content", modifier) }
+        val controller =
+            A2uiTestController(
+                catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList()),
+                componentStubs = listOf(stub),
+            )
+        val surface = controller.start()
+
+        setContent {
+            A2uiTestSurface(surface = surface, onLoading = { _ -> BasicText("Loading stub...") })
+        }
+
+        onNodeWithText("Loading stub...").assertIsDisplayed()
+        onNodeWithText("Stub content").assertDoesNotExist()
+    }
+
+    @Test
+    fun start_idStubWithDefaultPayload_defaultsToEmptyMap() = runComposeUiTest {
         val stub =
             A2uiComponentStub.withId("root") { _, modifier ->
                 BasicText("Stub with default empty map", modifier)
@@ -403,6 +414,7 @@ class A2uiTestControllerImplTest {
         val controller =
             A2uiTestController(
                 catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList()),
+                initialComponents = listOf(A2uiComponentPayload("root")),
                 componentStubs = listOf(stub),
             )
         val surface = controller.start()
@@ -807,6 +819,7 @@ class A2uiTestControllerImplTest {
         val controller =
             A2uiTestController(
                 catalog = testCatalog(),
+                initialComponents = listOf(A2uiComponentPayload("root")),
                 componentStubs =
                     listOf(
                         A2uiComponentStub.withId("root") { _, modifier ->
@@ -854,6 +867,7 @@ class A2uiTestControllerImplTest {
             val controller =
                 A2uiTestController(
                     catalog = testCatalog(),
+                    initialComponents = listOf(A2uiComponentPayload("root")),
                     componentStubs =
                         listOf(
                             A2uiComponentStub.withId("root") { _, modifier ->
@@ -897,6 +911,7 @@ class A2uiTestControllerImplTest {
         val controller =
             A2uiTestController(
                 catalog = testCatalog(),
+                initialComponents = listOf(A2uiComponentPayload("root")),
                 componentStubs =
                     listOf(
                         A2uiComponentStub.withId("root") { _, modifier ->
@@ -961,30 +976,6 @@ class A2uiTestControllerImplTest {
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {}
-    }
-
-    @Composable
-    private fun A2uiTestSurface(surface: A2uiSurfaceModel) {
-        surface as? A2uiCoreSurfaceModel
-            ?: throw IllegalArgumentException("A2uiTestSurface requires an A2uiCoreSurfaceModel.")
-
-        val composeCatalog =
-            surface.catalog as? A2uiCatalog
-                ?: throw IllegalArgumentException("Catalog must implement A2uiCatalog.")
-
-        val readinessEvaluator = remember(composeCatalog) { composeCatalog.asReadinessEvaluator() }
-
-        CompositionLocalProvider(LocalA2uiReadinessEvaluator provides readinessEvaluator) {
-            when (val rootState = observeA2uiComponentState(surface = surface)) {
-                is A2uiComponentState.Success -> {
-                    A2uiComponent(component = rootState.component)
-                }
-                is A2uiComponentState.Error -> {
-                    throw rootState.exception
-                }
-                is A2uiComponentState.Loading -> {}
-            }
-        }
     }
 }
 
