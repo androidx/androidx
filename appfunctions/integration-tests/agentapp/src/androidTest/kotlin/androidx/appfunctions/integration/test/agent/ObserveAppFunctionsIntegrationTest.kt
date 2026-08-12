@@ -629,7 +629,7 @@ class ObserveAppFunctionsIntegrationTest {
         return if (isDynamicIndexerAvailable(targetContext)) {
             val baseFunctionCount = 19
             val multiServiceFunctionCount = 6
-            val dynamicFunctionsCount = 5
+            val dynamicFunctionsCount = 6
             if (Build.VERSION.SDK_INT >= 37) {
                 baseFunctionCount + multiServiceFunctionCount + dynamicFunctionsCount
             } else {

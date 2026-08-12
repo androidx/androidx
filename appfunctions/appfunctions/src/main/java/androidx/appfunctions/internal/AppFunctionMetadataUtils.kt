@@ -53,6 +53,7 @@ internal object AppFunctionMetadataUtils {
                         components = inventory.componentsMetadata,
                     ),
                 description = compileTimeAppFunctionMetadata.description,
+                scope = compileTimeAppFunctionMetadata.scope,
             )
         }
 

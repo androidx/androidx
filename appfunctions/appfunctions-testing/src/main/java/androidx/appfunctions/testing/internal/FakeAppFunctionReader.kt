@@ -121,6 +121,7 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                                                 packageToComponentsMetadataMap[packageName]
                                             ),
                                         ),
+                                    scope = metadata.staticMetadata.scope,
                                 )
                             }
                     if (appFunctions.isNotEmpty()) {
@@ -138,6 +139,7 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
         val packageToFunctionMetadataMap = packageToFunctionMetadataMapState.value
         val packageToComponentsMetadataMap = packageToComponentsMetadataMapState.value
         val functionNames = searchFunctionSpec.functionNames
+        val scopes = searchFunctionSpec.scopes
 
         return packageToFunctionMetadataMap
             .filterKeys { packageName ->
@@ -150,7 +152,8 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                         matchesSchemaSpec(metadata, searchFunctionSpec) &&
                             (functionNames == null ||
                                 AppFunctionName(packageName, metadata.staticMetadata.id) in
-                                    functionNames)
+                                    functionNames) &&
+                            (scopes == null || scopes.contains(metadata.staticMetadata.scope))
                     }
                     .map { metadata ->
                         AppFunctionMetadata(
@@ -163,6 +166,7 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                                     packageName,
                                     checkNotNull(packageToComponentsMetadataMap[packageName]),
                                 ),
+                            scope = metadata.staticMetadata.scope,
                         )
                     }
             }
@@ -321,6 +325,7 @@ internal data class AppFunctionStaticAndRuntimeMetadata(
             parameters = staticMetadata.parameters,
             response = staticMetadata.response,
             packageMetadata = AppFunctionPackageMetadata(packageName, componentsMetadata),
+            scope = staticMetadata.scope,
         )
 
     fun computeEffectivelyEnabled(): Boolean =

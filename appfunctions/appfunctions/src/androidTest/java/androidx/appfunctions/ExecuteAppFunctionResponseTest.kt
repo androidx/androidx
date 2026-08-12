@@ -191,6 +191,7 @@ class ExecuteAppFunctionResponseTest {
                         packageName = "testPackage",
                         components = AppFunctionComponentsMetadata(),
                     ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
         private val TEST_APP_FUNCTION_METADATA =
             AppFunctionMetadata(
@@ -210,6 +211,7 @@ class ExecuteAppFunctionResponseTest {
                         packageName = "testPackage",
                         components = AppFunctionComponentsMetadata(),
                     ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
 
         private val TEST_APP_FUNCTION_DATA: AppFunctionData =

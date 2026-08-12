@@ -21,11 +21,15 @@ import android.app.UiAutomation
 import android.content.Context
 import android.os.Build
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
+import androidx.appfunctions.core.AppFunctionMetadataTestHelper.Companion.TEST_PACKAGE_NAME
+import androidx.appfunctions.core.AppFunctionMetadataTestHelper.FunctionIds.MEDIA_SCHEMA_PRINT
+import androidx.appfunctions.core.AppFunctionMetadataTestHelper.FunctionIds.NO_SCHEMA_ENABLED_BY_DEFAULT
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import java.io.InputStream
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume.assumeNotNull
@@ -162,6 +166,48 @@ class SearchAppFunctionsTest {
                 .contains(AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA2_PRINT)
         }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test
+    fun testSearchAppFunctions_byActivityScope() =
+        runBlocking<Unit> {
+            val searchSpec =
+                AppFunctionSearchSpec(
+                    packageNames = setOf(TEST_PACKAGE_NAME),
+                    scopes = setOf(SCOPE_ACTIVITY),
+                )
+            val result = appFunctionManager.searchAppFunctions(searchSpec)
+            assertThat(result)
+                .containsExactly(
+                    AppFunctionMetadataTestHelper.FunctionMetadata
+                        .ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS
+                )
+        }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test
+    fun testSearchAppFunctions_byGlobalScope() =
+        runBlocking<Unit> {
+            val searchSpec =
+                AppFunctionSearchSpec(
+                    packageNames = setOf(TEST_PACKAGE_NAME),
+                    scopes = setOf(SCOPE_GLOBAL),
+                )
+            val result = appFunctionManager.searchAppFunctions(searchSpec)
+            assertThat(result)
+                .containsAtLeast(
+                    AppFunctionMetadataTestHelper.FunctionMetadata
+                        .DYNAMIC_REGISTRATION_RETURN_SUCCESS,
+                    AppFunctionMetadataTestHelper.FunctionMetadata.NO_SCHEMA_ENABLED_BY_DEFAULT,
+                    AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA_PRINT,
+                )
+
+            assertThat(result)
+                .doesNotContain(
+                    AppFunctionMetadataTestHelper.FunctionMetadata
+                        .ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS
+                )
+        }
+
     @Test
     fun testSearchAppFunctions_combinedFilters() =
         runBlocking<Unit> {
@@ -206,8 +252,4 @@ class SearchAppFunctionsTest {
             val result = appFunctionManager.searchAppFunctions(searchSpec)
             assertThat(result).isEmpty()
         }
-
-    fun getResourceAsStream(name: String): InputStream {
-        return checkNotNull(Thread.currentThread().contextClassLoader).getResourceAsStream(name)
-    }
 }
