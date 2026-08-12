@@ -2214,12 +2214,10 @@ package androidx.compose.material3 {
   public final class MaterialTheme {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material3.ColorScheme getColorScheme(androidx.compose.runtime.Composer?, int);
     method @InaccessibleFromKotlin public androidx.compose.runtime.CompositionLocal<androidx.compose.material3.MaterialTheme.Values> getLocalMaterialTheme();
-    method @InaccessibleFromKotlin @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.runtime.CompositionLocal<androidx.compose.material3.MotionScheme> getLocalMotionScheme();
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material3.MotionScheme getMotionScheme(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material3.Shapes getShapes(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material3.Typography getTypography(androidx.compose.runtime.Composer?, int);
     property public androidx.compose.runtime.CompositionLocal<androidx.compose.material3.MaterialTheme.Values> LocalMaterialTheme;
-    property @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.runtime.CompositionLocal<androidx.compose.material3.MotionScheme> LocalMotionScheme;
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material3.ColorScheme colorScheme;
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material3.MotionScheme motionScheme;
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.material3.Shapes shapes;
