@@ -168,18 +168,4 @@ public object ComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isVelocityTrackerMinSampleSizeFixEnabled: Boolean = true
-
-    /**
-     * If enabled, [androidx.compose.ui.graphics.vector.VectorPainter] will use a shared
-     * [androidx.compose.ui.platform.GraphicsResourceCache] to reuse
-     * [androidx.compose.ui.graphics.vector.DrawCache] instances across different painters using the
-     * same [androidx.compose.ui.graphics.vector.ImageVector].
-     *
-     * This reduces redundant texture uploads and improves performance when the same vector is used
-     * multiple times within a composition tree, such as in a LazyColumn.
-     */
-    // TODO: b/493138866
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isVectorDrawCacheSharingEnabled: Boolean = true
 }
