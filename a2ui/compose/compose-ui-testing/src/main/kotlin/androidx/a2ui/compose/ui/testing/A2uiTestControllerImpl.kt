@@ -361,12 +361,8 @@ internal class A2uiTestControllerImpl(
             )
         }
 
-        val payloads = ArrayList<A2uiComponentPayload>(idStubs.size + initialComponents.size)
+        val payloads = ArrayList<A2uiComponentPayload>(initialComponents.size)
         val coreCatalog = testCatalog as A2uiCoreCatalog
-
-        for ((id, _) in idStubs) {
-            payloads.add(validateAndCreatePayload(id, STUB_TYPE_SENTINEL, emptyMap(), coreCatalog))
-        }
 
         for (i in initialComponents.indices) {
             val component = initialComponents[i]
