@@ -75,6 +75,7 @@ EXIFINTERFACE = "1.4.0-rc01"
 FRAGMENT = "1.9.0-rc01"
 FUTURES = "1.4.0-alpha01"
 GLANCE = "1.3.0-alpha02"
+GLANCE_ADAPTIVE = "1.0.0-alpha01"
 GLANCE_WEAR = "1.0.0-alpha16"
 GRAPHICS_CORE = "1.1.0-beta01"
 GRAPHICS_PATH = "1.1.0-rc01"
@@ -251,6 +252,7 @@ ENTERPRISE = { group = "androidx.enterprise", atomicGroupVersion = "versions.ENT
 EXIFINTERFACE = { group = "androidx.exifinterface", atomicGroupVersion = "versions.EXIFINTERFACE" }
 FRAGMENT = { group = "androidx.fragment", atomicGroupVersion = "versions.FRAGMENT" }
 GLANCE = { group = "androidx.glance", atomicGroupVersion = "versions.GLANCE" }
+GLANCE_ADAPTIVE = { group = "androidx.glance.adaptive", atomicGroupVersion = "versions.GLANCE_ADAPTIVE" }
 GLANCE_WEAR = { group = "androidx.glance.wear", atomicGroupVersion = "versions.GLANCE_WEAR" }
 GRAPHICS = { group = "androidx.graphics" }
 GRIDLAYOUT = { group = "androidx.gridlayout", atomicGroupVersion = "versions.GRIDLAYOUT" }
