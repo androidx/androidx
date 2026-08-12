@@ -69,8 +69,8 @@ import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastFirst
 
 /**
- * A [SplitButton] lets users define a button group consisting of 2 buttons. The leading button
- * performs a primary action, and the trailing button performs a secondary action that is
+ * A [SplitButtonLayout] lets users define a button group consisting of 2 buttons. The leading
+ * button performs a primary action, and the trailing button performs a secondary action that is
  * contextually related to the primary action.
  *
  * @sample androidx.compose.material3.samples.FilledSplitButtonSample
@@ -115,7 +115,7 @@ import androidx.compose.ui.util.fastFirst
  * @param spacing The spacing between the [leadingButton] and [trailingButton]
  */
 @Composable
-public fun SplitButton(
+public fun SplitButtonLayout(
     leadingButton: @Composable () -> Unit,
     trailingButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -198,38 +198,7 @@ public fun SplitButton(
     )
 }
 
-/**
- * A [SplitButtonLayout] lets users define a button group consisting of 2 buttons. The leading
- * button performs a primary action, and the trailing button performs a secondary action that is
- * contextually related to the primary action.
- *
- * @param leadingButton the leading button. You can specify your own composable or construct a
- *   [SplitButtonDefaults.LeadingButton]
- * @param trailingButton the trailing button. You can specify your own composable or construct a
- *   [SplitButtonDefaults.TrailingButton]
- * @param modifier the [Modifier] to be applied to this split button.
- * @param spacing The spacing between the [leadingButton] and [trailingButton]
- */
-@Deprecated(
-    message = "Renamed to SplitButton",
-    replaceWith = ReplaceWith("SplitButton(leadingButton, trailingButton, modifier, spacing)"),
-)
-@Composable
-public fun SplitButtonLayout(
-    leadingButton: @Composable () -> Unit,
-    trailingButton: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    spacing: Dp = SplitButtonDefaults.Spacing,
-) {
-    SplitButton(
-        leadingButton = leadingButton,
-        trailingButton = trailingButton,
-        modifier = modifier,
-        spacing = spacing,
-    )
-}
-
-/** Contains default values used by [SplitButton] and its style variants. */
+/** Contains default values used by [SplitButtonLayout] and its style variants. */
 public object SplitButtonDefaults {
     /** Default icon size for the leading button */
     public val LeadingIconSize: Dp = ButtonSmallTokens.IconSize
@@ -1365,7 +1334,7 @@ private fun shapeByInteraction(
 }
 
 /**
- * The shapes that will be used in [SplitButton]. Split button will morph between these shapes
+ * The shapes that will be used in [SplitButtonLayout]. Split button will morph between these shapes
  * depending on the interaction of the buttons, assuming all of the shapes are [CornerBasedShape]s.
  *
  * @property shape is the default shape.
