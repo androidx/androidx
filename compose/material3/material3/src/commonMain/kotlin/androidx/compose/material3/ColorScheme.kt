@@ -688,6 +688,7 @@ public class ColorScheme(
     internal var defaultSegmentedListItemColorsCached: ListItemColors? = null
 
     internal var defaultMenuItemColorsCached: MenuItemColors? = null
+    internal var defaultMenuItemVibrantColorsCached: MenuItemColors? = null
     internal var defaultMenuSelectableItemColorsCached: SelectableMenuItemColors? = null
     internal var defaultMenuSelectableItemVibrantColorsCached: SelectableMenuItemColors? = null
 
