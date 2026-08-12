@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalAppFunctionsApi::class)
+
 package androidx.appfunctions.integration.testapp
 
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionSignature
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.metadata.AppFunctionMetadata
 
 @AppFunctionSignature(
