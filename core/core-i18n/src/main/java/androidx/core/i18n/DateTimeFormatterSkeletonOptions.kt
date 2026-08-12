@@ -35,7 +35,7 @@ import java.util.regex.Pattern
  *
  * Skeletons are based on the
  * [Unicode Technical Standard #35](https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table),
- * but uses a builder to make things safer an more discoverable.
+ * but uses a builder to make things safer and more discoverable.
  *
  * You can still build these options from a string by using the
  * [DateTimeFormatterSkeletonOptions.fromString] method.
@@ -477,7 +477,6 @@ internal constructor(
                 "(G+)|(y+)|(M+)|(d+)|(E+)|" +
                     "(a+)|(B+)|(j+)|(h+)|(H+)|(m+)|(s+)|(S+)|(z+)|(O+)|(v+)"
             )
-        private val TAG = this::class.qualifiedName
 
         /**
          * Creates the a [DateTimeFormatterSkeletonOptions] object from a string.

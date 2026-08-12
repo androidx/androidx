@@ -19,7 +19,6 @@ package androidx.core.i18n
 import android.icu.text.DateFormat
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.Calendar
@@ -68,7 +67,7 @@ class DateTimeFormatterCommonOptionsTest {
             )
         val commonFormatsVersionDependent =
             when {
-                Build.VERSION.SDK_INT >= 34 ->
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ->
                     mapOf(
                         DateTimeFormatterCommonOptions.HOUR_MINUTE to "9:42\u202FPM",
                         DateTimeFormatterCommonOptions.HOUR_MINUTE_SECOND to "9:42:12\u202FPM",
@@ -124,7 +123,6 @@ class DateTimeFormatterCommonOptionsTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     fun testProperDefinitionsAgainstIcu() {
         // Check that our definitions are the same as the ones used by ICU.
         val commonFormats =
