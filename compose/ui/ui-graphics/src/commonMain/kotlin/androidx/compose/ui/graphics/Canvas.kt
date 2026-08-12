@@ -27,7 +27,10 @@ public fun Canvas(image: ImageBitmap): Canvas = ActualCanvas(image)
 
 internal expect fun ActualCanvas(image: ImageBitmap): Canvas
 
-@Deprecated("Use direct reference to platform type instead of typealias")
+@Deprecated(
+    message = "Use direct reference to platform type instead of typealias",
+    level = DeprecationLevel.ERROR,
+)
 public expect class NativeCanvas
 
 /**
