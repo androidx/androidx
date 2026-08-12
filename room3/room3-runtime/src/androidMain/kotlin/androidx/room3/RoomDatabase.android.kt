@@ -433,6 +433,7 @@ public actual abstract class RoomDatabase actual constructor() {
         isReadOnly: Boolean,
         block: suspend (Transactor) -> R,
     ): R {
+        throwIfClosed()
         return connectionManager.useConnection(isReadOnly, block)
     }
 
