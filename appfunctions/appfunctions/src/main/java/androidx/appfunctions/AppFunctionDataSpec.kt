@@ -228,8 +228,18 @@ internal abstract class AppFunctionDataSpec {
                 }
             }
             is AppFunctionStringTypeMetadata -> {
+                require(targetValue is String) {
+                    "Expected String for \"$targetKey\", got ${targetValue.javaClass.name}"
+                }
                 require(enumValues == null || enumValues.contains(targetValue)) {
                     "Invalid value for \"$targetKey\" got \"$targetValue\", expecting one of $enumValues"
+                }
+                if (pattern != null) {
+                    val regex = compiledPattern
+                    val isMatching = regex == null || regex.matches(targetValue)
+                    require(isMatching) {
+                        "Invalid value for \"$targetKey\" got \"$targetValue\", expecting match with pattern \"$pattern\""
+                    }
                 }
             }
             is AppFunctionArrayTypeMetadata -> {

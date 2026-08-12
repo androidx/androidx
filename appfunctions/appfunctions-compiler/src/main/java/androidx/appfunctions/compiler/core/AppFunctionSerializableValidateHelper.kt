@@ -200,5 +200,18 @@ class AppFunctionSerializableValidateHelper(
                 propertyDeclaration.type,
             )
         }
+        val uriConstraint =
+            propertyDeclaration.propertyAnnotations.findAnnotation(
+                IntrospectionHelper.AppFunctionUriValueConstraintAnnotation.CLASS_NAME
+            )
+        if (
+            uriConstraint != null &&
+                !propertyDeclaration.type.isOfType(IntrospectionHelper.URI_CLASS_NAME)
+        ) {
+            throw ProcessingException(
+                "@${IntrospectionHelper.AppFunctionUriValueConstraintAnnotation.CLASS_NAME.simpleName} can only be applied to ${IntrospectionHelper.URI_CLASS_NAME.canonicalName}",
+                propertyDeclaration.type,
+            )
+        }
     }
 }

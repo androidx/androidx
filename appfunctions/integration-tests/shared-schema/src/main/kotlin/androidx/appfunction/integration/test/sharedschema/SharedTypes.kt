@@ -22,8 +22,10 @@ import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionResourceContainer
 import androidx.appfunctions.AppFunctionSchemaCapability
 import androidx.appfunctions.AppFunctionSerializable
+import androidx.appfunctions.AppFunctionStringValueConstraint
 import androidx.appfunctions.AppFunctionTextResource
 import androidx.appfunctions.AppFunctionUriGrant
+import androidx.appfunctions.AppFunctionUriValueConstraint
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -286,6 +288,13 @@ data class OneOfSealedNestedSerializable(val sealedInterface: OneOfSealedInterfa
 @AppFunctionSerializable
 data class IntEnumSerializable(
     @property:AppFunctionIntValueConstraint(enumValues = [10, 20]) val value: Int
+)
+
+@AppFunctionSerializable
+data class UriConstraintSerializable(
+    @property:AppFunctionUriValueConstraint(allowedSchemes = ["content", "file"]) val uri: Uri,
+    @property:AppFunctionStringValueConstraint(pattern = "^[0-9]+$", format = "numeric")
+    val numericString: String,
 )
 
 @AppFunctionSerializable

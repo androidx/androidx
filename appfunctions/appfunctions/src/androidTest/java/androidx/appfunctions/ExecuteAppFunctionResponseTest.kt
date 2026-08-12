@@ -172,17 +172,9 @@ class ExecuteAppFunctionResponseTest {
                                     properties =
                                         mapOf(
                                             "uri" to
-                                                AppFunctionObjectTypeMetadata(
-                                                    properties =
-                                                        mapOf(
-                                                            "uri" to
-                                                                AppFunctionStringTypeMetadata(
-                                                                    isNullable = false
-                                                                )
-                                                        ),
-                                                    required = listOf("uri"),
+                                                AppFunctionStringTypeMetadata(
                                                     isNullable = false,
-                                                    qualifiedName = "android.net.Uri",
+                                                    format = "uri",
                                                 ),
                                             "modeFlags" to
                                                 AppFunctionIntTypeMetadata(isNullable = false),

@@ -17,9 +17,12 @@
 package androidx.appfunctions.compiler.core.metadata
 
 import androidx.appfunctions.compiler.core.IntrospectionHelper
+import androidx.appfunctions.compiler.core.ProcessingException
 import androidx.appfunctions.compiler.core.findAnnotation
 import androidx.appfunctions.compiler.core.requirePropertyValueOfType
 import com.google.devtools.ksp.symbol.KSAnnotation
+import java.util.regex.Pattern
+import java.util.regex.PatternSyntaxException
 import kotlin.reflect.cast
 
 abstract class AppFunctionDataTypeMetadata() {
@@ -260,6 +263,8 @@ data class AppFunctionStringTypeMetadata(
     override val isNullable: Boolean,
     override val description: String,
     val enumValues: Set<String>? = null,
+    val pattern: String? = null,
+    val format: String? = null,
 ) : AppFunctionDataTypeMetadata() {
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
         return AppFunctionDataTypeMetadataDocument(
@@ -267,31 +272,66 @@ data class AppFunctionStringTypeMetadata(
             isNullable = isNullable,
             description = description,
             enumValues = enumValues.orEmpty().toList(),
+            pattern = pattern,
+            format = format,
         )
     }
 
     companion object {
+        const val FORMAT_URI: String = "uri"
+
         fun create(
             isNullable: Boolean,
             description: String,
             annotations: Sequence<KSAnnotation>,
         ): AppFunctionStringTypeMetadata {
-            return AppFunctionStringTypeMetadata(
-                isNullable,
-                description,
-                annotations
-                    .findAnnotation(
-                        IntrospectionHelper.AppFunctionStringValueConstraintAnnotation.CLASS_NAME
-                    )
+            val stringConstraintAnnotation =
+                annotations.findAnnotation(
+                    IntrospectionHelper.AppFunctionStringValueConstraintAnnotation.CLASS_NAME
+                )
+            val enumValues =
+                stringConstraintAnnotation
                     ?.requirePropertyValueOfType(
                         IntrospectionHelper.AppFunctionStringValueConstraintAnnotation
                             .PROPERTY_ENUM_VALUES,
-                        // Array properties are returned as ArrayList from KSP.
-                        java.util.ArrayList::class,
+                        ArrayList::class,
                     )
                     ?.map { String::class.cast(it) }
                     ?.toSet()
-                    ?.ifEmpty { null },
+                    ?.ifEmpty { null }
+            val pattern =
+                stringConstraintAnnotation
+                    ?.requirePropertyValueOfType(
+                        IntrospectionHelper.AppFunctionStringValueConstraintAnnotation
+                            .PROPERTY_PATTERN,
+                        String::class,
+                    )
+                    ?.ifEmpty { null }
+            if (pattern != null) {
+                try {
+                    Pattern.compile(pattern)
+                } catch (e: PatternSyntaxException) {
+                    throw ProcessingException(
+                        "Invalid pattern regex \"$pattern\" in @AppFunctionStringValueConstraint: ${e.message}",
+                        stringConstraintAnnotation,
+                        e,
+                    )
+                }
+            }
+            val format =
+                stringConstraintAnnotation
+                    ?.requirePropertyValueOfType(
+                        IntrospectionHelper.AppFunctionStringValueConstraintAnnotation
+                            .PROPERTY_FORMAT,
+                        String::class,
+                    )
+                    ?.ifEmpty { null }
+            return AppFunctionStringTypeMetadata(
+                isNullable = isNullable,
+                description = description,
+                enumValues = enumValues,
+                pattern = pattern,
+                format = format,
             )
         }
     }
@@ -357,6 +397,8 @@ data class AppFunctionDataTypeMetadataDocument(
     val objectQualifiedName: String? = null,
     val description: String = "",
     val enumValues: List<String> = emptyList(),
+    val pattern: String? = null,
+    val format: String? = null,
 ) {
     fun toAppFunctionDataTypeMetadata(): AppFunctionDataTypeMetadata =
         when (type) {
@@ -421,6 +463,8 @@ data class AppFunctionDataTypeMetadataDocument(
                     isNullable = isNullable,
                     description = description,
                     enumValues = enumValues.toSet().ifEmpty { null },
+                    pattern = pattern,
+                    format = format,
                 )
 
             AppFunctionDataTypeMetadata.TYPE_BOOLEAN ->

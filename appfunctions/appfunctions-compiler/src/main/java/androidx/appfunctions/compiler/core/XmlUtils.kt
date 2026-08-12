@@ -122,6 +122,13 @@ private fun AppFunctionDataTypeMetadataDocument.toXmlElement(
             appendChild(doc.createElementWithTextNode("enumValues", enumValue))
         }
 
+        if (pattern != null) {
+            appendChild(doc.createElementWithTextNode("pattern", pattern))
+        }
+        if (format != null) {
+            appendChild(doc.createElementWithTextNode("format", format))
+        }
+
         appendChild(doc.createElementWithTextNode("type", type.toString()))
     }
 

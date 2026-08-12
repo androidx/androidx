@@ -16,11 +16,11 @@
 
 package androidx.appfunctions
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
-import androidx.appfunctions.`internal`.serializableproxies.`$UriFactory`
 
 // TODO(b/413622177): Temporary workaround of generating factory before being able to apply KSP on
 // appfunctions module.
@@ -31,10 +31,8 @@ public class `$AppFunctionUriGrantFactory` : AppFunctionSerializableFactory<AppF
         val appFunctionDataWithSpec =
             getAppFunctionDataWithSpec(appFunctionData, "androidx.appfunctions.AppFunctionUriGrant")
 
-        val appFunctionUriFactory = `$UriFactory`()
-
-        val uriData = checkNotNull(appFunctionDataWithSpec.getAppFunctionData("uri"))
-        val uri = appFunctionUriFactory.fromAppFunctionData(uriData)
+        val uriString = checkNotNull(appFunctionDataWithSpec.getStringOrNull("uri"))
+        val uri = Uri.parse(uriString)
         val modeFlags = checkNotNull(appFunctionDataWithSpec.getIntOrNull("modeFlags"))
 
         val resultAppFunctionUriGrant = AppFunctionUriGrant(uri, modeFlags)
@@ -43,11 +41,10 @@ public class `$AppFunctionUriGrantFactory` : AppFunctionSerializableFactory<AppF
 
     override fun toAppFunctionData(appFunctionSerializable: AppFunctionUriGrant): AppFunctionData {
         val appFunctionUriGrant_appFunctionSerializable = appFunctionSerializable
-        val appFunctionUriFactory = `$UriFactory`()
 
         val builder = getAppFunctionDataBuilder("androidx.appfunctions.AppFunctionUriGrant")
         val uri = appFunctionUriGrant_appFunctionSerializable.uri
-        builder.setAppFunctionData("uri", appFunctionUriFactory.toAppFunctionData(uri))
+        builder.setString("uri", uri.toString())
         val modeFlags = appFunctionUriGrant_appFunctionSerializable.modeFlags
         builder.setInt("modeFlags", modeFlags)
 

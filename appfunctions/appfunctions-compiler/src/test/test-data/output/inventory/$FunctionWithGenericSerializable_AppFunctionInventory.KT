@@ -33,6 +33,8 @@ public class `$FunctionWithGenericSerializable_AppFunctionInventory` : AppFuncti
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_ATTACHMENT_OBJECT_DATA_TYPE_PROPERTIES_MAP:
@@ -85,6 +87,8 @@ public class `$FunctionWithGenericSerializable_AppFunctionInventory` : AppFuncti
           isNullable = false,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_SETFIELD_KOTLIN_STRING__OBJECT_DATA_TYPE_PROPERTIES_MAP:
@@ -111,6 +115,8 @@ public class `$FunctionWithGenericSerializable_AppFunctionInventory` : AppFuncti
           isNullable = true,
           description = "",
           enumValues = null,
+          pattern = null,
+          format = null,
       )
 
   private val COM_TESTDATA_SETFIELD_KOTLIN_STRING_NULLABLE__OBJECT_DATA_TYPE_PROPERTIES_MAP:

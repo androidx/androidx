@@ -18,9 +18,12 @@ package androidx.appfunctions.metadata
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.util.Log
 import androidx.annotation.IntDef
+import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appsearch.annotation.Document
 import java.util.Objects
+import java.util.regex.PatternSyntaxException
 
 @IntDef(
     AppFunctionDataTypeMetadata.TYPE_UNIT,
@@ -1194,11 +1197,39 @@ constructor(
         "NullableCollection"
     )
     public val enumValues: Set<String>? = null,
+    /**
+     * The regex pattern that string values must match.
+     *
+     * If specified, string values accepted by this data type must match this regular expression. A
+     * `null` value indicates that no pattern constraint is applied, whereas an empty string
+     * represents a pattern matching empty string values.
+     */
+    public val pattern: String? = null,
+    /**
+     * The semantic format description for string values (e.g., `"uri"`).
+     *
+     * Provides a hint describing the expected format or semantic representation of the string
+     * values. A `null` value indicates that no format description is set.
+     */
+    public val format: String? = null,
 ) : AppFunctionDataTypeMetadata(isNullable = isNullable, description = description) {
 
     init {
         require(enumValues == null || enumValues.isNotEmpty()) {
             "If specified, enumValues cannot be empty."
+        }
+    }
+
+    internal val compiledPattern: Regex? by lazy {
+        try {
+            pattern?.toRegex()
+        } catch (e: PatternSyntaxException) {
+            Log.w(
+                APP_FUNCTIONS_TAG,
+                "Failed to parse pattern regex \"$pattern\"; bypassing pattern validation",
+                e,
+            )
+            null
         }
     }
 
@@ -1210,21 +1241,31 @@ constructor(
             type = TYPE_STRING,
             isNullable = isNullable,
             description = description.ifEmpty { null },
+            enumValues = enumValues?.toList() ?: emptyList(),
+            pattern = pattern,
+            format = format,
         )
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AppFunctionStringTypeMetadata) return false
-        return super.equals(other)
+        return super.equals(other) &&
+            pattern == other.pattern &&
+            format == other.format &&
+            enumValues == other.enumValues
     }
 
     override fun hashCode(): Int {
-        return super.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + (pattern?.hashCode() ?: 0)
+        result = 31 * result + (format?.hashCode() ?: 0)
+        result = 31 * result + (enumValues?.hashCode() ?: 0)
+        return result
     }
 
     override fun toString(): String {
-        return "AppFunctionStringTypeMetadata(isNullable=$isNullable, description=$description)"
+        return "AppFunctionStringTypeMetadata(isNullable=$isNullable, description=$description, pattern=$pattern, format=$format, enumValues=$enumValues)"
     }
 
     override fun internalRequireSemanticallyEquivalentTo(
@@ -1237,11 +1278,22 @@ constructor(
         require(otherResolved is AppFunctionStringTypeMetadata) {
             "Expect ${AppFunctionStringTypeMetadata::class.java} but found ${otherResolved.javaClass}"
         }
+        require(this.pattern == otherResolved.pattern) {
+            "Pattern mismatch for String type. Expected: ${this.pattern}, actual: ${otherResolved.pattern}"
+        }
+        require(this.format == otherResolved.format) {
+            "Format mismatch for String type. Expected: ${this.format}, actual: ${otherResolved.format}"
+        }
         require(this.enumValues == otherResolved.enumValues) {
             "Enum values mismatch for String type. " +
                 "Expected: ${this.enumValues}, " +
                 "actual: ${otherResolved.enumValues}"
         }
+    }
+
+    public companion object {
+        /** The format string representing a URI value. */
+        public const val FORMAT_URI: String = "uri"
     }
 }
 
@@ -1369,6 +1421,10 @@ internal data class AppFunctionDataTypeMetadataDocument(
     @Document.StringProperty val description: String? = null,
     /** Enum values, that this data type is restricted to use. */
     @Document.StringProperty val enumValues: List<String> = emptyList(),
+    /** Pattern restriction for String data type. */
+    @Document.StringProperty val pattern: String? = null,
+    /** Format restriction for String data type. */
+    @Document.StringProperty val format: String? = null,
 ) {
     @SuppressLint(
         // When doesn't handle @IntDef correctly.
@@ -1461,9 +1517,11 @@ internal data class AppFunctionDataTypeMetadataDocument(
                 )
             AppFunctionDataTypeMetadata.TYPE_STRING ->
                 AppFunctionStringTypeMetadata(
+                    pattern = pattern,
+                    format = format,
+                    enumValues = enumValues.toSet().ifEmpty { null },
                     isNullable = isNullable,
                     description = description ?: "",
-                    enumValues = enumValues.toSet().ifEmpty { null },
                 )
             AppFunctionDataTypeMetadata.TYPE_PARCELABLE ->
                 AppFunctionParcelableTypeMetadata(
