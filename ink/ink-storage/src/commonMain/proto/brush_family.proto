@@ -427,7 +427,7 @@ message BrushPaint {
           [(ink.proto.field_min_version) = 2147483647];
     }
 
-    // TODO(b/534290635): Deprecate the below `TextureLayer` fields, except for
+    // TODO(b/543451823): Deprecate the below `TextureLayer` fields, except for
     // `blend_mode`, in favor of the `oneof` above, once the `oneof` fields are
     // assigned a non-development `field_min_version`.
 

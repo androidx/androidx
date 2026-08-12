@@ -67,15 +67,18 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
     }
 
     @UiThread
-    public override fun aggregate(startNanos: Long, endNanos: Long): Unit =
+    public override fun aggregate(startNanos: Long, endNanos: Long) {
         implementationHelper.aggregate(startNanos, endNanos)
+    }
 
     /**
      * Reports the latest sample without disrupting the regular cadence of asynchronous reports. If
      * any more samples come in before the next report, one of those will be reported at that time.
      */
     @UiThread
-    public override fun reportSynchronously(): Unit = implementationHelper.reportSynchronously()
+    public override fun reportSynchronously() {
+        implementationHelper.reportSynchronously()
+    }
 
     public override fun job(): Job = implementationHelper.job
 

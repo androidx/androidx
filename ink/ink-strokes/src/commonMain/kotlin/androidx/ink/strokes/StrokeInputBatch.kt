@@ -103,13 +103,13 @@ public abstract class StrokeInputBatch internal constructor(nativeAlloc: () -> L
     public fun getNoiseSeed(): Int = StrokeInputBatchNative.getNoiseSeed(nativePointer)
 
     /**
-     * Returns the [0, 1) value that will determine the stroke's overall animation progress at some
+     * Returns the [0, 2) value that will determine the stroke's overall animation progress at some
      * arbitrary zero clock state, so that different strokes can be animated correctly relative to
      * each other.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
-    @FloatRange(from = 0.0, to = 1.0, toInclusive = false)
+    @FloatRange(from = 0.0, to = 2.0, toInclusive = false)
     public fun getBaseAnimationPhase(): Float =
         StrokeInputBatchNative.getBaseAnimationPhase(nativePointer)
 
@@ -191,7 +191,9 @@ public class ImmutableStrokeInputBatch private constructor(nativeAlloc: () -> Lo
 @OptIn(InkInternalOnlyApi::class, ExperimentalInkAnimationApi::class)
 public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::create) {
 
-    public fun clear(): Unit = MutableStrokeInputBatchNative.clear(nativePointer)
+    public fun clear() {
+        MutableStrokeInputBatchNative.clear(nativePointer)
+    }
 
     /**
      * Adds an [input] to the batch if valid.
@@ -239,16 +241,17 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
      *   is the visual distance that the mouse pointer must travel along the surface of the display.
      *   A value of [StrokeInput.NO_STROKE_UNIT_LENGTH] indicates that the relationship between
      *   stroke space and physical space is unknown or ill-defined.
-     * @param pressure Should be within [0, 1] but it's not enforced until added to a
-     *   [StrokeInputBatch] object. Absence of [pressure] data is represented with
-     *   [StrokeInput.NO_PRESSURE].
-     * @param tiltRadians The angle in radians between a stylus and the line perpendicular to the
-     *   plane of the screen. 0 is perpendicular to the screen and PI/2 is flat against the drawing
-     *   surface. Absence of [tiltRadians] data is represented with [StrokeInput.NO_TILT].
-     * @param orientationRadians Indicates the direction in which the stylus is pointing in relation
-     *   to the positive x axis in radians. A value of 0 means the ray from the stylus tip to the
-     *   end is along positive x and values increase towards the positive y-axis. Absence of
-     *   [orientationRadians] data is represented with [StrokeInput.NO_ORIENTATION].
+     * @param pressure Must be within [0, 1] if present. Absence of [pressure] data is represented
+     *   with [StrokeInput.NO_PRESSURE].
+     * @param tiltRadians Must be within [0, π/2] if present. The angle in radians between a stylus
+     *   and the line perpendicular to the plane of the screen. 0 is perpendicular to the screen and
+     *   π/2 is flat against the drawing surface. Absence of [tiltRadians] data is represented with
+     *   [StrokeInput.NO_TILT].
+     * @param orientationRadians Must be within [0, 2π] if present. Indicates the direction in which
+     *   the stylus is pointing in relation to the positive x axis in radians. A value of 0 means
+     *   the ray from the stylus tip to the end is along positive x and values increase towards the
+     *   positive y-axis. Absence of [orientationRadians] data is represented with
+     *   [StrokeInput.NO_ORIENTATION].
      * @return `this`
      * @throws IllegalArgumentException If the input is not valid. Note that this can be a common
      *   occurrence with real user input on certain devices, in particular due to duplicate or
@@ -337,11 +340,12 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
      * Sets the per-stroke seed value that should be used when regenerating a stroke from this input
      * batch.
      */
-    public fun setNoiseSeed(seed: Int): Unit =
+    public fun setNoiseSeed(seed: Int) {
         MutableStrokeInputBatchNative.setNoiseSeed(nativePointer, seed)
+    }
 
     /**
-     * Sets the [0, 1) animation progress value that the stroke should have at clock state zero. For
+     * Sets the [0, 2) animation progress value that the stroke should have at clock state zero. For
      * newly-drawn strokes, this value should generally be chosen such that the stroke will be at
      * animation progress 0 at the current clock state for the first input of the stroke.
      *
@@ -354,8 +358,10 @@ public class MutableStrokeInputBatch : StrokeInputBatch(StrokeInputBatchNative::
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     public fun setBaseAnimationPhase(
-        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) phase: Float
-    ): Unit = MutableStrokeInputBatchNative.setBaseAnimationPhase(nativePointer, phase)
+        @FloatRange(from = 0.0, to = 2.0, toInclusive = false) phase: Float
+    ) {
+        MutableStrokeInputBatchNative.setBaseAnimationPhase(nativePointer, phase)
+    }
 
     /** Create [ImmutableStrokeInputBatch] with the accumulated StrokeInputs. */
     public override fun toImmutable(): ImmutableStrokeInputBatch =

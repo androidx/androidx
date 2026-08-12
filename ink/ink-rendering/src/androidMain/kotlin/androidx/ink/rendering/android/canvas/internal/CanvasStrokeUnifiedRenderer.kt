@@ -28,7 +28,7 @@ import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.populateMatrix
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
-import androidx.ink.rendering.android.view.StrokePaintAnimator
+import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 
@@ -105,7 +105,7 @@ internal class CanvasStrokeUnifiedRenderer(
                 ) {
                     val paint = coat.paintPreferences[paintPreferenceIndex]
                     val textureAnimationProgress =
-                        StrokePaintAnimator.calculateCurrentPhaseForPaint(
+                        StrokePaintAnimationClock.calculateCurrentPhaseForPaint(
                             clockStateMillis = animatorClockStateMillis,
                             strokeAnimationLoopDurationMillis =
                                 stroke.brush.family.textureAnimationLoopDurationMillis,
@@ -183,7 +183,7 @@ internal class CanvasStrokeUnifiedRenderer(
                 ) {
                     val paint = coat.paintPreferences[paintPreferenceIndex]
                     val textureAnimationProgress =
-                        StrokePaintAnimator.calculateCurrentPhaseForPaint(
+                        StrokePaintAnimationClock.calculateCurrentPhaseForPaint(
                             clockStateMillis = animatorClockStateMillis,
                             strokeAnimationLoopDurationMillis =
                                 brush.family.textureAnimationLoopDurationMillis,

@@ -31,6 +31,7 @@ import androidx.annotation.Size
 import androidx.annotation.VisibleForTesting
 import androidx.collection.MutableObjectLongMap
 import androidx.ink.brush.BrushPaint
+import androidx.ink.brush.BrushPaint.TextureLayer.AnimationRepeatMode
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.SelfOverlap
 import androidx.ink.brush.TextureBitmapStore
@@ -222,6 +223,7 @@ internal class CanvasMeshRenderer(
         val numTextureAnimationFrames = getNumTextureAnimationFrames(paint)
         val numTextureAnimationRows = getNumTextureAnimationRows(paint)
         val numTextureAnimationColumns = getNumTextureAnimationColumns(paint)
+        val animationRepeatMode = getAnimationRepeatModeInt(paint)
         val blendMode = finalBlendMode(paint)
         // A white paint color ensures that the paint color doesn't affect how the paint texture
         // is blended with the mesh coloring.
@@ -244,6 +246,7 @@ internal class CanvasMeshRenderer(
                 numTextureAnimationFrames,
                 numTextureAnimationRows,
                 numTextureAnimationColumns,
+                animationRepeatMode,
                 blendMode,
                 androidPaint,
             )
@@ -261,6 +264,7 @@ internal class CanvasMeshRenderer(
         numTextureAnimationFrames: Int,
         numTextureAnimationRows: Int,
         numTextureAnimationColumns: Int,
+        animationRepeatModeInt: Int,
         blendMode: BlendMode,
         paint: Paint,
     ) {
@@ -281,6 +285,7 @@ internal class CanvasMeshRenderer(
                             numTextureAnimationFrames,
                             numTextureAnimationRows,
                             numTextureAnimationColumns,
+                            animationRepeatModeInt,
                         ))
             ) {
                 val newMesh =
@@ -296,6 +301,7 @@ internal class CanvasMeshRenderer(
                     numTextureAnimationFrames,
                     numTextureAnimationRows,
                     numTextureAnimationColumns,
+                    animationRepeatModeInt,
                 )
                 inkMeshToAndroidMesh[inkMesh] =
                     MeshData.create(
@@ -306,6 +312,7 @@ internal class CanvasMeshRenderer(
                         numTextureAnimationFrames,
                         numTextureAnimationRows,
                         numTextureAnimationColumns,
+                        animationRepeatModeInt,
                     )
                 newMesh
             } else {
@@ -326,6 +333,7 @@ internal class CanvasMeshRenderer(
                         numTextureAnimationFrames,
                         numTextureAnimationRows,
                         numTextureAnimationColumns,
+                        animationRepeatModeInt,
                     )
                 }
                 cachedMeshData.androidMesh
@@ -401,6 +409,7 @@ internal class CanvasMeshRenderer(
         val numTextureAnimationFrames = getNumTextureAnimationFrames(paint)
         val numTextureAnimationRows = getNumTextureAnimationRows(paint)
         val numTextureAnimationColumns = getNumTextureAnimationColumns(paint)
+        val animationRepeatModeInt = getAnimationRepeatModeInt(paint)
         val blendMode = finalBlendMode(paint)
         val androidPaint =
             paintCache.obtain(
@@ -424,6 +433,7 @@ internal class CanvasMeshRenderer(
                 numTextureAnimationFrames,
                 numTextureAnimationRows,
                 numTextureAnimationColumns,
+                animationRepeatModeInt,
             )
             canvas.drawMesh(androidMesh, blendMode, androidPaint)
         }
@@ -459,6 +469,7 @@ internal class CanvasMeshRenderer(
         numTextureAnimationFrames: Int,
         numTextureAnimationRows: Int,
         numTextureAnimationColumns: Int,
+        animationRepeatModeInt: Int,
     ) {
         val isPacked = attributeUnpackingParams != null
         var colorUniformName = INVALID_NAME
@@ -474,6 +485,7 @@ internal class CanvasMeshRenderer(
         var numTextureAnimationFramesName = INVALID_NAME
         var numTextureAnimationRowsName = INVALID_NAME
         var numTextureAnimationColumnsName = INVALID_NAME
+        var animationRepeatModeName = INVALID_NAME
 
         for (metadata in obtainShaderMetadata(meshFormat, isPacked).uniformMetadata) {
             when (metadata.id) {
@@ -508,6 +520,7 @@ internal class CanvasMeshRenderer(
                 UniformId.NUM_TEXTURE_ANIMATION_ROWS -> numTextureAnimationRowsName = metadata.name
                 UniformId.NUM_TEXTURE_ANIMATION_COLUMNS ->
                     numTextureAnimationColumnsName = metadata.name
+                UniformId.ANIMATION_REPEAT_MODE -> animationRepeatModeName = metadata.name
             }
         }
         // Color and object-to-canvas uniforms are required for all meshes.
@@ -550,6 +563,7 @@ internal class CanvasMeshRenderer(
         androidMesh.setIntUniform(numTextureAnimationFramesName, numTextureAnimationFrames)
         androidMesh.setIntUniform(numTextureAnimationRowsName, numTextureAnimationRows)
         androidMesh.setIntUniform(numTextureAnimationColumnsName, numTextureAnimationColumns)
+        androidMesh.setIntUniform(animationRepeatModeName, animationRepeatModeInt)
 
         if (!isPacked) return
 
@@ -793,6 +807,7 @@ internal class CanvasMeshRenderer(
         val numTextureAnimationFrames: Int,
         val numTextureAnimationRows: Int,
         val numTextureAnimationColumns: Int,
+        val animationRepeatModeInt: Int,
     ) {
 
         fun areUniformsEquivalent(
@@ -802,12 +817,14 @@ internal class CanvasMeshRenderer(
             otherNumTextureAnimationFrames: Int,
             otherNumTextureAnimationRows: Int,
             otherNumTextureAnimationColumns: Int,
+            otherAnimationRepeatModeInt: Int,
         ): Boolean {
             return otherBrushColor == brushColor &&
                 otherObjectToCanvasLinearComponent.contentEquals(objectToCanvasLinearComponent) &&
                 otherNumTextureAnimationFrames == numTextureAnimationFrames &&
                 otherNumTextureAnimationRows == numTextureAnimationRows &&
                 otherNumTextureAnimationColumns == numTextureAnimationColumns &&
+                otherAnimationRepeatModeInt == animationRepeatModeInt &&
                 // Ignore animation progress if there's only one frame (no animation).
                 (numTextureAnimationFrames == 1 ||
                     // We intentionally compare animation progress floats by equality. The apparent
@@ -830,6 +847,7 @@ internal class CanvasMeshRenderer(
                 numTextureAnimationFrames: Int,
                 numTextureAnimationRows: Int,
                 numTextureAnimationColumns: Int,
+                animationRepeatModeInt: Int,
             ): MeshData {
                 val copied = FloatArray(4)
                 System.arraycopy(
@@ -847,6 +865,7 @@ internal class CanvasMeshRenderer(
                     numTextureAnimationFrames,
                     numTextureAnimationRows,
                     numTextureAnimationColumns,
+                    animationRepeatModeInt,
                 )
             }
         }
@@ -955,7 +974,9 @@ internal class CanvasMeshRenderer(
             TEXTURE_MAPPING(5),
 
             /**
-             * The current progress of the texture animation. It is a `float` in the range [0, 1].
+             * The current progress of the texture animation. It is a `float` in the range [0, 2].
+             * (It ranges [0, 2] instead of [0, 1] in order to account for `ANIMATION_REPEAT_MODE`
+             * being set to "reverse" mode.)
              *
              * We must pass both animation progress and number of frames to the shader, rather than
              * computing a frame index from these on the CPU and passing only that. Why? Each
@@ -972,7 +993,13 @@ internal class CanvasMeshRenderer(
              */
             NUM_TEXTURE_ANIMATION_FRAMES(7),
             NUM_TEXTURE_ANIMATION_ROWS(8),
-            NUM_TEXTURE_ANIMATION_COLUMNS(9);
+            NUM_TEXTURE_ANIMATION_COLUMNS(9),
+
+            /**
+             * Specifies what should happen when a texture animation repeats. It is an `int`, and
+             * must either be 0 for "restart" mode or 1 for "reverse" mode.
+             */
+            ANIMATION_REPEAT_MODE(10);
 
             companion object {
                 const val INVALID_NATIVE_VALUE = -1
@@ -998,7 +1025,7 @@ internal class CanvasMeshRenderer(
         // this
         // value is just the size we choose to use for our array. Currently it is set to the actual
         // number of uniforms we happen to use right now.
-        private const val MAX_UNIFORMS = 10
+        private const val MAX_UNIFORMS = 11
 
         private const val INVALID_OFFSET = -1
         private const val INVALID_VERTEX_STRIDE = -1
@@ -1082,6 +1109,12 @@ internal class CanvasMeshRenderer(
                 is BrushPaint.StampingTexture -> layer.animationColumns
                 else -> 1
             }
+        }
+
+        private fun getAnimationRepeatModeInt(brushPaint: BrushPaint): Int {
+            val stampingLayer =
+                brushPaint.textureLayers.firstOrNull() as? BrushPaint.StampingTexture
+            return if (stampingLayer?.animationRepeatMode == AnimationRepeatMode.REVERSE) 1 else 0
         }
 
         private val MeshAttributeUnpackingParams.xOffset

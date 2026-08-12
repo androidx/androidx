@@ -490,8 +490,9 @@ public class PartitionedMesh private constructor(nativeAlloc: () -> Long) {
      * made with this shape and the spatial index is not currently initialized, it will be
      * initialized in real time to satisfy that query.
      */
-    public fun initializeSpatialIndex(): Unit =
+    public fun initializeSpatialIndex() {
         PartitionedMeshNative.initializeSpatialIndex(nativePointer)
+    }
 
     /** Returns true if this MutableEnvelope's spatial index has been initialized. */
     @VisibleForTesting
