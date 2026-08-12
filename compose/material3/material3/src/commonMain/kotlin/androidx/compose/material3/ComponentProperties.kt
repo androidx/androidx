@@ -25,8 +25,8 @@ internal class ComponentProperties(
     }
 }
 
-internal class CheckboxProperties(val style: CheckboxStyle) {
+internal class CheckboxProperties(val style: CheckboxStyle = CheckboxStyle.Default) {
     companion object {
-        val Default = CheckboxProperties(CheckboxStyle {})
+        val Default = CheckboxProperties()
     }
 }
