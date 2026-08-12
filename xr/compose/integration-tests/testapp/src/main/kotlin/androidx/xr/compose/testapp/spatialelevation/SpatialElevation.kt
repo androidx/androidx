@@ -80,6 +80,7 @@ import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
 import androidx.xr.compose.platform.LocalSpatialConfiguration
 import androidx.xr.compose.spatial.Orbiter
+import androidx.xr.compose.spatial.OrbiterDefaults
 import androidx.xr.compose.spatial.OrbiterPosition
 import androidx.xr.compose.spatial.OrbiterPosition.EdgeAlignment
 import androidx.xr.compose.spatial.SpatialDialog
@@ -118,7 +119,7 @@ class SpatialElevation : ComponentActivity() {
             position =
                 OrbiterPosition.CenterStart(
                     EdgeAlignment.Outside,
-                    offset = DpVolumeOffset(x = (0).dp, y = 0.dp, z = 0.dp),
+                    offset = DpVolumeOffset(x = (0).dp, y = 0.dp, z = OrbiterDefaults.Elevation),
                 )
         ) {
             NavigationRail(
@@ -163,8 +164,8 @@ class SpatialElevation : ComponentActivity() {
         Orbiter(
             position =
                 OrbiterPosition.CenterEnd(
-                    EdgeAlignment.Outside,
-                    offset = DpVolumeOffset(x = 0.dp, y = 0.dp, z = 0.dp),
+                    EdgeAlignment.Inside,
+                    offset = DpVolumeOffset(x = 90.dp, y = 0.dp, z = OrbiterDefaults.Elevation),
                 )
         ) {
             Row(
