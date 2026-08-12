@@ -58,6 +58,30 @@ class SpotlightSectionTest {
     }
 
     @Test
+    fun getIncompleteLastColumnStrategy_default() {
+        val item = CondensedItem.Builder().setTitle("Title").build()
+
+        val section = SpotlightSection.Builder(CarIcon.APP_ICON).addItem(item).build()
+
+        assertThat(section.incompleteLastColumnStrategy)
+            .isEqualTo(GridSection.INCOMPLETE_LAST_ROW_AS_IS)
+    }
+
+    @Test
+    fun getIncompleteLastColumnStrategy() {
+        val item = CondensedItem.Builder().setTitle("Title").build()
+
+        val section =
+            SpotlightSection.Builder(CarIcon.APP_ICON)
+                .addItem(item)
+                .setIncompleteLastColumnStrategy(SpotlightSection.INCOMPLETE_LAST_COLUMN_TRUNCATE)
+                .build()
+
+        assertThat(section.incompleteLastColumnStrategy)
+            .isEqualTo(SpotlightSection.INCOMPLETE_LAST_COLUMN_TRUNCATE)
+    }
+
+    @Test
     fun equals_andHashCode() {
         val image = CarIcon.APP_ICON
         val item = CondensedItem.Builder().setTitle("Item").build()

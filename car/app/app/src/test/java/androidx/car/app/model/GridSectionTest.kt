@@ -47,6 +47,25 @@ class GridSectionTest {
     }
 
     @Test
+    fun getIncompleteLastRowStrategy_default() {
+        val section = GridSection.Builder().build()
+
+        assertThat(section.incompleteLastRowStrategy)
+            .isEqualTo(GridSection.INCOMPLETE_LAST_ROW_AS_IS)
+    }
+
+    @Test
+    fun getIncompleteLastRowStrategy() {
+        val section =
+            GridSection.Builder()
+                .setIncompleteLastRowStrategy(GridSection.INCOMPLETE_LAST_ROW_TRUNCATE)
+                .build()
+
+        assertThat(section.incompleteLastRowStrategy)
+            .isEqualTo(GridSection.INCOMPLETE_LAST_ROW_TRUNCATE)
+    }
+
+    @Test
     fun equals_returnsFalse_whenPassedNull() {
         val section = GridSection.Builder().build()
 
@@ -99,6 +118,9 @@ class GridSectionTest {
                 GridSection.Builder().setItems(testItemList).build(),
                 GridSection.Builder().setTitle(testHeader).build(),
                 GridSection.Builder().setNoItemsMessage("Example").build(),
+                GridSection.Builder()
+                    .setIncompleteLastRowStrategy(GridSection.INCOMPLETE_LAST_ROW_AS_IS)
+                    .build(),
             )
 
         // Test all different sections against each other

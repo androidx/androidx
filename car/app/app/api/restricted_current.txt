@@ -1570,11 +1570,15 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CondensedSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
+    method public int getIncompleteLastRowStrategy();
+    field public static final int INCOMPLETE_LAST_ROW_AS_IS = 0; // 0x0
+    field public static final int INCOMPLETE_LAST_ROW_TRUNCATE = 1; // 0x1
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class CondensedSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.CondensedItem!,androidx.car.app.model.CondensedSection.Builder!> {
     ctor public CondensedSection.Builder();
     method public androidx.car.app.model.CondensedSection build();
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.CondensedSection.Builder setIncompleteLastRowStrategy(int);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public interface Content {
@@ -1651,8 +1655,11 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(8) public final class GridSection extends androidx.car.app.model.Section<androidx.car.app.model.GridItem!> {
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public int getIncompleteLastRowStrategy();
     method public int getItemImageShape();
     method public int getItemSize();
+    field public static final int INCOMPLETE_LAST_ROW_AS_IS = 0; // 0x0
+    field public static final int INCOMPLETE_LAST_ROW_TRUNCATE = 1; // 0x1
     field public static final int ITEM_IMAGE_SHAPE_CIRCLE = 2; // 0x2
     field public static final int ITEM_IMAGE_SHAPE_UNSET = 1; // 0x1
     field public static final int ITEM_SIZE_EXTRA_LARGE = 4; // 0x4
@@ -1664,6 +1671,7 @@ package androidx.car.app.model {
   public static final class GridSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.GridItem!,androidx.car.app.model.GridSection.Builder!> {
     ctor public GridSection.Builder();
     method public androidx.car.app.model.GridSection build();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.GridSection.Builder setIncompleteLastRowStrategy(int);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.GridSection.Builder setItemImageShape(int);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.GridSection.Builder setItemSize(int);
   }
@@ -2164,11 +2172,15 @@ package androidx.car.app.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SpotlightSection extends androidx.car.app.model.Section<androidx.car.app.model.CondensedItem!> {
     method public androidx.car.app.model.CarIcon getImage();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public int getIncompleteLastColumnStrategy();
+    field public static final int INCOMPLETE_LAST_COLUMN_AS_IS = 0; // 0x0
+    field public static final int INCOMPLETE_LAST_COLUMN_TRUNCATE = 1; // 0x1
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class SpotlightSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.CondensedItem!,androidx.car.app.model.SpotlightSection.Builder!> {
     ctor public SpotlightSection.Builder(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.SpotlightSection build();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SpotlightSection.Builder setIncompleteLastColumnStrategy(int);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public final class Tab implements androidx.car.app.model.Content {
