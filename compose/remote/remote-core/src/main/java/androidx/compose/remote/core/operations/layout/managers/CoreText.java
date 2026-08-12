@@ -282,7 +282,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
 
         String cachedString = context.getText(mTextId);
         if (cachedString != null && cachedString.equalsIgnoreCase(mCachedString) && mType != -1) {
-            if (mMeasureFontSize != mFontSizeValue || mMeasureFontWeight != mFontWeightValue) {
+            if ((!mAutosize && mMeasureFontSize != mFontSizeValue)
+                    || mMeasureFontWeight != mFontWeightValue) {
                 invalidateMeasure();
             }
             return;
@@ -735,9 +736,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                     current += stepSize;
                 }
             }
-            mFontSizeValue = current;
             mMeasureFontSize = current;
-            mPaint.setTextSize(mFontSizeValue);
+            mPaint.setTextSize(mMeasureFontSize);
             context.replacePaint(mPaint);
             textLayout(context, maxWidth, maxHeight, bounds, true, false);
         } else {
