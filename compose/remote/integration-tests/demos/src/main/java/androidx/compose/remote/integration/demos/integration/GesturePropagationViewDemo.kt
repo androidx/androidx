@@ -23,6 +23,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -45,7 +46,9 @@ import androidx.compose.remote.creation.compose.modifier.combinedClickable
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.padding
+import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
@@ -63,6 +66,7 @@ import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -88,80 +92,100 @@ fun GesturePropagationViewDemo() {
             RcPlatformProfiles.ANDROIDX.profileFactory,
         )
 
-    RemoteFrameLayoutDemo(modifier = Modifier.fillMaxSize(), profile = experimentalProfile) {
-        val clickCount = rememberMutableRemoteInt(0)
-        val doubleClickCount = rememberMutableRemoteInt(0)
-        val longClickCount = rememberMutableRemoteInt(0)
-        RemoteColumn(
-            modifier = RemoteModifier.fillMaxSize().padding(5.rdp),
-            horizontalAlignment = RemoteAlignment.CenterHorizontally,
+    var applyVerticalScroll by remember { mutableStateOf(false) }
+
+    key(applyVerticalScroll) {
+        RemoteFrameLayoutDemo(
+            modifier = Modifier.fillMaxSize(),
+            profile = experimentalProfile,
+            applyVerticalScroll = applyVerticalScroll,
+            onApplyVerticalScrollChange = { applyVerticalScroll = it },
         ) {
-            RemoteText("Clickable:".rs, color = Color.Black.rc)
-            RemoteRow {
-                RemoteBox(
-                    modifier =
-                        RemoteModifier.size(80.rdp)
-                            .background(RemoteColor(Color.Red))
-                            .clickable(hostAction(REMOTE_COMPOSE_CLICK.rs)),
-                    contentAlignment = RemoteAlignment.Center,
-                ) {
-                    RemoteText("HostAction.".rs)
+            val scrollState = rememberRemoteScrollState()
+            val clickCount = rememberMutableRemoteInt(0)
+            val doubleClickCount = rememberMutableRemoteInt(0)
+            val longClickCount = rememberMutableRemoteInt(0)
+            RemoteColumn(
+                modifier =
+                    RemoteModifier.fillMaxSize()
+                        .padding(5.rdp)
+                        .then(
+                            if (applyVerticalScroll) {
+                                RemoteModifier.verticalScroll(scrollState)
+                            } else {
+                                RemoteModifier
+                            }
+                        ),
+                horizontalAlignment = RemoteAlignment.CenterHorizontally,
+            ) {
+                RemoteText("Clickable:".rs, color = Color.Black.rc)
+                RemoteRow {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(80.rdp)
+                                .background(RemoteColor(Color.Red))
+                                .clickable(hostAction(REMOTE_COMPOSE_CLICK.rs)),
+                        contentAlignment = RemoteAlignment.Center,
+                    ) {
+                        RemoteText("HostAction.".rs)
+                    }
+                    RemoteSpacer(modifier = RemoteModifier.width(5.rdp))
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(80.rdp)
+                                .background(RemoteColor(Color.Green))
+                                .clickable(valueChange(clickCount, clickCount + 1)),
+                        contentAlignment = RemoteAlignment.Center,
+                    ) {
+                        RemoteText("ValueChange.".rs, color = Color.Black.rc)
+                    }
                 }
-                RemoteSpacer(modifier = RemoteModifier.width(5.rdp))
-                RemoteBox(
-                    modifier =
-                        RemoteModifier.size(80.rdp)
-                            .background(RemoteColor(Color.Green))
-                            .clickable(valueChange(clickCount, clickCount + 1)),
-                    contentAlignment = RemoteAlignment.Center,
-                ) {
-                    RemoteText("ValueChange.".rs, color = Color.Black.rc)
+                RemoteSpacer(modifier = RemoteModifier.height(10.rdp))
+                RemoteText("CombinedClickable:".rs, color = Color.Black.rc)
+                RemoteRow {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(80.rdp)
+                                .background(RemoteColor(Color.Red))
+                                .combinedClickable(
+                                    onClick = hostAction(REMOTE_COMPOSE_CLICK.rs),
+                                    onDoubleClick = hostAction(REMOTE_COMPOSE_DOUBLE_CLICK.rs),
+                                    onLongClick = hostAction(REMOTE_COMPOSE_LONG_CLICK.rs),
+                                ),
+                        contentAlignment = RemoteAlignment.Center,
+                    ) {
+                        RemoteText("HostAction.".rs)
+                    }
+                    RemoteSpacer(modifier = RemoteModifier.width(5.rdp))
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(80.rdp)
+                                .background(RemoteColor(Color.Green))
+                                .combinedClickable(
+                                    onClick = valueChange(clickCount, clickCount + 1),
+                                    onDoubleClick =
+                                        valueChange(doubleClickCount, doubleClickCount + 1),
+                                    onLongClick = valueChange(longClickCount, longClickCount + 1),
+                                ),
+                        contentAlignment = RemoteAlignment.Center,
+                    ) {
+                        RemoteText("ValueChange.".rs, color = Color.Black.rc)
+                    }
                 }
+                RemoteSpacer(modifier = RemoteModifier.height(10.rdp))
+                RemoteText(
+                    "ValueChange click counter: ".rs + clickCount.toRemoteString(),
+                    color = Color.Black.rc,
+                )
+                RemoteText(
+                    "ValueChange double click counter: ".rs + doubleClickCount.toRemoteString(),
+                    color = Color.Black.rc,
+                )
+                RemoteText(
+                    "ValueChange long click counter: ".rs + longClickCount.toRemoteString(),
+                    color = Color.Black.rc,
+                )
             }
-            RemoteSpacer(modifier = RemoteModifier.height(10.rdp))
-            RemoteText("CombinedClickable:".rs, color = Color.Black.rc)
-            RemoteRow {
-                RemoteBox(
-                    modifier =
-                        RemoteModifier.size(80.rdp)
-                            .background(RemoteColor(Color.Red))
-                            .combinedClickable(
-                                onClick = hostAction(REMOTE_COMPOSE_CLICK.rs),
-                                onDoubleClick = hostAction(REMOTE_COMPOSE_DOUBLE_CLICK.rs),
-                                onLongClick = hostAction(REMOTE_COMPOSE_LONG_CLICK.rs),
-                            ),
-                    contentAlignment = RemoteAlignment.Center,
-                ) {
-                    RemoteText("HostAction.".rs)
-                }
-                RemoteSpacer(modifier = RemoteModifier.width(5.rdp))
-                RemoteBox(
-                    modifier =
-                        RemoteModifier.size(80.rdp)
-                            .background(RemoteColor(Color.Green))
-                            .combinedClickable(
-                                onClick = valueChange(clickCount, clickCount + 1),
-                                onDoubleClick = valueChange(doubleClickCount, doubleClickCount + 1),
-                                onLongClick = valueChange(longClickCount, longClickCount + 1),
-                            ),
-                    contentAlignment = RemoteAlignment.Center,
-                ) {
-                    RemoteText("ValueChange.".rs, color = Color.Black.rc)
-                }
-            }
-            RemoteSpacer(modifier = RemoteModifier.height(10.rdp))
-            RemoteText(
-                "ValueChange click counter: ".rs + clickCount.toRemoteString(),
-                color = Color.Black.rc,
-            )
-            RemoteText(
-                "ValueChange double click counter: ".rs + doubleClickCount.toRemoteString(),
-                color = Color.Black.rc,
-            )
-            RemoteText(
-                "ValueChange long click counter: ".rs + longClickCount.toRemoteString(),
-                color = Color.Black.rc,
-            )
         }
     }
 }
@@ -171,6 +195,8 @@ fun GesturePropagationViewDemo() {
 private fun RemoteFrameLayoutDemo(
     modifier: Modifier = Modifier,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
+    applyVerticalScroll: Boolean = false,
+    onApplyVerticalScrollChange: (Boolean) -> Unit = {},
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     var documentState by remember { mutableStateOf<RemoteDocument?>(null) }
@@ -389,6 +415,18 @@ private fun RemoteFrameLayoutDemo(
 
                 root.addView(table)
 
+                val checkBox =
+                    CheckBox(ctx).apply {
+                        text = "Apply verticalScroll modifier to root."
+                        setTextColor(AndroidColor.BLACK)
+                        isChecked = applyVerticalScroll
+                        setOnCheckedChangeListener { _, isChecked ->
+                            val h = root.tag as? DemoViewHolder
+                            h?.onApplyVerticalScrollChange?.invoke(isChecked)
+                        }
+                    }
+                root.addView(checkBox)
+
                 fun updateTable() {
                     viewClickCell.text = "$viewClickCounter"
                     viewDoubleClickCell.text = "$viewDoubleClickCounter"
@@ -441,7 +479,8 @@ private fun RemoteFrameLayoutDemo(
 
                 root.tag =
                     DemoViewHolder(
-                        player,
+                        player = player,
+                        checkBox = checkBox,
                         onNamedAction = { action ->
                             when (action) {
                                 REMOTE_COMPOSE_CLICK -> rcClickCounter++
@@ -450,12 +489,15 @@ private fun RemoteFrameLayoutDemo(
                             }
                             updateTable()
                         },
+                        onApplyVerticalScrollChange = onApplyVerticalScrollChange,
                     )
 
                 root
             },
             update = { root ->
                 val holder = root.tag as? DemoViewHolder ?: return@AndroidView
+                holder.onApplyVerticalScrollChange = onApplyVerticalScrollChange
+                holder.checkBox.isChecked = applyVerticalScroll
                 holder.player.setDocument(documentState!!)
                 holder.player.document.document.clearActionCallbacks()
                 holder.player.document.document.addActionCallback(
@@ -479,4 +521,9 @@ private fun RemoteFrameLayoutDemo(
 }
 
 @Suppress("RestrictedApiAndroidX")
-private class DemoViewHolder(val player: RemoteComposePlayer, val onNamedAction: (String) -> Unit)
+private class DemoViewHolder(
+    val player: RemoteComposePlayer,
+    val checkBox: CheckBox,
+    var onNamedAction: (String) -> Unit,
+    var onApplyVerticalScrollChange: (Boolean) -> Unit,
+)
