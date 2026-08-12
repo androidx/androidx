@@ -108,7 +108,12 @@ class CompilationTestHelper(
                     symbolProcessorProviders = symbolProcessorProviders,
                     processorOptions = processorOptions,
                     classpath = additionalClasspath,
-                    kotlincArguments = listOf("-jvm-target", "11"),
+                    kotlincArguments =
+                        listOf(
+                            "-jvm-target",
+                            "11",
+                            "-opt-in=androidx.appfunctions.ExperimentalAppFunctionsApi",
+                        ),
                 ),
             )
 

@@ -263,7 +263,7 @@ package androidx.appfunctions {
     property public abstract String serviceName;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionSignature {
+  @SuppressCompatibility @androidx.appfunctions.ExperimentalAppFunctionsApi @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface AppFunctionSignature {
     ctor @KotlinOnly public AppFunctionSignature(int scope, String appFunctionXmlFileName, optional boolean isDescribedByKDoc);
     method @InaccessibleFromKotlin public abstract String appFunctionXmlFileName();
     method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc() default false;
@@ -371,6 +371,9 @@ package androidx.appfunctions {
   public static final class ExecuteAppFunctionResponse.Success.Companion {
     method @RequiresApi(android.os.Build.VERSION_CODES.BAKLAVA) public androidx.appfunctions.ExecuteAppFunctionResponse.Success toCompatExecuteAppFunctionResponse(android.app.appfunctions.ExecuteAppFunctionResponse, androidx.appfunctions.metadata.AppFunctionMetadata functionMetadata);
     property public static String PROPERTY_RETURN_VALUE;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and may change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalAppFunctionsApi {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public abstract class ExtensionsAppFunctionService extends com.android.extensions.appfunctions.AppFunctionService {
