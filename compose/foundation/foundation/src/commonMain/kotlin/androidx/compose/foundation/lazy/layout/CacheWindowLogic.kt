@@ -163,20 +163,12 @@ internal class MultiLaneCacheWindow(
 
     private fun traceWindowInfo() {
         repeat(currentLaneCount) { lane ->
+            traceValue("windowTraceInfoLane", lane.toLong())
+            traceValue("perLaneCacheWindowStartSpace", perLaneCacheWindowStartSpace[lane].toLong())
+            traceValue("perLaneCacheWindowEndSpace", perLaneCacheWindowEndSpace[lane].toLong())
+            traceValue("perLaneCacheWindowStartIndex", perLaneCacheWindowStartIndex[lane].toLong())
             traceValue(
-                "perLaneCacheWindowStartSpace lane=$lane",
-                perLaneCacheWindowStartSpace[lane].toLong(),
-            )
-            traceValue(
-                "perLaneCacheWindowEndSpace lane=$lane",
-                perLaneCacheWindowEndSpace[lane].toLong(),
-            )
-            traceValue(
-                "perLaneCacheWindowStartIndex lane=$lane",
-                perLaneCacheWindowStartIndex[lane].toLong(),
-            )
-            traceValue(
-                "perLaneCacheWindowEndItemIndex lane=$lane",
+                "perLaneCacheWindowEndItemIndex",
                 perLaneCacheWindowEndItemIndex[lane].toLong(),
             )
         }
