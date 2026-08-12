@@ -39,6 +39,9 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     lintPublish(project(":webkit:webkit-lint"))
     lintChecks(project(":webkit:webkit-lint"))
+
+    testImplementation(libs.byteBuddy)
+    testImplementation(libs.truth)
 }
 
 ext {
