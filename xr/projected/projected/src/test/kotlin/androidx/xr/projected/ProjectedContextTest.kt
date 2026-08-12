@@ -179,6 +179,24 @@ class ProjectedContextTest {
             .isFalse()
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
+    @Test
+    fun isProjectedDeviceConnected_withProjectedDeviceContext_displayRemoved_isFalse() =
+        runBlocking {
+            val flow =
+                ProjectedContext.isProjectedDeviceConnected(
+                    projectedDeviceContext,
+                    coroutineContext,
+                )
+            assertThat(flow.first()).isTrue()
+
+            ShadowDisplayManager.removeDisplay(
+                virtualDeviceManager.virtualDevices.first().displayIds[0]
+            )
+
+            assertThat(flow.first()).isFalse()
+        }
+
     // TODO: b/476403759 - Replace reflection with the shadow APIs when they are available.
     private fun createVirtualDevice(): Any? {
         val virtualDeviceParamsBuilderClass =
