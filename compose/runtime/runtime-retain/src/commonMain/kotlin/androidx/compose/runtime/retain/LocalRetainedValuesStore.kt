@@ -28,6 +28,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.withCompositionLocal
 
 /**
  * The [RetainedValuesStore] in which [retain] values will be tracked in. Since a
@@ -87,6 +88,41 @@ public fun LocalRetainedValuesStoreProvider(
             // update the reference just in case
             this.composer = composer
         }
+}
+
+/**
+ * Installs the given [store] over the provided [content] and returns the result of the lambda. Use
+ * to install a [RetainedValuesStore] in all non-unit returning [content] lambdas. For content that
+ * returns `Unit`, use [LocalRetainedValuesStoreProvider] instead.
+ *
+ * This method of installing a [RetainedValuesStore] has the same guarantees and semantics as
+ * [LocalRetainedValuesStoreProvider] with the addition of a return value.
+ *
+ * @param store The [RetainedValuesStore] to install as the [LocalRetainedValuesStore]
+ * @param content The Composable content that the [store] will be installed for. This content block
+ *   is invoked immediately in-place.
+ * @return The result of [content]
+ * @sample androidx.compose.runtime.retain.samples.withLocalRetainedValuesStoreSample
+ * @see LocalRetainedValuesStoreProvider
+ */
+@Composable
+public fun <R> withLocalRetainedValuesStore(
+    store: RetainedValuesStore,
+    content: @Composable () -> R,
+): R {
+    val result = withCompositionLocal(LocalRetainedValuesStore provides store, content)
+
+    // Important: This must come AFTER the content for the underlying RememberObservers to
+    // dispatch in the correct order relative to retained values from the content block.
+    val composer = currentComposer
+    remember(store) { RetainContentPresenceIndicator(store, composer) }
+        .apply {
+            // Composer isn't guaranteed to stay the same between recompositions, make sure to
+            // update the reference just in case
+            this.composer = composer
+        }
+
+    return result
 }
 
 private class RetainContentPresenceIndicator(
