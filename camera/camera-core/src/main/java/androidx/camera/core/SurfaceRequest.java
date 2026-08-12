@@ -112,6 +112,12 @@ public final class SurfaceRequest {
     // For the camera to retrieve the surface from the user
     @SuppressWarnings("WeakerAccess") /*synthetic accessor */
     final ListenableFuture<Surface> mSurfaceFuture;
+    // Warning: Please do not add nullability annotations (like @NonNull or @Nullable) to any
+    // CallbackToFutureAdapter.Completer fields in this class (including mSurfaceCompleter,
+    // mSurfaceRecreationCompleter, and mRequestCancellationCompleter).
+    // Doing so triggers a javac bug (cannot attach type annotations: CallbackToFutureAdapter
+    // not found) for downstream consumers compiled with JDK 21+ that do not have
+    // concurrent-futures on their compile classpath (b/543937345).
     private final CallbackToFutureAdapter.Completer<Surface> mSurfaceCompleter;
 
     // For the user to wait for the camera to be finished with the surface and retrieve errors
@@ -119,10 +125,12 @@ public final class SurfaceRequest {
     private final ListenableFuture<Void> mSessionStatusFuture;
 
     // For notification of surface recreated.
-    private final CallbackToFutureAdapter.@NonNull Completer<Void> mSurfaceRecreationCompleter;
+    // See warning above regarding CallbackToFutureAdapter nullability annotations.
+    private final CallbackToFutureAdapter.Completer<Void> mSurfaceRecreationCompleter;
 
     // For notification of surface request cancellation. Should only be used to register
     // cancellation listeners.
+    // See warning above regarding CallbackToFutureAdapter nullability annotations.
     private final CallbackToFutureAdapter.Completer<Void> mRequestCancellationCompleter;
 
     private final DeferrableSurface mInternalDeferrableSurface;
