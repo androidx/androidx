@@ -50,6 +50,7 @@ dependencies {
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testParameterInjector)
     androidTestImplementation(libs.truth)
 }
 
