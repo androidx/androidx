@@ -25,17 +25,50 @@ import kotlin.test.assertFailsWith
 class DeepLinkRequestTest {
 
     @Test
-    fun testExtra() {
-        val testKey = "TestKey"
-        val request = DeepLinkRequest(null, mapOf(testKey to 1))
-
-        assertThat(request.uri).isNull()
-        assertThat(request.extras[testKey]).isNotNull()
-        assertThat(request.extras[testKey]).isEqualTo(1)
+    fun testUri() {
+        val uri = "test.com/test"
+        val request = DeepLinkRequest("test.com/test")
+        assertThat(request.uri.toString()).isEqualTo(uri)
+        assertThat(request.extras.isEmpty()).isTrue()
     }
 
     @Test
-    fun fromExtraDsl() {
+    fun testExtra() {
+        val intKey = object : RequestExtrasKey<Int> {}
+        val strKey = object : RequestExtrasKey<String> {}
+        val boolKey = object : RequestExtrasKey<Boolean> {}
+
+        val extras = requestExtras {
+            put(intKey, 42)
+            put(strKey, "test")
+        }
+
+        val request = DeepLinkRequest(null, extras)
+        assertThat(request.extras.isNotEmpty()).isTrue()
+        assertThat(request.extras.size).isEqualTo(2)
+        assertThat(request.extras[intKey]).isEqualTo(42)
+        assertThat(request.extras[strKey]).isEqualTo("test")
+        assertThat(request.extras[boolKey]).isNull()
+    }
+
+    @Test
+    fun testEmptyRequestFails() {
+        assertFailsWith<IllegalArgumentException> { DeepLinkRequest() }
+    }
+
+    @Test
+    fun testExtraContains() {
+        val intKey = object : RequestExtrasKey<Int> {}
+        val boolKey = object : RequestExtrasKey<Boolean> {}
+
+        val extras = RequestExtras(mutableMapOf(intKey to 42))
+
+        assertThat(intKey in extras).isTrue()
+        assertThat(boolKey in extras).isFalse()
+    }
+
+    @Test
+    fun testExtraDsl() {
         val testKey = object : RequestExtrasKey<Boolean> {}
         val request = DeepLinkRequest(null, requestExtras { put(testKey, true) })
 
@@ -46,14 +79,39 @@ class DeepLinkRequestTest {
 
     @Test
     fun testExtraWrongKey() {
-        val request = DeepLinkRequest(null, mapOf("TestKey" to 1))
+        val testKey = object : RequestExtrasKey<Int> {}
+        val wrongKey = object : RequestExtrasKey<Int> {}
+        val request = DeepLinkRequest(null, requestExtras { put(testKey, 1) })
 
         assertThat(request.uri).isNull()
-        assertThat(request.extras["wrongKey"]).isNull()
+        assertThat(request.extras[wrongKey]).isNull()
     }
 
     @Test
-    fun testEmptyRequestFails() {
-        assertFailsWith<IllegalArgumentException> { DeepLinkRequest() }
+    fun testExtrasPlus() {
+        val intKey = object : RequestExtrasKey<Int> {}
+        val strKey = object : RequestExtrasKey<String> {}
+
+        val extras1 = RequestExtras(mutableMapOf(intKey to 1))
+        val extras2 = RequestExtras(mutableMapOf(intKey to 2, strKey to "test"))
+
+        val combined = extras1 + extras2
+        assertThat(combined.size).isEqualTo(2)
+        assertThat(combined[intKey]).isEqualTo(2)
+        assertThat(combined[strKey]).isEqualTo("test")
+    }
+
+    @Test
+    fun testExtrasMinus() {
+        val intKey = object : RequestExtrasKey<Int> {}
+        val strKey = object : RequestExtrasKey<String> {}
+
+        val extras = RequestExtras(mutableMapOf(intKey to 1, strKey to "test"))
+        val extrasToRemove = RequestExtras(mutableMapOf(intKey to 1))
+        val withoutIntKey = extras - extrasToRemove
+
+        assertThat(withoutIntKey.size).isEqualTo(1)
+        assertThat(withoutIntKey[intKey]).isNull()
+        assertThat(withoutIntKey[strKey]).isEqualTo("test")
     }
 }
