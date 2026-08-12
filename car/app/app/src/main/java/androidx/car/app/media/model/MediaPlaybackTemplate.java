@@ -37,6 +37,13 @@ import java.util.Objects;
  *
  * A pre requisite for using this template is the usage of {@link
  * MediaPlaybackManager#registerMediaPlaybackToken}.
+ *
+ * <p><b>Note:</b> Starting in Car API 9, all media apps will render with a persistent
+ * entrypoint to the full screen {@link MediaPlaybackTemplate}. The CAL Host may render that
+ * entrypoint as an action (on smaller screens) to a mini-controller bar (on larger screens).
+ * When a user clicks on this, the host will send a callback with the
+ * {@link androidx.car.app.media.MediaConstants#ACTION_SHOW_MEDIA_PLAYBACK} intent. All 3P Media
+ * Apps MUST handle this intent callback.
  */
 @RequiresCarApi(8)
 @CarProtocol
