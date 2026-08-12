@@ -94,6 +94,7 @@ public final class Bundler {
     private static final Map<Class<?>, String> UNOBFUSCATED_TYPE_NAMES =
             initUnobfuscatedTypeNames();
     private static final Map<Integer, String> BUNDLED_TYPE_NAMES = initBundledTypeNames();
+    private static final Map<String, Class<?>> sClassCache = new HashMap<>();
 
     private static final String TAG_CLASS_NAME = "tag_class_name";
     private static final String TAG_CLASS_TYPE = "tag_class_type";
@@ -435,7 +436,12 @@ public final class Bundler {
         }
 
         try {
-            Class<?> clazz = Class.forName(interfaceClassName);
+            Class<?> clazz = loadClassWithoutInit(interfaceClassName);
+            if (!IInterface.class.isAssignableFrom(clazz)) {
+                throw new TracedBundlerException(
+                        "Interface class " + interfaceClassName + " does not implement IInterface",
+                        trace);
+            }
             Method converter = getClassOrSuperclassMethod(clazz, "asInterface", trace);
 
             // null obj because the asInterface is static.
@@ -526,8 +532,13 @@ public final class Bundler {
         }
 
         try {
+            Class<?> clazz = loadClassWithoutInit(enumClassName);
+            if (!clazz.isEnum()) {
+                throw new TracedBundlerException(
+                        "Class " + enumClassName + " is not an enum", trace);
+            }
             Method nameMethod =
-                    getClassOrSuperclassMethod(Class.forName(enumClassName), "valueOf", trace);
+                    getClassOrSuperclassMethod(clazz, "valueOf", trace);
             return nameMethod.invoke(null, enumName);
         } catch (IllegalArgumentException e) {
             throw new TracedBundlerException(
@@ -552,7 +563,7 @@ public final class Bundler {
         }
 
         try {
-            return Class.forName(className);
+            return loadClassWithoutInit(className);
         } catch (ClassNotFoundException e) {
             throw new TracedBundlerException("Class name is unknown: " + className, trace, e);
         }
@@ -582,7 +593,7 @@ public final class Bundler {
         }
 
         try {
-            Class<?> clazz = Class.forName(className);
+            Class<?> clazz = loadClassWithoutInit(className);
             if (!clazz.isAnnotationPresent(CarProtocol.class)) {
                 throw new TracedBundlerException(
                         "Invalid class not marked as CarProtocol: " + className, trace);
@@ -887,6 +898,23 @@ public final class Bundler {
     static class CycleDetectedBundlerException extends TracedBundlerException {
         CycleDetectedBundlerException(String msg, Trace trace) {
             super(msg, trace);
+        }
+    }
+
+    /**
+     * Loads the class with the given name without running its static initialization blocks.
+     *
+     * <p>This is a security measure to prevent executing untrusted code before the class
+     * has been verified (e.g. to ensure it implements the expected interfaces or annotations).
+     */
+    private static Class<?> loadClassWithoutInit(String className) throws ClassNotFoundException {
+        synchronized (sClassCache) {
+            Class<?> clazz = sClassCache.get(className);
+            if (clazz == null) {
+                clazz = Class.forName(className, false, Bundler.class.getClassLoader());
+                sClassCache.put(className, clazz);
+            }
+            return clazz;
         }
     }
 

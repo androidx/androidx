@@ -288,6 +288,48 @@ public class BundlerTest {
     }
 
     @Test
+    public void classSerialization_doesNotRunStaticInit() throws BundlerException {
+        StaticInitTracker.sInitCount = 0;
+        Class<?> clazz = TestStaticInitClass.class;
+
+        Bundle bundle = Bundler.toBundle(clazz);
+        Class<?> deserialized = (Class<?>) Bundler.fromBundle(bundle);
+
+        assertThat(deserialized).isEqualTo(clazz);
+        assertThat(StaticInitTracker.sInitCount).isEqualTo(0);
+    }
+
+    @Test
+    public void deserializeIInterface_notIInterface_throws() {
+        Bundle bundle = new Bundle();
+        bundle.putInt(TAG_CLASS_TYPE, 1); // IINTERFACE
+        bundle.putString(TAG_CLASS_NAME, String.class.getName()); // String is not an IInterface
+        bundle.putBinder(TAG_VALUE, new Binder());
+
+        assertThrows(TracedBundlerException.class, () -> Bundler.fromBundle(bundle));
+    }
+
+    @Test
+    public void deserializeEnum_notEnum_throws() {
+        Bundle bundle = new Bundle();
+        bundle.putInt(TAG_CLASS_TYPE, 7); // ENUM
+        bundle.putString(TAG_CLASS_NAME, String.class.getName()); // String is not an Enum
+        bundle.putString(TAG_VALUE, "someValue");
+
+        assertThrows(TracedBundlerException.class, () -> Bundler.fromBundle(bundle));
+    }
+
+    @Test
+    public void deserializeObject_notCarProtocol_throws() {
+        Bundle bundle = new Bundle();
+        bundle.putInt(TAG_CLASS_TYPE, 5); // OBJECT
+        bundle.putString(TAG_CLASS_NAME, String.class.getName());
+        // String is not marked @CarProtocol
+
+        assertThrows(TracedBundlerException.class, () -> Bundler.fromBundle(bundle));
+    }
+
+    @Test
     @Ignore("TODO(b/151105067): reenable once we support content URI.")
     public void imageSerialization_contentUri() throws BundlerException {
         IconCompat image = IconCompat.createWithContentUri("content://foo/bar");
@@ -845,6 +887,16 @@ public class BundlerTest {
                         return new TestParcelable[size];
                     }
                 };
+    }
+
+    public static class TestStaticInitClass {
+        static {
+            StaticInitTracker.sInitCount++;
+        }
+    }
+
+    public static class StaticInitTracker {
+        public static int sInitCount = 0;
     }
 
     private enum TestEnum {
