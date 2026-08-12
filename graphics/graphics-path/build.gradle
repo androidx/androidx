@@ -62,6 +62,7 @@ androidXNative {
                 file("src/main/cpp/pathway.cpp")
             )
             targetCompilation.freeArgs.addAll(
+                "-O3",
                 "-std=c++17",
                 "-Wno-unused-command-line-argument",
                 "-fno-exceptions",
