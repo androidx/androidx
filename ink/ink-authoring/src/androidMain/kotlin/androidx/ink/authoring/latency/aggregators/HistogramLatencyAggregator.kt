@@ -87,15 +87,18 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          *   array after returning from the callback; it will be recycled (overwritten in place)
          *   immediately for use in a future callback.
          */
-        public suspend fun onLatencyBuckets(bucketCounts: IntArray): Unit
+        public suspend fun onLatencyBuckets(bucketCounts: IntArray)
     }
 
     @UiThread
-    public override fun aggregate(startNanos: Long, endNanos: Long): Unit =
+    public override fun aggregate(startNanos: Long, endNanos: Long) {
         implementationHelper.aggregate(startNanos, endNanos)
+    }
 
     @UiThread
-    public override fun reportSynchronously(): Unit = implementationHelper.reportSynchronously()
+    public override fun reportSynchronously() {
+        implementationHelper.reportSynchronously()
+    }
 
     public override fun job(): Job = implementationHelper.supervisorJob
 

@@ -32,6 +32,7 @@ import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
+import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import androidx.ink.rendering.android.view.StrokePaintAnimator
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.Stroke
@@ -77,7 +78,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
 
     init {
         inProgressShapesView.customShapeWorkflowFactory = {
-            InkShapeWorkflow(inProgressShapesView.strokePaintAnimator) {
+            InkShapeWorkflow(
+                inProgressShapesView.strokePaintAnimator ?: StrokePaintAnimationClock.STOPPED_CLOCK
+            ) {
                 CanvasStrokeRenderer.create(textureBitmapStore)
             }
         }
@@ -190,8 +193,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkLatencyDataApi
-    public fun setLatencyDataCallback(value: LatencyDataCallback?): Unit =
+    public fun setLatencyDataCallback(value: LatencyDataCallback?) {
         inProgressShapesView.setLatencyDataCallback(value)
+    }
 
     private val finishedStrokesListeners = mutableSetOf<InProgressStrokesFinishedListener>()
 
@@ -220,7 +224,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * can be somewhat heavyweight, doing this as soon as it's likely for the user to start drawing
      * can prevent initialization from introducing latency to the first stroke.
      */
-    public fun eagerInit(): Unit = inProgressShapesView.eagerInit()
+    public fun eagerInit() {
+        inProgressShapesView.eagerInit()
+    }
 
     /**
      * Start building a stroke using a particular pointer within a [MotionEvent]. This would
@@ -340,7 +346,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
         pointerId: Int,
         strokeId: InProgressStrokeId,
         prediction: MotionEvent? = null,
-    ): Unit = inProgressShapesView.addToShape(event, pointerId, strokeId, prediction)
+    ) {
+        inProgressShapesView.addToShape(event, pointerId, strokeId, prediction)
+    }
 
     /**
      * Add [event] data for [pointerId] to the corresponding in-progress stroke, if present. The
@@ -377,7 +385,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
         inputs: StrokeInputBatch,
         strokeId: InProgressStrokeId,
         prediction: StrokeInputBatch = ImmutableStrokeInputBatch.EMPTY,
-    ): Unit = inProgressShapesView.addToShape(inputs, strokeId, prediction)
+    ) {
+        inProgressShapesView.addToShape(inputs, strokeId, prediction)
+    }
 
     /**
      * Complete the building of a stroke, with the last input data coming from a particular pointer
@@ -400,11 +410,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      *   [MotionEvent.findPointerIndex]. Note that this is the ID of the pointer, not its index.
      * @param strokeId The [InProgressStrokeId] of the stroke to be finished.
      */
-    public fun finishStroke(
-        event: MotionEvent,
-        pointerId: Int,
-        strokeId: InProgressStrokeId,
-    ): Unit = inProgressShapesView.finishShape(event, pointerId, strokeId)
+    public fun finishStroke(event: MotionEvent, pointerId: Int, strokeId: InProgressStrokeId) {
+        inProgressShapesView.finishShape(event, pointerId, strokeId)
+    }
 
     /**
      * Finish the corresponding in-progress stroke with [event] data for [pointerId], if present.
@@ -426,8 +434,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * @param input The last [StrokeInput] in the stroke.
      * @param strokeId The [InProgressStrokeId] of the stroke to be finished.
      */
-    public fun finishStroke(input: StrokeInput, strokeId: InProgressStrokeId): Unit =
+    public fun finishStroke(input: StrokeInput, strokeId: InProgressStrokeId) {
         inProgressShapesView.finishShape(input, strokeId)
+    }
 
     /**
      * Cancel the building of a stroke. It will no longer be visible within this
@@ -456,8 +465,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      * @param event The [MotionEvent] that led to this cancellation, if applicable.
      */
     @JvmOverloads
-    public fun cancelStroke(strokeId: InProgressStrokeId, event: MotionEvent? = null): Unit =
+    public fun cancelStroke(strokeId: InProgressStrokeId, event: MotionEvent? = null) {
         inProgressShapesView.cancelShape(strokeId, event)
+    }
 
     /**
      * Cancel the corresponding in-progress stroke with [event] data for [pointerId], if present.
@@ -472,7 +482,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
         inProgressShapesView.cancelShape(event, pointerId)
 
     /** Cancel all in-progress strokes. */
-    public fun cancelUnfinishedStrokes(): Unit = inProgressShapesView.cancelUnfinishedShapes()
+    public fun cancelUnfinishedStrokes() {
+        inProgressShapesView.cancelUnfinishedShapes()
+    }
 
     /** Returns true if there are any in-progress strokes. */
     public fun hasUnfinishedStrokes(): Boolean = inProgressShapesView.hasUnfinishedShapes()
@@ -488,7 +500,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkHandoffApi
-    public fun requestHandoff(): Unit = inProgressShapesView.requestHandoff()
+    public fun requestHandoff() {
+        inProgressShapesView.requestHandoff()
+    }
 
     internal fun canSynchronouslyWaitForFlush(): Boolean =
         inProgressShapesView.canSynchronouslyWaitForFlush()
@@ -541,8 +555,9 @@ constructor(context: Context, attrs: AttributeSet? = null, @AttrRes defStyleAttr
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkHandoffApi
     @VisibleForTesting
-    public fun sync(timeout: Long, timeoutUnit: TimeUnit): Unit =
+    public fun sync(timeout: Long, timeoutUnit: TimeUnit) {
         inProgressShapesView.sync(timeout, timeoutUnit)
+    }
 
     /**
      * Returns all the finished strokes that are still being rendered by this view, with map

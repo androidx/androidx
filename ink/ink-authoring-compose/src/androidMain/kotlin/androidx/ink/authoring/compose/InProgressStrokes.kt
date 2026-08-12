@@ -27,6 +27,7 @@ import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
+import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import androidx.ink.strokes.Stroke
 import java.util.concurrent.TimeUnit
 
@@ -148,7 +149,7 @@ internal fun InProgressStrokesImpl(
     InProgressShapesImpl(
         // TODO(b/512471476): Support paint animation with Compose.
         customShapeWorkflow =
-            InkShapeWorkflow(strokePaintAnimator = null) {
+            InkShapeWorkflow(StrokePaintAnimationClock.STOPPED_CLOCK) {
                 CanvasStrokeRenderer.create(textureBitmapStore)
             },
         nextShapeSpec = nextBrush,

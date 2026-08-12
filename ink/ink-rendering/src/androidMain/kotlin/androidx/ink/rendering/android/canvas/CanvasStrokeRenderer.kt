@@ -93,11 +93,9 @@ public interface CanvasStrokeRenderer {
      * blurry or aliased.
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
-    public fun draw(
-        canvas: Canvas,
-        stroke: Stroke,
-        strokeToScreenTransform: AffineTransform,
-    ): Unit = draw(canvas, stroke, strokeToScreenTransform, 0L)
+    public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: AffineTransform) {
+        draw(canvas, stroke, strokeToScreenTransform, 0L)
+    }
 
     /**
      * Render a single [stroke] on the provided [canvas], using the specified
@@ -137,8 +135,9 @@ public interface CanvasStrokeRenderer {
      * appear blurry or aliased.
      */
     // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
-    public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: Matrix): Unit =
+    public fun draw(canvas: Canvas, stroke: Stroke, strokeToScreenTransform: Matrix) {
         draw(canvas, stroke, strokeToScreenTransform, 0L)
+    }
 
     /**
      * Render a single [stroke] on the provided [canvas], using the specified
@@ -178,7 +177,9 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: AffineTransform,
-    ): Unit = draw(canvas, inProgressStroke, strokeToScreenTransform, 0L)
+    ) {
+        draw(canvas, inProgressStroke, strokeToScreenTransform, 0L)
+    }
 
     /**
      * Render a single [inProgressStroke] on the provided [canvas], using the specified
@@ -215,7 +216,9 @@ public interface CanvasStrokeRenderer {
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
         strokeToScreenTransform: Matrix,
-    ): Unit = draw(canvas, inProgressStroke, strokeToScreenTransform, 0L)
+    ) {
+        draw(canvas, inProgressStroke, strokeToScreenTransform, 0L)
+    }
 
     /**
      * Render a single [inProgressStroke] on the provided [canvas], using the specified

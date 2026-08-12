@@ -62,8 +62,9 @@ public fun interface BrushFamilyDecodeCallback {
  *   that always returns `null`.
  * @receiver The [BrushFamily] object to encode.
  */
-public fun BrushFamily.encode(output: OutputStream, textureBitmapStore: TextureBitmapStore): Unit =
+public fun BrushFamily.encode(output: OutputStream, textureBitmapStore: TextureBitmapStore) {
     encode(output, textureBitmapStore.toTexturePngBytesLookup())
+}
 
 /**
  * Write a gzip-compressed `ink.proto.BrushFamily` binary proto message representing the [List] of
@@ -87,7 +88,9 @@ public fun BrushFamily.encode(output: OutputStream, textureBitmapStore: TextureB
 public fun List<BrushFamily>.encodeMultiple(
     output: OutputStream,
     textureBitmapStore: TextureBitmapStore,
-): Unit = encodeMultiple(output, textureBitmapStore.toTexturePngBytesLookup())
+) {
+    encodeMultiple(output, textureBitmapStore.toTexturePngBytesLookup())
+}
 
 /**
  * Read a serialized [BrushFamily] from the given [InputStream] and parse it into a [BrushFamily],

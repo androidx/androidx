@@ -30,6 +30,7 @@ import androidx.ink.authoring.InkInProgressShapeRenderer
 import androidx.ink.brush.Brush
 import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
+import androidx.ink.rendering.android.canvas.StrokePaintAnimationClock
 import androidx.ink.strokes.Stroke
 import java.util.concurrent.TimeUnit
 import org.mockito.kotlin.mock
@@ -66,7 +67,7 @@ class CanvasInProgressStrokesRenderHelperV33TestActivity : Activity() {
             CanvasInProgressStrokesRenderHelperV33(
                 mainView,
                 InkInProgressShapeRenderer(
-                    strokePaintAnimator = null,
+                    StrokePaintAnimationClock.STOPPED_CLOCK,
                     canvasStrokeRenderer = mockRenderer,
                 ),
                 fakeThreads.uiThreadExecutor,
