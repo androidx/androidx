@@ -40,8 +40,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.SplitButton
 import androidx.compose.material3.SplitButtonDefaults
+import androidx.compose.material3.SplitButtonLayout
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
@@ -69,7 +69,7 @@ import androidx.compose.ui.tooling.preview.Preview
 fun FilledSplitButtonSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
                 Icon(
@@ -134,7 +134,7 @@ fun FilledSplitButtonSample() {
 @Composable
 @Preview
 fun SplitButtonWithUnCheckableTrailingButtonSample() {
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
                 Icon(
@@ -186,7 +186,7 @@ fun SplitButtonWithDropdownMenuSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize().wrapContentSize()) {
-        SplitButton(
+        SplitButtonLayout(
             leadingButton = {
                 SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
                     Icon(
@@ -277,7 +277,7 @@ fun SplitButtonWithDropdownMenuSample() {
 fun TonalSplitButtonSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.TonalLeadingButton(onClick = { /* Do Nothing */ }) {
                 Icon(
@@ -344,7 +344,7 @@ fun TonalSplitButtonSample() {
 fun ElevatedSplitButtonSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.ElevatedLeadingButton(onClick = { /* Do Nothing */ }) {
                 Icon(
@@ -411,7 +411,7 @@ fun ElevatedSplitButtonSample() {
 fun OutlinedSplitButtonSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.OutlinedLeadingButton(onClick = { /* Do Nothing */ }) {
                 Icon(
@@ -478,7 +478,7 @@ fun OutlinedSplitButtonSample() {
 fun SplitButtonWithTextSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) { Text("My Button") }
         },
@@ -537,7 +537,7 @@ fun SplitButtonWithTextSample() {
 fun SplitButtonWithIconSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             val description = "Button"
             // Icon-only leading button should have a tooltip for a11y.
@@ -624,7 +624,7 @@ fun XSmallFilledSplitButtonSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
     val size = SplitButtonDefaults.ExtraSmallContainerHeight
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(
                 onClick = { /* Do Nothing */ },
@@ -698,7 +698,7 @@ fun MediumFilledSplitButtonSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
     val size = SplitButtonDefaults.MediumContainerHeight
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(
                 onClick = { /* Do Nothing */ },
@@ -772,7 +772,7 @@ fun LargeFilledSplitButtonSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
     val size = SplitButtonDefaults.LargeContainerHeight
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(
                 onClick = { /* Do Nothing */ },
@@ -846,7 +846,7 @@ fun ExtraLargeFilledSplitButtonSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
     val size = SplitButtonDefaults.ExtraLargeContainerHeight
 
-    SplitButton(
+    SplitButtonLayout(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(
                 onClick = { /* Do Nothing */ },
