@@ -20,6 +20,10 @@ object MediaConstants {
     /**
      * Intent Action sent to an application indicating that the playback screen should be opened if
      * they have one, or the most relevant screen otherwise.
+     *
+     * Starting in Car API 9, media apps must handle this action in `onNewIntent` (or intent
+     * handling) to route the user to their playback view. For more details, see
+     * [androidx.car.app.media.model.MediaPlaybackTemplate].
      */
     const val ACTION_SHOW_MEDIA_PLAYBACK = "androidx.car.app.media.action.SHOW_MEDIA_PLAYBACK"
 }
