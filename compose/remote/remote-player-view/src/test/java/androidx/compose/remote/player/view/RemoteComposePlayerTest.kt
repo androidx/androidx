@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.view.platform.SoundSupport
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import kotlin.use
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -294,6 +295,25 @@ class RemoteComposePlayerTest {
             host.hostInterceptedDrag,
         )
         assertFalse("Host parent disallowIntercept should remain false", host.disallowIntercept)
+    }
+
+    @Ignore("b/514549600")
+    @Test
+    fun clickingScrollableComponent_withoutClickable_doesNotConsume() {
+        val docBytes = createLeftBoxInteractiveDocument(isClickable = false, isScrollable = true)
+        var parentReceivedDown = false
+
+        setupPlayerInParent(docBytes = docBytes, onParentDown = { parentReceivedDown = true })
+            .use { (_, parent) ->
+                // Click on the left side (x=75, y=150) -> inside the scrollable box that is not
+                // clickable.
+                performClick(parent, 75f, 150f)
+
+                assertTrue(
+                    "Parent should receive down event for scrollable component click when component is not clickable",
+                    parentReceivedDown,
+                )
+            }
     }
 
     private fun setupPlayerInParent(
