@@ -116,7 +116,9 @@ internal class PdfViewExternalInputManager(pdfView: PdfView) {
      * @return `true` if the key event was handled, `false` otherwise.
      */
     fun handleMouseEvent(event: MotionEvent): Boolean {
-        if (event.source != InputDevice.SOURCE_MOUSE) {
+        if (
+            event.source != InputDevice.SOURCE_MOUSE && event.source != InputDevice.SOURCE_TOUCHPAD
+        ) {
             return false
         }
 
