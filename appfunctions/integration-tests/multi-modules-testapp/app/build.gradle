@@ -24,7 +24,7 @@ apply from: "../testapp-common.gradle"
 android {
     sourceSets {
         main {
-            kotlin.srcDirs += ['src/baseService/kotlin']
+            kotlin.srcDirs = ['src/main/kotlin', 'src/baseService/kotlin']
         }
     }
 }
