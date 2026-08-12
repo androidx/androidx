@@ -22,6 +22,7 @@ import static androidx.work.impl.utils.PackageManagerHelper.setServiceEnabled;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.work.Clock;
@@ -53,6 +54,7 @@ import java.util.concurrent.Executor;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Schedulers {
     private static final String TAG = Logger.tagWithPrefix("Schedulers");
+    private static final int MAX_UNSCHEDULED_WORK_TO_LOG = 10;
 
     /**
      * Make sure that once worker has run its dependants are run.
@@ -145,6 +147,8 @@ public class Schedulers {
             if (contentUriWorkSpecs != null) {
                 eligibleWorkSpecsForLimitedSlots.addAll(contentUriWorkSpecs);
             }
+
+            logUnscheduledWork(configuration, workSpecDao, allEligibleWorkSpecs);
 
             workDatabase.setTransactionSuccessful();
         } finally {
@@ -260,6 +264,29 @@ public class Schedulers {
     }
 
     private Schedulers() {
+    }
+
+    private static void logUnscheduledWork(
+            @NonNull Configuration configuration,
+            @NonNull WorkSpecDao workSpecDao,
+            @NonNull List<WorkSpec> allEligibleWorkSpecs) {
+
+        if (configuration.getMinimumLoggingLevel() > Log.DEBUG) {
+            return;
+        }
+
+        List<String> unscheduledIds =
+                workSpecDao.getLatestUnscheduledWorkIds(MAX_UNSCHEDULED_WORK_TO_LOG);
+        if (unscheduledIds.isEmpty()) {
+            return;
+        }
+
+        Logger.get().debug(TAG, String.format(
+                "OS scheduling limit reached (limit %d, %d eligible). "
+                        + "Most recently enqueued work that is unscheduled: %s",
+                configuration.getMaxSchedulerLimit(),
+                allEligibleWorkSpecs.size(),
+                unscheduledIds));
     }
 
     private static void markScheduled(WorkSpecDao dao, Clock clock, List<WorkSpec> workSpecs) {

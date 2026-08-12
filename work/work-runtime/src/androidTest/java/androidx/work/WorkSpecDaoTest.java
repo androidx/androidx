@@ -205,6 +205,58 @@ public class WorkSpecDaoTest extends DatabaseTest {
 
     @Test
     @SmallTest
+    public void testLatestUnscheduledWorkIds() {
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+
+        long startTime = System.currentTimeMillis();
+        OneTimeWorkRequest enqueued1 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setLastEnqueueTime(startTime, TimeUnit.MILLISECONDS)
+                .build();
+        OneTimeWorkRequest enqueued2 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setLastEnqueueTime(startTime + 1000, TimeUnit.MILLISECONDS)
+                .build();
+        OneTimeWorkRequest enqueued3 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setLastEnqueueTime(startTime + 2000, TimeUnit.MILLISECONDS)
+                .build();
+        OneTimeWorkRequest scheduled = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setScheduleRequestedAt(startTime + 3000, TimeUnit.MILLISECONDS)
+                .setLastEnqueueTime(startTime + 3000, TimeUnit.MILLISECONDS)
+                .build();
+        OneTimeWorkRequest succeeded = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setLastEnqueueTime(startTime + 4000, TimeUnit.MILLISECONDS)
+                .setInitialState(SUCCEEDED)
+                .build();
+        OneTimeWorkRequest contentUriWork = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setConstraints(new Constraints.Builder()
+                        .addContentUriTrigger(android.net.Uri.parse("content://test"), false)
+                        .build())
+                .setLastEnqueueTime(startTime + 5000, TimeUnit.MILLISECONDS)
+                .build();
+
+        insertWork(enqueued1);
+        insertWork(enqueued2);
+        insertWork(enqueued3);
+        insertWork(scheduled);
+        insertWork(succeeded);
+        insertWork(contentUriWork);
+
+        // Fetch with limit 2 - should return enqueued3 and enqueued2 in descending
+        // enqueue time order
+        List<String> latestUnscheduled = workSpecDao.getLatestUnscheduledWorkIds(2);
+        assertThat(latestUnscheduled.size(), is(2));
+        assertThat(latestUnscheduled.get(0), equalTo(enqueued3.getStringId()));
+        assertThat(latestUnscheduled.get(1), equalTo(enqueued2.getStringId()));
+
+        // Fetch with limit 10 - should return enqueued3, enqueued2, enqueued1
+        List<String> allUnscheduled = workSpecDao.getLatestUnscheduledWorkIds(10);
+        assertThat(allUnscheduled.size(), is(3));
+        assertThat(allUnscheduled.get(0), equalTo(enqueued3.getStringId()));
+        assertThat(allUnscheduled.get(1), equalTo(enqueued2.getStringId()));
+        assertThat(allUnscheduled.get(2), equalTo(enqueued1.getStringId()));
+    }
+
+    @Test
+    @SmallTest
     public void testIsWorkSpecScheduled_scheduledWork() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 

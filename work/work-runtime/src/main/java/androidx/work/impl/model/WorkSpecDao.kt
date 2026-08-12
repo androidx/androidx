@@ -470,6 +470,26 @@ public interface WorkSpecDao {
     )
     public fun getScheduledWork(): List<WorkSpec>
 
+    /**
+     * Retrieves work ids for unfinished, unscheduled work, ordered by last enqueue time descending.
+     *
+     * This excludes content URI triggers as they have their own max limit and pool.
+     *
+     * @param limit The maximum number of work ids to return
+     * @return A list of work ids
+     */
+    @Query(
+        "SELECT id FROM workspec WHERE " +
+            "state=" +
+            ENQUEUED +
+            " AND schedule_requested_at=" +
+            WorkSpec.SCHEDULE_NOT_REQUESTED_YET +
+            " AND LENGTH(content_uri_triggers)=0" +
+            " ORDER BY last_enqueue_time DESC" +
+            " LIMIT :limit"
+    )
+    public fun getLatestUnscheduledWorkIds(limit: Int): List<String>
+
     /** @return The List of [WorkSpec]s that are running. */
     @Query(
         "SELECT * FROM workspec WHERE " + // Unfinished work
