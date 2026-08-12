@@ -122,7 +122,19 @@ Change-Id: Iabcdef1234567890abcdef1234567890abcdef12345
 - **Workflow A: Standard Git Checkout**
   - **New Commit**: `git commit -m "{commit_message}"`
   - **Amend Commit**: `git commit --amend`
-  - **Upload**: `repo upload --cbr -t .` (use `yes yes | repo upload --cbr -t .` to bypass interactive prompts).
+  - **Upload**:
+    - Upload to Gerrit:
+      ```bash
+      repo upload --cbr .
+      ```
+      *Note*: `--cbr` uploads the current branch, and `.` specifies the project in the current directory.
+      *Tip*: The command may prompt interactively to run hook scripts. You can automate this bypass using either `yes yes | repo upload --cbr .` or using the native flags `repo upload --verify -y --cbr .`.
+    - **Topic (`-t`) Nuances & Rules**:
+      - **No Topic by Default**: Standard uploads should not set a topic (`repo upload --cbr .`).
+      - **Running Multi-CL Presubmits Together**: A topic can be added (e.g. `repo upload --cbr -t <topic_name> .` or `repo upload --cbr -t .` to use the branch name) to run presubmits of multiple CLs together. This is especially useful for cross-repo changes that must be verified as a unit (e.g., linking code in `platform/frameworks/support` with screenshot goldens in `platform/frameworks/support-goldens`). Presubmit verification on any single CL in a topic will test all CLs in that topic together.
+      - **Same-Repo Changes (Stacking is Best)**: Within the same repository, do NOT use topics to group multiple code changes. **Stacking commits (dependent commits in git / Gerrit)** is typically the best option. Stacked CLs automatically track dependencies and can be tested and submitted incrementally without topic coupling.
+      - **Retaining Topics**: When a topic has been set on a CL (e.g., for cross-repo linking), any updates or amends uploaded to that CL must retain the same topic.
+    - **Fallback**: If the above command fails or requires interactive prompts, **do not attempt to proceed interactively**. Report the issue to the user immediately. Agents cannot handle interactive prompts from `repo upload`.
 
 - **Workflow B: CoG Workspaces (`/google/cog/cloud/...`)**
   - **Drafting & Message**: Working copy edits automatically update node `@`. Set description and target branch:
@@ -230,7 +242,7 @@ Change-Id: Iabcdef1234567890abcdef1234567890abcdef12345
   - Run `./development/validate_changes.sh` before uploading.
   - Confirm formatting (`ktCheckFile`) and public APIs (`updateApi`).
 - **Trigger Presubmits**:
-  - **Standard Git Checkout**: `repo upload --cbr -o label=Presubmit-Ready+1`
+  - **Standard Git Checkout**: `repo upload --cbr -o label=Presubmit-Ready+1 .`
   - **CoG Workspaces**: Run `watch_gerrit.py` with `--trigger` after `git citc publish`:
     ```bash
     python3 .agents/skills/manage_commits/scripts/watch_gerrit.py <CL_NUMBER> --trigger
