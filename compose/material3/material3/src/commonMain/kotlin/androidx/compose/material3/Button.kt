@@ -72,6 +72,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.jvm.JvmInline
 
 /**
  * [Material Design button](https://m3.material.io/components/buttons/overview)
@@ -885,6 +886,33 @@ public fun TextButton(
         interactionSource = interactionSource,
         content = content,
     )
+
+/**
+ * Represents the size variants for buttons and toggle buttons.
+ *
+ * Changing the button size will affect default values used by a button, such as container height,
+ * shapes, padding, icon size, and icon spacing.
+ */
+@Immutable
+@JvmInline
+public value class ButtonSize internal constructor(public val height: Dp) {
+    public companion object {
+        /** Extra Small button size. */
+        public val ExtraSmall: ButtonSize = ButtonSize(ButtonDefaults.ExtraSmallContainerHeight)
+
+        /** Small button size. */
+        public val Small: ButtonSize = ButtonSize(ButtonDefaults.MinHeight)
+
+        /** Medium button size. */
+        public val Medium: ButtonSize = ButtonSize(ButtonDefaults.MediumContainerHeight)
+
+        /** Large button size. */
+        public val Large: ButtonSize = ButtonSize(ButtonDefaults.LargeContainerHeight)
+
+        /** Extra Large button size. */
+        public val ExtraLarge: ButtonSize = ButtonSize(ButtonDefaults.ExtraLargeContainerHeight)
+    }
+}
 
 // TODO(b/201341237): Use token values for 0 elevation?
 // TODO(b/201341237): Use token values for null border?

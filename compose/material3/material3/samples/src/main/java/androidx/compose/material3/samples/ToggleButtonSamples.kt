@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonSize
 import androidx.compose.material3.ElevatedToggleButton
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalToggleButton
@@ -187,5 +188,26 @@ fun XLargeToggleButtonWithIconSample() {
         )
         Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
         Text("Label", style = ButtonDefaults.textStyleFor(size))
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun ToggleButtonWithButtonSizeSample() {
+    var checked by rememberSaveable { mutableStateOf(false) }
+    ToggleButton(
+        checked = checked,
+        onCheckedChange = { checked = it },
+        buttonSize = ButtonSize.Small,
+        icon = {
+            Icon(
+                if (checked) Icons.Filled.Edit else Icons.Outlined.Edit,
+                contentDescription = "Localized description",
+            )
+        },
+    ) {
+        Text("Label")
     }
 }
