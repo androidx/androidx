@@ -237,6 +237,17 @@ public class ProjectedTestRule : TestRule {
             field = value
         }
 
+    /**
+     * Retrieves the [PendingIntent] most recently registered by the application as the input
+     * receiver, or null if none is registered.
+     *
+     * Reflects the current state resulting from calls to
+     * [androidx.xr.projected.ProjectedActivityCompat.setActivityAsInputReceiver] and
+     * [androidx.xr.projected.ProjectedActivityCompat.clearActivityAsInputReceiver].
+     */
+    public var registeredInputReceiver: PendingIntent? = null
+        private set
+
     private val context: Application = ApplicationProvider.getApplicationContext()
     private val virtualDeviceManager =
         context.getSystemService(Context.VIRTUAL_DEVICE_SERVICE) as VirtualDeviceManager
@@ -284,6 +295,17 @@ public class ProjectedTestRule : TestRule {
                     null
                 }
             on { finishProjectedPermissionRequest() } doAnswer { null }
+            on { setActivityAsInputReceiver(any()) } doAnswer
+                { invocation ->
+                    val intent = invocation.arguments[0] as PendingIntent
+                    registeredInputReceiver = intent
+                    null
+                }
+            on { clearActivityAsInputReceiver() } doAnswer
+                {
+                    registeredInputReceiver = null
+                    null
+                }
         }
     private val mockProjectedServiceStub =
         mock<IProjectedService.Stub> {
@@ -308,6 +330,7 @@ public class ProjectedTestRule : TestRule {
                     setOutputDevices(listOf(OUTPUT_PROJECTED_AUDIO_DEVICE_INFO))
                 }
                 batteryStateListeners.clear()
+                registeredInputReceiver = null
                 base?.evaluate()
             }
         }

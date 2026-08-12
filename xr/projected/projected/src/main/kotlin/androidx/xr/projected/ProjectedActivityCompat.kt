@@ -96,6 +96,55 @@ private constructor(
             }
         }
 
+    /**
+     * Registers a [PendingIntent] to indicate which [Activity] should receive inputs when the
+     * application becomes user-aware (like playing audio or using Projected Context data streams).
+     *
+     * **Note:** This API is designed for audio Projected experiences. On devices with a visual
+     * display, calls to this method have no effect. For more information, see
+     * [types of Android XR devices](https://developer.android.com/develop/xr/devices#audio-display).
+     *
+     * The platform enforces the following runtime guarantees for this receiver:
+     * * The application will not be relaunched as an input handler unless it has active audio
+     *   playback or a data stream and becomes user-aware.
+     * * The registered input receiver is automatically cleared when the Projected device is
+     *   disconnected or no longer worn.
+     * * Even if the application is already in the foreground without user awareness, the platform
+     *   will still send the provided [PendingIntent] when it becomes perceptible, regardless of
+     *   whether the component in the [PendingIntent] exactly matches the foreground component.
+     *
+     * Usage example:
+     * ```
+     * val controller = ProjectedActivityCompat.create(this)
+     * val intent = Intent(this, NavigationControlsActivity::class.java)
+     * val pendingIntent = PendingIntent.getActivity(
+     *     this,
+     *     0,
+     *     intent,
+     *     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+     * )
+     * controller.setActivityAsInputReceiver(pendingIntent)
+     * ```
+     *
+     * @param intent The [PendingIntent] to route inputs to
+     * @throws IllegalArgumentException if the provided PendingIntent is not for a component with
+     *   category `android.hardware.display.category.XR_PROJECTED`
+     */
+    public fun setActivityAsInputReceiver(intent: PendingIntent) {
+        projectedService.setActivityAsInputReceiver(intent)
+    }
+
+    /**
+     * Clears the Activity registered for input via [setActivityAsInputReceiver].
+     *
+     * **Note:** This API is designed for audio Projected experiences. On devices with a visual
+     * display, calls to this method have no effect. For more information, see
+     * [types of Android XR devices](https://developer.android.com/develop/xr/devices#audio-display).
+     */
+    public fun clearActivityAsInputReceiver() {
+        projectedService.clearActivityAsInputReceiver()
+    }
+
     override fun close() {
         connection.disconnect()
     }
