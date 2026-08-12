@@ -66,8 +66,9 @@ public object StrokeInputBatchSerialization {
      * [StrokeInputBatch.encode] instead.
      */
     @JvmStatic
-    public fun encode(strokeInputBatch: StrokeInputBatch, output: OutputStream): Unit =
+    public fun encode(strokeInputBatch: StrokeInputBatch, output: OutputStream) {
         strokeInputBatch.encode(output)
+    }
 
     /**
      * Write a gzip-compressed `ink.proto.CodedStrokeInputBatch` binary proto message representing

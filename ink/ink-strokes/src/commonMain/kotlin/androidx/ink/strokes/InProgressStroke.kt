@@ -51,7 +51,9 @@ import kotlin.jvm.JvmOverloads
 public class InProgressStroke private constructor(nativeAlloc: () -> Long) {
 
     /** A handle to the underlying native [InProgressStroke] object. */
-    internal val nativePointer: Long by NativePointer(nativeAlloc, InProgressStrokeNative::free)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    @InkInternalOnlyApi
+    public val nativePointer: Long by NativePointer(nativeAlloc, InProgressStrokeNative::free)
 
     public constructor() : this(InProgressStrokeNative::create)
 
@@ -96,7 +98,9 @@ public class InProgressStroke private constructor(nativeAlloc: () -> Long) {
      * [enqueueInputs] or [updateShape].
      */
     @JvmOverloads
-    public fun start(brush: Brush, noiseSeed: Int = 0): Unit = start(brush, noiseSeed, 0.0f)
+    public fun start(brush: Brush, noiseSeed: Int = 0) {
+        start(brush, noiseSeed, 0.0f)
+    }
 
     /**
      * Clears and starts a new stroke with the given [brush], using the given per-stroke seed value
@@ -164,8 +168,9 @@ public class InProgressStroke private constructor(nativeAlloc: () -> Long) {
      * [changesWithTime] returns false. Until that condition is met, keep calling [updateShape]
      * periodically and rendering the result.
      */
-    public fun finishInput(): Unit =
+    public fun finishInput() {
         InProgressStrokeNative.finishInput(nativePointer).also { version++ }
+    }
 
     /**
      * Updates the stroke geometry up to the given duration since the start of the stroke. This will
@@ -364,7 +369,9 @@ public class InProgressStroke private constructor(nativeAlloc: () -> Long) {
     }
 
     /** Call after making use of a value from [populateUpdatedRegion] to reset the accumulation. */
-    public fun resetUpdatedRegion(): Unit = InProgressStrokeNative.resetUpdatedRegion(nativePointer)
+    public fun resetUpdatedRegion() {
+        InProgressStrokeNative.resetUpdatedRegion(nativePointer)
+    }
 
     /**
      * Returns the number of outlines for the specified brush coat.
