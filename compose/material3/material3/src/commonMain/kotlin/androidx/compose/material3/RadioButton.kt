@@ -32,7 +32,7 @@ import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.RadioButtonTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -80,41 +81,66 @@ public fun RadioButton(
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
     interactionSource: MutableInteractionSource? = null,
 ) {
-    val dotRadius =
+    RadioButtonImpl(
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        color = colors.radioColor(enabled, selected),
+        dotRadius = if (selected) RadioButtonDotSize / 2 else 0.dp,
+        interactionSource = interactionSource,
+    )
+}
+
+@Composable
+private fun RadioButtonImpl(
+    selected: Boolean,
+    onClick: (() -> Unit)?,
+    modifier: Modifier,
+    enabled: Boolean,
+    color: Color,
+    dotRadius: Dp,
+    interactionSource: MutableInteractionSource?,
+) {
+    val animatedDotRadius by
         animateDpAsState(
-            targetValue = if (selected) RadioButtonDotSize / 2 else 0.dp,
+            targetValue = dotRadius,
             // TODO Load the motionScheme tokens from the component tokens file
             animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
         )
-    val radioColor = colors.radioColor(enabled, selected)
+
+    val animatedColor by
+        if (enabled) {
+            // TODO Load the motionScheme tokens from the component tokens file
+            animateColorAsState(color, MotionSchemeKeyTokens.DefaultEffects.value())
+        } else {
+            // If not enabled 'snap' to the disabled state, as there should be no animations between
+            // enabled / disabled.
+            rememberUpdatedState(color)
+        }
+
     val selectableModifier =
         if (onClick != null) {
-            Modifier.selectable(
-                selected = selected,
-                onClick = onClick,
-                enabled = enabled,
-                role = Role.RadioButton,
-                interactionSource = interactionSource,
-                indication =
-                    @OptIn(ExperimentalMaterial3Api::class)
-                    ripple(
-                        bounded = false,
-                        radius = RadioButtonTokens.StateLayerSize / 2,
-                        focusRingShape = CircleShape,
-                    ),
-            )
+            Modifier.minimumInteractiveComponentSize()
+                .selectable(
+                    selected = selected,
+                    onClick = onClick,
+                    enabled = enabled,
+                    role = Role.RadioButton,
+                    interactionSource = interactionSource,
+                    indication =
+                        @OptIn(ExperimentalMaterial3Api::class)
+                        ripple(
+                            bounded = false,
+                            radius = RadioButtonTokens.StateLayerSize / 2,
+                            focusRingShape = CircleShape,
+                        ),
+                )
         } else {
             Modifier
         }
     Canvas(
         modifier
-            .then(
-                if (onClick != null) {
-                    Modifier.minimumInteractiveComponentSize()
-                } else {
-                    Modifier
-                }
-            )
             .then(selectableModifier)
             .wrapContentSize(Alignment.Center)
             .padding(RadioButtonPadding)
@@ -123,12 +149,12 @@ public fun RadioButton(
         // Draw the radio button
         val strokeWidth = RadioStrokeWidth.toPx()
         drawCircle(
-            radioColor.value,
+            animatedColor,
             radius = (RadioButtonTokens.IconSize / 2).toPx() - strokeWidth / 2,
             style = Stroke(strokeWidth),
         )
-        if (dotRadius.value > 0.dp) {
-            drawCircle(radioColor.value, dotRadius.value.toPx() - strokeWidth / 2, style = Fill)
+        if (animatedDotRadius > 0.dp) {
+            drawCircle(animatedColor, animatedDotRadius.toPx() - strokeWidth / 2, style = Fill)
         }
     }
 }
@@ -228,25 +254,13 @@ public constructor(
      * @param enabled whether the [RadioButton] is enabled
      * @param selected whether the [RadioButton] is selected
      */
-    @Composable
-    internal fun radioColor(enabled: Boolean, selected: Boolean): State<Color> {
-        val target =
-            when {
-                enabled && selected -> selectedColor
-                enabled && !selected -> unselectedColor
-                !enabled && selected -> disabledSelectedColor
-                else -> disabledUnselectedColor
-            }
-
-        // If not enabled 'snap' to the disabled state, as there should be no animations between
-        // enabled / disabled.
-        return if (enabled) {
-            // TODO Load the motionScheme tokens from the component tokens file
-            animateColorAsState(target, MotionSchemeKeyTokens.DefaultEffects.value())
-        } else {
-            rememberUpdatedState(target)
+    internal fun radioColor(enabled: Boolean, selected: Boolean): Color =
+        when {
+            enabled && selected -> selectedColor
+            enabled && !selected -> unselectedColor
+            !enabled && selected -> disabledSelectedColor
+            else -> disabledUnselectedColor
         }
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
