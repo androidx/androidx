@@ -36,14 +36,15 @@ import java.util.GregorianCalendar;
 
 @RunWith(AndroidJUnit4.class)
 public class MessageFormatDateTimeTest {
-    private Context mAppContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+    private final Context mAppContext =
+            InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-    private Calendar mTestCalendar = new GregorianCalendar(
+    private final Calendar mTestCalendar = new GregorianCalendar(
             2022, Calendar.SEPTEMBER, 27, // Date
             21, 42, 12 // Time
     );
-    private Date mTestDate = mTestCalendar.getTime();
-    private long mTestMillis = mTestCalendar.getTimeInMillis();
+    private final Date mTestDate = mTestCalendar.getTime();
+    private final long mTestMillis = mTestCalendar.getTimeInMillis();
 
     @Test @SmallTest
     public void testSimpleStyles() { // date formatting using JDK styles
@@ -94,13 +95,13 @@ public class MessageFormatDateTimeTest {
             Assert.assertEquals(expected,
                     MessageFormat.format(mAppContext, message,
                             ImmutableMap.of("exp", mTestCalendar)));
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         }
     }
 
     /*
      * Showing that the Android classes in java.text can't format Calendar objects.
-     * For now we do the same (we throw the same exception).
+     * For now, we do the same (we throw the same exception).
      * TBD if worth the trouble to implement a workaround, since the skeletons and
      * Java date/time styles work (because our compat classes).
      * And using patterns is a bad i18n practice, so we don't want to encourage it / make it easy.
@@ -109,22 +110,22 @@ public class MessageFormatDateTimeTest {
     public void testAndroidCannotFormatCalendar() {
         try {
             DateFormat.getDateInstance(DateFormat.LONG).format(mTestCalendar);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         try {
             new SimpleDateFormat("MMMM d, y").format(mTestCalendar);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         try {
             java.text.MessageFormat.format("The date is {0,date,LONG}", mTestCalendar);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         }
 
         try {
             java.text.MessageFormat.format("The date is {0,date,MMMM d, y}", mTestCalendar);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
         }
     }
 }
