@@ -19,8 +19,7 @@ package androidx.build.clang
 import java.io.Serializable
 
 /** Serializable wrapper for [NativeTarget] to be used as Gradle task input/output. */
-@JvmInline
-value class SerializableNativeTarget(val name: String) : Serializable {
+data class SerializableNativeTarget(val name: String) : Serializable {
 
     constructor(target: NativeTarget) : this(target.name)
 
