@@ -134,7 +134,7 @@
               textId: 46
               flags: 0
               color: '0xff000000'
-              fontSize: {type: Value, value: 399.5}
+              fontSize: {type: Value, value: 36.0}
               fontStyle: 0
               fontWeight: 400.0
               fontFamilyId: -1
@@ -294,7 +294,7 @@
               textId: 46
               flags: 0
               color: '0xff000000'
-              fontSize: {type: Value, value: 399.5}
+              fontSize: {type: Value, value: 36.0}
               fontStyle: 0
               fontWeight: 400.0
               fontFamilyId: -1
@@ -454,7 +454,7 @@
               textId: 46
               flags: 0
               color: '0xff000000'
-              fontSize: {type: Value, value: 399.5}
+              fontSize: {type: Value, value: 36.0}
               fontStyle: 0
               fontWeight: 400.0
               fontFamilyId: -1
