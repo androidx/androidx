@@ -27,13 +27,13 @@ import androidx.core.view.ViewCompat
 
 /**
  * A delegate class that encapsulates all touch handling logic for the
- * [androidx.pdf.view.annotation.AnnotationToolbar].
+ * [androidx.pdf.view.annotation.AnnotationToolbarView].
  *
  * This handler is responsible for detecting a long-press on the contents of the toolbar to initiate
  * a system drag-and-drop operation.
  *
- * @param toolbarView The [androidx.pdf.view.annotation.AnnotationToolbar] instance whose touches
- *   are being handled.
+ * @param toolbarView The [androidx.pdf.view.annotation.AnnotationToolbarView] instance whose
+ *   touches are being handled.
  * @param isTouchOnInteractiveChild A lambda to verify if long press is registered on long press
  *   interactive child(for e.g. brush size selector).
  */

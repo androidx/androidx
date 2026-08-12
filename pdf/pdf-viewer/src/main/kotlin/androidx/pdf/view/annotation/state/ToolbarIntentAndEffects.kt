@@ -16,7 +16,7 @@
 
 package androidx.pdf.view.annotation.state
 
-import androidx.pdf.view.annotation.AnnotationToolbar
+import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.colorpalette.model.PaletteItem
 import androidx.pdf.view.annotation.tool.AnnotationToolInfo
 
@@ -36,7 +36,7 @@ internal sealed interface ToolbarIntent {
     /** User clicked the Eraser tool button. */
     object EraserToolClicked : ToolbarIntent
 
-    /** Triggered when [AnnotationToolbar.clearToolSelection] is called. */
+    /** Triggered when [AnnotationToolbarView.clearToolSelection] is called. */
     object ClearToolSelection : ToolbarIntent
 
     // --- Pop-up UI Toggles ---

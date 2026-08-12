@@ -82,7 +82,7 @@ internal data class ToolAttributes(
 
 /**
  * Encapsulates the complete, immutable state of the
- * [androidx.pdf.view.annotation.AnnotationToolbar].
+ * [androidx.pdf.view.annotation.AnnotationToolbarView].
  *
  * This data class serves as single source of truth for the entire toolbar's UI. Instead of each UI
  * component managing its own state, this class represents the complete snapshot of the toolbar at

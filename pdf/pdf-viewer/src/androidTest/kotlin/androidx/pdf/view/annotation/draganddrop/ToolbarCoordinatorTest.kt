@@ -23,7 +23,7 @@ import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.PdfTestActivity
 import androidx.pdf.util.ToolbarViewActions
 import androidx.pdf.util.ToolbarViewActions.performDragAndDrop
-import androidx.pdf.view.annotation.AnnotationToolbar
+import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
 import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
@@ -45,19 +45,19 @@ class ToolbarCoordinatorTest {
     @get:Rule val activityRule = ActivityScenarioRule(PdfTestActivity::class.java)
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
-    private lateinit var coordinator: ToolbarCoordinator
-    private lateinit var toolbar: AnnotationToolbar
+    private lateinit var coordinator: AnnotationToolbarCoordinatorView
+    private lateinit var toolbar: AnnotationToolbarView
 
     @Before
     fun setUp() {
         activityRule.scenario.onActivity { activity ->
             coordinator =
-                ToolbarCoordinator(activity).apply {
+                AnnotationToolbarCoordinatorView(activity).apply {
                     id = COORDINATOR_VIEW_ID
                     areAnimationsEnabled = false
                 }
             toolbar =
-                AnnotationToolbar(activity).apply {
+                AnnotationToolbarView(activity).apply {
                     id = TOOLBAR_VIEW_ID
                     areAnimationsEnabled = false
                 }

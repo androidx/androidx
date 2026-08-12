@@ -31,7 +31,7 @@ import androidx.pdf.actions.clickOnPdfPoint
 import androidx.pdf.annotation.content.HighlightAnnotation
 import androidx.pdf.util.Preconditions
 import androidx.pdf.view.PdfView
-import androidx.pdf.view.annotation.AnnotationToolbar
+import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.viewer.fragment.R as PdfR
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
@@ -419,9 +419,9 @@ class EditablePdfViewerFragmentTestSuite {
         loadDocumentAndSetupFragment()
         enterEditMode()
 
-        var annotationToolbar: AnnotationToolbar? = null
+        var annotationToolbar: AnnotationToolbarView? = null
         scenario.onFragment { fragment ->
-            fragment.view?.findViewById<AnnotationToolbar>(R.id.annotationToolbar)?.let {
+            fragment.view?.findViewById<AnnotationToolbarView>(R.id.annotationToolbar)?.let {
                 annotationToolbar = it
             }
         }

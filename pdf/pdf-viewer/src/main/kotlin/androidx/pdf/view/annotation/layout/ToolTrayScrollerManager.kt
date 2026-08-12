@@ -25,7 +25,7 @@ import androidx.pdf.R
 
 /**
  * A manager that handles swapping between vertical and horizontal scroll containers for the
- * [androidx.pdf.view.annotation.AnnotationToolbar]'s tool tray.
+ * [androidx.pdf.view.annotation.AnnotationToolbarView]'s tool tray.
  *
  * This class eliminates the need for deeply nested view hierarchies by dynamically re-parenting the
  * tool tray into either a [ScrollView] or a [HorizontalScrollView] based on the current
