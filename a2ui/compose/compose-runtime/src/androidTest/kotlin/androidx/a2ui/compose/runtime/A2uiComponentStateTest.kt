@@ -21,6 +21,7 @@ import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
+import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
@@ -313,6 +314,21 @@ class A2uiComponentStateTest {
 
         onNodeWithText("Ready: Surface 1 Content").assertIsNotDisplayed()
         onNodeWithText("Ready: Surface 2 Content").assertIsDisplayed()
+    }
+
+    @Test
+    fun observe_invalidSurface_throwsException() = runComposeUiTest {
+        val invalidSurface =
+            object : A2uiSurfaceModel {
+                override val id: String = "TestSurface"
+            }
+
+        val caughtException =
+            assertFailsWith<IllegalArgumentException> {
+                setContent { observeA2uiComponentState(invalidSurface) }
+            }
+
+        assertThat(caughtException).hasMessageThat().contains("requires an A2uiCoreSurfaceModel")
     }
 
     @Test
