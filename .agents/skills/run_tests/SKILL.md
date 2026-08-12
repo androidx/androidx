@@ -164,8 +164,11 @@ Screenshot tests (e.g., using `AndroidXScreenshotTestRule`, which extends the co
         Rename the pulled `*_actual.png` image to match the filename in `image_location_golden` (e.g., `checkbox_checked_emulator.png`) and copy it to its location in the sibling `golden` project repository (e.g., `../../golden/compose/material/material/`).
     4.  **Submit Linked CLs via Shared Topic**:
         To submit your code changes and golden image updates together (ensuring presubmit runs them as a unit), upload them to Gerrit using a **shared topic**:
-        - Code CL (under `frameworks/support`): `repo upload --cbr -t <my_shared_topic>`
-        - Golden CL (under `golden/`): `repo upload --cbr -t <my_shared_topic>`
+        - Code CL (under `frameworks/support`): `repo upload --cbr -t <my_shared_topic> .`
+        - Golden CL (under `golden/`): `repo upload --cbr -t <my_shared_topic> .`
+
+        > [!NOTE]
+        > Using a shared topic ensures that Treehugger presubmits test both CLs together across both repositories. (For changes within the same repository, stacking commits in the same branch/CL is typically preferred over topics.)
 
         > [!NOTE]
         > Some modules may use custom wrapper rules (such as `RemoteScreenshotTestRule` in `wear/compose/remote/remote-material3`). These custom rules delegate to the same core `ScreenshotTestRule` library under the hood. They write their outputs to the same `androidx_screenshots` cache directory on the device and generate identical `.textproto` mapping files.
