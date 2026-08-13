@@ -82,15 +82,7 @@ class A2uiJsonMessageParserTest {
                                         JsonObject().apply {
                                             addProperty(FIELD_ID, TEST_COMPONENT_ID)
                                             addProperty(FIELD_COMPONENT, TEST_COMPONENT_TYPE)
-                                            add(
-                                                FIELD_PROPERTIES,
-                                                JsonObject().apply {
-                                                    addProperty(
-                                                        TEST_PROPERTY_KEY,
-                                                        TEST_PROPERTY_VALUE,
-                                                    )
-                                                },
-                                            )
+                                            addProperty(TEST_PROPERTY_KEY, TEST_PROPERTY_VALUE)
                                         }
                                     )
                                 },
@@ -608,44 +600,6 @@ class A2uiJsonMessageParserTest {
     }
 
     @Test
-    fun parse_updateComponents_invalidPropertiesType_throwsValidationException() {
-        val reader =
-            FakeA2uiJsonReader(
-                JsonObject().apply {
-                    add(
-                        FIELD_UPDATE_COMPONENTS,
-                        JsonObject().apply {
-                            addProperty(FIELD_SURFACE_ID, TEST_SURFACE_ID)
-                            add(
-                                FIELD_COMPONENTS,
-                                JsonArray().apply {
-                                    add(
-                                        JsonObject().apply {
-                                            addProperty(FIELD_ID, TEST_COMPONENT_ID)
-                                            addProperty(FIELD_COMPONENT, TEST_COMPONENT_TYPE)
-                                            addProperty(
-                                                FIELD_PROPERTIES,
-                                                "not-a-map",
-                                            ) // String is not an object
-                                        }
-                                    )
-                                },
-                            )
-                        },
-                    )
-                }
-            )
-        val parser = A2uiJsonMessageParser { reader }
-        val exception =
-            assertThrows(A2uiException.A2uiValidationException::class.java) { parser.parse("") }
-        assertThat(exception.context)
-            .containsEntry(
-                FIELD_PATH,
-                "/$FIELD_UPDATE_COMPONENTS/$FIELD_COMPONENTS/0/$FIELD_PROPERTIES",
-            )
-    }
-
-    @Test
     fun parse_updateDataModel_invalidSurfaceIdType_throwsValidationException() {
         val reader =
             FakeA2uiJsonReader(
@@ -829,7 +783,6 @@ class A2uiJsonMessageParserTest {
         private const val FIELD_COMPONENTS = "components"
         private const val FIELD_ID = "id"
         private const val FIELD_COMPONENT = "component"
-        private const val FIELD_PROPERTIES = "properties"
         private const val FIELD_UPDATE_DATA_MODEL = "updateDataModel"
         private const val FIELD_PATH = "path"
         private const val FIELD_VALUE = "value"

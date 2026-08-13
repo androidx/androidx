@@ -131,11 +131,11 @@ public class A2uiJsonMessageParser(private val jsonReaderProvider: (String) -> A
                     while (reader.hasNext()) {
                         var id: String? = null
                         var component: String? = null
-                        var properties: Map<String, Any?> = emptyMap()
+                        val properties = mutableMapOf<String, Any?>()
 
                         reader.beginObject()
                         while (reader.hasNext()) {
-                            when (reader.nextName()) {
+                            when (val name = reader.nextName()) {
                                 FIELD_ID ->
                                     id =
                                         reader.nextStringSafe(
@@ -146,12 +146,9 @@ public class A2uiJsonMessageParser(private val jsonReaderProvider: (String) -> A
                                         reader.nextStringSafe(
                                             "/$FIELD_UPDATE_COMPONENTS/$FIELD_COMPONENTS/$componentIndex/$FIELD_COMPONENT"
                                         )
-                                FIELD_PROPERTIES ->
-                                    properties =
-                                        reader.nextMapSafe(
-                                            "/$FIELD_UPDATE_COMPONENTS/$FIELD_COMPONENTS/$componentIndex/$FIELD_PROPERTIES"
-                                        )
-                                else -> reader.skipValue()
+                                else -> {
+                                    properties[name] = reader.nextValue()
+                                }
                             }
                         }
                         reader.endObject()
@@ -340,7 +337,6 @@ public class A2uiJsonMessageParser(private val jsonReaderProvider: (String) -> A
         private const val FIELD_COMPONENTS = "components"
         private const val FIELD_ID = "id"
         private const val FIELD_COMPONENT = "component"
-        private const val FIELD_PROPERTIES = "properties"
         private const val FIELD_PATH = "path"
         private const val FIELD_VALUE = "value"
     }
