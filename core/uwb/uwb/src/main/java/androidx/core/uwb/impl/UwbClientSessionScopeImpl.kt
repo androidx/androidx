@@ -24,6 +24,8 @@ import androidx.core.uwb.RangingResult
 import androidx.core.uwb.RangingResult.RangingResultFailure
 import androidx.core.uwb.RangingResult.RangingResultInitialized
 import androidx.core.uwb.RangingResult.RangingResultPosition
+import androidx.core.uwb.SensorFusionParameters
+import androidx.core.uwb.SensorFusionResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.helper.getFailureReasonFromApiException
@@ -40,6 +42,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -214,6 +217,10 @@ internal open class UwbClientSessionScopeImpl(
                 }
             }
         }
+    }
+
+    override fun prepareSession(parameters: SensorFusionParameters): Flow<SensorFusionResult> {
+        TODO("Not yet implemented")
     }
 
     private fun mapGmsReasonToJetpackReason(@RangingSuspendedReason gmsReason: Int): Int {

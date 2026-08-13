@@ -20,6 +20,8 @@ import androidx.core.uwb.RangingCapabilities
 import androidx.core.uwb.RangingMeasurement
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
+import androidx.core.uwb.SensorFusionParameters
+import androidx.core.uwb.SensorFusionResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.UwbDevice.Companion.createForAddress
@@ -31,6 +33,7 @@ import com.google.android.gms.nearby.uwb.RangingSessionCallback.RangingSuspended
 import com.google.android.gms.nearby.uwb.UwbDevice
 import com.google.common.collect.ImmutableList
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 /** A default implementation of [UwbClientSessionScope] used for testing. */
