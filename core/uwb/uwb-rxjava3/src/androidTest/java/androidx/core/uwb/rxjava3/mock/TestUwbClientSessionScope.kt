@@ -20,8 +20,6 @@ import androidx.core.uwb.RangingCapabilities
 import androidx.core.uwb.RangingMeasurement
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
-import androidx.core.uwb.SensorFusionParameters
-import androidx.core.uwb.SensorFusionResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.UwbDevice.Companion.createForAddress
@@ -68,7 +66,7 @@ class TestUwbClientSessionScope(
             false,
         )
 
-    override fun prepareSession(parameters: RangingParameters) = callbackFlow {
+    override fun prepareSession(parameters: RangingParameters): Flow<RangingResult> = callbackFlow {
         if (sessionStarted) {
             throw IllegalStateException(
                 "Ranging has already started. To initiate " +

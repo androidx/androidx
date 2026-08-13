@@ -18,7 +18,6 @@ package androidx.core.uwb.mock
 
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Status
-import com.google.android.gms.common.api.internal.ApiKey
 import com.google.android.gms.nearby.uwb.RangingCapabilities
 import com.google.android.gms.nearby.uwb.RangingControleeParameters
 import com.google.android.gms.nearby.uwb.RangingMeasurement
@@ -32,7 +31,6 @@ import com.google.android.gms.nearby.uwb.UwbClient
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
 import com.google.android.gms.nearby.uwb.UwbDevice
 import com.google.android.gms.nearby.uwb.UwbStatusCodes
-import com.google.android.gms.nearby.uwb.zze
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 
@@ -40,7 +38,7 @@ import com.google.android.gms.tasks.Tasks
 class TestUwbClient(
     val complexChannel: UwbComplexChannel,
     val localAddress: UwbAddress,
-    val rangingCapabilities: RangingCapabilities,
+    val rangingCapabilities: RangingCapabilities? = null,
     val isAvailable: Boolean,
     private val isController: Boolean,
 ) : UwbClient {
@@ -52,12 +50,10 @@ class TestUwbClient(
 
     companion object {
         val rangingPosition =
-            RangingPosition(RangingMeasurement(1, 1.0F), null, null, 20, -50, null)
+            RangingPosition(RangingMeasurement(1, 1.0F), null, null, 20, -50, null, null)
     }
 
-    override fun getApiKey(): ApiKey<zze> {
-        TODO("Not yet implemented")
-    }
+    override fun getApiKey() = TODO("Not yet implemented")
 
     override fun addControlee(p0: UwbAddress): Task<Void> {
         if (!isController) {
