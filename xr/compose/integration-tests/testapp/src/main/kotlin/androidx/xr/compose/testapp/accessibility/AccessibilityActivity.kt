@@ -39,6 +39,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +53,8 @@ import androidx.compose.ui.unit.sp
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
+import androidx.xr.arcore.ArDevice
+import androidx.xr.arcore.TrackingState
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialActivityPanel
 import androidx.xr.compose.subspace.SpatialColumn
@@ -76,6 +79,8 @@ import androidx.xr.compose.testapp.ui.components.CommonTestPanel
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
 import androidx.xr.compose.unit.DpVolumeSize
+import androidx.xr.runtime.Config
+import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
@@ -118,6 +123,9 @@ class AccessibilityActivity : ComponentActivity() {
                 if (sessionResult is SessionCreateSuccess) {
                     session = sessionResult.session
                     session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
+                    val config =
+                        Config.Builder().setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
+                    session.configure(config)
                     sessionCreated = true
                 } else {
                     finish()
@@ -425,40 +433,50 @@ class AccessibilityActivity : ComponentActivity() {
         val anchorSpace = remember { mutableStateOf<AnchorSpace?>(null) }
         val scope = rememberCoroutineScope()
 
+        val arDevice = remember(session) { ArDevice.getInstance(session) }
+        val arDeviceState by arDevice.state.collectAsState()
+        val isTracking = arDeviceState.trackingState == TrackingState.TRACKING
+
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-            Button({
-                scope.launch {
-                    val anchorPose = Pose(Vector3(0f, -0.5f, -0.5f))
-                    val anchorResult = Anchor.create(session, anchorPose)
-                    when (anchorResult) {
-                        is AnchorCreateSuccess -> {
-                            val model =
-                                GltfModel.create(session, Paths.get("models", "xyzArrows.glb"))
-                            gltfEntity.value = createModelEntity(model, "", anchorPose.translation)
-                            anchorSpace.value =
-                                AnchorSpace.create(session, anchor = anchorResult.anchor)
-                            gltfEntity.value?.parent = anchorSpace.value
-                            anchorSpace.value?.contentDescription =
-                                "Anchor Space at ${anchorPose.translation}"
-                        }
+            Button(
+                enabled = isTracking,
+                onClick = {
+                    scope.launch {
+                        val anchorPose = Pose(Vector3(0f, -0.5f, -0.5f))
+                        val anchorResult = Anchor.create(session, anchorPose)
+                        when (anchorResult) {
+                            is AnchorCreateSuccess -> {
+                                val model =
+                                    GltfModel.create(session, Paths.get("models", "xyzArrows.glb"))
+                                gltfEntity.value =
+                                    createModelEntity(model, "", anchorPose.translation)
+                                anchorSpace.value =
+                                    AnchorSpace.create(session, anchor = anchorResult.anchor)
+                                gltfEntity.value?.parent = anchorSpace.value
+                                anchorSpace.value?.contentDescription =
+                                    "Anchor Space at ${anchorPose.translation}"
+                            }
 
-                        is AnchorCreateResourcesExhausted -> {
-                            Log.e(TAG, "Failed to create anchor: anchor resources exhausted.")
-                        }
+                            is AnchorCreateResourcesExhausted -> {
+                                Log.e(TAG, "Failed to create anchor: anchor resources exhausted.")
+                            }
 
-                        else -> {
-                            Log.e(TAG, "Failed to create anchor: ${anchorResult::class.simpleName}")
+                            else -> {
+                                Log.e(
+                                    TAG,
+                                    "Failed to create anchor: ${anchorResult::class.simpleName}",
+                                )
+                            }
                         }
                     }
-                }
-            }) {
+                },
+            ) {
                 Text("Create Anchor", fontSize = 20.sp)
             }
             Button({
-                anchorSpace.value?.parent = null
-                anchorSpace.value = null
                 gltfEntity.value?.parent = null
                 gltfEntity.value = null
+                anchorSpace.value = null
             }) {
                 Text("Remove Anchor", fontSize = 20.sp)
             }
