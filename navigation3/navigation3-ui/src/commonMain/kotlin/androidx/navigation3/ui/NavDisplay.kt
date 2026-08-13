@@ -741,11 +741,9 @@ public fun <T : Any> NavDisplay(
 
     // check if in gesture back
     if (inPredictiveBack) {
-        if (transition.currentState != previousScene) {
-            LaunchedEffect(previousScene, progress) {
-                // Retarget on key change; seek on progress updates.
-                transitionState.seekTo(progress, previousScene)
-            }
+        LaunchedEffect(previousScene, progress) {
+            // Retarget on key change; seek on progress updates.
+            transitionState.seekTo(progress, previousScene)
         }
     } else {
         LaunchedEffect(scene) {
