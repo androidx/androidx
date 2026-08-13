@@ -285,16 +285,15 @@ class RecordingCanvasTest {
         assertThat(fakeBuffer.calls)
             .containsExactly(
                 "setNamedVariable(42, \"USER:x\", 1)",
-                "addAnimatedFloat(43) = (0.0 1.0 5.0 [42] - ifElse )",
-                "addAnimatedFloat(44) = (200.0 100.0 [43] ifElse )",
-                "setNamedVariable(45, \"USER:cond1\", 4)",
-                "addConditionalOperations(1, ID(45), 0.0)",
+                "addAnimatedFloat(43) = (200.0 100.0 5.0 [42] - ifElse )",
+                "setNamedVariable(44, \"USER:cond1\", 4)",
+                "addConditionalOperations(1, ID(44), 0.0)",
                 "addPaint",
-                "addDrawRect(ID(44), 30.0, 31.0, 32.0)",
+                "addDrawRect(ID(43), 30.0, 31.0, 32.0)",
                 "endConditionalOperations",
                 "addContainerEnd",
                 "addPaint",
-                "addDrawRect(ID(44), 33.0, 34.0, 35.0)",
+                "addDrawRect(ID(43), 33.0, 34.0, 35.0)",
             )
     }
 

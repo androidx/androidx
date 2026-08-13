@@ -18,7 +18,6 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -32,8 +31,12 @@ import androidx.compose.runtime.remember
  * `0` for `false`. This allows boolean logic to be evaluated efficiently on the remote rendering
  * engine.
  */
-public open class RemoteBoolean internal constructor(internal val intValue: RemoteInt) :
-    BaseRemoteState<Boolean>(RemoteStateInstanceKey()) {
+public open class RemoteBoolean
+internal constructor(
+    internal val intValue: RemoteInt,
+    internal val floatComparison: SelectFloatCondition.FloatComparison? = null,
+    internal val intComparison: SelectIntCondition.IntComparison? = null,
+) : BaseRemoteState<Boolean>(RemoteStateInstanceKey()) {
     internal override val cacheKey: RemoteStateCacheKey
         get() = intValue.cacheKey
 
@@ -210,17 +213,13 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
             return ifTrue
         }
 
-        return RemoteFloatExpression(
-            constantValueOrNull = null,
+        val condition = floatComparison ?: SelectFloatCondition.BooleanCondition(this)
+        return RemoteFloatSelect(
+            condition = condition,
+            ifTrue = ifTrue,
+            ifFalse = ifFalse,
             cacheKey =
                 RemoteOperationCacheKey.create(OperationKey.SelectFloat, this, ifTrue, ifFalse),
-            arrayProvider = { creationState ->
-                combineToFloatArray(
-                    creationState,
-                    arrayOf(ifFalse, ifTrue, intValue.toRemoteFloat()),
-                    AnimatedFloatExpression.IFELSE,
-                )
-            },
         )
     }
 
@@ -245,17 +244,13 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
             return ifTrue
         }
 
-        return RemoteIntExpression(
-            constantValueOrNull = null,
+        val condition = intComparison ?: SelectIntCondition.BooleanCondition(this)
+        return RemoteIntSelect(
+            condition = condition,
+            ifTrue = ifTrue,
+            ifFalse = ifFalse,
             cacheKey =
                 RemoteOperationCacheKey.create(OperationKey.SelectInt, this, ifTrue, ifFalse),
-            arrayProvider = { creationState ->
-                combineToLongArray(
-                    creationState,
-                    arrayOf(ifFalse, ifTrue, intValue),
-                    0x100000000L + IntegerExpressionEvaluator.I_IFELSE,
-                )
-            },
         )
     }
 
