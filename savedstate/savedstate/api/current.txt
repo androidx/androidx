@@ -183,6 +183,10 @@ package androidx.savedstate {
     method public void onRecreated(androidx.savedstate.SavedStateRegistryOwner owner);
   }
 
+  public static fun interface SavedStateRegistry.SavedStateConsumer {
+    method public void consumeState(android.os.Bundle state);
+  }
+
   public static fun interface SavedStateRegistry.SavedStateProvider {
     method public android.os.Bundle saveState();
   }
