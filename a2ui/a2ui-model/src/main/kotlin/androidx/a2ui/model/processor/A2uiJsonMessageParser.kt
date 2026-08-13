@@ -36,11 +36,45 @@ public class A2uiJsonMessageParser(private val jsonReaderProvider: (String) -> A
 
     override fun parse(input: String): A2uiServerToClientMessage {
         return try {
+            // Parse the JSON twice: first to extract and validate the protocol version,
+            // ensuring it is supported before we try to parse specific protocol fields.
+            val version = detectVersion(jsonReaderProvider(input))
+            validateVersion(version)
             jsonReaderProvider(input).use { reader -> parseMessage(reader) }
         } catch (e: A2uiException) {
             throw e
         } catch (e: Exception) {
             throw A2uiException.A2uiValidationException("Malformed JSON message: ${e.message}", "/")
+        }
+    }
+
+    private fun detectVersion(reader: A2uiJsonReader): String {
+        return reader.use {
+            it.beginObject()
+            var version: String? = null
+            while (it.hasNext()) {
+                when (it.nextName()) {
+                    FIELD_VERSION -> {
+                        version = it.nextStringSafe("/$FIELD_VERSION")
+                        break
+                    }
+                    else -> it.skipValue()
+                }
+            }
+            version
+                ?: throw A2uiException.A2uiValidationException(
+                    "Missing or empty '$FIELD_VERSION' in message envelope",
+                    "/$FIELD_VERSION",
+                )
+        }
+    }
+
+    private fun validateVersion(version: String) {
+        if (!SUPPORTED_VERSIONS.contains(version)) {
+            throw A2uiException.A2uiValidationException(
+                "Unsupported protocol version: $version. expected: $SUPPORTED_VERSIONS",
+                "/$FIELD_VERSION",
+            )
         }
     }
 
@@ -51,6 +85,11 @@ public class A2uiJsonMessageParser(private val jsonReaderProvider: (String) -> A
         while (reader.hasNext()) {
             val parsed =
                 when (reader.nextName()) {
+                    FIELD_VERSION -> {
+                        val v = reader.nextStringSafe("/$FIELD_VERSION")
+                        validateVersion(v)
+                        null
+                    }
                     FIELD_CREATE_SURFACE -> parseCreateSurface(reader)
                     FIELD_UPDATE_COMPONENTS -> parseUpdateComponents(reader)
                     FIELD_UPDATE_DATA_MODEL -> parseUpdateDataModel(reader)
@@ -326,6 +365,7 @@ public class A2uiJsonMessageParser(private val jsonReaderProvider: (String) -> A
     }
 
     private companion object {
+        private const val FIELD_VERSION = "version"
         private const val FIELD_CREATE_SURFACE = "createSurface"
         private const val FIELD_UPDATE_COMPONENTS = "updateComponents"
         private const val FIELD_UPDATE_DATA_MODEL = "updateDataModel"
@@ -339,5 +379,7 @@ public class A2uiJsonMessageParser(private val jsonReaderProvider: (String) -> A
         private const val FIELD_COMPONENT = "component"
         private const val FIELD_PATH = "path"
         private const val FIELD_VALUE = "value"
+
+        private val SUPPORTED_VERSIONS = listOf("v0.9", "v0.9.1")
     }
 }

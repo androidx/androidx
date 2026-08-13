@@ -38,6 +38,7 @@ class A2uiMessageParserTest {
         val json =
             """
             {
+              "version": "v0.9",
               "createSurface": {
                 "surfaceId": "surf_1",
                 "catalogId": "test_catalog_v1",
@@ -63,6 +64,7 @@ class A2uiMessageParserTest {
         val json =
             """
             {
+              "version": "v0.9",
               "updateComponents": {
                 "surfaceId": "surf_1",
                 "components": [
@@ -103,6 +105,7 @@ class A2uiMessageParserTest {
         val json =
             """
             {
+              "version": "v0.9",
               "updateDataModel": {
                 "surfaceId": "surf_1",
                 "path": "/user/profile",
@@ -138,6 +141,7 @@ class A2uiMessageParserTest {
         val json =
             """
             {
+              "version": "v0.9",
               "deleteSurface": {
                 "surfaceId": "surf_1"
               }
@@ -162,6 +166,7 @@ class A2uiMessageParserTest {
         val json =
             """
             {
+              "version": "v0.9",
               "createSurface": {
                 "surfaceId": "surf_1"
             """
@@ -174,7 +179,8 @@ class A2uiMessageParserTest {
 
     @Test
     fun parse_emptyJsonObject_throwsValidationException() {
-        val exception = assertFailsWith<A2uiValidationException> { parser.parse("{}") }
+        val exception =
+            assertFailsWith<A2uiValidationException> { parser.parse("{\"version\": \"v0.9\"}") }
 
         assertThat(exception.context["path"]).isEqualTo("/")
         assertThat(exception.message).contains("Empty or invalid A2UI message envelope")
@@ -185,6 +191,7 @@ class A2uiMessageParserTest {
         val json =
             """
             {
+              "version": "v0.9",
               "createSurface": {
                 "surfaceId": "surf_1",
                 "catalogId": "cat_1"
@@ -200,5 +207,44 @@ class A2uiMessageParserTest {
 
         assertThat(exception.context["path"]).isEqualTo("/")
         assertThat(exception.message).contains("Multiple message envelopes found")
+    }
+
+    @Test
+    fun parse_missingVersion_throwsValidationException() {
+        val json =
+            """
+            {
+              "createSurface": {
+                "surfaceId": "surf_1",
+                "catalogId": "test_catalog_v1"
+              }
+            }
+            """
+                .trimIndent()
+
+        val exception = assertFailsWith<A2uiValidationException> { parser.parse(json) }
+
+        assertThat(exception.context["path"]).isEqualTo("/version")
+        assertThat(exception.message).contains("Missing or empty 'version' in message envelope")
+    }
+
+    @Test
+    fun parse_unsupportedVersion_throwsValidationException() {
+        val json =
+            """
+            {
+              "version": "v9.9",
+              "createSurface": {
+                "surfaceId": "surf_1",
+                "catalogId": "test_catalog_v1"
+              }
+            }
+            """
+                .trimIndent()
+
+        val exception = assertFailsWith<A2uiValidationException> { parser.parse(json) }
+
+        assertThat(exception.context["path"]).isEqualTo("/version")
+        assertThat(exception.message).contains("Unsupported protocol version: v9.9")
     }
 }
