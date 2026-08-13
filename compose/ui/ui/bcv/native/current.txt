@@ -3539,6 +3539,8 @@ final object androidx.compose.ui.semantics/SemanticsActions { // androidx.compos
 }
 
 final object androidx.compose.ui.semantics/SemanticsProperties { // androidx.compose.ui.semantics/SemanticsProperties|null[0]
+    final val BackgroundColor // androidx.compose.ui.semantics/SemanticsProperties.BackgroundColor|{}BackgroundColor[0]
+        final fun <get-BackgroundColor>(): androidx.compose.ui.semantics/SemanticsPropertyKey<androidx.compose.ui.graphics/ColorProducer> // androidx.compose.ui.semantics/SemanticsProperties.BackgroundColor.<get-BackgroundColor>|<get-BackgroundColor>(){}[0]
     final val CollectionInfo // androidx.compose.ui.semantics/SemanticsProperties.CollectionInfo|{}CollectionInfo[0]
         final fun <get-CollectionInfo>(): androidx.compose.ui.semantics/SemanticsPropertyKey<androidx.compose.ui.semantics/CollectionInfo> // androidx.compose.ui.semantics/SemanticsProperties.CollectionInfo.<get-CollectionInfo>|<get-CollectionInfo>(){}[0]
     final val CollectionItemInfo // androidx.compose.ui.semantics/SemanticsProperties.CollectionItemInfo|{}CollectionItemInfo[0]
@@ -3923,6 +3925,9 @@ final val androidx.compose.ui/androidx_compose_ui_Modifier_Node$stableprop // an
 final var androidx.compose.ui.platform/isDebugInspectorInfoEnabled // androidx.compose.ui.platform/isDebugInspectorInfoEnabled|{}isDebugInspectorInfoEnabled[0]
     final fun <get-isDebugInspectorInfoEnabled>(): kotlin/Boolean // androidx.compose.ui.platform/isDebugInspectorInfoEnabled.<get-isDebugInspectorInfoEnabled>|<get-isDebugInspectorInfoEnabled>(){}[0]
     final fun <set-isDebugInspectorInfoEnabled>(kotlin/Boolean) // androidx.compose.ui.platform/isDebugInspectorInfoEnabled.<set-isDebugInspectorInfoEnabled>|<set-isDebugInspectorInfoEnabled>(kotlin.Boolean){}[0]
+final var androidx.compose.ui.semantics/backgroundColor // androidx.compose.ui.semantics/backgroundColor|@androidx.compose.ui.semantics.SemanticsPropertyReceiver{}backgroundColor[0]
+    final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<get-backgroundColor>(): androidx.compose.ui.graphics/ColorProducer // androidx.compose.ui.semantics/backgroundColor.<get-backgroundColor>|<get-backgroundColor>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(){}[0]
+    final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<set-backgroundColor>(androidx.compose.ui.graphics/ColorProducer) // androidx.compose.ui.semantics/backgroundColor.<set-backgroundColor>|<set-backgroundColor>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(androidx.compose.ui.graphics.ColorProducer){}[0]
 final var androidx.compose.ui.semantics/collectionInfo // androidx.compose.ui.semantics/collectionInfo|@androidx.compose.ui.semantics.SemanticsPropertyReceiver{}collectionInfo[0]
     final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<get-collectionInfo>(): androidx.compose.ui.semantics/CollectionInfo // androidx.compose.ui.semantics/collectionInfo.<get-collectionInfo>|<get-collectionInfo>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(){}[0]
     final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).<set-collectionInfo>(androidx.compose.ui.semantics/CollectionInfo) // androidx.compose.ui.semantics/collectionInfo.<set-collectionInfo>|<set-collectionInfo>@androidx.compose.ui.semantics.SemanticsPropertyReceiver(androidx.compose.ui.semantics.CollectionInfo){}[0]
