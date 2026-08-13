@@ -39,7 +39,7 @@ class SceneCoreOpenXrNativeTest {
     fun initialize_setsNativeScenecoreHandleToNonZero() {
         val nativeWrapper = SceneCoreOpenXrNative()
 
-        assertThat(nativeWrapper.nativeScenecore).isNotEqualTo(0L)
+        assertThat(nativeWrapper.nativeScenecore).isNotEqualTo(INVALID_HANDLE)
     }
 
     @Test
@@ -48,7 +48,7 @@ class SceneCoreOpenXrNativeTest {
 
         nativeWrapper.destroy()
 
-        assertThat(nativeWrapper.nativeScenecore).isEqualTo(0L)
+        assertThat(nativeWrapper.nativeScenecore).isEqualTo(INVALID_HANDLE)
     }
 
     @Test
@@ -58,7 +58,7 @@ class SceneCoreOpenXrNativeTest {
         nativeWrapper.destroy()
         nativeWrapper.destroy()
 
-        assertThat(nativeWrapper.nativeScenecore).isEqualTo(0L)
+        assertThat(nativeWrapper.nativeScenecore).isEqualTo(INVALID_HANDLE)
     }
 
     @Test
@@ -66,9 +66,9 @@ class SceneCoreOpenXrNativeTest {
         var wrapperRef: SceneCoreOpenXrNative? = null
         SceneCoreOpenXrNative().use { wrapper ->
             wrapperRef = wrapper
-            assertThat(wrapper.nativeScenecore).isNotEqualTo(0L)
+            assertThat(wrapper.nativeScenecore).isNotEqualTo(INVALID_HANDLE)
         }
-        assertThat(wrapperRef?.nativeScenecore).isEqualTo(0L)
+        assertThat(wrapperRef?.nativeScenecore).isEqualTo(INVALID_HANDLE)
     }
 
     @Test
@@ -76,14 +76,14 @@ class SceneCoreOpenXrNativeTest {
         val instance1 = SceneCoreOpenXrNative()
         val instance2 = SceneCoreOpenXrNative()
 
-        assertThat(instance1.nativeScenecore).isNotEqualTo(0L)
-        assertThat(instance2.nativeScenecore).isNotEqualTo(0L)
+        assertThat(instance1.nativeScenecore).isNotEqualTo(INVALID_HANDLE)
+        assertThat(instance2.nativeScenecore).isNotEqualTo(INVALID_HANDLE)
 
         instance1.destroy()
         instance2.destroy()
 
-        assertThat(instance1.nativeScenecore).isEqualTo(0L)
-        assertThat(instance2.nativeScenecore).isEqualTo(0L)
+        assertThat(instance1.nativeScenecore).isEqualTo(INVALID_HANDLE)
+        assertThat(instance2.nativeScenecore).isEqualTo(INVALID_HANDLE)
     }
 
     @Test
@@ -91,7 +91,11 @@ class SceneCoreOpenXrNativeTest {
         val nativeWrapper = SceneCoreOpenXrNative()
 
         val success =
-            nativeWrapper.init(xrInstanceHandle = 0L, xrSessionHandle = 0L, gipaHandle = 0L)
+            nativeWrapper.init(
+                xrInstanceHandle = INVALID_HANDLE,
+                xrSessionHandle = INVALID_HANDLE,
+                gipaHandle = INVALID_HANDLE,
+            )
 
         assertThat(success).isFalse()
         nativeWrapper.destroy()
@@ -101,7 +105,7 @@ class SceneCoreOpenXrNativeTest {
     fun getSpatialContainerHandle_beforeCreate_returnsZero() {
         val nativeWrapper = SceneCoreOpenXrNative()
 
-        assertThat(nativeWrapper.getSpatialContainerHandle()).isEqualTo(0L)
+        assertThat(nativeWrapper.getSpatialContainerHandle()).isEqualTo(INVALID_HANDLE)
         nativeWrapper.destroy()
     }
 
@@ -109,7 +113,7 @@ class SceneCoreOpenXrNativeTest {
     fun getRootSpaceHandle_beforeCreate_returnsZero() {
         val nativeWrapper = SceneCoreOpenXrNative()
 
-        assertThat(nativeWrapper.getRootSpaceHandle()).isEqualTo(0L)
+        assertThat(nativeWrapper.getRootSpaceHandle()).isEqualTo(INVALID_HANDLE)
         nativeWrapper.destroy()
     }
 
@@ -119,8 +123,8 @@ class SceneCoreOpenXrNativeTest {
 
         nativeWrapper.shutdown()
 
-        assertThat(nativeWrapper.getSpatialContainerHandle()).isEqualTo(0L)
-        assertThat(nativeWrapper.getRootSpaceHandle()).isEqualTo(0L)
+        assertThat(nativeWrapper.getSpatialContainerHandle()).isEqualTo(INVALID_HANDLE)
+        assertThat(nativeWrapper.getRootSpaceHandle()).isEqualTo(INVALID_HANDLE)
         nativeWrapper.destroy()
     }
 
