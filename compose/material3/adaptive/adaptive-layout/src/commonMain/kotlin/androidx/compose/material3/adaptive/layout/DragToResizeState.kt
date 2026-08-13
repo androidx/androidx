@@ -331,10 +331,10 @@ public abstract class DragToResizeState private constructor() : DraggableState {
                 },
                 restore = {
                     DragToResizeState(dockedEdge, layoutDirection).also { state ->
-                        state.size = it[0] as Float
-                        state.state = it[1] as State
                         state.widthRange = (it[2] as Float)..(it[3] as Float)
                         state.heightRange = (it[4] as Float)..(it[5] as Float)
+                        state.state = it[1] as State
+                        state.size = it[0] as Float
                     }
                 },
             )

@@ -276,7 +276,7 @@ fun SupportingPaneScaffoldSample() {
     val coroutineScope = rememberCoroutineScope()
     val scaffoldNavigator = rememberSupportingPaneScaffoldNavigator<NavItemData>()
     val extraItems = listOf("Extra content")
-    val selectedItem = NavItemData(index = 0, showExtra = true)
+    val selectedItem = scaffoldNavigator.currentDestination?.contentKey
 
     SupportingPaneScaffold(
         directive = scaffoldNavigator.scaffoldDirective,
@@ -326,7 +326,7 @@ fun SupportingPaneScaffoldSampleWithExtraPaneLevitatedAsBottomSheet() {
     val coroutineScope = rememberCoroutineScope()
     val scaffoldNavigator = levitateAsBottomSheetSample<NavItemData>()
     val extraItems = listOf("Extra content")
-    val selectedItem = NavItemData(index = 0, showExtra = true)
+    val selectedItem = scaffoldNavigator.currentDestination?.contentKey
 
     SupportingPaneScaffold(
         directive = scaffoldNavigator.scaffoldDirective,
