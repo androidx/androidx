@@ -1952,13 +1952,12 @@ class PerformAndroidAutofillManagerTest {
         val toggleTag = "toggle_id"
 
         val newToggleValue = false
-        var checked = true
-        val onCheckedChange: (Boolean) -> Unit = { checked = it }
+        var checked by mutableStateOf(true)
 
         rule.setContent {
             view = LocalView.current
             Box(
-                Modifier.toggleable(value = checked, onValueChange = onCheckedChange)
+                Modifier.toggleable(value = checked, onValueChange = { checked = it })
                     .testTag(toggleTag)
             )
         }
