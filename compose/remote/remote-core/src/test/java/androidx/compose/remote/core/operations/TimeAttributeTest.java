@@ -449,7 +449,7 @@ public class TimeAttributeTest {
     }
 
     @Test
-    public void paint_timeFromLoadSec_callsWakeIn1s_noNeedsRepaint() {
+    public void paint_timeFromLoadSec_callsWakeIn_noNeedsRepaint() {
         TestRemoteContext remoteContext = new TestRemoteContext();
         TestPaintContext paintContext = new TestPaintContext(remoteContext);
         remoteContext.setPaintContext(paintContext);
@@ -459,12 +459,12 @@ public class TimeAttributeTest {
                         1, 2, (short) TimeAttribute.TIME_FROM_LOAD_SEC, null);
         attr.paint(paintContext);
 
-        assertEquals(1f, paintContext.mLastWakeIn, 0.0f);
+        assertTrue(paintContext.mLastWakeIn > 0f && paintContext.mLastWakeIn <= 1f);
         assertFalse(paintContext.doesNeedsRepaint());
     }
 
     @Test
-    public void paint_timeFromNowMin_callsWakeIn60s_noNeedsRepaint() {
+    public void paint_timeFromNowMin_callsWakeInToNextMinute_noNeedsRepaint() {
         TestRemoteContext remoteContext = new TestRemoteContext();
         TestPaintContext paintContext = new TestPaintContext(remoteContext);
         remoteContext.setPaintContext(paintContext);
@@ -479,7 +479,26 @@ public class TimeAttributeTest {
     }
 
     @Test
-    public void paint_timeFromArgMin_callsWakeIn60s_noNeedsRepaint() {
+    public void paint_timeFromNowMin_withOffset_wakesInFractionOfMinute() {
+        TestRemoteContext remoteContext = new TestRemoteContext();
+        TestPaintContext paintContext = new TestPaintContext(remoteContext);
+        remoteContext.setPaintContext(paintContext);
+
+        long nowMillis = paintContext.getClock().snapshot(null).getMillis();
+        // 45 seconds into the future -> delta = 45s, fractional minute = 0.75,
+        // remaining is 15 seconds
+        remoteContext.putObject(2, new LongConstant(2, nowMillis + 45000L));
+        TimeAttribute attr =
+                new TimeAttribute(
+                        1, 2, (short) TimeAttribute.TIME_FROM_NOW_MIN, null);
+        attr.paint(paintContext);
+
+        assertEquals(15f, paintContext.mLastWakeIn, 0.1f);
+        assertFalse(paintContext.doesNeedsRepaint());
+    }
+
+    @Test
+    public void paint_timeFromArgMin_doesNotCallWakeInOrNeedsRepaint() {
         TestRemoteContext remoteContext = new TestRemoteContext();
         TestPaintContext paintContext = new TestPaintContext(remoteContext);
         remoteContext.setPaintContext(paintContext);
@@ -490,7 +509,7 @@ public class TimeAttributeTest {
                         1, 2, (short) TimeAttribute.TIME_FROM_ARG_MIN, new int[] {10});
         attr.paint(paintContext);
 
-        assertEquals(60f, paintContext.mLastWakeIn, 0.0f);
+        assertTrue(Float.isNaN(paintContext.mLastWakeIn));
         assertFalse(paintContext.doesNeedsRepaint());
     }
 
