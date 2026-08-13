@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.util.trace
 import kotlin.Byte
-import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -226,14 +225,8 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
 
     // border
     override fun borderWidth(value: Dp) {
-        val width =
-            when (value) {
-                Dp.Unspecified -> 0.0f
-                Dp.Hairline -> 1.0f
-                else -> ceil(value.value * _density)
-            }
         recordWrite(BorderWidthId, defaultToSpec, defaultFromSpec)
-        properties?.borderWidth(width)
+        properties?.borderWidth(value)
     }
 
     override fun borderColor(value: Color) {

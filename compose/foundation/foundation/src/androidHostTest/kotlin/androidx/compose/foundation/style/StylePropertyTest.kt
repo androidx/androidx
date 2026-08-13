@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -61,7 +62,7 @@ class StylePropertyTest {
         assertEquals(0f, properties.externalPaddingEnd)
         assertEquals(0f, properties.externalPaddingTop)
         assertEquals(0f, properties.externalPaddingBottom)
-        assertEquals(0f, properties.borderWidth)
+        assertEquals(0.dp, properties.borderWidth)
         assertTrue(properties.width.isNaN())
         assertTrue(properties.height.isNaN())
         assertTrue(properties.widthFraction.isNaN())
@@ -195,7 +196,7 @@ class StylePropertyTest {
     @Test
     fun can_set_property_border_width() {
         val properties = StyleProperties()
-        val expected = 10f
+        val expected = 10.dp
         properties.borderWidth(expected)
         assertTrue(properties.onlyHasId(BorderWidthId))
         assertEquals(expected, properties.borderWidth)
