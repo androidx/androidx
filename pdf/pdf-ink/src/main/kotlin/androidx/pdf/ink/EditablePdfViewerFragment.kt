@@ -663,9 +663,12 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
      * Creates a [android.graphics.Path] that encapsulate [AnnotationToolbarView] and set it as a
      * [InProgressStrokesView.maskPath] where no ink should be visible.
      *
-     * @return [Path] surrounding [AnnotationToolbarView].
+     * @return [Path] surrounding [AnnotationToolbarView], or `null` if the fragment is not
+     *   attached.
      */
-    private fun createToolbarMaskPath(): Path {
+    private fun createToolbarMaskPath(): Path? {
+        val currentContext = context ?: return null
+
         val toolbarLocation = IntArray(2)
         annotationToolbar.getLocationOnScreen(toolbarLocation)
 
@@ -677,7 +680,8 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
         val right = left + annotationToolbar.width
         val bottom = top + annotationToolbar.height
 
-        val cornerRadiusPx = resources.getDimension(PdfR.dimen.annotation_toolbar_corner_radius)
+        val cornerRadiusPx =
+            currentContext.resources.getDimension(PdfR.dimen.annotation_toolbar_corner_radius)
 
         return Path().apply {
             addRoundRect(
