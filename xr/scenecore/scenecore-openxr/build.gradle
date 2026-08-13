@@ -47,7 +47,7 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":xr:scenecore:scenecore-testing"))
+    androidTestImplementation("androidx.appcompat:appcompat:1.2.0")
 }
 
 android {
