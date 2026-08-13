@@ -16,7 +16,11 @@
 
 package androidx.compose.material3
 
+import androidx.compose.material3.tokens.CheckboxTokens
+import androidx.compose.material3.tokens.ColorToken
+import androidx.compose.material3.tokens.ShapeToken
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import kotlin.jvm.JvmInline
 
@@ -33,7 +37,20 @@ internal value class ComponentState(val mask: Int = 0) {
 
     infix fun with(flag: Int): ComponentState = ComponentState(mask or flag)
 
+    infix fun without(flag: Int): ComponentState = ComponentState(mask and flag.inv())
+
+    fun set(flag: Int, with: Boolean): ComponentState = if (with) with(flag) else without(flag)
+
+    fun disabled(disabled: Boolean) = set(DISABLED, disabled)
+
+    fun checked(checked: Boolean) = set(CHECKED, checked)
+
+    fun focused(focused: Boolean) = set(FOCUSED, focused)
+
+    fun indeterminate(indeterminate: Boolean) = set(INDETERMINATE, indeterminate)
+
     companion object {
+        const val NONE = 0
         const val DISABLED = 1 shl 0 // 0b001 = 1
         const val CHECKED = 1 shl 1 // 0b010 = 2
         const val FOCUSED = 1 shl 2 // 0b100 = 4
@@ -46,6 +63,14 @@ internal value class ComponentState(val mask: Int = 0) {
             for (f in states) combined = combined or f
             return ComponentState(combined)
         }
+
+        fun disabled(disabled: Boolean) = Default.disabled(disabled)
+
+        fun checked(checked: Boolean) = Default.checked(checked)
+
+        fun focused(focused: Boolean) = Default.focused(focused)
+
+        fun indeterminate(indeterminate: Boolean) = Default.indeterminate(indeterminate)
     }
 }
 
@@ -58,10 +83,28 @@ internal interface StatefulStyleScope<T : StatefulStyleScope<T>> {
             (this as T).style()
         }
     }
+
+    fun setNotState(state: Int, style: T.() -> Unit) {
+        if (!(this.state has state)) {
+            (this as T).style()
+        }
+    }
+}
+
+internal interface MaterialThemeAccessorScope {
+    val theme: MaterialTheme.Values
+
+    val ColorToken.value: Color
+        get() = theme.colorScheme.fromToken(this)
+
+    val ShapeToken.value: Shape
+        get() = theme.shapes.fromToken(this)
 }
 
 internal interface CheckedState<T : StatefulStyleScope<T>> : StatefulStyleScope<T> {
     fun checked(style: T.() -> Unit) = setState(ComponentState.CHECKED, style)
+
+    fun unchecked(style: T.() -> Unit) = setNotState(ComponentState.CHECKED, style)
 }
 
 internal interface IndeterminateState<T : StatefulStyleScope<T>> : StatefulStyleScope<T> {
@@ -69,6 +112,8 @@ internal interface IndeterminateState<T : StatefulStyleScope<T>> : StatefulStyle
 }
 
 internal interface DisabledState<T : StatefulStyleScope<T>> : StatefulStyleScope<T> {
+    fun enabled(style: T.() -> Unit) = setNotState(ComponentState.DISABLED, style)
+
     fun disabled(style: T.() -> Unit) = setState(ComponentState.DISABLED, style)
 }
 
@@ -79,16 +124,77 @@ internal value class CheckboxStyle(private val block: CheckboxStyleScope.() -> U
     fun CheckboxStyleScope.applyStyle() {
         block()
     }
+
+    companion object {
+        val Default = CheckboxStyle {
+            checkmarkColor(Color.Transparent)
+            backgroundColor(Color.Transparent)
+            borderColor(CheckboxTokens.UnselectedOutlineColor.value)
+            rippleColor(Color.Transparent)
+            checkmarkStroke(Stroke(CheckboxTokens.UnselectedOutlineWidth.value))
+            borderStroke(Stroke(CheckboxTokens.UnselectedOutlineWidth.value))
+            disabled {
+                unchecked {
+                    checkmarkColor(Color.Transparent)
+                    backgroundColor(Color.Transparent)
+                    borderColor(CheckboxTokens.UnselectedDisabledOutlineColor.value)
+                    rippleColor(Color.Transparent)
+                }
+                checked {
+                    checkmarkColor(CheckboxTokens.SelectedIconColor.value)
+                    backgroundColor(
+                        CheckboxTokens.SelectedDisabledContainerColor.value.copy(
+                            alpha = CheckboxTokens.SelectedDisabledContainerOpacity
+                        )
+                    )
+                    borderColor(
+                        CheckboxTokens.SelectedDisabledContainerColor.value.copy(
+                            alpha = CheckboxTokens.SelectedDisabledContainerOpacity
+                        )
+                    )
+                    rippleColor(
+                        CheckboxTokens.SelectedDisabledContainerColor.value.copy(
+                            alpha = CheckboxTokens.SelectedDisabledContainerOpacity
+                        )
+                    )
+                }
+                indeterminate {
+                    backgroundColor(
+                        CheckboxTokens.SelectedDisabledContainerColor.value.copy(
+                            alpha = CheckboxTokens.SelectedDisabledContainerOpacity
+                        )
+                    )
+                    borderColor(
+                        CheckboxTokens.SelectedDisabledContainerColor.value.copy(
+                            alpha = CheckboxTokens.SelectedDisabledContainerOpacity
+                        )
+                    )
+                    rippleColor(
+                        CheckboxTokens.SelectedDisabledContainerColor.value.copy(
+                            alpha = CheckboxTokens.SelectedDisabledContainerOpacity
+                        )
+                    )
+                }
+            }
+        }
+    }
 }
 
-internal class CheckboxStyleScope(override val state: ComponentState = ComponentState.Default) :
+internal class CheckboxStyleScope(
+    override val theme: MaterialTheme.Values,
+    override val state: ComponentState = ComponentState.Default,
+) :
     CheckedState<CheckboxStyleScope>,
     IndeterminateState<CheckboxStyleScope>,
-    DisabledState<CheckboxStyleScope> {
+    DisabledState<CheckboxStyleScope>,
+    MaterialThemeAccessorScope {
     var checkmarkColor: Color = Color.Unspecified
         private set
 
     var borderColor: Color = Color.Unspecified
+        private set
+
+    var rippleColor: Color = Color.Unspecified
         private set
 
     var backgroundColor: Color = Color.Unspecified
@@ -118,5 +224,9 @@ internal class CheckboxStyleScope(override val state: ComponentState = Component
 
     fun backgroundColor(color: Color) {
         backgroundColor = color
+    }
+
+    fun rippleColor(color: Color) {
+        rippleColor = color
     }
 }
