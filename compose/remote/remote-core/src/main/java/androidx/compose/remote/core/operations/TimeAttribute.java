@@ -262,16 +262,21 @@ public class TimeAttribute extends PaintOperation {
             default:
                 break;
         }
+        PaintContext paintContext = ctx.getPaintContext();
         switch (val) {
             case TIME_FROM_NOW_SEC:
             case TIME_FROM_ARG_SEC:
                 ctx.loadFloat(mId, delta * 1E-3f);
-                ctx.needsRepaint();
+                if (paintContext != null) {
+                    paintContext.wakeIn(1f);
+                }
                 break;
             case TIME_FROM_ARG_MIN:
             case TIME_FROM_NOW_MIN:
                 ctx.loadFloat(mId, (float) (delta * 1E-3 / 60));
-                ctx.needsRepaint();
+                if (paintContext != null) {
+                    paintContext.wakeIn(60f);
+                }
                 break;
             case TIME_FROM_ARG_HR:
             case TIME_FROM_NOW_HR:
@@ -303,7 +308,9 @@ public class TimeAttribute extends PaintOperation {
                 break;
             case TIME_FROM_LOAD_SEC:
                 ctx.loadFloat(mId, (value.getMillis() - load_time) * 1E-3f);
-                ctx.needsRepaint();
+                if (paintContext != null) {
+                    paintContext.wakeIn(1f);
+                }
                 break;
         }
     }
