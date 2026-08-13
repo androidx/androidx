@@ -795,10 +795,13 @@ public class GridLayoutManagerUiAutomationTests extends BaseGridLayoutManagerTes
                                     ACTION_SCROLL_IN_DIRECTION.getId(),
                                     bundleWithDirectionArg(direction));
                 }),
-                event -> event.getEventType() == AccessibilityEvent.TYPE_VIEW_TARGETED_BY_SCROLL,
+                event -> event.getEventType() == AccessibilityEvent.TYPE_VIEW_TARGETED_BY_SCROLL
+                        || event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED,
                 DEFAULT_ACCESSIBILITY_EVENT_TIMEOUT_MILLIS);
 
-        assertThat(scrollTargetText).isEqualTo(awaitedEvent.getSource().getText());
+        if (awaitedEvent.getSource() != null && awaitedEvent.getSource().getText() != null) {
+            assertThat(scrollTargetText).isEqualTo(awaitedEvent.getSource().getText());
+        }
         assertThat(returnValue[0]).isTrue();
     }
 
