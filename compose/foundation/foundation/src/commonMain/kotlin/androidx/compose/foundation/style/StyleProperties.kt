@@ -44,7 +44,10 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.lerp
 import kotlin.jvm.JvmField
 
@@ -324,7 +327,7 @@ internal class StyleProperties {
     @JvmField internal var externalPaddingEnd: Float = 0f
     @JvmField internal var externalPaddingTop: Float = 0f
     @JvmField internal var externalPaddingBottom: Float = 0f
-    @JvmField internal var borderWidth: Float = 0f
+    @JvmField internal var borderWidthDp: Float = 0f
     @JvmField internal var width: Float = Float.NaN
     @JvmField internal var height: Float = Float.NaN
     @JvmField internal var widthFraction: Float = Float.NaN
@@ -382,6 +385,9 @@ internal class StyleProperties {
     // into a single Int for efficiency.
     @JvmField internal var textEnums: Int = 0
 
+    val borderWidth: Dp
+        get() = borderWidthDp.dp
+
     internal fun clear() {
         EmptyStyleProperties.copyInto(this)
     }
@@ -407,7 +413,7 @@ internal class StyleProperties {
         target.externalPaddingEnd = externalPaddingEnd
         target.externalPaddingTop = externalPaddingTop
         target.externalPaddingBottom = externalPaddingBottom
-        target.borderWidth = borderWidth
+        target.borderWidthDp = borderWidthDp
         target.shape = shape
         target.alpha = alpha
         target.scaleX = scaleX
@@ -480,7 +486,8 @@ internal class StyleProperties {
                 externalPaddingTop = EmptyStyleProperties.externalPaddingTop
             if (primitivesSet.hasId(ExternalPaddingBottomId))
                 externalPaddingBottom = EmptyStyleProperties.externalPaddingBottom
-            if (primitivesSet.hasId(BorderWidthId)) borderWidth = EmptyStyleProperties.borderWidth
+            if (primitivesSet.hasId(BorderWidthId))
+                borderWidthDp = EmptyStyleProperties.borderWidthDp
             if (primitivesSet.hasId(AlphaId)) alpha = EmptyStyleProperties.alpha
             if (primitivesSet.hasId(ScaleXId)) scaleX = EmptyStyleProperties.scaleX
             if (primitivesSet.hasId(ScaleYId)) scaleY = EmptyStyleProperties.scaleY
@@ -669,7 +676,7 @@ internal class StyleProperties {
                     { externalPaddingBottom },
                     { other.externalPaddingBottom },
                 )
-                .compareFloatProperty(BorderWidthId, { borderWidth }, { other.borderWidth })
+                .compareFloatProperty(BorderWidthId, { borderWidthDp }, { other.borderWidthDp })
                 .compareFloatProperty(WidthId, { width }, { other.width })
                 .compareFloatProperty(HeightId, { height }, { other.height })
                 .compareFloatProperty(WidthFractionId, { widthFraction }, { other.widthFraction })
@@ -871,9 +878,9 @@ internal class StyleProperties {
     }
 
     // border
-    fun borderWidth(value: Float) {
+    fun borderWidth(value: Dp) {
         primitivesSet = primitivesSet.withId(BorderWidthId)
-        borderWidth = value
+        borderWidthDp = value.value
     }
 
     fun borderColor(value: Color) {
@@ -1425,7 +1432,7 @@ internal fun lerpDraw(
     with(result) {
         if (primitivesSet.hasId(BorderWidthId)) {
             val t = animations.timeOf(BorderWidthId)
-            borderWidth(lerp(a.borderWidth, b.borderWidth, t))
+            borderWidth(lerp(a.borderWidthDp, b.borderWidthDp, t).dp)
         }
         if (primitivesSet.hasId(BorderColorId)) {
             val t = animations.timeOf(BorderBrushId)

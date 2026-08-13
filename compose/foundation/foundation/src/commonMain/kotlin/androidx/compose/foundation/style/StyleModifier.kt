@@ -75,15 +75,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.isSpecified
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastRoundToInt
+import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -538,10 +541,9 @@ internal class StyleOuterNode(
         val foregroundBrush = resolved.hasOrNull(ForegroundBrushId) { foregroundBrush!! }
         val borderColor = resolved.hasOrElse(BorderColorId, Color.Black) { borderColor }
         val borderBrush = resolved.hasOrNull(BorderBrushId) { borderBrush!! }
-        val borderWidth = resolved.hasOrZero(BorderWidthId) { borderWidth }
-        val halfStrokeWidth = borderWidth / 2f
+        val hasBorder = resolved.hasId(BorderWidthId)
+        val borderWidth = if (hasBorder) resolved.borderWidth else 0.dp
         val shape = resolved.shape
-        val hasBorder = halfStrokeWidth > 0
         val hasBackground = bgColor.isSpecified || bgBrush != null
         val hasForeground = foregroundColor.isSpecified || foregroundBrush != null
 
@@ -679,7 +681,7 @@ internal class StyleOuterNode(
         borderBrush: Brush?,
         foregroundColor: Color,
         foregroundBrush: Brush?,
-        borderWidth: Float,
+        borderWidth: Dp,
     ) {
         val outline = getOutline(size, shape)
 
@@ -708,16 +710,17 @@ internal class StyleOuterNode(
             val brush = borderBrush ?: SolidColor(borderColor)
             borderLogic.drawBorder(
                 drawScope = this,
-                width = { borderWidth },
+                width = borderWidth,
                 brush = brush,
-                borderLayerProvider
-                    ?: {
-                            borderLayer
-                                ?: requireGraphicsContext().createGraphicsLayer().also {
-                                    borderLayer = it
-                                }
-                        }
-                        .also { borderLayerProvider = it },
+                graphicsLayerProvider =
+                    borderLayerProvider
+                        ?: {
+                                borderLayer
+                                    ?: requireGraphicsContext().createGraphicsLayer().also {
+                                        borderLayer = it
+                                    }
+                            }
+                            .also { borderLayerProvider = it },
                 outline = outline,
             )
         }
@@ -983,12 +986,22 @@ internal class StyleInnerNode : Modifier.Node(), LayoutModifierNode {
         constraints: Constraints,
     ): MeasureResult {
         val resolved = currentLayoutStyle()
-        val borderWidth = resolved.hasOrZero(BorderWidthId) { borderWidth }
-        val start = resolved.hasOrZero(ContentPaddingStartId) { contentPaddingStart } + borderWidth
-        val end = resolved.hasOrZero(ContentPaddingEndId) { contentPaddingEnd } + borderWidth
-        val top = resolved.hasOrZero(ContentPaddingTopId) { contentPaddingTop } + borderWidth
+        val borderWidthPx =
+            if (resolved.hasId(BorderWidthId)) {
+                when (val borderWidth = resolved.borderWidth) {
+                    Dp.Hairline -> 1f
+                    Dp.Unspecified -> 0f
+                    else -> ceil(borderWidth.toPx())
+                }
+            } else {
+                0f
+            }
+        val start =
+            resolved.hasOrZero(ContentPaddingStartId) { contentPaddingStart } + borderWidthPx
+        val end = resolved.hasOrZero(ContentPaddingEndId) { contentPaddingEnd } + borderWidthPx
+        val top = resolved.hasOrZero(ContentPaddingTopId) { contentPaddingTop } + borderWidthPx
         val bottom =
-            resolved.hasOrZero(ContentPaddingBottomId) { contentPaddingBottom } + borderWidth
+            resolved.hasOrZero(ContentPaddingBottomId) { contentPaddingBottom } + borderWidthPx
 
         val horizontal = (start + end).fastRoundToInt()
         val vertical = (top + bottom).fastRoundToInt()
