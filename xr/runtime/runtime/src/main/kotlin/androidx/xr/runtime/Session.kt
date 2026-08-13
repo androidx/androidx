@@ -340,8 +340,8 @@ public constructor(
 
         private val SCENE_RUNTIME_FACTORY_PROVIDERS =
             listOf(
-                "androidx.xr.scenecore.projected.ProjectedSceneRuntimeFactory",
                 "androidx.xr.scenecore.spatial.core.SpatialSceneRuntimeFactory",
+                "androidx.xr.scenecore.openxr.OpenXrSceneRuntimeFactory",
                 "androidx.xr.scenecore.testing.FakeSceneRuntimeFactory",
             )
 

@@ -20,10 +20,12 @@ import androidx.xr.runtime.internal.LibraryNotLinkedException
 
 private const val LIBRARY_NAME = "androidx.xr.scenecore.openxr"
 
+internal const val INVALID_HANDLE: Long = 0L
+
 /** Kotlin wrapper class for the OpenXR SceneCore native lifecycle entry points. */
 internal class SceneCoreOpenXrNative : AutoCloseable {
 
-    internal var nativeScenecore: Long = 0L
+    internal var nativeScenecore: Long = INVALID_HANDLE
         private set
 
     init {
@@ -33,7 +35,9 @@ internal class SceneCoreOpenXrNative : AutoCloseable {
             throw LibraryNotLinkedException(LIBRARY_NAME)
         }
         nativeScenecore = nativeCreate()
-        check(nativeScenecore != 0L) { "Failed to create native SceneCore runtime instance." }
+        check(nativeScenecore != INVALID_HANDLE) {
+            "Failed to create native SceneCore runtime instance."
+        }
     }
 
     /** Instantiates the native OpenXR SceneCore runtime and returns its handle. */
@@ -64,41 +68,41 @@ internal class SceneCoreOpenXrNative : AutoCloseable {
 
     /** Initializes the native OpenXR ScenecoreManager with instance, session, and GIPA handles. */
     internal fun init(xrInstanceHandle: Long, xrSessionHandle: Long, gipaHandle: Long): Boolean {
-        check(nativeScenecore != 0L) { "SceneCoreOpenXrNative has been destroyed." }
+        check(nativeScenecore != INVALID_HANDLE) { "SceneCoreOpenXrNative has been destroyed." }
         return nativeInit(nativeScenecore, xrInstanceHandle, xrSessionHandle, gipaHandle)
     }
 
     /** Creates the spatial container and root reference space. */
     internal fun createSpatialContainer(): Boolean {
-        check(nativeScenecore != 0L) { "SceneCoreOpenXrNative has been destroyed." }
+        check(nativeScenecore != INVALID_HANDLE) { "SceneCoreOpenXrNative has been destroyed." }
         return nativeCreateSpatialContainer(nativeScenecore)
     }
 
     /** Returns the native XrSpatialContainerEXT handle. */
     internal fun getSpatialContainerHandle(): Long {
-        check(nativeScenecore != 0L) { "SceneCoreOpenXrNative has been destroyed." }
+        check(nativeScenecore != INVALID_HANDLE) { "SceneCoreOpenXrNative has been destroyed." }
         return nativeGetSpatialContainerHandle(nativeScenecore)
     }
 
     /** Returns the native root XrSpace handle. */
     internal fun getRootSpaceHandle(): Long {
-        check(nativeScenecore != 0L) { "SceneCoreOpenXrNative has been destroyed." }
+        check(nativeScenecore != INVALID_HANDLE) { "SceneCoreOpenXrNative has been destroyed." }
         return nativeGetRootSpaceHandle(nativeScenecore)
     }
 
     /** Cleans up spatial container and space handles. */
     internal fun shutdown() {
-        if (nativeScenecore != 0L) {
+        if (nativeScenecore != INVALID_HANDLE) {
             nativeShutdown(nativeScenecore)
         }
     }
 
-    /** Destroys the internal native runtime handle and sets it to 0L. */
+    /** Destroys the internal native runtime handle and sets it to INVALID_HANDLE. */
     internal fun destroy() {
-        if (nativeScenecore != 0L) {
+        if (nativeScenecore != INVALID_HANDLE) {
             shutdown()
             nativeDestroy(nativeScenecore)
-            nativeScenecore = 0L
+            nativeScenecore = INVALID_HANDLE
         }
     }
 
