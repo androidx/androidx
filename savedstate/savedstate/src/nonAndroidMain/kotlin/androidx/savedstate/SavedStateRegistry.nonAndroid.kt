@@ -45,4 +45,8 @@ internal actual constructor(private val impl: SavedStateRegistryImpl) {
     public actual fun interface SavedStateProvider {
         public actual fun saveState(): SavedState
     }
+
+    public actual fun interface SavedStateConsumer {
+        public actual fun consumeState(state: SavedState)
+    }
 }
