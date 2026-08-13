@@ -17,10 +17,16 @@
 package androidx.credentials.registry.digitalcredentials.openid4vci
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.os.Build
 import androidx.credentials.DigitalCredential.Companion.TYPE_DIGITAL_CREDENTIAL
 import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.registry.provider.RegisterCreationOptionsRequest
 import androidx.credentials.registry.provider.RegistryManager
+import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import org.json.JSONArray
@@ -174,60 +180,41 @@ private constructor(
         ): OpenId4VciRegistry =
             OpenId4VciRegistry(
                 id,
-                buildCreationOptions(id, filter, displayData, preferredProtocols),
+                buildCreationOptions(context, id, filter, displayData, preferredProtocols),
                 readMatcher(context),
                 intentAction,
             )
 
         private fun buildCreationOptions(
+            context: Context,
             id: String,
             filter: OpenId4VciFilter,
             displayData: OpenId4VciDisplayData?,
             preferredProtocols: List<String>,
         ): ByteArray {
-            val icon = displayData?.holderDisplayData?.icon
-            val hasIcon = icon?.isNotEmpty() == true
+            var icon: ByteArray? = null
+            var jsonPackageInfo: JSONObject? = null
+            var jsonResolvedPackageInfo: JSONObject? = null
 
-            // Package-level display info (app name and icon) is serialized as a separate
-            // object at the top level. This is optional and only included if name or icon
-            // is provided by the caller.
-            val jsonPackageInfo =
-                displayData?.holderDisplayData?.let { holderData ->
-                    val name = holderData.name
-                    val hasName = !name.isNullOrEmpty()
-                    if (hasName || hasIcon) {
-                        JSONObject().apply {
-                            if (hasName) put("name", name)
-                            if (hasIcon) {
-                                // The icon bytes are packed at the beginning of the returned binary
-                                // blob (starting at offset 4, after the 4-byte JSON offset).
-                                // The JSON references the icon using its start and end offsets in
-                                // the packed blob.
-                                put(
-                                    "icon",
-                                    JSONArray().apply {
-                                        put(NUM_BYTES_PER_INT32) // Start offset of icon (always 4)
-                                        put(NUM_BYTES_PER_INT32 + icon!!.size) // End offset of icon
-                                    },
-                                )
-                            }
-                        }
-                    } else {
-                        null
-                    }
-                }
+            val holderData = displayData?.holderDisplayData
+            if (holderData != null) {
+                // Self-declared package info
+                val name = holderData.name ?: getAppName(context)
+                icon = holderData.icon ?: getAppIcon(context)
+                jsonPackageInfo = serializePackageInfo(name, icon)
+            } else {
+                // Auto-resolved package info
+                val name = getAppName(context)
+                icon = getAppIcon(context)
+                jsonResolvedPackageInfo = serializePackageInfo(name, icon)
+            }
 
             val jsonEntries = JSONArray()
             val entries = displayData?.entries ?: emptyList()
 
             if (entries.isEmpty()) {
-                // If the caller didn't provide any entries, we still register a single empty
-                // entry. This ensures the credential option is registered and can be matched,
-                // fallbacking to the package-level name/icon for display.
                 jsonEntries.put(JSONObject())
             } else {
-                // Individual entries only contain subtitle and explainer. The title and icon
-                // are omitted here as they are declared at the package-level.
                 for (entry in entries) {
                     val jsonEntry =
                         JSONObject().apply {
@@ -246,6 +233,9 @@ private constructor(
                         put("filter", filter.asJson())
                         if (jsonPackageInfo != null) {
                             put("self_declared_package_info", jsonPackageInfo)
+                        }
+                        if (jsonResolvedPackageInfo != null) {
+                            put("package_info", jsonResolvedPackageInfo)
                         }
                         if (preferredProtocols.isNotEmpty()) {
                             put("preferred_protocols", JSONArray(preferredProtocols))
@@ -281,6 +271,67 @@ private constructor(
                 put(jsonBytes)
             }
             return result
+        }
+
+        private fun getAppName(context: Context): String {
+            return context.applicationInfo.loadLabel(context.packageManager).toString()
+        }
+
+        private fun getAppIcon(context: Context): ByteArray? {
+            val drawable = context.applicationInfo.loadIcon(context.packageManager) ?: return null
+            return drawableToWebpByteArray(drawable)
+        }
+
+        private fun drawableToWebpByteArray(drawable: Drawable): ByteArray {
+            val createdBitmap: Bitmap? =
+                if (drawable is BitmapDrawable) {
+                    null
+                } else {
+                    val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 1
+                    val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 1
+                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                    val canvas = Canvas(bitmap)
+                    drawable.setBounds(0, 0, canvas.width, canvas.height)
+                    drawable.draw(canvas)
+                    bitmap
+                }
+            val sourceBitmap = createdBitmap ?: (drawable as BitmapDrawable).bitmap
+            var resizedBitmap: Bitmap? = null
+            try {
+                resizedBitmap = Bitmap.createScaledBitmap(sourceBitmap, 40, 40, true)
+                val stream = ByteArrayOutputStream()
+                val format =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        Bitmap.CompressFormat.WEBP_LOSSLESS
+                    } else {
+                        @Suppress("DEPRECATION") Bitmap.CompressFormat.WEBP
+                    }
+                resizedBitmap.compress(format, 100, stream)
+                return stream.toByteArray()
+            } finally {
+                if (resizedBitmap != null && resizedBitmap != sourceBitmap) {
+                    resizedBitmap.recycle()
+                }
+                createdBitmap?.recycle()
+            }
+        }
+
+        private fun serializePackageInfo(name: String, icon: ByteArray?): JSONObject? {
+            val hasName = name.isNotEmpty()
+            val hasIcon = icon != null && icon.isNotEmpty()
+            if (!hasName && !hasIcon) return null
+            return JSONObject().apply {
+                if (hasName) put("name", name)
+                if (hasIcon) {
+                    put(
+                        "icon",
+                        JSONArray().apply {
+                            put(NUM_BYTES_PER_INT32) // Start offset (always 4)
+                            put(NUM_BYTES_PER_INT32 + icon.size) // End offset
+                        },
+                    )
+                }
+            }
         }
     }
 }
