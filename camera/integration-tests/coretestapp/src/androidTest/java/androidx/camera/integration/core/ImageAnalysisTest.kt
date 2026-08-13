@@ -686,24 +686,8 @@ internal class ImageAnalysisTest(
         if (Build.VERSION.SDK_INT < 29) {
             assertThat(isSupported).isFalse()
         } else {
-            (cameraInfo as CameraInfoInternal).getSupportedResolutions(ImageFormat.PRIVATE).let {
-                outputSizes ->
-                val maxResolution = SizeUtil.getMaxSize(outputSizes)!!
-                assertThat(isSupported)
-                    .isEqualTo(
-                        try {
-                            HardwareBuffer.isSupported(
-                                maxResolution.width,
-                                maxResolution.height,
-                                ImageFormat.PRIVATE,
-                                1,
-                                HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE,
-                            )
-                        } catch (e: IllegalArgumentException) {
-                            false
-                        }
-                    )
-            }
+            val supportedFormats = (cameraInfo as CameraInfoInternal).supportedOutputFormats
+            assertThat(isSupported).isEqualTo(supportedFormats.contains(ImageFormat.PRIVATE))
         }
     }
 
