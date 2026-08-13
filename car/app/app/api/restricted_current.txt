@@ -30,7 +30,7 @@ package androidx.car.app {
     ctor public CarAppService();
     method public abstract androidx.car.app.validation.HostValidator createHostValidator();
     method @CallSuper public final void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public int getAppTheme();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public int getCarAppThemeSource();
     method @Deprecated public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
     method public final androidx.car.app.Session? getSession(androidx.car.app.SessionInfo);
@@ -50,6 +50,8 @@ package androidx.car.app {
     field @androidx.car.app.annotations.RequiresCarApi(6) public static final String CATEGORY_SETTINGS_APP = "androidx.car.app.category.SETTINGS";
     field @androidx.car.app.annotations.RequiresCarApi(7) public static final String CATEGORY_WEATHER_APP = "androidx.car.app.category.WEATHER";
     field public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final int THEME_SOURCE_APP = 1; // 0x1
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final int THEME_SOURCE_SYSTEM = 0; // 0x0
   }
 
   public class CarContext extends android.content.ContextWrapper {
@@ -2869,15 +2871,6 @@ package androidx.car.app.suggestion.model {
     method public androidx.car.app.suggestion.model.Suggestion.Builder setIdentifier(String);
     method public androidx.car.app.suggestion.model.Suggestion.Builder setSubtitle(CharSequence);
     method public androidx.car.app.suggestion.model.Suggestion.Builder setTitle(CharSequence);
-  }
-
-}
-
-package androidx.car.app.theme {
-
-  @androidx.car.app.annotations.RequiresCarApi(9) public final class CarAppTheme {
-    field public static final int APP_THEME = 1; // 0x1
-    field public static final int SYSTEM_THEME = 0; // 0x0
   }
 
 }
