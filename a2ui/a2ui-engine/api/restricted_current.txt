@@ -106,6 +106,7 @@ package androidx.a2ui.engine.processor {
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.a2ui.model.processor.A2uiSurfaceModel>> getActiveSurfaces();
     method @InaccessibleFromKotlin public androidx.a2ui.model.protocol.A2uiClientCapabilities getClientCapabilities();
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.a2ui.model.protocol.A2uiClientToServerMessage> getOutboundEvents();
+    method public void processError(androidx.a2ui.model.protocol.A2uiClientErrorMessage error);
     method public void processMessage(androidx.a2ui.model.protocol.A2uiServerToClientMessage message);
     property public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.a2ui.model.processor.A2uiSurfaceModel>> activeSurfaces;
     property public androidx.a2ui.model.protocol.A2uiClientCapabilities clientCapabilities;

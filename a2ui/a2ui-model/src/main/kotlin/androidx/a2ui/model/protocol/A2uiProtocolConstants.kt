@@ -20,4 +20,7 @@ package androidx.a2ui.model.protocol
 public object A2uiProtocolConstants {
     /** The A2UI protocol version supported by this client library. */
     public const val PROTOCOL_VERSION: String = "v0.9"
+
+    /** The default surface ID used for global errors when no specific surface ID is known. */
+    internal const val GLOBAL_SURFACE_ID: String = "__global__"
 }

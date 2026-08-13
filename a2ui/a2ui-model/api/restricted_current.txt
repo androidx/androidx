@@ -329,7 +329,7 @@ package androidx.a2ui.model.processor {
     enum_constant public static final androidx.a2ui.model.processor.A2uiJsonToken STRING;
   }
 
-  public interface A2uiMessageParser<T> {
+  public fun interface A2uiMessageParser<T> {
     method public androidx.a2ui.model.protocol.A2uiServerToClientMessage parse(T input);
   }
 
@@ -337,9 +337,14 @@ package androidx.a2ui.model.processor {
     method public suspend Object? collectMessages(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.a2ui.model.processor.A2uiSurfaceModel>> getActiveSurfaces();
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.a2ui.model.protocol.A2uiClientToServerMessage> getOutboundEvents();
+    method public void processError(androidx.a2ui.model.protocol.A2uiClientErrorMessage error);
     method public void processMessage(androidx.a2ui.model.protocol.A2uiServerToClientMessage message);
     property public abstract kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.a2ui.model.processor.A2uiSurfaceModel>> activeSurfaces;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.a2ui.model.protocol.A2uiClientToServerMessage> outboundEvents;
+  }
+
+  public final class A2uiMessageProcessorKt {
+    method public static <T> void processInput(androidx.a2ui.model.processor.A2uiMessageProcessor, androidx.a2ui.model.processor.A2uiMessageParser<T> parser, T input);
   }
 
   public interface A2uiSurfaceModel {

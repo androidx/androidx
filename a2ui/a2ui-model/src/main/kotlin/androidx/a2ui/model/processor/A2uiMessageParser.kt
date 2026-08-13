@@ -23,7 +23,7 @@ import androidx.a2ui.model.protocol.A2uiServerToClientMessage
  *
  * @param T the type of input to parse
  */
-public interface A2uiMessageParser<T> {
+public fun interface A2uiMessageParser<T> {
     /**
      * Parses the [input] into an [A2uiServerToClientMessage].
      *
