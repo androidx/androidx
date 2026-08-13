@@ -33,6 +33,7 @@ import androidx.camera.camera2.compat.DynamicRangeProfilesCompat
 import androidx.camera.camera2.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.compat.quirk.CameraQuirks
 import androidx.camera.camera2.compat.quirk.DeviceQuirks
+import androidx.camera.camera2.compat.quirk.ExcludePhysicalCameraIdQuirk
 import androidx.camera.camera2.compat.quirk.ZslDisablerQuirk
 import androidx.camera.camera2.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.config.CameraConfig
@@ -45,6 +46,7 @@ import androidx.camera.camera2.impl.CameraProperties
 import androidx.camera.camera2.impl.DeviceInfoLogger
 import androidx.camera.camera2.impl.FocusMeteringControl
 import androidx.camera.camera2.impl.NightModeIndicatorMonitor
+import androidx.camera.camera2.internal.CameraCompatibilityFilter
 import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
@@ -116,16 +118,31 @@ constructor(
         DeviceInfoLogger.logDeviceInfo(cameraProperties)
     }
 
-    private val _physicalCameraInfos by lazy {
-        cameraProperties.metadata.physicalCameraIds.mapTo(mutableSetOf<CameraInfo>()) {
-            physicalCameraId ->
-            val cameraProperties =
-                CameraPipeCameraProperties(
-                    CameraConfig(physicalCameraId),
-                    cameraProperties.metadata.awaitPhysicalMetadata(physicalCameraId),
-                )
-            PhysicalCameraInfoAdapter(cameraProperties, intrinsicZoomCalculator)
-        }
+    // CameraInfoAdapter is initialized on a background thread during CameraX initialization,
+    // so loading and awaiting physical camera metadata during construction is safe.
+    private val _physicalCameraInfos: Set<CameraInfo> = loadPhysicalCameraInfos()
+
+    private fun loadPhysicalCameraInfos(): Set<CameraInfo> {
+        val quirk = DeviceQuirks[ExcludePhysicalCameraIdQuirk::class.java]
+        val excludedIds = quirk?.excludedPhysicalCameraIds ?: emptySet()
+        return cameraProperties.metadata.physicalCameraIds
+            .filter { it.value !in excludedIds }
+            .mapNotNull { physicalCameraId ->
+                val physicalMetadata =
+                    cameraProperties.metadata.awaitPhysicalMetadata(physicalCameraId)
+                if (!CameraCompatibilityFilter.isBackwardCompatible(physicalMetadata)) {
+                    Camera2Logger.debug {
+                        "Physical camera $physicalCameraId is filtered out because its " +
+                            "capabilities do not contain REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE."
+                    }
+                    null
+                } else {
+                    val cameraProperties =
+                        CameraPipeCameraProperties(CameraConfig(physicalCameraId), physicalMetadata)
+                    PhysicalCameraInfoAdapter(cameraProperties, intrinsicZoomCalculator)
+                }
+            }
+            .toSet()
     }
 
     private val isLegacyDevice by lazy { cameraProperties.metadata.isHardwareLevelLegacy }
@@ -136,7 +153,8 @@ constructor(
     }
 
     override fun isLogicalMultiCameraSupported(): Boolean {
-        return cameraProperties.metadata.supportsLogicalMultiCamera
+        return cameraProperties.metadata.supportsLogicalMultiCamera &&
+            _physicalCameraInfos.isNotEmpty()
     }
 
     override fun getPhysicalCameraInfos(): Set<CameraInfo> = _physicalCameraInfos

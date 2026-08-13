@@ -104,6 +104,14 @@ public object DeviceQuirksLoader {
         }
         if (
             quirkSettings.shouldEnableQuirk(
+                ExcludePhysicalCameraIdQuirk::class.java,
+                ExcludePhysicalCameraIdQuirk.isEnabled(),
+            )
+        ) {
+            quirks.add(ExcludePhysicalCameraIdQuirk())
+        }
+        if (
+            quirkSettings.shouldEnableQuirk(
                 ExcludedSupportedSizesQuirk::class.java,
                 ExcludedSupportedSizesQuirk.isEnabled(),
             )
