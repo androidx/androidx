@@ -1443,7 +1443,6 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CarProgressBar {
-    method @Deprecated public androidx.car.app.model.CarColor? getColor();
     method public float getProgress();
     method public androidx.car.app.model.CarProgressBarStyle? getStyle();
   }
@@ -1451,7 +1450,6 @@ package androidx.car.app.model {
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class CarProgressBar.Builder {
     ctor public CarProgressBar.Builder(@FloatRange(from=0.0f, to=1.0f) float);
     method public androidx.car.app.model.CarProgressBar build();
-    method @Deprecated public androidx.car.app.model.CarProgressBar.Builder setColor(androidx.car.app.model.CarColor);
     method public androidx.car.app.model.CarProgressBar.Builder setStyle(androidx.car.app.model.CarProgressBarStyle);
   }
 
