@@ -2198,6 +2198,10 @@ package androidx.compose.foundation.shape {
     method @BytecodeOnly public androidx.compose.ui.graphics.Outline createOutline-Pq9zytI(long, androidx.compose.ui.unit.LayoutDirection, androidx.compose.ui.unit.Density);
   }
 
+  public final class MorphPolygonShapeKt {
+    method @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.ui.graphics.Shape MorphPolygonShape(androidx.compose.foundation.shape.PolygonShape start, androidx.compose.foundation.shape.PolygonShape end, kotlin.jvm.functions.Function0<java.lang.Float> progress);
+  }
+
   public abstract sealed nonexhaustive class PolygonShape implements androidx.compose.ui.graphics.Shape {
     field public static final androidx.compose.foundation.shape.PolygonShape.Companion Companion;
   }
@@ -2261,6 +2265,10 @@ package androidx.compose.foundation.shape {
   public final class PolygonShapeKt {
     method @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.foundation.shape.PolygonShape PolygonShape(androidx.compose.foundation.shape.PolygonShapeGeometry geometry);
     method @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.foundation.shape.PolygonShape PolygonShape(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.shape.PolygonShapeScope,androidx.compose.foundation.shape.PolygonShapeGeometry> builder);
+    method public static androidx.compose.foundation.shape.PolygonShape toPolygonShape(androidx.compose.foundation.shape.AbsoluteCutCornerShape);
+    method public static androidx.compose.foundation.shape.PolygonShape toPolygonShape(androidx.compose.foundation.shape.AbsoluteRoundedCornerShape);
+    method public static androidx.compose.foundation.shape.PolygonShape toPolygonShape(androidx.compose.foundation.shape.CutCornerShape);
+    method public static androidx.compose.foundation.shape.PolygonShape toPolygonShape(androidx.compose.foundation.shape.RoundedCornerShape);
   }
 
   public sealed nonexhaustive interface PolygonShapeScope extends androidx.compose.ui.unit.Density {

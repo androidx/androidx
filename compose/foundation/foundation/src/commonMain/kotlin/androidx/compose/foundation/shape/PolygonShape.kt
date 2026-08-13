@@ -95,6 +95,13 @@ public fun PolygonShape(geometry: PolygonShapeGeometry): PolygonShape =
  * Outlines returned by [createOutline] are shared between callers and must not be mutated.
  */
 public sealed class PolygonShape : Shape {
+
+    internal abstract fun resolvePolygon(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): RoundedPolygon
+
     public companion object {
         /**
          * Creates a regular polygon [PolygonShape] with [numVertices] vertices, sized to the
@@ -852,7 +859,7 @@ internal abstract class CachingPolygonShape : PolygonShape() {
      * cache, so a shape instance shared across consumers builds its geometry once per size instead
      * of once per consumer.
      */
-    internal fun resolvePolygon(
+    internal final override fun resolvePolygon(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density,
@@ -1241,4 +1248,183 @@ private class RectanglePolygonShape(
         result = 31 * result + absolute.hashCode()
         return result
     }
+}
+
+/**
+ * Converts a [RoundedCornerShape] to a [PolygonShape].
+ *
+ * Note: The resulting outline closely approximates the original shape, but is not pixel-identical
+ * because [PolygonShape] and [RoundedCornerShape] use different geometry and curve calculations.
+ * Avoid comparing them for 1:1 pixel equivalence.
+ *
+ * @sample androidx.compose.foundation.samples.RoundedCornerShapeToPolygonShapeSample
+ */
+public fun RoundedCornerShape.toPolygonShape(): PolygonShape =
+    CornerShapePolygonShape(this, cut = false, absolute = false)
+
+/**
+ * Converts an [AbsoluteRoundedCornerShape] to a [PolygonShape].
+ *
+ * Corners do not swap with the layout direction.
+ *
+ * Note: The resulting outline closely approximates the original shape, but is not pixel-identical
+ * because [PolygonShape] and [AbsoluteRoundedCornerShape] use different geometry and curve
+ * calculations. Avoid comparing them for 1:1 pixel equivalence.
+ */
+public fun AbsoluteRoundedCornerShape.toPolygonShape(): PolygonShape =
+    CornerShapePolygonShape(this, cut = false, absolute = true)
+
+/**
+ * Converts a [CutCornerShape] to a [PolygonShape].
+ *
+ * Note: The resulting outline closely approximates the original shape, but is not pixel-identical
+ * because [PolygonShape] and [CutCornerShape] use different geometry and curve calculations. Avoid
+ * comparing them for 1:1 pixel equivalence.
+ */
+public fun CutCornerShape.toPolygonShape(): PolygonShape =
+    CornerShapePolygonShape(this, cut = true, absolute = false)
+
+/**
+ * Converts an [AbsoluteCutCornerShape] to a [PolygonShape].
+ *
+ * Corners do not swap with the layout direction.
+ *
+ * Note: The resulting outline closely approximates the original shape, but is not pixel-identical
+ * because [PolygonShape] and [AbsoluteCutCornerShape] use different geometry and curve
+ * calculations. Avoid comparing them for 1:1 pixel equivalence.
+ */
+public fun AbsoluteCutCornerShape.toPolygonShape(): PolygonShape =
+    CornerShapePolygonShape(this, cut = true, absolute = true)
+
+/**
+ * Polygon conversion of a [CornerBasedShape] ([RoundedCornerShape]/[CutCornerShape] and their
+ * absolute variants). Keyed on the [source] shape plus the [cut] and [absolute] flags; the RTL
+ * corner swap is resolved at build time, so it is not part of identity.
+ */
+private class CornerShapePolygonShape(
+    val source: CornerBasedShape,
+    val cut: Boolean,
+    val absolute: Boolean,
+) : CachingPolygonShape() {
+    override fun buildPolygon(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): RoundedPolygon {
+        var ts = source.topStart.toPx(size, density)
+        var te = source.topEnd.toPx(size, density)
+        var bs = source.bottomStart.toPx(size, density)
+        var be = source.bottomEnd.toPx(size, density)
+        // CornerBasedShape scales each start/end corner pair down when its sum exceeds the
+        // minimum dimension; mirror that so the conversion matches the source outline.
+        val minDimension = size.minDimension
+        if (ts + bs > minDimension) {
+            val scale = minDimension / (ts + bs)
+            ts *= scale
+            bs *= scale
+        }
+        if (te + be > minDimension) {
+            val scale = minDimension / (te + be)
+            te *= scale
+            be *= scale
+        }
+        val rtl = !absolute && layoutDirection == LayoutDirection.Rtl
+        val topLeft = if (rtl) te else ts
+        val topRight = if (rtl) ts else te
+        val bottomLeft = if (rtl) be else bs
+        val bottomRight = if (rtl) bs else be
+        return if (cut) {
+            cutCornerPolygon(size, topLeft, topRight, bottomLeft, bottomRight)
+        } else {
+            roundedCornerPolygon(size, topLeft, topRight, bottomLeft, bottomRight)
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CornerShapePolygonShape) return false
+        return cut == other.cut && absolute == other.absolute && source == other.source
+    }
+
+    override fun hashCode(): Int {
+        var result = source.hashCode()
+        result = 31 * result + cut.hashCode()
+        result = 31 * result + absolute.hashCode()
+        return result
+    }
+}
+
+/**
+ * Builds a rectangular [RoundedPolygon] sized to [size] with per-corner rounding. Vertices are
+ * ordered bottom-right, bottom-left, top-left, top-right.
+ */
+private fun roundedCornerPolygon(
+    size: Size,
+    topLeft: Float,
+    topRight: Float,
+    bottomLeft: Float,
+    bottomRight: Float,
+): RoundedPolygon {
+    val width = size.width
+    val height = size.height
+    return RoundedPolygon(
+        vertices =
+            floatArrayOf(
+                width,
+                height, // Bottom-Right
+                0f,
+                height, // Bottom-Left
+                0f,
+                0f, // Top-Left
+                width,
+                0f, // Top-Right
+            ),
+        perVertexRounding =
+            listOf(
+                androidx.graphics.shapes.CornerRounding(bottomRight),
+                androidx.graphics.shapes.CornerRounding(bottomLeft),
+                androidx.graphics.shapes.CornerRounding(topLeft),
+                androidx.graphics.shapes.CornerRounding(topRight),
+            ),
+        centerX = width / 2f,
+        centerY = height / 2f,
+    )
+}
+
+/** Builds a beveled (cut-corner) [RoundedPolygon] sized to [size]. */
+private fun cutCornerPolygon(
+    size: Size,
+    topLeft: Float,
+    topRight: Float,
+    bottomLeft: Float,
+    bottomRight: Float,
+): RoundedPolygon {
+    val width = size.width
+    val height = size.height
+    // A zero cut collapses a bevel's two endpoints into one point; skip the duplicates, as
+    // RoundedPolygon rejects zero-length edges.
+    val vertices = FloatArray(16)
+    var count = 0
+    fun add(x: Float, y: Float) {
+        if (count >= 2 && vertices[count - 2] == x && vertices[count - 1] == y) return
+        vertices[count++] = x
+        vertices[count++] = y
+    }
+    add(topLeft, 0f)
+    add(width - topRight, 0f)
+    add(width, topRight)
+    add(width, height - bottomRight)
+    add(width - bottomRight, height)
+    add(bottomLeft, height)
+    add(0f, height - bottomLeft)
+    add(0f, topLeft)
+    if (count >= 4 && vertices[0] == vertices[count - 2] && vertices[1] == vertices[count - 1]) {
+        count -= 2
+    }
+    return RoundedPolygon(
+        vertices = vertices.copyOf(count),
+        rounding = androidx.graphics.shapes.CornerRounding.Unrounded,
+        centerX = width / 2f,
+        centerY = height / 2f,
+    )
 }
