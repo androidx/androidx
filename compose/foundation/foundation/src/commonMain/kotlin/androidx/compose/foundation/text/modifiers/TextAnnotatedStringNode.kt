@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -63,10 +64,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.constrain
+import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
 
 /** Node that implements Text for [AnnotatedString] or [onTextLayout] parameters. */
+@OptIn(InternalFoundationTextApi::class)
 internal class TextAnnotatedStringNode(
     private var text: AnnotatedString,
     private var style: TextStyle,
@@ -85,6 +89,10 @@ internal class TextAnnotatedStringNode(
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     override val shouldAutoInvalidate: Boolean
         get() = false
+
+    private var lookaheadConstraints: Constraints = Constraints()
+    private var hasLookaheadConstraints: Boolean = false
+    private var offsetX: Float = 0f
 
     @Suppress("PrimitiveInCollection")
     private var baselineCache: MutableMap<AlignmentLine, Int>? = null
@@ -421,10 +429,19 @@ internal class TextAnnotatedStringNode(
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult {
+        if (isLookingAhead) {
+            lookaheadConstraints = constraints
+            hasLookaheadConstraints = true
+        }
+        val hasLookahead = hasLookaheadConstraints
         trace("TextAnnotatedStringNode:measure") {
             val layoutCache = getLayoutCache(this)
 
-            val didChangeLayout = layoutCache.layoutWithConstraints(constraints, layoutDirection)
+            val width: Int
+            val height: Int
+            val layoutConstraints = if (hasLookahead) lookaheadConstraints else constraints
+            val didChangeLayout =
+                layoutCache.layoutWithConstraints(layoutConstraints, layoutDirection)
             val textLayoutResult = layoutCache.textLayoutResult
 
             // ensure measure restarts when hasStaleResolvedFonts by reading in measure
@@ -441,27 +458,49 @@ internal class TextAnnotatedStringNode(
                 baselineCache = cache
             }
 
+            val isApproachConstraintsDifferent = hasLookahead && lookaheadConstraints != constraints
+            val localOffsetX =
+                if (isApproachConstraintsDifferent) {
+                    val constrainedSize = constraints.constrain(textLayoutResult.size)
+                    width = constrainedSize.width
+                    height = constrainedSize.height
+                    calculateAlignmentOffset(
+                        textAlign = style.textAlign,
+                        layoutDirection = layoutDirection,
+                        nodeWidth = width,
+                        paragraphWidth = textLayoutResult.size.width,
+                    )
+                } else {
+                    width = textLayoutResult.size.width
+                    height = textLayoutResult.size.height
+                    0f
+                }
+            offsetX = localOffsetX
+            selectionController?.updateInLookaheadTransition(isApproachConstraintsDifferent)
+
             // first share the placeholders
-            onPlaceholderLayout?.invoke(textLayoutResult.placeholderRects)
+            val placeholderRects =
+                if (localOffsetX != 0f) {
+                    textLayoutResult.placeholderRects.fastMap { rect ->
+                        rect?.translate(Offset(localOffsetX, 0f))
+                    }
+                } else {
+                    textLayoutResult.placeholderRects
+                }
+            onPlaceholderLayout?.invoke(placeholderRects)
 
             // then allow children to measure _inside_ our final box, with the above placeholders
             val placeable =
                 measurable.measure(
                     fitPrioritizingWidth(
-                        minWidth = textLayoutResult.size.width,
-                        maxWidth = textLayoutResult.size.width,
-                        minHeight = textLayoutResult.size.height,
-                        maxHeight = textLayoutResult.size.height,
+                        minWidth = width,
+                        maxWidth = width,
+                        minHeight = height,
+                        maxHeight = height,
                     )
                 )
 
-            return layout(
-                textLayoutResult.size.width,
-                textLayoutResult.size.height,
-                baselineCache!!,
-            ) {
-                placeable.place(0, 0)
-            }
+            return layout(width, height, baselineCache!!) { placeable.place(0, 0) }
         }
     }
 
@@ -525,20 +564,28 @@ internal class TextAnnotatedStringNode(
             return
         }
 
-        selectionController?.draw(this)
         drawIntoCanvas { canvas ->
             val layoutCache = getLayoutCache(this)
             val textLayoutResult = layoutCache.textLayoutResult
             val localParagraph = textLayoutResult.multiParagraph
             val willClip = textLayoutResult.hasVisualOverflow && overflow != TextOverflow.Visible
-            if (willClip) {
-                val width = textLayoutResult.size.width.toFloat()
-                val height = textLayoutResult.size.height.toFloat()
-                val bounds = Rect(Offset.Zero, Size(width, height))
+            val offset = if (hasLookaheadConstraints) offsetX else 0f
+            val needsTranslate = offset != 0f
+            val needsSave = needsTranslate || willClip
+            if (needsSave) {
                 canvas.save()
-                canvas.clipRect(bounds)
+                if (needsTranslate) {
+                    canvas.translate(offset, 0f)
+                }
+                if (willClip) {
+                    val width = textLayoutResult.size.width.toFloat()
+                    val height = textLayoutResult.size.height.toFloat()
+                    val bounds = Rect(Offset.Zero, Size(width, height))
+                    canvas.clipRect(bounds)
+                }
             }
             try {
+                selectionController?.draw(this)
                 val textDecoration = style.textDecoration ?: TextDecoration.None
                 val shadow = style.shadow ?: Shadow.None
                 val drawStyle = style.drawStyle ?: Fill
@@ -572,7 +619,7 @@ internal class TextAnnotatedStringNode(
                     )
                 }
             } finally {
-                if (willClip) {
+                if (needsSave) {
                     canvas.restore()
                 }
             }

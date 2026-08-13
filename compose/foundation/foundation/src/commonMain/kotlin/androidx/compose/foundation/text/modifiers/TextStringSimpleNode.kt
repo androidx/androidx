@@ -20,6 +20,7 @@ import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.text.DefaultMinLines
+import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
@@ -59,6 +60,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
+import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
 import kotlin.jvm.JvmName
@@ -70,7 +72,7 @@ import kotlin.jvm.JvmName
  *
  * Note that this Node never calculates [TextLayoutResult] unless needed by semantics.
  */
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, InternalFoundationTextApi::class)
 internal class TextStringSimpleNode(
     private var text: String,
     private var style: TextStyle,
@@ -83,6 +85,10 @@ internal class TextStringSimpleNode(
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     override val shouldAutoInvalidate: Boolean
         get() = false
+
+    private var lookaheadConstraints: Constraints = Constraints()
+    private var hasLookaheadConstraints: Boolean = false
+    private var offsetX: Float = 0f
 
     @Suppress("PrimitiveInCollection") // Map required for use in public API.
     // Usages of this collection are so few that the gains of using
@@ -386,18 +392,25 @@ internal class TextStringSimpleNode(
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult {
+        if (isLookingAhead) {
+            lookaheadConstraints = constraints
+            hasLookaheadConstraints = true
+        }
+        val hasLookahead = hasLookaheadConstraints
         trace("TextStringSimpleNode::measure") {
             val layoutCache = getLayoutCacheForMeasure()
 
-            val didChangeLayout = layoutCache.layoutWithConstraints(constraints, layoutDirection)
-            // ensure measure restarts when hasStaleResolvedFonts by reading in measure
+            val width: Int
+            val height: Int
+            val layoutConstraints = if (hasLookahead) lookaheadConstraints else constraints
+            val didChangeLayout =
+                layoutCache.layoutWithConstraints(layoutConstraints, layoutDirection)
             layoutCache.observeFontChanges
             val paragraph = layoutCache.paragraph!!
             val layoutSize = layoutCache.layoutSize
 
             if (didChangeLayout) {
                 invalidateLayer()
-                // Map<AlignmentLine, Int> required for use in public API `layout` below
                 @Suppress("PrimitiveInCollection") var cache = baselineCache
                 if (cache == null) {
                     cache = HashMap(2)
@@ -407,20 +420,37 @@ internal class TextStringSimpleNode(
                 cache[LastBaseline] = paragraph.lastBaseline.fastRoundToInt()
             }
 
+            val isApproachConstraintsDifferent = hasLookahead && lookaheadConstraints != constraints
+
+            if (isApproachConstraintsDifferent) {
+                val constrainedSize = constraints.constrain(layoutSize)
+                width = constrainedSize.width
+                height = constrainedSize.height
+                offsetX =
+                    calculateAlignmentOffset(
+                        textAlign = style.textAlign,
+                        layoutDirection = layoutDirection,
+                        nodeWidth = width,
+                        paragraphWidth = layoutSize.width,
+                    )
+            } else {
+                width = layoutSize.width
+                height = layoutSize.height
+                offsetX = 0f
+            }
+
             // then allow children to measure _inside_ our final box, with the above placeholders
             val placeable =
                 measurable.measure(
                     fitPrioritizingWidth(
-                        minWidth = layoutSize.width,
-                        maxWidth = layoutSize.width,
-                        minHeight = layoutSize.height,
-                        maxHeight = layoutSize.height,
+                        minWidth = width,
+                        maxWidth = width,
+                        minHeight = height,
+                        maxHeight = height,
                     )
                 )
 
-            return layout(layoutSize.width, layoutSize.height, baselineCache!!) {
-                placeable.place(0, 0)
-            }
+            return layout(width, height, baselineCache!!) { placeable.place(0, 0) }
         }
     }
 
@@ -461,11 +491,19 @@ internal class TextStringSimpleNode(
 
         drawIntoCanvas { canvas ->
             val willClip = layoutCache.didOverflow
-            if (willClip) {
-                val width = layoutCache.layoutSize.width.toFloat()
-                val height = layoutCache.layoutSize.height.toFloat()
+            val offset = if (hasLookaheadConstraints) offsetX else 0f
+            val needsTranslate = offset != 0f
+            val needsSave = needsTranslate || willClip
+            if (needsSave) {
                 canvas.save()
-                canvas.clipRect(left = 0f, top = 0f, right = width, bottom = height)
+                if (needsTranslate) {
+                    canvas.translate(offset, 0f)
+                }
+                if (willClip) {
+                    val width = layoutCache.layoutSize.width.toFloat()
+                    val height = layoutCache.layoutSize.height.toFloat()
+                    canvas.clipRect(left = 0f, top = 0f, right = width, bottom = height)
+                }
             }
             try {
                 val style =
@@ -506,7 +544,7 @@ internal class TextStringSimpleNode(
                     )
                 }
             } finally {
-                if (willClip) {
+                if (needsSave) {
                     canvas.restore()
                 }
             }
