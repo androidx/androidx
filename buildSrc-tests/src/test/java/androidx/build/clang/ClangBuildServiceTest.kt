@@ -55,6 +55,15 @@ class ClangBuildServiceTest : BaseClangTest() {
     }
 
     @Test
+    fun invalidTarget() {
+        val compileParams = createCompileParameters("code.c", C_HELLO_WORLD)
+        compileParams.target.set("invalid_target")
+        assertThrows<IllegalStateException> { buildService.compile(compileParams) }
+            .hasMessageThat()
+            .contains("Unknown native target: invalid_target")
+    }
+
+    @Test
     fun compile() {
         val compileParams = createCompileParameters("code.c", C_HELLO_WORLD)
         buildService.compile(compileParams)
@@ -141,7 +150,7 @@ class ClangBuildServiceTest : BaseClangTest() {
         assertThat(strings).contains("libc")
 
         // verify shared lib files are aligned to 16Kb boundary for Android targets
-        if (sharedLibraryParameters.target.get().asNativeTarget.isAndroid) {
+        if (NativeTarget.fromName(sharedLibraryParameters.target.get()).isAndroid) {
             val alignment =
                 ProcessBuilder("objdump", "-p", outputFile.path)
                     .start()
@@ -182,7 +191,7 @@ class ClangBuildServiceTest : BaseClangTest() {
         val srcDir = tmpFolder.newFolder("src")
         srcDir.resolve(fileName).writeText(code)
         val compileParams = project.objects.newInstance(ClangCompileParameters::class.java)
-        compileParams.target.set(SerializableNativeTarget(target))
+        compileParams.target.set(target.name)
         compileParams.output.set(tmpFolder.newFolder())
         compileParams.sources.from(srcDir)
         return compileParams
