@@ -56,29 +56,29 @@ class ArCoreDepthTest {
     fun update_rawDepthMapAndRawConfidence() {
         val imageWidth = 5
         val imageHeight = 2
-        val pixelSize = Short.SIZE_BYTES
+        val pixelSize = Float.SIZE_BYTES
         val bufferSize = 10
         val rawConfidenceValues = ByteBuffer.allocate(bufferSize)
         for (i in 1..bufferSize) {
             rawConfidenceValues.put((0..255).random().toByte())
         }
-        val millimetersRawBuffer =
+        val metersRawBuffer =
             ByteBuffer.allocate(pixelSize * bufferSize).order(ByteOrder.LITTLE_ENDIAN)
         for (i in 1..bufferSize) {
-            millimetersRawBuffer.putShort((1000..8000).random().toShort())
+            metersRawBuffer.putFloat((1..80).random().toFloat())
         }
-        millimetersRawBuffer.position(0)
+        metersRawBuffer.position(0)
         val confidencePlaneArray = arrayOf(mockImageConfidencePlane)
         val depthMapPlaneArray = arrayOf(mockImagePlane)
-        val millimetersShortBuffer = millimetersRawBuffer.asShortBuffer()
+        val metersFloatBuffer = metersRawBuffer.asFloatBuffer()
 
         whenever(mockLastFrame.acquireRawDepthConfidenceImage())
             .thenReturn(mockDepthMapConfidenceImage)
         whenever(mockDepthMapConfidenceImage.getPlanes()).thenReturn(confidencePlaneArray)
         whenever(mockImageConfidencePlane.getBuffer()).thenReturn(rawConfidenceValues)
-        whenever(mockLastFrame.acquireRawDepthImage16Bits()).thenReturn(mockDepthMapImage)
-        whenever(mockLastFrame.acquireDepthImage16Bits()).thenReturn(mockDepthMapImage)
-        whenever(mockImagePlane.getBuffer()).thenReturn(millimetersRawBuffer)
+        whenever(mockLastFrame.acquireRawDepthImageMeters()).thenReturn(mockDepthMapImage)
+        whenever(mockLastFrame.acquireDepthImageMeters()).thenReturn(mockDepthMapImage)
+        whenever(mockImagePlane.getBuffer()).thenReturn(metersRawBuffer)
         whenever(mockImagePlane.pixelStride).thenReturn(pixelSize)
         whenever(mockImagePlane.rowStride).thenReturn(pixelSize * imageWidth)
         whenever(mockDepthMapImage.getPlanes()).thenReturn(depthMapPlaneArray)
@@ -90,10 +90,8 @@ class ArCoreDepthTest {
 
         assertThat(underTest.rawConfidenceMap!![0]).isEqualTo(rawConfidenceValues.get(0))
         assertThat(underTest.rawConfidenceMap!![4]).isEqualTo(rawConfidenceValues.get(4))
-        assertThat(underTest.rawDepthMap!![0])
-            .isEqualTo((millimetersShortBuffer.get(0).toFloat()) / 1000f)
-        assertThat(underTest.rawDepthMap!![9])
-            .isEqualTo((millimetersShortBuffer.get(9).toFloat()) / 1000f)
+        assertThat(underTest.rawDepthMap!![0]).isEqualTo(metersFloatBuffer.get(0))
+        assertThat(underTest.rawDepthMap!![9]).isEqualTo(metersFloatBuffer.get(9))
         assertThat(underTest.smoothDepthMap).isEqualTo(null)
     }
 
@@ -101,36 +99,36 @@ class ArCoreDepthTest {
     fun update_rawAndSmoothDepthMap() {
         val imageWidth = 10
         val imageHeight = 2
-        val pixelSize = Short.SIZE_BYTES
+        val pixelSize = Float.SIZE_BYTES
         val bufferSize = 20
         val rawConfidenceValues = ByteBuffer.allocate(bufferSize)
         for (i in 1..bufferSize) {
             rawConfidenceValues.put((0..255).random().toByte())
         }
-        val millimetersRawBuffer =
+        val metersRawBuffer =
             ByteBuffer.allocate(pixelSize * bufferSize).order(ByteOrder.LITTLE_ENDIAN)
-        val millimetersSmoothBuffer =
+        val metersSmoothBuffer =
             ByteBuffer.allocate(pixelSize * bufferSize).order(ByteOrder.LITTLE_ENDIAN)
         for (i in 1..bufferSize) {
-            millimetersRawBuffer.putShort((1000..8000).random().toShort())
-            millimetersSmoothBuffer.putShort((1000..8000).random().toShort())
+            metersRawBuffer.putFloat((1..80).random().toFloat())
+            metersSmoothBuffer.putFloat((1..80).random().toFloat())
         }
-        millimetersRawBuffer.position(0)
-        millimetersSmoothBuffer.position(0)
+        metersRawBuffer.position(0)
+        metersSmoothBuffer.position(0)
         val confidencePlaneArray = arrayOf(mockImageConfidencePlane)
         val depthMapPlaneArray = arrayOf(mockImagePlane)
         val depthMapSmoothPlaneArray = arrayOf(mockSmoothImagePlane)
-        val millimetersShortBuffer = millimetersRawBuffer.asShortBuffer()
-        val millimetersSmoothShortBuffer = millimetersSmoothBuffer.asShortBuffer()
+        val metersShortBuffer = metersRawBuffer.asFloatBuffer()
+        val metersSmoothShortBuffer = metersSmoothBuffer.asFloatBuffer()
 
         whenever(mockLastFrame.acquireRawDepthConfidenceImage())
             .thenReturn(mockDepthMapConfidenceImage)
         whenever(mockDepthMapConfidenceImage.getPlanes()).thenReturn(confidencePlaneArray)
         whenever(mockImageConfidencePlane.getBuffer()).thenReturn(rawConfidenceValues)
-        whenever(mockLastFrame.acquireRawDepthImage16Bits()).thenReturn(mockDepthMapImage)
-        whenever(mockLastFrame.acquireDepthImage16Bits()).thenReturn(mockSmoothDepthMapImage)
-        whenever(mockImagePlane.getBuffer()).thenReturn(millimetersRawBuffer)
-        whenever(mockSmoothImagePlane.getBuffer()).thenReturn(millimetersSmoothBuffer)
+        whenever(mockLastFrame.acquireRawDepthImageMeters()).thenReturn(mockDepthMapImage)
+        whenever(mockLastFrame.acquireDepthImageMeters()).thenReturn(mockSmoothDepthMapImage)
+        whenever(mockImagePlane.getBuffer()).thenReturn(metersRawBuffer)
+        whenever(mockSmoothImagePlane.getBuffer()).thenReturn(metersSmoothBuffer)
         whenever(mockImagePlane.pixelStride).thenReturn(pixelSize)
         whenever(mockSmoothImagePlane.pixelStride).thenReturn(pixelSize)
         whenever(mockImagePlane.rowStride).thenReturn(pixelSize * imageWidth)
@@ -149,13 +147,9 @@ class ArCoreDepthTest {
         assertThat(underTest.rawConfidenceMap!![10]).isEqualTo(rawConfidenceValues.get(10))
         assertThat(underTest.smoothConfidenceMap!![0]).isEqualTo(rawConfidenceValues.get(0))
         assertThat(underTest.smoothConfidenceMap!![10]).isEqualTo(rawConfidenceValues.get(10))
-        assertThat(underTest.rawDepthMap!![0])
-            .isEqualTo((millimetersShortBuffer.get(0).toFloat()) / 1000f)
-        assertThat(underTest.rawDepthMap!![15])
-            .isEqualTo((millimetersShortBuffer.get(15).toFloat()) / 1000f)
-        assertThat(underTest.smoothDepthMap!![0])
-            .isEqualTo((millimetersSmoothShortBuffer.get(0).toFloat()) / 1000f)
-        assertThat(underTest.smoothDepthMap!![19])
-            .isEqualTo((millimetersSmoothShortBuffer.get(19).toFloat()) / 1000f)
+        assertThat(underTest.rawDepthMap!![0]).isEqualTo(metersShortBuffer.get(0))
+        assertThat(underTest.rawDepthMap!![15]).isEqualTo(metersShortBuffer.get(15))
+        assertThat(underTest.smoothDepthMap!![0]).isEqualTo(metersSmoothShortBuffer.get(0))
+        assertThat(underTest.smoothDepthMap!![19]).isEqualTo(metersSmoothShortBuffer.get(19))
     }
 }
