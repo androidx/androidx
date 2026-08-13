@@ -20,9 +20,14 @@ import androidx.compose.foundation.shape.MorphPolygonShape
 import androidx.compose.foundation.shape.PolygonShape
 import androidx.compose.foundation.shape.PolygonShapeGeometry
 import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
+import androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding
+import androidx.compose.foundation.shape.scaledToFit
+import androidx.compose.foundation.shape.transformed
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.filters.LargeTest
@@ -47,7 +52,9 @@ class PolygonShapeBenchmark {
     fun foundationMorphFrame() {
         var progress = 0.01f
         val shape =
-            MorphPolygonShape(FoundationShapes.softBurst, FoundationShapes.star9) { progress }
+            MorphPolygonShape(FoundationShapes.softBurst, FoundationShapes.cookie9Sided) {
+                progress
+            }
         benchmarkRule.measureRepeated {
             progress += 0.049f
             if (progress >= 0.99f) progress = 0.01f
@@ -59,15 +66,15 @@ class PolygonShapeBenchmark {
     fun foundationStaticShapeOutline() {
         // Steady-state: PolygonShape caches its resolved outline per size, so this measures the
         // cache-hit path (the equivalent of M3's cached-unit-path fast path).
-        val shape = FoundationShapes.star9
+        val shape = FoundationShapes.cookie9Sided
         benchmarkRule.measureRepeated { shape.createOutline(size, LayoutDirection.Ltr, density) }
     }
 
     @Test
     fun foundationStaticShapeOutlineResized() {
         // Alternating sizes defeat the per-size cache, measuring the cold rebuild cost that is
-        // paid once per size change (geometry construction + path).
-        val shape = FoundationShapes.star9
+        // paid once per size change (geometry construction + transforms + fit + path).
+        val shape = FoundationShapes.cookie9Sided
         val sizes = arrayOf(size, Size(240f, 240f))
         var i = 0
         benchmarkRule.measureRepeated {
@@ -80,6 +87,36 @@ class PolygonShapeBenchmark {
     @Test
     fun foundationPlainPolygonOutline() {
         val shape = PolygonShape { polygon(5, rounding = CornerRounding(percent = 20)) }
+        benchmarkRule.measureRepeated { shape.createOutline(size, LayoutDirection.Ltr, density) }
+    }
+
+    @Test
+    fun foundationChainedResizedOutline() {
+        // Depth-3 operator chain rebuilt on every size change: measures the folded resolve
+        // (base build + one materialization regardless of chain depth).
+        val shape =
+            PolygonShape.star(numPoints = 9, outerRounding = CornerRounding(percent = 30))
+                .transformed(
+                    matrix =
+                        Matrix().apply {
+                            rotateZ(-45f)
+                            scale(1f, 0.8f)
+                        },
+                    contentScale = ContentScale.Fit,
+                )
+        val sizes = arrayOf(size, Size(240f, 240f))
+        var i = 0
+        benchmarkRule.measureRepeated {
+            val s = sizes[i]
+            i = i xor 1
+            shape.createOutline(s, LayoutDirection.Ltr, density)
+        }
+    }
+
+    @Test
+    fun foundationNormalizedPolygonOutline() {
+        val shape =
+            PolygonShape { polygon(5, rounding = CornerRounding(percent = 20)) }.scaledToFit()
         benchmarkRule.measureRepeated { shape.createOutline(size, LayoutDirection.Ltr, density) }
     }
 
@@ -137,10 +174,11 @@ internal object FoundationShapes {
         }
     }
 
-    val star9: PolygonShape =
+    val cookie9Sided: PolygonShape =
         PolygonShape.star(
-            numPoints = 9,
-            innerRadiusRatio = 0.8f,
-            outerRounding = CornerRounding(percent = 50),
-        )
+                numPoints = 9,
+                innerRadiusRatio = 0.8f,
+                outerRounding = CornerRounding(percent = 50),
+            )
+            .transformed(Matrix().apply { rotateZ(-90f) }, contentScale = ContentScale.Fit)
 }
