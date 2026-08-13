@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.framegraph
 
 import android.content.Context
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.params.MeteringRectangle
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
@@ -212,6 +213,26 @@ class FrameGraphBuffersTest {
 
         return FrameImpl(frameState)
     }
+
+    @Test
+    fun attachActualChange_arrayValuesWithSameContent_doesNotThrow() =
+        testScope.runTest {
+            val array1 = arrayOf(MeteringRectangle(0, 0, 100, 100, 100))
+            val array2 = arrayOf(MeteringRectangle(0, 0, 100, 100, 100))
+
+            frameGraphBuffers.attach(
+                setOf(streamId1),
+                mapOf(CaptureRequest.CONTROL_AE_REGIONS to array1),
+                1,
+            )
+
+            // This should not throw an exception because of deep equality.
+            frameGraphBuffers.attach(
+                setOf(streamId2),
+                mapOf(CaptureRequest.CONTROL_AE_REGIONS to array2),
+                1,
+            )
+        }
 
     companion object {
         private val CAPTURE_REQUEST_KEY = CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
