@@ -22,6 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistry.SavedStateConsumer
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.read
@@ -69,6 +70,20 @@ internal class SavedStateRegistryImpl(
                 "SavedStateProvider with the given key is already registered"
             }
             keyToProviders[key] = provider
+
+            if (provider is SavedStateConsumer && isRestored) {
+                val state = restoredState
+                if (state != null) {
+                    val childState = state.read { if (contains(key)) getSavedState(key) else null }
+                    if (childState != null) {
+                        state.write { remove(key) }
+                        if (state.read { isEmpty() }) {
+                            restoredState = null
+                        }
+                        provider.consumeState(childState)
+                    }
+                }
+            }
         }
     }
 
@@ -114,11 +129,29 @@ internal class SavedStateRegistryImpl(
         }
         check(!isRestored) { "SavedStateRegistry was already restored." }
 
-        restoredState =
+        val restored =
             savedState?.read {
                 if (contains(SAVED_COMPONENTS_KEY)) getSavedState(SAVED_COMPONENTS_KEY) else null
             }
+        restoredState = restored
         isRestored = true
+
+        if (restored != null) {
+            synchronized(lock) {
+                keyToProviders.forEach { key, provider ->
+                    if (provider is SavedStateConsumer) {
+                        val childState = restored.read { getSavedStateOrNull(key) }
+                        if (childState != null) {
+                            restored.write { remove(key) }
+                            provider.consumeState(childState)
+                        }
+                    }
+                }
+                if (restored.read { isEmpty() }) {
+                    restoredState = null
+                }
+            }
+        }
     }
 
     /**

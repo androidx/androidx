@@ -47,6 +47,10 @@ internal actual constructor(private val impl: SavedStateRegistryImpl) {
         public actual fun saveState(): SavedState
     }
 
+    public actual fun interface SavedStateConsumer {
+        public actual fun consumeState(state: SavedState)
+    }
+
     /**
      * Subclasses of this interface will be automatically recreated if they were previously
      * registered via [runOnNextRecreation].

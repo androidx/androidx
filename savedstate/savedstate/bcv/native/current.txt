@@ -63,6 +63,10 @@ final class androidx.savedstate/SavedStateRegistry { // androidx.savedstate/Save
     final fun registerSavedStateProvider(kotlin/String, androidx.savedstate/SavedStateRegistry.SavedStateProvider) // androidx.savedstate/SavedStateRegistry.registerSavedStateProvider|registerSavedStateProvider(kotlin.String;androidx.savedstate.SavedStateRegistry.SavedStateProvider){}[0]
     final fun unregisterSavedStateProvider(kotlin/String) // androidx.savedstate/SavedStateRegistry.unregisterSavedStateProvider|unregisterSavedStateProvider(kotlin.String){}[0]
 
+    abstract fun interface SavedStateConsumer { // androidx.savedstate/SavedStateRegistry.SavedStateConsumer|null[0]
+        abstract fun consumeState(androidx.savedstate/SavedState) // androidx.savedstate/SavedStateRegistry.SavedStateConsumer.consumeState|consumeState(androidx.savedstate.SavedState){}[0]
+    }
+
     abstract fun interface SavedStateProvider { // androidx.savedstate/SavedStateRegistry.SavedStateProvider|null[0]
         abstract fun saveState(): androidx.savedstate/SavedState // androidx.savedstate/SavedStateRegistry.SavedStateProvider.saveState|saveState(){}[0]
     }
