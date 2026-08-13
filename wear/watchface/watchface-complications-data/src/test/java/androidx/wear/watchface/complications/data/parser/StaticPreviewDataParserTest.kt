@@ -25,6 +25,7 @@ import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.provider.Settings
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.GoalProgressComplicationData
@@ -813,6 +814,31 @@ class StaticPreviewDataParserTest {
                 assertThrows(Exception::class.java) {
                     PreviewData.inflate(TEST_PROVIDER, context, context, parser)
                 }
+            }
+        }
+    }
+
+    @Test
+    fun timeComponentComplication_24HourFormat_omitsAmPm() {
+        runTestForLocale(Locale.UK) { context ->
+            // Enable 24-hour format
+            Settings.System.putString(context.contentResolver, Settings.System.TIME_12_24, "24")
+            context.resources.getXml(R.xml.static_preview_data_time_component).use { parser ->
+                val previewData = PreviewData.inflate(TEST_PROVIDER, context, context, parser)
+                val shortTextComplication =
+                    previewData[ComplicationType.SHORT_TEXT] as ShortTextComplicationData
+                val longTextComplication =
+                    previewData[ComplicationType.LONG_TEXT] as LongTextComplicationData
+                val timeOnlyText =
+                    shortTextComplication.text.getTextAt(context.resources, Instant.ofEpochMilli(0))
+                val amPmOnlyText =
+                    longTextComplication.text.getTextAt(context.resources, Instant.ofEpochMilli(0))
+                // 1. timeOnly produces 24h formatted time
+                expect.that(timeOnlyText).isEqualTo("01:01")
+                // 2. amPmOnly is empty string in 24h format
+                expect.that(amPmOnlyText).isEqualTo("")
+                expect.that(shortTextComplication.dataSource).isEqualTo(TEST_PROVIDER)
+                expect.that(longTextComplication.dataSource).isEqualTo(TEST_PROVIDER)
             }
         }
     }
