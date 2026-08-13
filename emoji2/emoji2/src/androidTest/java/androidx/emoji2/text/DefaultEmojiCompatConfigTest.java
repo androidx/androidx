@@ -16,6 +16,8 @@
 
 package androidx.emoji2.text;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -272,5 +274,26 @@ public class DefaultEmojiCompatConfigTest {
         info.providerInfo.applicationInfo = new ApplicationInfo();
         info.providerInfo.applicationInfo.flags = flags;
         return info;
+    }
+
+    @Test
+    public void whenProviderFound_setsUseAfterUpdatableSystemFontsToFalse()
+            throws PackageManager.NameNotFoundException {
+        ResolveInfo info =
+                generateResolveInfo("some package", "some authority", ApplicationInfo.FLAG_SYSTEM);
+        Signature[] signatures = generateSignatures(3);
+
+        Context mockContext = mock(Context.class);
+        when(mockContext.getPackageManager()).thenReturn(mock(PackageManager.class));
+
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper helper =
+                makeMockHelper(info, signatures);
+
+        DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory factory =
+                new DefaultEmojiCompatConfig.DefaultEmojiCompatConfigFactory(helper);
+        EmojiCompat.Config actual = factory.create(mockContext);
+
+        assertThat(actual).isNotNull();
+        assertThat(actual.mUseAfterUpdatableSystemFonts).isFalse();
     }
 }
