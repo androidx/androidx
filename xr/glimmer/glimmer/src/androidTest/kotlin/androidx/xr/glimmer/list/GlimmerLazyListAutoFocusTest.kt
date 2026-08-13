@@ -35,10 +35,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.indirect.IndirectPointerEventType
 import androidx.compose.ui.input.indirect.IndirectPointerInputModifierNode
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalFocusManager
@@ -62,6 +66,7 @@ import androidx.test.filters.MediumTest
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.oneMoveSwipeAlongXAxis
 import com.google.common.truth.Truth
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -379,6 +384,50 @@ class GlimmerLazyListAutoFocusTest : BaseGlimmerLazyListTestWithOrientation(Orie
             )
         }
         rule.onListItem(0).assertIsFocused()
+    }
+
+    /**
+     * Test is broken because when the content fits the screen [GlimmerLazyColumn] disables
+     * [androidx.compose.foundation.scrollableArea] modifier. We originally implemented this to
+     * switch from "continuous" to "discrete" scrolling when the list is short, allowing the system
+     * to handle focus movement. However, this breaks the nested scroll contract. This tests can be
+     * used as a high-level verification that the bug b/517976036 is fixed.
+     */
+    @Test
+    @Ignore("b/517976036")
+    fun list_sendsScrollDeltasToNestedConnection_evenIfItCanNotScroll() {
+        val state = GlimmerLazyListState()
+        var preScrollCalled = false
+        var postScrollCalled = false
+        val nestedScrollConnection =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    preScrollCalled = true
+                    return super.onPreScroll(available, source)
+                }
+
+                override fun onPostScroll(
+                    consumed: Offset,
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    postScrollCalled = true
+                    return super.onPostScroll(consumed, available, source)
+                }
+            }
+
+        rule.setAutoFocusContent {
+            FocusableTestList(
+                modifier = Modifier.nestedScroll(nestedScrollConnection),
+                state = state,
+                itemsCount = 1, // list must be short
+            )
+        }
+
+        rule.onNodeWithTag(LIST_TEST_TAG).touchScrollMainAxisBy((-100).dp)
+
+        Truth.assertThat(preScrollCalled).isTrue()
+        Truth.assertThat(postScrollCalled).isTrue()
     }
 
     private fun scrollListBy(scroll: Dp) {
