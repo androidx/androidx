@@ -69,12 +69,10 @@ class A2uiMessageParserTest {
                   {
                     "id": "btn_submit",
                     "component": "Button",
-                    "properties": {
-                      "variant": "primary",
-                      "action": {
-                        "event": {
-                          "name": "submit_form"
-                        }
+                    "variant": "primary",
+                    "action": {
+                      "event": {
+                        "name": "submit_form"
                       }
                     }
                   }
