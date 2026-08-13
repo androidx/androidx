@@ -65,8 +65,8 @@ abstract class ClangLinkerParameters {
     /** The kind of output the linker should produce. */
     @get:Input abstract val linkerOutputKind: Property<LinkerOutputKind>
 
-    /** The target platform for the shared file. */
-    @get:Input abstract val target: Property<SerializableNativeTarget>
+    /** The [NativeTarget] platform for the shared file. */
+    @get:Input abstract val target: Property<String>
 
     /** List of object files that will be added to the shared file output. */
     @get:InputFiles
