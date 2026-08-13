@@ -184,13 +184,6 @@ class GeospatialActivity : ComponentActivity() {
         sessionHelper.tryCreateSession()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        for (entity in anchorEntities) {
-            entity.parent = null
-        }
-    }
-
     @Composable
     private fun MainPanel(session: Session) {
         val geospatial = Geospatial.getInstance(session)
