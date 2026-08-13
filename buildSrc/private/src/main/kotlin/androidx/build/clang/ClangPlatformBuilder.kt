@@ -33,11 +33,11 @@ import org.jetbrains.kotlin.konan.target.PlatformManager
 
 /** The common clang builder for a [ClangBuildService]. */
 internal interface ClangPlatformBuilder {
-    fun compile(parameters: ClangCompileParameters)
+    fun compile(target: NativeTarget, parameters: ClangCompileParameters)
 
-    fun archiveLibrary(parameters: ClangArchiveParameters)
+    fun archiveLibrary(target: NativeTarget, parameters: ClangArchiveParameters)
 
-    fun runLinker(parameters: ClangLinkerParameters)
+    fun runLinker(target: NativeTarget, parameters: ClangLinkerParameters)
 }
 
 /** The implementation of the clang builder using the NDK. */
@@ -49,8 +49,7 @@ internal class AndroidPlatformBuilder(
 
     val operatingSystem = getOperatingSystem()
 
-    override fun compile(parameters: ClangCompileParameters) {
-        val target = parameters.target.get().asNativeTarget
+    override fun compile(target: NativeTarget, parameters: ClangCompileParameters) {
         val additionalArgs = buildList {
             addAll(parameters.freeArgs.get())
             add("-fPIC") // Always compile Android with 'Position Independent Code'
@@ -82,7 +81,7 @@ internal class AndroidPlatformBuilder(
         }
     }
 
-    override fun archiveLibrary(parameters: ClangArchiveParameters) {
+    override fun archiveLibrary(target: NativeTarget, parameters: ClangArchiveParameters) {
         val outputFile = parameters.outputFile.get().asFile
         outputFile.delete()
         outputFile.parentFile.mkdirs()
@@ -101,12 +100,11 @@ internal class AndroidPlatformBuilder(
         }
     }
 
-    override fun runLinker(parameters: ClangLinkerParameters) {
+    override fun runLinker(target: NativeTarget, parameters: ClangLinkerParameters) {
         val outputFile = parameters.outputFile.get().asFile
         outputFile.delete()
         outputFile.parentFile.mkdirs()
 
-        val target = parameters.target.get().asNativeTarget
         val isCxx = parameters.sources.files.any { it.extension in CXX_EXTENSIONS }
         val linkerFlags = buildList {
             addAll(parameters.linkerArgs.get())
@@ -152,8 +150,7 @@ internal class KonanPlatformBuilder(
     private val execOperations: ExecOperations,
     private val platformManager: PlatformManager,
 ) : ClangPlatformBuilder {
-    override fun compile(parameters: ClangCompileParameters) {
-        val target = parameters.target.get().asNativeTarget
+    override fun compile(target: NativeTarget, parameters: ClangCompileParameters) {
         val additionalArgs = buildList {
             addAll(parameters.freeArgs.get())
             add("-DNDEBUG") // Always compile with NDEBUG since only release is built
@@ -177,12 +174,10 @@ internal class KonanPlatformBuilder(
         }
     }
 
-    override fun archiveLibrary(parameters: ClangArchiveParameters) {
+    override fun archiveLibrary(target: NativeTarget, parameters: ClangArchiveParameters) {
         val outputFile = parameters.outputFile.get().asFile
         outputFile.delete()
         outputFile.parentFile.mkdirs()
-
-        val target = parameters.target.get().asNativeTarget
         val llvmArgs = buildList {
             add("rc")
             add(parameters.outputFile.get().asFile.canonicalPath)
@@ -197,12 +192,11 @@ internal class KonanPlatformBuilder(
         }
     }
 
-    override fun runLinker(parameters: ClangLinkerParameters) {
+    override fun runLinker(target: NativeTarget, parameters: ClangLinkerParameters) {
         val outputFile = parameters.outputFile.get().asFile
         outputFile.delete()
         outputFile.parentFile.mkdirs()
 
-        val target = parameters.target.get().asNativeTarget
         val linkerFlags = parameters.linkerArgs.get()
 
         val objectFiles = parameters.objectFiles.regularFilePaths()

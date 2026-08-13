@@ -75,7 +75,7 @@ abstract class CombineObjectFilesTask : DefaultTask() {
             "Running CombineSharedLibrariesTask without any inputs, this is likely an error"
         }
         resolvedObjectFiles.forEach { objectFile ->
-            val target = objectFile.target.get().asNativeTarget
+            val target = NativeTarget.fromName(objectFile.target.get())
             val targetFile = targetFileFor(outputDir, target, objectFile)
             targetFile.parentFile?.mkdirs()
             objectFile.file.get().asFile.copyTo(target = targetFile, overwrite = true)
@@ -149,6 +149,6 @@ fun TaskProvider<CombineObjectFilesTask>.configureFrom(
 
 /** Represents an object file (.o, .so) associated with its [target]. */
 class ObjectFile(
-    @get:Input val target: Provider<SerializableNativeTarget>,
+    @get:Input val target: Provider<String>,
     @get:InputFile @get:PathSensitive(PathSensitivity.NAME_ONLY) val file: RegularFileProperty,
 )

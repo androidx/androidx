@@ -58,8 +58,8 @@ abstract class ClangCompileTask @Inject constructor(private val workerExecutor: 
 }
 
 abstract class ClangCompileParameters {
-    /** The compilation target platform for which the given inputs will be compiled. */
-    @get:Input abstract val target: Property<SerializableNativeTarget>
+    /** The compilation [NativeTarget] platform for which the given inputs will be compiled. */
+    @get:Input abstract val target: Property<String>
 
     /** List of C source files. */
     @get:InputFiles
