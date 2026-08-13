@@ -924,4 +924,123 @@ public class EmojiCompatTest {
         charSequence = EmojiCompat.get().process(string.toString());
         assertThat(charSequence, Matchers.not(EmojiMatcher.hasEmoji()));
     }
+
+    @Test
+    public void testBypass_exhaustiveEdgeCases() {
+        // 1. Multiple digits in a row (potential candidate sequence)
+        CharSequence processed = EmojiCompat.get().process("12345");
+        assertThat(processed, Matchers.not(EmojiMatcher.hasEmoji()));
+
+        // 2. Digit followed by non-candidate ASCII
+        processed = EmojiCompat.get().process("5abc");
+        assertThat(processed, Matchers.not(EmojiMatcher.hasEmoji()));
+
+        // 3. Non-candidate surrogate pair (Plane 2 CJK: U+20000 -> \uD840\uDC00)
+        int cjkExtB = 0x20000;
+        processed = EmojiCompat.get().process(
+                "abc" + new String(Character.toChars(cjkExtB)) + "def");
+        assertThat(processed, Matchers.not(EmojiMatcher.hasEmoji()));
+
+        // 4. Valid emoji preceded by non-candidate surrogate pair
+        TestString string = new TestString(Emoji.EMOJI_SINGLE_CODEPOINT).prepend(0x20000);
+        processed = EmojiCompat.get().process(string.toString());
+        int startIdx = string.emojiStartIndex() + 2;
+        assertThat(processed, EmojiMatcher.hasEmojiAt(
+                Emoji.EMOJI_SINGLE_CODEPOINT, startIdx, string.emojiEndIndex()));
+        assertThat(processed, EmojiMatcher.hasEmojiCount(1));
+
+        // 5. Valid emoji followed by non-candidate surrogate pair
+        string = new TestString(Emoji.EMOJI_SINGLE_CODEPOINT).append(0x20000);
+        processed = EmojiCompat.get().process(string.toString());
+        int endIdx = string.emojiEndIndex() - 2;
+        assertThat(processed, EmojiMatcher.hasEmojiAt(
+                Emoji.EMOJI_SINGLE_CODEPOINT, string.emojiStartIndex(), endIdx));
+        assertThat(processed, EmojiMatcher.hasEmojiCount(1));
+
+        // 6. Bypassing very long sequence of non-candidates, then matching at the end
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 1000; i++) {
+            sb.append("a");
+        }
+        int singleEmojiCodepoint = Emoji.EMOJI_SINGLE_CODEPOINT.codepoints()[0];
+        String longInput = sb.toString() + new String(Character.toChars(singleEmojiCodepoint));
+        processed = EmojiCompat.get().process(longInput);
+        assertThat(processed, EmojiMatcher.hasEmojiAt(
+                Emoji.EMOJI_SINGLE_CODEPOINT, 1000, longInput.length()));
+        assertThat(processed, EmojiMatcher.hasEmojiCount(1));
+
+        // 7. Invalid surrogate pair (e.g. orphan high surrogate)
+        String prefix = "abc\uD83Cdef";
+        int emojiCodepoint = Emoji.EMOJI_SINGLE_CODEPOINT.codepoints()[0];
+        String input = prefix + new String(Character.toChars(emojiCodepoint));
+        processed = EmojiCompat.get().process(input);
+        int emojiStart = prefix.length();
+        int emojiEnd = input.length();
+        assertThat(processed, EmojiMatcher.hasEmojiAt(
+                Emoji.EMOJI_SINGLE_CODEPOINT, emojiStart, emojiEnd));
+        assertThat(processed, EmojiMatcher.hasEmojiCount(1));
+
+        // 8. Digit followed by an emoji that is NOT a keycap
+        // (fails to match keycap, resets correctly)
+        string = new TestString(Emoji.EMOJI_SINGLE_CODEPOINT).prepend('5');
+        processed = EmojiCompat.get().process(string.toString());
+        startIdx = string.emojiStartIndex() + 1;
+        assertThat(processed, EmojiMatcher.hasEmojiAt(
+                Emoji.EMOJI_SINGLE_CODEPOINT, startIdx, string.emojiEndIndex()));
+        assertThat(processed, EmojiMatcher.hasEmojiCount(1));
+    }
+
+    @Test
+    public void testBypass_zwjAndComplexEmojis() {
+        // 1. ZWJ sequence preceded by digit
+        TestString string = new TestString(Emoji.EMOJI_WITH_ZWJ).prepend('5');
+        CharSequence processed = EmojiCompat.get().process(string.toString());
+        assertThat(processed, EmojiMatcher.hasEmojiAt(
+                Emoji.EMOJI_WITH_ZWJ, string.emojiStartIndex() + 1, string.emojiEndIndex()));
+        assertThat(processed, EmojiMatcher.hasEmojiCount(1));
+
+        // 2. ZWJ sequence followed by digit
+        string = new TestString(Emoji.EMOJI_WITH_ZWJ).append('5');
+        processed = EmojiCompat.get().process(string.toString());
+        assertThat(processed, EmojiMatcher.hasEmojiAt(
+                Emoji.EMOJI_WITH_ZWJ, string.emojiStartIndex(), string.emojiEndIndex() - 1));
+        assertThat(processed, EmojiMatcher.hasEmojiCount(1));
+
+        // 3. Gender emoji sequence
+        string = new TestString(Emoji.EMOJI_GENDER);
+        processed = EmojiCompat.get().process(string.toString());
+        assertThat(processed, EmojiMatcher.hasEmojiAt(
+                Emoji.EMOJI_GENDER, string.emojiStartIndex(), string.emojiEndIndex()));
+        assertThat(processed, EmojiMatcher.hasEmojiCount(1));
+
+        // 4. RI Flag sequence
+        string = new TestString(Emoji.EMOJI_FLAG);
+        processed = EmojiCompat.get().process(string.toString());
+        assertThat(processed, EmojiMatcher.hasEmojiAt(
+                Emoji.EMOJI_FLAG, string.emojiStartIndex(), string.emojiEndIndex()));
+        assertThat(processed, EmojiMatcher.hasEmojiCount(1));
+
+        // 5. Plain non-emoji character
+        int riCodepoint = Emoji.CHAR_REGIONAL_SYMBOL;
+        int plainChar = 0x4E00;
+        processed = EmojiCompat.get().process(new String(Character.toChars(plainChar)));
+        assertThat(processed, Matchers.not(EmojiMatcher.hasEmoji()));
+
+        // 6. Three RI symbols
+        int[] threeRis = new int[]{riCodepoint, riCodepoint, riCodepoint};
+        string = new TestString(threeRis);
+        processed = EmojiCompat.get().process(string.toString());
+        int endIdx = string.emojiStartIndex() + Character.charCount(riCodepoint) * 2;
+        assertThat(processed, EmojiMatcher.hasEmojiAt(
+                Emoji.EMOJI_FLAG, string.emojiStartIndex(), endIdx));
+        assertThat(processed, EmojiMatcher.hasEmojiCount(2));
+
+        // 7. ZWJ character on its own
+        processed = EmojiCompat.get().process("\u200D");
+        assertThat(processed, Matchers.not(EmojiMatcher.hasEmoji()));
+
+        // 8. Invalid ZWJ sequence
+        processed = EmojiCompat.get().process("a\u200Db");
+        assertThat(processed, Matchers.not(EmojiMatcher.hasEmoji()));
+    }
 }

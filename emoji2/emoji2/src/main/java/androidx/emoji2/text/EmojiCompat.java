@@ -397,6 +397,12 @@ public class EmojiCompat {
     private final int mEmojiSpanIndicatorColor;
 
     /**
+     * @see Config#setUseAfterUpdatableSystemFonts(boolean)
+     */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final boolean mUseAfterUpdatableSystemFonts;
+
+    /**
      * @see Config#setMetadataLoadStrategy(int)
      */
     @LoadStrategy private final int mMetadataLoadStrategy;
@@ -453,6 +459,7 @@ public class EmojiCompat {
         mEmojiAsDefaultStyleExceptions = config.mEmojiAsDefaultStyleExceptions;
         mEmojiSpanIndicatorEnabled = config.mEmojiSpanIndicatorEnabled;
         mEmojiSpanIndicatorColor = config.mEmojiSpanIndicatorColor;
+        mUseAfterUpdatableSystemFonts = config.mUseAfterUpdatableSystemFonts;
         mMetadataLoader = config.mMetadataLoader;
         mMetadataLoadStrategy = config.mMetadataLoadStrategy;
         mGlyphChecker = config.mGlyphChecker;
@@ -1379,6 +1386,9 @@ public class EmojiCompat {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         @NonNull GlyphChecker mGlyphChecker = new DefaultGlyphChecker();
 
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        boolean mUseAfterUpdatableSystemFonts = false;
+
         /**
          * Default constructor.
          *
@@ -1534,6 +1544,31 @@ public class EmojiCompat {
         }
 
         /**
+         * Configure whether EmojiCompat should continue to process emojis and load metadata on
+         * devices that support Updatable System Fonts (API 35 and above).
+         *
+         * <p>While Updatable System Fonts was introduced in API 31, it was not enabled on 100% of
+         * devices until API 35. Therefore, EmojiCompat treats API 35 and above as having guaranteed
+         * updatable system fonts.
+         *
+         * <p>When set to {@code false} (the default), EmojiCompat initialization and processing
+         * will become no-ops on API 35 and above. This can reduce application startup latency
+         * and memory usage by avoiding loading the EmojiCompat font when the system font is
+         * already up-to-date.
+         *
+         * <p>When set to {@code true}, EmojiCompat will continue to load metadata and process
+         * emojis on API 35 and above.
+         *
+         * @param useAfter {@code true} to use EmojiCompat on API 35 and above; {@code false} to
+         *                 disable it. Defaults to {@code false}.
+         * @return EmojiCompat.Config instance
+         */
+        public @NonNull Config setUseAfterUpdatableSystemFonts(boolean useAfter) {
+            mUseAfterUpdatableSystemFonts = useAfter;
+            return this;
+        }
+
+        /**
          * Determines the strategy to start loading the metadata. By default {@link EmojiCompat}
          * will start loading the metadata during {@link EmojiCompat#init(Config)}. When set to
          * {@link EmojiCompat#LOAD_STRATEGY_MANUAL}, you should call {@link EmojiCompat#load()} to
@@ -1617,12 +1652,21 @@ public class EmojiCompat {
          */
         private volatile MetadataRepo mMetadataRepo;
         private final EmojiCompat mEmojiCompat;
+        private final boolean mUseAfterUpdatableSystemFonts;
+        private final boolean mIsNoOp;
 
         CompatInternal(EmojiCompat emojiCompat) {
             mEmojiCompat = emojiCompat;
+            mUseAfterUpdatableSystemFonts = emojiCompat.mUseAfterUpdatableSystemFonts;
+            mIsNoOp = android.os.Build.VERSION.SDK_INT >= 35
+                    && !mUseAfterUpdatableSystemFonts;
         }
 
         void loadMetadata() {
+            if (mIsNoOp) {
+                mEmojiCompat.onMetadataLoadSuccess();
+                return;
+            }
             try {
                 final MetadataRepoLoaderCallback callback = new MetadataRepoLoaderCallback() {
                     @Override
@@ -1663,37 +1707,61 @@ public class EmojiCompat {
         }
 
         boolean hasEmojiGlyph(@NonNull CharSequence sequence) {
+            if (mIsNoOp) {
+                return false;
+            }
             return mProcessor.getEmojiMatch(sequence) == EMOJI_SUPPORTED;
         }
 
         boolean hasEmojiGlyph(@NonNull CharSequence sequence, int metadataVersion) {
+            if (mIsNoOp) {
+                return false;
+            }
             int emojiMatch = mProcessor.getEmojiMatch(sequence, metadataVersion);
             return emojiMatch == EMOJI_SUPPORTED;
         }
 
         public int getEmojiMatch(CharSequence sequence, int metadataVersion) {
+            if (mIsNoOp) {
+                return EMOJI_UNSUPPORTED;
+            }
             return mProcessor.getEmojiMatch(sequence, metadataVersion);
         }
 
         int getEmojiStart(final @NonNull CharSequence sequence, final int offset) {
+            if (mIsNoOp) {
+                return -1;
+            }
             return mProcessor.getEmojiStart(sequence, offset);
         }
 
         int getEmojiEnd(final @NonNull CharSequence sequence, final int offset) {
+            if (mIsNoOp) {
+                return -1;
+            }
             return mProcessor.getEmojiEnd(sequence, offset);
         }
 
         CharSequence process(@NonNull CharSequence charSequence, int start, int end,
                 int maxEmojiCount, boolean replaceAll) {
+            if (mIsNoOp) {
+                return charSequence;
+            }
             return mProcessor.process(charSequence, start, end, maxEmojiCount, replaceAll);
         }
 
         void updateEditorInfoAttrs(@NonNull EditorInfo outAttrs) {
+            if (mIsNoOp) {
+                return;
+            }
             outAttrs.extras.putInt(EDITOR_INFO_METAVERSION_KEY, mMetadataRepo.getMetadataVersion());
             outAttrs.extras.putBoolean(EDITOR_INFO_REPLACE_ALL_KEY, mEmojiCompat.mReplaceAll);
         }
 
         String getAssetSignature() {
+            if (mIsNoOp) {
+                return "";
+            }
             final String sha = mMetadataRepo.getMetadataList().sourceSha();
             return sha == null ? "" : sha;
         }

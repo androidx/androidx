@@ -29,6 +29,7 @@ fun initializeEmojiCompatWithBundledForTest(replaceAll: Boolean = true) {
     val config = BundledEmojiCompatConfig(context, DirectExecutor())
     config.setMetadataLoadStrategy(EmojiCompat.LOAD_STRATEGY_MANUAL)
     config.setReplaceAll(replaceAll)
+    config.setUseAfterUpdatableSystemFonts(true)
     val latch = CountDownLatch(1)
     config.registerInitCallback(
         DirectExecutor(),

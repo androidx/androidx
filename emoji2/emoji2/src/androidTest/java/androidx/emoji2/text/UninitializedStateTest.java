@@ -16,6 +16,7 @@
 package androidx.emoji2.text;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -33,27 +34,32 @@ public class UninitializedStateTest {
 
     @SuppressWarnings("deprecation")
     @Test(expected = IllegalStateException.class)
+    @SdkSuppress(maxSdkVersion = 34)
     public void testHasEmojiGlyph() {
         EmojiCompat.get().hasEmojiGlyph("anystring");
     }
 
     @SuppressWarnings("deprecation")
     @Test(expected = IllegalStateException.class)
+    @SdkSuppress(maxSdkVersion = 34)
     public void testHasEmojiGlyph_withMetadataVersion() {
         EmojiCompat.get().hasEmojiGlyph("anystring", 1);
     }
 
     @Test(expected = IllegalStateException.class)
+    @SdkSuppress(maxSdkVersion = 34)
     public void testGetEmojiMatch_withMetadataVersion() {
         EmojiCompat.get().getEmojiMatch("anystring", 1);
     }
 
     @Test(expected = IllegalStateException.class)
+    @SdkSuppress(maxSdkVersion = 34)
     public void testProcess() {
         EmojiCompat.get().process("anystring");
     }
 
     @Test(expected = IllegalStateException.class)
+    @SdkSuppress(maxSdkVersion = 34)
     public void testProcess_withStartEnd() {
         EmojiCompat.get().process("anystring", 1, 2);
     }
