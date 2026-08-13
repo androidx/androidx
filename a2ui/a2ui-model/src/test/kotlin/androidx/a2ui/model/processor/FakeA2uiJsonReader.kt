@@ -22,40 +22,97 @@ import com.google.gson.stream.JsonToken
 import java.io.StringReader
 
 /** A programmatic builder-based fake JSON streaming reader wrapping GSON's JsonReader. */
-internal open class FakeA2uiJsonReader(jsonString: String) : A2uiJsonReader {
-    private val delegate: JsonReader = JsonReader(StringReader(jsonString))
+internal open class FakeA2uiJsonReader(private val jsonString: String) : A2uiJsonReader {
+    private var delegate: JsonReader = JsonReader(StringReader(jsonString))
+    private var isClosed = false
 
-    constructor(jsonObject: JsonObject) : this(jsonObject.toString())
+    constructor(
+        jsonObject: JsonObject
+    ) : this(
+        jsonObject
+            .apply {
+                if (!has("version")) {
+                    addProperty("version", "v0.9")
+                }
+            }
+            .toString()
+    )
 
-    override fun peek(): A2uiJsonToken = delegate.peek().toA2uiJsonToken()
+    private fun ensureOpened() {
+        if (isClosed) {
+            delegate = JsonReader(StringReader(jsonString))
+            isClosed = false
+        }
+    }
 
-    override fun beginObject() = delegate.beginObject()
+    override fun peek(): A2uiJsonToken {
+        ensureOpened()
+        return delegate.peek().toA2uiJsonToken()
+    }
+
+    override fun beginObject() {
+        ensureOpened()
+        delegate.beginObject()
+    }
 
     override fun endObject() = delegate.endObject()
 
-    override fun beginArray() = delegate.beginArray()
+    override fun beginArray() {
+        ensureOpened()
+        delegate.beginArray()
+    }
 
     override fun endArray() = delegate.endArray()
 
-    override fun hasNext(): Boolean = delegate.hasNext()
+    override fun hasNext(): Boolean {
+        ensureOpened()
+        return delegate.hasNext()
+    }
 
-    override fun nextName(): String = delegate.nextName()
+    override fun nextName(): String {
+        ensureOpened()
+        return delegate.nextName()
+    }
 
-    override fun nextString(): String = delegate.nextString()
+    override fun nextString(): String {
+        ensureOpened()
+        return delegate.nextString()
+    }
 
-    override fun nextBoolean(): Boolean = delegate.nextBoolean()
+    override fun nextBoolean(): Boolean {
+        ensureOpened()
+        return delegate.nextBoolean()
+    }
 
-    override fun nextDouble(): Double = delegate.nextDouble()
+    override fun nextDouble(): Double {
+        ensureOpened()
+        return delegate.nextDouble()
+    }
 
-    override fun nextInt(): Int = delegate.nextInt()
+    override fun nextInt(): Int {
+        ensureOpened()
+        return delegate.nextInt()
+    }
 
-    override fun nextLong(): Long = delegate.nextLong()
+    override fun nextLong(): Long {
+        ensureOpened()
+        return delegate.nextLong()
+    }
 
-    override fun nextNull() = delegate.nextNull()
+    override fun nextNull() {
+        ensureOpened()
+        delegate.nextNull()
+    }
 
-    override fun skipValue() = delegate.skipValue()
+    override fun skipValue() {
+        ensureOpened()
+        delegate.skipValue()
+    }
 
-    override fun close() = delegate.close()
+    override fun close() {
+        delegate.close()
+        isClosed = true
+    }
 
     private fun JsonToken.toA2uiJsonToken(): A2uiJsonToken {
         return when (this) {
