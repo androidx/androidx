@@ -338,8 +338,9 @@ private class ToggleableNode(
         this.contentDataType = ContentDataType.Toggle
         FillableData.createFromBoolean(value)?.let { this.fillableData = it }
         this.onFillData { fillableData ->
+            if (!enabled) return@onFillData false
             fillableData.booleanValue?.let {
-                this.toggleableState = ToggleableState(it)
+                onValueChange(it)
                 true
             } ?: false
         }
@@ -648,8 +649,11 @@ private class TriStateToggleableNode(
             this.fillableData = it
         }
         this.onFillData { fillableData ->
-            fillableData.booleanValue?.let {
-                this.toggleableState = ToggleableState(it)
+            if (!enabled || state == ToggleableState.Indeterminate) return@onFillData false
+            fillableData.booleanValue?.let { target ->
+                if (state != ToggleableState(target)) {
+                    onClick()
+                }
                 true
             } ?: false
         }
