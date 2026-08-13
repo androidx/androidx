@@ -281,14 +281,6 @@ public final class ImageAnalysis extends UseCase {
         return new ImageAnalysisCapabilitiesImpl(cameraInfo);
     }
 
-    private static boolean isHardwareBufferSupported(@NonNull Size resolution) {
-        if (Build.VERSION.SDK_INT >= 29) {
-            return Api29Impl.isSupported(resolution.getWidth(), resolution.getHeight(),
-                    ImageFormat.PRIVATE, 1, HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE);
-        }
-        return false;
-    }
-
     private static class ImageAnalysisCapabilitiesImpl implements ImageAnalysisCapabilities {
         private final CameraInfo mCameraInfo;
 
@@ -299,23 +291,10 @@ public final class ImageAnalysis extends UseCase {
         @Override
         public boolean isOutputFormatSupported(@OutputImageFormat int format) {
             if (format == OUTPUT_IMAGE_FORMAT_PRIVATE) {
+                // OUTPUT_IMAGE_FORMAT_PRIVATE is only supported on API 29+ because HardwareBuffer
+                // can be retrieved on API 29+ devices.
                 if (Build.VERSION.SDK_INT >= 29) {
-                    // Check if PRIVATE format is supported by the camera device and
-                    // the Graphics System (HardwareBuffer). For HardwareBuffer check,
-                    // we use the maximum supported resolution as a representative size
-                    // because HardwareBuffer support can depend on the resolution.
-                    Size maxResolution = SizeUtil.RESOLUTION_VGA;
-                    if (mCameraInfo instanceof CameraInfoInternal) {
-                        List<Size> supportedResolutions = ((CameraInfoInternal) mCameraInfo)
-                                .getSupportedResolutions(ImageFormat.PRIVATE);
-                        Size maxSize = SizeUtil.getMaxSize(supportedResolutions);
-                        if (maxSize != null) {
-                            maxResolution = maxSize;
-                        }
-                    }
-
-                    return isHardwareBufferSupported(maxResolution)
-                            && mCameraInfo instanceof CameraInfoInternal
+                    return mCameraInfo instanceof CameraInfoInternal
                             && ((CameraInfoInternal) mCameraInfo).getSupportedOutputFormats()
                             .contains(ImageFormat.PRIVATE);
                 }
@@ -324,22 +303,6 @@ public final class ImageAnalysis extends UseCase {
             return format == OUTPUT_IMAGE_FORMAT_YUV_420_888
                     || format == OUTPUT_IMAGE_FORMAT_RGBA_8888
                     || format == OUTPUT_IMAGE_FORMAT_NV21;
-        }
-    }
-
-    @RequiresApi(29)
-    private static class Api29Impl {
-        private Api29Impl() {
-        }
-
-        static boolean isSupported(int width, int height, int format, int layers,
-                long usage) {
-            try {
-                return HardwareBuffer.isSupported(width, height, format, layers, usage);
-            } catch (IllegalArgumentException e) {
-                // Return false if the format is not supported by HardwareBuffer
-                return false;
-            }
         }
     }
 
@@ -477,32 +440,8 @@ public final class ImageAnalysis extends UseCase {
                 getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER ? getImageQueueDepth()
                         : NON_BLOCKING_IMAGE_DEPTH;
 
-        long usage = 0;
-        if (getImageFormat() == ImageFormat.PRIVATE) {
-            // Check if PRIVATE format is supported by the Graphics System (HardwareBuffer) for
-            // the actual resolution.
-            if (!isHardwareBufferSupported(resolution)) {
-                throw new IllegalArgumentException("PRIVATE format with resolution "
-                        + resolution + " is not supported for ImageAnalysis on the device.");
-            }
-            usage = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE;
-        }
-
-        SafeCloseImageReaderProxy imageReaderProxy;
-        if (config.getImageReaderProxyProvider() != null) {
-            imageReaderProxy = new SafeCloseImageReaderProxy(
-                    config.getImageReaderProxyProvider().newInstance(
-                            resolution.getWidth(), resolution.getHeight(), getImageFormat(),
-                            imageQueueDepth, usage));
-        } else {
-            imageReaderProxy =
-                    new SafeCloseImageReaderProxy(ImageReaderProxys.createIsolatedReader(
-                            resolution.getWidth(),
-                            resolution.getHeight(),
-                            getImageFormat(),
-                            imageQueueDepth,
-                            usage));
-        }
+        final SafeCloseImageReaderProxy imageReaderProxy =
+                createImageReaderProxyWithFallback(config, resolution, imageQueueDepth);
 
         ImageAnalysisAbstractAnalyzer imageAnalysisAbstractAnalyzer;
         synchronized (mAnalysisLock) {
@@ -826,6 +765,57 @@ public final class ImageAnalysis extends UseCase {
     private boolean isFlipWH(@NonNull CameraInternal cameraInternal) {
         return isOutputImageRotationEnabled()
                 ? ((getRelativeRotation(cameraInternal) % 180) != 0) : false;
+    }
+
+    private @NonNull SafeCloseImageReaderProxy createImageReaderProxyWithFallback(
+            @NonNull ImageAnalysisConfig config, @NonNull Size resolution, int imageQueueDepth) {
+        if (getImageFormat() == ImageFormat.PRIVATE) {
+            // OUTPUT_IMAGE_FORMAT_PRIVATE is only supported on API 29+ because HardwareBuffer
+            // can be retrieved on API 29+ devices.
+            if (Build.VERSION.SDK_INT < 29) {
+                throw new IllegalArgumentException(
+                        "OUTPUT_IMAGE_FORMAT_PRIVATE is only supported on Android Q (API 29) "
+                                + "or higher.");
+            }
+            try {
+                return createImageReaderProxy(config, resolution, getImageFormat(),
+                        imageQueueDepth, HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE);
+            } catch (IllegalArgumentException e) {
+                Logger.w(TAG, "Failed to create ImageReader with USAGE_GPU_SAMPLED_IMAGE, "
+                        + "falling back to default usage.", e);
+            }
+        }
+
+        try {
+            return createImageReaderProxy(config, resolution, getImageFormat(),
+                    imageQueueDepth, 0);
+        } catch (IllegalArgumentException e) {
+            if (getImageFormat() == ImageFormat.PRIVATE) {
+                throw new IllegalArgumentException(
+                        "Failed to allocate ImageReader for OUTPUT_IMAGE_FORMAT_PRIVATE on "
+                                + "the device.", e);
+            }
+            throw e;
+        }
+    }
+
+    private @NonNull SafeCloseImageReaderProxy createImageReaderProxy(
+            @NonNull ImageAnalysisConfig config, @NonNull Size resolution, int imageFormat,
+            int queueDepth, long usage) {
+        if (config.getImageReaderProxyProvider() != null) {
+            return new SafeCloseImageReaderProxy(
+                    config.getImageReaderProxyProvider().newInstance(
+                            resolution.getWidth(), resolution.getHeight(), imageFormat,
+                            queueDepth, usage));
+        } else {
+            return new SafeCloseImageReaderProxy(
+                    ImageReaderProxys.createIsolatedReader(
+                            resolution.getWidth(),
+                            resolution.getHeight(),
+                            imageFormat,
+                            queueDepth,
+                            usage));
+        }
     }
 
     /**
