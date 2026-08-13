@@ -21,6 +21,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.core.view.MenuItemCompat
+import androidx.pdf.R
 import androidx.pdf.view.PdfView
 import kotlin.math.roundToInt
 
@@ -131,7 +132,12 @@ internal class SelectionActionModeCallback(
                 } == true
             ) {
                 // Found the first visible selection, position the context menu near it.
-                outRect?.set(pdfView.toViewRect(boundsInContentView))
+                val viewRect = pdfView.toViewRect(boundsInContentView)
+                // Increase the bottom of the bounding box by the selection handle touch
+                // size to prevent the context menu from overlapping the selection handle.
+                viewRect.bottom +=
+                    pdfView.resources.getDimensionPixelSize(R.dimen.text_select_handle_touch_size)
+                outRect?.set(viewRect)
                 return
             }
         }
