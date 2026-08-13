@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("RestrictedApiAndroidX")
+
 package androidx.xr.scenecore.openxr
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.Trackable
 import androidx.xr.runtime.Config
@@ -55,6 +59,7 @@ import androidx.xr.scenecore.runtime.SoundEffectPoolComponent
 import androidx.xr.scenecore.runtime.SoundFieldAttributes
 import androidx.xr.scenecore.runtime.SoundFieldAudioComponent
 import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper
+import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialEnvironment
 import androidx.xr.scenecore.runtime.SpatialModeChangeListener
@@ -62,51 +67,101 @@ import androidx.xr.scenecore.runtime.SpatialPointerComponent
 import androidx.xr.scenecore.runtime.SpatialVisibility
 import androidx.xr.scenecore.runtime.SubspaceNodeEntity
 import androidx.xr.scenecore.runtime.TrackableComponent
+import androidx.xr.scenecore.runtime.impl.PerceptionSpaceScenePoseImpl
 import java.util.concurrent.Executor
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
 import java.util.function.Consumer
 
+/** Implementation of [SceneRuntime] for devices that support OpenXR. */
 internal class OpenXrSceneRuntime
-private constructor(
+/**
+ * Internal constructor visible for testing to allow injecting test doubles and dependencies.
+ *
+ * For standard production creation, use [OpenXrSceneRuntime.create].
+ *
+ * @param activity The [Activity] hosting this SceneCore session.
+ * @param unscaledGravityAlignedActivitySpace Whether the activity space is unscaled and
+ *   gravity-aligned.
+ * @param nativeWrapper The [SceneCoreOpenXrNative] bridge for native OpenXR calls.
+ * @param sceneNodeRegistry The [OpenXrSceneNodeRegistry] tracking entity node mappings.
+ * @param scheduledExecutorService The [ScheduledExecutorService] for asynchronous tasks.
+ */
+@VisibleForTesting
+internal constructor(
     private val activity: Activity,
     private val unscaledGravityAlignedActivitySpace: Boolean = true,
+    internal val nativeWrapper: SceneCoreOpenXrNative = SceneCoreOpenXrNative(),
+    internal val sceneNodeRegistry: OpenXrSceneNodeRegistry = OpenXrSceneNodeRegistry(),
+    private val scheduledExecutorService: ScheduledExecutorService =
+        Executors.newSingleThreadScheduledExecutor(),
 ) : SceneRuntime {
-
-    internal val nativeWrapper: SceneCoreOpenXrNative = SceneCoreOpenXrNative()
 
     internal var isDestroyed: Boolean = false
         private set
 
     override val config: Config = Config.Builder().build()
 
+    override val activitySpace: ActivitySpace =
+        OpenXrActivitySpace(
+            activity,
+            INVALID_HANDLE,
+            nativeWrapper,
+            sceneNodeRegistry,
+            scheduledExecutorService,
+        )
+
+    private val perceptionSpaceScenePose: PerceptionSpaceScenePose =
+        PerceptionSpaceScenePoseImpl(activitySpace)
+
+    init {
+        sceneNodeRegistry.addSystemSpaceScenePose(activitySpace)
+        sceneNodeRegistry.addSystemSpaceScenePose(perceptionSpaceScenePose)
+    }
+
+    internal var isInitialized: Boolean = false
+        private set
+
     override fun initialize() {
         check(!isDestroyed) { "Cannot initialize OpenXrSceneRuntime after it has been destroyed." }
+        if (isInitialized) return
+        isInitialized = true
         val nativeData = XrDevice.getCurrentDevice(activity).getNativeInstanceData(activity)
-        // TODO: b/538912011 - Validate instancePointer and check return values of
-        // nativeWrapper.init() and createSpatialContainer().
-        if (nativeData.instancePointer != INVALID_HANDLE) {
-            nativeWrapper.init(
-                nativeData.instancePointer,
-                INVALID_HANDLE, // TODO: b/538912011 - Provide real session handle.
-                nativeData.functionTablePointer,
-            )
-            nativeWrapper.createSpatialContainer()
+        if (nativeData.instancePointer != INVALID_HANDLE && nativeData.instancePointer != 0L) {
+            if (
+                !nativeWrapper.init(
+                    nativeData.instancePointer,
+                    INVALID_HANDLE, // TODO: b/538912011 - Provide real session handle.
+                    nativeData.functionTablePointer,
+                )
+            ) {
+                throw IllegalStateException("SceneCoreOpenXrNative.init failed.")
+            }
+            if (!nativeWrapper.createSpatialContainer()) {
+                throw IllegalStateException("SceneCoreOpenXrNative.createSpatialContainer failed.")
+            }
+            val rootHandle = nativeWrapper.getRootEntityHandle()
+            if (rootHandle != INVALID_HANDLE) {
+                (activitySpace as? OpenXrEntity)?.bindEntityHandle(rootHandle)
+            }
         }
     }
 
     override fun destroy() {
         if (isDestroyed) return
         isDestroyed = true
+        (activitySpace as? OpenXrEntity)?.dispose()
+        sceneNodeRegistry.getAllEntities().forEach(Entity::dispose)
+        sceneNodeRegistry.clear()
+        scheduledExecutorService.shutdown()
         nativeWrapper.destroy()
     }
 
     override val spatialCapabilities: SpatialCapabilities
         get() = TODO("OpenXrSceneRuntime.spatialCapabilities is not yet implemented")
 
-    override val activitySpace: ActivitySpace
-        get() = TODO("OpenXrSceneRuntime.activitySpace is not yet implemented")
-
     override val perceptionSpaceActivityPose: PerceptionSpaceScenePose
-        get() = TODO("OpenXrSceneRuntime.perceptionSpaceActivityPose is not yet implemented")
+        get() = perceptionSpaceScenePose
 
     override val mainPanelEntity: PanelEntity
         get() = TODO("OpenXrSceneRuntime.mainPanelEntity is not yet implemented")
@@ -141,6 +196,7 @@ private constructor(
     override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose =
         TODO("OpenXrSceneRuntime.getScenePoseFromPerceptionPose is not yet implemented")
 
+    // TODO: b/538961468 - Implement OpenXrPanelEntity with SurfaceControlViewHost support.
     override fun createPanelEntity(
         context: Context,
         pose: Pose,
@@ -168,11 +224,34 @@ private constructor(
     ): ActivityPanelEntity =
         TODO("OpenXrSceneRuntime.createActivityPanelEntity is not yet implemented")
 
+    // TODO: b/538946673 - Implement OpenXrAnchorEntity and Panel-to-Anchor pinning.
     override fun createAnchorEntity(): AnchorEntity =
         TODO("OpenXrSceneRuntime.createAnchorEntity is not yet implemented")
 
-    override fun createEntity(pose: Pose, name: String?, parent: Entity?): Entity =
-        TODO("OpenXrSceneRuntime.createEntity is not yet implemented")
+    override fun createEntity(pose: Pose, name: String?, parent: Entity?): Entity {
+        check(!isDestroyed) { "Cannot create entity after OpenXrSceneRuntime has been destroyed." }
+        val entityHandle =
+            if (nativeWrapper.nativeScenecore != INVALID_HANDLE) {
+                nativeWrapper.createSceneEntity()
+            } else {
+                INVALID_HANDLE
+            }
+
+        // TODO: b/551976417 - Pass `name` down to native OpenXR scene entity via transaction once
+        // supported.
+        val entity: Entity =
+            object :
+                OpenXrEntity(
+                    activity,
+                    entityHandle,
+                    nativeWrapper,
+                    sceneNodeRegistry,
+                    scheduledExecutorService,
+                ) {}
+        entity.parent = parent
+        entity.setPose(pose, Space.PARENT)
+        return entity
+    }
 
     override fun createSubspaceNodeEntity(
         nodeHolder: NodeHolder<*>,
