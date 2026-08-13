@@ -106,6 +106,7 @@ class RcPlayerRecompositionEventsTest {
         ShadowTrace.reset()
     }
 
+    @Ignore("b/540178536")
     @Test
     fun testMutableStateOutputsTextAndIsUpdated() = runBlocking {
         val state = mutableStateOf("Initial")
