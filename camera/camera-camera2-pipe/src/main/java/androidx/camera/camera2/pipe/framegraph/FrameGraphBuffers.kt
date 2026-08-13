@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.config.FrameGraphScope
 import androidx.camera.camera2.pipe.filterToCaptureRequestParameters
 import androidx.camera.camera2.pipe.filterToMetadataParameters
 import androidx.camera.camera2.pipe.internal.FrameDistributor
+import java.util.Objects.deepEquals
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 
@@ -87,7 +88,7 @@ internal constructor(
                 }
 
                 // If the key is present the values shouldn't conflict.
-                check(!newParameters.containsKey(key) || newParameters[key] == value) {
+                check(!newParameters.containsKey(key) || deepEquals(newParameters[key], value)) {
                     "Conflicting parameter values: $key has different values (${newParameters[key]} and $value)."
                 }
 
