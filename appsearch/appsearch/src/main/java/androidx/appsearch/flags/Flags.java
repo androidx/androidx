@@ -286,6 +286,18 @@ public final class Flags {
     public static final String FLAG_REMOVE_SCHEMA_STORE_MOVE_ASSIGNMENT =
             FLAG_PREFIX + "remove_schema_store_move_assignment";
 
+    /**
+     * Whether to enable fine-grained index rebuilding when schema changes occur.
+     */
+    public static final String FLAG_ENABLE_FINE_GRAINED_INDEX_REBUILD =
+            FLAG_PREFIX + "enable_fine_grained_index_rebuild";
+
+    /**
+     * Whether to unblock read requests during ANN index maintenance.
+     */
+    public static final String FLAG_ENABLE_READ_DURING_ANN_MAINTENANCE =
+            FLAG_PREFIX + "enable_read_during_ann_maintenance";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -623,5 +635,19 @@ public final class Flags {
     public static boolean removeSchemaStoreMoveAssignment() {
         // TODO(b/521549968): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
+    }
+
+    /**
+     * Whether to enable fine-grained index rebuilding when schema changes occur.
+     */
+    public static boolean enableFineGrainedIndexRebuild() {
+        return true;
+    }
+
+    /**
+     * Whether to unblock read requests during ANN index maintenance.
+     */
+    public static boolean enableReadDuringAnnMaintenance() {
+        return true;
     }
 }

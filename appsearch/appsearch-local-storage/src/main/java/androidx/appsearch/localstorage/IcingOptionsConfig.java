@@ -358,6 +358,8 @@ public interface IcingOptionsConfig {
                 .setSchemaStoreReleaseCachedProtoAfterUse(
                         Flags.releaseSchemaCacheAfterInitialization())
                 .setRemoveSchemaStoreMoveAssignment(Flags.removeSchemaStoreMoveAssignment())
+                .setEnableFineGrainedIndexRebuild(Flags.enableFineGrainedIndexRebuild())
+                .setEnableReadDuringAnnMaintenance(Flags.enableReadDuringAnnMaintenance())
                 .build();
     }
 }
