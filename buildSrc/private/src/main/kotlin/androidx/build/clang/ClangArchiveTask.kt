@@ -57,8 +57,8 @@ abstract class ClangArchiveTask @Inject constructor(private val workerExecutor: 
 }
 
 abstract class ClangArchiveParameters {
-    /** The target platform for the archive file. */
-    @get:Input abstract val target: Property<SerializableNativeTarget>
+    /** The [NativeTarget] platform for the archive file. */
+    @get:Input abstract val target: Property<String>
 
     /** The list of object files that needs to be added to the archive. */
     @get:InputFiles

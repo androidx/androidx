@@ -130,7 +130,7 @@ class MultiTargetNativeCompilation(
     ): Provider<List<NativeTargetCompilation>> =
         project.provider {
             nativeTargets.names
-                .filter { predicate(SerializableNativeTarget(it).asNativeTarget) }
+                .filter { predicate(NativeTarget.fromName(it)) }
                 .map { nativeTargets.getByName(it) }
         }
 
@@ -165,32 +165,22 @@ class MultiTargetNativeCompilation(
             project.layout.buildDirectory.dir("clang".appendCapitalized(archiveName))
 
         override fun create(name: String): NativeTargetCompilation {
-            return create(SerializableNativeTarget(name))
+            return create(NativeTarget.fromName(name))
         }
 
-        @JvmName("createWithSerializableNativeTarget")
-        private fun create(
-            serializableNativeTarget: SerializableNativeTarget
-        ): NativeTargetCompilation {
+        private fun create(target: NativeTarget): NativeTargetCompilation {
             val includes = project.objects.fileCollection()
             val sources = project.objects.fileCollection()
             val freeArgs = project.objects.listProperty<String>()
             val linkedObjects = project.objects.fileCollection()
             val linkerArgs = project.objects.listProperty<String>()
-            val compileTask =
-                createCompileTask(serializableNativeTarget, includes, sources, freeArgs)
-            val archiveTask = createArchiveTask(serializableNativeTarget, compileTask)
+            val compileTask = createCompileTask(target, includes, sources, freeArgs)
+            val archiveTask = createArchiveTask(target, compileTask)
             val sharedLibTask =
-                createLinkerTask(
-                    serializableNativeTarget,
-                    compileTask,
-                    sources,
-                    linkedObjects,
-                    linkerArgs,
-                )
+                createLinkerTask(target, compileTask, sources, linkedObjects, linkerArgs)
             return NativeTargetCompilation(
                 project = project,
-                target = serializableNativeTarget.asNativeTarget,
+                target = target,
                 compileTask = compileTask,
                 archiveTask = archiveTask,
                 linkerTask = sharedLibTask,
@@ -203,14 +193,12 @@ class MultiTargetNativeCompilation(
         }
 
         private fun createArchiveTask(
-            serializableNativeTarget: SerializableNativeTarget,
+            target: NativeTarget,
             compileTask: TaskProvider<ClangCompileTask>,
         ): TaskProvider<ClangArchiveTask> {
-            val archiveTaskName =
-                taskPrefix.appendCapitalized("archive", serializableNativeTarget.name)
+            val archiveTaskName = taskPrefix.appendCapitalized("archive", target.name)
             val archiveTask =
                 project.tasks.register(archiveTaskName, ClangArchiveTask::class.java) { task ->
-                    val target = serializableNativeTarget.asNativeTarget
                     downloadKonanIfNeeded(project, target)
                     val archiveFileName =
                         listOf(target.staticPrefix, archiveName, ".", target.staticSuffix)
@@ -218,9 +206,9 @@ class MultiTargetNativeCompilation(
                     task.usesService(ClangBuildService.obtain(project))
                     task.llvmArchiveParameters.let { llvmAr ->
                         llvmAr.outputFile.set(
-                            outputDir.map { it.file("$serializableNativeTarget/$archiveFileName") }
+                            outputDir.map { it.file("${target.name}/$archiveFileName") }
                         )
-                        llvmAr.target.set(serializableNativeTarget)
+                        llvmAr.target.set(target.name)
                         llvmAr.objectFiles.from(compileTask.map { it.clangParameters.output })
                     }
                 }
@@ -228,44 +216,38 @@ class MultiTargetNativeCompilation(
         }
 
         private fun createCompileTask(
-            serializableNativeTarget: SerializableNativeTarget,
+            target: NativeTarget,
             includes: ConfigurableFileCollection,
             sources: ConfigurableFileCollection,
             freeArgs: ListProperty<String>,
         ): TaskProvider<ClangCompileTask> {
-            val compileTaskName =
-                taskPrefix.appendCapitalized("compile", serializableNativeTarget.name)
+            val compileTaskName = taskPrefix.appendCapitalized("compile", target.name)
             val compileTask =
                 project.tasks.register(compileTaskName, ClangCompileTask::class.java) { compileTask
                     ->
-                    val target = serializableNativeTarget.asNativeTarget
                     downloadKonanIfNeeded(project, target)
                     compileTask.usesService(ClangBuildService.obtain(project))
                     compileTask.clangParameters.let { clang ->
-                        clang.output.set(
-                            outputDir.map { it.dir("compile/$serializableNativeTarget") }
-                        )
+                        clang.output.set(outputDir.map { it.dir("compile/${target.name}") })
                         clang.includes.from(includes)
                         clang.sources.from(sources)
                         clang.freeArgs.addAll(freeArgs)
-                        clang.target.set(serializableNativeTarget)
+                        clang.target.set(target.name)
                     }
                 }
             return compileTask
         }
 
         private fun createLinkerTask(
-            serializableNativeTarget: SerializableNativeTarget,
+            target: NativeTarget,
             compileTask: TaskProvider<ClangCompileTask>,
             sources: ConfigurableFileCollection,
             linkedObjects: ConfigurableFileCollection,
             linkerArgs: ListProperty<String>,
         ): TaskProvider<ClangLinkerTask> {
-            val linkerTaskName =
-                taskPrefix.appendCapitalized("runLinker", serializableNativeTarget.name)
+            val linkerTaskName = taskPrefix.appendCapitalized("runLinker", target.name)
             val linkerTask =
                 project.tasks.register(linkerTaskName, ClangLinkerTask::class.java) { task ->
-                    val target = serializableNativeTarget.asNativeTarget
                     downloadKonanIfNeeded(project, target)
                     val archiveFileName =
                         if (outputKind == LinkerOutputKind.EXECUTABLE) {
@@ -278,10 +260,10 @@ class MultiTargetNativeCompilation(
                     task.usesService(ClangBuildService.obtain(project))
                     task.clangParameters.let { clang ->
                         clang.outputFile.set(
-                            outputDir.map { it.file("$serializableNativeTarget/$archiveFileName") }
+                            outputDir.map { it.file("${target.name}/$archiveFileName") }
                         )
                         clang.linkerOutputKind.set(outputKind)
-                        clang.target.set(serializableNativeTarget)
+                        clang.target.set(target.name)
                         clang.objectFiles.from(compileTask.map { it.clangParameters.output })
                         clang.linkedObjects.from(linkedObjects)
                         clang.linkerArgs.addAll(linkerArgs)

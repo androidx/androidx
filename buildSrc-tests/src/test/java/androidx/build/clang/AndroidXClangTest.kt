@@ -47,15 +47,11 @@ class AndroidXClangTest : BaseClangTest() {
         multiTargetNativeCompilation.targetProvider(NativeTarget.ANDROID_X64).get()
         val compileTasks = project.tasks.withType(ClangCompileTask::class.java).toList()
         val linuxCompileTask =
-            compileTasks.first {
-                it.clangParameters.target.get().asNativeTarget == NativeTarget.LINUX_X64
-            }
+            compileTasks.first { it.clangParameters.target.get() == NativeTarget.LINUX_X64.name }
         // make sure it includes linux header
         assertThat(linuxCompileTask.clangParameters.includes.regularFileNames()).contains("jni.h")
         val androidCompileTask =
-            compileTasks.first {
-                it.clangParameters.target.get().asNativeTarget == NativeTarget.ANDROID_X64
-            }
+            compileTasks.first { it.clangParameters.target.get() == NativeTarget.ANDROID_X64.name }
         // android has jni in sysroots, hence we shouldn't add that
         assertThat(androidCompileTask.clangParameters.includes.regularFileNames())
             .doesNotContain("jni.h")
@@ -121,7 +117,7 @@ class AndroidXClangTest : BaseClangTest() {
             assertThat(compileTasks).hasSize(2)
             val linuxTask =
                 compileTasks.first {
-                    it.clangParameters.target.get().asNativeTarget == NativeTarget.LINUX_X64
+                    it.clangParameters.target.get() == NativeTarget.LINUX_X64.name
                 }
             assertThat(linuxTask.clangParameters.sources.regularFileNames())
                 .containsExactly("src1.c", "src2.c", "linuxSrc1.c", "linuxSrc2.c")
@@ -132,7 +128,7 @@ class AndroidXClangTest : BaseClangTest() {
 
             val androidTask =
                 compileTasks.first {
-                    it.clangParameters.target.get().asNativeTarget == NativeTarget.ANDROID_X64
+                    it.clangParameters.target.get() == NativeTarget.ANDROID_X64.name
                 }
             assertThat(androidTask.clangParameters.sources.regularFileNames())
                 .containsExactly("src1.c", "src2.c")
@@ -144,7 +140,11 @@ class AndroidXClangTest : BaseClangTest() {
         // 2 archive tasks, 1 for each target
         project.tasks.withType(ClangArchiveTask::class.java).let { archiveTasks ->
             assertThat(archiveTasks).hasSize(2)
-            assertThat(archiveTasks.map { it.llvmArchiveParameters.target.get().asNativeTarget })
+            assertThat(
+                    archiveTasks.map {
+                        NativeTarget.fromName(it.llvmArchiveParameters.target.get())
+                    }
+                )
                 .containsExactly(NativeTarget.LINUX_X64, NativeTarget.ANDROID_X64)
             archiveTasks.forEach { archiveTask ->
                 assertThat(archiveTask.llvmArchiveParameters.outputFile.get().asFile.name)
@@ -154,7 +154,7 @@ class AndroidXClangTest : BaseClangTest() {
 
         // 2 shared library tasks, 1 for each target
         project.tasks.withType(ClangLinkerTask::class.java).let { soTasks ->
-            assertThat(soTasks.map { it.clangParameters.target.get().asNativeTarget })
+            assertThat(soTasks.map { NativeTarget.fromName(it.clangParameters.target.get()) })
                 .containsExactly(NativeTarget.LINUX_X64, NativeTarget.ANDROID_X64)
             soTasks.forEach {
                 assertThat(it.clangParameters.outputFile.get().asFile.name).isEqualTo("libmylib.so")

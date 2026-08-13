@@ -85,20 +85,20 @@ abstract class ClangBuildService @Inject constructor(private val execOperations:
 
     /** @see ClangCompileTask */
     fun compile(parameters: ClangCompileParameters) {
-        val target = parameters.target.get().asNativeTarget
-        getBuilder(target).compile(parameters)
+        val target = NativeTarget.fromName(parameters.target.get())
+        getBuilder(target).compile(target, parameters)
     }
 
     /** @see ClangArchiveTask */
     fun archiveLibrary(parameters: ClangArchiveParameters) {
-        val target = parameters.target.get().asNativeTarget
-        getBuilder(target).archiveLibrary(parameters)
+        val target = NativeTarget.fromName(parameters.target.get())
+        getBuilder(target).archiveLibrary(target, parameters)
     }
 
     /** @see ClangLinkerTask */
     fun runLinker(parameters: ClangLinkerParameters) {
-        val target = parameters.target.get().asNativeTarget
-        getBuilder(target).runLinker(parameters)
+        val target = NativeTarget.fromName(parameters.target.get())
+        getBuilder(target).runLinker(target, parameters)
     }
 
     fun stdlibKlibDir(): Provider<Directory> {
