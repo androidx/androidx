@@ -37,7 +37,9 @@ public class TestConfigBuilder {
     private TestConfigBuilder() { }
 
     public static EmojiCompat.Config config() {
-        return new TestConfig().setReplaceAll(true);
+        return new TestConfig()
+                .setReplaceAll(true)
+                .setUseAfterUpdatableSystemFonts(true);
     }
 
     /**
@@ -46,16 +48,20 @@ public class TestConfigBuilder {
      * result of GlyphChecker on the same device might effect other tests.
      */
     public static EmojiCompat.Config freshConfig() {
-        return new TestConfig(new ResettingTestDataLoader()).setReplaceAll(true);
+        return new TestConfig(new ResettingTestDataLoader())
+                .setReplaceAll(true)
+                .setUseAfterUpdatableSystemFonts(true);
     }
 
     public static class TestConfig extends EmojiCompat.Config {
         TestConfig() {
             super(new TestEmojiDataLoader());
+            setUseAfterUpdatableSystemFonts(true);
         }
 
         TestConfig(final EmojiCompat.@NonNull MetadataRepoLoader metadataLoader) {
             super(metadataLoader);
+            setUseAfterUpdatableSystemFonts(true);
         }
     }
 

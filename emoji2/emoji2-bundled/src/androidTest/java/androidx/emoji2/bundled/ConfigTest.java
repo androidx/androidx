@@ -35,15 +35,29 @@ import androidx.emoji2.bundled.util.Emoji;
 import androidx.emoji2.bundled.util.EmojiMatcher;
 import androidx.emoji2.bundled.util.TestString;
 import androidx.emoji2.text.EmojiCompat;
+import androidx.emoji2.text.MetadataRepo;
+import androidx.emoji2.text.flatbuffer.MetadataItem;
+import androidx.emoji2.text.flatbuffer.MetadataList;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -75,6 +89,7 @@ public class ConfigTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 32)
     public void testBuild_withDefaultValues() {
         final EmojiCompat.Config config = new ValidTestConfig().setReplaceAll(true);
 
@@ -204,13 +219,71 @@ public class ConfigTest {
         assertThat(processed, EmojiMatcher.hasEmoji());
     }
 
+    @Test
+    public void testEmojisTxt_matches_fontMetadata() throws IOException {
+        final Set<String> emojisInTxt = new HashSet<>();
+        final InputStream inputStream = mContext.getAssets().open("emojis.txt");
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String s;
+            while ((s = reader.readLine()) != null) {
+                s = s.trim();
+                if (s.isEmpty() || s.startsWith("#")) continue;
+                final String[] split = s.split(" ");
+                final StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < split.length; i++) {
+                    sb.append(Character.toChars(Integer.parseInt(split[i].trim(), 16)));
+                }
+                // Strip variation selectors from emojis.txt entries
+                final String stripped = sb.toString().replace("\uFE0F", "").replace("\uFE0E", "");
+                emojisInTxt.add(stripped);
+            }
+        }
+
+        final MetadataRepo metadataRepo =
+                MetadataRepo.create(mContext.getAssets(), "NotoColorEmojiCompat.ttf");
+        final MetadataList metadataList = metadataRepo.getMetadataList();
+        final MetadataItem item = new MetadataItem();
+
+        final List<String> missingEmojis = new ArrayList<>();
+        final int length = metadataList.listLength();
+        for (int i = 0; i < length; i++) {
+            metadataList.list(item, i);
+            if (item.codepointsLength() > 0) {
+                final StringBuilder sb = new StringBuilder();
+                for (int j = 0; j < item.codepointsLength(); j++) {
+                    sb.append(Character.toChars(item.codepoints(j)));
+                }
+                // Strip variation selectors from font metadata entries
+                final String emojiStr = sb.toString().replace("\uFE0F", "").replace("\uFE0E", "");
+                if (!emojisInTxt.contains(emojiStr)) {
+                    final StringBuilder hexSb = new StringBuilder();
+                    for (int j = 0; j < item.codepointsLength(); j++) {
+                        if (j > 0) hexSb.append(" ");
+                        hexSb.append(Integer.toHexString(item.codepoints(j)).toUpperCase());
+                    }
+                    missingEmojis.add(hexSb.toString() + " (" + sb.toString() + ")");
+                }
+            }
+        }
+
+        if (!missingEmojis.isEmpty()) {
+            Assert.fail(
+                    "emojis.txt is missing "
+                            + missingEmojis.size()
+                            + " emojis present in the font metadata: \n"
+                            + String.join("\n", missingEmojis));
+        }
+    }
+
     private static class ValidTestConfig extends EmojiCompat.Config {
         ValidTestConfig() {
             super(new TestConfigBuilder.TestEmojiDataLoader());
+            setUseAfterUpdatableSystemFonts(true);
         }
 
         ValidTestConfig(EmojiCompat.MetadataRepoLoader loader) {
             super(loader);
+            setUseAfterUpdatableSystemFonts(true);
         }
     }
 }

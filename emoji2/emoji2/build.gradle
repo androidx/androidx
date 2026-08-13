@@ -41,6 +41,7 @@ dependencies {
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(libs.truth)
 }
 
 androidx {
