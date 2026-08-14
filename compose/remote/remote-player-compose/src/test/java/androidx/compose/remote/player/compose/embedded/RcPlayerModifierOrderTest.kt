@@ -17,9 +17,11 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
+import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers
 import androidx.compose.remote.core.operations.layout.modifiers.DrawContentOperation
 import androidx.compose.remote.core.operations.layout.modifiers.PaddingModifierOperation
+import androidx.compose.remote.core.operations.layout.modifiers.RoundedClipRectModifierOperation
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -119,6 +121,38 @@ class RcPlayerModifierOrderTest {
         val elements = resolvedModifier.toElementList()
         val drawElements = elements.filter { it.javaClass.name.contains("DrawWithContent") }
         assertEquals(1, drawElements.size)
+    }
+
+    @Test
+    fun testRoundedClipHoistedBeforeDrawContent() {
+        val componentModifiers = ComponentModifiers()
+        // DrawContent precedes RoundedClipRect in wire modifier list
+        componentModifiers.add(DrawContentOperation())
+        componentModifiers.add(RoundedClipRectModifierOperation(10f, 10f, 10f, 10f))
+
+        var resolvedModifier: Modifier = Modifier
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalRemoteContext provides remoteContext,
+                LocalCoreDocument provides CoreDocument(),
+            ) {
+                resolvedModifier = componentModifiers.toModifier(drawOpsList = emptyList())
+            }
+        }
+
+        val elements = resolvedModifier.toElementList()
+        // Clip modifier must be before DrawWithContent modifier so it clips the background
+        assertEquals(2, elements.size)
+        assert(
+            elements[0].javaClass.name.contains("GraphicsLayer") ||
+                elements[0].javaClass.name.contains("Clip")
+        ) {
+            "Expected Clip/GraphicsLayer modifier first, got ${elements[0].javaClass.name}"
+        }
+        assert(elements[1].javaClass.name.contains("DrawWithContent")) {
+            "Expected DrawWithContent modifier second, got ${elements[1].javaClass.name}"
+        }
     }
 
     private fun Modifier.toElementList(): List<Modifier.Element> {

@@ -16,14 +16,25 @@
 
 package androidx.compose.remote.player.compose.embedded
 
+import androidx.collection.emptyIntObjectMap
+import androidx.collection.mutableIntObjectMapOf
+import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.RemoteClock
+import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
+import androidx.compose.remote.core.operations.utilities.ArrayAccess
+import androidx.compose.remote.core.operations.utilities.CollectionsAccess
+import androidx.compose.remote.core.operations.utilities.NanMap
+import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.remote.player.compose.embedded.state.AddOp
 import androidx.compose.remote.player.compose.embedded.state.DivOp
 import androidx.compose.remote.player.compose.embedded.state.LerpOp
 import androidx.compose.remote.player.compose.embedded.state.MadOp
 import androidx.compose.remote.player.compose.embedded.state.MulOp
 import androidx.compose.remote.player.compose.embedded.state.SubOp
+import androidx.compose.remote.player.compose.embedded.state.expressionDependsOnAnimation
 import androidx.compose.remote.player.compose.embedded.state.parseRpn
 import androidx.compose.runtime.mutableStateOf
 import com.google.common.truth.Truth.assertThat
@@ -250,25 +261,23 @@ class RcPlayerExpressionTest {
         // is a
         // data-variable NaN (in the array id-region) consumed by the op; the imperative evaluator
         // passes it through verbatim and the core decodes it.
-        val arrayId = androidx.compose.remote.core.operations.utilities.NanMap.START_ARRAY
+        val arrayId = NanMap.START_ARRAY
         val data = floatArrayOf(2f, 5f, 3f)
         val ca =
-            object : androidx.compose.remote.core.operations.utilities.CollectionsAccess {
+            object : CollectionsAccess {
                 override fun getFloatValue(id: Int, index: Int): Float = data[index]
 
                 override fun getFloats(id: Int): FloatArray? = if (id == arrayId) data else null
 
                 override fun getDynamicFloats(id: Int): FloatArray? = getFloats(id)
 
-                override fun getArray(
-                    id: Int
-                ): androidx.compose.remote.core.operations.utilities.ArrayAccess? = null
+                override fun getArray(id: Int): ArrayAccess? = null
 
                 override fun getListLength(id: Int): Int = if (id == arrayId) data.size else 0
 
                 override fun getId(listId: Int, index: Int): Int = 0
             }
-        val arrayNan = androidx.compose.remote.core.operations.utilities.NanMap.asNan(arrayId)
+        val arrayNan = NanMap.asNan(arrayId)
         assertThat(
                 parseRpn(floatArrayOf(arrayNan, AnimatedFloatExpression.A_SUM), emptyMap(), ca)
                     .eval()
@@ -284,5 +293,68 @@ class RcPlayerExpressionTest {
                     .eval()
             )
             .isEqualTo(3f)
+    }
+
+    @Test
+    fun testHostFloatOverrideBeatsAuthoredExpression() {
+        val realState = SnapshotRemoteComposeState()
+        val op = FloatExpression(100, floatArrayOf(2f, 3f, AnimatedFloatExpression.ADD), null)
+        val opsMap = mutableIntObjectMapOf<Operation>()
+        opsMap[100] = op
+        val timeState = mutableStateOf(0f)
+        val graph = GraphContext(realState, opsMap, timeState, RemoteClock.SYSTEM)
+
+        assertThat(graph.getFloat(100)).isEqualTo(5f)
+        assertThat(realState.isFloatOverridden(100)).isFalse()
+
+        realState.overrideFloat(100, 42f)
+        assertThat(realState.isFloatOverridden(100)).isTrue()
+        assertThat(graph.getFloat(100)).isEqualTo(42f)
+    }
+
+    @Test
+    fun testContinuousSecResolvesInGraphContext() {
+        val realState = SnapshotRemoteComposeState()
+        val timeState = mutableStateOf(5000f)
+        val graph = GraphContext(realState, emptyIntObjectMap(), timeState, RemoteClock.SYSTEM)
+
+        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isEqualTo(5f)
+
+        timeState.value = 8000f
+        assertThat(graph.getFloat(RemoteContext.ID_CONTINUOUS_SEC)).isEqualTo(8f)
+    }
+
+    @Test
+    fun testExpressionDependsOnAnimationDetectsNestedAnimation() {
+        val inner =
+            FloatExpression(1, floatArrayOf(10f), null).apply {
+                mFloatAnimation = FloatAnimation(1f)
+            }
+        val outer =
+            FloatExpression(2, floatArrayOf(Utils.asNan(1), 5f, AnimatedFloatExpression.ADD), null)
+        val standalone = FloatExpression(3, floatArrayOf(1f, 2f, AnimatedFloatExpression.ADD), null)
+
+        val map = mapOf(1 to inner, 2 to outer, 3 to standalone)
+        assertThat(expressionDependsOnAnimation(map, 1)).isTrue()
+        assertThat(expressionDependsOnAnimation(map, 2)).isTrue()
+        assertThat(expressionDependsOnAnimation(map, 3)).isFalse()
+    }
+
+    @Test
+    fun testExpressionDependsOnAnimationHandlesCyclesSafely() {
+        val exprA =
+            FloatExpression(
+                10,
+                floatArrayOf(Utils.asNan(11), 1f, AnimatedFloatExpression.ADD),
+                null,
+            )
+        val exprB =
+            FloatExpression(
+                11,
+                floatArrayOf(Utils.asNan(10), 1f, AnimatedFloatExpression.ADD),
+                null,
+            )
+        val cycleMap = mapOf(10 to exprA, 11 to exprB)
+        assertThat(expressionDependsOnAnimation(cycleMap, 10)).isFalse()
     }
 }

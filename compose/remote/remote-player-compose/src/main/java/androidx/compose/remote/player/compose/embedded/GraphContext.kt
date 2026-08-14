@@ -96,7 +96,7 @@ internal class GraphContext(
     private val captured = ThreadLocal<Any?>()
 
     /** True if [id] is produced by a computed op (vs a leaf variable). */
-    fun isComputed(id: Int): Boolean = computedOps.containsKey(id)
+    internal fun isComputed(id: Int): Boolean = computedOps.containsKey(id)
 
     private fun computedValue(id: Int): Any? {
         if (id in computing.get()!!) return null // cycle: break rather than recurse forever
@@ -130,9 +130,11 @@ internal class GraphContext(
         when {
             // Time variables come from the Compose frame-clock state (matching the resolver's time
             // special-case), not the raw store — so a time-driven op reads seconds/minutes/hours.
-            id == RemoteContext.ID_TIME_IN_SEC -> timeMillis.value / 1000f
+            id == RemoteContext.ID_CONTINUOUS_SEC || id == RemoteContext.ID_TIME_IN_SEC ->
+                timeMillis.value / 1000f
             id == RemoteContext.ID_TIME_IN_MIN -> timeMillis.value / 60000f
             id == RemoteContext.ID_TIME_IN_HR -> timeMillis.value / 3600000f
+            realState.isFloatOverridden(id) -> super.getFloat(id)
             isComputed(id) -> (computedValue(id) as? Number)?.toFloat() ?: 0f
             else -> super.getFloat(id)
         }

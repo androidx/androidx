@@ -32,10 +32,9 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.player.compose.embedded.integration.previews.ExperimentalRemoteDocumentPreview
-import androidx.compose.remote.player.compose.embedded.integration.previews.utils.PlayerImpl
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.testing.RemoteCaptureTestRule
+import androidx.compose.remote.tooling.preview.RemoteDocumentPreview
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
@@ -110,10 +109,19 @@ class ExperimentalPreviewScreenshotTest {
         RemoteDocument(coreDoc)
     }
 
+    enum class PlayerImpl {
+        JAVA,
+        COMPOSE,
+    }
+
     @Composable
     private fun PreviewUnderTest(document: RemoteDocument, impl: PlayerImpl, tag: String) {
         Box(modifier = Modifier.size(120.dp).testTag(tag)) {
-            ExperimentalRemoteDocumentPreview(remoteDocument = document, playerImpl = impl)
+            when (impl) {
+                PlayerImpl.JAVA ->
+                    RemoteDocumentPreview(remoteDocument = document, modifier = Modifier)
+                PlayerImpl.COMPOSE -> RcPlayer(document = document.document, modifier = Modifier)
+            }
         }
     }
 

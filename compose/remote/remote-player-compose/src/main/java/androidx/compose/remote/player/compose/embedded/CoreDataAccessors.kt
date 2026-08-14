@@ -1160,6 +1160,12 @@ internal fun CoreText.readDataReflection(): CoreTextData {
         strikethrough = coreTextStrikethroughField.getBoolean(this),
         fontAxis = coreTextFontAxisField.get(this) as? IntArray,
         fontAxisValues = coreTextFontAxisValuesField.get(this) as? FloatArray,
+        autosize = coreTextAutosizeField.getBoolean(this),
+        minFontSize = coreTextMinFontSizeField.getFloat(this),
+        maxFontSize = coreTextMaxFontSizeField.getFloat(this),
+        lineBreakStrategy = coreTextLineBreakStrategyField.getInt(this),
+        hyphenationFrequency = coreTextHyphenationFrequencyField.getInt(this),
+        justificationMode = coreTextJustificationModeField.getInt(this),
     )
 }
 
@@ -1193,6 +1199,18 @@ private val coreTextFontAxisField =
     CoreText::class.java.getDeclaredField("mFontAxis").apply { isAccessible = true }
 private val coreTextFontAxisValuesField =
     CoreText::class.java.getDeclaredField("mFontAxisValues").apply { isAccessible = true }
+private val coreTextAutosizeField =
+    CoreText::class.java.getDeclaredField("mAutosize").apply { isAccessible = true }
+private val coreTextMinFontSizeField =
+    CoreText::class.java.getDeclaredField("mMinFontSize").apply { isAccessible = true }
+private val coreTextMaxFontSizeField =
+    CoreText::class.java.getDeclaredField("mMaxFontSize").apply { isAccessible = true }
+private val coreTextLineBreakStrategyField =
+    CoreText::class.java.getDeclaredField("mLineBreakStrategy").apply { isAccessible = true }
+private val coreTextHyphenationFrequencyField =
+    CoreText::class.java.getDeclaredField("mHyphenationFrequency").apply { isAccessible = true }
+private val coreTextJustificationModeField =
+    CoreText::class.java.getDeclaredField("mJustificationMode").apply { isAccessible = true }
 
 // --- TextLayout Reflection Helper ---
 

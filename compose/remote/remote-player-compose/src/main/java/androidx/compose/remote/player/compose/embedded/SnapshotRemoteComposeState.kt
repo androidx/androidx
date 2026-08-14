@@ -37,6 +37,7 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
     private val colors: SnapshotStateMap<Int, Int> = mutableStateMapOf()
     private val data: SnapshotStateMap<Int, Any> = mutableStateMapOf()
     private val objects: SnapshotStateMap<Int, Any> = mutableStateMapOf()
+    private val overriddenFloats: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
 
     // --- Float ---
     override fun getFloat(id: Int): Float {
@@ -67,6 +68,7 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
     override fun overrideFloat(id: Int, value: Float) {
         val old = floats[id]
         super.overrideFloat(id, value)
+        overriddenFloats[id] = true
         val new = super.getFloat(id)
         if (new != old) {
             floats[id] = new
@@ -74,6 +76,9 @@ internal class SnapshotRemoteComposeState : RemoteComposeState() {
             colors[id] = super.getColor(id)
         }
     }
+
+    /** Whether a host/action override should take precedence over the id's authored expression. */
+    internal fun isFloatOverridden(id: Int): Boolean = overriddenFloats[id] == true
 
     // --- Integer ---
     override fun getInteger(id: Int): Int {
