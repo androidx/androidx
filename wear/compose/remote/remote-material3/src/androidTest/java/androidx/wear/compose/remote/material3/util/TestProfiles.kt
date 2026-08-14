@@ -22,6 +22,7 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 
 object TestProfiles {
     val androidNativeProfile =
@@ -54,6 +55,16 @@ object TestProfiles {
                     ?.keySet()
                     .orEmpty() + setOf(Operations.CORE_TEXT)
             },
+        ) { creationDisplayInfo, profile, callback ->
+            RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
+        }
+
+    val wearWidgetsWithCoreText =
+        Profile(
+            CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            AndroidxRcPlatformServices(),
+            { RcPlatformProfiles.WEAR_WIDGETS.supportedOperations + setOf(Operations.CORE_TEXT) },
         ) { creationDisplayInfo, profile, callback ->
             RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
         }
