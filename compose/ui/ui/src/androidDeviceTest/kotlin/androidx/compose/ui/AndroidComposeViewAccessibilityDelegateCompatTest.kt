@@ -63,13 +63,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
@@ -3227,40 +3225,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 37)
-    fun testPopulateExtraRenderingInfo_textBackgroundColorTakesPrecedenceOverModifierBackground() {
-        // Arrange.
-        val textColor = Color(0x77ff3322)
-        rule.setContentWithAccessibilityEnabled {
-            BasicText(
-                text = "Hello",
-                style = TextStyle(color = textColor, background = Color.Yellow),
-                modifier = Modifier.background(Color.Green),
-            )
-        }
-        val virtualViewId = rule.onNodeWithText("Hello").semanticsId()
-        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-
-        // Act.
-        androidComposeView.composeAccessibilityDelegate
-            .getAccessibilityNodeProvider(androidComposeView)
-            .addExtraDataToAccessibilityNodeInfo(
-                virtualViewId,
-                info,
-                EXTRA_DATA_RENDERING_INFO_KEY,
-                Bundle(),
-            )
-
-        // Assert.
-        rule.runOnIdle {
-            val extraRenderingInfo = info.unwrap().extraRenderingInfo
-            assertThat(extraRenderingInfo).isNotNull()
-            assertThat(extraRenderingInfo!!.textColor).isEqualTo(textColor.toArgb())
-            assertThat(extraRenderingInfo!!.backgroundColor).isEqualTo(Color.Yellow.toArgb())
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 37)
     fun testPopulateExtraRenderingInfo_textColor_usesGlobalStyleNotSpanStyle() {
         // Arrange.
         val globalColor = Color.Blue
@@ -3440,109 +3404,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             assertThat(extraRenderingInfo!!.textColor).isEqualTo(mainColor.toArgb())
             // Verify that there is no hint color specified (it should be 0 by default)
             assertThat(extraRenderingInfo.hintTextColor).isEqualTo(0)
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 37)
-    fun testPopulateExtraRenderingInfo_backgroundColor() {
-        // Arrange.
-        val backgroundColor = Color.Yellow
-        val tag = "BoxWithBackground"
-        rule.setContentWithAccessibilityEnabled {
-            Box(Modifier.size(10.dp).background(backgroundColor).semantics { testTag = tag })
-        }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
-        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        assertThat(info.availableExtraData).contains(EXTRA_DATA_RENDERING_INFO_KEY)
-
-        // Act.
-        androidComposeView.composeAccessibilityDelegate
-            .getAccessibilityNodeProvider(androidComposeView)
-            .addExtraDataToAccessibilityNodeInfo(
-                virtualViewId,
-                info,
-                EXTRA_DATA_RENDERING_INFO_KEY,
-                Bundle(),
-            )
-
-        // Assert.
-        rule.runOnIdle {
-            val extraRenderingInfo = info.unwrap().extraRenderingInfo
-            assertThat(extraRenderingInfo).isNotNull()
-            assertThat(extraRenderingInfo!!.backgroundColor).isEqualTo(backgroundColor.toArgb())
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 37)
-    fun testPopulateExtraRenderingInfo_gradient_noBackgroundColor() {
-        // Arrange.
-        val tag = "BoxWithBackground"
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier.size(10.dp)
-                    .background(
-                        brush = Brush.linearGradient(colors = listOf(Color.Red, Color.Yellow))
-                    )
-                    .semantics { testTag = tag }
-            )
-        }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
-        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-
-        // Act.
-        androidComposeView.composeAccessibilityDelegate
-            .getAccessibilityNodeProvider(androidComposeView)
-            .addExtraDataToAccessibilityNodeInfo(
-                virtualViewId,
-                info,
-                EXTRA_DATA_RENDERING_INFO_KEY,
-                Bundle(),
-            )
-
-        // Assert.
-        rule.runOnIdle {
-            val extraRenderingInfo = info.unwrap().extraRenderingInfo
-            assertThat(extraRenderingInfo).isNotNull()
-            assertThat(extraRenderingInfo!!.backgroundColor).isEqualTo(0)
-        }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 37)
-    fun testPopulateExtraRenderingInfo_backgroundColor_alphaCombined() {
-        // Arrange.
-        val baseColor = Color.Red.copy(alpha = 0.5f)
-        val brushAlpha = 0.6f
-        val expectedColor = baseColor.copy(alpha = baseColor.alpha * brushAlpha)
-        val tag = "BoxWithBackground"
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier.size(10.dp)
-                    .background(brush = SolidColor(baseColor), alpha = brushAlpha)
-                    .semantics { testTag = tag }
-            )
-        }
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
-        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
-        assertThat(info.availableExtraData).contains(EXTRA_DATA_RENDERING_INFO_KEY)
-
-        // Act.
-        androidComposeView.composeAccessibilityDelegate
-            .getAccessibilityNodeProvider(androidComposeView)
-            .addExtraDataToAccessibilityNodeInfo(
-                virtualViewId,
-                info,
-                EXTRA_DATA_RENDERING_INFO_KEY,
-                Bundle(),
-            )
-
-        // Assert.
-        rule.runOnIdle {
-            val extraRenderingInfo = info.unwrap().extraRenderingInfo
-            assertThat(extraRenderingInfo).isNotNull()
-            assertThat(extraRenderingInfo!!.backgroundColor).isEqualTo(expectedColor.toArgb())
         }
     }
 

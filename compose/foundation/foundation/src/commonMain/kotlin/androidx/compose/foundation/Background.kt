@@ -22,14 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
@@ -40,7 +37,6 @@ import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.backgroundColor
 import androidx.compose.ui.semantics.shape
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -213,24 +209,5 @@ private class BackgroundNode(
 
     override fun SemanticsPropertyReceiver.applySemantics() {
         this.shape = this@BackgroundNode.shape
-        this.backgroundColor = ColorProducer {
-            val bgColor = determineBackgroundColor()
-            if (bgColor.isSpecified) {
-                bgColor.copy(alpha = bgColor.alpha * this@BackgroundNode.alpha)
-            } else {
-                bgColor
-            }
-        }
-    }
-
-    private fun determineBackgroundColor(): Color {
-        (brush as? SolidColor)?.let {
-            return it.value
-        }
-
-        // The brush could be a gradient or a shader; no way to provide a singular color.
-        if (brush != null) return Color.Unspecified
-
-        return color
     }
 }
