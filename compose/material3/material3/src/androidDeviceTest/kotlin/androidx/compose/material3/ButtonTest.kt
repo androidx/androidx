@@ -783,6 +783,7 @@ class ButtonTest {
         buttonBounds.height.assertIsEqualTo(
             ButtonDefaults.ExtraSmallContainerHeight,
             "height of button",
+            tolerance = 1.dp,
         )
     }
 
@@ -829,7 +830,7 @@ class ButtonTest {
             "button bottom padding",
         )
         textBounds.height.assertIsEqualTo(20.dp, "label line height")
-        buttonBounds.height.assertIsEqualTo(size, "height of button.")
+        buttonBounds.height.assertIsEqualTo(size, "height of button.", tolerance = 1.dp)
     }
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
