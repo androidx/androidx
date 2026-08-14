@@ -17,8 +17,7 @@
 package androidx.savedstate
 
 import androidx.annotation.MainThread
-import androidx.lifecycle.Lifecycle
-import androidx.savedstate.internal.SavedStateRegistryImpl
+import androidx.savedstate.internal.SavedStateRegistryControllerImpl
 import kotlin.jvm.JvmStatic
 
 /**
@@ -28,16 +27,17 @@ import kotlin.jvm.JvmStatic
  * [SavedStateRegistry], and [performSave] to gather the saved state from it.
  */
 public class SavedStateRegistryController
-private constructor(private val impl: SavedStateRegistryImpl) {
+private constructor(private val impl: SavedStateRegistryControllerImpl) {
 
     /** The [SavedStateRegistry] controlled by this controller. */
-    public val savedStateRegistry: SavedStateRegistry = SavedStateRegistry(impl)
+    public val savedStateRegistry: SavedStateRegistry
+        get() = impl.savedStateRegistry
 
     /**
      * Performs the initial, one-time attachment necessary to configure this [SavedStateRegistry].
      *
-     * Call this when the owner's [Lifecycle] is [Lifecycle.State.INITIALIZED] and before calling
-     * [performRestore].
+     * Call this when the owner's [androidx.lifecycle.Lifecycle] is
+     * [androidx.lifecycle.Lifecycle.State.INITIALIZED] and before calling [performRestore].
      */
     @MainThread
     public fun performAttach() {
@@ -76,7 +76,7 @@ private constructor(private val impl: SavedStateRegistryImpl) {
         @JvmStatic
         public fun create(owner: SavedStateRegistryOwner): SavedStateRegistryController {
             return SavedStateRegistryController(
-                SavedStateRegistryImpl(
+                SavedStateRegistryControllerImpl(
                     owner = owner,
                     onAttach = { onAttachSavedStateRegistryController(owner) },
                 )
