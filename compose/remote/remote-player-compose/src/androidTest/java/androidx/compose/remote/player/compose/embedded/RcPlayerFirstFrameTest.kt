@@ -20,10 +20,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -56,26 +59,24 @@ class RcPlayerFirstFrameTest {
             val document = rememberRemoteDocument {
                 // A box that draws a circle based on its size
                 RemoteBox(modifier = RemoteModifier.fillMaxSize()) {
-                    androidx.compose.remote.creation.compose.layout.RemoteCanvas(
-                        modifier = RemoteModifier.fillMaxSize()
-                    ) {
-                        val paint =
-                            androidx.compose.remote.creation.compose.state.RemotePaint().apply {
-                                color = Color.Red.rc
-                            }
+                    RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                        val paint = RemotePaint().apply { color = Color.Red.rc }
                         // Draw a circle with radius as half of width
                         drawCircle(paint = paint, radius = width / 2f)
                     }
                 }
             }
 
-            Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
+            Box(modifier = Modifier.size(100.dp)) {
                 document.value?.let { RcPlayer(document = it) }
             }
         }
 
         // We do NOT advance the clock here!
         // Expectation: It will be blank because onGloballyPositioned hasn't updated sizes yet!
-        rule.onRoot().captureToImage().assertAgainstGolden(screenshotRule, "firstFrameBlank")
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "RcPlayerFirstFrameTest_firstFrameBlank")
     }
 }

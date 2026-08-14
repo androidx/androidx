@@ -25,9 +25,12 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -68,5 +71,10 @@ class RcPlayerCanvasTest {
                 document.value?.let { RcPlayer(document = it) }
             }
         }
+
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "RcPlayerCanvasTest_canvasDrawRect")
     }
 }
