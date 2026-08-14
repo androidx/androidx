@@ -20,6 +20,10 @@ import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.TimePickerScreenshotTest.ColorSchemeWrapper
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -153,6 +157,34 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
             .assertAgainstGolden(screenshotRule, "rich_time_input_dialog_${scheme.name}")
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun rich_time_picker_uncontained_scroll_dialog() {
+        rule.setMaterialContent(scheme.colorScheme) { RichUncontainedScrollDialog() }
+
+        rule
+            .onNodeWithTag(TestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "rich_time_picker_uncontained_scroll_dialog_${scheme.name}",
+            )
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun rich_time_picker_uncontained_input_dialog() {
+        rule.setMaterialContent(scheme.colorScheme) { RichUncontainedInputDialog() }
+
+        rule
+            .onNodeWithTag(TestTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "rich_time_picker_uncontained_input_dialog_${scheme.name}",
+            )
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun Dialog(containerColor: Color = TimePickerDialogDefaults.containerColor) {
@@ -216,6 +248,62 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         shapes = TimePickerDefaults.shapes(),
                     )
             }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun RichUncontainedScrollDialog() {
+        var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Scroll) }
+        val toggleButton =
+            @Composable {
+                TimePickerDialogDefaults.ScrollDisplayModeToggle(
+                    onDisplayModeChange = {
+                        displayMode =
+                            if (displayMode == TimePickerDisplayMode.Scroll) {
+                                TimePickerDisplayMode.Input
+                            } else {
+                                TimePickerDisplayMode.Scroll
+                            }
+                    },
+                    displayMode = displayMode,
+                )
+            }
+
+        Box(modifier = Modifier.testTag(TestTag)) {
+            TimeScroll(
+                state = rememberTimePickerState(),
+                shapes = TimePickerDefaults.shapes(),
+                toggle = toggleButton,
+            )
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun RichUncontainedInputDialog() {
+        var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Input) }
+        val toggleButton =
+            @Composable {
+                TimePickerDialogDefaults.ScrollDisplayModeToggle(
+                    onDisplayModeChange = {
+                        displayMode =
+                            if (displayMode == TimePickerDisplayMode.Scroll) {
+                                TimePickerDisplayMode.Input
+                            } else {
+                                TimePickerDisplayMode.Scroll
+                            }
+                    },
+                    displayMode = displayMode,
+                )
+            }
+
+        Box(modifier = Modifier.testTag(TestTag)) {
+            TimeInput(
+                state = rememberTimePickerState(),
+                shapes = TimePickerDefaults.shapes(),
+                toggle = toggleButton,
+            )
         }
     }
 

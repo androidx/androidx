@@ -318,6 +318,7 @@ import androidx.compose.material3.samples.TriStateCheckboxRoundedStrokesSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TypographyCustomFontFamilySample
 import androidx.compose.material3.samples.TypographySample
+import androidx.compose.material3.samples.UncontainedTimePickerSample
 import androidx.compose.material3.samples.UnitScrollFieldSample
 import androidx.compose.material3.samples.VerticalButtonGroupSample
 import androidx.compose.material3.samples.VerticalCenteredSliderSample
@@ -2733,6 +2734,14 @@ val TimePickerExamples =
             isExpressive = true,
         ) {
             RichTimePickerScrollSample()
+        },
+        Example(
+            name = "UncontainedTimePickerSample",
+            description = TimePickerDescription,
+            sourceUrl = TimePickerSourceUrl,
+            isExpressive = true,
+        ) {
+            UncontainedTimePickerSample()
         },
     )
 

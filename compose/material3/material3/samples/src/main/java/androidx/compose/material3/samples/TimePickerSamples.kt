@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
@@ -54,7 +56,6 @@ import java.util.Calendar
 import java.util.Locale
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -102,7 +103,6 @@ fun TimePickerSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -149,7 +149,6 @@ fun TimeInputSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -219,7 +218,6 @@ fun TimePickerSwitchableSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -262,7 +260,6 @@ fun RichTimePickerSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -305,7 +302,6 @@ fun RichTimeInputSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -372,7 +368,6 @@ fun RichTimePickerSwitchableSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 @Preview
@@ -431,6 +426,37 @@ fun RichTimePickerScrollSample() {
             } else {
                 TimeScroll(state = state, shapes = TimePickerDefaults.shapes())
             }
+        }
+    }
+}
+
+@Sampled
+@Composable
+@Preview
+fun UncontainedTimePickerSample() {
+    val state = rememberTimePickerState()
+    var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Scroll) }
+
+    val toggle =
+        @Composable {
+            TimePickerDialogDefaults.ScrollDisplayModeToggle(
+                onDisplayModeChange = {
+                    displayMode =
+                        if (displayMode == TimePickerDisplayMode.Scroll) {
+                            TimePickerDisplayMode.Input
+                        } else {
+                            TimePickerDisplayMode.Scroll
+                        }
+                },
+                displayMode = displayMode,
+            )
+        }
+
+    Box {
+        if (displayMode == TimePickerDisplayMode.Input) {
+            TimeInput(state = state, shapes = TimePickerDefaults.shapes(), toggle = toggle)
+        } else {
+            TimeScroll(state = state, shapes = TimePickerDefaults.shapes(), toggle = toggle)
         }
     }
 }

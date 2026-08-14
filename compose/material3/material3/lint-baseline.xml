@@ -454,6 +454,60 @@
     <issue
         id="ComposableLambdaParameterNaming"
         message="Composable lambda parameter should be named `content`"
+        errorLine1="    toggle: @Composable () -> Unit,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="    toggle: @Composable () -> Unit,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="    toggle: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="    toggle: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="    toggle: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="    toggle: @Composable (() -> Unit)? = null,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
         errorLine1="        tooltipContent: @Composable () -> Unit = {},"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
@@ -467,6 +521,24 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/ButtonGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterPosition"
+        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
+        errorLine1="    toggle: @Composable () -> Unit,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterPosition"
+        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
+        errorLine1="    toggle: @Composable () -> Unit,"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
     </issue>
 
     <issue
