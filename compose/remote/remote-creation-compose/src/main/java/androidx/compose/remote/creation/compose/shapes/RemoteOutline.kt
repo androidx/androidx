@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -43,86 +44,135 @@ public sealed class RemoteOutline {
         }
     }
 
-    /** Rectangular area with rounded corners. */
+    /**
+     * Rectangular area with rounded corners.
+     *
+     * @param topStart the resolved corner radius of the top start corner
+     * @param topEnd the resolved corner radius of the top end corner
+     * @param bottomEnd the resolved corner radius of the bottom end corner
+     * @param bottomStart the resolved corner radius of the bottom start corner
+     * @param offset the top-left offset of the rounded rectangle bounding box (e.g. `(0, 0)` for a
+     *   solid background fill, or `(halfStroke, halfStroke)` to center a stroked border within the
+     *   component bounds)
+     * @param size the dimensions (width and height) of the rounded rectangle (e.g. `(width -
+     *   strokeWidth, height - strokeWidth)` for an inset stroked border). If null, defaults to the
+     *   full canvas width and height.
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class Rounded(
         internal val topStart: RemoteFloat,
         internal val topEnd: RemoteFloat,
         internal val bottomEnd: RemoteFloat,
         internal val bottomStart: RemoteFloat,
+        internal val offset: RemoteOffset = RemoteOffset.Zero,
+        internal val size: RemoteSize? = null,
     ) : RemoteOutline() {
         override fun RemoteDrawScope.drawOutline(paint: RemotePaint) {
-            val w = width
-            val h = height
+            // Compute the bounding rectangle [left, top, right, bottom] from origin `offset`
+            // and dimensions `size`. When drawing a centered stroke of width S, `offset` is
+            // (S/2, S/2) and `size` is (W - S, H - S), yielding bounds [S/2, S/2, W - S/2, H -
+            // S/2].
+            val left = offset.x
+            val top = offset.y
+            val right = left + (this@Rounded.size?.width ?: width)
+            val bottom = top + (this@Rounded.size?.height ?: height)
+
             // Remap corner radii based on layout direction
-            val topLeft: RemoteFloat
-            val topRight: RemoteFloat
-            val bottomRight: RemoteFloat
-            val bottomLeft: RemoteFloat
+            val rTopLeft: RemoteFloat
+            val rTopRight: RemoteFloat
+            val rBottomRight: RemoteFloat
+            val rBottomLeft: RemoteFloat
 
             when (remoteCanvas.layoutDirection) {
                 LayoutDirection.Ltr -> {
-                    topLeft = topStart
-                    topRight = topEnd
-                    bottomRight = bottomEnd
-                    bottomLeft = bottomStart
+                    rTopLeft = topStart
+                    rTopRight = topEnd
+                    rBottomRight = bottomEnd
+                    rBottomLeft = bottomStart
                 }
                 LayoutDirection.Rtl -> {
-                    topLeft = topEnd
-                    topRight = topStart
-                    bottomRight = bottomStart
-                    bottomLeft = bottomEnd
+                    rTopLeft = topEnd
+                    rTopRight = topStart
+                    rBottomRight = bottomStart
+                    rBottomLeft = bottomEnd
                 }
             }
 
-            val path = RemotePath()
-            val circularArcWeight = 0.7071f.rf // Weight for a 90-degree circular arc
+            val isUniform =
+                areEqual(rTopLeft, rTopRight) &&
+                    areEqual(rTopRight, rBottomRight) &&
+                    areEqual(rBottomRight, rBottomLeft)
 
-            // 1. Move to top edge
-            path.moveTo(topLeft.floatId, 0f.rf.floatId)
+            if (isUniform) {
+                remoteCanvas.drawRoundRect(
+                    left = left,
+                    top = top,
+                    right = right,
+                    bottom = bottom,
+                    rx = rTopLeft,
+                    ry = rTopLeft,
+                    paint = paint,
+                )
+                return
+            }
 
-            // 2. Top Line & Top-Right Corner
-            path.lineTo((w - topRight).floatId, 0f.rf.floatId)
-            path.conicTo(
-                x1 = w.floatId,
-                y1 = 0f.rf.floatId,
-                x2 = w.floatId,
-                y2 = topRight.floatId,
-                weight = circularArcWeight.floatId,
-            )
+            val kappa = 0.55228475f.rf
+            val cTopLeft = rTopLeft * kappa
+            val cTopRight = rTopRight * kappa
+            val cBottomRight = rBottomRight * kappa
+            val cBottomLeft = rBottomLeft * kappa
 
-            // 3. Right Line & Bottom-Right Corner
-            path.lineTo(w.floatId, (h - bottomRight).floatId)
-            path.conicTo(
-                x1 = w.floatId,
-                y1 = h.floatId,
-                x2 = (w - bottomRight).floatId,
-                y2 = h.floatId,
-                weight = circularArcWeight.floatId,
-            )
+            val path = remotePath {
+                // 1. Move to top edge
+                moveTo(left + rTopLeft, top)
 
-            // 4. Bottom Line & Bottom-Left Corner
-            path.lineTo(bottomLeft.floatId, h.floatId)
-            path.conicTo(
-                x1 = 0f.rf.floatId,
-                y1 = h.floatId,
-                x2 = 0f.rf.floatId,
-                y2 = (h - bottomLeft).floatId,
-                weight = circularArcWeight.floatId,
-            )
+                // 2. Top Line & Top-Right Corner
+                lineTo(right - rTopRight, top)
+                curveTo(
+                    x1 = right - rTopRight + cTopRight,
+                    y1 = top,
+                    x2 = right,
+                    y2 = top + rTopRight - cTopRight,
+                    x3 = right,
+                    y3 = top + rTopRight,
+                )
 
-            // 5. Start Line & Top-Left Corner
-            path.lineTo(0f.rf.floatId, topLeft.floatId)
-            path.conicTo(
-                x1 = 0f.rf.floatId,
-                y1 = 0f.rf.floatId,
-                x2 = topLeft.floatId,
-                y2 = 0f.rf.floatId,
-                weight = circularArcWeight.floatId,
-            )
+                // 3. Right Line & Bottom-Right Corner
+                lineTo(right, bottom - rBottomRight)
+                curveTo(
+                    x1 = right,
+                    y1 = bottom - rBottomRight + cBottomRight,
+                    x2 = right - rBottomRight + cBottomRight,
+                    y2 = bottom,
+                    x3 = right - rBottomRight,
+                    y3 = bottom,
+                )
 
-            // 6. Close the path
-            path.close()
+                // 4. Bottom Line & Bottom-Left Corner
+                lineTo(left + rBottomLeft, bottom)
+                curveTo(
+                    x1 = left + rBottomLeft - cBottomLeft,
+                    y1 = bottom,
+                    x2 = left,
+                    y2 = bottom - rBottomLeft + cBottomLeft,
+                    x3 = left,
+                    y3 = bottom - rBottomLeft,
+                )
+
+                // 5. Start Line & Top-Left Corner
+                lineTo(left, top + rTopLeft)
+                curveTo(
+                    x1 = left,
+                    y1 = top + rTopLeft - cTopLeft,
+                    x2 = left + rTopLeft - cTopLeft,
+                    y2 = top,
+                    x3 = left + rTopLeft,
+                    y3 = top,
+                )
+
+                // 6. Close the path
+                close()
+            }
             drawPath(path, paint)
         }
     }
@@ -138,3 +188,6 @@ public sealed class RemoteOutline {
     /** Draws the outline to the canvas with paint. */
     public abstract fun RemoteDrawScope.drawOutline(paint: RemotePaint)
 }
+
+private fun areEqual(a: RemoteFloat, b: RemoteFloat): Boolean =
+    a === b || (a.hasConstantValue && b.hasConstantValue && a.constantValue == b.constantValue)
