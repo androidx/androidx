@@ -17,7 +17,6 @@
 package androidx.compose.ui.test
 
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
@@ -260,8 +259,6 @@ private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration, inden
                 // Save space if we there is text only in the object
                 append(value)
             }
-        } else if (value is ColorProducer) {
-            append(value.invoke())
         } else {
             append(value)
         }

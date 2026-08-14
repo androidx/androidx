@@ -4800,7 +4800,6 @@ package androidx.compose.ui.semantics {
   }
 
   public final class SemanticsProperties {
-    method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.graphics.ColorProducer> getBackgroundColor();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.CollectionInfo> getCollectionInfo();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.CollectionItemInfo> getCollectionItemInfo();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.autofill.ContentDataType> getContentDataType();
@@ -4847,7 +4846,6 @@ package androidx.compose.ui.semantics {
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.state.ToggleableState> getToggleableState();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Float> getTraversalIndex();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.ScrollAxisRange> getVerticalScrollAxisRange();
-    property public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.graphics.ColorProducer> BackgroundColor;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.CollectionInfo> CollectionInfo;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.CollectionItemInfo> CollectionItemInfo;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.autofill.ContentDataType> ContentDataType;
@@ -4923,7 +4921,6 @@ package androidx.compose.ui.semantics {
     method public static void error(androidx.compose.ui.semantics.SemanticsPropertyReceiver, String description);
     method public static void expand(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method @BytecodeOnly public static void expand$default(androidx.compose.ui.semantics.SemanticsPropertyReceiver!, String!, kotlin.jvm.functions.Function0!, int, Object!);
-    method @InaccessibleFromKotlin public static androidx.compose.ui.graphics.ColorProducer getBackgroundColor(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static androidx.compose.ui.semantics.CollectionInfo getCollectionInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static androidx.compose.ui.semantics.CollectionItemInfo getCollectionItemInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method @InaccessibleFromKotlin public static androidx.compose.ui.autofill.ContentDataType getContentDataType(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
@@ -5002,7 +4999,6 @@ package androidx.compose.ui.semantics {
     method public static void scrollToIndex(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> action);
     method @BytecodeOnly public static void scrollToIndex$default(androidx.compose.ui.semantics.SemanticsPropertyReceiver!, String!, kotlin.jvm.functions.Function1!, int, Object!);
     method public static void selectableGroup(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
-    method @InaccessibleFromKotlin public static void setBackgroundColor(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.graphics.ColorProducer);
     method @InaccessibleFromKotlin public static void setCollectionInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.CollectionInfo);
     method @InaccessibleFromKotlin public static void setCollectionItemInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver, androidx.compose.ui.semantics.CollectionItemInfo);
     method @InaccessibleFromKotlin @Deprecated public static void setContainer(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean);
@@ -5049,7 +5045,6 @@ package androidx.compose.ui.semantics {
     method public static void showTextSubstitution(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super java.lang.Boolean,java.lang.Boolean>? action);
     method @BytecodeOnly public static void showTextSubstitution$default(androidx.compose.ui.semantics.SemanticsPropertyReceiver!, String!, kotlin.jvm.functions.Function1!, int, Object!);
     method public static void textEntryKey(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
-    property public static androidx.compose.ui.graphics.ColorProducer androidx.compose.ui.semantics.SemanticsPropertyReceiver.backgroundColor;
     property public static androidx.compose.ui.semantics.CollectionInfo androidx.compose.ui.semantics.SemanticsPropertyReceiver.collectionInfo;
     property public static androidx.compose.ui.semantics.CollectionItemInfo androidx.compose.ui.semantics.SemanticsPropertyReceiver.collectionItemInfo;
     property public static androidx.compose.ui.autofill.ContentDataType androidx.compose.ui.semantics.SemanticsPropertyReceiver.contentDataType;

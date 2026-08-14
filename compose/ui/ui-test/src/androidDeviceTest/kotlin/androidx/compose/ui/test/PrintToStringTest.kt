@@ -131,7 +131,6 @@ class PrintToStringTest {
                     |-Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'box'
                     | [Disabled]
                     |  |-Node #X at (l=X, t=X, r=X, b=X)px
-                    |    BackgroundColor = 'Color(X, X, X, X, sRGB IEC61966-X)'
                     |    Focused = 'false'
                     |    Role = 'Button'
                     |    Shape = 'RoundedCornerShape(topStart = CornerSize(size = X.dp), topEnd = CornerSize(size = X.dp), bottomEnd = CornerSize(size = X.dp), bottomStart = CornerSize(size = X.dp))'

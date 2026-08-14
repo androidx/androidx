@@ -47,7 +47,6 @@ import androidx.compose.ui.platform.ValueElement
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.captureToImage
@@ -664,20 +663,6 @@ class BackgroundTest {
         rule
             .onNodeWithTag(semanticsTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Shape, CutCornerShape(2.dp)))
-    }
-
-    @Test
-    fun backgroundColor_setsBackgroundColorSemanticsProvider() {
-        rule.setContent {
-            SemanticParent {
-                Box(Modifier.size(10.dp).background(color = Color.Red).testTag(semanticsTag))
-            }
-        }
-
-        val node = rule.onNodeWithTag(semanticsTag).fetchSemanticsNode()
-        val provider = node.config.getOrNull(SemanticsProperties.BackgroundColor)
-        assertThat(provider).isNotNull()
-        assertThat(provider!!.invoke()).isEqualTo(Color.Red)
     }
 
     @Composable
