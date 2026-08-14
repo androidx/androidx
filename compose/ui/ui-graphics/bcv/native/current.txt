@@ -988,6 +988,7 @@ final class androidx.compose.ui.graphics/SweepGradient : androidx.compose.ui.gra
 
 final class androidx.compose.ui.graphics/Vertices { // androidx.compose.ui.graphics/Vertices|null[0]
     constructor <init>(androidx.compose.ui.graphics/VertexMode, kotlin.collections/List<androidx.compose.ui.geometry/Offset>, kotlin.collections/List<androidx.compose.ui.geometry/Offset>, kotlin.collections/List<androidx.compose.ui.graphics/Color>, kotlin.collections/List<kotlin/Int>) // androidx.compose.ui.graphics/Vertices.<init>|<init>(androidx.compose.ui.graphics.VertexMode;kotlin.collections.List<androidx.compose.ui.geometry.Offset>;kotlin.collections.List<androidx.compose.ui.geometry.Offset>;kotlin.collections.List<androidx.compose.ui.graphics.Color>;kotlin.collections.List<kotlin.Int>){}[0]
+    constructor <init>(androidx.compose.ui.graphics/VertexMode, kotlin/FloatArray, kotlin/FloatArray, kotlin/IntArray, kotlin/ShortArray) // androidx.compose.ui.graphics/Vertices.<init>|<init>(androidx.compose.ui.graphics.VertexMode;kotlin.FloatArray;kotlin.FloatArray;kotlin.IntArray;kotlin.ShortArray){}[0]
 
     final val colors // androidx.compose.ui.graphics/Vertices.colors|{}colors[0]
         final fun <get-colors>(): kotlin/IntArray // androidx.compose.ui.graphics/Vertices.colors.<get-colors>|<get-colors>(){}[0]
