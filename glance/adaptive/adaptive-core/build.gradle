@@ -25,10 +25,12 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("AndroidXComposePlugin")
 }
 
 dependencies {
     api(libs.androidx.annotation)
+    api("androidx.compose.runtime:runtime:1.6.0")
     implementation(libs.kotlinCoroutinesCore)
 
     testImplementation(libs.testCore)
