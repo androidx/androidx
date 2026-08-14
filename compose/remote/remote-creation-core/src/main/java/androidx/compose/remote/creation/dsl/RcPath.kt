@@ -56,3 +56,34 @@ public enum class RcPathFillType(public val value: Int) {
     Winding(0),
     EvenOdd(1),
 }
+
+/**
+ * Adds an arc to the [androidx.compose.remote.core.RemotePathBase] using bounding box and angles.
+ */
+public fun androidx.compose.remote.core.RemotePathBase.arcTo(
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    startAngle: Float,
+    sweepAngle: Float,
+    forceMoveTo: Boolean = false,
+) {
+    this.addArc(left, top, right, bottom, startAngle, sweepAngle, forceMoveTo)
+}
+
+/**
+ * Adds an elliptical arc to the [androidx.compose.remote.core.RemotePathBase] using SVG endpoint
+ * syntax.
+ */
+public fun androidx.compose.remote.core.RemotePathBase.arcTo(
+    rx: Float,
+    ry: Float,
+    angle: Float,
+    largeArc: Boolean,
+    sweep: Boolean,
+    x: Float,
+    y: Float,
+) {
+    this.arcTo(rx, ry, angle, largeArc, sweep, x, y)
+}

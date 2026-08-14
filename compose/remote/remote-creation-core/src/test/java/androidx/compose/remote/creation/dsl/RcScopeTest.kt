@@ -108,10 +108,26 @@ class RcScopeTest {
                 val path2 = remotePath(0f, 0f)
                 path2.lineTo(100f, 100f)
                 path2.quadTo(150f, 50f, 200f, 100f)
+                path2.cubicTo(220f, 120f, 240f, 80f, 250f, 100f)
+                path2.arcTo(0f, 0f, 100f, 100f, 0f, 90f, false)
+                path2.arcTo(25f, 25f, 0f, false, true, 50f, 50f)
 
                 drawPath(path2.getPath())
             }
         }
+    }
+
+    @Test
+    fun testRemotePathBaseArcTo() {
+        val path = androidx.compose.remote.core.RemotePathBase()
+        path.moveTo(0f, 0f)
+        path.arcTo(0f, 0f, 100f, 100f, 0f, 90f, false)
+        val floats = path.createFloatArray()
+        assertEquals(true, floats.isNotEmpty())
+
+        val pathSvg = androidx.compose.remote.core.RemotePathBase("M 0 0 A 25 25 0 0 1 50 50 Z")
+        val svgFloats = pathSvg.createFloatArray()
+        assertEquals(true, svgFloats.isNotEmpty())
     }
 
     @Test

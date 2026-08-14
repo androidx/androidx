@@ -348,6 +348,18 @@ public open class RemotePathBase(protected val wrappedRemotePath: RemotePathBase
         wrappedRemotePath.addArc(left, top, right, bottom, startAngle, sweepAngle, forceMoveTo)
     }
 
+    public open fun arcTo(
+        rx: Float,
+        ry: Float,
+        angle: Float,
+        largeArc: Boolean,
+        sweep: Boolean,
+        x: Float,
+        y: Float,
+    ) {
+        wrappedRemotePath.arcTo(rx, ry, angle, largeArc, sweep, x, y)
+    }
+
     override fun toString(): String = wrappedRemotePath.toString()
 
     /**
