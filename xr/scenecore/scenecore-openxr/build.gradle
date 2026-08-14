@@ -36,6 +36,8 @@ dependencies {
     implementation("androidx.annotation:annotation:1.8.1")
 
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.mockitoKotlin)
     testImplementation(libs.junit)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
