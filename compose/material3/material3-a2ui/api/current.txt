@@ -1,6 +1,21 @@
 // Signature format: 4.0
 package androidx.compose.material3.a2ui {
 
+  public final class A2uiSurfaceDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public void ErrorFallback(androidx.a2ui.model.protocol.A2uiException exception);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void ErrorFallback(androidx.a2ui.model.protocol.A2uiException, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void LoadingIndicator();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void LoadingIndicator(androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.a2ui.compose.runtime.A2uiComponentState!>!,androidx.compose.animation.ContentTransform!> getTransitionSpec(androidx.compose.runtime.Composer?, int);
+    property @androidx.compose.runtime.Composable public kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.a2ui.compose.runtime.A2uiComponentState>,androidx.compose.animation.ContentTransform> transitionSpec;
+    field public static final androidx.compose.material3.a2ui.A2uiSurfaceDefaults INSTANCE;
+  }
+
+  public final class A2uiSurfaceKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void A2uiSurface(androidx.a2ui.model.processor.A2uiSurfaceModel surfaceModel, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> loadingContent, optional kotlin.jvm.functions.Function1<androidx.a2ui.model.protocol.A2uiException,kotlin.Unit> errorContent, optional kotlin.jvm.functions.Function1<androidx.compose.animation.AnimatedContentTransitionScope<androidx.a2ui.compose.runtime.A2uiComponentState>,androidx.compose.animation.ContentTransform>? transitionSpec);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void A2uiSurface(androidx.a2ui.model.processor.A2uiSurfaceModel, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function3<? super androidx.a2ui.model.protocol.A2uiException!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.a2ui.compose.runtime.A2uiComponentState!>!,androidx.compose.animation.ContentTransform!>?, androidx.compose.runtime.Composer?, int, int);
+  }
+
   public final class MaterialButtonComponent implements androidx.a2ui.compose.ui.A2uiComponent {
     method @KotlinOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
