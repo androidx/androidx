@@ -20,6 +20,7 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
@@ -42,11 +43,14 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font as GoogleFontFactory
 import androidx.compose.ui.text.googlefonts.GoogleFont
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 
 @Composable
 internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
@@ -98,9 +102,62 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
             else -> TextDecoration.None
         }
 
+    val autoSize =
+        if (data.autosize) {
+            val min =
+                if (data.minFontSize <= 0f) 4.sp
+                else with(LocalDensity.current) { data.minFontSize.toSp() }
+            val max =
+                if (data.maxFontSize <= 0f) 400.sp
+                else with(LocalDensity.current) { data.maxFontSize.toSp() }
+            TextAutoSize.StepBased(minFontSize = min, maxFontSize = max, stepSize = 0.5.sp)
+        } else {
+            null
+        }
+
+    val textAlign =
+        if (data.justificationMode != CoreText.JUSTIFICATION_MODE_NONE) {
+            TextAlign.Justify
+        } else {
+            when (data.textAlignValue) {
+                CoreText.TEXT_ALIGN_LEFT -> TextAlign.Left
+                CoreText.TEXT_ALIGN_RIGHT -> TextAlign.Right
+                CoreText.TEXT_ALIGN_CENTER -> TextAlign.Center
+                CoreText.TEXT_ALIGN_JUSTIFY -> TextAlign.Justify
+                CoreText.TEXT_ALIGN_START -> TextAlign.Start
+                CoreText.TEXT_ALIGN_END -> TextAlign.End
+                else -> TextAlign.Start
+            }
+        }
+
+    val lineBreak =
+        when (data.lineBreakStrategy) {
+            CoreText.BREAK_STRATEGY_HIGH_QUALITY -> LineBreak.Paragraph
+            CoreText.BREAK_STRATEGY_BALANCED -> LineBreak.Heading
+            else -> LineBreak.Unspecified
+        }
+
+    val hyphens =
+        if (data.hyphenationFrequency != 0) {
+            Hyphens.Auto
+        } else {
+            Hyphens.Unspecified
+        }
+
+    val overflow =
+        when (data.overflow) {
+            CoreText.OVERFLOW_CLIP -> TextOverflow.Clip
+            CoreText.OVERFLOW_ELLIPSIS -> TextOverflow.Ellipsis
+            CoreText.OVERFLOW_VISIBLE -> TextOverflow.Visible
+            CoreText.OVERFLOW_START_ELLIPSIS -> TextOverflow.StartEllipsis
+            CoreText.OVERFLOW_MIDDLE_ELLIPSIS -> TextOverflow.MiddleEllipsis
+            else -> TextOverflow.Clip
+        }
+
     BasicText(
         text = text,
         modifier = modifier,
+        autoSize = autoSize,
         style =
             TextStyle(
                 color = color,
@@ -108,16 +165,9 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
                 fontWeight = fontWeight,
                 fontFamily = fontFamily,
                 fontStyle = fontStyle,
-                textAlign =
-                    when (data.textAlignValue) {
-                        CoreText.TEXT_ALIGN_LEFT -> TextAlign.Left
-                        CoreText.TEXT_ALIGN_RIGHT -> TextAlign.Right
-                        CoreText.TEXT_ALIGN_CENTER -> TextAlign.Center
-                        CoreText.TEXT_ALIGN_JUSTIFY -> TextAlign.Justify
-                        CoreText.TEXT_ALIGN_START -> TextAlign.Start
-                        CoreText.TEXT_ALIGN_END -> TextAlign.End
-                        else -> TextAlign.Start
-                    },
+                textAlign = textAlign,
+                lineBreak = lineBreak,
+                hyphens = hyphens,
                 letterSpacing = data.letterSpacing.em,
                 lineHeight =
                     if (data.lineHeightMultiplier != 1f || data.lineHeightAdd != 0f) {
@@ -130,13 +180,7 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
                     },
                 textDecoration = textDecoration,
             ),
-        overflow =
-            when (data.overflow) {
-                CoreText.OVERFLOW_CLIP -> TextOverflow.Clip
-                CoreText.OVERFLOW_ELLIPSIS -> TextOverflow.Ellipsis
-                CoreText.OVERFLOW_VISIBLE -> TextOverflow.Visible
-                else -> TextOverflow.Clip
-            },
+        overflow = overflow,
         maxLines = data.maxLines,
     )
 }
@@ -174,6 +218,16 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
             fontCertsResId,
         )
 
+    val overflow =
+        when (data.overflow) {
+            TextLayout.OVERFLOW_CLIP -> TextOverflow.Clip
+            TextLayout.OVERFLOW_ELLIPSIS -> TextOverflow.Ellipsis
+            TextLayout.OVERFLOW_VISIBLE -> TextOverflow.Visible
+            TextLayout.OVERFLOW_START_ELLIPSIS -> TextOverflow.StartEllipsis
+            TextLayout.OVERFLOW_MIDDLE_ELLIPSIS -> TextOverflow.MiddleEllipsis
+            else -> TextOverflow.Clip
+        }
+
     BasicText(
         text = text,
         modifier = modifier,
@@ -195,13 +249,7 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
                         else -> TextAlign.Start
                     },
             ),
-        overflow =
-            when (data.overflow) {
-                TextLayout.OVERFLOW_CLIP -> TextOverflow.Clip
-                TextLayout.OVERFLOW_ELLIPSIS -> TextOverflow.Ellipsis
-                TextLayout.OVERFLOW_VISIBLE -> TextOverflow.Visible
-                else -> TextOverflow.Clip
-            },
+        overflow = overflow,
         maxLines = data.maxLines,
     )
 }

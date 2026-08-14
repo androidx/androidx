@@ -22,8 +22,7 @@ import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 
-internal const val SCREENSHOT_GOLDEN_DIRECTORY =
-    "compose/remote/integration-tests/player-compose-embedded"
+internal const val SCREENSHOT_GOLDEN_DIRECTORY = "compose/remote/remote-player-compose"
 
 internal val TEST_PROFILE =
     Profile(

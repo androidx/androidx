@@ -257,6 +257,12 @@ internal data class CoreTextData(
     val strikethrough: Boolean,
     val fontAxis: IntArray?,
     val fontAxisValues: FloatArray?,
+    val autosize: Boolean = false,
+    val minFontSize: Float = -1f,
+    val maxFontSize: Float = -1f,
+    val lineBreakStrategy: Int = 0,
+    val hyphenationFrequency: Int = 0,
+    val justificationMode: Int = 0,
 )
 
 internal data class TextLayoutData(

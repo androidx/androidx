@@ -209,7 +209,7 @@ internal fun DrawScope.executeOperations(
                 // Evaluate reactively (time/variables via the graph); write the result to the real
                 // store so later ops/draws in this stream that read the id by store see it.
                 val v = op.evaluate(read)
-                remoteContext.overrideFloat(op.mId, v)
+                remoteContext.loadFloat(op.mId, v)
             }
             is ColorConstant -> op.apply(remoteContext)
             is NamedVariable -> op.apply(remoteContext)
