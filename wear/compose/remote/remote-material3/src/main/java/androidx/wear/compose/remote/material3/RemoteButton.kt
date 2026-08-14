@@ -669,6 +669,12 @@ public object RemoteButtonDefaults {
     public val IconSpacing: RemoteDp = 6.rdp
 
     /**
+     * The default size of the spacing between an icon and a text when they are used inside a
+     * [RemoteCompactButton].
+     */
+    public val CompactButtonIconSpacing: RemoteDp = 4.rdp
+
+    /**
      * The recommended icon size when used in [RemoteCompactButton]s containing both icon and text.
      */
     public val ExtraSmallIconSize: RemoteDp = 20.rdp
@@ -702,7 +708,6 @@ public object RemoteButtonDefaults {
      */
     public val CompactButtonHeight: RemoteDp = 48.rdp
     internal val CompactButtonVisibleHeight: RemoteDp = 32.rdp
-    internal val CompactButtonIconSpacing: RemoteDp = 4.rdp
 
     /**
      * The default padding to be provided around a [RemoteCompactButton] in order to ensure that its

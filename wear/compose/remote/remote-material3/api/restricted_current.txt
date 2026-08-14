@@ -54,6 +54,7 @@ package androidx.wear.compose.remote.material3 {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getButtonVerticalPadding();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemotePaddingValues getCompactButtonContentPadding();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getCompactButtonHeight();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getCompactButtonIconSpacing();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape getCompactButtonShape();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemotePaddingValues getContentPadding();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getDisabledContainerAlpha();
@@ -71,6 +72,7 @@ package androidx.wear.compose.remote.material3 {
     property public androidx.compose.remote.creation.compose.state.RemoteDp ButtonVerticalPadding;
     property public androidx.compose.remote.creation.compose.layout.RemotePaddingValues CompactButtonContentPadding;
     property public androidx.compose.remote.creation.compose.state.RemoteDp CompactButtonHeight;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp CompactButtonIconSpacing;
     property public androidx.compose.remote.creation.compose.layout.RemotePaddingValues ContentPadding;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat DisabledContainerAlpha;
     property public androidx.compose.remote.creation.compose.state.RemoteDp ExtraSmallIconSize;
