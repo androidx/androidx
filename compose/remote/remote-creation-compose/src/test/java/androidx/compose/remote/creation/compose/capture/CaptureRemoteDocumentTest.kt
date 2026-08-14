@@ -17,11 +17,11 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
+import androidx.collection.buildIntSet
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
-import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
@@ -31,8 +31,6 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
-import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import java.io.ByteArrayInputStream
@@ -76,22 +74,22 @@ class CaptureRemoteDocumentTest {
     @Test
     fun captureDocumentWithCustomProfile() =
         runTest(UnconfinedTestDispatcher()) {
+            val defaultOps =
+                Operations.getOperations(
+                        CoreDocument.DOCUMENT_API_LEVEL,
+                        RcProfiles.PROFILE_ANDROIDX,
+                    )
+                    ?.keySet()
+                    .orEmpty()
+            val customOps = buildIntSet {
+                defaultOps.forEach { add(it) }
+                add(Operations.DRAW_TEXT_ON_CIRCLE)
+            }
             val customProfile =
-                Profile(
-                    CoreDocument.DOCUMENT_API_LEVEL,
-                    RcProfiles.PROFILE_ANDROID_NATIVE,
-                    AndroidxRcPlatformServices(),
-                    {
-                        Operations.getOperations(
-                                CoreDocument.DOCUMENT_API_LEVEL,
-                                RcProfiles.PROFILE_ANDROIDX,
-                            )
-                            ?.keySet()
-                            .orEmpty() + setOf(Operations.DRAW_TEXT_ON_CIRCLE)
-                    },
-                ) { creationDisplayInfo, profile, callback ->
-                    RemoteComposeWriterAndroid(creationDisplayInfo, null, profile, callback)
-                }
+                createCustomProfile(
+                    profileFlags = RcProfiles.PROFILE_ANDROID_NATIVE,
+                    supportedOperations = customOps,
+                )
             val document: ByteArray =
                 captureSingleRemoteDocument(context, profile = customProfile) {
                         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
