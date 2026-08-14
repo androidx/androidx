@@ -23,6 +23,8 @@ import androidx.compose.foundation.ComposeFoundationFlags.isCacheWindowLookahead
 import androidx.compose.foundation.ComposeFoundationFlags.isMultiLaneCacheWindowEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle
+import androidx.compose.runtime.tooling.ComposeToolingApi
+import androidx.compose.runtime.tooling.ComposeToolingFlags
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.traceValue
 import kotlin.math.absoluteValue
@@ -161,16 +163,25 @@ internal class MultiLaneCacheWindow(
         }
     }
 
+    @OptIn(ComposeToolingApi::class)
     private fun traceWindowInfo() {
-        repeat(currentLaneCount) { lane ->
-            traceValue("windowTraceInfoLane", lane.toLong())
-            traceValue("perLaneCacheWindowStartSpace", perLaneCacheWindowStartSpace[lane].toLong())
-            traceValue("perLaneCacheWindowEndSpace", perLaneCacheWindowEndSpace[lane].toLong())
-            traceValue("perLaneCacheWindowStartIndex", perLaneCacheWindowStartIndex[lane].toLong())
-            traceValue(
-                "perLaneCacheWindowEndItemIndex",
-                perLaneCacheWindowEndItemIndex[lane].toLong(),
-            )
+        if (ComposeToolingFlags.isVerboseTracingEnabled) {
+            repeat(currentLaneCount) { lane ->
+                traceValue("windowTraceInfoLane", lane.toLong())
+                traceValue(
+                    "perLaneCacheWindowStartSpace",
+                    perLaneCacheWindowStartSpace[lane].toLong(),
+                )
+                traceValue("perLaneCacheWindowEndSpace", perLaneCacheWindowEndSpace[lane].toLong())
+                traceValue(
+                    "perLaneCacheWindowStartIndex",
+                    perLaneCacheWindowStartIndex[lane].toLong(),
+                )
+                traceValue(
+                    "perLaneCacheWindowEndItemIndex",
+                    perLaneCacheWindowEndItemIndex[lane].toLong(),
+                )
+            }
         }
     }
 
@@ -885,11 +896,14 @@ internal class LegacyCacheWindowLogic(
         }
     }
 
+    @OptIn(ComposeToolingApi::class)
     private fun traceWindowInfo() {
-        traceValue("prefetchWindowStartExtraSpace", prefetchWindowStartExtraSpace.toLong())
-        traceValue("prefetchWindowEndExtraSpace", prefetchWindowEndExtraSpace.toLong())
-        traceValue("prefetchWindowStartIndex", prefetchWindowStartLine.toLong())
-        traceValue("prefetchWindowEndIndex", prefetchWindowEndLine.toLong())
+        if (ComposeToolingFlags.isVerboseTracingEnabled) {
+            traceValue("prefetchWindowStartExtraSpace", prefetchWindowStartExtraSpace.toLong())
+            traceValue("prefetchWindowEndExtraSpace", prefetchWindowEndExtraSpace.toLong())
+            traceValue("prefetchWindowStartIndex", prefetchWindowStartLine.toLong())
+            traceValue("prefetchWindowEndIndex", prefetchWindowEndLine.toLong())
+        }
     }
 
     override fun CacheWindowScope.onVisibleItemsUpdated() {
