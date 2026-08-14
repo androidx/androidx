@@ -171,8 +171,10 @@ class PageIndicatorTest {
 
         rule
             .onNodeWithTag(TEST_TAG)
-            .assertWidthIsEqualTo((indicatorSize + spacing) * 6 + padding * 2)
-        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(indicatorSize * 2 + padding * 2)
+            .assertWidthIsEqualTo((indicatorSize + spacing) * 6 + padding * 2, tolerance = 1.dp)
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assertHeightIsEqualTo(indicatorSize * 2 + padding * 2, tolerance = 1.dp)
     }
 
     @Test

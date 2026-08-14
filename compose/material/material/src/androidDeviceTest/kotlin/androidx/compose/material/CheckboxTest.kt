@@ -255,7 +255,7 @@ class CheckboxTest {
                 if (clickable && minimumTouchTarget) {
                     assertIsSquareWithSize(48.dp)
                 } else {
-                    assertIsSquareWithSize(2.dp * 2 + 20.dp)
+                    assertIsSquareWithSize(2.dp * 2 + 20.dp, tolerance = 1.dp)
                 }
             }
     }

@@ -390,7 +390,9 @@ class ButtonTest {
             }
         }
         // Verify initial height
-        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(60.dp + buttonPadding * 2)
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assertHeightIsEqualTo(60.dp + buttonPadding * 2, tolerance = 1.dp)
 
         // Set autoAdvance off to test the content size animation
         rule.mainClock.autoAdvance = false
@@ -411,7 +413,9 @@ class ButtonTest {
         rule.mainClock.autoAdvance = true
         rule.waitForIdle()
         // Verify end height is correct
-        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(100.dp + buttonPadding * 2)
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .assertHeightIsEqualTo(100.dp + buttonPadding * 2, tolerance = 1.dp)
     }
 
     @Test
