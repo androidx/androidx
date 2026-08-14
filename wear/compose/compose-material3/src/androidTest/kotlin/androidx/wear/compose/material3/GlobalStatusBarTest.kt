@@ -19,19 +19,14 @@ package androidx.wear.compose.material3
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.PackageManager
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class GlobalStatusBarTest {
-    @get:Rule val composeTestRule = createComposeRule()
-
     private data class TestCase(
         val sysProp: Boolean,
         val hasMetadata: Boolean?,
@@ -74,44 +69,35 @@ class GlobalStatusBarTest {
                 }
             }
 
-        val checker = DefaultManifestMetadataChecker()
-        val result = checker.hasMetadata(throwingContext, GlobalStatusBarDefaults.METADATA_KEY)
+        val result =
+            GlobalStatusBarDefaults.DefaultManifestMetadataChecker.hasMetadata(
+                throwingContext,
+                GlobalStatusBarDefaults.METADATA_KEY,
+            )
 
         Assert.assertFalse("Expected checker to return false when PackageManager throws", result)
     }
 
-    @Test
-    fun localGlobalStatusBarEnabled_canBeOverridden() {
-        var actual: Boolean? = null
-        composeTestRule.setContent {
-            CompositionLocalProvider(LocalGlobalStatusBarEnabled provides true) {
-                actual = LocalGlobalStatusBarEnabled.current
-            }
-        }
-        Assert.assertEquals(true, actual)
-    }
-
     private fun assertStatusField(testCase: TestCase) {
         val fakeSysPropReader =
-            object : SystemPropertyReader {
+            object : GlobalStatusBarDefaults.SystemPropertyReader {
                 override fun getBoolean(name: String, defaultValue: Boolean): Boolean =
                     testCase.sysProp
             }
         val fakeMetadataChecker =
-            object : ManifestMetadataChecker {
+            object : GlobalStatusBarDefaults.ManifestMetadataChecker {
                 override fun hasMetadata(context: Context, key: String): Boolean {
                     return testCase.hasMetadata ?: false
                 }
             }
 
-        val testChecker =
-            GlobalStatusBarChecker(
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val actual =
+            isGlobalStatusBarEnabled(
+                targetContext,
                 sysPropReader = fakeSysPropReader,
                 metadataChecker = fakeMetadataChecker,
             )
-
-        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val actual = testChecker.isEnabled(targetContext)
         Assert.assertEquals(testCase.expected, actual)
     }
 }
