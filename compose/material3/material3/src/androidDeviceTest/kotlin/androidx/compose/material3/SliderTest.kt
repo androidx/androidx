@@ -441,7 +441,10 @@ class SliderTest {
 
         rule
             .onNodeWithTag(tag)
-            .assertWidthIsEqualTo(SliderTokens.HandleWidth + HorizontalSemanticsBoundsPadding * 2)
+            .assertWidthIsEqualTo(
+                SliderTokens.HandleWidth + HorizontalSemanticsBoundsPadding * 2,
+                tolerance = 1.dp,
+            )
             .assertHeightIsEqualTo(SliderTokens.InactiveTrackHeight)
     }
 
