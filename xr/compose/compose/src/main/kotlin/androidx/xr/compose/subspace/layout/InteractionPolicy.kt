@@ -135,7 +135,6 @@ internal class InteractableNode(
         if (component != null) {
             disableComponent()
         }
-        isIgnoringCurrentActionSequence = false
     }
 
     /** Updates the movable state of this CoreEntity. */
@@ -175,16 +174,27 @@ internal class InteractableNode(
         val hitInfo = event.hitInfoList.firstOrNull()
 
         // The first entity in hitInfoList will always be the Entity from which the start of the
-        // touch sequence originated. If this doesn't match the CoreEntity of the component, we can
-        // ignore the rest of the touch sequence as this means the touch originated from a child.
-        if (event.action == Action.DOWN) {
+        // action sequence originated. If this doesn't match the CoreEntity of the component, we can
+        // ignore the rest of the action sequence as this means the interaction originated from a
+        // child.
+        if (event.action == Action.DOWN || event.action == Action.HOVER_ENTER) {
             isIgnoringCurrentActionSequence =
                 !coreEntity.isUnderlyingEntityEqualTo(hitInfo?.inputEntity)
         }
         if (isIgnoringCurrentActionSequence) {
-            if (event.action == Action.UP || event.action == Action.CANCEL) {
+            if (
+                event.action == Action.UP ||
+                    event.action == Action.CANCEL ||
+                    event.action == Action.HOVER_EXIT
+            ) {
                 isIgnoringCurrentActionSequence = false
             }
+            return
+        }
+
+        // Edge case where an input event is received after the Composable is destroyed. Can occur
+        // if a previous input event initiated the disposal of the Composable.
+        if (hitInfo?.inputEntity?.isDisposed == true) {
             return
         }
 
