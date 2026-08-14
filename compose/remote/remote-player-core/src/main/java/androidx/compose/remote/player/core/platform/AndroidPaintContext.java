@@ -671,7 +671,12 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
                 }
             }
             return new AndroidComputedTextLayout(
-                    staticLayout, bounds.width(), bounds.height(), visibleLines, isHyphenatedText);
+                    staticLayout,
+                    bounds.left,
+                    bounds.width(),
+                    bounds.height(),
+                    visibleLines,
+                    isHyphenatedText);
         } else {
             return new AndroidComputedTextLayout(
                     staticLayout,
@@ -709,25 +714,25 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         int top = layout.getLineTop(0);
         int bottom = layout.getLineBottom(lineCount - 1);
 
-        float maxContentWidth = 0f;
-        for (int i = 0; i < lineCount; i++) {
-            float lineWidth = layout.getLineMax(i);
-            if (lineWidth > maxContentWidth) {
-                maxContentWidth = lineWidth;
-            }
-        }
-
-        float minLeft = 0f;
+        float minLeft = Float.MAX_VALUE;
+        float maxRight = 0f;
         for (int i = 0; i < lineCount; i++) {
             float lineLeft = layout.getLineLeft(i);
+            float lineRight = layout.getLineRight(i);
             if (lineLeft < minLeft) {
                 minLeft = lineLeft;
             }
+            if (lineRight > maxRight) {
+                maxRight = lineRight;
+            }
             isHyphenated |= isLineHyphenated(layout, layout.getText(), i);
+        }
+        if (minLeft == Float.MAX_VALUE) {
+            minLeft = 0f;
         }
         bounds.left = (int) minLeft;
         bounds.top = top;
-        bounds.right = (int) maxContentWidth;
+        bounds.right = (int) Math.ceil(maxRight);
         bounds.bottom = bottom;
         return isHyphenated;
     }
@@ -766,8 +771,16 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
         if (computedTextLayout == null) {
             return;
         }
-        StaticLayout staticLayout = ((AndroidComputedTextLayout) computedTextLayout).get();
-        staticLayout.draw(mCanvas);
+        AndroidComputedTextLayout androidLayout = (AndroidComputedTextLayout) computedTextLayout;
+        StaticLayout staticLayout = androidLayout.get();
+        float left = androidLayout.getLeft();
+        if (left != 0f) {
+            mCanvas.translate(-left, 0f);
+            staticLayout.draw(mCanvas);
+            mCanvas.translate(left, 0f);
+        } else {
+            staticLayout.draw(mCanvas);
+        }
     }
 
     @Override
