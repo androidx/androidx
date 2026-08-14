@@ -72,6 +72,9 @@ public actual fun FillableData.Companion.createFromText(textValue: CharSequence)
     } else null
 }
 
+private var cachedTrue: FillableData? = null
+private var cachedFalse: FillableData? = null
+
 /**
  * Creates a [FillableData] instance from a [Boolean].
  *
@@ -83,9 +86,12 @@ public actual fun FillableData.Companion.createFromText(textValue: CharSequence)
  *   lower than [Build.VERSION_CODES.O].
  */
 public actual fun FillableData.Companion.createFromBoolean(booleanValue: Boolean): FillableData? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        AndroidFillableData(AutofillValue.forToggle(booleanValue))
-    } else null
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return null
+    return if (booleanValue) {
+        cachedTrue ?: AndroidFillableData(AutofillValue.forToggle(true)).also { cachedTrue = it }
+    } else {
+        cachedFalse ?: AndroidFillableData(AutofillValue.forToggle(false)).also { cachedFalse = it }
+    }
 }
 
 /**
