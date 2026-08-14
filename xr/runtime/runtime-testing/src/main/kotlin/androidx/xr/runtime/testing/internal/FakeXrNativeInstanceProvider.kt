@@ -35,4 +35,7 @@ internal class FakeXrNativeInstanceProvider : XrNativeInstanceProvider {
 
     /** The handle of the function table if available for the runtime. */
     override val xrInstanceProcAddr: Long = 2222L
+
+    /** The handle of the native session if available for the runtime. */
+    override val xrSessionHandle: Long = 3333L
 }

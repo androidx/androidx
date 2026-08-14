@@ -35,4 +35,15 @@ public interface XrNativeInstanceProvider : Service {
 
     /** The handle of the function table if available for the runtime. */
     public val xrInstanceProcAddr: Long
+
+    /**
+     * The handle of the native session if available for the runtime. Defaults to [INVALID_HANDLE].
+     */
+    public val xrSessionHandle: Long
+        get() = INVALID_HANDLE
+
+    public companion object {
+        /** Invalid handle value for native references. */
+        public const val INVALID_HANDLE: Long = 0L
+    }
 }

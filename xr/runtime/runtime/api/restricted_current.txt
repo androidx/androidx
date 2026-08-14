@@ -230,8 +230,10 @@ package androidx.xr.runtime {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class NativeInstanceData {
     method @InaccessibleFromKotlin public long getFunctionTablePointer();
     method @InaccessibleFromKotlin public long getInstancePointer();
+    method @InaccessibleFromKotlin public long getSessionPointer();
     property public long functionTablePointer;
     property public long instancePointer;
+    property public long sessionPointer;
   }
 
   public final class PlaneTrackingMode {
