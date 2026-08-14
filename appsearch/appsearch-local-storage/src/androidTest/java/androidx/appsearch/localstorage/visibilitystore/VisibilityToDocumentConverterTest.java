@@ -24,6 +24,9 @@ import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.testutil.AppSearchTestUtils;
+import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import com.google.android.appsearch.proto.AndroidVOverlayProto;
 import com.google.android.appsearch.proto.PackageIdentifierProto;
@@ -32,12 +35,17 @@ import com.google.android.appsearch.proto.VisibleToPermissionProto;
 import com.google.android.icing.protobuf.ByteString;
 import com.google.common.collect.ImmutableSet;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class VisibilityToDocumentConverterTest {
+
+    @Rule
+    public final RuleChain mRuleChain = AppSearchTestUtils.createCommonTestRules();
 
     @Test
     public void testToGenericDocuments() throws Exception {
@@ -302,5 +310,103 @@ public class VisibilityToDocumentConverterTest {
                         visibilityDoc, androidVOverlay);
 
         assertThat(rebuild).isEqualTo(visibilityConfig);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT)
+    public void testToGenericDocuments_multiCert() throws Exception {
+        byte[] cert1 = new byte[32];
+        byte[] cert2 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        Arrays.fill(cert2, (byte) 2);
+
+        PackageIdentifier multiCertPkg =
+                new PackageIdentifier("com.example.multicert", List.of(cert1, cert2));
+
+        SchemaVisibilityConfig config =
+                new SchemaVisibilityConfig.Builder()
+                        .addAllowedPackage(multiCertPkg)
+                        .setPubliclyVisibleTargetPackage(multiCertPkg)
+                        .build();
+
+        SetSchemaRequest setSchemaRequest =
+                new SetSchemaRequest.Builder()
+                        .addSchemas(new AppSearchSchema.Builder("multiCertSchema").build())
+                        .setPubliclyVisibleSchema("multiCertSchema", multiCertPkg)
+                        .addSchemaTypeVisibleToConfig("multiCertSchema", config)
+                        .build();
+
+        List<InternalVisibilityConfig> visibilityConfigs =
+                InternalVisibilityConfig.toInternalVisibilityConfigs(setSchemaRequest);
+        InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(0);
+
+        GenericDocument visibilityDoc =
+                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig);
+        GenericDocument androidVOverlay =
+                VisibilityToDocumentConverter.createAndroidVOverlay(visibilityConfig);
+
+        InternalVisibilityConfig rebuild =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        visibilityDoc, androidVOverlay);
+
+        assertThat(rebuild).isEqualTo(visibilityConfig);
+        List<byte[]> rebuildPublicCerts =
+                rebuild.getVisibilityConfig()
+                        .getPubliclyVisibleTargetPackage()
+                        .getMultiSignerSha256Certificates();
+        assertThat(rebuildPublicCerts).hasSize(2);
+        assertThat(rebuildPublicCerts.get(0)).isEqualTo(cert1);
+        assertThat(rebuildPublicCerts.get(1)).isEqualTo(cert2);
+        SchemaVisibilityConfig rebuildVisibleToConfig =
+                rebuild.getVisibleToConfigs().iterator().next();
+        List<byte[]> rebuildVisibleToCerts =
+                rebuildVisibleToConfig
+                        .getPubliclyVisibleTargetPackage()
+                        .getMultiSignerSha256Certificates();
+        assertThat(rebuildVisibleToCerts).hasSize(2);
+        assertThat(rebuildVisibleToCerts.get(0)).isEqualTo(cert1);
+        assertThat(rebuildVisibleToCerts.get(1)).isEqualTo(cert2);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT)
+    public void testToGenericDocuments_singleCert_rebuildsAsSingleSigner() throws Exception {
+        byte[] cert = new byte[32];
+        Arrays.fill(cert, (byte) 1);
+
+        PackageIdentifier singleCertPkg =
+                new PackageIdentifier("com.example.singlecert", cert);
+
+        SchemaVisibilityConfig config =
+                new SchemaVisibilityConfig.Builder()
+                        .addAllowedPackage(singleCertPkg)
+                        .setPubliclyVisibleTargetPackage(singleCertPkg)
+                        .build();
+
+        SetSchemaRequest setSchemaRequest =
+                new SetSchemaRequest.Builder()
+                        .addSchemas(new AppSearchSchema.Builder("singleCertSchema").build())
+                        .setPubliclyVisibleSchema("singleCertSchema", singleCertPkg)
+                        .addSchemaTypeVisibleToConfig("singleCertSchema", config)
+                        .build();
+
+        List<InternalVisibilityConfig> visibilityConfigs =
+                InternalVisibilityConfig.toInternalVisibilityConfigs(setSchemaRequest);
+        InternalVisibilityConfig visibilityConfig = visibilityConfigs.get(0);
+
+        GenericDocument visibilityDoc =
+                VisibilityToDocumentConverter.createVisibilityDocument(visibilityConfig);
+        GenericDocument androidVOverlay =
+                VisibilityToDocumentConverter.createAndroidVOverlay(visibilityConfig);
+
+        InternalVisibilityConfig rebuild =
+                VisibilityToDocumentConverter.createInternalVisibilityConfig(
+                        visibilityDoc, androidVOverlay);
+
+        assertThat(rebuild).isEqualTo(visibilityConfig);
+        PackageIdentifier rebuildPublicPkg =
+                rebuild.getVisibilityConfig().getPubliclyVisibleTargetPackage();
+        assertThat(rebuildPublicPkg.getSha256Certificate()).isEqualTo(cert);
+        assertThat(rebuildPublicPkg.getMultiSignerSha256Certificates()).isEmpty();
     }
 }
