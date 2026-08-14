@@ -100,6 +100,96 @@ class RemoteTextStyleTest {
     }
 
     @Test
+    fun fromTextStyle_withFontFeatureSettings_usesParsedFeatures() {
+        val textStyle =
+            TextStyle(
+                fontFeatureSettings = "smcp 1, tnum 1",
+                fontFamily =
+                    FontFamily(
+                        androidx.compose.ui.text.font.Font(
+                            androidx.compose.ui.text.font.DeviceFontFamilyName("roboto-flex"),
+                            variationSettings =
+                                androidx.compose.ui.text.font.FontVariation.Settings(
+                                    androidx.compose.ui.text.font.FontVariation.Setting(
+                                        "wdth",
+                                        110f,
+                                    )
+                                ),
+                        )
+                    ),
+            )
+        val remoteStyle = RemoteTextStyle.fromTextStyle(textStyle)
+
+        // fontFeatureSettings takes precedence over Font.variationSettings
+        assertThat(remoteStyle.fontVariationSettings).isNotNull()
+        assertThat(remoteStyle.fontVariationSettings!!.settings).hasSize(2)
+        assertThat(remoteStyle.fontVariationSettings!!.settings[0].axisName).isEqualTo("smcp")
+        assertThat(remoteStyle.fontVariationSettings!!.settings[1].axisName).isEqualTo("tnum")
+    }
+
+    @Test
+    fun fromTextStyle_withFontListFontFamily_extractsFirstFontVariationSettings() {
+        val fontWithoutSettings =
+            androidx.compose.ui.text.font.Font(
+                androidx.compose.ui.text.font.DeviceFontFamilyName("google-sans")
+            )
+        val fontWithSettings =
+            androidx.compose.ui.text.font.Font(
+                androidx.compose.ui.text.font.DeviceFontFamilyName("roboto-flex"),
+                weight = FontWeight(450),
+                variationSettings =
+                    androidx.compose.ui.text.font.FontVariation.Settings(
+                        androidx.compose.ui.text.font.FontVariation.Setting("wdth", 110f),
+                        androidx.compose.ui.text.font.FontVariation.Setting("wght", 450f),
+                    ),
+            )
+        val fontFamily = FontFamily(fontWithoutSettings, fontWithSettings)
+
+        val textStyle = TextStyle(fontFamily = fontFamily)
+        val remoteStyle = RemoteTextStyle.fromTextStyle(textStyle)
+
+        assertThat(remoteStyle.fontFamily).isNull()
+        assertThat(remoteStyle.fontVariationSettings).isNotNull()
+        assertThat(remoteStyle.fontVariationSettings!!.settings).hasSize(2)
+        assertThat(remoteStyle.fontVariationSettings!!.settings[0].axisName).isEqualTo("wdth")
+        assertThat(remoteStyle.fontVariationSettings!!.settings[0].toVariationValue(null))
+            .isEqualTo(110f)
+        assertThat(remoteStyle.fontVariationSettings!!.settings[1].axisName).isEqualTo("wght")
+        assertThat(remoteStyle.fontVariationSettings!!.settings[1].toVariationValue(null))
+            .isEqualTo(450f)
+    }
+
+    @Test
+    fun fromTextStyle_withFontListFontFamily_noVariationSettings_returnsNull() {
+        val fontFamily =
+            FontFamily(
+                androidx.compose.ui.text.font.Font(
+                    androidx.compose.ui.text.font.DeviceFontFamilyName("google-sans")
+                )
+            )
+        val textStyle = TextStyle(fontFamily = fontFamily)
+        val remoteStyle = RemoteTextStyle.fromTextStyle(textStyle)
+
+        assertThat(remoteStyle.fontVariationSettings).isNull()
+    }
+
+    @Test
+    fun fromTextStyle_withNonFontListFontFamily_returnsNullVariationSettings() {
+        val textStyle = TextStyle(fontFamily = FontFamily.SansSerif)
+        val remoteStyle = RemoteTextStyle.fromTextStyle(textStyle)
+
+        assertThat(remoteStyle.fontVariationSettings).isNull()
+    }
+
+    @Test
+    fun fromTextStyle_withNullFontFamily_returnsNullVariationSettings() {
+        val textStyle = TextStyle(fontFamily = null)
+        val remoteStyle = RemoteTextStyle.fromTextStyle(textStyle)
+
+        assertThat(remoteStyle.fontVariationSettings).isNull()
+    }
+
+    @Test
     fun copy_overrides_properties() {
         val style =
             RemoteTextStyle(
