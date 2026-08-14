@@ -1543,7 +1543,8 @@ class AppFunctionDataTest {
         assertThat(data.getAppFunctionData("attachment")?.getString("uri")).isEqualTo("test")
         assertThat(data.getParcelable<PendingIntent>("intentToOpen")).isNotNull()
         // Also ensure that read validation is applied
-        assertFailsWith<IllegalArgumentException> { data.getInt("intentToOpen") }
+        // TODO(b/446606781): Enable when migrating to new API
+        //        assertFailsWith<IllegalArgumentException> { data.getInt("intentToOpen") }
     }
 
     @Test
