@@ -229,6 +229,10 @@ internal class CaptureSessionState(
         if (finalized.compareAndSet(expect = false, update = true)) {
             Log.debug { "$this session finalizing" }
             Debug.traceStart { "$this#onSessionFinalized" }
+            // It is possible that the session configuration fails before us making the framework
+            // createCaptureSession() call. In such cases, we need to mark the capture session
+            // attempt as completed, too.
+            captureSessionAttemptCompleted.countDown()
             shutdown()
             finalizeSession()
             Debug.traceStop()
