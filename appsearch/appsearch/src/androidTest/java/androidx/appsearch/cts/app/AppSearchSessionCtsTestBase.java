@@ -14574,4 +14574,70 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_SCHEMA);
         assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
     }
+
+    @Test
+    public void testQuery_resultCountPerPageZero() throws Exception {
+        // Schema registration
+        mDb1.setSchemaAsync(
+                        new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build())
+                .get();
+
+        // Index a document
+        AppSearchEmail inEmail =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(
+                mDb1.putAsync(
+                        new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
+
+        // Query with resultCountPerPage = 0.
+        SearchResults searchResults =
+                mDb1.search(
+                        "body",
+                        new SearchSpec.Builder()
+                                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                                .setResultCountPerPage(0)
+                                .build());
+
+        // Get the first page. It should return 0 results.
+        List<SearchResult> results = searchResults.getNextPageAsync().get();
+        assertThat(results).isEmpty();
+    }
+
+    @Test
+    public void testQuery_resultCountPerPageGreaterThanZero_noMatch() throws Exception {
+        // Schema registration
+        mDb1.setSchemaAsync(
+                        new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA).build())
+                .get();
+
+        // Index a document
+        AppSearchEmail inEmail =
+                new AppSearchEmail.Builder("namespace", "id1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(
+                mDb1.putAsync(
+                        new PutDocumentsRequest.Builder().addGenericDocuments(inEmail).build()));
+
+        // Query with resultCountPerPage = 5, but searching for a query that has no matches.
+        SearchResults searchResults =
+                mDb1.search(
+                        "nonMatchingQueryString",
+                        new SearchSpec.Builder()
+                                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                                .setResultCountPerPage(5)
+                                .build());
+
+        // Get the first page. It should return 0 results.
+        List<SearchResult> results = searchResults.getNextPageAsync().get();
+        assertThat(results).isEmpty();
+    }
 }
