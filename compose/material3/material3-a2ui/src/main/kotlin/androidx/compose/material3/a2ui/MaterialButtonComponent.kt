@@ -102,6 +102,7 @@ public object MaterialButtonComponent : A2uiComponent {
         ) {
             AnimatedContent(
                 targetState = childState,
+                transitionSpec = MaterialA2uiDefaults.transitionSpec,
                 contentKey = { state ->
                     when (state) {
                         A2uiComponentState.Loading -> "loading"
