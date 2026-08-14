@@ -127,6 +127,10 @@ class MainActivity : AppCompatActivity() {
                         getResources().getString(R.string.shared_array_buffer_activity_title),
                         Intent(this, SharedArrayBufferActivity::class.java),
                     ),
+                    MenuListView.MenuItem(
+                        getResources().getString(R.string.hyperlink_context_menu_activity_title),
+                        Intent(this, HyperlinkContextMenuActivity::class.java),
+                    ),
                 )
             )
     }
