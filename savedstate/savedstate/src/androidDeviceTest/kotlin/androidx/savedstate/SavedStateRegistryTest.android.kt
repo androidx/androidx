@@ -51,7 +51,7 @@ class SavedStateRegistryTest {
 
     @UiThreadTest
     @Test
-    fun consumerSaveRestoreFlow() {
+    fun restorerSaveRestoreFlow() {
         val owner1 = FakeSavedStateRegistryOwner()
         owner1.savedStateRegistry.registerSavedStateProvider("a") { bundleOf("foo", 42) }
 
@@ -60,11 +60,11 @@ class SavedStateRegistryTest {
 
         val owner2 = FakeSavedStateRegistryOwner()
         var restoredValue: Int? = null
-        val providerConsumer =
-            TestProviderConsumer(
-                onConsume = { state -> restoredValue = state.read { getInt("foo") } }
+        val providerRestorer =
+            TestProviderRestorer(
+                onRestore = { state -> restoredValue = state?.read { getInt("foo") } }
             )
-        owner2.savedStateRegistry.registerSavedStateProvider("a", providerConsumer)
+        owner2.savedStateRegistry.registerSavedStateProvider("a", providerRestorer)
 
         owner2.savedStateRegistryController.performRestore(savedState)
 
@@ -73,7 +73,7 @@ class SavedStateRegistryTest {
 
     @UiThreadTest
     @Test
-    fun consumerLateRegistrationEagerRestoration() {
+    fun restorerLateRegistrationEagerRestoration() {
         val owner1 = FakeSavedStateRegistryOwner()
         owner1.savedStateRegistry.registerSavedStateProvider("a") { bundleOf("foo", 42) }
 
@@ -84,13 +84,34 @@ class SavedStateRegistryTest {
         owner2.savedStateRegistryController.performRestore(savedState)
 
         var restoredValue: Int? = null
-        val providerConsumer =
-            TestProviderConsumer(
-                onConsume = { state -> restoredValue = state.read { getInt("foo") } }
+        val providerRestorer =
+            TestProviderRestorer(
+                onRestore = { state -> restoredValue = state?.read { getInt("foo") } }
             )
-        owner2.savedStateRegistry.registerSavedStateProvider("a", providerConsumer)
+        owner2.savedStateRegistry.registerSavedStateProvider("a", providerRestorer)
 
         assertThat(restoredValue).isEqualTo(42)
+    }
+
+    @UiThreadTest
+    @Test
+    fun restorerReceivesNullOnFreshStart() {
+        val owner = FakeSavedStateRegistryOwner()
+        var restoredCalled = false
+        var restoredValue: SavedState? = savedState() // non-null initial sentinel
+        val providerRestorer =
+            TestProviderRestorer(
+                onRestore = { state ->
+                    restoredCalled = true
+                    restoredValue = state
+                }
+            )
+        owner.savedStateRegistry.registerSavedStateProvider("a", providerRestorer)
+
+        owner.savedStateRegistryController.performRestore(null)
+
+        assertThat(restoredCalled).isTrue()
+        assertThat(restoredValue).isNull()
     }
 
     @UiThreadTest
@@ -266,13 +287,13 @@ class SavedStateRegistryTest {
     private fun startFlow(block: (SavedStateRegistry) -> Unit) =
         TestFlow(null).recreateAndCheck(block)
 
-    private class TestProviderConsumer(
+    private class TestProviderRestorer(
         val onSave: () -> SavedState = { savedState() },
-        val onConsume: (SavedState) -> Unit = {},
-    ) : SavedStateRegistry.SavedStateProvider, SavedStateRegistry.SavedStateConsumer {
+        val onRestore: (SavedState?) -> Unit = {},
+    ) : SavedStateRegistry.SavedStateProvider, SavedStateRestorer {
         override fun saveState(): SavedState = onSave()
 
-        override fun consumeState(state: SavedState) = onConsume(state)
+        override fun restoreState(savedState: SavedState?) = onRestore(savedState)
     }
 }
 

@@ -189,10 +189,6 @@ package androidx.savedstate {
     method public void onRecreated(androidx.savedstate.SavedStateRegistryOwner owner);
   }
 
-  public static fun interface SavedStateRegistry.SavedStateConsumer {
-    method public void consumeState(android.os.Bundle state);
-  }
-
   public static fun interface SavedStateRegistry.SavedStateProvider {
     method public android.os.Bundle saveState();
   }
@@ -219,6 +215,10 @@ package androidx.savedstate {
   public final class SavedStateRegistryOwnerFactory {
     method @KotlinOnly public static androidx.savedstate.SavedStateRegistryOwner SavedStateRegistryOwner(androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle);
     method @InaccessibleFromKotlin public static androidx.savedstate.SavedStateRegistryOwner create(androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle);
+  }
+
+  public fun interface SavedStateRestorer {
+    method public void restoreState(android.os.Bundle? savedState);
   }
 
   @kotlin.jvm.JvmInline public final value class SavedStateWriter {
