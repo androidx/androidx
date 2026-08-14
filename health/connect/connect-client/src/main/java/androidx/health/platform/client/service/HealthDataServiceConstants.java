@@ -36,23 +36,23 @@ public final class HealthDataServiceConstants {
 
     public static final byte[] DEFAULT_PROVIDER_RELEASE_CERT_SHA256 =
             new byte[] {
-                (byte) 0xF0, (byte) 0xFD, (byte) 0x6C, (byte) 0x5B, (byte) 0x41, (byte) 0x0F,
-                (byte) 0x25, (byte) 0xCB, (byte) 0x25, (byte) 0xC3, (byte) 0xB5, (byte) 0x33,
-                (byte) 0x46, (byte) 0xC8, (byte) 0x97, (byte) 0x2F, (byte) 0xAE, (byte) 0x30,
-                (byte) 0xF8, (byte) 0xEE, (byte) 0x74, (byte) 0x11, (byte) 0xDF, (byte) 0x91,
-                (byte) 0x04, (byte) 0x80, (byte) 0xAD, (byte) 0x6B, (byte) 0x2D, (byte) 0x60,
-                (byte) 0xDB, (byte) 0x83
-            };
-
-    // never allowed to change to stay backward compatible
-    public static final byte[] DEFAULT_PROVIDER_DEV_CERT_SHA256 =
-            new byte[] {
                 (byte) 0xb2, (byte) 0xc0, (byte) 0xa8, (byte) 0x0e, (byte) 0x48, (byte) 0x59,
                 (byte) 0x34, (byte) 0xbf, (byte) 0xb0, (byte) 0x8f, (byte) 0x90, (byte) 0x2c,
                 (byte) 0xa2, (byte) 0x75, (byte) 0x05, (byte) 0x81, (byte) 0x3d, (byte) 0xf3,
                 (byte) 0x15, (byte) 0x9e, (byte) 0x4e, (byte) 0x6d, (byte) 0xd4, (byte) 0xa4,
                 (byte) 0xdf, (byte) 0x07, (byte) 0x8d, (byte) 0x66, (byte) 0xcb, (byte) 0x1c,
                 (byte) 0x20, (byte) 0x03
+            };
+
+    // never allowed to change to stay backward compatible
+    public static final byte[] DEFAULT_PROVIDER_DEV_CERT_SHA256 =
+            new byte[] {
+                (byte) 0x45, (byte) 0x13, (byte) 0x03, (byte) 0x66, (byte) 0x94, (byte) 0xcb,
+                (byte) 0x96, (byte) 0x39, (byte) 0x75, (byte) 0x1a, (byte) 0x68, (byte) 0x44,
+                (byte) 0xf2, (byte) 0x07, (byte) 0x48, (byte) 0x0d, (byte) 0xd9, (byte) 0x40,
+                (byte) 0xbd, (byte) 0x53, (byte) 0xa4, (byte) 0x89, (byte) 0xf8, (byte) 0xac,
+                (byte) 0xf3, (byte) 0x2c, (byte) 0x00, (byte) 0x58, (byte) 0x20, (byte) 0xca,
+                (byte) 0xc3, (byte) 0xeb
             };
 
     private HealthDataServiceConstants() {}
