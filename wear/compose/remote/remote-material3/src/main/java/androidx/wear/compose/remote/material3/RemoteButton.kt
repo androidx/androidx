@@ -45,6 +45,7 @@ import androidx.compose.remote.creation.compose.modifier.wrapContentSize
 import androidx.compose.remote.creation.compose.painter.RemotePainter
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.shaders.linearGradient
+import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
@@ -867,8 +868,8 @@ internal fun RemoteDrawScope.drawShapedBackground(
     enabled: RemoteBoolean,
     containerPainter: RemotePainter?,
     disabledContainerPainter: RemotePainter?,
-    borderColor: RemoteColor?,
-    borderStrokeWidth: RemoteDp?,
+    borderColor: RemoteColor? = null,
+    borderStrokeWidth: RemoteDp? = null,
 ) {
     if (!enabled.hasConstantValue) {
         TODO("Dynamic clickable enabled value is not supported.")
@@ -881,22 +882,33 @@ internal fun RemoteDrawScope.drawShapedBackground(
 
     // Draw border if specified
     if (borderColor != null && borderStrokeWidth != null) {
-        drawBorder(borderColor, borderStrokeWidth.value, shape, width, height)
+        drawBorder(borderColor, borderStrokeWidth, shape)
     }
 }
 
+@Suppress("RestrictedApiAndroidX")
 private fun RemoteDrawScope.drawBorder(
     borderColor: RemoteColor,
-    borderStrokeWidth: RemoteFloat,
+    borderStrokeWidth: RemoteDp,
     shape: RemoteShape,
-    w: RemoteFloat,
-    h: RemoteFloat,
 ) {
-    with(shape.createOutline(RemoteSize(w, h), remoteDensity, layoutDirection)) {
+    val strokeWidthPx = borderStrokeWidth.toPx()
+    val outline =
+        if (shape is RemoteCornerBasedShape) {
+            shape.createOutline(
+                size = RemoteSize(width, height),
+                density = remoteDensity,
+                layoutDirection = layoutDirection,
+                strokeWidth = strokeWidthPx,
+            )
+        } else {
+            shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection)
+        }
+    with(outline) {
         drawOutline(
             RemotePaint {
                 color = borderColor
-                strokeWidth = borderStrokeWidth
+                strokeWidth = strokeWidthPx
                 style = PaintingStyle.Stroke
             }
         )

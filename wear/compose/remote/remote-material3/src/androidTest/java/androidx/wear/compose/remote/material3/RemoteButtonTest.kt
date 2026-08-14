@@ -25,6 +25,8 @@ import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
+import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
@@ -38,8 +40,11 @@ import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRul
 import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -52,6 +57,7 @@ import androidx.wear.compose.remote.material3.previews.utils.createImage
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -230,6 +236,48 @@ class RemoteButtonTest {
     }
 
     @Test
+    fun button_with_border_and_large_corner_radius_scaling() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer {
+                RemoteButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier.size(120.rdp, 50.rdp),
+                    border = 4.rdp,
+                    borderColor = RemoteColor(Color.Green),
+                    shape = RemoteRoundedCornerShape(topStart = 80.rdp, bottomStart = 80.rdp),
+                ) {
+                    RemoteText("scale".rs)
+                }
+            }
+        }
+    }
+
+    // Tests that the corner radius is clamped to 0f when half the stroke (4.rdp)
+    // exceeds the corner size (2.rdp), preventing negative radius values.
+    @Test
+    fun button_with_thick_border_clamping_corner_radius() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer {
+                RemoteButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier.size(120.rdp, 50.rdp),
+                    border = 8.rdp,
+                    borderColor = RemoteColor(Color.Green),
+                    shape = RemoteRoundedCornerShape(2.rdp),
+                ) {
+                    RemoteText("clamp".rs)
+                }
+            }
+        }
+    }
+
+    @Test
     fun button_enabled_container_background_image() {
         remoteComposeTestRule.runScreenshotTest(
             profile = RcPlatformProfiles.WEAR_WIDGETS,
@@ -374,6 +422,60 @@ class RemoteButtonTest {
 
             assertThat(actualContent.normalizeWhiteSpace()).doesNotContain("CLICK_MODIFIER")
         }
+    }
+
+    @Test
+    fun button_border_width_is_scaled_with_density() {
+        val displayInfo = createCreationDisplayInfo(context, Size(500f, 500f))
+        val density = displayInfo.density.density
+        remoteComposeTestRule.setContent(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = displayInfo,
+        ) {
+            ComponentContainer {
+                RemoteButton(
+                    modifier = RemoteModifier.size(100.rdp, 50.rdp),
+                    onClick = testAction,
+                    border = 8.rdp,
+                    borderColor = RemoteColor(Color.Red),
+                    colors =
+                        RemoteButtonDefaults.buttonColors(
+                            containerColor = RemoteColor(Color.Black)
+                        ),
+                    shape = RemoteRectangleShape,
+                ) {
+                    RemoteText("button".rs)
+                }
+            }
+        }
+
+        val bitmap =
+            remoteComposeTestRule.composeTestRule
+                .onNodeWithTag(RemoteScreenshotTestRule.ROOT_TEST_TAG)
+                .captureToImage()
+                .asAndroidBitmap()
+
+        val y = bitmap.height / 2
+        var redPixelsCount = 0
+        var firstRedX = -1
+        var lastRedX = -1
+        for (x in 0 until bitmap.width / 2) {
+            val color = Color(bitmap.getPixel(x, y))
+            if (color.red > 0.8f && color.green < 0.2f && color.blue < 0.2f) {
+                redPixelsCount++
+                if (firstRedX == -1) firstRedX = x
+                lastRedX = x
+            }
+        }
+
+        val expectedBorderWidthPx = (8 * density).toInt()
+        assertWithMessage(
+                "Expected border width of $expectedBorderWidthPx px (border=8.rdp * density=$density), " +
+                    "found $redPixelsCount red pixels at y=$y in bitmap size ${bitmap.width}x${bitmap.height} " +
+                    "(firstRedX=$firstRedX, lastRedX=$lastRedX)"
+            )
+            .that(kotlin.math.abs(redPixelsCount - expectedBorderWidthPx))
+            .isAtMost(1)
     }
 
     // Replace all sequences of whitespace (including newlines, tabs) with a single space. Then
