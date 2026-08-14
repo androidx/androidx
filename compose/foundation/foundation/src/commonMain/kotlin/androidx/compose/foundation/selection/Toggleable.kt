@@ -645,8 +645,10 @@ private class TriStateToggleableNode(
         this.contentDataType = ContentDataType.Toggle
         // If the toggle state is not indeterminate, set the boolean value on the fillableData
         // semantic property.
-        FillableData.createFromBoolean(state != ToggleableState.Indeterminate)?.let {
-            this.fillableData = it
+        if (state != ToggleableState.Indeterminate) {
+            FillableData.createFromBoolean(state == ToggleableState.On)?.let {
+                this.fillableData = it
+            }
         }
         this.onFillData { fillableData ->
             if (!enabled || state == ToggleableState.Indeterminate) return@onFillData false

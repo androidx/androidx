@@ -63,6 +63,7 @@ import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -152,17 +153,29 @@ class ToggleableTest {
                 ContentDataType.Toggle,
             )
 
-        fun autofillFillDataSet(): SemanticsMatcher =
-            SemanticsMatcher.keyIsDefined(SemanticsProperties.FillableData)
+        fun hasFillableData(expected: Boolean): SemanticsMatcher =
+            SemanticsMatcher("fillableData is $expected") { node ->
+                val fillableData = node.config.getOrNull(SemanticsProperties.FillableData)
+                fillableData?.booleanValue == expected
+            }
+
+        fun autofillFillDataNotDefined(): SemanticsMatcher =
+            SemanticsMatcher.keyNotDefined(SemanticsProperties.FillableData)
 
         fun roleNotSet(): SemanticsMatcher =
             SemanticsMatcher.keyNotDefined(SemanticsProperties.Role)
 
-        fun SemanticsNodeInteraction.assertAutofill(): SemanticsNodeInteraction {
+        fun SemanticsNodeInteraction.assertAutofill(
+            expectedFillable: Boolean?
+        ): SemanticsNodeInteraction {
             this.assert(autofillDataToggleSet()).assert(autofillFillActionSet())
             if (android.os.Build.VERSION.SDK_INT >= 26) {
                 // FillableData only available on API 26+.
-                this.assert(autofillFillDataSet())
+                if (expectedFillable != null) {
+                    this.assert(hasFillableData(expectedFillable))
+                } else {
+                    this.assert(autofillFillDataNotDefined())
+                }
             }
             return this
         }
@@ -172,21 +185,21 @@ class ToggleableTest {
             .assert(roleNotSet())
             .assertIsEnabled()
             .assertIsOn()
-            .assertAutofill()
+            .assertAutofill(expectedFillable = true)
             .assertHasClickAction()
         rule
             .onNodeWithTag("unCheckedToggleable")
             .assert(roleNotSet())
             .assertIsEnabled()
             .assertIsOff()
-            .assertAutofill()
+            .assertAutofill(expectedFillable = false)
             .assertHasClickAction()
         rule
             .onNodeWithTag("indeterminateToggleable")
             .assert(roleNotSet())
             .assertIsEnabled()
             .assert(hasIndeterminateState())
-            .assertAutofill()
+            .assertAutofill(expectedFillable = null)
             .assertHasClickAction()
     }
 
