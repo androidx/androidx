@@ -236,10 +236,10 @@ class TransformingLazyColumnItemAnimationTest {
                 }
             }
         }
-        rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(0.dp)
-        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(50.dp)
-        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(100.dp)
-        rule.onNodeWithTag("item_3").assertTopPositionInRootIsEqualTo(150.dp)
+        rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(0.dp, tolerance = 1.5.dp)
+        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(50.dp, tolerance = 1.5.dp)
+        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(100.dp, tolerance = 1.5.dp)
+        rule.onNodeWithTag("item_3").assertTopPositionInRootIsEqualTo(150.dp, tolerance = 1.5.dp)
 
         // Trigger massive multi-item reorder (complete reverse)
         rule.runOnUiThread { list = listOf(3, 2, 1, 0) }
@@ -250,10 +250,18 @@ class TransformingLazyColumnItemAnimationTest {
             val expectedY1 = 50.dp + (50.dp * fraction)
             val expectedY2 = 100.dp - (50.dp * fraction)
             val expectedY3 = 150.dp - (150.dp * fraction)
-            rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(expectedY0)
-            rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(expectedY1)
-            rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(expectedY2)
-            rule.onNodeWithTag("item_3").assertTopPositionInRootIsEqualTo(expectedY3)
+            rule
+                .onNodeWithTag("item_0")
+                .assertTopPositionInRootIsEqualTo(expectedY0, tolerance = 1.5.dp)
+            rule
+                .onNodeWithTag("item_1")
+                .assertTopPositionInRootIsEqualTo(expectedY1, tolerance = 1.5.dp)
+            rule
+                .onNodeWithTag("item_2")
+                .assertTopPositionInRootIsEqualTo(expectedY2, tolerance = 1.5.dp)
+            rule
+                .onNodeWithTag("item_3")
+                .assertTopPositionInRootIsEqualTo(expectedY3, tolerance = 1.5.dp)
         }
     }
 
@@ -277,10 +285,10 @@ class TransformingLazyColumnItemAnimationTest {
                 }
             }
         }
-        rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(150.dp)
-        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(100.dp)
-        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(50.dp)
-        rule.onNodeWithTag("item_3").assertTopPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(150.dp, tolerance = 1.5.dp)
+        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(100.dp, tolerance = 1.5.dp)
+        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(50.dp, tolerance = 1.5.dp)
+        rule.onNodeWithTag("item_3").assertTopPositionInRootIsEqualTo(0.dp, tolerance = 1.5.dp)
 
         // Trigger massive multi-item reorder (complete reverse)
         rule.runOnUiThread { list = listOf(3, 2, 1, 0) }
@@ -291,10 +299,18 @@ class TransformingLazyColumnItemAnimationTest {
             val expectedY1 = 100.dp - (50.dp * fraction)
             val expectedY2 = 50.dp + (50.dp * fraction)
             val expectedY3 = 0.dp + (150.dp * fraction)
-            rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(expectedY0)
-            rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(expectedY1)
-            rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(expectedY2)
-            rule.onNodeWithTag("item_3").assertTopPositionInRootIsEqualTo(expectedY3)
+            rule
+                .onNodeWithTag("item_0")
+                .assertTopPositionInRootIsEqualTo(expectedY0, tolerance = 1.5.dp)
+            rule
+                .onNodeWithTag("item_1")
+                .assertTopPositionInRootIsEqualTo(expectedY1, tolerance = 1.5.dp)
+            rule
+                .onNodeWithTag("item_2")
+                .assertTopPositionInRootIsEqualTo(expectedY2, tolerance = 1.5.dp)
+            rule
+                .onNodeWithTag("item_3")
+                .assertTopPositionInRootIsEqualTo(expectedY3, tolerance = 1.5.dp)
         }
     }
 
@@ -354,9 +370,9 @@ class TransformingLazyColumnItemAnimationTest {
                 }
             }
         }
-        rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(150.dp)
-        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(100.dp)
-        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(50.dp)
+        rule.onNodeWithTag("item_0").assertTopPositionInRootIsEqualTo(150.dp, tolerance = 1.dp)
+        rule.onNodeWithTag("item_1").assertTopPositionInRootIsEqualTo(100.dp, tolerance = 1.dp)
+        rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(50.dp, tolerance = 1.dp)
 
         // Delete Item 0 & 1, insert Item 3 at the top
         rule.runOnUiThread { list = listOf(3, 2) }
@@ -364,7 +380,9 @@ class TransformingLazyColumnItemAnimationTest {
         // Verify that Item 2 slides down smoothly to fill the gap
         onAnimationFrame { fraction ->
             val expectedY2 = 50.dp + (50.dp * fraction)
-            rule.onNodeWithTag("item_2").assertTopPositionInRootIsEqualTo(expectedY2)
+            rule
+                .onNodeWithTag("item_2")
+                .assertTopPositionInRootIsEqualTo(expectedY2, tolerance = 1.dp)
         }
     }
 

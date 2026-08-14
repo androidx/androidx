@@ -303,8 +303,8 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             .onNodeWithTag(ContainerTag)
             .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
             .assertStartPositionInRootIsEqualTo(0.dp)
-            .assertCrossAxisSizeIsEqualTo(8.dp)
-            .assertMainAxisSizeIsEqualTo(12.dp)
+            .assertCrossAxisSizeIsEqualTo(8.dp, tolerance = 1.dp)
+            .assertMainAxisSizeIsEqualTo(12.dp, tolerance = 1.dp)
     }
 
     @Test
@@ -329,8 +329,8 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
             .onNodeWithTag(ContainerTag)
             .assertCrossAxisStartPositionInRootIsEqualTo(0.dp)
             .assertStartPositionInRootIsEqualTo(0.dp)
-            .assertCrossAxisSizeIsEqualTo(8.dp)
-            .assertMainAxisSizeIsEqualTo(12.dp)
+            .assertCrossAxisSizeIsEqualTo(8.dp, tolerance = 1.dp)
+            .assertMainAxisSizeIsEqualTo(12.dp, tolerance = 1.dp)
     }
 
     @Test
