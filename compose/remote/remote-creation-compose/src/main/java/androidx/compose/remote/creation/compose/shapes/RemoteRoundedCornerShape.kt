@@ -18,6 +18,8 @@ package androidx.compose.remote.creation.compose.shapes
 
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rdp
@@ -48,6 +50,25 @@ constructor(
         bottomEnd = bottomEnd,
         bottomStart = bottomStart,
     ) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun createOutline(
+        topStart: RemoteFloat,
+        topEnd: RemoteFloat,
+        bottomEnd: RemoteFloat,
+        bottomStart: RemoteFloat,
+        size: RemoteSize?,
+        offset: RemoteOffset,
+    ): RemoteOutline {
+        return RemoteOutline.Rounded(
+            topStart = topStart,
+            topEnd = topEnd,
+            bottomEnd = bottomEnd,
+            bottomStart = bottomStart,
+            offset = offset,
+            size = size,
+        )
+    }
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun createOutline(
         topStart: RemoteFloat,
