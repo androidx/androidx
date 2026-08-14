@@ -18,6 +18,10 @@ package androidx.savedstate {
     method public static inline <T> T write(android.os.Bundle, kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,? extends T> block);
   }
 
+  public fun interface SavedStateProvider {
+    method public android.os.Bundle saveState();
+  }
+
   @kotlin.jvm.JvmInline public final value class SavedStateReader {
     ctor @KotlinOnly @kotlin.PublishedApi internal SavedStateReader(android.os.Bundle source);
     method @BytecodeOnly public static androidx.savedstate.SavedStateReader! box-impl(android.os.Bundle!);
@@ -189,8 +193,7 @@ package androidx.savedstate {
     method public void onRecreated(androidx.savedstate.SavedStateRegistryOwner owner);
   }
 
-  public static fun interface SavedStateRegistry.SavedStateProvider {
-    method public android.os.Bundle saveState();
+  public static fun interface SavedStateRegistry.SavedStateProvider extends androidx.savedstate.SavedStateProvider {
   }
 
   public final class SavedStateRegistryController {

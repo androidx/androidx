@@ -34,14 +34,14 @@ public expect class SavedStateRegistry internal constructor(impl: SavedStateRegi
      * Implementations can optionally implement [SavedStateRestorer] to receive and restore state
      * during the state restoration phase.
      */
-    public fun interface SavedStateProvider {
+    public fun interface SavedStateProvider : androidx.savedstate.SavedStateProvider {
         /**
          * Called to retrieve the state from a component before it is killed so the state can be
          * retrieved later from [consumeRestoredStateForKey].
          *
          * @return The [SavedState] containing the saved state.
          */
-        public fun saveState(): SavedState
+        override fun saveState(): SavedState
     }
 
     /**
