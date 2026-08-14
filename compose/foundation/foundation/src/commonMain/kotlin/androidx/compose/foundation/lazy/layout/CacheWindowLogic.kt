@@ -741,7 +741,11 @@ internal class MultiLaneCacheWindow(
 
         debugLog { "nextPrefetchableItemIndex=$nextPrefetchableItemIndex" }
 
-        if (nextPrefetchableItemIndex >= 0) {
+        if (
+            nextPrefetchableItemIndex >= 0 &&
+                !prefetchWindowHandles.containsKey(nextPrefetchableItemIndex) &&
+                !windowCacheWithItems.containsKey(nextPrefetchableItemIndex)
+        ) {
             val nextPrefetchableItemIndex = nextPrefetchableItemIndex
             prefetchWindowHandles[nextPrefetchableItemIndex] =
                 schedulePrefetch(lane, nextPrefetchableItemIndex) { mainAxisSize ->
@@ -1302,7 +1306,9 @@ internal class LegacyCacheWindowLogic(
         if (
             nextPrefetchableLineIndex > 0 &&
                 lastItemIndexInLine(nextPrefetchableLineIndex) != InvalidIndex &&
-                lastItemIndexInLine(nextPrefetchableLineIndex) < itemsCount
+                lastItemIndexInLine(nextPrefetchableLineIndex) < itemsCount &&
+                !prefetchWindowHandles.containsKey(nextPrefetchableLineIndex) &&
+                !windowCacheWithItems.containsKey(nextPrefetchableLineIndex)
         ) {
             prefetchWindowHandles[nextPrefetchableLineIndex] =
                 schedulePrefetch(0, nextPrefetchableLineIndex) { mainAxisSize ->
