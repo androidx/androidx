@@ -101,6 +101,7 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
         } else {
             context.loadColor(mId, mDarkMode);
         }
+        markNotDirty();
     }
 
     @Override

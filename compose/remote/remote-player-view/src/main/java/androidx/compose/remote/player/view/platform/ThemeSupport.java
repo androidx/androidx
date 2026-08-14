@@ -57,6 +57,7 @@ public class ThemeSupport {
                     continue;
                 }
                 colorEngine.getColors(context, theme);
+                theme.markDirty();
             }
         }
         String[] name = mInner.getNamedColors();

@@ -26,8 +26,10 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
+import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
+import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -780,6 +782,88 @@ class RemoteComposePlayerTest {
             MotionEvent.obtain(downTime, lastEventTime, MotionEvent.ACTION_UP, endX, endY, 0)
         view.dispatchTouchEvent(upEvent)
         upEvent.recycle()
+    }
+
+    @Test
+    fun colorTheme_coldStart_lightTheme_resolvesSystemColors() {
+        val rcDoc = RemoteComposeWriter.obtain(100, 100, RcPlatformProfiles.ANDROIDX)
+        val fallbackColor = 0xFFFF00FF.toInt() // Magenta fallback
+        val lightColorIdx = Rc.AndroidColors.SYSTEM_ACCENT2_50
+        val darkColorIdx = Rc.AndroidColors.SYSTEM_ACCENT2_800
+        val colorId =
+            rcDoc.addThemedColor(
+                Rc.AndroidColors.GROUP,
+                lightColorIdx,
+                darkColorIdx,
+                fallbackColor,
+                fallbackColor,
+            )
+        rcDoc.root {
+            rcDoc.box(
+                RecordingModifier().backgroundId(colorId).fillMaxSize(),
+                BoxLayout.CENTER,
+                BoxLayout.CENTER,
+            ) {}
+        }
+        val docBytes = rcDoc.encodeToByteArray()
+        setupPlayerInParent(docBytes = docBytes, width = 100, height = 100).use { (player, parent)
+            ->
+            player.setTheme(Theme.LIGHT)
+            val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            parent.draw(canvas)
+
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val expectedLightColor = context.getColor(android.R.color.system_accent2_50)
+            val resolvedColor =
+                player.document.document.remoteComposeState.getColor(colorId.toInt())
+            assertEquals(
+                "Color should resolve to system_accent2_50 in light theme",
+                expectedLightColor,
+                resolvedColor,
+            )
+        }
+    }
+
+    @Test
+    fun colorTheme_coldStart_darkTheme_resolvesSystemColors() {
+        val rcDoc = RemoteComposeWriter.obtain(100, 100, RcPlatformProfiles.ANDROIDX)
+        val fallbackColor = 0xFFFF00FF.toInt() // Magenta fallback
+        val lightColorIdx = Rc.AndroidColors.SYSTEM_ACCENT2_50
+        val darkColorIdx = Rc.AndroidColors.SYSTEM_ACCENT2_800
+        val colorId =
+            rcDoc.addThemedColor(
+                Rc.AndroidColors.GROUP,
+                lightColorIdx,
+                darkColorIdx,
+                fallbackColor,
+                fallbackColor,
+            )
+        rcDoc.root {
+            rcDoc.box(
+                RecordingModifier().backgroundId(colorId).fillMaxSize(),
+                BoxLayout.CENTER,
+                BoxLayout.CENTER,
+            ) {}
+        }
+        val docBytes = rcDoc.encodeToByteArray()
+        setupPlayerInParent(docBytes = docBytes, width = 100, height = 100).use { (player, parent)
+            ->
+            player.setTheme(Theme.DARK)
+            val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            parent.draw(canvas)
+
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val expectedDarkColor = context.getColor(android.R.color.system_accent2_800)
+            val resolvedColor =
+                player.document.document.remoteComposeState.getColor(colorId.toInt())
+            assertEquals(
+                "Color should resolve to system_accent2_800 in dark theme",
+                expectedDarkColor,
+                resolvedColor,
+            )
+        }
     }
 
     companion object {

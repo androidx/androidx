@@ -2017,7 +2017,11 @@ public class CoreDocument implements Serializable {
         for (Operation op : ops) {
             if (op instanceof ColorTheme) {
                 ColorTheme colorTheme = (ColorTheme) op;
-                colorTheme.mColorGroupName = strings.get(colorTheme.mColorGroupId);
+                String groupName = strings.get(colorTheme.mColorGroupId);
+                if (groupName == null) {
+                    groupName = getText(colorTheme.mColorGroupId);
+                }
+                colorTheme.mColorGroupName = groupName;
                 list.add(colorTheme);
             } else if (op instanceof TextData) {
                 strings.put(((TextData) op).mTextId, ((TextData) op).mText);
