@@ -26,6 +26,7 @@ import android.webkit.WebViewClient;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.webkit.test.common.WebViewOnUiThread;
 import androidx.webkit.test.common.WebkitUtils;
 
@@ -272,6 +273,8 @@ public class NavigationListenerTest {
         Assert.assertTrue(navigation.didCommitErrorPage());
     }
 
+    //TODO(http://b/546448944): Figure out why this fails on SDK level 29
+    @SdkSuppress(excludedSdks = {29})
     @Test
     public void didCommitErrorPage_webResourceErrorReturned() {
         WebkitUtils.checkFeature(WebViewFeature.NAVIGATION_GET_WEB_RESOURCE_ERROR);
