@@ -48,6 +48,7 @@ import androidx.compose.remote.creation.compose.shaders.linearGradient
 import androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.shapes.drawOutline
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
@@ -1058,7 +1059,6 @@ internal fun RemoteDrawScope.drawShapedBackground(
     }
 }
 
-@Suppress("RestrictedApiAndroidX")
 private fun RemoteDrawScope.drawBorder(
     borderColor: RemoteColor,
     borderStrokeWidth: RemoteDp,
@@ -1087,26 +1087,24 @@ private fun RemoteDrawScope.drawBorder(
                 shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection)
             }
         }
-    with(outline) {
-        drawOutline(
-            RemotePaint {
-                color = borderColor
-                strokeWidth = strokeWidthPx
-                style = PaintingStyle.Stroke
-            }
-        )
-    }
+    drawOutline(
+        outline,
+        RemotePaint {
+            color = borderColor
+            strokeWidth = strokeWidthPx
+            style = PaintingStyle.Stroke
+        },
+    )
 }
 
 private fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: RemoteColor? = null) =
-    with(shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection)) {
-        drawOutline(
-            RemotePaint {
-                style = PaintingStyle.Fill
-                color?.let { this.color = it }
-            }
-        )
-    }
+    drawOutline(
+        shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection),
+        RemotePaint {
+            style = PaintingStyle.Fill
+            color?.let { this.color = it }
+        },
+    )
 
 /**
  * Modifier to be applied to a [RemoteButton] to ensure that its size meets the recommended

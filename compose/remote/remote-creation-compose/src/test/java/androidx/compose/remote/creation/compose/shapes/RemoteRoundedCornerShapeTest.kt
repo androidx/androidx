@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
@@ -163,7 +164,7 @@ class RemoteRoundedCornerShapeTest {
                 size = null,
             )
 
-        with(outline) { drawScope.drawOutline(RemotePaint()) }
+        drawScope.drawOutline(outline, RemotePaint())
         recordingCanvas.flush()
 
         assertThat(fakeBuffer.calls)
@@ -192,7 +193,7 @@ class RemoteRoundedCornerShapeTest {
                 size = null,
             )
 
-        with(outline) { drawScope.drawOutline(RemotePaint()) }
+        drawScope.drawOutline(outline, RemotePaint())
         recordingCanvas.flush()
 
         assertThat(fakeBuffer.calls)
@@ -219,11 +220,66 @@ class RemoteRoundedCornerShapeTest {
                 size = RemoteSize(90f.rf, 40f.rf),
             )
 
-        with(outline) { drawScope.drawOutline(RemotePaint()) }
+        drawScope.drawOutline(outline, RemotePaint())
         recordingCanvas.flush()
 
         assertThat(fakeBuffer.calls)
             .containsExactly("addPaint", "addDrawRoundRect(5.0, 5.0, 95.0, 45.0, 10.0, 10.0)")
+    }
+
+    @Test
+    fun drawOutline_rectangle() {
+        val fakeBuffer = TestRemoteComposeBuffer()
+        val (drawScope, recordingCanvas) =
+            createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
+        val outline =
+            RemoteOutline.Rectangle(
+                topLeft = RemoteOffset(10f.rf, 20f.rf),
+                size = RemoteSize(80f.rf, 30f.rf),
+            )
+
+        drawScope.drawOutline(outline, RemotePaint())
+        recordingCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addPaint", "addDrawRect(10.0, 20.0, 90.0, 50.0)")
+    }
+
+    @Test
+    fun drawOutline_generic() {
+        val fakeBuffer = TestRemoteComposeBuffer()
+        val (drawScope, recordingCanvas) =
+            createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
+        val path =
+            drawScope.remotePath {
+                moveTo(0f.rf, 0f.rf)
+                lineTo(100f.rf, 50f.rf)
+            }
+        val outline = RemoteOutline.Generic(path)
+
+        drawScope.drawOutline(outline, RemotePaint())
+        recordingCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addPaint", "addPathData(42)", "addDrawPath(42)")
+    }
+
+    @Test
+    fun drawOutline_generic_withBlock() {
+        val fakeBuffer = TestRemoteComposeBuffer()
+        val (drawScope, recordingCanvas) =
+            createRemoteDrawScope(width = 100, height = 50, fakeBuffer = fakeBuffer)
+        val outline =
+            RemoteOutline.Generic {
+                moveTo(0f.rf, 0f.rf)
+                lineTo(100f.rf, 50f.rf)
+            }
+
+        drawScope.drawOutline(outline, RemotePaint())
+        recordingCanvas.flush()
+
+        assertThat(fakeBuffer.calls)
+            .containsExactly("addPaint", "addPathData(42)", "addDrawPath(42)")
     }
 
     private fun haveSameInstances(

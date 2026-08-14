@@ -748,7 +748,14 @@ package androidx.compose.remote.creation.compose.shaders {
 package androidx.compose.remote.creation.compose.shapes {
 
   public abstract class RemoteCornerBasedShape implements androidx.compose.remote.creation.compose.shapes.RemoteShape {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.compose.remote.creation.compose.shapes.RemoteOutline createOutline(androidx.compose.remote.creation.compose.layout.RemoteSize size, androidx.compose.remote.creation.compose.capture.RemoteDensity density, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    ctor public RemoteCornerBasedShape(androidx.compose.remote.creation.compose.shapes.RemoteCornerSize topStart, androidx.compose.remote.creation.compose.shapes.RemoteCornerSize topEnd, androidx.compose.remote.creation.compose.shapes.RemoteCornerSize bottomEnd, androidx.compose.remote.creation.compose.shapes.RemoteCornerSize bottomStart);
+    method public abstract androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape copy(optional androidx.compose.remote.creation.compose.shapes.RemoteCornerSize topStart, optional androidx.compose.remote.creation.compose.shapes.RemoteCornerSize topEnd, optional androidx.compose.remote.creation.compose.shapes.RemoteCornerSize bottomEnd, optional androidx.compose.remote.creation.compose.shapes.RemoteCornerSize bottomStart);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape! copy$default(androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape!, androidx.compose.remote.creation.compose.shapes.RemoteCornerSize!, androidx.compose.remote.creation.compose.shapes.RemoteCornerSize!, androidx.compose.remote.creation.compose.shapes.RemoteCornerSize!, androidx.compose.remote.creation.compose.shapes.RemoteCornerSize!, int, Object!);
+    method public final androidx.compose.remote.creation.compose.shapes.RemoteOutline createOutline(androidx.compose.remote.creation.compose.layout.RemoteSize size, androidx.compose.remote.creation.compose.capture.RemoteDensity density, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public final androidx.compose.remote.creation.compose.shapes.RemoteOutline createOutline(androidx.compose.remote.creation.compose.layout.RemoteSize size, androidx.compose.remote.creation.compose.capture.RemoteDensity density, androidx.compose.ui.unit.LayoutDirection layoutDirection, optional androidx.compose.remote.creation.compose.state.RemoteFloat strokeWidth, optional androidx.compose.remote.creation.compose.layout.RemoteOffset offset);
+    method public abstract androidx.compose.remote.creation.compose.shapes.RemoteOutline createOutline(androidx.compose.remote.creation.compose.state.RemoteFloat topStart, androidx.compose.remote.creation.compose.state.RemoteFloat topEnd, androidx.compose.remote.creation.compose.state.RemoteFloat bottomEnd, androidx.compose.remote.creation.compose.state.RemoteFloat bottomStart, optional androidx.compose.remote.creation.compose.layout.RemoteSize? size, optional androidx.compose.remote.creation.compose.layout.RemoteOffset offset);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.shapes.RemoteOutline! createOutline$default(androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape!, androidx.compose.remote.creation.compose.layout.RemoteSize!, androidx.compose.remote.creation.compose.capture.RemoteDensity!, androidx.compose.ui.unit.LayoutDirection!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.layout.RemoteOffset!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.shapes.RemoteOutline! createOutline$default(androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.layout.RemoteSize!, androidx.compose.remote.creation.compose.layout.RemoteOffset!, int, Object!);
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize getBottomEnd();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize getBottomStart();
     method @InaccessibleFromKotlin public final androidx.compose.remote.creation.compose.shapes.RemoteCornerSize getTopEnd();
@@ -765,18 +772,66 @@ package androidx.compose.remote.creation.compose.shapes {
 
   public final class RemoteCornerSizeKt {
     method public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(androidx.compose.remote.creation.compose.state.RemoteDp size);
+    method public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(androidx.compose.remote.creation.compose.state.RemoteFloat size);
     method public static androidx.compose.remote.creation.compose.shapes.RemoteCornerSize RemoteCornerSize(@IntRange(from=0L, to=100L) int percent);
   }
 
   public abstract sealed nonexhaustive class RemoteOutline {
-    method public abstract void drawOutline(androidx.compose.remote.creation.compose.layout.RemoteDrawScope, androidx.compose.remote.creation.compose.state.RemotePaint paint);
+  }
+
+  public static final class RemoteOutline.Generic extends androidx.compose.remote.creation.compose.shapes.RemoteOutline {
+    ctor public RemoteOutline.Generic(androidx.compose.remote.creation.RemotePath path);
+    ctor public RemoteOutline.Generic(kotlin.jvm.functions.Function1<? super androidx.compose.remote.creation.compose.vector.RemotePathScope,kotlin.Unit> block);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.RemotePath? getPath();
+    property public androidx.compose.remote.creation.RemotePath? path;
+  }
+
+  public static final class RemoteOutline.Rectangle extends androidx.compose.remote.creation.compose.shapes.RemoteOutline {
+    ctor public RemoteOutline.Rectangle(androidx.compose.remote.creation.compose.layout.RemoteOffset topLeft, androidx.compose.remote.creation.compose.layout.RemoteSize size);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteSize getSize();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteOffset getTopLeft();
+    property public androidx.compose.remote.creation.compose.layout.RemoteSize size;
+    property public androidx.compose.remote.creation.compose.layout.RemoteOffset topLeft;
+  }
+
+  public static final class RemoteOutline.Rounded extends androidx.compose.remote.creation.compose.shapes.RemoteOutline {
+    ctor public RemoteOutline.Rounded(androidx.compose.remote.creation.compose.state.RemoteFloat topStart, androidx.compose.remote.creation.compose.state.RemoteFloat topEnd, androidx.compose.remote.creation.compose.state.RemoteFloat bottomEnd, androidx.compose.remote.creation.compose.state.RemoteFloat bottomStart, optional androidx.compose.remote.creation.compose.layout.RemoteOffset offset, optional androidx.compose.remote.creation.compose.layout.RemoteSize? size);
+    ctor @BytecodeOnly public RemoteOutline.Rounded(androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.layout.RemoteOffset!, androidx.compose.remote.creation.compose.layout.RemoteSize!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getBottomEnd();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getBottomStart();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteOffset getOffset();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteSize? getSize();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getTopEnd();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getTopStart();
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat bottomEnd;
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat bottomStart;
+    property public androidx.compose.remote.creation.compose.layout.RemoteOffset offset;
+    property public androidx.compose.remote.creation.compose.layout.RemoteSize? size;
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat topEnd;
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat topStart;
+  }
+
+  public final class RemoteOutlineKt {
+    method public static void drawOutline(androidx.compose.remote.creation.compose.layout.RemoteDrawScope, androidx.compose.remote.creation.compose.shapes.RemoteOutline outline, androidx.compose.remote.creation.compose.state.RemotePaint paint);
   }
 
   public final class RemoteRoundedCornerShape extends androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape {
+    ctor public RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.shapes.RemoteCornerSize topStart, androidx.compose.remote.creation.compose.shapes.RemoteCornerSize topEnd, androidx.compose.remote.creation.compose.shapes.RemoteCornerSize bottomEnd, androidx.compose.remote.creation.compose.shapes.RemoteCornerSize bottomStart);
+    method public androidx.compose.remote.creation.compose.shapes.RemoteCornerBasedShape copy(optional androidx.compose.remote.creation.compose.shapes.RemoteCornerSize topStart, optional androidx.compose.remote.creation.compose.shapes.RemoteCornerSize topEnd, optional androidx.compose.remote.creation.compose.shapes.RemoteCornerSize bottomEnd, optional androidx.compose.remote.creation.compose.shapes.RemoteCornerSize bottomStart);
+    method public androidx.compose.remote.creation.compose.shapes.RemoteOutline createOutline(androidx.compose.remote.creation.compose.state.RemoteFloat topStart, androidx.compose.remote.creation.compose.state.RemoteFloat topEnd, androidx.compose.remote.creation.compose.state.RemoteFloat bottomEnd, androidx.compose.remote.creation.compose.state.RemoteFloat bottomStart, optional androidx.compose.remote.creation.compose.layout.RemoteSize? size, optional androidx.compose.remote.creation.compose.layout.RemoteOffset offset);
   }
 
   public final class RemoteRoundedCornerShapeKt {
+    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.shapes.RemoteCornerSize corner);
     method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.state.RemoteDp size);
+    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(optional androidx.compose.remote.creation.compose.state.RemoteDp topStart, optional androidx.compose.remote.creation.compose.state.RemoteDp topEnd, optional androidx.compose.remote.creation.compose.state.RemoteDp bottomEnd, optional androidx.compose.remote.creation.compose.state.RemoteDp bottomStart);
+    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(androidx.compose.remote.creation.compose.state.RemoteFloat size);
+    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(optional androidx.compose.remote.creation.compose.state.RemoteFloat topStart, optional androidx.compose.remote.creation.compose.state.RemoteFloat topEnd, optional androidx.compose.remote.creation.compose.state.RemoteFloat bottomEnd, optional androidx.compose.remote.creation.compose.state.RemoteFloat bottomStart);
+    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(@IntRange(from=0L, to=100L) int percent);
+    method public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteRoundedCornerShape(optional @IntRange(from=0L, to=100L) int topStartPercent, optional @IntRange(from=0L, to=100L) int topEndPercent, optional @IntRange(from=0L, to=100L) int bottomEndPercent, optional @IntRange(from=0L, to=100L) int bottomStartPercent);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape! RemoteRoundedCornerShape$default(androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, androidx.compose.remote.creation.compose.state.RemoteDp!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape! RemoteRoundedCornerShape$default(androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, androidx.compose.remote.creation.compose.state.RemoteFloat!, int, Object!);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape! RemoteRoundedCornerShape$default(int, int, int, int, int, Object!);
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape getRemoteCircleShape();
     method @InaccessibleFromKotlin public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape getRemoteRectangleShape();
     property public static androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape RemoteCircleShape;
