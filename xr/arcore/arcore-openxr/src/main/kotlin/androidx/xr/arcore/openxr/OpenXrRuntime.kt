@@ -33,8 +33,10 @@ import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.QrCodeTrackingMode
 import androidx.xr.runtime.XrDevice
 import androidx.xr.runtime.getNativeInstanceData
+import androidx.xr.runtime.interfaces.XrNativeInstanceProvider.Companion.INVALID_HANDLE
 import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
 import androidx.xr.runtime.manifest.HAND_TRACKING
+import kotlin.properties.Delegates
 import kotlin.time.ComparableTimeMark
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
@@ -58,7 +60,7 @@ internal class OpenXrRuntime(
      * A pointer to the native OpenXrManager. Only valid after [initialize] and before [destroy]
      * have been called.
      */
-    var nativePointer: Long = 0L
+    var nativePointer: Long = INVALID_HANDLE
         private set(value) {
             field = value
         }
@@ -67,7 +69,7 @@ internal class OpenXrRuntime(
      * A pointer to the native XrSession. Only valid after [initialize] and before [destroy] have
      * been called.
      */
-    override var sessionPointer: Long = 0L
+    override var sessionPointer: Long = INVALID_HANDLE
         private set(value) {
             field = value
         }
@@ -76,7 +78,7 @@ internal class OpenXrRuntime(
      * A pointer to the native XrInstance. Only valid after [initialize] and before [destroy] have
      * been called.
      */
-    var instancePointer: Long = 0L
+    var instancePointer: Long = INVALID_HANDLE
         private set(value) {
             field = value
         }
@@ -85,19 +87,40 @@ internal class OpenXrRuntime(
     override var config: Config = Config.Builder().build()
         private set
 
-    var instanceProcAddr: Long = 0L
+    var instanceProcAddr: Long = INVALID_HANDLE
         private set
+
+    private var isSessionProvidedByRuntime: Boolean by Delegates.notNull()
 
     override fun initialize() {
         nativePointer = nativeGetPointer()
         val nativeInstanceData = XrDevice.getCurrentDevice(context).getNativeInstanceData(context)
         instancePointer = nativeInstanceData.instancePointer
         instanceProcAddr = nativeInstanceData.functionTablePointer
-        // Only initialize the OpenXrManager and bring up resources.
-        check(nativeInit(context, startPollingThread = false, instancePointer, instanceProcAddr))
+        val nativeSessionPointer = nativeInstanceData.sessionPointer
+
+        // TODO(b/543942634): Remove this once we migrate off of legacy natives.
+        if (nativeSessionPointer == INVALID_HANDLE) {
+            check(
+                nativeInit(context, startPollingThread = false, instancePointer, instanceProcAddr)
+            )
+            sessionPointer = nativeGetXrSessionHandle()
+            isSessionProvidedByRuntime = false
+        } else {
+            sessionPointer = nativeSessionPointer
+            check(
+                nativeInit(
+                    context,
+                    startPollingThread = false,
+                    instancePointer,
+                    sessionPointer,
+                    instanceProcAddr,
+                )
+            )
+            isSessionProvidedByRuntime = true
+        }
         contextList.add(context)
         setAuthentication(context)
-        sessionPointer = nativeGetXrSessionHandle()
     }
 
     override fun resume() {
@@ -105,7 +128,19 @@ internal class OpenXrRuntime(
         // lifecycle. Ideally make this two different functions.
         // The initialization will be a no-op but it will start the polling loop for the resumed
         // lifecycle.
-        check(nativeInit(context, startPollingThread = true, instancePointer, instanceProcAddr))
+        if (isSessionProvidedByRuntime) {
+            check(
+                nativeInit(
+                    context,
+                    startPollingThread = true,
+                    instancePointer,
+                    sessionPointer,
+                    instanceProcAddr,
+                )
+            )
+        } else {
+            check(nativeInit(context, startPollingThread = true, instancePointer, instanceProcAddr))
+        }
     }
 
     override fun pause() {
@@ -328,9 +363,10 @@ internal class OpenXrRuntime(
         contextList.remove(context)
         if (contextList.isEmpty()) {
             nativeDeInit()
-            nativePointer = 0L
-            sessionPointer = 0L
-            instancePointer = 0L
+            nativePointer = INVALID_HANDLE
+            sessionPointer = INVALID_HANDLE
+            instancePointer = INVALID_HANDLE
+            isSessionProvidedByRuntime = false
             perceptionManager.clear()
         }
     }
@@ -375,6 +411,14 @@ internal class OpenXrRuntime(
         context: Context,
         startPollingThread: Boolean,
         instancePointer: Long,
+        instanceProcAddr: Long,
+    ): Boolean
+
+    private external fun nativeInit(
+        context: Context,
+        startPollingThread: Boolean,
+        instancePointer: Long,
+        sessionPointer: Long,
         instanceProcAddr: Long,
     ): Boolean
 
