@@ -49,13 +49,19 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteButtonEnabled
+import androidx.wear.compose.remote.material3.previews.RemoteButtonTwoLineText
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithBorder
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIcon
+import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIconAndLongLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithIconAndSecondaryLabel
+import androidx.wear.compose.remote.material3.previews.RemoteButtonWithLabel
+import androidx.wear.compose.remote.material3.previews.RemoteButtonWithLongLabel
+import androidx.wear.compose.remote.material3.previews.RemoteButtonWithMultilineLabel
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithSecondaryLabel
 import androidx.wear.compose.remote.material3.previews.utils.createImage
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.runBlocking
@@ -82,7 +88,7 @@ class RemoteButtonTest {
     @Test
     fun button_enabled() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteButtonEnabled() }
@@ -90,9 +96,19 @@ class RemoteButtonTest {
     }
 
     @Test
+    fun button_two_lined_text() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonTwoLineText() }
+        }
+    }
+
+    @Test
     fun button_with_icon_and_label_and_secondary_label_rtl() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
             creationComposableWrapper = ComposableWrappers.rtl,
         ) {
@@ -103,7 +119,7 @@ class RemoteButtonTest {
     @Test
     fun button_disabled() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer {
@@ -121,7 +137,7 @@ class RemoteButtonTest {
     @Test
     fun button_overrides_colors() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val colors =
@@ -150,7 +166,7 @@ class RemoteButtonTest {
     @Test
     fun button_overrides_padding() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer {
@@ -168,7 +184,7 @@ class RemoteButtonTest {
     @Test
     fun button_overrides_size() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer {
@@ -186,7 +202,7 @@ class RemoteButtonTest {
     @Test
     fun button_overrides_textStyle() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer {
@@ -208,7 +224,7 @@ class RemoteButtonTest {
     @Test
     fun button_with_border() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteButtonWithBorder() }
@@ -218,7 +234,7 @@ class RemoteButtonTest {
     @Test
     fun button_with_circle_shape() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer {
@@ -280,7 +296,7 @@ class RemoteButtonTest {
     @Test
     fun button_enabled_container_background_image() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val backgroundImage =
@@ -303,7 +319,7 @@ class RemoteButtonTest {
     @Test
     fun button_disabled_container_background_image() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             val backgroundImage =
@@ -330,7 +346,7 @@ class RemoteButtonTest {
     @Test
     fun button_with_icon_and_label_and_secondary_label() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteButtonWithIconAndSecondaryLabel() }
@@ -340,7 +356,7 @@ class RemoteButtonTest {
     @Test
     fun button_with_icon_and_label() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteButtonWithIcon() }
@@ -348,9 +364,49 @@ class RemoteButtonTest {
     }
 
     @Test
+    fun button_with_label() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonWithLabel() }
+        }
+    }
+
+    @Test
+    fun button_with_multiline_label() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonWithMultilineLabel() }
+        }
+    }
+
+    @Test
+    fun button_with_long_label() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonWithLongLabel() }
+        }
+    }
+
+    @Test
+    fun button_with_icon_and_long_label() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonWithIconAndLongLabel() }
+        }
+    }
+
+    @Test
     fun button_with_label_and_secondary_label() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteButtonWithSecondaryLabel() }
@@ -366,7 +422,7 @@ class RemoteButtonTest {
             put("WearM3.onSurface", Color(0xFFE2E3DC).toArgb())
         }
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
             update = { player ->
                 colorOverrides.forEach { name, colorInt ->
