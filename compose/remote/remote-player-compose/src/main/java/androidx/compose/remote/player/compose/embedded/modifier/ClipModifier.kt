@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import kotlin.math.min
 
 @Composable
 internal fun Modifier.clipRect(op: ClipRectModifierOperation): Modifier {
@@ -52,7 +53,7 @@ internal fun Modifier.roundedClipRect(op: RoundedClipRectModifierOperation): Mod
     val behavior = LocalCoreDocument.current.densityBehavior
     val data = op.readDataReflection()
 
-    return this.clip(
+    val shape =
         RemoteRoundedClipShape(
             topStart = ClipCorner(rememberRemoteFloatAsState(data.x1Value), !data.x1.isNaN()),
             topEnd = ClipCorner(rememberRemoteFloatAsState(data.y1Value), !data.y1.isNaN()),
@@ -60,7 +61,10 @@ internal fun Modifier.roundedClipRect(op: RoundedClipRectModifierOperation): Mod
             bottomStart = ClipCorner(rememberRemoteFloatAsState(data.x2Value), !data.x2.isNaN()),
             densityBehavior = behavior,
         )
-    )
+    // remote-core applies the rounded clip to the component's complete paint output; DrawContent
+    // precedes this op in the wire modifier list, so appending would leave that draw node
+    // unclipped.
+    return Modifier.clip(shape).then(this)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -86,16 +90,43 @@ public data class RemoteRoundedClipShape(
         val bottomStartRadius =
             bottomStart.resolve(minDimension, fallback, density.density, densityBehavior)
 
+        val radiusScale =
+            roundedRectRadiusScale(
+                size,
+                topStartRadius,
+                topEndRadius,
+                bottomEndRadius,
+                bottomStartRadius,
+            )
+
         return Outline.Rounded(
             RoundRect(
                 rect = Rect(0f, 0f, size.width, size.height),
-                topLeft = CornerRadius(topStartRadius),
-                topRight = CornerRadius(topEndRadius),
-                bottomRight = CornerRadius(bottomEndRadius),
-                bottomLeft = CornerRadius(bottomStartRadius),
+                topLeft = CornerRadius(topStartRadius * radiusScale),
+                topRight = CornerRadius(topEndRadius * radiusScale),
+                bottomRight = CornerRadius(bottomEndRadius * radiusScale),
+                bottomLeft = CornerRadius(bottomStartRadius * radiusScale),
             )
         )
     }
+}
+
+/** Matches the radius normalization performed by Android's Path.addRoundRect in remote-core. */
+private fun roundedRectRadiusScale(
+    size: Size,
+    topStart: Float,
+    topEnd: Float,
+    bottomEnd: Float,
+    bottomStart: Float,
+): Float {
+    fun scaleFor(limit: Float, first: Float, second: Float): Float {
+        val sum = first + second
+        return if (sum > limit && sum != 0f) limit / sum else 1f
+    }
+    return min(
+        min(scaleFor(size.width, topStart, topEnd), scaleFor(size.width, bottomStart, bottomEnd)),
+        min(scaleFor(size.height, topStart, bottomStart), scaleFor(size.height, topEnd, bottomEnd)),
+    )
 }
 
 internal fun ClipCorner.resolve(

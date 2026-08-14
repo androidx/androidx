@@ -121,6 +121,30 @@ class CoreReflectionGuardTest {
             "$ops.layout.LoopOperation" to
                 listOf("mFromOut", "mUntilOut", "mStepOut", "mIndexVariableId"),
             "$ops.FloatFunctionCall" to listOf("mFunction", "mOutArgs"),
+            "$managers.CoreText" to
+                listOf(
+                    "mColorValue",
+                    "mFontSizeValue",
+                    "mType",
+                    "mFontWeightValue",
+                    "mFontStyle",
+                    "mTextAlignValue",
+                    "mOverflow",
+                    "mMaxLines",
+                    "mLetterSpacing",
+                    "mLineHeightMultiplier",
+                    "mLineHeightAdd",
+                    "mUnderline",
+                    "mStrikethrough",
+                    "mFontAxis",
+                    "mFontAxisValues",
+                    "mAutosize",
+                    "mMinFontSize",
+                    "mMaxFontSize",
+                    "mLineBreakStrategy",
+                    "mHyphenationFrequency",
+                    "mJustificationMode",
+                ),
         )
 
     @Test
