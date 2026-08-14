@@ -71,7 +71,7 @@ private constructor(
     private val unscaledGravityAlignedActivitySpace: Boolean = true,
 ) : SceneRuntime {
 
-    internal val nativeWrapper = SceneCoreOpenXrNative()
+    internal val nativeWrapper: SceneCoreOpenXrNative = SceneCoreOpenXrNative()
 
     internal var isDestroyed: Boolean = false
         private set
