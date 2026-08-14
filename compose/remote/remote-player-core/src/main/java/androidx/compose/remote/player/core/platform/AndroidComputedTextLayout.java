@@ -27,6 +27,7 @@ import org.jspecify.annotations.NonNull;
 @RestrictTo(LIBRARY_GROUP)
 public class AndroidComputedTextLayout implements RcPlatformServices.ComputedTextLayout {
     StaticLayout mStaticLayout;
+    float mLeft;
     float mWidth;
     float mHeight;
     int mLineCount;
@@ -38,7 +39,18 @@ public class AndroidComputedTextLayout implements RcPlatformServices.ComputedTex
             float height,
             int lineCount,
             boolean isHyphenatedText) {
+        this(staticLayout, 0f, width, height, lineCount, isHyphenatedText);
+    }
+
+    public AndroidComputedTextLayout(
+            @NonNull StaticLayout staticLayout,
+            float left,
+            float width,
+            float height,
+            int lineCount,
+            boolean isHyphenatedText) {
         mStaticLayout = staticLayout;
+        mLeft = left;
         mWidth = width;
         mHeight = height;
         mLineCount = lineCount;
@@ -54,6 +66,10 @@ public class AndroidComputedTextLayout implements RcPlatformServices.ComputedTex
     @NonNull
     public StaticLayout get() {
         return mStaticLayout;
+    }
+
+    public float getLeft() {
+        return mLeft;
     }
 
     @Override
