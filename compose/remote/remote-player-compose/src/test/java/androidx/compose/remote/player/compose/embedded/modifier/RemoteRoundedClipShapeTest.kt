@@ -178,4 +178,50 @@ class RemoteRoundedClipShapeTest {
         val outline2 = shape.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
         assertEquals(40f, outline2.roundRect.topLeftCornerRadius.x)
     }
+
+    @Test
+    fun scalesRadiiProportionallyWhenRadiiExceedDimensions() {
+        val topStart = mutableStateOf(80f)
+        val topEnd = mutableStateOf(80f)
+        val bottomEnd = mutableStateOf(10f)
+        val bottomStart = mutableStateOf(10f)
+
+        val shape =
+            RemoteRoundedClipShape(
+                corner(topStart, literal = false),
+                corner(topEnd, literal = false),
+                corner(bottomEnd, literal = false),
+                corner(bottomStart, literal = false),
+                densityBehavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS,
+            )
+        // size.width = 100f, topStart (80) + topEnd (80) = 160 > 100
+        // scale = 100 / 160 = 0.625 -> 80 * 0.625 = 50f
+        val outline = shape.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
+
+        assertEquals(50f, outline.roundRect.topLeftCornerRadius.x)
+        assertEquals(50f, outline.roundRect.topRightCornerRadius.x)
+    }
+
+    @Test
+    fun doesNotScaleRadiiWhenWithinDimensions() {
+        val topStart = mutableStateOf(30f)
+        val topEnd = mutableStateOf(40f)
+        val bottomEnd = mutableStateOf(20f)
+        val bottomStart = mutableStateOf(10f)
+
+        val shape =
+            RemoteRoundedClipShape(
+                corner(topStart, literal = false),
+                corner(topEnd, literal = false),
+                corner(bottomEnd, literal = false),
+                corner(bottomStart, literal = false),
+                densityBehavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS,
+            )
+        val outline = shape.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
+
+        assertEquals(30f, outline.roundRect.topLeftCornerRadius.x)
+        assertEquals(40f, outline.roundRect.topRightCornerRadius.x)
+        assertEquals(20f, outline.roundRect.bottomRightCornerRadius.x)
+        assertEquals(10f, outline.roundRect.bottomLeftCornerRadius.x)
+    }
 }

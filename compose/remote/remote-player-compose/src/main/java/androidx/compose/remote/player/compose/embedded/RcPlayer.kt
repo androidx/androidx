@@ -527,6 +527,10 @@ public fun RcPlayer(
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     customPlugins: CustomPluginRegistry? = null,
 ) {
+    check(RemoteComposePlayerFlags.isEmbeddedPlayerEnabled) {
+        "Embedded player is disabled. Set RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true to enable."
+    }
+
     val coreDoc =
         remember(capturedDocument) {
             CoreDocument(RemoteClock.SYSTEM).apply {
