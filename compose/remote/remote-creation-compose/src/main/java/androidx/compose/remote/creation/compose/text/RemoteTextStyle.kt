@@ -23,6 +23,8 @@ import androidx.compose.remote.creation.compose.state.asRemoteTextUnit
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.AndroidFont
+import androidx.compose.ui.text.font.FontListFontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
@@ -31,6 +33,7 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.util.fastFirstOrNull
 
 /**
  * A remote-aware text style that mirrors [androidx.compose.ui.text.TextStyle] but uses remote types
@@ -193,10 +196,18 @@ constructor(
                 if (style.lineHeight == TextUnit.Unspecified) null
                 else style.lineHeight.asRemoteTextUnit()
             val featureList = parseFontFeatureSettings(style.fontFeatureSettings)
+
             val fontVariationSettings =
                 if (featureList.isNotEmpty()) {
                     FontVariation.Settings(*featureList.toTypedArray())
-                } else null
+                } else {
+                    val fontWithSettings =
+                        (style.fontFamily as? FontListFontFamily)?.fonts?.fastFirstOrNull { font ->
+                            (font as? AndroidFont)?.variationSettings?.settings?.isNotEmpty() ==
+                                true
+                        }
+                    (fontWithSettings as? AndroidFont)?.variationSettings
+                }
             return RemoteTextStyle(
                 color = color,
                 fontSize = fontSize,
