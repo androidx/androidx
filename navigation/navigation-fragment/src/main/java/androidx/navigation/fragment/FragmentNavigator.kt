@@ -93,8 +93,21 @@ public open class FragmentNavigator(
         get() = state.backStack
 
     private val fragmentObserver = LifecycleEventObserver { source, event ->
-        if (event == Lifecycle.Event.ON_DESTROY) {
-            val fragment = source as Fragment
+        val fragment = source as Fragment
+        if (event == Lifecycle.Event.ON_RESUME && fragment.view == null) {
+            val entry =
+                state.transitionsInProgress.value.lastOrNull { entry -> entry.id == fragment.tag }
+            if (entry != null && state.backStack.value.contains(entry)) {
+                if (isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(
+                        TAG,
+                        "Marking transition complete for entry $entry " +
+                            "due to viewless fragment $source lifecycle reaching RESUMED",
+                    )
+                }
+                state.markTransitionComplete(entry)
+            } 
+        } else if (event == Lifecycle.Event.ON_DESTROY) {
             val entry =
                 state.transitionsInProgress.value.lastOrNull { entry -> entry.id == fragment.tag }
             if (entry != null) {
