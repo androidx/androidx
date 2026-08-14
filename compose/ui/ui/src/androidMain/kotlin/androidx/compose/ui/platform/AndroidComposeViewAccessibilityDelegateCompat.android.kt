@@ -3473,8 +3473,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         ): Boolean {
             return !info.text.isNullOrEmpty() ||
                 semanticsNode.unmergedConfig.contains(SemanticsProperties.EditableText) ||
-                semanticsNode.unmergedConfig.contains(SemanticsActions.GetTextLayoutResult) ||
-                semanticsNode.unmergedConfig.contains(SemanticsProperties.BackgroundColor)
+                semanticsNode.unmergedConfig.contains(SemanticsActions.GetTextLayoutResult)
         }
 
         @JvmStatic
@@ -3491,12 +3490,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             val linkColor = node.getLinkTextColor()
             if (linkColor != null) {
                 builder.setLinkTextColor(linkColor)
-            }
-
-            // 4. Background Color
-            val backgroundColor = node.getBackgroundColor()
-            if (backgroundColor != null) {
-                builder.setBackgroundColor(backgroundColor)
             }
 
             info.extraRenderingInfo = builder.build()
