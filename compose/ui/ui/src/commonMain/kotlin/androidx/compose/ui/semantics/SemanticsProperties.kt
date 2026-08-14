@@ -21,7 +21,6 @@ import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.autofill.FillableData
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
@@ -300,13 +299,6 @@ public object SemanticsProperties {
 
     /** @see SemanticsPropertyReceiver.maxTextLength */
     public val MaxTextLength: SemanticsPropertyKey<Int> = SemanticsPropertyKey<Int>("MaxTextLength")
-
-    /** @see SemanticsPropertyReceiver.backgroundColor */
-    public val BackgroundColor: SemanticsPropertyKey<ColorProducer> =
-        SemanticsPropertyKey<ColorProducer>(
-            name = "BackgroundColor",
-            mergePolicy = { parentValue, _ -> parentValue },
-        )
 
     /** @see SemanticsPropertyReceiver.shape */
     public val Shape: SemanticsPropertyKey<Shape> =
@@ -1022,14 +1014,6 @@ public var SemanticsPropertyReceiver.hintText: String by SemanticsProperties.Hin
  */
 public var SemanticsPropertyReceiver.stateDescription: String by
     SemanticsProperties.StateDescription
-
-/**
- * Background color of the node.
- *
- * This must incorporate the background's alpha property as well as the color's alpha, if provided.
- */
-public var SemanticsPropertyReceiver.backgroundColor: ColorProducer by
-    SemanticsProperties.BackgroundColor
 
 /**
  * The semantics represents a range of possible values with a current value. For example, when used
