@@ -67,6 +67,23 @@ private fun RemoteButtonEnabledPreview(
 
 @Composable
 @RemoteComposable
+fun RemoteButtonTwoLineText() {
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.buttonSizeModifier(),
+        enabled = true.rb,
+        content = { RemoteText("Long label that\nspans two lines".rs) },
+    )
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonTwoLineTextPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonTwoLineText() } }
+
+@Composable
+@RemoteComposable
 fun RemoteButtonWithBorder() {
     RemoteButton(
         onClick = testAction,
@@ -83,6 +100,38 @@ fun RemoteButtonWithBorder() {
 private fun RemoteButtonWithBorderPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithBorder() } }
+
+@Composable
+@RemoteComposable
+fun RemoteButtonWithLabel() {
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.buttonSizeModifier(),
+        label = { RemoteText("label".rs) },
+    )
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonWithLabelPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithLabel() } }
+
+@Composable
+@RemoteComposable
+fun RemoteButtonWithMultilineLabel() {
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.buttonSizeModifier(),
+        label = { RemoteText("First Line\nSecond Line".rs) },
+    )
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonWithMultilineLabelPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithMultilineLabel() } }
 
 @Composable
 @RemoteComposable
@@ -144,6 +193,47 @@ private fun RemoteButtonWithIconAndSecondaryLabelPreview(
     RemoteContentPreview(profile = profile) {
         Container { RemoteButtonWithIconAndSecondaryLabel() }
     }
+
+@Composable
+@RemoteComposable
+fun RemoteButtonWithLongLabel() {
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.buttonSizeModifier(),
+        label = {
+            RemoteText("This is a longer button label text that wraps onto a second line".rs)
+        },
+    )
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonWithLongLabelPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithLongLabel() } }
+
+@Composable
+@RemoteComposable
+fun RemoteButtonWithIconAndLongLabel() {
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.buttonSizeModifier(),
+        icon = {
+            RemoteIcon(
+                imageVector = TestImageVectors.VolumeUp,
+                contentDescription = null,
+                tint = RemoteButtonDefaults.buttonColors().iconColor,
+            )
+        },
+        label = { RemoteText("This is a longer button label text with an icon".rs) },
+    )
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonWithIconAndLongLabelPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithIconAndLongLabel() } }
 
 @Composable
 @RemoteComposable

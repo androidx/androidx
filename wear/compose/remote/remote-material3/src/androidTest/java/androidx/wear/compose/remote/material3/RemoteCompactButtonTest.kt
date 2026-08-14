@@ -25,7 +25,6 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
 import androidx.compose.ui.geometry.Size
@@ -40,6 +39,7 @@ import androidx.wear.compose.remote.material3.previews.RemoteCompactButtonWithLa
 import androidx.wear.compose.remote.material3.previews.RemoteCompactButtonWithShape
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.wear.compose.remote.material3.util.TestProfiles
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -63,7 +63,7 @@ class RemoteCompactButtonTest {
     @Test
     fun compact_button_disabled() {
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer {
@@ -80,6 +80,7 @@ class RemoteCompactButtonTest {
     @Test
     fun compact_button_icon_and_label_rtl() {
         remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
             creationComposableWrapper = ComposableWrappers.rtl,
         ) {
@@ -89,28 +90,40 @@ class RemoteCompactButtonTest {
 
     @Test
     fun compact_button_icon_only() {
-        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
             ComponentContainer { RemoteCompactButtonWithIcon() }
         }
     }
 
     @Test
     fun compact_button_label_only() {
-        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
             ComponentContainer { RemoteCompactButtonWithLabel() }
         }
     }
 
     @Test
     fun compact_button_icon_and_label() {
-        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
             ComponentContainer { RemoteCompactButtonWithIconAndLabel() }
         }
     }
 
     @Test
     fun compact_button_with_shape() {
-        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
             ComponentContainer { RemoteCompactButtonWithShape() }
         }
     }
@@ -124,7 +137,7 @@ class RemoteCompactButtonTest {
             put("WearM3.onSurface", Color(0xFFE2E3DC).toArgb())
         }
         remoteComposeTestRule.runScreenshotTest(
-            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            profile = TestProfiles.wearWidgetsWithCoreText,
             remoteCreationDisplayInfo = creationDisplayInfo,
             update = { player ->
                 colorOverrides.forEach { name, colorInt ->

@@ -119,7 +119,7 @@ public fun RemoteButton(
 ) {
     RemoteButtonImpl(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.buttonSizeModifier(),
         colors = colors,
         enabled = enabled,
         border = border,
@@ -179,7 +179,7 @@ public fun RemoteButton(
 ) {
     RemoteButtonImpl(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.buttonSizeModifier(),
         enabled = enabled,
         containerPainter = containerPainter,
         disabledContainerPainter = disabledContainerPainter,
@@ -270,7 +270,7 @@ public fun RemoteButton(
 ): Unit =
     RemoteButtonImpl(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.buttonSizeModifier(),
         secondaryLabelContent =
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled),
@@ -385,55 +385,70 @@ public fun RemoteCompactButton(
                 .compactButtonModifier()
                 .padding(tapPadding)
                 .clip(shape = shape)
-                .clickable(onClick, enabled = enabled.constantValueOrNull ?: false),
+                .clickable(
+                    onClick,
+                    enabled = enabled.constantValueOrNull ?: false && onClick != Action.Empty,
+                ),
         contentAlignment = RemoteAlignment.Center,
     ) {
         if (label != null) {
             RemoteButtonImpl(
                 onClick = Action.Empty,
-                modifier = RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight),
-                secondaryLabelContent = null,
-                icon = icon,
+                modifier =
+                    RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight)
+                        .widthIn(min = RemoteButtonDefaults.CompactButtonVisibleHeight),
+                colors = colors,
+                border = border,
+                borderColor = borderColor,
+                contentPadding = contentPadding,
                 enabled = enabled,
                 shape = shape,
                 labelFont = RemoteMaterialTheme.typography.labelSmall,
                 containerPainter = null,
                 disabledContainerPainter = null,
-                colors = colors,
-                border = border,
-                borderColor = borderColor,
-                contentPadding = contentPadding,
-                labelContent =
-                    provideScopeContent(
-                        contentColor = colors.contentColor(enabled),
-                        textStyle = RemoteMaterialTheme.typography.labelSmall,
-                        textConfiguration =
-                            TextConfiguration(
-                                textAlign = TextAlign.Start,
-                                overflow = TextOverflow.Ellipsis,
-                                maxLines = 3,
-                            ),
-                        content = label,
-                    ),
-            )
+                horizontalArrangement =
+                    if (icon != null) RemoteArrangement.Start else RemoteArrangement.Center,
+            ) {
+                if (icon != null) {
+                    RemoteBox(
+                        modifier = RemoteModifier.wrapContentSize(),
+                        contentAlignment = RemoteAlignment.Center,
+                        content = icon,
+                    )
+                    RemoteBox(RemoteModifier.size(RemoteButtonDefaults.CompactButtonIconSpacing))
+                }
+                RemoteRow(
+                    content =
+                        provideScopeContent(
+                            contentColor = colors.contentColor(enabled),
+                            textStyle = RemoteMaterialTheme.typography.labelSmall,
+                            textConfiguration =
+                                TextConfiguration(
+                                    textAlign =
+                                        if (icon != null) TextAlign.Start else TextAlign.Center,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                ),
+                            content = label,
+                        )
+                )
+            }
         } else {
-            // Icon only compact buttons have their own layout with a specific width and center
-            // aligned
-            // content. We use the base simple single slot Button under the covers.
             RemoteButtonImpl(
                 onClick = Action.Empty,
                 modifier =
                     RemoteModifier.height(RemoteButtonDefaults.CompactButtonVisibleHeight)
                         .width(RemoteButtonDefaults.IconOnlyCompactButtonWidth),
+                colors = colors,
+                border = border,
+                borderColor = borderColor,
+                contentPadding = contentPadding,
                 enabled = enabled,
                 shape = shape,
                 labelFont = RemoteMaterialTheme.typography.labelSmall,
                 containerPainter = null,
                 disabledContainerPainter = null,
-                colors = colors,
-                border = border,
-                borderColor = borderColor,
-                contentPadding = contentPadding,
+                horizontalArrangement = RemoteArrangement.Center,
             ) {
                 RemoteBox(
                     modifier = RemoteModifier.fillMaxSize().wrapContentSize(),
@@ -466,6 +481,7 @@ private fun RemoteButtonImpl(
     shape: RemoteShape,
     contentPadding: RemotePaddingValues,
     labelFont: RemoteTextStyle,
+    horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Center,
     content: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
     val containerModifier =
@@ -479,7 +495,7 @@ private fun RemoteButtonImpl(
 
     RemoteRow(
         verticalAlignment = RemoteAlignment.CenterVertically,
-        horizontalArrangement = RemoteArrangement.Center,
+        horizontalArrangement = horizontalArrangement,
         modifier =
             modifier
                 .drawWithContent {
@@ -519,8 +535,12 @@ private fun RemoteButtonImpl(
     shape: RemoteShape,
     contentPadding: RemotePaddingValues,
     labelFont: RemoteTextStyle,
+    iconSpacing: RemoteDp = RemoteButtonDefaults.IconSpacing,
     labelContent: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
 ) {
+    val hasIconOrSecondary = icon != null || secondaryLabelContent != null
+    val arrangement = if (hasIconOrSecondary) RemoteArrangement.Start else RemoteArrangement.Center
+
     RemoteButtonImpl(
         onClick = onClick,
         modifier = modifier,
@@ -533,6 +553,7 @@ private fun RemoteButtonImpl(
         border = border,
         borderColor = borderColor,
         contentPadding = contentPadding,
+        horizontalArrangement = arrangement,
     ) {
         if (icon != null) {
             RemoteBox(
@@ -540,14 +561,18 @@ private fun RemoteButtonImpl(
                 contentAlignment = RemoteAlignment.Center,
                 content = icon,
             )
-            RemoteBox(RemoteModifier.size(RemoteButtonDefaults.IconSpacing))
+            RemoteBox(RemoteModifier.size(iconSpacing))
         }
-        RemoteColumn(modifier = RemoteModifier) {
-            RemoteRow(content = labelContent)
-            if (secondaryLabelContent != null) {
-                RemoteBox(RemoteModifier.size(1.rdp))
-                RemoteRow(content = secondaryLabelContent)
+        if (hasIconOrSecondary) {
+            RemoteColumn {
+                RemoteRow(content = labelContent)
+                if (secondaryLabelContent != null) {
+                    RemoteBox(RemoteModifier.size(1.rdp))
+                    RemoteRow(content = secondaryLabelContent)
+                }
             }
+        } else {
+            RemoteRow(content = labelContent)
         }
     }
 }
@@ -677,6 +702,7 @@ public object RemoteButtonDefaults {
      */
     public val CompactButtonHeight: RemoteDp = 48.rdp
     internal val CompactButtonVisibleHeight: RemoteDp = 32.rdp
+    internal val CompactButtonIconSpacing: RemoteDp = 4.rdp
 
     /**
      * The default padding to be provided around a [RemoteCompactButton] in order to ensure that its

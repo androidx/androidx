@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.vector.RootGroupName
 import androidx.compose.ui.graphics.vector.VectorGroup
 import androidx.compose.ui.graphics.vector.VectorPath
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.isSpecified
 
 /**
  * A [RemotePainter] that support drawing either a Compose [ImageVector] or a [RemoteImageVector]
@@ -54,6 +55,8 @@ public class RemoteVectorPainter : RemotePainter() {
     internal var vector = RemoteVectorComponent(root)
 
     internal var autoMirror = false
+
+    internal var defaultSize: RemoteSize = RemoteSize(DefaultIconSize.rf, DefaultIconSize.rf)
 
     /** configures the intrinsic tint that may be defined on a VectorPainter */
     internal var intrinsicColorFilter: RemoteColorFilter?
@@ -91,7 +94,7 @@ public class RemoteVectorPainter : RemotePainter() {
     }
 
     override val intrinsicSize: RemoteSize
-        get() = RemoteSize(DefaultIconSize.rf, DefaultIconSize.rf)
+        get() = defaultSize
 }
 
 /**
@@ -127,12 +130,14 @@ internal fun RemoteVectorPainter.configureRemoteVectorPainter(
     name: String = RootGroupName,
     intrinsicColorFilter: RemoteColorFilter?,
     autoMirror: Boolean = false,
+    defaultSize: RemoteSize = RemoteSize(DefaultIconSize.rf, DefaultIconSize.rf),
 ): RemoteVectorPainter = apply {
     this.root = root
     this.autoMirror = autoMirror
     this.intrinsicColorFilter = intrinsicColorFilter
     this.viewportSize = viewportSize
     this.name = name
+    this.defaultSize = defaultSize
 }
 
 /** Helper method to create a VectorPainter instance from a RemoteImageVector */
@@ -150,6 +155,7 @@ internal fun createVectorPainterFromRemoteImageVector(
             name = imageVector.name,
             intrinsicColorFilter = RemoteBlendModeColorFilter(tintColor, blendMode),
             autoMirror = imageVector.autoMirror,
+            defaultSize = viewport,
         )
 }
 
@@ -160,8 +166,14 @@ internal fun createVectorPainterFromImageVector(
 ): RemoteVectorPainter {
     val root = RemoteGroupComponent().createGroupComponent(imageVector.root)
 
-    val defaultSize =
-        RemoteSize(imageVector.defaultWidth.asRdp().toPx(), imageVector.defaultWidth.asRdp().toPx())
+    val defaultWidth =
+        if (imageVector.defaultWidth.isSpecified) imageVector.defaultWidth.asRdp().value
+        else DefaultIconSize.rf
+    val defaultHeight =
+        if (imageVector.defaultHeight.isSpecified) imageVector.defaultHeight.asRdp().value
+        else DefaultIconSize.rf
+    val defaultSize = RemoteSize(defaultWidth, defaultHeight)
+
     val viewportWidth =
         if (imageVector.viewportWidth.isNaN()) defaultSize.width else imageVector.viewportWidth.rf
     val viewportHeight =
@@ -175,6 +187,7 @@ internal fun createVectorPainterFromImageVector(
             name = imageVector.name,
             intrinsicColorFilter = RemoteBlendModeColorFilter(tintColor, BlendMode.SrcIn),
             autoMirror = imageVector.autoMirror,
+            defaultSize = defaultSize,
         )
 }
 
