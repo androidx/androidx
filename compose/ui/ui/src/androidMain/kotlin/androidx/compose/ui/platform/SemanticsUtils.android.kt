@@ -154,3 +154,28 @@ internal fun SemanticsNode.getLinkTextColor(): Int? {
         .fastFirstOrNull { it.isSpecified }
         ?.toArgb()
 }
+
+/**
+ * Returns any background color available on this node, including the background of a TextStyle.
+ *
+ * Note that the TextStyle's background will "win" over the modifier background color, since it will
+ * be rendered on top. This means that the returned color might not accurately match the final
+ * render if it is semitransparent; i.e. we do not do any calculations to blend multiple background
+ * colors.
+ */
+internal fun SemanticsNode.getBackgroundColor(): Int? {
+    val textLayoutResult = getTextLayoutResult(unmergedConfig)
+    if (textLayoutResult != null) {
+        val styleColor = textLayoutResult.layoutInput.style.background
+        if (styleColor.isSpecified) {
+            return styleColor.toArgb()
+        }
+    }
+
+    val backgroundColorProvider = unmergedConfig.getOrNull(SemanticsProperties.BackgroundColor)
+    val backgroundColor = backgroundColorProvider?.invoke()
+    if (backgroundColor != null && backgroundColor.isSpecified) {
+        return backgroundColor.toArgb()
+    }
+    return null
+}
