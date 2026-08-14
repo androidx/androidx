@@ -174,13 +174,13 @@ package androidx.savedstate {
     method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String key);
     method @InaccessibleFromKotlin @MainThread public boolean isRestored();
     method @MainThread public void registerSavedStateProvider(String key, androidx.savedstate.SavedStateRegistry.SavedStateProvider provider);
-    method @MainThread public void runOnNextRecreation(Class<? extends androidx.savedstate.SavedStateRegistry.AutoRecreated> clazz);
+    method @Deprecated @MainThread public void runOnNextRecreation(Class<? extends androidx.savedstate.SavedStateRegistry.AutoRecreated> clazz);
     method @MainThread public void unregisterSavedStateProvider(String key);
     property @MainThread public boolean isRestored;
   }
 
-  public static interface SavedStateRegistry.AutoRecreated {
-    method public void onRecreated(androidx.savedstate.SavedStateRegistryOwner owner);
+  @Deprecated public static interface SavedStateRegistry.AutoRecreated {
+    method @Deprecated public void onRecreated(androidx.savedstate.SavedStateRegistryOwner owner);
   }
 
   public static fun interface SavedStateRegistry.SavedStateConsumer {

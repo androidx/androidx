@@ -20,6 +20,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.savedstate.SavedStateRegistry.AutoRecreated
 
+@Suppress("DEPRECATION")
 internal class Recreator(private val owner: SavedStateRegistryOwner) : LifecycleEventObserver {
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
