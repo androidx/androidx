@@ -28,7 +28,14 @@ plugins {
 }
 
 dependencies {
-    // Add dependencies here
+    api(libs.androidx.annotation)
+    implementation(libs.kotlinCoroutinesCore)
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
 }
 
 android {
@@ -42,4 +49,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2026"
     description = "Enable adaptive glanceable widgets across various form factors"
+    enableRobolectric()
 }
