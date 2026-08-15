@@ -239,13 +239,21 @@ public abstract class RemoteString internal constructor(cacheKey: RemoteStateCac
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.Uppercase, this),
             object : LazyRemoteString {
-                override fun reserveTextId(creationState: RemoteComposeCreationState) =
-                    creationState.document.textTransform(
+                override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
+                    // If the computed code points for this string are already invariant under
+                    // uppercase (e.g. digits, symbols, or uppercase characters), then the
+                    // transform is a NOP and can be safely elided.
+                    val codePoints = this@RemoteString.computeRequiredCodePointSet(creationState)
+                    if (codePoints != null && codePoints.all { it.uppercase() == it }) {
+                        return this@RemoteString.getIdForCreationState(creationState)
+                    }
+                    return creationState.document.textTransform(
                         getIdForCreationState(creationState),
                         0f,
                         -1f,
                         TextTransform.TEXT_TO_UPPERCASE,
                     )
+                }
 
                 // Is this correct in all locales?
                 override fun computeRequiredCodePointSet(
@@ -273,13 +281,21 @@ public abstract class RemoteString internal constructor(cacheKey: RemoteStateCac
             constantValueOrNull = null,
             cacheKey = RemoteOperationCacheKey.create(OperationKey.Lowercase, this),
             object : LazyRemoteString {
-                override fun reserveTextId(creationState: RemoteComposeCreationState) =
-                    creationState.document.textTransform(
+                override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
+                    // If the computed code points for this string are already invariant under
+                    // lowercase (e.g. digits, symbols, or lowercase characters), then the
+                    // transform is a NOP and can be safely elided.
+                    val codePoints = this@RemoteString.computeRequiredCodePointSet(creationState)
+                    if (codePoints != null && codePoints.all { it.lowercase() == it }) {
+                        return this@RemoteString.getIdForCreationState(creationState)
+                    }
+                    return creationState.document.textTransform(
                         getIdForCreationState(creationState),
                         0f,
                         -1f,
                         TextTransform.TEXT_TO_LOWERCASE,
                     )
+                }
 
                 // Is this correct in all locales?
                 override fun computeRequiredCodePointSet(
