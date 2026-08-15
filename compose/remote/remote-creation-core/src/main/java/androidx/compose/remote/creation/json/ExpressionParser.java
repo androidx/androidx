@@ -129,7 +129,17 @@ class ExpressionParser {
                     if (isOperator(op)) {
                         output.add(getOperatorOp(op));
                     } else if (isFunction(op)) {
-                        output.add(getFunctionOp(op));
+                        int fOp = getFunctionOp(op);
+                        if (fOp != 0) {
+                            output.add(fOp);
+                        }
+                    }
+                }
+                if (!stack.isEmpty() && stack.peek().equals("(")) {
+                    int size = stack.size();
+                    if (size >= 2 && stack.get(size - 2).equals("seed")) {
+                        output.add(AnimatedFloatExpression.OFFSET + 40); // OP_RAND_SEED
+                        stack.set(size - 2, "seed_2arg");
                     }
                 }
                 lastWasOperator = true;
@@ -159,13 +169,22 @@ class ExpressionParser {
                     if (isOperator(op)) {
                         output.add(getOperatorOp(op));
                     } else if (isFunction(op)) {
-                        output.add(getFunctionOp(op));
+                        int fOp = getFunctionOp(op);
+                        if (fOp != 0) {
+                            output.add(fOp);
+                        }
                     }
                 }
                 if (stack.isEmpty()) throw new JSONException("Mismatched parentheses");
                 stack.pop();
                 if (!stack.isEmpty() && isFunction(stack.peek())) {
-                    output.add(getFunctionOp(stack.pop()));
+                    String fn = stack.pop();
+                    if (fn.equals("seed")) {
+                        output.add(AnimatedFloatExpression.OFFSET + 40); // OP_RAND_SEED
+                        output.add(1.0f);
+                    } else if (!fn.equals("seed_2arg")) {
+                        output.add(getFunctionOp(fn));
+                    }
                 }
                 lastWasOperator = false;
             } else {
@@ -177,7 +196,12 @@ class ExpressionParser {
             if (isOperator(op)) {
                 output.add(getOperatorOp(op));
             } else if (isFunction(op)) {
-                output.add(getFunctionOp(op));
+                if (op.equals("seed")) {
+                    output.add(AnimatedFloatExpression.OFFSET + 40);
+                    output.add(1.0f);
+                } else if (!op.equals("seed_2arg")) {
+                    output.add(getFunctionOp(op));
+                }
             }
         }
         if (DEBUG) {
@@ -646,11 +670,16 @@ class ExpressionParser {
                 || token.equals("spline") || token.equals("arraySpline") || token.equals(
                 "splineLoop") || token.equals("anim") || token.equals("arrayLength")
                 || token.equals("arraySum") || token.equals("arraySumSqr") || token.equals(
-                "arraySumXY") || token.equals("arrayGet") || token.equals("ifElse");
+                "arraySumXY") || token.equals("arrayGet") || token.equals("ifElse")
+                || token.equals("seed") || token.equals("seed_2arg");
     }
 
     private int getFunctionOp(String token) {
         switch (token) {
+            case "seed":
+                return AnimatedFloatExpression.OFFSET + 40;
+            case "seed_2arg":
+                return 0;
             case "sin":
                 return AnimatedFloatExpression.OFFSET + 18;
             case "cos":
