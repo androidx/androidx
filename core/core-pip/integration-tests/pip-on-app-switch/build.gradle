@@ -38,6 +38,7 @@ dependencies {
     // TODO: Resolve with version catalog
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
     implementation(libs.media3Exoplayer)
     implementation(libs.media3Ui)
 }
