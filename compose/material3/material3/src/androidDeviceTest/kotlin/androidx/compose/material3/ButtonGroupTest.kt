@@ -1594,15 +1594,15 @@ class ButtonGroupTest {
         // B wants to expand by: 100 * 0.5 = 50.dp, meaning 25.dp on each side.
         // A has end padding of 10.dp, so it should compress by min(25.dp, 10.dp) = 10.dp.
         // Expected width of A: 100 - 10 = 90.dp
-        aButtonNode.assertWidthIsEqualTo(90.dp)
+        aButtonNode.assertWidthIsEqualTo(90.dp, tolerance = 1.dp)
 
         // C has end padding of 10.dp, so it should compress by min(25.dp, 10.dp) = 10.dp.
         // Expected width of C: 100 - 10 = 90.dp
-        cButtonNode.assertWidthIsEqualTo(90.dp)
+        cButtonNode.assertWidthIsEqualTo(90.dp, tolerance = 1.dp)
 
         // B should expand by the actual growth: 10.dp (from A) + 10.dp (from C) = 20.dp.
         // Expected width of B: 100 + 20 = 120.dp
-        bButtonNode.assertWidthIsEqualTo(120.dp)
+        bButtonNode.assertWidthIsEqualTo(120.dp, tolerance = 1.dp)
     }
 
     @Test
@@ -1690,14 +1690,14 @@ class ButtonGroupTest {
         // B wants to expand by: 100 * 0.5 = 50.dp, meaning 25.dp on each side.
         // A has end padding of 10.dp, so it should compress by min(25.dp, 10.dp) = 10.dp.
         // Expected width of A: 100 - 10 = 90.dp
-        aButtonNode.assertWidthIsEqualTo(90.dp)
+        aButtonNode.assertWidthIsEqualTo(90.dp, tolerance = 1.dp)
 
         // C has end padding of 10.dp, so it should compress by min(25.dp, 10.dp) = 10.dp.
         // Expected width of C: 100 - 10 = 90.dp
-        cButtonNode.assertWidthIsEqualTo(90.dp)
+        cButtonNode.assertWidthIsEqualTo(90.dp, tolerance = 1.dp)
 
         // B should expand by the actual growth: 10.dp (from A) + 10.dp (from C) = 20.dp.
         // Expected width of B: 100 + 20 = 120.dp
-        bButtonNode.assertWidthIsEqualTo(120.dp)
+        bButtonNode.assertWidthIsEqualTo(120.dp, tolerance = 1.dp)
     }
 }

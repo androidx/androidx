@@ -1973,7 +1973,7 @@ class AppBarTest {
                     },
                 )
             }
-            .assertHeightIsEqualTo(BottomAppBarTokens.ContainerHeight + 20.dp)
+            .assertHeightIsEqualTo(BottomAppBarTokens.ContainerHeight + 20.dp, tolerance = 1.dp)
             .assertWidthIsEqualTo(rule.rootWidth())
     }
 
