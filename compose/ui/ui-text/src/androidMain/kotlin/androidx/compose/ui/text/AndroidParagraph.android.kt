@@ -100,8 +100,6 @@ import androidx.compose.ui.unit.sp
 import java.util.Locale as JavaLocale
 import kotlin.math.abs
 import kotlin.math.ceil
-import kotlin.math.max
-import kotlin.math.min
 
 /** Android specific implementation for [Paragraph] */
 // NOTE(text-perf-review): I see most of the APIs in this class just delegate to TextLayout or to
@@ -656,7 +654,7 @@ internal class AndroidParagraph(
             setTextDecoration(textDecoration)
         }
 
-        canvas.withTranslationRun(topOffset, ::paint)
+        paint(topOffset, canvas)
     }
 
     override fun paint(
@@ -676,7 +674,7 @@ internal class AndroidParagraph(
             this.blendMode = blendMode
         }
 
-        canvas.withTranslationRun(topOffset, ::paint)
+        paint(topOffset, canvas)
 
         textPaint.blendMode = currBlendMode
     }
@@ -699,33 +697,27 @@ internal class AndroidParagraph(
             this.blendMode = blendMode
         }
 
-        canvas.withTranslationRun(topOffset, ::paint)
+        paint(topOffset, canvas)
 
         textPaint.blendMode = currBlendMode
     }
 
-    private fun Canvas.withTranslationRun(topOffset: Float, block: (Canvas) -> Unit) {
-        if (topOffset != 0f) {
-            save()
-            translate(0f, topOffset)
-            block(this)
-            restore()
-        } else {
-            block(this)
+    private fun paint(topOffset: Float, canvas: Canvas) =
+        with(canvas) {
+            if (didExceedMaxLines || topOffset != 0f) {
+                save()
+                if (didExceedMaxLines) {
+                    clipRect(0f, 0f, width, height)
+                }
+                if (topOffset != 0f) {
+                    translate(0f, topOffset)
+                }
+                layout.paint(this.nativeCanvas)
+                restore()
+            } else {
+                layout.paint(this.nativeCanvas)
+            }
         }
-    }
-
-    private fun paint(canvas: Canvas) {
-        val nativeCanvas = canvas.nativeCanvas
-        if (didExceedMaxLines) {
-            nativeCanvas.save()
-            nativeCanvas.clipRect(0f, 0f, width, height)
-        }
-        layout.paint(nativeCanvas)
-        if (didExceedMaxLines) {
-            nativeCanvas.restore()
-        }
-    }
 
     private fun constructTextLayout(
         alignment: Int,
