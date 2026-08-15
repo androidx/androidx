@@ -92,22 +92,28 @@ class ResourceParser {
                         float val = mWriter.addComponentWidthValue();
                         mWriter.setFloatName(Utils.idFromNan(val), name);
                         mParser.mVariables.put(name, val);
+                        mParser.recordVariable(name, Utils.idFromNan(val));
                         return;
                     } else if (s.equals("height")) {
                         float val = mWriter.addComponentHeightValue();
                         mWriter.setFloatName(Utils.idFromNan(val), name);
                         mParser.mVariables.put(name, val);
+                        mParser.recordVariable(name, Utils.idFromNan(val));
                         return;
                     } else if (s.equals("fontSize")) {
                         float val = Utils.asNan(RemoteContext.ID_FONT_SIZE);
                         mWriter.setFloatName(Utils.idFromNan(val), name);
                         mParser.mVariables.put(name, val);
+                        mParser.recordVariable(name, RemoteContext.ID_FONT_SIZE);
                         return;
                     }
                 }
                 float val = mParser.parseFloat(value);
                 if (Float.isNaN(val)) {
                     mWriter.setFloatName(Utils.idFromNan(val), name);
+                    mParser.recordVariable(name, Utils.idFromNan(val));
+                } else {
+                    mParser.recordVariable(name, (int) val);
                 }
                 mParser.mVariables.put(name, val);
             });
@@ -143,11 +149,13 @@ class ResourceParser {
                                 mWriter.setColorName(id, name);
                             }
                             mParser.mColors.put(name, id);
+                            mParser.recordVariable(name, id);
                             return;
                         }
                     }
                     id = mWriter.addNamedColor(name, mParser.parseColor(value));
                     mParser.mColors.put(name, id);
+                    mParser.recordVariable(name, id);
                 });
                 break;
             case "paths":
@@ -236,6 +244,7 @@ class ResourceParser {
                         id = mWriter.addPathString((String) value);
                     }
                     mParser.mPaths.put(name, id);
+                    mParser.recordVariable(name, id);
                 });
                 break;
             case "floatArrays":
@@ -260,6 +269,7 @@ class ResourceParser {
                         );
                     }
                     mParser.mVariables.put(name, id);
+                    mParser.recordVariable(name, Utils.idFromNan(id));
                 });
                 break;
             case "integers":
@@ -285,6 +295,7 @@ class ResourceParser {
                     mParser.mIntegerVariables.put(name, intId);
                     int rawId = (int) (intId & 0xFFFFFFFFL);
                     mParser.mVariables.put(name, Utils.asNan(rawId));
+                    mParser.recordVariable(name, rawId);
                 });
                 break;
             case "variables":
@@ -312,6 +323,7 @@ class ResourceParser {
                             mParser.mIntegerVariables.put(name, intId);
                             int rawId = (int) (intId & 0xFFFFFFFFL);
                             mParser.mVariables.put(name, Utils.asNan(rawId));
+                            mParser.recordVariable(name, rawId);
                             return;
                         }
                         if (vo.has("type") && vo.getString("type").equals("textFromFloat")) {
@@ -324,6 +336,7 @@ class ResourceParser {
                             if (named) {
                                 mWriter.setStringName(textId, name);
                             }
+                            mParser.recordVariable(name, textId);
                             return;
                         }
                         if (vo.has("value")) {
@@ -338,6 +351,7 @@ class ResourceParser {
                                 mWriter.setFloatName(Utils.idFromNan(val), name);
                             }
                             mParser.mVariables.put(name, val);
+                            mParser.recordVariable(name, Utils.idFromNan(val));
                             return;
                         } else if (s.equals("height")) {
                             float val = mWriter.addComponentHeightValue();
@@ -345,6 +359,7 @@ class ResourceParser {
                                 mWriter.setFloatName(Utils.idFromNan(val), name);
                             }
                             mParser.mVariables.put(name, val);
+                            mParser.recordVariable(name, Utils.idFromNan(val));
                             return;
                         } else if (s.equals("fontSize")) {
                             float val = Utils.asNan(RemoteContext.ID_FONT_SIZE);
@@ -352,21 +367,27 @@ class ResourceParser {
                                 mWriter.setFloatName(Utils.idFromNan(val), name);
                             }
                             mParser.mVariables.put(name, val);
+                            mParser.recordVariable(name, RemoteContext.ID_FONT_SIZE);
                             return;
                         }
                     }
                     float val = mParser.parseFloat(valObj);
                     if (!Float.isNaN(val)) {
                         if (named) {
-                            mParser.mVariables.put(name, mWriter.addNamedFloat(name, val));
+                            float fId = mWriter.addNamedFloat(name, val);
+                            mParser.mVariables.put(name, fId);
+                            mParser.recordVariable(name, Utils.idFromNan(fId));
                         } else {
-                            mParser.mVariables.put(name, mWriter.addFloatConstant(val));
+                            float fId = mWriter.addFloatConstant(val);
+                            mParser.mVariables.put(name, fId);
+                            mParser.recordVariable(name, Utils.idFromNan(fId));
                         }
                     } else {
                         if (named) {
                             mWriter.setFloatName(Utils.idFromNan(val), name);
                         }
                         mParser.mVariables.put(name, val);
+                        mParser.recordVariable(name, Utils.idFromNan(val));
                     }
                 });
                 break;
