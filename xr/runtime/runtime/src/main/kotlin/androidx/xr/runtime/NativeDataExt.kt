@@ -21,6 +21,7 @@ package androidx.xr.runtime
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.Lifecycle
+import androidx.xr.runtime.interfaces.XrNativeInstanceProvider.Companion.INVALID_HANDLE
 import androidx.xr.runtime.internal.XrInstanceManager
 
 /**
@@ -33,7 +34,8 @@ import androidx.xr.runtime.internal.XrInstanceManager
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public fun XrDevice.getNativeInstanceData(context: Context): NativeInstanceData {
-    return XrInstanceManager.getNativeInstanceData(context) ?: NativeInstanceData(0L, 0L)
+    return XrInstanceManager.getNativeInstanceData(context)
+        ?: NativeInstanceData(INVALID_HANDLE, INVALID_HANDLE, INVALID_HANDLE)
 }
 
 /**
@@ -47,13 +49,14 @@ public fun XrDevice.getNativeInstanceData(context: Context): NativeInstanceData 
  * @throws [IllegalStateException] if the session is not using a runtime backed by a native session
  *   or the session has been destroyed
  */
+@Deprecated("Use XrDevice.getNativeInstanceData instead.", level = DeprecationLevel.WARNING)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Suppress("DEPRECATION")
 public fun Session.getNativeSessionData(): NativeSessionData {
     check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
         "Session has been destroyed."
     }
 
-    // TODO(b/467096822) - Add support for getting the ARCore 1.x session once it is a dependency.
     val sessionPointer =
         this.runtimes.firstNotNullOfOrNull { it.sessionPointer }
             ?: throw IllegalStateException(
@@ -74,23 +77,37 @@ internal constructor(
      * [XrInstance](https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XrInstance)
      * pointer.
      *
-     * For Play Services runtimes this is null.
+     * For Play Services runtimes this is [INVALID_HANDLE].
      */
     @get:Suppress("AutoBoxing") public val instancePointer: Long,
     /**
      * For OpenXR runtimes, this is the function pointer for
      * [xrGetInstanceProcAddr](https://registry.khronos.org/OpenXR/specs/1.0/man/html/xrGetInstanceProcAddr.html).
      *
-     * For Play Services runtimes this is null.
+     * For Play Services runtimes this is [INVALID_HANDLE].
      */
     @get:Suppress("AutoBoxing") public val functionTablePointer: Long,
+    /**
+     * For OpenXR runtimes, this is the native
+     * [XrSession](https://registry.khronos.org/OpenXR/specs/1.0/html/xrspec.html#XrSession)
+     * pointer.
+     *
+     * For Play Services runtimes this is [INVALID_HANDLE].
+     */
+    @get:Suppress("AutoBoxing") public val sessionPointer: Long,
 ) {
+    internal constructor(
+        instancePointer: Long,
+        functionTablePointer: Long,
+    ) : this(instancePointer, functionTablePointer, INVALID_HANDLE)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is NativeInstanceData) return false
 
         if (instancePointer != other.instancePointer) return false
         if (functionTablePointer != other.functionTablePointer) return false
+        if (sessionPointer != other.sessionPointer) return false
 
         return true
     }
@@ -98,12 +115,15 @@ internal constructor(
     override fun hashCode(): Int {
         var result = instancePointer.hashCode()
         result = 31 * result + functionTablePointer.hashCode()
+        result = 31 * result + sessionPointer.hashCode()
         return result
     }
 }
 
 /** Class containing pointers to the native resources backing the XR runtime. */
+@Deprecated("Use NativeInstanceData instead.", level = DeprecationLevel.WARNING)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Suppress("DEPRECATION")
 public class NativeSessionData
 internal constructor(
     /**
