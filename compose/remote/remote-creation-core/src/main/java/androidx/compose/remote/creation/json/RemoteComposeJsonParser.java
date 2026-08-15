@@ -45,6 +45,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +56,8 @@ import java.util.Map;
 public class RemoteComposeJsonParser {
     private static final boolean DEBUG = false;
     private final RemoteComposeWriter mWriter;
+    public boolean mRemVars = false;
+    final Map<Integer, String> mRecordedVariables = new LinkedHashMap<>();
     final Map<String, Integer> mColors = new HashMap<>();
     final Map<String, Integer> mPaths = new HashMap<>();
     final Map<String, Object> mBitmaps = new HashMap<>();
@@ -71,6 +74,53 @@ public class RemoteComposeJsonParser {
     private final Map<String, JsonModifierParser> mModifierParsers = new HashMap<>();
     private final ExpressionParser mExpressionParser;
     private final ResourceParser mResourceParser;
+
+    /**
+     * Set whether the parser is currently in the first traversal pass.
+     * @param remVars true if in the first pass, false otherwise
+     */
+    public void setRemVars(boolean remVars) {
+        mRemVars = remVars;
+    }
+
+    /**
+     * Expose whether the parser is currently in the first traversal pass.
+     * @return true if in the first pass, false otherwise
+     */
+    public boolean isRemVars() {
+        return mRemVars;
+    }
+
+    /**
+     * Record a variable by name and ID.
+     * @param name the variable name
+     * @param id the variable ID
+     */
+    public void recordVariable(@Nullable String name, int id) {
+        if (name != null && !name.isEmpty()) {
+            mRecordedVariables.put(id, name);
+        }
+    }
+
+    /**
+     * Build a debug string of the recorded variables.
+     * @return a formatted string showing the recorded variables
+     */
+    public @NonNull String getDebugNamesString() {
+        if (mRecordedVariables.isEmpty()) {
+            return "Debug Names";
+        }
+        StringBuilder sb = new StringBuilder("Debug Names ");
+        boolean first = true;
+        for (Map.Entry<Integer, String> entry : mRecordedVariables.entrySet()) {
+            if (!first) {
+                sb.append(",");
+            }
+            first = false;
+            sb.append(entry.getKey()).append("=").append(entry.getValue());
+        }
+        return sb.toString();
+    }
 
     /**
      * Push a parsing segment onto the context path stack.
@@ -328,6 +378,8 @@ public class RemoteComposeJsonParser {
      * @param value the floating point value to associate with the name
      */
     public void defineVariable(@NonNull String name, float value) {
+        int id = Float.isNaN(value) ? Utils.idFromNan(value) : (int) value;
+        recordVariable(name, id);
         mVariables.put(name, value);
     }
 
@@ -350,10 +402,16 @@ public class RemoteComposeJsonParser {
     public void parse(@NonNull String json) throws JSONException {
         try {
             pushContext("root");
+            mRecordedVariables.clear();
             JSONObject root = new JSONObject(json);
             if (root.has("header")) {
-                mOrderedResources = root.getJSONObject("header")
-                        .optBoolean("orderedResources", false);
+                JSONObject header = root.getJSONObject("header");
+                mOrderedResources = header.optBoolean("orderedResources", false);
+                if (header.has("remVars")) {
+                    mRemVars = header.optBoolean("remVars", mRemVars);
+                } else if (header.has("rem_vars")) {
+                    mRemVars = header.optBoolean("rem_vars", mRemVars);
+                }
             }
             if (root.has("resources")) {
                 if (mOrderedResources) {
@@ -427,6 +485,19 @@ public class RemoteComposeJsonParser {
                         }
                     });
                     endGlobal();
+                }
+            }
+            if (mRemVars) {
+                for (Map.Entry<String, Long> entry : mIntegerVariables.entrySet()) {
+                    recordVariable(entry.getKey(), (int) (entry.getValue() & 0xFFFFFFFFL));
+                }
+                for (Map.Entry<String, Float> entry : mVariables.entrySet()) {
+                    float val = entry.getValue();
+                    int id = Float.isNaN(val) ? Utils.idFromNan(val) : (int) val;
+                    recordVariable(entry.getKey(), id);
+                }
+                if (!mRecordedVariables.isEmpty()) {
+                    mWriter.rem(getDebugNamesString());
                 }
             }
         } catch (JSONException e) {
@@ -1910,6 +1981,14 @@ public class RemoteComposeJsonParser {
                 float val = parseFloat(command.opt("value"));
                 int flag = command.optInt("flag", 0);
                 mWriter.addDebugMessage(msg, val, flag);
+                break;
+            }
+            case "rem": {
+                String text = command.optString("text",
+                        command.optString("value",
+                        command.optString("message",
+                        command.optString("comment", ""))));
+                mWriter.rem(text);
                 break;
             }
             case "skip": {

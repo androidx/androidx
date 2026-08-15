@@ -15,10 +15,15 @@
  */
 package androidx.compose.remote.creation.json;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.RcPlatformServices;
+import androidx.compose.remote.core.operations.Rem;
 import androidx.compose.remote.core.operations.Utils;
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.json.JSONException;
@@ -767,6 +772,180 @@ public class RemoteComposeJsonParserTest {
         mParser.parse(json);
         byte[] result = mWriter.encodeToByteArray();
         org.junit.Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void testRemCommand() throws JSONException {
+        String json = "{\n"
+                + "  \"root\": {\n"
+                + "    \"type\": \"canvas\",\n"
+                + "    \"commands\": [\n"
+                + "      { \"type\": \"rem\", \"text\": \"Canvas comment\" },\n"
+                + "      { \"rem\": \"Shorthand comment\" }\n"
+                + "    ]\n"
+                + "  }\n"
+                + "}";
+        mParser.parse(json);
+        java.util.ArrayList<Operation> ops = new java.util.ArrayList<>();
+        mWriter.getBuffer().inflateFromBuffer(ops);
+        boolean foundCanvas = false;
+        boolean foundShorthand = false;
+        for (Operation op : ops) {
+            if (op instanceof Rem) {
+                Rem rem = (Rem) op;
+                if ("Canvas comment".equals(rem.mText)) foundCanvas = true;
+                if ("Shorthand comment".equals(rem.mText)) foundShorthand = true;
+            }
+        }
+        assertTrue(foundCanvas);
+        assertTrue(foundShorthand);
+    }
+
+    @Test
+    public void testRemComponent() throws JSONException {
+        String json = "{\n"
+                + "  \"root\": [\n"
+                + "    { \"type\": \"rem\", \"text\": \"Root comment\" },\n"
+                + "    { \"type\": \"box\", \"children\": [\n"
+                + "      { \"type\": \"rem\", \"text\": \"Box comment\" }\n"
+                + "    ]}\n"
+                + "  ]\n"
+                + "}";
+        mParser.parse(json);
+        java.util.ArrayList<Operation> ops = new java.util.ArrayList<>();
+        mWriter.getBuffer().inflateFromBuffer(ops);
+        boolean foundRoot = false;
+        boolean foundBox = false;
+        for (Operation op : ops) {
+            if (op instanceof Rem) {
+                Rem rem = (Rem) op;
+                if ("Root comment".equals(rem.mText)) foundRoot = true;
+                if ("Box comment".equals(rem.mText)) foundBox = true;
+            }
+        }
+        assertTrue(foundRoot);
+        assertTrue(foundBox);
+    }
+
+    @Test
+    public void testRemVarsFlag() throws JSONException {
+        mParser.setRemVars(true);
+        String json = "{\n"
+                + "  \"resources\": {\n"
+                + "    \"v_dims\": {\n"
+                + "      \"width\": \"width\",\n"
+                + "      \"height\": \"height\"\n"
+                + "    }\n"
+                + "  },\n"
+                + "  \"root\": {\n"
+                + "    \"type\": \"box\"\n"
+                + "  }\n"
+                + "}";
+        mParser.parse(json);
+        java.util.ArrayList<Operation> ops = new java.util.ArrayList<>();
+        mWriter.getBuffer().inflateFromBuffer(ops);
+        String debugNames = null;
+        for (Operation op : ops) {
+            if (op instanceof Rem) {
+                Rem rem = (Rem) op;
+                if (rem.mText.startsWith("Debug Names ")) {
+                    debugNames = rem.mText;
+                }
+            }
+        }
+        assertNotNull(debugNames);
+        assertTrue(debugNames.contains("=width"));
+        assertTrue(debugNames.contains("=height"));
+    }
+
+    @Test
+    public void testRemVarsInHeader() throws JSONException {
+        String json = "{\n"
+                + "  \"header\": {\n"
+                + "    \"remVars\": true\n"
+                + "  },\n"
+                + "  \"resources\": {\n"
+                + "    \"variables\": {\n"
+                + "      \"myCount\": { \"type\": \"int\", \"value\": 42 },\n"
+                + "      \"myScale\": { \"type\": \"float\", \"value\": 1.5 }\n"
+                + "    }\n"
+                + "  },\n"
+                + "  \"root\": {\n"
+                + "    \"type\": \"box\"\n"
+                + "  }\n"
+                + "}";
+        mParser.parse(json);
+        java.util.ArrayList<Operation> ops = new java.util.ArrayList<>();
+        mWriter.getBuffer().inflateFromBuffer(ops);
+        String debugNames = null;
+        for (Operation op : ops) {
+            if (op instanceof Rem) {
+                Rem rem = (Rem) op;
+                if (rem.mText.startsWith("Debug Names ")) {
+                    debugNames = rem.mText;
+                }
+            }
+        }
+        assertNotNull(debugNames);
+        assertTrue(debugNames.contains("=myCount"));
+        assertTrue(debugNames.contains("=myScale"));
+    }
+
+    @Test
+    public void testSeedExpression() throws JSONException {
+        ExpressionParser parser = new ExpressionParser(mParser);
+        java.util.List<Object> rpn = parser.infixToRpn("seed(12345, rand)");
+        float[] exp = new float[rpn.size()];
+        for (int i = 0; i < rpn.size(); i++) {
+            Object o = rpn.get(i);
+            if (o instanceof Float) {
+                exp[i] = (Float) o;
+            } else if (o instanceof Integer) {
+                exp[i] = AnimatedFloatExpression.asNan((Integer) o);
+            }
+        }
+        AnimatedFloatExpression e1 = new AnimatedFloatExpression();
+        float val1 = e1.eval(exp);
+
+        AnimatedFloatExpression e2 = new AnimatedFloatExpression();
+        float expected = e2.eval(new float[] {12345f,
+                AnimatedFloatExpression.RAND_SEED, AnimatedFloatExpression.RAND});
+        assertEquals(expected, val1, 0.0001f);
+
+        // Test seed with 1 arg
+        java.util.List<Object> rpnSingle = parser.infixToRpn("seed(12345)");
+        float[] expSingle = new float[rpnSingle.size()];
+        for (int i = 0; i < rpnSingle.size(); i++) {
+            Object o = rpnSingle.get(i);
+            if (o instanceof Float) {
+                expSingle[i] = (Float) o;
+            } else if (o instanceof Integer) {
+                expSingle[i] = AnimatedFloatExpression.asNan((Integer) o);
+            }
+        }
+        AnimatedFloatExpression e3 = new AnimatedFloatExpression();
+        float valSingle = e3.eval(expSingle);
+        assertEquals(1.0f, valSingle, 0.0001f);
+    }
+
+    @Test
+    public void testSeedInJsonDocument() throws JSONException {
+        String json = "{\n"
+                + "  \"root\": {\n"
+                + "    \"type\": \"canvas\",\n"
+                + "    \"commands\": [\n"
+                + "      {\n"
+                + "        \"type\": \"drawCircle\",\n"
+                + "        \"cx\": \"seed(42, rand * 100)\",\n"
+                + "        \"cy\": \"seed(99, 50)\",\n"
+                + "        \"radius\": \"10\"\n"
+                + "      }\n"
+                + "    ]\n"
+                + "  }\n"
+                + "}";
+        mParser.parse(json);
+        byte[] result = mWriter.encodeToByteArray();
+        assertNotNull(result);
     }
 
     private static class MockPlatform implements RcPlatformServices {
