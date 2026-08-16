@@ -44,6 +44,9 @@ public class Limits {
     /** Maximum memory allowed for bitmaps in a single player instance (in bytes) */
     public static int MAX_BITMAP_MEMORY = 20 * 1024 * 1024;
 
+    /** Maximum number of reusable offscreen bitmaps in the player pool */
+    public static final int MAX_BITMAP_POOL_SIZE = 8;
+
     /** Default maximum frames per second for the player */
     public static int DEFAULT_MAX_FPS = 60;
 

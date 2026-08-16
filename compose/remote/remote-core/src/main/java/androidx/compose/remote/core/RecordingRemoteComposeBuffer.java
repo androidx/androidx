@@ -1724,6 +1724,29 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
             int visibilityEasingType,
             int enterAnimation,
             int exitAnimation) {
+        addAnimationSpecModifier(
+                animationId,
+                motionDuration,
+                motionEasingType,
+                visibilityDuration,
+                visibilityEasingType,
+                enterAnimation,
+                exitAnimation,
+                -1,
+                -1);
+    }
+
+    @Override
+    public void addAnimationSpecModifier(
+            int animationId,
+            float motionDuration,
+            int motionEasingType,
+            float visibilityDuration,
+            int visibilityEasingType,
+            int enterAnimation,
+            int exitAnimation,
+            int enterFunctionId,
+            int exitFunctionId) {
         addOperation(
                 new AnimationSpec(
                         animationId,
@@ -1732,7 +1755,11 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
                         visibilityDuration,
                         visibilityEasingType,
                         AnimationSpec.intToAnimation(enterAnimation),
-                        AnimationSpec.intToAnimation(exitAnimation)));
+                        AnimationSpec.intToAnimation(exitAnimation),
+                        enterFunctionId,
+                        exitFunctionId,
+                        AnimationSpec.intToSequence(enterAnimation >> 8),
+                        AnimationSpec.intToSequence(exitAnimation >> 8)));
     }
 
     @Override

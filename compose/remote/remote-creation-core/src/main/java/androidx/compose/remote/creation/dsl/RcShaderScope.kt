@@ -63,6 +63,18 @@ public interface RcShaderScope {
     /** Sets a `vecN` uniform from a float array. */
     public fun uniform(name: String, values: FloatArray)
 
+    /** Sets a scalar `float` uniform from a dynamic [RcFloat]. */
+    public fun uniform(name: String, value: RcFloat)
+
+    /** Sets a `vec2` uniform from two dynamic [RcFloat] values. */
+    public fun uniform(name: String, x: RcFloat, y: RcFloat)
+
+    /** Sets a `vec3` uniform from three dynamic [RcFloat] values. */
+    public fun uniform(name: String, x: RcFloat, y: RcFloat, z: RcFloat)
+
+    /** Sets a `vec4` uniform from four dynamic [RcFloat] values. */
+    public fun uniform(name: String, x: RcFloat, y: RcFloat, z: RcFloat, w: RcFloat)
+
     /** Sets a `vec2` uniform from a typed [RcPoint] (literal coordinates only). */
     public fun uniform(name: String, point: RcPoint)
 
@@ -106,6 +118,22 @@ internal class RcShaderScopeImpl(override val raw: RemoteComposeShader) : RcShad
 
     override fun uniform(name: String, x: Float, y: Float, z: Float, w: Float) {
         raw.setFloatUniform(name, x, y, z, w)
+    }
+
+    override fun uniform(name: String, value: RcFloat) {
+        raw.setFloatUniform(name, value.toFloat())
+    }
+
+    override fun uniform(name: String, x: RcFloat, y: RcFloat) {
+        raw.setFloatUniform(name, x.toFloat(), y.toFloat())
+    }
+
+    override fun uniform(name: String, x: RcFloat, y: RcFloat, z: RcFloat) {
+        raw.setFloatUniform(name, x.toFloat(), y.toFloat(), z.toFloat())
+    }
+
+    override fun uniform(name: String, x: RcFloat, y: RcFloat, z: RcFloat, w: RcFloat) {
+        raw.setFloatUniform(name, x.toFloat(), y.toFloat(), z.toFloat(), w.toFloat())
     }
 
     override fun uniform(name: String, values: FloatArray) {

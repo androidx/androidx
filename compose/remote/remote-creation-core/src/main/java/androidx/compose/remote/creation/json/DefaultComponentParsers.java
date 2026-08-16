@@ -169,9 +169,7 @@ class DefaultComponentParsers {
                                 children.getJSONObject(i));
                         String type = child.optString("type");
                         String typeLower = type.toLowerCase();
-                        if (typeLower.equals("resources") || typeLower.equals("variable")
-                                || typeLower.equals("global") || typeLower.equals("definepattern")
-                                || typeLower.equals("referencedoperations")) {
+                        if (RemoteComposeJsonParser.isFirstPassComponent(typeLower)) {
                             parser.parseComponent(child);
                         }
                     }
@@ -181,6 +179,35 @@ class DefaultComponentParsers {
                 parser.parseChildren(component.optJSONArray("children"));
             }
         });
+        p.registerComponentParser("createfloatfunction", (component, modifier, writer, parser) -> {
+            if (parser.isInFirstPass()) {
+                parser.parseFloatFunction(component, false);
+            }
+        });
+        p.registerComponentParser("floatfunction", (component, modifier, writer, parser) -> {
+            if (parser.isInFirstPass()) {
+                parser.parseFloatFunction(component, false);
+            }
+        });
+        p.registerComponentParser("definevisibilityanimation",
+                (component, modifier, writer, parser) -> {
+                    if (parser.isInFirstPass()) {
+                        parser.parseFloatFunction(component, true);
+                    }
+                });
+        p.registerComponentParser("createoffscreenbitmap",
+                (component, modifier, writer, parser) -> {
+                    if (parser.isInFirstPass()) {
+                        int id = writer.createOffscreenBitmap();
+                        String varName = component.optString("name",
+                                component.optString("id",
+                                        component.optString("varName",
+                                                component.optString("value", null))));
+                        if (varName != null) {
+                            parser.mVariables.put(varName, (float) id);
+                        }
+                    }
+                });
         p.registerComponentParser("definepattern", (component, modifier, writer, parser) -> {
             if (parser.isInFirstPass()) {
                 String name = component.getString("name");

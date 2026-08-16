@@ -560,6 +560,32 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         writer.drawComponentContent()
     }
 
+    override fun defineVisibilityAnimation(
+        block:
+            RcCanvasScope.(
+                component: RcComponent,
+                progress: RcFloat,
+                width: RcFloat,
+                height: RcFloat,
+                x: RcFloat,
+                y: RcFloat,
+            ) -> Unit
+    ): Int {
+        val args = FloatArray(6)
+        val fid = writer.createFloatFunction(args)
+        val scope = RcCanvasScopeImpl(writer)
+        scope.block(
+            RcComponent(Utils.idFromNan(args[5])),
+            RcFloat(writer, args[0]),
+            RcFloat(writer, args[1]),
+            RcFloat(writer, args[2]),
+            RcFloat(writer, args[3]),
+            RcFloat(writer, args[4]),
+        )
+        writer.endFloatFunction()
+        return fid
+    }
+
     override fun applyPaint(block: RcPaint.() -> Unit) {
         writer.rcPaint.block()
         writer.rcPaint.commit()
@@ -1271,14 +1297,26 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         return RcImage(writer.createBitmap(width, height))
     }
 
+    override fun createOffscreenBitmap(): RcImage {
+        return RcImage(writer.createOffscreenBitmap())
+    }
+
+    override fun drawComponentToBitmap(component: RcComponent, image: RcImage) {
+        writer.drawComponentToBitmap(component.id, image.id)
+    }
+
+    override fun drawComponentToBitmap(image: RcImage) {
+        writer.drawComponentToBitmap(image.id)
+    }
+
     override fun drawOnBitmap(
         image: RcImage,
         mode: DrawOnBitmapMode,
         color: RcColorValue,
-        block: RcScope.() -> Unit,
+        block: RcCanvasScope.() -> Unit,
     ) {
         writer.drawOnBitmap(image.id, mode.value, color.id)
-        RcScopeImpl(writer).block()
+        RcCanvasScopeImpl(writer).block()
         writer.drawOnBitmap(0)
     }
 

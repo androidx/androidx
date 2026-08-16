@@ -157,6 +157,23 @@ Example:
 - `"ripple"`: Material touch ripple.
 - `"semantics"`: Accessibility descriptors (`contentDescription`, `text`, `stateDescription`, `enabled`, `clickable`).
 - `"visibility"`: Dynamic visibility state ID/expression.
+- `"animationSpec"`: Configures layout motion and visibility enter/exit transitions, including custom `defineVisibilityAnimation` functions and layout sequencing (`"CONCURRENT"` default, `"BEFORE"`, `"AFTER"`):
+  ```json
+  {
+    "animationSpec": {
+      "motionDuration": 350,
+      "motionEasingType": "standard",
+      "visibilityDuration": 600,
+      "visibilityEasingType": "standard",
+      "enterAnimation": "fadeIn",
+      "exitAnimation": "fadeOut",
+      "enterFunction": "@customEnter",
+      "exitFunction": "@customExit",
+      "enterSequence": "AFTER",
+      "exitSequence": "BEFORE"
+    }
+  }
+  ```
 - `"zIndex"`: Stacking order float or expression.
 - `"offset"`: Translation offset array `[x, y]` or object `{ "x": "@dx", "y": "@dy" }`.
 - `"id"`: Binds a unique integer component ID.
@@ -170,7 +187,7 @@ Example:
 
 ### 4. Drawing Commands & Canvas Subsystem
 
-The `"canvas"` component renders custom shapes via its `"commands"` array.
+The `"canvas"` component (and `"defineVisibilityAnimation"` blocks) render custom shapes via their `"commands"` array.
 
 #### Supported Drawing Primitives
 
@@ -187,6 +204,9 @@ The `"canvas"` component renders custom shapes via its `"commands"` array.
 - `"drawTextOnPath"`: Renders text along a vector path: `text`, `path`, `hOffset`, `vOffset`.
 - `"drawBitmap"`: Renders bitmap image resource by name/ID: `image`, `left`, `top`, `right`, `bottom`.
 - `"drawScaledBitmap"`: Renders cropped/scaled bitmap: `image`, `srcLeft`, `srcTop`, `srcRight`, `srcBottom`, `dstLeft`, `dstTop`, `dstRight`, `dstBottom`.
+- `"drawComponentContent"` (or `"drawContent"`): Renders the live component subtree inside a custom visibility animation block, automatically composited into an offscreen layer with the active paint alpha.
+- `"createOffscreenBitmap"`: Emits a `BitmapData` operation (`ENCODING_COMPONENT_OFFSCREEN_BUFFER`) for a component-sized pooled offscreen bitmap (with scoped pool frames supporting nested component animations) and binds its ID to the specified variable name (e.g. `{ "createOffscreenBitmap": "offscreenBitmap" }`).
+- `"drawComponentToBitmap"`: Captures the component identified by `"id"` at `(0, 0)` into the pooled offscreen bitmap specified by `"bitmap"` (`{ "drawComponentToBitmap": { "id": "@id", "bitmap": "@offscreenBitmap" } }`), using stack-based offscreen targets so nested component animations compose cleanly.
 
 #### Paint Operations & Configurations
 
@@ -198,7 +218,7 @@ Paint attributes can be specified via individual commands (`setColor`, `setStyle
 - `"style"`: `"fill"`, `"stroke"`, or `"fillAndStroke"`.
 - `"strokeCap"`: `"butt"`, `"round"`, or `"square"`.
 - `"strokeJoin"`: `"miter"`, `"round"`, or `"bevel"`.
-- `"shader"`: Shader ID.
+- `"shader"`: Shader ID (`0` to clear shader) or inline AGSL shader object (`{ "agsl": "...", "uniforms": { ... } }`).
 - `"pathEffect"`: Array of floats configuring line dash effects.
 - `"linearGradient"`: Configures a linear gradient (`x1`, `y1`, `x2`, `y2`, `colors`, `stops`, `tileMode`).
 - `"radialGradient"`: Configures a radial gradient. Two forms are accepted:
@@ -222,8 +242,40 @@ Paint attributes can be specified via individual commands (`setColor`, `setStyle
     ```
 - `"sweepGradient"`: Configures a sweep gradient (`centerX`, `centerY`, `colors`, `stops`).
 
-#### Advanced Shaders & Particle Systems
+#### Advanced Shaders, Custom Visibility Animations & Particle Systems
 
+- `"defineVisibilityAnimation"`: Defines a reusable, re-entrant custom visibility enter/exit drawing function parameterized by up to 6 runtime arguments (`["progress", "w", "h", "x", "y", "id"]`) that can be referenced by `"@name"` in `animationSpec` (including on both parent and child components simultaneously):
+  ```json
+  {
+    "defineVisibilityAnimation": {
+      "name": "meltExit",
+      "params": ["progress", "w", "h", "x", "y", "id"],
+      "commands": [
+        { "createOffscreenBitmap": "offscreenBitmap" },
+        { "drawComponentToBitmap": { "id": "@id", "bitmap": "@offscreenBitmap" } },
+        {
+          "save": [
+            { "translate": { "dx": "@x", "dy": "@y" } },
+            {
+              "paint": {
+                "shader": {
+                  "agsl": "uniform shader uTexture; uniform float uProgress; uniform float2 uResolution; half4 main(vec2 c) { return uTexture.eval(c) * (1.0 - uProgress); }",
+                  "uniforms": {
+                    "uTexture": "@offscreenBitmap",
+                    "uProgress": "@progress",
+                    "uResolution": ["@w", "@h"]
+                  }
+                }
+              }
+            },
+            { "drawRect": { "left": 0, "top": 0, "right": "@w", "bottom": "@h" } },
+            { "paint": { "shader": 0 } }
+          ]
+        }
+      ]
+    }
+  }
+  ```
 - `"runtimeShader"`: AGSL (Android Graphics Shading Language) runtime shader effect:
   ```json
   {
@@ -257,9 +309,9 @@ Paint attributes can be specified via individual commands (`setColor`, `setStyle
   - `"commands"`: A nested array of drawing commands.
 - `"global"`:
   A canvas drawing command wrapper. When used, all nested drawing commands placed in its `"commands"` array are wrapped in a global context in the writer and automatically hoisted/rewritten to the very beginning of the output compiled binary document. It is nesting-safe and merges with other global components.
-- `"save"` / `"restore"`: Saves the canvas matrix/paint state, and restores it. A `"save"` block can optionally contain nested `"commands"`.
+- `"save"` / `"restore"`: Saves the canvas matrix/paint state, and restores it. A `"save"` block can contain an array of commands (`{ "save": [ ... ] }`) or an object with nested `"commands"`.
 - `"clipRect"`: Clips subsequent operations to bounds: `left`, `top`, `right`, `bottom`.
-- `"scale"`: Scales subsequent drawing coordinate space: `sx`, `sy`.
+- `"scale"`: Scales subsequent drawing coordinate space: `sx`, `sy`, `pivotX`, `pivotY`.
 
 #### Path Creation
 

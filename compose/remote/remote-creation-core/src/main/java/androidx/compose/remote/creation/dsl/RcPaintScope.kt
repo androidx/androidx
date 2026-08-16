@@ -138,6 +138,9 @@ public interface RcPaintScope {
     /** Sets the active shader by [RcShader] reference (returned from `createShader`). */
     public fun shader(value: RcShader)
 
+    /** Clears the active shader from the paint. */
+    public fun clearShader()
+
     /**
      * Installs a texture shader sampling the given image with the given tile modes.
      *
@@ -334,6 +337,10 @@ internal class RcPaintScopeImpl(override val raw: RcPaint) : RcPaintScope {
 
     override fun shader(value: RcShader) {
         raw.setShader(value.id)
+    }
+
+    override fun clearShader() {
+        raw.setShader(0)
     }
 
     override fun textureShader(

@@ -19,6 +19,7 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.operations.FloatFunctionDefine;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.DecoratorComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
@@ -45,11 +46,16 @@ public class AnimateMeasure {
     protected float mDurationVisibilityChange = mDuration;
     protected AnimationSpec.@NonNull ANIMATION mEnterAnimation = AnimationSpec.ANIMATION.FADE_IN;
     protected AnimationSpec.@NonNull ANIMATION mExitAnimation = AnimationSpec.ANIMATION.FADE_OUT;
+    protected AnimationSpec.@NonNull SEQUENCE mEnterSequence = AnimationSpec.SEQUENCE.CONCURRENT;
+    protected AnimationSpec.@NonNull SEQUENCE mExitSequence = AnimationSpec.SEQUENCE.CONCURRENT;
+    protected int mEnterFunctionId = -1;
+    protected int mExitFunctionId = -1;
     protected int mMotionEasingType = GeneralEasing.CUBIC_STANDARD;
     protected int mVisibilityEasingType = GeneralEasing.CUBIC_ACCELERATE;
 
     protected float mP = 0f;
     protected float mVp = 0f;
+    protected long mLastElapsed = 0L;
 
     @NonNull
     protected FloatAnimation mMotionEasing =
@@ -72,7 +78,11 @@ public class AnimateMeasure {
             AnimationSpec.@NonNull ANIMATION enterAnimation,
             AnimationSpec.@NonNull ANIMATION exitAnimation,
             int motionEasingType,
-            int visibilityEasingType) {
+            int visibilityEasingType,
+            int enterFunctionId,
+            int exitFunctionId,
+            AnimationSpec.@NonNull SEQUENCE enterSequence,
+            AnimationSpec.@NonNull SEQUENCE exitSequence) {
         this.mStartTime = startTime;
         this.mComponent = component;
         this.mOriginal = original;
@@ -83,6 +93,10 @@ public class AnimateMeasure {
         this.mExitAnimation = exitAnimation;
         this.mMotionEasingType = motionEasingType;
         this.mVisibilityEasingType = visibilityEasingType;
+        this.mEnterFunctionId = enterFunctionId;
+        this.mExitFunctionId = exitFunctionId;
+        this.mEnterSequence = enterSequence;
+        this.mExitSequence = exitSequence;
 
         float motionDuration = mDuration / 1000f;
         float visibilityDuration = mDurationVisibilityChange / 1000f;
@@ -94,7 +108,172 @@ public class AnimateMeasure {
         mMotionEasing.setTargetValue(1f);
         mVisibilityEasing.setTargetValue(1f);
 
-        component.mVisibility = target.getVisibility();
+        if (!isBeforeLayout()) {
+            component.mVisibility = target.getVisibility();
+        }
+    }
+
+    public AnimateMeasure(
+            long startTime,
+            @NonNull Component component,
+            @NonNull ComponentMeasure original,
+            @NonNull ComponentMeasure target,
+            float duration,
+            float durationVisibilityChange,
+            AnimationSpec.@NonNull ANIMATION enterAnimation,
+            AnimationSpec.@NonNull ANIMATION exitAnimation,
+            int motionEasingType,
+            int visibilityEasingType,
+            int enterFunctionId,
+            int exitFunctionId) {
+        this(
+                startTime,
+                component,
+                original,
+                target,
+                duration,
+                durationVisibilityChange,
+                enterAnimation,
+                exitAnimation,
+                motionEasingType,
+                visibilityEasingType,
+                enterFunctionId,
+                exitFunctionId,
+                AnimationSpec.SEQUENCE.CONCURRENT,
+                AnimationSpec.SEQUENCE.CONCURRENT);
+    }
+
+    public AnimateMeasure(
+            long startTime,
+            @NonNull Component component,
+            @NonNull ComponentMeasure original,
+            @NonNull ComponentMeasure target,
+            float duration,
+            float durationVisibilityChange,
+            AnimationSpec.@NonNull ANIMATION enterAnimation,
+            AnimationSpec.@NonNull ANIMATION exitAnimation,
+            int motionEasingType,
+            int visibilityEasingType) {
+        this(
+                startTime,
+                component,
+                original,
+                target,
+                duration,
+                durationVisibilityChange,
+                enterAnimation,
+                exitAnimation,
+                motionEasingType,
+                visibilityEasingType,
+                -1,
+                -1,
+                AnimationSpec.SEQUENCE.CONCURRENT,
+                AnimationSpec.SEQUENCE.CONCURRENT);
+    }
+
+    /** Returns true if this animation transitions the component to GONE or INVISIBLE. */
+    public boolean isExitTransition() {
+        return mOriginal.getVisibility() != mTarget.getVisibility()
+                && (mTarget.isGone() || mTarget.isInvisible());
+    }
+
+    /** Returns true if this animation transitions the component
+     * from GONE or INVISIBLE to VISIBLE. */
+    public boolean isEnterTransition() {
+        return mOriginal.getVisibility() != mTarget.getVisibility()
+                && (mOriginal.isGone() || mOriginal.isInvisible())
+                && mTarget.isVisible();
+    }
+
+    /**
+     * Returns true if the visibility transition is configured to run before the layout change
+     * ({@link AnimationSpec.SEQUENCE#BEFORE}).
+     */
+    public boolean isBeforeLayout() {
+        if (isExitTransition()) {
+            return mExitSequence == AnimationSpec.SEQUENCE.BEFORE;
+        } else if (isEnterTransition()) {
+            return mEnterSequence == AnimationSpec.SEQUENCE.BEFORE;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if the visibility transition is configured to run after the layout change
+     * ({@link AnimationSpec.SEQUENCE#AFTER}).
+     */
+    public boolean isAfterLayout() {
+        if (isExitTransition()) {
+            return mExitSequence == AnimationSpec.SEQUENCE.AFTER;
+        } else if (isEnterTransition()) {
+            return mEnterSequence == AnimationSpec.SEQUENCE.AFTER;
+        }
+        return false;
+    }
+
+    private void executeCustomAnimation(
+            @NonNull PaintContext context, int functionId, float progress) {
+        if (functionId == -1) {
+            mComponent.paintingComponent(context);
+            return;
+        }
+        RemoteContext remoteContext = context.getContext();
+        Object obj = remoteContext.getObject(functionId);
+        if (obj instanceof FloatFunctionDefine) {
+            FloatFunctionDefine fn = (FloatFunctionDefine) obj;
+            int[] args = fn.getArgs();
+            float[] prevArgs = null;
+            int prevIdInt = 0;
+            if (fn.getExecutionDepth() > 0) {
+                prevArgs = new float[args.length];
+                for (int i = 0; i < args.length; i++) {
+                    prevArgs[i] = remoteContext.getFloat(args[i]);
+                }
+                prevIdInt = args.length >= 6 ? remoteContext.getInteger(args[5]) : 0;
+            }
+
+            float x = (float) Math.floor(mComponent.getX());
+            float y = (float) Math.floor(mComponent.getY());
+            float w = (float) Math.ceil((mComponent.getX() - x) + mComponent.getWidth());
+            float h = (float) Math.ceil((mComponent.getY() - y) + mComponent.getHeight());
+            if (args.length >= 1) remoteContext.loadFloat(args[0], progress);
+            if (args.length >= 2) remoteContext.loadFloat(args[1], w);
+            if (args.length >= 3) remoteContext.loadFloat(args[2], h);
+            if (args.length >= 4) remoteContext.loadFloat(args[3], x);
+            if (args.length >= 5) remoteContext.loadFloat(args[4], y);
+            if (args.length >= 6) {
+                remoteContext.loadInteger(args[5], mComponent.getComponentId());
+                remoteContext.loadFloat(args[5], mComponent.getComponentId());
+            }
+
+            Component prev = remoteContext.mLastComponent;
+            remoteContext.mLastComponent = mComponent;
+            androidx.compose.remote.core.operations.BitmapData.pushOffscreenScope(remoteContext);
+            context.save();
+            context.savePaint();
+            paint.reset();
+            paint.setColor(0f, 0f, 0f, 1f);
+            paint.setStyle(PaintBundle.STYLE_FILL);
+            context.applyPaint(paint);
+            try {
+                fn.execute(remoteContext);
+            } finally {
+                context.restorePaint();
+                context.restore();
+                androidx.compose.remote.core.operations.BitmapData.popOffscreenScope(remoteContext);
+                remoteContext.mLastComponent = prev;
+                if (prevArgs != null) {
+                    for (int i = 0; i < args.length; i++) {
+                        remoteContext.loadFloat(args[i], prevArgs[i]);
+                    }
+                    if (args.length >= 6) {
+                        remoteContext.loadInteger(args[5], prevIdInt);
+                    }
+                }
+            }
+        } else {
+            mComponent.paintingComponent(context);
+        }
     }
 
     /**
@@ -103,11 +282,20 @@ public class AnimateMeasure {
      * @param currentTime the time we use to evaluate the animation
      */
     public void update(long currentTime) {
-        long elapsed = currentTime - mStartTime;
-        float motionTimeInSeconds = elapsed / 1000f;
-        float visibilityTimeInSeconds = elapsed / 1000f;
+        mLastElapsed = currentTime - mStartTime;
+        float motionTimeInSeconds = mLastElapsed / 1000f;
         mP = mMotionEasing.get(motionTimeInSeconds);
-        mVp = mVisibilityEasing.get(visibilityTimeInSeconds);
+        if (isAfterLayout()) {
+            if (mLastElapsed < mDuration) {
+                mVp = 0f;
+            } else {
+                float visibilityTimeInSeconds = (mLastElapsed - mDuration) / 1000f;
+                mVp = mVisibilityEasing.get(visibilityTimeInSeconds);
+            }
+        } else {
+            float visibilityTimeInSeconds = mLastElapsed / 1000f;
+            mVp = mVisibilityEasing.get(visibilityTimeInSeconds);
+        }
     }
 
     @NonNull public PaintBundle paint = new PaintBundle();
@@ -119,6 +307,9 @@ public class AnimateMeasure {
         mComponent.setY(getY());
         mComponent.setWidth(getWidth());
         mComponent.setHeight(getHeight());
+        if (isDone()) {
+            mComponent.mVisibility = mTarget.getVisibility();
+        }
         mComponent.updateVariables(context);
 
         float w = mComponent.getWidth();
@@ -139,8 +330,18 @@ public class AnimateMeasure {
     public void paint(@NonNull PaintContext context) {
         apply(context.getContext());
         if (mOriginal.getVisibility() != mTarget.getVisibility()) {
-            if (mTarget.isGone()) {
+            if (isEnterTransition() && isAfterLayout() && mLastElapsed < mDuration) {
+                return;
+            }
+            if (isExitTransition() && isAfterLayout() && mLastElapsed < mDuration) {
+                mComponent.paintingComponent(context);
+                return;
+            }
+            if (mTarget.isGone() || mTarget.isInvisible()) {
                 switch (mExitAnimation) {
+                    case CUSTOM:
+                        executeCustomAnimation(context, mExitFunctionId, mVp);
+                        break;
                     case PARTICLE:
                         // particleAnimation(context, component, original, target, vp)
                         if (mParticleAnimation == null) {
@@ -225,8 +426,11 @@ public class AnimateMeasure {
                         mParticleAnimation.animate(context, mComponent, mOriginal, mTarget, mVp);
                         break;
                 }
-            } else if (mOriginal.isGone() && mTarget.isVisible()) {
+            } else if ((mOriginal.isGone() || mOriginal.isInvisible()) && mTarget.isVisible()) {
                 switch (mEnterAnimation) {
+                    case CUSTOM:
+                        executeCustomAnimation(context, mEnterFunctionId, mVp);
+                        break;
                     case ROTATE:
                         float px = mTarget.getX() + mTarget.getW() / 2f;
                         float py = mTarget.getY() + mTarget.getH() / 2f;
@@ -322,7 +526,7 @@ public class AnimateMeasure {
             mComponent.paintingComponent(context);
         }
 
-        if (mP >= 1f && mVp >= 1f) {
+        if (isDone()) {
             mComponent.mVisibility = mTarget.getVisibility();
             mComponent.setX(mTarget.getX());
             mComponent.setY(mTarget.getY());
@@ -332,22 +536,52 @@ public class AnimateMeasure {
     }
 
     public boolean isDone() {
+        if (isBeforeLayout()) {
+            return mVp >= 1f;
+        }
+        if (isAfterLayout()) {
+            return mP >= 1f && mVp >= 1f && mLastElapsed >= mDuration;
+        }
         return mP >= 1f && mVp >= 1f;
     }
 
     public float getX() {
+        if (mOriginal.isGone()) {
+            return mTarget.getX();
+        }
+        if (mTarget.isGone()) {
+            return mOriginal.getX();
+        }
         return mOriginal.getX() * (1 - mP) + mTarget.getX() * mP;
     }
 
     public float getY() {
+        if (mOriginal.isGone()) {
+            return mTarget.getY();
+        }
+        if (mTarget.isGone()) {
+            return mOriginal.getY();
+        }
         return mOriginal.getY() * (1 - mP) + mTarget.getY() * mP;
     }
 
     public float getWidth() {
+        if (mOriginal.isGone()) {
+            return mTarget.getW();
+        }
+        if (mTarget.isGone()) {
+            return mOriginal.getW();
+        }
         return mOriginal.getW() * (1 - mP) + mTarget.getW() * mP;
     }
 
     public float getHeight() {
+        if (mOriginal.isGone()) {
+            return mTarget.getH();
+        }
+        if (mTarget.isGone()) {
+            return mOriginal.getH();
+        }
         return mOriginal.getH() * (1 - mP) + mTarget.getH() * mP;
     }
 
@@ -395,11 +629,18 @@ public class AnimateMeasure {
                 || mTarget.getW() != targetW
                 || mTarget.getH() != targetH
                 || mTarget.getVisibility() != targetVisibility) {
+            if (mTarget.getVisibility() != targetVisibility) {
+                mOriginal.setVisibility(mTarget.getVisibility());
+                mStartTime = currentTime;
+            }
             mTarget.setX(targetX);
             mTarget.setY(targetY);
             mTarget.setW(targetW);
             mTarget.setH(targetH);
             mTarget.setVisibility(targetVisibility);
+            if (!isBeforeLayout()) {
+                mComponent.mVisibility = targetVisibility;
+            }
             // We shouldn't reset the leftover animation time here
             // 1/ if we are eg fading out a component, and an updateTarget comes on, we don't want
             //    to restart the full animation time
