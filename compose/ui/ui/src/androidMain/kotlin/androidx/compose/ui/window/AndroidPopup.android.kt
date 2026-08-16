@@ -701,7 +701,7 @@ internal class PopupLayout(
     private var onDismissRequest: (() -> Unit)?,
     private var properties: PopupProperties,
     var testTag: String,
-    private val composeView: View,
+    internal val composeView: View,
     density: Density,
     initialPositionProvider: PopupPositionProvider,
     popupId: UUID,

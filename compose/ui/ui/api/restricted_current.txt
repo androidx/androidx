@@ -4064,12 +4064,14 @@ package androidx.compose.ui.platform {
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.res.Resources> getLocalResources();
     method @InaccessibleFromKotlin @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> getLocalSavedStateRegistryOwner();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<android.view.View> getLocalView();
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<android.view.Window?> getLocalWindow();
     property public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.res.Configuration> LocalConfiguration;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> LocalContext;
     property @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.lifecycle.LifecycleOwner> LocalLifecycleOwner;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.res.Resources> LocalResources;
     property @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.savedstate.SavedStateRegistryOwner> LocalSavedStateRegistryOwner;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<android.view.View> LocalView;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<android.view.Window?> LocalWindow;
   }
 
   public final class AndroidUiDispatcher extends kotlinx.coroutines.CoroutineDispatcher {

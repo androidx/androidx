@@ -580,6 +580,7 @@ private constructor(
                 LocalConfiguration provides owner.configuration,
                 LocalSaveableStateRegistry providesComputed { owner.savedStateRegistry },
                 LocalView provides owner.view,
+                LocalWindow providesComputed { owner.window },
                 LocalProvidableScrollCaptureInProgress providesComputed
                     {
                         owner.scrollCaptureInProgress

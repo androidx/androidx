@@ -65,6 +65,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStructure
 import android.view.ViewTreeObserver
+import android.view.Window
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.animation.AnimationUtils
 import android.view.autofill.AutofillValue
@@ -501,6 +502,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         get() = composeViewContext.windowInfo
 
     override val taskDispatchers: TaskDispatchers = AndroidTaskDispatchers
+
+    /** The [Window] hosting this view, if available. */
+    internal val window: Window?
+        get() = findDialogWindow(this) ?: findActivityWindow(this)
 
     // This is only needed because the existing XR implementation is lacking. It is currently
     // relying on the derivedStateOf() notification change. This can be removed when
