@@ -18,7 +18,6 @@ package androidx.compose.foundation.layout.benchmark
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalGridApi
 import androidx.compose.foundation.layout.Grid
 import androidx.compose.foundation.layout.GridFlow
 import androidx.compose.foundation.layout.GridScope
@@ -37,7 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 /** The execution engine for [GridLayoutBenchmark]. */
-@OptIn(ExperimentalGridApi::class)
 class GridLayoutTestCase : LayeredComposeTestCase(), ToggleableTestCase {
 
     private var gapSize by mutableStateOf(0.dp)

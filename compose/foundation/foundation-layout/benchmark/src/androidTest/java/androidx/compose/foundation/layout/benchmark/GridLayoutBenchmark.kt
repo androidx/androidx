@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.layout.benchmark
 
-import androidx.compose.foundation.layout.ExperimentalGridApi
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkDrawPerf
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
@@ -36,7 +35,6 @@ import org.junit.runner.RunWith
 /** Baseline benchmark suite for the [androidx.compose.foundation.layout.Grid] layout. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalGridApi::class)
 class GridLayoutBenchmark {
 
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalGridApi::class)
-
 package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
@@ -93,7 +91,6 @@ import kotlin.math.roundToInt
  * @see GridConfigurationScope
  */
 @Composable
-@ExperimentalGridApi
 public inline fun Grid(
     noinline config: GridConfigurationScope.() -> Unit,
     modifier: Modifier = Modifier,
@@ -120,7 +117,6 @@ public inline fun Grid(
 @LayoutScopeMarker
 @Immutable
 @JvmDefaultWithCompatibility
-@ExperimentalGridApi
 public interface GridScope {
     /**
      * Configures the position, span, and alignment of an element within a [Grid] layout.
@@ -227,7 +223,6 @@ public interface GridScope {
      *   Defaults to [Alignment.TopStart].
      */
     @Stable
-    @ExperimentalGridApi
     public fun Modifier.gridItem(areaId: Any, alignment: Alignment = Alignment.TopStart): Modifier
 
     public companion object {
@@ -241,19 +236,18 @@ public interface GridScope {
          * **Note:** This value MUST NOT exceed `Short.MAX_VALUE` (32767). Named Area bounds are
          * bit-packed into 16-bit segments, and larger values will silently truncate.
          */
-        @ExperimentalGridApi public const val MaxGridIndex: Int = 1000
+        public const val MaxGridIndex: Int = 1000
 
         /**
          * Sentinel value indicating that a grid position (row or column) is not manually specified
          * and should be determined automatically by the layout flow.
          */
-        @ExperimentalGridApi public const val GridIndexUnspecified: Int = 0
+        public const val GridIndexUnspecified: Int = 0
     }
 }
 
 /** Internal implementation of [GridScope]. Stateless object to avoid allocations. */
 @PublishedApi
-@ExperimentalGridApi
 internal object GridScopeInstance : GridScope {
 
     override fun Modifier.gridItem(
@@ -324,7 +318,6 @@ internal object GridScopeInstance : GridScope {
  * @sample androidx.compose.foundation.layout.samples.GridWithConstraints
  */
 @LayoutScopeMarker
-@ExperimentalGridApi
 public interface GridConfigurationScope : Density {
 
     /**
@@ -497,25 +490,21 @@ public interface GridConfigurationScope : Density {
 
     /** Creates an [Fr] unit from an [Int]. */
     @Stable
-    @ExperimentalGridApi
     public val Int.fr: Fr
         get() = Fr(this.toFloat())
 
     /** Creates an [Fr] unit from a [Float]. */
     @Stable
-    @ExperimentalGridApi
     public val Float.fr: Fr
         get() = Fr(this)
 
     /** Creates an [Fr] unit from a [Double]. */
     @Stable
-    @ExperimentalGridApi
     public val Double.fr: Fr
         get() = Fr(this.toFloat())
 }
 
 /** Adds multiple columns with the specified [specs]. */
-@ExperimentalGridApi
 public fun GridConfigurationScope.columns(vararg specs: GridTrackSpec) {
     for (spec in specs) {
         if (spec is GridTrackSize) {
@@ -525,7 +514,6 @@ public fun GridConfigurationScope.columns(vararg specs: GridTrackSpec) {
 }
 
 /** Adds multiple rows with the specified [specs]. */
-@ExperimentalGridApi
 public fun GridConfigurationScope.rows(vararg specs: GridTrackSpec) {
     for (spec in specs) {
         if (spec is GridTrackSize) {
@@ -536,17 +524,14 @@ public fun GridConfigurationScope.rows(vararg specs: GridTrackSpec) {
 
 /** Defines the direction in which auto-placed items flow within the grid. */
 @JvmInline
-@ExperimentalGridApi
 public value class GridFlow @PublishedApi internal constructor(private val bits: Int) {
 
     public companion object {
         /** Items are placed filling the first row, then moving to the next row. */
-        @ExperimentalGridApi
         public inline val Row: GridFlow
             get() = GridFlow(0)
 
         /** Items are placed filling the first column, then moving to the next column. */
-        @ExperimentalGridApi
         public inline val Column: GridFlow
             get() = GridFlow(1)
     }
@@ -573,7 +558,6 @@ public value class GridFlow @PublishedApi internal constructor(private val bits:
  * - The `2.fr` track would get 2/4 (or 1/2) of the remaining space.
  */
 @JvmInline
-@ExperimentalGridApi
 public value class Fr(public val value: Float) {
     override fun toString(): String = "$value.fr"
 }
@@ -584,7 +568,7 @@ public value class Fr(public val value: Float) {
  * This allows the configuration DSL to accept [GridTrackSize] items in a vararg (e.g.,
  * `columns(Fixed(10.dp), Flex(1.fr))`), bypassing the Kotlin limitation on value class varargs.
  */
-@ExperimentalGridApi public sealed interface GridTrackSpec
+public sealed interface GridTrackSpec
 
 /**
  * Defines the size of a track (a row or a column) in a [Grid].
@@ -593,7 +577,6 @@ public value class Fr(public val value: Float) {
  */
 @Immutable
 @JvmInline
-@ExperimentalGridApi
 public value class GridTrackSize internal constructor(internal val encodedValue: Long) :
     GridTrackSpec {
 
@@ -864,7 +847,6 @@ private class GridItemNode(
 
 /** A stable MeasurePolicy that reads configuration from a State. */
 @PublishedApi
-@ExperimentalGridApi
 internal class GridMeasurePolicy(
     private val configState: State<GridConfigurationScope.() -> Unit>
 ) : MeasurePolicy {
