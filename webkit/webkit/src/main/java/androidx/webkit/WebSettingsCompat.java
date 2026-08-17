@@ -1361,31 +1361,49 @@ public class WebSettingsCompat {
         return getAdapter(settings).getCookieAccessForShouldInterceptRequestEnabled();
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(
             flag = true,
             value = {
-                    HyperlinkContextMenuItems.DISABLED,
-                    HyperlinkContextMenuItems.COPY_LINK_ADDRESS,
-                    HyperlinkContextMenuItems.COPY_LINK_TEXT,
-                    HyperlinkContextMenuItems.OPEN_LINK
+                    HYPERLINK_CONTEXT_MENU_DISABLED,
+                    HYPERLINK_CONTEXT_MENU_ITEM_COPY_LINK_ADDRESS,
+                    HYPERLINK_CONTEXT_MENU_ITEM_COPY_LINK_TEXT,
+                    HYPERLINK_CONTEXT_MENU_ITEM_OPEN_LINK
             })
     @Retention(RetentionPolicy.SOURCE)
-    @Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.FIELD,
-            ElementType.LOCAL_VARIABLE})
-    public @interface HyperlinkContextMenuItems {
-        int DISABLED = 0;
-        int COPY_LINK_ADDRESS = 1; // 2^0
-        int COPY_LINK_TEXT = 1 << 1; // 2^1
-        int OPEN_LINK = 1 << 2; // 2^2
+    @interface HyperlinkContextMenuItems {
     }
 
     /**
-     * Sets which items appear in the context menu when a user long-presses a hyperlink.
-     * The default value is HyperlinkContextMenuItems.DISABLED which means no menu is shown.
+     * Used to disable the hyperlink context menu, preventing it from showing when the user long
+     * presses on a hyperlink. This is the default state.
+     */
+    public static final int HYPERLINK_CONTEXT_MENU_DISABLED = 0;
+
+    /**
+     * Enable the "Copy link address" menu item which, when clicked, copies the URL of the selected
+     * hyperlink to the clipboard.
+     */
+    public static final int HYPERLINK_CONTEXT_MENU_ITEM_COPY_LINK_ADDRESS = 1 << 0;
+
+    /**
+     * Enable the "Copy link text" menu item which, when clicked, copies the text of the selected
+     * hyperlink to the clipboard.
+     */
+    public static final int HYPERLINK_CONTEXT_MENU_ITEM_COPY_LINK_TEXT = 1 << 1;
+
+    /**
+     * Enable the "Open link" menu item which, when clicked, opens the selected hyperlink in the
+     * default browser.
+     */
+    public static final int HYPERLINK_CONTEXT_MENU_ITEM_OPEN_LINK = 1 << 2;
+
+    /**
+     * Sets which items appear in the context menu when a user long-presses a hyperlink. The default
+     * value is HyperlinkContextMenuItems.DISABLED which means no menu is shown.
      *
-     * <p>The items are specified using bitwise flags. You can combine multiple items using
-     * the bitwise OR operator (`|`). For example:
+     * <p>The items are specified using bitwise flags. You can combine multiple items using the
+     * bitwise OR operator (`|`). For example:
      *
      * <pre>{@code
      * // Show only "Copy link address" and "Open link".
@@ -1396,21 +1414,29 @@ public class WebSettingsCompat {
      *
      * @param settings           The {@link WebSettings} instance to apply the items to.
      * @param hyperlinkMenuItems A bitwise combination of the following flags:
-     *                           <ul>
-     *                             <li>{@link HyperlinkContextMenuItems#COPY_LINK_ADDRESS}</li>
-     *                             <li>{@link HyperlinkContextMenuItems#COPY_LINK_TEXT}</li>
-     *                             <li>{@link HyperlinkContextMenuItems#OPEN_LINK}</li>
-     *                           </ul>
-     * @throws UnsupportedOperationException if the
-     *     {@link WebViewFeature#HYPERLINK_CONTEXT_MENU_ITEMS} feature is not supported.
-     *     This should be checked before use with {@link WebViewFeature#isFeatureSupported}.
+     *                               <ul>
+     *                                 <li>{@link #HYPERLINK_CONTEXT_MENU_DISABLED}
+     *                                 <li>{@link #HYPERLINK_CONTEXT_MENU_ITEM_COPY_LINK_ADDRESS}
+     *                                 <li>{@link #HYPERLINK_CONTEXT_MENU_ITEM_COPY_LINK_TEXT}
+     *                                 <li>{@link #HYPERLINK_CONTEXT_MENU_ITEM_OPEN_LINK}
+     *                               </ul>
+     *
+     *                           <p class="note">Note: The
+     *                           {@link #HYPERLINK_CONTEXT_MENU_DISABLED} flag should not
+     *                           be used in conjunction with the other flags. If it is, it will be
+     *                           ignored.
+     * @throws UnsupportedOperationException if the {@link
+     *                                       WebViewFeature#HYPERLINK_CONTEXT_MENU_ITEMS} feature
+     *                                       is not supported. This should be
+     *                                       checked before use with
+     *                                       {@link WebViewFeature#isFeatureSupported}.
      */
-    @RequiresFeature(name = WebViewFeature.HYPERLINK_CONTEXT_MENU_ITEMS,
+    @RequiresFeature(
+            name = WebViewFeature.HYPERLINK_CONTEXT_MENU_ITEMS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setHyperlinkContextMenuItems(@NonNull WebSettings settings,
-            @HyperlinkContextMenuItems int hyperlinkMenuItems) {
-        final ApiFeature.NoFramework feature =
-                WebViewFeatureInternal.HYPERLINK_CONTEXT_MENU_ITEMS;
+    public static void setHyperlinkContextMenuItems(
+            @NonNull WebSettings settings, @HyperlinkContextMenuItems int hyperlinkMenuItems) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.HYPERLINK_CONTEXT_MENU_ITEMS;
         if (!feature.isSupportedByWebView()) {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

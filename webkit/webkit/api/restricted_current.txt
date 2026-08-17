@@ -561,6 +561,10 @@ package androidx.webkit {
     field @Deprecated public static final int FORCE_DARK_AUTO = 1; // 0x1
     field @Deprecated public static final int FORCE_DARK_OFF = 0; // 0x0
     field @Deprecated public static final int FORCE_DARK_ON = 2; // 0x2
+    field public static final int HYPERLINK_CONTEXT_MENU_DISABLED = 0; // 0x0
+    field public static final int HYPERLINK_CONTEXT_MENU_ITEM_COPY_LINK_ADDRESS = 1; // 0x1
+    field public static final int HYPERLINK_CONTEXT_MENU_ITEM_COPY_LINK_TEXT = 2; // 0x2
+    field public static final int HYPERLINK_CONTEXT_MENU_ITEM_OPEN_LINK = 4; // 0x4
     field @SuppressCompatibility @androidx.webkit.WebSettingsCompat.ExperimentalSpeculativeLoading public static final int SPECULATIVE_LOADING_DISABLED = 0; // 0x0
     field @SuppressCompatibility @androidx.webkit.WebSettingsCompat.ExperimentalSpeculativeLoading public static final int SPECULATIVE_LOADING_PRERENDER_ENABLED = 1; // 0x1
     field public static final int WEB_AUTHENTICATION_SUPPORT_FOR_APP = 1; // 0x1
