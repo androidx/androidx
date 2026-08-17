@@ -333,10 +333,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     public void setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
         if (setMirrorModeInternal(mirrorMode)) {
-            CameraInternal camera = getCamera();
-            if (camera == null) {
+            if (!isInSession()) {
                 return;
             }
+            CameraInternal camera = requireNonNull(getCamera());
             // When attached to VirtualCamera (e.g. under StreamSharing), avoid tearing down
             // VideoCapture's internal surface pipeline and rely on StreamSharing pipeline reset.
             if (camera.getHasTransform()) {
@@ -865,7 +865,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
         mCloseableErrorListener = new SessionConfig.CloseableErrorListener(
                 (sessionConfig, error) -> {
-                    if (getCamera() == null) {
+                    if (!isInSession()) {
                         return;
                     }
                     Logger.w(TAG, "SessionConfig onError: error = " + error);
@@ -883,7 +883,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private void onAppEdgeInvalidated(@NonNull SurfaceEdge appEdge, @NonNull CameraInternal camera,
             @NonNull VideoCaptureConfig<T> config, @NonNull Timebase timebase,
             boolean hasGlProcessing) {
-        if (camera == getCamera()) {
+        if (camera == getCamera() && isInSession()) {
             mSurfaceRequest = appEdge.createSurfaceRequest(camera);
             config.getVideoOutput().onSurfaceRequested(mSurfaceRequest, timebase, hasGlProcessing);
             sendTransformationInfoIfReady();
