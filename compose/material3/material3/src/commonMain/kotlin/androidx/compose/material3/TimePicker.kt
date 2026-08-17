@@ -2120,10 +2120,11 @@ private fun TimeScrollImpl(
                 fieldAccessibilityDescription = { index ->
                     formatString(hourSuffix, if (state.is24hour) index else index + 1)
                 },
-                field = { index, selected ->
+                field = { index, selected, enabled ->
                     ScrollFieldDefaults.Item(
                         index = if (state.is24hour) index else index + 1,
                         selected = selected,
+                        enabled = enabled,
                     )
                 },
             )
