@@ -22,13 +22,19 @@ import androidx.car.app.Screen
 import androidx.car.app.annotations.ExperimentalCarApi
 import androidx.car.app.model.Action
 import androidx.car.app.model.ActionStrip
+import androidx.car.app.model.Banner
+import androidx.car.app.model.BannerSection
 import androidx.car.app.model.CarProgressBar
 import androidx.car.app.model.ChipSection
+import androidx.car.app.model.CondensedItem
+import androidx.car.app.model.CondensedSection
 import androidx.car.app.model.GridItem
 import androidx.car.app.model.GridSection
 import androidx.car.app.model.Header
 import androidx.car.app.model.RowSection
+import androidx.car.app.model.SectionHeader
 import androidx.car.app.model.SectionedItemTemplate
+import androidx.car.app.model.SpotlightSection
 import androidx.car.app.model.Template
 import androidx.car.app.model.Toggle
 import androidx.car.app.navigation.model.MapController
@@ -40,9 +46,14 @@ import androidx.car.app.sample.showcase.common.utils.createAction
 import androidx.car.app.sample.showcase.common.utils.createBadge
 import androidx.car.app.sample.showcase.common.utils.createChip
 import androidx.car.app.sample.showcase.common.utils.createChipSection
+import androidx.car.app.sample.showcase.common.utils.createCondensedItem
+import androidx.car.app.sample.showcase.common.utils.createCondensedSection
 import androidx.car.app.sample.showcase.common.utils.createGridItem
 import androidx.car.app.sample.showcase.common.utils.createGridSection
 import androidx.car.app.sample.showcase.common.utils.createRow
+import androidx.car.app.sample.showcase.common.utils.createSpotlightSection
+import androidx.car.app.sample.showcase.common.utils.withApiGuard
+import androidx.car.app.versioning.CarAppApiLevels
 
 /** Demonstrates how to present a [MapWithContentTemplate] alongside a [SectionedItemTemplate]. */
 @OptIn(ExperimentalCarApi::class)
@@ -66,8 +77,13 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
     override fun onGetTemplate(): Template {
         val sectionedTemplate =
             with(SectionedItemTemplate.Builder()) {
-                makeChipSection()?.let { chips -> addSection(chips) }
                 setHeader(makeHeader())
+                carContext.withApiGuard(CarAppApiLevels.LEVEL_9) {
+                    addSection(makeChipSection())
+                    addSection(makeSpotlightSection())
+                    addSection(makeBannerSection())
+                    addSection(makeCondensedSection())
+                }
                 addSection(makeGridSection())
                 addSection(makeListSection())
                 build()
@@ -147,7 +163,6 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
                         progressBar = progressBar,
                         clickListener = {},
                     ),
-                    createGridItem(title = "Loading", text = "in progress", isLoading = true),
                     createGridItem(
                         title = "Non-indexable",
                         text = "Skipped in indexed lists",
@@ -159,10 +174,8 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
         )
     }
 
-    private fun makeChipSection(): ChipSection? {
-        if (carContext.carAppApiLevel < 9) return null
-
-        val filterTitles = listOf("All", "Filter 1", "Filter 2")
+    private fun makeChipSection(): ChipSection {
+        val filterTitles = listOf("All", "Filter 1", "Filter 2", "Filter 3")
 
         val chips =
             filterTitles.mapIndexed { index, title ->
@@ -178,6 +191,55 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
             }
 
         return createChipSection(title = "Filters Section", items = chips)
+    }
+
+    private fun makeSpotlightSection(): SpotlightSection {
+        val spotlightIcons = listOf(icMenu, icAndroid, icPhotos)
+        val items =
+            spotlightIcons.mapIndexed { i, icon ->
+                createCondensedItem(
+                    title = "Condensed Item ${i + 1}",
+                    text = "Spotlight item ${i + 1}",
+                    image = icon,
+                )
+            }
+
+        return createSpotlightSection(image = icPhotos, title = "Spotlight Section", items = items)
+    }
+
+    private fun makeBannerSection(): BannerSection {
+        val banner =
+            Banner.Builder()
+                .apply {
+                    setTitle("Rich Banner")
+                    setSubtitle("Combined banner elements: images, actions, and details.")
+                    setLeadingImage(icAndroid)
+                    addTrailingImage(icNavigate, Banner.IMAGE_TYPE_ICON)
+                    addBelowAction(createAction(title = "Primary"))
+                    addBelowAction(createAction(title = "Secondary"))
+                    addBelowAction(createAction(icon = icInfo))
+                }
+                .build()
+
+        return BannerSection.Builder()
+            .setSectionHeader(SectionHeader.Builder("Rich Banner Section").build())
+            .addItem(banner)
+            .build()
+    }
+
+    private fun makeCondensedSection(): CondensedSection {
+        val items =
+            List(3) { i ->
+                createCondensedItem(
+                    title = "Condensed Item #${i + 1}",
+                    text = "Playlist • Media",
+                    image = icAndroid,
+                    imageType = CondensedItem.IMAGE_TYPE_LARGE,
+                    trailingImage = icRoute,
+                )
+            }
+
+        return createCondensedSection(title = "Condensed Items Section", items = items)
     }
 
     private fun makeActionStrip(): ActionStrip {
