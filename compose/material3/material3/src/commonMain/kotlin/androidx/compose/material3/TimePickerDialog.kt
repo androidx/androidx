@@ -482,7 +482,7 @@ public object TimePickerDialogDefaults {
     ) {
         val contentDescription =
             getString(
-                if (displayMode == TimePickerDisplayMode.Picker) {
+                if (displayMode == TimePickerDisplayMode.Scroll) {
                     Strings.TimePickerToggleKeyboard
                 } else {
                     Strings.TimePickerToggleScroll
@@ -496,7 +496,7 @@ public object TimePickerDialogDefaults {
         ) {
             IconButton(modifier = modifier, onClick = onDisplayModeChange) {
                 val icon =
-                    if (displayMode == androidx.compose.material3.TimePickerDisplayMode.Scroll) {
+                    if (displayMode == TimePickerDisplayMode.Scroll) {
                         Icons.Filled.Keyboard
                     } else {
                         Icons.Filled.SwipeVertical
