@@ -346,10 +346,11 @@ cd path/to/checkout/frameworks/support/
 repo start my_branch_name .
 # make necessary code changes
 # use git to commit changes
-repo upload --cbr .
+repo upload --cbr -t .
 ```
 
-The `--cbr` switch automatically picks the current repo branch for upload. You
+The `--cbr` switch automatically picks the current repo branch for upload. The
+`-t` switch sets the Gerrit topic to the branch name, e.g. `my-branch-name`. You
 can refer to the
 [Android documentation](https://source.android.com/setup/create/coding-tasks#workflow)
 for a high level overview of this basic workflow.
