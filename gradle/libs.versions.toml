@@ -2,14 +2,14 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "9.4.0-alpha05"
+androidGradlePlugin = "9.5.0-alpha01"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "32.4.0-alpha05"
+androidLint = "32.5.0-alpha01"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudioIj = "2026.1.4.1"
-androidStudioName = "quail4-canary1"
+androidStudioIj = "2026.2.1.1"
+androidStudioName = "rabbit1-canary1"
 # For IntelliJ download via intellij gradle task
 intelliJVersion = "2026.1"
 # -----------------------------------------------------------------------------
