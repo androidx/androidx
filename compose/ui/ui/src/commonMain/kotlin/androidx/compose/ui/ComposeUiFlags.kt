@@ -176,8 +176,6 @@ public object ComposeUiFlags {
      *
      * This reduces redundant texture uploads and improves performance when the same vector is used
      * multiple times within a composition tree, such as in a LazyColumn.
-     *
-     * Note: This flag currently no-ops; the feature will be added in a future change.
      */
     // TODO: b/493138866 - Clean feature flag
     @field:Suppress("MutableBareField")
