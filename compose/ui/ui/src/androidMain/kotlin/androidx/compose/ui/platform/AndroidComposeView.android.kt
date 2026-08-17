@@ -500,6 +500,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     override val windowInfo: WindowInfo
         get() = composeViewContext.windowInfo
 
+    override val taskDispatchers: TaskDispatchers = AndroidTaskDispatchers
+
     // This is only needed because the existing XR implementation is lacking. It is currently
     // relying on the derivedStateOf() notification change. This can be removed when
     // b/442011315 is fixed.
