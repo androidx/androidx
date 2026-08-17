@@ -20,7 +20,6 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -61,6 +60,7 @@ import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -247,10 +247,10 @@ public class OneHandedGestureScrollIndicatorState @RememberInComposition constru
     internal suspend fun CoroutineScope.performAnimation(
         gestureIndicator: RegisteredIndicator
     ): Unit {
-        try {
-            // Ensure scrollbar is shown while the gesture indicator animation is on
-            launch { scrollableState.animateScrollBy(0.1f) }
+        // Ensure scrollbar is shown while the gesture indicator animation is on
+        val keepScrollbarVisibleJob = launch { scrollableState.scroll { awaitCancellation() } }
 
+        try {
             // Animate indicator visibility in
             launch { avdAnimationScale.animateTo(1f, EXPRESSIVE_DEFAULT_SPATIAL_SPRING_FLOAT) }
             launch { colorProgress.animateTo(1f, EXPRESSIVE_DEFAULT_EFFECTS_SPRING_FLOAT) }
@@ -311,6 +311,7 @@ public class OneHandedGestureScrollIndicatorState @RememberInComposition constru
             // tally for frequency checking.
             gestureManager.notifyIndicatorShown(gestureConfiguration)
         } finally {
+            keepScrollbarVisibleJob.cancel()
             scrollIndicatorState.jiggleAmount = 0f
             avdActive = false
 
