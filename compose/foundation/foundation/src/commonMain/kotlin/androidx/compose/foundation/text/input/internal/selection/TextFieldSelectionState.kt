@@ -406,7 +406,8 @@ internal class TextFieldSelectionState(
     ): Rect {
         if (!visualText.selection.collapsed) return Rect.Zero
 
-        val cursorRect = layoutResult.getCursorRect(visualText.selection.start)
+        val offset = visualText.selection.start.coerceIn(0, layoutResult.layoutInput.text.length)
+        val cursorRect = layoutResult.getCursorRect(offset)
 
         val cursorWidth = with(density) { floor(DefaultCursorThickness.toPx()).coerceAtLeast(1f) }
         // left and right values in cursorRect should be the same but in any case use the
@@ -452,13 +453,15 @@ internal class TextFieldSelectionState(
     ): Rect {
         if (visualText.selection.collapsed) return Rect.Zero
 
-        val lineStart = layoutResult.getLineForOffset(visualText.selection.start)
-        val lineEnd = layoutResult.getLineForOffset(visualText.selection.end)
+        val textLength = layoutResult.layoutInput.text.length
+        val start = visualText.selection.start.coerceIn(0, textLength)
+        val end = visualText.selection.end.coerceIn(0, textLength)
+        val lineStart = layoutResult.getLineForOffset(start)
+        val lineEnd = layoutResult.getLineForOffset(end)
         return if (lineStart == lineEnd) {
             // selection is confined to a single line, we can get away with a cheap calculation
-            val startHorizontal =
-                layoutResult.getHorizontalPosition(visualText.selection.start, true)
-            val endHorizontal = layoutResult.getHorizontalPosition(visualText.selection.end, true)
+            val startHorizontal = layoutResult.getHorizontalPosition(start, true)
+            val endHorizontal = layoutResult.getHorizontalPosition(end, true)
             Rect(
                 left = minOf(startHorizontal, endHorizontal),
                 top = layoutResult.getLineTop(lineStart),
@@ -468,7 +471,10 @@ internal class TextFieldSelectionState(
         } else {
             // selection is multiline, we have to use a slightly expensive method
             val path =
-                layoutResult.getPathForRange(visualText.selection.min, visualText.selection.max)
+                layoutResult.getPathForRange(
+                    visualText.selection.min.coerceIn(0, textLength),
+                    visualText.selection.max.coerceIn(0, textLength),
+                )
             path.getBounds()
         }
     }
