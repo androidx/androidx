@@ -176,5 +176,12 @@
     <!-- Shared Array Buffer -->
     <string name="shared_array_buffer_activity_title">Shared Array Buffer Demo</string>
 
+    <!-- Hyperlink Context Menu -->
+    <string name="hyperlink_context_menu_activity_title">Hyperlink Context Menu Demo</string>
+    <string name="hyperlink_context_menu_config_title">Configure Hyperlink Context Menu Items:</string>
+    <string name="checkbox_copy_address_label">Copy Link Address</string>
+    <string name="checkbox_copy_text_label">Copy Link Text</string>
+    <string name="checkbox_open_link_label">Open Link</string>
+    <string name="hyperlink_context_menu_webview_title">WebView Area:</string>
 
 </resources>
