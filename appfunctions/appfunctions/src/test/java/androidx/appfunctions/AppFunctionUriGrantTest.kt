@@ -51,7 +51,8 @@ class AppFunctionUriGrantTest {
 
         val data = AppFunctionData.serialize(uriGrant, AppFunctionUriGrant::class.java)
 
-        assertThat(data.getString("uri")).isEqualTo("content://com.example/1")
+        assertThat(data.getAppFunctionData("uri")?.deserialize(Uri::class.java))
+            .isEqualTo(Uri.parse("content://com.example/1"))
         assertThat(data.getInt("modeFlags", 0))
             .isEqualTo(
                 Intent.FLAG_GRANT_PREFIX_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -62,7 +63,10 @@ class AppFunctionUriGrantTest {
     fun deserializeFromAppFunctionData_shouldSucceed() {
         val data =
             AppFunctionData.Builder(URI_GRANT_OBJECT_TYPE_METADATA, URI_GRANT_COMPONENTS_METADATA)
-                .setString("uri", "content://com.example/1")
+                .setAppFunctionData(
+                    "uri",
+                    AppFunctionData.serialize(Uri.parse("content://com.example/1"), Uri::class.java),
+                )
                 .setInt(
                     "modeFlags",
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION,
