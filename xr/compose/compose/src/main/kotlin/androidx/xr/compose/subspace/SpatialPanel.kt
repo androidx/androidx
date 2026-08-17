@@ -45,7 +45,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.viewtree.getParentOrViewTreeDisjointParent
@@ -76,14 +75,11 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.anchorable
 import androidx.xr.compose.subspace.layout.interactable
 import androidx.xr.compose.subspace.layout.movable
-import androidx.xr.compose.subspace.layout.resizable
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCompositionLocalMap
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCoreEntity
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetMeasurePolicy
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetModifier
-import androidx.xr.compose.unit.DpVolumeSize
-import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
@@ -247,83 +243,6 @@ public class MovePolicy(
 }
 
 /**
- * Defines the resizing policy for a spatial object.
- *
- * This class specifies how a spatial object can be resized, including enabling/disabling resizing,
- * setting minimum and maximum size constraints, and controlling aspect ratio maintenance.
- *
- * @property isEnabled Whether resizing is enabled for this object. If `false`, the object cannot be
- *   resized. Defaults to `true`.
- * @property minimumSize The minimum allowable size for the object, represented by a [DpVolumeSize].
- *   The object cannot be scaled down beyond these dimensions. Defaults to [DpVolumeSize.Zero].
- * @property maximumSize The maximum allowable size for the object, represented by a [DpVolumeSize].
- *   The object cannot be scaled up beyond these dimensions. Defaults to a [DpVolumeSize] with all
- *   dimensions set to [Dp.Infinity], meaning no upper limit by default.
- * @property shouldMaintainAspectRatio If `true`, the object's aspect ratio (proportions) will be
- *   preserved during resizing. If `false`, individual dimensions can be changed independently.
- *   Defaults to `false`.
- * @property onResizeStart A callback to be called when the resize event starts.
- * @property onResizeUpdate A callback to be called when the size changes during a resize event.
- * @property onResizeEnd A callback to be called with the new size when the resize event ends.
- * @property onSizeChange A callback to be called when the object's size changes, after a resize
- *   event has ended. It receives an [IntVolumeSize] representing the new size. Returning `true`
- *   from this callback indicates that the developer intends to handle the size change, and the API
- *   should not resize the object. Returning `false` indicates that the developer will not handle
- *   the size change, and the API should proceed with changing the size of the object itself. If the
- *   callback is `null` (the default), the API will change the size of the object.
- */
-@Deprecated("Use SubspaceModifier.resizable() instead.")
-@Suppress("DEPRECATION")
-public class ResizePolicy(
-    public val isEnabled: Boolean = true,
-    public val minimumSize: DpVolumeSize = DpVolumeSize.Zero,
-    public val maximumSize: DpVolumeSize = DpVolumeSize(Dp.Infinity, Dp.Infinity, Dp.Infinity),
-    @get:JvmName("shouldMaintainAspectRatio") public val shouldMaintainAspectRatio: Boolean = false,
-    public val onResizeStart: ((IntVolumeSize) -> Unit)? = null,
-    public val onResizeUpdate: ((IntVolumeSize) -> Unit)? = null,
-    public val onResizeEnd: ((IntVolumeSize) -> Unit)? = null,
-    public val onSizeChange: ((IntVolumeSize) -> Boolean)? = null,
-) {
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ResizePolicy
-
-        if (isEnabled != other.isEnabled) return false
-        if (shouldMaintainAspectRatio != other.shouldMaintainAspectRatio) return false
-        if (minimumSize != other.minimumSize) return false
-        if (maximumSize != other.maximumSize) return false
-        if (onResizeStart !== other.onResizeStart) return false
-        if (onResizeUpdate !== other.onResizeUpdate) return false
-        if (onResizeEnd !== other.onResizeEnd) return false
-        if (onSizeChange !== other.onSizeChange) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = isEnabled.hashCode()
-        result = 31 * result + shouldMaintainAspectRatio.hashCode()
-        result = 31 * result + minimumSize.hashCode()
-        result = 31 * result + maximumSize.hashCode()
-        result = 31 * result + (onResizeStart?.hashCode() ?: 0)
-        result = 31 * result + (onResizeUpdate?.hashCode() ?: 0)
-        result = 31 * result + (onResizeEnd?.hashCode() ?: 0)
-        result = 31 * result + (onSizeChange?.hashCode() ?: 0)
-        return result
-    }
-
-    override fun toString(): String {
-        return "ResizePolicy(isEnabled=$isEnabled, minimumSize=$minimumSize, " +
-            "maximumSize=$maximumSize, shouldMaintainAspectRatio=$shouldMaintainAspectRatio, " +
-            "onResizeStart=$onResizeStart, onResizeUpdate=$onResizeUpdate, " +
-            "onResizeEnd=$onResizeEnd, onSizeChange=$onSizeChange)"
-    }
-}
-
-/**
  * Creates a [SpatialAndroidViewPanel] representing a 2D plane in 3D space where an Android View
  * will be hosted.
  *
@@ -351,9 +270,6 @@ public class ResizePolicy(
  *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
  *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
  *   allowing the user to manipulate the panel in 3D space. If null, no motion behavior is applied.
- * @param resizePolicy An optional [ResizePolicy] configuration object that resizing behavior of
- *   this [SpatialPanel]. The draggable UI controls will be shown that allow the user to resize the
- *   element in 3D space. If null, there is no resize behavior applied to the element.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events. Setting this will not intercept 2D input events and is intended to provide additional
  *   spatial input information.
@@ -367,14 +283,12 @@ public fun <T : View> SpatialAndroidViewPanel(
     update: (T) -> Unit = {},
     shape: SpatialShape = SpatialPanelDefaults.shape,
     dragPolicy: DragPolicy? = null,
-    resizePolicy: ResizePolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
 ) {
     val finalModifier =
         buildSpatialPanelModifier(
             baseModifier = modifier,
             dragPolicy = dragPolicy,
-            resizePolicy = resizePolicy,
             interactionPolicy = interactionPolicy,
         )
     val dialogManager = LocalDialogManager.current
@@ -483,9 +397,6 @@ private fun <T : View> AndroidViewPanel(
  *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
  *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
  *   allowing the user to manipulate the panel in 3D space. If null, no motion behavior is applied.
- * @param resizePolicy An optional [ResizePolicy] that defines the resizing behavior of this
- *   [SpatialPanel]. If a policy is provided, resize UI controls will be shown, allowing the user to
- *   resize the element in 3D space. If null, no resize behavior is applied to the element.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events. Setting this will not intercept 2D input events and is intended to provide additional
  *   spatial input information.
@@ -498,7 +409,6 @@ public fun SpatialPanel(
     modifier: SubspaceModifier = SubspaceModifier,
     shape: SpatialShape = SpatialPanelDefaults.shape,
     dragPolicy: DragPolicy? = null,
-    resizePolicy: ResizePolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
     content: @Composable @UiComposable () -> Unit,
 ) {
@@ -506,7 +416,6 @@ public fun SpatialPanel(
         buildSpatialPanelModifier(
             baseModifier = modifier,
             dragPolicy = dragPolicy,
-            resizePolicy = resizePolicy,
             interactionPolicy = interactionPolicy,
         )
 
@@ -609,9 +518,6 @@ public fun SpatialPanel(
  *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
  *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
  *   allowing the user to manipulate the panel in 3D space. If null, no motion behavior is applied.
- * @param resizePolicy An optional [ResizePolicy] configuration object that resizing behavior of
- *   this [SpatialPanel]. The draggable UI controls will be shown that allow the user to resize the
- *   element in 3D space. If null, there is no resize behavior applied to the element.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events. Setting this will not intercept 2D input events and is intended to provide additional
  *   spatial input information.
@@ -624,14 +530,12 @@ public fun SpatialMainPanel(
     modifier: SubspaceModifier = SubspaceModifier,
     shape: SpatialShape = SpatialPanelDefaults.shape,
     dragPolicy: DragPolicy? = null,
-    resizePolicy: ResizePolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
 ) {
     val finalModifier =
         buildSpatialPanelModifier(
             baseModifier = modifier,
             dragPolicy = dragPolicy,
-            resizePolicy = resizePolicy,
             interactionPolicy = interactionPolicy,
         )
     val mainPanel = requestMainPanelOwnership().value ?: return
@@ -747,9 +651,6 @@ internal class MainPanelOwnerQueue(private val queue: ArrayDeque<() -> Unit> = A
  *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
  *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
  *   allowing the user to manipulate the panel in 3D space. If null, no motion behavior is applied.
- * @param resizePolicy An optional [ResizePolicy] configuration object that resizing behavior of
- *   this [SpatialPanel]. The draggable UI controls will be shown that allow the user to resize the
- *   element in 3D space. If null, there is no resize behavior applied to the element.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events. Setting this will not intercept 2D input events and is intended to provide additional
  *   spatial input information.
@@ -771,14 +672,12 @@ public fun SpatialActivityPanel(
     modifier: SubspaceModifier = SubspaceModifier,
     shape: SpatialShape = SpatialPanelDefaults.shape,
     dragPolicy: DragPolicy? = null,
-    resizePolicy: ResizePolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
 ) {
     val finalModifier =
         buildSpatialPanelModifier(
             baseModifier = modifier,
             dragPolicy = dragPolicy,
-            resizePolicy = resizePolicy,
             interactionPolicy = interactionPolicy,
         )
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
@@ -895,7 +794,6 @@ private class SpatialViewPanelMeasurePolicy(private val view: View) : SubspaceMe
  * @param baseModifier The initial [SubspaceModifier] to which policies will be applied.
  * @param dragPolicy An optional [AnchorPolicy] or [MovePolicy] to configure either anchoring or
  *   movement behavior.
- * @param resizePolicy An optional [ResizePolicy] to configure resizing behavior.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events.
  * @return A [SubspaceModifier] with all applicable policies integrated.
@@ -905,7 +803,6 @@ private class SpatialViewPanelMeasurePolicy(private val view: View) : SubspaceMe
 internal fun buildSpatialPanelModifier(
     baseModifier: SubspaceModifier,
     dragPolicy: DragPolicy?,
-    resizePolicy: ResizePolicy?,
     interactionPolicy: InteractionPolicy? = null,
 ): SubspaceModifier {
     var finalModifier =
@@ -932,23 +829,6 @@ internal fun buildSpatialPanelModifier(
                 baseModifier
             }
         }
-
-    if (resizePolicy != null) {
-        @Suppress("DEPRECATION")
-        finalModifier =
-            finalModifier.resizable(
-                enabled = resizePolicy.isEnabled,
-                minimumSize = resizePolicy.minimumSize,
-                maximumSize = resizePolicy.maximumSize,
-                maintainAspectRatio = resizePolicy.shouldMaintainAspectRatio,
-                onResizeStart = resizePolicy.onResizeStart ?: {},
-                onResizeUpdate = resizePolicy.onResizeUpdate ?: {},
-                onResizeEnd = { size ->
-                    resizePolicy.onResizeEnd?.let { it(size) }
-                    resizePolicy.onSizeChange?.let { it(size) } == true
-                },
-            )
-    }
 
     if (interactionPolicy != null) {
         finalModifier =
