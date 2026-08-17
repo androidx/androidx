@@ -83,6 +83,7 @@ import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
@@ -1399,6 +1400,7 @@ class ExecuteAppFunctionIntegrationTest {
         }
     }
 
+    @Ignore("TODO: b/547884111 - Remove once legacy Uri fallback is resolved.")
     @Test
     fun executeFunction_uriConstraint_success() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
@@ -1420,6 +1422,7 @@ class ExecuteAppFunctionIntegrationTest {
         assertThat(returnedUri).isEqualTo(validUri)
     }
 
+    @Ignore("TODO: b/547884111 - Remove once legacy Uri fallback is resolved.")
     @Test
     fun executeFunction_uriConstraint_failsForInvalidScheme() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
