@@ -53,6 +53,11 @@ internal actual constructor(private val impl: SavedStateRegistryImpl) {
      *
      * Subclasses must have a default constructor
      */
+    @Deprecated(
+        message =
+            "`AutoRecreated` is deprecated. Use `SavedStateProvider` and `SavedStateConsumer` to " +
+                "save and restore state."
+    )
     public interface AutoRecreated {
         /**
          * This method will be called during dispatching of
@@ -76,6 +81,12 @@ internal actual constructor(private val impl: SavedStateRegistryImpl) {
      * @throws IllegalArgumentException if you try to call if after [Lifecycle.Event.ON_STOP] was
      *   dispatched
      */
+    @Deprecated(
+        message =
+            "`runOnNextRecreation` is deprecated. Use `SavedStateProvider` and `SavedStateConsumer` " +
+                "to save and restore state."
+    )
+    @Suppress("DEPRECATION")
     @MainThread
     public fun runOnNextRecreation(clazz: Class<out AutoRecreated>) {
         check(impl.isAllowingSavingState) {
