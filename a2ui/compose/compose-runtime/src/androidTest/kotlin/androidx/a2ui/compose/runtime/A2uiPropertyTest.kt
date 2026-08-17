@@ -70,6 +70,29 @@ class A2uiPropertyTest {
     }
 
     @Test
+    fun nestedProperty_initialization_withAdditionalProperties_setsCorrectFieldsAndSchema() {
+        val child = A2uiProperty.string("name")
+
+        val prop =
+            A2uiProperty.nested(
+                key = "user",
+                properties = listOf(child),
+                isAdditionalPropertiesAllowed = false,
+                additionalPropertiesSchema = A2uiNumberSchema.INSTANCE,
+            )
+
+        assertThat(prop.key).isEqualTo("user")
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiObjectSchema(
+                    properties = mapOf("name" to A2uiStringSchema()),
+                    isAdditionalPropertiesAllowed = false,
+                    additionalPropertiesSchema = A2uiNumberSchema.INSTANCE,
+                )
+            )
+    }
+
+    @Test
     fun nestedProperty_safeCast_wrapsMapInA2uiComponentProperties() {
         val childProp = A2uiProperty.string("name")
         val prop = A2uiProperty.nested("user", listOf(childProp))
@@ -150,6 +173,34 @@ class A2uiPropertyTest {
             .isEqualTo(
                 A2uiArraySchema(
                     items = A2uiObjectSchema(properties = mapOf("title" to A2uiStringSchema())),
+                    minItems = 0,
+                    maxItems = -1,
+                )
+            )
+    }
+
+    @Test
+    fun nestedListProperty_initialization_withAdditionalProperties_setsCorrectFieldsAndSchema() {
+        val child = A2uiProperty.string("title")
+
+        val prop =
+            A2uiProperty.nestedList(
+                key = "tabs",
+                properties = listOf(child),
+                isAdditionalPropertiesAllowed = false,
+                additionalPropertiesSchema = A2uiNumberSchema.INSTANCE,
+            )
+
+        assertThat(prop.key).isEqualTo("tabs")
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiArraySchema(
+                    items =
+                        A2uiObjectSchema(
+                            properties = mapOf("title" to A2uiStringSchema()),
+                            isAdditionalPropertiesAllowed = false,
+                            additionalPropertiesSchema = A2uiNumberSchema.INSTANCE,
+                        ),
                     minItems = 0,
                     maxItems = -1,
                 )
