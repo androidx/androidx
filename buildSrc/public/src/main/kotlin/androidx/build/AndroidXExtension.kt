@@ -319,11 +319,8 @@ abstract class AndroidXExtension(
     }
 
     fun shouldPublishSbom(): Provider<Boolean> {
-        return type.zip(project.provider { isIsolatedProjectsEnabled() }) { type, isolated ->
-            if (isolated) return@zip false
-            // IDE plugins are used by and ship inside Studio
-            type.publish.shouldPublish() || type == SoftwareType.IDE_PLUGIN
-        }
+        // IDE plugins are used by and ship inside Studio
+        return type.map { type -> type.publish.shouldPublish() || type == SoftwareType.IDE_PLUGIN }
     }
 
     var doNotDocumentReason: String? = null
