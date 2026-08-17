@@ -21,6 +21,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
+import androidx.compose.remote.core.operations.TextTransform
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -601,6 +602,78 @@ class RemoteStringTest {
     }
 
     @Test
+    fun uppercase_nop_elidesTextTransform() {
+        val percentage = RemoteFloat(45.5f)
+        val source = percentage.toRemoteString(DecimalFormat("#0.0")) + RemoteString("%")
+        val result = source.uppercase()
+        val resultId = result.getIdForCreationState(creationState)
+
+        val doc = makeAndPaintCoreDocument()
+
+        assertThat(context.getText(resultId)).isEqualTo("45.5%")
+        assertThat(resultId).isEqualTo(source.getIdForCreationState(creationState))
+        assertThat(doc.operations.filterIsInstance<TextTransform>()).isEmpty()
+    }
+
+    @Test
+    fun uppercase_dynamic_withLowerLetters_emitsTextTransform() {
+        val s =
+            selectIfLt(namedRemoteFloat, RemoteFloat(0f), RemoteString("abc"), RemoteString("def"))
+        val result = s.uppercase()
+        val resultId = result.getIdForCreationState(creationState)
+
+        val doc = makeAndUpdateCoreDocument {}
+
+        assertThat(context.getText(resultId)).isEqualTo("DEF")
+        assertThat(doc.operations.filterIsInstance<TextTransform>()).hasSize(1)
+    }
+
+    @Test
+    fun uppercase_nested_elidesSecondTransform() {
+        val s =
+            selectIfLt(namedRemoteFloat, RemoteFloat(0f), RemoteString("abc"), RemoteString("def"))
+        val upper1 = s.uppercase()
+        val upper2 = upper1.uppercase()
+        val resultId = upper2.getIdForCreationState(creationState)
+
+        val doc = makeAndUpdateCoreDocument {}
+
+        assertThat(context.getText(resultId)).isEqualTo("DEF")
+        assertThat(resultId).isEqualTo(upper1.getIdForCreationState(creationState))
+        assertThat(doc.operations.filterIsInstance<TextTransform>()).hasSize(1)
+    }
+
+    @Test
+    fun uppercase_namedString_emitsTextTransform() {
+        val named = RemoteString.createNamedRemoteString("str", "123%")
+        val upper = named.uppercase()
+        upper.getIdForCreationState(creationState)
+
+        val doc = makeAndUpdateCoreDocument {}
+
+        assertThat(doc.operations.filterIsInstance<TextTransform>()).hasSize(1)
+    }
+
+    @Test
+    fun uppercase_nonEnglishUncased_elidesTextTransform() {
+        val s =
+            selectIfLt(
+                namedRemoteFloat,
+                RemoteFloat(0f),
+                RemoteString("こんにちは"),
+                RemoteString("مرحبا"),
+            )
+        val result = s.uppercase()
+        val resultId = result.getIdForCreationState(creationState)
+
+        val doc = makeAndUpdateCoreDocument {}
+
+        assertThat(context.getText(resultId)).isEqualTo("مرحبا")
+        assertThat(resultId).isEqualTo(s.getIdForCreationState(creationState))
+        assertThat(doc.operations.filterIsInstance<TextTransform>()).isEmpty()
+    }
+
+    @Test
     fun lowercase() {
         val s = RemoteString("Hello world")
         val result = s.lowercase()
@@ -609,6 +682,48 @@ class RemoteStringTest {
         makeAndPaintCoreDocument()
 
         assertThat(context.getText(resultId)).isEqualTo("hello world")
+    }
+
+    @Test
+    fun lowercase_nop_elidesTextTransform() {
+        val percentage = RemoteFloat(45.5f)
+        val source = percentage.toRemoteString(DecimalFormat("#0.0")) + RemoteString("%")
+        val result = source.lowercase()
+        val resultId = result.getIdForCreationState(creationState)
+
+        val doc = makeAndPaintCoreDocument()
+
+        assertThat(context.getText(resultId)).isEqualTo("45.5%")
+        assertThat(resultId).isEqualTo(source.getIdForCreationState(creationState))
+        assertThat(doc.operations.filterIsInstance<TextTransform>()).isEmpty()
+    }
+
+    @Test
+    fun lowercase_dynamic_withUpperLetters_emitsTextTransform() {
+        val s =
+            selectIfLt(namedRemoteFloat, RemoteFloat(0f), RemoteString("ABC"), RemoteString("DEF"))
+        val result = s.lowercase()
+        val resultId = result.getIdForCreationState(creationState)
+
+        val doc = makeAndUpdateCoreDocument {}
+
+        assertThat(context.getText(resultId)).isEqualTo("def")
+        assertThat(doc.operations.filterIsInstance<TextTransform>()).hasSize(1)
+    }
+
+    @Test
+    fun lowercase_nested_elidesSecondTransform() {
+        val s =
+            selectIfLt(namedRemoteFloat, RemoteFloat(0f), RemoteString("ABC"), RemoteString("DEF"))
+        val lower1 = s.lowercase()
+        val lower2 = lower1.lowercase()
+        val resultId = lower2.getIdForCreationState(creationState)
+
+        val doc = makeAndUpdateCoreDocument {}
+
+        assertThat(context.getText(resultId)).isEqualTo("def")
+        assertThat(resultId).isEqualTo(lower1.getIdForCreationState(creationState))
+        assertThat(doc.operations.filterIsInstance<TextTransform>()).hasSize(1)
     }
 
     @Test
