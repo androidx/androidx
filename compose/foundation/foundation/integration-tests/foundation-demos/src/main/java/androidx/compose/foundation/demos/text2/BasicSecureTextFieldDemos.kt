@@ -166,7 +166,7 @@ fun PasswordToggleVisibilityDemo() {
                 if (visible) {
                     TextObfuscationMode.Visible
                 } else {
-                    TextObfuscationMode.RevealLastTyped
+                    TextObfuscationMode.System
                 },
             modifier =
                 Modifier.weight(1f)
