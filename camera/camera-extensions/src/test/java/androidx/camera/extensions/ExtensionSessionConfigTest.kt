@@ -18,8 +18,13 @@ package androidx.camera.extensions
 
 import android.content.Context
 import android.hardware.camera2.CameraExtensionCharacteristics
+import android.util.Rational
+import android.view.Surface
+import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraProvider
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
+import androidx.camera.core.ViewPort
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -28,6 +33,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
@@ -92,11 +98,25 @@ class ExtensionSessionConfigTest {
 
     @Test
     fun dsl_buildsCorrectExtensionSessionConfig() {
+        val preview = Preview.Builder().build()
+        val viewport = ViewPort.Builder(Rational(4, 3), Surface.ROTATION_0).build()
+        val effect = mock(CameraEffect::class.java)
         val config =
             extensionSessionConfig(ExtensionMode.BOKEH, extensionsManager) {
+                useCases = listOf(preview)
+                viewPort = viewport
+                effects = listOf(effect)
                 isAutoRotationEnabled = true
+
+                assertThat(useCases).containsExactly(preview)
+                assertThat(viewPort).isEqualTo(viewport)
+                assertThat(effects).containsExactly(effect)
+                assertThat(isAutoRotationEnabled).isTrue()
             }
 
+        assertThat(config.useCases).containsExactly(preview)
+        assertThat(config.viewPort).isEqualTo(viewport)
+        assertThat(config.effects).containsExactly(effect)
         assertThat(config.isAutoRotationEnabled).isTrue()
     }
 

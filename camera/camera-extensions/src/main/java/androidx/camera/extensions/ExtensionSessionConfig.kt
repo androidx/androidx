@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraProvider
+import androidx.camera.core.CameraXDsl
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.SessionConfig
@@ -163,43 +164,10 @@ constructor(
         @param:ExtensionMode.Mode private val mode: Int,
         private val extensionsManager: ExtensionsManager,
     ) {
-        private val useCases: MutableList<UseCase> = mutableListOf()
-
-        private var _viewPort: ViewPort? = null
-
-        /** The [ViewPort] for the session. */
-        // This property uses `@JvmSynthetic` for both the getter and setter to support idiomatic
-        // Kotlin assignment in the DSL while preventing visibility to Java callers. This satisfies
-        // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
-        @get:Nullable
-        @get:JvmSynthetic
-        @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-        @set:Nullable
-        @set:JvmSynthetic
-        public var viewPort: ViewPort?
-            get() = _viewPort
-            set(value) {
-                _viewPort = value
-            }
-
-        private val effects: MutableList<CameraEffect> = mutableListOf()
-
-        private var _isAutoRotationEnabled: Boolean = false
-
-        /** Whether to use auto rotation. */
-        // This property uses `@JvmSynthetic` for both the getter and setter to support idiomatic
-        // Kotlin assignment in the DSL while preventing visibility to Java callers. This satisfies
-        // the AndroidX `GetterOnBuilder` lint rule and avoids polluting the Java Builder API.
-        @get:NonNull
-        @get:JvmSynthetic
-        @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-        @set:NonNull
-        @set:JvmSynthetic
-        public var isAutoRotationEnabled: Boolean
-            get() = _isAutoRotationEnabled
-            set(value) {
-                _isAutoRotationEnabled = value
-            }
+        internal val useCases: MutableList<UseCase> = mutableListOf()
+        private var viewPort: ViewPort? = null
+        internal val effects: MutableList<CameraEffect> = mutableListOf()
+        private var isAutoRotationEnabled: Boolean = false
 
         /** Adds a [UseCase] to the session. */
         public fun addUseCase(useCase: UseCase): Builder {
@@ -209,7 +177,7 @@ constructor(
 
         /** Sets the [ViewPort] for the session. */
         public fun setViewPort(viewPort: ViewPort): Builder {
-            this._viewPort = viewPort
+            this.viewPort = viewPort
             return this
         }
 
@@ -226,7 +194,7 @@ constructor(
          * for ImageCapture and VideoCapture.
          */
         public fun setAutoRotationEnabled(autoRotationEnabled: Boolean): Builder {
-            this._isAutoRotationEnabled = autoRotationEnabled
+            this.isAutoRotationEnabled = autoRotationEnabled
             return this
         }
 
@@ -240,12 +208,87 @@ constructor(
                 mode = mode,
                 extensionsManager = extensionsManager,
                 useCases = useCases.toList(),
-                viewPort = _viewPort,
+                viewPort = viewPort,
                 effects = effects.toList(),
-                isAutoRotationEnabled = _isAutoRotationEnabled,
+                isAutoRotationEnabled = isAutoRotationEnabled,
             )
         }
     }
+}
+
+/** Scope class for [ExtensionSessionConfig] configuration DSL. */
+@CameraXDsl
+public class ExtensionSessionConfigScope
+internal constructor(
+    @param:ExtensionMode.Mode private val mode: Int,
+    private val extensionsManager: ExtensionsManager,
+    private val builder: ExtensionSessionConfig.Builder =
+        ExtensionSessionConfig.Builder(mode, extensionsManager),
+) {
+
+    private val _useCases: MutableList<UseCase> = mutableListOf()
+
+    /** The list of [UseCase] instances to be attached to the camera and receive camera data. */
+    @get:NonNull
+    @set:NonNull
+    public var useCases: List<UseCase>
+        get() = _useCases.toList()
+        set(value) {
+            _useCases.clear()
+            _useCases.addAll(value)
+            builder.useCases.clear()
+            builder.useCases.addAll(value)
+        }
+
+    private var _viewPort: ViewPort? = null
+
+    /**
+     * The [ViewPort] for the session.
+     *
+     * Note: Setting this property to `null` is a no-op on the underlying
+     * [ExtensionSessionConfig.Builder] because [ExtensionSessionConfig.Builder.setViewPort]
+     * requires a non-null [ViewPort].
+     *
+     * @see ExtensionSessionConfig.Builder.setViewPort
+     */
+    @get:Nullable
+    @set:Nullable
+    public var viewPort: ViewPort?
+        get() = _viewPort
+        set(value) {
+            _viewPort = value
+            if (value != null) {
+                builder.setViewPort(value)
+            }
+        }
+
+    private val _effects: MutableList<CameraEffect> = mutableListOf()
+
+    /** The list of [CameraEffect] to be applied on the camera session. */
+    @get:NonNull
+    @set:NonNull
+    public var effects: List<CameraEffect>
+        get() = _effects.toList()
+        set(value) {
+            _effects.clear()
+            _effects.addAll(value)
+            builder.effects.clear()
+            builder.effects.addAll(value)
+        }
+
+    private var _isAutoRotationEnabled: Boolean = false
+
+    /** Whether to use auto rotation. */
+    @get:NonNull
+    @set:NonNull
+    public var isAutoRotationEnabled: Boolean
+        get() = _isAutoRotationEnabled
+        set(value) {
+            _isAutoRotationEnabled = value
+            builder.setAutoRotationEnabled(value)
+        }
+
+    internal fun build(): ExtensionSessionConfig = builder.build()
 }
 
 /**
@@ -261,12 +304,11 @@ constructor(
  *
  * @param mode The extension mode. See [ExtensionMode] for the list of available modes.
  * @param extensionsManager The [ExtensionsManager] instance.
- * @param block A lambda to configure the [ExtensionSessionConfig.Builder].
+ * @param block A lambda to configure the [ExtensionSessionConfigScope].
  */
-@JvmSynthetic
-public inline fun extensionSessionConfig(
+public fun extensionSessionConfig(
     @ExtensionMode.Mode mode: Int,
     extensionsManager: ExtensionsManager,
-    crossinline block: ExtensionSessionConfig.Builder.() -> Unit,
+    block: ExtensionSessionConfigScope.() -> Unit,
 ): ExtensionSessionConfig =
-    ExtensionSessionConfig.Builder(mode, extensionsManager).apply(block).build()
+    ExtensionSessionConfigScope(mode, extensionsManager).apply(block).build()

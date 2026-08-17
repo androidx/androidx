@@ -260,10 +260,10 @@ public final class ImageAnalysis extends UseCase {
     // ImageReader depth for KEEP_ONLY_LATEST mode.
     private static final int NON_BLOCKING_IMAGE_DEPTH = 4;
     @BackpressureStrategy
-    private static final int DEFAULT_BACKPRESSURE_STRATEGY = STRATEGY_KEEP_ONLY_LATEST;
-    private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
+    static final int DEFAULT_BACKPRESSURE_STRATEGY = STRATEGY_KEEP_ONLY_LATEST;
+    static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
     // Default to YUV_420_888 format for output.
-    private static final int DEFAULT_OUTPUT_IMAGE_FORMAT = OUTPUT_IMAGE_FORMAT_YUV_420_888;
+    static final int DEFAULT_OUTPUT_IMAGE_FORMAT = OUTPUT_IMAGE_FORMAT_YUV_420_888;
     // One pixel shift for YUV.
     private static final Boolean DEFAULT_ONE_PIXEL_SHIFT_ENABLED = null;
     // Default to disabled for rotation.

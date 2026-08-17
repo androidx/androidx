@@ -201,12 +201,23 @@ class HighSpeedVideoSessionConfigTest {
     fun dsl_buildsCorrectHighSpeedVideoSessionConfig() {
         val config =
             highSpeedVideoSessionConfig(defaultVideoCapture) {
-                isAutoRotationEnabled = true
                 preview = defaultPreview
+                frameRateRange = FPS_120_120
+                isSlowMotionEnabled = true
+                isAutoRotationEnabled = true
+
+                assertThat(preview).isEqualTo(defaultPreview)
+                assertThat(frameRateRange).isEqualTo(FPS_120_120)
+                assertThat(isSlowMotionEnabled).isTrue()
+                assertThat(isAutoRotationEnabled).isTrue()
             }
 
-        assertThat(config.isAutoRotationEnabled).isTrue()
+        assertThat(config.videoCapture).isEqualTo(defaultVideoCapture)
         assertThat(config.preview).isEqualTo(defaultPreview)
+        assertThat(config.frameRateRange).isEqualTo(FPS_120_120)
+        assertThat(config.isSlowMotionEnabled).isTrue()
+        assertThat(config.isAutoRotationEnabled).isTrue()
+        assertThat(config.useCases).containsExactly(defaultVideoCapture, defaultPreview)
     }
 
     @Test

@@ -292,6 +292,15 @@ public class CameraUseCaseAdapter(
                         insertOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION, streamUseCase)
                     }
 
+                    if (Build.VERSION.SDK_INT >= 31) {
+                        camera2Config.getSensorPixelModesUsed()?.let { sensorPixelModes ->
+                            insertOption(
+                                Camera2ImplConfig.SENSOR_PIXEL_MODES_USED_OPTION,
+                                sensorPixelModes,
+                            )
+                        }
+                    }
+
                     if (Build.VERSION.SDK_INT >= 34) {
                         camera2Config.getColorSpace()?.let { colorSpace ->
                             insertOption(Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION, colorSpace)

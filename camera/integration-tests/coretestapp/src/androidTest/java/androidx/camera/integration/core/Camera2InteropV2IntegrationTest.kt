@@ -707,8 +707,6 @@ class Camera2InteropV2IntegrationTest {
         val supportedColorSpaces = profiles!!.getSupportedColorSpaces(ImageFormat.YUV_420_888)
         assumeTrue(supportedColorSpaces.contains(ColorSpace.Named.DISPLAY_P3))
 
-        val displayP3Ordinal = ColorSpace.Named.DISPLAY_P3.ordinal
-
         // Arrange
         val frameLatch = CountDownLatch(1)
         val capturedDataSpace = AtomicReference<Int>()
@@ -727,7 +725,7 @@ class Camera2InteropV2IntegrationTest {
             SessionConfig.Builder(preview, imageAnalysis)
                 .setInterop(
                     Camera2Interop.forSessionConfig { interop ->
-                        interop.setColorSpace(displayP3Ordinal)
+                        interop.setColorSpace(ColorSpace.Named.DISPLAY_P3)
                     }
                 )
                 .build()
