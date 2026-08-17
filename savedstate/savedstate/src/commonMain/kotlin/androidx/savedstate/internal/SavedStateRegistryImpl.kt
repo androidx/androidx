@@ -22,9 +22,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.SavedStateRegistry.SavedStateConsumer
 import androidx.savedstate.SavedStateRegistry.SavedStateProvider
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.SavedStateRestorer
 import androidx.savedstate.read
 import androidx.savedstate.savedState
 import androidx.savedstate.write
@@ -71,18 +71,16 @@ internal class SavedStateRegistryImpl(
             }
             keyToProviders[key] = provider
 
-            if (provider is SavedStateConsumer && isRestored) {
+            if (provider is SavedStateRestorer && isRestored) {
                 val state = restoredState
-                if (state != null) {
-                    val childState = state.read { if (contains(key)) getSavedState(key) else null }
-                    if (childState != null) {
-                        state.write { remove(key) }
-                        if (state.read { isEmpty() }) {
-                            restoredState = null
-                        }
-                        provider.consumeState(childState)
+                val childState = state?.read { if (contains(key)) getSavedState(key) else null }
+                if (childState != null) {
+                    state.write { remove(key) }
+                    if (state.read { isEmpty() }) {
+                        restoredState = null
                     }
                 }
+                provider.restoreState(childState)
             }
         }
     }
@@ -136,20 +134,19 @@ internal class SavedStateRegistryImpl(
         restoredState = restored
         isRestored = true
 
-        if (restored != null) {
-            synchronized(lock) {
-                keyToProviders.forEach { key, provider ->
-                    if (provider is SavedStateConsumer) {
-                        val childState = restored.read { getSavedStateOrNull(key) }
-                        if (childState != null) {
-                            restored.write { remove(key) }
-                            provider.consumeState(childState)
-                        }
+        synchronized(lock) {
+            keyToProviders.forEach { key, provider ->
+                if (provider is SavedStateRestorer) {
+                    val childState =
+                        restored?.read { if (contains(key)) getSavedState(key) else null }
+                    if (childState != null) {
+                        restored.write { remove(key) }
                     }
+                    provider.restoreState(childState)
                 }
-                if (restored.read { isEmpty() }) {
-                    restoredState = null
-                }
+            }
+            if (restored != null && restored.read { isEmpty() }) {
+                restoredState = null
             }
         }
     }
