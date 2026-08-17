@@ -48,7 +48,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -86,10 +85,8 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateDraw
-import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireGraphicsContext
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
@@ -174,15 +171,10 @@ private data class SharedTransitionScopeRootModifierElement(
 
 @OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
 private class SharedTransitionScopeRootModifierNode(sharedScope: SharedTransitionScopeImpl) :
-    Modifier.Node(),
-    LayoutModifierNode,
-    ObserverModifierNode,
-    DrawModifierNode,
-    CompositionLocalConsumerModifierNode {
+    Modifier.Node(), LayoutModifierNode, DrawModifierNode, CompositionLocalConsumerModifierNode {
 
     override fun onAttach() {
         super.onAttach()
-        observeReads(sharedScope.observeAnimatingBlock)
         sharedScope.invalidateOverlay = { invalidateDraw() }
     }
 
@@ -191,12 +183,6 @@ private class SharedTransitionScopeRootModifierNode(sharedScope: SharedTransitio
     }
 
     var sharedScope: SharedTransitionScopeImpl = sharedScope
-        set(newScope) {
-            if (newScope != field) {
-                observeReads(newScope.observeAnimatingBlock)
-            }
-            field = newScope
-        }
 
     override fun MeasureScope.measure(
         measurable: Measurable,
@@ -227,11 +213,6 @@ private class SharedTransitionScopeRootModifierNode(sharedScope: SharedTransitio
             }
             p.place(0, 0)
         }
-    }
-
-    override fun onObservedReadsChanged() {
-        sharedScope.updateTransitionActiveness()
-        observeReads(sharedScope.observeAnimatingBlock)
     }
 
     override fun ContentDrawScope.draw() {
@@ -1275,35 +1256,25 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 
     override fun OverlayClip(clipShape: Shape): OverlayClip = ShapeBasedClip(clipShape)
 
-    // Called from the observation in SharedTransitionScopeRootModifierNode
-    internal val observeAnimatingBlock: () -> Unit = {
-        // During a deferred phase, automatic animation is held back (isAnimating = false), but
-        // elements are manually transformed by the gesture (isMutating = true). Keeping the
-        // transition active maintains the state machine tracking (target data, bounds) required
-        // for a seamless handoff, and correctly managing overlay rendering.
-        sharedElementsIterator.any { element -> element.isAnimating() || element.isMutating() }
-    }
+    // Tracks the total number of shared element entries that are currently transitioning. e.g., If
+    // a matching pair of entries are animating, this count should be 2. When this count drops
+    // to 0, it means no shared elements are animating. Hence we can update the `isTransitionActive`
+    // flag on the shared transition scope level.
+    private var activeTransitionEntryCount = 0
 
     @OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
-    internal fun updateTransitionActiveness() {
-        val sharedElements = sharedElementsIterator
-        var isActive = false
-        sharedElements.forEach { element ->
-            element.updateMatch()
-            isActive =
-                isActive ||
-                    (
-                    // Note: This should evaluate to true for animating shared elements that lost
-                    // its match (e.g.ActiveMatchRemovedDuringTransition).
-                    // We check `isMutating()` to keep the transition active during a deferred phase
-                    // so the state machine preserves target data/bounds for handoff.
-                    element.foundMatch && (element.isAnimating() || element.isMutating()))
+    internal fun onNodeTransitionActivenessChanged(active: Boolean) {
+        if (active) {
+            activeTransitionEntryCount++
+        } else {
+            activeTransitionEntryCount = (activeTransitionEntryCount - 1).coerceAtLeast(0)
         }
+        val isActive = activeTransitionEntryCount > 0
         if (isActive != isTransitionActive) {
             isTransitionActive = isActive
             if (!isActive) {
                 attachLookaheadAnimationVisualDebugHelper()
-                sharedElements.forEach { element -> element.onSharedTransitionFinished() }
+                sharedElements.forEachValue { element -> element.onSharedTransitionFinished() }
             } else {
                 detachLookaheadAnimationVisualDebugHelper()
             }
@@ -1342,7 +1313,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         clipInOverlayDuringTransition: OverlayClip,
     ) = composed {
         val key = sharedContentState.key
-        val sharedElementState =
+        val sharedElementEntry =
             key(key) {
                 val sharedElement = remember { sharedElementsFor(key) }
                 val boundsAnimation =
@@ -1399,7 +1370,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
                                 }
                             }
                     }
-                rememberSharedElementState(
+                rememberSharedElementEntry(
                     sharedElement = sharedElement,
                     boundsAnimation = boundsAnimation,
                     placeholderSize = placeholderSize,
@@ -1411,11 +1382,11 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
                 )
             }
 
-        this then SharedBoundsNodeElement(sharedElementState)
+        this then SharedBoundsNodeElement(sharedElementEntry)
     }
 
     @Composable
-    private fun rememberSharedElementState(
+    private fun rememberSharedElementEntry(
         sharedElement: SharedElement,
         boundsAnimation: BoundsAnimation,
         placeholderSize: PlaceholderSize,
@@ -1482,24 +1453,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
     private var renderersVersion by mutableIntStateOf(0)
     private val renderers = MutableObjectList<LayerRenderer>()
 
-    // sharedElements are being observed for the edge events of 1) any transition has started,
-    // and 2) all transitions are finished. As such, the map containing the key-sharedElement pairs
-    // need to be observable, in order to update the observation when new shared elements are
-    // added or removed.
-    // TODO: Use MutableScatterMap here, as it is much faster for iteration.
-    private val sharedElements = mutableStateMapOf<Any, SharedElement>()
-    // SnapshotStateMap is mainly built for get/set operations, so any other methods from collection
-    // or kotlin map interface are implemented in a suboptimal way. For example, when iterating over
-    // the entries, it allocates the entry for each iteration step and produces a new read.
-    // The most efficient way to iterate this map is to:
-    // 1) get underlying PersistentMap with .toMap;
-    // 2) iterate over keys and values separately, since calling into .entries also allocates an
-    // entry for each iteration step.
-    // In this particular case, it is more efficient to use a `MutableScatterMap`, as it has
-    // 0 allocations on iteration and is generally the fastest for every operation. The issue is
-    // that copying it on each mutation is more expensive, so it is not used here yet.
-    private inline val sharedElementsIterator
-        get() = sharedElements.toMap().values
+    private val sharedElements = MutableScatterMap<Any, SharedElement>()
 
     private fun sharedElementsFor(key: Any): SharedElement {
         return sharedElements.getOrPut(key) { SharedElement(key, this) }
@@ -1520,23 +1474,23 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         renderers.forEach { it.drawInOverlay(drawScope = scope, graphicsContext) }
     }
 
-    internal fun onEntryRemoved(sharedElementState: SharedElementEntry) {
+    internal fun onEntryRemoved(sharedElementEntry: SharedElementEntry) {
         sharedTransitionDebug {
-            "entry removed, key: ${sharedElementState.sharedElement.key}," +
-                " state: ${sharedElementState.sharedElement.state}"
+            "entry removed, key: ${sharedElementEntry.sharedElement.key}," +
+                " state: ${sharedElementEntry.sharedElement.state}"
         }
-        with(sharedElementState.sharedElement) {
-            removeEntry(sharedElementState)
-            updateTransitionActiveness()
-            renderers -= sharedElementState
+        sharedElementEntry.onEntryRemoved()
+        with(sharedElementEntry.sharedElement) {
+            removeEntry(sharedElementEntry)
+            renderers -= sharedElementEntry
             renderersVersion++
             if (allEntries.isEmpty()) {
                 scope.coroutineScope.launch {
                     if (allEntries.isEmpty()) {
                         sharedTransitionDebug {
                             "key removed. key =" +
-                                " ${sharedElementState.sharedElement.key}," +
-                                " state: ${sharedElementState.sharedElement.state}"
+                                " ${sharedElementEntry.sharedElement.key}," +
+                                " state: ${sharedElementEntry.sharedElement.state}"
                         }
                         scope.sharedElements.remove(key)
                     }
@@ -1545,18 +1499,18 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         }
     }
 
-    internal fun onEntryAdded(sharedElementState: SharedElementEntry) {
-        with(sharedElementState.sharedElement) {
-            addEntry(sharedElementState)
-            updateTransitionActiveness()
+    internal fun onEntryAdded(sharedElementEntry: SharedElementEntry) {
+        with(sharedElementEntry.sharedElement) {
+            addEntry(sharedElementEntry)
+            sharedElementEntry.updateTransitionActiveness()
             val id =
                 renderers.indexOfFirst {
-                    (it as? SharedElementEntry)?.sharedElement == sharedElementState.sharedElement
+                    (it as? SharedElementEntry)?.sharedElement == sharedElementEntry.sharedElement
                 }
             if (id == -1 || id >= renderers.size - 1) {
-                renderers += sharedElementState
+                renderers += sharedElementEntry
             } else {
-                renderers.add(id + 1, sharedElementState)
+                renderers.add(id + 1, sharedElementEntry)
             }
             renderersVersion++
         }
