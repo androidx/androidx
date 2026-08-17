@@ -42,7 +42,7 @@
     <string name="fingerprint_prompt_message" msgid="7449360011861769080">"Jätkamiseks kasutage oma sõrmejälge"</string>
     <string name="face_prompt_message" msgid="2282389249605674226">"Jätkamiseks kasutage oma nägu"</string>
     <string name="biometric_prompt_message" msgid="1160635338192065472">"Jätkamiseks kasutage oma biomeetrilisi andmeid"</string>
-    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Jätkamiseks sisestage oma ekraanilukk"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"Jätkamiseks sisestage oma ekraanilukk."</string>
     <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"Jätkamiseks kasutage oma sõrmejälge või ekraanilukku"</string>
     <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"Jätkamiseks kasutage oma nägu või ekraanilukku"</string>
     <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"Jätkamiseks kasutage oma biomeetrilisi andmeid või ekraanilukku"</string>
