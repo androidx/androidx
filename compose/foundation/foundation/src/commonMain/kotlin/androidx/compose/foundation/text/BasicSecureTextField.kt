@@ -50,6 +50,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -186,7 +187,10 @@ public fun BasicSecureTextField(
 
     val secureTextFieldModifier =
         modifier
-            .semantics { contentType = ContentType.Password }
+            .semantics {
+                contentType = ContentType.Password
+                password(isPasswordObfuscated = textObfuscationMode != TextObfuscationMode.Visible)
+            }
             .onPreviewKeyEvent { keyEvent ->
                 // BasicTextField uses this static mapping
                 val command = platformDefaultKeyMapping.map(keyEvent)
