@@ -22,7 +22,9 @@ import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiExecutionContext
 
 internal object FakeA2uiExecutionContext : A2uiExecutionContext {
-    override fun evaluatePayload(dataPath: A2uiDataPath, payload: Any?): Any? = null
+    override val dataPath: A2uiDataPath = A2uiDataPath("")
+
+    override fun evaluatePayload(payload: Any?): Any? = null
 
     override fun executeFunction(name: String, args: Map<String, Any>): Any? = null
 

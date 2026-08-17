@@ -27,6 +27,7 @@ import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
+import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiDeleteSurfaceMessage
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
@@ -232,6 +233,7 @@ internal class A2uiCoreSurfaceActor(
         val surface = surfaceGroup.getSurface(surfaceId) ?: return
         val executionContext =
             A2uiCoreExecutionContext(
+                dataPath = A2uiDataPath("/"),
                 componentId = message.action.componentId,
                 catalog = surface.catalog,
                 dispatchError = { ex, cId -> surface.dispatchError(ex, cId) },

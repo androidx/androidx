@@ -47,7 +47,10 @@ class A2uiCoreDynamicEvaluatorTest {
 
         mockContext =
             object : A2uiExecutionContext {
-                override fun evaluatePayload(dataPath: A2uiDataPath, payload: Any?): Any? {
+                override val dataPath: A2uiDataPath
+                    get() = basePath
+
+                override fun evaluatePayload(payload: Any?): Any? {
                     return null
                 }
 
@@ -163,7 +166,9 @@ class A2uiCoreDynamicEvaluatorTest {
     fun evaluate_pathPayloadWithMissingValue_returnsUnresolved() {
         val missingResolverContext =
             object : A2uiExecutionContext {
-                override fun evaluatePayload(dataPath: A2uiDataPath, payload: Any?): Any? = null
+                override val dataPath: A2uiDataPath = basePath
+
+                override fun evaluatePayload(payload: Any?): Any? = null
 
                 override fun resolveValue(path: A2uiDataPath): Any? = null
 
