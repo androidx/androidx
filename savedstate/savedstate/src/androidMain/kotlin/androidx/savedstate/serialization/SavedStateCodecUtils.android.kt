@@ -28,6 +28,20 @@ import kotlinx.serialization.builtins.ArraySerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.nullable
 
+// Compile-time constants for generic collection serial names.
+// Used to generate optimized decoders/encoders.
+internal const val ARRAY_LIST_NAME = "kotlin.collections.ArrayList"
+internal const val ARRAY_NAME = "kotlin.Array"
+internal const val SPARSE_ARRAY_NAME =
+    "androidx.savedstate.serialization.serializers.SparseArraySerializer.SparseArraySurrogate"
+
+internal const val POLYMORPHIC_CHAR_SEQUENCE_NAME =
+    "kotlinx.serialization.Polymorphic<CharSequence>"
+internal const val POLYMORPHIC_PARCELABLE_NAME = "kotlinx.serialization.Polymorphic<Parcelable>"
+internal const val POLYMORPHIC_JAVA_SERIALIZABLE_NAME =
+    "kotlinx.serialization.Polymorphic<Serializable>"
+internal const val POLYMORPHIC_IBINDER_NAME = "kotlinx.serialization.Polymorphic<IBinder>"
+
 internal val polymorphicCharSequenceDescriptor =
     PolymorphicSerializer(CharSequence::class).descriptor
 

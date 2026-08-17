@@ -28,45 +28,84 @@ import androidx.savedstate.serialization.serializers.ParcelableArraySerializer
 import androidx.savedstate.serialization.serializers.ParcelableListSerializer
 import androidx.savedstate.serialization.serializers.SparseParcelableArraySerializer
 import java.io.Serializable as JavaSerializable
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationStrategy
 
+@OptIn(ExperimentalSerializationApi::class)
 @Suppress("UNCHECKED_CAST")
 internal actual fun <T> SavedStateEncoder.encodeFormatSpecificTypesOnPlatform(
     strategy: SerializationStrategy<T>,
     value: T,
 ): Boolean {
-    when (strategy.descriptor) {
-        polymorphicCharSequenceDescriptor ->
+    val descriptor = strategy.descriptor
+    // Check the serial name first.
+    // This routes execution quickly. It prevents slow structural equality checks
+    // for basic types. This improves save performance.
+    when (descriptor.serialName) {
+        ARRAY_LIST_NAME ->
+            when (descriptor) {
+                charSequenceListDescriptor,
+                polymorphicCharSequenceListDescriptor,
+                nullablePolymorphicCharSequenceListDescriptor -> {
+                    CharSequenceListSerializer.serialize(this, value as List<CharSequence>)
+                    return true
+                }
+                parcelableListDescriptor,
+                polymorphicParcelableListDescriptor,
+                nullablePolymorphicParcelableListDescriptor -> {
+                    ParcelableListSerializer.serialize(this, value as List<Parcelable>)
+                    return true
+                }
+            }
+
+        ARRAY_NAME ->
+            when (descriptor) {
+                charSequenceArrayDescriptor,
+                polymorphicCharSequenceArrayDescriptor,
+                nullablePolymorphicCharSequenceArrayDescriptor -> {
+                    CharSequenceArraySerializer.serialize(this, value as Array<CharSequence>)
+                    return true
+                }
+                parcelableArrayDescriptor,
+                polymorphicParcelableArrayDescriptor,
+                nullablePolymorphicParcelableArrayDescriptor -> {
+                    ParcelableArraySerializer.serialize(this, value as Array<Parcelable>)
+                    return true
+                }
+            }
+
+        SPARSE_ARRAY_NAME ->
+            when (descriptor) {
+                sparseParcelableArrayDescriptor,
+                polymorphicSparseParcelableArrayDescriptor,
+                nullablePolymorphicSparseParcelableArrayDescriptor -> {
+                    SparseParcelableArraySerializer.serialize(
+                        this,
+                        value as android.util.SparseArray<Parcelable>,
+                    )
+                    return true
+                }
+            }
+
+        POLYMORPHIC_CHAR_SEQUENCE_NAME -> {
             CharSequenceSerializer.serialize(this, value as CharSequence)
-        polymorphicParcelableDescriptor ->
+            return true
+        }
+
+        POLYMORPHIC_PARCELABLE_NAME -> {
             DefaultParcelableSerializer.serialize(this, value as Parcelable)
-        polymorphicJavaSerializableDescriptor ->
+            return true
+        }
+
+        POLYMORPHIC_JAVA_SERIALIZABLE_NAME -> {
             DefaultJavaSerializableSerializer.serialize(this, value as JavaSerializable)
-        polymorphicIBinderDescriptor -> IBinderSerializer.serialize(this, value as IBinder)
-        charSequenceArrayDescriptor,
-        polymorphicCharSequenceArrayDescriptor,
-        nullablePolymorphicCharSequenceArrayDescriptor ->
-            CharSequenceArraySerializer.serialize(this, value as Array<CharSequence>)
-        charSequenceListDescriptor,
-        polymorphicCharSequenceListDescriptor,
-        nullablePolymorphicCharSequenceListDescriptor ->
-            CharSequenceListSerializer.serialize(this, value as List<CharSequence>)
-        parcelableArrayDescriptor,
-        polymorphicParcelableArrayDescriptor,
-        nullablePolymorphicParcelableArrayDescriptor ->
-            ParcelableArraySerializer.serialize(this, value as Array<Parcelable>)
-        parcelableListDescriptor,
-        polymorphicParcelableListDescriptor,
-        nullablePolymorphicParcelableListDescriptor ->
-            ParcelableListSerializer.serialize(this, value as List<Parcelable>)
-        sparseParcelableArrayDescriptor,
-        polymorphicSparseParcelableArrayDescriptor,
-        nullablePolymorphicSparseParcelableArrayDescriptor ->
-            SparseParcelableArraySerializer.serialize(
-                this,
-                value as android.util.SparseArray<Parcelable>,
-            )
-        else -> return false
+            return true
+        }
+
+        POLYMORPHIC_IBINDER_NAME -> {
+            IBinderSerializer.serialize(this, value as IBinder)
+            return true
+        }
     }
-    return true
+    return false
 }
