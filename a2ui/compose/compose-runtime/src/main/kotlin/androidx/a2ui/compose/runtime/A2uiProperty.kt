@@ -77,6 +77,10 @@ public sealed class A2uiProperty<out T> {
          * @param properties A list of typed properties defining the nested object.
          * @param required Whether the agent must provide this property.
          * @param description An optional string explaining this property's purpose.
+         * @param isAdditionalPropertiesAllowed Whether properties not explicitly listed in
+         *   [properties] are allowed, defaults to true.
+         * @param additionalPropertiesSchema Schema definition for additional dynamic properties,
+         *   only applicable if [isAdditionalPropertiesAllowed] is true.
          * @return A [StaticA2uiProperty] resolving to [A2uiComponentProperties] at runtime.
          */
         public fun nested(
@@ -84,8 +88,17 @@ public sealed class A2uiProperty<out T> {
             properties: List<A2uiProperty<*>>,
             required: Boolean = false,
             description: String? = null,
+            isAdditionalPropertiesAllowed: Boolean = true,
+            additionalPropertiesSchema: A2uiSchema? = null,
         ): StaticA2uiProperty<A2uiComponentProperties> =
-            NestedProperty(key, required, description, properties)
+            NestedProperty(
+                key,
+                required,
+                description,
+                properties,
+                isAdditionalPropertiesAllowed,
+                additionalPropertiesSchema,
+            )
 
         /**
          * Creates a static property representing an list of nested property objects.
@@ -97,6 +110,10 @@ public sealed class A2uiProperty<out T> {
          * @param minItems The minimum number of items required in the list, defaults to 0.
          * @param maxItems The maximum number of items allowed in the list, defaults to
          *   [Int.MAX_VALUE] meaning no constraint.
+         * @param isAdditionalPropertiesAllowed Whether properties not explicitly listed in
+         *   [properties] are allowed, defaults to true.
+         * @param additionalPropertiesSchema Schema definition for additional dynamic properties,
+         *   only applicable if [isAdditionalPropertiesAllowed] is true.
          * @return A [StaticA2uiProperty] resolving to a List of [A2uiComponentProperties] at
          *   runtime.
          */
@@ -107,8 +124,19 @@ public sealed class A2uiProperty<out T> {
             description: String? = null,
             @IntRange(from = 0) minItems: Int = 0,
             @IntRange(from = 0) maxItems: Int = Int.MAX_VALUE,
+            isAdditionalPropertiesAllowed: Boolean = true,
+            additionalPropertiesSchema: A2uiSchema? = null,
         ): StaticA2uiProperty<List<A2uiComponentProperties>> =
-            NestedListProperty(key, required, description, properties, minItems, maxItems)
+            NestedListProperty(
+                key,
+                required,
+                description,
+                properties,
+                minItems,
+                maxItems,
+                isAdditionalPropertiesAllowed,
+                additionalPropertiesSchema,
+            )
 
         /**
          * Creates a static property expecting a literal string value.
@@ -557,6 +585,8 @@ internal class NestedProperty(
     override val isRequired: Boolean,
     description: String?,
     nestedProperties: List<A2uiProperty<*>>,
+    isAdditionalPropertiesAllowed: Boolean,
+    additionalPropertiesSchema: A2uiSchema?,
 ) : StaticA2uiProperty<A2uiComponentProperties>() {
     override val schema: A2uiSchema = run {
         val propertiesMap = mutableMapOf<String, A2uiSchema>()
@@ -572,6 +602,8 @@ internal class NestedProperty(
             properties = propertiesMap,
             required = requiredSet,
             description = description,
+            isAdditionalPropertiesAllowed = isAdditionalPropertiesAllowed,
+            additionalPropertiesSchema = additionalPropertiesSchema,
         )
     }
 
@@ -589,6 +621,8 @@ internal class NestedListProperty(
     nestedProperties: List<A2uiProperty<*>>,
     @IntRange(from = 0) minItems: Int,
     @IntRange(from = 0) maxItems: Int,
+    isAdditionalPropertiesAllowed: Boolean,
+    additionalPropertiesSchema: A2uiSchema?,
 ) : StaticA2uiProperty<List<A2uiComponentProperties>>() {
     override val schema: A2uiSchema = run {
         val propertiesMap = mutableMapOf<String, A2uiSchema>()
@@ -601,7 +635,13 @@ internal class NestedListProperty(
             }
         }
         A2uiArraySchema(
-            items = A2uiObjectSchema(properties = propertiesMap, required = requiredSet),
+            items =
+                A2uiObjectSchema(
+                    properties = propertiesMap,
+                    required = requiredSet,
+                    isAdditionalPropertiesAllowed = isAdditionalPropertiesAllowed,
+                    additionalPropertiesSchema = additionalPropertiesSchema,
+                ),
             description = description,
             minItems = minItems,
             maxItems = if (maxItems == Int.MAX_VALUE) -1 else maxItems,
