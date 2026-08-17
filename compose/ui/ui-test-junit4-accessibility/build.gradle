@@ -43,6 +43,10 @@ androidXMultiplatform {
             api(project(":compose:ui:ui-test-junit4"))
             api("androidx.annotation:annotation:1.8.1")
             api("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
+
+            // Forcing upgrade of org.jsoup:jsoup due to CVE-2026-71497
+            // For more information, see b/546875544
+            implementation(libs.jsoup)
         }
     }
 }
