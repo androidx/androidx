@@ -1,0 +1,69 @@
+// Signature format: 4.0
+package androidx.text.vertical.compose {
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface VerticalTextDsl {
+  }
+
+  public final class VerticalTextKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void VerticalText(CharSequence text, optional androidx.compose.ui.Modifier modifier, optional androidx.text.vertical.compose.VerticalTextStyle style, optional androidx.compose.ui.text.style.TextOverflow overflow, optional int maxColumns, optional int minColumns, optional androidx.text.vertical.TextOrientation orientation);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void VerticalText-RtHMXFc(CharSequence, androidx.compose.ui.Modifier?, androidx.text.vertical.compose.VerticalTextStyle?, int, int, int, androidx.text.vertical.TextOrientation?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @androidx.text.vertical.compose.VerticalTextDsl public interface VerticalTextScope {
+    method public void combineUpright(CharSequence text);
+    method public void sideways(CharSequence text);
+    method public void text(CharSequence text, optional java.util.Map<java.lang.String,java.lang.String> rubyMap);
+    method @BytecodeOnly public static void text$default(androidx.text.vertical.compose.VerticalTextScope!, CharSequence!, java.util.Map!, int, Object!);
+    method public void upright(CharSequence text);
+    method public <R> R withEmphasis(optional androidx.text.vertical.EmphasisStyle style, optional boolean filled, optional float scale, kotlin.jvm.functions.Function1<? super androidx.text.vertical.compose.VerticalTextScope,? extends R> block);
+    method @BytecodeOnly public static Object! withEmphasis$default(androidx.text.vertical.compose.VerticalTextScope!, androidx.text.vertical.EmphasisStyle!, boolean, float, kotlin.jvm.functions.Function1!, int, Object!);
+    method public <R> R withRuby(CharSequence ruby, optional androidx.text.vertical.AnnotationPosition position, optional androidx.text.vertical.TextOrientation orientation, optional float textScale, kotlin.jvm.functions.Function1<? super androidx.text.vertical.compose.VerticalTextScope,? extends R> block);
+    method @BytecodeOnly public static Object! withRuby$default(androidx.text.vertical.compose.VerticalTextScope!, CharSequence!, androidx.text.vertical.AnnotationPosition!, androidx.text.vertical.TextOrientation!, float, kotlin.jvm.functions.Function1!, int, Object!);
+    method @KotlinOnly public <R> R withStyle(optional androidx.compose.ui.unit.TextUnit fontSize, optional androidx.compose.ui.graphics.Color textColor, optional androidx.compose.ui.graphics.Color backgroundColor, optional float fontShear, kotlin.jvm.functions.Function1<androidx.text.vertical.compose.VerticalTextScope,R> block);
+    method @BytecodeOnly public <R> R withStyle-yqnEDAs(long, long, long, float, kotlin.jvm.functions.Function1<? super androidx.text.vertical.compose.VerticalTextScope!,? extends R>);
+    method @BytecodeOnly public static Object! withStyle-yqnEDAs$default(androidx.text.vertical.compose.VerticalTextScope!, long, long, long, float, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  @androidx.compose.runtime.Immutable public final class VerticalTextStyle {
+    ctor @KotlinOnly public VerticalTextStyle(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.unit.TextUnit fontSize, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional String? fontFeatureSettings, optional androidx.compose.ui.graphics.Color background, optional androidx.compose.ui.text.intl.LocaleList? localeList);
+    ctor @BytecodeOnly public VerticalTextStyle(long, long, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, androidx.compose.ui.text.font.FontFamily!, String!, long, androidx.compose.ui.text.intl.LocaleList!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public VerticalTextStyle(long, long, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, androidx.compose.ui.text.font.FontFamily!, String!, long, androidx.compose.ui.text.intl.LocaleList!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @KotlinOnly public androidx.text.vertical.compose.VerticalTextStyle copy(optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.unit.TextUnit fontSize, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional String? fontFeatureSettings, optional androidx.compose.ui.graphics.Color background, optional androidx.compose.ui.text.intl.LocaleList? localeList);
+    method @BytecodeOnly public androidx.text.vertical.compose.VerticalTextStyle copy-tYaZTCs(long, long, androidx.compose.ui.text.font.FontWeight?, androidx.compose.ui.text.font.FontStyle?, androidx.compose.ui.text.font.FontSynthesis?, androidx.compose.ui.text.font.FontFamily?, String?, long, androidx.compose.ui.text.intl.LocaleList?);
+    method @BytecodeOnly public static androidx.text.vertical.compose.VerticalTextStyle! copy-tYaZTCs$default(androidx.text.vertical.compose.VerticalTextStyle!, long, long, androidx.compose.ui.text.font.FontWeight!, androidx.compose.ui.text.font.FontStyle!, androidx.compose.ui.text.font.FontSynthesis!, androidx.compose.ui.text.font.FontFamily!, String!, long, androidx.compose.ui.text.intl.LocaleList!, int, Object!);
+    method @BytecodeOnly public long getBackground-0d7_KjU();
+    method @BytecodeOnly public long getColor-0d7_KjU();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontFamily? getFontFamily();
+    method @InaccessibleFromKotlin public String? getFontFeatureSettings();
+    method @BytecodeOnly public long getFontSize-XSAIIZE();
+    method @BytecodeOnly public androidx.compose.ui.text.font.FontStyle? getFontStyle-4Lr2A7w();
+    method @BytecodeOnly public androidx.compose.ui.text.font.FontSynthesis? getFontSynthesis-ZQGJjVo();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.font.FontWeight? getFontWeight();
+    method @InaccessibleFromKotlin public androidx.compose.ui.text.intl.LocaleList? getLocaleList();
+    method @androidx.compose.runtime.Stable public androidx.text.vertical.compose.VerticalTextStyle merge(androidx.text.vertical.compose.VerticalTextStyle? other);
+    method @androidx.compose.runtime.Stable public operator androidx.text.vertical.compose.VerticalTextStyle plus(androidx.text.vertical.compose.VerticalTextStyle other);
+    property public androidx.compose.ui.graphics.Color background;
+    property public androidx.compose.ui.graphics.Color color;
+    property public androidx.compose.ui.text.font.FontFamily? fontFamily;
+    property public String? fontFeatureSettings;
+    property public androidx.compose.ui.unit.TextUnit fontSize;
+    property public androidx.compose.ui.text.font.FontStyle? fontStyle;
+    property public androidx.compose.ui.text.font.FontSynthesis? fontSynthesis;
+    property public androidx.compose.ui.text.font.FontWeight? fontWeight;
+    property public androidx.compose.ui.text.intl.LocaleList? localeList;
+    field public static final androidx.text.vertical.compose.VerticalTextStyle.Companion Companion;
+  }
+
+  public static final class VerticalTextStyle.Companion {
+    method @InaccessibleFromKotlin public androidx.text.vertical.compose.VerticalTextStyle getDefault();
+    property public androidx.text.vertical.compose.VerticalTextStyle Default;
+  }
+
+  public final class VerticalTextUtilsKt {
+    method public static android.text.Spanned buildVerticalText(androidx.compose.ui.unit.Density density, kotlin.jvm.functions.Function1<? super androidx.text.vertical.compose.VerticalTextScope,kotlin.Unit> builder);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static android.text.Spanned buildVerticalText(kotlin.jvm.functions.Function1<? super androidx.text.vertical.compose.VerticalTextScope!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static android.text.Spanned buildVerticalText(kotlin.jvm.functions.Function1<androidx.text.vertical.compose.VerticalTextScope,kotlin.Unit> builder);
+  }
+
+}
+
