@@ -21,6 +21,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import androidx.car.app.model.Action;
 import androidx.car.app.model.Banner;
+import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Header;
 
 import org.junit.Test;
@@ -118,4 +119,29 @@ public class MediaPlaybackTemplateTest {
 
         assertNotEquals(template1, template2);
     }
+
+    @Test
+    public void createInstance_mediaAccentColorProvided_isValid() {
+        CarColor color = CarColor.BLUE;
+        MediaPlaybackTemplate template =
+                new MediaPlaybackTemplate.Builder().setMediaAccentColor(color).build();
+
+        assertEquals(template.getMediaAccentColor(), color);
+    }
+
+    @Test
+    public void notEquals_differentMediaAccentColors() {
+        MediaPlaybackTemplate template1 =
+                new MediaPlaybackTemplate.Builder()
+                        .setMediaAccentColor(CarColor.BLUE)
+                        .build();
+
+        MediaPlaybackTemplate template2 =
+                new MediaPlaybackTemplate.Builder()
+                        .setMediaAccentColor(CarColor.RED)
+                        .build();
+
+        assertNotEquals(template1, template2);
+    }
+
 }
