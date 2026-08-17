@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.Custom
+import androidx.compose.remote.player.compose.embedded.state.rememberRemoteColorAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteFloatAsState
+import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -31,6 +33,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 
 /** Base interface for custom component property schemas. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -67,6 +70,17 @@ public data class StringProperty(override val id: Int, public val default: Strin
     public constructor(id: Short, default: String = "") : this(id.toInt(), default)
 }
 
+/**
+ * Defines a color property schema encoding its author-assigned property type ID and default value.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class ColorProperty(
+    override val id: Int,
+    public val default: Color = Color.Unspecified,
+) : CustomPropertyKey {
+    public constructor(id: Short, default: Color = Color.Unspecified) : this(id.toInt(), default)
+}
+
 /** Defines a float return-channel property schema encoding its author-assigned property type ID. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class FloatReturnProperty(override val id: Int) : CustomPropertyKey {
@@ -97,6 +111,9 @@ public interface RcCustomPropertyReader {
     /** Reads [property] reactively as a Compose [State]. */
     @Composable public fun textState(property: StringProperty): State<String>
 
+    /** Reads [property] reactively as a Compose [State]. */
+    @Composable public fun colorState(property: ColorProperty): State<Color>
+
     /** Returns a handler lambda that writes text back to return channel [property]. */
     public fun returnTextHandler(property: TextReturnProperty): (String) -> Unit
 
@@ -109,7 +126,8 @@ public interface RcCustomPropertyReader {
  * `Custom` components have no built-in rendering — the host app supplies it, dispatched by
  * [config].
  *
- * Properties are resolved on-demand reactively via [floatState], [intState], and [textState].
+ * Properties are resolved on-demand reactively via [floatState], [intState], [textState], and
+ * [colorState].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RcCustomComponent
@@ -141,13 +159,27 @@ internal constructor(
     @Composable
     override fun intState(property: IntProperty): State<Int> {
         val prop = findProperty(property) ?: return rememberUpdatedState(property.default)
-        return rememberUpdatedState(prop.mIntValue)
+        return if (prop.mDataType == Custom.CustomProperty.INT_ID_PROP) {
+            rememberRemoteIntAsState(prop.mIntValue)
+        } else {
+            rememberUpdatedState(prop.mIntValue)
+        }
     }
 
     @Composable
     override fun textState(property: StringProperty): State<String> {
         val prop = findProperty(property) ?: return rememberUpdatedState(property.default)
         return rememberRemoteStringAsState(prop.mIntValue)
+    }
+
+    @Composable
+    override fun colorState(property: ColorProperty): State<Color> {
+        val prop = findProperty(property) ?: return rememberUpdatedState(property.default)
+        return if (prop.mDataType == Custom.CustomProperty.COLOR_ID_PROP) {
+            rememberRemoteColorAsState(prop.mIntValue)
+        } else {
+            rememberUpdatedState(Color(prop.mIntValue))
+        }
     }
 
     override fun returnFloatHandler(property: FloatReturnProperty): (Float) -> Unit = { value ->
