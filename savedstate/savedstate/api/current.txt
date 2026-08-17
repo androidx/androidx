@@ -18,6 +18,10 @@ package androidx.savedstate {
     method public static inline <T> T write(android.os.Bundle, kotlin.jvm.functions.Function1<? super androidx.savedstate.SavedStateWriter,? extends T> block);
   }
 
+  public fun interface SavedStateProvider {
+    method public android.os.Bundle saveState();
+  }
+
   @kotlin.jvm.JvmInline public final value class SavedStateReader {
     method @BytecodeOnly public static androidx.savedstate.SavedStateReader! box-impl(android.os.Bundle!);
     method @KotlinOnly public operator boolean contains(String key);
@@ -183,12 +187,7 @@ package androidx.savedstate {
     method public void onRecreated(androidx.savedstate.SavedStateRegistryOwner owner);
   }
 
-  public static fun interface SavedStateRegistry.SavedStateConsumer {
-    method public void consumeState(android.os.Bundle state);
-  }
-
-  public static fun interface SavedStateRegistry.SavedStateProvider {
-    method public android.os.Bundle saveState();
+  public static fun interface SavedStateRegistry.SavedStateProvider extends androidx.savedstate.SavedStateProvider {
   }
 
   public final class SavedStateRegistryController {
@@ -213,6 +212,10 @@ package androidx.savedstate {
   public final class SavedStateRegistryOwnerFactory {
     method @KotlinOnly public static androidx.savedstate.SavedStateRegistryOwner SavedStateRegistryOwner(androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle);
     method @InaccessibleFromKotlin public static androidx.savedstate.SavedStateRegistryOwner create(androidx.savedstate.SavedStateRegistry savedStateRegistry, androidx.lifecycle.Lifecycle lifecycle);
+  }
+
+  public fun interface SavedStateRestorer {
+    method public void restoreState(android.os.Bundle? savedState);
   }
 
   @kotlin.jvm.JvmInline public final value class SavedStateWriter {
