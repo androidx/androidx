@@ -16,8 +16,8 @@
 
 package androidx.compose.material3.a2ui.samples
 
+import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiMessageProcessor
-import androidx.a2ui.model.catalog.functions.A2uiLocaleProvider
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
 import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
@@ -36,7 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.a2ui.A2uiSurface
-import androidx.compose.material3.a2ui.catalog.MaterialA2uiBasicCatalogV1
+import androidx.compose.material3.a2ui.MaterialTextComponent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -54,10 +54,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun A2uiSurfaceSample() {
     val catalog = remember {
-        MaterialA2uiBasicCatalogV1(
-            urlOpener = {},
-            messageFormatter = { pattern, _, _ -> pattern },
-            localeProvider = A2uiLocaleProvider.Default,
+        A2uiCatalog(
+            catalogId = "https://example.com/catalog/v1",
+            components = listOf(MaterialTextComponent),
         )
     }
     // Note: The message processor should typically be hosted in a ViewModel.
@@ -97,10 +96,9 @@ fun A2uiSurfaceSample() {
 @Composable
 fun A2uiSurfaceCustomLoadingAndErrorContentSample() {
     val catalog = remember {
-        MaterialA2uiBasicCatalogV1(
-            urlOpener = {},
-            messageFormatter = { pattern, _, _ -> pattern },
-            localeProvider = A2uiLocaleProvider.Default,
+        A2uiCatalog(
+            catalogId = "https://example.com/catalog/v1",
+            components = listOf(MaterialTextComponent),
         )
     }
     // Note: The message processor should typically be hosted in a ViewModel.
@@ -168,10 +166,9 @@ fun A2uiSurfaceCustomLoadingAndErrorContentSample() {
 @Composable
 fun A2uiSurfaceCustomTransitionSpecSample() {
     val catalog = remember {
-        MaterialA2uiBasicCatalogV1(
-            urlOpener = {},
-            messageFormatter = { pattern, _, _ -> pattern },
-            localeProvider = A2uiLocaleProvider.Default,
+        A2uiCatalog(
+            catalogId = "https://example.com/catalog/v1",
+            components = listOf(MaterialTextComponent),
         )
     }
     // Note: The message processor should typically be hosted in a ViewModel.
