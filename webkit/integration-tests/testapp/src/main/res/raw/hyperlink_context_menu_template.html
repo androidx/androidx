@@ -1,0 +1,79 @@
+<!--
+  ~ Copyright 2026 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 16px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h3 {
+            margin-top: 0;
+            color: #1a73e8;
+        }
+        p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        a {
+            display: inline-block;
+            color: #1a73e8;
+            text-decoration: none;
+            padding: 8px 12px;
+            margin: 6px 0;
+            border: 1px solid #1a73e8;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+        a:active {
+            background-color: #e8f0fe;
+        }
+        textarea {
+            box-sizing: border-box;
+            width: 100%;
+            height: 120px;
+            margin-top: 10px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+<h3>Hyperlinks Testing Area</h3>
+<p>Try long-pressing on the links below. You can paste any copied data into the box below to verify.</p>
+
+<div>
+    <a id="ref-link" href="https://developer.android.com/reference/androidx/webkit/package-summary">AndroidX Webkit Reference</a>
+</div>
+<div>
+    <a id="google-link" href="https://www.google.com">Google Search</a>
+</div>
+
+<p><strong>Paste area:</strong></p>
+<textarea id="paste-box" placeholder="Tap here, then paste to verify copied link or address..."></textarea>
+</body>
+</html>
