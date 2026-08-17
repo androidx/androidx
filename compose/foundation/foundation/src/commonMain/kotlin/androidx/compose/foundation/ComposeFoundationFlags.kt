@@ -258,18 +258,6 @@ public object ComposeFoundationFlags {
     public var isDraggableZeroDeltaConsumptionEnabled: Boolean = true
 
     /**
-     * This flag controls a fix in the lazy layout prefetch scheduler's idle detection. When
-     * enabled, it prevents the scheduler from incorrectly identifying an idle state when a frame is
-     * delayed longer than our idle detection threshold. If disabled, only the idle detection
-     * threshold will be used to determine if a frame is idle, which could lead to janky frames when
-     * scrolling.
-     */
-    // TODO: b/531649461
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isPrefetchSchedulerLateFrameDetectionEnabled: Boolean = true
-
-    /**
      * This flag controls whether [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow]
      * checks if the number of visible items has changed across iterations without scroll deltas
      * (such as when changing lookahead window sizes) and refills the cache window if needed.
