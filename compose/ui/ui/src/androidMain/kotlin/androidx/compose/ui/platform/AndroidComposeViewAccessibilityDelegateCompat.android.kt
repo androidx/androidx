@@ -819,7 +819,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         }
 
-        info.isPassword = semanticsNode.unmergedConfig.contains(SemanticsProperties.Password)
+        info.isPassword =
+            semanticsNode.unmergedConfig.contains(SemanticsProperties.Password) &&
+                semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.IsPasswordObfuscated) !=
+                    false
         info.isEditable =
             semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.IsEditable) == true
         info.maxTextLength =
@@ -1417,7 +1420,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             // populate additional information from the node
             currentSemanticsNodes[virtualViewId]?.let {
                 event.isPassword =
-                    it.semanticsNode.unmergedConfig.contains(SemanticsProperties.Password)
+                    it.semanticsNode.unmergedConfig.contains(SemanticsProperties.Password) &&
+                        it.semanticsNode.unmergedConfig.getOrNull(
+                            SemanticsProperties.IsPasswordObfuscated
+                        ) != false
                 AccessibilityEventCompat.setAccessibilityDataSensitive(
                     event,
                     it.semanticsNode.unmergedConfig.getOrNull(IsSensitiveData) == true,
@@ -2782,9 +2788,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             val addedCount = newTextLen - endCount - startCount
 
                             val oldNodeIsPassword =
-                                oldNode.unmergedConfig.contains(SemanticsProperties.Password)
+                                oldNode.unmergedConfig.contains(SemanticsProperties.Password) &&
+                                    oldNode.unmergedConfig.getOrNull(
+                                        SemanticsProperties.IsPasswordObfuscated
+                                    ) != false
                             val newNodeIsPassword =
-                                newNode.unmergedConfig.contains(SemanticsProperties.Password)
+                                newNode.unmergedConfig.contains(SemanticsProperties.Password) &&
+                                    newNode.unmergedConfig.getOrNull(
+                                        SemanticsProperties.IsPasswordObfuscated
+                                    ) != false
                             val oldNodeIsTextfield =
                                 oldNode.unmergedConfig.contains(SemanticsProperties.EditableText)
 

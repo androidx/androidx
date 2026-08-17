@@ -3306,6 +3306,133 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         }
     }
 
+    @Test
+    fun passwordSemantics_withIsPasswordObfuscated_mapsToAccessibilityNodeInfo() {
+        var isPasswordObfuscated by mutableStateOf(true)
+        val tag = "passwordField"
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).testTag(tag).semantics {
+                    password(isPasswordObfuscated = isPasswordObfuscated)
+                }
+            )
+        }
+
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val infoInitially =
+            rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+        assertThat(infoInitially?.isPassword).isTrue()
+
+        rule.runOnIdle { isPasswordObfuscated = false }
+
+        val infoVisible =
+            rule.runOnIdle {
+                val newVirtualViewId = rule.onNodeWithTag(tag).semanticsId()
+                androidComposeView.createAccessibilityNodeInfo(newVirtualViewId)
+            }
+        assertThat(infoVisible?.isPassword).isFalse()
+    }
+
+    @Test
+    fun nonPasswordSemantics_withIsPasswordObfuscated_mapsToAccessibilityNodeInfo() {
+        var isPasswordObfuscated by mutableStateOf(true)
+        val tag = "nonPasswordField"
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).testTag(tag).semantics {
+                    this[SemanticsProperties.IsPasswordObfuscated] = isPasswordObfuscated
+                }
+            )
+        }
+
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val infoInitially =
+            rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+        assertThat(infoInitially?.isPassword).isFalse()
+
+        rule.runOnIdle { isPasswordObfuscated = false }
+
+        val infoVisible =
+            rule.runOnIdle {
+                val newVirtualViewId = rule.onNodeWithTag(tag).semanticsId()
+                androidComposeView.createAccessibilityNodeInfo(newVirtualViewId)
+            }
+        assertThat(infoVisible?.isPassword).isFalse()
+    }
+
+    @Test
+    fun passwordVisibilityToggle_usingIsPasswordObfuscated_fromObfuscatedToRevealed_sendTwoSelectionEvents() {
+        var isPasswordObfuscated by mutableStateOf(true)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics(mergeDescendants = true) {
+                    setText { true }
+                    password(isPasswordObfuscated = isPasswordObfuscated)
+                    textSelectionRange = TextRange(4)
+                    editableText = AnnotatedString(if (isPasswordObfuscated) "****" else "1234")
+                }
+            )
+        }
+
+        rule.runOnIdle { isPasswordObfuscated = false }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .containsExactly(
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_VIEW_TEXT_SELECTION_CHANGED
+                        className = "android.widget.EditText"
+                        text.add("1234")
+                        itemCount = 4
+                        fromIndex = 4
+                        toIndex = 4
+                        isPassword = false
+                    },
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_VIEW_TEXT_SELECTION_CHANGED
+                        className = "android.widget.EditText"
+                        text.add("1234")
+                        itemCount = 4
+                        fromIndex = 4
+                        toIndex = 4
+                        isPassword = false
+                    },
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_WINDOW_CONTENT_CHANGED
+                        isPassword = false
+                    },
+                )
+        }
+    }
+
+    @Test
+    fun passwordVisibilityToggle_usingIsPasswordObfuscated_fromObfuscatedToRevealed_doNotSendTextChangeEvent() {
+        var isPasswordObfuscated by mutableStateOf(true)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics(mergeDescendants = true) {
+                    setText { true }
+                    password(isPasswordObfuscated = isPasswordObfuscated)
+                    textSelectionRange = TextRange(4)
+                    editableText = AnnotatedString(if (isPasswordObfuscated) "****" else "1234")
+                }
+            )
+        }
+
+        rule.runOnIdle { isPasswordObfuscated = false }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .doesNotContain(AccessibilityEvent().apply { eventType = TYPE_VIEW_TEXT_CHANGED })
+        }
+    }
+
     private val View.composeAccessibilityDelegate: AndroidComposeViewAccessibilityDelegateCompat
         get() =
             ViewCompat.getAccessibilityDelegate(this)
