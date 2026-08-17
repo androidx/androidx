@@ -87,12 +87,12 @@ package androidx.a2ui.compose.runtime {
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! action$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
     method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Object> any(String key, optional boolean required, optional String? description);
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! any$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
-    method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<java.lang.Object>> anyList(String key, optional boolean required, optional String? description);
-    method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! anyList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
+    method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<java.lang.Object>> anyList(String key, optional boolean required, optional String? description, optional @IntRange(from=0L) int minItems, optional @IntRange(from=0L) int maxItems);
+    method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! anyList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, int, int, Object!);
     method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> boolean(String key, optional boolean required, optional String? description);
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! boolean$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
-    method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<java.lang.Boolean>> booleanList(String key, optional boolean required, optional String? description);
-    method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! booleanList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
+    method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<java.lang.Boolean>> booleanList(String key, optional boolean required, optional String? description, optional @IntRange(from=0L) int minItems, optional @IntRange(from=0L) int maxItems);
+    method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! booleanList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, int, int, Object!);
     method public androidx.a2ui.compose.runtime.ChildListA2uiProperty childList(String key, optional boolean required, optional String? description);
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.ChildListA2uiProperty! childList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
     method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> componentId(String key, optional boolean required, optional String? description);
@@ -115,20 +115,20 @@ package androidx.a2ui.compose.runtime {
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! enum$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, java.util.List!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, boolean, String!, int, Object!);
     method public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.runtime.A2uiComponentProperties> nested(String key, java.util.List<? extends androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties, optional boolean required, optional String? description);
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! nested$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, java.util.List!, boolean, String!, int, Object!);
-    method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<androidx.a2ui.compose.runtime.A2uiComponentProperties>> nestedList(String key, java.util.List<? extends androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties, optional boolean required, optional String? description);
-    method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! nestedList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, java.util.List!, boolean, String!, int, Object!);
+    method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<androidx.a2ui.compose.runtime.A2uiComponentProperties>> nestedList(String key, java.util.List<? extends androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties, optional boolean required, optional String? description, optional @IntRange(from=0L) int minItems, optional @IntRange(from=0L) int maxItems);
+    method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! nestedList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, java.util.List!, boolean, String!, int, int, int, Object!);
     method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> number(String key, optional boolean required, optional String? description);
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! number$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
     method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> numberEnum(String key, java.util.List<? extends java.lang.Number> enumValues, optional boolean required, optional String? description);
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! numberEnum$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, java.util.List!, boolean, String!, int, Object!);
-    method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<java.lang.Number>> numberList(String key, optional boolean required, optional String? description);
-    method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! numberList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
+    method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<java.lang.Number>> numberList(String key, optional boolean required, optional String? description, optional @IntRange(from=0L) int minItems, optional @IntRange(from=0L) int maxItems);
+    method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! numberList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, int, int, Object!);
     method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> string(String key, optional boolean required, optional String? description);
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! string$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
     method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> stringEnum(String key, java.util.List<java.lang.String> enumValues, optional boolean required, optional String? description);
     method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! stringEnum$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, java.util.List!, boolean, String!, int, Object!);
-    method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<java.lang.String>> stringList(String key, optional boolean required, optional String? description);
-    method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! stringList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, Object!);
+    method public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.util.List<java.lang.String>> stringList(String key, optional boolean required, optional String? description, optional @IntRange(from=0L) int minItems, optional @IntRange(from=0L) int maxItems);
+    method @BytecodeOnly public static androidx.a2ui.compose.runtime.StaticA2uiProperty! stringList$default(androidx.a2ui.compose.runtime.A2uiProperty.Companion!, String!, boolean, String!, int, int, int, Object!);
   }
 
   public interface A2uiReadinessEvaluator {

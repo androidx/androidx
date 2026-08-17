@@ -32,6 +32,7 @@ import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringListSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicValueSchema
+import androidx.annotation.IntRange
 import androidx.compose.runtime.Immutable
 import java.lang.StringBuilder
 
@@ -93,6 +94,9 @@ public sealed class A2uiProperty<out T> {
          * @param properties A list of typed properties defining the structure of the list items.
          * @param required Whether the agent must provide this property.
          * @param description An optional string explaining this property's purpose.
+         * @param minItems The minimum number of items required in the list, defaults to 0.
+         * @param maxItems The maximum number of items allowed in the list, defaults to
+         *   [Int.MAX_VALUE] meaning no constraint.
          * @return A [StaticA2uiProperty] resolving to a List of [A2uiComponentProperties] at
          *   runtime.
          */
@@ -101,8 +105,10 @@ public sealed class A2uiProperty<out T> {
             properties: List<A2uiProperty<*>>,
             required: Boolean = false,
             description: String? = null,
+            @IntRange(from = 0) minItems: Int = 0,
+            @IntRange(from = 0) maxItems: Int = Int.MAX_VALUE,
         ): StaticA2uiProperty<List<A2uiComponentProperties>> =
-            NestedListProperty(key, required, description, properties)
+            NestedListProperty(key, required, description, properties, minItems, maxItems)
 
         /**
          * Creates a static property expecting a literal string value.
@@ -172,13 +178,19 @@ public sealed class A2uiProperty<out T> {
          * @param required Whether the agent must provide this property to successfully render the
          *   component.
          * @param description An optional string explaining this property's purpose to the agent.
+         * @param minItems The minimum number of items required in the list, defaults to 0.
+         * @param maxItems The maximum number of items allowed in the list, defaults to
+         *   [Int.MAX_VALUE] meaning no constraint.
          * @return A [StaticA2uiProperty] that resolves to a [List] of [String] at runtime.
          */
         public fun stringList(
             key: String,
             required: Boolean = false,
             description: String? = null,
-        ): StaticA2uiProperty<List<String>> = StringListProperty(key, required, description)
+            @IntRange(from = 0) minItems: Int = 0,
+            @IntRange(from = 0) maxItems: Int = Int.MAX_VALUE,
+        ): StaticA2uiProperty<List<String>> =
+            StringListProperty(key, required, description, minItems, maxItems)
 
         /**
          * Creates a static property expecting a list of numbers.
@@ -187,13 +199,19 @@ public sealed class A2uiProperty<out T> {
          * @param required Whether the agent must provide this property to successfully render the
          *   component.
          * @param description An optional string explaining this property's purpose to the agent.
+         * @param minItems The minimum number of items required in the list, defaults to 0.
+         * @param maxItems The maximum number of items allowed in the list, defaults to
+         *   [Int.MAX_VALUE] meaning no constraint.
          * @return A [StaticA2uiProperty] that resolves to a [List] of [Number] at runtime.
          */
         public fun numberList(
             key: String,
             required: Boolean = false,
             description: String? = null,
-        ): StaticA2uiProperty<List<Number>> = NumberListProperty(key, required, description)
+            @IntRange(from = 0) minItems: Int = 0,
+            @IntRange(from = 0) maxItems: Int = Int.MAX_VALUE,
+        ): StaticA2uiProperty<List<Number>> =
+            NumberListProperty(key, required, description, minItems, maxItems)
 
         /**
          * Creates a static property expecting a list of booleans.
@@ -202,13 +220,19 @@ public sealed class A2uiProperty<out T> {
          * @param required Whether the agent must provide this property to successfully render the
          *   component.
          * @param description An optional string explaining this property's purpose to the agent.
+         * @param minItems The minimum number of items required in the list, defaults to 0.
+         * @param maxItems The maximum number of items allowed in the list, defaults to
+         *   [Int.MAX_VALUE] meaning no constraint.
          * @return A [StaticA2uiProperty] that resolves to a [List] of [Boolean] at runtime.
          */
         public fun booleanList(
             key: String,
             required: Boolean = false,
             description: String? = null,
-        ): StaticA2uiProperty<List<Boolean>> = BooleanListProperty(key, required, description)
+            @IntRange(from = 0) minItems: Int = 0,
+            @IntRange(from = 0) maxItems: Int = Int.MAX_VALUE,
+        ): StaticA2uiProperty<List<Boolean>> =
+            BooleanListProperty(key, required, description, minItems, maxItems)
 
         /**
          * Creates a static property expecting a list of any values.
@@ -217,13 +241,19 @@ public sealed class A2uiProperty<out T> {
          * @param required Whether the agent must provide this property to successfully render the
          *   component.
          * @param description An optional string explaining this property's purpose to the agent.
+         * @param minItems The minimum number of items required in the list, defaults to 0.
+         * @param maxItems The maximum number of items allowed in the list, defaults to
+         *   [Int.MAX_VALUE] meaning no constraint.
          * @return A [StaticA2uiProperty] that resolves to a [List] of [Any] at runtime.
          */
         public fun anyList(
             key: String,
             required: Boolean = false,
             description: String? = null,
-        ): StaticA2uiProperty<List<Any>> = AnyListProperty(key, required, description)
+            @IntRange(from = 0) minItems: Int = 0,
+            @IntRange(from = 0) maxItems: Int = Int.MAX_VALUE,
+        ): StaticA2uiProperty<List<Any>> =
+            AnyListProperty(key, required, description, minItems, maxItems)
 
         /**
          * Creates a static property expecting a string value strictly bounded to a predefined list
@@ -557,6 +587,8 @@ internal class NestedListProperty(
     override val isRequired: Boolean,
     description: String?,
     nestedProperties: List<A2uiProperty<*>>,
+    @IntRange(from = 0) minItems: Int,
+    @IntRange(from = 0) maxItems: Int,
 ) : StaticA2uiProperty<List<A2uiComponentProperties>>() {
     override val schema: A2uiSchema = run {
         val propertiesMap = mutableMapOf<String, A2uiSchema>()
@@ -571,6 +603,8 @@ internal class NestedListProperty(
         A2uiArraySchema(
             items = A2uiObjectSchema(properties = propertiesMap, required = requiredSet),
             description = description,
+            minItems = minItems,
+            maxItems = if (maxItems == Int.MAX_VALUE) -1 else maxItems,
         )
     }
 
@@ -637,9 +671,16 @@ internal class StringListProperty(
     override val key: String,
     override val isRequired: Boolean,
     description: String?,
+    @IntRange(from = 0) minItems: Int,
+    @IntRange(from = 0) maxItems: Int,
 ) : StaticA2uiProperty<List<String>>() {
     override val schema: A2uiSchema =
-        A2uiArraySchema(items = A2uiStringSchema.INSTANCE, description = description)
+        A2uiArraySchema(
+            items = A2uiStringSchema.INSTANCE,
+            description = description,
+            minItems = minItems,
+            maxItems = if (maxItems == Int.MAX_VALUE) -1 else maxItems,
+        )
 
     @Suppress("UNCHECKED_CAST")
     override fun safeCast(value: Any): List<String>? = value as? List<String>
@@ -650,9 +691,16 @@ internal class NumberListProperty(
     override val key: String,
     override val isRequired: Boolean,
     description: String?,
+    @IntRange(from = 0) minItems: Int,
+    @IntRange(from = 0) maxItems: Int,
 ) : StaticA2uiProperty<List<Number>>() {
     override val schema: A2uiSchema =
-        A2uiArraySchema(items = A2uiNumberSchema.INSTANCE, description = description)
+        A2uiArraySchema(
+            items = A2uiNumberSchema.INSTANCE,
+            description = description,
+            minItems = minItems,
+            maxItems = if (maxItems == Int.MAX_VALUE) -1 else maxItems,
+        )
 
     @Suppress("UNCHECKED_CAST")
     override fun safeCast(value: Any): List<Number>? = value as? List<Number>
@@ -663,9 +711,16 @@ internal class BooleanListProperty(
     override val key: String,
     override val isRequired: Boolean,
     description: String?,
+    @IntRange(from = 0) minItems: Int,
+    @IntRange(from = 0) maxItems: Int,
 ) : StaticA2uiProperty<List<Boolean>>() {
     override val schema: A2uiSchema =
-        A2uiArraySchema(items = A2uiBooleanSchema.INSTANCE, description = description)
+        A2uiArraySchema(
+            items = A2uiBooleanSchema.INSTANCE,
+            description = description,
+            minItems = minItems,
+            maxItems = if (maxItems == Int.MAX_VALUE) -1 else maxItems,
+        )
 
     @Suppress("UNCHECKED_CAST")
     override fun safeCast(value: Any): List<Boolean>? = value as? List<Boolean>
@@ -676,9 +731,16 @@ internal class AnyListProperty(
     override val key: String,
     override val isRequired: Boolean,
     description: String?,
+    @IntRange(from = 0) minItems: Int,
+    @IntRange(from = 0) maxItems: Int,
 ) : StaticA2uiProperty<List<Any>>() {
     override val schema: A2uiSchema =
-        A2uiArraySchema(items = A2uiAnySchema.INSTANCE, description = description)
+        A2uiArraySchema(
+            items = A2uiAnySchema.INSTANCE,
+            description = description,
+            minItems = minItems,
+            maxItems = if (maxItems == Int.MAX_VALUE) -1 else maxItems,
+        )
 
     @Suppress("UNCHECKED_CAST") override fun safeCast(value: Any): List<Any>? = value as? List<Any>
 }
