@@ -339,6 +339,242 @@ class InteractionPolicyTest {
         assertEquals(InputEvent.Action.UP, events[1].action)
     }
 
+    @Test
+    fun interactionPolicy_childEntityHoverEventsAreIgnored() {
+        composeTestRule.configureFakeSession()
+        val events = mutableListOf<SpatialInputEvent>()
+        composeTestRule.setContent {
+            Subspace {
+                SpatialExternalSurface(
+                    modifier = SubspaceModifier.testTag("surface"),
+                    stereoMode = StereoMode.SideBySide,
+                    interactionPolicy =
+                        object : InteractionPolicy {
+                            override val isEnabled = true
+
+                            override fun onInputEvent(event: SpatialInputEvent) {
+                                events.add(event)
+                            }
+                        },
+                ) {
+                    SpatialPanel(modifier = SubspaceModifier.testTag("panel")) {}
+                }
+            }
+        }
+
+        val surfaceNode = composeTestRule.onSubspaceNodeWithTag("surface").fetchSemanticsNode()
+        val component =
+            requireNotNull(surfaceNode.components).first { it is InteractableComponent }
+                as InteractableComponent
+        val tester = SceneCoreTestRule().createTester<InteractableComponentTester>(component)
+        val surfaceEntity = checkNotNull(surfaceNode.semanticsEntity)
+        val childEntity =
+            checkNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+
+        // 1. Hover ENTER on childEntity -> should be ignored
+        val hoverEnterChild =
+            InputEvent(
+                InputEvent.Source.CONTROLLER,
+                InputEvent.Pointer.RIGHT,
+                100L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.HOVER_ENTER,
+                listOf(InputEvent.HitInfo(childEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(hoverEnterChild)
+        composeTestRule.waitForIdle()
+
+        // 2. Hover MOVE over surfaceEntity -> should be ignored because hover sequence started on
+        // childEntity
+        val hoverMoveOverSurface =
+            InputEvent(
+                InputEvent.Source.CONTROLLER,
+                InputEvent.Pointer.RIGHT,
+                101L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.HOVER_MOVE,
+                listOf(InputEvent.HitInfo(surfaceEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(hoverMoveOverSurface)
+        composeTestRule.waitForIdle()
+
+        // 3. Hover EXIT -> should be ignored, resetting ignore state
+        val hoverExitSurface =
+            InputEvent(
+                InputEvent.Source.CONTROLLER,
+                InputEvent.Pointer.RIGHT,
+                102L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.HOVER_EXIT,
+                listOf(InputEvent.HitInfo(surfaceEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(hoverExitSurface)
+        composeTestRule.waitForIdle()
+
+        assertTrue(events.isEmpty())
+
+        // 4. Hover ENTER on surfaceEntity -> should NOT be ignored
+        val hoverEnterSurface =
+            InputEvent(
+                InputEvent.Source.CONTROLLER,
+                InputEvent.Pointer.RIGHT,
+                200L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.HOVER_ENTER,
+                listOf(InputEvent.HitInfo(surfaceEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(hoverEnterSurface)
+        composeTestRule.waitForIdle()
+
+        assertEquals(1, events.size)
+        assertEquals(InputEvent.Action.HOVER_ENTER, events[0].action)
+
+        // 5. Hover MOVE on surfaceEntity -> should NOT be ignored
+        val hoverMoveSurface2 =
+            InputEvent(
+                InputEvent.Source.CONTROLLER,
+                InputEvent.Pointer.RIGHT,
+                201L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.HOVER_MOVE,
+                listOf(InputEvent.HitInfo(surfaceEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(hoverMoveSurface2)
+        composeTestRule.waitForIdle()
+
+        assertEquals(2, events.size)
+        assertEquals(InputEvent.Action.HOVER_MOVE, events[1].action)
+
+        // 6. Hover EXIT on surfaceEntity -> should NOT be ignored
+        val hoverExitSurface2 =
+            InputEvent(
+                InputEvent.Source.CONTROLLER,
+                InputEvent.Pointer.RIGHT,
+                202L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.HOVER_EXIT,
+                listOf(InputEvent.HitInfo(surfaceEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(hoverExitSurface2)
+        composeTestRule.waitForIdle()
+
+        assertEquals(3, events.size)
+        assertEquals(InputEvent.Action.HOVER_EXIT, events[2].action)
+    }
+
+    @Test
+    fun interactionPolicy_composableDestroyed_inputEventIsIgnored() {
+        composeTestRule.configureFakeSession()
+        val events = mutableListOf<SpatialInputEvent>()
+        var showSurface by mutableStateOf(true)
+        composeTestRule.setContent {
+            Subspace {
+                if (showSurface) {
+                    SpatialExternalSurface(
+                        modifier = SubspaceModifier.testTag("surface"),
+                        stereoMode = StereoMode.SideBySide,
+                        interactionPolicy =
+                            object : InteractionPolicy {
+                                override val isEnabled = true
+
+                                override fun onInputEvent(event: SpatialInputEvent) {
+                                    events.add(event)
+                                }
+                            },
+                    ) {}
+                }
+            }
+        }
+
+        val surfaceNode = composeTestRule.onSubspaceNodeWithTag("surface").fetchSemanticsNode()
+        val component =
+            requireNotNull(surfaceNode.components).first { it is InteractableComponent }
+                as InteractableComponent
+        val tester = SceneCoreTestRule().createTester<InteractableComponentTester>(component)
+        val surfaceEntity = checkNotNull(surfaceNode.semanticsEntity)
+
+        showSurface = false
+        composeTestRule.waitForIdle()
+
+        val downOnSurface =
+            InputEvent(
+                InputEvent.Source.HANDS,
+                InputEvent.Pointer.RIGHT,
+                100L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.DOWN,
+                listOf(InputEvent.HitInfo(surfaceEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(downOnSurface)
+        composeTestRule.waitForIdle()
+
+        assertTrue(events.isEmpty())
+    }
+
+    @Test
+    fun interactionPolicy_composableDestroyed_childInputEventIsIgnored() {
+        composeTestRule.configureFakeSession()
+        val events = mutableListOf<SpatialInputEvent>()
+        var showSurface by mutableStateOf(true)
+        composeTestRule.setContent {
+            Subspace {
+                if (showSurface) {
+                    SpatialExternalSurface(
+                        modifier = SubspaceModifier.testTag("surface"),
+                        stereoMode = StereoMode.SideBySide,
+                        interactionPolicy =
+                            object : InteractionPolicy {
+                                override val isEnabled = true
+
+                                override fun onInputEvent(event: SpatialInputEvent) {
+                                    events.add(event)
+                                }
+                            },
+                    ) {
+                        SpatialPanel(modifier = SubspaceModifier.testTag("panel")) {}
+                    }
+                }
+            }
+        }
+
+        val surfaceNode = composeTestRule.onSubspaceNodeWithTag("surface").fetchSemanticsNode()
+        val component =
+            requireNotNull(surfaceNode.components).first { it is InteractableComponent }
+                as InteractableComponent
+        val tester = SceneCoreTestRule().createTester<InteractableComponentTester>(component)
+        val childEntity =
+            checkNotNull(
+                composeTestRule.onSubspaceNodeWithTag("panel").fetchSemanticsNode().semanticsEntity
+            )
+
+        showSurface = false
+        composeTestRule.waitForIdle()
+
+        val downOnChild =
+            InputEvent(
+                InputEvent.Source.HANDS,
+                InputEvent.Pointer.RIGHT,
+                100L,
+                Vector3.Zero,
+                Vector3.One,
+                InputEvent.Action.DOWN,
+                listOf(InputEvent.HitInfo(childEntity, Vector3.One, Matrix4.Identity)),
+            )
+        tester.triggerOnInputEvent(downOnChild)
+        composeTestRule.waitForIdle()
+
+        assertTrue(events.isEmpty())
+    }
+
     private fun assertSingleInteractableComponentExist(
         testTag: String = "panel"
     ): InteractableComponent {
