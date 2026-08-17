@@ -64,19 +64,18 @@ package androidx.compose.material3.a2ui {
     field public static final androidx.compose.material3.a2ui.MaterialRowComponent INSTANCE;
   }
 
-}
-
-package androidx.compose.material3.a2ui.catalog {
-
-  public final class MaterialA2uiBasicCatalogV1Defaults {
-    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text getText();
-    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text;
-    field public static final androidx.compose.material3.a2ui.catalog.MaterialA2uiBasicCatalogV1Defaults INSTANCE;
-  }
-
-  public final class MaterialA2uiBasicCatalogV1Kt {
-    method public static androidx.a2ui.compose.ui.A2uiCatalog MaterialA2uiBasicCatalogV1(androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text);
-    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! MaterialA2uiBasicCatalogV1$default(androidx.a2ui.model.catalog.functions.A2uiUrlOpener!, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text!, int, Object!);
+  public final class MaterialTextComponent implements androidx.a2ui.compose.ui.A2uiComponent {
+    method @KotlinOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public String getDescription();
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
+    method @KotlinOnly @androidx.compose.runtime.Composable public boolean isReady(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public boolean isReady(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.runtime.Composer?, int);
+    property public String description;
+    property public String name;
+    property public java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties;
+    field public static final androidx.compose.material3.a2ui.MaterialTextComponent INSTANCE;
   }
 
 }

@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui.catalog
+package androidx.compose.material3.a2ui
 
+import androidx.a2ui.compose.runtime.A2uiComponentState
+import androidx.a2ui.compose.runtime.LocalA2uiReadinessEvaluator
+import androidx.a2ui.compose.runtime.observeA2uiComponentState
 import androidx.a2ui.compose.ui.A2uiCatalog
+import androidx.a2ui.compose.ui.A2uiComponent
+import androidx.a2ui.compose.ui.asReadinessEvaluator
 import androidx.a2ui.compose.ui.testing.A2uiTestController
-import androidx.a2ui.compose.ui.testing.A2uiTestSurface
+import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
 import androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction
+import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiComponentPayload
+import androidx.a2ui.model.protocol.A2uiException
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -47,12 +57,12 @@ import org.junit.runner.RunWith
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(TestParameterInjector::class)
-class MaterialA2uiBasicCatalogV1TextTest {
+class MaterialTextComponentTest {
 
     private val testCatalog =
         A2uiCatalog(
             catalogId = "test_catalog",
-            components = listOf(MaterialA2uiBasicCatalogV1Defaults.text),
+            components = listOf(MaterialTextComponent),
             functions = listOf(A2uiFormatStringFunction.INSTANCE),
         )
 
@@ -408,5 +418,37 @@ class MaterialA2uiBasicCatalogV1TextTest {
 
         onNodeWithText("Static Placeholder").assertDoesNotExist()
         onNodeWithText("Dynamic User Name").assertIsDisplayed()
+    }
+}
+
+@Composable
+private fun A2uiTestSurface(
+    surface: A2uiSurfaceModel,
+    modifier: Modifier = Modifier,
+    onLoading: @Composable (Modifier) -> Unit = {},
+    onError: @Composable (A2uiException, Modifier) -> Unit = { exception, _ ->
+        throw AssertionError("A2UI surface failed to render: ${exception.message}", exception)
+    },
+) {
+    require(surface is A2uiCoreSurfaceModel) { "A2uiTestSurface requires an A2uiCoreSurfaceModel." }
+
+    val composeCatalog =
+        surface.catalog as? A2uiCatalog
+            ?: throw IllegalArgumentException("Catalog must implement A2uiCatalog.")
+
+    val readinessEvaluator = remember(composeCatalog) { composeCatalog.asReadinessEvaluator() }
+
+    CompositionLocalProvider(LocalA2uiReadinessEvaluator provides readinessEvaluator) {
+        when (val rootState = observeA2uiComponentState(surface = surface)) {
+            is A2uiComponentState.Success -> {
+                A2uiComponent(component = rootState.component, modifier = modifier)
+            }
+            is A2uiComponentState.Error -> {
+                onError(rootState.exception, modifier)
+            }
+            is A2uiComponentState.Loading -> {
+                onLoading(modifier)
+            }
+        }
     }
 }
