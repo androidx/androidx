@@ -40,8 +40,8 @@ package androidx.xr.glimmer {
   }
 
   public static final class ButtonGroupState.Companion {
-    method @InaccessibleFromKotlin public androidx.compose.runtime.saveable.Saver<androidx.xr.glimmer.ButtonGroupState,java.lang.Integer> getSaver();
-    property public androidx.compose.runtime.saveable.Saver<androidx.xr.glimmer.ButtonGroupState,java.lang.Integer> Saver;
+    method @InaccessibleFromKotlin public androidx.compose.runtime.saveable.Saver<androidx.xr.glimmer.ButtonGroupState,? extends java.lang.Object?> getSaver();
+    property public androidx.compose.runtime.saveable.Saver<androidx.xr.glimmer.ButtonGroupState,? extends java.lang.Object?> Saver;
   }
 
   public final class ButtonKt {
