@@ -39,6 +39,7 @@ dependencies {
     api("androidx.compose.ui:ui:1.10.0")
 
     androidTestImplementation("androidx.compose.foundation:foundation:1.10.0")
+    androidTestImplementation(project(":a2ui:compose:compose-ui-testing"))
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.kotlinTest)
