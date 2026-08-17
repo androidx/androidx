@@ -27,6 +27,7 @@ import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.processor.A2uiMessageProcessor
 import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiClientCapabilities
+import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
 import androidx.a2ui.model.protocol.A2uiServerToClientMessage
 import java.util.concurrent.ConcurrentHashMap
@@ -108,6 +109,14 @@ public class A2uiCoreMessageProcessor(
      */
     override fun processMessage(message: A2uiServerToClientMessage) {
         processInternalMessage(A2uiEngineExternalMessage(message))
+    }
+
+    override fun processError(error: A2uiClientErrorMessage) {
+        if (surfaceGroup.getSurface(error.surfaceId) == null) {
+            _outboundEvents.tryEmit(error)
+        } else {
+            processInternalMessage(A2uiEngineErrorMessage(error.surfaceId, error))
+        }
     }
 
     /** Enqueues an internal engine message to be processed by the core engine. */

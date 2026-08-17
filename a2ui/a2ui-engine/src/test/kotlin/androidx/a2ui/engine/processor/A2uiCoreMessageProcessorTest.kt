@@ -72,6 +72,70 @@ class A2uiCoreMessageProcessorTest {
     }
 
     @Test
+    fun processError_forNonExistentSurface_emitsDirectlyToOutboundEvents() = runTest {
+        val processor = createProcessor()
+        val collectedOutbound = mutableListOf<A2uiClientToServerMessage>()
+        val outboundJob = launch { processor.outboundEvents.toList(collectedOutbound) }
+        advanceUntilIdle()
+
+        val testError =
+            A2uiClientErrorMessage(
+                "VALIDATION_FAILED",
+                "non_existent_surface",
+                "Malformed JSON",
+                mapOf("path" to "/"),
+            )
+        processor.processError(testError)
+        advanceUntilIdle()
+
+        assertThat(collectedOutbound).containsExactly(testError)
+
+        outboundJob.cancel()
+    }
+
+    @Test
+    fun processError_forExistingSurface_routesSequentiallyThroughSurfaceActor() = runTest {
+        val processor = createProcessor()
+        val collectedOutbound = mutableListOf<A2uiClientToServerMessage>()
+        val outboundJob = launch { processor.outboundEvents.toList(collectedOutbound) }
+        val collectJob = launch { processor.collectMessages() }
+
+        processor.processMessage(A2uiCreateSurfaceMessage(SURFACE_A, CATALOG_ID))
+        advanceUntilIdle()
+
+        val action1 =
+            A2uiEventAction(
+                surfaceId = SURFACE_A,
+                componentId = "btn-1",
+                timestamp = 100L,
+                eventName = "click",
+                context = emptyMap(),
+            )
+        val testError = A2uiClientErrorMessage("RUNTIME_ERROR", SURFACE_A, "Surface failure")
+        val action2 =
+            A2uiEventAction(
+                surfaceId = SURFACE_A,
+                componentId = "btn-2",
+                timestamp = 200L,
+                eventName = "click",
+                context = emptyMap(),
+            )
+
+        processor.processInternalMessage(A2uiEngineActionMessage(SURFACE_A, action1))
+        processor.processError(testError)
+        processor.processInternalMessage(A2uiEngineActionMessage(SURFACE_A, action2))
+        advanceUntilIdle()
+
+        assertThat(collectedOutbound).hasSize(3)
+        assertThat((collectedOutbound[0] as A2uiClientEventMessage).componentId).isEqualTo("btn-1")
+        assertThat(collectedOutbound[1]).isEqualTo(testError)
+        assertThat((collectedOutbound[2] as A2uiClientEventMessage).componentId).isEqualTo("btn-2")
+
+        outboundJob.cancel()
+        collectJob.cancel()
+    }
+
+    @Test
     fun outboundEvent_whenSendDataModelIsDisabled_hasNullClientDataModel() = runTest {
         val processor = createProcessor()
         val collectedOutbound = mutableListOf<A2uiClientToServerMessage>()
