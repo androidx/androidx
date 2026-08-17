@@ -176,7 +176,7 @@ internal object WearWidgetProviderInfoXmlParser {
                 }
             } else {
                 // Parse String as either one of the types or an integer.
-                val attrValue = getAttributeValue(NAMESPACE_DISABLED, attrName)
+                val attrValue = getAttributeValue(NAMESPACE_DISABLED, attrName)?.trim()
                 if (attrValue != null) {
                     ContainerInfo.Companion.containerTypeFromString(attrValue)
                         ?: attrValue.toIntOrNull()
