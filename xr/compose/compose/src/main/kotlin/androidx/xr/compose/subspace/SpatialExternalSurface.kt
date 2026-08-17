@@ -196,9 +196,6 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
  *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
  *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
  *   allowing the user to manipulate the panel in 3D space. If null, no motion behavior is applied.
- * @param resizePolicy An optional [ResizePolicy] configuration object that resizing behavior of
- *   this [SpatialPanel]. The draggable UI controls will be shown that allow the user to resize the
- *   element in 3D space. If null, there is no resize behavior applied to the element.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect input events.
  * @param superSamplingPattern The pattern to use to super sample this surface, or
  *   [SuperSamplingPattern.None] to disable super sampling.
@@ -217,13 +214,11 @@ public fun SpatialExternalSurface(
     featheringEffect: SpatialFeatheringEffect? = null,
     surfaceProtection: SpatialExternalSurfaceProtection = SpatialExternalSurfaceProtection.None,
     dragPolicy: DragPolicy? = null,
-    resizePolicy: ResizePolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
     superSamplingPattern: SuperSamplingPattern = SuperSamplingPattern.Pentagon,
     content: @Composable @SubspaceComposable SpatialExternalSurfaceScope.() -> Unit,
 ) {
-    val finalModifier =
-        buildSpatialPanelModifier(modifier, dragPolicy, resizePolicy, interactionPolicy)
+    val finalModifier = buildSpatialPanelModifier(modifier, dragPolicy, interactionPolicy)
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val density = LocalDensity.current
 
@@ -421,7 +416,7 @@ private fun SpatialExternalSurfaceBaseSphere(
         } else {
             SPHERE_RADIUS_METERS
         }
-    val finalModifier = buildSpatialPanelModifier(modifier, null, null, interactionPolicy)
+    val finalModifier = buildSpatialPanelModifier(modifier, null, interactionPolicy)
 
     val coreSurfaceEntity =
         remember(surfaceProtection, superSamplingPattern) {
