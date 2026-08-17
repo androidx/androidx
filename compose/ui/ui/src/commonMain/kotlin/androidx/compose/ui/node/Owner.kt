@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.NoSoundEffect
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.SoundEffect
+import androidx.compose.ui.platform.TaskDispatchers
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.ViewConfiguration
@@ -149,6 +150,9 @@ internal interface Owner : PositionCalculator {
 
     /** Provide information about the window that hosts this [Owner]. */
     val windowInfo: WindowInfo
+
+    /** Provide [TaskDispatchers] for coroutines running within this [Owner]. */
+    val taskDispatchers: TaskDispatchers
 
     /** Provide information about media query features that host this [Owner]. */
     @ExperimentalMediaQueryApi

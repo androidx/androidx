@@ -4218,6 +4218,7 @@ package androidx.compose.ui.platform {
     method @InaccessibleFromKotlin public static androidx.compose.runtime.CompositionLocal<java.lang.Boolean> getLocalScrollCaptureInProgress();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController?> getLocalSoftwareKeyboardController();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoundEffect> getLocalSoundEffect();
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TaskDispatchers> getLocalTaskDispatchers();
     method @InaccessibleFromKotlin @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService?> getLocalTextInputService();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> getLocalTextToolbar();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> getLocalUriHandler();
@@ -4242,6 +4243,7 @@ package androidx.compose.ui.platform {
     property public static androidx.compose.runtime.CompositionLocal<java.lang.Boolean> LocalScrollCaptureInProgress;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController?> LocalSoftwareKeyboardController;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoundEffect> LocalSoundEffect;
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TaskDispatchers> LocalTaskDispatchers;
     property @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService?> LocalTextInputService;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> LocalTextToolbar;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> LocalUriHandler;
@@ -4364,6 +4366,13 @@ package androidx.compose.ui.platform {
 
   public final class Synchronization_androidKt {
     method @kotlin.PublishedApi internal static inline <R> R synchronized(Object lock, kotlin.jvm.functions.Function0<? extends R> block);
+  }
+
+  @androidx.compose.runtime.Stable public interface TaskDispatchers {
+    method @InaccessibleFromKotlin public kotlinx.coroutines.CoroutineDispatcher getDefault();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.CoroutineDispatcher getIO();
+    property public abstract kotlinx.coroutines.CoroutineDispatcher Default;
+    property public abstract kotlinx.coroutines.CoroutineDispatcher IO;
   }
 
   public final class TestTagKt {

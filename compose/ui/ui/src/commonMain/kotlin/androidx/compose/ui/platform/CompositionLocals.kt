@@ -247,6 +247,15 @@ public val LocalWindowInfo: ProvidableCompositionLocal<WindowInfo> =
     computedDefaultOf("LocalWindowInfo") { LocalOwner.currentValue.windowInfo }
 
 /**
+ * The CompositionLocal to provide [TaskDispatchers] for running coroutines and asynchronous tasks
+ * inside a Compose UI hierarchy.
+ *
+ * @sample androidx.compose.ui.samples.TaskDispatchersSample
+ */
+public val LocalTaskDispatchers: ProvidableCompositionLocal<TaskDispatchers> =
+    computedDefaultOf("LocalTaskDispatchers") { LocalOwner.currentValue.taskDispatchers }
+
+/**
  * The CompositionLocal to provide platform sound effects.
  *
  * This is used to trigger sounds on user interaction, like clicks. To enable, disable, or customize
@@ -331,6 +340,7 @@ internal fun ProvideCommonCompositionLocals(owner: Owner, content: @Composable (
             LocalUriHandler provides owner.uriHandler,
             LocalViewConfiguration provides owner.viewConfiguration,
             LocalWindowInfo provides owner.windowInfo,
+            LocalTaskDispatchers provides owner.taskDispatchers,
             LocalPointerIconService providesComputed { owner.pointerIconService },
             LocalGraphicsContext provides owner.graphicsContext,
             LocalRetainedValuesStore provides owner.retainedValuesStore,
