@@ -31,33 +31,17 @@ public expect class SavedStateRegistry internal constructor(impl: SavedStateRegi
     /**
      * Contributes to the saved state.
      *
-     * Implementations can optionally implement [SavedStateConsumer] to receive and consume restored
-     * state during the state restoration phase.
+     * Implementations can optionally implement [SavedStateRestorer] to receive and restore state
+     * during the state restoration phase.
      */
-    public fun interface SavedStateProvider {
+    public fun interface SavedStateProvider : androidx.savedstate.SavedStateProvider {
         /**
          * Called to retrieve the state from a component before it is killed so the state can be
          * retrieved later from [consumeRestoredStateForKey].
          *
          * @return The [SavedState] containing the saved state.
          */
-        public fun saveState(): SavedState
-    }
-
-    /**
-     * Consumes the saved state.
-     *
-     * To consume restored state automatically, implement this interface on a [SavedStateProvider]
-     * registered via [registerSavedStateProvider]. The registry will invoke [consumeState] during
-     * the restoration phase or immediately upon registration if the state is already restored.
-     */
-    public fun interface SavedStateConsumer {
-        /**
-         * Called to restore the state of a component after recreation.
-         *
-         * @param state The [SavedState] containing the restored state.
-         */
-        public fun consumeState(state: SavedState)
+        override fun saveState(): SavedState
     }
 
     /**
@@ -70,7 +54,7 @@ public expect class SavedStateRegistry internal constructor(impl: SavedStateRegi
      * Consumes the saved state previously supplied by a [SavedStateProvider] registered via
      * [registerSavedStateProvider] with the given [key].
      *
-     * If the registered [SavedStateProvider] implements [SavedStateConsumer], the state is consumed
+     * If the registered [SavedStateProvider] implements [SavedStateRestorer], the state is restored
      * automatically during restoration, and subsequent manual calls to this method with the same
      * key will return `null`.
      *
@@ -95,8 +79,8 @@ public expect class SavedStateRegistry internal constructor(impl: SavedStateRegi
      * will be associated with the given [key] and can be consumed after restoration via
      * [consumeRestoredStateForKey].
      *
-     * If the registered [provider] implements [SavedStateConsumer], its
-     * [SavedStateConsumer.consumeState] method will be automatically invoked during the state
+     * If the registered [provider] implements [SavedStateRestorer], its
+     * [SavedStateRestorer.restoreState] method will be automatically invoked during the state
      * restoration phase, or immediately if state has already been restored.
      *
      * If there is an unconsumed value with the same [key], the value supplied by the

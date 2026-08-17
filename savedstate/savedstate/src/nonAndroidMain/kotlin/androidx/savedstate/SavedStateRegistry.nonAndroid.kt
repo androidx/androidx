@@ -42,11 +42,7 @@ internal actual constructor(private val impl: SavedStateRegistryImpl) {
         impl.unregisterSavedStateProvider(key)
     }
 
-    public actual fun interface SavedStateProvider {
-        public actual fun saveState(): SavedState
-    }
-
-    public actual fun interface SavedStateConsumer {
-        public actual fun consumeState(state: SavedState)
+    public actual fun interface SavedStateProvider : androidx.savedstate.SavedStateProvider {
+        public actual override fun saveState(): SavedState
     }
 }
