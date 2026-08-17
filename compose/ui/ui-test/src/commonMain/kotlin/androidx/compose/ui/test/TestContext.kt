@@ -18,13 +18,18 @@ package androidx.compose.ui.test
 
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.unit.Dp
 
 /**
  * Provides storage of test related entities that must be accessible by anything other than
  * [ComposeUiTest] and friends, for example the [InputDispatcher] or the implementation of some
  * assertions and actions.
  */
-public class TestContext internal constructor(internal val testOwner: TestOwner) {
+public class TestContext
+internal constructor(
+    internal val testOwner: TestOwner,
+    internal val boundsAssertionTolerance: Dp = Dp.Unspecified,
+) {
 
     /**
      * Stores the [InputDispatcherState] of each [RootForTest]. The state will be restored in an

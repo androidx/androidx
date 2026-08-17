@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
+import androidx.compose.ui.test.ComposeUiTestConfig
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -61,6 +62,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.LinkAnnotation.Url
@@ -872,6 +874,21 @@ class BoundsAssertionsTest {
             }
         assertThat(textNode.getFirstLinkBounds { true }).isEqualTo(expectedBounds)
     }
+
+    @Test
+    fun assertBounds_withConfiguredTolerance() =
+        runComposeUiTest(ComposeUiTestConfig(boundsAssertionTolerance = 2.dp)) {
+            val tag = "box"
+            setContent { Box(Modifier.testTag(tag).size(100.dp)) }
+
+            // Actual size is 100.dp. Expecting 101.5.dp (delta 1.5.dp).
+            onNodeWithTag(tag).assertWidthIsEqualTo(101.5.dp)
+            onNodeWithTag(tag).assertHeightIsEqualTo(101.5.dp)
+            onNodeWithTag(tag).assertPositionInRootIsEqualTo(1.5.dp, 1.5.dp)
+
+            // Expecting 103.dp (delta 3.dp > 2.dp tolerance) fails.
+            expectError<AssertionError> { onNodeWithTag(tag).assertWidthIsEqualTo(103.dp) }
+        }
 
     private val DpRect.topLeft: DpOffset
         get() = DpOffset(left, top)

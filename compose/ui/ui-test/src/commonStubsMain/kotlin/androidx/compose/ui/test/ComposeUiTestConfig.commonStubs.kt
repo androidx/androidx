@@ -18,6 +18,7 @@ package androidx.compose.ui.test
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.unit.Dp
 import kotlin.coroutines.CoroutineContext
 import kotlin.jvm.JvmInline
 import kotlin.time.Duration
@@ -30,21 +31,8 @@ public actual constructor(
     public actual val testTimeout: Duration,
     public actual val inputMode: InputMode,
     public actual val failurePolicy: TestFailurePolicy,
-) {
-    @Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
-    public actual constructor(
-        effectContext: CoroutineContext,
-        runTestContext: CoroutineContext,
-        testTimeout: Duration,
-        inputMode: InputMode,
-    ) : this(
-        effectContext = effectContext,
-        runTestContext = runTestContext,
-        testTimeout = testTimeout,
-        inputMode = inputMode,
-        failurePolicy = TestFailurePolicy(),
-    )
-}
+    public actual val boundsAssertionTolerance: Dp,
+)
 
 @Immutable
 public actual class TestFailurePolicy

@@ -18,6 +18,7 @@ package androidx.compose.ui.test
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.unit.Dp
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -48,6 +49,9 @@ import kotlinx.coroutines.test.TestDispatcher
  * @property failurePolicy The [TestFailurePolicy] used to configure the failure handling pipeline,
  *   such as capture modes for diagnostic artifacts (screenshots, UI hierarchy) and custom failure
  *   handlers. Defaults to [TestFailurePolicy].
+ * @property boundsAssertionTolerance The default [Dp] tolerance used for bounds assertions (such as
+ *   [assertWidthIsEqualTo], [assertHeightIsEqualTo], and [assertPositionInRootIsEqualTo]). Defaults
+ *   to [Dp.Unspecified].
  */
 @Immutable
 public actual class ComposeUiTestConfig
@@ -57,20 +61,8 @@ public actual constructor(
     public actual val testTimeout: Duration,
     public actual val inputMode: InputMode,
     public actual val failurePolicy: TestFailurePolicy,
+    public actual val boundsAssertionTolerance: Dp,
 ) {
-    @Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
-    public actual constructor(
-        effectContext: CoroutineContext,
-        runTestContext: CoroutineContext,
-        testTimeout: Duration,
-        inputMode: InputMode,
-    ) : this(
-        effectContext = effectContext,
-        runTestContext = runTestContext,
-        testTimeout = testTimeout,
-        inputMode = inputMode,
-        failurePolicy = TestFailurePolicy(),
-    )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -81,6 +73,7 @@ public actual constructor(
         if (testTimeout != other.testTimeout) return false
         if (inputMode != other.inputMode) return false
         if (failurePolicy != other.failurePolicy) return false
+        if (boundsAssertionTolerance != other.boundsAssertionTolerance) return false
 
         return true
     }
@@ -91,6 +84,7 @@ public actual constructor(
         result = 31 * result + testTimeout.hashCode()
         result = 31 * result + inputMode.hashCode()
         result = 31 * result + failurePolicy.hashCode()
+        result = 31 * result + boundsAssertionTolerance.hashCode()
         return result
     }
 }
