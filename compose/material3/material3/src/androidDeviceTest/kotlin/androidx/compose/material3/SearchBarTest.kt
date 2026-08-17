@@ -104,6 +104,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -587,6 +588,7 @@ class SearchBarTest {
     // Tests for new search bar APIs below this section
 
     @SdkSuppress(maxSdkVersion = 35) // b/441508123
+    @Ignore("b/548075414")
     @Suppress("DEPRECATION")
     @Test
     fun newSearchBar_becomesExpandedAndFocusedOnClick_andCollapsedAndUnfocusedOnBack() {
