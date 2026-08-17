@@ -122,6 +122,193 @@ internal fun <T> FiniteAnimationSpec<T>.delayMillis(
     return WrappedAnimationSpec(this, 1f, TimeUnit.MILLISECONDS.toNanos(startDelayMillis))
 }
 
+/**
+ * Chains a [FiniteAnimationSpec] with [nextSpec] after [delayMillis], transitioning through an
+ * intermediate target computed by [intermediateTargetProvider].
+ *
+ * Stage 1 (0..[delayMillis]): Animates from initial value towards the value returned by
+ * [intermediateTargetProvider]. Stage 2 (>[delayMillis]): Switches to [nextSpec] animating towards
+ * the final target, inheriting the intermediate position and velocity from Stage 1 at the cutoff
+ * point to produce a smooth overall animation.
+ *
+ * Example usage chaining a linear animation with a spring:
+ * ```
+ * val animatable = Animatable(initialValue = 0f)
+ * val chainedSpec = tween<Float>(durationMillis = 150, easing = LinearEasing).then(
+ *     nextSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+ *     delayMillis = 150,
+ *     intermediateTargetProvider = { initialValue, targetValue ->
+ *         // Animate towards an intermediate midpoint during Stage 1
+ *         lerp(initialValue, targetValue, 0.5f)
+ *     }
+ * )
+ *
+ * animatable.animateTo(
+ *     targetValue = targetValue,
+ *     animationSpec = chainedSpec,
+ * )
+ * ```
+ *
+ * @param nextSpec The animation spec to switch to after [delayMillis].
+ * @param delayMillis The duration from the start before switching to [nextSpec], in milliseconds.
+ *   Must be non-negative.
+ * @param intermediateTargetProvider Computes the intermediate target value that Stage 1 animates
+ *   towards (and Stage 2 starts from), given the overall animation's initial start value and final
+ *   target value.
+ */
+internal fun <T> FiniteAnimationSpec<T>.then(
+    nextSpec: FiniteAnimationSpec<T>,
+    delayMillis: Long,
+    intermediateTargetProvider: (initialValue: T, targetValue: T) -> T,
+): FiniteAnimationSpec<T> {
+    require(delayMillis >= 0) { "delayMillis must be non-negative. Was: $delayMillis" }
+    return ChainedFiniteAnimationSpec(
+        firstSpec = this,
+        secondSpec = nextSpec,
+        switchTimeMillis = delayMillis,
+        intermediateTargetProvider = intermediateTargetProvider,
+    )
+}
+
+private class ChainedFiniteAnimationSpec<T>(
+    private val firstSpec: FiniteAnimationSpec<T>,
+    private val secondSpec: FiniteAnimationSpec<T>,
+    private val switchTimeMillis: Long,
+    private val intermediateTargetProvider: (initialValue: T, targetValue: T) -> T,
+) : FiniteAnimationSpec<T> {
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<T, V>
+    ): VectorizedFiniteAnimationSpec<V> =
+        ChainedVectorizedAnimationSpec(
+            firstSpec = firstSpec.vectorize(converter),
+            secondSpec = secondSpec.vectorize(converter),
+            switchTimeNanos = TimeUnit.MILLISECONDS.toNanos(switchTimeMillis),
+            intermediateTargetProvider = { initialVector, targetVector ->
+                val initialValue = converter.convertFromVector(initialVector)
+                val targetValue = converter.convertFromVector(targetVector)
+                val intermediateValue = intermediateTargetProvider(initialValue, targetValue)
+                converter.convertToVector(intermediateValue)
+            },
+        )
+}
+
+private class ChainedVectorizedAnimationSpec<V : AnimationVector>(
+    private val firstSpec: VectorizedFiniteAnimationSpec<V>,
+    private val secondSpec: VectorizedFiniteAnimationSpec<V>,
+    private val switchTimeNanos: Long,
+    private val intermediateTargetProvider: (initialValue: V, targetValue: V) -> V,
+) : VectorizedFiniteAnimationSpec<V> {
+    // Cached animation bounds:
+    private var initialValue: V? = null
+    private var initialVelocity: V? = null
+    private var finalTarget: V? = null
+    private var intermediateTarget: V? = null
+    private var cutoffValue: V? = null
+    private var cutoffVelocity: V? = null
+
+    @Suppress("UNCHECKED_CAST")
+    private fun V.copyVector(): V {
+        val copy =
+            when (this) {
+                is AnimationVector1D -> AnimationVector1D(value)
+                is AnimationVector2D -> AnimationVector2D(v1, v2)
+                is AnimationVector3D -> AnimationVector3D(v1, v2, v3)
+                is AnimationVector4D -> AnimationVector4D(v1, v2, v3, v4)
+            }
+        return copy as V
+    }
+
+    private fun ensureStateCached(initialValue: V, targetValue: V, initialVelocity: V) {
+        if (
+            this.initialValue != initialValue ||
+                this.finalTarget != targetValue ||
+                this.initialVelocity != initialVelocity
+        ) {
+            this.initialValue = initialValue.copyVector()
+            this.finalTarget = targetValue.copyVector()
+            this.initialVelocity = initialVelocity.copyVector()
+
+            val intermediateTarget =
+                intermediateTargetProvider(initialValue, targetValue).copyVector()
+            this.intermediateTarget = intermediateTarget
+
+            this.cutoffValue =
+                firstSpec
+                    .getValueFromNanos(
+                        switchTimeNanos,
+                        initialValue,
+                        intermediateTarget,
+                        initialVelocity,
+                    )
+                    .copyVector()
+
+            this.cutoffVelocity =
+                firstSpec
+                    .getVelocityFromNanos(
+                        switchTimeNanos,
+                        initialValue,
+                        intermediateTarget,
+                        initialVelocity,
+                    )
+                    .copyVector()
+        }
+    }
+
+    override fun getValueFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V,
+    ): V {
+        ensureStateCached(initialValue, targetValue, initialVelocity)
+        return if (playTimeNanos <= switchTimeNanos) {
+            firstSpec.getValueFromNanos(
+                playTimeNanos,
+                initialValue,
+                intermediateTarget!!,
+                initialVelocity,
+            )
+        } else {
+            secondSpec.getValueFromNanos(
+                playTimeNanos - switchTimeNanos,
+                cutoffValue!!,
+                targetValue,
+                cutoffVelocity!!,
+            )
+        }
+    }
+
+    override fun getVelocityFromNanos(
+        playTimeNanos: Long,
+        initialValue: V,
+        targetValue: V,
+        initialVelocity: V,
+    ): V {
+        ensureStateCached(initialValue, targetValue, initialVelocity)
+        return if (playTimeNanos <= switchTimeNanos) {
+            firstSpec.getVelocityFromNanos(
+                playTimeNanos,
+                initialValue,
+                intermediateTarget!!,
+                initialVelocity,
+            )
+        } else {
+            secondSpec.getVelocityFromNanos(
+                playTimeNanos - switchTimeNanos,
+                cutoffValue!!,
+                targetValue,
+                cutoffVelocity!!,
+            )
+        }
+    }
+
+    override fun getDurationNanos(initialValue: V, targetValue: V, initialVelocity: V): Long {
+        ensureStateCached(initialValue, targetValue, initialVelocity)
+        return switchTimeNanos +
+            secondSpec.getDurationNanos(cutoffValue!!, targetValue, cutoffVelocity!!)
+    }
+}
+
 private class WrappedAnimationSpec<T>(
     val wrapped: FiniteAnimationSpec<T>,
     val speedupFactor: Float,
