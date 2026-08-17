@@ -49,7 +49,7 @@ public interface HasFontCerts {
 public class GmsFontTypefaceResolver(
     private val remoteContext: RemoteContext,
     @ArrayRes override val fontCertsResId: Int,
-    private val delegate: TypefaceResolver = EmbeddedPlayerTypefaceResolver(remoteContext),
+    private val delegate: TypefaceResolver = EmbeddedPlayerTypefaceResolver,
 ) : TypefaceResolver, HasFontCerts {
 
     private val cache = mutableMapOf<String, FontInstance>()
