@@ -1109,6 +1109,47 @@ public interface RcScope {
 
     public fun RcDynamicPath.quadTo(x1: Float, y1: Float, x2: Float, y2: Float)
 
+    public fun RcDynamicPath.cubicTo(
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        x3: Float,
+        y3: Float,
+    )
+
+    public fun RcDynamicPath.arcTo(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        startAngle: Float,
+        sweepAngle: Float,
+        forceMoveTo: Boolean = false,
+    )
+
+    public fun RcDynamicPath.arcTo(
+        x0: Float,
+        y0: Float,
+        rx: Float,
+        ry: Float,
+        angle: Float,
+        largeArc: Boolean,
+        sweep: Boolean,
+        x1: Float,
+        y1: Float,
+    )
+
+    public fun RcDynamicPath.arcTo(
+        rx: Float,
+        ry: Float,
+        angle: Float,
+        largeArc: Boolean,
+        sweep: Boolean,
+        x: Float,
+        y: Float,
+    )
+
     public fun RcDynamicPath.getPath(): RcPath
 
     public fun RcDynamicPath.close()

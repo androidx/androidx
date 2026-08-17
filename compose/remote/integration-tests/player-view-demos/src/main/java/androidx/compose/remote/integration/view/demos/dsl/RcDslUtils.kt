@@ -160,7 +160,7 @@ fun parsePath(pathData: String): RcPlatformServices.RcPathArrayCreator {
                 if (rx == 0f || ry == 0f) {
                     path.lineTo(x, y)
                 } else {
-                    arcTo(path, currentX, currentY, rx, ry, angle, largeArc, sweep, x, y)
+                    path.arcTo(currentX, currentY, rx, ry, angle, largeArc, sweep, x, y)
                 }
                 currentX = x
                 currentY = y
@@ -181,8 +181,7 @@ fun parsePath(pathData: String): RcPlatformServices.RcPathArrayCreator {
 }
 
 @Suppress("RestrictedApiAndroidX")
-private fun arcTo(
-    path: RemotePathBase,
+public fun RemotePathBase.arcTo(
     x0: Float,
     y0: Float,
     rx: Float,
@@ -193,65 +192,5 @@ private fun arcTo(
     x1: Float,
     y1: Float,
 ) {
-    val alpha = angle.toDouble() * PI / 180.0
-    val cosAlpha = cos(alpha)
-    val sinAlpha = sin(alpha)
-
-    val dx = (x0 - x1).toDouble() / 2.0
-    val dy = (y0 - y1).toDouble() / 2.0
-    val x1_ = cosAlpha * dx + sinAlpha * dy
-    val y1_ = -sinAlpha * dx + cosAlpha * dy
-
-    var rx_ = abs(rx.toDouble())
-    var ry_ = abs(ry.toDouble())
-    val check = x1_ * x1_ / (rx_ * rx_) + y1_ * y1_ / (ry_ * ry_)
-    if (check > 1.0) {
-        val s = sqrt(check)
-        rx_ *= s
-        ry_ *= s
-    }
-
-    val sign = if (largeArc == sweep) -1.0 else 1.0
-    val numerator = (rx_ * rx_ * ry_ * ry_) - (rx_ * rx_ * y1_ * y1_) - (ry_ * ry_ * x1_ * x1_)
-    val denominator = (rx_ * rx_ * y1_ * y1_) + (ry_ * ry_ * x1_ * x1_)
-    val root = sqrt(max(0.0, numerator / denominator))
-    val cx_ = sign * root * rx_ * y1_ / ry_
-    val cy_ = -sign * root * ry_ * x1_ / rx_
-
-    val cx = cosAlpha * cx_ - sinAlpha * cy_ + (x0 + x1) / 2.0
-    val cy = sinAlpha * cx_ + cosAlpha * cy_ + (y0 + y1) / 2.0
-
-    val theta1 = atan2((y1_ - cy_) / ry_, (x1_ - cx_) / rx_)
-    var dTheta = atan2((-y1_ - cy_) / ry_, (-x1_ - cx_) / rx_) - theta1
-
-    if (sweep && dTheta < 0) dTheta += 2 * PI else if (!sweep && dTheta > 0) dTheta -= 2 * PI
-
-    val segments = ceil(abs(dTheta) / (PI / 2.0)).toInt()
-    for (i in 0 until segments) {
-        val s1 = theta1 + i * dTheta / segments
-        val s2 = theta1 + (i + 1) * dTheta / segments
-
-        val t = 4.0 / 3.0 * tan((s2 - s1) / 4.0)
-
-        val xstart = cosAlpha * rx_ * cos(s1) - sinAlpha * ry_ * sin(s1) + cx
-        val ystart = sinAlpha * rx_ * cos(s1) + cosAlpha * ry_ * sin(s1) + cy
-
-        val xend = cosAlpha * rx_ * cos(s2) - sinAlpha * ry_ * sin(s2) + cx
-        val yend = sinAlpha * rx_ * cos(s2) + cosAlpha * ry_ * sin(s2) + cy
-
-        val cp1x = xstart + t * (-cosAlpha * rx_ * sin(s1) - sinAlpha * ry_ * cos(s1))
-        val cp1y = ystart + t * (-sinAlpha * rx_ * sin(s1) + cosAlpha * ry_ * cos(s1))
-
-        val cp2x = xend - t * (-cosAlpha * rx_ * sin(s2) - sinAlpha * ry_ * cos(s2))
-        val cp2y = yend - t * (-sinAlpha * rx_ * sin(s2) + cosAlpha * ry_ * cos(s2))
-
-        path.cubicTo(
-            cp1x.toFloat(),
-            cp1y.toFloat(),
-            cp2x.toFloat(),
-            cp2y.toFloat(),
-            xend.toFloat(),
-            yend.toFloat(),
-        )
-    }
+    this.arcTo(x0, y0, rx, ry, angle, largeArc, sweep, x1, y1)
 }

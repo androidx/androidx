@@ -1784,6 +1784,29 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * append cubic bezier from the last point, approaching control points (x1,y1) and (x2,y2), and
+     * ending at (x3,y3).
+     *
+     * @param pathId the path id
+     * @param x1 The x-coordinate of the 1st control point
+     * @param y1 The y-coordinate of the 1st control point
+     * @param x2 The x-coordinate of the 2nd control point
+     * @param y2 The y-coordinate of the 2nd control point
+     * @param x3 The x-coordinate of the end point
+     * @param y3 The y-coordinate of the end point
+     */
+    public void pathAppendCubicTo(
+            int pathId,
+            float x1,
+            float y1,
+            float x2,
+            float y2,
+            float x3,
+            float y3) {
+        mBuffer.pathAppend(pathId, PathAppend.CUBIC_NAN, 0, 0, x1, y1, x2, y2, x3, y3);
+    }
+
+    /**
      * add a MoveTo to the path
      *
      * @param pathId the path id
