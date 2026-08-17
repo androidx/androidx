@@ -1645,7 +1645,195 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
     }
 
     override fun RcDynamicPath.quadTo(x1: Float, y1: Float, x2: Float, y2: Float) {
-        writer.pathAppendQuadTo(id, x1, y2, x2, y2)
+        writer.pathAppendQuadTo(id, x1, y1, x2, y2)
+    }
+
+    override fun RcDynamicPath.cubicTo(
+        x1: Float,
+        y1: Float,
+        x2: Float,
+        y2: Float,
+        x3: Float,
+        y3: Float,
+    ) {
+        writer.pathAppendCubicTo(id, x1, y1, x2, y2, x3, y3)
+    }
+
+    override fun RcDynamicPath.arcTo(
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
+        startAngle: Float,
+        sweepAngle: Float,
+        forceMoveTo: Boolean,
+    ) {
+        val rx = kotlin.math.abs(right - left) / 2.0f
+        val ry = kotlin.math.abs(bottom - top) / 2.0f
+        if (rx == 0f || ry == 0f || sweepAngle == 0f) {
+            return
+        }
+        val cx = (left + right) / 2.0f
+        val cy = (top + bottom) / 2.0f
+        val startRad = Math.toRadians(startAngle.toDouble())
+        val sweepRad = Math.toRadians(sweepAngle.toDouble())
+
+        val startX = cx + rx * kotlin.math.cos(startRad)
+        val startY = cy + ry * kotlin.math.sin(startRad)
+
+        if (forceMoveTo) {
+            moveTo(startX.toFloat(), startY.toFloat())
+        } else {
+            lineTo(startX.toFloat(), startY.toFloat())
+        }
+
+        val segments =
+            kotlin.math.max(
+                1,
+                kotlin.math.ceil(kotlin.math.abs(sweepRad) / (Math.PI / 2.0)).toInt(),
+            )
+        for (i in 0 until segments) {
+            val s1 = startRad + i * sweepRad / segments
+            val s2 = startRad + (i + 1) * sweepRad / segments
+
+            val t = 4.0 / 3.0 * kotlin.math.tan((s2 - s1) / 4.0)
+
+            val xstart = cx + rx * kotlin.math.cos(s1)
+            val ystart = cy + ry * kotlin.math.sin(s1)
+
+            val xend = cx + rx * kotlin.math.cos(s2)
+            val yend = cy + ry * kotlin.math.sin(s2)
+
+            val cp1x = xstart - t * rx * kotlin.math.sin(s1)
+            val cp1y = ystart + t * ry * kotlin.math.cos(s1)
+
+            val cp2x = xend + t * rx * kotlin.math.sin(s2)
+            val cp2y = yend - t * ry * kotlin.math.cos(s2)
+
+            cubicTo(
+                cp1x.toFloat(),
+                cp1y.toFloat(),
+                cp2x.toFloat(),
+                cp2y.toFloat(),
+                xend.toFloat(),
+                yend.toFloat(),
+            )
+        }
+    }
+
+    override fun RcDynamicPath.arcTo(
+        x0: Float,
+        y0: Float,
+        rx: Float,
+        ry: Float,
+        angle: Float,
+        largeArc: Boolean,
+        sweep: Boolean,
+        x1: Float,
+        y1: Float,
+    ) {
+        if (rx == 0f || ry == 0f) {
+            lineTo(x1, y1)
+            return
+        }
+        val alpha = Math.toRadians(angle.toDouble())
+        val cosAlpha = kotlin.math.cos(alpha)
+        val sinAlpha = kotlin.math.sin(alpha)
+
+        val dx = (x0 - x1).toDouble() / 2.0
+        val dy = (y0 - y1).toDouble() / 2.0
+        val x1_ = cosAlpha * dx + sinAlpha * dy
+        val y1_ = -sinAlpha * dx + cosAlpha * dy
+
+        var rx_ = kotlin.math.abs(rx.toDouble())
+        var ry_ = kotlin.math.abs(ry.toDouble())
+        val check = (x1_ * x1_) / (rx_ * rx_) + (y1_ * y1_) / (ry_ * ry_)
+        if (check > 1.0) {
+            val s = kotlin.math.sqrt(check)
+            rx_ *= s
+            ry_ *= s
+        }
+
+        val sign = if (largeArc == sweep) -1.0 else 1.0
+        val numerator = (rx_ * rx_ * ry_ * ry_) - (rx_ * rx_ * y1_ * y1_) - (ry_ * ry_ * x1_ * x1_)
+        val denominator = (rx_ * rx_ * y1_ * y1_) + (ry_ * ry_ * x1_ * x1_)
+        val root = kotlin.math.sqrt(kotlin.math.max(0.0, numerator / denominator))
+        val cx_ = sign * root * rx_ * y1_ / ry_
+        val cy_ = -sign * root * ry_ * x1_ / rx_
+
+        val cx = cosAlpha * cx_ - sinAlpha * cy_ + (x0 + x1) / 2.0
+        val cy = sinAlpha * cx_ + cosAlpha * cy_ + (y0 + y1) / 2.0
+
+        val theta1 = kotlin.math.atan2((y1_ - cy_) / ry_, (x1_ - cx_) / rx_)
+        var dTheta = kotlin.math.atan2((-y1_ - cy_) / ry_, (-x1_ - cx_) / rx_) - theta1
+
+        if (sweep && dTheta < 0) {
+            dTheta += 2 * Math.PI
+        } else if (!sweep && dTheta > 0) {
+            dTheta -= 2 * Math.PI
+        }
+
+        val segments =
+            kotlin.math.max(1, kotlin.math.ceil(kotlin.math.abs(dTheta) / (Math.PI / 2.0)).toInt())
+        for (i in 0 until segments) {
+            val s1 = theta1 + i * dTheta / segments
+            val s2 = theta1 + (i + 1) * dTheta / segments
+
+            val t = 4.0 / 3.0 * kotlin.math.tan((s2 - s1) / 4.0)
+
+            val xstart =
+                cosAlpha * rx_ * kotlin.math.cos(s1) - sinAlpha * ry_ * kotlin.math.sin(s1) + cx
+            val ystart =
+                sinAlpha * rx_ * kotlin.math.cos(s1) + cosAlpha * ry_ * kotlin.math.sin(s1) + cy
+
+            val xend =
+                cosAlpha * rx_ * kotlin.math.cos(s2) - sinAlpha * ry_ * kotlin.math.sin(s2) + cx
+            val yend =
+                sinAlpha * rx_ * kotlin.math.cos(s2) + cosAlpha * ry_ * kotlin.math.sin(s2) + cy
+
+            val cp1x =
+                xstart +
+                    t *
+                        (-cosAlpha * rx_ * kotlin.math.sin(s1) -
+                            sinAlpha * ry_ * kotlin.math.cos(s1))
+            val cp1y =
+                ystart +
+                    t *
+                        (-sinAlpha * rx_ * kotlin.math.sin(s1) +
+                            cosAlpha * ry_ * kotlin.math.cos(s1))
+
+            val cp2x =
+                xend -
+                    t *
+                        (-cosAlpha * rx_ * kotlin.math.sin(s2) -
+                            sinAlpha * ry_ * kotlin.math.cos(s2))
+            val cp2y =
+                yend -
+                    t *
+                        (-sinAlpha * rx_ * kotlin.math.sin(s2) +
+                            cosAlpha * ry_ * kotlin.math.cos(s2))
+
+            cubicTo(
+                cp1x.toFloat(),
+                cp1y.toFloat(),
+                cp2x.toFloat(),
+                cp2y.toFloat(),
+                xend.toFloat(),
+                yend.toFloat(),
+            )
+        }
+    }
+
+    override fun RcDynamicPath.arcTo(
+        rx: Float,
+        ry: Float,
+        angle: Float,
+        largeArc: Boolean,
+        sweep: Boolean,
+        x: Float,
+        y: Float,
+    ) {
+        arcTo(0f, 0f, rx, ry, angle, largeArc, sweep, x, y)
     }
 
     override fun RcDynamicPath.getPath(): RcPath {
