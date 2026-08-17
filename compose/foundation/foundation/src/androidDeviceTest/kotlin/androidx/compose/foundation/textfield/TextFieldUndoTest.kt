@@ -19,16 +19,17 @@ package androidx.compose.foundation.textfield
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.withKeyDown
+import androidx.compose.ui.test.withKeysDown
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,7 +45,6 @@ class TextFieldUndoTest {
         undoRedoTest(redoKeys = listOf(Key.CtrlLeft, Key.ShiftLeft, Key.Z))
     }
 
-    @Ignore("b/336546377")
     @Test
     fun undo_redo_withCtrlY() {
         undoRedoTest(redoKeys = listOf(Key.CtrlLeft, Key.Y))
@@ -56,21 +56,27 @@ class TextFieldUndoTest {
             BasicTextField(value = state.value, onValueChange = { state.value = it })
         }
 
-        state.value = "hello"
+        with(rule.onNode(hasSetTextAction())) {
+            requestFocus()
+            assertIsFocused()
+        }
+
+        rule.runOnIdle { state.value = "hello" }
+        rule.runOnIdle { assertThat(state.value).isEqualTo("hello") }
 
         // undo command
         with(rule.onNode(hasSetTextAction())) {
-            requestFocus()
+            assertIsFocused()
             performKeyInput { withKeyDown(Key.CtrlLeft) { pressKey(Key.Z) } }
         }
 
         rule.runOnIdle { assertThat(state.value).isEqualTo("hi") }
+        rule.waitForIdle()
 
         // redo command
-        rule.onNode(hasSetTextAction()).performKeyInput {
-            redoKeys.forEach { keyDown(it) }
-            advanceEventTime(100)
-            redoKeys.forEach { keyUp(it) }
+        with(rule.onNode(hasSetTextAction())) {
+            assertIsFocused()
+            performKeyInput { withKeysDown(redoKeys.dropLast(1)) { pressKey(redoKeys.last()) } }
         }
 
         rule.runOnIdle { assertThat(state.value).isEqualTo("hello") }
