@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
+import androidx.compose.remote.player.core.platform.AndroidCustomContext
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.remote.player.core.state.StateUpdater
 import androidx.compose.remote.player.view.RemoteComposePlayer
@@ -47,6 +48,7 @@ fun RemoteDemo(
     update: (RemoteComposePlayer) -> Unit = {},
     onNamedAction: (String, Any?, StateUpdater) -> Unit = { _, _, _ -> },
     bitmapLoader: BitmapLoader? = null,
+    customSupport: AndroidCustomContext? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
     var documentState by remember { mutableStateOf<RemoteDocument?>(null) }
@@ -54,7 +56,6 @@ fun RemoteDemo(
     Box(modifier = Modifier.fillMaxSize()) {
         val context = LocalContext.current
         val creationDisplayInfo = createCreationDisplayInfo()
-        // TODO(b/495316956): pass LayoutDirection to captureSingleRemoteDocumentV2
         LaunchedEffect(Unit) {
             val captured =
                 captureSingleRemoteDocument(
@@ -78,6 +79,7 @@ fun RemoteDemo(
                 update = update,
                 onNamedAction = onNamedAction,
                 bitmapLoader = bitmapLoader,
+                customSupport = customSupport,
             )
         }
     }
