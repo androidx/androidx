@@ -276,9 +276,38 @@ class WearWidgetProviderInfoTest {
     }
 
     @Test
+    fun parseFromTypeWithWhitespace_parseProviderInfoSuccessfully() {
+        val serviceInfo = createServiceInfo(service)
+        val info =
+            getXml(R.xml.wear_widget_provider_info_whitespace)
+                .parseWearWidgetProviderInfo(
+                    context.resources,
+                    context.packageManager,
+                    service,
+                    serviceInfo,
+                    defaultPreferredContainerType = ContainerInfo.CONTAINER_TYPE_SMALL,
+                    defaultGroup = "default.group",
+                )
+
+        assertThat(info.containers).hasSize(2)
+        assertThat(info.containers)
+            .containsExactlyElementsIn(
+                listOf(
+                    ContainerInfo(
+                        type = ContainerInfo.CONTAINER_TYPE_SMALL,
+                        previewImage = android.R.drawable.ic_menu_add,
+                    ),
+                    ContainerInfo(
+                        type = ContainerInfo.CONTAINER_TYPE_LARGE,
+                        previewImage = android.R.drawable.ic_menu_send,
+                    ),
+                )
+            )
+    }
+
+    @Test
     fun parseWearWidgetProviderInfo_whenInvalidPreferredType_forcesFirstType() {
         val serviceInfo = createServiceInfo(service)
-
         val info =
             getXml(R.xml.wear_widget_provider_info_forced_preferred_type)
                 .parseWearWidgetProviderInfo(

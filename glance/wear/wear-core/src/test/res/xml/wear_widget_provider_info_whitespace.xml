@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wearwidget-provider
+    label="Test"
+    description="Test"
+    preferredType="1"
+    group="default.group" >
+
+    <!-- Test string parsing with whitespace -->
+    <container
+        type=" small "
+        previewImage="@android:drawable/ic_menu_add" />
+
+    <!-- Test integer parsing with whitespace (1 = Large) -->
+    <container
+        type=" 1 "
+        previewImage="@android:drawable/ic_menu_send" />
+
+</wearwidget-provider>
