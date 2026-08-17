@@ -116,6 +116,8 @@ class A2uiPropertyTest {
                 properties = listOf(child1, child2),
                 required = true,
                 description = "A list of tabs",
+                minItems = 1,
+                maxItems = 10,
             )
 
         assertThat(prop.key).isEqualTo("tabs")
@@ -133,6 +135,23 @@ class A2uiPropertyTest {
                             required = setOf("title"),
                         ),
                     description = "A list of tabs",
+                    minItems = 1,
+                    maxItems = 10,
+                )
+            )
+    }
+
+    @Test
+    fun nestedListProperty_initialization_defaultMinMaxItems() {
+        val child = A2uiProperty.string("title")
+        val prop = A2uiProperty.nestedList("tabs", listOf(child))
+
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiArraySchema(
+                    items = A2uiObjectSchema(properties = mapOf("title" to A2uiStringSchema())),
+                    minItems = 0,
+                    maxItems = -1,
                 )
             )
     }
@@ -284,11 +303,29 @@ class A2uiPropertyTest {
 
     @Test
     fun stringListProperty_initialization_setsCorrectFieldsAndSchema() {
-        val prop = A2uiProperty.stringList("test", required = true, description = "Test list")
+        val prop =
+            A2uiProperty.stringList(
+                "test",
+                required = true,
+                description = "Test list",
+                minItems = 2,
+                maxItems = 4,
+            )
 
         assertThat(prop.key).isEqualTo("test")
         assertThat(prop.isRequired).isTrue()
-        assertThat(prop.schema).isEqualTo(A2uiArraySchema(A2uiStringSchema.INSTANCE, "Test list"))
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiArraySchema(A2uiStringSchema.INSTANCE, "Test list", minItems = 2, maxItems = 4)
+            )
+    }
+
+    @Test
+    fun stringListProperty_initialization_defaultMinMaxItems() {
+        val prop = A2uiProperty.stringList("test")
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiArraySchema(A2uiStringSchema.INSTANCE, minItems = 0, maxItems = -1))
     }
 
     @Test
@@ -314,12 +351,33 @@ class A2uiPropertyTest {
     @Test
     fun numberListProperty_initialization_setsCorrectFieldsAndSchema() {
         val prop =
-            A2uiProperty.numberList("test", required = true, description = "Test number list")
+            A2uiProperty.numberList(
+                "test",
+                required = true,
+                description = "Test number list",
+                minItems = 2,
+                maxItems = 4,
+            )
 
         assertThat(prop.key).isEqualTo("test")
         assertThat(prop.isRequired).isTrue()
         assertThat(prop.schema)
-            .isEqualTo(A2uiArraySchema(A2uiNumberSchema.INSTANCE, "Test number list"))
+            .isEqualTo(
+                A2uiArraySchema(
+                    A2uiNumberSchema.INSTANCE,
+                    "Test number list",
+                    minItems = 2,
+                    maxItems = 4,
+                )
+            )
+    }
+
+    @Test
+    fun numberListProperty_initialization_defaultMinMaxItems() {
+        val prop = A2uiProperty.numberList("test")
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiArraySchema(A2uiNumberSchema.INSTANCE, minItems = 0, maxItems = -1))
     }
 
     @Test
@@ -345,12 +403,33 @@ class A2uiPropertyTest {
     @Test
     fun booleanListProperty_initialization_setsCorrectFieldsAndSchema() {
         val prop =
-            A2uiProperty.booleanList("test", required = true, description = "Test boolean list")
+            A2uiProperty.booleanList(
+                "test",
+                required = true,
+                description = "Test boolean list",
+                minItems = 2,
+                maxItems = 4,
+            )
 
         assertThat(prop.key).isEqualTo("test")
         assertThat(prop.isRequired).isTrue()
         assertThat(prop.schema)
-            .isEqualTo(A2uiArraySchema(A2uiBooleanSchema.INSTANCE, "Test boolean list"))
+            .isEqualTo(
+                A2uiArraySchema(
+                    A2uiBooleanSchema.INSTANCE,
+                    "Test boolean list",
+                    minItems = 2,
+                    maxItems = 4,
+                )
+            )
+    }
+
+    @Test
+    fun booleanListProperty_initialization_defaultMinMaxItems() {
+        val prop = A2uiProperty.booleanList("test")
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiArraySchema(A2uiBooleanSchema.INSTANCE, minItems = 0, maxItems = -1))
     }
 
     @Test
@@ -375,11 +454,29 @@ class A2uiPropertyTest {
 
     @Test
     fun anyListProperty_initialization_setsCorrectFieldsAndSchema() {
-        val prop = A2uiProperty.anyList("test", required = true, description = "Test any list")
+        val prop =
+            A2uiProperty.anyList(
+                "test",
+                required = true,
+                description = "Test any list",
+                minItems = 2,
+                maxItems = 4,
+            )
 
         assertThat(prop.key).isEqualTo("test")
         assertThat(prop.isRequired).isTrue()
-        assertThat(prop.schema).isEqualTo(A2uiArraySchema(A2uiAnySchema.INSTANCE, "Test any list"))
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiArraySchema(A2uiAnySchema.INSTANCE, "Test any list", minItems = 2, maxItems = 4)
+            )
+    }
+
+    @Test
+    fun anyListProperty_initialization_defaultMinMaxItems() {
+        val prop = A2uiProperty.anyList("test")
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiArraySchema(A2uiAnySchema.INSTANCE, minItems = 0, maxItems = -1))
     }
 
     @Test
