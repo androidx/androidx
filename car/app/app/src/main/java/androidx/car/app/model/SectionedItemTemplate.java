@@ -122,6 +122,10 @@ public final class SectionedItemTemplate implements Template {
 
     private final @Nullable Header mHeader;
 
+    @RequiresCarApi(9)
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    private final @Nullable SearchHeader mSearchHeader;
+
     private final boolean mIsLoading;
 
     @Deprecated
@@ -136,6 +140,7 @@ public final class SectionedItemTemplate implements Template {
         mSections = Collections.emptyList();
         mActions = Collections.emptyList();
         mHeader = null;
+        mSearchHeader = null;
         mIsLoading = false;
         mIsAlphabeticalIndexingAllowed = false;
         mAlphabeticalIndexingStrategy = ALPHABETICAL_INDEXING_DISABLED;
@@ -147,6 +152,7 @@ public final class SectionedItemTemplate implements Template {
         mSections = Collections.unmodifiableList(builder.mSections);
         mActions = Collections.unmodifiableList(builder.mActions);
         mHeader = builder.mHeader;
+        mSearchHeader = builder.mSearchHeader;
         mIsLoading = builder.mIsLoading;
         mIsAlphabeticalIndexingAllowed = builder.mIsAlphabeticalIndexingAllowed;
         mAlphabeticalIndexingStrategy = builder.mAlphabeticalIndexingStrategy;
@@ -166,6 +172,17 @@ public final class SectionedItemTemplate implements Template {
     /** Returns the optional header for this template. */
     public @Nullable Header getHeader() {
         return mHeader;
+    }
+
+    /**
+     * Returns the {@link SearchHeader} for this template or {@code null} if not set.
+     *
+     * @see Builder#setSearchHeader(SearchHeader)
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    public @Nullable SearchHeader getSearchHeader() {
+        return mSearchHeader;
     }
 
     /** Returns whether or not this template is in a loading state. */
@@ -229,6 +246,7 @@ public final class SectionedItemTemplate implements Template {
         return Objects.hash(mSections,
                 mActions,
                 mHeader,
+                mSearchHeader,
                 mIsLoading,
                 mIsAlphabeticalIndexingAllowed,
                 mScrollStatePersistenceStrategy
@@ -250,6 +268,7 @@ public final class SectionedItemTemplate implements Template {
         return Objects.equals(mSections, template.mSections)
                 && Objects.equals(mActions, template.mActions)
                 && Objects.equals(mHeader, template.mHeader)
+                && Objects.equals(mSearchHeader, template.mSearchHeader)
                 && mIsLoading == template.mIsLoading
                 && mIsAlphabeticalIndexingAllowed == template.mIsAlphabeticalIndexingAllowed
                 && mScrollStatePersistenceStrategy == template.mScrollStatePersistenceStrategy;
@@ -280,6 +299,10 @@ public final class SectionedItemTemplate implements Template {
 
         private @Nullable Header mHeader = null;
 
+        @RequiresCarApi(9)
+        @OptIn(markerClass = ExperimentalCarApi.class)
+        private @Nullable SearchHeader mSearchHeader = null;
+
         private boolean mIsLoading = false;
 
         private boolean mIsAlphabeticalIndexingAllowed = false;
@@ -300,6 +323,7 @@ public final class SectionedItemTemplate implements Template {
             mSections = template.mSections;
             mActions = template.mActions;
             mHeader = template.mHeader;
+            mSearchHeader = template.mSearchHeader;
             mIsLoading = template.mIsLoading;
             mIsAlphabeticalIndexingAllowed = template.mIsAlphabeticalIndexingAllowed;
             mAlphabeticalIndexingStrategy = template.mAlphabeticalIndexingStrategy;
@@ -395,10 +419,31 @@ public final class SectionedItemTemplate implements Template {
             return this;
         }
 
-        /** Sets or clears the optional header for this template. */
+        /**
+         * Sets or clears the optional header for this template.
+         *
+         * <p> Note that only one of {@link Header} or {@link SearchHeader} can be set
+         * on this template at the same time.
+         * Otherwise, an exception will be thrown on {@link #build()} invocation.
+         */
         @CanIgnoreReturnValue
         public @NonNull Builder setHeader(@Nullable Header header) {
             mHeader = header;
+            return this;
+        }
+
+        /**
+         * Sets or clears a search header on this template, enabling search input mode.
+         *
+         * <p> Note that only one of {@link Header} or {@link SearchHeader} can be set
+         * on this template at the same time.
+         * Otherwise, an exception will be thrown on {@link #build()} invocation.
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(9)
+        @CanIgnoreReturnValue
+        public @NonNull Builder setSearchHeader(@Nullable SearchHeader searchHeader) {
+            mSearchHeader = searchHeader;
             return this;
         }
 
@@ -498,6 +543,10 @@ public final class SectionedItemTemplate implements Template {
          */
         @OptIn(markerClass = ExperimentalCarApi.class)
         public @NonNull SectionedItemTemplate build() {
+            if (mHeader != null && mSearchHeader != null) {
+                throw new IllegalArgumentException(
+                        "Both Header and SearchHeader cannot be set on SectionedItemTemplate");
+            }
             if (mIsLoading) {
                 if (!mSections.isEmpty()) {
                     throw new IllegalArgumentException(
