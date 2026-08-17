@@ -20,7 +20,7 @@ import android.os.Build
 import android.view.Choreographer
 import android.view.Display
 import android.view.View
-import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.AndroidComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.R
 import androidx.compose.runtime.Composable
@@ -142,7 +142,7 @@ internal class AndroidPrefetchScheduler(private val view: View) :
             prefetchScheduled = false
             return
         }
-        if (ComposeFoundationFlags.isPrefetchSchedulerLateFrameDetectionEnabled) {
+        if (AndroidComposeFoundationFlags.isPrefetchSchedulerLateFrameDetectionEnabled) {
             runNewBehavior()
         } else {
             runOldBehavior()
@@ -326,7 +326,7 @@ internal class AndroidPrefetchScheduler(private val view: View) :
         var nextFrameTimeNs: Long = 0L
 
         override fun availableTimeNanos() =
-            if (ComposeFoundationFlags.isPrefetchSchedulerLateFrameDetectionEnabled) {
+            if (AndroidComposeFoundationFlags.isPrefetchSchedulerLateFrameDetectionEnabled) {
                 max(0, nextFrameTimeNs - System.nanoTime())
             } else {
                 if (isFrameIdle) {

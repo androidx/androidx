@@ -3,8 +3,10 @@ package androidx.compose.foundation {
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class AndroidComposeFoundationFlags {
     property public boolean isOverscrollPixelRoundingEnabled;
+    property public boolean isPrefetchSchedulerLateFrameDetectionEnabled;
     field public static final androidx.compose.foundation.AndroidComposeFoundationFlags INSTANCE;
     field public static boolean isOverscrollPixelRoundingEnabled;
+    field public static boolean isPrefetchSchedulerLateFrameDetectionEnabled;
   }
 
   public interface AndroidExternalSurfaceScope {
@@ -176,7 +178,6 @@ package androidx.compose.foundation {
     property public boolean isNewContextMenuEnabled;
     property public boolean isPausableCompositionInPrefetchEnabled;
     property public boolean isPreferDefaultCacheWindowOverPrefetchStrategy;
-    property public boolean isPrefetchSchedulerLateFrameDetectionEnabled;
     property public boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
     property public boolean isSelectionAutoScrollEnabled;
     property public boolean isSmartSelectionEnabled;
@@ -202,7 +203,6 @@ package androidx.compose.foundation {
     field public static boolean isNewContextMenuEnabled;
     field public static boolean isPausableCompositionInPrefetchEnabled;
     field public static boolean isPreferDefaultCacheWindowOverPrefetchStrategy;
-    field public static boolean isPrefetchSchedulerLateFrameDetectionEnabled;
     field public static boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
     field public static boolean isSelectionAutoScrollEnabled;
     field public static boolean isSmartSelectionEnabled;
