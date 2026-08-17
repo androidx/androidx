@@ -20,5 +20,6 @@ import androidx.annotation.RestrictTo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CurrentDataProviderStore<T> : DataStore<T> {
-    public suspend fun currentData(): T
+    @Deprecated("Use fetchCurrentData() instead", ReplaceWith("fetchCurrentData()"))
+    public suspend fun currentData(): T = fetchCurrentData()
 }

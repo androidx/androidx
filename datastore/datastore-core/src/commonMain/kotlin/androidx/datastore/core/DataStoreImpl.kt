@@ -133,7 +133,7 @@ internal class DataStoreImpl<T>(
         )
     }
 
-    override suspend fun currentData(): T {
+    override suspend fun fetchCurrentData(): T {
         // Need to check this as long as we allow users to create a DataStore with a CoroutineScope.
         scope.coroutineContext.ensureActive()
         val token = captureTraceToken(tracer)
