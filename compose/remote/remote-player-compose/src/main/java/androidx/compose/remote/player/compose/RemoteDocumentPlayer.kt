@@ -28,6 +28,7 @@ import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.action.NamedActionHandler
 import androidx.compose.remote.player.core.action.StateUpdaterActionCallback
+import androidx.compose.remote.player.core.platform.AndroidCustomContext
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.remote.player.core.state.StateUpdater
@@ -60,6 +61,7 @@ public fun RemoteDocumentPlayer(
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     bitmapLoader: BitmapLoader? = null,
     typefaceResolver: TypefaceResolver? = null,
+    customSupport: AndroidCustomContext? = null,
 ) {
     var inDarkTheme by remember { mutableStateOf(false) }
     var playbackTheme by remember { mutableIntStateOf(Theme.UNSPECIFIED) }
@@ -107,6 +109,7 @@ public fun RemoteDocumentPlayer(
                 doOnPreDraw { fullyDrawnReporter?.removeReporter() }
                 bitmapLoader?.let(::setBitmapLoader)
                 typefaceResolver?.let(::setTypefaceResolver)
+                customSupport?.let(::setCustomSupport)
                 init(this)
             }
         },
@@ -114,6 +117,7 @@ public fun RemoteDocumentPlayer(
             remoteComposePlayer.setTheme(playbackTheme)
             remoteComposePlayer.setDocument(remoteDoc)
             remoteComposePlayer.setDebug(debugMode)
+            customSupport?.let(remoteComposePlayer::setCustomSupport)
             remoteComposePlayer.document.document.clearActionCallbacks()
             remoteComposePlayer.document.document.addIdActionListener { id, value ->
                 onAction.invoke(id, value)

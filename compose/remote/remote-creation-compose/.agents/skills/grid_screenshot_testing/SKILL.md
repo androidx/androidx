@@ -53,6 +53,9 @@ This skill provides guidelines for building screenshot tests using `GridScreensh
    ```
 
 ## Best Practices
+- **Consolidate into `grid()` when possible**: Where feasible and as long as it does not negatively impact readability, group related visual configurations into a single `@Test fun grid()` using `GridScreenshotUI` instead of creating multiple individual `@Test` methods that each produce their own separate golden image.
+- **Grid Capacity & Splitting**: `GridScreenshotUI` arranges items in 3 columns by default (`itemsPerRow = 3`). On a standard emulator screen (e.g., Medium Phone), typically around **9 to 12 items** (3 to 4 rows) fit comfortably without being cut off. If a test suite has more items, split them across multiple grid tests (e.g., `grid()`, `grid2()`, `grid3()`, etc.) or group them by logical sub-feature (e.g., `grid_sizing()`, `grid_styling()`).
+- **Extract composables to private functions**: Extract each test variation into a standalone, private `@Composable @RemoteComposable fun ComponentVariant()` function rather than writing large inline closures inside the `tests` list to keep the grid test clean and readable.
 - **Reuse Dimensions**: Use `GridScreenshotUI.Companion.DefaultContainerSize` to maintain consistent container dimensions across tests.
 - **RTL Testing**: You can easily test RTL (Right-to-Left) layouts by passing `layoutDirection = LayoutDirection.Rtl` to `GridContent`.
   ```kotlin
@@ -83,3 +86,44 @@ This skill provides guidelines for building screenshot tests using `GridScreensh
           }
       }.toList()
   ```
+
+### Complete Example
+
+```kotlin
+@MediumTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+@RunWith(AndroidJUnit4::class)
+class RemoteCustomScreenshotTest {
+    @get:Rule
+    val composeTestRule =
+        RemoteScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            context = ApplicationProvider.getApplicationContext(),
+            matcher = MSSIMMatcher(threshold = 0.999),
+        )
+
+    private val gridScreenshotUI = GridScreenshotUI()
+
+    @Test
+    fun grid() = composeTestRule.runScreenshotTest {
+        val tests =
+            listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
+                "default" to @Composable @RemoteComposable { DefaultView() },
+                "styled" to @Composable @RemoteComposable { StyledView() },
+            )
+        gridScreenshotUI.GridContent(tests)
+    }
+
+    @Composable
+    @RemoteComposable
+    private fun DefaultView() {
+        // ...
+    }
+
+    @Composable
+    @RemoteComposable
+    private fun StyledView() {
+        // ...
+    }
+}
+```
