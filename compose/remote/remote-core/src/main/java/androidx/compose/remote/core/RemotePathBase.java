@@ -176,9 +176,9 @@ public class RemotePathBase implements RcPlatformServices.RcPathArrayCreator {
      * there is no previous contour, this is treated the same as moveTo().
      *
      * @param dx The amount to add to the x-coordinate of the end of the previous contour, to
-     *     specify the start of a new contour
+     *           specify the start of a new contour
      * @param dy The amount to add to the y-coordinate of the end of the previous contour, to
-     *     specify the start of a new contour
+     *           specify the start of a new contour
      */
     public void rMoveTo(float dx, float dy) {
         mCx += dx;
@@ -207,13 +207,13 @@ public class RemotePathBase implements RcPlatformServices.RcPathArrayCreator {
      * contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
      *
      * @param dx1 The amount to add to the x-coordinate of the last point on this contour, for the
-     *     control point of a quadratic curve
+     *            control point of a quadratic curve
      * @param dy1 The amount to add to the y-coordinate of the last point on this contour, for the
-     *     control point of a quadratic curve
+     *            control point of a quadratic curve
      * @param dx2 The amount to add to the x-coordinate of the last point on this contour, for the
-     *     end point of a quadratic curve
+     *            end point of a quadratic curve
      * @param dy2 The amount to add to the y-coordinate of the last point on this contour, for the
-     *     end point of a quadratic curve
+     *            end point of a quadratic curve
      */
     public void rQuadTo(float dx1, float dy1, float dx2, float dy2) {
         add(QUADRATIC, dx1 + mCx, dy1 + mCy, dx2 + mCx, dy2 + mCy);
@@ -230,13 +230,14 @@ public class RemotePathBase implements RcPlatformServices.RcPathArrayCreator {
      * weight of 0 is equivalent to calling {@link #lineTo(float, float)} to <code>(x1, y1)</code>
      * followed by {@link #lineTo(float, float)} to <code>(x2, y2)</code>.
      *
-     * @param x1 The x-coordinate of the control point on a conic curve
-     * @param y1 The y-coordinate of the control point on a conic curve
-     * @param x2 The x-coordinate of the end point on a conic curve
-     * @param y2 The y-coordinate of the end point on a conic curve
+     * @param x1     The x-coordinate of the control point on a conic curve
+     * @param y1     The y-coordinate of the control point on a conic curve
+     * @param x2     The x-coordinate of the end point on a conic curve
+     * @param y2     The y-coordinate of the end point on a conic curve
      * @param weight The weight of the conic applied to the curve. A value of 1 is equivalent to a
-     *     quadratic with the given control and anchor points and a value of 0 is equivalent to a
-     *     line to the first and another line to the second point.
+     *               quadratic with the given control and anchor points and a value of 0 is
+     *               equivalent to a
+     *               line to the first and another line to the second point.
      */
     public void conicTo(float x1, float y1, float x2, float y2, float weight) {
         add(CONIC, x1, y1, x2, y2, weight);
@@ -248,17 +249,22 @@ public class RemotePathBase implements RcPlatformServices.RcPathArrayCreator {
      * Same as conicTo, but the coordinates are considered relative to the last point on this
      * contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
      *
-     * @param dx1 The amount to add to the x-coordinate of the last point on this contour, for the
-     *     control point of a conic curve
-     * @param dy1 The amount to add to the y-coordinate of the last point on this contour, for the
-     *     control point of a conic curve
-     * @param dx2 The amount to add to the x-coordinate of the last point on this contour, for the
-     *     end point of a conic curve
-     * @param dy2 The amount to add to the y-coordinate of the last point on this contour, for the
-     *     end point of a conic curve
+     * @param dx1    The amount to add to the x-coordinate of the last point on this contour, for
+     *              the
+     *               control point of a conic curve
+     * @param dy1    The amount to add to the y-coordinate of the last point on this contour, for
+     *              the
+     *               control point of a conic curve
+     * @param dx2    The amount to add to the x-coordinate of the last point on this contour, for
+     *              the
+     *               end point of a conic curve
+     * @param dy2    The amount to add to the y-coordinate of the last point on this contour, for
+     *              the
+     *               end point of a conic curve
      * @param weight The weight of the conic applied to the curve. A value of 1 is equivalent to a
-     *     quadratic with the given control and anchor points and a value of 0 is equivalent to a
-     *     line to the first and another line to the second point.
+     *               quadratic with the given control and anchor points and a value of 0 is
+     *               equivalent to a
+     *               line to the first and another line to the second point.
      */
     public void rConicTo(float dx1, float dy1, float dx2, float dy2, float weight) {
         add(CONIC, dx1 + mCx, dy1 + mCy, dx2 + mCx, dy2 + mCy, weight);
@@ -284,9 +290,9 @@ public class RemotePathBase implements RcPlatformServices.RcPathArrayCreator {
      * contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
      *
      * @param dx The amount to add to the x-coordinate of the previous point on this contour, to
-     *     specify a line
+     *           specify a line
      * @param dy The amount to add to the y-coordinate of the previous point on this contour, to
-     *     specify a line
+     *           specify a line
      */
     public void rLineTo(float dx, float dy) {
         add(LINE, mCx = dx + mCx, mCy = dy + mCy);
@@ -349,12 +355,12 @@ public class RemotePathBase implements RcPlatformServices.RcPathArrayCreator {
     /**
      * Add the specified arc to the path as a new contour.
      *
-     * @param left left most bounds of the oval
-     * @param top top most bounds of the oval
-     * @param right right most bounds of the oval
-     * @param bottom lowest bound of the oval
-     * @param startAngle Starting angle (in degrees) where the arc begins
-     * @param sweepAngle Sweep angle (in degrees) measured clockwise
+     * @param left        left most bounds of the oval
+     * @param top         top most bounds of the oval
+     * @param right       right most bounds of the oval
+     * @param bottom      lowest bound of the oval
+     * @param startAngle  Starting angle (in degrees) where the arc begins
+     * @param sweepAngle  Sweep angle (in degrees) measured clockwise
      * @param forceMoveTo If true, always begin a new contour with the arc
      */
     public void arcTo(
@@ -369,14 +375,15 @@ public class RemotePathBase implements RcPlatformServices.RcPathArrayCreator {
     }
 
     /**
-     * Add the specified arc to the path as a new contour.
+     * Add the specified arc to the path as a new contour by
+     * decomposing it into cubic Bezier segments.
      *
-     * @param left left most bounds of the oval
-     * @param top top most bounds of the oval
-     * @param right right most bounds of the oval
-     * @param bottom lowest bound of the oval
-     * @param startAngle Starting angle (in degrees) where the arc begins
-     * @param sweepAngle Sweep angle (in degrees) measured clockwise
+     * @param left        left most bounds of the oval
+     * @param top         top most bounds of the oval
+     * @param right       right most bounds of the oval
+     * @param bottom      lowest bound of the oval
+     * @param startAngle  Starting angle (in degrees) where the arc begins
+     * @param sweepAngle  Sweep angle (in degrees) measured clockwise
      * @param forceMoveTo If true, always begin a new contour with the arc
      */
     public void addArc(
@@ -387,9 +394,171 @@ public class RemotePathBase implements RcPlatformServices.RcPathArrayCreator {
             float startAngle,
             float sweepAngle,
             boolean forceMoveTo) {
-        // TODO: Implement arc serialization if needed, or rely on platform implementation via
-        // extensions
-        throw new UnsupportedOperationException("Not implemented in Java Base");
+        float rx = Math.abs(right - left) / 2.0f;
+        float ry = Math.abs(bottom - top) / 2.0f;
+        if (rx == 0 || ry == 0 || sweepAngle == 0) {
+            return;
+        }
+        float cx = (left + right) / 2.0f;
+        float cy = (top + bottom) / 2.0f;
+        double startRad = Math.toRadians(startAngle);
+        double sweepRad = Math.toRadians(sweepAngle);
+
+        double startX = cx + rx * Math.cos(startRad);
+        double startY = cy + ry * Math.sin(startRad);
+
+        if (isEmpty() || forceMoveTo) {
+            moveTo((float) startX, (float) startY);
+        } else {
+            lineTo((float) startX, (float) startY);
+        }
+
+        int segments = (int) Math.ceil(Math.abs(sweepRad) / (Math.PI / 2.0));
+        if (segments == 0) {
+            segments = 1;
+        }
+
+        for (int i = 0; i < segments; i++) {
+            double s1 = startRad + i * sweepRad / segments;
+            double s2 = startRad + (i + 1) * sweepRad / segments;
+
+            double t = 4.0 / 3.0 * Math.tan((s2 - s1) / 4.0);
+
+            double xstart = cx + rx * Math.cos(s1);
+            double ystart = cy + ry * Math.sin(s1);
+
+            double xend = cx + rx * Math.cos(s2);
+            double yend = cy + ry * Math.sin(s2);
+
+            double cp1x = xstart - t * rx * Math.sin(s1);
+            double cp1y = ystart + t * ry * Math.cos(s1);
+
+            double cp2x = xend + t * rx * Math.sin(s2);
+            double cp2y = yend - t * ry * Math.cos(s2);
+
+            cubicTo(
+                    (float) cp1x,
+                    (float) cp1y,
+                    (float) cp2x,
+                    (float) cp2y,
+                    (float) xend,
+                    (float) yend);
+        }
+    }
+
+    /**
+     * Add an elliptical arc from the current position to (x, y)
+     * by decomposing it into cubic Bezier segments.
+     *
+     * @param rx       Radius in x
+     * @param ry       Radius in y
+     * @param angle    Rotation angle of ellipse in degrees
+     * @param largeArc Whether to choose the large arc (>180 deg)
+     * @param sweep    Whether to choose the clockwise arc
+     * @param x        Destination x
+     * @param y        Destination y
+     */
+    public void arcTo(
+            float rx,
+            float ry,
+            float angle,
+            boolean largeArc,
+            boolean sweep,
+            float x,
+            float y) {
+        arcTo(mCx, mCy, rx, ry, angle, largeArc, sweep, x, y);
+    }
+
+    /**
+     * Add an elliptical arc from (x0, y0) to (x1, y1) by decomposing it into cubic Bezier segments.
+     */
+    public void arcTo(
+            float x0,
+            float y0,
+            float rx,
+            float ry,
+            float angle,
+            boolean largeArc,
+            boolean sweep,
+            float x1,
+            float y1) {
+        if (rx == 0 || ry == 0) {
+            lineTo(x1, y1);
+            return;
+        }
+        double alpha = Math.toRadians(angle);
+        double cosAlpha = Math.cos(alpha);
+        double sinAlpha = Math.sin(alpha);
+
+        double dx = (x0 - x1) / 2.0;
+        double dy = (y0 - y1) / 2.0;
+        double x1p = cosAlpha * dx + sinAlpha * dy;
+        double y1p = -sinAlpha * dx + cosAlpha * dy;
+
+        double rxp = Math.abs(rx);
+        double ryp = Math.abs(ry);
+        double check = (x1p * x1p) / (rxp * rxp) + (y1p * y1p) / (ryp * ryp);
+        if (check > 1.0) {
+            double s = Math.sqrt(check);
+            rxp *= s;
+            ryp *= s;
+        }
+
+        double sign = (largeArc == sweep) ? -1.0 : 1.0;
+        double numerator = (rxp * rxp * ryp * ryp)
+                - (rxp * rxp * y1p * y1p) - (ryp * ryp * x1p * x1p);
+        double denominator = (rxp * rxp * y1p * y1p) + (ryp * ryp * x1p * x1p);
+        double root = Math.sqrt(Math.max(0.0, numerator / denominator));
+        double cxp = sign * root * rxp * y1p / ryp;
+        double cyp = -sign * root * ryp * x1p / rxp;
+
+        double cx = cosAlpha * cxp - sinAlpha * cyp + (x0 + x1) / 2.0;
+        double cy = sinAlpha * cxp + cosAlpha * cyp + (y0 + y1) / 2.0;
+
+        double theta1 = Math.atan2((y1p - cyp) / ryp, (x1p - cxp) / rxp);
+        double dTheta = Math.atan2((-y1p - cyp) / ryp, (-x1p - cxp) / rxp) - theta1;
+
+        if (sweep && dTheta < 0) {
+            dTheta += 2 * Math.PI;
+        } else if (!sweep && dTheta > 0) {
+            dTheta -= 2 * Math.PI;
+        }
+
+        int segments = (int) Math.ceil(Math.abs(dTheta) / (Math.PI / 2.0));
+        if (segments == 0) {
+            segments = 1;
+        }
+
+        for (int i = 0; i < segments; i++) {
+            double s1 = theta1 + i * dTheta / segments;
+            double s2 = theta1 + (i + 1) * dTheta / segments;
+
+            double t = 4.0 / 3.0 * Math.tan((s2 - s1) / 4.0);
+
+            double xstart = cosAlpha * rxp * Math.cos(s1) - sinAlpha * ryp * Math.sin(s1) + cx;
+            double ystart = sinAlpha * rxp * Math.cos(s1) + cosAlpha * ryp * Math.sin(s1) + cy;
+
+            double xend = cosAlpha * rxp * Math.cos(s2) - sinAlpha * ryp * Math.sin(s2) + cx;
+            double yend = sinAlpha * rxp * Math.cos(s2) + cosAlpha * ryp * Math.sin(s2) + cy;
+
+            double cp1x = xstart + t * (-cosAlpha * rxp * Math.sin(s1)
+                    - sinAlpha * ryp * Math.cos(s1));
+            double cp1y = ystart + t * (-sinAlpha * rxp * Math.sin(s1)
+                    + cosAlpha * ryp * Math.cos(s1));
+
+            double cp2x = xend - t * (-cosAlpha * rxp * Math.sin(s2)
+                    - sinAlpha * ryp * Math.cos(s2));
+            double cp2y = yend - t * (-sinAlpha * rxp * Math.sin(s2)
+                    + cosAlpha * ryp * Math.cos(s2));
+
+            cubicTo(
+                    (float) cp1x,
+                    (float) cp1y,
+                    (float) cp2x,
+                    (float) cp2y,
+                    (float) xend,
+                    (float) yend);
+        }
     }
 
     private void parsePathData(@NonNull String pathData) {
@@ -441,6 +610,23 @@ public class RemotePathBase implements RcPlatformServices.RcPathArrayCreator {
                                 Float.parseFloat(values[i + 1]),
                                 Float.parseFloat(values[i + 2]),
                                 Float.parseFloat(values[i + 3]));
+                    }
+                    break;
+                case 'A':
+                case 'a':
+                    for (int i = 0; i < values.length; i += 7) {
+                        float rx = Float.parseFloat(values[i]);
+                        float ry = Float.parseFloat(values[i + 1]);
+                        float angle = Float.parseFloat(values[i + 2]);
+                        boolean largeArc = Float.parseFloat(values[i + 3]) != 0f;
+                        boolean sweep = Float.parseFloat(values[i + 4]) != 0f;
+                        float x = Float.parseFloat(values[i + 5]);
+                        float y = Float.parseFloat(values[i + 6]);
+                        if (cmd == 'a') {
+                            x += mCx;
+                            y += mCy;
+                        }
+                        arcTo(rx, ry, angle, largeArc, sweep, x, y);
                     }
                     break;
                 case 'Z':
