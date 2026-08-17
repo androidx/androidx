@@ -17,17 +17,18 @@
 package androidx.car.app.model;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.car.app.model.SearchTemplate.SearchCallback;
 
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.RemoteUtils;
 
@@ -41,6 +42,7 @@ import org.jspecify.annotations.Nullable;
 @RestrictTo(LIBRARY)
 @CarProtocol
 @KeepFields
+@OptIn(markerClass = ExperimentalCarApi.class)
 public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
     private final @Nullable ISearchCallback mStubCallback;
 
@@ -76,6 +78,7 @@ public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
     }
 
     // This listener relates to UI event and is expected to be triggered on the main thread.
+    /** Creates a {@link SearchCallbackDelegate} from {@link SearchCallback} */
     @SuppressLint("ExecutorRegistration")
     public static @NonNull SearchCallbackDelegate create(@NonNull SearchCallback callback) {
         return new SearchCallbackDelegateImpl(callback);
@@ -84,17 +87,17 @@ public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
     @CarProtocol
     @KeepFields // We need to keep these stub for Bundler serialization logic.
     private static class SearchCallbackStub extends ISearchCallback.Stub {
-        private final SearchCallback mCallback;
+        private final @NonNull SearchCallback mSearchCallback;
 
-        SearchCallbackStub(SearchCallback callback) {
-            mCallback = callback;
+        SearchCallbackStub(@NonNull SearchCallback callback) {
+            mSearchCallback = callback;
         }
 
         @Override
         public void onSearchTextChanged(String text, IOnDoneCallback callback) {
             RemoteUtils.dispatchCallFromHost(
                     callback, "onSearchTextChanged", () -> {
-                        mCallback.onSearchTextChanged(text);
+                        mSearchCallback.onSearchTextChanged(text);
                         return null;
                     }
             );
@@ -104,7 +107,7 @@ public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
         public void onSearchSubmitted(String text, IOnDoneCallback callback) {
             RemoteUtils.dispatchCallFromHost(
                     callback, "onSearchSubmitted", () -> {
-                        mCallback.onSearchSubmitted(text);
+                        mSearchCallback.onSearchSubmitted(text);
                         return null;
                     });
         }

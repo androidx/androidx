@@ -2037,9 +2037,33 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.RowSection.Builder setAsSelectionGroup(int);
   }
 
+  public interface SearchCallback {
+    method public default void onSearchSubmitted(String);
+    method public default void onSearchTextChanged(String);
+  }
+
   @androidx.car.app.annotations.CarProtocol public interface SearchCallbackDelegate {
     method public void sendSearchSubmitted(String, androidx.car.app.OnDoneCallback);
     method public void sendSearchTextChanged(String, androidx.car.app.OnDoneCallback);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class SearchHeader {
+    method public java.util.List<androidx.car.app.model.Action!> getEndHeaderActions();
+    method public String? getInitialSearchText();
+    method public androidx.car.app.model.SearchCallbackDelegate getSearchCallbackDelegate();
+    method public String? getSearchHint();
+    method public androidx.car.app.model.Action? getStartHeaderAction();
+    method public boolean isShowKeyboardByDefault();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class SearchHeader.Builder {
+    ctor public SearchHeader.Builder(androidx.car.app.model.SearchCallback);
+    method public androidx.car.app.model.SearchHeader build();
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SearchHeader.Builder setEndHeaderActions(java.util.List<androidx.car.app.model.Action!>);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SearchHeader.Builder setInitialSearchText(String);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SearchHeader.Builder setSearchHint(String);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SearchHeader.Builder setShowKeyboardByDefault(boolean);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SearchHeader.Builder setStartHeaderAction(androidx.car.app.model.Action);
   }
 
   @androidx.car.app.annotations.CarProtocol public final class SearchTemplate implements androidx.car.app.model.Template {
@@ -2065,9 +2089,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.SearchTemplate.Builder setShowKeyboardByDefault(boolean);
   }
 
-  public static interface SearchTemplate.SearchCallback {
-    method public default void onSearchSubmitted(String);
-    method public default void onSearchTextChanged(String);
+  public static interface SearchTemplate.SearchCallback extends androidx.car.app.model.SearchCallback {
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(8) public abstract class Section<T extends androidx.car.app.model.Item> {
@@ -2127,6 +2149,7 @@ package androidx.car.app.model {
     method public int getAlphabeticalIndexingStrategy();
     method public androidx.car.app.model.Header? getHeader();
     method public int getScrollStatePersistenceStrategy();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.SearchHeader? getSearchHeader();
     method public java.util.List<androidx.car.app.model.Section<? extends java.lang.Object!>!> getSections();
     method @Deprecated public boolean isAlphabeticalIndexingAllowed();
     method public boolean isLoading();
@@ -2151,6 +2174,7 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setHeader(androidx.car.app.model.Header?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setLoading(boolean);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setScrollStatePersistenceStrategy(int);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setSearchHeader(androidx.car.app.model.SearchHeader?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setSections(java.util.List<androidx.car.app.model.Section<? extends java.lang.Object!>!>);
   }
 
