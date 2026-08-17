@@ -125,7 +125,7 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun rich_time_picker_dialog() {
-        rule.setMaterialContent(scheme.colorScheme) { RichDialog(TimePickerDisplayMode.Picker) }
+        rule.setMaterialContent(scheme.colorScheme) { VibrantDialog(TimePickerDisplayMode.Picker) }
 
         rule
             .onNode(isDialog())
@@ -137,7 +137,7 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun rich_time_picker_scroll_dialog() {
         rule.setMaterialContent(scheme.colorScheme) {
-            RichScrollDialog(TimePickerDisplayMode.Scroll)
+            VibrantScrollDialog(TimePickerDisplayMode.Scroll)
         }
 
         rule
@@ -149,7 +149,7 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun rich_time_input_dialog() {
-        rule.setMaterialContent(scheme.colorScheme) { RichDialog(TimePickerDisplayMode.Input) }
+        rule.setMaterialContent(scheme.colorScheme) { VibrantDialog(TimePickerDisplayMode.Input) }
 
         rule
             .onNode(isDialog())
@@ -160,7 +160,7 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun rich_time_picker_uncontained_scroll_dialog() {
-        rule.setMaterialContent(scheme.colorScheme) { RichUncontainedScrollDialog() }
+        rule.setMaterialContent(scheme.colorScheme) { VibrantUncontainedScrollDialog() }
 
         rule
             .onNodeWithTag(TestTag)
@@ -174,7 +174,7 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun rich_time_picker_uncontained_input_dialog() {
-        rule.setMaterialContent(scheme.colorScheme) { RichUncontainedInputDialog() }
+        rule.setMaterialContent(scheme.colorScheme) { VibrantUncontainedInputDialog() }
 
         rule
             .onNodeWithTag(TestTag)
@@ -208,8 +208,8 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun RichDialog(displayMode: TimePickerDisplayMode = TimePickerDisplayMode.Picker) {
-        RichTimePickerDialog(
+    private fun VibrantDialog(displayMode: TimePickerDisplayMode = TimePickerDisplayMode.Picker) {
+        VibrantTimePickerDialog(
             modifier = Modifier,
             onDismissRequest = {},
             confirmButton = { TextButton(onClick = {}) { Text("Ok") } },
@@ -232,10 +232,10 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun RichScrollDialog(
+    private fun VibrantScrollDialog(
         displayMode: TimePickerDisplayMode = TimePickerDisplayMode.Scroll
     ) {
-        RichTimePickerDialog(
+        VibrantTimePickerDialog(
             modifier = Modifier,
             onDismissRequest = {},
             confirmButton = { TextButton(onClick = {}) { Text("Ok") } },
@@ -253,7 +253,7 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun RichUncontainedScrollDialog() {
+    private fun VibrantUncontainedScrollDialog() {
         var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Scroll) }
         val toggleButton =
             @Composable {
@@ -281,7 +281,7 @@ class TimePickerDialogScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun RichUncontainedInputDialog() {
+    private fun VibrantUncontainedInputDialog() {
         var displayMode by remember { mutableStateOf(TimePickerDisplayMode.Input) }
         val toggleButton =
             @Composable {

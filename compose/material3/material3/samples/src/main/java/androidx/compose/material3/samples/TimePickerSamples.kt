@@ -22,7 +22,6 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.RichTimePickerDialog
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -36,6 +35,7 @@ import androidx.compose.material3.TimePickerDialogDefaults
 import androidx.compose.material3.TimePickerDialogDefaults.MinHeightForTimePicker
 import androidx.compose.material3.TimePickerDisplayMode
 import androidx.compose.material3.TimeScroll
+import androidx.compose.material3.VibrantTimePickerDialog
 import androidx.compose.material3.isHourInputValid
 import androidx.compose.material3.isInputValid
 import androidx.compose.material3.rememberTimePickerState
@@ -221,7 +221,7 @@ fun TimePickerSwitchableSample() {
 @Sampled
 @Composable
 @Preview
-fun RichTimePickerSample() {
+fun VibrantTimePickerSample() {
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
@@ -234,7 +234,7 @@ fun RichTimePickerSample() {
         SnackbarHost(hostState = snackState)
     }
     if (showTimePicker) {
-        RichTimePickerDialog(
+        VibrantTimePickerDialog(
             onDismissRequest = { showTimePicker = false },
             confirmButton = {
                 TextButton(
@@ -263,7 +263,7 @@ fun RichTimePickerSample() {
 @Sampled
 @Composable
 @Preview
-fun RichTimeInputSample() {
+fun VibrantTimeInputSample() {
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
@@ -276,7 +276,7 @@ fun RichTimeInputSample() {
         SnackbarHost(hostState = snackState)
     }
     if (showTimePicker) {
-        RichTimePickerDialog(
+        VibrantTimePickerDialog(
             onDismissRequest = { showTimePicker = false },
             confirmButton = {
                 TextButton(
@@ -305,7 +305,7 @@ fun RichTimeInputSample() {
 @Sampled
 @Composable
 @Preview
-fun RichTimePickerSwitchableSample() {
+fun VibrantTimePickerSwitchableSample() {
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
@@ -320,7 +320,7 @@ fun RichTimePickerSwitchableSample() {
         SnackbarHost(hostState = snackState)
     }
     if (showTimePicker) {
-        RichTimePickerDialog(
+        VibrantTimePickerDialog(
             onDismissRequest = { showTimePicker = false },
             confirmButton = {
                 TextButton(
@@ -371,7 +371,7 @@ fun RichTimePickerSwitchableSample() {
 @Sampled
 @Composable
 @Preview
-fun RichTimePickerScrollSample() {
+fun VibrantTimePickerScrollSample() {
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
     val state = rememberTimePickerState()
     val formatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
@@ -387,7 +387,7 @@ fun RichTimePickerScrollSample() {
     }
 
     if (showTimePicker) {
-        RichTimePickerDialog(
+        VibrantTimePickerDialog(
             onDismissRequest = { showTimePicker = false },
             confirmButton = {
                 TextButton(

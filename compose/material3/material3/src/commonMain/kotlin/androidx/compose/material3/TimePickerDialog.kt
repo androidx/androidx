@@ -92,34 +92,34 @@ public fun TimePickerDialog(
 }
 
 /**
- * [Material Design rich time picker
+ * [Material Design vibrant time picker
  * dialog](https://m3.material.io/components/time-pickers/overview)
  *
- * [RichTimePickerDialog] is a dialog container for a time picker. It is only responsible for the
+ * [VibrantTimePickerDialog] is a dialog container for a time picker. It is only responsible for the
  * dialog's window chrome and actions (e.g. buttons) and does not include the time picker controls
  * themselves. The time picker controls (e.g. [TimePicker], [TimeInput], or [TimeScroll]) should be
  * provided in the [content] slot.
  *
- * Rich time picker dialogs have a more prominent layout and are suitable for larger screens or
+ * Vibrant time picker dialogs have a more prominent layout and are suitable for larger screens or
  * situations where the time picker is the main focus of the UI.
  *
- * A rich TimePicker with clock display input looks like:
+ * A vibrant TimePicker with clock display input looks like:
  *
- * @sample androidx.compose.material3.samples.RichTimePickerSample
+ * @sample androidx.compose.material3.samples.VibrantTimePickerSample
  *
- * A rich TimePicker with a UI of a text input mode looks like:
+ * A vibrant TimePicker with a UI of a text input mode looks like:
  *
- * @sample androidx.compose.material3.samples.RichTimeInputSample
+ * @sample androidx.compose.material3.samples.VibrantTimeInputSample
  *
- * A rich TimePicker with an initial UI of a clock display input that can switch to a text input
+ * A vibrant TimePicker with an initial UI of a clock display input that can switch to a text input
  * mode looks like:
  *
- * @sample androidx.compose.material3.samples.RichTimePickerSwitchableSample
+ * @sample androidx.compose.material3.samples.VibrantTimePickerSwitchableSample
  *
- * A rich TimePicker with an initial UI of a scrollable time input that can switch to a text input
- * mode looks like:
+ * A vibrant TimePicker with an initial UI of a scrollable time input that can switch to a text
+ * input mode looks like:
  *
- * @sample androidx.compose.material3.samples.RichTimePickerScrollSample
+ * @sample androidx.compose.material3.samples.VibrantTimePickerScrollSample
  * @param onDismissRequest called when the user tries to dismiss the Dialog by clicking outside or
  *   pressing the back button. This is not called when the dismiss button is clicked.
  * @param confirmButton button which is meant to confirm a proposed action, thus resolving what
@@ -135,19 +135,19 @@ public fun TimePickerDialog(
  * @param content the content of the dialog (i.e. a [TimePicker], for example)
  */
 @Composable
-public fun RichTimePickerDialog(
+public fun VibrantTimePickerDialog(
     onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     modeToggleButton: @Composable (() -> Unit)? = null,
     dismissButton: @Composable (() -> Unit)? = null,
-    shape: Shape = TimePickerDialogDefaults.richShape,
-    containerColor: Color = TimePickerDialogDefaults.richContainerColor,
+    shape: Shape = TimePickerDialogDefaults.vibrantShape,
+    containerColor: Color = TimePickerDialogDefaults.vibrantContainerColor,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Dialog(onDismissRequest = onDismissRequest, properties = properties) {
-        RichTimePickerDialogLayout(
+        VibrantTimePickerDialogLayout(
             confirmButton = confirmButton,
             modifier = modifier,
             modeToggleButton = modeToggleButton,
@@ -195,13 +195,13 @@ internal fun TimePickerDialogLayout(
 }
 
 @Composable
-internal fun RichTimePickerDialogLayout(
+internal fun VibrantTimePickerDialogLayout(
     confirmButton: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     modeToggleButton: @Composable (() -> Unit)? = null,
     dismissButton: @Composable (() -> Unit)? = null,
-    shape: Shape = TimePickerDialogDefaults.richShape,
-    containerColor: Color = TimePickerDialogDefaults.richContainerColor,
+    shape: Shape = TimePickerDialogDefaults.vibrantShape,
+    containerColor: Color = TimePickerDialogDefaults.vibrantContainerColor,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
@@ -210,7 +210,7 @@ internal fun RichTimePickerDialogLayout(
         modifier = modifier,
         color = containerColor,
     ) {
-        RichTimePickerCustomLayout(
+        VibrantTimePickerCustomLayout(
             actions = {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -326,7 +326,7 @@ internal fun TimePickerCustomLayout(
 }
 
 @Composable
-internal fun RichTimePickerCustomLayout(
+internal fun VibrantTimePickerCustomLayout(
     actions: @Composable () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -409,19 +409,19 @@ public object TimePickerDialogDefaults {
     public val containerColor: Color
         @Composable get() = DialogTokens.ContainerColor.value
 
-    /** Shape color for [TimePickerDialog] */
+    /** Shape for [TimePickerDialog] */
     public val shape: Shape
         @Composable get() = DialogTokens.ContainerShape.value
 
-    /** Container color for a rich [TimePickerDialog] */
-    public val richContainerColor: Color
+    /** Container color for a vibrant [TimePickerDialog] */
+    public val vibrantContainerColor: Color
         @Composable get() = MaterialTheme.colorScheme.surfaceContainer
 
-    /** Shape color for a rich [TimePickerDialog] */
-    public val richShape: Shape
+    /** Shape for a vibrant [TimePickerDialog] */
+    public val vibrantShape: Shape
         @Composable get() = ShapeKeyTokens.CornerExtraLarge.value
 
-    /** Min Screen Height required to display a TimePicker in Picker in mode */
+    /** Minimum screen height required to display a [TimePicker] in picker mode */
     public val MinHeightForTimePicker: Dp = 300.dp
 
     /**
