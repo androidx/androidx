@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
@@ -341,7 +342,9 @@ class ListItemTest {
     @Test
     fun defaultInteractionSource_isShared_betweenSurfaceAndFocusable() {
         rule.setGlimmerThemeContent(addInitialFocusInterceptor = true) {
-            ListItem(modifier = Modifier.testTag("list_item")) { Text("Focusable item") }
+            Box(Modifier.width(150.dp)) {
+                ListItem(modifier = Modifier.testTag("list_item")) { Text("Focusable item") }
+            }
         }
 
         val imageBefore = rule.onNodeWithTag("list_item").captureToImage()
@@ -352,8 +355,8 @@ class ListItemTest {
         val imageAfter = rule.onNodeWithTag("list_item").captureToImage()
 
         val result =
-            // Expect similarity < 90% due to focused border.
-            MSSIMMatcher(threshold = 0.90)
+            // Expect similarity < 85% due to focused border.
+            MSSIMMatcher(threshold = 0.85)
                 .compareBitmaps(
                     imageBefore.toIntArray(),
                     imageAfter.toIntArray(),
@@ -367,8 +370,10 @@ class ListItemTest {
     @Test
     fun defaultInteractionSource_isShared_betweenSurfaceAndClickable() {
         rule.setGlimmerThemeContent(addInitialFocusInterceptor = true) {
-            ListItem(onClick = {}, modifier = Modifier.testTag("list_item")) {
-                Text("Clickable item")
+            Box(Modifier.width(150.dp)) {
+                ListItem(onClick = {}, modifier = Modifier.testTag("list_item")) {
+                    Text("Clickable item")
+                }
             }
         }
 
@@ -380,8 +385,8 @@ class ListItemTest {
         val imageAfter = rule.onNodeWithTag("list_item").captureToImage()
 
         val result =
-            // Expect similarity < 90% due to focused border.
-            MSSIMMatcher(threshold = 0.90)
+            // Expect similarity < 85% due to focused border.
+            MSSIMMatcher(threshold = 0.85)
                 .compareBitmaps(
                     imageBefore.toIntArray(),
                     imageAfter.toIntArray(),
