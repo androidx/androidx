@@ -264,6 +264,53 @@ public sealed class A2uiProperty<out T> {
         ): StaticA2uiProperty<Number> = NumberEnumProperty(key, required, description, enumValues)
 
         /**
+         * Creates a static property expecting an enum value strictly bounded to a predefined list
+         * of enum options with the ability to map values to custom types to support statically
+         * typed enums.
+         *
+         * @param key The key for this property.
+         * @param enumValues A list of valid enum values the agent is allowed to supply for this
+         *   property.
+         * @param mapToString A mapping function to serialize an enum entry into its string schema
+         *   value.
+         * @param convertFromString A parsing function to convert a raw string value into an enum
+         *   entry.
+         * @param required Whether the agent must provide this property to successfully render the
+         *   component.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to [T] at runtime.
+         */
+        public fun <T : Enum<T>> enum(
+            key: String,
+            enumValues: List<T>,
+            mapToString: (T) -> String,
+            convertFromString: (String) -> T?,
+            required: Boolean = false,
+            description: String? = null,
+        ): StaticA2uiProperty<T> =
+            EnumProperty(key, required, description, enumValues, mapToString, convertFromString)
+
+        /**
+         * Creates a static property with a custom schema and type-casting logic.
+         *
+         * This allows defining a property that is constrained by a custom JSON schema (e.g.,
+         * `oneOf` with specific literal schemas).
+         *
+         * @param key The key for this property.
+         * @param schema The custom [A2uiSchema] defining this property's structural requirements.
+         * @param safeCast A function to safely cast the raw payload into the expected type [T].
+         * @param required Whether the agent must provide this property to successfully render the
+         *   component.
+         * @return A [StaticA2uiProperty] that resolves to [T] at runtime.
+         */
+        public fun <T> custom(
+            key: String,
+            schema: A2uiSchema,
+            safeCast: (Any) -> T?,
+            required: Boolean = false,
+        ): StaticA2uiProperty<T> = CustomProperty(key, required, schema, safeCast)
+
+        /**
          * Creates a dynamic property representing a reactive data binding mapped to a [String].
          *
          * The resolved runtime value will automatically be safely coerced or stringified if the
@@ -359,6 +406,28 @@ public sealed class A2uiProperty<out T> {
             required: Boolean = false,
             description: String? = null,
         ): DynamicA2uiProperty<List<String>> = DynamicStringListProperty(key, required, description)
+
+        /**
+         * Creates a dynamic property with a custom schema and type-casting logic.
+         *
+         * This allows defining a property that is dynamically evaluated against the data model, but
+         * constrained by a custom JSON schema (e.g., `oneOf` with specific literal schemas).
+         *
+         * @param key The key for this property.
+         * @param schema The custom [A2uiSchema] defining this property's structural requirements.
+         * @param safeCast A function to safely cast the evaluated payload into the expected type
+         *   [T].
+         * @param required Whether the agent must provide this property to successfully render the
+         *   component.
+         * @return A [DynamicA2uiProperty] evaluated dynamically against the surface's data model at
+         *   runtime.
+         */
+        public fun <T> dynamicCustom(
+            key: String,
+            schema: A2uiSchema,
+            safeCast: (Any) -> T?,
+            required: Boolean = false,
+        ): DynamicA2uiProperty<T> = DynamicCustomProperty(key, required, schema, safeCast)
 
         /**
          * Creates a static property storing the string ID of another component within the same
@@ -647,6 +716,47 @@ internal class NumberEnumProperty(
 }
 
 @Immutable
+internal class EnumProperty<T>(
+    override val key: String,
+    override val isRequired: Boolean,
+    description: String?,
+    private val enumValues: List<T>,
+    mapToString: (T) -> String,
+    private val convertFromString: (String) -> T?,
+) : StaticA2uiProperty<T>() {
+    override val schema: A2uiSchema = run {
+        val mappedEnumValues = ArrayList<String>(enumValues.size)
+        for (i in enumValues.indices) {
+            mappedEnumValues.add(mapToString(enumValues[i]))
+        }
+        A2uiStringSchema(
+            description = description,
+            keywords = listOf(A2uiSchemaKeyword.Enum(mappedEnumValues)),
+        )
+    }
+
+    override fun safeCast(value: Any): T? =
+        when (value) {
+            is String -> convertFromString(value)
+            is Enum<*> ->
+                if ((enumValues as List<*>).contains(value))
+                    @Suppress("UNCHECKED_CAST") (value as T)
+                else null
+            else -> null
+        }
+}
+
+@Immutable
+internal class CustomProperty<T>(
+    override val key: String,
+    override val isRequired: Boolean,
+    override val schema: A2uiSchema,
+    private val cast: (Any) -> T?,
+) : StaticA2uiProperty<T>() {
+    override fun safeCast(value: Any): T? = cast(value)
+}
+
+@Immutable
 internal class DynamicStringProperty(
     override val key: String,
     override val isRequired: Boolean,
@@ -709,6 +819,16 @@ internal class DynamicStringListProperty(
             }
             else -> null
         }
+}
+
+@Immutable
+internal class DynamicCustomProperty<T>(
+    override val key: String,
+    override val isRequired: Boolean,
+    override val schema: A2uiSchema,
+    private val cast: (Any) -> T?,
+) : DynamicA2uiProperty<T>() {
+    override fun safeCast(value: Any): T? = cast(value)
 }
 
 @Immutable
