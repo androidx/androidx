@@ -194,6 +194,9 @@
         <activity
             android:name=".SharedArrayBufferActivity"
             android:exported="true" />
+        <activity
+            android:name=".HyperlinkContextMenuActivity"
+            android:exported="true" />
         <!-- This is important for the ImageDragActivity to work and it shouldn't be removed -->
         <provider
             android:authorities="com.example.androidx.webkit.DropDataProvider"
