@@ -16,6 +16,7 @@
 
 package androidx.glance.wear.lint
 
+import com.android.tools.lint.client.api.ResourceRepositoryScope
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -47,7 +48,10 @@ class WearWidgetProviderXmlDetector : Detector(), Detector.XmlScanner {
             return
         }
 
-        val foundTypes = mutableMapOf<String, Attr>()
+        val resourceRepository =
+            context.client.getResources(context.project, ResourceRepositoryScope.ALL_DEPENDENCIES)
+
+        val foundTypes = mutableMapOf<ResolvedContainerType, Attr>()
         for (container in containers) {
             val hasPreviewImage = container.hasAttribute(ATTR_PREVIEW_IMAGE)
 
@@ -69,9 +73,31 @@ class WearWidgetProviderXmlDetector : Detector(), Detector.XmlScanner {
                     "This <container> tag is missing the 'type' attribute",
                 )
             } else {
-                val typeAttrValue = typeAttrNode.value.trim()
-                val existingAttrNode = foundTypes[typeAttrValue]
+                val typeAttrValue = typeAttrNode.value
+                val resolvedType =
+                    WearWidgetContainerTypeResolver.resolve(resourceRepository, typeAttrValue)
+                when (resolvedType) {
+                    is ResolvedContainerType.TileCompat -> {
+                        context.report(
+                            XML_UNSUPPORTED_CONTAINER_TYPE_ISSUE,
+                            typeAttrNode,
+                            context.getLocation(typeAttrNode),
+                            "Tile compat container type is not supported in widget's metadata.",
+                        )
+                    }
+                    is ResolvedContainerType.Unrecognized -> {
+                        context.report(
+                            XML_UNRECOGNIZED_CONTAINER_TYPE_ISSUE,
+                            typeAttrNode,
+                            context.getLocation(typeAttrNode),
+                            "Unrecognized container type '$typeAttrValue'.",
+                        )
+                    }
+                    is ResolvedContainerType.Large,
+                    is ResolvedContainerType.Small -> {}
+                }
 
+                val existingAttrNode = foundTypes[resolvedType]
                 if (existingAttrNode != null) {
                     val location =
                         context.getLocation(typeAttrNode).apply {
@@ -88,17 +114,9 @@ class WearWidgetProviderXmlDetector : Detector(), Detector.XmlScanner {
                         "Duplicate container types are not allowed. Type '$typeAttrValue' is duplicated.",
                     )
                 } else {
-                    foundTypes[typeAttrValue] = typeAttrNode
+                    foundTypes[resolvedType] = typeAttrNode
                 }
             }
-
-            // TODO: b/464458215 - Validate container type values. Ensure the configuration must not
-            // use CONTAINER_TYPE_TILE_COMPAT. Also warn when an unrecognizable type is assigned.
-            // This validation should handle semantic equivalence (e.g., case-insensitivity for
-            // strings like SMALL/small), and use Lint's ResourceEvaluator to resolve Android
-            // resources (e.g., @integer/... vs hardcoded values like 2) before deduplicating.
-            // Note: Ensure corresponding unit tests are added in WearWidgetProviderXmlDetectorTest
-            // when this validation is implemented.
         }
     }
 
@@ -177,6 +195,46 @@ class WearWidgetProviderXmlDetector : Detector(), Detector.XmlScanner {
                 category = Category.CORRECTNESS,
                 priority = 6,
                 severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        WearWidgetProviderXmlDetector::class.java,
+                        Scope.RESOURCE_FILE_SCOPE,
+                    ),
+            )
+
+        @JvmField
+        val XML_UNSUPPORTED_CONTAINER_TYPE_ISSUE: Issue =
+            Issue.create(
+                id = "WearWidgetUnsupportedContainerType",
+                briefDescription =
+                    "Tile compat container type is not supported in widget's metadata",
+                explanation =
+                    """
+                    Tile compat container type is not supported for widget's metadata.
+                    While Tile compat is supported, it should be configured via the BIND_TILE_PROVIDER action instead.
+                    """,
+                category = Category.CORRECTNESS,
+                priority = 6,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        WearWidgetProviderXmlDetector::class.java,
+                        Scope.RESOURCE_FILE_SCOPE,
+                    ),
+            )
+
+        @JvmField
+        val XML_UNRECOGNIZED_CONTAINER_TYPE_ISSUE: Issue =
+            Issue.create(
+                id = "WearWidgetUnrecognizedContainerType",
+                briefDescription = "Unrecognized container type",
+                explanation =
+                    """
+                    Each <container> tag within a <wearwidget-provider> configuration must define a valid container type.
+                    """,
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.WARNING,
                 implementation =
                     Implementation(
                         WearWidgetProviderXmlDetector::class.java,
