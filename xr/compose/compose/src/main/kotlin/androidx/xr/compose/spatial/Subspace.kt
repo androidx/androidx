@@ -78,6 +78,7 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
+import androidx.xr.scenecore.AnchorSpace
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
@@ -616,7 +617,8 @@ public fun Subspace(
     // If we're following an anchor and want the content to follow it as tightly as possible,
     // it's best to link them together in the scene graph rather than implement custom logic.
     if (follow is AnchorTargetV2 && follow.behavior == FollowBehaviorV2.Tight) {
-        Subspace(modifier = modifier, subspaceRootNode = follow.anchorSpace, content = content)
+        val anchorSpace = remember(follow.anchor) { AnchorSpace.create(session, follow.anchor) }
+        Subspace(modifier = modifier, subspaceRootNode = anchorSpace, content = content)
         return
     }
 
@@ -651,7 +653,9 @@ public fun Subspace(
             subspaceRootNode = subspaceRootNode,
         )
 
-    LaunchedEffect(follow, recenterSignal) { follow.start(trailingEntity = subspaceTrailingEntity) }
+    LaunchedEffect(follow, recenterSignal) {
+        follow.start(session = session, trailingEntity = subspaceTrailingEntity)
+    }
 
     val offsetPose = getInitialSubspaceOffset(follow)
     val density = LocalDensity.current
@@ -753,7 +757,10 @@ private fun rememberRecenterSignal(
                 // Anchors live outside the ActivitySpace, so if the ActivitySpace moves, the
                 // relative position to the anchor must be manually updated.
                 subspaceTrailingEntity.poseInMeters =
-                    targetValue.anchorSpace.getPose(Space.ACTIVITY)
+                    session.scene.perceptionSpace.transformPoseTo(
+                        pose = targetValue.anchor.state.value.pose,
+                        destination = session.scene.activitySpace,
+                    )
             } else {
                 // If the activity space moves, this should be the new origin.
                 subspaceRootNode.setPose(Pose.Identity)
