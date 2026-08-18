@@ -790,9 +790,11 @@ public inline fun <T> LazyGridScope.itemsIndexed(
         itemContent(it, items[it])
     }
 
+private const val DEFAULT_LAZY_GRID_CACHE_WINDOW_AHEAD_FRACTION = 0.25f
+
 internal object DefaultLazyGridCacheWindow :
     LazyLayoutCacheWindow by LazyLayoutCacheWindow(
         behindFraction = 0f,
-        aheadFraction = 0.5f,
+        aheadFraction = DEFAULT_LAZY_GRID_CACHE_WINDOW_AHEAD_FRACTION,
         isNonScrollCachingEnabled = false,
     )
