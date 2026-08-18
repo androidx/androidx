@@ -33,9 +33,10 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.graphicsLayer
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.animateRemoteFloat
+import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -158,7 +159,11 @@ class RcPlayerFrameCorrectnessTest {
                 captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val animated = animateRemoteFloat(rf = 1.0f.rf, duration = 1.0f)
+                            val animated =
+                                animateRemoteFloatAsState(
+                                    targetValue = 1.0f.rf,
+                                    animationSpec = remoteTween(durationMillis = 1000),
+                                )
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.size(100.rdp)

@@ -1253,6 +1253,152 @@ class RemoteFloatTest {
     }
 
     @Test
+    fun animateRemoteFloatAsState_withTween() {
+        val rf = RemoteFloat(10f).createReference(forceRemote = true)
+        val animated =
+            animateRemoteFloatAsState(
+                targetValue = rf,
+                animationSpec = remoteTween(durationMillis = 500, easing = RemoteEasing.Decelerate),
+            )
+
+        assertThat(animated).isInstanceOf(AnimatedRemoteFloat::class.java)
+        val animatedId = animated.getIdForCreationState(creationState)
+
+        val coreDoc =
+            CoreDocument().apply {
+                val buffer = creationState.document.buffer
+                buffer.buffer.index = 0
+                initFromBuffer(buffer)
+            }
+
+        val floatExpr =
+            coreDoc.operations.filterIsInstance<FloatExpression>().first { it.mId == animatedId }
+        assertThat(floatExpr.mFloatAnimation).isNotNull()
+        assertThat(floatExpr.mFloatAnimation!!.duration).isEqualTo(0.5f)
+        assertThat(floatExpr.mFloatAnimation!!.type).isEqualTo(CUBIC_DECELERATE)
+    }
+
+    @Test
+    fun animateRemoteFloatAsState_withSpring() {
+        val rf = RemoteFloat(10f).createReference(forceRemote = true)
+        val animated =
+            animateRemoteFloatAsState(
+                targetValue = rf,
+                animationSpec = remoteSpring(stiffness = 100f, dampingRatio = 0.8f),
+            )
+
+        assertThat(animated).isInstanceOf(AnimatedRemoteFloat::class.java)
+        val animatedId = animated.getIdForCreationState(creationState)
+
+        val coreDoc =
+            CoreDocument().apply {
+                val buffer = creationState.document.buffer
+                buffer.buffer.index = 0
+                initFromBuffer(buffer)
+            }
+
+        val floatExpr =
+            coreDoc.operations.filterIsInstance<FloatExpression>().first { it.mId == animatedId }
+        assertThat(floatExpr.mSrcAnimation).isNotNull()
+        assertThat(floatExpr.mSrcAnimation!![0]).isEqualTo(0f)
+        assertThat(floatExpr.mSrcAnimation!![1]).isEqualTo(100f)
+        assertThat(floatExpr.mSrcAnimation!![2]).isEqualTo(16f)
+        assertThat(floatExpr.mSrcAnimation!![3]).isEqualTo(0.001f)
+        assertThat(floatExpr.mSrcAnimation!![4]).isEqualTo(Float.fromBits(0))
+    }
+
+    @Test
+    fun remoteEasing_spline_defensiveCopy() {
+        val points = floatArrayOf(0f, 0f, 1f, 1f)
+        val easing = RemoteEasing.Spline(points)
+        points[0] = 99f
+        assertThat(easing.spec!![0]).isEqualTo(0f)
+    }
+
+    @Test
+    fun remoteEasing_equalsAndHashCode() {
+        val easing1 = RemoteEasing.Cubic(0.2f, 0.4f, 0.6f, 0.8f)
+        val easing2 = RemoteEasing.Cubic(0.2f, 0.4f, 0.6f, 0.8f)
+        val easing3 = RemoteEasing.Cubic(0.1f, 0.4f, 0.6f, 0.8f)
+
+        assertThat(easing1).isEqualTo(easing2)
+        assertThat(easing1.hashCode()).isEqualTo(easing2.hashCode())
+        assertThat(easing1).isNotEqualTo(easing3)
+    }
+
+    @Test
+    fun remoteTweenSpec_equalsAndHashCode() {
+        val spec1 = remoteTween(durationMillis = 400, easing = RemoteEasing.Linear)
+        val spec2 = remoteTween(durationMillis = 400, easing = RemoteEasing.Linear)
+        val spec3 = remoteTween(durationMillis = 500, easing = RemoteEasing.Linear)
+
+        assertThat(spec1).isEqualTo(spec2)
+        assertThat(spec1.hashCode()).isEqualTo(spec2.hashCode())
+        assertThat(spec1).isNotEqualTo(spec3)
+    }
+
+    @Test
+    fun remoteSpringSpec_equalsAndHashCode() {
+        val spec1 =
+            remoteSpring(
+                stiffness = 100f,
+                dampingRatio = 0.5f,
+                stopThreshold = 0.01f,
+                boundaryMode = 1,
+            )
+        val spec2 =
+            remoteSpring(
+                stiffness = 100f,
+                dampingRatio = 0.5f,
+                stopThreshold = 0.01f,
+                boundaryMode = 1,
+            )
+        val spec3 =
+            remoteSpring(
+                stiffness = 200f,
+                dampingRatio = 0.5f,
+                stopThreshold = 0.01f,
+                boundaryMode = 1,
+            )
+
+        assertThat(spec1).isEqualTo(spec2)
+        assertThat(spec1.hashCode()).isEqualTo(spec2.hashCode())
+        assertThat(spec1).isNotEqualTo(spec3)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun remoteTweenSpec_negativeDuration_throws() {
+        remoteTween(durationMillis = -1)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun remoteSpringSpec_nonPositiveStiffness_throws() {
+        remoteSpring(stiffness = 0f)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun remoteSpringSpec_negativeDamping_throws() {
+        remoteSpring(dampingRatio = -0.1f)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun remoteSpringSpec_nonPositiveStopThreshold_throws() {
+        remoteSpring(stopThreshold = 0f)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun remoteSpringSpec_withInitialValue_throws() {
+        val rf = RemoteFloat(10f)
+        remoteSpring().animate(rf, initialValue = 5f)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun remoteSpringSpec_withWrap_throws() {
+        val rf = RemoteFloat(10f)
+        remoteSpring().animate(rf, wrap = 360f)
+    }
+
+    @Test
     fun cacheKeys() {
         val constant = RemoteFloat(10f)
         assertThat(constant.cacheKey).isEqualTo(RemoteConstantCacheKey(10f))
