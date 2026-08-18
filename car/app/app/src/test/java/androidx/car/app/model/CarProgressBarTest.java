@@ -35,14 +35,23 @@ public class CarProgressBarTest {
     public void create_defaultValues() {
         CarProgressBar bar = new CarProgressBar.Builder(0.5f).build();
         assertThat(bar.getProgress()).isEqualTo(0.5f);
-        assertThat(bar.getColor()).isNull();
+        assertThat(bar.getStyle()).isNull();
     }
 
     @Test
+    @Deprecated
     public void create_withColor() {
         CarProgressBar bar = new CarProgressBar.Builder(0.5f).setColor(CarColor.RED).build();
         assertThat(bar.getProgress()).isEqualTo(0.5f);
         assertThat(bar.getColor()).isEqualTo(CarColor.RED);
+    }
+
+    @Test
+    public void create_withStyle() {
+        CarProgressBarStyle style = new CarProgressBarStyle.Builder().build();
+        CarProgressBar bar = new CarProgressBar.Builder(0.5f).setStyle(style).build();
+        assertThat(bar.getProgress()).isEqualTo(0.5f);
+        assertThat(bar.getStyle()).isEqualTo(style);
     }
 
     @Test
@@ -68,8 +77,10 @@ public class CarProgressBarTest {
 
     @Test
     public void equals() {
-        CarProgressBar bar1 = new CarProgressBar.Builder(0.5f).setColor(CarColor.RED).build();
-        CarProgressBar bar2 = new CarProgressBar.Builder(0.5f).setColor(CarColor.RED).build();
+        CarProgressBar bar1 = new CarProgressBar.Builder(0.5f).setStyle(
+                new CarProgressBarStyle.Builder().setColor(CarColor.RED).build()).build();
+        CarProgressBar bar2 = new CarProgressBar.Builder(0.5f).setStyle(
+                new CarProgressBarStyle.Builder().setColor(CarColor.RED).build()).build();
         assertThat(bar1).isEqualTo(bar2);
     }
 
@@ -81,9 +92,11 @@ public class CarProgressBarTest {
     }
 
     @Test
-    public void notEquals_differentColor() {
-        CarProgressBar bar1 = new CarProgressBar.Builder(0.5f).setColor(CarColor.RED).build();
-        CarProgressBar bar2 = new CarProgressBar.Builder(0.5f).setColor(CarColor.BLUE).build();
+    public void notEquals_differentStyles() {
+        CarProgressBar bar1 = new CarProgressBar.Builder(0.5f).setStyle(
+                new CarProgressBarStyle.Builder().setColor(CarColor.RED).build()).build();
+        CarProgressBar bar2 = new CarProgressBar.Builder(0.5f).setStyle(
+                new CarProgressBarStyle.Builder().setColor(CarColor.BLUE).build()).build();
         assertThat(bar1).isNotEqualTo(bar2);
     }
 }

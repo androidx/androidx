@@ -1445,14 +1445,32 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CarProgressBar {
-    method public androidx.car.app.model.CarColor? getColor();
+    method @Deprecated public androidx.car.app.model.CarColor? getColor();
     method public float getProgress();
+    method public androidx.car.app.model.CarProgressBarStyle? getStyle();
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class CarProgressBar.Builder {
     ctor public CarProgressBar.Builder(@FloatRange(from=0.0f, to=1.0f) float);
     method public androidx.car.app.model.CarProgressBar build();
-    method public androidx.car.app.model.CarProgressBar.Builder setColor(androidx.car.app.model.CarColor);
+    method @Deprecated public androidx.car.app.model.CarProgressBar.Builder setColor(androidx.car.app.model.CarColor);
+    method public androidx.car.app.model.CarProgressBar.Builder setStyle(androidx.car.app.model.CarProgressBarStyle);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CarProgressBarStyle {
+    method public androidx.car.app.model.CarColor? getColor();
+    method public int getStrokeCap();
+    field public static final int STROKE_CAP_DEFAULT = 0; // 0x0
+    field public static final int STROKE_CAP_ROUND = 1; // 0x1
+    field public static final int STROKE_CAP_SQUARE = 2; // 0x2
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class CarProgressBarStyle.Builder {
+    ctor public CarProgressBarStyle.Builder();
+    ctor public CarProgressBarStyle.Builder(androidx.car.app.model.CarProgressBarStyle);
+    method public androidx.car.app.model.CarProgressBarStyle build();
+    method public androidx.car.app.model.CarProgressBarStyle.Builder setColor(androidx.car.app.model.CarColor);
+    method public androidx.car.app.model.CarProgressBarStyle.Builder setStrokeCap(int);
   }
 
   @androidx.car.app.annotations.CarProtocol public class CarSpan extends android.text.style.CharacterStyle {
