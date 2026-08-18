@@ -29,6 +29,7 @@ import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
 import androidx.car.app.model.CarIconStyle
 import androidx.car.app.model.CarProgressBar
+import androidx.car.app.model.CarProgressBarStyle
 import androidx.car.app.model.CondensedItem
 import androidx.car.app.model.CondensedItemStyle
 import androidx.car.app.model.CondensedSection
@@ -404,7 +405,11 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
     private fun buildProgressItem(title: String, progress: Float, color: CarColor): CondensedItem {
         return CondensedItem.Builder()
             .setTitle(title)
-            .setProgressBar(CarProgressBar.Builder(progress).setColor(color).build())
+            .setProgressBar(
+                CarProgressBar.Builder(progress)
+                    .setStyle(CarProgressBarStyle.Builder().setColor(color).build())
+                    .build()
+            )
             .setOnClickListener { showToast("Clicked $title") }
             .build()
     }

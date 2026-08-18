@@ -23,7 +23,6 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
-import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.core.math.MathUtils;
 
 import org.jspecify.annotations.NonNull;
@@ -36,9 +35,9 @@ import java.util.Objects;
  *
  * <p>A progress bar displays the progress of a task or playback. It is a non-interactive element
  * that can be used in templates that support it, such as in a {@link Row} or {@link GridItem}.
-
+ *`
  * <p>The progress bar takes in the progress value as a mandatory field and can optionally set a
- * custom color.
+ * custom style.
  */
 @CarProtocol
 @KeepFields
@@ -46,26 +45,40 @@ import java.util.Objects;
 @ExperimentalCarApi
 public final class CarProgressBar {
     private final float mProgress;
-    private final @Nullable CarColor mColor;
+    private final @Nullable CarProgressBarStyle mStyle;
 
     /** Returns the progress between 0.0 and 1.0. */
     public float getProgress() {
         return mProgress;
     }
 
-    /** Returns the color of the progress bar, or {@code null} if not set. */
+    /**
+     * Returns the color of the progress bar, or {@code null} if not set.
+     *
+     * @deprecated Method temporarily kept for integrity - to be removed soon in favor of
+     * {@link CarProgressBar#getStyle}.
+     */
+    @Deprecated
     public @Nullable CarColor getColor() {
-        return mColor;
+        if (mStyle == null) {
+            return null;
+        }
+        return mStyle.getColor();
+    }
+
+    /** Returns the style of the progress bar, or {@code null} if not set. */
+    public @Nullable CarProgressBarStyle getStyle() {
+        return mStyle;
     }
 
     @Override
     public @NonNull String toString() {
-        return "[progress: " + mProgress + ", color: " + mColor + "]";
+        return "[progress: " + mProgress + ", style: " + mStyle + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mProgress, mColor);
+        return Objects.hash(mProgress, mStyle);
     }
 
     @Override
@@ -77,24 +90,24 @@ public final class CarProgressBar {
             return false;
         }
         CarProgressBar otherBar = (CarProgressBar) other;
-        return mProgress == otherBar.mProgress && Objects.equals(mColor, otherBar.mColor);
+        return mProgress == otherBar.mProgress && Objects.equals(mStyle, otherBar.mStyle);
     }
 
     CarProgressBar(Builder builder) {
         mProgress = builder.mProgress;
-        mColor = builder.mColor;
+        mStyle = builder.mStyle;
     }
 
     /** Constructs an empty instance, used by serialization code. */
     private CarProgressBar() {
         mProgress = 0;
-        mColor = null;
+        mStyle = null;
     }
 
     /** A builder of {@link CarProgressBar}. */
     public static final class Builder {
         float mProgress;
-        @Nullable CarColor mColor;
+        @Nullable CarProgressBarStyle mStyle;
 
         /**
          * Sets the color of the progress bar.
@@ -103,10 +116,28 @@ public final class CarProgressBar {
          * host will use a default color.
          *
          * @throws NullPointerException if {@code color} is {@code null}
+         * @deprecated Method temporarily kept for integrity - to be removed soon in favor of
+         * {@link CarProgressBar.Builder#setStyle}.
          */
+        @Deprecated
         public @NonNull Builder setColor(@NonNull CarColor color) {
-            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(color));
-            mColor = color;
+            requireNonNull(color);
+            if (mStyle == null) {
+                mStyle = new CarProgressBarStyle.Builder().setColor(color).build();
+            } else {
+                mStyle = new CarProgressBarStyle.Builder(mStyle).setColor(color).build();
+            }
+            return this;
+        }
+
+        /**
+         * Sets the style of the progress bar.
+         *
+         * @throws NullPointerException if {@code style} is {@code null}
+         */
+        public @NonNull Builder setStyle(@NonNull CarProgressBarStyle style) {
+            requireNonNull(style);
+            mStyle = style;
             return this;
         }
 

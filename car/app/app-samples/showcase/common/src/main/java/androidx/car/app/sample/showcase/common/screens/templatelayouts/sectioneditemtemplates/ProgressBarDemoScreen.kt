@@ -26,6 +26,7 @@ import androidx.car.app.model.Action
 import androidx.car.app.model.CarColor
 import androidx.car.app.model.CarIcon
 import androidx.car.app.model.CarProgressBar
+import androidx.car.app.model.CarProgressBarStyle
 import androidx.car.app.model.GridItem
 import androidx.car.app.model.GridSection
 import androidx.car.app.model.Header
@@ -105,7 +106,11 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
                     .setTitle("$name Progress Bar Row")
                     .addText("Colored progress bar example")
                     .setImage(testImage, Row.IMAGE_TYPE_LARGE)
-                    .setProgressBar(CarProgressBar.Builder(0.5f).setColor(color).build())
+                    .setProgressBar(
+                        CarProgressBar.Builder(0.5f)
+                            .setStyle(CarProgressBarStyle.Builder().setColor(color).build())
+                            .build()
+                    )
                     .build()
             }
         return RowSection.Builder().setTitle("Colored Progress Bars").setItems(rows).build()
@@ -167,7 +172,11 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
             GridItem.Builder()
                 .setTitle("Colored 0.5")
                 .setImage(largeTestImage, GridItem.IMAGE_TYPE_LARGE)
-                .setProgressBar(CarProgressBar.Builder(0.5f).setColor(CarColor.GREEN).build())
+                .setProgressBar(
+                    CarProgressBar.Builder(0.5f)
+                        .setStyle(CarProgressBarStyle.Builder().setColor(CarColor.GREEN).build())
+                        .build()
+                )
                 .build()
         )
 
@@ -175,7 +184,11 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
         builder.addItem(
             GridItem.Builder()
                 .setImage(largeTestImage, GridItem.IMAGE_TYPE_LARGE)
-                .setProgressBar(CarProgressBar.Builder(0.5f).setColor(CarColor.YELLOW).build())
+                .setProgressBar(
+                    CarProgressBar.Builder(0.5f)
+                        .setStyle(CarProgressBarStyle.Builder().setColor(CarColor.YELLOW).build())
+                        .build()
+                )
                 .build()
         )
 
