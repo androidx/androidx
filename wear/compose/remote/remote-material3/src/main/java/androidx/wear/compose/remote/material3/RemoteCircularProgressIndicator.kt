@@ -268,11 +268,11 @@ public object RemoteProgressIndicatorDefaults {
     /** Default gap angle in degrees for [RemoteCurvedProgressIndicator]. */
     public val CurvedIndicatorGapAngleDegrees: RemoteFloat = 2f.rf
 
-    /** Default dot collapse freeze fraction for [RemoteCurvedProgressIndicator]. */
-    public val CurvedIndicatorDotCollapseFreezeFraction: RemoteFloat = 0f.rf
-
-    /** Default animation duration in milliseconds for progress indicators. */
-    public const val AnimationDurationMillis: Int = 125
+    /**
+     * Default fraction of dot size below which opacity fade-out begins for
+     * [RemoteCurvedProgressIndicator].
+     */
+    public val CurvedIndicatorDotFadeOutFraction: RemoteFloat = 0.5f.rf
 
     /** Creates a [RemoteProgressIndicatorColors] with the default colors. */
     @Composable

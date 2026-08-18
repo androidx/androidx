@@ -31,12 +31,14 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressEnabled
 import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressEnabledRtl
-import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressFullCollapseHigh
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorCollapse4Progress
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorCollapse96Progress
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorCollapseNoFadeOut96Progress
 import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorCustomColor
 import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorDisabled
-import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressNoCollapseHigh
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressNoCollapse100Progress
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressNoCollapse99Progress
 import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressNoGap
-import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressSemiCollapseHigh
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
@@ -85,23 +87,16 @@ class RemoteCurvedProgressIndicatorTest {
     }
 
     @Test
-    fun indicator_fullCollapse() {
+    fun indicator_noCollapse_99_progress() {
         remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
-            ComponentContainer { RemoteCurvedProgressFullCollapseHigh() }
+            ComponentContainer { RemoteCurvedProgressNoCollapse99Progress() }
         }
     }
 
     @Test
-    fun indicator_semiCollapse() {
+    fun indicator_noCollapse_100_progress() {
         remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
-            ComponentContainer { RemoteCurvedProgressSemiCollapseHigh() }
-        }
-    }
-
-    @Test
-    fun indicator_noCollapse() {
-        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
-            ComponentContainer { RemoteCurvedProgressNoCollapseHigh() }
+            ComponentContainer { RemoteCurvedProgressNoCollapse100Progress() }
         }
     }
 
@@ -138,6 +133,27 @@ class RemoteCurvedProgressIndicatorTest {
             playComposableWrapper = ComposableWrappers.blackBackground,
         ) {
             ComponentContainer { RemoteCurvedProgressEnabled() }
+        }
+    }
+
+    @Test
+    fun indicator_collapse_4_progress() {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+            ComponentContainer { RemoteCurvedProgressIndicatorCollapse4Progress() }
+        }
+    }
+
+    @Test
+    fun indicator_collapse_96_progress() {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+            ComponentContainer { RemoteCurvedProgressIndicatorCollapse96Progress() }
+        }
+    }
+
+    @Test
+    fun indicator_collapse_noFadeOut_96_progress() {
+        remoteComposeTestRule.runScreenshotTest(remoteCreationDisplayInfo = creationDisplayInfo) {
+            ComponentContainer { RemoteCurvedProgressIndicatorCollapseNoFadeOut96Progress() }
         }
     }
 }
