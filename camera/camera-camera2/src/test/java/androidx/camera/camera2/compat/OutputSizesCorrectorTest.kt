@@ -26,7 +26,11 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.core.impl.ImageFormatConstants
+import androidx.camera.core.impl.QuirkSettings
+import androidx.camera.core.impl.QuirkSettingsHolder
 import com.google.common.truth.Truth
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -86,6 +90,32 @@ private val zFold4OutputSizes =
 @DoNotInstrument
 @Config(sdk = [Config.ALL_SDKS])
 class OutputSizesCorrectorTest {
+
+    private var originalBrand: String? = null
+    private var originalModel: String? = null
+    private var originalDevice: String? = null
+
+    @Before
+    fun storeOriginalBuildFields() {
+        originalBrand = Build.BRAND
+        originalModel = Build.MODEL
+        originalDevice = Build.DEVICE
+        resetDeviceQuirks()
+    }
+
+    @After
+    fun restoreOriginalBuildFields() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", originalBrand)
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", originalModel)
+        ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", originalDevice)
+        resetDeviceQuirks()
+    }
+
+    private fun resetDeviceQuirks() {
+        QuirkSettingsHolder.instance().set(QuirkSettings.withAllQuirksDisabled())
+        QuirkSettingsHolder.instance().set(QuirkSettings.withDefaultBehavior())
+    }
+
     @Test
     fun canAddExtraSupportedSizesForMotoE5PlayByFormat() {
         val outputSizesCorrector =
@@ -244,6 +274,42 @@ class OutputSizesCorrectorTest {
         Truth.assertThat(resultList)
             .containsExactlyElementsIn(listOf(Size(1280, 960), Size(640, 480)))
             .inOrder()
+    }
+
+    @Test
+    fun canFilterRawSizesForRedmi8A() {
+        val redmi8aBrand = "Xiaomi"
+        val redmi8aModel = "Redmi 8A"
+        val redmi8aDevice = "olivelite"
+        val sensorSize = Size(4208, 3120)
+
+        val rawSizes =
+            arrayOf(Size(4208, 3120), Size(4208, 2368), Size(3200, 2400), Size(4208, 1992))
+
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", redmi8aBrand)
+        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", redmi8aModel)
+        ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", redmi8aDevice)
+        resetDeviceQuirks()
+
+        val map =
+            StreamConfigurationMapBuilder.newBuilder()
+                .apply { rawSizes.forEach { addOutputSize(ImageFormat.RAW_SENSOR, it) } }
+                .build()
+
+        val cameraMetadata =
+            FakeCameraMetadata(
+                characteristics =
+                    mapOf(
+                        CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
+                        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to sensorSize,
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to map,
+                    )
+            )
+
+        val outputSizesCorrector = OutputSizesCorrector(cameraMetadata, map)
+        val resultList = outputSizesCorrector.applyQuirks(rawSizes, ImageFormat.RAW_SENSOR).toList()
+
+        Truth.assertThat(resultList).containsExactly(Size(4208, 3120))
     }
 
     private fun createOutputSizesCorrector(
