@@ -170,7 +170,6 @@ public class GenericDocument {
     // final in those methods. Thus, we make this a system api to avoid 3p apps depending on it
     // and getting confused by the inheritability.
     @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-    @FlaggedApi(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final void writeToParcel(@NonNull Parcel dest, int flags) {
         Objects.requireNonNull(dest);
@@ -187,7 +186,6 @@ public class GenericDocument {
     // and getting confused by the inheritability.
     @SuppressWarnings("deprecation")
     @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-    @FlaggedApi(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static @NonNull GenericDocument createFromParcel(@NonNull Parcel parcel) {
         Objects.requireNonNull(parcel);

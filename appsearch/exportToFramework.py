@@ -206,11 +206,11 @@ class ExportToFramework:
             .replace('ObjectsCompat.', 'Objects.')
             .replace('// @exportToFramework:skipFile()', '')
             .replace('@ExperimentalAppSearchApi', '')
-            .replace('@OptIn(markerClass = ExperimentalAppSearchApi.class)', '')
         )
         contents = re.sub(r'\/\/ @exportToFramework:copyToPath\([^)]+\)', '', contents)
         contents = re.sub(r'@RequiresFeature\([^)]*\)', '', contents, flags=re.DOTALL)
         contents = re.sub(r'@RequiresOptIn\([^)]+\)', '', contents)
+        contents = re.sub(r'@OptIn\([^)]+\)\n?', '', contents)
 
         # Jetpack methods have the Async suffix, but framework doesn't. Strip the Async suffix
         # to allow the same documentation to compile for both.
