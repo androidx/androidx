@@ -17,10 +17,8 @@
 package androidx.compose.foundation.layout.benchmark
 
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
@@ -44,10 +42,6 @@ class ColumnIntrinsicsBenchmark(
         @Parameterized.Parameters(name = "{0}")
         fun initParameters(): Array<Array<Any>> =
             arrayOf(
-                arrayOf("minWidth_enforceIncoming", Modifier.width(IntrinsicSize.Min)),
-                arrayOf("maxWidth_enforceIncoming", Modifier.width(IntrinsicSize.Max)),
-                arrayOf("minHeight_enforceIncoming", Modifier.height(IntrinsicSize.Min)),
-                arrayOf("maxHeight_enforceIncoming", Modifier.height(IntrinsicSize.Max)),
                 arrayOf("minWidth", Modifier.requiredWidth(IntrinsicSize.Min)),
                 arrayOf("maxWidth", Modifier.requiredWidth(IntrinsicSize.Max)),
                 arrayOf("minHeight", Modifier.requiredHeight(IntrinsicSize.Min)),
