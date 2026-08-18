@@ -16,28 +16,52 @@
 
 package androidx.camera.core.internal;
 
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.ZoomState;
 
 import com.google.auto.value.AutoValue;
 
 import org.jspecify.annotations.NonNull;
 
-/**
- * An implementation of {@link ZoomState} that is immutable.
- */
+/** An implementation of {@link ZoomState} that is immutable. */
 @AutoValue
 public abstract class ImmutableZoomState implements ZoomState {
-    /** Create an immutable instance of {@link ZoomState}. */
-    public static @NonNull ZoomState create(float zoomRatio, float maxZoomRatio, float minZoomRatio,
-            float linearZoom) {
-        return new AutoValue_ImmutableZoomState(zoomRatio, maxZoomRatio, minZoomRatio, linearZoom);
+    /**
+     * Creates an immutable instance of {@link ZoomState} with the default unknown active intrinsic
+     * zoom ratio.
+     */
+    public static @NonNull ZoomState create(
+            float zoomRatio, float maxZoomRatio, float minZoomRatio, float linearZoom) {
+        return create(
+                zoomRatio,
+                maxZoomRatio,
+                minZoomRatio,
+                linearZoom,
+                CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN);
+    }
+
+    /**
+     * Creates an immutable instance of {@link ZoomState} with a specified active intrinsic zoom
+     * ratio.
+     */
+    public static @NonNull ZoomState create(
+            float zoomRatio,
+            float maxZoomRatio,
+            float minZoomRatio,
+            float linearZoom,
+            float activeIntrinsicZoomRatio) {
+        return new AutoValue_ImmutableZoomState(
+                zoomRatio, maxZoomRatio, minZoomRatio, linearZoom, activeIntrinsicZoomRatio);
     }
 
     /** Create an immutable instance of {@link ZoomState}. */
     public static @NonNull ZoomState create(@NonNull ZoomState zoomState) {
-        return new AutoValue_ImmutableZoomState(zoomState.getZoomRatio(),
+        return new AutoValue_ImmutableZoomState(
+                zoomState.getZoomRatio(),
                 zoomState.getMaxZoomRatio(),
-                zoomState.getMinZoomRatio(), zoomState.getLinearZoom());
+                zoomState.getMinZoomRatio(),
+                zoomState.getLinearZoom(),
+                zoomState.getActiveIntrinsicZoomRatio());
     }
 
     @Override
@@ -51,4 +75,7 @@ public abstract class ImmutableZoomState implements ZoomState {
 
     @Override
     public abstract float getLinearZoom();
+
+    @Override
+    public abstract float getActiveIntrinsicZoomRatio();
 }

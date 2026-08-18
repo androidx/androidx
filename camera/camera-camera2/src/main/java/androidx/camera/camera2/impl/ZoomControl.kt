@@ -16,15 +16,24 @@
 
 package androidx.camera.camera2.impl
 
+import android.os.Build
+import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.adapter.ZoomValue
 import androidx.camera.camera2.adapter.asListenableFuture
 import androidx.camera.camera2.adapter.propagateTo
+import androidx.camera.camera2.compat.Api29Compat
 import androidx.camera.camera2.compat.ZoomCompat
 import androidx.camera.camera2.config.CameraScope
+import androidx.camera.camera2.internal.IntrinsicZoomCalculator
 import androidx.camera.camera2.internal.ZoomMath.getLinearZoomFromZoomRatio
 import androidx.camera.camera2.internal.ZoomMath.getZoomRatioFromLinearZoom
+import androidx.camera.camera2.pipe.CameraDevices
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.core.CameraControl
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.ZoomState
+import androidx.camera.core.impl.CameraCaptureCallback
+import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.utils.Threads
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.lifecycle.LiveData
@@ -33,6 +42,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoSet
+import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
@@ -40,8 +50,16 @@ import kotlinx.coroutines.Job
 public const val DEFAULT_ZOOM_RATIO: Float = 1.0f
 
 @CameraScope
-public class ZoomControl @Inject constructor(private val zoomCompat: ZoomCompat) :
-    UseCaseCameraControl {
+public class ZoomControl
+@Inject
+constructor(
+    private val zoomCompat: ZoomCompat,
+    private val cameraDevices: CameraDevices? = null,
+    private val intrinsicZoomCalculator: IntrinsicZoomCalculator =
+        IntrinsicZoomCalculator.NO_OP_INTRINSIC_ZOOM_CALCULATOR,
+    private val cameraCallbackMap: CameraCallbackMap? = null,
+    private val threads: UseCaseThreads? = null,
+) : UseCaseCameraControl {
     // NOTE: minZoom may be lower than 1.0
     // NOTE: Default zoom ratio is 1.0 (DEFAULT_ZOOM_RATIO)
     public val minZoomRatio: Float = zoomCompat.minZoomRatio
@@ -51,12 +69,88 @@ public class ZoomControl @Inject constructor(private val zoomCompat: ZoomCompat)
         ZoomValue(DEFAULT_ZOOM_RATIO, minZoomRatio, maxZoomRatio)
     }
 
+    private val currentZoomState = AtomicReference<ZoomState>(defaultZoomState)
     private val _zoomState by lazy { MutableLiveData<ZoomState>(defaultZoomState) }
-
     public val zoomStateLiveData: LiveData<ZoomState>
         get() = _zoomState
 
     private var isInitialized = false
+    private val activePhysicalCameraId = AtomicReference<String?>(null)
+
+    init {
+        // Register a callback to inspect frame metadata for active physical camera ID transitions
+        // on multi-camera devices.
+        if (cameraCallbackMap != null && threads != null) {
+            cameraCallbackMap.addCaptureCallback(
+                object : CameraCaptureCallback() {
+                    override fun onCaptureCompleted(
+                        captureConfigId: Int,
+                        captureResult: CameraCaptureResult,
+                    ) {
+                        onFrameCaptured(captureResult)
+                    }
+                },
+                threads.sequentialExecutor,
+            )
+        }
+    }
+
+    @VisibleForTesting
+    internal var activePhysicalCameraIdProvider: (CameraCaptureResult) -> String? = { result ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Api29Compat.getActivePhysicalCameraId(result)
+        } else {
+            null
+        }
+    }
+
+    /**
+     * Inspects captured frame metadata to detect physical lens switching on API 29+ (Android 10+).
+     *
+     * When [android.hardware.camera2.CaptureResult.LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID]
+     * transitions to a new physical camera ID, this calculates its optical intrinsic zoom ratio and
+     * emits an updated [ZoomState].
+     */
+    @VisibleForTesting
+    internal fun onFrameCaptured(captureResult: CameraCaptureResult) {
+        // Active physical camera ID is only available on Android 10 (API 29) and above.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            return
+        }
+        val activePhysicalId = activePhysicalCameraIdProvider(captureResult) ?: return
+        // Deduplication: Ignore if the physical camera ID has not changed since the last frame.
+        if (activePhysicalId == activePhysicalCameraId.get()) {
+            return
+        }
+
+        val cameraMetadata = cameraDevices?.awaitCameraMetadata(CameraId(activePhysicalId))
+        val newIntrinsicRatio =
+            cameraMetadata?.let { intrinsicZoomCalculator.calculateIntrinsicZoomRatio(it) }
+                ?: CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN
+
+        activePhysicalCameraId.set(activePhysicalId)
+        updateActiveIntrinsicZoomRatio(newIntrinsicRatio)
+    }
+
+    /**
+     * Updates the current [ZoomState] with a new active intrinsic zoom ratio, preserving the
+     * current zoom ratio and bounds.
+     */
+    private fun updateActiveIntrinsicZoomRatio(newIntrinsicRatio: Float) {
+        if (currentZoomState.get().activeIntrinsicZoomRatio == newIntrinsicRatio) {
+            return
+        }
+        currentZoomState.updateAndGet { current ->
+            (current as? ZoomValue)?.copy(activeIntrinsicZoomRatio = newIntrinsicRatio)
+                ?: ZoomValue(
+                    zoomRatio = current.zoomRatio,
+                    minZoomRatio = current.minZoomRatio,
+                    maxZoomRatio = current.maxZoomRatio,
+                    activeIntrinsicZoomRatio = newIntrinsicRatio,
+                )
+        }
+        updateLiveData()
+    }
 
     /** Linear zoom is between 0.0f and 1.0f */
     public fun toLinearZoom(zoomRatio: Float): Float =
@@ -79,7 +173,7 @@ public class ZoomControl @Inject constructor(private val zoomCompat: ZoomCompat)
         get() = _requestControl
         set(value) {
             _requestControl = value
-            val zoomState = _zoomState.value ?: defaultZoomState
+            val zoomState = currentZoomState.get()
             val shouldUpdateParameters = isInitialized || zoomState.zoomRatio != DEFAULT_ZOOM_RATIO
             applyZoomState(zoomState, false, shouldUpdateParameters)
             isInitialized = true
@@ -89,15 +183,32 @@ public class ZoomControl @Inject constructor(private val zoomCompat: ZoomCompat)
 
     override fun reset() {
         // TODO: 1.0 may not be a reasonable value to reset the zoom state to.
+        activePhysicalCameraId.set(null)
+        currentZoomState.set(defaultZoomState)
         applyZoomState(defaultZoomState)
     }
 
     private fun setZoomState(value: ZoomState) {
-        if (Threads.isMainThread()) {
-            _zoomState.value = value
-        } else {
-            _zoomState.postValue(value)
+        currentZoomState.updateAndGet { current ->
+            val intrinsicRatio =
+                if (value.activeIntrinsicZoomRatio != CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN) {
+                    value.activeIntrinsicZoomRatio
+                } else {
+                    current.activeIntrinsicZoomRatio
+                }
+            (value as? ZoomValue)?.copy(activeIntrinsicZoomRatio = intrinsicRatio)
+                ?: ZoomValue(
+                    zoomRatio = value.zoomRatio,
+                    minZoomRatio = value.minZoomRatio,
+                    maxZoomRatio = value.maxZoomRatio,
+                    activeIntrinsicZoomRatio = intrinsicRatio,
+                )
         }
+        updateLiveData()
+    }
+
+    private fun updateLiveData() {
+        Threads.runOnMain { _zoomState.value = currentZoomState.get() }
     }
 
     public fun setLinearZoom(linearZoom: Float): ListenableFuture<Void> {
