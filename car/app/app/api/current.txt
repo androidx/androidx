@@ -970,6 +970,7 @@ package androidx.car.app.media.model {
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(8) public class MediaPlaybackTemplate implements androidx.car.app.model.Template {
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Banner? getBanner();
     method public androidx.car.app.model.Header? getHeader();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarColor? getMediaAccentColor();
   }
 
   @androidx.car.app.annotations.RequiresCarApi(8) public static final class MediaPlaybackTemplate.Builder {
@@ -978,6 +979,7 @@ package androidx.car.app.media.model {
     method public androidx.car.app.media.model.MediaPlaybackTemplate build();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setBanner(androidx.car.app.model.Banner?);
     method public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setHeader(androidx.car.app.model.Header?);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setMediaAccentColor(androidx.car.app.model.CarColor?);
   }
 
 }

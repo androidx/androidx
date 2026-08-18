@@ -22,6 +22,7 @@ import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.media.MediaPlaybackManager;
 import androidx.car.app.model.Banner;
+import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.Template;
 
@@ -53,6 +54,9 @@ public class MediaPlaybackTemplate implements Template {
     @ExperimentalCarApi
     @RequiresCarApi(9)
     private final @Nullable Banner mBanner;
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    private final @Nullable CarColor mMediaAccentColor;
 
     /**
      * Returns the {@link Header} to display in this template or not to display one if it is {@code
@@ -72,6 +76,16 @@ public class MediaPlaybackTemplate implements Template {
         return mBanner;
     }
 
+    /**
+     * Returns the custom media accent {@link CarColor} for this template or {@code null} if none
+     * was set.
+     */
+    @ExperimentalCarApi
+    @RequiresCarApi(9)
+    public @Nullable CarColor getMediaAccentColor() {
+        return mMediaAccentColor;
+    }
+
     @Override
     public @NonNull String toString() {
         return "MediaPlaybackTemplate";
@@ -80,7 +94,7 @@ public class MediaPlaybackTemplate implements Template {
     @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     @Override
     public int hashCode() {
-        return Objects.hash(mHeader, mBanner);
+        return Objects.hash(mHeader, mBanner, mMediaAccentColor);
     }
 
     @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
@@ -95,7 +109,8 @@ public class MediaPlaybackTemplate implements Template {
         MediaPlaybackTemplate otherTemplate = (MediaPlaybackTemplate) other;
 
         return Objects.equals(mHeader, otherTemplate.mHeader)
-                && Objects.equals(mBanner, otherTemplate.mBanner);
+                && Objects.equals(mBanner, otherTemplate.mBanner)
+                && Objects.equals(mMediaAccentColor, otherTemplate.mMediaAccentColor);
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -103,12 +118,14 @@ public class MediaPlaybackTemplate implements Template {
     private MediaPlaybackTemplate() {
         mHeader = null;
         mBanner = null;
+        mMediaAccentColor = null;
     }
 
     @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
     MediaPlaybackTemplate(Builder builder) {
         mHeader = builder.mHeader;
         mBanner = builder.mBanner;
+        mMediaAccentColor = builder.mMediaAccentColor;
     }
 
     /** Builder for the {@link MediaPlaybackTemplate} */
@@ -117,6 +134,8 @@ public class MediaPlaybackTemplate implements Template {
         @Nullable Header mHeader;
         @ExperimentalCarApi
         @Nullable Banner mBanner;
+        @ExperimentalCarApi
+        @Nullable CarColor mMediaAccentColor;
 
         /**
          * Sets the {@link Header} for this template or {code null} to not display a {@link
@@ -142,6 +161,20 @@ public class MediaPlaybackTemplate implements Template {
             return this;
         }
 
+        /**
+         * Sets the custom accent {@link CarColor} for media interactive controls in this template
+         * or {@code null} to use default host styling.
+         *
+         * <p>Defaults to {@code null}, which means default host styling is used.
+         */
+        @ExperimentalCarApi
+        @RequiresCarApi(9)
+        public MediaPlaybackTemplate.@NonNull Builder setMediaAccentColor(
+                @Nullable CarColor mediaAccentColor) {
+            this.mMediaAccentColor = mediaAccentColor;
+            return this;
+        }
+
         /** Constructs the template defined by this builder. */
         public @NonNull MediaPlaybackTemplate build() {
             return new MediaPlaybackTemplate(this);
@@ -156,6 +189,7 @@ public class MediaPlaybackTemplate implements Template {
         public Builder(@NonNull MediaPlaybackTemplate template) {
             mHeader = template.getHeader();
             mBanner = template.getBanner();
+            mMediaAccentColor = template.getMediaAccentColor();
         }
     }
 }
