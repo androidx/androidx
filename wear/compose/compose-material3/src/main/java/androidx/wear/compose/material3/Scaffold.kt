@@ -29,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -40,6 +41,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachReversed
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.delay
@@ -48,8 +50,17 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-internal class ScaffoldState(appTimeText: State<@Composable () -> Unit> = mutableStateOf({})) {
-    val screenContent = ScreenContent(appTimeText)
+internal class ScaffoldState(
+    appTimeText: State<@Composable () -> Unit> = mutableStateOf({}),
+    appShowStatusBar: State<Boolean> = mutableStateOf(true),
+    isStatusBarSupported: State<Boolean> = mutableStateOf(false),
+) {
+    val screenContent =
+        ScreenContent(
+            appShowStatusBar = appShowStatusBar,
+            isStatusBarSupported = isStatusBarSupported,
+            appTimeText = appTimeText,
+        )
 
     /**
      * Represents the scale factor applied to the parent screen. This should be used when scaling is
@@ -59,21 +70,58 @@ internal class ScaffoldState(appTimeText: State<@Composable () -> Unit> = mutabl
 }
 
 /**
- * Manages the content and state of a screen, including the visibility and behavior of a time text
- * element and handling screen stages (New, Scrolling, Idle).
+ * Manages the application's stack of screens, coordinating status bar visibility, scroll info
+ * providers, and time text transitions for the active top screen.
  *
  * This class is designed to be used internally within a screen management system. It allows adding
  * and removing screen content, displaying a time text element, and managing the screen's stage
  * based on scrolling activity.
  */
-internal class ScreenContent(private val appTimeText: State<@Composable () -> Unit>) {
+internal class ScreenContent(
+    private val appShowStatusBar: State<Boolean>,
+    private val isStatusBarSupported: State<Boolean>,
+    private val appTimeText: State<@Composable () -> Unit>,
+) {
+
+    /**
+     * Evaluates status bar visibility by scanning down the screen stack for the nearest explicit
+     * mode ([StatusBarMode.Enabled] or [StatusBarMode.Disabled]), falling back to
+     * [appShowStatusBar] if all active screens specify [StatusBarMode.Inherit].
+     */
+    val currentShowStatusBar: State<Boolean> = derivedStateOf {
+        if (!isStatusBarSupported.value) {
+            return@derivedStateOf false
+        }
+
+        contentItems.toList().fastForEachReversed {
+            when (it.statusBarMode.value) {
+                StatusBarMode.Enabled -> return@derivedStateOf true
+                StatusBarMode.Disabled -> return@derivedStateOf false
+                StatusBarMode.Inherit -> {}
+            }
+        }
+        appShowStatusBar.value
+    }
+
+    /**
+     * Returns the [ScrollInfoProvider] for the active top-most screen on the stack, or `null` if
+     * the active top screen is non-scrollable.
+     */
+    val currentScrollInfoProvider: State<ScrollInfoProvider?> = derivedStateOf {
+        contentItems.lastOrNull()?.scrollInfoProvider?.value
+    }
+
+    val currentAnchorItemOffset: State<Float> = derivedStateOf {
+        currentScrollInfoProvider.value?.anchorItemOffset ?: Float.NaN
+    }
 
     val timeText: @Composable (() -> Unit)
         get() = {
-            val (screenContent, timeText) = currentContent()
+            val (_, timeText) = currentContent()
+            val scrollInfoProvider = currentScrollInfoProvider.value
             Box(
                 modifier =
-                    screenContent?.scrollInfoProvider?.value?.let {
+                    scrollInfoProvider?.let {
                         Modifier.fillMaxSize().scrollAway(it) { screenStage.value }
                     } ?: Modifier
             ) {
@@ -89,9 +137,15 @@ internal class ScreenContent(private val appTimeText: State<@Composable () -> Un
         key: Any,
         timeText: @Composable (() -> Unit)?,
         scrollInfoProvider: ScrollInfoProvider? = null,
+        statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     ) {
         contentItems.add(
-            ScreenContentData(key, mutableStateOf(scrollInfoProvider), mutableStateOf(timeText))
+            ScreenContentData(
+                key = key,
+                scrollInfoProvider = mutableStateOf(scrollInfoProvider),
+                statusBarMode = mutableStateOf(statusBarMode),
+                timeText = mutableStateOf(timeText),
+            )
         )
     }
 
@@ -99,12 +153,14 @@ internal class ScreenContent(private val appTimeText: State<@Composable () -> Un
         key: Any,
         timeText: @Composable (() -> Unit)?,
         scrollInfoProvider: ScrollInfoProvider? = null,
+        statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     ) {
         contentItems
             .find { it.key == key }
             ?.let {
                 it.timeText.value = timeText
                 it.scrollInfoProvider.value = scrollInfoProvider
+                it.statusBarMode.value = statusBarMode
             }
     }
 
@@ -112,9 +168,9 @@ internal class ScreenContent(private val appTimeText: State<@Composable () -> Un
 
     @Composable
     internal fun UpdateIdlingDetectorIfNeeded() {
-        val scrollInfoProvider = currentContent().first?.scrollInfoProvider
+        val scrollInfoProvider = currentScrollInfoProvider.value
         LaunchedEffect(scrollInfoProvider) { screenStage.value = ScreenStage.New }
-        if (scrollInfoProvider?.value?.isScrollInProgress == true) {
+        if (scrollInfoProvider?.isScrollInProgress == true) {
             screenStage.value = ScreenStage.Scrolling
         } else {
             LaunchedEffect(Unit) {
@@ -142,9 +198,10 @@ internal class ScreenContent(private val appTimeText: State<@Composable () -> Un
 
     private val contentItems = mutableStateListOf<ScreenContentData>()
 
-    private data class ScreenContentData(
+    private class ScreenContentData(
         val key: Any,
         val scrollInfoProvider: MutableState<ScrollInfoProvider?> = mutableStateOf(null),
+        val statusBarMode: MutableState<StatusBarMode> = mutableStateOf(StatusBarMode.Inherit),
         val timeText: MutableState<(@Composable () -> Unit)?> = mutableStateOf(null),
     )
 }
