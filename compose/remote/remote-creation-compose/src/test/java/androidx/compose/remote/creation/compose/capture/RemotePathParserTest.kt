@@ -140,6 +140,62 @@ class RemotePathParserTest {
         assertEquals(0.5f, ops[1].points[4], 0.01f)
     }
 
+    @Test
+    fun testAddArcForceMoveTo() {
+        val nodes =
+            listOf(
+                RemotePathNode.MoveTo(0f.rf, 0f.rf),
+                RemotePathNode.AddArc(
+                    0f.rf,
+                    0f.rf,
+                    100f.rf,
+                    100f.rf,
+                    0f.rf,
+                    90f.rf,
+                    forceMoveTo = true,
+                ),
+            )
+
+        val remotePath = nodes.toRemotePath(creationState = testRemoteStateScope)
+        val ops = parsePathArray(remotePath.createFloatArray())
+
+        assertEquals(4, ops.size)
+        assertEquals("MoveTo", ops[0].type)
+        assertEquals("MoveTo", ops[1].type)
+        assertEquals(100f, ops[1].points[0], 0.01f)
+        assertEquals(50f, ops[1].points[1], 0.01f)
+        assertEquals("CubicTo", ops[2].type)
+        assertEquals("CubicTo", ops[3].type)
+    }
+
+    @Test
+    fun testArcToConnectsWithLine() {
+        val nodes =
+            listOf(
+                RemotePathNode.MoveTo(0f.rf, 0f.rf),
+                RemotePathNode.AddArc(
+                    0f.rf,
+                    0f.rf,
+                    100f.rf,
+                    100f.rf,
+                    0f.rf,
+                    90f.rf,
+                    forceMoveTo = false,
+                ),
+            )
+
+        val remotePath = nodes.toRemotePath(creationState = testRemoteStateScope)
+        val ops = parsePathArray(remotePath.createFloatArray())
+
+        assertEquals(4, ops.size)
+        assertEquals("MoveTo", ops[0].type)
+        assertEquals("LineTo", ops[1].type)
+        assertEquals(100f, ops[1].points[0], 0.01f)
+        assertEquals(50f, ops[1].points[1], 0.01f)
+        assertEquals("CubicTo", ops[2].type)
+        assertEquals("CubicTo", ops[3].type)
+    }
+
     private data class PathOp(val type: String, val points: FloatArray) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

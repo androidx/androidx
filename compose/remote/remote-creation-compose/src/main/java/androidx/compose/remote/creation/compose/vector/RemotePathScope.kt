@@ -429,6 +429,39 @@ public class RemotePathScope constructor() {
      * @param bottom The bottom bound of the oval defining the shape of the arc
      * @param startAngle Starting angle (in degrees) where the arc begins
      * @param sweepAngle Sweep angle (in degrees) measured clockwise
+     * @param forceMoveTo If true, always begin a new contour with the arc
+     */
+    public fun arcTo(
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+        startAngle: RemoteFloat,
+        sweepAngle: RemoteFloat,
+        forceMoveTo: Boolean = false,
+    ) {
+        _nodes.add(
+            RemotePathNode.AddArc(
+                left,
+                top,
+                right,
+                bottom,
+                startAngle,
+                sweepAngle,
+                forceMoveTo = forceMoveTo,
+            )
+        )
+    }
+
+    /**
+     * Adds a new subpath with an arc that occupies the given rectangle bounds.
+     *
+     * @param left The left bound of the oval defining the shape of the arc
+     * @param top The top bound of the oval defining the shape of the arc
+     * @param right The right bound of the oval defining the shape of the arc
+     * @param bottom The bottom bound of the oval defining the shape of the arc
+     * @param startAngle Starting angle (in degrees) where the arc begins
+     * @param sweepAngle Sweep angle (in degrees) measured clockwise
      */
     public fun addArc(
         left: RemoteFloat,
@@ -438,6 +471,6 @@ public class RemotePathScope constructor() {
         startAngle: RemoteFloat,
         sweepAngle: RemoteFloat,
     ) {
-        _nodes.add(RemotePathNode.AddArc(left, top, right, bottom, startAngle, sweepAngle))
+        arcTo(left, top, right, bottom, startAngle, sweepAngle, forceMoveTo = true)
     }
 }
