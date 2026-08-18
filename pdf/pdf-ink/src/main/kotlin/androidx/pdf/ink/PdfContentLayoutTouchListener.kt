@@ -17,6 +17,7 @@
 package androidx.pdf.ink
 
 import android.content.Context
+import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
@@ -41,7 +42,7 @@ internal class PdfContentLayoutTouchListener(
     private val touchSlop: Int by lazy { ViewConfiguration.get(context).scaledTouchSlop }
 
     override fun onTouch(v: View, event: MotionEvent): Boolean {
-        if (!isAnnotationInteractionEnabled) {
+        if (!isAnnotationInteractionEnabled || isTrackpadTwoFingerScroll(event)) {
             if (currentDispatcher == annotationsTouchEventDispatcher) {
                 // Send a CANCEL event to the annotations dispatcher to clean up its state.
                 val cancelEvent =
@@ -169,6 +170,12 @@ internal class PdfContentLayoutTouchListener(
         isSingleTouchCommitted = false
         primaryPointerId = MotionEvent.INVALID_POINTER_ID
     }
+}
+
+/** Returns true if the event represents a trackpad two-finger scroll gesture (API 34+). */
+private fun isTrackpadTwoFingerScroll(event: MotionEvent): Boolean {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+        event.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
 }
 
 /** Dispatches touch events to a target view. */
