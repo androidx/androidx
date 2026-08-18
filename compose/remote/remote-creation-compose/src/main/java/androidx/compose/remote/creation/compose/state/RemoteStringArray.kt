@@ -41,10 +41,13 @@ internal constructor(
         } ?: RemoteStateInstanceKey(),
     )
 
-    internal enum class OperationKey : DebuggableOperation {
+    internal enum class OperationKey : RemoteOperation {
         Create {
             override fun toDebugString(args: List<RemoteStateCacheKey>) =
                 "arrayOf(${args.joinToDebugString()})"
+
+            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
+                RemoteStringArray(args.fastMap { it as RemoteString })
         },
         Get {
             override val precedence: Int
@@ -52,6 +55,9 @@ internal constructor(
 
             override fun toDebugString(args: List<RemoteStateCacheKey>) =
                 args.formatArrayAccess(precedence)
+
+            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
+                (args[0] as RemoteStringArray)[args[1] as RemoteInt]
         },
     }
 
