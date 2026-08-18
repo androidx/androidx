@@ -265,7 +265,20 @@ constructor(
                 }
                 offset += visualOffset
                 if (!isLookingAhead) {
-                    animation?.placementOffset = offset
+                    animation?.placementOffset =
+                        if (!isVertical && layoutDirection == LayoutDirection.Rtl) {
+                            /**
+                             * [offset] here is relative to the absolute size of the layout, hence
+                             * we add back padding.
+                             */
+                            offset.copy { mainAxisOffset ->
+                                (mainAxisLayoutSize + beforeContentPadding + afterContentPadding) -
+                                    mainAxisOffset -
+                                    placeable.mainAxisSize
+                            }
+                        } else {
+                            offset
+                        }
                 }
                 if (isVertical) {
                     if (layer != null) {
