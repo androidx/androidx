@@ -18,46 +18,69 @@ package androidx.savedstate.internal
 
 import androidx.annotation.MainThread
 import androidx.collection.mutableScatterMapOf
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.savedstate.SavedState
-import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.SavedStateRegistry.SavedStateProvider
-import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.SavedStateProvider
 import androidx.savedstate.SavedStateRestorer
 import androidx.savedstate.read
 import androidx.savedstate.savedState
 import androidx.savedstate.write
 
 internal class SavedStateRegistryImpl(
-    private val owner: SavedStateRegistryOwner,
-    internal val onAttach: () -> Unit = {},
-) {
+    initialState: SavedState? = null,
+    private val onConsumeRestoredStateForKey: (key: String) -> Unit = {},
+) : SavedStateProvider, SavedStateRestorer {
 
     private val lock = SynchronizedObject()
     private val keyToProviders = mutableScatterMapOf<String, SavedStateProvider>()
-    private var attached = false
-    private var restoredState: SavedState? = null
+    private var restoredState: SavedState? = initialState
 
     @get:MainThread
     var isRestored = false
         private set
 
-    internal var isAllowingSavingState = true
+    internal var isAllowingSavingState: Boolean = true
+
+    override fun saveState(): SavedState {
+        return savedState {
+            // Keep unconsumed state from previous restore.
+            restoredState?.let { putAll(from = it) }
+            synchronized(lock) {
+                // Collect state from all registered providers.
+                keyToProviders.forEach { key, provider -> putSavedState(key, provider.saveState()) }
+            }
+        }
+    }
+
+    override fun restoreState(savedState: SavedState?) {
+        // Merge incoming state with existing restored state so prior state is not lost.
+        val mergedState =
+            savedState(initialState = savedState ?: savedState()) {
+                restoredState?.let { putAll(from = it) }
+            }
+        restoredState = mergedState
+        isRestored = true
+
+        synchronized(lock) {
+            keyToProviders.forEach { key, provider ->
+                // Automatically restore components that implement SavedStateRestorer.
+                if (provider is SavedStateRestorer && isRestored) {
+                    provider.restoreState(savedState = consumeRestoredStateForKey(key))
+                }
+            }
+        }
+    }
 
     @MainThread
     fun consumeRestoredStateForKey(key: String): SavedState? {
-        check(isRestored) {
-            "You can 'consumeRestoredStateForKey' only after the corresponding component has " +
-                "moved to the 'CREATED' state"
-        }
-
+        onConsumeRestoredStateForKey(key)
         val state = restoredState ?: return null
 
-        val consumed = state.read { if (contains(key)) getSavedState(key) else null }
-        state.write { remove(key) }
-        if (state.read { isEmpty() }) {
-            restoredState = null
+        val consumed = state.read { getSavedStateOrNull(key) }
+        if (consumed != null) {
+            state.write { remove(key) }
+            if (state.read { isEmpty() }) {
+                restoredState = null
+            }
         }
 
         return consumed
@@ -71,16 +94,9 @@ internal class SavedStateRegistryImpl(
             }
             keyToProviders[key] = provider
 
+            // If registry is restored, restore state immediately for late registration.
             if (provider is SavedStateRestorer && isRestored) {
-                val state = restoredState
-                val childState = state?.read { if (contains(key)) getSavedState(key) else null }
-                if (childState != null) {
-                    state.write { remove(key) }
-                    if (state.read { isEmpty() }) {
-                        restoredState = null
-                    }
-                }
-                provider.restoreState(childState)
+                provider.restoreState(savedState = consumeRestoredStateForKey(key))
             }
         }
     }
@@ -92,87 +108,5 @@ internal class SavedStateRegistryImpl(
     @MainThread
     fun unregisterSavedStateProvider(key: String) {
         synchronized(lock) { keyToProviders.remove(key) }
-    }
-
-    @MainThread
-    fun performAttach() {
-        check(owner.lifecycle.currentState == Lifecycle.State.INITIALIZED) {
-            "Restarter must be created only during owner's initialization stage"
-        }
-        check(!attached) { "SavedStateRegistry was already attached." }
-
-        onAttach()
-        owner.lifecycle.addObserver(
-            LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_START) {
-                    isAllowingSavingState = true
-                } else if (event == Lifecycle.Event.ON_STOP) {
-                    isAllowingSavingState = false
-                }
-            }
-        )
-        attached = true
-    }
-
-    /** An interface for an owner of this [SavedStateRegistry] to restore saved state. */
-    @MainThread
-    internal fun performRestore(savedState: SavedState?) {
-        // To support backward compatibility with libraries that do not explicitly
-        // call performAttach(), we make sure that work is done here
-        if (!attached) {
-            performAttach()
-        }
-        check(!owner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-            "performRestore cannot be called when owner is ${owner.lifecycle.currentState}"
-        }
-        check(!isRestored) { "SavedStateRegistry was already restored." }
-
-        val restored =
-            savedState?.read {
-                if (contains(SAVED_COMPONENTS_KEY)) getSavedState(SAVED_COMPONENTS_KEY) else null
-            }
-        restoredState = restored
-        isRestored = true
-
-        synchronized(lock) {
-            keyToProviders.forEach { key, provider ->
-                if (provider is SavedStateRestorer) {
-                    val childState =
-                        restored?.read { if (contains(key)) getSavedState(key) else null }
-                    if (childState != null) {
-                        restored.write { remove(key) }
-                    }
-                    provider.restoreState(childState)
-                }
-            }
-            if (restored != null && restored.read { isEmpty() }) {
-                restoredState = null
-            }
-        }
-    }
-
-    /**
-     * An interface for an owner of this [SavedStateRegistry] to perform state saving, it will call
-     * all registered providers and merge with unconsumed state.
-     *
-     * @param outBundle SavedState in which to place a saved state
-     */
-    @MainThread
-    internal fun performSave(outBundle: SavedState) {
-        val inState = savedState {
-            restoredState?.let { putAll(it) }
-            synchronized(lock) {
-                keyToProviders.forEach { key, provider -> putSavedState(key, provider.saveState()) }
-            }
-        }
-
-        if (inState.read { !isEmpty() }) {
-            outBundle.write { putSavedState(SAVED_COMPONENTS_KEY, inState) }
-        }
-    }
-
-    private companion object {
-        private const val SAVED_COMPONENTS_KEY =
-            "androidx.lifecycle.BundlableSavedStateRegistry.key"
     }
 }
