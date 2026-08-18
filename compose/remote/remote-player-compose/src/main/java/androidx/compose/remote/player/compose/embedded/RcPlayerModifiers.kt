@@ -88,6 +88,9 @@ import androidx.compose.ui.util.fastForEach
 public fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): Modifier {
     val textMeasurer = rememberTextMeasurer()
     var modifier: Modifier = Modifier
+    // Track whether a DrawContentOperation has already been attached to the modifier chain, so
+    // that subsequent clip operations are hoisted before drawWithContent without bypassing
+    // preceding padding.
     var drawContentProcessed = false
     list.fastForEach { op ->
         modifier =
@@ -99,7 +102,8 @@ public fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): 
                 is BackgroundModifierOperation -> modifier.background(op)
                 is OffsetModifierOperation -> modifier.offset(op)
                 is ClipRectModifierOperation -> modifier.clipRect(op)
-                is RoundedClipRectModifierOperation -> modifier.roundedClipRect(op)
+                is RoundedClipRectModifierOperation ->
+                    modifier.roundedClipRect(op, drawContentProcessed)
                 is ZIndexModifierOperation -> modifier.zIndex(op)
                 is GraphicsLayerModifierOperation -> modifier.graphicsLayer(op)
                 is RippleModifierOperation -> modifier.ripple(op)

@@ -45,34 +45,38 @@ internal fun Modifier.clipRect(op: ClipRectModifierOperation): Modifier {
     return this.clip(RectangleShape)
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class ClipCorner(val value: State<Float>, val literal: Boolean = true)
-
 @Composable
-internal fun Modifier.roundedClipRect(op: RoundedClipRectModifierOperation): Modifier {
+internal fun Modifier.roundedClipRect(
+    op: RoundedClipRectModifierOperation,
+    hoistBeforeDraw: Boolean = false,
+): Modifier {
     val behavior = LocalCoreDocument.current.densityBehavior
     val data = op.readDataReflection()
 
     val shape =
         RemoteRoundedClipShape(
-            topStart = ClipCorner(rememberRemoteFloatAsState(data.x1Value), !data.x1.isNaN()),
-            topEnd = ClipCorner(rememberRemoteFloatAsState(data.y1Value), !data.y1.isNaN()),
-            bottomEnd = ClipCorner(rememberRemoteFloatAsState(data.y2Value), !data.y2.isNaN()),
-            bottomStart = ClipCorner(rememberRemoteFloatAsState(data.x2Value), !data.x2.isNaN()),
+            topStart = rememberRemoteFloatAsState(data.x1Value),
+            topEnd = rememberRemoteFloatAsState(data.y1Value),
+            bottomEnd = rememberRemoteFloatAsState(data.y2Value),
+            bottomStart = rememberRemoteFloatAsState(data.x2Value),
             densityBehavior = behavior,
         )
-    // remote-core applies the rounded clip to the component's complete paint output; DrawContent
-    // precedes this op in the wire modifier list, so appending would leave that draw node
-    // unclipped.
-    return Modifier.clip(shape).then(this)
+    // When draw content has already been processed in the modifier list (hoistBeforeDraw == true),
+    // hoist the clip modifier before the draw node so content is clipped. If no draw node was
+    // processed yet, preserve the existing modifier order so preceding padding is not bypassed.
+    return if (hoistBeforeDraw) {
+        Modifier.clip(shape).then(this)
+    } else {
+        this.clip(shape)
+    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class RemoteRoundedClipShape(
-    val topStart: ClipCorner,
-    val topEnd: ClipCorner,
-    val bottomEnd: ClipCorner,
-    val bottomStart: ClipCorner,
+    val topStart: State<Float>,
+    val topEnd: State<Float>,
+    val bottomEnd: State<Float>,
+    val bottomStart: State<Float>,
     val densityBehavior: Int = CoreDocument.DENSITY_BEHAVIOR_DP,
 ) : Shape {
     override fun createOutline(
@@ -80,15 +84,12 @@ public data class RemoteRoundedClipShape(
         layoutDirection: LayoutDirection,
         density: Density,
     ): Outline {
-        val minDimension = size.minDimension
-        val fallback = minDimension / 2f
-        val topStartRadius =
-            topStart.resolve(minDimension, fallback, density.density, densityBehavior)
-        val topEndRadius = topEnd.resolve(minDimension, fallback, density.density, densityBehavior)
-        val bottomEndRadius =
-            bottomEnd.resolve(minDimension, fallback, density.density, densityBehavior)
+        val fallback = size.minDimension / 2f
+        val topStartRadius = topStart.resolveRadius(fallback, density.density, densityBehavior)
+        val topEndRadius = topEnd.resolveRadius(fallback, density.density, densityBehavior)
+        val bottomEndRadius = bottomEnd.resolveRadius(fallback, density.density, densityBehavior)
         val bottomStartRadius =
-            bottomStart.resolve(minDimension, fallback, density.density, densityBehavior)
+            bottomStart.resolveRadius(fallback, density.density, densityBehavior)
 
         val radiusScale =
             roundedRectRadiusScale(
@@ -129,16 +130,17 @@ private fun roundedRectRadiusScale(
     )
 }
 
-internal fun ClipCorner.resolve(
-    minDimension: Float,
+internal fun State<Float>.resolveRadius(
     fallback: Float,
     density: Float,
     densityBehavior: Int,
 ): Float {
-    val v = value.value
+    val v = value
     return when {
         !v.isFinite() -> fallback
-        literal -> if (densityBehavior == CoreDocument.DENSITY_BEHAVIOR_DP) v * density else v
+        // Under DENSITY_BEHAVIOR_DP, both literal and variable-backed corner radii represent DP
+        // values and must be scaled by density to match remote-core behavior.
+        densityBehavior == CoreDocument.DENSITY_BEHAVIOR_DP -> v * density
         else -> v
     }
 }

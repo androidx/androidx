@@ -19,7 +19,6 @@
 package androidx.compose.remote.player.compose.embedded
 
 import android.graphics.Typeface
-import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.player.core.platform.FontInstance
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 
@@ -28,8 +27,7 @@ import androidx.compose.remote.player.core.platform.TypefaceResolver
  * prefixes like "device:". For "google:" fonts without a GMS font resolver, it strips the prefix
  * and falls back to standard system font creation.
  */
-internal class EmbeddedPlayerTypefaceResolver(private val remoteContext: RemoteContext) :
-    TypefaceResolver {
+internal object EmbeddedPlayerTypefaceResolver : TypefaceResolver {
 
     override fun resolve(
         fontType: Int,

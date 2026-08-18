@@ -20,11 +20,13 @@ package androidx.compose.remote.player.compose.embedded
 
 import androidx.collection.IntObjectMap
 import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.PaintOperation
 import androidx.compose.remote.core.RemoteClock
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.ShaderData
+import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.runtime.State
@@ -61,6 +63,7 @@ internal class GraphContext(
     private val computedOps: IntObjectMap<Operation>,
     private val timeMillis: State<Float>,
     clock: RemoteClock,
+    internal var componentValues: Map<Int, State<Float>> = emptyMap(),
 ) : AndroidRemoteContext(clock) {
 
     init {
@@ -70,6 +73,8 @@ internal class GraphContext(
     }
 
     @Suppress("BanConcurrentHashMap") private val states = ConcurrentHashMap<Int, State<Any?>>()
+
+    private val graphPaintContext = GraphPaintContext(this)
 
     /**
      * Particle loops whose state has been seeded (keyed by op identity). Lives here because the
@@ -114,7 +119,14 @@ internal class GraphContext(
                     try {
                         if (op is VariableSupport)
                             op.updateVariables(this) // reads inputs (tracked)
-                        op.apply(this) // writes output -> captured
+                        // Value-producing PaintOperations (e.g. ColorAttribute) compute and write
+                        // their outputs during paint(paintContext) rather than
+                        // apply(remoteContext).
+                        if (op is PaintOperation && op !is Component) {
+                            op.paint(graphPaintContext)
+                        } else {
+                            op.apply(this) // writes output -> captured
+                        }
                         captured.get()
                     } finally {
                         captureId.set(prevId)
@@ -126,18 +138,24 @@ internal class GraphContext(
         return state.value
     }
 
-    override fun getFloat(id: Int): Float =
-        when {
+    override fun getFloat(id: Int): Float {
+        val compVal = componentValues[id]
+        return when {
             // Time variables come from the Compose frame-clock state (matching the resolver's time
             // special-case), not the raw store — so a time-driven op reads seconds/minutes/hours.
             id == RemoteContext.ID_CONTINUOUS_SEC || id == RemoteContext.ID_TIME_IN_SEC ->
                 timeMillis.value / 1000f
             id == RemoteContext.ID_TIME_IN_MIN -> timeMillis.value / 60000f
             id == RemoteContext.ID_TIME_IN_HR -> timeMillis.value / 3600000f
+            // ComponentValue sizes (e.g. measured width/height) are produced during Compose layout
+            // passes
+            // and take precedence over store overrides, matching direct reads in RcPlayerState.
+            compVal != null -> compVal.value
             realState.isFloatOverridden(id) -> super.getFloat(id)
             isComputed(id) -> (computedValue(id) as? Number)?.toFloat() ?: 0f
             else -> super.getFloat(id)
         }
+    }
 
     override fun getInteger(id: Int): Int =
         if (isComputed(id)) (computedValue(id) as? Number)?.toInt() ?: 0 else super.getInteger(id)

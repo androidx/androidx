@@ -30,6 +30,7 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
@@ -52,7 +53,9 @@ import androidx.compose.ui.text.font.FontStyle
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ComposeLocalPaint {
-    public var color: Int = 0
+    // android.graphics.Paint defaults to opaque black; isColorSet remains false until an explicit
+    // color is configured via PaintBundle.
+    public var color: Int = 0xFF000000.toInt()
     public var isColorSet: Boolean = false
     public var strokeWidth: Float = 1f
     public var isStrokeWidthSet: Boolean = false
@@ -97,7 +100,10 @@ public class ComposeLocalPaint {
      * the text size, and a bold/italic [android.graphics.Typeface] derived from font weight/style.
      */
     public fun toNativeTextPaint(context: RemoteContext): Paint {
-        val resolver = EmbeddedPlayerTypefaceResolver(context)
+        // Reuse the context's configured TypefaceResolver (e.g. GmsFontTypefaceResolver) if
+        // present, falling back to the embedded player's singleton system resolver.
+        val resolver =
+            (context as? AndroidRemoteContext)?.typefaceResolver ?: EmbeddedPlayerTypefaceResolver
         val italic = fontStyle == FontStyle.Italic
 
         val fontInstance =

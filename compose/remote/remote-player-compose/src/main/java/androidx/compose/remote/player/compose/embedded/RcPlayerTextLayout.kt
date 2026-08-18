@@ -115,20 +115,7 @@ internal fun RcPlayerText(layout: CoreText, modifier: Modifier) {
             null
         }
 
-    val textAlign =
-        if (data.justificationMode != CoreText.JUSTIFICATION_MODE_NONE) {
-            TextAlign.Justify
-        } else {
-            when (data.textAlignValue) {
-                CoreText.TEXT_ALIGN_LEFT -> TextAlign.Left
-                CoreText.TEXT_ALIGN_RIGHT -> TextAlign.Right
-                CoreText.TEXT_ALIGN_CENTER -> TextAlign.Center
-                CoreText.TEXT_ALIGN_JUSTIFY -> TextAlign.Justify
-                CoreText.TEXT_ALIGN_START -> TextAlign.Start
-                CoreText.TEXT_ALIGN_END -> TextAlign.End
-                else -> TextAlign.Start
-            }
-        }
+    val textAlign = resolveTextAlign(data.textAlignValue, data.justificationMode)
 
     val lineBreak =
         when (data.lineBreakStrategy) {
@@ -238,21 +225,29 @@ internal fun RcPlayerText(layout: TextLayout, modifier: Modifier) {
                 fontWeight = fontWeight,
                 fontFamily = fontFamily,
                 fontStyle = fontStyle,
-                textAlign =
-                    when (data.textAlignValue) {
-                        TextLayout.TEXT_ALIGN_LEFT -> TextAlign.Left
-                        TextLayout.TEXT_ALIGN_RIGHT -> TextAlign.Right
-                        TextLayout.TEXT_ALIGN_CENTER -> TextAlign.Center
-                        TextLayout.TEXT_ALIGN_JUSTIFY -> TextAlign.Justify
-                        TextLayout.TEXT_ALIGN_START -> TextAlign.Start
-                        TextLayout.TEXT_ALIGN_END -> TextAlign.End
-                        else -> TextAlign.Start
-                    },
+                textAlign = resolveTextAlign(data.textAlignValue, 0),
             ),
         overflow = overflow,
         maxLines = data.maxLines,
     )
 }
+
+internal fun resolveTextAlign(textAlignValue: Int, justificationMode: Int = 0): TextAlign =
+    if (justificationMode != CoreText.JUSTIFICATION_MODE_NONE) {
+        TextAlign.Justify
+    } else {
+        when (textAlignValue) {
+            CoreText.TEXT_ALIGN_LEFT -> TextAlign.Left
+            CoreText.TEXT_ALIGN_RIGHT -> TextAlign.Right
+            CoreText.TEXT_ALIGN_CENTER -> TextAlign.Center
+            // The View player ignores TEXT_ALIGN_JUSTIFY in textAlign unless justificationMode
+            // is explicitly set; map to Start to match View playback.
+            CoreText.TEXT_ALIGN_JUSTIFY -> TextAlign.Start
+            CoreText.TEXT_ALIGN_START -> TextAlign.Start
+            CoreText.TEXT_ALIGN_END -> TextAlign.End
+            else -> TextAlign.Start
+        }
+    }
 
 @Composable
 private fun rememberCustomFontName(fontFamilyType: Int, context: RemoteContext): State<String?> {
