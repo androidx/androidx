@@ -38,6 +38,7 @@ import androidx.compose.remote.integration.demos.modifier.scroll.NestedSnapScrol
 import androidx.compose.remote.integration.demos.modifier.scroll.VerticalScrollDemo
 import androidx.compose.remote.integration.demos.modifier.scroll.VerticalSnapScrollDemo
 import androidx.compose.remote.integration.demos.player.BitmapLoaderDemo
+import androidx.compose.remote.integration.demos.player.RemoteAnnotatedStringDemo
 import androidx.compose.remote.integration.demos.settings.SettingsScreen
 import androidx.compose.runtime.Composable
 
@@ -60,6 +61,7 @@ private object ScreenKeys {
     const val NESTED_SNAP_SCROLL = "NESTED_SNAP_SCROLL"
     const val TOUCH_ACTION = "TOUCH_ACTION"
     const val BITMAP_LOADER = "BITMAP_LOADER"
+    const val REMOTE_ANNOTATED_STRING = "REMOTE_ANNOTATED_STRING"
     const val GESTURE_PROPAGATION = "GESTURE_PROPAGATION"
     const val GESTURE_PROPAGATION_VIEW = "GESTURE_PROPAGATION_VIEW"
     const val DRAG_PROPAGATION = "REMOTE_PLAYER_DRAG_PROPAGATION"
@@ -87,6 +89,7 @@ fun ComposableScreenNavigation(key: String, onNavigateUp: () -> Unit) {
         ScreenKeys.COMBINED_CLICKABLE -> CombinedClickableDemo()
         ScreenKeys.TOUCH_ACTION -> TouchActionDemo()
         ScreenKeys.BITMAP_LOADER -> BitmapLoaderDemo()
+        ScreenKeys.REMOTE_ANNOTATED_STRING -> RemoteAnnotatedStringDemo()
         ScreenKeys.GESTURE_PROPAGATION -> GesturePropagationDemo()
         ScreenKeys.GESTURE_PROPAGATION_VIEW -> GesturePropagationViewDemo()
         ScreenKeys.DRAG_PROPAGATION -> DragPropagationDemo()
@@ -170,7 +173,14 @@ val Screens =
                     title = "Player",
                     screens =
                         listOf(
-                            ComposableScreen(key = ScreenKeys.BITMAP_LOADER, title = "BitmapLoader")
+                            ComposableScreen(
+                                key = ScreenKeys.BITMAP_LOADER,
+                                title = "BitmapLoader",
+                            ),
+                            ComposableScreen(
+                                key = ScreenKeys.REMOTE_ANNOTATED_STRING,
+                                title = "Custom AnnotatedString",
+                            ),
                         ),
                 ),
                 Category(
