@@ -67,10 +67,12 @@ internal object MaterialA2uiDefaults {
      * Displays an error message inside a [Surface].
      *
      * @param exception [A2uiException] that caused the render failure
+     * @param modifier [Modifier] to apply to the error fallback
      */
     @Composable
-    fun ErrorFallback(exception: A2uiException) {
+    fun ErrorFallback(exception: A2uiException, modifier: Modifier = Modifier) {
         Surface(
+            modifier = modifier,
             color = MaterialTheme.colorScheme.errorContainer,
             shape = MaterialTheme.shapes.medium,
         ) {
