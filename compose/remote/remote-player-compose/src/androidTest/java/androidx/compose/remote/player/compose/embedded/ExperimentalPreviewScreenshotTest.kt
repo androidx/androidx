@@ -22,6 +22,7 @@ package androidx.compose.remote.player.compose.embedded
 
 import android.content.Context
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -134,7 +135,10 @@ class ExperimentalPreviewScreenshotTest {
         rule
             .onNodeWithTag("view")
             .captureToImage()
-            .assertAgainstGolden(screenshotRule, "experimentalDocPreview_java")
+            .assertAgainstGolden(
+                screenshotRule,
+                "ExperimentalPreviewScreenshotTest_experimentalDocPreview_java",
+            )
     }
 
     @Ignore("Disable until ScreenshotTestRule is fixed for applications")
@@ -146,7 +150,10 @@ class ExperimentalPreviewScreenshotTest {
         rule
             .onNodeWithTag("embedded")
             .captureToImage()
-            .assertAgainstGolden(screenshotRule, "experimentalDocPreview_compose")
+            .assertAgainstGolden(
+                screenshotRule,
+                "ExperimentalPreviewScreenshotTest_experimentalDocPreview_compose",
+            )
     }
 
     /**
@@ -194,7 +201,7 @@ class ExperimentalPreviewScreenshotTest {
 
     @Composable
     private fun RemotePlayersSideBySide(document: RemoteDocument) {
-        androidx.compose.foundation.layout.Column {
+        Column {
             PreviewUnderTest(document, PlayerImpl.JAVA, "view")
             PreviewUnderTest(document, PlayerImpl.COMPOSE, "embedded")
         }
