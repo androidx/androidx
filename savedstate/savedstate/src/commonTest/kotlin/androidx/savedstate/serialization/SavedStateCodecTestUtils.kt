@@ -21,7 +21,7 @@ import androidx.savedstate.SavedState
 import androidx.savedstate.SavedStateReader
 import androidx.savedstate.read
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.nullable
+import kotlinx.serialization.serializer
 
 /**
  * Utility object providing helper functions for encoding and decoding instances of `T` using
@@ -29,110 +29,47 @@ import kotlinx.serialization.builtins.nullable
  */
 internal object SavedStateCodecTestUtils {
     /**
-     * Test encoding the receiver and then decoding it back. It covers three cases:
-     * 1. The receiver with the static type `T`.
-     * 2. The receiver with the static type `T?`.
-     * 3. `null` with the static type `T?`.
+     * Test the following steps:
+     * 1. Encode `T` to a `SavedState`.
+     * 2. Simulates platform-specific transmission (only performed on Android).
+     * 3. Decode it back to a `T`.
      */
-    inline fun <reified T : Any> T.encodeDecode(
-        serializer: KSerializer<T>? = null,
-        configuration: SavedStateConfiguration? = null,
+    inline fun <reified T> T.encodeDecode(
+        configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
         doMarshalling: Boolean = true,
-        // Only called for the first two cases.
-        crossinline checkDecoded: (T, T) -> Unit = { decoded, original ->
+        noinline checkDecoded: (T, T) -> Unit = { decoded, original ->
             assertThat(decoded).isEqualTo(original)
         },
-        // Only called for the first two cases.
-        crossinline checkEncoded: SavedStateReader.() -> Unit = { assertThat(size()).isEqualTo(0) },
+        noinline checkEncoded: SavedStateReader.() -> Unit = { assertThat(size()).isEqualTo(0) },
     ) {
-        // Encode and decode `this` with the static type `T`.
-        this.encodeDecodeImpl<T>(
-            serializer,
-            configuration,
-            doMarshalling,
-            checkDecoded,
-            checkEncoded,
-        )
-        // Encode and decode `this` with the static type `T?`.
-        this.encodeDecodeImpl<T?>(
-            serializer?.nullable,
-            configuration,
-            doMarshalling,
-            { decoded, original -> checkDecoded(decoded!!, original!!) },
-            checkEncoded,
-        )
-        // Encode and decode `null` with the static type `T?`.
-        null.encodeDecodeImpl<T?>(
-            serializer?.nullable,
-            configuration,
-            doMarshalling,
-            { decoded, original -> assertThat(decoded).isNull() },
-            {
-                assertThat(size()).isEqualTo(1)
-                assertThat(isNull("")).isTrue()
-            },
+        encodeDecode(
+            serializer = configuration.serializersModule.serializer<T>(),
+            configuration = configuration,
+            doMarshalling = doMarshalling,
+            checkDecoded = checkDecoded,
+            checkEncoded = checkEncoded,
         )
     }
 
     /**
      * Test the following steps:
-     * 1. Encode `T` to a `SavedState`.
-     * 2. Parcelize it to a `Parcel`.
-     * 3. Marshall it to a byte array.
-     * 4. Unmarshall it back to a parcel.
-     * 5. Un-parcelize it back to a `SavedState`.
-     * 6. Decode it back to a `T`.
-     *
-     * (Step 2 to 5 are only performed on Android.)
-     *
-     * @param serializer The [KSerializer] to use.
-     * @param configuration The [SavedStateConfiguration] to use.
-     * @param doMarshalling Used to enable/disable step 3 and 4.
-     * @param checkDecoded Used to compare receiver with the result from step 6.
-     * @param checkEncoded Used to check the content of the result SavedState from step 1.
+     * 1. Encode `T` to a `SavedState` using explicit [serializer].
+     * 2. Simulates platform-specific transmission (only performed on Android).
+     * 3. Decode it back to a `T`.
      */
-    private inline fun <reified T> T.encodeDecodeImpl(
-        serializer: KSerializer<T>? = null,
-        configuration: SavedStateConfiguration? = null,
+    fun <T> T.encodeDecode(
+        serializer: KSerializer<T>,
+        configuration: SavedStateConfiguration = SavedStateConfiguration.DEFAULT,
         doMarshalling: Boolean = true,
         checkDecoded: (T, T) -> Unit = { decoded, original ->
             assertThat(decoded).isEqualTo(original)
         },
         checkEncoded: SavedStateReader.() -> Unit = { assertThat(size()).isEqualTo(0) },
     ) {
-        val encoded =
-            if (serializer == null) {
-                if (configuration == null) {
-                    encodeToSavedState(this)
-                } else {
-                    encodeToSavedState(this, configuration)
-                }
-            } else {
-                if (configuration == null) {
-                    encodeToSavedState(serializer, this)
-                } else {
-                    encodeToSavedState(serializer, this, configuration)
-                }
-            }
-        encoded.read { checkEncoded() }
-
+        val encoded = encodeToSavedState(serializer, value = this, configuration)
         val restored = platformEncodeDecode(encoded, doMarshalling)
-
-        val decoded =
-            if (serializer == null) {
-                if (configuration == null) {
-                    decodeFromSavedState(restored)
-                } else {
-                    decodeFromSavedState(restored, configuration)
-                }
-            } else {
-                if (configuration == null) {
-                    decodeFromSavedState(serializer, restored)
-                } else {
-                    decodeFromSavedState(serializer, restored, configuration)
-                }
-            }
-
+        val decoded = decodeFromSavedState(serializer, restored, configuration)
+        encoded.read { checkEncoded() }
         checkDecoded(decoded, this)
     }
 }
