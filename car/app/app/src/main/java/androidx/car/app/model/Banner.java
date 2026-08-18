@@ -53,36 +53,24 @@ import java.util.Objects;
 @RequiresCarApi(9)
 public final class Banner implements Item {
     @RestrictTo(LIBRARY)
-    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_SMALL, IMAGE_TYPE_LARGE, IMAGE_TYPE_MEDIUM})
+    @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_MEDIUM, IMAGE_TYPE_LARGE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BannerImageType {
     }
-
-    /**
-     * Represents an icon to be displayed in the banner.
-     *
-     * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
-     * default tint color as determined by the host will be applied.
-     *
-     * @deprecated Use {@link #IMAGE_TYPE_SMALL} instead and set explicit tint via {@link
-     *     CarIconStyle.Builder#setTint} if needed.
-     */
-    @Deprecated
-    public static final int IMAGE_TYPE_ICON = 1;
 
     /**
      * Represents a small icon-sized image to be displayed in the banner.
      *
      * <p>The host renders it with standard padding and scales the image to fit within the bounds.
      */
-    public static final int IMAGE_TYPE_SMALL = 2;
+    public static final int IMAGE_TYPE_SMALL = 1;
 
     /**
      * Represents a medium padded artwork image to be displayed in the banner.
      *
      * <p>The host renders it with standard padding and scales the image to fit within the bounds.
      */
-    public static final int IMAGE_TYPE_MEDIUM = 3;
+    public static final int IMAGE_TYPE_MEDIUM = 2;
 
     /**
      * Represents a large edge-to-edge image to be displayed in the banner. Scales the image
@@ -90,7 +78,7 @@ public final class Banner implements Item {
      *
      * <p>This image type cannot be used in combination with {@link Builder#addBelowAction(Action)}.
      */
-    public static final int IMAGE_TYPE_LARGE = 4;
+    public static final int IMAGE_TYPE_LARGE = 3;
 
     private static final int MAX_TRAILING_ELEMENTS = 2;
 
@@ -334,7 +322,7 @@ public final class Banner implements Item {
 
         /**
          * Sets the leading element in this banner to be a {@link CarIcon} displayed as an
-         * {@link #IMAGE_TYPE_SMALL} image, not expected to be tinted.
+         * {@link #IMAGE_TYPE_MEDIUM} image, not expected to be tinted.
          *
          * <p>Only a single leading image can be set. Subsequent calls will overwrite
          * previous calls.
@@ -343,7 +331,7 @@ public final class Banner implements Item {
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder setLeadingImage(@NonNull CarIcon image) {
-            return setLeadingImage(requireNonNull(image), IMAGE_TYPE_SMALL);
+            return setLeadingImage(requireNonNull(image), IMAGE_TYPE_MEDIUM);
         }
 
         /**
@@ -356,8 +344,8 @@ public final class Banner implements Item {
          * {@link Builder#addBelowAction(Action)}.
          *
          * @param image     the {@link CarIcon} for the leading image
-         * @param imageType one of {@link Banner#IMAGE_TYPE_ICON}, {@link Banner#IMAGE_TYPE_SMALL},
-         * {@link Banner#IMAGE_TYPE_LARGE}
+         * @param imageType one of {@link Banner#IMAGE_TYPE_SMALL},
+         * {@link Banner#IMAGE_TYPE_MEDIUM}, {@link Banner#IMAGE_TYPE_LARGE}
          *
          * @throws NullPointerException if {@code image} is {@code null}
          */
@@ -388,7 +376,7 @@ public final class Banner implements Item {
         }
 
         /**
-         * Adds a {@link CarIcon} to be displayed as an {@link #IMAGE_TYPE_SMALL} image at the
+         * Adds a {@link CarIcon} to be displayed as an {@link #IMAGE_TYPE_MEDIUM} image at the
          * trailing part of the Banner, not expected to be tinted.
          *
          * <p>A banner can have at most 2 trailing elements.
@@ -398,7 +386,7 @@ public final class Banner implements Item {
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder addTrailingImage(@NonNull CarIcon image) {
-            return addTrailingImage(requireNonNull(image), IMAGE_TYPE_SMALL);
+            return addTrailingImage(requireNonNull(image), IMAGE_TYPE_MEDIUM);
         }
 
         /**
@@ -413,12 +401,12 @@ public final class Banner implements Item {
          * another large trailing image.
          *
          * @param image     the {@link CarIcon} for the trailing image
-         * @param imageType one of {@link Banner#IMAGE_TYPE_ICON}, {@link Banner#IMAGE_TYPE_SMALL},
-         * {@link Banner#IMAGE_TYPE_LARGE}
+         * @param imageType one of {@link Banner#IMAGE_TYPE_SMALL},
+         * {@link Banner#IMAGE_TYPE_MEDIUM}, {@link Banner#IMAGE_TYPE_LARGE}
          * @throws NullPointerException     if {@code image} is {@code null}
          * @throws IllegalArgumentException if there are already 2 trailing elements
          * @throws IllegalArgumentException if a large trailing image is combined with anything
-         *                                  other than a trailing icon or action
+         *                                  other than a trailing small image or action
          */
         @SuppressLint("MissingGetterMatchingBuilder")
         public @NonNull Builder addTrailingImage(@NonNull CarIcon image,
@@ -490,10 +478,10 @@ public final class Banner implements Item {
             return count;
         }
 
-        private boolean hasSmallImage(List<BannerElement> elements) {
+        private boolean hasMediumImage(List<BannerElement> elements) {
             for (BannerElement element : elements) {
                 if (element.getType() == BannerElement.TYPE_IMAGE
-                        && element.getImageType() == IMAGE_TYPE_SMALL) {
+                        && element.getImageType() == IMAGE_TYPE_MEDIUM) {
                     return true;
                 }
             }
@@ -522,9 +510,9 @@ public final class Banner implements Item {
                 throw new IllegalArgumentException(
                         "Too many large images, only one large image can be set at a time");
             }
-            if (largeImageCount > 0 && hasSmallImage(allElements)) {
+            if (largeImageCount > 0 && hasMediumImage(allElements)) {
                 throw new IllegalArgumentException(
-                        "A large trailing image can only be combined with a trailing icon"
+                        "A large trailing image can only be combined with a trailing small image"
                                 + " or action");
             }
 
