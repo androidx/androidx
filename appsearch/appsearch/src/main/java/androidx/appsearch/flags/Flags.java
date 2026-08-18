@@ -131,10 +131,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS =
             FLAG_PREFIX + "enable_informational_ranking_expressions";
 
-    /** Enable {@link androidx.appsearch.app.GenericDocument#writeToParcel}. */
-    public static final String FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC =
-            FLAG_PREFIX + "enable_generic_document_over_ipc";
-
     /** Enable empty batch result fix for enterprise GetDocuments. */
     public static final String FLAG_ENABLE_ENTERPRISE_EMPTY_BATCH_RESULT_FIX =
             FLAG_PREFIX + "enable_enterprise_empty_batch_result_fix";
@@ -245,10 +241,6 @@ public final class Flags {
      */
     public static final String FLAG_ENABLE_NON_EXISTENT_QUALIFIED_ID_JOIN =
             FLAG_PREFIX + "enable_non_existent_qualified_id_join";
-
-    /** Enables visibility access for Private Compute Core UIDs. */
-    public static final String FLAG_ENABLE_PRIVATE_COMPUTE_CORE_UID_ACCESS =
-            FLAG_PREFIX + "enable_private_compute_core_uid_access";
 
     /** Enables set SearchFeatures and RankingFeatures APIs. */
     public static final String FLAG_ENABLE_SET_SEARCH_AND_RANKING_FEATURE =
@@ -570,13 +562,6 @@ public final class Flags {
      * Whether to enable indexing non existent parent qualified id in the join index.
      */
     public static boolean enableNonExistentQualifiedIdJoin() {
-        return true;
-    }
-
-    /**
-     * Whether visibility access for Private Compute Core UIDs should be enabled.
-     */
-    public static boolean enablePrivateComputeCoreUidAccess() {
         return true;
     }
 

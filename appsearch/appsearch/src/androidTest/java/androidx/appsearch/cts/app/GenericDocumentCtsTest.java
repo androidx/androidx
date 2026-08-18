@@ -1220,7 +1220,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC)
     public void testWriteToParcel() {
         GenericDocument inDoc =
                 new GenericDocument.Builder<>("namespace", "id1", "schema1")
@@ -1254,7 +1253,6 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC)
     public void testWriteToParcel_withEmptyDocArray() {
         GenericDocument inDoc =
                 new GenericDocument.Builder<>("namespace", "id1", "schema1")
