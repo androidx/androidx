@@ -342,7 +342,12 @@ private fun PagerScaffoldImpl(
 
     // Update the timeText & scrollInfoProvider if there is a change and the screen is already
     // present
-    scaffoldState.screenContent.updateIfNeeded(key, timeText = null, scrollInfoProvider)
+    scaffoldState.screenContent.updateIfNeeded(
+        key,
+        timeText = null,
+        scrollInfoProvider,
+        statusBarMode = StatusBarMode.Inherit,
+    )
 
     DisposableEffect(key) { onDispose { scaffoldState.screenContent.removeScreen(key) } }
 
@@ -351,7 +356,12 @@ private fun PagerScaffoldImpl(
     val screenIsActive = LocalScreenIsActive.current
     LaunchedEffect(screenIsActive, scaffoldState) {
         if (screenIsActive) {
-            scaffoldState.screenContent.addScreen(key, timeText = null, scrollInfoProvider)
+            scaffoldState.screenContent.addScreen(
+                key,
+                timeText = null,
+                scrollInfoProvider,
+                statusBarMode = StatusBarMode.Inherit,
+            )
         } else {
             scaffoldState.screenContent.removeScreen(key)
         }
