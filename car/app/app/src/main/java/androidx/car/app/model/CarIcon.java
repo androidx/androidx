@@ -49,12 +49,12 @@ import java.util.Objects;
  *
  * <h4>Car Screen Pixel Densities</h4>
  *
- * <p>Similar to Android devices, car screens cover a wide range of sizes and densities. To
- * ensure that icons and images render well across all car screens, use vector assets whenever
- * possible to avoid scaling issues. If your app relies on bitmaps or other non-vector
- * assets, you should ensure that you have resources that address multiple pixel density
- * buckets using configuration qualifiers in your resource folders (e.g. "mdpi", "hdpi", etc).
- * See {@link androidx.car.app.CarContext} for more details.
+ * <p>Similar to Android devices, car screens cover a wide range of sizes and densities. To ensure
+ * that icons and images render well across all car screens, use vector assets whenever possible to
+ * avoid scaling issues. If your app relies on bitmaps or other non-vector assets, you should ensure
+ * that you have resources that address multiple pixel density buckets using configuration
+ * qualifiers in your resource folders (e.g. "mdpi", "hdpi", etc). See {@link
+ * androidx.car.app.CarContext} for more details.
  *
  * <h4>Themed Drawables</h4>
  *
@@ -100,30 +100,24 @@ public final class CarIcon {
     /** Matches with {@link android.graphics.drawable.Icon#TYPE_URI} */
     private static final int TYPE_URI = 4;
 
-    /**
-     * The type of car icon represented by the {@link CarIcon} instance.
-     *
-     */
+    /** The type of car icon represented by the {@link CarIcon} instance. */
     @RestrictTo(LIBRARY)
     @SuppressLint("UniqueConstants") // TYPE_APP will be removed in a follow-up change.
     @IntDef(
             value = {
-                    TYPE_CUSTOM,
-                    TYPE_BACK,
-                    TYPE_ALERT,
-                    TYPE_APP_ICON,
-                    TYPE_ERROR,
-                    TYPE_PAN,
-                    TYPE_COMPOSE_MESSAGE,
-                    TYPE_MEDIA_PLAYBACK,
+                TYPE_CUSTOM,
+                TYPE_BACK,
+                TYPE_ALERT,
+                TYPE_APP_ICON,
+                TYPE_ERROR,
+                TYPE_PAN,
+                TYPE_COMPOSE_MESSAGE,
+                TYPE_MEDIA_PLAYBACK,
             })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface CarIconType {
-    }
+    public @interface CarIconType {}
 
-    /**
-     * A custom, non-standard, app-defined icon.
-     */
+    /** A custom, non-standard, app-defined icon. */
     public static final int TYPE_CUSTOM = 1;
 
     /**
@@ -181,57 +175,105 @@ public final class CarIcon {
      */
     public static final @NonNull CarIcon APP_ICON = CarIcon.forStandardType(TYPE_APP_ICON);
 
-    /**
-     * An icon representing a "back" action.
-     */
+    /** An icon representing a "back" action. */
     public static final @NonNull CarIcon BACK = CarIcon.forStandardType(TYPE_BACK);
 
-    /**
-     * An icon representing an alert.
-     */
+    /** An icon representing an alert. */
     public static final @NonNull CarIcon ALERT = CarIcon.forStandardType(TYPE_ALERT);
 
-    /**
-     * An icon representing an error.
-     */
+    /** An icon representing an error. */
     public static final @NonNull CarIcon ERROR = CarIcon.forStandardType(TYPE_ERROR);
 
-    /**
-     * An icon representing a pan action (for example, in a map surface).
-     */
+    /** An icon representing a pan action (for example, in a map surface). */
     @RequiresCarApi(2)
     public static final @NonNull CarIcon PAN = CarIcon.forStandardType(TYPE_PAN);
 
-    /**
-     * An icon that represents the user's intent to send a message.
-     */
+    /** An icon that represents the user's intent to send a message. */
     @RequiresCarApi(7)
     public static final @NonNull CarIcon COMPOSE_MESSAGE =
             CarIcon.forStandardType(TYPE_COMPOSE_MESSAGE);
 
     /**
-     * An icon that represents a playable media item.
-     * Note: This is specifically used for category MEDIA apps. Used in conjunction with
-     * {@link Action#MEDIA_PLAYBACK}
+     * An icon that represents a playable media item. Note: This is specifically used for category
+     * MEDIA apps. Used in conjunction with {@link Action#MEDIA_PLAYBACK}
      */
     @RequiresCarApi(8)
     public static final @NonNull CarIcon MEDIA_PLAYBACK =
             CarIcon.forStandardType(TYPE_MEDIA_PLAYBACK);
 
-    @CarIconType
-    private final int mType;
-    private final @Nullable IconCompat mIcon;
+    @CarIconType private final int mType;
+    @Nullable private final IconCompat mIcon;
 
     /**
-     * @deprecated use {@link CarIconStyle} to set a tint
+     * @deprecated Moved to {@link CarIconStyle#getTint()}. Field retained for backwards
+     *     compatibility with legacy hosts.
      */
-    @Deprecated
-    private final @Nullable CarColor mTint;
-    private final @Nullable CarIconStyle mStyle;
+    @Deprecated @Nullable private final CarColor mTint;
+
+    @Nullable private final CarIconStyle mStyle;
+
+    CarIcon(@Nullable IconCompat icon, @Nullable CarColor tint, @CarIconType int type) {
+        mType = type;
+        mIcon = icon;
+        mTint = tint;
+        if (tint != null) {
+            mStyle = new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(tint).build();
+        } else {
+            mStyle = null;
+        }
+    }
+
+    CarIcon(Builder builder) {
+        mType = builder.mType;
+        mIcon = builder.mIcon;
+        mStyle = builder.mStyle;
+
+        if (mStyle != null) {
+            mTint = mStyle.getTint();
+        } else {
+            mTint = null;
+        }
+    }
+
+    /** Constructs an empty instance, used by serialization code. */
+    private CarIcon() {
+        mType = TYPE_CUSTOM;
+        mIcon = null;
+        mTint = null;
+        mStyle = null;
+    }
 
     /**
-     * Returns the {@link IconCompat} instance backing by this car icon or {@code null} if one
-     * isn't set.
+     * Creates a tinted {@link CarIcon}.
+     *
+     * <p>By default, using this builder allows the host vehicle system to automatically tint the
+     * icon based on the active template theme. To apply a custom tint instead, use {@link
+     * Builder#Builder(IconCompat, CarIconStyle)} or {@link Builder#setStyle(CarIconStyle)} with
+     * {@link CarIconStyle.Builder#setTint(CarColor)}.
+     *
+     * @param icon The base icon graphic.
+     * @return A styled {@link CarIcon} instance configured with {@link CarIconStyle#TINTED}.
+     */
+    @NonNull
+    public static CarIcon createTintedIcon(@NonNull IconCompat icon) {
+        return new Builder(icon, CarIconStyle.TINTED).build();
+    }
+
+    /**
+     * Creates an icon that retains its original colors without allowing any host-side tinting on
+     * it.
+     *
+     * @param icon The base icon graphic.
+     * @return A styled {@link CarIcon} instance configured with {@link CarIconStyle#ORIGINAL}.
+     */
+    @NonNull
+    public static CarIcon createOriginalIcon(@NonNull IconCompat icon) {
+        return new Builder(icon, CarIconStyle.ORIGINAL).build();
+    }
+
+    /**
+     * Returns the {@link IconCompat} instance backing by this car icon or {@code null} if one isn't
+     * set.
      *
      * @see Builder#Builder(IconCompat)
      */
@@ -266,15 +308,13 @@ public final class CarIcon {
 
         // If style is null, but tint is provided, we return the style with according tint
         if (mTint != null) {
-            return new CarIconStyle.Builder().setTint(mTint).build();
+            return new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(mTint).build();
         }
 
         return null;
     }
 
-    /**
-     * Returns the type of car icon for this instance.
-     */
+    /** Returns the type of car icon for this instance. */
     @CarIconType
     public int getType() {
         return mType;
@@ -376,99 +416,11 @@ public final class CarIcon {
         }
     }
 
-    CarIcon(@Nullable IconCompat icon, @Nullable CarColor tint, @CarIconType int type) {
-        mType = type;
-        mIcon = icon;
-        mTint = tint;
-        if (tint != null) {
-            mStyle = new CarIconStyle.Builder().setTint(tint).build();
-        } else {
-            mStyle = null;
-        }
-    }
-
-    CarIcon(Builder builder) {
-        mType = builder.mType;
-        mIcon = builder.mIcon;
-        mStyle = builder.mStyle;
-
-        if (mStyle != null) {
-            mTint = mStyle.getTint();
-        } else {
-            mTint = null;
-        }
-    }
-
-    /** Constructs an empty instance, used by serialization code. */
-    private CarIcon() {
-        mType = TYPE_CUSTOM;
-        mIcon = null;
-        mTint = null;
-        mStyle = null;
-    }
-
     /** A builder of {@link CarIcon}. */
     public static final class Builder {
         private final @Nullable IconCompat mIcon;
-        @CarIconType
-        private final int mType;
-
+        @CarIconType private final int mType;
         private @Nullable CarIconStyle mStyle;
-
-        /**
-         * Sets the tint of the icon to the given {@link CarColor}.
-         *
-         * <p>This tint overrides the tint set through {@link IconCompat#setTint(int)} in the
-         * backing {@link IconCompat} with a {@link CarColor} tint. The tint set through {@link
-         * IconCompat#setTint(int)} is not guaranteed to be applied if the {@link CarIcon} tint
-         * is not set.
-         *
-         * <p>The tint mode used to blend this color is {@link Mode#SRC_IN}.
-         *
-         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
-         * factors, the color may be ignored by the host or overridden by the vehicle system.
-         *
-         * @throws NullPointerException if {@code tint} is {@code null}
-         * @see CarColor
-         * @see android.graphics.drawable.Drawable#setTintMode(Mode)
-         * @deprecated Tint has been moved to {@link CarIconStyle} class, use
-         * {@link CarIcon.Builder#setStyle} instead
-         */
-        @Deprecated
-        public @NonNull Builder setTint(@NonNull CarColor tint) {
-            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(tint));
-
-            // Set the style property
-            if (mStyle == null) {
-                mStyle = new CarIconStyle.Builder().setTint(tint).build();
-            } else {
-                mStyle = new CarIconStyle.Builder(mStyle).setTint(tint).build();
-            }
-
-            return this;
-        }
-
-        /**
-         * Sets the style of the icon to the given {@link CarIconStyle}.
-         *
-         * <p> If set for an icon in a container not supporting icon styling, it's builder will
-         * throw an exception.
-         *
-         * <p> The following containers are supporting {@link CarIconStyle}:
-         *
-         * <ul>
-         *   <li>{@link Row}
-         * </ul>
-         */
-        public @NonNull Builder setStyle(@NonNull CarIconStyle style) {
-            mStyle = style;
-            return this;
-        }
-
-        /** Constructs the {@link CarIcon} defined by this builder. */
-        public @NonNull CarIcon build() {
-            return new CarIcon(this);
-        }
 
         /**
          * Creates a {@link Builder} instance using the given {@link IconCompat}.
@@ -490,8 +442,13 @@ public final class CarIcon {
          * <p>If the icon image is loaded from URI, it may be cached on the host side. Changing the
          * contents of the URI will result in the host showing a stale image.
          *
+         * <p><b>Note:</b> It is recommended to use {@link CarIcon#createTintedIcon(IconCompat)},
+         * {@link CarIcon#createOriginalIcon(IconCompat)}, or {@link #Builder(IconCompat,
+         * CarIconStyle)} to explicitly specify visual styling behavior. This constructor will be
+         * deprecated in a future release.
+         *
          * @throws IllegalArgumentException if {@code icon}'s URI scheme is not supported
-         * @throws NullPointerException     if {@code icon} is {@code null}
+         * @throws NullPointerException if {@code icon} is {@code null}
          */
         public Builder(@NonNull IconCompat icon) {
             CarIconConstraints.UNCONSTRAINED.checkSupportedIcon(requireNonNull(icon));
@@ -501,8 +458,53 @@ public final class CarIcon {
         }
 
         /**
-         * Returns a {@link Builder} instance configured with the same data as the given
-         * {@link CarIcon} instance.
+         * Creates a {@link Builder} instance using the given {@link IconCompat} and explicit {@link
+         * CarIconStyle}.
+         *
+         * <p>The following types are supported:
+         *
+         * <ul>
+         *   <li>{@link IconCompat#TYPE_BITMAP}
+         *   <li>{@link IconCompat#TYPE_RESOURCE}
+         *   <li>{@link IconCompat#TYPE_URI}
+         * </ul>
+         *
+         * <p>{@link IconCompat#TYPE_URI} is only supported in templates that explicitly allow it.
+         * In those cases, the appropriate APIs will be documented to indicate this.
+         *
+         * <p>For {@link IconCompat#TYPE_URI}, the URI's scheme must be {@link
+         * ContentResolver#SCHEME_CONTENT}.
+         *
+         * <p>If the icon image is loaded from URI, it may be cached on the host side. Changing the
+         * contents of the URI will result in the host showing a stale image.
+         *
+         * <p>Select the appropriate style depending on the asset:
+         *
+         * <ul>
+         *   <li>Use {@link CarIconStyle#TINTED} for icons that should be automatically tinted by
+         *       the vehicle theme or assigned a custom tint via {@link
+         *       CarIconStyle.Builder#setTint(CarColor)}.
+         *   <li>Use {@link CarIconStyle#ORIGINAL} for icons that must retain their original colors
+         *       without host-side tinting (e.g., user avatars, media album art, photos, or
+         *       un-tinted logos).
+         * </ul>
+         *
+         * @param icon The base icon or image graphic.
+         * @param style The explicit style contract dictating tinting behavior and optional
+         *     geometric shaping.
+         * @throws IllegalArgumentException if {@code icon}'s URI scheme is not supported
+         * @throws NullPointerException if {@code icon} or {@code style} is {@code null}
+         */
+        public Builder(@NonNull IconCompat icon, @NonNull CarIconStyle style) {
+            CarIconConstraints.UNCONSTRAINED.checkSupportedIcon(requireNonNull(icon));
+            this.mType = TYPE_CUSTOM;
+            this.mIcon = icon;
+            this.mStyle = requireNonNull(style);
+        }
+
+        /**
+         * Returns a {@link Builder} instance configured with the same data as the given {@link
+         * CarIcon} instance.
          *
          * @throws NullPointerException if {@code icon} is {@code null}
          */
@@ -513,8 +515,74 @@ public final class CarIcon {
             mStyle = carIcon.getStyle();
 
             if (carIcon.getStyle() == null && carIcon.getTint() != null) {
-                mStyle = new CarIconStyle.Builder().setTint(carIcon.getTint()).build();
+                mStyle =
+                        new CarIconStyle.Builder(CarIconStyle.TINTED)
+                                .setTint(carIcon.getTint())
+                                .build();
             }
+        }
+
+        /**
+         * Sets the tint of the icon to the given {@link CarColor}.
+         *
+         * <p>This tint overrides the tint set through {@link IconCompat#setTint(int)} in the
+         * backing {@link IconCompat} with a {@link CarColor} tint. The tint set through {@link
+         * IconCompat#setTint(int)} is not guaranteed to be applied if the {@link CarIcon} tint is
+         * not set.
+         *
+         * <p>The tint mode used to blend this color is {@link Mode#SRC_IN}.
+         *
+         * <p>Depending on contrast requirements, capabilities of the vehicle screens, or other
+         * factors, the color may be ignored by the host or overridden by the vehicle system.
+         *
+         * @throws NullPointerException if {@code tint} is {@code null}
+         * @see CarColor
+         * @see android.graphics.drawable.Drawable#setTintMode(Mode)
+         * @deprecated Use {@link CarIcon.Builder#setStyle(CarIconStyle)} and provide a tint via
+         *     {@link CarIconStyle.Builder#setTint(CarColor)}, or use {@link
+         *     CarIcon#createTintedIcon(IconCompat)} instead.
+         */
+        @Deprecated
+        public @NonNull Builder setTint(@NonNull CarColor tint) {
+            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(tint));
+
+            // Set the style property
+            if (mStyle == null) {
+                mStyle = new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(tint).build();
+            } else {
+                mStyle = new CarIconStyle.Builder(mStyle).setTint(tint).build();
+            }
+
+            return this;
+        }
+
+        /**
+         * Sets the style of the icon to the given {@link CarIconStyle}.
+         *
+         * <p>Select the appropriate style depending on the asset:
+         *
+         * <ul>
+         *   <li>Use {@link CarIconStyle#TINTED} for icons that should be automatically tinted by
+         *       the vehicle theme or assigned a custom tint via {@link
+         *       CarIconStyle.Builder#setTint(CarColor)}.
+         *   <li>Use {@link CarIconStyle#ORIGINAL} for icons that must retain their original colors
+         *       without host-side tinting (e.g., user avatars, media album art, photos, or
+         *       un-tinted logos).
+         * </ul>
+         *
+         * @param style The explicit style contract dictating tinting behavior and optional
+         *     geometric shaping.
+         */
+        @NonNull
+        public Builder setStyle(@NonNull CarIconStyle style) {
+            this.mStyle = requireNonNull(style);
+            return this;
+        }
+
+        /** Constructs the {@link CarIcon} defined by this builder. */
+        @NonNull
+        public CarIcon build() {
+            return new CarIcon(this);
         }
     }
 }

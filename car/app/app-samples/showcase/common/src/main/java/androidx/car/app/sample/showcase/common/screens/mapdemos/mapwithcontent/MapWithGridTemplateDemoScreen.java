@@ -17,9 +17,11 @@
 package androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent;
 
 
+import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -31,6 +33,7 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.sample.showcase.common.R;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -87,10 +90,15 @@ public class MapWithGridTemplateDemoScreen extends Screen {
         return builder.build();
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    @SuppressWarnings("deprecation")
     private GridItem createGridItem() {
+        int imageType = getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_9
+                ? GridItem.IMAGE_TYPE_SMALL
+                : GridItem.IMAGE_TYPE_ICON;
         return new GridItem.Builder()
                 .setImage(new CarIcon.Builder(IconCompat.createWithResource(getCarContext(),
-                        R.drawable.ic_fastfood_white_48dp)).build(), GridItem.IMAGE_TYPE_ICON)
+                        R.drawable.ic_fastfood_white_48dp)).build(), imageType)
                 .setTitle("Primary")
                 .setText("Secondary")
                 .setOnClickListener(() -> CarToast.makeText(

@@ -38,7 +38,7 @@ fun createCondensedItem(
     image: CarIcon? = null,
     @CondensedItem.CondensedItemImageType imageType: Int = CondensedItem.IMAGE_TYPE_LARGE,
     trailingImage: CarIcon? = null,
-    @CondensedItem.CondensedItemImageType trailingImageType: Int = CondensedItem.IMAGE_TYPE_ICON,
+    @CondensedItem.CondensedItemImageType trailingImageType: Int = CondensedItem.IMAGE_TYPE_SMALL,
     style: CondensedItemStyle? = null,
     progressBar: CarProgressBar? = null,
     isIndexable: Boolean = true,

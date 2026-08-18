@@ -94,7 +94,7 @@ public final class UserInteractionsDemoScreen extends Screen {
                         IconCompat.createWithResource(
                                 getCarContext(),
                                 R.drawable.ic_mic))
-                        .build(), Row.IMAGE_TYPE_ICON)
+                        .build(), Row.IMAGE_TYPE_SMALL)
                 .setOnClickListener(new VoiceInteraction(getCarContext())::voiceInteractionDemo)
                 .build();
     }
@@ -119,7 +119,7 @@ public final class UserInteractionsDemoScreen extends Screen {
                 .setImage(new CarIcon.Builder(
                         IconCompat.createWithResource(
                                 getCarContext(), R.drawable.baseline_task_24))
-                        .build(), Row.IMAGE_TYPE_ICON)
+                        .build(), Row.IMAGE_TYPE_SMALL)
                 .setOnClickListener(
                         () -> {
                             if (mStep < MAX_STEPS_ALLOWED) {
@@ -151,7 +151,7 @@ public final class UserInteractionsDemoScreen extends Screen {
                         IconCompat.createWithResource(
                                 getCarContext(),
                                 R.drawable.baseline_question_mark_24))
-                        .build(), Row.IMAGE_TYPE_ICON)
+                        .build(), Row.IMAGE_TYPE_SMALL)
                 .setOnClickListener(() -> getScreenManager().push(
                         new RequestPermissionMenuDemoScreen(getCarContext())))
                 .build();

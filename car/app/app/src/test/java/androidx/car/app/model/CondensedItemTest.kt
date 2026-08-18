@@ -56,7 +56,7 @@ class CondensedItemTest {
     fun setLeadingImage_invalidIcon_throws() {
         assertThrows(IllegalArgumentException::class.java) {
             val icon = CarIcon.Builder(IconCompat.createWithData(ByteArray(0), 0, 0)).build()
-            CondensedItem.Builder().setLeadingImage(icon, CondensedItem.IMAGE_TYPE_ICON)
+            CondensedItem.Builder().setLeadingImage(icon, CondensedItem.IMAGE_TYPE_SMALL)
         }
     }
 
@@ -93,10 +93,10 @@ class CondensedItemTest {
         val item =
             CondensedItem.Builder()
                 .setTitle("Title")
-                .setLeadingImage(icon, CondensedItem.IMAGE_TYPE_ICON)
+                .setLeadingImage(icon, CondensedItem.IMAGE_TYPE_MEDIUM)
                 .build()
         assertThat(item.leadingImage).isEqualTo(icon)
-        assertThat(item.leadingImageType).isEqualTo(CondensedItem.IMAGE_TYPE_ICON)
+        assertThat(item.leadingImageType).isEqualTo(CondensedItem.IMAGE_TYPE_MEDIUM)
     }
 
     @Test
@@ -153,14 +153,14 @@ class CondensedItemTest {
             CondensedItem.Builder()
                 .setTitle("Title")
                 .setText("Text")
-                .setLeadingImage(icon, CondensedItem.IMAGE_TYPE_ICON)
+                .setLeadingImage(icon, CondensedItem.IMAGE_TYPE_SMALL)
                 .setStyle(itemStyle)
                 .build()
         val item2 =
             CondensedItem.Builder()
                 .setTitle("Title")
                 .setText("Text")
-                .setLeadingImage(icon, CondensedItem.IMAGE_TYPE_ICON)
+                .setLeadingImage(icon, CondensedItem.IMAGE_TYPE_SMALL)
                 .setStyle(itemStyle)
                 .build()
         val item3 = CondensedItem.Builder().setTitle("Title").setText("Other Text").build()

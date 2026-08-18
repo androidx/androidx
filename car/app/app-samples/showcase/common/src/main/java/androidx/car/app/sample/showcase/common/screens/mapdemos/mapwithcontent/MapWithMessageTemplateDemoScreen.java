@@ -56,6 +56,8 @@ public class MapWithMessageTemplateDemoScreen extends Screen {
     @RequiresCarApi(7)
     @Override
     public @NonNull Template onGetTemplate() {
+        CarIconStyle carIconStyle =
+                new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(mIconTintColor).build();
 
         MessageTemplate messageTemplate = new MessageTemplate.Builder("Continue to Google "
                 + "Kirkland Urban WA 98101?")
@@ -66,7 +68,7 @@ public class MapWithMessageTemplateDemoScreen extends Screen {
                         IconCompat.createWithResource(
                                 getCarContext(),
                                 R.drawable.ic_commute_24px))
-                        .setStyle(new CarIconStyle.Builder().setTint(mIconTintColor).build())
+                        .setStyle(carIconStyle)
                         .build())
                 .addAction(new Action.Builder()
                         .setOnClickListener(() -> {

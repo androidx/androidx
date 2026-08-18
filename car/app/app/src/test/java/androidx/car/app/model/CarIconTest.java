@@ -82,8 +82,21 @@ public class CarIconTest {
     }
 
     @Test
-    public void build_withStyle_noTint() {
-        CarIconStyle style = new CarIconStyle.Builder().setShape(Shape.CORNER_FULL).build();
+    public void build_withTintedStyle_defaultTint() {
+        CarIconStyle style =
+                new CarIconStyle.Builder(CarIconStyle.TINTED).setShape(Shape.CORNER_FULL).build();
+        CarIcon carIcon = new CarIcon.Builder(mIcon).setStyle(style).build();
+
+        assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
+        assertThat(carIcon.getTint()).isEqualTo(DEFAULT);
+        assertThat(carIcon.getStyle()).isEqualTo(style);
+        assertThat(carIcon.getIcon()).isEqualTo(mIcon);
+    }
+
+    @Test
+    public void build_withOriginalStyle_noTint() {
+        CarIconStyle style =
+                new CarIconStyle.Builder(CarIconStyle.ORIGINAL).setShape(Shape.CORNER_FULL).build();
         CarIcon carIcon = new CarIcon.Builder(mIcon).setStyle(style).build();
 
         assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
@@ -93,10 +106,26 @@ public class CarIconTest {
     }
 
     @Test
+    public void build_constructorWithStyle() {
+        CarIconStyle style = new CarIconStyle.Builder(CarIconStyle.TINTED)
+                .setTint(BLUE)
+                .setShape(Shape.CORNER_FULL)
+                .build();
+        CarIcon carIcon = new CarIcon.Builder(mIcon, style).build();
+
+        assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
+        assertThat(carIcon.getTint()).isEqualTo(BLUE);
+        assertThat(carIcon.getStyle()).isEqualTo(style);
+        assertThat(carIcon.getIcon()).isEqualTo(mIcon);
+    }
+
+    @Test
     public void build_withStyle_withTint() {
         CarColor tint = BLUE;
-        CarIconStyle style = new CarIconStyle.Builder().setTint(tint).setShape(
-                Shape.CORNER_FULL).build();
+        CarIconStyle style = new CarIconStyle.Builder(CarIconStyle.TINTED)
+                .setTint(tint)
+                .setShape(Shape.CORNER_FULL)
+                .build();
         CarIcon carIcon = new CarIcon.Builder(mIcon).setStyle(style).build();
 
         assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
@@ -195,5 +224,31 @@ public class CarIconTest {
     @Test
     public void notEquals() {
         assertThat(new CarIcon.Builder(BACK).setTint(GREEN).build()).isNotEqualTo(BACK);
+    }
+
+    @Test
+    public void createTintedIcon_factoryMethod() {
+        CarIcon carIcon = CarIcon.createTintedIcon(mIcon);
+
+        assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
+        assertThat(carIcon.getIcon()).isEqualTo(mIcon);
+        assertThat(carIcon.getStyle()).isEqualTo(CarIconStyle.TINTED);
+    }
+
+    @Test
+    public void createOriginalIcon_factoryMethod() {
+        CarIcon carIcon = CarIcon.createOriginalIcon(mIcon);
+
+        assertThat(carIcon.getType()).isEqualTo(TYPE_CUSTOM);
+        assertThat(carIcon.getIcon()).isEqualTo(mIcon);
+        assertThat(carIcon.getStyle()).isEqualTo(CarIconStyle.ORIGINAL);
+    }
+
+    @Test
+    public void setTint_onOriginalStyle_updatesTint() {
+        CarIcon carIcon = new CarIcon.Builder(mIcon, CarIconStyle.ORIGINAL).setTint(GREEN).build();
+
+        assertThat(carIcon.getTint()).isEqualTo(GREEN);
+        assertThat(carIcon.getStyle().getTint()).isEqualTo(GREEN);
     }
 }
