@@ -26,6 +26,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureScope
 import androidx.camera.core.InteropConfigurableScope
 import androidx.camera.core.SessionConfig
+import androidx.camera.core.SessionConfigScope
 import androidx.camera.core.UseCase
 import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
@@ -54,7 +55,6 @@ import com.google.common.util.concurrent.ListenableFuture
  * @param block configuration block setting Camera2 options on [UseCaseCamera2Interop]
  * @return this builder
  */
-@JvmSynthetic
 public inline fun <B : UseCase.InteropConfigurable<B>> B.camera2Interop(
     crossinline block: UseCaseCamera2Interop.() -> Unit
 ): B {
@@ -90,16 +90,27 @@ public inline fun <B : UseCase.InteropConfigurable<B>> B.camera2Interop(
  * unexpected behavior.
  *
  * **Warning:** Callbacks configured via interop receive raw
- * [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking state-altering
- * methods on these raw objects (such as [android.hardware.camera2.CameraCaptureSession.close] or
- * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
- * management and may cause state desynchronization, stream interruption, or application crashes.
+ * [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking state-altering,
+ * lifecycle, or request-submitting methods on these raw objects bypasses CameraX pipeline
+ * management and causes state desynchronization, stream freezing, or crashes. Do not invoke:
+ * - Session lifecycle methods: [android.hardware.camera2.CameraCaptureSession.close],
+ *   [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+ *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]
+ * - Request submission methods:
+ *   [android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+ *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+ *   [android.hardware.camera2.CameraCaptureSession.capture], or
+ *   [android.hardware.camera2.CameraCaptureSession.captureBurst]
+ * - Surface / output configuration methods:
+ *   [android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+ *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+ *   [android.hardware.camera2.CameraCaptureSession.prepare], or
+ *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
  *
  * @sample androidx.camera.camera2.samples.imageCaptureBuilderCamera2InteropSample
  * @param block configuration block setting Camera2 options on [ImageCaptureCamera2Interop]
  * @return this builder
  */
-@JvmSynthetic
 public inline fun ImageCapture.Builder.camera2Interop(
     crossinline block: ImageCaptureCamera2Interop.() -> Unit
 ): ImageCapture.Builder {
@@ -129,7 +140,6 @@ public inline fun ImageCapture.Builder.camera2Interop(
  * @sample androidx.camera.camera2.samples.useCaseDslCamera2InteropSample
  * @param block configuration block setting Camera2 options on [UseCaseCamera2Interop]
  */
-@JvmSynthetic
 public inline fun <B : UseCase.InteropConfigurable<B>> InteropConfigurableScope<B>.camera2Interop(
     crossinline block: UseCaseCamera2Interop.() -> Unit
 ) {
@@ -165,15 +175,26 @@ public inline fun <B : UseCase.InteropConfigurable<B>> InteropConfigurableScope<
  * unexpected behavior.
  *
  * **Warning:** Callbacks configured via interop receive raw
- * [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking state-altering
- * methods on these raw objects (such as [android.hardware.camera2.CameraCaptureSession.close] or
- * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
- * management and may cause state desynchronization, stream interruption, or application crashes.
+ * [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking state-altering,
+ * lifecycle, or request-submitting methods on these raw objects bypasses CameraX pipeline
+ * management and causes state desynchronization, stream freezing, or crashes. Do not invoke:
+ * - Session lifecycle methods: [android.hardware.camera2.CameraCaptureSession.close],
+ *   [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+ *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]
+ * - Request submission methods:
+ *   [android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+ *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+ *   [android.hardware.camera2.CameraCaptureSession.capture], or
+ *   [android.hardware.camera2.CameraCaptureSession.captureBurst]
+ * - Surface / output configuration methods:
+ *   [android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+ *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+ *   [android.hardware.camera2.CameraCaptureSession.prepare], or
+ *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
  *
  * @sample androidx.camera.camera2.samples.imageCaptureDslCamera2InteropSample
  * @param block configuration block setting Camera2 options on [ImageCaptureCamera2Interop]
  */
-@JvmSynthetic
 public inline fun ImageCaptureScope.camera2Interop(
     crossinline block: ImageCaptureCamera2Interop.() -> Unit
 ) {
@@ -205,22 +226,51 @@ public inline fun ImageCaptureScope.camera2Interop(
  * from Camera2Interop will override, which may result in unexpected behavior.
  *
  * **Warning:** Callbacks configured via interop receive raw [android.hardware.camera2.CameraDevice]
- * and [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking state-altering
- * methods on these raw objects (such as [android.hardware.camera2.CameraCaptureSession.close],
- * [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
- * [android.hardware.camera2.CameraDevice.close]) bypasses CameraX pipeline management and may cause
- * state desynchronization, stream interruption, or application crashes.
+ * and [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking state-altering,
+ * lifecycle, or request-submitting methods on these raw objects bypasses CameraX pipeline
+ * management and causes state desynchronization, stream freezing, or crashes. Do not invoke:
+ * - On [android.hardware.camera2.CameraDevice]: [android.hardware.camera2.CameraDevice.close] or
+ *   session creation methods ([android.hardware.camera2.CameraDevice.createCaptureSession],
+ *   [android.hardware.camera2.CameraDevice.createCaptureSessionByOutputConfigurations],
+ *   [android.hardware.camera2.CameraDevice.createReprocessableCaptureSession],
+ *   [android.hardware.camera2.CameraDevice.createExtensionSession])
+ * - On [android.hardware.camera2.CameraCaptureSession]: lifecycle methods
+ *   ([android.hardware.camera2.CameraCaptureSession.close],
+ *   [android.hardware.camera2.CameraCaptureSession.abortCaptures],
+ *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]), request submission methods
+ *   ([android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+ *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+ *   [android.hardware.camera2.CameraCaptureSession.capture],
+ *   [android.hardware.camera2.CameraCaptureSession.captureBurst]), or surface configuration methods
+ *   ([android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+ *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+ *   [android.hardware.camera2.CameraCaptureSession.prepare],
+ *   [android.hardware.camera2.CameraCaptureSession.switchToOffline])
  *
  * @sample androidx.camera.camera2.samples.sessionConfigBuilderCamera2InteropSample
  * @sample androidx.camera.camera2.samples.sessionConfigDslCamera2InteropSample
  * @param block configuration block setting Camera2 options on [SessionConfigCamera2Interop]
  * @return this builder
  */
-@JvmSynthetic
 public inline fun SessionConfig.Builder.camera2Interop(
     crossinline block: SessionConfigCamera2Interop.() -> Unit
 ): SessionConfig.Builder {
     return this.setInterop(Camera2Interop.forSessionConfig { interop -> interop.block() })
+}
+
+/**
+ * Applies Camera2 options inside a [SessionConfigScope] DSL block.
+ *
+ * Configures Camera2 options on the underlying [SessionConfig.Builder] within a `sessionConfig {
+ * ... }` DSL block.
+ *
+ * @sample androidx.camera.camera2.samples.sessionConfigDslCamera2InteropSample
+ * @param block configuration block setting Camera2 options on [SessionConfigCamera2Interop]
+ */
+public inline fun SessionConfigScope.camera2Interop(
+    crossinline block: SessionConfigCamera2Interop.() -> Unit
+) {
+    this.builder.camera2Interop(block)
 }
 
 /**
@@ -251,10 +301,22 @@ public inline fun SessionConfig.Builder.camera2Interop(
  * routines and camera control APIs.
  *
  * **Warning:** Callbacks configured via interop receive raw
- * [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking state-altering
- * methods on these raw objects (such as [android.hardware.camera2.CameraCaptureSession.close] or
- * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
- * management and may cause state desynchronization, stream interruption, or application crashes.
+ * [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking state-altering,
+ * lifecycle, or request-submitting methods on these raw objects bypasses CameraX pipeline
+ * management and causes state desynchronization, stream freezing, or crashes. Do not invoke:
+ * - Session lifecycle methods: [android.hardware.camera2.CameraCaptureSession.close],
+ *   [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+ *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]
+ * - Request submission methods:
+ *   [android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+ *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+ *   [android.hardware.camera2.CameraCaptureSession.capture], or
+ *   [android.hardware.camera2.CameraCaptureSession.captureBurst]
+ * - Surface / output configuration methods:
+ *   [android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+ *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+ *   [android.hardware.camera2.CameraCaptureSession.prepare], or
+ *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
  *
  * @sample androidx.camera.camera2.samples.applyCamera2InteropAsyncSample
  * @param block configuration block setting Camera2 options on [CameraControlCamera2Interop]
@@ -263,7 +325,6 @@ public inline fun SessionConfig.Builder.camera2Interop(
  *   with [CameraControl.OperationCanceledException] if a newer configuration is applied before this
  *   operation takes effect or if the camera is closed. Cancelling the future is a no-op.
  */
-@JvmSynthetic
 public inline fun CameraControl.applyCamera2InteropAsync(
     crossinline block: CameraControlCamera2Interop.() -> Unit
 ): ListenableFuture<Void> {
@@ -303,17 +364,28 @@ public inline fun CameraControl.applyCamera2InteropAsync(
  * routines and camera control APIs.
  *
  * **Warning:** Callbacks configured via interop receive raw
- * [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking state-altering
- * methods on these raw objects (such as [android.hardware.camera2.CameraCaptureSession.close] or
- * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
- * management and may cause state desynchronization, stream interruption, or application crashes.
+ * [android.hardware.camera2.CameraCaptureSession] instances. Directly invoking state-altering,
+ * lifecycle, or request-submitting methods on these raw objects bypasses CameraX pipeline
+ * management and causes state desynchronization, stream freezing, or crashes. Do not invoke:
+ * - Session lifecycle methods: [android.hardware.camera2.CameraCaptureSession.close],
+ *   [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+ *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]
+ * - Request submission methods:
+ *   [android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+ *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+ *   [android.hardware.camera2.CameraCaptureSession.capture], or
+ *   [android.hardware.camera2.CameraCaptureSession.captureBurst]
+ * - Surface / output configuration methods:
+ *   [android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+ *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+ *   [android.hardware.camera2.CameraCaptureSession.prepare], or
+ *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
  *
  * @sample androidx.camera.camera2.samples.applyCamera2InteropSample
  * @param block configuration block setting Camera2 options on [CameraControlCamera2Interop]
  * @throws CameraControl.OperationCanceledException if a newer configuration is applied before this
  *   operation takes effect or if the camera is closed
  */
-@JvmSynthetic
 public suspend inline fun CameraControl.applyCamera2Interop(
     crossinline block: CameraControlCamera2Interop.() -> Unit
 ) {
@@ -325,7 +397,6 @@ public suspend inline fun CameraControl.applyCamera2Interop(
  *
  * @throws IllegalArgumentException if this [CameraInfo] does not contain Camera2 information
  */
-@get:JvmSynthetic
 public val CameraInfo.cameraId: String
     get() = Camera2Interop.getCameraId(this)
 
@@ -334,7 +405,6 @@ public val CameraInfo.cameraId: String
  *
  * @throws IllegalArgumentException if this [CameraInfo] does not contain Camera2 information
  */
-@get:JvmSynthetic
 public val CameraInfo.cameraCharacteristics: CameraCharacteristics
     get() = Camera2Interop.getCameraCharacteristics(this)
 
@@ -343,6 +413,5 @@ public val CameraInfo.cameraCharacteristics: CameraCharacteristics
  *
  * @return [CameraSelector] matching this camera ID
  */
-@JvmSynthetic
 public fun String.toCameraSelector(): CameraSelector =
     Camera2Interop.getCameraSelectorFromCameraId(this)

@@ -661,8 +661,6 @@ class Camera2InteropV2DslIntegrationTest {
         val supportedColorSpaces = profiles!!.getSupportedColorSpaces(ImageFormat.YUV_420_888)
         assumeTrue(supportedColorSpaces.contains(ColorSpace.Named.DISPLAY_P3))
 
-        val displayP3Ordinal = ColorSpace.Named.DISPLAY_P3.ordinal
-
         // Arrange
         val frameLatch = CountDownLatch(1)
         val capturedDataSpace = AtomicReference<Int>()
@@ -679,7 +677,7 @@ class Camera2InteropV2DslIntegrationTest {
 
         val sessionConfig =
             sessionConfig(listOf(preview, imageAnalysis)) {
-                camera2Interop { colorSpace = displayP3Ordinal }
+                camera2Interop { colorSpace = ColorSpace.Named.DISPLAY_P3 }
             }
 
         val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)

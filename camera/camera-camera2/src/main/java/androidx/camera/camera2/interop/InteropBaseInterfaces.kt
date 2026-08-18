@@ -16,10 +16,15 @@
 
 package androidx.camera.camera2.interop
 
+import android.graphics.ColorSpace
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.DynamicRangeProfiles
+import android.hardware.camera2.params.OutputConfiguration
+import android.hardware.camera2.params.SessionConfiguration
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.impl.Camera2ImplConfig
@@ -51,23 +56,14 @@ public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
      * @param cameraId physical camera ID
      * @return this [OutputConfigurationInterop] instance
      */
-    @RequiresApi(28) public fun setPhysicalCameraId(cameraId: String): T
+    @RequiresApi(28) public fun setPhysicalCameraId(cameraId: String?): T
 
     /**
-     * Sets the physical camera ID.
+     * Sets or gets the physical camera ID.
      *
      * @see setPhysicalCameraId
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    @get:RequiresApi(28)
-    @set:RequiresApi(28)
-    public var physicalCameraId: String
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setPhysicalCameraId(value)
-        }
+    @get:RequiresApi(28) @set:RequiresApi(28) public var physicalCameraId: String?
 
     /**
      * Sets the stream use case.
@@ -78,20 +74,11 @@ public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
     @RequiresApi(33) public fun setStreamUseCase(streamUseCase: Long): T
 
     /**
-     * Sets the stream use case.
+     * Sets or gets the stream use case.
      *
      * @see setStreamUseCase
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    @get:RequiresApi(33)
-    @set:RequiresApi(33)
-    public var streamUseCase: Long
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setStreamUseCase(value)
-        }
+    @get:RequiresApi(33) @set:RequiresApi(33) public var streamUseCase: Long
 
     /**
      * Sets the mirror mode.
@@ -102,20 +89,11 @@ public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
     @RequiresApi(33) public fun setMirrorMode(mirrorMode: Int): T
 
     /**
-     * Sets the mirror mode.
+     * Sets or gets the mirror mode.
      *
      * @see setMirrorMode
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    @get:RequiresApi(33)
-    @set:RequiresApi(33)
-    public var mirrorMode: Int
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setMirrorMode(value)
-        }
+    @get:RequiresApi(33) @set:RequiresApi(33) public var mirrorMode: Int
 
     /**
      * Sets the timestamp base.
@@ -126,20 +104,11 @@ public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
     @RequiresApi(33) public fun setTimestampBase(timestampBase: Int): T
 
     /**
-     * Sets the timestamp base.
+     * Sets or gets the timestamp base.
      *
      * @see setTimestampBase
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    @get:RequiresApi(33)
-    @set:RequiresApi(33)
-    public var timestampBase: Int
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setTimestampBase(value)
-        }
+    @get:RequiresApi(33) @set:RequiresApi(33) public var timestampBase: Int
 
     /**
      * Sets the dynamic range profile.
@@ -150,20 +119,11 @@ public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
     @RequiresApi(33) public fun setDynamicRangeProfile(dynamicRangeProfile: Long): T
 
     /**
-     * Sets the dynamic range profile.
+     * Sets or gets the dynamic range profile.
      *
      * @see setDynamicRangeProfile
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    @get:RequiresApi(33)
-    @set:RequiresApi(33)
-    public var dynamicRangeProfile: Long
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setDynamicRangeProfile(value)
-        }
+    @get:RequiresApi(33) @set:RequiresApi(33) public var dynamicRangeProfile: Long
 
     /**
      * Sets the surface group ID.
@@ -171,23 +131,30 @@ public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
      * @param groupId surface group ID
      * @return this [OutputConfigurationInterop] instance
      */
-    @RequiresApi(24) public fun setSurfaceGroupId(groupId: Int): T
+    public fun setSurfaceGroupId(groupId: Int): T
 
     /**
-     * Sets the surface group ID.
+     * Sets or gets the surface group ID.
      *
      * @see setSurfaceGroupId
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    @get:RequiresApi(24)
-    @set:RequiresApi(24)
     public var surfaceGroupId: Int
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setSurfaceGroupId(value)
-        }
+
+    /**
+     * Adds a sensor pixel mode that this output configuration will be used in.
+     *
+     * @param sensorPixelMode sensor pixel mode to add
+     * @return this [OutputConfigurationInterop] instance
+     * @see android.hardware.camera2.params.OutputConfiguration.addSensorPixelModeUsed
+     */
+    @RequiresApi(31) public fun addSensorPixelModeUsed(sensorPixelMode: Int): T
+
+    /**
+     * Sets or gets the sensor pixel modes that this output configuration will be used in.
+     *
+     * @see addSensorPixelModeUsed
+     */
+    @get:RequiresApi(31) @set:RequiresApi(31) public var sensorPixelModesUsed: Set<Int>
 }
 
 /** Configures Camera2 [android.hardware.camera2.CameraCaptureSession] options. */
@@ -202,7 +169,6 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
     public fun <V> setCaptureRequestOption(key: CaptureRequest.Key<V>, value: V): T
 
     /** Helper target property supporting `captureRequest[key] = value` indexing operator syntax. */
-    @get:JvmSynthetic
     public val captureRequest: CaptureRequestOptionTarget
         get() = CaptureRequestOptionTarget(this)
 
@@ -231,27 +197,32 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
     public fun setRepeatingCaptureRequestTemplate(templateType: Int): T
 
     /**
-     * Sets the repeating capture request template type.
+     * Sets or gets the repeating capture request template type.
      *
      * @see setRepeatingCaptureRequestTemplate
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
     public var repeatingCaptureRequestTemplate: Int
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setRepeatingCaptureRequestTemplate(value)
-        }
 
     /**
      * Sets the callback to receive repeating capture updates.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
-     * instances. Calling state-altering methods on the session (such as
-     * [android.hardware.camera2.CameraCaptureSession.close] or
-     * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
-     * management and may cause state desynchronization or application crashes.
+     * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
+     * these raw objects bypasses CameraX pipeline management and causes state desynchronization,
+     * stream freezing, or crashes. Do not invoke:
+     * - Session lifecycle methods: [android.hardware.camera2.CameraCaptureSession.close],
+     *   [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+     *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]
+     * - Request submission methods:
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+     *   [android.hardware.camera2.CameraCaptureSession.capture], or
+     *   [android.hardware.camera2.CameraCaptureSession.captureBurst]
+     * - Surface / output configuration methods:
+     *   [android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+     *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+     *   [android.hardware.camera2.CameraCaptureSession.prepare], or
+     *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
      *
      * @param executor executor to run the callback on
      * @param callback repeating capture callback
@@ -266,10 +237,22 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
      * Sets the callback to receive repeating capture updates on a direct executor.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
-     * instances. Calling state-altering methods on the session (such as
-     * [android.hardware.camera2.CameraCaptureSession.close] or
-     * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
-     * management and may cause state desynchronization or application crashes.
+     * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
+     * these raw objects bypasses CameraX pipeline management and causes state desynchronization,
+     * stream freezing, or crashes. Do not invoke:
+     * - Session lifecycle methods: [android.hardware.camera2.CameraCaptureSession.close],
+     *   [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+     *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]
+     * - Request submission methods:
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+     *   [android.hardware.camera2.CameraCaptureSession.capture], or
+     *   [android.hardware.camera2.CameraCaptureSession.captureBurst]
+     * - Surface / output configuration methods:
+     *   [android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+     *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+     *   [android.hardware.camera2.CameraCaptureSession.prepare], or
+     *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
      *
      * @param callback repeating capture callback
      * @return this [CameraCaptureSessionInterop] instance
@@ -278,18 +261,11 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
         setRepeatingCaptureCallback({ it.run() }, callback)
 
     /**
-     * Sets the callback to receive repeating capture updates on a direct executor.
+     * Sets or gets the callback to receive repeating capture updates on a direct executor.
      *
      * @see setRepeatingCaptureCallback
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    public var repeatingCaptureCallback: CameraCaptureSession.CaptureCallback
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setRepeatingCaptureCallback(value)
-        }
+    public var repeatingCaptureCallback: CameraCaptureSession.CaptureCallback?
 }
 
 /**
@@ -318,41 +294,39 @@ public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
      * Helper target property supporting `stillCaptureRequest[key] = value` indexing operator
      * syntax.
      */
-    @get:JvmSynthetic
     public val stillCaptureRequest: StillCaptureRequestOptionTarget
         get() = StillCaptureRequestOptionTarget(this)
 
-    /**
-     * Sets the template type for still capture requests.
-     *
-     * @param templateType template type (e.g.,
-     *   [android.hardware.camera2.CameraDevice.TEMPLATE_STILL_CAPTURE])
-     * @return this [StillCaptureInterop] instance
-     */
+    /** Sets the template type for still capture requests. */
     public fun setStillCaptureRequestTemplateType(templateType: Int): T
 
     /**
-     * Sets the template type for still capture requests.
+     * Sets or gets the template type for still capture requests.
      *
      * @see setStillCaptureRequestTemplateType
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
     public var stillCaptureRequestTemplateType: Int
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setStillCaptureRequestTemplateType(value)
-        }
 
     /**
      * Sets the callback to receive still capture updates.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
-     * instances. Calling state-altering methods on the session (such as
-     * [android.hardware.camera2.CameraCaptureSession.close] or
-     * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
-     * management and may cause state desynchronization or application crashes.
+     * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
+     * these raw objects bypasses CameraX pipeline management and causes state desynchronization,
+     * stream freezing, or crashes. Do not invoke:
+     * - Session lifecycle methods: [android.hardware.camera2.CameraCaptureSession.close],
+     *   [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+     *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]
+     * - Request submission methods:
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+     *   [android.hardware.camera2.CameraCaptureSession.capture], or
+     *   [android.hardware.camera2.CameraCaptureSession.captureBurst]
+     * - Surface / output configuration methods:
+     *   [android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+     *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+     *   [android.hardware.camera2.CameraCaptureSession.prepare], or
+     *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
      *
      * @param executor executor to run the callback on
      * @param callback still capture callback
@@ -367,10 +341,22 @@ public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
      * Sets the callback to receive still capture updates on a direct executor.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
-     * instances. Calling state-altering methods on the session (such as
-     * [android.hardware.camera2.CameraCaptureSession.close] or
-     * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
-     * management and may cause state desynchronization or application crashes.
+     * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
+     * these raw objects bypasses CameraX pipeline management and causes state desynchronization,
+     * stream freezing, or crashes. Do not invoke:
+     * - Session lifecycle methods: [android.hardware.camera2.CameraCaptureSession.close],
+     *   [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+     *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]
+     * - Request submission methods:
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+     *   [android.hardware.camera2.CameraCaptureSession.capture], or
+     *   [android.hardware.camera2.CameraCaptureSession.captureBurst]
+     * - Surface / output configuration methods:
+     *   [android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+     *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+     *   [android.hardware.camera2.CameraCaptureSession.prepare], or
+     *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
      *
      * @param callback still capture callback
      * @return this [StillCaptureInterop] instance
@@ -379,18 +365,11 @@ public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
         setStillCaptureCallback({ it.run() }, callback)
 
     /**
-     * Sets the callback to receive still capture updates on a direct executor.
+     * Sets or gets the callback to receive still capture updates on a direct executor.
      *
      * @see setStillCaptureCallback
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    public var stillCaptureCallback: CameraCaptureSession.CaptureCallback
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setStillCaptureCallback(value)
-        }
+    public var stillCaptureCallback: CameraCaptureSession.CaptureCallback?
 }
 
 /** Configures Camera2 [android.hardware.camera2.params.SessionConfiguration] options. */
@@ -407,67 +386,50 @@ public interface SessionConfigurationInterop<T : SessionConfigurationInterop<T>>
     /**
      * Helper target property supporting `sessionParameter[key] = value` indexing operator syntax.
      */
-    @get:JvmSynthetic
     @get:RequiresApi(28)
     public val sessionParameter: SessionParameterTarget
         get() = SessionParameterTarget(this)
 
-    /**
-     * Sets the operating mode session type.
-     *
-     * @param sessionType session type
-     * @return this [SessionConfigurationInterop] instance
-     */
+    /** Sets the operating mode session type. */
     @RequiresApi(28) public fun setSessionType(sessionType: Int): T
 
     /**
-     * Sets the operating mode session type.
+     * Sets or gets the operating mode session type.
      *
      * @see setSessionType
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    @get:RequiresApi(28)
-    @set:RequiresApi(28)
-    public var sessionType: Int
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setSessionType(value)
-        }
+    @get:RequiresApi(28) @set:RequiresApi(28) public var sessionType: Int
+
+    /** Sets the session color space. */
+    @RequiresApi(34) public fun setColorSpace(colorSpace: ColorSpace.Named): T
 
     /**
-     * Sets the session color space.
-     *
-     * @param colorSpace color space
-     * @return this [SessionConfigurationInterop] instance
-     */
-    @RequiresApi(34) public fun setColorSpace(colorSpace: Int): T
-
-    /**
-     * Sets the session color space.
+     * Sets or gets the session color space.
      *
      * @see setColorSpace
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    @get:RequiresApi(34)
-    @set:RequiresApi(34)
-    public var colorSpace: Int
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setColorSpace(value)
-        }
+    @get:RequiresApi(34) @set:RequiresApi(34) public var colorSpace: ColorSpace.Named?
 
     /**
      * Sets the callback to receive session state updates.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
-     * instances. Calling state-altering methods on the session (such as
-     * [android.hardware.camera2.CameraCaptureSession.close] or
-     * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
-     * management and may cause state desynchronization or application crashes.
+     * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
+     * these raw objects bypasses CameraX pipeline management and causes state desynchronization,
+     * stream freezing, or crashes. Do not invoke:
+     * - Session lifecycle methods: [android.hardware.camera2.CameraCaptureSession.close],
+     *   [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+     *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]
+     * - Request submission methods:
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+     *   [android.hardware.camera2.CameraCaptureSession.capture], or
+     *   [android.hardware.camera2.CameraCaptureSession.captureBurst]
+     * - Surface / output configuration methods:
+     *   [android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+     *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+     *   [android.hardware.camera2.CameraCaptureSession.prepare], or
+     *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
      *
      * @param executor executor to run the callback on
      * @param callback session state callback
@@ -482,10 +444,22 @@ public interface SessionConfigurationInterop<T : SessionConfigurationInterop<T>>
      * Sets the callback to receive session state updates on a direct executor.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
-     * instances. Calling state-altering methods on the session (such as
-     * [android.hardware.camera2.CameraCaptureSession.close] or
-     * [android.hardware.camera2.CameraCaptureSession.abortCaptures]) bypasses CameraX pipeline
-     * management and may cause state desynchronization or application crashes.
+     * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
+     * these raw objects bypasses CameraX pipeline management and causes state desynchronization,
+     * stream freezing, or crashes. Do not invoke:
+     * - Session lifecycle methods: [android.hardware.camera2.CameraCaptureSession.close],
+     *   [android.hardware.camera2.CameraCaptureSession.abortCaptures], or
+     *   [android.hardware.camera2.CameraCaptureSession.stopRepeating]
+     * - Request submission methods:
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingRequest],
+     *   [android.hardware.camera2.CameraCaptureSession.setRepeatingBurst],
+     *   [android.hardware.camera2.CameraCaptureSession.capture], or
+     *   [android.hardware.camera2.CameraCaptureSession.captureBurst]
+     * - Surface / output configuration methods:
+     *   [android.hardware.camera2.CameraCaptureSession.updateOutputConfiguration],
+     *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
+     *   [android.hardware.camera2.CameraCaptureSession.prepare], or
+     *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
      *
      * @param callback session state callback
      * @return this [SessionConfigurationInterop] instance
@@ -494,18 +468,11 @@ public interface SessionConfigurationInterop<T : SessionConfigurationInterop<T>>
         setSessionStateCallback({ it.run() }, callback)
 
     /**
-     * Sets the callback to receive session state updates on a direct executor.
+     * Sets or gets the callback to receive session state updates on a direct executor.
      *
      * @see setSessionStateCallback
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    public var sessionStateCallback: CameraCaptureSession.StateCallback
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setSessionStateCallback(value)
-        }
+    public var sessionStateCallback: CameraCaptureSession.StateCallback?
 }
 
 /** Configures Camera2 [android.hardware.camera2.CameraDevice] options. */
@@ -514,8 +481,14 @@ public interface CameraDeviceInterop<T : CameraDeviceInterop<T>> {
      * Sets the callback to receive camera device state updates.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraDevice] instances.
-     * Calling [android.hardware.camera2.CameraDevice.close] directly on the device bypasses CameraX
-     * pipeline management and may cause state desynchronization or application crashes.
+     * Directly invoking state-altering, lifecycle, or session-creation methods on these raw objects
+     * bypasses CameraX pipeline management and causes state desynchronization, stream interruption,
+     * or crashes. Do not invoke:
+     * - [android.hardware.camera2.CameraDevice.close]
+     * - Session creation methods: [android.hardware.camera2.CameraDevice.createCaptureSession],
+     *   [android.hardware.camera2.CameraDevice.createCaptureSessionByOutputConfigurations],
+     *   [android.hardware.camera2.CameraDevice.createReprocessableCaptureSession], or
+     *   [android.hardware.camera2.CameraDevice.createExtensionSession]
      *
      * @param executor executor to run the callback on
      * @param callback device state callback
@@ -527,8 +500,14 @@ public interface CameraDeviceInterop<T : CameraDeviceInterop<T>> {
      * Sets the callback to receive camera device state updates on a direct executor.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraDevice] instances.
-     * Calling [android.hardware.camera2.CameraDevice.close] directly on the device bypasses CameraX
-     * pipeline management and may cause state desynchronization or application crashes.
+     * Directly invoking state-altering, lifecycle, or session-creation methods on these raw objects
+     * bypasses CameraX pipeline management and causes state desynchronization, stream interruption,
+     * or crashes. Do not invoke:
+     * - [android.hardware.camera2.CameraDevice.close]
+     * - Session creation methods: [android.hardware.camera2.CameraDevice.createCaptureSession],
+     *   [android.hardware.camera2.CameraDevice.createCaptureSessionByOutputConfigurations],
+     *   [android.hardware.camera2.CameraDevice.createReprocessableCaptureSession], or
+     *   [android.hardware.camera2.CameraDevice.createExtensionSession]
      *
      * @param callback device state callback
      * @return this [CameraDeviceInterop] instance
@@ -537,18 +516,11 @@ public interface CameraDeviceInterop<T : CameraDeviceInterop<T>> {
         setDeviceStateCallback({ it.run() }, callback)
 
     /**
-     * Sets the callback to receive camera device state updates on a direct executor.
+     * Sets or gets the callback to receive camera device state updates on a direct executor.
      *
      * @see setDeviceStateCallback
      */
-    @get:JvmSynthetic
-    @get:Deprecated("Write-only", level = DeprecationLevel.ERROR)
-    @set:JvmSynthetic
-    public var deviceStateCallback: CameraDevice.StateCallback
-        get() = throw UnsupportedOperationException()
-        set(value) {
-            setDeviceStateCallback(value)
-        }
+    public var deviceStateCallback: CameraDevice.StateCallback?
 }
 
 // =========================================================================================
@@ -560,9 +532,88 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
     OutputConfigurationInterop<T> {
     val mutableConfig: MutableConfig
 
+    @get:RequiresApi(28)
+    @set:RequiresApi(28)
+    override var physicalCameraId: String?
+        get() =
+            mutableConfig.retrieveOption(Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION, null)
+        set(value) {
+            setPhysicalCameraId(value)
+        }
+
+    @get:RequiresApi(33)
+    @set:RequiresApi(33)
+    override var streamUseCase: Long
+        get() =
+            mutableConfig.retrieveOption(
+                Camera2ImplConfig.STREAM_USE_CASE_OPTION,
+                CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
+            )!!
+        set(value) {
+            setStreamUseCase(value)
+        }
+
+    @get:RequiresApi(33)
+    @set:RequiresApi(33)
+    override var mirrorMode: Int
+        get() =
+            mutableConfig.retrieveOption(
+                Camera2ImplConfig.SESSION_MIRROR_MODE_OPTION,
+                OutputConfiguration.MIRROR_MODE_AUTO,
+            )!!
+        set(value) {
+            setMirrorMode(value)
+        }
+
+    @get:RequiresApi(33)
+    @set:RequiresApi(33)
+    override var timestampBase: Int
+        get() =
+            mutableConfig.retrieveOption(
+                Camera2ImplConfig.TIMESTAMP_BASE_OPTION,
+                OutputConfiguration.TIMESTAMP_BASE_DEFAULT,
+            )!!
+        set(value) {
+            setTimestampBase(value)
+        }
+
+    @get:RequiresApi(33)
+    @set:RequiresApi(33)
+    override var dynamicRangeProfile: Long
+        get() =
+            mutableConfig.retrieveOption(
+                Camera2ImplConfig.DYNAMIC_RANGE_PROFILE_OPTION,
+                DynamicRangeProfiles.STANDARD,
+            )!!
+        set(value) {
+            setDynamicRangeProfile(value)
+        }
+
+    override var surfaceGroupId: Int
+        get() =
+            mutableConfig.retrieveOption(
+                Camera2ImplConfig.SURFACE_GROUP_ID_OPTION,
+                OutputConfiguration.SURFACE_GROUP_ID_NONE,
+            )!!
+        set(value) {
+            setSurfaceGroupId(value)
+        }
+
+    @get:RequiresApi(31)
+    @set:RequiresApi(31)
+    override var sensorPixelModesUsed: Set<Int>
+        get() =
+            mutableConfig.retrieveOption(
+                Camera2ImplConfig.SENSOR_PIXEL_MODES_USED_OPTION,
+                emptySet(),
+            )!!
+        set(value) {
+            mutableConfig.insertOption(Camera2ImplConfig.SENSOR_PIXEL_MODES_USED_OPTION, value)
+        }
+
     @RequiresApi(28)
     @Suppress("UNCHECKED_CAST")
-    override fun setPhysicalCameraId(cameraId: String): T {
+    override fun setPhysicalCameraId(cameraId: String?): T {
         mutableConfig.insertOption(Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION, cameraId)
         return this as T
     }
@@ -598,10 +649,24 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
         return this as T
     }
 
-    @RequiresApi(24)
     @Suppress("UNCHECKED_CAST")
     override fun setSurfaceGroupId(groupId: Int): T {
         mutableConfig.insertOption(Camera2ImplConfig.SURFACE_GROUP_ID_OPTION, groupId)
+        return this as T
+    }
+
+    @RequiresApi(31)
+    @Suppress("UNCHECKED_CAST")
+    override fun addSensorPixelModeUsed(sensorPixelMode: Int): T {
+        val current =
+            mutableConfig.retrieveOption(
+                Camera2ImplConfig.SENSOR_PIXEL_MODES_USED_OPTION,
+                emptySet(),
+            )!!
+        mutableConfig.insertOption(
+            Camera2ImplConfig.SENSOR_PIXEL_MODES_USED_OPTION,
+            current + sensorPixelMode,
+        )
         return this as T
     }
 }
@@ -610,6 +675,33 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
 internal interface CameraCaptureSessionInteropDelegate<T : CameraCaptureSessionInterop<T>> :
     CameraCaptureSessionInterop<T> {
     val mutableConfig: MutableConfig
+
+    override var repeatingCaptureRequestTemplate: Int
+        get() =
+            mutableConfig.retrieveOption(
+                Camera2ImplConfig.TEMPLATE_TYPE_OPTION,
+                CameraDevice.TEMPLATE_PREVIEW,
+            )!!
+        set(value) {
+            setRepeatingCaptureRequestTemplate(value)
+        }
+
+    override var repeatingCaptureCallback: CameraCaptureSession.CaptureCallback?
+        get() =
+            (mutableConfig.retrieveOption(
+                    Camera2ImplConfig.SESSION_REPEATING_CAPTURE_CALLBACK_OPTION,
+                    null,
+                ) as? CaptureCallbackExecutorWrapper)
+                ?.callback
+        set(value) {
+            if (value != null) {
+                setRepeatingCaptureCallback(value)
+            } else {
+                mutableConfig.removeOption(
+                    Camera2ImplConfig.SESSION_REPEATING_CAPTURE_CALLBACK_OPTION
+                )
+            }
+        }
 
     @Suppress("UNCHECKED_CAST")
     override fun <V> setCaptureRequestOption(key: CaptureRequest.Key<V>, value: V): T {
@@ -662,6 +754,29 @@ internal interface StillCaptureInteropDelegate<T : StillCaptureInterop<T>> :
     StillCaptureInterop<T> {
     val mutableConfig: MutableConfig
 
+    override var stillCaptureRequestTemplateType: Int
+        get() =
+            mutableConfig.retrieveOption(
+                Camera2ImplConfig.TEMPLATE_TYPE_OPTION,
+                CameraDevice.TEMPLATE_STILL_CAPTURE,
+            )!!
+        set(value) {
+            setStillCaptureRequestTemplateType(value)
+        }
+
+    override var stillCaptureCallback: CameraCaptureSession.CaptureCallback?
+        get() =
+            (mutableConfig.retrieveOption(Camera2ImplConfig.STILL_CAPTURE_CALLBACK_OPTION, null)
+                    as? CaptureCallbackExecutorWrapper)
+                ?.callback
+        set(value) {
+            if (value != null) {
+                setStillCaptureCallback(value)
+            } else {
+                mutableConfig.removeOption(Camera2ImplConfig.STILL_CAPTURE_CALLBACK_OPTION)
+            }
+        }
+
     @Suppress("UNCHECKED_CAST")
     override fun <V> setStillCaptureRequestOption(key: CaptureRequest.Key<V>, value: V): T {
         val stillOpt = key.createStillCaptureRequestOption()
@@ -691,6 +806,51 @@ internal interface SessionConfigurationInteropDelegate<T : SessionConfigurationI
     SessionConfigurationInterop<T> {
     val mutableConfig: MutableConfig
 
+    @get:RequiresApi(28)
+    @set:RequiresApi(28)
+    override var sessionType: Int
+        get() =
+            mutableConfig.retrieveOption(
+                Camera2ImplConfig.SESSION_TYPE_OPTION,
+                SessionConfiguration.SESSION_REGULAR,
+            )!!
+        set(value) {
+            setSessionType(value)
+        }
+
+    @get:RequiresApi(34)
+    @set:RequiresApi(34)
+    override var colorSpace: ColorSpace.Named?
+        get() {
+            val ordinal =
+                mutableConfig.retrieveOption(Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION, -1) ?: -1
+            return if (ordinal in ColorSpace.Named.values().indices) {
+                ColorSpace.Named.values()[ordinal]
+            } else {
+                null
+            }
+        }
+        set(value) {
+            if (value != null) {
+                setColorSpace(value)
+            } else {
+                mutableConfig.removeOption(Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION)
+            }
+        }
+
+    override var sessionStateCallback: CameraCaptureSession.StateCallback?
+        get() =
+            (mutableConfig.retrieveOption(Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION, null)
+                    as? SessionStateCallbackExecutorWrapper)
+                ?.callback
+        set(value) {
+            if (value != null) {
+                setSessionStateCallback(value)
+            } else {
+                mutableConfig.removeOption(Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION)
+            }
+        }
+
     @RequiresApi(28)
     @Suppress("UNCHECKED_CAST")
     override fun <V> setSessionParameter(key: CaptureRequest.Key<V>, value: V): T {
@@ -708,8 +868,8 @@ internal interface SessionConfigurationInteropDelegate<T : SessionConfigurationI
 
     @RequiresApi(34)
     @Suppress("UNCHECKED_CAST")
-    override fun setColorSpace(colorSpace: Int): T {
-        mutableConfig.insertOption(Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION, colorSpace)
+    override fun setColorSpace(colorSpace: ColorSpace.Named): T {
+        mutableConfig.insertOption(Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION, colorSpace.ordinal)
         return this as T
     }
 
@@ -729,6 +889,19 @@ internal interface CameraDeviceInteropDelegate<T : CameraDeviceInterop<T>> :
     CameraDeviceInterop<T> {
     val mutableConfig: MutableConfig
 
+    override var deviceStateCallback: CameraDevice.StateCallback?
+        get() =
+            (mutableConfig.retrieveOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION, null)
+                    as? DeviceStateCallbackExecutorWrapper)
+                ?.callback
+        set(value) {
+            if (value != null) {
+                setDeviceStateCallback(value)
+            } else {
+                mutableConfig.removeOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION)
+            }
+        }
+
     @Suppress("UNCHECKED_CAST")
     override fun setDeviceStateCallback(
         executor: Executor,
@@ -747,7 +920,7 @@ internal interface CameraDeviceInteropDelegate<T : CameraDeviceInterop<T>> :
 /** Wraps a [CameraDevice.StateCallback] to run callbacks on a specified [Executor]. */
 internal class DeviceStateCallbackExecutorWrapper(
     internal val executor: Executor,
-    private val callback: CameraDevice.StateCallback,
+    internal val callback: CameraDevice.StateCallback,
 ) : CameraDevice.StateCallback() {
     override fun onOpened(camera: CameraDevice) {
         executor.execute { callback.onOpened(camera) }
@@ -769,7 +942,7 @@ internal class DeviceStateCallbackExecutorWrapper(
 /** Wraps a [CameraCaptureSession.StateCallback] to run callbacks on a specified [Executor]. */
 internal class SessionStateCallbackExecutorWrapper(
     internal val executor: Executor,
-    private val callback: CameraCaptureSession.StateCallback,
+    internal val callback: CameraCaptureSession.StateCallback,
 ) : CameraCaptureSession.StateCallback() {
     override fun onConfigured(session: CameraCaptureSession) {
         executor.execute { callback.onConfigured(session) }
@@ -804,7 +977,7 @@ internal class SessionStateCallbackExecutorWrapper(
 /** Wraps a [CameraCaptureSession.CaptureCallback] to run callbacks on a specified [Executor]. */
 internal class CaptureCallbackExecutorWrapper(
     internal val executor: Executor,
-    private val callback: CameraCaptureSession.CaptureCallback,
+    internal val callback: CameraCaptureSession.CaptureCallback,
 ) : CameraCaptureSession.CaptureCallback() {
     override fun onCaptureStarted(
         session: CameraCaptureSession,
@@ -851,7 +1024,6 @@ internal class CaptureCallbackExecutorWrapper(
         executor.execute { callback.onCaptureSequenceAborted(session, sequenceId) }
     }
 
-    @RequiresApi(24)
     override fun onCaptureBufferLost(
         session: CameraCaptureSession,
         request: CaptureRequest,
