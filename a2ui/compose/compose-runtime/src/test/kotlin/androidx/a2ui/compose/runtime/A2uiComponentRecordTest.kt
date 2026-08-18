@@ -18,12 +18,12 @@ package androidx.a2ui.compose.runtime
 
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.a2ui.model.protocol.A2uiException.A2uiValidationException
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(JUnit4::class)
 class A2uiComponentRecordTest {
 
     @Test
