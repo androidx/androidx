@@ -32,6 +32,7 @@ import androidx.compose.ui.util.fastForEach
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalFoundationApi::class)
+@Suppress("DEPRECATION")
 internal class LazyGridCacheWindowPrefetchStrategy(
     override val cacheWindow: LazyLayoutCacheWindow
 ) : LazyGridPrefetchStrategy, CacheWindowLogic by CacheWindowLogic(cacheWindow) {
@@ -69,6 +70,7 @@ internal class LazyGridCacheWindowPrefetchStrategy(
 }
 
 @OptIn(ExperimentalFoundationApi::class)
+@Suppress("DEPRECATION")
 private class LazyGridCacheWindowScope : CacheWindowScope {
     lateinit var layoutInfo: LazyGridLayoutInfo
     lateinit var prefetchScope: LazyGridPrefetchScope

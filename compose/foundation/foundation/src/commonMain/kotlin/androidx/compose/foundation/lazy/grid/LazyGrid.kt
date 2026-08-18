@@ -100,6 +100,7 @@ internal fun LazyGrid(
     val graphicsContext = LocalGraphicsContext.current
     val stickyHeadersEnabled = !LocalScrollCaptureInProgress.current
 
+    @Suppress("DEPRECATION")
     val prefetchStrategy =
         remember(state, cacheWindow) {
             state.legacyPrefetchStrategy
@@ -230,7 +231,7 @@ private fun rememberLazyGridMeasurePolicy(
     /** Prefetch state used in our layout */
     prefetchState: LazyLayoutPrefetchState?,
     /** Prefetch strategy used in our layout */
-    prefetchStrategy: LazyGridPrefetchStrategy?,
+    @Suppress("DEPRECATION") prefetchStrategy: LazyGridPrefetchStrategy?,
 ) =
     remember(
         state,

@@ -99,6 +99,7 @@ public fun rememberLazyGridState(
 @Deprecated(
     """Providing `LazyLayoutCacheWindow` via the `Lazy[Orientation]Grid` composable should be preferred over using `LazyGridPrefetchStrategy` here."""
 )
+@Suppress("DEPRECATION")
 @Composable
 public fun rememberLazyGridState(
     initialFirstVisibleItemIndex: Int = 0,
@@ -106,7 +107,6 @@ public fun rememberLazyGridState(
     prefetchStrategy: LazyGridPrefetchStrategy = remember { LazyGridPrefetchStrategy() },
 ): LazyGridState {
     return rememberSaveable(prefetchStrategy, saver = LazyGridState.saver(prefetchStrategy)) {
-        @Suppress("DEPRECATION")
         LazyGridState(
             initialFirstVisibleItemIndex,
             initialFirstVisibleItemScrollOffset,
@@ -152,7 +152,7 @@ public fun rememberLazyGridState(
 public class LazyGridState
 @ExperimentalFoundationApi
 internal constructor(
-    internal val legacyPrefetchStrategy: LazyGridPrefetchStrategy?,
+    @Suppress("DEPRECATION") internal val legacyPrefetchStrategy: LazyGridPrefetchStrategy?,
     firstVisibleItemIndex: Int = 0,
     firstVisibleItemScrollOffset: Int = 0,
 ) : ScrollableState {
@@ -172,6 +172,7 @@ internal constructor(
     @Deprecated(
         """`LazyGridPrefetchStrategy` is deprecated. Prefetching behaviour should be specified via the lazy grid composable arguments as a `CacheWindow`."""
     )
+    @Suppress("DEPRECATION")
     public constructor(
         firstVisibleItemIndex: Int = 0,
         firstVisibleItemScrollOffset: Int = 0,
@@ -352,11 +353,13 @@ internal constructor(
             Snapshot.withoutReadObservation { layoutInfoState.value.prefetchState }
                 ?: legacyPrefetchState
 
+    @Suppress("DEPRECATION")
     private val prefetchStrategy
         get() =
             Snapshot.withoutReadObservation { layoutInfoState.value.prefetchStrategy }
                 ?: legacyPrefetchStrategy
 
+    @Suppress("DEPRECATION")
     private val prefetchScope: LazyGridPrefetchScope by
         lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
             object : LazyGridPrefetchScope {
@@ -787,11 +790,11 @@ internal constructor(
          * [LazyGridPrefetchStrategy].
          */
         @ExperimentalFoundationApi
+        @Suppress("DEPRECATION")
         internal fun saver(prefetchStrategy: LazyGridPrefetchStrategy): Saver<LazyGridState, *> =
             listSaver(
                 save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },
                 restore = {
-                    @Suppress("DEPRECATION")
                     LazyGridState(
                         firstVisibleItemIndex = it[0],
                         firstVisibleItemScrollOffset = it[1],
