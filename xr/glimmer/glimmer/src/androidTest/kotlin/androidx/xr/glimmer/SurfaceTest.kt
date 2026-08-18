@@ -529,7 +529,7 @@ class SurfaceTest {
         }
 
         rule.runOnIdle { focusRequester.requestFocus() }
-        // Focused background is White, so calculated content color should be Black
+        // Focused background is Green, so calculated content color should be Black
         rule.runOnIdle { assertThat(node!!.currentContentColor()).isEqualTo(Color.Black) }
     }
 
@@ -1171,6 +1171,16 @@ class SurfaceTest {
         val expectedColor = DisabledOverlayColor.compositeOver(surfaceColor)
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
             assertColorsEqualWithTolerance(expectedColor, get(width / 2, height / 2))
+        }
+    }
+
+    @Test
+    fun surfaceDefaults_colors() {
+        rule.setGlimmerThemeContent {
+            assertThat(SurfaceDefaults.color())
+                .isEqualTo(SurfaceDefaults.color(GlimmerTheme.colors.surface))
+            assertThat(SurfaceDefaults.focusedColor())
+                .isEqualTo(SurfaceDefaults.focusedColor(GlimmerTheme.colors.surface))
         }
     }
 }
