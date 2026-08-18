@@ -173,7 +173,7 @@ public object IconToggleButtonDefaults {
     @Composable
     public fun colors(
         backgroundColor: Color = GlimmerTheme.colors.surface,
-        checkedBackgroundColor: Color = checkedBackgroundColor(GlimmerTheme.colors.primary),
+        checkedBackgroundColor: Color = checkedBackgroundColor(),
         contentColor: Color = calculateContentColor(backgroundColor),
         checkedContentColor: Color = calculateContentColor(checkedBackgroundColor),
     ): IconToggleButtonColors =
@@ -185,11 +185,14 @@ public object IconToggleButtonDefaults {
         )
 
     /**
-     * Calculates the checked background color for an [IconToggleButton] derived from [color].
+     * Calculates the checked background color for an [IconToggleButton] derived from a primary or
+     * custom [color].
      *
-     * @param color the base color to derive the checked background color from
+     * @param color the primary or custom [Color] to derive the checked background color from
+     * @return the background [Color] for the button when checked
      */
-    public fun checkedBackgroundColor(color: Color): Color =
+    @Composable
+    public fun checkedBackgroundColor(color: Color = GlimmerTheme.colors.primary): Color =
         color.withToneAndChroma(
             newTone = CheckedBackgroundColorTone,
             newChroma = CheckedBackgroundColorChroma,

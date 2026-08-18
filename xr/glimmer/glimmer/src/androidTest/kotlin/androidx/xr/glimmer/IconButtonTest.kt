@@ -139,8 +139,10 @@ class IconButtonTest {
     fun containerShapeAndColor() {
         val expectedShape = RoundedCornerShape(42.dp)
         val expectedColor = Color.Red
+        var expectedSurfaceColor: Color? = null
 
         rule.setGlimmerThemeContent {
+            expectedSurfaceColor = SurfaceDefaults.color(expectedColor)
             IconButton(
                 onClick = {},
                 shape = expectedShape,
@@ -158,9 +160,8 @@ class IconButtonTest {
             backgroundColor = Color.Black,
         )
         val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
-        val expectedSurfaceColor = SurfaceDefaults.color(expectedColor)
         val expectedCompositeColor =
-            Color.White.copy(alpha = 0.16f).compositeOver(expectedSurfaceColor)
+            Color.White.copy(alpha = 0.16f).compositeOver(expectedSurfaceColor!!)
         assertThat(centerColor).isEqualTo(expectedCompositeColor)
     }
 

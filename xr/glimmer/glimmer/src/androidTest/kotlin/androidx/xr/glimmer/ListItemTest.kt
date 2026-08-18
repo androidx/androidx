@@ -122,12 +122,14 @@ class ListItemTest {
     @Test
     fun shapeAndColorFromThemeIsUsed() {
         lateinit var expectedShape: Shape
+        var expectedSurfaceColor: Color? = null
         val surfaceColor = Color.Blue
         val backgroundColor = Color.Black
         rule.setGlimmerThemeContent(
             colors = Colors(surface = surfaceColor, background = backgroundColor)
         ) {
             expectedShape = GlimmerTheme.shapes.medium
+            expectedSurfaceColor = SurfaceDefaults.color(surfaceColor)
             ListItem(modifier = Modifier.testTag("listItem")) { Box(Modifier.size(100.dp, 100.dp)) }
         }
 
@@ -138,9 +140,8 @@ class ListItemTest {
             backgroundColor = backgroundColor,
         )
         val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
-        val expectedSurfaceColor = SurfaceDefaults.color(surfaceColor)
         val expectedCompositeColor =
-            Color.White.copy(alpha = 0.16f).compositeOver(expectedSurfaceColor)
+            Color.White.copy(alpha = 0.16f).compositeOver(expectedSurfaceColor!!)
         assertThat(centerColor).isEqualTo(expectedCompositeColor)
     }
 
