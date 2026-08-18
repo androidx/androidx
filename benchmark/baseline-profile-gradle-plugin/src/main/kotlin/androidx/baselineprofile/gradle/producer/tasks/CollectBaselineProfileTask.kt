@@ -127,7 +127,14 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
 
         // Prepares list with test results to read. Note that these are the output directories
         // from the instrumentation task. We're interested only in `test-result.pb`.
-        val testResultProtoFiles = testResultDirs.files.map { File(it, "test-result.pb") }
+        val testResultProtoFiles =
+            testResultDirs.files.flatMap { dir ->
+                if (dir.exists()) {
+                    dir.walkTopDown().filter { it.name == "test-result.pb" }.toList()
+                } else {
+                    emptyList()
+                }
+            }
 
         // A test-result.pb file must exist as output of connected and managed device tests.
         // If it doesn't exist it's because there were no tests to run. If there are no devices,
