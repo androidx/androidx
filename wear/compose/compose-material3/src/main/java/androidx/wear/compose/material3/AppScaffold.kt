@@ -22,11 +22,17 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalView
 
 /**
  * [AppScaffold] is one of the Wear Material3 scaffold components.
@@ -52,6 +58,10 @@ import androidx.compose.ui.graphics.graphicsLayer
  * @param containerColor The container color of the app drawn behind the [content], i.e. the color
  *   of the background behind the content.
  * @param contentColor The content color for the application [content].
+ * @param isStatusBarEnabled Whether to display the system status bar overlay across screens inside
+ *   this scaffold. On devices that support the system status bar, the system overlay status bar
+ *   replaces the app-level [TimeText] to prevent overlapping. When false or on unsupported devices,
+ *   the scaffold defers to local [TimeText] rendering.
  * @param content The main content for this application.
  */
 @Composable
@@ -60,13 +70,51 @@ public fun AppScaffold(
     timeText: @Composable () -> Unit = { TimeText() },
     containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
+    isStatusBarEnabled: Boolean = true,
     content: @Composable BoxScope.() -> Unit,
 ) {
     // Run the animator coordinator if needed.
     AnimationCoordinator.Looper()
 
+    val isStatusBarSupportedState = rememberUpdatedState(LocalStatusBarEnabled.current)
     val timeTextState = rememberUpdatedState(timeText)
-    val scaffoldState = remember { ScaffoldState(appTimeText = timeTextState) }
+    val showStatusBarState = rememberUpdatedState(isStatusBarEnabled)
+    val scaffoldState = remember {
+        ScaffoldState(
+            appTimeText = timeTextState,
+            appShowStatusBar = showStatusBarState,
+            isStatusBarSupported = isStatusBarSupportedState,
+        )
+    }
+
+    if (isStatusBarSupportedState.value) {
+        val showStatusBarOverlay by remember {
+            derivedStateOf {
+                val isEnabled = scaffoldState.screenContent.currentShowStatusBar.value
+                val stage = scaffoldState.screenContent.screenStage.value
+                val provider = scaffoldState.screenContent.currentScrollInfoProvider.value
+                val offset = scaffoldState.screenContent.currentAnchorItemOffset.value
+
+                isEnabled &&
+                    (stage != ScreenStage.Scrolling ||
+                        provider?.isScrollAwayValid != true ||
+                        offset.isNaN() ||
+                        offset <= 0f)
+            }
+        }
+
+        val view = LocalView.current
+        val orchestrator = remember(view) { StatusBarOrchestrator(view) }
+
+        // Restores the initial status bar state when AppScaffold leaves composition
+        // or when the underlying LocalView changes.
+        DisposableEffect(orchestrator) { onDispose { orchestrator.restore() } }
+
+        LaunchedEffect(orchestrator) {
+            snapshotFlow { showStatusBarOverlay }
+                .collect { show -> if (show) orchestrator.show() else orchestrator.hide() }
+        }
+    }
 
     CompositionLocalProvider(
         LocalScaffoldState provides scaffoldState,
@@ -81,8 +129,34 @@ public fun AppScaffold(
                     }
             ) {
                 content()
-                scaffoldState.screenContent.timeText()
+                // Draw local time text when status bar is disabled or unsupported.
+                // When system status bar is enabled and supported, system overlay takes over.
+                if (!scaffoldState.screenContent.currentShowStatusBar.value) {
+                    scaffoldState.screenContent.timeText()
+                }
             }
         }
     }
 }
+
+@Deprecated(
+    message =
+        "This overload is deprecated, please use the new overload with the isStatusBarEnabled parameter.",
+    level = DeprecationLevel.HIDDEN,
+)
+@Composable
+public fun AppScaffold(
+    modifier: Modifier = Modifier,
+    timeText: @Composable () -> Unit = { TimeText() },
+    containerColor: Color = MaterialTheme.colorScheme.background,
+    contentColor: Color = contentColorFor(containerColor),
+    content: @Composable BoxScope.() -> Unit,
+): Unit =
+    AppScaffold(
+        modifier = modifier,
+        timeText = timeText,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        isStatusBarEnabled = true,
+        content = content,
+    )
