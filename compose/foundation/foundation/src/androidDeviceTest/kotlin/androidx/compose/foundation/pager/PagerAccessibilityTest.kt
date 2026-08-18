@@ -23,10 +23,17 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.PivotBringIntoViewSpec
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.internal.checkPreconditionNotNull
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyList
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -34,7 +41,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
 import androidx.compose.ui.semantics.SemanticsNode
@@ -49,6 +58,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertTrue
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.Assume
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,6 +90,50 @@ class PagerAccessibilityTest(val config: ParamConfig) : BasePagerTest(config = c
         rule.runOnIdle {
             assertThat(pagerState.currentPageOffsetFraction).isWithin(0.001f).of(100f / pageSize)
         }
+    }
+
+    @Test
+    fun scrollBySemantics_onNestedScrollable_shouldNotDragPager() {
+        lateinit var lazyListState: LazyListState
+        createPager(pageCount = { DefaultPageCount }) {
+            LazyList(
+                modifier = Modifier.fillMaxSize().testTag("childList"),
+                contentPadding = PaddingValues(0.dp),
+                flingBehavior = ScrollableDefaults.flingBehavior(),
+                isVertical = vertical,
+                reverseLayout = false,
+                state = rememberLazyListState().also { lazyListState = it },
+                userScrollEnabled = true,
+                overscrollEffect = rememberOverscrollEffect(),
+                verticalArrangement = Arrangement.Top,
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.Top,
+                horizontalAlignment = Alignment.Start,
+            ) {
+                items(10) {
+                    Box(modifier = Modifier.size(100.dp)) { BasicText(text = it.toString()) }
+                }
+            }
+        }
+
+        rule.runOnIdle { runBlocking { lazyListState.scrollToItem(8) } }
+
+        // Use scrollForwardSign so reverseIfNeeded() translates it into a forward scroll
+        val forwardDelta = (pagerSize.toFloat() * 2f) * scrollForwardSign
+        val scrollOffset = if (vertical) Offset(0f, forwardDelta) else Offset(forwardDelta, 0f)
+
+        val action =
+            rule
+                .onNodeWithTag("childList")
+                .fetchSemanticsNode()
+                .config[SemanticsActions.ScrollByOffset]
+
+        scope.launch { action.invoke(scrollOffset) }
+        rule.waitForIdle()
+
+        // Assert: Pager must remain settled at page 0 and offset fraction 0
+        assertThat(pagerState.currentPage).isEqualTo(0)
+        assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
     }
 
     @Test

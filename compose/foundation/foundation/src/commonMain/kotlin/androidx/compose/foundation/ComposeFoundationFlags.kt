@@ -166,6 +166,17 @@ public object ComposeFoundationFlags {
     public var isReverseLayoutNestedScrollConnectionInPagerFixEnabled: Boolean = true
 
     /**
+     * This flag controls whether [androidx.compose.foundation.pager.Pager]'s default nested scroll
+     * connection absorbs unconsumed main-axis deltas during non-gesture scrolls (such as
+     * accessibility actions) to prevent synthetic scrolls from accidentally dragging the parent
+     * Pager.
+     */
+    // TODO: Remove this flag once it has soaked (b/543033546)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isAbsorbNonGestureNestedScrollInPagerFixEnabled: Boolean = true
+
+    /**
      * This flag controls whether [androidx.compose.foundation.text.BasicTextField]'s formatted text
      * features are enabled.
      */
