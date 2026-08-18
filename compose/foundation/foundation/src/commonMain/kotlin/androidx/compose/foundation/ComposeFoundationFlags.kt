@@ -225,7 +225,7 @@ public object ComposeFoundationFlags {
     // TODO: Remove this flag once it has soaked (b/501080937)
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isDraggableVelocityTrackerFixEnabled: Boolean = true
+    public var isDraggableVelocityTrackerFixEnabled: Boolean = false
 
     /**
      * This flag controls whether it's possible to start selecting (via the mouse) text in a
