@@ -86,8 +86,18 @@ public interface CaptureResultWrapper : CaptureResultMetadata {
     public val keys: List<CaptureResult.Key<*>>
 }
 
+/** Helper utilities for constructing and wrapping [CaptureResultWrapper] instances. */
 public object CaptureResultWrappers {
-    /** Wraps a native [CaptureResult] into a [CaptureResultWrapper]. */
+    /**
+     * Wraps a native [CaptureResult] into a [CaptureResultWrapper].
+     *
+     * @param captureResult the native [CaptureResult] to wrap.
+     * @param cameraId the [CameraId] of the camera device that produced the result.
+     * @param captureRequest the [CaptureRequestWrapper] representing the request that produced this
+     *   result.
+     * @param metadata optional map of custom [Metadata.Key] values to attach to the wrapper.
+     * @return a [CaptureResultWrapper] wrapping the given [captureResult] and metadata.
+     */
     @JvmStatic
     @JvmName("wrap")
     @Suppress("INAPPLICABLE_JVM_NAME")
