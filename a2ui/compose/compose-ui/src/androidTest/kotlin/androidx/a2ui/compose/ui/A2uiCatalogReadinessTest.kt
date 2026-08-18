@@ -23,21 +23,12 @@ import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.runtime.A2uiRuntimeCatalog
 import androidx.a2ui.compose.runtime.a2uiRuntimeMessageProcessor
 import androidx.a2ui.compose.runtime.observeA2uiComponentState
-import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
-import androidx.a2ui.model.catalog.A2uiFunction
-import androidx.a2ui.model.catalog.A2uiFunctionDefinition
-import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.processor.A2uiMessageProcessor
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiCreateSurfaceMessage
-import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.protocol.A2uiUpdateComponentsMessage
 import androidx.a2ui.model.protocol.A2uiUpdateDataModelMessage
-import androidx.a2ui.model.schema.A2uiAnySchema
-import androidx.a2ui.model.schema.A2uiNumberSchema
-import androidx.a2ui.model.schema.A2uiObjectSchema
-import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,6 +40,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.assertIs
@@ -59,161 +51,12 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestDispatcher
-import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class A2uiCatalogTest {
-
-    @Test
-    fun factory_setsPropertiesCorrectly() {
-        val component1 = StubComponent("Component1")
-        val component2 = StubComponent("Component2")
-        val function1 = StubFunction("Function1")
-        val function2 = StubFunction("Function2")
-        val themeSchema = A2uiObjectSchema(description = "Test Theme Schema")
-
-        val catalog =
-            A2uiCatalog(
-                catalogId = TestCatalogId,
-                components = listOf(component1, component2),
-                functions = listOf(function1, function2),
-                themeSchema = themeSchema,
-            )
-
-        assertThat(catalog.id).isEqualTo(TestCatalogId)
-        assertThat(catalog.components).containsExactly(component1, component2)
-        assertThat(catalog.functions).containsExactly(function1, function2)
-        assertThat(catalog.themeSchema).isEqualTo(themeSchema)
-    }
-
-    @Test
-    fun factory_emptyLists_createsCatalogSuccessfully() {
-        val catalog =
-            A2uiCatalog(
-                catalogId = "empty_catalog",
-                components = emptyList(),
-                functions = emptyList(),
-                themeSchema = null,
-            )
-
-        assertThat(catalog.components).isEmpty()
-        assertThat(catalog.functions).isEmpty()
-        assertThat(catalog.themeSchema).isNull()
-    }
-
-    @Test
-    fun factory_duplicateComponents_throws() {
-        val component1 = StubComponent("DuplicateComponent")
-        val component2 = StubComponent("DuplicateComponent")
-
-        val exception =
-            assertThrows(IllegalArgumentException::class.java) {
-                A2uiCatalog(catalogId = TestCatalogId, components = listOf(component1, component2))
-            }
-
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Duplicate component registered for name 'DuplicateComponent'")
-    }
-
-    @Test
-    fun factory_duplicateFunctions_throws() {
-        val function1 = StubFunction("DuplicateFunction")
-        val function2 = StubFunction("DuplicateFunction")
-
-        val exception =
-            assertThrows(IllegalArgumentException::class.java) {
-                A2uiCatalog(
-                    catalogId = TestCatalogId,
-                    components = listOf(),
-                    functions = listOf(function1, function2),
-                )
-            }
-
-        assertThat(exception)
-            .hasMessageThat()
-            .contains("Duplicate function registered for name 'DuplicateFunction'")
-    }
-
-    @Test
-    fun components_lookupByName_returnsCorrectComponent() {
-        val component1 = StubComponent("Component1")
-        val component2 = StubComponent("Component2")
-
-        val catalog =
-            A2uiCatalog(catalogId = TestCatalogId, components = listOf(component1, component2))
-
-        assertThat(catalog.components["Component1"]).isEqualTo(component1)
-        assertThat(catalog.components["Component2"]).isEqualTo(component2)
-        assertThat(catalog.components["UnknownComp"]).isNull()
-    }
-
-    @Test
-    fun functions_lookupByName_returnsCorrectFunction() {
-        val function1 = StubFunction("Function1")
-        val function2 = StubFunction("Function2")
-
-        val catalog =
-            A2uiCatalog(
-                catalogId = TestCatalogId,
-                components = listOf(),
-                functions = listOf(function1, function2),
-            )
-
-        assertThat(catalog.functions["Function1"]).isEqualTo(function1)
-        assertThat(catalog.functions["Function2"]).isEqualTo(function2)
-        assertThat(catalog.functions["UnknownFunction"]).isNull()
-    }
-
-    @Test
-    fun getComponentDefinition_returnsCorrectComponentDefinition() {
-        val component1 = StubComponent(name = "Component1", description = "Description1")
-        val component2 = StubComponent(name = "Component2", description = "Description2")
-
-        val catalog =
-            A2uiCatalog(catalogId = TestCatalogId, components = listOf(component1, component2))
-        val coreCatalog = catalog as A2uiCoreCatalog
-
-        val definition1 = coreCatalog.componentDefinitions["Component1"]
-        assertThat(definition1?.name).isEqualTo("Component1")
-        assertThat(definition1?.description).isEqualTo("Description1")
-        val definition2 = coreCatalog.componentDefinitions["Component2"]
-        assertThat(definition2?.name).isEqualTo("Component2")
-        assertThat(definition2?.description).isEqualTo("Description2")
-        assertThat(coreCatalog.componentDefinitions["UnknownComponent"]).isNull()
-    }
-
-    @Test
-    fun getComponentDefinition_generatesCorrectPropertySchemaForComponent() {
-        val prop1 = A2uiProperty.string("stringProp", required = true)
-        val prop2 = A2uiProperty.number("numberProp", required = false)
-        val component =
-            object : A2uiComponent {
-                override val name = "TestComponent"
-                override val description = "Test description"
-                override val properties = listOf(prop1, prop2)
-
-                @Composable
-                override fun A2uiComponentScope.Content(
-                    properties: A2uiComponentProperties,
-                    modifier: Modifier,
-                ) {}
-            }
-
-        val catalog = A2uiCatalog(TestCatalogId, listOf(component))
-        val coreCatalog = catalog as A2uiCoreCatalog
-        val definition = coreCatalog.componentDefinitions["TestComponent"]
-
-        assertThat(definition).isNotNull()
-        assertThat(definition?.name).isEqualTo("TestComponent")
-        val schema = definition?.propertySchema as A2uiObjectSchema
-        assertThat(schema.properties.keys).containsExactly("stringProp", "numberProp")
-        assertThat(schema.properties["stringProp"]).isInstanceOf(A2uiStringSchema::class.java)
-        assertThat(schema.properties["numberProp"]).isInstanceOf(A2uiNumberSchema::class.java)
-        assertThat(schema.required).containsExactly("stringProp")
-    }
+class A2uiCatalogReadinessTest {
 
     @Test
     fun asReadinessEvaluator_delegatesToComponentIsReady() {
@@ -412,19 +255,6 @@ class A2uiCatalogTest {
             properties: A2uiComponentProperties,
             modifier: Modifier,
         ) {}
-    }
-
-    private class StubFunction(name: String) : A2uiFunction {
-        override val definition =
-            object : A2uiFunctionDefinition {
-                override val name = name
-                override val description = "Stub function $name"
-                override val argumentSchema = A2uiAnySchema()
-                override val returnType = A2uiFunctionReturnType.ANY
-            }
-
-        override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
-            null
     }
 }
 

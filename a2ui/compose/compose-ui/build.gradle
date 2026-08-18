@@ -35,12 +35,17 @@ dependencies {
     implementation(project(":a2ui:a2ui-engine"))
     implementation(project(":collection:collection"))
 
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
+    testImplementation(libs.junit)
+
     api("androidx.compose.runtime:runtime:1.10.0")
     api("androidx.compose.ui:ui:1.10.0")
 
     androidTestImplementation("androidx.compose.foundation:foundation:1.10.0")
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)

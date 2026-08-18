@@ -19,26 +19,22 @@ package androidx.a2ui.compose.runtime
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.a2ui.model.protocol.A2uiException.A2uiValidationException
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.v2.runComposeUiTest
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(JUnit4::class)
 class A2uiComponentRegistryTest {
 
     private var registry = A2uiComponentRegistry()
@@ -446,28 +442,26 @@ class A2uiComponentRegistryTest {
         // Start a reader thread that constantly checks the record version consistency
         val readerJob =
             async(Dispatchers.Default) {
-                var successCount = 0
-                while (successCount < 1000) {
+                // Fails the test if the update doesn't occur within 5 seconds
+                withTimeout(5000.milliseconds) {
                     var versionA: Int? = null
                     var versionB: Int? = null
 
-                    // A read-only snapshot so that reads happen within the same snapshot
-                    val snapshot = Snapshot.takeSnapshot()
-                    try {
-                        snapshot.enter {
-                            val recordA = registry.get("comp_A") as? A2uiComponentRecord.Valid
-                            val recordB = registry.get("comp_B") as? A2uiComponentRecord.Valid
-                            versionA = recordA?.properties?.raw?.get("version") as? Int
-                            versionB = recordB?.properties?.raw?.get("version") as? Int
+                    while (versionA != 2) {
+                        val snapshot = Snapshot.takeSnapshot()
+                        try {
+                            snapshot.enter {
+                                val recordA = registry.get("comp_A") as? A2uiComponentRecord.Valid
+                                val recordB = registry.get("comp_B") as? A2uiComponentRecord.Valid
+                                versionA = recordA?.properties?.raw?.get("version") as? Int
+                                versionB = recordB?.properties?.raw?.get("version") as? Int
+                            }
+                        } finally {
+                            snapshot.dispose()
                         }
-                    } finally {
-                        snapshot.dispose()
+                        // Assert atomicity at every intermediate stage
+                        assertThat(versionA).isEqualTo(versionB)
                     }
-
-                    assertThat(versionA).isEqualTo(versionB)
-
-                    if (versionA == 2) break // The update has successfully propagated
-                    successCount++
                 }
             }
 
@@ -542,132 +536,6 @@ class A2uiComponentRegistryTest {
 
         // Ensure the test completes without deadlocking
         assertThat(true).isTrue()
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun observe_unknownComponent_registersDependencyAndUpdatesWhenLoaded() = runComposeUiTest {
-        val componentId = "future_comp"
-
-        setContent {
-            when (val record = registry.get(componentId)) {
-                null -> BasicText("Waiting...")
-                is A2uiComponentRecord.Valid -> BasicText("Arrived: ${record.type}")
-                is A2uiComponentRecord.Error -> BasicText("Error")
-            }
-        }
-
-        onNodeWithText("Waiting...").assertIsDisplayed()
-
-        registry.update(listOf(A2uiComponentPayload(componentId, "Text", emptyMap())))
-        waitForIdle()
-
-        onNodeWithText("Waiting...").assertIsNotDisplayed()
-        onNodeWithText("Arrived: Text").assertIsDisplayed()
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun observe_componentUpdate_triggersRecomposition() = runComposeUiTest {
-        val componentId = "reactive_comp"
-
-        setContent {
-            when (val record = registry.get(componentId)) {
-                null -> BasicText("Loading...")
-                is A2uiComponentRecord.Valid -> {
-                    val text = record.properties.raw["text"] as? String ?: "Empty"
-                    BasicText("Success: $text")
-                }
-                is A2uiComponentRecord.Error -> BasicText("Error")
-            }
-        }
-
-        onNodeWithText("Loading...").assertIsDisplayed()
-
-        registry.update(
-            listOf(A2uiComponentPayload(componentId, "Text", mapOf("text" to "Initial Value")))
-        )
-        waitForIdle()
-        onNodeWithText("Success: Initial Value").assertIsDisplayed()
-
-        registry.update(
-            listOf(A2uiComponentPayload(componentId, "Text", mapOf("text" to "Updated Value")))
-        )
-        waitForIdle()
-        onNodeWithText("Success: Updated Value").assertIsDisplayed()
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun observe_componentError_triggersRecomposition() = runComposeUiTest {
-        val componentId = "error_prone_comp"
-        registry.update(
-            listOf(A2uiComponentPayload(componentId, "Text", mapOf("text" to "Initial Content")))
-        )
-
-        setContent {
-            when (val record = registry.get(componentId)) {
-                null -> BasicText("Loading...")
-                is A2uiComponentRecord.Valid ->
-                    BasicText("Success: ${record.properties.raw["text"]}")
-                is A2uiComponentRecord.Error -> BasicText("Error: ${record.exception.message}")
-            }
-        }
-
-        onNodeWithText("Success: Initial Content").assertIsDisplayed()
-
-        registry.reportError(componentId, A2uiRuntimeException("Failure"))
-        waitForIdle()
-
-        onNodeWithText("Error: Failure").assertIsDisplayed()
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun observe_identicalComponentUpdate_doesNotTriggerRecomposition() = runComposeUiTest {
-        registry.update(listOf(A2uiComponentPayload("comp_1", "Text", mapOf("text" to "Initial"))))
-
-        var recompositionCount = 0
-        setContent {
-            registry.get("comp_1")
-            recompositionCount++
-            BasicText(text = "Recomposed $recompositionCount")
-        }
-
-        waitForIdle()
-        val initialCount = recompositionCount
-
-        registry.update(listOf(A2uiComponentPayload("comp_1", "Text", mapOf("text" to "Initial"))))
-        waitForIdle()
-
-        assertThat(recompositionCount).isEqualTo(initialCount)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun observe_updateUnrelatedComponent_doesNotTriggerRecomposition() = runComposeUiTest {
-        registry.update(
-            listOf(
-                A2uiComponentPayload("comp_A", "Text", mapOf("text" to "A")),
-                A2uiComponentPayload("comp_B", "Text", mapOf("text" to "B")),
-            )
-        )
-
-        var recompositionCountB = 0
-        setContent {
-            registry.get("comp_B")
-            recompositionCountB++
-            BasicText(text = "Recomposed B: $recompositionCountB")
-        }
-        waitForIdle()
-        val initialCountB = recompositionCountB
-
-        registry.update(
-            listOf(A2uiComponentPayload("comp_A", "Text", mapOf("text" to "A_Updated")))
-        )
-        waitForIdle()
-
-        assertThat(recompositionCountB).isEqualTo(initialCountB)
     }
 
     @Test
