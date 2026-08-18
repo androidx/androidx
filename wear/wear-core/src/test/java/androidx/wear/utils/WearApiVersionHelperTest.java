@@ -186,6 +186,69 @@ public class WearApiVersionHelperTest {
     }
 
     @Test
+    public void test_CinnamonBun0IsAtLeastCinnamonBun1_failure() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(37);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(0);
+
+        assertFalse(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_CINNAMON_BUN_1));
+    }
+
+    @Test
+    public void test_CinnamonBun0IsAtLeastCinnamonBun2_failure() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(37);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(0);
+
+        assertFalse(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_CINNAMON_BUN_2));
+    }
+
+    @Test
+    public void test_CinnamonBun1IsAtLeastCinnamonBun0_success() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(37);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(1);
+
+        assertTrue(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_CINNAMON_BUN_0));
+    }
+
+    @Test
+    public void test_CinnamonBun1IsAtLeastCinnamonBun1_success() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(37);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(1);
+
+        assertTrue(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_CINNAMON_BUN_1));
+    }
+
+    @Test
+    public void test_CinnamonBun1IsAtLeastCinnamonBun2_failure() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(37);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(1);
+
+        assertFalse(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_CINNAMON_BUN_2));
+    }
+
+    @Test
+    public void test_CinnamonBun2IsAtLeastCinnamonBun1_success() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(37);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(2);
+
+        assertTrue(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_CINNAMON_BUN_1));
+    }
+
+    @Test
+    public void test_CinnamonBun2IsAtLeastCinnamonBun2_success() {
+        when(mMockApiVersion.getPlatformApiLevel()).thenReturn(37);
+        when(mMockApiVersion.getIncrementalApiLevel()).thenReturn(2);
+
+        assertTrue(WearApiVersionHelper.isApiVersionAtLeast(
+                WearApiVersionHelper.WEAR_CINNAMON_BUN_2));
+    }
+
+    @Test
     public void test_allWearConstantsAreAccountedForAndValid() throws Exception {
         Set<String> fieldNames = new java.util.HashSet<>();
 
