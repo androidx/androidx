@@ -188,7 +188,7 @@ public sealed interface ButtonGroupState : ScrollableState {
 
     public companion object {
         /** The default [Saver] implementation for [ButtonGroupState]. */
-        public val Saver: Saver<ButtonGroupState, Int> =
+        public val Saver: Saver<ButtonGroupState, *> =
             Saver(
                 save = { (it as ButtonGroupStateImpl).currentItemIndex },
                 restore = { ButtonGroupStateImpl(it.fastCoerceAtLeast(0)) },
