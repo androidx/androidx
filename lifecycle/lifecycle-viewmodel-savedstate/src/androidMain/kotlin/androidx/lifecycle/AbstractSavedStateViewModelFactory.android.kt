@@ -107,9 +107,8 @@ public abstract class AbstractSavedStateViewModelFactory : Factory {
         }
 
         // Register controller under host. Ensures createSavedStateHandle() resolves it.
-        val controller =
-            SavedStateHandleController.getOrCreate(savedStateRegistryOwner, viewModelStoreOwner)
-        attachSavedStateHandleOnNextRecreation(savedStateRegistryOwner, controller)
+        SavedStateHandleController.getOrCreate(savedStateRegistryOwner, viewModelStoreOwner)
+        attachSavedStateHandleOnNextRecreation(savedStateRegistryOwner)
 
         // Construct CreationExtras. Preserves owner default extras, overrides with factory keys.
         val extras =
