@@ -21,6 +21,9 @@ import android.content.res.Resources
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
@@ -1378,6 +1381,48 @@ class TimePickerTest {
         rule
             .onNode(hasStateDescription(expectedMinuteDescription), useUnmergedTree = true)
             .assertExists()
+    }
+
+    @Test
+    fun timePicker_displayModeToggle_contentDescription() {
+        var displayMode by mutableStateOf(TimePickerDisplayMode.Picker)
+        lateinit var keyboardToggleDescription: String
+        lateinit var touchToggleDescription: String
+
+        rule.setMaterialContent(lightColorScheme()) {
+            keyboardToggleDescription = getString(Strings.TimePickerToggleKeyboard)
+            touchToggleDescription = getString(Strings.TimePickerToggleTouch)
+            TimePickerDialogDefaults.DisplayModeToggle(
+                onDisplayModeChange = {},
+                displayMode = displayMode,
+            )
+        }
+
+        rule.onNodeWithContentDescription(keyboardToggleDescription).assertExists()
+
+        displayMode = TimePickerDisplayMode.Input
+        rule.onNodeWithContentDescription(touchToggleDescription).assertExists()
+    }
+
+    @Test
+    fun timePicker_scrollDisplayModeToggle_contentDescription() {
+        var displayMode by mutableStateOf(TimePickerDisplayMode.Scroll)
+        lateinit var keyboardToggleDescription: String
+        lateinit var scrollToggleDescription: String
+
+        rule.setMaterialContent(lightColorScheme()) {
+            keyboardToggleDescription = getString(Strings.TimePickerToggleKeyboard)
+            scrollToggleDescription = getString(Strings.TimePickerToggleScroll)
+            TimePickerDialogDefaults.ScrollDisplayModeToggle(
+                onDisplayModeChange = {},
+                displayMode = displayMode,
+            )
+        }
+
+        rule.onNodeWithContentDescription(keyboardToggleDescription).assertExists()
+
+        displayMode = TimePickerDisplayMode.Input
+        rule.onNodeWithContentDescription(scrollToggleDescription).assertExists()
     }
 }
 
