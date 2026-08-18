@@ -1621,6 +1621,136 @@ class OneHandedGestureTest {
             }
         }
 
+    @Test
+    fun gesture_scroll_indicator_scroll_offset_not_changed() {
+        lateinit var coroutineScope: CoroutineScope
+        val scrollState = TransformingLazyColumnState()
+        val indicatorState = OneHandedGestureScrollIndicatorState()
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            val gestureConfig =
+                rememberOneHandedGestureConfiguration(
+                    action = OneHandedGestureAction.Primary,
+                    priority = OneHandedGesturePriority.Scrollable,
+                )
+
+            ScreenScaffold(
+                scrollState = scrollState,
+                scrollIndicator = {
+                    OneHandedGestureScrollIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = indicatorState,
+                        scrollState = scrollState,
+                    )
+                },
+            ) {
+                TransformingLazyColumn(state = scrollState, modifier = Modifier.fillMaxSize()) {
+                    items(20) { index -> Text("Item $index") }
+                }
+            }
+        }
+        rule.waitForIdle()
+        val initialIndex = scrollState.anchorItemIndex
+        val initialOffset = scrollState.anchorItemScrollOffset
+
+        coroutineScope.launch { indicatorState.showIndicator() }
+        // Advance mid-animation and verify offset is unchanged
+        rule.mainClock.advanceTimeBy(1000)
+        assertThat(scrollState.anchorItemScrollOffset).isEqualTo(initialOffset)
+        assertThat(scrollState.anchorItemIndex).isEqualTo(initialIndex)
+        // Advance to completion and verify offset is still unchanged
+        rule.mainClock.advanceTimeBy(3000)
+        rule.waitForIdle()
+        assertThat(scrollState.anchorItemScrollOffset).isEqualTo(initialOffset)
+        assertThat(scrollState.anchorItemIndex).isEqualTo(initialIndex)
+    }
+
+    @Test
+    fun gesture_scroll_indicator_holds_scroll_during_animation_and_releases_on_completion() {
+        lateinit var coroutineScope: CoroutineScope
+        val scrollState = TransformingLazyColumnState()
+        val indicatorState = OneHandedGestureScrollIndicatorState()
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            val gestureConfig =
+                rememberOneHandedGestureConfiguration(
+                    action = OneHandedGestureAction.Primary,
+                    priority = OneHandedGesturePriority.Scrollable,
+                )
+
+            ScreenScaffold(
+                scrollState = scrollState,
+                scrollIndicator = {
+                    OneHandedGestureScrollIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = indicatorState,
+                        scrollState = scrollState,
+                    )
+                },
+            ) {
+                TransformingLazyColumn(state = scrollState, modifier = Modifier.fillMaxSize()) {
+                    items(20) { index -> Text("Item $index") }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(scrollState.isScrollInProgress).isFalse()
+        coroutineScope.launch { indicatorState.showIndicator() }
+
+        // Advance mid-animation and verify the scroll lock is active
+        rule.mainClock.advanceTimeBy(1000)
+        assertThat(scrollState.isScrollInProgress).isTrue()
+        // Advance to completion and verify the scroll lock is released
+        rule.mainClock.advanceTimeBy(3000)
+        rule.waitForIdle()
+        assertThat(scrollState.isScrollInProgress).isFalse()
+    }
+
+    @Test
+    fun gesture_scroll_indicator_cancelled_while_animating_releases_scroll_lock() {
+        lateinit var coroutineScope: CoroutineScope
+        val scrollState = TransformingLazyColumnState()
+        val indicatorState = OneHandedGestureScrollIndicatorState()
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            val gestureConfig =
+                rememberOneHandedGestureConfiguration(
+                    action = OneHandedGestureAction.Primary,
+                    priority = OneHandedGesturePriority.Scrollable,
+                )
+            ScreenScaffold(
+                scrollState = scrollState,
+                scrollIndicator = {
+                    OneHandedGestureScrollIndicator(
+                        gestureConfiguration = gestureConfig,
+                        indicatorState = indicatorState,
+                        scrollState = scrollState,
+                    )
+                },
+            ) {
+                TransformingLazyColumn(state = scrollState, modifier = Modifier.fillMaxSize()) {
+                    items(20) { index -> Text("Item $index") }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertThat(scrollState.isScrollInProgress).isFalse()
+        val hintJob = coroutineScope.launch { indicatorState.showIndicator() }
+
+        // Advance to mid-animation and verify scroll lock is active
+        rule.mainClock.advanceTimeBy(1000)
+        assertThat(scrollState.isScrollInProgress).isTrue()
+        hintJob.cancel()
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+
+        // Verify scroll lock is released
+        assertThat(scrollState.isScrollInProgress).isFalse()
+    }
+
     /**
      * VerifyIndicatorRegistration expects only one of OneHandedGestureIndicatorState,
      * OneHandedScrollGestureIndicatorState, OneHandedPageIndicatorState is used per test.
