@@ -76,6 +76,8 @@ public final class WearApiVersionHelper {
                     WEAR_BAKLAVA_0,
                     WEAR_BAKLAVA_1,
                     WEAR_CINNAMON_BUN_0,
+                    WEAR_CINNAMON_BUN_1,
+                    WEAR_CINNAMON_BUN_2,
             })
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -127,6 +129,12 @@ public final class WearApiVersionHelper {
 
     /** The first major Wear API version released on Android CINNAMON_BUN (API level 37.0). */
     public static final String WEAR_CINNAMON_BUN_0 = "WEAR_CINNAMON_BUN_0";
+
+    /** The first minor Wear API version released on Android CINNAMON_BUN (API level 37.1). */
+    public static final String WEAR_CINNAMON_BUN_1 = "WEAR_CINNAMON_BUN_1";
+
+    /** The second minor Wear API version released on Android CINNAMON_BUN (API level 37.2). */
+    public static final String WEAR_CINNAMON_BUN_2 = "WEAR_CINNAMON_BUN_2";
 
     private static final String RELEASE_PROP = "ro.cw_build.platform_qpr.version";
     private static final int UNKNOWN_INCREMENTAL_RELEASE = -1;
@@ -279,6 +287,8 @@ public final class WearApiVersionHelper {
      *                          <li>{@link #WEAR_BAKLAVA_0}
      *                          <li>{@link #WEAR_BAKLAVA_1}
      *                          <li>{@link #WEAR_CINNAMON_BUN_0}
+     *                          <li>{@link #WEAR_CINNAMON_BUN_1}
+     *                          <li>{@link #WEAR_CINNAMON_BUN_2}
      *                          <li>etc
      *                        </ul>.
      *                        {@code IllegalArgumentException} will result for any other value.
