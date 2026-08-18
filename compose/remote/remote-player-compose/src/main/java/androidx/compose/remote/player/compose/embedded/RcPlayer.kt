@@ -39,6 +39,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.core.CoreDocument
@@ -58,6 +59,7 @@ import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesLoop
+import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.WakeIn
 import androidx.compose.remote.core.operations.layout.Component
@@ -110,6 +112,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.preferredFrameRate
 import androidx.compose.ui.semantics.contentDescription
@@ -155,6 +158,7 @@ public fun RcPlayer(
     lambdas: IntObjectMap<() -> Unit> = emptyIntObjectMap(),
     pendingIntents: IntObjectMap<PendingIntent> = emptyIntObjectMap(),
     typefaceResolver: TypefaceResolver? = LocalTypefaceResolver.current,
+    theme: Int = Theme.SYSTEM,
 ) {
     check(RemoteComposePlayerFlags.isEmbeddedPlayerEnabled) {
         "Embedded player is disabled. Set RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true to enable."
@@ -168,12 +172,16 @@ public fun RcPlayer(
         }
     }
 
+    val isDark = isSystemInDarkTheme()
+    val resolvedTheme = remember(theme, isDark) { resolveThemeMode(theme, isDark) }
+    val androidContext = LocalContext.current
+
     val density = LocalDensity.current
     val remoteContext =
         remember(typefaceResolver) {
             // Consider a Compose Clock
             AndroidRemoteContext(clock).also {
-                val resolvedResolver = typefaceResolver ?: EmbeddedPlayerTypefaceResolver(it)
+                val resolvedResolver = typefaceResolver ?: EmbeddedPlayerTypefaceResolver
                 it.setTypefaceResolver(resolvedResolver)
                 // Back the document's reactive scalar state (float/int/color) with Compose snapshot
                 // state, so those variables resolve reactively without a per-id listener bridge
@@ -193,24 +201,15 @@ public fun RcPlayer(
                 it.loadFloat(RemoteContext.ID_FONT_SIZE, 14f * density.fontScale * density.density)
                 it.loadFloat(RemoteContext.ID_DENSITY, density.density)
                 it.density = density.density
-                document.initializeContext(it)
-
-                // Register each bitmap's metadata (declared width/height for ImageAttribute, and
-                // discoverability for the lazy decode) WITHOUT decoding the pixels. The costly
-                // decode
-                // is
-                // deferred until a bitmap is actually drawn or its Image component composes — see
-                // resolveBitmap / rememberRemoteBitmapAsState. (BitmapData.apply would also
-                // loadBitmap,
-                // i.e. decode every bitmap up front, which is what we're avoiding.)
-                val bitmaps = ArrayList<BitmapData>()
-                findBitmaps(document.getOperationsReflection(), bitmaps)
-                bitmaps.fastForEach { bitmap -> it.putObject(bitmap.mImageId, bitmap) }
+                // Initialize theme mode, map Android framework colors, and apply data ops
+                // with lazy bitmap decoding.
+                it.paintTheme = resolvedTheme
+                it.setTheme(resolvedTheme)
+                AndroidColorThemeResolver.mapColors(androidContext, document)
+                document.initializeContext(it, null)
+                document.applyDataOperationsWithoutBitmaps(it)
 
                 document.setLayoutCallback {}
-
-                document.updateTimeReflection(it)
-                document.registerVariablesReflection(it, document.getOperationsReflection())
 
                 // Validate shaders before applying operations: a ShaderData only loads itself (via
                 // ShaderData.apply -> loadShader) once enabled, and it defaults to disabled.
@@ -368,6 +367,16 @@ public fun RcPlayer(
         }
     }
 
+    // React to dynamic theme changes (e.g. host night mode changes), updating context paint/theme
+    // state and applying the updated theme to document ColorTheme operations.
+    LaunchedEffect(resolvedTheme) {
+        remoteContext.paintTheme = resolvedTheme
+        remoteContext.setTheme(resolvedTheme)
+        document.themedColors?.fastForEach { themeColor ->
+            themeColor.setTheme(remoteContext, resolvedTheme)
+        }
+    }
+
     // Pure-Compose evaluation of *derived/computed* operations (color & text expressions,
     // attributes,
     // lookups). Each computed id resolves to a derivedStateOf that runs the op's existing
@@ -377,15 +386,16 @@ public fun RcPlayer(
     // compose naturally. (Frame loop above still drives time/animation; plain/expression float/int
     // and animated floats keep their dedicated resolvers.)
     val graphContext =
-        remember(document) {
+        remember(document, remoteContext) {
             (remoteContext.mRemoteComposeState as? SnapshotRemoteComposeState)?.let { snapshotState
                 ->
                 GraphContext(
-                    snapshotState,
-                    buildComputedOpIndex(document.getOperationsReflection()),
-                    currentTimeMillisState,
-                    clock,
-                )
+                        snapshotState,
+                        buildComputedOpIndex(document.getOperationsReflection()),
+                        currentTimeMillisState,
+                        clock,
+                    )
+                    .also { gc -> gc.setTypefaceResolver(remoteContext.typefaceResolver) }
             }
         }
 
@@ -458,6 +468,7 @@ public fun RcPlayer(
                 }
             }
         }
+        graphContext?.componentValues = componentValueStateMap
 
         val stateUpdater = remember(remoteContext) { StateUpdaterImpl(remoteContext) }
         // The image loader: the caller-supplied one, or the default that wraps embedded bitmaps.
@@ -526,10 +537,13 @@ public fun RcPlayer(
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     customPlugins: CustomPluginRegistry? = null,
+    theme: Int = Theme.SYSTEM,
 ) {
     check(RemoteComposePlayerFlags.isEmbeddedPlayerEnabled) {
         "Embedded player is disabled. Set RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true to enable."
     }
+
+    RemoteImageSupport.enableEncodedImageReferences()
 
     val coreDoc =
         remember(capturedDocument) {
@@ -551,6 +565,7 @@ public fun RcPlayer(
         customPlugins = customPlugins,
         lambdas = capturedDocument.lambdas,
         pendingIntents = capturedDocument.pendingIntents,
+        theme = theme,
     )
 }
 

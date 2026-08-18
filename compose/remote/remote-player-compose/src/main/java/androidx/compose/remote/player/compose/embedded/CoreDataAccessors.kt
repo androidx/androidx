@@ -24,9 +24,11 @@ import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteComposeState
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.TimeVariables
+import androidx.compose.remote.core.VariableSupport
 import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.ClipPath
+import androidx.compose.remote.core.operations.ComponentData
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.DrawBase2
 import androidx.compose.remote.core.operations.DrawBase3
@@ -50,6 +52,7 @@ import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
 import androidx.compose.remote.core.operations.TouchExpression
 import androidx.compose.remote.core.operations.layout.Component
+import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
@@ -444,6 +447,54 @@ internal fun CoreDocument.applyOperationsReflection(
     operations: ArrayList<Operation>,
 ) {
     docApplyOperationsMethod.invoke(this, context, operations)
+}
+
+/**
+ * Applies operations during document setup without eagerly decoding bitmaps. Registers [BitmapData]
+ * metadata on the context so images can be decoded lazily on demand without blocking setup
+ * traversal or failing on unresolved remote URLs.
+ */
+internal fun applyOperationsWithoutBitmaps(context: RemoteContext, list: List<Operation>) {
+    for (i in list.indices) {
+        val op = list[i]
+        if (op is VariableSupport) {
+            op.updateVariables(context)
+        }
+        if (op is Component) {
+            op.updateVariables(context)
+        }
+        op.markNotDirty()
+        context.incrementOpCount()
+        if (op is BitmapData) {
+            // Register metadata object without decoding pixels
+            context.putObject(op.mImageId, op)
+        } else if (op is Container) {
+            if (op is ComponentData) {
+                op.apply(context)
+            }
+            applyOperationsWithoutBitmaps(context, (op as Container).list)
+        } else {
+            op.apply(context)
+        }
+    }
+}
+
+/**
+ * Initializes document data operations while deferring bitmap decoding for lazy playback.
+ *
+ * Note: CoreDocument's applyDataOperations ends with `if (UPDATE_VARIABLES_BEFORE_LAYOUT)
+ * mFirstPaint = true`, which is omitted here as UPDATE_VARIABLES_BEFORE_LAYOUT is currently false
+ * in CoreDocument.
+ */
+internal fun CoreDocument.applyDataOperationsWithoutBitmaps(context: RemoteContext) {
+    context.mode = RemoteContext.ContextMode.DATA
+    try {
+        updateTimeReflection(context)
+        registerVariablesReflection(context, getOperationsReflection())
+        applyOperationsWithoutBitmaps(context, getOperationsReflection())
+    } finally {
+        context.mode = RemoteContext.ContextMode.UNSET
+    }
 }
 
 private val docOperationsField =

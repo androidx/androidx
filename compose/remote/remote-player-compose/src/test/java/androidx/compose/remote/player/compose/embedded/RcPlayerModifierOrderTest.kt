@@ -155,6 +155,42 @@ class RcPlayerModifierOrderTest {
         }
     }
 
+    @Test
+    fun testPaddingBeforeRoundedClipWithoutPriorDrawContent() {
+        val componentModifiers = ComponentModifiers()
+        // Padding before RoundedClipRect without prior DrawContent
+        componentModifiers.add(PaddingModifierOperation(10f, 10f, 10f, 10f))
+        componentModifiers.add(RoundedClipRectModifierOperation(10f, 10f, 10f, 10f))
+
+        var resolvedModifier: Modifier = Modifier
+
+        rule.setContent {
+            CompositionLocalProvider(
+                LocalRemoteContext provides remoteContext,
+                LocalCoreDocument provides CoreDocument(),
+            ) {
+                resolvedModifier = componentModifiers.toModifier(drawOpsList = emptyList())
+            }
+        }
+
+        val elements = resolvedModifier.toElementList()
+        // Padding modifier must be first, followed by Clip/GraphicsLayer, followed by
+        // DrawWithContent
+        assertEquals(3, elements.size)
+        assert(elements[0].javaClass.name.contains("Padding")) {
+            "Expected Padding modifier first, got ${elements[0].javaClass.name}"
+        }
+        assert(
+            elements[1].javaClass.name.contains("GraphicsLayer") ||
+                elements[1].javaClass.name.contains("Clip")
+        ) {
+            "Expected Clip/GraphicsLayer modifier second, got ${elements[1].javaClass.name}"
+        }
+        assert(elements[2].javaClass.name.contains("DrawWithContent")) {
+            "Expected DrawWithContent modifier third, got ${elements[2].javaClass.name}"
+        }
+    }
+
     private fun Modifier.toElementList(): List<Modifier.Element> {
         val list = mutableListOf<Modifier.Element>()
         foldIn(list) { acc, element ->

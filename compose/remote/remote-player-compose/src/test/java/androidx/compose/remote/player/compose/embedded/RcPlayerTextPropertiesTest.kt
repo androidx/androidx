@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -133,5 +134,16 @@ class RcPlayerTextPropertiesTest {
 
             rule.onNodeWithText("Hello Remote Properties").assertIsDisplayed()
         }
+    }
+
+    @Test
+    fun testTextAlignJustifyWithoutJustificationModeMapsToStart() {
+        val textAlignWithoutJustification =
+            resolveTextAlign(CoreText.TEXT_ALIGN_JUSTIFY, CoreText.JUSTIFICATION_MODE_NONE)
+        assertThat(textAlignWithoutJustification).isEqualTo(TextAlign.Start)
+
+        val textAlignWithJustification =
+            resolveTextAlign(CoreText.TEXT_ALIGN_JUSTIFY, CoreText.JUSTIFICATION_MODE_INTER_WORD)
+        assertThat(textAlignWithJustification).isEqualTo(TextAlign.Justify)
     }
 }

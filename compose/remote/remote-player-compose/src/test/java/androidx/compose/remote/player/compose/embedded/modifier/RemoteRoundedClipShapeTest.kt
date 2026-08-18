@@ -17,7 +17,6 @@
 package androidx.compose.remote.player.compose.embedded.modifier
 
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
@@ -36,8 +35,6 @@ class RemoteRoundedClipShapeTest {
     private val density = Density(2f)
     private val size = Size(100f, 200f)
 
-    private fun corner(value: State<Float>, literal: Boolean = true) = ClipCorner(value, literal)
-
     @Test
     fun resolvesToFallbackWhenNaN() {
         val topStart = mutableStateOf(Float.NaN)
@@ -45,13 +42,7 @@ class RemoteRoundedClipShapeTest {
         val bottomEnd = mutableStateOf(10f)
         val bottomStart = mutableStateOf(10f)
 
-        val shape =
-            RemoteRoundedClipShape(
-                corner(topStart, false),
-                corner(topEnd),
-                corner(bottomEnd),
-                corner(bottomStart),
-            )
+        val shape = RemoteRoundedClipShape(topStart, topEnd, bottomEnd, bottomStart)
         val outline = shape.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
 
         // minDimension = 100f, fallback = minDimension / 2f = 50f
@@ -66,20 +57,14 @@ class RemoteRoundedClipShapeTest {
         val bottomEnd = mutableStateOf(10f)
         val bottomStart = mutableStateOf(10f)
 
-        val shape =
-            RemoteRoundedClipShape(
-                corner(topStart),
-                corner(topEnd),
-                corner(bottomEnd),
-                corner(bottomStart),
-            )
+        val shape = RemoteRoundedClipShape(topStart, topEnd, bottomEnd, bottomStart)
         val outline = shape.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
 
         assertEquals(0f, outline.roundRect.topLeftCornerRadius.x)
     }
 
     @Test
-    fun resolvesVariableCornerToEvaluatedValue() {
+    fun resolvesVariableCornerWithDensityUnderDpBehavior() {
         val topStart = mutableStateOf(25f)
         val topEnd = mutableStateOf(10f)
         val bottomEnd = mutableStateOf(10f)
@@ -87,15 +72,81 @@ class RemoteRoundedClipShapeTest {
 
         val shape =
             RemoteRoundedClipShape(
-                corner(topStart, literal = false),
-                corner(topEnd),
-                corner(bottomEnd),
-                corner(bottomStart),
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
+                densityBehavior = CoreDocument.DENSITY_BEHAVIOR_DP,
             )
         val outline = shape.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
 
-        // Variable corner evaluated to 25f is used directly (not density scaled)
-        assertEquals(25f, outline.roundRect.topLeftCornerRadius.x)
+        // Variable corner evaluated to 25f is density scaled: 25f * 2.0 = 50f
+        assertEquals(50f, outline.roundRect.topLeftCornerRadius.x)
+    }
+
+    @Test
+    fun resolvedCornerMatchesRemoteCoreDensityBehavior() {
+        val topStart = mutableStateOf(25f)
+        val topEnd = mutableStateOf(10f)
+        val bottomEnd = mutableStateOf(10f)
+        val bottomStart = mutableStateOf(10f)
+
+        val shapeDp =
+            RemoteRoundedClipShape(
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
+                densityBehavior = CoreDocument.DENSITY_BEHAVIOR_DP,
+            )
+        val outlineDp = shapeDp.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
+        assertEquals(50f, outlineDp.roundRect.topLeftCornerRadius.x)
+
+        val shapePx =
+            RemoteRoundedClipShape(
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
+                densityBehavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS,
+            )
+        val outlinePx = shapePx.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
+        assertEquals(25f, outlinePx.roundRect.topLeftCornerRadius.x)
+
+        val shapeScale =
+            RemoteRoundedClipShape(
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
+                densityBehavior = CoreDocument.DENSITY_BEHAVIOR_LEGACY,
+            )
+        val outlineScale =
+            shapeScale.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
+        assertEquals(25f, outlineScale.roundRect.topLeftCornerRadius.x)
+    }
+
+    @Test
+    fun shapeAppliesDpBehaviorAfterReactiveResolution() {
+        val topStart = mutableStateOf(10f)
+        val topEnd = mutableStateOf(10f)
+        val bottomEnd = mutableStateOf(10f)
+        val bottomStart = mutableStateOf(10f)
+
+        val shape =
+            RemoteRoundedClipShape(
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
+                densityBehavior = CoreDocument.DENSITY_BEHAVIOR_DP,
+            )
+        val outline1 = shape.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
+        assertEquals(20f, outline1.roundRect.topLeftCornerRadius.x) // 10 * 2
+
+        topStart.value = 30f
+        val outline2 = shape.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
+        assertEquals(60f, outline2.roundRect.topLeftCornerRadius.x) // 30 * 2
     }
 
     @Test
@@ -107,10 +158,10 @@ class RemoteRoundedClipShapeTest {
 
         val shape =
             RemoteRoundedClipShape(
-                corner(topStart, literal = true),
-                corner(topEnd),
-                corner(bottomEnd),
-                corner(bottomStart),
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
                 densityBehavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS,
             )
         val outline = shape.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
@@ -128,10 +179,10 @@ class RemoteRoundedClipShapeTest {
 
         val shapeDp =
             RemoteRoundedClipShape(
-                corner(topStart, literal = true),
-                corner(topEnd, literal = true),
-                corner(bottomEnd, literal = true),
-                corner(bottomStart, literal = true),
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
                 densityBehavior = CoreDocument.DENSITY_BEHAVIOR_DP,
             )
         val outlineDp = shapeDp.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
@@ -141,10 +192,10 @@ class RemoteRoundedClipShapeTest {
 
         val shapePx =
             RemoteRoundedClipShape(
-                corner(topStart, literal = true),
-                corner(topEnd, literal = true),
-                corner(bottomEnd, literal = true),
-                corner(bottomStart, literal = true),
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
                 densityBehavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS,
             )
         val outlinePx = shapePx.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
@@ -162,10 +213,10 @@ class RemoteRoundedClipShapeTest {
 
         val shape =
             RemoteRoundedClipShape(
-                corner(topStart),
-                corner(topEnd),
-                corner(bottomEnd),
-                corner(bottomStart),
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
                 densityBehavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS,
             )
 
@@ -188,10 +239,10 @@ class RemoteRoundedClipShapeTest {
 
         val shape =
             RemoteRoundedClipShape(
-                corner(topStart, literal = false),
-                corner(topEnd, literal = false),
-                corner(bottomEnd, literal = false),
-                corner(bottomStart, literal = false),
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
                 densityBehavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS,
             )
         // size.width = 100f, topStart (80) + topEnd (80) = 160 > 100
@@ -211,10 +262,10 @@ class RemoteRoundedClipShapeTest {
 
         val shape =
             RemoteRoundedClipShape(
-                corner(topStart, literal = false),
-                corner(topEnd, literal = false),
-                corner(bottomEnd, literal = false),
-                corner(bottomStart, literal = false),
+                topStart,
+                topEnd,
+                bottomEnd,
+                bottomStart,
                 densityBehavior = CoreDocument.DENSITY_BEHAVIOR_PIXELS,
             )
         val outline = shape.createOutline(size, LayoutDirection.Ltr, density) as Outline.Rounded
