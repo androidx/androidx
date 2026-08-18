@@ -18,6 +18,7 @@ package androidx.xr.compose.subspace.animation.follow
 
 import androidx.annotation.RestrictTo
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
+import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -29,6 +30,7 @@ import kotlinx.coroutines.withContext
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal object StaticFollowBehavior : FollowBehavior() {
     override suspend fun start(
+        session: Session,
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
         dimensions: TrackedDimensions,
@@ -36,7 +38,7 @@ internal object StaticFollowBehavior : FollowBehavior() {
         if (target is FollowTargetFlow) {
             withContext(dispatcherOverride) {
                 // Suspends until the first item is emitted, then cancel automatically.
-                val firstPose: Pose = target.poseUpdates.first()
+                val firstPose: Pose = target.poseUpdates(session).first()
 
                 // The pose should be updated first before enabling.
                 trailingEntity.poseInMeters = firstPose

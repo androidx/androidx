@@ -21,6 +21,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
+import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import kotlinx.coroutines.coroutineScope
@@ -46,6 +47,7 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
     private val animationProgress = Animatable(initialValue = ANIMATION_START_VALUE)
 
     override suspend fun start(
+        session: Session,
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
         dimensions: TrackedDimensions,
@@ -55,10 +57,12 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
 
         if (target is FollowTargetFlow) {
             withContext(dispatcherOverride) {
+                val poseUpdatesFlow = target.poseUpdates(session)
+
                 // The first device pose received is handled differently than the rest. There is no
                 // animation to the trailingEntity, it will instantly appear at the device location.
                 // It will also be made visible, enabled, at this time.
-                val pose = target.poseUpdates.first()
+                val pose = poseUpdatesFlow.first()
                 var currentTargetPoseMeter: Pose =
                     getPoseByTrackedDimensions(
                         pose = pose,
@@ -69,7 +73,7 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
                 trailingEntity.enabled = true
                 var lastIntendedEndPoseMeter: Pose = currentTargetPoseMeter
 
-                target.poseUpdates.collect { pose ->
+                poseUpdatesFlow.collect { pose ->
                     // Determine the target pose using the source pose but ignoring the
                     // dimensions we are not tracking.
                     currentTargetPoseMeter =

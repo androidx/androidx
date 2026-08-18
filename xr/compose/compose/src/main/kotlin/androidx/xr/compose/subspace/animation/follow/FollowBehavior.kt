@@ -20,6 +20,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
+import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -34,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class FollowBehavior internal constructor() {
     internal abstract suspend fun start(
+        session: Session,
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
         dimensions: TrackedDimensions = TrackedDimensions.All,
