@@ -18,6 +18,7 @@ package androidx.xr.compose.subspace.animation.follow
 
 import androidx.annotation.RestrictTo
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
+import androidx.xr.runtime.Session
 import kotlinx.coroutines.withContext
 
 /**
@@ -27,6 +28,7 @@ import kotlinx.coroutines.withContext
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal object TightFollowBehavior : FollowBehavior() {
     override suspend fun start(
+        session: Session,
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
         dimensions: TrackedDimensions,
@@ -35,7 +37,7 @@ internal object TightFollowBehavior : FollowBehavior() {
 
         if (target is FollowTargetFlow) {
             withContext(dispatcherOverride) {
-                target.poseUpdates.collect { pose ->
+                target.poseUpdates(session).collect { pose ->
                     trailingEntity.poseInMeters = pose
                     if (!isInitialized) {
                         trailingEntity.enabled = true
