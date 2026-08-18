@@ -35,37 +35,58 @@ import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
+@OptIn(ExperimentalSerializationApi::class)
 @Suppress("UNCHECKED_CAST", "IMPLICIT_CAST_TO_ANY")
 internal actual fun <T> SavedStateDecoder.decodeFormatSpecificTypesOnPlatform(
     strategy: DeserializationStrategy<T>
 ): T? {
-    return when (strategy.descriptor) {
-        polymorphicCharSequenceDescriptor -> CharSequenceSerializer.deserialize(this)
-        polymorphicParcelableDescriptor -> DefaultParcelableSerializer.deserialize(this)
-        polymorphicJavaSerializableDescriptor -> DefaultJavaSerializableSerializer.deserialize(this)
-        polymorphicIBinderDescriptor -> IBinderSerializer.deserialize(this)
-        charSequenceArrayDescriptor,
-        polymorphicCharSequenceArrayDescriptor,
-        nullablePolymorphicCharSequenceArrayDescriptor ->
-            CharSequenceArraySerializer.deserialize(this)
-        charSequenceListDescriptor,
-        polymorphicCharSequenceListDescriptor,
-        nullablePolymorphicCharSequenceListDescriptor ->
-            CharSequenceListSerializer.deserialize(this)
-        parcelableArrayDescriptor -> {
-            val parcelableArr = ParcelableArraySerializer.deserialize(this)
-            val arrayKClass = getArrayKClass(strategy)
-            Arrays.copyOf(parcelableArr, parcelableArr.size, arrayKClass.java)
-        }
-        polymorphicParcelableArrayDescriptor,
-        nullablePolymorphicParcelableArrayDescriptor -> ParcelableArraySerializer.deserialize(this)
-        parcelableListDescriptor,
-        polymorphicParcelableListDescriptor,
-        nullablePolymorphicParcelableListDescriptor -> ParcelableListSerializer.deserialize(this)
-        sparseParcelableArrayDescriptor,
-        polymorphicSparseParcelableArrayDescriptor,
-        nullablePolymorphicSparseParcelableArrayDescriptor ->
-            SparseParcelableArraySerializer.deserialize(this)
+    val descriptor = strategy.descriptor
+    // Check the serial name first. This routes execution quickly. It prevents slow structural
+    // equality checks for basic types. This improves performance.
+    return when (descriptor.serialName) {
+        ARRAY_LIST_NAME ->
+            when (descriptor) {
+                charSequenceListDescriptor,
+                polymorphicCharSequenceListDescriptor,
+                nullablePolymorphicCharSequenceListDescriptor ->
+                    CharSequenceListSerializer.deserialize(this)
+                parcelableListDescriptor,
+                polymorphicParcelableListDescriptor,
+                nullablePolymorphicParcelableListDescriptor ->
+                    ParcelableListSerializer.deserialize(this)
+                else -> null
+            }
+
+        ARRAY_NAME ->
+            when (descriptor) {
+                charSequenceArrayDescriptor,
+                polymorphicCharSequenceArrayDescriptor,
+                nullablePolymorphicCharSequenceArrayDescriptor ->
+                    CharSequenceArraySerializer.deserialize(this)
+                parcelableArrayDescriptor -> {
+                    val parcelableArr = ParcelableArraySerializer.deserialize(this)
+                    val arrayKClass = getArrayKClass(strategy)
+                    Arrays.copyOf(parcelableArr, parcelableArr.size, arrayKClass.java)
+                }
+                polymorphicParcelableArrayDescriptor,
+                nullablePolymorphicParcelableArrayDescriptor ->
+                    ParcelableArraySerializer.deserialize(this)
+                else -> null
+            }
+
+        SPARSE_ARRAY_NAME ->
+            when (descriptor) {
+                sparseParcelableArrayDescriptor,
+                polymorphicSparseParcelableArrayDescriptor,
+                nullablePolymorphicSparseParcelableArrayDescriptor ->
+                    SparseParcelableArraySerializer.deserialize(this)
+                else -> null
+            }
+
+        POLYMORPHIC_CHAR_SEQUENCE_NAME -> CharSequenceSerializer.deserialize(this)
+        POLYMORPHIC_PARCELABLE_NAME -> DefaultParcelableSerializer.deserialize(this)
+        POLYMORPHIC_JAVA_SERIALIZABLE_NAME -> DefaultJavaSerializableSerializer.deserialize(this)
+        POLYMORPHIC_IBINDER_NAME -> IBinderSerializer.deserialize(this)
         else -> null
     }
         as T?
