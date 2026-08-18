@@ -30,6 +30,7 @@ import javax.inject.Inject
  * Helper class to provide the StreamConfigurationMap output sizes related correction functions.
  * 1. ExtraSupportedOutputSizeQuirk
  * 2. ExcludedSupportedSizesContainer
+ * 3. DngCreatorSizeMismatch
  */
 @CameraScope
 public class OutputSizesCorrector
@@ -43,12 +44,14 @@ constructor(
         DeviceQuirks[ExcludedSupportedSizesQuirk::class.java]
     private val extraSupportedOutputSizeQuirk: ExtraSupportedOutputSizeQuirk? =
         DeviceQuirks[ExtraSupportedOutputSizeQuirk::class.java]
+    private val dngCreatorSizeMismatch = DngCreatorSizeMismatch(cameraMetadata)
 
     /** Applies the output sizes related quirks onto the input sizes array. */
     public fun applyQuirks(sizes: Array<Size>, format: Int): Array<Size> {
         val sizeList = sizes.toMutableList()
         addExtraSupportedOutputSizesByFormat(sizeList, format)
         excludeProblematicOutputSizesByFormat(sizeList, format)
+        dngCreatorSizeMismatch.filterRawSizes(sizeList, format)
         if (sizeList.isEmpty()) {
             Logger.w(tag, "Sizes array becomes empty after excluding problematic output sizes.")
         }

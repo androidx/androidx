@@ -80,6 +80,14 @@ public object DeviceQuirksLoader {
         }
         if (
             quirkSettings.shouldEnableQuirk(
+                DngCreatorSizeMismatchQuirk::class.java,
+                DngCreatorSizeMismatchQuirk.load(),
+            )
+        ) {
+            quirks.add(DngCreatorSizeMismatchQuirk())
+        }
+        if (
+            quirkSettings.shouldEnableQuirk(
                 FlashAvailabilityBufferUnderflowQuirk::class.java,
                 FlashAvailabilityBufferUnderflowQuirk.isEnabled(),
             )
