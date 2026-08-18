@@ -33,10 +33,8 @@ import androidx.savedstate.SavedStateRegistryOwner
  * does not invoke the factory/controller), the recreator hook will restore the controller and
  * reattach it to the new registry prior to state saving, preventing data loss.
  */
-internal fun attachSavedStateHandleOnNextRecreation(
-    owner: SavedStateRegistryOwner,
-    controller: SavedStateHandleController,
-) {
+@Suppress("DEPRECATION") // Kept for backward compatibility with legacy components.
+internal fun attachSavedStateHandleOnNextRecreation(owner: SavedStateRegistryOwner) {
     val lifecycle = owner.lifecycle
     val currentState = lifecycle.currentState
     if (
@@ -60,6 +58,7 @@ internal fun attachSavedStateHandleOnNextRecreation(
  * This class is instantiated via reflection by the [SavedStateRegistry] during the host's creation
  * phase if it was previously registered.
  */
+@Suppress("DEPRECATION")
 private class OnRecreation : AutoRecreated {
     override fun onRecreated(owner: SavedStateRegistryOwner) {
         check(owner is ViewModelStoreOwner) {
@@ -71,8 +70,8 @@ private class OnRecreation : AutoRecreated {
         // to the new SavedStateRegistry of the recreated host. This ensures that
         // the state will still be saved even if the client never accesses the ViewModels
         // on the new host instance.
-        val controller = SavedStateHandleController.getOrCreate(owner, owner)
+        SavedStateHandleController.getOrCreate(owner, owner)
         // Prime the recreation hook again for the next configuration change.
-        attachSavedStateHandleOnNextRecreation(owner, controller)
+        attachSavedStateHandleOnNextRecreation(owner)
     }
 }
