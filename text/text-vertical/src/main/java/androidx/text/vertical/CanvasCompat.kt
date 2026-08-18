@@ -27,31 +27,30 @@ private data class MetricCacheKey(val typeface: Typeface?) {
     constructor(paint: Paint) : this(paint.typeface)
 }
 
-private val metricCache = LruCache<MetricCacheKey, Paint.FontMetrics>(2)
+private val metricCache = LruCache<MetricCacheKey, Float>(2)
 
-/** Returns the normalized font metrics for vertical writing. */
-private fun getStaticMetrics(paint: Paint): Paint.FontMetrics {
+/** Returns the calculated ascent ratio for vertical writing. */
+private fun getStaticAscentRatio(paint: Paint): Float {
     val key = MetricCacheKey(paint)
     return metricCache.get(key) ?: createCJKMetrics(paint).also { metricCache.put(key, it) }
 }
 
 /**
- * Create font metrics for 1px text size (i.e. 1em = 1px) so that it can be reused for multiple text
- * sizes. Scaled metrics should be used by multiplying the text size. This metrics is calculated
- * based on CJK character "あ" with the given paint (mainly for the typeface) as a best-effort
- * estimation.
+ * Calculates the ascent ratio for 1px text size (i.e. 1em = 1px) so that it can be reused for
+ * multiple text sizes. Scaled metrics should be used by multiplying the text size. This metrics is
+ * calculated based on CJK character "あ" with the given paint (mainly for the typeface) as a
+ * best-effort estimation.
  */
-private fun createCJKMetrics(paint: Paint): Paint.FontMetrics {
+private fun createCJKMetrics(paint: Paint): Float {
     val oldTextSize = paint.textSize
     return try {
         paint.textSize = 1000f
         val metrics = Paint.FontMetricsInt()
         // Use a common CJK character to estimate vertical metrics.
         paint.getFontMetricsIntCompat("あ", 0, 1, 0, 1, false, metrics)
-        val res = Paint.FontMetrics()
-        res.ascent = metrics.ascent / 1000f
-        res.descent = metrics.descent / 1000f
-        res
+        val ascent = metrics.ascent.toFloat()
+        val descent = metrics.descent.toFloat()
+        ascent / (ascent - descent)
     } finally {
         paint.textSize = oldTextSize
     }
@@ -79,7 +78,7 @@ internal fun Canvas.drawTextVertical(
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
         paint.withVerticalFlag() { drawText(text, start, end, x, y, paint) }
     } else {
-        val metrics = getStaticMetrics(paint)
+        val ascentRatio = getStaticAscentRatio(paint)
         val oldFontFeatureSettings = paint.fontFeatureSettings
         try {
             // Enable vertical glyph alternates if available in the font.
@@ -100,8 +99,10 @@ internal fun Canvas.drawTextVertical(
 
             var clusterStartIndex = 0
             // Initial yOffset positions the baseline of the first character.
-            // metrics.ascent is negative, so this shifts the baseline down.
-            var yOffset = y - metrics.ascent * paint.textSize
+            // In CJK fonts, the hhea ascender/descender can be looser than the vmtx height.
+            // Using Paint.FontMetrics.ascent directly can shift the glyph down, so as a
+            // workaround, we use a calculated ratio of the ascent within the 1em height.
+            var yOffset = y + ascentRatio * paint.textSize
 
             for (clusterEndIndex in 1 until end - start) {
                 // In many fonts/APIs, non-first characters in a cluster have 0 advance.
@@ -117,6 +118,7 @@ internal fun Canvas.drawTextVertical(
                         paint,
                     )
                     clusterStartIndex = clusterEndIndex
+
                     // Each cluster is assumed to take 1em (paint.textSize) height.
                     yOffset += paint.textSize
                 }
