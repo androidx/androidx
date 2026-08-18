@@ -47,6 +47,7 @@ class OpenId4VciRegistryTest {
                         entries =
                             listOf(
                                 OpenId4VciDisplayData.Entry(
+                                    id = "entry_id_1",
                                     subtitle = "test_subtitle",
                                     explainer =
                                         OpenId4VciDisplayData.Explainer(
@@ -84,6 +85,7 @@ class OpenId4VciRegistryTest {
         val entries = json.getJSONArray("entries")
         assertThat(entries.length()).isEqualTo(1)
         val entry = entries.getJSONObject(0)
+        assertThat(entry.getString("id")).isEqualTo("entry_id_1")
         assertThat(entry.has("title")).isFalse()
         assertThat(entry.has("icon")).isFalse()
         assertThat(entry.getString("subtitle")).isEqualTo("test_subtitle")
@@ -113,6 +115,7 @@ class OpenId4VciRegistryTest {
                         entries =
                             listOf(
                                 OpenId4VciDisplayData.Entry(
+                                    id = "entry_id_1",
                                     subtitle = "test_subtitle",
                                     explainer =
                                         OpenId4VciDisplayData.Explainer(
@@ -144,6 +147,7 @@ class OpenId4VciRegistryTest {
         val entries = json.getJSONArray("entries")
         assertThat(entries.length()).isEqualTo(1)
         val entry = entries.getJSONObject(0)
+        assertThat(entry.getString("id")).isEqualTo("entry_id_1")
         assertThat(entry.has("title")).isFalse()
         assertThat(entry.has("icon")).isFalse()
         assertThat(entry.getString("subtitle")).isEqualTo("test_subtitle")
@@ -198,46 +202,22 @@ class OpenId4VciRegistryTest {
     }
 
     @Test
-    fun create_withEmptyEntriesButHolderInfo() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val iconBytes = byteArrayOf(1, 2, 3)
-        val registry =
-            OpenId4VciRegistry.create(
-                context = context,
-                id = "test_id",
-                filter = PassFilter(),
-                displayData =
-                    OpenId4VciDisplayData(
-                        entries = emptyList(),
-                        holderDisplayData =
-                            OpenId4VciDisplayData.HolderDisplayData(
-                                name = "Holder",
-                                icon = iconBytes,
-                            ),
-                    ),
-                intentAction = "test_action",
-            )
+    fun displayData_emptyEntries_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            OpenId4VciDisplayData(entries = emptyList())
+        }
+    }
 
-        val creationOptions = registry.creationOptions
-        assertThat(creationOptions.sliceArray(0 until 4)).isEqualTo(byteArrayOf(7, 0, 0, 0))
-        assertThat(creationOptions.sliceArray(4 until 7)).isEqualTo(iconBytes)
+    @Test
+    fun entry_blankId_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            OpenId4VciDisplayData.Entry(id = "  ")
+        }
+    }
 
-        val jsonBytes = creationOptions.sliceArray(7 until creationOptions.size)
-        val json = JSONObject(String(jsonBytes, Charsets.UTF_8))
-
-        val entries = json.getJSONArray("entries")
-        assertThat(entries.length()).isEqualTo(1)
-        val entry = entries.getJSONObject(0)
-        assertThat(entry.has("title")).isFalse()
-        assertThat(entry.has("icon")).isFalse()
-        assertThat(entry.has("subtitle")).isFalse()
-        assertThat(entry.has("explainer")).isFalse()
-
-        val packageInfo = json.getJSONObject("self_declared_package_info")
-        assertThat(packageInfo.getString("name")).isEqualTo("Holder")
-        val iconRange = packageInfo.getJSONArray("icon")
-        assertThat(iconRange.getInt(0)).isEqualTo(4)
-        assertThat(iconRange.getInt(1)).isEqualTo(7)
+    @Test
+    fun entry_emptyId_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) { OpenId4VciDisplayData.Entry(id = "") }
     }
 
     @Test
@@ -253,8 +233,9 @@ class OpenId4VciRegistryTest {
                     OpenId4VciDisplayData(
                         entries =
                             listOf(
-                                OpenId4VciDisplayData.Entry(subtitle = "sub1"),
+                                OpenId4VciDisplayData.Entry(id = "entry_id_1", subtitle = "sub1"),
                                 OpenId4VciDisplayData.Entry(
+                                    id = "entry_id_2",
                                     subtitle = "sub2",
                                     explainer = OpenId4VciDisplayData.Explainer(default = "default"),
                                 ),
@@ -279,12 +260,14 @@ class OpenId4VciRegistryTest {
         assertThat(entries.length()).isEqualTo(2)
 
         val entry1 = entries.getJSONObject(0)
+        assertThat(entry1.getString("id")).isEqualTo("entry_id_1")
         assertThat(entry1.has("title")).isFalse()
         assertThat(entry1.has("icon")).isFalse()
         assertThat(entry1.getString("subtitle")).isEqualTo("sub1")
         assertThat(entry1.has("explainer")).isFalse()
 
         val entry2 = entries.getJSONObject(1)
+        assertThat(entry2.getString("id")).isEqualTo("entry_id_2")
         assertThat(entry2.has("title")).isFalse()
         assertThat(entry2.has("icon")).isFalse()
         assertThat(entry2.getString("subtitle")).isEqualTo("sub2")

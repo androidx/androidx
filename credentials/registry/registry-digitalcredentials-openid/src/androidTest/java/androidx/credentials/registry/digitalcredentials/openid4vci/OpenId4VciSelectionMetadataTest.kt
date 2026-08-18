@@ -30,33 +30,27 @@ public class OpenId4VciSelectionMetadataTest {
 
     @Test
     fun parse_validJson_success() {
-        val json = """{"eidx":1,"ridx":2}"""
+        val json = """{"eid":"entry_id_1","ridx":2}"""
         val metadata = OpenId4VciSelectionMetadata.parse(json)
-        assertThat(metadata.entryIndex).isEqualTo(1)
+        assertThat(metadata.entryId).isEqualTo("entry_id_1")
         assertThat(metadata.requestIndex).isEqualTo(2)
     }
 
     @Test
     fun parse_malformedJson_throwsJSONException() {
-        val json = """{"eidx":1,"ridx"}"""
+        val json = """{"eid":"entry_id_1","ridx"}"""
         assertThrows(JSONException::class.java) { OpenId4VciSelectionMetadata.parse(json) }
     }
 
     @Test
-    fun parse_missingEntryIndex_throwsJSONException() {
+    fun parse_missingEntryId_throwsJSONException() {
         val json = """{"ridx":2}"""
         assertThrows(JSONException::class.java) { OpenId4VciSelectionMetadata.parse(json) }
     }
 
     @Test
     fun parse_missingRequestIndex_throwsJSONException() {
-        val json = """{"eidx":1}"""
-        assertThrows(JSONException::class.java) { OpenId4VciSelectionMetadata.parse(json) }
-    }
-
-    @Test
-    fun parse_invalidValueType_throwsJSONException() {
-        val json = """{"eidx":"one","ridx":2}"""
+        val json = """{"eid":"entry_id_1"}"""
         assertThrows(JSONException::class.java) { OpenId4VciSelectionMetadata.parse(json) }
     }
 }
