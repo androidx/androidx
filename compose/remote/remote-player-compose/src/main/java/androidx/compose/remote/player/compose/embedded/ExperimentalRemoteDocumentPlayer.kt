@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.collection.ObjectIntMap
 import androidx.collection.emptyObjectIntMap
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.state.StateUpdater
@@ -31,6 +32,9 @@ import androidx.compose.ui.Modifier
 /**
  * A preview-friendly/experimental wrapper of [RcPlayer] that accepts a [RemoteDocument] instead of
  * the raw [CoreDocument].
+ *
+ * If the document contains URL or file-backed image references, call
+ * [RemoteImageSupport.enableEncodedImageReferences] before constructing the [RemoteDocument].
  */
 @OptIn(ExperimentalRemotePlayerApi::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -43,6 +47,7 @@ public fun ExperimentalRemoteDocumentPlayer(
     isShaderValid: (shaderSource: String) -> Boolean = { true },
     onAction: (actionId: Int, value: String?) -> Unit = { _, _ -> },
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
+    theme: Int = Theme.SYSTEM,
 ) {
     RcPlayer(
         document = document.document,
@@ -52,5 +57,6 @@ public fun ExperimentalRemoteDocumentPlayer(
         isShaderValid = isShaderValid,
         onAction = onAction,
         onNamedAction = onNamedAction,
+        theme = theme,
     )
 }
