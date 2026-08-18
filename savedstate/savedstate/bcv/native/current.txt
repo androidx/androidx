@@ -62,13 +62,18 @@ final class androidx.savedstate/SavedState { // androidx.savedstate/SavedState|n
         final fun <get-map>(): kotlin.collections/MutableMap<kotlin/String, kotlin/Any?> // androidx.savedstate/SavedState.map.<get-map>|<get-map>(){}[0]
 }
 
-final class androidx.savedstate/SavedStateRegistry { // androidx.savedstate/SavedStateRegistry|null[0]
+final class androidx.savedstate/SavedStateRegistry : androidx.savedstate/SavedStateProvider, androidx.savedstate/SavedStateRestorer { // androidx.savedstate/SavedStateRegistry|null[0]
+    constructor <init>() // androidx.savedstate/SavedStateRegistry.<init>|<init>(){}[0]
+    constructor <init>(androidx.savedstate/SavedState) // androidx.savedstate/SavedStateRegistry.<init>|<init>(androidx.savedstate.SavedState){}[0]
+
     final val isRestored // androidx.savedstate/SavedStateRegistry.isRestored|{}isRestored[0]
         final fun <get-isRestored>(): kotlin/Boolean // androidx.savedstate/SavedStateRegistry.isRestored.<get-isRestored>|<get-isRestored>(){}[0]
 
     final fun consumeRestoredStateForKey(kotlin/String): androidx.savedstate/SavedState? // androidx.savedstate/SavedStateRegistry.consumeRestoredStateForKey|consumeRestoredStateForKey(kotlin.String){}[0]
     final fun getSavedStateProvider(kotlin/String): androidx.savedstate/SavedStateRegistry.SavedStateProvider? // androidx.savedstate/SavedStateRegistry.getSavedStateProvider|getSavedStateProvider(kotlin.String){}[0]
     final fun registerSavedStateProvider(kotlin/String, androidx.savedstate/SavedStateRegistry.SavedStateProvider) // androidx.savedstate/SavedStateRegistry.registerSavedStateProvider|registerSavedStateProvider(kotlin.String;androidx.savedstate.SavedStateRegistry.SavedStateProvider){}[0]
+    final fun restoreState(androidx.savedstate/SavedState?) // androidx.savedstate/SavedStateRegistry.restoreState|restoreState(androidx.savedstate.SavedState?){}[0]
+    final fun saveState(): androidx.savedstate/SavedState // androidx.savedstate/SavedStateRegistry.saveState|saveState(){}[0]
     final fun unregisterSavedStateProvider(kotlin/String) // androidx.savedstate/SavedStateRegistry.unregisterSavedStateProvider|unregisterSavedStateProvider(kotlin.String){}[0]
 
     abstract fun interface SavedStateProvider : androidx.savedstate/SavedStateProvider { // androidx.savedstate/SavedStateRegistry.SavedStateProvider|null[0]

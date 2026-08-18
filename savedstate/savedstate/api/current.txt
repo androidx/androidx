@@ -173,12 +173,16 @@ package androidx.savedstate {
     method @BytecodeOnly public android.os.Bundle! unbox-impl();
   }
 
-  public final class SavedStateRegistry {
+  public final class SavedStateRegistry implements androidx.savedstate.SavedStateProvider androidx.savedstate.SavedStateRestorer {
+    ctor public SavedStateRegistry();
+    ctor public SavedStateRegistry(android.os.Bundle initialState);
     method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String key);
     method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String key);
     method @InaccessibleFromKotlin @MainThread public boolean isRestored();
     method @MainThread public void registerSavedStateProvider(String key, androidx.savedstate.SavedStateRegistry.SavedStateProvider provider);
+    method public void restoreState(android.os.Bundle? savedState);
     method @Deprecated @MainThread public void runOnNextRecreation(Class<? extends androidx.savedstate.SavedStateRegistry.AutoRecreated> clazz);
+    method public android.os.Bundle saveState();
     method @MainThread public void unregisterSavedStateProvider(String key);
     property @MainThread public boolean isRestored;
   }
