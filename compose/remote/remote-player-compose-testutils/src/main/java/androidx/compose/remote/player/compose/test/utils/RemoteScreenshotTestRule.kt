@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.remote.player.core.platform.AndroidCustomContext
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.remote.player.view.RemoteComposePlayer
@@ -108,6 +109,7 @@ class RemoteScreenshotTestRule(
         update: (RemoteComposePlayer) -> Unit = {},
         bitmapLoader: BitmapLoader? = null,
         typefaceResolver: TypefaceResolver? = null,
+        customSupport: AndroidCustomContext? = null,
         playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
@@ -119,6 +121,7 @@ class RemoteScreenshotTestRule(
             update = update,
             bitmapLoader = bitmapLoader,
             typefaceResolver = typefaceResolver,
+            customSupport = customSupport,
             playComposableWrapper = playComposableWrapper,
             composable = composable,
         )
@@ -136,6 +139,7 @@ class RemoteScreenshotTestRule(
         update: (RemoteComposePlayer) -> Unit = {},
         bitmapLoader: BitmapLoader? = null,
         typefaceResolver: TypefaceResolver? = null,
+        customSupport: AndroidCustomContext? = null,
         playComposableWrapper: ComposableWrapper = ComposableWrappers.noop,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
@@ -147,6 +151,7 @@ class RemoteScreenshotTestRule(
             update = update,
             bitmapLoader = bitmapLoader,
             typefaceResolver = typefaceResolver,
+            customSupport = customSupport,
             playComposableWrapper = playComposableWrapper,
             composable = composable,
         )
@@ -166,6 +171,7 @@ class RemoteScreenshotTestRule(
         update: (RemoteComposePlayer) -> Unit,
         bitmapLoader: BitmapLoader?,
         typefaceResolver: TypefaceResolver?,
+        customSupport: AndroidCustomContext?,
         playComposableWrapper: ComposableWrapper,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
@@ -179,6 +185,7 @@ class RemoteScreenshotTestRule(
                     update = update,
                     bitmapLoader = bitmapLoader,
                     typefaceResolver = typefaceResolver,
+                    customSupport = customSupport,
                 ),
             playComposableWrapper =
                 customPlayComposableWrapper(remoteCreationDisplayInfo, playComposableWrapper),
@@ -273,6 +280,7 @@ class RemoteScreenshotTestRule(
         private val update: (RemoteComposePlayer) -> Unit = {},
         private val bitmapLoader: BitmapLoader? = null,
         private val typefaceResolver: TypefaceResolver? = null,
+        private val customSupport: AndroidCustomContext? = null,
     ) : Player {
         @Composable
         override fun Play(coreDocument: CoreDocument, size: Size) {
@@ -283,6 +291,7 @@ class RemoteScreenshotTestRule(
                 update = update,
                 bitmapLoader = bitmapLoader,
                 typefaceResolver = typefaceResolver,
+                customSupport = customSupport,
             )
         }
     }
