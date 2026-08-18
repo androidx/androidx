@@ -214,6 +214,12 @@ class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
     }
 
     private fun buildGridItemForTemplate(title: CharSequence?): GridItem {
+        val imageType =
+            if (carContext.carAppApiLevel >= CarAppApiLevels.LEVEL_9) {
+                GridItem.IMAGE_TYPE_SMALL
+            } else {
+                @Suppress("DEPRECATION") GridItem.IMAGE_TYPE_ICON
+            }
         return GridItem.Builder()
             .setImage(
                 CarIcon.Builder(
@@ -223,7 +229,7 @@ class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
                         )
                     )
                     .build(),
-                GridItem.IMAGE_TYPE_ICON,
+                imageType,
             )
             .setTitle(title)
             .build()

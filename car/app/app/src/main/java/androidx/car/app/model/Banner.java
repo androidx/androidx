@@ -53,7 +53,7 @@ import java.util.Objects;
 @RequiresCarApi(9)
 public final class Banner implements Item {
     @RestrictTo(LIBRARY)
-    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_SMALL, IMAGE_TYPE_LARGE})
+    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_SMALL, IMAGE_TYPE_LARGE, IMAGE_TYPE_MEDIUM})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BannerImageType {
     }
@@ -63,15 +63,26 @@ public final class Banner implements Item {
      *
      * <p>A tint color is expected to be provided via {@link CarIcon.Builder#setTint}. Otherwise, a
      * default tint color as determined by the host will be applied.
+     *
+     * @deprecated Use {@link #IMAGE_TYPE_SMALL} instead and set explicit tint via {@link
+     *     CarIconStyle.Builder#setTint} if needed.
      */
+    @Deprecated
     public static final int IMAGE_TYPE_ICON = 1;
 
     /**
-     * Represents a small image to be displayed in the banner.
+     * Represents a small icon-sized image to be displayed in the banner.
      *
      * <p>The host renders it with standard padding and scales the image to fit within the bounds.
      */
     public static final int IMAGE_TYPE_SMALL = 2;
+
+    /**
+     * Represents a medium padded artwork image to be displayed in the banner.
+     *
+     * <p>The host renders it with standard padding and scales the image to fit within the bounds.
+     */
+    public static final int IMAGE_TYPE_MEDIUM = 3;
 
     /**
      * Represents a large edge-to-edge image to be displayed in the banner. Scales the image
@@ -79,7 +90,7 @@ public final class Banner implements Item {
      *
      * <p>This image type cannot be used in combination with {@link Builder#addBelowAction(Action)}.
      */
-    public static final int IMAGE_TYPE_LARGE = 3;
+    public static final int IMAGE_TYPE_LARGE = 4;
 
     private static final int MAX_TRAILING_ELEMENTS = 2;
 

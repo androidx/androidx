@@ -99,7 +99,11 @@ public final class Row implements Item {
      * <p>A tint color is expected to be provided via {@link CarIconStyle.Builder#setTint}
      * provided to the icon with {@link CarIcon.Builder#setStyle}.
      * Otherwise, a default tint color as determined by the host will be applied.
+     *
+     * @deprecated Use {@link #IMAGE_TYPE_SMALL} instead and set explicit tint via {@link
+     *     CarIcon.Builder#setTint} if needed.
      */
+    @Deprecated
     public static final int IMAGE_TYPE_ICON = (1 << 2);
 
     /**

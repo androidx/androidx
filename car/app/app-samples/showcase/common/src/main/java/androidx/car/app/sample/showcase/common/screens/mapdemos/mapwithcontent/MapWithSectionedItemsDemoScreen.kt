@@ -140,7 +140,12 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
                         title = "Simple Icon",
                         text = "inst. of Image",
                         image = icNavigate,
-                        imageType = GridItem.IMAGE_TYPE_ICON,
+                        imageType =
+                            if (carContext.carAppApiLevel >= CarAppApiLevels.LEVEL_9) {
+                                GridItem.IMAGE_TYPE_SMALL
+                            } else {
+                                @Suppress("DEPRECATION") GridItem.IMAGE_TYPE_ICON
+                            },
                         clickListener = {},
                     ),
                     createGridItem(
@@ -214,7 +219,7 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
                     setTitle("Rich Banner")
                     setSubtitle("Combined banner elements: images, actions, and details.")
                     setLeadingImage(icAndroid)
-                    addTrailingImage(icNavigate, Banner.IMAGE_TYPE_ICON)
+                    addTrailingImage(icNavigate, Banner.IMAGE_TYPE_SMALL)
                     addBelowAction(createAction(title = "Primary"))
                     addBelowAction(createAction(title = "Secondary"))
                     addBelowAction(createAction(icon = icInfo))

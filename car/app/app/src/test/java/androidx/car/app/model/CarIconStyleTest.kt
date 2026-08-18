@@ -17,8 +17,7 @@
 package androidx.car.app.model
 
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.Test
-import org.junit.Assert.assertThrows
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -30,40 +29,48 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 class CarIconStyleTest {
     @Test
-    fun setTint() {
-        val tint = CarColor.BLUE
-        val style = CarIconStyle.Builder().setTint(tint).build()
-        assertThat(style.tint).isEqualTo(tint)
+    fun tintedConstant() {
+        assertThat(CarIconStyle.TINTED.tint).isEqualTo(CarColor.DEFAULT)
+        assertThat(CarIconStyle.TINTED.shape).isNull()
     }
 
     @Test
-    fun setShape() {
-        val shape = Shape.CORNER_FULL
-        val style = CarIconStyle.Builder().setShape(shape).build()
-        assertThat(style.shape).isEqualTo(shape)
+    fun originalConstant() {
+        assertThat(CarIconStyle.ORIGINAL.tint).isNull()
+        assertThat(CarIconStyle.ORIGINAL.shape).isNull()
     }
 
     @Test
-    fun setTintAndShape() {
+    fun builder_fromTinted_andSetTint_updatesTintAndShape() {
         val tint = CarColor.BLUE
         val shape = Shape.CORNER_FULL
-        val style = CarIconStyle.Builder().setTint(tint).setShape(shape).build()
+        val style = CarIconStyle.Builder(CarIconStyle.TINTED).setTint(tint).setShape(shape).build()
         assertThat(style.tint).isEqualTo(tint)
         assertThat(style.shape).isEqualTo(shape)
     }
 
     @Test
-    fun build_noFieldsSet_throws() {
-        assertThrows(IllegalStateException::class.java) { CarIconStyle.Builder().build() }
+    fun builder_fromOriginal_andSetTint_updatesTint() {
+        val tint = CarColor.RED
+        val style = CarIconStyle.Builder(CarIconStyle.ORIGINAL).setTint(tint).build()
+        assertThat(style.tint).isEqualTo(tint)
+        assertThat(style.shape).isNull()
+    }
+
+    @Test
+    fun builder_fromOriginal_shapeOnly_retainsNullTint() {
+        val shape = Shape.CORNER_MEDIUM
+        val style = CarIconStyle.Builder(CarIconStyle.ORIGINAL).setShape(shape).build()
+        assertThat(style.tint).isNull()
+        assertThat(style.shape).isEqualTo(shape)
     }
 
     @Test
     fun equals() {
         val shape = Shape.CORNER_FULL
-
-        val style1 = CarIconStyle.Builder().setShape(shape).build()
-        val style2 = CarIconStyle.Builder().setShape(shape).build()
-        val style3 = CarIconStyle.Builder().setShape(Shape.NONE).build()
+        val style1 = CarIconStyle.Builder(CarIconStyle.TINTED).setShape(shape).build()
+        val style2 = CarIconStyle.Builder(CarIconStyle.TINTED).setShape(shape).build()
+        val style3 = CarIconStyle.Builder(CarIconStyle.ORIGINAL).setShape(shape).build()
 
         assertThat(style1).isEqualTo(style2)
         assertThat(style1).isNotEqualTo(style3)
@@ -73,9 +80,8 @@ class CarIconStyleTest {
     fun hashCode_match() {
         val tint = CarColor.RED
         val shape = Shape.CORNER_FULL
-
-        val style1 = CarIconStyle.Builder().setTint(tint).setShape(shape).build()
-        val style2 = CarIconStyle.Builder().setTint(tint).setShape(shape).build()
+        val style1 = CarIconStyle.Builder(CarIconStyle.TINTED).setTint(tint).setShape(shape).build()
+        val style2 = CarIconStyle.Builder(CarIconStyle.TINTED).setTint(tint).setShape(shape).build()
 
         assertThat(style1.hashCode()).isEqualTo(style2.hashCode())
     }

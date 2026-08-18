@@ -146,11 +146,13 @@ public final class PaneTemplateDemoScreen extends Screen implements DefaultLifec
                                                 .show())
                                 .build());
 
+        CarIconStyle carIconStyle =
+                new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(CarColor.BLUE).build();
         Action mapXAction = new Action.Builder()
                 .setTitle("Map+X this!")
                 .setIcon(
                         new CarIcon.Builder(mCommuteIcon)
-                                .setStyle(new CarIconStyle.Builder().setTint(CarColor.BLUE).build())
+                                .setStyle(carIconStyle)
                                 .build())
                 .setOnClickListener(
                         () -> getScreenManager().push(new MapPaneDemoScreen(getCarContext())))

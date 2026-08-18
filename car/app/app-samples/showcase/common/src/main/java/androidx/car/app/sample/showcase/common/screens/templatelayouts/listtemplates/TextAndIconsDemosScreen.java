@@ -101,7 +101,7 @@ public final class TextAndIconsDemosScreen extends Screen {
                 IconCompat.createWithResource(
                         getCarContext(),
                         imageId))
-                .setStyle(new CarIconStyle.Builder().setTint(color).build())
+                .setStyle(new CarIconStyle.Builder(CarIconStyle.TINTED).setTint(color).build())
                 .build();
     }
 
@@ -142,7 +142,7 @@ public final class TextAndIconsDemosScreen extends Screen {
     private Row buildRowForTemplate(int title, CarIcon image) {
         return new Row.Builder()
                 .setTitle(getCarContext().getString(title))
-                .setImage(image)
+                .setImage(image, Row.IMAGE_TYPE_SMALL)
                 .build();
     }
 
