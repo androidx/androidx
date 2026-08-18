@@ -119,10 +119,20 @@ class SceneCoreOpenXrNativeTest {
         }
         assertThrows(IllegalStateException::class.java) { nativeWrapper.submitSceneTransaction(1L) }
         assertThrows(IllegalStateException::class.java) { nativeWrapper.cancelSceneTransaction(1L) }
+        assertThrows(IllegalStateException::class.java) { nativeWrapper.openTransaction() }
     }
 
     @Test
-    fun stubbedMethods_returnSafeDefaults() {
+    fun openTransaction_createsTransaction() {
+        val nativeWrapper = SceneCoreOpenXrNative()
+        val tx = nativeWrapper.openTransaction()
+        assertThat(tx).isNotNull()
+        assertThat(tx.isAvailable).isFalse()
+        nativeWrapper.destroy()
+    }
+
+    @Test
+    fun uninitializedMethods_returnSafeDefaults() {
         val nativeWrapper = SceneCoreOpenXrNative()
         assertThat(nativeWrapper.createSceneEntity()).isEqualTo(INVALID_HANDLE)
         assertThat(nativeWrapper.destroySceneEntity(1L)).isFalse()
