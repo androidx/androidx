@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class WearWidgetProviderXmlDetectorTest : LintDetectorTest() {
+class WearWidgetProviderXmlSyntaxTest : LintDetectorTest() {
 
     override fun getDetector(): Detector = WearWidgetProviderXmlDetector()
 
@@ -34,6 +34,8 @@ class WearWidgetProviderXmlDetectorTest : LintDetectorTest() {
             WearWidgetProviderXmlDetector.XML_MISSING_PREVIEW_IMAGE_ISSUE,
             WearWidgetProviderXmlDetector.XML_MISSING_CONTAINER_TYPE_ISSUE,
             WearWidgetProviderXmlDetector.XML_DUPLICATE_CONTAINER_TYPE_ISSUE,
+            WearWidgetProviderXmlDetector.XML_UNSUPPORTED_CONTAINER_TYPE_ISSUE,
+            WearWidgetProviderXmlDetector.XML_UNRECOGNIZED_CONTAINER_TYPE_ISSUE,
         )
 
     @Test
@@ -45,25 +47,6 @@ class WearWidgetProviderXmlDetectorTest : LintDetectorTest() {
                         """
                     <wearwidget-provider>
                         <container type="1" previewImage="@drawable/preview" />
-                    </wearwidget-provider>
-                    """,
-                    )
-                    .indented()
-            )
-            .run()
-            .expectClean()
-    }
-
-    @Test
-    fun uniqueContainerTypes_passes() {
-        lint()
-            .files(
-                xml(
-                        "res/xml/wear_widget_info.xml",
-                        """
-                    <wearwidget-provider>
-                        <container type="1" previewImage="@drawable/preview1" />
-                        <container type="2" previewImage="@drawable/preview2" />
                     </wearwidget-provider>
                     """,
                     )
@@ -161,62 +144,6 @@ class WearWidgetProviderXmlDetectorTest : LintDetectorTest() {
                 res/xml/wear_widget_info.xml:2: Error: This <container> tag is missing the 'type' attribute [WearWidgetMissingContainerType]
                     <container previewImage="@drawable/preview" />
                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-                1 errors, 0 warnings
-                """
-                    .trimIndent()
-            )
-    }
-
-    @Test
-    fun duplicateContainerType_fails() {
-        lint()
-            .files(
-                xml(
-                        "res/xml/wear_widget_info.xml",
-                        """
-                    <wearwidget-provider>
-                        <container type="2" previewImage="@drawable/preview1" />
-                        <container type="2" previewImage="@drawable/preview2" />
-                    </wearwidget-provider>
-                    """,
-                    )
-                    .indented()
-            )
-            .run()
-            .expect(
-                """
-                res/xml/wear_widget_info.xml:3: Error: Duplicate container types are not allowed. Type '2' is duplicated. [WearWidgetDuplicateContainerType]
-                    <container type="2" previewImage="@drawable/preview2" />
-                               ~~~~~~~~
-                    res/xml/wear_widget_info.xml:2: Previously defined here
-                1 errors, 0 warnings
-                """
-                    .trimIndent()
-            )
-    }
-
-    @Test
-    fun duplicateContainerType_withWhitespace_fails() {
-        lint()
-            .files(
-                xml(
-                        "res/xml/wear_widget_info.xml",
-                        """
-                    <wearwidget-provider>
-                        <container type="1" previewImage="@drawable/preview1" />
-                        <container type=" 1 " previewImage="@drawable/preview2" />
-                    </wearwidget-provider>
-                    """,
-                    )
-                    .indented()
-            )
-            .run()
-            .expect(
-                """
-                res/xml/wear_widget_info.xml:3: Error: Duplicate container types are not allowed. Type '1' is duplicated. [WearWidgetDuplicateContainerType]
-                    <container type=" 1 " previewImage="@drawable/preview2" />
-                               ~~~~~~~~~~
-                    res/xml/wear_widget_info.xml:2: Previously defined here
                 1 errors, 0 warnings
                 """
                     .trimIndent()
