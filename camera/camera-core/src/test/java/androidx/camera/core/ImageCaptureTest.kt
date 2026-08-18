@@ -744,6 +744,12 @@ class ImageCaptureTest {
     }
 
     @Test
+    fun constructor_initializesFlashModeFromConfig() {
+        val imageCapture = ImageCapture.Builder().setFlashMode(ImageCapture.FLASH_MODE_AUTO).build()
+        assertThat(imageCapture.flashMode).isEqualTo(ImageCapture.FLASH_MODE_AUTO)
+    }
+
+    @Test
     fun throwException_whenFlashModeScreenSetWithoutScreenFlashInstanceSet() {
         val imageCapture = ImageCapture.Builder().build()
 
