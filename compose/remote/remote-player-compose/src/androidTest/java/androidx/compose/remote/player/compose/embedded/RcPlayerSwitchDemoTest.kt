@@ -104,7 +104,10 @@ class RcPlayerSwitchDemoTest {
 
         rule.mainClock.advanceTimeBy(100)
 
-        rule.onRoot().captureToImage().assertAgainstGolden(screenshotRule, "switchWidgetDemo")
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "RcPlayerSwitchDemoTest_switchWidgetDemo")
     }
 
     @Test
@@ -135,7 +138,10 @@ class RcPlayerSwitchDemoTest {
         rule
             .onRoot()
             .captureToImage()
-            .assertAgainstGolden(screenshotRule, "switchWidgetDemo_toggledStateC")
+            .assertAgainstGolden(
+                screenshotRule,
+                "RcPlayerSwitchDemoTest_switchWidgetDemo_toggledStateC",
+            )
     }
 
     // Copy of the SwitchWidgetDemo and related functions from SwitchWidget.kt

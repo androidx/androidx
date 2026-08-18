@@ -90,7 +90,10 @@ class RcPlayerScreenshotTest {
             }
         }
 
-        rule.onRoot().captureToImage().assertAgainstGolden(screenshotRule, "basicLayout")
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "RcPlayerScreenshotTest_basicLayout")
     }
 
     @Test
@@ -136,6 +139,9 @@ class RcPlayerScreenshotTest {
             }
         }
 
-        rule.onRoot().captureToImage().assertAgainstGolden(screenshotRule, "complexLayout")
+        rule
+            .onRoot()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "RcPlayerScreenshotTest_complexLayout")
     }
 }
