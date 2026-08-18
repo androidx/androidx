@@ -26,6 +26,7 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.NamedVariable
 import androidx.compose.remote.core.operations.layout.Container
+import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -36,6 +37,7 @@ import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
@@ -48,6 +50,7 @@ import androidx.compose.remote.testing.RemoteCaptureTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
@@ -203,14 +206,14 @@ class RcPlayerPixelTest {
                 val paint =
                     RemotePaint().apply {
                         shader =
-                            androidx.compose.remote.creation.compose.shaders.RemoteLinearShader(
+                            RemoteLinearShader(
                                 0f.rf,
                                 0f.rf,
                                 100f.rf,
                                 0f.rf,
                                 listOf(Color.Red.rc, Color.Blue.rc),
                                 null,
-                                androidx.compose.ui.graphics.TileMode.Clamp,
+                                TileMode.Clamp,
                             )
                     }
                 drawRect(
@@ -238,8 +241,7 @@ class RcPlayerPixelTest {
     @Test
     fun clipPathActuallyClips() {
         val d = rule.density.density
-        val clipSquare =
-            androidx.compose.remote.creation.RemotePath("M 0 0 L 50 0 L 50 50 L 0 50 Z")
+        val clipSquare = RemotePath("M 0 0 L 50 0 L 50 50 L 0 50 Z")
         val bmp = renderPlayerToBitmap {
             RemoteCanvas(modifier = RemoteModifier.size(100.rdp)) {
                 clipPath(clipSquare) {
