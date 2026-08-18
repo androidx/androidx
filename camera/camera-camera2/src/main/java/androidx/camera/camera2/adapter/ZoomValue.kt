@@ -18,15 +18,33 @@ package androidx.camera.camera2.adapter
 
 import androidx.camera.camera2.internal.ZoomMath.getLinearZoomFromZoomRatio
 import androidx.camera.camera2.internal.ZoomMath.getZoomRatioFromLinearZoom
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.ZoomState
 
-/** Immutable adaptor to the ZoomState interface. */
-public data class ZoomValue(
+/**
+ * Immutable adaptor to the [ZoomState] interface.
+ *
+ * @param zoomRatio The current zoom ratio.
+ * @param minZoomRatio The minimum supported zoom ratio.
+ * @param maxZoomRatio The maximum supported zoom ratio.
+ * @param activeIntrinsicZoomRatio The intrinsic zoom ratio of the active physical lens relative to
+ *   the default logical camera.
+ */
+@ConsistentCopyVisibility
+public data class ZoomValue
+internal constructor(
     private val zoomRatio: Float,
     private val minZoomRatio: Float,
     private val maxZoomRatio: Float,
+    private val activeIntrinsicZoomRatio: Float = CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN,
+    private val linearZoom: Float? = null,
 ) : ZoomState {
-    private var linearZoom: Float? = null
+    public constructor(
+        zoomRatio: Float,
+        minZoomRatio: Float,
+        maxZoomRatio: Float,
+        activeIntrinsicZoomRatio: Float = CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN,
+    ) : this(zoomRatio, minZoomRatio, maxZoomRatio, activeIntrinsicZoomRatio, null)
 
     /**
      * ZoomValue should be created with either zoomRatio or linearZoom and the other value should be
@@ -40,6 +58,7 @@ public data class ZoomValue(
         linearZoom: LinearZoom,
         minZoomRatio: Float,
         maxZoomRatio: Float,
+        activeIntrinsicZoomRatio: Float = CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN,
     ) : this(
         getZoomRatioFromLinearZoom(
             linearZoom = linearZoom.value,
@@ -48,9 +67,9 @@ public data class ZoomValue(
         ),
         minZoomRatio,
         maxZoomRatio,
-    ) {
-        this.linearZoom = linearZoom.value
-    }
+        activeIntrinsicZoomRatio,
+        linearZoom.value,
+    )
 
     override fun getZoomRatio(): Float = zoomRatio
 
@@ -65,4 +84,6 @@ public data class ZoomValue(
                 minZoomRatio = minZoomRatio,
                 maxZoomRatio = maxZoomRatio,
             )
+
+    override fun getActiveIntrinsicZoomRatio(): Float = activeIntrinsicZoomRatio
 }
