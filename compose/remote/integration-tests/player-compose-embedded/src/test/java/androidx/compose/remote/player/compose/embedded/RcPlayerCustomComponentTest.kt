@@ -32,9 +32,13 @@ import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.compose.embedded.demos.SupportEditTextData
 import androidx.compose.remote.player.compose.embedded.demos.SupportEditTextPlugin
+import androidx.compose.remote.player.compose.embedded.demos.embedded.SupportSpannableStringPlugin
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onAllNodesWithText
@@ -42,6 +46,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayInputStream
@@ -478,7 +483,7 @@ class RcPlayerCustomComponentTest {
                         writer.textComponent(
                             Modifier,
                             textTargetId,
-                            android.graphics.Color.RED,
+                            Color.Red.toArgb(),
                             12f,
                             0,
                             400f,
@@ -518,6 +523,278 @@ class RcPlayerCustomComponentTest {
 
         // Both the editable field and the shared text component display the updated value.
         rule.onAllNodesWithText("initial-text-updated").assertCountEquals(2)
+    }
+
+    @Test
+    fun supportSpannableStringRendersAnnotatedStringWithLinks() {
+        val fullText = "Please review our Terms of Service and Privacy Policy."
+        val termsUrl = "https://example.com/terms"
+        val privacyUrl = "https://example.com/privacy"
+
+        val docContext =
+            RemoteComposeContextAndroid(
+                300,
+                100,
+                "custom-spannable",
+                CoreDocument.DOCUMENT_API_LEVEL,
+                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+                AndroidxRcPlatformServices(),
+            ) {
+                writer.root {
+                    writer.column(Modifier, 1, 1) {
+                        writer.startCustom(
+                            Modifier,
+                            SupportSpannableStringPlugin.CONFIG,
+                            listOf(
+                                Custom.CustomProperty(
+                                    SupportSpannableStringPlugin.PROP_TEXT,
+                                    Custom.CustomProperty.STRING_PROP,
+                                    writer.textCreateId(fullText),
+                                ),
+                                Custom.CustomProperty(
+                                    SupportSpannableStringPlugin.PROP_LINK_COUNT,
+                                    Custom.CustomProperty.INT_PROP,
+                                    2,
+                                ),
+                                Custom.CustomProperty(
+                                    (SupportSpannableStringPlugin.PROP_LINK_URL_BASE + 0).toShort(),
+                                    Custom.CustomProperty.STRING_PROP,
+                                    writer.textCreateId(termsUrl),
+                                ),
+                                Custom.CustomProperty(
+                                    (SupportSpannableStringPlugin.PROP_LINK_START_BASE + 0)
+                                        .toShort(),
+                                    Custom.CustomProperty.INT_PROP,
+                                    18,
+                                ),
+                                Custom.CustomProperty(
+                                    (SupportSpannableStringPlugin.PROP_LINK_END_BASE + 0).toShort(),
+                                    Custom.CustomProperty.INT_PROP,
+                                    34,
+                                ),
+                                Custom.CustomProperty(
+                                    (SupportSpannableStringPlugin.PROP_LINK_URL_BASE + 1).toShort(),
+                                    Custom.CustomProperty.STRING_PROP,
+                                    writer.textCreateId(privacyUrl),
+                                ),
+                                Custom.CustomProperty(
+                                    (SupportSpannableStringPlugin.PROP_LINK_START_BASE + 1)
+                                        .toShort(),
+                                    Custom.CustomProperty.INT_PROP,
+                                    39,
+                                ),
+                                Custom.CustomProperty(
+                                    (SupportSpannableStringPlugin.PROP_LINK_END_BASE + 1).toShort(),
+                                    Custom.CustomProperty.INT_PROP,
+                                    53,
+                                ),
+                            ),
+                        )
+                        writer.endCustom()
+                    }
+                }
+            }
+
+        val document =
+            CoreDocument().apply {
+                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+
+        val registry = CustomPluginRegistry(SupportSpannableStringPlugin)
+
+        rule.setContent {
+            Box(modifier = Modifier.size(300.dp)) {
+                RcPlayer(document = document, customPlugins = registry)
+            }
+        }
+        rule.mainClock.advanceTimeBy(100)
+
+        val node = rule.onNodeWithText(fullText).fetchSemanticsNode()
+        val textList = node.config[SemanticsProperties.Text]
+        assertThat(textList).hasSize(1)
+
+        val renderedAnnotatedString = textList.first()
+        assertThat(renderedAnnotatedString.text).isEqualTo(fullText)
+
+        val linkAnnotations = renderedAnnotatedString.getLinkAnnotations(0, fullText.length)
+        assertThat(linkAnnotations).hasSize(2)
+
+        val link0 = linkAnnotations[0]
+        assertThat(link0.start).isEqualTo(18)
+        assertThat(link0.end).isEqualTo(34)
+        assertThat((link0.item as LinkAnnotation.Url).url).isEqualTo(termsUrl)
+
+        val link1 = linkAnnotations[1]
+        assertThat(link1.start).isEqualTo(39)
+        assertThat(link1.end).isEqualTo(53)
+        assertThat((link1.item as LinkAnnotation.Url).url).isEqualTo(privacyUrl)
+
+        // Sub-range queries
+        val termsOnly = renderedAnnotatedString.getLinkAnnotations(18, 34)
+        assertThat(termsOnly).hasSize(1)
+        assertThat((termsOnly.first().item as LinkAnnotation.Url).url).isEqualTo(termsUrl)
+
+        val privacyOnly = renderedAnnotatedString.getLinkAnnotations(39, 53)
+        assertThat(privacyOnly).hasSize(1)
+        assertThat((privacyOnly.first().item as LinkAnnotation.Url).url).isEqualTo(privacyUrl)
+    }
+
+    @Test
+    fun supportSpannableStringRendersStyledTextAndHandlesOutOfBoundsRanges() {
+        val sampleText = "Hello World"
+        val testUrl = "https://example.com"
+
+        val docContext =
+            RemoteComposeContextAndroid(
+                200,
+                100,
+                "custom-spannable-styled",
+                CoreDocument.DOCUMENT_API_LEVEL,
+                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+                AndroidxRcPlatformServices(),
+            ) {
+                writer.root {
+                    writer.column(Modifier, 1, 1) {
+                        writer.startCustom(
+                            Modifier,
+                            SupportSpannableStringPlugin.CONFIG,
+                            listOf(
+                                Custom.CustomProperty(
+                                    SupportSpannableStringPlugin.PROP_TEXT,
+                                    Custom.CustomProperty.STRING_PROP,
+                                    writer.textCreateId(sampleText),
+                                ),
+                                Custom.CustomProperty(
+                                    SupportSpannableStringPlugin.PROP_TEXT_COLOR,
+                                    Custom.CustomProperty.INT_PROP,
+                                    Color.Blue.toArgb(),
+                                ),
+                                Custom.CustomProperty(
+                                    SupportSpannableStringPlugin.PROP_TEXT_SIZE,
+                                    Custom.CustomProperty.FLOAT_PROP,
+                                    18f,
+                                ),
+                                Custom.CustomProperty(
+                                    SupportSpannableStringPlugin.PROP_LINK_COUNT,
+                                    Custom.CustomProperty.INT_PROP,
+                                    1,
+                                ),
+                                Custom.CustomProperty(
+                                    (SupportSpannableStringPlugin.PROP_LINK_URL_BASE + 0).toShort(),
+                                    Custom.CustomProperty.STRING_PROP,
+                                    writer.textCreateId(testUrl),
+                                ),
+                                Custom.CustomProperty(
+                                    (SupportSpannableStringPlugin.PROP_LINK_START_BASE + 0)
+                                        .toShort(),
+                                    Custom.CustomProperty.INT_PROP,
+                                    -5,
+                                ),
+                                Custom.CustomProperty(
+                                    (SupportSpannableStringPlugin.PROP_LINK_END_BASE + 0).toShort(),
+                                    Custom.CustomProperty.INT_PROP,
+                                    100,
+                                ),
+                            ),
+                        )
+                        writer.endCustom()
+                    }
+                }
+            }
+
+        val document =
+            CoreDocument().apply {
+                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+
+        val registry = CustomPluginRegistry(SupportSpannableStringPlugin)
+
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) {
+                RcPlayer(document = document, customPlugins = registry)
+            }
+        }
+        rule.mainClock.advanceTimeBy(100)
+
+        val node = rule.onNodeWithText(sampleText).fetchSemanticsNode()
+        val textList = node.config[SemanticsProperties.Text]
+        assertThat(textList).hasSize(1)
+
+        val renderedAnnotatedString = textList.first()
+        assertThat(renderedAnnotatedString.text).isEqualTo(sampleText)
+
+        val linkAnnotations = renderedAnnotatedString.getLinkAnnotations(0, sampleText.length)
+        assertThat(linkAnnotations).hasSize(1)
+
+        val link = linkAnnotations[0]
+        // Since start was -5 and end was 100, coerceIn clamped them to 0 and sampleText.length
+        assertThat(link.start).isEqualTo(0)
+        assertThat(link.end).isEqualTo(sampleText.length)
+        assertThat((link.item as LinkAnnotation.Url).url).isEqualTo(testUrl)
+    }
+
+    @Test
+    fun supportSpannableStringRendersTextWithoutLinks() {
+        val plainText = "Plain text without any links"
+
+        val docContext =
+            RemoteComposeContextAndroid(
+                200,
+                100,
+                "custom-spannable-nolinks",
+                CoreDocument.DOCUMENT_API_LEVEL,
+                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+                AndroidxRcPlatformServices(),
+            ) {
+                writer.root {
+                    writer.column(Modifier, 1, 1) {
+                        writer.startCustom(
+                            Modifier,
+                            SupportSpannableStringPlugin.CONFIG,
+                            listOf(
+                                Custom.CustomProperty(
+                                    SupportSpannableStringPlugin.PROP_TEXT,
+                                    Custom.CustomProperty.STRING_PROP,
+                                    writer.textCreateId(plainText),
+                                ),
+                                Custom.CustomProperty(
+                                    SupportSpannableStringPlugin.PROP_LINK_COUNT,
+                                    Custom.CustomProperty.INT_PROP,
+                                    0,
+                                ),
+                            ),
+                        )
+                        writer.endCustom()
+                    }
+                }
+            }
+
+        val document =
+            CoreDocument().apply {
+                ByteArrayInputStream(docContext.writer.encodeToByteArray()).use {
+                    initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
+                }
+            }
+
+        val registry = CustomPluginRegistry(SupportSpannableStringPlugin)
+
+        rule.setContent {
+            Box(modifier = Modifier.size(200.dp)) {
+                RcPlayer(document = document, customPlugins = registry)
+            }
+        }
+        rule.mainClock.advanceTimeBy(100)
+
+        val node = rule.onNodeWithText(plainText).fetchSemanticsNode()
+        val textList = node.config[SemanticsProperties.Text]
+        val renderedAnnotatedString = textList.first()
+
+        assertThat(renderedAnnotatedString.text).isEqualTo(plainText)
+        assertThat(renderedAnnotatedString.getLinkAnnotations(0, plainText.length)).isEmpty()
     }
 
     private fun findCustom(operations: Collection<Operation>): Custom? {
