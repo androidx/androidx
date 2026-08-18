@@ -16,6 +16,8 @@
 
 package androidx.appfunctions
 
+import androidx.annotation.RestrictTo
+
 /**
  * Specifies constraints applied on [android.net.Uri] values for parameters, return types, or
  * properties in app functions.
@@ -58,6 +60,7 @@ package androidx.appfunctions
  * )
  * ```
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
 public annotation class AppFunctionUriValueConstraint(
