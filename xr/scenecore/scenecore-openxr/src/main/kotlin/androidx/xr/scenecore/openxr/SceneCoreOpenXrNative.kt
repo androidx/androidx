@@ -67,6 +67,47 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
 
     private external fun nativeGetRootSpaceHandle(handle: Long): Long
 
+    private external fun nativeGetRootEntityHandle(handle: Long): Long
+
+    private external fun nativeCreateSceneEntity(handle: Long): Long
+
+    private external fun nativeDestroySceneEntity(handle: Long, entityHandle: Long): Boolean
+
+    private external fun nativeCreateSceneTransaction(handle: Long): Long
+
+    private external fun nativeSetTransactionTransform(
+        handle: Long,
+        transactionHandle: Long,
+        entityHandle: Long,
+        px: Float,
+        py: Float,
+        pz: Float,
+        qx: Float,
+        qy: Float,
+        qz: Float,
+        qw: Float,
+        sx: Float,
+        sy: Float,
+        sz: Float,
+    ): Boolean
+
+    private external fun nativeSetTransactionParent(
+        handle: Long,
+        transactionHandle: Long,
+        childHandle: Long,
+        parentHandle: Long,
+    ): Boolean
+
+    private external fun nativeSubmitSceneTransaction(
+        handle: Long,
+        transactionHandle: Long,
+    ): Boolean
+
+    private external fun nativeCancelSceneTransaction(
+        handle: Long,
+        transactionHandle: Long,
+    ): Boolean
+
     private external fun nativeShutdown(handle: Long)
 
     private external fun nativeDestroy(handle: Long)
@@ -103,35 +144,39 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
         return nativeGetRootSpaceHandle(nativeScenecore)
     }
 
-    // TODO(b/538933751): Connect to native JNI calls once updated libscenecore.so lands in AOSP.
-    open fun createSceneEntity(): Long {
-        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
-            "SceneCoreOpenXrNative has been destroyed."
-        }
-        return INVALID_HANDLE
-    }
-
-    open fun destroySceneEntity(entityHandle: Long): Boolean {
-        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
-            "SceneCoreOpenXrNative has been destroyed."
-        }
-        return false
-    }
-
+    /** Returns the native root XrSceneEntityKHRX1 handle. */
     open fun getRootEntityHandle(): Long {
         check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
             "SceneCoreOpenXrNative has been destroyed."
         }
-        return INVALID_HANDLE
+        return nativeGetRootEntityHandle(nativeScenecore)
     }
 
+    /** Creates a child scene entity under the scene context. */
+    open fun createSceneEntity(): Long {
+        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
+            "SceneCoreOpenXrNative has been destroyed."
+        }
+        return nativeCreateSceneEntity(nativeScenecore)
+    }
+
+    /** Destroys an existing child scene entity. */
+    open fun destroySceneEntity(entityHandle: Long): Boolean {
+        check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
+            "SceneCoreOpenXrNative has been destroyed."
+        }
+        return nativeDestroySceneEntity(nativeScenecore, entityHandle)
+    }
+
+    /** Creates a new OpenXR scene transaction. */
     open fun createSceneTransaction(): Long {
         check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
             "SceneCoreOpenXrNative has been destroyed."
         }
-        return INVALID_HANDLE
+        return nativeCreateSceneTransaction(nativeScenecore)
     }
 
+    /** Stages a transform component mutation in the given transaction. */
     open fun setTransactionTransform(
         transactionHandle: Long,
         entityHandle: Long,
@@ -141,9 +186,24 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
         check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
             "SceneCoreOpenXrNative has been destroyed."
         }
-        return false
+        return nativeSetTransactionTransform(
+            nativeScenecore,
+            transactionHandle,
+            entityHandle,
+            pose.translation.x,
+            pose.translation.y,
+            pose.translation.z,
+            pose.rotation.x,
+            pose.rotation.y,
+            pose.rotation.z,
+            pose.rotation.w,
+            scale.x,
+            scale.y,
+            scale.z,
+        )
     }
 
+    /** Stages a parent component mutation (or unparent if parentHandle is INVALID_HANDLE). */
     open fun setTransactionParent(
         transactionHandle: Long,
         childHandle: Long,
@@ -152,21 +212,28 @@ internal open class SceneCoreOpenXrNative internal constructor(loadLibrary: Bool
         check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
             "SceneCoreOpenXrNative has been destroyed."
         }
-        return false
+        return nativeSetTransactionParent(
+            nativeScenecore,
+            transactionHandle,
+            childHandle,
+            parentHandle,
+        )
     }
 
+    /** Submits and commits the batched mutations in the transaction. */
     open fun submitSceneTransaction(transactionHandle: Long): Boolean {
         check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
             "SceneCoreOpenXrNative has been destroyed."
         }
-        return false
+        return nativeSubmitSceneTransaction(nativeScenecore, transactionHandle)
     }
 
+    /** Cancels the transaction and drops uncommitted mutations. */
     open fun cancelSceneTransaction(transactionHandle: Long): Boolean {
         check(nativeScenecore != INVALID_HANDLE && !isDestroyed.get()) {
             "SceneCoreOpenXrNative has been destroyed."
         }
-        return false
+        return nativeCancelSceneTransaction(nativeScenecore, transactionHandle)
     }
 
     /**
