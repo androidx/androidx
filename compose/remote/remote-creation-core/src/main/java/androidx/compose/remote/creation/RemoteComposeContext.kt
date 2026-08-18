@@ -731,6 +731,7 @@ public open class RemoteComposeContext {
         mRemoteWriter.pathAppendReset(pathId)
     }
 
+    /** The writer will not support this operation. */
     public fun addPathString(path: String): Int {
         return mRemoteWriter.addPathString(path)
     }

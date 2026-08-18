@@ -1839,7 +1839,9 @@ public class RemoteComposeWriter {
      *
      * @param path SVG style Path String
      * @return id of the path object to be used by drawPath, etc.
+     * This is not supported by the writer going forward
      */
+
     public int addPathString(@NonNull String path) {
         return addPathData(mPlatform.parsePath(path));
     }
