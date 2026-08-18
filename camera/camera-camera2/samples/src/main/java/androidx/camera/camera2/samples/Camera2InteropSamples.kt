@@ -105,7 +105,7 @@ fun sessionConfigBuilderCamera2InteropSample(preview: Preview) {
     val sessionConfig =
         SessionConfig.Builder(preview)
             .camera2Interop {
-                colorSpace = ColorSpace.Named.DISPLAY_P3.ordinal
+                colorSpace = ColorSpace.Named.DISPLAY_P3
                 sessionParameter[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = Range(60, 60)
                 captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = Range(60, 60)
                 repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_PREVIEW
@@ -120,7 +120,7 @@ fun sessionConfigDslCamera2InteropSample(preview: Preview) {
     val sessionConfig =
         sessionConfig(listOf(preview)) {
             camera2Interop {
-                colorSpace = ColorSpace.Named.DISPLAY_P3.ordinal
+                colorSpace = ColorSpace.Named.DISPLAY_P3
                 sessionParameter[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = Range(60, 60)
                 captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = Range(60, 60)
                 repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_PREVIEW

@@ -209,6 +209,10 @@ constructor(
                             } else {
                                 null
                             },
+                        sensorPixelModes =
+                            surfaceOptions?.sensorPixelModes?.map {
+                                OutputStream.SensorPixelMode(it)
+                            } ?: emptyList(),
                     )
                 val surfaces = outputConfig.sharedSurfaces + deferrableSurface
                 for (surface in surfaces) {

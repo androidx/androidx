@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.interop
 
+import android.graphics.ColorSpace
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
@@ -114,6 +115,7 @@ class Camera2InteropExTest {
                 timestampBase = 2
                 dynamicRangeProfile = 4L
                 surfaceGroupId = 5
+                sensorPixelModesUsed = setOf(0, 1)
             }
         }
         val config = Camera2ImplConfig(preview.currentConfig)
@@ -123,6 +125,19 @@ class Camera2InteropExTest {
         assertThat(config.getTimestampBase(-1)).isEqualTo(2)
         assertThat(config.getDynamicRangeProfile(-1)).isEqualTo(4L)
         assertThat(config.getSurfaceGroupId(-1)).isEqualTo(5)
+        assertThat(config.getSensorPixelModesUsed(null)).containsExactly(0, 1)
+    }
+
+    @Test
+    fun previewDsl_camera2Interop_addSensorPixelModeUsed() {
+        val preview = preview {
+            camera2Interop {
+                addSensorPixelModeUsed(0)
+                addSensorPixelModeUsed(1)
+            }
+        }
+        val config = Camera2ImplConfig(preview.currentConfig)
+        assertThat(config.getSensorPixelModesUsed(null)).containsExactly(0, 1)
     }
 
     @Test
@@ -173,12 +188,12 @@ class Camera2InteropExTest {
         val builder =
             SessionConfig.Builder(preview).camera2Interop {
                 sessionType = 4
-                colorSpace = 5
+                colorSpace = ColorSpace.Named.DISPLAY_P3
             }
         val sessionConfig = builder.build()
         val config = Camera2ImplConfig(sessionConfig.interopConfig)
         assertThat(config.getSessionType(-1)).isEqualTo(4)
-        assertThat(config.getColorSpace(-1)).isEqualTo(5)
+        assertThat(config.getColorSpace(-1)).isEqualTo(ColorSpace.Named.DISPLAY_P3.ordinal)
     }
 
     @Test
@@ -188,13 +203,13 @@ class Camera2InteropExTest {
             sessionConfig(listOf(preview)) {
                 camera2Interop {
                     sessionType = 4
-                    colorSpace = 5
+                    colorSpace = ColorSpace.Named.DISPLAY_P3
                     repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_PREVIEW
                 }
             }
         val config = Camera2ImplConfig(sessionConfig.interopConfig)
         assertThat(config.getSessionType(-1)).isEqualTo(4)
-        assertThat(config.getColorSpace(-1)).isEqualTo(5)
+        assertThat(config.getColorSpace(-1)).isEqualTo(ColorSpace.Named.DISPLAY_P3.ordinal)
         assertThat(config.getCaptureRequestTemplate(-1)).isEqualTo(CameraDevice.TEMPLATE_PREVIEW)
     }
 

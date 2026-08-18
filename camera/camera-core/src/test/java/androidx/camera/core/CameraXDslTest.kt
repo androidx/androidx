@@ -43,6 +43,10 @@ class CameraXDslTest {
             targetName = "test_preview"
             targetRotation = Surface.ROTATION_90
             dynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT
+
+            assertThat(targetName).isEqualTo("test_preview")
+            assertThat(targetRotation).isEqualTo(Surface.ROTATION_90)
+            assertThat(dynamicRange).isEqualTo(DynamicRange.HDR_UNSPECIFIED_10_BIT)
         }
 
         val config = preview.currentConfig as ImageOutputConfig
@@ -62,6 +66,11 @@ class CameraXDslTest {
             resolutionSelector = selector
             isPreviewStabilizationEnabled = true
             targetFrameRate = Range(30, 30)
+
+            assertThat(mirrorMode).isEqualTo(MirrorMode.MIRROR_MODE_ON)
+            assertThat(resolutionSelector).isEqualTo(selector)
+            assertThat(isPreviewStabilizationEnabled).isTrue()
+            assertThat(targetFrameRate).isEqualTo(Range(30, 30))
         }
 
         val outputConfig = preview.currentConfig as ImageOutputConfig
@@ -88,6 +97,13 @@ class CameraXDslTest {
             targetRotation = Surface.ROTATION_180
             resolutionSelector = selector
             isPostviewEnabled = true
+
+            assertThat(targetName).isEqualTo("test_image_capture")
+            assertThat(captureMode).isEqualTo(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+            assertThat(flashMode).isEqualTo(ImageCapture.FLASH_MODE_AUTO)
+            assertThat(targetRotation).isEqualTo(Surface.ROTATION_180)
+            assertThat(resolutionSelector).isEqualTo(selector)
+            assertThat(isPostviewEnabled).isTrue()
         }
 
         assertThat(imageCapture.name).isEqualTo("test_image_capture")
@@ -101,6 +117,26 @@ class CameraXDslTest {
     }
 
     @Test
+    fun testImageCaptureDsl_screenFlash() {
+        val dummyScreenFlash =
+            object : ImageCapture.ScreenFlash {
+                override fun apply(
+                    expirationTimeMillis: Long,
+                    screenFlashListener: ImageCapture.ScreenFlashListener,
+                ) {}
+
+                override fun clear() {}
+            }
+
+        val imageCapture = imageCapture {
+            screenFlash = dummyScreenFlash
+            assertThat(screenFlash).isEqualTo(dummyScreenFlash)
+        }
+
+        assertThat(imageCapture.screenFlash).isEqualTo(dummyScreenFlash)
+    }
+
+    @Test
     fun testImageAnalysisDsl() {
         val selector = ResolutionSelector.Builder().build()
         val executor = Executor { it.run() }
@@ -111,6 +147,13 @@ class CameraXDslTest {
             targetRotation = Surface.ROTATION_90
             resolutionSelector = selector
             backgroundExecutor = executor
+
+            assertThat(targetName).isEqualTo("test_image_analysis")
+            assertThat(backpressureStrategy).isEqualTo(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            assertThat(imageQueueDepth).isEqualTo(5)
+            assertThat(targetRotation).isEqualTo(Surface.ROTATION_90)
+            assertThat(resolutionSelector).isEqualTo(selector)
+            assertThat(backgroundExecutor).isEqualTo(executor)
         }
 
         assertThat(imageAnalysis.name).isEqualTo("test_image_analysis")
@@ -131,9 +174,57 @@ class CameraXDslTest {
     @Test
     fun testImageAnalysisScope_withResolutionSelector() {
         val selector = ResolutionSelector.Builder().build()
-        val imageAnalysis = imageAnalysis { resolutionSelector = selector }
+        val imageAnalysis = imageAnalysis {
+            resolutionSelector = selector
+            assertThat(resolutionSelector).isEqualTo(selector)
+        }
 
         val outputConfig = imageAnalysis.currentConfig as ImageOutputConfig
         assertThat(outputConfig.resolutionSelector).isEqualTo(selector)
+    }
+
+    @Test
+    fun testSessionConfigScope_properties() {
+        val preview = Preview.Builder().build()
+        val viewport = ViewPort.Builder(android.util.Rational(4, 3), Surface.ROTATION_0).build()
+        val fpsRange = Range(30, 30)
+
+        val config =
+            sessionConfig(listOf(preview)) {
+                viewPort = viewport
+                frameRateRange = fpsRange
+                isAutoRotationEnabled = true
+                requiredFeatureGroup =
+                    setOf(androidx.camera.core.featuregroup.GroupableFeature.FPS_60)
+                preferredFeatureGroup =
+                    listOf(
+                        androidx.camera.core.featuregroup.GroupableFeature.HDR_HLG10,
+                        androidx.camera.core.featuregroup.GroupableFeature.IMAGE_ULTRA_HDR,
+                    )
+
+                assertThat(viewPort).isEqualTo(viewport)
+                assertThat(frameRateRange).isEqualTo(fpsRange)
+                assertThat(isAutoRotationEnabled).isTrue()
+                assertThat(requiredFeatureGroup)
+                    .containsExactly(androidx.camera.core.featuregroup.GroupableFeature.FPS_60)
+                assertThat(preferredFeatureGroup)
+                    .containsExactly(
+                        androidx.camera.core.featuregroup.GroupableFeature.HDR_HLG10,
+                        androidx.camera.core.featuregroup.GroupableFeature.IMAGE_ULTRA_HDR,
+                    )
+                    .inOrder()
+            }
+
+        assertThat(config.viewPort).isEqualTo(viewport)
+        assertThat(config.frameRateRange).isEqualTo(fpsRange)
+        assertThat(config.isAutoRotationEnabled).isTrue()
+        assertThat(config.requiredFeatureGroup)
+            .containsExactly(androidx.camera.core.featuregroup.GroupableFeature.FPS_60)
+        assertThat(config.preferredFeatureGroup)
+            .containsExactly(
+                androidx.camera.core.featuregroup.GroupableFeature.HDR_HLG10,
+                androidx.camera.core.featuregroup.GroupableFeature.IMAGE_ULTRA_HDR,
+            )
+            .inOrder()
     }
 }

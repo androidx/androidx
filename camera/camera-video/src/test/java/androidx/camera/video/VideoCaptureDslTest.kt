@@ -46,6 +46,11 @@ class VideoCaptureDslTest {
                 targetRotation = Surface.ROTATION_90
                 isVideoStabilizationEnabled = true
                 targetFrameRate = Range(30, 60)
+
+                assertThat(targetName).isEqualTo("test_video")
+                assertThat(targetRotation).isEqualTo(Surface.ROTATION_90)
+                assertThat(isVideoStabilizationEnabled).isTrue()
+                assertThat(targetFrameRate).isEqualTo(Range(30, 60))
             }
 
         val config = videoCapture.currentConfig as ImageOutputConfig

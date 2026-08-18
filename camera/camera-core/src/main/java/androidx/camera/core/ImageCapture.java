@@ -2135,7 +2135,7 @@ public final class ImageCapture extends UseCase {
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
         private static final StreamUseCase DEFAULT_STREAM_USE_CASE = StreamUseCase.STILL_CAPTURE;
         private static final int DEFAULT_ASPECT_RATIO = AspectRatio.RATIO_4_3;
-        private static final int DEFAULT_OUTPUT_FORMAT = OUTPUT_FORMAT_JPEG;
+        static final int DEFAULT_OUTPUT_FORMAT = OUTPUT_FORMAT_JPEG;
 
         private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
                 new ResolutionSelector.Builder().setAspectRatioStrategy(

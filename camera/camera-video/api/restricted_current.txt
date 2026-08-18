@@ -89,22 +89,29 @@ package androidx.camera.video {
   public static final class HighSpeedVideoSessionConfig.Builder {
     ctor public HighSpeedVideoSessionConfig.Builder(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture);
     method public androidx.camera.video.HighSpeedVideoSessionConfig build();
-    method @BytecodeOnly @Deprecated public android.util.Range getFrameRateRange();
-    method @BytecodeOnly @Deprecated public androidx.camera.core.Preview? getPreview();
-    method @BytecodeOnly @Deprecated public boolean isAutoRotationEnabled();
-    method @BytecodeOnly @Deprecated public boolean isSlowMotionEnabled();
     method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setAutoRotationEnabled(boolean autoRotationEnabled);
     method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setFrameRateRange(android.util.Range<java.lang.Integer> frameRateRange);
     method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setPreview(androidx.camera.core.Preview? preview);
     method public androidx.camera.video.HighSpeedVideoSessionConfig.Builder setSlowMotionEnabled(boolean enabled);
-    property @Deprecated @kotlin.jvm.JvmSynthetic public android.util.Range<java.lang.Integer> frameRateRange;
-    property @Deprecated @kotlin.jvm.JvmSynthetic public boolean isAutoRotationEnabled;
-    property @Deprecated @kotlin.jvm.JvmSynthetic public boolean isSlowMotionEnabled;
-    property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.Preview? preview;
   }
 
   public final class HighSpeedVideoSessionConfigKt {
-    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static inline androidx.camera.video.HighSpeedVideoSessionConfig highSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, kotlin.jvm.functions.Function1<androidx.camera.video.HighSpeedVideoSessionConfig.Builder,kotlin.Unit> block);
+    method public static androidx.camera.video.HighSpeedVideoSessionConfig highSpeedVideoSessionConfig(androidx.camera.video.VideoCapture<? extends java.lang.Object?> videoCapture, kotlin.jvm.functions.Function1<? super androidx.camera.video.HighSpeedVideoSessionConfigScope,kotlin.Unit> block);
+  }
+
+  @androidx.camera.core.CameraXDsl public final class HighSpeedVideoSessionConfigScope {
+    method @InaccessibleFromKotlin public android.util.Range<java.lang.Integer> getFrameRateRange();
+    method @InaccessibleFromKotlin public androidx.camera.core.Preview? getPreview();
+    method @InaccessibleFromKotlin public boolean isAutoRotationEnabled();
+    method @InaccessibleFromKotlin public boolean isSlowMotionEnabled();
+    method @InaccessibleFromKotlin public void setAutoRotationEnabled(boolean);
+    method @InaccessibleFromKotlin public void setFrameRateRange(android.util.Range<java.lang.Integer>);
+    method @InaccessibleFromKotlin public void setPreview(androidx.camera.core.Preview?);
+    method @InaccessibleFromKotlin public void setSlowMotionEnabled(boolean);
+    property public android.util.Range<java.lang.Integer> frameRateRange;
+    property public boolean isAutoRotationEnabled;
+    property public boolean isSlowMotionEnabled;
+    property public androidx.camera.core.Preview? preview;
   }
 
   public final class MediaStoreOutputOptions extends androidx.camera.video.OutputOptions {
@@ -249,29 +256,29 @@ package androidx.camera.video {
     method public androidx.camera.video.VideoCapture.Builder<T> setVideoStabilizationEnabled(boolean);
   }
 
-  public final class VideoCaptureDslKt {
-    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T> videoCapture(T videoOutput, kotlin.jvm.functions.Function1<androidx.camera.video.VideoCaptureScope<T>,kotlin.Unit> block);
+  public final class VideoCaptureDsl {
+    method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T> videoCapture(T videoOutput, kotlin.jvm.functions.Function1<? super androidx.camera.video.VideoCaptureScope<T>,kotlin.Unit> block);
   }
 
   @androidx.camera.core.CameraXDsl public final class VideoCaptureScope<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.InteropConfigurableScope<androidx.camera.video.VideoCapture.Builder<T>> {
-    method @BytecodeOnly @Deprecated public androidx.camera.core.DynamicRange getDynamicRange();
-    method @BytecodeOnly @Deprecated public int getMirrorMode();
-    method @BytecodeOnly @Deprecated public android.util.Range getTargetFrameRate();
-    method @BytecodeOnly @Deprecated public String getTargetName();
-    method @BytecodeOnly @Deprecated public int getTargetRotation();
-    method @BytecodeOnly @Deprecated public boolean isVideoStabilizationEnabled();
-    method @BytecodeOnly public void setDynamicRange(androidx.camera.core.DynamicRange);
-    method @BytecodeOnly public void setMirrorMode(int);
-    method @BytecodeOnly public void setTargetFrameRate(android.util.Range);
-    method @BytecodeOnly public void setTargetName(String);
-    method @BytecodeOnly public void setTargetRotation(int);
-    method @BytecodeOnly public void setVideoStabilizationEnabled(boolean);
-    property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.DynamicRange dynamicRange;
-    property @Deprecated @kotlin.jvm.JvmSynthetic public boolean isVideoStabilizationEnabled;
-    property @Deprecated @kotlin.jvm.JvmSynthetic public int mirrorMode;
-    property @Deprecated @kotlin.jvm.JvmSynthetic public android.util.Range<java.lang.Integer> targetFrameRate;
-    property @Deprecated @kotlin.jvm.JvmSynthetic public String targetName;
-    property @Deprecated @kotlin.jvm.JvmSynthetic public int targetRotation;
+    method @InaccessibleFromKotlin public androidx.camera.core.DynamicRange getDynamicRange();
+    method @InaccessibleFromKotlin public int getMirrorMode();
+    method @InaccessibleFromKotlin public android.util.Range<java.lang.Integer> getTargetFrameRate();
+    method @InaccessibleFromKotlin public String getTargetName();
+    method @InaccessibleFromKotlin public int getTargetRotation();
+    method @InaccessibleFromKotlin public boolean isVideoStabilizationEnabled();
+    method @InaccessibleFromKotlin public void setDynamicRange(androidx.camera.core.DynamicRange);
+    method @InaccessibleFromKotlin public void setMirrorMode(int);
+    method @InaccessibleFromKotlin public void setTargetFrameRate(android.util.Range<java.lang.Integer>);
+    method @InaccessibleFromKotlin public void setTargetName(String);
+    method @InaccessibleFromKotlin public void setTargetRotation(int);
+    method @InaccessibleFromKotlin public void setVideoStabilizationEnabled(boolean);
+    property public androidx.camera.core.DynamicRange dynamicRange;
+    property public boolean isVideoStabilizationEnabled;
+    property public int mirrorMode;
+    property public android.util.Range<java.lang.Integer> targetFrameRate;
+    property public String targetName;
+    property public int targetRotation;
   }
 
   public interface VideoOutput {

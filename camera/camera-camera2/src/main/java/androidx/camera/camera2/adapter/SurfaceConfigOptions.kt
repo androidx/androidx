@@ -26,4 +26,5 @@ public data class SurfaceConfigOptions(
     val timestampBase: Int? = null,
     val dynamicRangeProfile: Long? = null,
     val mirrorMode: Int? = null,
+    val sensorPixelModes: Set<Int>? = null,
 )
