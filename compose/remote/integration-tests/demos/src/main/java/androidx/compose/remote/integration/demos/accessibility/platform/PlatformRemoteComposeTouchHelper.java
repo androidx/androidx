@@ -141,6 +141,7 @@ public class PlatformRemoteComposeTouchHelper extends ExploreByTouchHelper {
 
         // default to enabled
         node.setEnabled(true);
+        node.setFocusable(true);
 
         if (mergeMode == Mode.MERGE) {
             List<Integer> childViews =
