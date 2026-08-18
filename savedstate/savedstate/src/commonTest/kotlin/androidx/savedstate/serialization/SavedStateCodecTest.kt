@@ -51,7 +51,7 @@ import kotlinx.serialization.serializer
 @ExperimentalSerializationApi
 internal class SavedStateCodecTest : RobolectricTest() {
     @Test
-    fun primitives() {
+    fun primitiveByte() {
         Byte.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(Byte.MIN_VALUE.toInt())
@@ -60,6 +60,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(Byte.MAX_VALUE.toInt())
         }
+    }
+
+    @Test
+    fun primitiveShort() {
         Short.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(Short.MIN_VALUE.toInt())
@@ -68,6 +72,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(Short.MAX_VALUE.toInt())
         }
+    }
+
+    @Test
+    fun primitiveInt() {
         Int.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(Int.MIN_VALUE)
@@ -76,6 +84,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(Int.MAX_VALUE)
         }
+    }
+
+    @Test
+    fun primitiveLong() {
         Long.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getLong("")).isEqualTo(Long.MIN_VALUE)
@@ -84,6 +96,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getLong("")).isEqualTo(Long.MAX_VALUE)
         }
+    }
+
+    @Test
+    fun primitiveFloat() {
         Float.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getFloat("")).isEqualTo(Float.MIN_VALUE)
@@ -92,6 +108,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getFloat("")).isEqualTo(Float.MAX_VALUE)
         }
+    }
+
+    @Test
+    fun primitiveDouble() {
         Double.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getDouble("")).isEqualTo(Double.MIN_VALUE)
@@ -100,6 +120,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getDouble("")).isEqualTo(Double.MAX_VALUE)
         }
+    }
+
+    @Test
+    fun primitiveChar() {
         Char.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getChar("")).isEqualTo(Char.MIN_VALUE)
@@ -108,6 +132,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getChar("")).isEqualTo(Char.MAX_VALUE)
         }
+    }
+
+    @Test
+    fun primitiveBoolean() {
         false.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getBoolean("")).isEqualTo(false)
@@ -116,6 +144,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getBoolean("")).isEqualTo(true)
         }
+    }
+
+    @Test
+    fun primitiveString() {
         ""
             .encodeDecode {
                 assertThat(size()).isEqualTo(1)
@@ -126,6 +158,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
                 assertThat(size()).isEqualTo(1)
                 assertThat(getString("")).isEqualTo("foo")
             }
+    }
+
+    @Test
+    fun primitiveEnum() {
         MyEnum.A.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(0)
@@ -141,7 +177,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun valueClasses() {
+    fun valueClassUByte() {
         UByte.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(0)
@@ -150,6 +186,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(-1)
         }
+    }
+
+    @Test
+    fun valueClassUShort() {
         UShort.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(0)
@@ -158,6 +198,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(-1)
         }
+    }
+
+    @Test
+    fun valueClassUInt() {
         UInt.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(0)
@@ -166,6 +210,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(-1)
         }
+    }
+
+    @Test
+    fun valueClassULong() {
         ULong.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getLong("")).isEqualTo(0L)
@@ -174,6 +222,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getLong("")).isEqualTo(-1L)
         }
+    }
+
+    @Test
+    fun valueClassString() {
         MyValueClassToString("foo").encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getString("")).isEqualTo("foo")
@@ -181,18 +233,26 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun builtInComposites() {
+    fun compositePair() {
         Pair(3, "foo").encodeDecode {
             assertThat(size()).isEqualTo(2)
             assertThat(getInt("first")).isEqualTo(3)
             assertThat(getString("second")).isEqualTo("foo")
         }
+    }
+
+    @Test
+    fun compositeTriple() {
         Triple(3, "foo", 3.14).encodeDecode {
             assertThat(size()).isEqualTo(3)
             assertThat(getInt("first")).isEqualTo(3)
             assertThat(getString("second")).isEqualTo("foo")
             assertThat(getDouble("third")).isEqualTo(3.14)
         }
+    }
+
+    @Test
+    fun compositeDuration() {
         Duration.ZERO.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getString("")).isEqualTo(Duration.ZERO.toIsoString())
@@ -201,37 +261,69 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getString("")).isEqualTo(Duration.INFINITE.toIsoString())
         }
+    }
+
+    @Test
+    fun compositeUnit() {
         Unit.encodeDecode()
+    }
+
+    @Test
+    fun compositeObject() {
         MyObject.encodeDecode()
     }
 
     @Test
-    fun arrays() {
+    fun arrayInt() {
         intArrayOf(Int.MIN_VALUE, Int.MAX_VALUE).encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getIntArray("")).isEqualTo(intArrayOf(Int.MIN_VALUE, Int.MAX_VALUE))
         }
+    }
+
+    @Test
+    fun arrayLong() {
         longArrayOf(Long.MIN_VALUE, Long.MAX_VALUE).encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getLongArray("")).isEqualTo(longArrayOf(Long.MIN_VALUE, Long.MAX_VALUE))
         }
+    }
+
+    @Test
+    fun arrayBoolean() {
         booleanArrayOf(false, true).encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getBooleanArray("")).isEqualTo(booleanArrayOf(false, true))
         }
+    }
+
+    @Test
+    fun arrayChar() {
         charArrayOf(Char.MIN_VALUE, Char.MAX_VALUE).encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getCharArray("")).isEqualTo(charArrayOf(Char.MIN_VALUE, Char.MAX_VALUE))
         }
+    }
+
+    @Test
+    fun arrayFloat() {
         floatArrayOf(Float.MIN_VALUE, Float.MAX_VALUE).encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getFloatArray("")).isEqualTo(floatArrayOf(Float.MIN_VALUE, Float.MAX_VALUE))
         }
+    }
+
+    @Test
+    fun arrayDouble() {
         doubleArrayOf(Double.MIN_VALUE, Double.MAX_VALUE).encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getDoubleArray(""))
                 .isEqualTo(doubleArrayOf(Double.MIN_VALUE, Double.MAX_VALUE))
         }
+    }
+
+    @Test
+    fun arrayString() {
         arrayOf("a", "b").encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getStringArray("")).isEqualTo(arrayOf("a", "b"))
@@ -242,7 +334,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(getString("0")).isEqualTo("a")
             assertThat(isNull("1")).isTrue()
         }
+    }
 
+    @Test
+    fun arrayCustomSerializer() {
         MyColor(0, 128, 255).encodeDecode(serializer = MyColorIntArraySerializer) {
             assertThat(size()).isEqualTo(1)
             assertThat(getIntArray("")).isEqualTo(intArrayOf(0, 128, 255))
@@ -250,22 +345,67 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun list() {
+    fun listInt() {
         emptyList<Int>().encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getIntList("")).isEqualTo(emptyList<Int>())
         }
-
         listOf(1, 2, 3).encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getIntList("")).isEqualTo(listOf(1, 2, 3))
         }
+    }
 
+    @Test
+    fun listString() {
         listOf("a", "b", "c").encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getStringList("")).isEqualTo(listOf("a", "b", "c"))
         }
+    }
 
+    @Test
+    fun listBoolean() {
+        listOf(true, false, true).encodeDecode {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getBooleanArray("")).isEqualTo(booleanArrayOf(true, false, true))
+        }
+    }
+
+    @Test
+    fun listLong() {
+        listOf(1L, 2L, 3L).encodeDecode {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getLongArray("")).isEqualTo(longArrayOf(1L, 2L, 3L))
+        }
+    }
+
+    @Test
+    fun listFloat() {
+        listOf(1.0f, 2.0f, 3.0f).encodeDecode {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getFloatArray("")).isEqualTo(floatArrayOf(1.0f, 2.0f, 3.0f))
+        }
+    }
+
+    @Test
+    fun listDouble() {
+        listOf(1.0, 2.0, 3.0).encodeDecode {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getDoubleArray("")).isEqualTo(doubleArrayOf(1.0, 2.0, 3.0))
+        }
+    }
+
+    @Test
+    fun listChar() {
+        listOf('a', 'b', 'c').encodeDecode {
+            assertThat(size()).isEqualTo(1)
+            assertThat(getCharArray("")).isEqualTo(charArrayOf('a', 'b', 'c'))
+        }
+    }
+
+    @Test
+    fun listNullable() {
         listOf("a", null, "c").encodeDecode {
             assertThat(size()).isEqualTo(3)
             assertThat(getString("0")).isEqualTo("a")
@@ -275,7 +415,6 @@ internal class SavedStateCodecTest : RobolectricTest() {
                 .contains(keyOrValueNotFoundErrorMessage("1"))
             assertThat(getString("2")).isEqualTo("c")
         }
-
         listOf(1, 2, null, 4, 5, null).encodeDecode {
             assertThat(size()).isEqualTo(6)
             assertThat(getInt("0")).isEqualTo(1)
@@ -285,40 +424,15 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(getInt("4")).isEqualTo(5)
             assertThat(isNull("5")).isTrue()
         }
+    }
 
-        listOf(true, false, true).encodeDecode {
-            assertThat(size()).isEqualTo(1)
-            assertThat(getBooleanArray("")).isEqualTo(booleanArrayOf(true, false, true))
-        }
-
-        listOf(1L, 2L, 3L).encodeDecode {
-            assertThat(size()).isEqualTo(1)
-            assertThat(getLongArray("")).isEqualTo(longArrayOf(1L, 2L, 3L))
-        }
-
-        listOf(1.0f, 2.0f, 3.0f).encodeDecode {
-            assertThat(size()).isEqualTo(1)
-            assertThat(getFloatArray("")).isEqualTo(floatArrayOf(1.0f, 2.0f, 3.0f))
-        }
-
-        listOf(1.0, 2.0, 3.0).encodeDecode {
-            assertThat(size()).isEqualTo(1)
-            assertThat(getDoubleArray("")).isEqualTo(doubleArrayOf(1.0, 2.0, 3.0))
-        }
-
-        listOf('a', 'b', 'c').encodeDecode {
-            assertThat(size()).isEqualTo(1)
-            assertThat(getCharArray("")).isEqualTo(charArrayOf('a', 'b', 'c'))
-        }
-
-        // List of list.
+    @Test
+    fun listNested() {
         listOf(listOf(1, 2), listOf(3, 4)).encodeDecode {
             assertThat(size()).isEqualTo(2)
             assertThat(getIntList("0")).isEqualTo(listOf(1, 2))
             assertThat(getIntList("1")).isEqualTo(listOf(3, 4))
         }
-
-        // List of list of list.
         listOf(listOf(emptyList(), listOf(1, 2)), listOf(listOf(3, 4))).encodeDecode {
             assertThat(size()).isEqualTo(2)
             getSavedState("0").read {
@@ -331,8 +445,6 @@ internal class SavedStateCodecTest : RobolectricTest() {
                 assertThat(getIntList("0")).isEqualTo(listOf(3, 4))
             }
         }
-
-        // List in class in another class.
         @Serializable data class MyComponent(val list: List<String>)
         @Serializable data class MyContainer(val myComponent: MyComponent)
         MyContainer(MyComponent(listOf("foo", "bar"))).encodeDecode {
@@ -342,8 +454,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
                 assertThat(getStringList("list")).isEqualTo(listOf("foo", "bar"))
             }
         }
+    }
 
-        // Custom list is not a list.
+    @Test
+    fun listCustomSerializer() {
         val myDelegatedList = MyDelegatedList(arrayListOf(1, 3, 5))
         myDelegatedList.encodeDecode(serializer = serializer<MyDelegatedList<Int>>()) {
             assertThat(size()).isEqualTo(1)
@@ -356,23 +470,26 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun sets() {
+    fun setOrdered() {
         val list = (0..99).toList()
-
-        // Sets from `setOf()` are ordered.
         setOf(*list.toTypedArray()).encodeDecode {
             assertThat(size()).isEqualTo(100)
             list.forEach { index -> assertThat(getInt(index.toString())).isEqualTo(index) }
         }
+    }
 
-        // Sets from `hashSetOf()` are NOT ordered.
+    @Test
+    fun setUnordered() {
+        val list = (0..99).toList()
         hashSetOf(*list.toTypedArray()).encodeDecode {
             assertThat(size()).isEqualTo(100)
             val values = buildList { list.forEach { index -> add(getInt(index.toString())) } }
             assertThat(values.sorted()).isEqualTo(list)
         }
+    }
 
-        // Duplicates are ignored
+    @Test
+    fun setDuplicateDecoding() {
         assertThat(
                 decodeFromSavedState<Set<Int>>(
                     savedState {
@@ -386,8 +503,12 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun map() {
+    fun mapEmpty() {
         emptyMap<Int, String>().encodeDecode()
+    }
+
+    @Test
+    fun mapNonNull() {
         mapOf<Int, String>(123 to "foo", 456 to "bar").encodeDecode {
             assertThat(size()).isEqualTo(4)
             assertThat(getInt("0")).isEqualTo(123)
@@ -395,6 +516,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(getInt("2")).isEqualTo(456)
             assertThat(getString("3")).isEqualTo("bar")
         }
+    }
+
+    @Test
+    fun mapNullable() {
         mapOf<Int?, String?>(123 to null, null to "bar").encodeDecode {
             assertThat(size()).isEqualTo(4)
             assertThat(getInt("0")).isEqualTo(123)
@@ -405,7 +530,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun recursiveTypes() {
+    fun recursiveType() {
         MyTreeNode(3, MyTreeNode(5), MyTreeNode(7)).encodeDecode {
             assertThat(size()).isEqualTo(3)
             assertThat(getInt("value")).isEqualTo(3)
@@ -421,7 +546,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun typeAliases() {
+    fun typeAlias() {
         MyTypeAliasToInt.MIN_VALUE.encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("")).isEqualTo(Int.MIN_VALUE)
@@ -433,7 +558,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun sealedClasses() {
+    fun sealedClass() {
         // Should use base type for encoding/decoding.
         Node.Add(Node.Operand(3), Node.Operand(5)).encodeDecode<Node> {
             assertThat(size()).isEqualTo(2)
@@ -452,7 +577,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun typesWithDefaultValuesAndNullables() {
+    fun defaultBasic() {
         @Serializable data class A(val i: Int = 3)
         // We don't encode default values by default.
         A().encodeDecode()
@@ -460,7 +585,10 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("i")).isEqualTo(5)
         }
+    }
 
+    @Test
+    fun defaultNullable() {
         // Nullable with default value.
         @Serializable data class B(val s: String? = "foo", val i: Int)
         B(i = 3).encodeDecode {
@@ -480,14 +608,20 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(size()).isEqualTo(1)
             assertThat(getInt("i")).isEqualTo(3)
         }
+    }
 
+    @Test
+    fun defaultNullableWithoutDefault() {
         // Nullable without default value
         @Serializable data class C(val s: String?)
         C(s = "bar").encodeDecode {
             assertThat(size()).isEqualTo(1)
             assertThat(getString("s")).isEqualTo("bar")
         }
+    }
 
+    @Test
+    fun defaultEncodeDefault() {
         // Default value is encoded with `@EncodeDefault`.
         @Serializable
         data class D(
@@ -499,13 +633,19 @@ internal class SavedStateCodecTest : RobolectricTest() {
             assertThat(getInt("i")).isEqualTo(5)
             assertThat(getString("s")).isEqualTo("foo")
         }
+    }
 
+    @Test
+    fun defaultNullAsDefault() {
         // Nullable with null as default value.
         @Serializable data class E(val s: String? = null)
         // Even though we encode `null`s in general as we don't encode default values
         // nothing is encoded.
         E().encodeDecode()
+    }
 
+    @Test
+    fun defaultNullableInParent() {
         // Nullable in parent
         G(i = 3).encodeDecode<F> {
             assertThat(size()).isEqualTo(2)
@@ -518,7 +658,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun savedStates() {
+    fun savedStateObject() {
         @Serializable
         data class MyClass(@Serializable(with = SavedStateSerializer::class) val s: SavedState)
         MyClass(
@@ -567,7 +707,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun serialName() {
+    fun serialNameAnnotation() {
         @Serializable data class MyModel(@SerialName("foo") val i: Int)
         MyModel(3).encodeDecode {
             assertThat(size()).isEqualTo(1)
@@ -577,7 +717,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
 
     // Users shouldn't do this. The test is just to document the behavior.
     @Test
-    fun typeMismatchInDecodingWorks() {
+    fun typeMismatch() {
         assertThrows(IllegalArgumentException::class) {
                 decodeFromSavedState<Int>(savedState { putBoolean("", true) })
             }
@@ -613,7 +753,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun encodingClassesWithoutSerializersThrowsException() {
+    fun serializerMissingThrowsException() {
         assertThrows<SerializationException> {
                 MyColor(1, 3, 5).encodeDecode {
                     assertThat(size()).isEqualTo(1)
@@ -625,7 +765,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun canEncodeWithContextualSerialization() {
+    fun contextualSerialization() {
         val config = SavedStateConfiguration {
             serializersModule = SerializersModule {
                 contextual(MyColor::class, MyColorIntArraySerializer)
@@ -643,7 +783,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun canEncodeTopLevelObjectsWithImplicitContextualSerialization() {
+    fun contextualSerializationImplicit() {
         val config = SavedStateConfiguration {
             serializersModule = SerializersModule {
                 contextual(MyColor::class, MyColorIntArraySerializer)
@@ -658,7 +798,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun canEncodeWithPolymorphicSerialization() {
+    fun polymorphicSerialization() {
         val config = SavedStateConfiguration {
             serializersModule = SerializersModule {
                 polymorphic(Shape::class) {
@@ -697,7 +837,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
 
     // Encode a `List<Any>` with `SerializersModule`.
     @Test
-    fun canUseContextualSerializationWithPolymorphicSerialization() {
+    fun polymorphicSerializationContextual() {
         val config = SavedStateConfiguration {
             serializersModule = SerializersModule {
                 contextual(Any::class, PolymorphicSerializer(Any::class))
@@ -723,7 +863,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun canUseBuiltInSerializersAutomatically() {
+    fun builtInSerializer() {
         savedState {
                 putString("name", "foo")
                 putInt("age", 99)
@@ -741,7 +881,7 @@ internal class SavedStateCodecTest : RobolectricTest() {
     }
 
     @Test
-    fun canUseContextualSerializer() {
+    fun contextualSerializer() {
         savedState {
                 putString("name", "foo")
                 putInt("age", 99)
