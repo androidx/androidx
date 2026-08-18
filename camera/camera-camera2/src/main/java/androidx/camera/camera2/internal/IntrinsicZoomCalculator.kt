@@ -32,6 +32,7 @@ import dagger.Binds
 import dagger.Module
 import javax.inject.Inject
 import kotlin.math.atan
+import kotlin.math.roundToInt
 
 public interface IntrinsicZoomCalculator {
     /**
@@ -47,7 +48,8 @@ public interface IntrinsicZoomCalculator {
      * will have an intrinsic zoom ratio > 1.0.
      *
      * @param cameraMetadata The [CameraMetadata] for which to calculate the intrinsic zoom ratio.
-     * @return The intrinsic zoom ratio, or `null` if it cannot be calculated.
+     * @return The intrinsic zoom ratio rounded to at most two decimal places, or `null` if it
+     *   cannot be calculated.
      */
     public fun calculateIntrinsicZoomRatio(cameraMetadata: CameraMetadata): Float?
 
@@ -78,8 +80,10 @@ public class IntrinsicZoomCalculatorImpl
 constructor(private val cameraDevices: CameraDevices) : IntrinsicZoomCalculator {
     override fun calculateIntrinsicZoomRatio(cameraMetadata: CameraMetadata): Float? {
         return try {
-            cameraMetadata.getDefaultCameraDefaultViewAngleDegrees().toFloat() /
-                cameraMetadata.getDefaultViewAngleDegrees().toFloat()
+            val ratio =
+                cameraMetadata.getDefaultCameraDefaultViewAngleDegrees().toFloat() /
+                    cameraMetadata.getDefaultViewAngleDegrees().toFloat()
+            (ratio * 100f).roundToInt() / 100f
         } catch (e: Exception) {
             Log.error(e) { "Failed to get the intrinsic zoom ratio" }
             null
