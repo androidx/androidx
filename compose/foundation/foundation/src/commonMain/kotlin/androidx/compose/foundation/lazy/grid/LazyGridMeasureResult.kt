@@ -61,7 +61,7 @@ constructor(
     /** Prefetch state used by the lazy layout. */
     val prefetchState: LazyLayoutPrefetchState?,
     /** Prefetch strategy used in our layout */
-    val prefetchStrategy: LazyGridPrefetchStrategy?,
+    @Suppress("DEPRECATION") val prefetchStrategy: LazyGridPrefetchStrategy?,
     // properties representing the info needed for LazyListLayoutInfo:
     /** see [LazyGridLayoutInfo.visibleItemsInfo] */
     override val visibleItemsInfo: List<LazyGridMeasuredItem>,

@@ -84,7 +84,7 @@ internal fun measureLazyGrid(
     stickyItemsScrollBehavior: StickyItemsPlacement?,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
     prefetchState: LazyLayoutPrefetchState?,
-    prefetchStrategy: LazyGridPrefetchStrategy?,
+    @Suppress("DEPRECATION") prefetchStrategy: LazyGridPrefetchStrategy?,
 ): LazyGridMeasureResult {
     requirePrecondition(beforeContentPadding >= 0) { "negative beforeContentPadding" }
     requirePrecondition(afterContentPadding >= 0) { "negative afterContentPadding" }
