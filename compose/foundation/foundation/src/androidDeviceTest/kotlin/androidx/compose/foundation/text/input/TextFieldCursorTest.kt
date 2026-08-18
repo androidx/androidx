@@ -272,10 +272,11 @@ class TextFieldCursorTest : FocusedWindowTest {
 
         rule.mainClock.advanceTimeBy(100)
 
-        rule
-            .onNode(hasSetTextAction())
-            .captureToImage()
-            .assertCursor(cursorTopCenterInLtr - Offset(cursorSizePx.width, 0f))
+        val expectedCursorTopCenter =
+            with(rule.density) {
+                Offset((50.dp - DefaultCursorThickness / 2).toPx(), cursorRect.top)
+            }
+        rule.onNode(hasSetTextAction()).captureToImage().assertCursor(expectedCursorTopCenter)
     }
 
     @Test
@@ -298,10 +299,9 @@ class TextFieldCursorTest : FocusedWindowTest {
 
         rule.mainClock.advanceTimeBy(100)
 
-        rule
-            .onNode(hasSetTextAction())
-            .captureToImage()
-            .assertCursor(cursorTopCenterInRtl + Offset(cursorSizePx.width, 0f))
+        val expectedCursorTopCenter =
+            with(rule.density) { Offset((DefaultCursorThickness / 2).toPx(), cursorRect.top) }
+        rule.onNode(hasSetTextAction()).captureToImage().assertCursor(expectedCursorTopCenter)
     }
 
     @Test
