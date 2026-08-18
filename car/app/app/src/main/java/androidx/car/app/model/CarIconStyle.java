@@ -30,32 +30,89 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
-
 /**
- * Holds properties related ONLY to the visual properties of {@link CarIcon}.
+ * Defines the visual styling applied to a {@link CarIcon}, including tinting behavior and geometric
+ * shapes.
+ *
+ * <p>In general, icon styling falls into two categories:
+ *
+ * <ul>
+ *   <li><b>Tinted:</b> Styled with {@link #TINTED}, which instructs the host vehicle system to
+ *       automatically theme-tint the asset with {@link CarColor#DEFAULT} or applies an explicit
+ *       solid {@link CarColor} tint configured via {@link Builder#setTint(CarColor)}.
+ *   <li><b>Original (Not Tinted):</b> Styled with {@link #ORIGINAL}, which preserves the icon's
+ *       original colors without allowing host-side tinting (e.g., user avatars, media album art,
+ *       photos, or un-tinted brand graphics).
+ * </ul>
  */
 @CarProtocol
 @KeepFields
 @OptIn(markerClass = ExperimentalCarApi.class)
 public class CarIconStyle {
 
-    private final @Nullable CarColor mTint;
-    private final @Nullable Shape mShape;
+    /**
+     * Visual styling for icons that should be tinted.
+     *
+     * <p>By default, this instructs the host to automatically tint the icon or allows the dev to
+     * provide an explicit custom tint. To apply an explicit custom tint color use {@link
+     * Builder#Builder(CarIconStyle)} with {@link #TINTED} and call {@link
+     * Builder#setTint(CarColor)}.
+     */
+    @NonNull public static final CarIconStyle TINTED = new CarIconStyle(CarColor.DEFAULT, null);
 
     /**
-     * Returns the tint of the icon or {@code null} if not set.
+     * Visual styling for icons that should retain their original colors without allowing host-side
+     * tinting.
+     *
+     * <p>Instructs the host vehicle system to preserve the full original colors of the image
+     * without host tinting interference. Use this for assets such as user avatars, media album art,
+     * photos, or un-tinted logos.
+     */
+    @NonNull public static final CarIconStyle ORIGINAL = new CarIconStyle(null, null);
+
+    @Nullable private final CarColor mTint;
+    @Nullable private final Shape mShape;
+
+    // Internal constructor to initialize base static constants
+    CarIconStyle(@Nullable CarColor tint, @Nullable Shape shape) {
+        this.mTint = tint;
+        this.mShape = shape;
+    }
+
+    private CarIconStyle(Builder builder) {
+        this.mTint = builder.mTint;
+        this.mShape = builder.mShape;
+    }
+
+    /** Constructs an empty instance for serialization. */
+    private CarIconStyle() {
+        this.mShape = null;
+        this.mTint = null;
+    }
+
+    /**
+     * Returns the explicit {@link CarColor} tint defined in this style (such as {@link
+     * CarColor#DEFAULT} for auto-tinting or a custom tint), or {@code null} if no tint is applied.
      */
     public @Nullable CarColor getTint() {
         return mTint;
     }
 
-    /**
-     * Returns the {@link Shape} of the icon or {@code null} if not set.
-     */
+    /** Returns the {@link Shape} defined in this style, or {@code null} if none is set. */
     @RequiresCarApi(9)
     @ExperimentalCarApi
     public @Nullable Shape getShape() {
         return mShape;
+    }
+
+    @Override
+    public @NonNull String toString() {
+        return "CarIconStyle { tint: " + mTint + ", shape: " + mShape + " }";
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mTint, mShape);
     }
 
     @Override
@@ -70,88 +127,49 @@ public class CarIconStyle {
         return Objects.equals(mTint, that.mTint) && Objects.equals(mShape, that.mShape);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(mTint, mShape);
-    }
-
-    @Override
-    public @NonNull String toString() {
-        return "CarIconStyle { tint: " + mTint + ", shape: " + mShape + " }";
-    }
-
-    private CarIconStyle(@NonNull Builder builder) {
-        mTint = builder.mTint;
-        mShape = builder.mShape;
-    }
-
-    /** For serialization. */
-    private CarIconStyle() {
-        mTint = null;
-        mShape = null;
-    }
-
-    /** A builder for {@link CarIconStyle}. */
+    /** A builder of {@link CarIconStyle}. */
     public static final class Builder {
-        @Nullable CarColor mTint;
-        @Nullable Shape mShape;
+        @Nullable private CarColor mTint;
+        @Nullable private Shape mShape;
 
         /**
-         * Sets the {@link Shape} for the container.
+         * Creates a builder for a custom CarIconStyle based on an existing base style contract.
          *
-         * @throws NullPointerException if {@code shape} is {@code null}
+         * @param baseStyle The base style contract to inherit from, typically {@link
+         *     CarIconStyle#TINTED} or {@link CarIconStyle#ORIGINAL}.
          */
-        public @NonNull Builder setTint(@NonNull CarColor tint) {
-            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(tint));
-            mTint = tint;
-            return this;
+        public Builder(@NonNull CarIconStyle baseStyle) {
+            requireNonNull(baseStyle);
+            this.mTint = baseStyle.mTint;
+            this.mShape = baseStyle.mShape;
         }
 
-        /**
-         * Sets the {@link Shape} for the container.
-         *
-         * @throws NullPointerException if {@code shape} is {@code null}
-         */
+        /** Sets the geometric {@link Shape} boundary to crop or frame the icon graphic. */
         @RequiresCarApi(9)
         @ExperimentalCarApi
-        public @NonNull Builder setShape(@NonNull Shape shape) {
-            mShape = requireNonNull(shape);
+        @NonNull
+        public Builder setShape(@NonNull Shape shape) {
+            this.mShape = requireNonNull(shape);
             return this;
         }
 
         /**
-         * Constructs a {@link CarIconStyle} from the current state of this builder.
+         * Sets an explicit custom solid {@link CarColor} tint for single-color assets.
          *
-         * @throws IllegalStateException if both shape is {@code null}
+         * <p>This will apply a solid color tint rather than leaving the image as-is. Use {@code
+         * CarIconStyle.Builder(CarIconStyle.ORIGINAL)}` to create an un-tinted style
          */
-        public @NonNull CarIconStyle build() {
-            if (mTint == null && mShape == null) {
-                throw new IllegalStateException(
-                        "Either a tint or a shape must be set for a CarIconStyle");
-            }
+        @NonNull
+        public Builder setTint(@NonNull CarColor tint) {
+            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(tint));
+            this.mTint = tint;
+            return this;
+        }
 
+        /** Constructs the {@link CarIconStyle} defined by this builder. */
+        @NonNull
+        public CarIconStyle build() {
             return new CarIconStyle(this);
-        }
-
-        /**
-         * Returns a {@link CarIconStyle.Builder} instance with unset properties.
-         */
-        public Builder() {
-            mTint = null;
-            mShape = null;
-        }
-
-        /**
-         * Returns a {@link CarIconStyle.Builder} instance configured with the same data as the
-         * given
-         * {@link CarIconStyle} instance.
-         *
-         * @throws NullPointerException if {@code style} is {@code null}
-         */
-        public Builder(@NonNull CarIconStyle style) {
-            requireNonNull(style);
-            mTint = style.getTint();
-            mShape = style.getShape();
         }
     }
 }

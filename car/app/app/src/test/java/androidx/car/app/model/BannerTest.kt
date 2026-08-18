@@ -62,9 +62,9 @@ class BannerTest {
                 .setSubtitle(subtitle)
                 .setOnClickListener {}
                 .setStyle(style)
-                .setLeadingImage(leadingIcon, Banner.IMAGE_TYPE_ICON)
+                .setLeadingImage(leadingIcon, Banner.IMAGE_TYPE_SMALL)
                 .addTrailingAction(trailingAction)
-                .addTrailingImage(trailingImage)
+                .addTrailingImage(trailingImage, Banner.IMAGE_TYPE_MEDIUM)
                 .addBelowAction(belowAction)
                 .build()
 
@@ -73,14 +73,14 @@ class BannerTest {
         assertThat(banner.onClickDelegate).isNotNull()
         assertThat(banner.style).isEqualTo(style)
         assertThat(banner.leadingElement!!.type).isEqualTo(BannerElement.TYPE_IMAGE)
-        assertThat(banner.leadingElement!!.imageType).isEqualTo(Banner.IMAGE_TYPE_ICON)
+        assertThat(banner.leadingElement!!.imageType).isEqualTo(Banner.IMAGE_TYPE_SMALL)
         assertThat(banner.leadingElement!!.image).isEqualTo(leadingIcon)
 
         assertThat(banner.trailingElements).hasSize(2)
         assertThat(banner.trailingElements[0].type).isEqualTo(BannerElement.TYPE_ACTION)
         assertThat(banner.trailingElements[0].action).isEqualTo(trailingAction)
         assertThat(banner.trailingElements[1].type).isEqualTo(BannerElement.TYPE_IMAGE)
-        assertThat(banner.trailingElements[1].imageType).isEqualTo(Banner.IMAGE_TYPE_SMALL)
+        assertThat(banner.trailingElements[1].imageType).isEqualTo(Banner.IMAGE_TYPE_MEDIUM)
         assertThat(banner.trailingElements[1].image).isEqualTo(trailingImage)
 
         assertThat(banner.belowActions).containsExactly(belowAction)
@@ -98,7 +98,7 @@ class BannerTest {
             Banner.Builder()
                 .setTitle("Title")
                 .addTrailingAction(action)
-                .addTrailingImage(CarIcon.ALERT, Banner.IMAGE_TYPE_ICON)
+                .addTrailingImage(CarIcon.ALERT, Banner.IMAGE_TYPE_SMALL)
                 .addTrailingImage(CarIcon.APP_ICON)
         } catch (e: IllegalStateException) {
             assertThat(e.message)
@@ -155,7 +155,7 @@ class BannerTest {
                 .setSubtitle(subtitle)
                 .setOnClickListener {}
                 .setStyle(style)
-                .setLeadingImage(leadingIcon, Banner.IMAGE_TYPE_ICON)
+                .setLeadingImage(leadingIcon, Banner.IMAGE_TYPE_SMALL)
                 .addTrailingAction(trailingAction)
                 .addTrailingImage(trailingImage)
                 .addBelowAction(belowAction)
@@ -167,7 +167,7 @@ class BannerTest {
                 .setSubtitle(subtitle)
                 .setOnClickListener {}
                 .setStyle(style)
-                .setLeadingImage(leadingIcon, Banner.IMAGE_TYPE_ICON)
+                .setLeadingImage(leadingIcon, Banner.IMAGE_TYPE_SMALL)
                 .addTrailingAction(trailingAction)
                 .addTrailingImage(trailingImage)
                 .addBelowAction(belowAction)
@@ -217,12 +217,12 @@ class BannerTest {
         val banner1 =
             Banner.Builder()
                 .setTitle("Title")
-                .setLeadingImage(CarIcon.ALERT, Banner.IMAGE_TYPE_ICON)
+                .setLeadingImage(CarIcon.ALERT, Banner.IMAGE_TYPE_SMALL)
                 .build()
         val banner2 =
             Banner.Builder()
                 .setTitle("Title")
-                .setLeadingImage(CarIcon.APP_ICON, Banner.IMAGE_TYPE_ICON)
+                .setLeadingImage(CarIcon.APP_ICON, Banner.IMAGE_TYPE_SMALL)
                 .build()
         assertThat(banner1).isNotEqualTo(banner2)
     }
@@ -232,12 +232,12 @@ class BannerTest {
         val banner1 =
             Banner.Builder()
                 .setTitle("Title")
-                .addTrailingImage(CarIcon.ALERT, Banner.IMAGE_TYPE_ICON)
+                .addTrailingImage(CarIcon.ALERT, Banner.IMAGE_TYPE_SMALL)
                 .build()
         val banner2 =
             Banner.Builder()
                 .setTitle("Title")
-                .addTrailingImage(CarIcon.APP_ICON, Banner.IMAGE_TYPE_ICON)
+                .addTrailingImage(CarIcon.APP_ICON, Banner.IMAGE_TYPE_SMALL)
                 .build()
         assertThat(banner1).isNotEqualTo(banner2)
     }
@@ -252,6 +252,7 @@ class BannerTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun builder_setLeadingImage_withVariants() {
         val bannerIcon =
             Banner.Builder()
@@ -279,6 +280,7 @@ class BannerTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun builder_addTrailingImage_withVariants() {
         val banner =
             Banner.Builder()
@@ -387,6 +389,7 @@ class BannerTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun builder_belowActionsWithSmallImageOrIcon_succeeds() {
         val action = Action.Builder().setTitle("Action").build()
         val banner =

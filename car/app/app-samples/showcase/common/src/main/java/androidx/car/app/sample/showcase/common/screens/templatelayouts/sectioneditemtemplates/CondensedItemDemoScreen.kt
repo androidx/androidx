@@ -74,7 +74,7 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
                     .setTitle("90s Road Trip")
                     .setText("Playlist • Media")
                     .setLeadingImage(mediaIcon, CondensedItem.IMAGE_TYPE_LARGE)
-                    .setTrailingImage(arrowIcon, CondensedItem.IMAGE_TYPE_ICON)
+                    .setTrailingImage(arrowIcon, CondensedItem.IMAGE_TYPE_SMALL)
                     .setOnClickListener { showToast("Clicked Road Trip Item $i") }
                     .build()
             )
@@ -165,17 +165,17 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
                 )
                 .addItem(
                     buildSizeShapeItem(
-                        "None + Small",
+                        "None + Medium",
                         Shape.NONE,
-                        CondensedItem.IMAGE_TYPE_SMALL,
+                        CondensedItem.IMAGE_TYPE_MEDIUM,
                         mediaIcon,
                     )
                 )
                 .addItem(
                     buildSizeShapeItem(
-                        "None + Icon",
+                        "None + Small",
                         Shape.NONE,
-                        CondensedItem.IMAGE_TYPE_ICON,
+                        CondensedItem.IMAGE_TYPE_SMALL,
                         mediaIcon,
                     )
                 )
@@ -190,17 +190,17 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
                 )
                 .addItem(
                     buildSizeShapeItem(
-                        "Full + Small",
+                        "Full + Medium",
                         Shape.CORNER_FULL,
-                        CondensedItem.IMAGE_TYPE_SMALL,
+                        CondensedItem.IMAGE_TYPE_MEDIUM,
                         mediaIcon,
                     )
                 )
                 .addItem(
                     buildSizeShapeItem(
-                        "Full + Icon",
+                        "Full + Small",
                         Shape.CORNER_FULL,
-                        CondensedItem.IMAGE_TYPE_ICON,
+                        CondensedItem.IMAGE_TYPE_SMALL,
                         mediaIcon,
                     )
                 )
@@ -215,17 +215,17 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
                 )
                 .addItem(
                     buildSizeShapeItem(
-                        "Medium + Small",
+                        "Medium + Medium",
                         Shape.CORNER_MEDIUM,
-                        CondensedItem.IMAGE_TYPE_SMALL,
+                        CondensedItem.IMAGE_TYPE_MEDIUM,
                         mediaIcon,
                     )
                 )
                 .addItem(
                     buildSizeShapeItem(
-                        "Medium + Icon",
+                        "Medium + Small",
                         Shape.CORNER_MEDIUM,
-                        CondensedItem.IMAGE_TYPE_ICON,
+                        CondensedItem.IMAGE_TYPE_SMALL,
                         mediaIcon,
                     )
                 )
@@ -324,7 +324,7 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
                         .setLeadingImage(
                             CarIcon.Builder(mediaIcon)
                                 .setStyle(
-                                    CarIconStyle.Builder()
+                                    CarIconStyle.Builder(CarIconStyle.TINTED)
                                         .setTint(
                                             CarColor.createCustom(
                                                 Color.argb(100, 0, 255, 0),
@@ -377,7 +377,7 @@ class CondensedItemDemoScreen(carContext: CarContext) : Screen(carContext) {
     private fun buildColorItem(title: String, color: CarColor, icon: CarIcon): CondensedItem {
         return CondensedItem.Builder()
             .setTitle(title)
-            .setTrailingImage(icon, CondensedItem.IMAGE_TYPE_ICON)
+            .setTrailingImage(icon, CondensedItem.IMAGE_TYPE_SMALL)
             .setStyle(
                 CondensedItemStyle.Builder()
                     .setShape(Shape.CORNER_MEDIUM)

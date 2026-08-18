@@ -63,7 +63,7 @@ public final class RadioButtonListDemoScreen extends Screen {
                         .addItem(buildRowForTemplate(R.string.option_row_radio_icon_title,
                                 R.string.additional_text,
                                 buildImageWithResource(R.drawable
-                                        .ic_fastfood_white_48dp), Row.IMAGE_TYPE_ICON))
+                                        .ic_fastfood_white_48dp), Row.IMAGE_TYPE_SMALL))
 
                         .addItem(buildRowForTemplate(
                                 R.string.option_row_radio_icon_colored_text_title,
