@@ -64,7 +64,7 @@ constructor(
     private var backgroundDrawable: StateListDrawable? = null
     private var iconDrawable: Drawable? = null
     private var isConfigDirty = true
-    private var locales: LocaleList? = null
+    private var locales: LocaleList = LocaleList.getEmptyLocaleList()
 
     // Internal cache of the resolved corner radiuses after applying M3 Expressive tokens.
     // These are dynamically calculated during measurement and used to build the background.
@@ -90,7 +90,7 @@ constructor(
         maxLines: Int,
         textAllCaps: Boolean,
         includeFontPadding: Boolean,
-        locales: LocaleList?,
+        locales: LocaleList,
     ) {
         val localesChanged = this.locales != locales
         if (localesChanged) {
@@ -380,11 +380,7 @@ constructor(
             }
 
         val currentLocales = locales
-        if (
-            currentLocales == null ||
-                currentLocales.isEmpty ||
-                currentLocales == context.resources.configuration.locales
-        ) {
+        if (currentLocales.isEmpty || currentLocales == context.resources.configuration.locales) {
             return context.getString(resId)
         }
 
