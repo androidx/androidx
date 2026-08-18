@@ -413,6 +413,10 @@ public final class ImageCapture extends UseCase {
 
         mFlashType = useCaseConfig.getFlashType(FLASH_TYPE_ONE_SHOT_FLASH);
         mScreenFlashWrapper = ScreenFlashWrapper.from(useCaseConfig.getScreenFlash());
+
+        if (useCaseConfig.containsOption(OPTION_FLASH_MODE)) {
+            mFlashMode = useCaseConfig.getFlashMode();
+        }
     }
 
     private boolean isSessionProcessorEnabledInCurrentCamera() {
