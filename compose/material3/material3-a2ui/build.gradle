@@ -44,6 +44,10 @@ dependencies {
 
     debugImplementation(project(":compose:ui:ui-test-manifest"))
 
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
+    testImplementation(libs.junit)
+
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":a2ui:compose:compose-ui-testing"))
