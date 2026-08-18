@@ -18,6 +18,7 @@
 
 package androidx.camera.camera2.interop
 
+import android.graphics.ColorSpace
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -450,7 +451,7 @@ class Camera2InteropTest {
             Camera2Interop.forSessionConfig { interop ->
                 interop
                     .setSessionType(4)
-                    .setColorSpace(5)
+                    .setColorSpace(ColorSpace.Named.DISPLAY_P3)
                     .setCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_MODE,
                         CaptureRequest.CONTROL_AF_MODE_OFF,
@@ -467,7 +468,7 @@ class Camera2InteropTest {
 
         // Assert
         assertThat(camera2Config.getSessionType(-1)).isEqualTo(4)
-        assertThat(camera2Config.getColorSpace(-1)).isEqualTo(5)
+        assertThat(camera2Config.getColorSpace(-1)).isEqualTo(ColorSpace.Named.DISPLAY_P3.ordinal)
         assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE))
             .isEqualTo(CaptureRequest.CONTROL_AF_MODE_OFF)
         assertThat(camera2Config.getCaptureRequestTemplate(-1))

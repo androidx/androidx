@@ -198,6 +198,10 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
         return config.retrieveOption(SESSION_TYPE_OPTION, valueIfMissing)
     }
 
+    public fun getSensorPixelModesUsed(valueIfMissing: Set<Int>? = null): Set<Int>? {
+        return config.retrieveOption(SENSOR_PIXEL_MODES_USED_OPTION, valueIfMissing)
+    }
+
     /**
      * Builder for creating [Camera2ImplConfig] instance.
      *
@@ -220,6 +224,28 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
         ): Builder {
             val opt = key.createCaptureRequestOption()
             mutableOptionsBundle.insertOption(opt, value)
+            return this
+        }
+
+        /**
+         * Adds a sensor pixel mode that this output configuration will be used in.
+         *
+         * @see android.hardware.camera2.params.OutputConfiguration.addSensorPixelModeUsed
+         */
+        public fun addSensorPixelModeUsed(sensorPixelMode: Int): Builder {
+            val current =
+                mutableOptionsBundle.retrieveOption(SENSOR_PIXEL_MODES_USED_OPTION, emptySet())!!
+            mutableOptionsBundle.insertOption(
+                SENSOR_PIXEL_MODES_USED_OPTION,
+                current + sensorPixelMode,
+            )
+            return this
+        }
+
+        /** Clears a [CaptureRequest.Key] previously set on this builder. */
+        public fun <ValueT> clearCaptureRequestOption(key: CaptureRequest.Key<ValueT>): Builder {
+            val opt = key.createCaptureRequestOption()
+            mutableOptionsBundle.removeOption(opt)
             return this
         }
 
@@ -401,6 +427,13 @@ public class Camera2ImplConfig(config: Config) : CaptureRequestOptions(config) {
             Config.Option.create(
                 "camera2.cameraCaptureSession.sessionType",
                 Int::class.javaPrimitiveType!!,
+            )
+
+        @JvmField
+        public val SENSOR_PIXEL_MODES_USED_OPTION: Config.Option<Set<Int>> =
+            Config.Option.create(
+                "camera2.cameraCaptureSession.sensorPixelModesUsed",
+                Set::class.java,
             )
     }
 }

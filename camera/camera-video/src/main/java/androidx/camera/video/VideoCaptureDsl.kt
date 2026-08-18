@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("VideoCaptureDsl")
+
 package androidx.camera.video
 
 import android.util.Range
@@ -23,7 +25,10 @@ import androidx.camera.core.CameraXDsl
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.InteropConfigurableScope
 import androidx.camera.core.MirrorMode
+import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.ImageOutputConfig.OptionalRotationValue
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
+import androidx.camera.core.impl.StreamSpec
 
 /**
  * Creates a [VideoCapture] using a Kotlin DSL block.
@@ -32,7 +37,6 @@ import androidx.camera.core.impl.ImageOutputConfig.RotationValue
  * @param block A receiver lambda on [VideoCaptureScope] to configure the VideoCapture.
  * @sample androidx.camera.video.samples.videoCaptureDslSample
  */
-@JvmSynthetic
 public fun <T : VideoOutput> videoCapture(
     videoOutput: T,
     block: VideoCaptureScope<T>.() -> Unit,
@@ -48,99 +52,99 @@ internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override val builder: VideoCapture.Builder<T> = VideoCapture.Builder(videoOutput),
 ) : InteropConfigurableScope<VideoCapture.Builder<T>> {
+    private var _targetName: String = ""
+
     /**
-     * Sets the target name for this use case configuration.
+     * Sets or gets the target name for this use case configuration.
      *
      * @see VideoCapture.Builder.setTargetName
      */
     @get:NonNull
     @set:NonNull
     public var targetName: String
-        @JvmSynthetic
-        @Deprecated("Write-only", level = DeprecationLevel.ERROR)
-        get() = throw UnsupportedOperationException()
-        @JvmSynthetic
+        get() = _targetName
         set(@NonNull value) {
+            _targetName = value
             builder.setTargetName(value)
         }
 
+    private var _targetRotation: Int = ImageOutputConfig.ROTATION_NOT_SPECIFIED
+
     /**
-     * Sets the target rotation for this use case.
+     * Sets or gets the target rotation for this use case.
      *
      * @see VideoCapture.Builder.setTargetRotation
      */
-    @get:RotationValue
-    @set:RotationValue
+    @get:OptionalRotationValue
+    @setparam:RotationValue
     public var targetRotation: Int
-        @JvmSynthetic
-        @Deprecated("Write-only", level = DeprecationLevel.ERROR)
-        get() = throw UnsupportedOperationException()
-        @JvmSynthetic
+        get() = _targetRotation
         set(value) {
+            _targetRotation = value
             builder.setTargetRotation(value)
         }
 
+    private var _dynamicRange: DynamicRange = DynamicRange.UNSPECIFIED
+
     /**
-     * Sets the dynamic range for this use case.
+     * Sets or gets the dynamic range for this use case.
      *
      * @see VideoCapture.Builder.setDynamicRange
      */
     @get:NonNull
     @set:NonNull
     public var dynamicRange: DynamicRange
-        @JvmSynthetic
-        @Deprecated("Write-only", level = DeprecationLevel.ERROR)
-        get() = throw UnsupportedOperationException()
-        @JvmSynthetic
+        get() = _dynamicRange
         set(@NonNull value) {
+            _dynamicRange = value
             builder.setDynamicRange(value)
         }
 
+    private var _mirrorMode: Int = MirrorMode.MIRROR_MODE_UNSPECIFIED
+
     /**
-     * Sets the mirror mode for this use case.
+     * Sets or gets the mirror mode for this use case.
      *
      * @see VideoCapture.Builder.setMirrorMode
      */
     @get:MirrorMode.Mirror
-    @set:MirrorMode.Mirror
+    @setparam:MirrorMode.Mirror
     public var mirrorMode: Int
-        @JvmSynthetic
-        @Deprecated("Write-only", level = DeprecationLevel.ERROR)
-        get() = throw UnsupportedOperationException()
-        @JvmSynthetic
+        get() = _mirrorMode
         set(value) {
+            _mirrorMode = value
             builder.setMirrorMode(value)
         }
 
+    private var _targetFrameRate: Range<Int> = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
+
     /**
-     * Sets the target frame rate range for this use case.
+     * Sets or gets the target frame rate range for this use case.
      *
      * @see VideoCapture.Builder.setTargetFrameRate
      */
     @get:NonNull
     @set:NonNull
     public var targetFrameRate: Range<Int>
-        @JvmSynthetic
-        @Deprecated("Write-only", level = DeprecationLevel.ERROR)
-        get() = throw UnsupportedOperationException()
-        @JvmSynthetic
+        get() = _targetFrameRate
         set(@NonNull value) {
+            _targetFrameRate = value
             builder.setTargetFrameRate(value)
         }
 
+    private var _isVideoStabilizationEnabled: Boolean = false
+
     /**
-     * Sets whether video stabilization is enabled for this use case.
+     * Sets or gets whether video stabilization is enabled for this use case.
      *
      * @see VideoCapture.Builder.setVideoStabilizationEnabled
      */
     public var isVideoStabilizationEnabled: Boolean
-        @JvmSynthetic
-        @Deprecated("Write-only", level = DeprecationLevel.ERROR)
-        get() = throw UnsupportedOperationException()
-        @JvmSynthetic
+        get() = _isVideoStabilizationEnabled
         set(value) {
+            _isVideoStabilizationEnabled = value
             builder.setVideoStabilizationEnabled(value)
         }
 
-    @JvmSynthetic internal fun build(): VideoCapture<T> = builder.build()
+    internal fun build(): VideoCapture<T> = builder.build()
 }

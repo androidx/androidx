@@ -39,16 +39,27 @@ package androidx.camera.extensions {
     method public androidx.camera.extensions.ExtensionSessionConfig.Builder addEffect(androidx.camera.core.CameraEffect effect);
     method public androidx.camera.extensions.ExtensionSessionConfig.Builder addUseCase(androidx.camera.core.UseCase useCase);
     method public androidx.camera.extensions.ExtensionSessionConfig build();
-    method @BytecodeOnly @Deprecated public androidx.camera.core.ViewPort? getViewPort();
-    method @BytecodeOnly @Deprecated public boolean isAutoRotationEnabled();
     method public androidx.camera.extensions.ExtensionSessionConfig.Builder setAutoRotationEnabled(boolean autoRotationEnabled);
     method public androidx.camera.extensions.ExtensionSessionConfig.Builder setViewPort(androidx.camera.core.ViewPort viewPort);
-    property @Deprecated @kotlin.jvm.JvmSynthetic public boolean isAutoRotationEnabled;
-    property @Deprecated @kotlin.jvm.JvmSynthetic public androidx.camera.core.ViewPort? viewPort;
   }
 
   public final class ExtensionSessionConfigKt {
-    method @InaccessibleFromJava @kotlin.jvm.JvmSynthetic public static inline androidx.camera.extensions.ExtensionSessionConfig extensionSessionConfig(int mode, androidx.camera.extensions.ExtensionsManager extensionsManager, kotlin.jvm.functions.Function1<androidx.camera.extensions.ExtensionSessionConfig.Builder,kotlin.Unit> block);
+    method public static androidx.camera.extensions.ExtensionSessionConfig extensionSessionConfig(int mode, androidx.camera.extensions.ExtensionsManager extensionsManager, kotlin.jvm.functions.Function1<? super androidx.camera.extensions.ExtensionSessionConfigScope,kotlin.Unit> block);
+  }
+
+  @androidx.camera.core.CameraXDsl public final class ExtensionSessionConfigScope {
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.core.CameraEffect> getEffects();
+    method @InaccessibleFromKotlin public java.util.List<androidx.camera.core.UseCase> getUseCases();
+    method @InaccessibleFromKotlin public androidx.camera.core.ViewPort? getViewPort();
+    method @InaccessibleFromKotlin public boolean isAutoRotationEnabled();
+    method @InaccessibleFromKotlin public void setAutoRotationEnabled(boolean);
+    method @InaccessibleFromKotlin public void setEffects(java.util.List<? extends androidx.camera.core.CameraEffect>);
+    method @InaccessibleFromKotlin public void setUseCases(java.util.List<? extends androidx.camera.core.UseCase>);
+    method @InaccessibleFromKotlin public void setViewPort(androidx.camera.core.ViewPort?);
+    property public java.util.List<androidx.camera.core.CameraEffect> effects;
+    property public boolean isAutoRotationEnabled;
+    property public java.util.List<androidx.camera.core.UseCase> useCases;
+    property public androidx.camera.core.ViewPort? viewPort;
   }
 
   public final class ExtensionsManager {

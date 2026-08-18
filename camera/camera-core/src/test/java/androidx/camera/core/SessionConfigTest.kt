@@ -701,11 +701,28 @@ class SessionConfigTest {
             sessionConfig(useCases) {
                 viewPort = this@SessionConfigTest.viewPort
                 isAutoRotationEnabled = true
+                frameRateRange = Range(30, 30)
+                requiredFeatureGroup = setOf(FakeDynamicRangeFeature(DynamicRange.HLG_10_BIT))
+                preferredFeatureGroup =
+                    listOf(FakeDynamicRangeFeature(DynamicRange.HDR_UNSPECIFIED_10_BIT))
+
+                assertThat(viewPort).isEqualTo(this@SessionConfigTest.viewPort)
+                assertThat(isAutoRotationEnabled).isTrue()
+                assertThat(frameRateRange).isEqualTo(Range(30, 30))
+                assertThat(requiredFeatureGroup)
+                    .containsExactly(FakeDynamicRangeFeature(DynamicRange.HLG_10_BIT))
+                assertThat(preferredFeatureGroup)
+                    .containsExactly(FakeDynamicRangeFeature(DynamicRange.HDR_UNSPECIFIED_10_BIT))
             }
 
         assertThat(sessionConfig.useCases).isEqualTo(useCases)
         assertThat(sessionConfig.viewPort).isEqualTo(viewPort)
         assertThat(sessionConfig.isAutoRotationEnabled).isTrue()
+        assertThat(sessionConfig.frameRateRange).isEqualTo(Range(30, 30))
+        assertThat(sessionConfig.requiredFeatureGroup)
+            .containsExactly(FakeDynamicRangeFeature(DynamicRange.HLG_10_BIT))
+        assertThat(sessionConfig.preferredFeatureGroup)
+            .containsExactly(FakeDynamicRangeFeature(DynamicRange.HDR_UNSPECIFIED_10_BIT))
     }
 
     private fun createVideoCapture(quality: Quality? = null): VideoCapture<Recorder> {
