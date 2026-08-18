@@ -40,6 +40,10 @@ dependencies {
 
     implementation(project(":a2ui:a2ui-engine"))
 
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.truth)
+    testImplementation(libs.junit)
+
     androidTestImplementation("androidx.compose.foundation:foundation:1.10.0")
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))

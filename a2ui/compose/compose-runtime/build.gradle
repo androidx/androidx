@@ -37,6 +37,12 @@ dependencies {
     implementation(project(":annotation:annotation"))
     implementation(project(":collection:collection"))
 
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.truth)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+
     androidTestImplementation("androidx.compose.foundation:foundation:1.10.0")
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
@@ -59,4 +65,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2026"
     description = "The Compose A2UI renderer runtime"
+    enableRobolectric()
 }

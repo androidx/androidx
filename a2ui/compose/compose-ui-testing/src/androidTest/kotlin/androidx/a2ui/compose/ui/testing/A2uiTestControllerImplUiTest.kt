@@ -21,82 +21,29 @@ import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.A2uiComponent
-import androidx.a2ui.model.catalog.A2uiFunction
-import androidx.a2ui.model.catalog.A2uiFunctionDefinition
-import androidx.a2ui.model.catalog.A2uiFunctionReturnType
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiEventAction
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.a2ui.model.protocol.A2uiException.A2uiValidationException
-import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.protocol.A2uiFunctionCallAction
-import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class A2uiTestControllerImplTest {
-
-    @Test
-    fun init_duplicateIdStubs_throwsException() {
-        val catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList())
-        val stub1 = A2uiComponentStub.withId("my_id") { _, _ -> }
-        val stub2 = A2uiComponentStub.withId("my_id") { _, _ -> }
-
-        val exception =
-            assertFailsWith<IllegalArgumentException> {
-                A2uiTestController(catalog = catalog, componentStubs = listOf(stub1, stub2))
-            }
-
-        assertThat(exception).hasMessageThat().contains("Duplicate stub defined for ID: 'my_id'")
-    }
-
-    @Test
-    fun init_duplicateTypeStubs_throwsException() {
-        val catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList())
-        val stub1 = A2uiComponentStub.withType("MyType") { _, _ -> }
-        val stub2 = A2uiComponentStub.withType("MyType") { _, _ -> }
-
-        val exception =
-            assertFailsWith<IllegalArgumentException> {
-                A2uiTestController(catalog = catalog, componentStubs = listOf(stub1, stub2))
-            }
-
-        assertThat(exception).hasMessageThat().contains("Duplicate stub defined for Type: 'MyType'")
-    }
-
-    @Test
-    fun init_typeStub_replacesExistingComponent() {
-        val originalComponent = TestStubComponent("MyType")
-        val catalog = A2uiCatalog(catalogId = TestCatalogId, components = listOf(originalComponent))
-        val stub = A2uiComponentStub.withType("MyType") { _, _ -> }
-
-        val controller =
-            A2uiTestController(catalog = catalog, componentStubs = listOf(stub))
-                as A2uiTestControllerImpl
-        val testCatalog = controller.testCatalog
-
-        assertThat(testCatalog.components.size).isEqualTo(1)
-        val replacedComponent = testCatalog.components["MyType"]
-        assertThat(replacedComponent).isNotNull()
-        assertThat(replacedComponent).isNotSameInstanceAs(originalComponent)
-        assertThat(replacedComponent).isNotInstanceOf(TestStubComponent::class.java)
-        assertThat(replacedComponent?.name).isEqualTo("MyType")
-        assertThat(replacedComponent?.description).isEqualTo("Test Component")
-    }
+class A2uiTestControllerImplUiTest {
 
     @Test
     fun init_typeStub_defaultsToInstantReadiness() = runComposeUiTest {
@@ -190,45 +137,6 @@ class A2uiTestControllerImplTest {
     }
 
     @Test
-    fun init_typeStub_addsNewComponent() {
-        val catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList())
-        val stub = A2uiComponentStub.withType("NewType") { _, _ -> }
-
-        val controller =
-            A2uiTestController(catalog = catalog, componentStubs = listOf(stub))
-                as A2uiTestControllerImpl
-        val testCatalog = controller.testCatalog
-
-        assertThat(testCatalog.components.size).isEqualTo(1)
-        val newComponent = testCatalog.components["NewType"]
-        assertThat(newComponent).isNotNull()
-        assertThat(newComponent?.name).isEqualTo("NewType")
-        assertThat(newComponent?.description).isEqualTo("Stub for type NewType")
-    }
-
-    @Test
-    fun init_idStub_createsSyntheticType() {
-        val catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList())
-        val stub = A2uiComponentStub.withId("my_id") { _, _ -> }
-
-        val controller =
-            A2uiTestController(catalog = catalog, componentStubs = listOf(stub))
-                as A2uiTestControllerImpl
-        val testCatalog = controller.testCatalog
-
-        assertThat(controller.idStubs).containsKey("my_id")
-
-        val syntheticType = controller.syntheticTypesById["my_id"]
-        assertThat(syntheticType).isEqualTo("__stub_my_id")
-
-        assertThat(testCatalog.components.size).isEqualTo(1)
-        val syntheticComp = testCatalog.components["__stub_my_id"]
-        assertThat(syntheticComp).isNotNull()
-        assertThat(syntheticComp?.name).isEqualTo("__stub_my_id")
-        assertThat(syntheticComp?.description).isEqualTo("Stub for ID my_id")
-    }
-
-    @Test
     fun init_idStub_defaultsToInstantReadiness() = runComposeUiTest {
         val catalog = A2uiCatalog(catalogId = TestCatalogId, components = emptyList())
         val stub =
@@ -277,38 +185,6 @@ class A2uiTestControllerImplTest {
         controller.waitForIdle()
 
         onNodeWithText("IdLoaded").assertIsDisplayed()
-    }
-
-    @Test
-    fun init_copiesFunctionsAndThemeSchemaFromOriginalCatalog() {
-        val function =
-            object : A2uiFunction {
-                override val definition =
-                    object : A2uiFunctionDefinition {
-                        override val name = "MyFunc"
-                        override val description = ""
-                        override val argumentSchema = A2uiObjectSchema.INSTANCE
-                        override val returnType = A2uiFunctionReturnType.VOID
-                    }
-
-                override fun execute(
-                    args: Map<String, Any>,
-                    executionContext: A2uiExecutionContext,
-                ): Any? = null
-            }
-        val themeSchema = A2uiObjectSchema.INSTANCE
-        val catalog =
-            A2uiCatalog(
-                catalogId = TestCatalogId,
-                components = emptyList(),
-                functions = listOf(function),
-                themeSchema = themeSchema,
-            )
-
-        val controller = A2uiTestController(catalog = catalog) as A2uiTestControllerImpl
-
-        assertThat(controller.testCatalog.functions).containsExactly(function)
-        assertThat(controller.testCatalog.themeSchema).isEqualTo(themeSchema)
     }
 
     @Test
