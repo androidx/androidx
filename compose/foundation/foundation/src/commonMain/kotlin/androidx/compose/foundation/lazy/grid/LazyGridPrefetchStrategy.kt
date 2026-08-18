@@ -37,7 +37,14 @@ import androidx.compose.runtime.collection.mutableVectorOf
  * from the [onScroll] and [onVisibleItemsUpdated] callbacks. If any of the returned PrefetchHandles
  * no longer need to be prefetched, use [LazyLayoutPrefetchState.PrefetchHandle.cancel] to cancel
  * the request.
+ *
+ * @sample androidx.compose.foundation.samples.LazyGridPrefetchStrategyMigrationSample
  */
+@Deprecated(
+    "LazyGridPrefetchStrategy is deprecated in favor of LazyLayoutCacheWindow. " +
+        "LazyLayoutCacheWindow provides a declarative, viewport-based prefetching window passed " +
+        "directly to LazyVerticalGrid or LazyHorizontalGrid."
+)
 @ExperimentalFoundationApi
 public interface LazyGridPrefetchStrategy {
 
@@ -93,6 +100,10 @@ public interface LazyGridPrefetchStrategy {
 }
 
 /** Scope for callbacks in [LazyGridPrefetchStrategy] which allows prefetches to be requested. */
+@Deprecated(
+    "LazyGridPrefetchScope is deprecated alongside LazyGridPrefetchStrategy. Prefetching " +
+        "behavior should be configured using LazyLayoutCacheWindow."
+)
 @ExperimentalFoundationApi
 public interface LazyGridPrefetchScope {
 
@@ -141,6 +152,10 @@ public interface LazyGridPrefetchScope {
  *   is enabled, this value will be used as the initial count and the strategy will adapt the count
  *   automatically.
  */
+@Deprecated(
+    "LazyGridPrefetchStrategy is deprecated. Prefetching behavior should be configured using " +
+        "LazyLayoutCacheWindow on LazyVerticalGrid or LazyHorizontalGrid."
+)
 @ExperimentalFoundationApi
 public fun LazyGridPrefetchStrategy(nestedPrefetchItemCount: Int = 2): LazyGridPrefetchStrategy =
     DefaultLazyGridPrefetchStrategy(nestedPrefetchItemCount)
@@ -310,6 +325,10 @@ internal class DefaultLazyGridPrefetchStrategy(
  * A scope for [LazyGridPrefetchScope.scheduleLinePrefetch] callbacks. The scope provides additional
  * information about a prefetched item.
  */
+@Deprecated(
+    "LazyGridPrefetchResultScope is deprecated alongside LazyGridPrefetchStrategy. " +
+        "Prefetching behavior should be configured using LazyLayoutCacheWindow."
+)
 @ExperimentalFoundationApi
 public sealed interface LazyGridPrefetchResultScope {
 
