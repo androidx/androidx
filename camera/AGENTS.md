@@ -12,6 +12,7 @@ vulnerabilities, and areas for improvement in code style and readability.
 
 In addition to analyzing the diff, you should leverage your local environment capabilities:
 - **Context:** Examine the full content of modified files and surrounding code to understand the impact.
+- **Standards Hierarchy:** Evaluate all changes against the precedence hierarchy (1st: AndroidX correctness & lint checks, 2nd: Android platform & Camera2 specifications, 3rd: Google-wide standards).
 - **Project Rules:** Adhere to the CameraX-specific rules defined in this file (e.g., Kotlin formatting, Camera2 API usage, testing fakes).
 - **Verification:** Attempt to compile the affected CameraX modules (e.g., `camera-core`, `camera-camera2`) to verify build stability.
 - **Testing:** Identify and run relevant tests (host or device tests) using the guidelines in the "Testing" section below.
@@ -25,6 +26,7 @@ feedback.
 1.  **Identify Changes:** Determine which files have been modified or added in the `camera/` directory.
 2.  **Gather Context:** For each modified file, read the relevant sections in this `AGENTS.md` to understand specific requirements.
 3.  **Analyze for Issues:**
+    *   **Standards Hierarchy Compliance:** Does the change follow the mandatory precedence order (1st: AndroidX standards/checks, 2nd: Android platform/Camera2 rules, 3rd: Google-wide guidelines)?
     *   **Functionality:** Does the code work as intended? Are there any CameraX-specific bugs, edge cases, or resource leaks (e.g., DeferrableSurface leaks)?
     *   **Security:** Are there any security vulnerabilities introduced?
     *   **Style & Conventions:** Does the code adhere to CameraX style guidelines (e.g., Kotlin formatting via `ktfmt`, use of `Truth` for assertions)?
@@ -41,6 +43,58 @@ feedback.
 
 # Project: CameraX
 
+## Standards & Guidelines Hierarchy
+
+When writing new code, reviewing existing code, or fixing bugs in CameraX, you
+**MUST** strictly adhere to coding guidelines, style guides, and correctness
+checks in the following precedence order (AndroidX → Android Platform →
+Google-Wide):
+
+1. **1st Priority — AndroidX Standards & Correctness Checks**:
+   - **AndroidX Library & API Guidelines**: Follow
+     [`docs/api_guidelines/index.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/).
+   - **Kotlin in AndroidX**: Follow
+     [`docs/api_guidelines/kotlin.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/kotlin.md)
+     for nullability annotations (JSpecify), data class restrictions in public
+     APIs, exhaustive `when`, and Flow return types.
+   - **Asynchronous & Non-Blocking Guidelines**: Follow
+     [`docs/api_guidelines/async.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/async.md)
+     for Coroutines, Flow, and `ListenableFuture` conventions.
+   - **Correctness & Linting Checks**: You **MUST** reference and follow
+     [`docs/api_guidelines/checks.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/checks.md)
+     for lint rules, call-site suppression practices, and baseline policies.
+   - **Public API Rules**: Strict adherence to `@RestrictTo(LIBRARY_GROUP)`
+     and `./gradlew <project>:updateApi` procedures.
+
+2. **2nd Priority — Android / AOSP Platform Guidelines**:
+   - **Android Platform API Guidelines**: Follow the
+     [Android Platform API Guidelines](https://source.android.com/docs/setup/contribute/api-guidelines).
+   - **Android Kotlin-Java Interoperability**: Follow the
+     [Android Developers Kotlin-Java Interop Guide](https://developer.android.com/kotlin/interop)
+     for seamless Java/Kotlin cross-language support.
+   - **Android Kotlin Style Guide**: Follow the
+     [Android Kotlin Style Guide](https://developer.android.com/kotlin/style-guide)
+     for formatting, naming conventions, and idiomatic constructs.
+   - **AOSP Java Code Style**: Follow the
+     [AOSP Java Style Guide](https://source.android.com/docs/setup/contribute/code-style)
+     for Java code formatting and naming conventions.
+   - **Camera2 Framework Contracts**: Adhere strictly to the official
+     [Android Camera2 API specifications](https://developer.android.com/reference/android/hardware/camera2/package-summary).
+
+3. **3rd Priority — Google-Wide Engineering Standards**:
+   - **Google Kotlin Style Guide**: Follow the
+     [Google Kotlin Style Guide](https://google.github.io/styleguide/kotlin-style.html).
+   - **Google Java Style Guide**: Follow the
+     [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
+   - **Idiomatic Coding Practices**: Prioritize clean, expressive, functional
+     designs, avoiding excessive allocations or unnecessary synchronization.
+
+> **Document Relationship for Internal Contributors**: `camera/AGENTS.md` is
+> the primary public baseline for code architecture, style, and lint policies.
+> When developing in a Google-internal environment, refer to `AGENTS_INTERNAL.md`,
+> which serves as an internal extension providing internal AndroidX coding
+> guidelines, documentation shortlinks, and Mobile Harness lab test tooling.
+
 ## General Instructions:
 
 - **Kotlin Formatting**: When modifying any .kt file, format it using `ktfmt`
@@ -54,34 +108,65 @@ feedback.
   check for local uncommitted changes in the workspace. Do not overwrite,
   revert, or discard the user's modifications without explicit instructions.
   If your changes might conflict with theirs, seek clarification first.
-- **Public API**: When a public API is changed or when asked to update the public API files,
-  execute: `./gradlew <project>:updateApi`. The projects and their root paths can be found in
-  `settings.gradle`.
+- **Public API**: When a public API is changed or when asked to update the
+  public API files, execute: `./gradlew <project>:updateApi`. The projects and
+  their root paths can be found in `settings.gradle`.
 - **File Management**: When moving files, use `git mv` to keep version control history.
-- **Git Commits**: Do not make a git commit unless specifically requested.
-- **Scoping Builds**: Always use `PROJECT_PREFIX` to speed up Gradle configuration, e.g.,
-  `PROJECT_PREFIX=:camera:camera-core ./gradlew :camera:camera-core:assemble`.
+- **Git Commits & Uploads**: Do not make a git commit or run `repo upload`
+  unless specifically requested.
+- **Strict Scope Isolation**: Maintain clean and atomic changes. Do not bundle
+  unrelated modifications (such as fixing pre-existing lint issues or test
+  cleanup in unrelated files) into a feature or bug-fix CL. Always split
+  unrelated issues into separate tracking bugs and independent CLs.
+- **Scoping Builds**: Always use `PROJECT_PREFIX` to speed up Gradle configuration,
+  e.g., `PROJECT_PREFIX=:camera:camera-core ./gradlew :camera:camera-core:assemble`.
 
 ## Development Workflow & Refactoring:
 
-- **Language**: Prefer Kotlin to Java for new files. When migrating files, convert them from Java to
-  idiomatic Kotlin.
-- **Kotlin Idioms**: Prefer modern Kotlin idioms for readability.
+- **Language**: Prefer Kotlin to Java for new files. When migrating files, convert
+  them from Java to idiomatic Kotlin following AndroidX and Android Kotlin-Java
+  interop guidelines.
+- **Coding Style & Elegance**: Adhere to the code style guides in precedence order:
+  AndroidX (`docs/api_guidelines/kotlin.md`), Android Kotlin Style Guide, and
+  Google Kotlin/Java Style Guides.
 - **API Design**: For public API design, follow the
   [Android API guidelines](https://source.android.com/docs/setup/contribute/api-guidelines)
   and the
   [AndroidX API guidelines](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/).
-  New APIs should prioritize Kotlin users over Java users while still ensuring they are easy to use
-  from Java. For more details, see https://developer.android.com/kotlin/interop.
-- **New Public APIs**: If a new public API needs to be added and the current project version is
-  not an alpha version (e.g., it is in beta or rc), do NOT bump the version yourself. Instead,
-  mark the new API with `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)` and add a `TODO` comment
+  New APIs should prioritize Kotlin users over Java users while still ensuring they
+  are easy to use from Java. For more details, see https://developer.android.com/kotlin/interop.
+- **New Public APIs**: If a new public API needs to be added and the current project
+  version is not an alpha version (e.g., it is in beta or rc), do NOT bump the
+  version yourself. Instead, mark the new API with
+  `@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)` and add a `TODO` comment
   right above it with the bug ID, e.g., `// TODO: b/1234567 - Make this public in next alpha`.
-- **Linting**: Ensure code quality and adherence to AndroidX standards by running
-  `./gradlew <project>:lintRelease` after completing a meaningful set of changes.
-- **Code Elegance**: After implementing a solution and passing tests, always
-  review the code to ensure it is clean, elegant, and readable (e.g., extract
-  complex conditional logic into descriptive helper methods).
+- **Linting & Correctness Checks**: Ensure code quality and adherence to AndroidX
+  standards by running `./gradlew <project>:lintRelease` after completing a
+  meaningful set of changes. Developers and reviewers **MUST** reference and
+  adhere to [`docs/api_guidelines/checks.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/checks.md)
+  for suppression rules and baseline policies.
+- **Code Elegance & Idiomatic Design**: After implementing a functional solution
+  and passing tests, always conduct an elegance review across all code changes:
+  - Prefer idiomatic Kotlin functional operations (e.g., `.filter`, `.map`,
+    `.filterNotNull()`) over verbose imperative loops where appropriate.
+  - Simplify conditional logic, eliminate duplicate branching, and remove dead
+    code paths.
+  - **Thread-Aware Initialization (`lazy` vs. Eager)**: Evaluate the use of
+    `by lazy` on a case-by-case basis considering the component's lifecycle and
+    calling threads:
+    - If a property might be accessed on the main thread (e.g., public query
+      methods), but its initialization involves waiting on asynchronous
+      operations or heavy metadata loading, avoid `by lazy` because first
+      access on the main thread could cause jank or blocking. If the enclosing
+      class is constructed during a background initialization phase (e.g.,
+      CameraX background init worker like `CameraInfoAdapter`), prioritize
+      eagerly initializing that data in the background constructor, documenting
+      the background thread-safety clearly in comments.
+    - Conversely, use `by lazy` when initialization is genuinely deferred for
+      optional or rarely accessed code paths, or when initialization is
+      lightweight and safe on any calling thread.
+  - Extract complex logic into well-named private helper functions for maximum
+    readability.
 - **Dependency & Constructor Simplification**: For lightweight compatibility
   layers, wrappers, or utility classes, prefer instantiating internal helper
   dependencies internally (rather than passing them as constructor parameters) to
@@ -133,13 +218,15 @@ CameraX involves complex hardware interactions, making robust testing essential.
   (e.g., `@Config(minSdk = 21)`). Instead, use `@Config(sdk = [Config.TARGET_SDK])` for standard
   tests or `@Config(sdk = [Config.ALL_SDKS])` when logic needs verification across all supported
   SDK levels.
-- **Internal Testing (Googlers Only)**: If you are in a Google-internal environment
-  (e.g., you have access to Google-internal search or repositories), you MUST
-  load `AGENTS_INTERNAL.md`. If your environment is set up, this file can be
-  found in the directory specified by the `CAMERAX_INTERNAL_TOOLS_DIR` environment
-  variable. Follow its instructions to actively use the lab device testing
-  infrastructure to verify your changes on physical devices before finalizing
-  any code modifications.
+- **Internal Guidelines & Testing (Googlers Only)**: If you are in a
+  Google-internal environment (e.g., you have access to Google-internal search
+  or repositories), you MUST load `AGENTS_INTERNAL.md`. If your environment is
+  set up, this file can be found in the directory specified by the
+  `CAMERAX_INTERNAL_TOOLS_DIR` environment variable. It serves as an internal
+  extension of this guide, providing internal AndroidX coding guidelines,
+  internal documentation links, and instructions to actively use the lab device
+  testing infrastructure to verify your changes on physical devices before
+  finalizing any code modifications.
 
 ## Skill: CameraX Troubleshooting & Code Verification
 
