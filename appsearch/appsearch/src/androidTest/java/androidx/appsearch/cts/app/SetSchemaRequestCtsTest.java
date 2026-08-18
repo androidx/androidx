@@ -100,7 +100,6 @@ public class SetSchemaRequestCtsTest {
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PRIVATE_COMPUTE_CORE_UID_ACCESS)
     public void testSetSchema_privateComputeCoreUidAccess() {
         SetSchemaRequest request = new SetSchemaRequest.Builder()
                 .addSchemas(AppSearchEmail.SCHEMA)

@@ -240,8 +240,6 @@ public final class SetSchemaRequest {
      * caller must both have a Private Compute Core UID and hold all other permissions in the set to
      * gain access.
      */
-    @FlaggedApi(Flags.FLAG_ENABLE_PRIVATE_COMPUTE_CORE_UID_ACCESS)
-    @ExperimentalAppSearchApi
     public static final int PRIVATE_COMPUTE_CORE_UID_ACCESS = 12;
 
     /**
