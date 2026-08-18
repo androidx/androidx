@@ -17,14 +17,16 @@
 package androidx.a2ui.compose.runtime
 
 import androidx.a2ui.model.processor.A2uiJsonToken
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.io.IOException
 import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(minSdk = 24)
 class A2uiJsonReaderImplTest {
 
     @Test
