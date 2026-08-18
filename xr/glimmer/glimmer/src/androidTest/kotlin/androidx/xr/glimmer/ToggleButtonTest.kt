@@ -65,11 +65,12 @@ class ToggleButtonTest {
     fun toggleButton_defaultColors() {
         rule.setGlimmerThemeContent {
             val colors = ToggleButtonDefaults.colors()
+            val expectedCheckedBackgroundColor =
+                GlimmerTheme.colors.primary.withToneAndChroma(newTone = 70f, newChroma = 50f)
             assertThat(colors.backgroundColor).isEqualTo(GlimmerTheme.colors.surface)
-            assertThat(colors.checkedBackgroundColor)
-                .isEqualTo(
-                    GlimmerTheme.colors.primary.withToneAndChroma(newTone = 70f, newChroma = 50f)
-                )
+            assertThat(colors.checkedBackgroundColor).isEqualTo(expectedCheckedBackgroundColor)
+            assertThat(ToggleButtonDefaults.checkedBackgroundColor())
+                .isEqualTo(expectedCheckedBackgroundColor)
         }
     }
 

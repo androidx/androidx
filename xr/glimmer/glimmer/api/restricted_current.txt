@@ -257,8 +257,8 @@ package androidx.xr.glimmer {
   public final class IconToggleButtonDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(boolean checked);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(boolean, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly public androidx.compose.ui.graphics.Color checkedBackgroundColor(androidx.compose.ui.graphics.Color color);
-    method @BytecodeOnly public long checkedBackgroundColor-l2rxGTc(long);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color checkedBackgroundColor(optional androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long checkedBackgroundColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.IconToggleButtonColors colors(optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color checkedBackgroundColor, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.ui.graphics.Color checkedContentColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.IconToggleButtonColors colors-ro_MJ88(long, long, long, long, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues getContentPadding(androidx.compose.runtime.Composer?, int);
@@ -306,10 +306,10 @@ package androidx.xr.glimmer {
   }
 
   public final class SurfaceDefaults {
-    method @KotlinOnly public androidx.compose.ui.graphics.Color color(androidx.compose.ui.graphics.Color color);
-    method @BytecodeOnly public long color-l2rxGTc(long);
-    method @KotlinOnly public androidx.compose.ui.graphics.Color focusedColor(androidx.compose.ui.graphics.Color color);
-    method @BytecodeOnly public long focusedColor-l2rxGTc(long);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color color(optional androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long color-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color focusedColor(optional androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long focusedColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
     field public static final androidx.xr.glimmer.SurfaceDefaults INSTANCE;
   }
 
@@ -367,8 +367,8 @@ package androidx.xr.glimmer {
   public final class ToggleButtonDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(boolean checked);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(boolean, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly public androidx.compose.ui.graphics.Color checkedBackgroundColor(androidx.compose.ui.graphics.Color color);
-    method @BytecodeOnly public long checkedBackgroundColor-l2rxGTc(long);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color checkedBackgroundColor(optional androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long checkedBackgroundColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.ToggleButtonColors colors(optional androidx.compose.ui.graphics.Color backgroundColor, optional androidx.compose.ui.graphics.Color checkedBackgroundColor, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.ui.graphics.Color checkedContentColor);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.xr.glimmer.ToggleButtonColors colors-ro_MJ88(long, long, long, long, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding(androidx.xr.glimmer.ButtonSize buttonSize);

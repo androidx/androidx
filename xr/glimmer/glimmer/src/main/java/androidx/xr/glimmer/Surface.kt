@@ -43,7 +43,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
@@ -139,7 +138,7 @@ import org.intellij.lang.annotations.Language
 public fun Modifier.surface(
     enabled: Boolean = true,
     shape: Shape = GlimmerTheme.shapes.medium,
-    color: Color = SurfaceDefaults.color(GlimmerTheme.colors.surface),
+    color: Color = SurfaceDefaults.color(),
     focusedColor: Color = SurfaceDefaults.focusedColor(color),
     contentColor: Color = calculateContentColor(color),
     focusedContentColor: Color = calculateContentColor(focusedColor),
@@ -164,15 +163,15 @@ public fun Modifier.surface(
 public object SurfaceDefaults {
 
     /**
-     * Calculates the background [Color] for a surface with the given [color].
+     * Calculates the background [Color] for a surface derived from the provided [color].
      *
-     * Use this function to create a surface color that aligns with Jetpack Compose Glimmer UX
-     * practices.
+     * Adjusts the provided [color] so that it is suitable for use as a surface background.
      *
-     * @param color the background [Color] of the surface
-     * @return the background [Color] for the surface
+     * @param color the base [Color] of the surface
+     * @return the surface background [Color], adjusted to improve content contrast
      */
-    public fun color(color: Color): Color =
+    @Composable
+    public fun color(color: Color = GlimmerTheme.colors.surface): Color =
         if (color == DefaultSurfaceColor) {
             DefaultSurfaceColor
         } else {
@@ -180,15 +179,15 @@ public object SurfaceDefaults {
         }
 
     /**
-     * Calculates the focused background [Color] for a surface with the given [color].
+     * Calculates the focused background [Color] for a surface derived from the provided [color].
      *
-     * Use this function to create a focused surface color that aligns with Jetpack Compose Glimmer
-     * UX practices.
+     * Adjusts the provided [color] so that it is suitable for use as a focused surface background.
      *
-     * @param color the background [Color] of the surface
-     * @return the focused background [Color] for the surface
+     * @param color the base [Color] of the surface
+     * @return the focused surface background [Color], adjusted to improve content contrast
      */
-    public fun focusedColor(color: Color): Color =
+    @Composable
+    public fun focusedColor(color: Color = GlimmerTheme.colors.surface): Color =
         if (color == DefaultSurfaceColor) {
             DefaultSurfaceColor
         } else {
@@ -347,7 +346,7 @@ private class SurfaceNode(
     private var borderLogic: BorderLogic? = null
 
     // Border shader / brush
-    var borderShader: Shader? = null
+    var borderShader: RuntimeShader? = null
     var borderShaderBrush: Brush? = null
 
     // Graphics Layer
@@ -627,7 +626,7 @@ private class SurfaceNode(
 
     /**
      * Records the background + border into a [GraphicsLayer] and applies two-pass (horizontal then
-     * vertical) Guassian blur.
+     * vertical) Gaussian blur.
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun DrawScope.drawBlurredBackgroundAndBorder(
@@ -698,9 +697,8 @@ private class SurfaceNode(
                 .also { this@SurfaceNode.verticalShader = it }
 
         val horizontalEffect =
-            RenderEffect.createRuntimeShaderEffect(horizontalShader, ShaderUniforms.Content)
-        val verticalEffect =
-            RenderEffect.createRuntimeShaderEffect(verticalShader, ShaderUniforms.Content)
+            RenderEffect.createRuntimeShaderEffect(horizontalShader, UniformContent)
+        val verticalEffect = RenderEffect.createRuntimeShaderEffect(verticalShader, UniformContent)
         val renderEffect = RenderEffect.createChainEffect(verticalEffect, horizontalEffect)
 
         val blurLayer =
@@ -851,25 +849,23 @@ private fun Modifier.surfaceDepthEffect(
 }
 
 /** String keys map directly to uniform parameter names inside the AGSL runtime shaders. */
-private object ShaderUniforms {
-    const val Resolution = "uResolution"
-    const val CornerRadii = "uCornerRadii"
-    const val FocusProgress = "uFocusProgress"
-    const val AmbientProgress = "uAmbientProgress"
-    const val PressedProgress = "uPressedProgress"
-    const val IdleStartRadius = "uIdleRadiusStart"
-    const val IdleEndRadius = "uIdleRadiusEnd"
-    const val FocusedStartRadius = "uFocusedRadiusStart"
-    const val FocusedEndRadius = "uFocusedRadiusEnd"
-    const val AmbientMaxStartRadius = "uAmbientMaxRadiusStart"
-    const val AmbientMaxEndRadius = "uAmbientMaxRadiusEnd"
-    const val Content = "uContent"
+private const val UniformResolution = "uResolution"
+private const val UniformCornerRadii = "uCornerRadii"
+private const val UniformFocusProgress = "uFocusProgress"
+private const val UniformAmbientProgress = "uAmbientProgress"
+private const val UniformPressedProgress = "uPressedProgress"
+private const val UniformIdleStartRadius = "uIdleRadiusStart"
+private const val UniformIdleEndRadius = "uIdleRadiusEnd"
+private const val UniformFocusedStartRadius = "uFocusedRadiusStart"
+private const val UniformFocusedEndRadius = "uFocusedRadiusEnd"
+private const val UniformAmbientMaxStartRadius = "uAmbientMaxRadiusStart"
+private const val UniformAmbientMaxEndRadius = "uAmbientMaxRadiusEnd"
+private const val UniformContent = "uContent"
 
-    const val BorderFocusedColor0 = "uBorderFocusedColor0"
-    const val BorderFocusedColor1 = "uBorderFocusedColor1"
-    const val BorderFocusedColor2 = "uBorderFocusedColor2"
-    const val BorderFocusedColor3 = "uBorderFocusedColor3"
-}
+private const val UniformBorderFocusedColor0 = "uBorderFocusedColor0"
+private const val UniformBorderFocusedColor1 = "uBorderFocusedColor1"
+private const val UniformBorderFocusedColor2 = "uBorderFocusedColor2"
+private const val UniformBorderFocusedColor3 = "uBorderFocusedColor3"
 
 private const val SurfaceColorTone = 33f
 private const val SurfaceColorChroma = 29f
@@ -1029,20 +1025,17 @@ private object BlurShaderHelper {
         ambientBlurRadiusMaxEndPx: Float,
     ): RuntimeShader {
         val runtimeShader = shader ?: RuntimeShader(getBlurShader(isVertical))
-        runtimeShader.setFloatUniform(ShaderUniforms.Resolution, width, height)
-        runtimeShader.setFloatUniform(ShaderUniforms.CornerRadii, cornerRadii)
-        runtimeShader.setFloatUniform(ShaderUniforms.FocusProgress, focusProgress)
-        runtimeShader.setFloatUniform(ShaderUniforms.AmbientProgress, ambientProgress)
-        runtimeShader.setFloatUniform(ShaderUniforms.PressedProgress, pressedProgress)
-        runtimeShader.setFloatUniform(ShaderUniforms.IdleStartRadius, idleBlurRadiusStartPx)
-        runtimeShader.setFloatUniform(ShaderUniforms.IdleEndRadius, idleBlurRadiusEndPx)
-        runtimeShader.setFloatUniform(ShaderUniforms.FocusedStartRadius, focusedBlurRadiusStartPx)
-        runtimeShader.setFloatUniform(ShaderUniforms.FocusedEndRadius, focusedBlurRadiusEndPx)
-        runtimeShader.setFloatUniform(
-            ShaderUniforms.AmbientMaxStartRadius,
-            ambientBlurRadiusMaxStartPx,
-        )
-        runtimeShader.setFloatUniform(ShaderUniforms.AmbientMaxEndRadius, ambientBlurRadiusMaxEndPx)
+        runtimeShader.setFloatUniform(UniformResolution, width, height)
+        runtimeShader.setFloatUniform(UniformCornerRadii, cornerRadii)
+        runtimeShader.setFloatUniform(UniformFocusProgress, focusProgress)
+        runtimeShader.setFloatUniform(UniformAmbientProgress, ambientProgress)
+        runtimeShader.setFloatUniform(UniformPressedProgress, pressedProgress)
+        runtimeShader.setFloatUniform(UniformIdleStartRadius, idleBlurRadiusStartPx)
+        runtimeShader.setFloatUniform(UniformIdleEndRadius, idleBlurRadiusEndPx)
+        runtimeShader.setFloatUniform(UniformFocusedStartRadius, focusedBlurRadiusStartPx)
+        runtimeShader.setFloatUniform(UniformFocusedEndRadius, focusedBlurRadiusEndPx)
+        runtimeShader.setFloatUniform(UniformAmbientMaxStartRadius, ambientBlurRadiusMaxStartPx)
+        runtimeShader.setFloatUniform(UniformAmbientMaxEndRadius, ambientBlurRadiusMaxEndPx)
         return runtimeShader
     }
 }
@@ -1051,7 +1044,7 @@ private object BlurShaderHelper {
 private object BorderShaderHelper {
     @JvmStatic
     fun configureShader(
-        shader: Shader?,
+        shader: RuntimeShader?,
         size: Size,
         focusProgress: Float,
         ambientProgress: Float,
@@ -1059,45 +1052,45 @@ private object BorderShaderHelper {
         focusedBorderColor1: Color,
         focusedBorderColor2: Color,
         focusedBorderColor3: Color,
-    ): Shader {
-        val shader = shader as? RuntimeShader ?: RuntimeShader(BorderShader)
-        shader.setFloatUniform(ShaderUniforms.Resolution, size.width, size.height)
-        shader.setFloatUniform(ShaderUniforms.FocusProgress, focusProgress)
-        shader.setFloatUniform(ShaderUniforms.AmbientProgress, ambientProgress)
+    ): RuntimeShader {
+        val runtimeShader = shader ?: RuntimeShader(BorderShader)
+        runtimeShader.setFloatUniform(UniformResolution, size.width, size.height)
+        runtimeShader.setFloatUniform(UniformFocusProgress, focusProgress)
+        runtimeShader.setFloatUniform(UniformAmbientProgress, ambientProgress)
 
-        shader.setFloatUniform(
-            ShaderUniforms.BorderFocusedColor0,
+        runtimeShader.setFloatUniform(
+            UniformBorderFocusedColor0,
             focusedBorderColor0.red,
             focusedBorderColor0.green,
             focusedBorderColor0.blue,
             focusedBorderColor0.alpha,
         )
 
-        shader.setFloatUniform(
-            ShaderUniforms.BorderFocusedColor1,
+        runtimeShader.setFloatUniform(
+            UniformBorderFocusedColor1,
             focusedBorderColor1.red,
             focusedBorderColor1.green,
             focusedBorderColor1.blue,
             focusedBorderColor1.alpha,
         )
 
-        shader.setFloatUniform(
-            ShaderUniforms.BorderFocusedColor2,
+        runtimeShader.setFloatUniform(
+            UniformBorderFocusedColor2,
             focusedBorderColor2.red,
             focusedBorderColor2.green,
             focusedBorderColor2.blue,
             focusedBorderColor2.alpha,
         )
 
-        shader.setFloatUniform(
-            ShaderUniforms.BorderFocusedColor3,
+        runtimeShader.setFloatUniform(
+            UniformBorderFocusedColor3,
             focusedBorderColor3.red,
             focusedBorderColor3.green,
             focusedBorderColor3.blue,
             focusedBorderColor3.alpha,
         )
 
-        return shader
+        return runtimeShader
     }
 }
 
