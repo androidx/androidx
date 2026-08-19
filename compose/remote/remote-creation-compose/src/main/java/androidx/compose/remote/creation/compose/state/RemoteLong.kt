@@ -295,7 +295,7 @@ public fun rememberNamedRemoteLong(
     }
 }
 
-internal enum class RemoteLongOp(val symbol: String? = null) : DebuggableOperation {
+internal enum class RemoteLongOp(val symbol: String? = null) : RemoteOperation {
     FromLowHigh,
     Add("+"),
     Sub("-"),
@@ -315,5 +315,18 @@ internal enum class RemoteLongOp(val symbol: String? = null) : DebuggableOperati
             return args.formatOp(symbol, precedence)
         }
         return formatCamelCaseFunction(args)
+    }
+
+    override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+        return when (this) {
+            FromLowHigh -> {
+                val low = args[0] as RemoteInt
+                val high = args[1] as RemoteInt
+                object : RemoteLong(low, high) {}
+            }
+            Add -> (args[0] as RemoteLong) + (args[1] as RemoteLong)
+            Sub -> (args[0] as RemoteLong) - (args[1] as RemoteLong)
+            Mul -> (args[0] as RemoteLong) * (args[1] as RemoteLong)
+        }
     }
 }

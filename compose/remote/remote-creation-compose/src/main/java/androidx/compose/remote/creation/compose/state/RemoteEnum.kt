@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.util.fastFold
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import kotlin.enums.EnumEntries
 import kotlin.enums.enumEntries
@@ -53,7 +54,7 @@ public open class RemoteEnum<T : Enum<T>>(
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         intValue.writeToDocument(creationState)
 
-    internal enum class OperationKey : DebuggableOperation {
+    internal enum class OperationKey : RemoteOperation {
         ToString;
 
         override val precedence: Int
@@ -61,6 +62,21 @@ public open class RemoteEnum<T : Enum<T>>(
 
         override fun toDebugString(args: List<RemoteStateCacheKey>): String {
             return "${args[0].toOperandString(precedence)}.toRemoteString()"
+        }
+
+        override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+            return when (this) {
+                ToString -> {
+                    val index =
+                        when (val arg = args[0]) {
+                            is RemoteEnum<*> -> arg.intValue
+                            is RemoteInt -> arg
+                            else -> throw IllegalArgumentException("Unsupported index: $arg")
+                        }
+                    val stringArray = args[1] as RemoteStringArray
+                    stringArray[index]
+                }
+            }
         }
     }
 
@@ -99,13 +115,14 @@ public open class RemoteEnum<T : Enum<T>>(
             return mapping(it)
         }
 
-        val strings = enumEntries.fastMap(mapping).toTypedArray()
+        val stringArray = RemoteStringArray(enumEntries.fastMap(mapping))
 
         return MutableRemoteString(
             constantValueOrNull = null,
-            cacheKey = RemoteOperationCacheKey.create(OperationKey.ToString, this),
+            cacheKey = RemoteOperationCacheKey.create(OperationKey.ToString, this, stringArray),
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
+                    val strings = stringArray.constantValueOrNull!!
                     val stringIds =
                         IntArray(strings.size) { strings[it].getIdForCreationState(creationState) }
                     return creationState.document.textLookup(
@@ -117,7 +134,7 @@ public open class RemoteEnum<T : Enum<T>>(
                 override fun computeRequiredCodePointSet(
                     creationState: RemoteComposeCreationState
                 ) = buildSet {
-                    strings.forEach {
+                    stringArray.constantValueOrNull?.fastForEach {
                         val codePointSet =
                             it.computeRequiredCodePointSet(creationState) ?: return@buildSet
                         addAll(codePointSet)

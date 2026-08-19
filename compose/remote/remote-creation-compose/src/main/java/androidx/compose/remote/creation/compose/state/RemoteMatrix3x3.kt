@@ -28,7 +28,7 @@ internal constructor(
     cacheKey: RemoteStateCacheKey,
 ) : BaseRemoteState<Any>(cacheKey) {
 
-    internal enum class OperationKey(override val precedence: Int = 100) : DebuggableOperation {
+    internal enum class OperationKey(override val precedence: Int = 100) : RemoteOperation {
         IDENTITY {
             override fun toDebugString(args: List<RemoteStateCacheKey>) = "identity()"
         },
@@ -65,7 +65,26 @@ internal constructor(
         MUL(3) {
             override fun toDebugString(args: List<RemoteStateCacheKey>) =
                 args.formatOp("*", precedence)
-        },
+        };
+
+        override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+            return when (this) {
+                IDENTITY -> createIdentity()
+                ROTATE -> createRotate(args[0] as RemoteFloat)
+                TRANSLATE_X -> createTranslateX(args[0] as RemoteFloat)
+                TRANSLATE_Y -> createTranslateY(args[0] as RemoteFloat)
+                TRANSLATE_XY -> createTranslateXy(args[0] as RemoteFloat, args[1] as RemoteFloat)
+                SCALE_X -> createScaleX(args[0] as RemoteFloat)
+                SCALE_Y -> createScaleY(args[0] as RemoteFloat)
+                ROTATION_AROUND ->
+                    createRotationAround(
+                        args[0] as RemoteFloat,
+                        args[1] as RemoteFloat,
+                        args[2] as RemoteFloat,
+                    )
+                MUL -> (args[0] as RemoteMatrix3x3) * (args[1] as RemoteMatrix3x3)
+            }
+        }
     }
 
     override val constantValueOrNull: Any?
