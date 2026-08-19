@@ -44,11 +44,11 @@ import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.modifier.visibility
 import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.modifier.widthIn
-import androidx.compose.remote.creation.compose.state.CUBIC_LINEAR
+import androidx.compose.remote.creation.compose.state.RemoteEasing
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.abs
 import androidx.compose.remote.creation.compose.state.acos
-import androidx.compose.remote.creation.compose.state.animateRemoteFloat
+import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.asin
 import androidx.compose.remote.creation.compose.state.atan
 import androidx.compose.remote.creation.compose.state.atan2
@@ -70,6 +70,7 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
+import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.round
 import androidx.compose.remote.creation.compose.state.rs
@@ -412,10 +413,13 @@ class RcPlayerInteractivityTest {
                             val target = rememberMutableRemoteFloat(123.45f)
                             // Animate from 0 to `target` over 1s, linearly.
                             val animatedSize =
-                                animateRemoteFloat(
-                                    target,
-                                    duration = 1f,
-                                    type = CUBIC_LINEAR,
+                                animateRemoteFloatAsState(
+                                    targetValue = target,
+                                    animationSpec =
+                                        remoteTween(
+                                            durationMillis = 1000,
+                                            easing = RemoteEasing.Linear,
+                                        ),
                                     initialValue = 0f,
                                 )
                             RemoteBox(
