@@ -31,8 +31,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":xr:runtime:runtime"))
-    api(project(":xr:scenecore:scenecore"))
+    api("androidx.xr.runtime:runtime:1.0.0-beta01")
+    api("androidx.xr.scenecore:scenecore:1.0.0-beta01")
     api("androidx.core:core-viewtree:1.0.0")
 
     implementation("androidx.annotation:annotation:1.8.1")
