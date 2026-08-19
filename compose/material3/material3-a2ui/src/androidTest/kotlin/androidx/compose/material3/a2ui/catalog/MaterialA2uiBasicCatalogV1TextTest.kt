@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -40,18 +39,19 @@ import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class MaterialTextComponentTest {
+class MaterialA2uiBasicCatalogV1TextTest {
 
     private val testCatalog =
         A2uiCatalog(
             catalogId = "test_catalog",
-            components = listOf(MaterialTextComponent),
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.text),
             functions = listOf(A2uiFormatStringFunction.INSTANCE),
         )
 
