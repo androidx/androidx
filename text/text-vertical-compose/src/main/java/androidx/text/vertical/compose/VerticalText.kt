@@ -58,9 +58,6 @@ import kotlin.math.min
  * [androidx.text.vertical.EmphasisSpan], [androidx.text.vertical.FontShearSpan], and
  * [androidx.text.vertical.TextOrientationSpan].
  *
- * NOTE: Vertical text layout requires API 36 (Android 16). On older API levels, nothing is
- * rendered.
- *
  * @param text The [CharSequence] text to display.
  * @param style The [VerticalTextStyle] to use for text measurement and rendering.
  * @param modifier The [Modifier] to apply to the layout.
