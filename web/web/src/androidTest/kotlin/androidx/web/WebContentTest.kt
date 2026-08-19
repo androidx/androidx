@@ -16,12 +16,10 @@
 
 package androidx.web
 
-import android.content.Context
 import android.view.ContextThemeWrapper
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -41,9 +39,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class WebContentTest {
 
-    private val context: Context
-        get() = ApplicationProvider.getApplicationContext()
-
     @Before
     fun setUp() {
         assumeTrue(WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT))
@@ -51,7 +46,7 @@ class WebContentTest {
 
     @Test
     fun testRetainsUrlOnReattach() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.onActivity { activity ->
                     val detachedView = webContent.attach(activity, ::WebContentView)
@@ -85,7 +80,7 @@ class WebContentTest {
             onPageFinishedCallback?.invoke()
         }
 
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.runOnActivityAndWait { activity, done ->
                     onPageFinishedCallback = done
@@ -121,7 +116,7 @@ class WebContentTest {
 
     @Test
     fun testRestoresScrollPositionOnReattach() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.runOnActivityAndWait { activity, done ->
                     val view = webContent.attach(activity, ::WebContentView)
@@ -150,7 +145,7 @@ class WebContentTest {
 
     @Test
     fun testPreservesJavaScriptStateOnReattach() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.runOnActivityAndWait { activity, done ->
                     val view = webContent.attach(activity, ::WebContentView)
@@ -184,7 +179,7 @@ class WebContentTest {
 
     @Test
     fun testTransfersToNewActivity() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.runOnActivityAndWait { activity, done ->
                     val view = webContent.attach(activity, ::WebContentView)
@@ -226,7 +221,7 @@ class WebContentTest {
 
     @Test
     fun testAttachesWithContextThemeWrapper() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.onActivity { activity ->
                     val themedContext =
@@ -241,7 +236,7 @@ class WebContentTest {
 
     @Test
     fun testAttach_afterClose_throwsIllegalStateException() {
-        val webContent = WebContent(context)
+        val webContent = WebContent()
         webContent.close()
 
         ActivityScenario.launch(TestActivity::class.java).use { scenario ->
@@ -255,7 +250,7 @@ class WebContentTest {
 
     @Test
     fun testPreservesWebSettingsOnReattach() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.onActivity { activity ->
                     val view1 = webContent.attach(activity, ::WebContentView)
@@ -286,7 +281,7 @@ class WebContentTest {
                 }
             }
 
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.onActivity { activity ->
                     webContent.attach(activity, ::WebContentView).apply {
@@ -311,7 +306,7 @@ class WebContentTest {
 
     @Test
     fun testSupportsMultipleAttachesWithoutDetach() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.onActivity { activity ->
                     val view1 = webContent.attach(activity, ::WebContentView)
@@ -330,7 +325,7 @@ class WebContentTest {
 
     @Test
     fun testDetach_whileViewAttachedToWindow_throwsIllegalStateException() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity2::class.java).use { scenario ->
                 scenario.runOnActivityAndWait { activity, done ->
                     val view = webContent.attachToActivity(activity)
@@ -345,7 +340,7 @@ class WebContentTest {
 
     @Test
     fun testOperationsOnDetachedView_doNotCorruptState() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 lateinit var oldView: WebContentView
                 scenario.onActivity { activity ->
@@ -373,7 +368,7 @@ class WebContentTest {
 
     @Test
     fun testHandlesRapidAttachDetach() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.onActivity { activity ->
                     for (i in 1..50) {
@@ -390,7 +385,7 @@ class WebContentTest {
 
     @Test
     fun testDetachedView_handlesJavascriptExecution() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 lateinit var view: WebContentView
                 scenario.onActivity { activity ->
@@ -411,7 +406,7 @@ class WebContentTest {
     fun testPreservesTypedInputAcrossReattach() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
 
-        WebContent(context).useOnMain { webContent ->
+        WebContent().useOnMain { webContent ->
             ActivityScenario.launch(TestActivity2::class.java).use { scenario ->
                 lateinit var view: WebContentView
                 scenario.runOnActivityAndWait { activity, done ->
@@ -484,7 +479,7 @@ class WebContentTest {
 
     @Test
     fun testAttach_withViewNotCreatedFromProvidedContext_throwsException() {
-        WebContent(context).use { webContent ->
+        WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.onActivity { activity ->
                     val externalView = WebContentView(activity)
