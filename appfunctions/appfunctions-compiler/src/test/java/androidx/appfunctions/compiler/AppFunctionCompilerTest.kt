@@ -56,8 +56,9 @@ class AppFunctionCompilerTest {
         )
         compilationTestHelper.assertSuccessWithSourceContent(
             report = report,
-            expectGeneratedSourceFileName = "${'$'}GlobalSignature_AppFunctionAdapter.kt",
-            goldenFileName = "adapter/${'$'}GlobalSignature_AppFunctionAdapter.KT",
+            expectGeneratedSourceFileName =
+                "${'$'}GlobalSignature_HandleAppFunctionRequestAdapter.kt",
+            goldenFileName = "adapter/${'$'}GlobalSignature_HandleAppFunctionRequestAdapter.KT",
         )
     }
 
@@ -75,8 +76,10 @@ class AppFunctionCompilerTest {
         )
         compilationTestHelper.assertSuccessWithSourceContent(
             report = report,
-            expectGeneratedSourceFileName = "${'$'}SerializableSignature_AppFunctionAdapter.kt",
-            goldenFileName = "adapter/${'$'}SerializableSignature_AppFunctionAdapter.KT",
+            expectGeneratedSourceFileName =
+                "${'$'}SerializableSignature_HandleAppFunctionRequestAdapter.kt",
+            goldenFileName =
+                "adapter/${'$'}SerializableSignature_HandleAppFunctionRequestAdapter.KT",
         )
     }
 
