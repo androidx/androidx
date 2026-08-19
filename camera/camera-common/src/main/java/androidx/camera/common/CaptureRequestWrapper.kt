@@ -67,8 +67,15 @@ public interface CaptureRequestWrapper : CaptureRequestMetadata {
     public val keys: List<CaptureRequest.Key<*>>
 }
 
+/** Helper utilities for constructing and wrapping [CaptureRequestWrapper] instances. */
 public object CaptureRequestWrappers {
-    /** Wraps a native [CaptureRequest] into a [CaptureRequestWrapper]. */
+    /**
+     * Wraps a native [CaptureRequest] and optional custom metadata into a [CaptureRequestWrapper].
+     *
+     * @param captureRequest the native [CaptureRequest] to wrap.
+     * @param metadata optional map of custom [Metadata.Key] values to attach to the wrapper.
+     * @return a [CaptureRequestWrapper] wrapping the given [captureRequest] and [metadata].
+     */
     @JvmStatic
     @JvmName("wrap")
     @Suppress("INAPPLICABLE_JVM_NAME")

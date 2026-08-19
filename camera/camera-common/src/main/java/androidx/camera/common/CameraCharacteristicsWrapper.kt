@@ -181,6 +181,16 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
      */
     public val dynamicKeys: Set<CameraCharacteristics.Key<*>>
 
+    /**
+     * Custom [Metadata.Key] definitions for querying library-defined camera characteristics on a
+     * [CameraCharacteristicsWrapper].
+     *
+     * These keys represent extended or compatibility-wrapped metadata that can be queried from
+     * [CameraCharacteristicsWrapper] using [Metadata.get].
+     *
+     * @see CameraCharacteristicsWrapper
+     * @see Metadata.Key
+     */
     public object Keys {
         /**
          * Key for [StreamConfigurationMapWrapper].
