@@ -211,4 +211,78 @@ class RemotePathScopeTest {
         path1.addPath(path2)
         assertEquals(4, path1.nodes.size)
     }
+
+    @Test
+    fun relativeAliases_addExpectedNodes() {
+        val scope = RemotePathScope()
+        scope.relativeMoveTo(10f.rf, 20f.rf)
+        scope.relativeMoveTo(RemoteOffset(10f.rf, 20f.rf))
+        scope.relativeLineTo(30f.rf, 40f.rf)
+        scope.relativeLineTo(RemoteOffset(30f.rf, 40f.rf))
+        scope.relativeHorizontalTo(50f.rf)
+        scope.relativeHorizontalLineTo(50f.rf)
+        scope.relativeVerticalTo(60f.rf)
+        scope.relativeVerticalLineTo(60f.rf)
+        scope.relativeQuadTo(10f.rf, 20f.rf, 30f.rf, 40f.rf)
+        scope.relativeQuadTo(RemoteOffset(10f.rf, 20f.rf), RemoteOffset(30f.rf, 40f.rf))
+        scope.relativeQuadraticTo(10f.rf, 20f.rf, 30f.rf, 40f.rf)
+        scope.relativeQuadraticTo(RemoteOffset(10f.rf, 20f.rf), RemoteOffset(30f.rf, 40f.rf))
+        scope.relativeReflectiveQuadTo(50f.rf, 60f.rf)
+        scope.relativeCurveTo(1f.rf, 2f.rf, 3f.rf, 4f.rf, 5f.rf, 6f.rf)
+        scope.relativeCurveTo(
+            RemoteOffset(1f.rf, 2f.rf),
+            RemoteOffset(3f.rf, 4f.rf),
+            RemoteOffset(5f.rf, 6f.rf),
+        )
+        scope.relativeCubicTo(1f.rf, 2f.rf, 3f.rf, 4f.rf, 5f.rf, 6f.rf)
+        scope.relativeCubicTo(
+            RemoteOffset(1f.rf, 2f.rf),
+            RemoteOffset(3f.rf, 4f.rf),
+            RemoteOffset(5f.rf, 6f.rf),
+        )
+        scope.relativeReflectiveCurveTo(7f.rf, 8f.rf, 9f.rf, 10f.rf)
+        scope.relativeConicTo(11f.rf, 12f.rf, 13f.rf, 14f.rf, 0.5f.rf)
+        scope.relativeConicTo(RemoteOffset(11f.rf, 12f.rf), RemoteOffset(13f.rf, 14f.rf), 0.5f.rf)
+
+        assertEquals(20, scope.nodes.size)
+        assertTrue(scope.nodes[0] is RemotePathNode.RelativeMoveTo)
+        assertTrue(scope.nodes[1] is RemotePathNode.RelativeMoveTo)
+        assertTrue(scope.nodes[2] is RemotePathNode.RelativeLineTo)
+        assertTrue(scope.nodes[3] is RemotePathNode.RelativeLineTo)
+        assertTrue(scope.nodes[4] is RemotePathNode.RelativeHorizontalTo)
+        assertTrue(scope.nodes[5] is RemotePathNode.RelativeHorizontalTo)
+        assertTrue(scope.nodes[6] is RemotePathNode.RelativeVerticalTo)
+        assertTrue(scope.nodes[7] is RemotePathNode.RelativeVerticalTo)
+        assertTrue(scope.nodes[8] is RemotePathNode.RelativeQuadTo)
+        assertTrue(scope.nodes[9] is RemotePathNode.RelativeQuadTo)
+        assertTrue(scope.nodes[10] is RemotePathNode.RelativeQuadTo)
+        assertTrue(scope.nodes[11] is RemotePathNode.RelativeQuadTo)
+        assertTrue(scope.nodes[12] is RemotePathNode.RelativeReflectiveQuadTo)
+        assertTrue(scope.nodes[13] is RemotePathNode.RelativeCurveTo)
+        assertTrue(scope.nodes[14] is RemotePathNode.RelativeCurveTo)
+        assertTrue(scope.nodes[15] is RemotePathNode.RelativeCurveTo)
+        assertTrue(scope.nodes[16] is RemotePathNode.RelativeCurveTo)
+        assertTrue(scope.nodes[17] is RemotePathNode.RelativeReflectiveCurveTo)
+        assertTrue(scope.nodes[18] is RemotePathNode.RelativeConicTo)
+        assertTrue(scope.nodes[19] is RemotePathNode.RelativeConicTo)
+    }
+
+    @Test
+    fun cubicToAndQuadraticTo_addExpectedNodes() {
+        val scope = RemotePathScope()
+        scope.quadraticTo(1f.rf, 2f.rf, 3f.rf, 4f.rf)
+        scope.quadraticTo(RemoteOffset(1f.rf, 2f.rf), RemoteOffset(3f.rf, 4f.rf))
+        scope.cubicTo(1f.rf, 2f.rf, 3f.rf, 4f.rf, 5f.rf, 6f.rf)
+        scope.cubicTo(
+            RemoteOffset(1f.rf, 2f.rf),
+            RemoteOffset(3f.rf, 4f.rf),
+            RemoteOffset(5f.rf, 6f.rf),
+        )
+
+        assertEquals(4, scope.nodes.size)
+        assertTrue(scope.nodes[0] is RemotePathNode.QuadTo)
+        assertTrue(scope.nodes[1] is RemotePathNode.QuadTo)
+        assertTrue(scope.nodes[2] is RemotePathNode.CurveTo)
+        assertTrue(scope.nodes[3] is RemotePathNode.CurveTo)
+    }
 }

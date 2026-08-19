@@ -80,6 +80,25 @@ public class RemotePathScope constructor() {
     }
 
     /**
+     * Starts a new contour at the offset ([dx], [dy]) relative to the last path position.
+     *
+     * @param dx The x offset of the start of the new contour, relative to the last path position
+     * @param dy The y offset of the start of the new contour, relative to the last path position
+     */
+    public fun relativeMoveTo(dx: RemoteFloat, dy: RemoteFloat) {
+        moveToRelative(dx, dy)
+    }
+
+    /**
+     * Starts a new contour at [offset] relative to the last path position.
+     *
+     * @param offset The offset of the start of the new contour, relative to the last path position
+     */
+    public fun relativeMoveTo(offset: RemoteOffset) {
+        moveToRelative(offset)
+    }
+
+    /**
      * Adds a line from the last point to the position ([x], [y]). If no contour has been created by
      * calling [moveTo] first, the origin of the line is set to (0, 0).
      *
@@ -122,6 +141,27 @@ public class RemotePathScope constructor() {
     }
 
     /**
+     * Adds a line from the last point to the offset ([dx], [dy]) relative to the last point. If no
+     * contour has been created by calling [moveTo] first, the origin of the line is set to (0, 0).
+     *
+     * @param dx The x offset of the end of the line, relative to the last path position
+     * @param dy The y offset of the end of the line, relative to the last path position
+     */
+    public fun relativeLineTo(dx: RemoteFloat, dy: RemoteFloat) {
+        lineToRelative(dx, dy)
+    }
+
+    /**
+     * Adds a line from the last point to [offset] relative to the last point. If no contour has
+     * been created by calling [moveTo] first, the origin of the line is set to (0, 0).
+     *
+     * @param offset The offset of the end of the line, relative to the last path position
+     */
+    public fun relativeLineTo(offset: RemoteOffset) {
+        lineToRelative(offset)
+    }
+
+    /**
      * Adds a horizontal line from the last point to the position ([x], `oy`), where `oy` is the y
      * coordinate of the last point. If no contour has been created by calling [moveTo] first, the
      * origin of the line is set to (0, 0).
@@ -144,6 +184,28 @@ public class RemotePathScope constructor() {
     }
 
     /**
+     * Adds a horizontal line from the last point to the position ([dx] `+ ox`, `oy`), where `ox`
+     * and `oy` are the x and y coordinates of the last point. If no contour has been created by
+     * calling [moveTo] first, the origin of the line is set to (0, 0).
+     *
+     * @param dx The x offset of the end of the line, relative to the last path position
+     */
+    public fun relativeHorizontalTo(dx: RemoteFloat) {
+        horizontalLineToRelative(dx)
+    }
+
+    /**
+     * Adds a horizontal line from the last point to the position ([dx] `+ ox`, `oy`), where `ox`
+     * and `oy` are the x and y coordinates of the last point. If no contour has been created by
+     * calling [moveTo] first, the origin of the line is set to (0, 0).
+     *
+     * @param dx The x offset of the end of the line, relative to the last path position
+     */
+    public fun relativeHorizontalLineTo(dx: RemoteFloat) {
+        horizontalLineToRelative(dx)
+    }
+
+    /**
      * Adds a vertical line from the last point to the position (`ox`, [y]), where `ox` is the x
      * coordinate of the last point. If no contour has been created by calling [moveTo] first, the
      * origin of the line is set to (0, 0).
@@ -163,6 +225,28 @@ public class RemotePathScope constructor() {
      */
     public fun verticalLineToRelative(dy: RemoteFloat) {
         _nodes.add(RemotePathNode.RelativeVerticalTo(dy))
+    }
+
+    /**
+     * Adds a vertical line from the last point to the position (`ox`, [dy] `+ oy`), where `ox` and
+     * `oy` are the x and y coordinates of the last point. If no contour has been created by calling
+     * [moveTo] first, the origin of the line is set to (0, 0).
+     *
+     * @param dy The y offset of the end of the line, relative to the last path position
+     */
+    public fun relativeVerticalTo(dy: RemoteFloat) {
+        verticalLineToRelative(dy)
+    }
+
+    /**
+     * Adds a vertical line from the last point to the position (`ox`, [dy] `+ oy`), where `ox` and
+     * `oy` are the x and y coordinates of the last point. If no contour has been created by calling
+     * [moveTo] first, the origin of the line is set to (0, 0).
+     *
+     * @param dy The y offset of the end of the line, relative to the last path position
+     */
+    public fun relativeVerticalLineTo(dy: RemoteFloat) {
+        verticalLineToRelative(dy)
     }
 
     /**
@@ -211,6 +295,42 @@ public class RemotePathScope constructor() {
      */
     public fun curveTo(control1: RemoteOffset, control2: RemoteOffset, end: RemoteOffset) {
         curveTo(control1.x, control1.y, control2.x, control2.y, end.x, end.y)
+    }
+
+    /**
+     * Adds a cubic Bézier from the last point to the position ([x3], [y3]), approaching the control
+     * points ([x1], [y1]) and ([x2], [y2]). If no contour has been created by calling [moveTo]
+     * first, the origin of the curve is set to (0, 0).
+     *
+     * @param x1 The x coordinate of the first control point of the cubic curve
+     * @param y1 The y coordinate of the first control point of the cubic curve
+     * @param x2 The x coordinate of the second control point of the cubic curve
+     * @param y2 The y coordinate of the second control point of the cubic curve
+     * @param x3 The x coordinate of the end point of the cubic curve
+     * @param y3 The y coordinate of the end point of the cubic curve
+     */
+    public fun cubicTo(
+        x1: RemoteFloat,
+        y1: RemoteFloat,
+        x2: RemoteFloat,
+        y2: RemoteFloat,
+        x3: RemoteFloat,
+        y3: RemoteFloat,
+    ) {
+        curveTo(x1, y1, x2, y2, x3, y3)
+    }
+
+    /**
+     * Adds a cubic Bézier from the last point to [end], approaching the control points [control1]
+     * and [control2]. If no contour has been created by calling [moveTo] first, the origin of the
+     * curve is set to (0, 0).
+     *
+     * @param control1 The first control point of the cubic curve
+     * @param control2 The second control point of the cubic curve
+     * @param end The end point of the cubic curve
+     */
+    public fun cubicTo(control1: RemoteOffset, control2: RemoteOffset, end: RemoteOffset) {
+        curveTo(control1, control2, end)
     }
 
     /**
@@ -268,6 +388,102 @@ public class RemotePathScope constructor() {
     }
 
     /**
+     * Adds a cubic Bézier where the control and end points are defined by offsets relative to the
+     * last point. If no contour has been created by calling [moveTo] first, the origin of the curve
+     * is set to (0, 0).
+     *
+     * @param dx1 The x offset of the first control point of the cubic curve, relative to the last
+     *   path position
+     * @param dy1 The y offset of the first control point of the cubic curve, relative to the last
+     *   path position
+     * @param dx2 The x offset of the second control point of the cubic curve, relative to the last
+     *   path position
+     * @param dy2 The y offset of the second control point of the cubic curve, relative to the last
+     *   path position
+     * @param dx3 The x offset of the end point of the cubic curve, relative to the last path
+     *   position
+     * @param dy3 The y offset of the end point of the cubic curve, relative to the last path
+     *   position
+     */
+    public fun relativeCurveTo(
+        dx1: RemoteFloat,
+        dy1: RemoteFloat,
+        dx2: RemoteFloat,
+        dy2: RemoteFloat,
+        dx3: RemoteFloat,
+        dy3: RemoteFloat,
+    ) {
+        curveToRelative(dx1, dy1, dx2, dy2, dx3, dy3)
+    }
+
+    /**
+     * Adds a cubic Bézier from the last point to [endOffset] relative to the last point,
+     * approaching control points [control1Offset] and [control2Offset] relative to the last path
+     * position.
+     *
+     * @param control1Offset The offset of the first control point, relative to the last path
+     *   position
+     * @param control2Offset The offset of the second control point, relative to the last path
+     *   position
+     * @param endOffset The offset of the end point, relative to the last path position
+     */
+    public fun relativeCurveTo(
+        control1Offset: RemoteOffset,
+        control2Offset: RemoteOffset,
+        endOffset: RemoteOffset,
+    ) {
+        curveToRelative(control1Offset, control2Offset, endOffset)
+    }
+
+    /**
+     * Adds a cubic Bézier where the control and end points are defined by offsets relative to the
+     * last point. If no contour has been created by calling [moveTo] first, the origin of the curve
+     * is set to (0, 0).
+     *
+     * @param dx1 The x offset of the first control point of the cubic curve, relative to the last
+     *   path position
+     * @param dy1 The y offset of the first control point of the cubic curve, relative to the last
+     *   path position
+     * @param dx2 The x offset of the second control point of the cubic curve, relative to the last
+     *   path position
+     * @param dy2 The y offset of the second control point of the cubic curve, relative to the last
+     *   path position
+     * @param dx3 The x offset of the end point of the cubic curve, relative to the last path
+     *   position
+     * @param dy3 The y offset of the end point of the cubic curve, relative to the last path
+     *   position
+     */
+    public fun relativeCubicTo(
+        dx1: RemoteFloat,
+        dy1: RemoteFloat,
+        dx2: RemoteFloat,
+        dy2: RemoteFloat,
+        dx3: RemoteFloat,
+        dy3: RemoteFloat,
+    ) {
+        curveToRelative(dx1, dy1, dx2, dy2, dx3, dy3)
+    }
+
+    /**
+     * Adds a cubic Bézier from the last point to [endOffset] relative to the last point,
+     * approaching control points [control1Offset] and [control2Offset] relative to the last path
+     * position.
+     *
+     * @param control1Offset The offset of the first control point, relative to the last path
+     *   position
+     * @param control2Offset The offset of the second control point, relative to the last path
+     *   position
+     * @param endOffset The offset of the end point, relative to the last path position
+     */
+    public fun relativeCubicTo(
+        control1Offset: RemoteOffset,
+        control2Offset: RemoteOffset,
+        endOffset: RemoteOffset,
+    ) {
+        curveToRelative(control1Offset, control2Offset, endOffset)
+    }
+
+    /**
      * Adds a cubic Bézier from the last point to the position ([x2], [y2]). The first control point
      * is the reflection of the second control point of the previous command. If there is no
      * previous command or the previous command is not a cubic Bézier, the first control point is
@@ -313,6 +529,30 @@ public class RemotePathScope constructor() {
     }
 
     /**
+     * Adds a cubic Bézier where the second control point and end points are defined by offsets
+     * relative to the last point. If no contour has been created by calling [moveTo] first, the
+     * origin of the curve is set to (0, 0). The reflective nature of the curve is described in
+     * [reflectiveCurveTo].
+     *
+     * @param dx1 The x offset of the second control point of the cubic curve, relative to the last
+     *   path position
+     * @param dy1 The y offset of the second control point of the cubic curve, relative to the last
+     *   path position
+     * @param dx2 The x offset of the end point of the cubic curve, relative to the last path
+     *   position
+     * @param dy2 The y offset of the end point of the cubic curve, relative to the last path
+     *   position
+     */
+    public fun relativeReflectiveCurveTo(
+        dx1: RemoteFloat,
+        dy1: RemoteFloat,
+        dx2: RemoteFloat,
+        dy2: RemoteFloat,
+    ) {
+        reflectiveCurveToRelative(dx1, dy1, dx2, dy2)
+    }
+
+    /**
      * Adds a quadratic Bézier from the last point to the position ([x2], [y2]), approaching the
      * control point ([x1], [y1]). If no contour has been created by calling [moveTo] first, the
      * origin of the curve is set to (0, 0).
@@ -327,6 +567,20 @@ public class RemotePathScope constructor() {
     }
 
     /**
+     * Adds a quadratic Bézier from the last point to the position ([x2], [y2]), approaching the
+     * control point ([x1], [y1]). If no contour has been created by calling [moveTo] first, the
+     * origin of the curve is set to (0, 0).
+     *
+     * @param x1 The x coordinate of the control point of the quadratic curve
+     * @param y1 The y coordinate of the control point of the quadratic curve
+     * @param x2 The x coordinate of the end point of the quadratic curve
+     * @param y2 The y coordinate of the end point of the quadratic curve
+     */
+    public fun quadraticTo(x1: RemoteFloat, y1: RemoteFloat, x2: RemoteFloat, y2: RemoteFloat) {
+        quadTo(x1, y1, x2, y2)
+    }
+
+    /**
      * Adds a quadratic Bézier from the last point to [end], approaching control point [control]. If
      * no contour has been created by calling [moveTo] first, the origin of the curve is set to (0,
      * 0).
@@ -336,6 +590,18 @@ public class RemotePathScope constructor() {
      */
     public fun quadTo(control: RemoteOffset, end: RemoteOffset) {
         quadTo(control.x, control.y, end.x, end.y)
+    }
+
+    /**
+     * Adds a quadratic Bézier from the last point to [end], approaching control point [control]. If
+     * no contour has been created by calling [moveTo] first, the origin of the curve is set to (0,
+     * 0).
+     *
+     * @param control The control point of the quadratic curve
+     * @param end The end point of the quadratic curve
+     */
+    public fun quadraticTo(control: RemoteOffset, end: RemoteOffset) {
+        quadTo(control, end)
     }
 
     /**
@@ -362,6 +628,52 @@ public class RemotePathScope constructor() {
     }
 
     /**
+     * Adds a quadratic Bézier where the control point and end point of the curve are defined by
+     * offsets relative to the last point. If no contour has been created by calling [moveTo] first,
+     * the origin of the curve is set to (0, 0).
+     *
+     * @param dx1 The x offset of the control point of the quadratic curve, relative to the last
+     *   path position
+     * @param dy1 The y offset of the control point of the quadratic curve, relative to the last
+     *   path position
+     * @param dx2 The x offset of the end point of the quadratic curve, relative to the last path
+     *   position
+     * @param dy2 The y offset of the end point of the quadratic curve, relative to the last path
+     *   position
+     */
+    public fun relativeQuadTo(
+        dx1: RemoteFloat,
+        dy1: RemoteFloat,
+        dx2: RemoteFloat,
+        dy2: RemoteFloat,
+    ) {
+        quadToRelative(dx1, dy1, dx2, dy2)
+    }
+
+    /**
+     * Adds a quadratic Bézier where the control point and end point of the curve are defined by
+     * offsets relative to the last point. If no contour has been created by calling [moveTo] first,
+     * the origin of the curve is set to (0, 0).
+     *
+     * @param dx1 The x offset of the control point of the quadratic curve, relative to the last
+     *   path position
+     * @param dy1 The y offset of the control point of the quadratic curve, relative to the last
+     *   path position
+     * @param dx2 The x offset of the end point of the quadratic curve, relative to the last path
+     *   position
+     * @param dy2 The y offset of the end point of the quadratic curve, relative to the last path
+     *   position
+     */
+    public fun relativeQuadraticTo(
+        dx1: RemoteFloat,
+        dy1: RemoteFloat,
+        dx2: RemoteFloat,
+        dy2: RemoteFloat,
+    ) {
+        quadToRelative(dx1, dy1, dx2, dy2)
+    }
+
+    /**
      * Adds a quadratic Bézier from the last point to [endOffset] relative to the last point,
      * approaching control point [controlOffset] relative to the last point.
      *
@@ -370,6 +682,28 @@ public class RemotePathScope constructor() {
      */
     public fun quadToRelative(controlOffset: RemoteOffset, endOffset: RemoteOffset) {
         quadToRelative(controlOffset.x, controlOffset.y, endOffset.x, endOffset.y)
+    }
+
+    /**
+     * Adds a quadratic Bézier from the last point to [endOffset] relative to the last point,
+     * approaching control point [controlOffset] relative to the last point.
+     *
+     * @param controlOffset The offset of the control point, relative to the last path position
+     * @param endOffset The offset of the end point, relative to the last path position
+     */
+    public fun relativeQuadTo(controlOffset: RemoteOffset, endOffset: RemoteOffset) {
+        quadToRelative(controlOffset, endOffset)
+    }
+
+    /**
+     * Adds a quadratic Bézier from the last point to [endOffset] relative to the last point,
+     * approaching control point [controlOffset] relative to the last point.
+     *
+     * @param controlOffset The offset of the control point, relative to the last path position
+     * @param endOffset The offset of the end point, relative to the last path position
+     */
+    public fun relativeQuadraticTo(controlOffset: RemoteOffset, endOffset: RemoteOffset) {
+        quadToRelative(controlOffset, endOffset)
     }
 
     /**
@@ -398,6 +732,20 @@ public class RemotePathScope constructor() {
      */
     public fun reflectiveQuadToRelative(dx1: RemoteFloat, dy1: RemoteFloat) {
         _nodes.add(RemotePathNode.RelativeReflectiveQuadTo(dx1, dy1))
+    }
+
+    /**
+     * Adds a quadratic Bézier where the end point is defined by an offset relative to the last
+     * point. If no contour has been created by calling [moveTo] first, the origin of the curve is
+     * set to (0, 0). The reflective nature of the curve is described in [reflectiveQuadTo].
+     *
+     * @param dx1 The x offset of the end point of the quadratic curve, relative to the last path
+     *   position
+     * @param dy1 The y offset of the end point of the quadratic curve, relative to the last path
+     *   position
+     */
+    public fun relativeReflectiveQuadTo(dx1: RemoteFloat, dy1: RemoteFloat) {
+        reflectiveQuadToRelative(dx1, dy1)
     }
 
     /**
@@ -460,6 +808,31 @@ public class RemotePathScope constructor() {
     }
 
     /**
+     * Adds a conic Bézier with the given [weight] where the control point and end point of the
+     * curve are defined by offsets relative to the last point. If no contour has been created by
+     * calling [moveTo] first, the origin of the curve is set to (0, 0).
+     *
+     * @param dx1 The x offset of the control point of the conic curve, relative to the last path
+     *   position
+     * @param dy1 The y offset of the control point of the conic curve, relative to the last path
+     *   position
+     * @param dx2 The x offset of the end point of the conic curve, relative to the last path
+     *   position
+     * @param dy2 The y offset of the end point of the conic curve, relative to the last path
+     *   position
+     * @param weight The weight of the conic curve
+     */
+    public fun relativeConicTo(
+        dx1: RemoteFloat,
+        dy1: RemoteFloat,
+        dx2: RemoteFloat,
+        dy2: RemoteFloat,
+        weight: RemoteFloat,
+    ) {
+        conicToRelative(dx1, dy1, dx2, dy2, weight)
+    }
+
+    /**
      * Adds a conic Bézier from the last point to [endOffset] relative to the last point,
      * approaching control point [controlOffset] relative to the last point with the given [weight].
      *
@@ -473,6 +846,22 @@ public class RemotePathScope constructor() {
         weight: RemoteFloat,
     ) {
         conicToRelative(controlOffset.x, controlOffset.y, endOffset.x, endOffset.y, weight)
+    }
+
+    /**
+     * Adds a conic Bézier from the last point to [endOffset] relative to the last point,
+     * approaching control point [controlOffset] relative to the last point with the given [weight].
+     *
+     * @param controlOffset The offset of the control point, relative to the last path position
+     * @param endOffset The offset of the end point, relative to the last path position
+     * @param weight The weight of the control point
+     */
+    public fun relativeConicTo(
+        controlOffset: RemoteOffset,
+        endOffset: RemoteOffset,
+        weight: RemoteFloat,
+    ) {
+        conicToRelative(controlOffset, endOffset, weight)
     }
 
     /**
@@ -562,6 +951,45 @@ public class RemotePathScope constructor() {
         _nodes.add(
             RemotePathNode.RelativeArcTo(a, b, theta, isMoreThanHalf, isPositiveArc, dx1, dy1)
         )
+    }
+
+    /**
+     * Adds an elliptical arc where the end point is defined by an offset relative to the last
+     * point. If no contour has been created by calling [moveTo] first, the origin of the arc is set
+     * to (0, 0).
+     *
+     * The ellipse is defined by 3 parameters:
+     * - [a] and [b] to define the size of the ellipse
+     * - [theta] to define the orientation (as an X-axis rotation) of the ellipse
+     *
+     * In most situations, there are four arc candidates that can be drawn from the origin to the
+     * end point. Which of the arcs is used is influenced by [isMoreThanHalf] and [isPositiveArc].
+     *
+     * When [isMoreThanHalf] is set to `true`, the added arc will be chosen amongst the two
+     * candidates that represent an arc sweep greater than or equal to 180 degrees.
+     *
+     * When [isPositiveArc] is set to `true`, the added arc will be chosen amongst the two
+     * candidates with a positive-angle direction (counter-clockwise)
+     *
+     * @param a The horizontal radius of the ellipse
+     * @param b The vertical radius of the ellipse
+     * @param theta The rotation of the ellipse around the X-axis, in degrees
+     * @param isMoreThanHalf Defines whether to use an arc candidate with a sweep greater than or
+     *   equal to 180 degrees
+     * @param isPositiveArc Defines whether to use an arc candidate that's counter-clockwise or not
+     * @param dx1 The x offset of the end point of the arc, relative to the last path position
+     * @param dy1 The y offset of the end point of the arc, relative to the last path position
+     */
+    public fun relativeArcTo(
+        a: RemoteFloat,
+        b: RemoteFloat,
+        theta: RemoteFloat,
+        isMoreThanHalf: RemoteBoolean,
+        isPositiveArc: RemoteBoolean,
+        dx1: RemoteFloat,
+        dy1: RemoteFloat,
+    ) {
+        arcToRelative(a, b, theta, isMoreThanHalf, isPositiveArc, dx1, dy1)
     }
 
     /**
