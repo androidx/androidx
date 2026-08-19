@@ -121,7 +121,6 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                                                 packageToComponentsMetadataMap[packageName]
                                             ),
                                         ),
-                                    isEnabled = metadata.computeEffectivelyEnabled(),
                                 )
                             }
                     if (appFunctions.isNotEmpty()) {
@@ -164,7 +163,6 @@ internal class FakeAppFunctionReader(context: Context) : AppFunctionReader {
                                     packageName,
                                     checkNotNull(packageToComponentsMetadataMap[packageName]),
                                 ),
-                            isEnabled = metadata.computeEffectivelyEnabled(),
                         )
                     }
             }
@@ -323,7 +321,6 @@ internal data class AppFunctionStaticAndRuntimeMetadata(
             parameters = staticMetadata.parameters,
             response = staticMetadata.response,
             packageMetadata = AppFunctionPackageMetadata(packageName, componentsMetadata),
-            isEnabled = computeEffectivelyEnabled(),
         )
 
     fun computeEffectivelyEnabled(): Boolean =

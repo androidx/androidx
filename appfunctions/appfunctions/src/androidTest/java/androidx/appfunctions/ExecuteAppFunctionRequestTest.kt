@@ -258,7 +258,6 @@ class ExecuteAppFunctionRequestTest {
                         packageName = "pkg",
                         components = AppFunctionComponentsMetadata(),
                     ),
-                isEnabled = true,
             )
     }
 }

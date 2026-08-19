@@ -89,7 +89,6 @@ class AppFunctionManagerUnitTest {
                         packageName = packageName,
                         components = AppFunctionComponentsMetadata(),
                     ),
-                isEnabled = true,
                 schema =
                     AppFunctionSchemaMetadata(category = "notes", name = "createNote", version = 1),
                 parameters = emptyList(),
@@ -124,7 +123,6 @@ class AppFunctionManagerUnitTest {
                         packageName = packageName,
                         components = AppFunctionComponentsMetadata(),
                     ),
-                isEnabled = true,
                 schema =
                     AppFunctionSchemaMetadata(category = "notes", name = "createNote", version = 2),
                 parameters = emptyList(),
