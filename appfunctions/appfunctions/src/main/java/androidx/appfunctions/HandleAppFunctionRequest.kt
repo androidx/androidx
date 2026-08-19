@@ -22,6 +22,7 @@ package androidx.appfunctions
  *
  * This encapsulates the information needed to register a single app function.
  */
+@ExperimentalAppFunctionsApi
 public class HandleAppFunctionRequest(
     /** The unique identifier of the app function. */
     public val functionIdentifier: String,

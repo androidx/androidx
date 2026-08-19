@@ -58,7 +58,7 @@
 # to dynamically locate and load the corresponding generated adapter class at runtime.
 -keepnames @androidx.appfunctions.AppFunctionSignature interface ** {}
 
-# Keep all classes implementing AppFunctionAdapter
--keep,allowoptimization class * implements androidx.appfunctions.AppFunctionAdapter {
+# Keep all classes implementing HandleAppFunctionRequestAdapter
+-keep,allowoptimization class * implements androidx.appfunctions.HandleAppFunctionRequestAdapter {
     public *;
 }

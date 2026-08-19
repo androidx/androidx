@@ -498,6 +498,7 @@ public constructor(
      * @param appFunction The implementation of the app function to handle execution requests.
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @ExperimentalAppFunctionsApi
     public suspend fun handleAppFunction(
         functionIdentifier: String,
         appFunction: SuspendingAppFunction,
@@ -516,6 +517,7 @@ public constructor(
      * @param request The request containing the function identifier and implementation.
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @ExperimentalAppFunctionsApi
     public suspend fun handleAppFunction(request: HandleAppFunctionRequest): Nothing =
         handleAppFunctions(listOf(request))
 
@@ -532,6 +534,7 @@ public constructor(
      * @param requests The list of requests containing the function identifiers and implementations.
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @ExperimentalAppFunctionsApi
     public suspend fun handleAppFunctions(requests: List<HandleAppFunctionRequest>): Nothing =
         coroutineScope {
             val dispatcher =
@@ -557,47 +560,34 @@ public constructor(
         }
 
     /**
-     * Returns an [AppFunctionAdapter] for an interface annotated with `@AppFunctionSignature`.
+     * Returns an [HandleAppFunctionRequestAdapter] for an interface annotated with
+     * [AppFunctionSignature].
      *
-     * Retrieves a generated [AppFunctionAdapter] that bridges [ExecuteAppFunctionRequest] and
-     * [ExecuteAppFunctionResponse] with the strongly-typed signature of the passed interface.
+     * Retrieves a generated [HandleAppFunctionRequestAdapter] that bridges
+     * [ExecuteAppFunctionRequest] and [ExecuteAppFunctionResponse] with the strongly-typed
+     * signature of the passed interface. Because the method uses reflection under the hood to
+     * instantiate the adapter, we recommend loading it in advance to avoid runtime latency.
      *
      * This adapter allows wrapping a concrete implementation of the passed interface into a
      * [HandleAppFunctionRequest]. The resulting request can then be registered using
      * [handleAppFunction] or [handleAppFunctions].
      *
-     * ### Example
-     *
-     * ```kotlin
-     * @AppFunctionSignature(
-     *     scope = AppFunctionMetadata.SCOPE_GLOBAL,
-     *     appFunctionXmlFileName = "media_functions"
-     * )
-     * fun interface PlayMusic {
-     *     suspend fun playSong(title: String)
-     * }
-     *
-     * // Retrieve the adapter and register the implementation
-     * val adapter = appFunctionManager.getAppFunctionAdapter(PlayMusic::class.java)
-     * val request = adapter.adapt { title -> player.play(title) }
-     *
-     * coroutineScope.launch {
-     *     appFunctionManager.handleAppFunction(request)
-     * }
-     * ```
-     *
-     * @param interfaceClass The interface class annotated with `@AppFunctionSignature`.
-     * @return The [AppFunctionAdapter] for the [interfaceClass].
+     * @param interfaceClass The interface class annotated with [AppFunctionSignature].
+     * @return The [HandleAppFunctionRequestAdapter] for the [interfaceClass].
      * @throws IllegalArgumentException if the adapter class for [interfaceClass] cannot be found or
      *   instantiated.
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun <T : Any> getAppFunctionAdapter(interfaceClass: Class<T>): AppFunctionAdapter<T> {
+    @ExperimentalAppFunctionsApi
+    public fun <T : Any> getHandleAppFunctionRequestAdapter(
+        interfaceClass: Class<T>
+    ): HandleAppFunctionRequestAdapter<T> {
         try {
             @Suppress("UNCHECKED_CAST")
-            return interfaceClass.findImpl(prefix = "$", suffix = "_AppFunctionAdapter")
-                as AppFunctionAdapter<T>
+            return interfaceClass.findImpl(
+                prefix = "$",
+                suffix = "_HandleAppFunctionRequestAdapter",
+            ) as HandleAppFunctionRequestAdapter<T>
         } catch (e: Exception) {
             throw IllegalArgumentException(
                 "Failed to find or instantiate adapter class for ${interfaceClass.name}. " +
@@ -737,7 +727,7 @@ public constructor(
      * [AppFunctionAppUnknownException] and then re-thrown.
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    @OptIn(DelicateCoroutinesApi::class)
+    @OptIn(DelicateCoroutinesApi::class, ExperimentalAppFunctionsApi::class)
     private fun SuspendingAppFunction.toCallbackAppFunction(
         coroutineScope: CoroutineScope
     ): CallbackAppFunction {

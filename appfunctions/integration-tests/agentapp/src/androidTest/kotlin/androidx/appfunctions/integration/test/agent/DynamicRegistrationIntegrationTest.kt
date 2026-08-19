@@ -26,6 +26,7 @@ import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.integration.test.agent.TestUtil.assertAppFunctionEnabledState
 import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
@@ -46,6 +47,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalAppFunctionsApi::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
 @LargeTest
 class DynamicRegistrationIntegrationTest {
@@ -361,10 +363,12 @@ class DynamicRegistrationIntegrationTest {
     }
 
     @Test
-    fun getAppFunctionAdapter_adapterNotFound_throwsException() = doBlocking {
+    fun getHandleAppFunctionRequestAdapter_adapterNotFound_throwsException() = doBlocking {
         val exception =
             assertThrows(IllegalArgumentException::class.java) {
-                appFunctionManager.getAppFunctionAdapter(UnadaptedSignature::class.java)
+                appFunctionManager.getHandleAppFunctionRequestAdapter(
+                    UnadaptedSignature::class.java
+                )
             }
         assertThat(exception.message).contains("@AppFunctionSignature")
     }

@@ -35,6 +35,14 @@ object IntrospectionHelper {
         const val PROPERTY_MESSAGE = "message"
     }
 
+    object OptInAnnotation {
+        val CLASS_NAME = ClassName("kotlin", "OptIn")
+    }
+
+    object ExperimentalAppFunctionsApiAnnotation {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "ExperimentalAppFunctionsApi")
+    }
+
     object RequiresApiAnnotation {
         val CLASS_NAME = ClassName("androidx.annotation", "RequiresApi")
     }
@@ -256,12 +264,9 @@ object IntrospectionHelper {
         val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "SuspendingAppFunction")
     }
 
-    object AppFunctionAdapterClass {
-        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "AppFunctionAdapter")
-
-        object GetFunctionIdMethod {
-            const val METHOD_NAME = "getFunctionId"
-        }
+    object HandleAppFunctionRequestAdapterClass {
+        val CLASS_NAME = ClassName(APP_FUNCTIONS_PACKAGE_NAME, "HandleAppFunctionRequestAdapter")
+        const val FUNCTION_IDENTIFIER_PROPERTY_NAME = "functionIdentifier"
 
         object AdaptMethod {
             const val METHOD_NAME = "adapt"
