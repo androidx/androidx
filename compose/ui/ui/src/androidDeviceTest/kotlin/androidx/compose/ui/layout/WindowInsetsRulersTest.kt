@@ -998,6 +998,156 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
     }
 
     @Test
+    fun animateIme_predictiveBack_negativeDuration() {
+        val rulerState = mutableStateOf(Ime)
+        setSimpleRulerContent(rulerState)
+        rule.waitForIdle()
+
+        val type = Type.ime()
+        val sourceInsets = Insets.of(0, 0, 0, 100)
+        sendOnApplyWindowInsets(createInsets(type to sourceInsets))
+
+        rule.runOnIdle {
+            assertThat(isAnimating).isFalse()
+            assertThat(isVisible).isTrue()
+        }
+
+        val animationInterpolator = AccelerateDecelerateInterpolator()
+        val animation = WindowInsetsAnimationCompat(type, animationInterpolator, -1L)
+        val targetInsets = Insets.of(0, 0, 0, 0)
+
+        startAnimation(animation, type, targetInsets, sourceInsets, targetInsets)
+        rule.runOnIdle {
+            assertWithMessage("isAnimating should be true for duration -1")
+                .that(isAnimating)
+                .isTrue()
+            val expectedSourceRect = IntRect(0, 0, contentWidth, contentHeight - 100)
+            val expectedTargetRect = IntRect(0, 0, contentWidth, contentHeight)
+            assertWithMessage("sourceRect").that(sourceRect).isEqualTo(expectedSourceRect)
+            assertWithMessage("targetRect").that(targetRect).isEqualTo(expectedTargetRect)
+            assertWithMessage("durationMillis").that(durationMillis).isEqualTo(-1L)
+        }
+
+        animation.fraction = 0.5f
+        progressAnimation(animation, createInsets(type to lerp(sourceInsets, targetInsets, 0.5f)))
+        rule.runOnIdle {
+            assertWithMessage("isAnimating during progress").that(isAnimating).isTrue()
+            assertWithMessage("fraction").that(fraction).isEqualTo(0.5f)
+        }
+
+        endAnimation(animation, createInsets(type to targetInsets))
+        rule.runOnIdle {
+            assertNotAnimating(Ime)
+            assertThat(isVisible).isFalse()
+            assertThat(insetsRect).isEqualTo(IntRect(0, 0, contentWidth, contentHeight))
+        }
+    }
+
+    @Test
+    fun animateIme_zeroDuration_doesNotAnimate() {
+        val rulerState = mutableStateOf(Ime)
+        setSimpleRulerContent(rulerState)
+        rule.waitForIdle()
+
+        val type = Type.ime()
+        val sourceInsets = Insets.of(0, 0, 0, 100)
+        sendOnApplyWindowInsets(createInsets(type to sourceInsets))
+
+        rule.runOnIdle {
+            assertThat(isAnimating).isFalse()
+            assertThat(isVisible).isTrue()
+        }
+
+        val animationInterpolator = AccelerateDecelerateInterpolator()
+        val animation = WindowInsetsAnimationCompat(type, animationInterpolator, 0L)
+        val targetInsets = Insets.of(0, 0, 0, 0)
+
+        startAnimation(animation, type, targetInsets, sourceInsets, targetInsets)
+        rule.runOnIdle {
+            assertWithMessage("isAnimating should be false for duration 0")
+                .that(isAnimating)
+                .isFalse()
+        }
+
+        endAnimation(animation, createInsets(type to targetInsets))
+        rule.runOnIdle {
+            assertNotAnimating(Ime)
+            assertThat(isVisible).isFalse()
+            assertThat(insetsRect).isEqualTo(IntRect(0, 0, contentWidth, contentHeight))
+        }
+    }
+
+    @Test
+    fun animateMergedRulers_predictiveBack_negativeDuration() {
+        val rulerState = mutableStateOf(SafeDrawing)
+        setSimpleRulerContent(rulerState)
+        rule.waitForIdle()
+
+        val type = Type.ime()
+        val sourceInsets = Insets.of(0, 0, 0, 100)
+        sendOnApplyWindowInsets(createInsets(type to sourceInsets))
+
+        rule.runOnIdle {
+            assertThat(isAnimating).isFalse()
+            assertThat(isVisible).isTrue()
+        }
+
+        val animationInterpolator = AccelerateDecelerateInterpolator()
+        val animation = WindowInsetsAnimationCompat(type, animationInterpolator, -1L)
+        val targetInsets = Insets.of(0, 0, 0, 0)
+
+        startAnimation(animation, type, targetInsets, sourceInsets, targetInsets)
+        rule.runOnIdle {
+            assertWithMessage("SafeDrawing isAnimating should be true for IME duration -1")
+                .that(isAnimating)
+                .isTrue()
+            assertWithMessage("SafeDrawing isVisible should be true").that(isVisible).isTrue()
+        }
+
+        animation.fraction = 0.5f
+        progressAnimation(animation, createInsets(type to lerp(sourceInsets, targetInsets, 0.5f)))
+        rule.runOnIdle {
+            assertWithMessage("SafeDrawing isAnimating during progress").that(isAnimating).isTrue()
+        }
+
+        endAnimation(animation, createInsets(type to targetInsets))
+        rule.runOnIdle {
+            assertNotAnimating(SafeDrawing)
+            assertThat(isVisible).isFalse()
+            assertThat(insetsRect).isEqualTo(IntRect(0, 0, contentWidth, contentHeight))
+        }
+    }
+
+    @Test
+    fun animateIme_sameTargetAsCurrent_doesNotAnimate() {
+        val rulerState = mutableStateOf(Ime)
+        setSimpleRulerContent(rulerState)
+        rule.waitForIdle()
+
+        val type = Type.ime()
+        val sourceInsets = Insets.of(0, 0, 0, 100)
+        sendOnApplyWindowInsets(createInsets(type to sourceInsets))
+
+        val animationInterpolator = AccelerateDecelerateInterpolator()
+        val animation = WindowInsetsAnimationCompat(type, animationInterpolator, -1L)
+        val targetInsets = Insets.of(0, 0, 0, 100)
+
+        startAnimation(animation, type, targetInsets, sourceInsets, targetInsets)
+        rule.runOnIdle {
+            assertWithMessage("isAnimating should be false when target == current")
+                .that(isAnimating)
+                .isFalse()
+        }
+
+        endAnimation(animation, createInsets(type to targetInsets))
+        rule.runOnIdle {
+            assertNotAnimating(Ime)
+            assertThat(isVisible).isTrue()
+            assertThat(insetsRect).isEqualTo(IntRect(0, 0, contentWidth, contentHeight - 100))
+        }
+    }
+
+    @Test
     fun disableWindowInsetsRulers() {
         ComposeView.disableWindowInsetsRulers()
         var left = 0f

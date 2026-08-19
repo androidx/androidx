@@ -17,6 +17,7 @@ package androidx.compose.foundation.layout
 
 import android.content.res.Configuration
 import android.os.Build
+import android.provider.Settings
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
@@ -90,12 +91,7 @@ class WindowInsetsDeviceTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     fun disableConsumeDisablesAnimationConsumption() {
-        rule.runOnUiThread {
-            Assume.assumeTrue(
-                rule.activity.resources.configuration.keyboardHidden !=
-                    Configuration.KEYBOARDHIDDEN_YES
-            )
-        }
+        assumeSoftKeyboardAvailable()
 
         var imeInset1 = 0
         var imeInset2 = 0
@@ -145,27 +141,21 @@ class WindowInsetsDeviceTest {
 
         rule.waitForIdle()
 
-        rule.waitUntil(timeoutMillis = 3000) {
-            rule.runOnIdle {
-                focusRequester.requestFocus()
-                val controller = rule.activity.window.insetsController
-                controller?.show(android.view.WindowInsets.Type.ime())
-            }
-            rule.runOnIdle { imeInset1 > 0 }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+            val controller = rule.activity.window.insetsController
+            controller?.show(android.view.WindowInsets.Type.ime())
+            Snapshot.sendApplyNotifications()
         }
-        rule.runOnIdle { assertThat(imeInset2).isEqualTo(imeInset1) }
+        rule.waitUntil(timeoutMillis = 3000) { imeInset1 > 0 }
+        assertThat(imeInset2).isEqualTo(imeInset1)
     }
 
     @OptIn(ExperimentalLayoutApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     fun enableConsumeEnablesAnimationConsumption() {
-        rule.runOnUiThread {
-            Assume.assumeTrue(
-                rule.activity.resources.configuration.keyboardHidden !=
-                    Configuration.KEYBOARDHIDDEN_YES
-            )
-        }
+        assumeSoftKeyboardAvailable()
         var imeInset1 = 0
         var imeInset2 = 0
 
@@ -213,27 +203,21 @@ class WindowInsetsDeviceTest {
 
         rule.waitForIdle()
 
-        rule.waitUntil(timeoutMillis = 3000) {
-            rule.runOnIdle {
-                focusRequester.requestFocus()
-                val controller = rule.activity.window.insetsController
-                controller?.show(android.view.WindowInsets.Type.ime())
-            }
-            rule.runOnIdle { imeInset1 > 0 }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+            val controller = rule.activity.window.insetsController
+            controller?.show(android.view.WindowInsets.Type.ime())
+            Snapshot.sendApplyNotifications()
         }
-        rule.runOnIdle { assertThat(imeInset2).isEqualTo(0) }
+        rule.waitUntil(timeoutMillis = 3000) { imeInset1 > 0 }
+        assertThat(imeInset2).isEqualTo(0)
     }
 
     @OptIn(ExperimentalLayoutApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     fun defaultConsumption() {
-        rule.runOnUiThread {
-            Assume.assumeTrue(
-                rule.activity.resources.configuration.keyboardHidden !=
-                    Configuration.KEYBOARDHIDDEN_YES
-            )
-        }
+        assumeSoftKeyboardAvailable()
         var imeInset1 = 0
         var imeInset2 = 0
 
@@ -264,16 +248,14 @@ class WindowInsetsDeviceTest {
         assertThat(defaultConsume).isFalse()
 
         // Loop until the value changes.
-        rule.waitUntil(timeoutMillis = 3000) {
-            rule.runOnIdle {
-                focusRequester.requestFocus()
-                val controller = rule.activity.window.insetsController
-                controller?.show(android.view.WindowInsets.Type.ime())
-                Snapshot.sendApplyNotifications()
-            }
-            rule.runOnIdle { imeInset1 > 0 }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+            val controller = rule.activity.window.insetsController
+            controller?.show(android.view.WindowInsets.Type.ime())
+            Snapshot.sendApplyNotifications()
         }
-        rule.runOnIdle { assertThat(imeInset2).isEqualTo(imeInset1) }
+        rule.waitUntil(timeoutMillis = 3000) { imeInset1 > 0 }
+        assertThat(imeInset2).isEqualTo(imeInset1)
     }
 
     @Test
@@ -513,6 +495,99 @@ class WindowInsetsDeviceTest {
         val isVisible = mutableListOf<Boolean>()
         rule.setContent { isVisible += WindowInsets.isImeVisible }
         rule.runOnIdle { assertThat(isVisible.first()).isFalse() }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun imePadding_updatesCorrectly_whenFocusSwitchesBetweenBasicTextFields() {
+        assumeSoftKeyboardAvailable()
+
+        var text1 by mutableStateOf("Field 1")
+        var text2 by mutableStateOf("Field 2")
+        val focusRequester1 = FocusRequester()
+        val focusRequester2 = FocusRequester()
+        var imeInsetBottom = 0
+
+        rule.setContent {
+            imeInsetBottom = WindowInsets.ime.getBottom(LocalDensity.current)
+            Column(Modifier.fillMaxSize().imePadding()) {
+                BasicTextField(
+                    value = text1,
+                    onValueChange = { text1 = it },
+                    modifier = Modifier.focusRequester(focusRequester1),
+                )
+                BasicTextField(
+                    value = text2,
+                    onValueChange = { text2 = it },
+                    modifier = Modifier.focusRequester(focusRequester2),
+                )
+            }
+        }
+
+        rule.waitForIdle()
+
+        // 1. Focus first field and show IME
+        rule.runOnIdle {
+            focusRequester1.requestFocus()
+            val controller = rule.activity.window.insetsController
+            controller?.show(android.view.WindowInsets.Type.ime())
+            Snapshot.sendApplyNotifications()
+        }
+        rule.waitUntil(timeoutMillis = 5000) { imeInsetBottom > 0 }
+        val firstImeHeight = imeInsetBottom
+        assertThat(firstImeHeight).isGreaterThan(0)
+
+        // 2. Switch focus to second field
+        rule.runOnIdle {
+            focusRequester2.requestFocus()
+            Snapshot.sendApplyNotifications()
+        }
+
+        rule.waitUntil(timeoutMillis = 5000) {
+            val rootIme =
+                rule.runOnUiThread {
+                    ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
+                        ?.getInsets(WindowInsetsCompat.Type.ime())
+                        ?.bottom ?: 0
+                }
+            imeInsetBottom == rootIme && imeInsetBottom > 0
+        }
+
+        val (rootIme, isRootImeVisible) =
+            rule.runOnUiThread {
+                val insets = ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
+                val bottom = insets?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: 0
+                val visible = insets?.isVisible(WindowInsetsCompat.Type.ime()) ?: false
+                bottom to visible
+            }
+        assertThat(isRootImeVisible).isTrue()
+        assertThat(imeInsetBottom).isEqualTo(rootIme)
+
+        // 3. Hide IME and verify imeInsetBottom updates to 0
+        rule.runOnIdle {
+            val controller = rule.activity.window.insetsController
+            controller?.hide(android.view.WindowInsets.Type.ime())
+            Snapshot.sendApplyNotifications()
+        }
+
+        rule.waitUntil(timeoutMillis = 5000) { imeInsetBottom == 0 }
+        assertThat(imeInsetBottom).isEqualTo(0)
+    }
+
+    private fun assumeSoftKeyboardAvailable() {
+        rule.runOnUiThread {
+            val config = rule.activity.resources.configuration
+            Assume.assumeTrue(
+                config.keyboard == Configuration.KEYBOARD_NOKEYS ||
+                    config.hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_YES ||
+                    Settings.Secure.getInt(
+                        rule.activity.contentResolver,
+                        "show_ime_with_hard_keyboard",
+                        0,
+                    ) == 1
+            )
+        }
     }
 
     private fun hide(insetsType: Int) {
