@@ -19,8 +19,8 @@ package androidx.camera.camera2.pipe.graph
 import android.hardware.camera2.CaptureResult
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.LatestFrameMetadata
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.Metadata
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +31,7 @@ import org.robolectric.annotation.Config
 class LatestFrameMetadataImplTest {
 
     private val keyX = CaptureResult.SENSOR_EXPOSURE_TIME
-    private val metaKeyY = Metadata.Key.create<Int>("test.key.y")
+    private val metaKeyY = Metadata.Key<Int>("test.key.y")
 
     @Test
     fun testGetAndGetOrDefault() {

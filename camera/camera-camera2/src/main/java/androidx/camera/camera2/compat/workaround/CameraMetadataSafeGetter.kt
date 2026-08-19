@@ -34,7 +34,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
  * @param key the [CameraCharacteristics.Key] of the characteristic
  * @return the value of the characteristic
  */
-public fun <T> CameraMetadata.getSafely(key: CameraCharacteristics.Key<T>): T? {
+public fun <T : Any> CameraMetadata.getSafely(key: CameraCharacteristics.Key<T>): T? {
     if (
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
             key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE

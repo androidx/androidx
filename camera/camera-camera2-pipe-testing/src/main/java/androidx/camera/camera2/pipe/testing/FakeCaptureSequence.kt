@@ -22,12 +22,12 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.Metadata
 import kotlinx.atomicfu.atomic
 
 /** A CaptureSequence used for testing interactions with a [FakeCaptureSequenceProcessor] */

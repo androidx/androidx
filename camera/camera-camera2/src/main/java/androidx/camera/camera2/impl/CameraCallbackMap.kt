@@ -43,7 +43,6 @@ import androidx.camera.common.unwrapAs
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureFailure
 import androidx.camera.core.impl.CaptureConfig
-import androidx.camera.core.impl.TagBundle
 import java.util.concurrent.Executor
 import javax.inject.Inject
 
@@ -164,7 +163,7 @@ public class CameraCallbackMap @Inject constructor() : Request.Listener {
     override fun onAborted(request: Request) {
         for ((callback, executor) in callbacks) {
             // TODO: get the correct requestId
-            val tagBundle = request.extras[CAMERAX_TAG_BUNDLE] as? TagBundle
+            val tagBundle = request[CAMERAX_TAG_BUNDLE]
             val captureConfigId =
                 tagBundle?.getTag(CaptureConfig.CAPTURE_CONFIG_ID_TAG_KEY) as? Int
                     ?: CaptureConfig.DEFAULT_ID

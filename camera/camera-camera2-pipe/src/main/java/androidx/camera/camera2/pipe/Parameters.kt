@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RestrictTo
+import androidx.camera.common.Metadata
 
 /**
  * [Parameters] is a Map-like interface that stores the key-value parameter pairs from
@@ -41,7 +42,7 @@ public interface Parameters {
     public operator fun <T> get(key: CaptureRequest.Key<T>): T?
 
     /** Get the value correspond to the given [Metadata.Key]. */
-    public operator fun <T> get(key: Metadata.Key<T>): T?
+    public operator fun <T : Any> get(key: Metadata.Key<T>): T?
 
     /** Store the [CaptureRequest] key value pair in the class. */
     public operator fun <T : Any> set(key: CaptureRequest.Key<T>, value: T?)
@@ -85,7 +86,7 @@ public interface Parameters {
      * Remove the [Metadata] key value pair associated with the given key. Returns true if a key was
      * present and removed.
      */
-    public fun <T> remove(key: Metadata.Key<T>): Boolean
+    public fun <T : Any> remove(key: Metadata.Key<T>): Boolean
 
     /**
      * Remove all parameters that match the given keys. The key is either [CaptureRequest.Key] or
