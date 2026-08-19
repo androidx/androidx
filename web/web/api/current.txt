@@ -11,13 +11,13 @@ package androidx.web {
   }
 
   public static final class WebContent.Builder {
-    ctor @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") public WebContent.Builder(android.content.Context context);
+    ctor @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") public WebContent.Builder();
     method public androidx.web.WebContent build();
   }
 
   public final class WebContentKt {
-    method @InaccessibleFromJava @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") @kotlin.jvm.JvmSynthetic public static androidx.web.WebContent WebContent(android.content.Context context, optional kotlin.jvm.functions.Function1<androidx.web.WebContent.Builder,kotlin.Unit> block);
-    method @BytecodeOnly @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") @kotlin.jvm.JvmSynthetic public static androidx.web.WebContent! WebContent$default(android.content.Context!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @InaccessibleFromJava @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") @kotlin.jvm.JvmSynthetic public static androidx.web.WebContent WebContent(optional kotlin.jvm.functions.Function1<androidx.web.WebContent.Builder,kotlin.Unit> block);
+    method @BytecodeOnly @RequiresFeature(name="WEB_CONTENT", enforcement="androidx.web.WebFeature#isFeatureSupported") @kotlin.jvm.JvmSynthetic public static androidx.web.WebContent! WebContent$default(kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public class WebContentView extends android.webkit.WebView {

@@ -16,13 +16,10 @@
 
 package androidx.web.testapp;
 
-import android.app.Application;
-
-import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.ViewModel;
 import androidx.web.WebContent;
 import androidx.web.WebFeature;
 
-import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -30,16 +27,15 @@ import org.jspecify.annotations.Nullable;
  * It ensures the WebContent instance is retained across configuration changes and
  * properly closed when the ViewModel is cleared.
  */
-public class JavaWebViewModel extends AndroidViewModel {
+public class JavaWebViewModel extends ViewModel {
 
     private WebContent mWebContent;
     private boolean mInitialUrlLoaded;
 
     @SuppressWarnings("RestrictedApiAndroidX")
-    public JavaWebViewModel(@NonNull Application application) {
-        super(application);
+    public JavaWebViewModel() {
         if (WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT)) {
-            mWebContent = new WebContent.Builder(application).build();
+            mWebContent = new WebContent.Builder().build();
         }
     }
 

@@ -36,11 +36,8 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil
 )
 @Suppress("MissingJvmstatic")
 @NonNull
-public fun WebContent(
-    @NonNull context: Context,
-    block: WebContent.Builder.() -> Unit = {},
-): WebContent {
-    return WebContent.Builder(context).apply(block).build()
+public fun WebContent(block: WebContent.Builder.() -> Unit = {}): WebContent {
+    return WebContent.Builder().apply(block).build()
 }
 
 /**
@@ -55,22 +52,15 @@ public interface WebContent : AutoCloseable {
     /** Builder for [WebContent]. */
     @Suppress("EmptyBuilder")
     public class Builder {
-        private val context: Context
-
-        /**
-         * Creates a new [Builder] to create [WebContent].
-         *
-         * @param context The context to use.
-         */
+        /** Creates a new [Builder] to create [WebContent]. */
         @RequiresFeature(
             name = WebFeature.WEB_CONTENT,
             enforcement = "androidx.web.WebFeature#isFeatureSupported",
         )
-        public constructor(@NonNull context: Context) {
+        public constructor() {
             if (!WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT)) {
                 throw WebFeature.getUnsupportedOperationException()
             }
-            this.context = context.applicationContext
         }
 
         private fun transfer(chromiumConfig: BiConsumer<@WebContentConfig Int, Any>) {
@@ -88,7 +78,7 @@ public interface WebContent : AutoCloseable {
                     contentHandler,
                 )!!
 
-            return WebContentImpl(contentBoundary, context)
+            return WebContentImpl(contentBoundary)
         }
     }
 
@@ -138,10 +128,8 @@ public interface WebContent : AutoCloseable {
     @UiThread override fun close()
 }
 
-internal class WebContentImpl(
-    private val boundaryInterface: WebContentBoundaryInterface,
-    private val applicationContext: Context,
-) : WebContent {
+internal class WebContentImpl(private val boundaryInterface: WebContentBoundaryInterface) :
+    WebContent {
 
     private var isDetached: Boolean = true
     private var isDestroyed: Boolean = false
@@ -168,7 +156,7 @@ internal class WebContentImpl(
 
     override fun detach() {
         if (isDetached || isDestroyed) return
-        internalAttach(applicationContext, ::DetachedWebContentView)
+        internalAttach(currentView!!.context.applicationContext, ::DetachedWebContentView)
     }
 
     override fun close() {
