@@ -32,7 +32,7 @@ import kotlinx.coroutines.withContext
 /**
  * Creates a behavior where the content smoothly animates to follow the user's movements, creating a
  * comfortable "soft follow" effect. This is the implementation for SoftFollowing which is
- * accessible through the public interface as FollowBehavior.Soft()
+ * accessible through the public interface as FollowBehavior.soft()
  *
  * @param durationMs Amount of milliseconds it takes for the content to catch up to the user.
  *   Default is [FollowBehavior.DEFAULT_SOFT_DURATION_MS] milliseconds. A value less than
@@ -62,6 +62,7 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
                 // The first device pose received is handled differently than the rest. There is no
                 // animation to the trailingEntity, it will instantly appear at the device location.
                 // It will also be made visible, enabled, at this time.
+                // TODO: b/548122230 Avoid double flow subscription in following subspace.
                 val pose = poseUpdatesFlow.first()
                 var currentTargetPoseMeter: Pose =
                     getPoseByTrackedDimensions(

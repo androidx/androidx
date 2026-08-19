@@ -117,13 +117,13 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
             remember(uiBehaviorSelection, softFollowDuration) {
                 when (uiBehaviorSelection) {
                     UiBehaviorSelectionV2.SOFT ->
-                        FollowBehavior.Soft(durationMs = softFollowDuration)
-                    UiBehaviorSelectionV2.EXPONENTIAL_DECAY -> FollowBehavior.ExponentialDecay()
+                        FollowBehavior.soft(durationMs = softFollowDuration)
+                    UiBehaviorSelectionV2.EXPONENTIAL_DECAY -> FollowBehavior.exponentialDecay()
                 }
             }
 
         Subspace(
-            follow = FollowTarget.ArDevice(behavior = FollowBehavior.Static),
+            follow = FollowTarget.ArDevice(behavior = FollowBehavior.static),
             modifier = SubspaceModifier.offset(z = (-200).dp),
         ) {
             SpatialPanel(SubspaceModifier.height(400.dp).width(600.dp)) {
@@ -236,7 +236,7 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
         Subspace(
             follow =
                 FollowTarget.ArDevice(
-                    behavior = FollowBehavior.Soft(durationMs = softFollowDuration),
+                    behavior = FollowBehavior.soft(durationMs = softFollowDuration),
                     dimensions =
                         TrackedDimensions(
                             isTranslationXTracked = true,
