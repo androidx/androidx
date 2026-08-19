@@ -39,6 +39,7 @@ import androidx.room3.ext.isNotKotlinUnit
 import androidx.room3.ext.isNotVoid
 import androidx.room3.ext.isNotVoidObject
 import androidx.room3.ext.isUUID
+import androidx.room3.ext.isUuidKt
 import androidx.room3.parser.ParsedQuery
 import androidx.room3.parser.SQLTypeAffinity
 import androidx.room3.processor.Context
@@ -461,7 +462,8 @@ private constructor(
         return when {
             builtInConverterFlags.enums.isEnabled() && typeElement?.isEnum() == true ->
                 EnumColumnTypeAdapter(typeElement, type)
-            builtInConverterFlags.uuid.isEnabled() && type.isUUID() -> UuidColumnTypeAdapter(type)
+            builtInConverterFlags.uuid.isEnabled() && (type.isUUID() || type.isUuidKt()) ->
+                UuidColumnTypeAdapter(type)
             builtInConverterFlags.byteBuffer.isEnabled() && type.isByteBuffer() ->
                 ByteBufferColumnTypeAdapter(type)
             else -> null
