@@ -150,7 +150,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1281,12 +1281,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         Logger.d(TAG, "candidatesList = " + candidatesList);
 
         // Find the smallest change in dimensions.
-        //noinspection ComparatorCombinators - Suggestion by Comparator.comparingInt is for API24+
-        Collections.sort(candidatesList,
-                (s1, s2) -> (Math.abs(s1.getWidth() - cropRect.width()) + Math.abs(
-                        s1.getHeight() - cropRect.height()))
-                        - (Math.abs(s2.getWidth() - cropRect.width()) + Math.abs(
-                        s2.getHeight() - cropRect.height())));
+        candidatesList.sort(Comparator.comparingInt(s -> Math.abs(s.getWidth() - cropRect.width())
+                + Math.abs(s.getHeight() - cropRect.height())));
         Logger.d(TAG, "sorted candidatesList = " + candidatesList);
         Size newSize = candidatesList.get(0);
         int newWidth = newSize.getWidth();

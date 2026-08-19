@@ -44,7 +44,6 @@ import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_UNSPECIFIED
 import androidx.camera.video.internal.config.DynamicRangeFormatComboRegistry
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import java.util.concurrent.TimeUnit
@@ -62,7 +61,6 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = 23)
 class SupportedFormatsVerificationTest(
     private val dynamicRange: DynamicRange,
     private val dynamicRangeLabel: String,
