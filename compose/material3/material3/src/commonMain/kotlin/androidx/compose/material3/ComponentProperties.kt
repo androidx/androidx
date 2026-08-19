@@ -17,7 +17,8 @@
 package androidx.compose.material3
 
 internal class ComponentProperties(
-    val checkboxProperties: CheckboxProperties = CheckboxProperties.Default
+    val checkboxProperties: CheckboxProperties = CheckboxProperties.Default,
+    val radioButtonProperties: RadioButtonProperties = RadioButtonProperties.Default,
     // TODO(b/543061101): Add properties for components.
 ) {
     companion object {
@@ -28,5 +29,11 @@ internal class ComponentProperties(
 internal class CheckboxProperties(val style: CheckboxStyle = CheckboxStyle.Default) {
     companion object {
         val Default = CheckboxProperties()
+    }
+}
+
+internal class RadioButtonProperties(val style: RadioButtonStyle = RadioButtonStyle.Default) {
+    companion object {
+        val Default = RadioButtonProperties()
     }
 }
