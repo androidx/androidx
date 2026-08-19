@@ -50,28 +50,38 @@ private const val SPAN_FLAG = Spanned.SPAN_INCLUSIVE_EXCLUSIVE
  * text, wrapping regions in ruby or orientation spans, and applying style modifications while
  * constructing a vertical-text [Spanned].
  *
- * Instances are not intended to be implemented by library consumers.
+ * Instances are not intended to be instantiated directly. Use [buildVerticalText] instead.
  */
 @VerticalTextDsl
-public interface VerticalTextScope {
+public class VerticalTextScope internal constructor(internal val density: Density) {
+    private val result: SpannableStringBuilder = SpannableStringBuilder()
+
+    internal fun build(): Spanned = result
+
     /**
      * Appends [text] and wraps it in a [TextOrientationSpan.Sideways] span: every glyph is rotated
      * 90° clockwise regardless of its script.
      */
-    public fun sideways(text: CharSequence)
+    public fun sideways(text: CharSequence) {
+        withSpan(TextOrientationSpan.Sideways()) { this.text(text) }
+    }
 
     /**
      * Appends [text] and wraps it in a [TextOrientationSpan.Upright] span: every glyph is drawn
      * upright regardless of its script.
      */
-    public fun upright(text: CharSequence)
+    public fun upright(text: CharSequence) {
+        withSpan(TextOrientationSpan.Upright()) { this.text(text) }
+    }
 
     /**
      * Appends [text] and wraps it in a [TextOrientationSpan.CombineUpright] span: all of the
      * appended characters are combined horizontally and laid out within a single vertical slot
      * (tate-chu-yoko).
      */
-    public fun combineUpright(text: CharSequence)
+    public fun combineUpright(text: CharSequence) {
+        withSpan(TextOrientationSpan.CombineUpright()) { this.text(text) }
+    }
 
     /**
      * Runs [block] and wraps the range it appends with a [RubySpan] annotating it with [withRuby],
@@ -88,79 +98,13 @@ public interface VerticalTextScope {
         orientation: TextOrientation = RubySpan.DEFAULT_ORIENTATION,
         textScale: Float = RubySpan.DEFAULT_TEXT_SCALE,
         block: VerticalTextScope.() -> R,
-    ): R
+    ): R = withSpan(RubySpan(ruby, position, orientation, textScale), block)
 
     /**
      * Appends [text]. For each `(key, reading)` in [rubyMap], every occurrence of `key` inside the
      * just-appended [text] is annotated with a [RubySpan] carrying `reading`.
      */
-    public fun text(text: CharSequence, rubyMap: Map<String, String> = emptyMap())
-
-    /**
-     * Runs [block] and wraps the range it appends with a [MetricAffectingSpan] applying the given
-     * [fontSize], [textColor], and/or [backgroundColor] to the paint used for that range. If
-     * [fontShear] is provided, it also wraps the range in a [FontShearSpan].
-     *
-     * Sp values in [fontSize] are resolved using [Density]; em values scale the inherited paint
-     * size.
-     *
-     * @return the value returned by [block].
-     */
-    public fun <R : Any> withStyle(
-        fontSize: TextUnit = TextUnit.Unspecified,
-        textColor: Color = Color.Unspecified,
-        backgroundColor: Color = Color.Unspecified,
-        fontShear: Float = Float.NaN,
-        block: VerticalTextScope.() -> R,
-    ): R
-
-    /**
-     * Runs [block] and wraps the range it appends with an [EmphasisSpan] that renders emphasis
-     * marks (傍点) alongside each character.
-     *
-     * @return the value returned by [block].
-     */
-    public fun <R : Any> withEmphasis(
-        style: EmphasisStyle = EmphasisStyle.Dot,
-        filled: Boolean = true,
-        scale: Float = 0.5f,
-        block: VerticalTextScope.() -> R,
-    ): R
-}
-
-/**
- * A builder for constructing vertically-laid-out text with various typographic features.
- *
- * This builder allows applying specific vertical text spans and styles to different parts of the
- * text, such as text orientation (sideways, upright, tate-chu-yoko), ruby text (furigana), emphasis
- * marks, and font shear. It is designed to be used with [buildVerticalText].
- *
- * @property density The [Density] used to resolve sp-based [TextUnit] values inside [withStyle].
- *   Exposed so that nested [buildVerticalText] blocks can reuse the same density.
- */
-internal class VerticalTextBuilder(private val density: Density) : VerticalTextScope {
-    private val result: SpannableStringBuilder = SpannableStringBuilder()
-
-    fun build(): Spanned = result
-
-    override fun sideways(text: CharSequence): Unit =
-        withSpan(TextOrientationSpan.Sideways()) { this.text(text) }
-
-    override fun upright(text: CharSequence): Unit =
-        withSpan(TextOrientationSpan.Upright()) { this.text(text) }
-
-    override fun combineUpright(text: CharSequence): Unit =
-        withSpan(TextOrientationSpan.CombineUpright()) { this.text(text) }
-
-    override fun <R : Any> withRuby(
-        ruby: CharSequence,
-        position: AnnotationPosition,
-        orientation: TextOrientation,
-        textScale: Float,
-        block: VerticalTextScope.() -> R,
-    ): R = withSpan(RubySpan(ruby, position, orientation, textScale), block)
-
-    override fun text(text: CharSequence, rubyMap: Map<String, String>) {
+    public fun text(text: CharSequence, rubyMap: Map<String, String> = emptyMap()) {
         val textStartOffset = result.length
         result.append(text)
 
@@ -211,22 +155,32 @@ internal class VerticalTextBuilder(private val density: Density) : VerticalTextS
         override fun updateDrawState(tp: TextPaint): Unit = updateMeasureState(tp)
     }
 
-    override fun <R : Any> withStyle(
-        fontSize: TextUnit,
-        textColor: Color,
-        backgroundColor: Color,
-        fontShear: Float,
+    /**
+     * Runs [block] and wraps the range it appends with a [MetricAffectingSpan] applying the given
+     * [fontSize], [textColor], and/or [backgroundColor] to the paint used for that range. If
+     * [fontShear] is provided, it also wraps the range in a [FontShearSpan].
+     *
+     * Sp values in [fontSize] are resolved using [Density]; em values scale the inherited paint
+     * size.
+     *
+     * @return the value returned by [block].
+     */
+    public fun <R : Any> withStyle(
+        fontSize: TextUnit = TextUnit.Unspecified,
+        textColor: Color = Color.Unspecified,
+        backgroundColor: Color = Color.Unspecified,
+        fontShear: Float = Float.NaN,
         block: VerticalTextScope.() -> R,
     ): R {
         return if (!fontShear.isNaN()) {
             // TODO(b/505944438): merge this with `TextStyleSpan`
             withSpan(FontShearSpan(fontShear)) {
-                this@VerticalTextBuilder.withSpan(
+                this@VerticalTextScope.withSpan(
                     TextStyleSpan(
                         fontSize,
                         textColor,
                         backgroundColor,
-                        this@VerticalTextBuilder.density,
+                        this@VerticalTextScope.density,
                     ),
                     block,
                 )
@@ -236,10 +190,16 @@ internal class VerticalTextBuilder(private val density: Density) : VerticalTextS
         }
     }
 
-    override fun <R : Any> withEmphasis(
-        style: EmphasisStyle,
-        filled: Boolean,
-        scale: Float,
+    /**
+     * Runs [block] and wraps the range it appends with an [EmphasisSpan] that renders emphasis
+     * marks (傍点) alongside each character.
+     *
+     * @return the value returned by [block].
+     */
+    public fun <R : Any> withEmphasis(
+        style: EmphasisStyle = EmphasisStyle.Dot,
+        filled: Boolean = true,
+        scale: Float = 0.5f,
         block: VerticalTextScope.() -> R,
     ): R = withSpan(EmphasisSpan(style, filled, scale = scale), block)
 }
@@ -252,7 +212,7 @@ internal class VerticalTextBuilder(private val density: Density) : VerticalTextS
  * @param builder the DSL block describing the content.
  */
 public fun buildVerticalText(density: Density, builder: VerticalTextScope.() -> Unit): Spanned =
-    VerticalTextBuilder(density).apply(builder).build()
+    VerticalTextScope(density).apply(builder).build()
 
 /**
  * Composable-context convenience for [buildVerticalText]. Uses [LocalDensity] to resolve sp-based
