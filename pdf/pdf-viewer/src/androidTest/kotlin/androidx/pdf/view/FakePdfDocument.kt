@@ -48,7 +48,6 @@ import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.models.ListItem
 import java.util.concurrent.Executor
-import kotlin.collections.emptyList
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -274,7 +273,14 @@ internal open class FakePdfDocument(
         pageRange: IntRange,
     ): SparseArray<List<PageMatchBounds>> {
         if (exceptionToThrow != null) throw exceptionToThrow
-        return searchResults
+        val filtered = SparseArray<List<PageMatchBounds>>()
+        for (page in pageRange) {
+            val results = searchResults.get(page)
+            if (results != null) {
+                filtered.put(page, results)
+            }
+        }
+        return filtered
     }
 
     override suspend fun getPageInfos(pageRange: IntRange): List<PdfDocument.PageInfo> {

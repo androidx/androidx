@@ -21,6 +21,7 @@ import android.os.DeadObjectException
 import android.os.Parcelable
 import android.os.RemoteException
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.core.os.OperationCanceledException
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -35,6 +36,7 @@ import androidx.pdf.PdfDocument
 import androidx.pdf.PdfFeature
 import androidx.pdf.PdfLoader
 import androidx.pdf.PdfPasswordException
+import androidx.pdf.PdfPoint
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.ocr.OcrContextRepository
@@ -42,19 +44,27 @@ import androidx.pdf.ocr.OcrProvider
 import androidx.pdf.search.SearchRepository
 import androidx.pdf.search.model.NoQuery
 import androidx.pdf.search.model.QueryResults
+import androidx.pdf.search.model.QueryResultsIndex
 import androidx.pdf.search.model.SearchResultState
 import androidx.pdf.viewer.fragment.model.HighlightData
 import androidx.pdf.viewer.fragment.model.PdfFragmentUiState
 import androidx.pdf.viewer.fragment.model.SearchViewUiState
+import androidx.pdf.viewer.fragment.util.currentMatchLocation
 import androidx.pdf.viewer.fragment.util.fetchCounterData
 import androidx.pdf.viewer.fragment.util.getCenter
 import androidx.pdf.viewer.fragment.util.toHighlightsData
 import java.util.concurrent.Executors
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -105,7 +115,14 @@ public open class PdfDocumentViewModel(
     public val fragmentUiScreenState: StateFlow<PdfFragmentUiState>
         get() = _fragmentUiScreenState.asStateFlow()
 
-    private val _searchViewUiState = MutableStateFlow<SearchViewUiState>(SearchViewUiState.Closed)
+    private val _searchViewUiState =
+        MutableStateFlow<SearchViewUiState>(
+            if (state.get<Boolean>(TEXT_SEARCH_STATE_KEY) == true) {
+                SearchViewUiState.Init
+            } else {
+                SearchViewUiState.Closed
+            }
+        )
 
     /** Stream of UI states of the PdfSearchView. */
     internal val searchViewUiState: StateFlow<SearchViewUiState>
@@ -116,9 +133,15 @@ public open class PdfDocumentViewModel(
 
     private val _highlightsFlow = MutableStateFlow<HighlightData>(EMPTY_HIGHLIGHTS)
 
-    /** Stream of highlights to be added on PdfView. Also includes scroll to page data. */
+    /** Stream of highlights to be added on PdfView. */
     internal val highlightsFlow: StateFlow<HighlightData>
         get() = _highlightsFlow.asStateFlow()
+
+    private val _searchScrollPositionFlow = MutableSharedFlow<PdfPoint>(extraBufferCapacity = 1)
+
+    /** Stream of scroll positions triggered as a side-effect of search result navigation. */
+    internal val searchScrollPositionFlow: SharedFlow<PdfPoint>
+        get() = _searchScrollPositionFlow.asSharedFlow()
 
     /**
      * Indicates whether the user is entering their password for the first time or making a repeated
@@ -189,8 +212,7 @@ public open class PdfDocumentViewModel(
         // Return early if search is disabled, as there's no result to restore.
         if (!isTextSearchActiveFromState) return
 
-        // Restore search session from last state saved
-        updateSearchState(isTextSearchActive = isTextSearchActiveFromState)
+        collectSearchResults()
         val query = state.get<String>(SEARCH_QUERY_KEY)
         val pageNum = state.get<Int>(QUERY_RESULT_PAGE_NUM_KEY) ?: 0
         val resultIndex = state.get<Int>(QUERY_RESULT_INDEX_KEY) ?: 0
@@ -294,6 +316,8 @@ public open class PdfDocumentViewModel(
             searchJob.children.forEach { it.cancel() }
             searchCollector.children.forEach { it.cancel() }
             searchRepository.clearSearchResults()
+            lastScrolledQuery = null
+            lastScrolledIndex = null
 
             _searchViewUiState.update { SearchViewUiState.Closed }
             _highlightsFlow.update { EMPTY_HIGHLIGHTS }
@@ -337,10 +361,28 @@ public open class PdfDocumentViewModel(
         }
     }
 
+    private var lastScrolledQuery: String? = null
+    private var lastScrolledIndex: QueryResultsIndex? = null
+
     private fun collectSearchResults() {
+        searchCollector.children.forEach { it.cancel() }
         viewModelScope.launch(searchCollector) {
             searchRepository.queryResults.collect { queryResults ->
                 handleQueryResults(queryResults)
+
+                if (queryResults is QueryResults.Matched) {
+                    if (
+                        lastScrolledQuery != queryResults.query ||
+                            lastScrolledIndex != queryResults.queryResultsIndex
+                    ) {
+                        lastScrolledQuery = queryResults.query
+                        lastScrolledIndex = queryResults.queryResultsIndex
+
+                        queryResults.currentMatchLocation?.let { point ->
+                            _searchScrollPositionFlow.emit(point)
+                        }
+                    }
+                }
             }
         }
     }
@@ -359,6 +401,7 @@ public open class PdfDocumentViewModel(
                         query = queryResults.query,
                         currentMatch = 0,
                         totalMatches = 0,
+                        isSearching = queryResults.isSearching,
                     )
                 }
                 _highlightsFlow.update { EMPTY_HIGHLIGHTS }
@@ -378,6 +421,7 @@ public open class PdfDocumentViewModel(
                         // so we add 1 to the current index.
                         currentMatch = if (totalMatches > 0) currentIndex + 1 else 0,
                         totalMatches = totalMatches,
+                        isSearching = queryResults.isSearching,
                     )
                 }
                 _highlightsFlow.update {
@@ -489,7 +533,11 @@ public open class PdfDocumentViewModel(
     }
 
     /** Intent triggered when user submits a search query. */
-    internal fun searchDocument(query: String, visiblePageRange: IntRange) {
+    internal fun searchDocument(
+        query: String,
+        visiblePageRange: IntRange,
+        debounce: Duration = searchDebounceDuration,
+    ) {
         /**
          * Cannot start searching document before it's loaded, i.e. fragment is moved to
          * [PdfFragmentUiState.DocumentLoaded] state.
@@ -504,7 +552,17 @@ public open class PdfDocumentViewModel(
         // Cancel any on-going search operation(s) as the results will not be valid anymore.
         searchJob.children.forEach { it.cancel() }
 
+        if (query.isEmpty()) {
+            lastScrolledQuery = null
+            lastScrolledIndex = null
+            searchRepository.clearSearchResults()
+            return
+        }
+
         viewModelScope.launch(searchJob) {
+            if (debounce > Duration.ZERO) {
+                delay(debounce)
+            }
             searchRepository.produceSearchResults(
                 query = query,
                 currentVisiblePage = visiblePageRange.getCenter(),
@@ -514,12 +572,12 @@ public open class PdfDocumentViewModel(
 
     /** Intent triggered when user clicks prev button. */
     internal fun findPreviousMatch() {
-        viewModelScope.launch(searchJob) { searchRepository.producePreviousResult() }
+        searchRepository.producePreviousResult()
     }
 
     /** Intent triggered when user clicks next button. */
     internal fun findNextMatch() {
-        viewModelScope.launch(searchJob) { searchRepository.produceNextResult() }
+        searchRepository.produceNextResult()
     }
 
     private fun IntRange.getCenterPage(): Int {
@@ -553,7 +611,7 @@ public open class PdfDocumentViewModel(
     }
 
     @Suppress("UNCHECKED_CAST")
-    internal companion object {
+    public companion object {
 
         private const val DOCUMENT_URI_KEY = "documentUri"
         private const val TEXT_SEARCH_STATE_KEY = "textSearchState"
@@ -562,6 +620,15 @@ public open class PdfDocumentViewModel(
         private const val QUERY_RESULT_INDEX_KEY = "queryResultIndex"
         private const val QUERY_RESULT_PAGE_NUM_KEY = "queryResultPageNum"
         private const val FORM_EDIT_INFOS_KEY = "formEditInfos"
+        @get:VisibleForTesting
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val DEFAULT_SEARCH_DEBOUNCE_DURATION: Duration = 300.milliseconds
+
+        @get:VisibleForTesting
+        @set:VisibleForTesting
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public var searchDebounceDuration: Duration = DEFAULT_SEARCH_DEBOUNCE_DURATION
+
         private val EMPTY_HIGHLIGHTS = HighlightData(currentIndex = -1, highlightBounds = listOf())
 
         /**
@@ -581,7 +648,7 @@ public open class PdfDocumentViewModel(
                 message?.contains("unimplemented", ignoreCase = true) == true ||
                     this is DeadObjectException
 
-        val Factory: ViewModelProvider.Factory =
+        internal val Factory: ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(
                     modelClass: Class<T>,

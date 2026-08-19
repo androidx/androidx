@@ -16,7 +16,8 @@
 
 package androidx.pdf.viewer.fragment.util
 
-import androidx.core.util.forEach
+import android.graphics.PointF
+import androidx.pdf.PdfPoint
 import androidx.pdf.search.model.QueryResults
 import androidx.pdf.viewer.fragment.model.HighlightBound
 
@@ -40,13 +41,30 @@ internal fun QueryResults.Matched.fetchCounterData(): Pair<Int, Int> =
  * This would be used to add highlights on PdfView.
  */
 internal fun QueryResults.Matched.toHighlightsData(): List<HighlightBound> {
-    val highlightBounds = mutableListOf<HighlightBound>()
+    val totalCount = resultBounds.countTotalElements()
+    val highlightBounds = ArrayList<HighlightBound>(totalCount)
 
-    resultBounds.forEach { pageNum, pageMatchBounds ->
-        pageMatchBounds.forEach { pageMatchBound ->
-            highlightBounds.add(HighlightBound(pageNum, pageMatchBound))
+    for (pageIndex in 0 until resultBounds.size()) {
+        val pageNum = resultBounds.keyAt(pageIndex)
+        val pageMatchBounds = resultBounds.valueAt(pageIndex)
+        for (matchIndex in pageMatchBounds.indices) {
+            highlightBounds.add(HighlightBound(pageNum, pageMatchBounds[matchIndex]))
         }
     }
 
     return highlightBounds
 }
+
+/**
+ * Resolves the top-left [PdfPoint] location of the currently selected match in
+ * [QueryResults.Matched].
+ *
+ * @return The [PdfPoint] of the current match, or `null` if no bounds exist.
+ */
+internal val QueryResults.Matched.currentMatchLocation: PdfPoint?
+    get() {
+        val pageMatches = resultBounds.get(queryResultsIndex.pageNum) ?: return null
+        val matchBounds = pageMatches.getOrNull(queryResultsIndex.resultBoundsIndex) ?: return null
+        val firstRect = matchBounds.bounds.firstOrNull() ?: return null
+        return PdfPoint(queryResultsIndex.pageNum, PointF(firstRect.left, firstRect.top))
+    }

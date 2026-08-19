@@ -35,13 +35,18 @@ import androidx.pdf.search.model.QueryResults
 import androidx.pdf.view.FakePdfDocument
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class SearchRepositoryTest {
@@ -66,7 +71,8 @@ class SearchRepositoryTest {
     @Test
     fun testSearchDocument_resultsOnCurrentVisiblePage() = runTest {
         val fakeResults = createFakeSearchResults(1, 5, 5, 10)
-        val fakePdfDocument = FakePdfDocument(searchResults = fakeResults)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(15) { Point(600, 800) }, searchResults = fakeResults)
 
         with(SearchRepository(fakePdfDocument)) {
             // search document
@@ -112,7 +118,8 @@ class SearchRepositoryTest {
     @Test
     fun testSearchDocument_allResultsAfterCurrentVisiblePage() = runTest {
         val fakeResults = createFakeSearchResults(1, 5, 5, 10)
-        val fakePdfDocument = FakePdfDocument(searchResults = fakeResults)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(15) { Point(600, 800) }, searchResults = fakeResults)
 
         with(SearchRepository(fakePdfDocument)) {
             // search document
@@ -136,7 +143,8 @@ class SearchRepositoryTest {
     @Test
     fun testSearchDocument_allResultsBeforeCurrentVisiblePage() = runTest {
         val fakeResults = createFakeSearchResults(1, 5, 5, 10)
-        val fakePdfDocument = FakePdfDocument(searchResults = fakeResults)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(15) { Point(600, 800) }, searchResults = fakeResults)
 
         with(SearchRepository(fakePdfDocument)) {
             // search document
@@ -161,7 +169,8 @@ class SearchRepositoryTest {
     @Test
     fun testSearchDocument_noMatchingResults() = runTest {
         val fakeResults = createFakeSearchResults()
-        val fakePdfDocument = FakePdfDocument(searchResults = fakeResults)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(15) { Point(600, 800) }, searchResults = fakeResults)
 
         with(SearchRepository(fakePdfDocument)) {
             // search document
@@ -178,7 +187,8 @@ class SearchRepositoryTest {
     @Test(expected = NoSuchElementException::class)
     fun testFindPrevOperation_noMatchingResults() = runTest {
         val fakeResults = createFakeSearchResults()
-        val fakePdfDocument = FakePdfDocument(searchResults = fakeResults)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(15) { Point(600, 800) }, searchResults = fakeResults)
 
         with(SearchRepository(fakePdfDocument)) {
             // search document
@@ -195,7 +205,8 @@ class SearchRepositoryTest {
     @Test(expected = NoSuchElementException::class)
     fun testFindNextOperation_noMatchingResults() = runTest {
         val fakeResults = createFakeSearchResults()
-        val fakePdfDocument = FakePdfDocument(searchResults = fakeResults)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(15) { Point(600, 800) }, searchResults = fakeResults)
 
         with(SearchRepository(fakePdfDocument)) {
             // search document
@@ -212,7 +223,8 @@ class SearchRepositoryTest {
     @Test
     fun testClearRepository() = runTest {
         val fakeResults = createFakeSearchResults(1, 5, 5, 10)
-        val fakePdfDocument = FakePdfDocument(searchResults = fakeResults)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(15) { Point(600, 800) }, searchResults = fakeResults)
 
         with(SearchRepository(fakePdfDocument)) {
             // search document
@@ -232,7 +244,8 @@ class SearchRepositoryTest {
     @Test
     fun test_searchDocument_withRestoreToSelectedIndex() = runTest {
         val fakeResults = createFakeSearchResults(0, 1, 2, 2, 5, 5, 10, 10, 10, 10)
-        val fakePdfDocument = FakePdfDocument(searchResults = fakeResults)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(15) { Point(600, 800) }, searchResults = fakeResults)
 
         with(SearchRepository(fakePdfDocument)) {
             produceSearchResults(query = "test", currentVisiblePage = 10, resultIndex = 2)
@@ -245,10 +258,92 @@ class SearchRepositoryTest {
     }
 
     @Test
+    fun testSearchDocument_progressiveEmissions() = runTest {
+        val fakeResults = createFakeSearchResults(2, 5, 8)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(10) { Point(600, 800) }, searchResults = fakeResults)
+
+        val repository = SearchRepository(fakePdfDocument)
+        val emissions = mutableListOf<androidx.pdf.search.model.SearchResultState>()
+        val job =
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                repository.queryResults.collect { emissions.add(it) }
+            }
+
+        repository.produceSearchResults(query = "test", currentVisiblePage = 5)
+
+        assertTrue(emissions.size >= 5)
+
+        val firstSearchEmission = emissions[1] as QueryResults.NoMatch
+        assertTrue(firstSearchEmission.isSearching)
+
+        val lastEmission = emissions.last() as QueryResults.Matched
+        assertFalse(lastEmission.isSearching)
+        assertEquals(3, lastEmission.resultBounds.size())
+        assertEquals(5, lastEmission.queryResultsIndex.pageNum)
+
+        job.cancel()
+    }
+
+    @Test
+    fun testSearchDocument_emptyQuery_clearsResultsImmediately() = runTest {
+        val fakeResults = createFakeSearchResults(1, 5)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(10) { Point(600, 800) }, searchResults = fakeResults)
+
+        with(SearchRepository(fakePdfDocument)) {
+            produceSearchResults(query = "test", currentVisiblePage = 1)
+            assertTrue(queryResults.value is QueryResults.Matched)
+
+            produceSearchResults(query = "", currentVisiblePage = 1)
+            assertTrue(queryResults.value is NoQuery)
+        }
+    }
+
+    @Test
+    fun testSearchDocument_whitespaceQuery_triggersSearch() = runTest {
+        val fakeResults = createFakeSearchResults(1, 5)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(10) { Point(600, 800) }, searchResults = fakeResults)
+
+        with(SearchRepository(fakePdfDocument)) {
+            produceSearchResults(query = "   ", currentVisiblePage = 1)
+            assertTrue(queryResults.value is QueryResults.Matched)
+        }
+    }
+
+    @Test
+    fun testProduceNextAndPrev_preservesIsSearchingState() = runTest {
+        val fakeResults = createFakeSearchResults(1, 5)
+        val fakePdfDocument =
+            FakePdfDocument(pages = List(10) { Point(600, 800) }, searchResults = fakeResults)
+
+        with(SearchRepository(fakePdfDocument)) {
+            produceSearchResults(query = "test", currentVisiblePage = 1)
+            var results = queryResults.value as QueryResults.Matched
+            assertFalse(results.isSearching)
+
+            produceNextResult()
+            results = queryResults.value as QueryResults.Matched
+            assertFalse(results.isSearching)
+            assertEquals(5, results.queryResultsIndex.pageNum)
+
+            producePreviousResult()
+            results = queryResults.value as QueryResults.Matched
+            assertFalse(results.isSearching)
+            assertEquals(1, results.queryResultsIndex.pageNum)
+        }
+    }
+
+    @Test
     fun produceSearchResults_onHandledRemoteException_updatesToNoQuery() = runTest {
         val remoteException =
             RemoteException("android.os.RemoteException: Method searchDocument is unimplemented.")
-        val pdfDocument = FakePdfDocument(exceptionToThrow = remoteException)
+        val pdfDocument =
+            FakePdfDocument(
+                pages = List(15) { Point(600, 800) },
+                exceptionToThrow = remoteException,
+            )
 
         with(SearchRepository(pdfDocument)) {
             produceSearchResults(query = "test", currentVisiblePage = 0)
@@ -258,7 +353,11 @@ class SearchRepositoryTest {
 
     @Test
     fun produceSearchResults_onDeadObjectException_updatesToNoQuery() = runTest {
-        val pdfDocument = FakePdfDocument(exceptionToThrow = DeadObjectException())
+        val pdfDocument =
+            FakePdfDocument(
+                pages = List(15) { Point(600, 800) },
+                exceptionToThrow = DeadObjectException(),
+            )
 
         with(SearchRepository(pdfDocument)) {
             produceSearchResults(query = "test", currentVisiblePage = 0)
@@ -268,7 +367,11 @@ class SearchRepositoryTest {
 
     @Test(expected = RemoteException::class)
     fun produceSearchResults_onUnhandledRemoteException_throws() = runTest {
-        val pdfDocument = FakePdfDocument(exceptionToThrow = RemoteException())
+        val pdfDocument =
+            FakePdfDocument(
+                pages = List(15) { Point(600, 800) },
+                exceptionToThrow = RemoteException(),
+            )
         with(SearchRepository(pdfDocument)) {
             produceSearchResults(query = "test", currentVisiblePage = 0)
         }

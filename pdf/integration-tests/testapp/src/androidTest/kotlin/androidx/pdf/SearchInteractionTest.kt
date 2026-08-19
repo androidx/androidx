@@ -29,6 +29,7 @@ import androidx.pdf.FragmentUtils.scenarioLoadDocument
 import androidx.pdf.TestUtils.waitFor
 import androidx.pdf.view.PdfView
 import androidx.pdf.view.search.PdfSearchView
+import androidx.pdf.viewer.fragment.PdfDocumentViewModel
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.GeneralClickAction
@@ -48,6 +49,7 @@ import androidx.test.filters.SdkSuppress
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
+import kotlin.time.Duration
 import org.hamcrest.CoreMatchers.not
 import org.junit.After
 import org.junit.Assert.assertFalse
@@ -65,6 +67,7 @@ internal class SearchInteractionTest {
 
     @Before
     fun setup() {
+        PdfDocumentViewModel.searchDebounceDuration = Duration.ZERO
         scenario =
             launchFragmentInContainer<TestPdfViewerFragment>(
                 themeResId =
@@ -89,14 +92,18 @@ internal class SearchInteractionTest {
 
     @After
     fun cleanup() {
-        scenario.onFragment { fragment ->
-            // Un-register idling resource
-            IdlingRegistry.getInstance()
-                .unregister(fragment.pdfLoadingIdlingResource.countingIdlingResource)
-            IdlingRegistry.getInstance()
-                .unregister(fragment.pdfSearchFocusIdlingResource.countingIdlingResource)
+        PdfDocumentViewModel.searchDebounceDuration =
+            PdfDocumentViewModel.DEFAULT_SEARCH_DEBOUNCE_DURATION
+        if (::scenario.isInitialized) {
+            scenario.onFragment { fragment ->
+                // Un-register idling resource
+                IdlingRegistry.getInstance()
+                    .unregister(fragment.pdfLoadingIdlingResource.countingIdlingResource)
+                IdlingRegistry.getInstance()
+                    .unregister(fragment.pdfSearchFocusIdlingResource.countingIdlingResource)
+            }
+            scenario.close()
         }
-        scenario.close()
     }
 
     @Test

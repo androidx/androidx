@@ -34,10 +34,14 @@ import androidx.pdf.content.PageMatchBounds
  *
  * @param query The search query that initiated the search.
  * @param pageRange The range of PDF pages involved in the search.
+ * @param isSearching Indicates if the search operation is still in progress.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public sealed class QueryResults(public val query: String, public val pageRange: IntRange) :
-    SearchResultState {
+public sealed class QueryResults(
+    public val query: String,
+    public val pageRange: IntRange,
+    public val isSearching: Boolean = false,
+) : SearchResultState {
 
     /**
      * Represents the state when no results are found after a search operation. This indicates that
@@ -45,8 +49,10 @@ public sealed class QueryResults(public val query: String, public val pageRange:
      *
      * @param query The search query that was executed.
      * @param pageRange The range of PDF pages included in the search.
+     * @param isSearching Indicates if the search operation is still in progress.
      */
-    public class NoMatch(query: String, pageRange: IntRange) : QueryResults(query, pageRange)
+    public class NoMatch(query: String, pageRange: IntRange, isSearching: Boolean = false) :
+        QueryResults(query, pageRange, isSearching)
 
     /**
      * Represents the state when a search operation returns results.
@@ -55,11 +61,13 @@ public sealed class QueryResults(public val query: String, public val pageRange:
      * @param pageRange The range of PDF pages included in the search.
      * @param resultBounds A mapping of match bounds for the results, indexed by their position.
      * @param queryResultsIndex Represents an index pointer to an element in [resultBounds].
+     * @param isSearching Indicates if the search operation is still in progress.
      */
     public class Matched(
         query: String,
         pageRange: IntRange,
         public val resultBounds: SparseArray<List<PageMatchBounds>>,
         public val queryResultsIndex: QueryResultsIndex,
-    ) : QueryResults(query, pageRange)
+        isSearching: Boolean = false,
+    ) : QueryResults(query, pageRange, isSearching)
 }
