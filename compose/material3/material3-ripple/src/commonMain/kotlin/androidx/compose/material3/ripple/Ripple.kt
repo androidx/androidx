@@ -74,10 +74,12 @@ import kotlinx.coroutines.launch
  * to a new node returned by this method in [Modifier.Node.onAttach] without removing the old one
  * will result in multiple ripple nodes being attached to the node.
  *
+ * @sample androidx.compose.material3.ripple.samples.CreateRippleModifierNodeSample
  * @param interactionSource the [InteractionSource] used to determine the state of the ripple.
  * @param rippleNodeConfiguration the [RippleNodeConfiguration] that will be applied to the ripple
  *   depending on the state of the ripple. This lambda may be invoked repeatedly, so consider
  *   caching values of configuration when they haven't changed.
+ * @return a [DelegatableNode] that handles drawing the ripple and state layers.
  */
 public fun createRippleModifierNode(
     interactionSource: InteractionSource,
