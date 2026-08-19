@@ -324,12 +324,6 @@ package androidx.appfunctions {
     property public android.net.Uri uri;
   }
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY}) public @interface AppFunctionUriValueConstraint {
-    ctor @KotlinOnly public AppFunctionUriValueConstraint(optional String[] allowedSchemes);
-    method @InaccessibleFromKotlin public abstract String[] allowedSchemes() default {};
-    property public abstract String[] allowedSchemes;
-  }
-
   public final class ExecuteAppFunctionRequest {
     ctor public ExecuteAppFunctionRequest(String targetPackageName, String functionIdentifier, androidx.appfunctions.AppFunctionData functionParameters);
     ctor @RequiresApi(37) public ExecuteAppFunctionRequest(String targetPackageName, String functionIdentifier, androidx.appfunctions.AppFunctionData functionParameters, android.app.AppInteractionAttribution attribution);
