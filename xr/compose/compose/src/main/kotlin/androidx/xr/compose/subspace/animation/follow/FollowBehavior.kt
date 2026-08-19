@@ -54,9 +54,15 @@ public abstract class FollowBehavior internal constructor() {
          * The content is placed once based on the target's initial pose and does not follow
          * subsequent movements.
          */
-        public val Static: FollowBehavior = StaticFollowBehavior
-        /** The content follows the target as closely as possible. */
-        public val Tight: FollowBehavior = TightFollowBehavior
+        public val static: FollowBehavior = StaticFollowBehavior
+
+        /**
+         * The content follows the target as closely as possible.
+         *
+         * In contrast to [soft], where the content lags behind the target, [tight] follow matches
+         * the target's movement instantly.
+         */
+        public val tight: FollowBehavior = TightFollowBehavior
 
         /**
          * Creates a behavior where the content smoothly animates to follow the target's movements.
@@ -75,7 +81,7 @@ public abstract class FollowBehavior internal constructor() {
          *   time to complete the content movement.
          * @return A [FollowBehavior] instance configured for soft following.
          */
-        public fun Soft(
+        public fun soft(
             @IntRange(from = MIN_SOFT_DURATION_MS.toLong())
             durationMs: Int = DEFAULT_SOFT_DURATION_MS
         ): FollowBehavior = SoftFollowBehavior(durationMs)
@@ -90,7 +96,7 @@ public abstract class FollowBehavior internal constructor() {
          * @return A [FollowBehavior] instance configured for exponential decay.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public fun ExponentialDecay(): FollowBehavior = ExponentialDecayFollowBehavior()
+        public fun exponentialDecay(): FollowBehavior = ExponentialDecayFollowBehavior()
 
         @VisibleForTesting
         internal var dispatcherOverride: CoroutineDispatcher = Dispatchers.Default
