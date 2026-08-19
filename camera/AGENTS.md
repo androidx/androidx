@@ -45,14 +45,42 @@ feedback.
 
 ## Standards & Guidelines Hierarchy
 
-When writing new code, reviewing existing code, or fixing bugs in CameraX, you
-**MUST** strictly adhere to coding guidelines, style guides, and correctness
-checks in the following precedence order (AndroidX → Android Platform →
-Google-Wide):
+When writing new code, reviewing existing code, or fixing bugs in
+CameraX, agents **MUST** actively read and strictly adhere to the relevant
+guidelines, style guides, and correctness checks before modifying code,
+following the precedence order (AndroidX → Android Platform → Google-Wide).
+
+### Automatic Recursive Index & Reference Traversal Protocol:
+When directed to an index page, directory list, or guide linking to sub-guides
+(such as `docs/api_guidelines/index.md`, web style directories like
+`https://google.github.io/styleguide/`, or API reference landing pages), agents
+**MUST follow this recursive ingestion protocol**:
+
+1. **Read Root Index**: Execute `view_file` (for local files) or
+   `read_url_content` (for web URLs) on the root index document.
+2. **Extract Child References**:
+   - For in-repo files with `<!--#include file=".../(?<file>.*\.md)"-->` or
+     links `[...](<relative_path>.md)`: extract all referenced markdown paths
+     (e.g., `kotlin.md`, `checks.md`, `async.md`, `annotations.md`,
+     `compat.md`).
+   - For web index pages with `<a>` links or markdown URLs: extract all relevant
+     sub-topic links.
+3. **Recursive Ingestion**:
+   - Sequentially invoke `view_file` on each extracted in-repo markdown file
+     (e.g., in `docs/api_guidelines/`).
+   - Sequentially invoke `read_url_content` on each extracted child URL relevant
+     to the current task (e.g., Kotlin style guide, Java style guide).
+4. **Complete Ingestion Verification**: Ensure all pertinent rules, constraints,
+   and code examples from child documents are loaded into active context before
+   generating code edits or writing review comments.
+
+### Precedence Order:
 
 1. **1st Priority — AndroidX Standards & Correctness Checks**:
    - **AndroidX Library & API Guidelines**: Follow
-     [`docs/api_guidelines/index.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/).
+     [`docs/api_guidelines/index.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/)
+     (recursively read constituent topic files: `kotlin.md`, `checks.md`,
+     `async.md`, `annotations.md`, `compat.md`).
    - **Kotlin in AndroidX**: Follow
      [`docs/api_guidelines/kotlin.md`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/docs/api_guidelines/kotlin.md)
      for nullability annotations (JSpecify), data class restrictions in public
@@ -82,8 +110,11 @@ Google-Wide):
      [Android Camera2 API specifications](https://developer.android.com/reference/android/hardware/camera2/package-summary).
 
 3. **3rd Priority — Google-Wide Engineering Standards**:
-   - **Google Kotlin Style Guide**: Follow the
-     [Google Kotlin Style Guide](https://google.github.io/styleguide/kotlin-style.html).
+   - **Google Style Guides Index**: Refer to the
+     [Google Style Guides](https://google.github.io/styleguide/).
+   - **Kotlin Style Guide**: Follow the Google-adopted
+     [Kotlin Style Guide](https://developer.android.com/kotlin/style-guide)
+     referenced by the Google Style Guides index.
    - **Google Java Style Guide**: Follow the
      [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
    - **Idiomatic Coding Practices**: Prioritize clean, expressive, functional
@@ -123,6 +154,17 @@ Google-Wide):
 
 ## Development Workflow & Refactoring:
 
+- **Mandatory Pre-Coding Guideline Reading & Recursive Traversal**: Before
+  modifying or creating code, agents MUST use `view_file` to read the relevant
+  local guideline files into active context. When encountering index pages,
+  summaries, or links to companion documents, agents MUST recursively follow
+  and read the referenced files directly:
+  - For Kotlin coding and API design: read `docs/api_guidelines/kotlin.md`
+  - For linting and suppression policies: read `docs/api_guidelines/checks.md`
+  - For coroutines, Flow, and threading: read `docs/api_guidelines/async.md`
+  - For index pages (e.g. `docs/api_guidelines/index.md` or style guide lists):
+    follow and read the specific linked sub-guides applicable to the current
+    task.
 - **Language**: Prefer Kotlin to Java for new files. When migrating files, convert
   them from Java to idiomatic Kotlin following AndroidX and Android Kotlin-Java
   interop guidelines.
