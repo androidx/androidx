@@ -377,7 +377,7 @@ private class SessionState(
     var textType: Int = -1,
     var textColor: Color = Color.Unspecified,
     var compositionOrder: Int = LocationButtonDefaults.defaultCompositionOrder,
-    var locales: LocaleList? = null,
+    var locales: LocaleList = LocaleList.getEmptyLocaleList(),
 ) {
     fun initialize(request: LocationButtonRequest, config: Configuration) {
         this.width = request.width
