@@ -16,15 +16,20 @@
 
 package androidx.pdf.view.search
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.annotation.RestrictTo
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.pdf.R
 
 /**
@@ -75,6 +80,36 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         findPrevButton = findViewById(R.id.findPrevButton)
         findNextButton = findViewById(R.id.findNextButton)
         closeButton = findViewById(R.id.closeButton)
+
+        searchQueryBox.setOnFocusChangeListener { view, hasFocus ->
+            if (hasFocus) {
+                view.post { showKeyboard(view) }
+            } else {
+                hideKeyboard(view)
+            }
+        }
+    }
+
+    private fun showKeyboard(view: View) {
+        val window = view.context.findActivity()?.window
+        if (window != null) {
+            WindowCompat.getInsetsController(window, view).show(WindowInsetsCompat.Type.ime())
+        } else {
+            val imm =
+                view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+        }
+    }
+
+    private fun hideKeyboard(view: View) {
+        val window = view.context.findActivity()?.window
+        if (window != null) {
+            WindowCompat.getInsetsController(window, view).hide(WindowInsetsCompat.Type.ime())
+        } else {
+            val imm =
+                view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+            imm?.hideSoftInputFromWindow(view.windowToken, 0)
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -116,4 +151,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
         return externalInputManager.handleKeyEvent(event) || super.dispatchKeyEvent(event)
     }
+
+    private tailrec fun Context.findActivity(): Activity? =
+        when (this) {
+            is Activity -> this
+            is ContextWrapper -> baseContext.findActivity()
+            else -> null
+        }
 }
