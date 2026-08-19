@@ -44,7 +44,7 @@ public class Colors(
     public val positive: Color = Color(0xFF63FEA8),
     public val negative: Color = Color(0xFFFFA7A0),
     public val background: Color = Color.Black,
-    public val surface: Color = Color(0xFF262626),
+    public val surface: Color = Color(0xFF303030),
 ) {
 
     /** Returns a copy of this Colors, optionally overriding some of the values. */
@@ -94,4 +94,4 @@ public class Colors(
     }
 }
 
-internal val DefaultSurfaceColor: Color = Color(0xFF262626)
+internal val DefaultSurfaceColor: Color = Color(0xFF303030)
