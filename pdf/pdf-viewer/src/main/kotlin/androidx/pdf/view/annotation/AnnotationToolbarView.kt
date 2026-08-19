@@ -77,16 +77,26 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * A UI view representing a toolbar for annotation features. It hosts buttons for various tools such
- * as pen, highlighter, eraser, etc. aligned based on the [dockState] set.
+ * Interactive toolbar [View] for creating and managing PDF annotations.
+ *
+ * Provides a canonical tool tray with built-in annotation tools and editing controls:
+ * - **Drawing & Highlighting**: Pen and Highlighter tools with an interactive color palette and
+ *   brush size selector.
+ * - **Eraser**: tool to delete annotations.
+ * - **History Controls**: Undo and redo buttons for navigating the edit history stack.
+ * - **Visibility Toggle**: Button to toggle the visibility of annotations on the document.
+ *
+ * Custom tool [View]s can be injected into the scrollable tool tray via [addView] and removed via
+ * [removeView] or [removeAllViews].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @ExperimentalPdfApi
 public class AnnotationToolbarView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     ViewGroup(context, attrs, defStyle) {
 
+    /** Denotes the docking edge of the toolbar within its parent container. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(DOCK_STATE_START, DOCK_STATE_BOTTOM, DOCK_STATE_END)
     public annotation class DockState
@@ -106,11 +116,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     /**
-     * Controls the enabled state of the undo button.
+     * Controls the enabled state of the Undo button.
      *
-     * This property should be updated by an external controller that manages the annotation
-     * undo/redo stack.
+     * This property should be updated by the host application controller managing the document's
+     * edit history stack.
      */
+    @get:JvmName("canUndo")
     public var canUndo: Boolean = false
         set(value) {
             field = value
@@ -118,11 +129,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
 
     /**
-     * Controls the enabled state of the redo button.
+     * Controls the enabled state of the Redo button.
      *
-     * This property should be updated by an external controller that manages the annotation
-     * undo/redo stack.
+     * This property should be updated by the host application controller managing the document's
+     * edit history stack.
      */
+    @get:JvmName("canRedo")
     public var canRedo: Boolean = false
         set(value) {
             field = value
@@ -130,39 +142,66 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
 
     /**
-     * Returns true if any of the configuration popups (color palette or brush size slider) are
-     * currently visible.
+     * Returns `true` if any configuration popup (such as the Color Palette or Brush Size Slider) is
+     * currently visible on screen.
      */
     public val isConfigPopupVisible: Boolean
         get() = with(viewModel.state.value) { showColorPalette || showBrushSizeSlider }
 
-    /** Dismisses any currently visible popups (such as the color palette or brush size slider). */
+    /**
+     * Dismisses any currently visible configuration popups (Color Palette or Brush Size Slider).
+     */
     public fun dismissPopups() {
         viewModel.onAction(ToolbarIntent.DismissPopups)
     }
 
-    /** Set the listener for [AnnotationToolbarView] events. */
+    /**
+     * Sets the listener for [AnnotationToolbarView] tool change, undo/redo, and visibility events.
+     *
+     * @param listener The callback listener, or `null` to clear the listener.
+     */
     public fun setAnnotationToolbarListener(listener: AnnotationToolbarListener?) {
         annotationToolbarListener = listener
     }
 
-    /** Sets the listener for toolbar dock state changes. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setOnDockStateChangedListener(listener: OnDockStateChangedListener?) {
-        onDockStateChangedListener = listener
+    /**
+     * Adds the listener for toolbar dock state changes.
+     *
+     * @param listener The callback listener invoked when the toolbar docks to a new edge.
+     */
+    public fun addOnDockChangedListener(listener: OnDockStateChangedListener) {
+        dockStateChangedListeners.add(listener)
     }
 
-    /** Clears any selection of tools on [AnnotationToolbarView]. No-op if no tool is selected. */
+    /**
+     * Removes the listener for toolbar dock state changes.
+     *
+     * @param listener The callback listener invoked when the toolbar docks to a new edge.
+     */
+    public fun removeOnDockChangedListener(listener: OnDockStateChangedListener) {
+        dockStateChangedListeners.remove(listener)
+    }
+
+    /**
+     * Clears any active tool selection on the [AnnotationToolbarView]. No-op if no tool is
+     * selected.
+     */
     public fun clearToolSelection() {
         viewModel.onAction(ClearToolSelection)
     }
 
-    /** Reset the [AnnotationToolbarView] to its initial state. */
+    /**
+     * Resets the [AnnotationToolbarView] to its initial default configuration and tool selection
+     * state.
+     */
     public fun reset() {
         viewModel.updateState(ToolbarInitializer.createInitialState(context = context))
     }
 
-    /** The current docking state of the toolbar. */
+    /**
+     * The current docking state of the toolbar ([DOCK_STATE_START], [DOCK_STATE_BOTTOM], or
+     * [DOCK_STATE_END]).
+     */
     @get:DockState
     public var dockState: Int
         get() = viewModel.state.value.dockedState
@@ -181,7 +220,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
 
     private var annotationToolbarListener: AnnotationToolbarListener? = null
-    private var onDockStateChangedListener: OnDockStateChangedListener? = null
+    private val dockStateChangedListeners = mutableListOf<OnDockStateChangedListener>()
 
     private val constraintSet = AnnotationToolbarConstraintSet(this.context)
 
@@ -257,20 +296,12 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         updateExpandedState(viewModel.state.value.isExpanded)
     }
 
-    /**
-     * Expands the toolbar to show the full set of tools.
-     *
-     * The visual change is animated if animations are enabled.
-     */
+    /** Expands the toolbar to show the complete set of interactive tools. */
     public fun expandToolbar() {
         viewModel.onAction(ToolbarIntent.ExpandToolbar)
     }
 
-    /**
-     * Collapses the toolbar to a single icon.
-     *
-     * The visual change is animated if animations are enabled.
-     */
+    /** Collapses the toolbar into a compact single-icon drag target. */
     public fun collapseToolbar() {
         viewModel.onAction(ToolbarIntent.CollapseToolbar)
     }
@@ -576,7 +607,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
     }
 
-    override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+    override fun onInterceptTouchEvent(event: MotionEvent?): Boolean {
+        if (event == null) return super.onInterceptTouchEvent(event)
         return toolbarTouchHandler.onInterceptTouchEvent(event)
     }
 
@@ -613,7 +645,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             }
         }
         applyDockConstraints(dockedState)
-        onDockStateChangedListener?.onDockStateChanged(dockedState)
+        dockStateChangedListeners.forEach { it.onDockStateChanged(dockedState) }
     }
 
     private fun applyDockConstraints(dockedState: Int) {
@@ -669,7 +701,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     /**
-     * Adds a custom tool [View] to this toolbar's internal scrollable tool tray.
+     * Adds a custom tool [View] to this [AnnotationToolbarView]'s internal scrollable tool tray.
      *
      * @param child The custom tool [View] to add.
      * @param index The position within the tool tray to insert the child, or -1 to insert at the
@@ -687,7 +719,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     /**
-     * Removes a custom tool [View] from this toolbar's tool tray. Built-in tools cannot be removed.
+     * Removes a custom tool [View] from this [AnnotationToolbarView]'s tool tray. Built-in tools
+     * cannot be removed.
      *
      * @param view The custom tool [View] to remove.
      */
@@ -710,8 +743,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     /**
-     * Removes all custom tool views from this toolbar's tool tray while preserving all built-in
-     * annotation tools.
+     * Removes all custom tool views from this [AnnotationToolbarView]'s tool tray while preserving
+     * all built-in annotation tools.
      */
     override fun removeAllViews() {
         for (i in toolTray.childCount - 1 downTo 0) {
@@ -740,43 +773,41 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     /**
-     * Interface definition for a callback to be invoked when interaction occurs with the
+     * Interface definition for callbacks invoked when user interaction occurs on
      * [AnnotationToolbarView].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface AnnotationToolbarListener {
         /**
-         * Called every time the selected tool or its attributes (e.g., color, size) are changed.
+         * Called when the active annotation tool or its attributes (e.g. color, brush size) change.
          *
-         * @param toolInfo An [AnnotationToolInfo] object containing the state of the currently
-         *   selected tool.
+         * @param toolInfo An [AnnotationToolInfo] object representing the active tool
+         *   configuration.
          */
         public fun onToolChanged(toolInfo: AnnotationToolInfo)
 
-        /** Called when an undo button is clicked if [canUndo] is set to enable. */
+        /** Called when the Undo button is clicked while [canUndo] is enabled. */
         public fun onUndo()
 
-        /** Called when a redo button is clicked if [canRedo] is set to enable. */
+        /** Called when the Redo button is clicked while [canRedo] is enabled. */
         public fun onRedo()
 
         /**
          * Called when the annotation visibility toggle button is clicked.
          *
-         * @param isVisible `true` if annotations are now set to be visible, `false` otherwise.
+         * @param isVisible `true` if annotations are set to visible, `false` otherwise.
          */
         public fun onAnnotationVisibilityChanged(isVisible: Boolean)
     }
 
     /**
-     * Interface definition for a callback to be invoked when the docking state of
-     * [AnnotationToolbarView] changes.
+     * Interface definition for callbacks invoked when the [AnnotationToolbarView]'s docked position
+     * changes.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun interface OnDockStateChangedListener {
         /**
-         * Called when the toolbar's docked position changes.
+         * Called when the [AnnotationToolbarView] docks to a new position.
          *
-         * @param dockState the new [AnnotationToolbarView.DockState]
+         * @param dockState The new [AnnotationToolbarView.DockState] position.
          */
         public fun onDockStateChanged(@DockState dockState: Int)
     }
