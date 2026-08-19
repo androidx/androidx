@@ -33,8 +33,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.util.trace
+import java.text.BreakIterator
 import java.util.concurrent.Executor
 import java.util.concurrent.RejectedExecutionException
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * CompositionLocal that provides an Executor for background text processing to potentially get run
@@ -91,17 +93,13 @@ internal actual fun BackgroundTextMeasurement(
                                 placeholders = emptyList(),
                                 softWrap = softWrap,
                             )
-                        // It is important that maxIntrinsicWidth is called before minIntrinsicWidth
-                        // because the primary role of background text measurement is to warm the
-                        // platform word layout cache.
-
                         // maxIntrinsicWidth premeasures all words in the given text. This warms
                         // the platform word layout cache so that when the UI thread starts
                         // measuring the Text composable, the text layout would be faster.
                         intrinsics.maxIntrinsicWidth
-                        // minIntrinsicWidth creates a BreakIterator which in turn initializes and
-                        // caches an instance of BreakIteratorCache in `android.icu.text`
-                        intrinsics.minIntrinsicWidth
+                        // BreakIterator initialization caches an instance of BreakIteratorCache in
+                        // `android.icu.text`. We warm this cache once on the background thread.
+                        warmBreakIteratorCache()
                     }
                 }
             }
@@ -137,21 +135,30 @@ internal actual fun BackgroundTextMeasurement(
                                 fontFamilyResolver = fontFamilyResolver,
                                 softWrap = softWrap,
                             )
-                        // It is important that maxIntrinsicWidth is called before minIntrinsicWidth
-                        // because the primary role of background text measurement is to warm the
-                        // platform word layout cache.
-
                         // maxIntrinsicWidth premeasures all words in the given text. This warms
                         // the platform word layout cache so that when the UI thread starts
                         // measuring the Text composable, the text layout would be faster.
                         intrinsics.maxIntrinsicWidth
-                        // minIntrinsicWidth creates a BreakIterator which in turn initializes and
-                        // caches an instance of BreakIteratorCache in `android.icu.text`
-                        intrinsics.minIntrinsicWidth
+                        // BreakIterator initialization caches an instance of BreakIteratorCache in
+                        // `android.icu.text`. We warm this cache once on the background thread.
+                        warmBreakIteratorCache()
                     }
                 }
             }
         } catch (_: RejectedExecutionException) {}
+    }
+}
+
+@VisibleForTesting internal val isBreakIteratorWarmed: AtomicBoolean = AtomicBoolean(false)
+
+/**
+ * BreakIterator initialization creates a BreakIterator which in turn initializes and caches an
+ * instance of BreakIteratorCache in `android.icu.text`. We initialize this once on the background
+ * thread to avoid paying the minIntrinsicWidth calculation cost on every text prefetch job.
+ */
+private fun warmBreakIteratorCache() {
+    if (!isBreakIteratorWarmed.get() && isBreakIteratorWarmed.compareAndSet(false, true)) {
+        BreakIterator.getLineInstance()
     }
 }
 
