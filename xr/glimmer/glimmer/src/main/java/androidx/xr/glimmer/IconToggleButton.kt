@@ -78,12 +78,6 @@ public fun IconToggleButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit,
 ) {
-    val depthEffect =
-        SurfaceDepthEffect(
-            depthEffect = null,
-            focusedDepthEffect = GlimmerTheme.depthEffectLevels.level1,
-        )
-
     val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
     val color = colors.resolveBackgroundColor(checked)
@@ -97,7 +91,7 @@ public fun IconToggleButton(
                 focusedColor = color,
                 contentColor = contentColor,
                 focusedContentColor = contentColor,
-                depthEffect = depthEffect,
+                depthEffect = null,
                 interactionSource = internalInteractionSource,
             )
             .toggleable(
