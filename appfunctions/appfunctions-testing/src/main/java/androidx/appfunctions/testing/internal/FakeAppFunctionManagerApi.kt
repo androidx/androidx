@@ -33,6 +33,7 @@ import androidx.appfunctions.internal.AppFunctionManagerApi
 import androidx.appfunctions.internal.NullTranslatorSelector
 import androidx.appfunctions.internal.findImpl
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -56,7 +57,10 @@ internal class FakeAppFunctionManagerApi(
             .executeFunction(request)
 
     override suspend fun isAppFunctionEnabled(packageName: String, functionId: String): Boolean =
-        appFunctionReader.getAppFunctionMetadata(functionId, packageName)?.isEnabled
+        appFunctionReader
+            .getAppFunctionStates(listOf(AppFunctionName(packageName, functionId)))
+            .singleOrNull()
+            ?.isEnabled
             ?: throw AppFunctionFunctionNotFoundException(
                 "No function found with id: $functionId under package: $packageName"
             )

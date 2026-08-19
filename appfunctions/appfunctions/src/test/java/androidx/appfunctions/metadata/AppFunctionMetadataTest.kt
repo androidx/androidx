@@ -112,7 +112,6 @@ class AppFunctionMetadataTest {
                 description = description,
                 deprecation = deprecation,
                 packageMetadata = packageMetadata,
-                isEnabled = true,
             )
         val metadata2 =
             AppFunctionMetadata(
@@ -123,7 +122,6 @@ class AppFunctionMetadataTest {
                 description = description,
                 deprecation = deprecation,
                 packageMetadata = packageMetadata,
-                isEnabled = true,
             )
         val metadata3 =
             AppFunctionMetadata(
@@ -131,10 +129,9 @@ class AppFunctionMetadataTest {
                 schema = schema,
                 parameters = parameters,
                 response = response,
-                description = description,
+                description = "different description",
                 deprecation = deprecation,
                 packageMetadata = packageMetadata,
-                isEnabled = false,
             )
 
         assertThat(metadata1).isEqualTo(metadata2)
@@ -145,8 +142,6 @@ class AppFunctionMetadataTest {
         // Verify legacy properties are populated as expected.
         assertThat(metadata1.id).isEqualTo(name.functionIdentifier)
         assertThat(metadata1.packageName).isEqualTo(name.packageName)
-        assertThat(metadata1.isEnabled).isTrue()
-        assertThat(metadata3.isEnabled).isFalse()
     }
 
     @Test
