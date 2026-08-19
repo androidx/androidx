@@ -19,6 +19,7 @@ package androidx.a2ui.compose.ui
 import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiProperty
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
@@ -108,6 +109,28 @@ class A2uiCatalogTest {
         assertThat(exception)
             .hasMessageThat()
             .contains("Duplicate function registered for name 'DuplicateFunction'")
+    }
+
+    @Test
+    fun factory_fromBasicCatalog_createsCatalogSuccessfully() {
+        val testText =
+            object : A2uiBasicCatalogV1.Text {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    text: String,
+                    variant: A2uiBasicCatalogV1.Text.Variant,
+                    modifier: Modifier,
+                ) {}
+            }
+        val testFunction = StubFunction("TestFunc")
+        val basicCatalog = A2uiBasicCatalogV1(text = testText, functions = listOf(testFunction))
+
+        val catalog = A2uiCatalog(basicCatalog)
+
+        assertThat(catalog.id).isEqualTo(A2uiBasicCatalogV1.CatalogId)
+        assertThat(catalog.themeSchema).isEqualTo(A2uiBasicCatalogV1.ThemeSchema)
+        assertThat(catalog.components["Text"]).isSameInstanceAs(testText)
+        assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
     }
 
     @Test
