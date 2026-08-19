@@ -37,7 +37,7 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
     internal override val cacheKey: RemoteStateCacheKey
         get() = intValue.cacheKey
 
-    internal enum class OperationKey : DebuggableOperation {
+    internal enum class OperationKey : RemoteOperation {
         SelectString,
         SelectFloat,
         SelectInt,
@@ -54,6 +54,27 @@ public open class RemoteBoolean internal constructor(internal val intValue: Remo
                     else -> cond
                 }
             return "$condStr ? ${args[1].toOperandString(0)} : ${args[2].toOperandString(0)}"
+        }
+
+        override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+            return when (this) {
+                SelectString ->
+                    RemoteBoolean(args[0] as RemoteInt)
+                        .select(args[1] as RemoteString, args[2] as RemoteString)
+                SelectFloat ->
+                    RemoteBoolean(args[0] as RemoteInt)
+                        .select(args[1] as RemoteFloat, args[2] as RemoteFloat)
+                SelectInt ->
+                    RemoteBoolean(args[0] as RemoteInt)
+                        .select(args[1] as RemoteInt, args[2] as RemoteInt)
+                SelectBoolean ->
+                    RemoteBoolean(args[0] as RemoteInt)
+                        .select(
+                            RemoteBoolean(args[1] as RemoteInt),
+                            RemoteBoolean(args[2] as RemoteInt),
+                        )
+                        .intValue
+            }
         }
     }
 

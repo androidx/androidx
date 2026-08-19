@@ -67,7 +67,7 @@ internal constructor(
     internal enum class OperationKey(
         override val precedence: Int = 100,
         public val symbol: String? = null,
-    ) : DebuggableOperation {
+    ) : RemoteOperation {
         ToRemoteString,
         Add(3, "+"),
         Sub(3, "-"),
@@ -117,6 +117,66 @@ internal constructor(
                 SelectIfGT -> args.formatSelect(">")
                 SelectIfGE -> args.formatSelect(">=")
                 else -> formatCamelCaseFunction(args)
+            }
+        }
+
+        override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+            return when (this) {
+                Add -> (args[0] as RemoteInt) + (args[1] as RemoteInt)
+                Sub -> (args[0] as RemoteInt) - (args[1] as RemoteInt)
+                Mul -> (args[0] as RemoteInt) * (args[1] as RemoteInt)
+                Div -> (args[0] as RemoteInt) / (args[1] as RemoteInt)
+                Mod -> (args[0] as RemoteInt) % (args[1] as RemoteInt)
+                And -> (args[0] as RemoteInt) and (args[1] as RemoteInt)
+                Or -> (args[0] as RemoteInt) or (args[1] as RemoteInt)
+                Xor -> (args[0] as RemoteInt) xor (args[1] as RemoteInt)
+                Shl -> (args[0] as RemoteInt) shl (args[1] as RemoteInt)
+                Shr -> (args[0] as RemoteInt) shr (args[1] as RemoteInt)
+                Abs -> (args[0] as RemoteInt).absoluteValue
+                Neg -> -(args[0] as RemoteInt)
+                Not -> (args[0] as RemoteInt).inv()
+                CopySign -> copySign(args[0] as RemoteInt, args[1] as RemoteInt)
+                Min -> min(args[0] as RemoteInt, args[1] as RemoteInt)
+                Max -> max(args[0] as RemoteInt, args[1] as RemoteInt)
+                Clamp -> clamp(args[0] as RemoteInt, args[1] as RemoteInt, args[2] as RemoteInt)
+                ToFloat -> (args[0] as RemoteInt).toRemoteFloat()
+                ToRemoteString -> (args[0] as RemoteInt).toRemoteString()
+                CompareEQ -> (args[0] as RemoteInt).isEqualTo(args[1] as RemoteInt)
+                CompareNE -> (args[0] as RemoteInt).isNotEqualTo(args[1] as RemoteInt)
+                CompareLT -> (args[0] as RemoteInt).isLessThan(args[1] as RemoteInt)
+                CompareLE -> (args[0] as RemoteInt).isLessThanOrEqualTo(args[1] as RemoteInt)
+                CompareGT -> (args[0] as RemoteInt).isGreaterThan(args[1] as RemoteInt)
+                CompareGE -> (args[0] as RemoteInt).isGreaterThanOrEqualTo(args[1] as RemoteInt)
+                Reference -> (args[0] as RemoteInt).createReference()
+                SelectIfLT ->
+                    selectIfLt(
+                        args[0] as RemoteInt,
+                        args[1] as RemoteInt,
+                        args[2] as RemoteInt,
+                        args[3] as RemoteInt,
+                    )
+                SelectIfLE ->
+                    selectIfLe(
+                        args[0] as RemoteInt,
+                        args[1] as RemoteInt,
+                        args[2] as RemoteInt,
+                        args[3] as RemoteInt,
+                    )
+                SelectIfGT ->
+                    selectIfGt(
+                        args[0] as RemoteInt,
+                        args[1] as RemoteInt,
+                        args[2] as RemoteInt,
+                        args[3] as RemoteInt,
+                    )
+                SelectIfGE ->
+                    selectIfGe(
+                        args[0] as RemoteInt,
+                        args[1] as RemoteInt,
+                        args[2] as RemoteInt,
+                        args[3] as RemoteInt,
+                    )
+                Id -> args[0] as RemoteInt
             }
         }
     }

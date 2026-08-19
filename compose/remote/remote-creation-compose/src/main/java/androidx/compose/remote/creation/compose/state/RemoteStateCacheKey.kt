@@ -17,6 +17,7 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.runtime.Immutable
 
 /**
@@ -28,7 +29,23 @@ import androidx.compose.runtime.Immutable
  */
 @Immutable
 internal interface RemoteStateCacheKey {
+    /** The child argument cache keys of this node in the AST DAG. Empty for leaf nodes. */
+    val args: List<RemoteStateCacheKey>
+        get() = emptyList()
+
     fun toDebugString(): String
+
+    /**
+     * Traverses this [RemoteStateCacheKey] DAG using the provided [visitor].
+     *
+     * @param visitor The visitor that inspects each node.
+     * @param memo A memoization map to ensure shared DAG nodes are visited once.
+     * @return The result of visiting this node.
+     */
+    fun <R> accept(
+        visitor: RemoteStateVisitor<R>,
+        memo: MutableMap<RemoteStateCacheKey, R> = mutableMapOf(),
+    ): R
 }
 
 internal fun List<RemoteStateCacheKey>.joinToDebugString(
@@ -73,21 +90,30 @@ internal fun Enum<*>.formatCamelCaseFunction(args: List<RemoteStateCacheKey>): S
     "${name.replaceFirstChar { it.lowercase() }}(${args.joinToDebugString()})"
 
 /**
- * Interface implemented by remote operation keys (e.g. `RemoteFloat.OperationKey`) to define custom
- * AST debug formatting (e.g. `user:a + user:b`).
+ * Interface implemented by remote operation keys (e.g. `RemoteFloat.OperationKey`) to define
+ * precedence, custom AST debug formatting (e.g. `user:a + user:b`), and AST node reconstruction.
  */
-internal interface DebuggableOperation {
+internal interface RemoteOperation {
     val precedence: Int
         get() = 100
 
     /** Formats this operation AST using its evaluated operand [args]. */
     fun toDebugString(args: List<RemoteStateCacheKey>): String
+
+    /**
+     * Reconstructs the [BaseRemoteState] operation using the new [args].
+     *
+     * @param args The transformed argument list of [BaseRemoteState] instances.
+     * @return The reconstructed [BaseRemoteState] instance.
+     */
+    fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
+        throw UnsupportedOperationException("Reconstruction is not supported for $this")
 }
 
 /**
  * Formats this cache key as an operand string within an outer operation.
  *
- * If this key represents a nested operation whose [DebuggableOperation.precedence] is lower than
+ * If this key represents a nested operation whose [RemoteOperation.precedence] is lower than
  * [parentPrecedence] (or equal, if [isRightOperand] is true), the resulting debug string is wrapped
  * in parentheses to accurately preserve evaluation order and associativity.
  */
@@ -97,7 +123,7 @@ internal fun RemoteStateCacheKey.toOperandString(
 ): String {
     val str = toDebugString()
     if (this is RemoteOperationCacheKey) {
-        val childOp = op as? DebuggableOperation
+        val childOp = op as? RemoteOperation
         if (childOp != null) {
             val needsParentheses =
                 childOp.precedence < parentPrecedence ||
@@ -114,6 +140,28 @@ internal fun RemoteStateCacheKey.toOperandString(
 /** Base class for [RemoteStateCacheKey] implementations that provides a memoized [hashCode]. */
 internal abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
     private var _hashCode: Int = 0
+
+    /**
+     * Associated BaseRemoteState instance, used for common sub-expression elimination and DAG
+     * traversal.
+     */
+    internal var state: BaseRemoteState<*>? = null
+
+    override fun <R> accept(
+        visitor: RemoteStateVisitor<R>,
+        memo: MutableMap<RemoteStateCacheKey, R>,
+    ): R {
+        memo[this]?.let {
+            return it
+        }
+        val visitedArgs = ArrayList<R>(args.size)
+        for (i in args.indices) {
+            visitedArgs.add(args[i].accept(visitor, memo))
+        }
+        val result = visitor.visit(this, state, visitedArgs)
+        memo[this] = result
+        return result
+    }
 
     final override fun hashCode(): Int {
         if (_hashCode == 0) {
@@ -137,7 +185,7 @@ internal class RemoteStateInstanceKey : BaseRemoteStateCacheKey() {
     override fun toDebugString(): String = "instance"
 }
 
-internal class RemoteStateArrayKey(val size: Int) : BaseRemoteStateCacheKey() {
+internal class RemoteStateArrayKey(internal val size: Int) : BaseRemoteStateCacheKey() {
     override fun hashCodeImpl(): Int = System.identityHashCode(this)
 
     override fun equals(other: Any?): Boolean = this === other
@@ -185,8 +233,8 @@ internal class RemoteConstantCacheKey(internal val value: Any?) : BaseRemoteStat
 
 /** A cache key for named variables, identified by their [name] and [domain]. */
 internal class RemoteNamedCacheKey(
-    private val domain: RemoteState.Domain,
-    private val name: String,
+    internal val domain: RemoteState.Domain,
+    internal val name: String,
 ) : BaseRemoteStateCacheKey() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -262,7 +310,24 @@ internal class RemoteStateIdKey(internal val id: Int) : BaseRemoteStateCacheKey(
     }
 }
 
-internal class FloatArrayCacheKey(private val floatArray: FloatArray) : BaseRemoteStateCacheKey() {
+/** A synthetic state wrapper for literal [FloatArray] arguments in operations. */
+internal class FloatArrayRemoteState(internal val floatArray: FloatArray, key: FloatArrayCacheKey) :
+    BaseRemoteState<FloatArray>(key) {
+    override val constantValueOrNull: FloatArray
+        get() = floatArray
+
+    override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
+        throw UnsupportedOperationException(
+            "FloatArrayRemoteState cannot be written directly to document"
+        )
+    }
+}
+
+internal class FloatArrayCacheKey(internal val floatArray: FloatArray) : BaseRemoteStateCacheKey() {
+    init {
+        state = FloatArrayRemoteState(floatArray, this)
+    }
+
     override fun equals(other: Any?): Boolean {
         return other is FloatArrayCacheKey && floatArray.contentEquals(other.floatArray)
     }
@@ -276,7 +341,7 @@ internal class FloatArrayCacheKey(private val floatArray: FloatArray) : BaseRemo
  * A cache key for component-specific values (like width/height/center), identified by the
  * [componentId] and the [type] of value.
  */
-internal class RemoteComponentCacheKey(private val componentId: Int, private val type: String) :
+internal class RemoteComponentCacheKey(internal val componentId: Int, internal val type: String) :
     BaseRemoteStateCacheKey() {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -304,17 +369,8 @@ internal class RemoteComponentCacheKey(private val componentId: Int, private val
  */
 internal class RemoteOperationCacheKey(
     internal val op: Enum<*>,
-    internal val args: List<RemoteStateCacheKey>,
+    override val args: List<RemoteStateCacheKey>,
 ) : BaseRemoteStateCacheKey() {
-
-    /** Parent RemoteState, used for common sub expression elimination. */
-    internal var state: RemoteState<*>? = null
-        set(value) {
-            if (field != null) {
-                throw IllegalStateException("state can only be set once.")
-            }
-            field = value
-        }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -336,8 +392,8 @@ internal class RemoteOperationCacheKey(
     override fun toString(): String = "RemoteOperationCacheKey(op=$op, args=$args)"
 
     override fun toDebugString(): String {
-        return if (op is DebuggableOperation) {
-            (op as DebuggableOperation).toDebugString(args)
+        return if (op is RemoteOperation) {
+            (op as RemoteOperation).toDebugString(args)
         } else {
             "Operation($op, args=[${args.joinToDebugString()}])"
         }

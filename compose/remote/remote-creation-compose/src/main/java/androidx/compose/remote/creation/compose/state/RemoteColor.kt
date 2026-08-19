@@ -61,7 +61,7 @@ internal constructor(
     internal val configuredGreen: RemoteFloat? = green
     internal val configuredBlue: RemoteFloat? = blue
 
-    internal enum class OperationKey : DebuggableOperation {
+    internal enum class OperationKey : RemoteOperation {
         FromHSV,
         FromAHSV,
         FromArgb,
@@ -75,6 +75,55 @@ internal constructor(
                 Multiply -> args.formatOp("*", 3)
                 else -> formatCamelCaseFunction(args)
             }
+
+        override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+            return when (this) {
+                FromArgb ->
+                    RemoteColor(
+                        args[0] as RemoteFloat,
+                        args[1] as RemoteFloat,
+                        args[2] as RemoteFloat,
+                        args[3] as RemoteFloat,
+                    )
+                FromHSV ->
+                    hsv(args[0] as RemoteFloat, args[1] as RemoteFloat, args[2] as RemoteFloat)
+                FromAHSV ->
+                    fromAHSV(
+                        asConstantInt(args[0], default = 255),
+                        args[1] as RemoteFloat,
+                        args[2] as RemoteFloat,
+                        args[3] as RemoteFloat,
+                    )
+                Multiply -> asRemoteColor(args[0]) * asRemoteColor(args[1])
+                Tween ->
+                    tween(args[0] as RemoteColor, args[1] as RemoteColor, args[2] as RemoteFloat)
+                TweenInt -> {
+                    val from = args[0]
+                    val to = args[1]
+                    val t = args[2] as RemoteFloat
+                    val fromInt = (from.constantValueOrNull as? Number)?.toInt()
+                    val toInt = (to.constantValueOrNull as? Number)?.toInt()
+                    if (fromInt != null && toInt != null) {
+                        tween(fromInt, toInt, t)
+                    } else {
+                        tween(asRemoteColor(from), asRemoteColor(to), t)
+                    }
+                }
+                Component -> {
+                    val color = args[0] as RemoteColor
+                    when (val component = asConstantInt(args[1]).toShort()) {
+                        ColorAttribute.COLOR_ALPHA -> color.alpha
+                        ColorAttribute.COLOR_RED -> color.red
+                        ColorAttribute.COLOR_GREEN -> color.green
+                        ColorAttribute.COLOR_BLUE -> color.blue
+                        ColorAttribute.COLOR_HUE -> color.hue
+                        ColorAttribute.COLOR_SATURATION -> color.saturation
+                        ColorAttribute.COLOR_BRIGHTNESS -> color.brightness
+                        else -> throw IllegalArgumentException("Unknown component: $component")
+                    }
+                }
+            }
+        }
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -699,3 +748,17 @@ private fun constantColorOrNull(
         return null
     }
 }
+
+private fun asRemoteColor(arg: BaseRemoteState<*>): RemoteColor =
+    when (arg) {
+        is RemoteColor -> arg
+        is RemoteInt ->
+            arg.constantValueOrNull?.let { RemoteColor(it) }
+                ?: throw IllegalArgumentException(
+                    "Dynamic RemoteInt cannot be used as a color: $arg"
+                )
+        else -> throw IllegalArgumentException("Expected RemoteColor or RemoteInt, but found $arg")
+    }
+
+private fun asConstantInt(arg: BaseRemoteState<*>, default: Int = 0): Int =
+    (arg.constantValueOrNull as? Number)?.toInt() ?: default

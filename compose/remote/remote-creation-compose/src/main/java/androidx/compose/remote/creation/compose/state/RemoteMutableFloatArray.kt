@@ -47,10 +47,13 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
         }
     private var generation = 0
 
-    internal enum class OperationKey : DebuggableOperation {
+    internal enum class OperationKey : RemoteOperation {
         Create {
             override fun toDebugString(args: List<RemoteStateCacheKey>) =
                 "mutableFloatArrayOf(${args.joinToDebugString()})"
+
+            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
+                RemoteMutableFloatArray(args.size)
         },
         Get {
             override val precedence: Int
@@ -58,6 +61,9 @@ constructor(public val size: Int) : BaseRemoteState<List<RemoteFloat>>(RemoteSta
 
             override fun toDebugString(args: List<RemoteStateCacheKey>) =
                 args.formatArrayAccess(precedence)
+
+            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
+                (args[0] as RemoteMutableFloatArray)[args[1] as RemoteInt]
         },
     }
 

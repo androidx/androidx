@@ -37,7 +37,7 @@ import androidx.compose.runtime.remember
 public abstract class RemoteString internal constructor(cacheKey: RemoteStateCacheKey) :
     BaseRemoteState<String>(cacheKey) {
 
-    internal enum class OperationKey(override val precedence: Int = 100) : DebuggableOperation {
+    internal enum class OperationKey(override val precedence: Int = 100) : RemoteOperation {
         Concat(3),
         Substring,
         Uppercase,
@@ -69,6 +69,82 @@ public abstract class RemoteString internal constructor(cacheKey: RemoteStateCac
                 SelectIfLE -> args.formatSelect("<=")
                 SelectIfGT -> args.formatSelect(">")
                 SelectIfGE -> args.formatSelect(">=")
+            }
+        }
+
+        override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+            return when (this) {
+                Concat -> (args[0] as RemoteString) + (args[1] as RemoteString)
+                Substring -> {
+                    val str = args[0] as RemoteString
+                    if (args.size == 3) {
+                        str.substring(args[1] as RemoteInt, args[2] as RemoteInt)
+                    } else {
+                        str.substring(args[1] as RemoteInt)
+                    }
+                }
+                Uppercase -> (args[0] as RemoteString).uppercase()
+                Lowercase -> (args[0] as RemoteString).lowercase()
+                Trim -> (args[0] as RemoteString).trim()
+                Length -> (args[0] as RemoteString).length
+                IsEmpty -> (args[0] as RemoteString).isEmpty
+                IsNotEmpty -> (args[0] as RemoteString).isNotEmpty
+                SelectIfLT -> {
+                    val a = args[0]
+                    val b = args[1]
+                    if (a is RemoteInt && b is RemoteInt) {
+                        selectIfLt(a, b, args[2] as RemoteString, args[3] as RemoteString)
+                    } else {
+                        selectIfLt(
+                            a as RemoteFloat,
+                            b as RemoteFloat,
+                            args[2] as RemoteString,
+                            args[3] as RemoteString,
+                        )
+                    }
+                }
+                SelectIfLE -> {
+                    val a = args[0]
+                    val b = args[1]
+                    if (a is RemoteInt && b is RemoteInt) {
+                        selectIfLe(a, b, args[2] as RemoteString, args[3] as RemoteString)
+                    } else {
+                        selectIfLe(
+                            a as RemoteFloat,
+                            b as RemoteFloat,
+                            args[2] as RemoteString,
+                            args[3] as RemoteString,
+                        )
+                    }
+                }
+                SelectIfGT -> {
+                    val a = args[0]
+                    val b = args[1]
+                    if (a is RemoteInt && b is RemoteInt) {
+                        selectIfGt(a, b, args[2] as RemoteString, args[3] as RemoteString)
+                    } else {
+                        selectIfGt(
+                            a as RemoteFloat,
+                            b as RemoteFloat,
+                            args[2] as RemoteString,
+                            args[3] as RemoteString,
+                        )
+                    }
+                }
+                SelectIfGE -> {
+                    val a = args[0]
+                    val b = args[1]
+                    if (a is RemoteInt && b is RemoteInt) {
+                        selectIfGe(a, b, args[2] as RemoteString, args[3] as RemoteString)
+                    } else {
+                        selectIfGe(
+                            a as RemoteFloat,
+                            b as RemoteFloat,
+                            args[2] as RemoteString,
+                            args[3] as RemoteString,
+                        )
+                    }
+                }
             }
         }
     }
