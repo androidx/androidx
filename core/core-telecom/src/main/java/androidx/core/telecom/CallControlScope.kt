@@ -120,7 +120,12 @@ public interface CallControlScope : CoroutineScope {
      *     <li>[DisconnectCause#LOCAL]</li>
      *     <li>[DisconnectCause#REMOTE]</li>
      *     <li>[DisconnectCause#REJECTED]</li>
-     *     <li>[DisconnectCause#MISSED]</li> </ul>
+     *     <li>[DisconnectCause#MISSED]</li>
+     *     <li>[DisconnectCause#ERROR] (Starting in SDK 38, you can report this new ERROR option.
+     *       You should report [DisconnectCause#ERROR] if the call terminated unexpectedly due to an
+     *       error in your app (for example bad network connection, server error or a media error).
+     *       On devices running SDK versions less than 38, [DisconnectCause#ERROR] will be
+     *       automatically remapped to [DisconnectCause#LOCAL].)</li> </ul>
      *
      * @return [CallControlResult.Success] will be returned if Telecom is able to disconnect the
      *   call successfully. Otherwise [CallControlResult.Error] will be returned with an error code

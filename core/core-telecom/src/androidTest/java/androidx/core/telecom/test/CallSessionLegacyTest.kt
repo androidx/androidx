@@ -16,12 +16,15 @@
 
 package androidx.core.telecom.test
 
+import android.media.ToneGenerator
+import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
 import android.telecom.CallAudioState
 import android.telecom.CallAudioState.ROUTE_EARPIECE
 import android.telecom.CallAudioState.ROUTE_WIRED_HEADSET
 import android.telecom.CallEndpoint
+import android.telecom.DisconnectCause
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallEndpointUuidTracker
@@ -276,6 +279,47 @@ class CallSessionLegacyTest : BaseTelecomTest() {
                 CallEndpointCompat.TYPE_SPEAKER,
                 callSession.mLastClientRequestedEndpoint?.type,
             )
+        }
+    }
+
+    /**
+     * Verify that on SDK < 38, calling setConnectionDisconnect with DisconnectCause.ERROR maps the
+     * cause to DisconnectCause.LOCAL while preserving metadata, and on SDK >= 38 retains
+     * DisconnectCause.ERROR.
+     */
+    @SmallTest
+    @Test
+    fun testDisconnect_remapsErrorToLocal() {
+        runBlocking {
+            val callSession = initCallSessionLegacy(coroutineContext, null)
+            val errorCause =
+                DisconnectCause(
+                    DisconnectCause.ERROR,
+                    "label",
+                    "description",
+                    "reason",
+                    ToneGenerator.TONE_PROP_BEEP,
+                )
+            callSession.setConnectionDisconnect(errorCause)
+            val disconnectCause = callSession.disconnectCause
+            assertNotNull("DisconnectCause on Connection should not be null", disconnectCause)
+            if (Build.VERSION.SDK_INT < 38) {
+                assertEquals(
+                    "DisconnectCause should be remapped to LOCAL",
+                    DisconnectCause.LOCAL,
+                    disconnectCause.code,
+                )
+            } else {
+                assertEquals(
+                    "DisconnectCause should remain ERROR",
+                    DisconnectCause.ERROR,
+                    disconnectCause.code,
+                )
+            }
+            assertEquals("label", disconnectCause.label)
+            assertEquals("description", disconnectCause.description)
+            assertEquals("reason", disconnectCause.reason)
+            assertEquals(ToneGenerator.TONE_PROP_BEEP, disconnectCause.tone)
         }
     }
 }
