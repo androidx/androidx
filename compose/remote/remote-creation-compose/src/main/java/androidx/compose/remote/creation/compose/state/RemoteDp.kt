@@ -49,7 +49,7 @@ internal constructor(
         return "${valKey.toOperandString(100)}.dp"
     }
 
-    internal enum class OperationKey : DebuggableOperation {
+    internal enum class OperationKey : RemoteOperation {
         ToPx,
         ToDp;
 
@@ -57,6 +57,13 @@ internal constructor(
             return when (this) {
                 ToPx -> "${args[0].toOperandString(100)}.toPx()"
                 ToDp -> "${args[0].toOperandString(100)}.toDp()"
+            }
+        }
+
+        override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+            return when (this) {
+                ToPx -> RemoteDp(args[0] as RemoteFloat).toPx()
+                ToDp -> (args[0] as RemoteFloat).toRemoteDp().value
             }
         }
     }

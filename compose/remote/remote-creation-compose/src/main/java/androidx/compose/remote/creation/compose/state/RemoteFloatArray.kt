@@ -41,10 +41,13 @@ internal constructor(
         } ?: RemoteStateInstanceKey(),
     )
 
-    internal enum class OperationKey : DebuggableOperation {
+    internal enum class OperationKey : RemoteOperation {
         Create {
             override fun toDebugString(args: List<RemoteStateCacheKey>) =
                 "arrayOf(${args.joinToDebugString()})"
+
+            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> =
+                RemoteFloatArray(args.fastMap { it as RemoteFloat })
         },
         Get {
             override val precedence: Int
@@ -52,6 +55,15 @@ internal constructor(
 
             override fun toDebugString(args: List<RemoteStateCacheKey>) =
                 args.formatArrayAccess(precedence)
+
+            override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+                val array = args[0] as RemoteFloatArray
+                return when (val index = args[1]) {
+                    is RemoteFloat -> array[index]
+                    is RemoteInt -> array[index]
+                    else -> throw IllegalArgumentException("Unsupported index type: $index")
+                }
+            }
         },
     }
 

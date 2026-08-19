@@ -129,8 +129,8 @@ internal constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
     internal open val cacheKey: RemoteStateCacheKey = initialCacheKey
 
     init {
-        // Register with RemoteOperationCacheKey.
-        if (initialCacheKey is RemoteOperationCacheKey) {
+        // Register with BaseRemoteStateCacheKey.
+        if (initialCacheKey is BaseRemoteStateCacheKey) {
             initialCacheKey.state = this
         }
     }
@@ -140,6 +140,45 @@ internal constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
 
     /** The constant value or null if there isn't one. */
     public abstract override val constantValueOrNull: T?
+
+    /**
+     * Returns `true` if this [BaseRemoteState] is structurally equal to [other].
+     *
+     * Two remote states are structurally equal if:
+     * - They are the same instance (`this === other`).
+     * - Both evaluate to constant values and those constant values are equal.
+     * - Both are dynamic and have equal [cacheKey]s representing identical AST DAGs.
+     *
+     * @param other The other [BaseRemoteState] to compare with.
+     * @return `true` if structurally equal, `false` otherwise.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open fun isStructurallyEqual(other: BaseRemoteState<*>?): Boolean {
+        if (this === other) return true
+        if (other == null) return false
+        return cacheKey == other.cacheKey
+    }
+
+    /**
+     * Traverses this [BaseRemoteState] expression DAG using the provided [visitor].
+     *
+     * @param visitor The visitor that inspects each node.
+     * @return The result of visiting this node.
+     */
+    internal open fun <R> accept(visitor: RemoteStateVisitor<R>): R =
+        cacheKey.accept(visitor, mutableMapOf())
+
+    /**
+     * Traverses this [BaseRemoteState] expression DAG using the provided [visitor].
+     *
+     * @param memo A memoization map to ensure shared DAG nodes are visited once.
+     * @param visitor The visitor that inspects each node.
+     * @return The result of visiting this node.
+     */
+    internal open fun <R> accept(
+        memo: MutableMap<RemoteStateCacheKey, R>,
+        visitor: RemoteStateVisitor<R>,
+    ): R = cacheKey.accept(visitor, memo)
 
     /**
      * Returns a new or cached id for this [RemoteState] within the [RemoteComposeCreationState].

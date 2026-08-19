@@ -67,7 +67,7 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
         public val opCode: Float,
         override val precedence: Int = 100,
         public val symbol: String? = null,
-    ) : DebuggableOperation {
+    ) : RemoteOperation {
         ToRemoteInt(Float.NaN),
         ToRemoteString(Float.NaN),
         UnaryMinus(AnimatedFloatExpression.MUL, 4),
@@ -156,6 +156,133 @@ public abstract class RemoteFloat internal constructor(cacheKey: RemoteStateCach
                 SelectIfGT -> args.formatSelect(">")
                 SelectIfGE -> args.formatSelect(">=")
                 else -> formatCamelCaseFunction(args)
+            }
+        }
+
+        override fun reconstruct(args: List<BaseRemoteState<*>>): BaseRemoteState<*> {
+            return when (this) {
+                Plus -> (args[0] as RemoteFloat) + (args[1] as RemoteFloat)
+                Minus -> (args[0] as RemoteFloat) - (args[1] as RemoteFloat)
+                Times -> (args[0] as RemoteFloat) * (args[1] as RemoteFloat)
+                Div -> (args[0] as RemoteFloat) / (args[1] as RemoteFloat)
+                Rem -> (args[0] as RemoteFloat) % (args[1] as RemoteFloat)
+                UnaryMinus -> -(args[0] as RemoteFloat)
+                Min -> min(args[0] as RemoteFloat, args[1] as RemoteFloat)
+                Max -> max(args[0] as RemoteFloat, args[1] as RemoteFloat)
+                Abs -> abs(args[0] as RemoteFloat)
+                Clamp ->
+                    clamp(args[0] as RemoteFloat, args[1] as RemoteFloat, args[2] as RemoteFloat)
+                SelectIfLT ->
+                    selectIfLt(
+                        args[0] as RemoteFloat,
+                        args[1] as RemoteFloat,
+                        args[2] as RemoteFloat,
+                        args[3] as RemoteFloat,
+                    )
+                SelectIfLE ->
+                    selectIfLe(
+                        args[0] as RemoteFloat,
+                        args[1] as RemoteFloat,
+                        args[2] as RemoteFloat,
+                        args[3] as RemoteFloat,
+                    )
+                SelectIfGT ->
+                    selectIfGt(
+                        args[0] as RemoteFloat,
+                        args[1] as RemoteFloat,
+                        args[2] as RemoteFloat,
+                        args[3] as RemoteFloat,
+                    )
+                SelectIfGE ->
+                    selectIfGe(
+                        args[0] as RemoteFloat,
+                        args[1] as RemoteFloat,
+                        args[2] as RemoteFloat,
+                        args[3] as RemoteFloat,
+                    )
+                Mad -> mad(args[0] as RemoteFloat, args[1] as RemoteFloat, args[2] as RemoteFloat)
+                Lerp -> lerp(args[0] as RemoteFloat, args[1] as RemoteFloat, args[2] as RemoteFloat)
+                Floor -> floor(args[0] as RemoteFloat)
+                Ceil -> ceil(args[0] as RemoteFloat)
+                Log -> log(args[0] as RemoteFloat)
+                Ln -> ln(args[0] as RemoteFloat)
+                Round -> round(args[0] as RemoteFloat)
+                Sin -> sin(args[0] as RemoteFloat)
+                Cos -> cos(args[0] as RemoteFloat)
+                Tan -> tan(args[0] as RemoteFloat)
+                Asin -> asin(args[0] as RemoteFloat)
+                Acos -> acos(args[0] as RemoteFloat)
+                Atan -> atan(args[0] as RemoteFloat)
+                Atan2 -> atan2(args[0] as RemoteFloat, args[1] as RemoteFloat)
+                Cbrt -> cbrt(args[0] as RemoteFloat)
+                ToDeg -> toDeg(args[0] as RemoteFloat)
+                ToRad -> toRad(args[0] as RemoteFloat)
+                Sqrt -> sqrt(args[0] as RemoteFloat)
+                Exp -> exp(args[0] as RemoteFloat)
+                Pow -> pow(args[0] as RemoteFloat, args[1] as RemoteFloat)
+                CopySign -> copySign(args[0] as RemoteFloat, args[1] as RemoteFloat)
+                Sign -> sign(args[0] as RemoteFloat)
+                ToInt,
+                ToRemoteInt -> (args[0] as RemoteFloat).toRemoteInt()
+                ToRemoteString ->
+                    (args[0] as RemoteFloat).toRemoteStringOptions(
+                        (args.getOrNull(1) as? RemoteInt)?.constantValueOrNull ?: 0,
+                        (args.getOrNull(2) as? RemoteInt)?.constantValueOrNull ?: 0,
+                        (args.getOrNull(3) as? RemoteInt)?.constantValueOrNull ?: 0,
+                    )
+                CompareEQ -> (args[0] as RemoteFloat).isEqualTo(args[1] as RemoteFloat)
+                CompareNE -> (args[0] as RemoteFloat).isNotEqualTo(args[1] as RemoteFloat)
+                CompareLT -> (args[0] as RemoteFloat).isLessThan(args[1] as RemoteFloat)
+                CompareLE -> (args[0] as RemoteFloat).isLessThanOrEqualTo(args[1] as RemoteFloat)
+                CompareGT -> (args[0] as RemoteFloat).isGreaterThan(args[1] as RemoteFloat)
+                CompareGE -> (args[0] as RemoteFloat).isGreaterThanOrEqualTo(args[1] as RemoteFloat)
+                Reference ->
+                    (args[0] as RemoteFloat).createReference(
+                        (args.getOrNull(1) as? RemoteBoolean)?.constantValueOrNull ?: false
+                    )
+                DeltaFromReferenceInSeconds -> deltaFromReferenceInSeconds(args[0] as RemoteLong)
+                DeltaFromReferenceInMinutes -> deltaFromReferenceInMinutes(args[0] as RemoteLong)
+                DeltaFromReferenceInHours -> deltaFromReferenceInHours(args[0] as RemoteLong)
+                TimeOfReferenceInSeconds -> timeOfReferenceInSeconds(args[0] as RemoteLong)
+                TimeOfReferenceInMinutes -> timeOfReferenceInMinutes(args[0] as RemoteLong)
+                TimeOfReferenceInHours -> timeOfReferenceInHours(args[0] as RemoteLong)
+                DayOfMonthForReference -> dayOfMonthForReference(args[0] as RemoteLong)
+                MonthOfYearForReference -> monthOfYearForReference(args[0] as RemoteLong)
+                DayOfWeekForReference -> dayOfWeekForReference(args[0] as RemoteLong)
+                YearForReference -> yearForReference(args[0] as RemoteLong)
+                Anim ->
+                    AnimatedRemoteFloat(
+                        args[0] as RemoteFloat,
+                        (args[1] as? FloatArrayRemoteState)?.floatArray
+                            ?: (args[1].cacheKey as FloatArrayCacheKey).floatArray,
+                    )
+                Cubic ->
+                    cubicEasing(
+                        args[0] as RemoteFloat,
+                        args[1] as RemoteFloat,
+                        args[2] as RemoteFloat,
+                        args[3] as RemoteFloat,
+                        args[4] as RemoteFloat,
+                    )
+                Spline ->
+                    evalSpline(
+                        args[0] as RemoteFloatArray,
+                        loop = false,
+                        progress = args[1] as RemoteFloat,
+                    )
+                SplineLoop ->
+                    evalSpline(
+                        args[0] as RemoteFloatArray,
+                        loop = true,
+                        progress = args[1] as RemoteFloat,
+                    )
+                ComparisonOp ->
+                    selectIfLt(
+                        args[0] as RemoteFloat,
+                        args[1] as RemoteFloat,
+                        args[2] as RemoteFloat,
+                        args[3] as RemoteFloat,
+                    )
             }
         }
     }
