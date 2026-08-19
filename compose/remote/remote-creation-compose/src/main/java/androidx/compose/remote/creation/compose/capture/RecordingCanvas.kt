@@ -88,7 +88,7 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     internal var forceSendingPaint = false
 
     public var globalSaveCounter: Int = 0
-    internal var localSpanSaveCounter: Int = 0
+    internal var initialSpanSaveCount: Int = 0
     internal var currentDrawToBitmapId = 0
     internal var currentSaveRestoreNode: CanvasOp.SaveRestore? = null
 
@@ -227,20 +227,35 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         val prevInsertPoint = buffer.insertPoint
         val prevSaveNode = currentSaveRestoreNode
         val prevLastRenderingOp = buffer.lastRenderingOp
-        val prevLocalSpanSaveCounter = localSpanSaveCounter
         val prevGlobalSaveCounter = globalSaveCounter
+        val prevInitialSpanSaveCount = initialSpanSaveCount
         buffer.insertPoint = childSpan
         currentSaveRestoreNode = null
         buffer.lastRenderingOp = null
-        localSpanSaveCounter = 0
+        initialSpanSaveCount = globalSaveCounter
+        var exceptionThrown = false
         try {
             action()
+        } catch (e: Throwable) {
+            exceptionThrown = true
+            throw e
         } finally {
+            val netSaveCountChange = globalSaveCounter - prevGlobalSaveCounter
+            val exitGlobalSaveCounter = globalSaveCounter
+
             buffer.insertPoint = prevInsertPoint
             currentSaveRestoreNode = prevSaveNode
             buffer.lastRenderingOp = prevLastRenderingOp
-            localSpanSaveCounter = prevLocalSpanSaveCounter
+            initialSpanSaveCount = prevInitialSpanSaveCount
             globalSaveCounter = prevGlobalSaveCounter
+
+            if (!exceptionThrown && netSaveCountChange != 0) {
+                throw IllegalStateException(
+                    "Unbalanced save/restore in child span: net save count change was " +
+                        "$netSaveCountChange (must be 0, entered at " +
+                        "$prevGlobalSaveCounter, exited at $exitGlobalSaveCounter)"
+                )
+            }
         }
         return childSpan
     }
@@ -724,18 +739,50 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
     }
 
     override fun save(): Int {
-        val node = CanvasOp.SaveRestore(parent = currentSaveRestoreNode)
-        recordRenderingOp(node)
-        currentSaveRestoreNode = node
-        localSpanSaveCounter++
-        globalSaveCounter++
+        // Child spans (such as conditional blocks recorded via drawConditionally or offscreen
+        // buffers) operate with two save/restore contexts:
+        //  1. Outer context: Save frames that were active before entering the child span.
+        //  2. Inner context: Save frames created locally inside the child span.
+        //
+        // If code inside a child span previously called restore() to temporarily pop an outer
+        // frame (e.g. to draw pre-rendered content at screen coordinates under the identity
+        // matrix), globalSaveCounter will be less than initialSpanSaveCount. When reinstating that
+        // outer frame via save(), we must emit a standalone document.save() rather than creating a
+        // CanvasOp.SaveRestore node, because CanvasOp.SaveRestore nodes are scoped blocks that
+        // automatically emit a matching trailing document.restore() when their operations end.
+        //
+        // Once all popped outer frames are reinstated (globalSaveCounter >= initialSpanSaveCount),
+        // any further save() is creating a new local save block in the inner context, which is
+        // recorded as a standard CanvasOp.SaveRestore node for canvas tree optimizations.
+        if (globalSaveCounter < initialSpanSaveCount) {
+            recordRenderingOp { document.save() }
+            globalSaveCounter++
+        } else {
+            val node = CanvasOp.SaveRestore(parent = currentSaveRestoreNode)
+            recordRenderingOp(node)
+            currentSaveRestoreNode = node
+            globalSaveCounter++
+        }
         return globalSaveCounter
     }
 
     override fun restore() {
-        if (localSpanSaveCounter > 0 && globalSaveCounter > 0) {
+        // When restoring inside a child span (e.g. a conditional block):
+        //  1. Inner context: If currentSaveRestoreNode != null, we are popping a local save/restore
+        //     frame created within this span. We update the node hierarchy and decrement the
+        // counter.
+        //  2. Outer context: If currentSaveRestoreNode == null but globalSaveCounter > 0, we are
+        //     temporarily popping an outer save frame that was pushed before entering this child
+        //     span. Because the outer frame was opened outside this span's buffer, we emit a
+        //     standalone document.restore() into the span. Note that recordInChildSpan strictly
+        //     requires all popped outer frames to be reinstated with matching save() calls before
+        //     the child span exits (net balance must be 0).
+        //  3. Underflow: If globalSaveCounter == 0, there are no saves left to restore.
+        if (currentSaveRestoreNode != null) {
             currentSaveRestoreNode = currentSaveRestoreNode?.parent
-            localSpanSaveCounter--
+            globalSaveCounter--
+        } else if (globalSaveCounter > 0) {
+            recordRenderingOp { document.restore() }
             globalSaveCounter--
         } else {
             throw IllegalStateException("Underflow in restore - more restores than saves")
