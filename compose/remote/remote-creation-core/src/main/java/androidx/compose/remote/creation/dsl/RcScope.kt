@@ -1089,7 +1089,7 @@ public interface RcScope {
     /** Add an impulse process container contents execute for the duration of the impulse */
     public fun impulseProcess(block: RcImpulseScope.() -> Unit)
 
-    public fun runAction(block: RcActionScope.() -> Unit)
+    public fun runAction(block: RcRunActionScope.() -> Unit)
 
     /** Conditionally skip a segment */
     public fun skip(type: Short, value: Int, block: RcScope.() -> Unit)
