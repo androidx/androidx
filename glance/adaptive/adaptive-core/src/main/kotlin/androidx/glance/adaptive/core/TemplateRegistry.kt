@@ -24,8 +24,11 @@ import androidx.glance.adaptive.core.templates.AdaptiveGlanceTemplate
 /** Registry for mapping template classes to their Composable renderers. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object TemplateRegistry {
+    private val lock = Any()
+
     @get:VisibleForTesting
-    internal val registryMap:
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val registryMap:
         MutableMap<
             Class<out AdaptiveGlanceTemplate>,
             @Composable
@@ -33,25 +36,36 @@ public object TemplateRegistry {
         > =
         mutableMapOf()
 
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun reset() {
+        synchronized(lock) { registryMap.clear() }
+    }
+
     public fun <T : AdaptiveGlanceTemplate> register(
         templateClass: Class<T>,
         renderer: @Composable (T) -> Unit,
     ) {
-        @Suppress("UNCHECKED_CAST")
-        registryMap[templateClass] = { template ->
-            renderer(template as T)
+        synchronized(lock) {
+            @Suppress("UNCHECKED_CAST")
+            registryMap[templateClass] = { template ->
+                renderer(template as T)
+            }
         }
     }
 
     public fun getRenderer(
         templateClass: Class<out AdaptiveGlanceTemplate>
     ): @Composable (AdaptiveGlanceTemplate) -> Unit {
-        return requireNotNull(registryMap[templateClass]) {
-            "No Composable renderer registered for template class: ${templateClass.name}. Did you forget to register it in TemplateRegistry?"
+        return synchronized(lock) {
+            requireNotNull(registryMap[templateClass]) {
+                "No Composable renderer registered for template class: ${templateClass.name}. Did you forget to register it in TemplateRegistry?"
+            }
         }
     }
 
     @Composable
+    @Suppress("ComposableNaming")
     public fun render(template: AdaptiveGlanceTemplate) {
         getRenderer(template.javaClass)(template)
     }

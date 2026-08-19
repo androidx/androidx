@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core
+package androidx.glance.adaptive.appwidget
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
@@ -33,7 +33,7 @@ import org.robolectric.annotation.Config
 class GlanceAdaptiveWidgetReceiverTest {
 
     private class TestReceiver : GlanceAdaptiveWidgetReceiver() {
-        override val widgetId: String = "test_widget_id"
+        override val widgetName: String = "test_widget"
 
         val onUpdateCalled = CompletableDeferred<Boolean>()
 
@@ -43,13 +43,13 @@ class GlanceAdaptiveWidgetReceiverTest {
     }
 
     private class DefaultReceiver : GlanceAdaptiveWidgetReceiver() {
-        override val widgetId: String = "default_widget_id"
+        override val widgetName: String = "default_widget"
     }
 
     @Test
-    fun widgetId_returnsConfiguredValue() {
+    fun widgetName_returnsConfiguredValue() {
         val receiver = TestReceiver()
-        assertThat(receiver.widgetId).isEqualTo("test_widget_id")
+        assertThat(receiver.widgetName).isEqualTo("test_widget")
     }
 
     @Test

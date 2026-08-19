@@ -16,32 +16,75 @@
 
 package androidx.glance.adaptive.core
 
+import androidx.glance.adaptive.core.templates.AdaptiveGlanceTemplate
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@Config(sdk = [Config.TARGET_SDK])
-@RunWith(RobolectricTestRunner::class)
 class GlanceAdaptiveWidgetManagerTest {
 
-    private class FakeDelegate : GlanceAdaptiveWidgetDelegate {
-        var pushUpdateCalled = false
+    private class TestTemplate : AdaptiveGlanceTemplate
 
-        override suspend fun pushUpdate() {
-            pushUpdateCalled = true
+    private class FakeWidgetDelegate : GlanceAdaptiveWidgetDelegate {
+        var lastWidgetName: String? = null
+        var lastWidgetIds: Set<String>? = null
+        var lastData: AdaptiveGlanceTemplate? = null
+
+        override suspend fun pushUpdate(
+            widgetName: String,
+            currentData: AdaptiveGlanceTemplate,
+            widgetIds: Set<String>?,
+        ) {
+            lastWidgetName = widgetName
+            lastWidgetIds = widgetIds
+            lastData = currentData
         }
     }
 
     @Test
-    fun pushUpdate_delegatesToDelegate() = runTest {
-        val fake = FakeDelegate()
-        val manager = GlanceAdaptiveWidgetManager(fake)
+    fun pushUpdate_broadcast_delegatesToDelegate() = runTest {
+        val fakeDelegate = FakeWidgetDelegate()
+        val manager = GlanceAdaptiveWidgetManager(fakeDelegate)
+        val testTemplate = TestTemplate()
 
-        manager.pushUpdate()
+        manager.pushUpdate(widgetName = "test_widget", currentData = testTemplate)
 
-        assertThat(fake.pushUpdateCalled).isTrue()
+        assertThat(fakeDelegate.lastWidgetName).isEqualTo("test_widget")
+        assertThat(fakeDelegate.lastWidgetIds).isNull()
+        assertThat(fakeDelegate.lastData).isSameInstanceAs(testTemplate)
+    }
+
+    @Test
+    fun pushUpdate_withWidgetIds_delegatesToDelegate() = runTest {
+        val fakeDelegate = FakeWidgetDelegate()
+        val manager = GlanceAdaptiveWidgetManager(fakeDelegate)
+        val testTemplate = TestTemplate()
+
+        manager.pushUpdate(
+            widgetName = "test_widget",
+            currentData = testTemplate,
+            widgetIds = setOf("widget_123", "widget_456"),
+        )
+
+        assertThat(fakeDelegate.lastWidgetName).isEqualTo("test_widget")
+        assertThat(fakeDelegate.lastWidgetIds).containsExactly("widget_123", "widget_456")
+        assertThat(fakeDelegate.lastData).isSameInstanceAs(testTemplate)
+    }
+
+    @Test
+    fun pushUpdate_withSingleWidgetId_delegatesToDelegate() = runTest {
+        val fakeDelegate = FakeWidgetDelegate()
+        val manager = GlanceAdaptiveWidgetManager(fakeDelegate)
+        val testTemplate = TestTemplate()
+
+        manager.pushUpdate(
+            widgetName = "test_widget",
+            currentData = testTemplate,
+            widgetId = "widget_123",
+        )
+
+        assertThat(fakeDelegate.lastWidgetName).isEqualTo("test_widget")
+        assertThat(fakeDelegate.lastWidgetIds).containsExactly("widget_123")
+        assertThat(fakeDelegate.lastData).isSameInstanceAs(testTemplate)
     }
 }

@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core
+package androidx.glance.adaptive.appwidget
 
+import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import kotlinx.coroutines.test.runTest
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -25,11 +26,13 @@ import org.robolectric.annotation.Config
 
 @Config(sdk = [Config.TARGET_SDK])
 @RunWith(RobolectricTestRunner::class)
-class BaseWidgetDelegateTest {
+class GlanceAdaptiveWidgetManagerAppWidgetTest {
 
     @Test
-    fun baseWidgetDelegate_placeholdersDoNotThrow() = runTest {
-        val delegate = BaseWidgetDelegate(ApplicationProvider.getApplicationContext())
-        delegate.pushUpdate()
+    fun glanceAdaptiveWidgetManager_withContext_createsManagerWithBaseWidgetDelegate() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val manager = GlanceAdaptiveWidgetManager(context)
+
+        assertThat(manager.delegate).isInstanceOf(BaseWidgetDelegate::class.java)
     }
 }
