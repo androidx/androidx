@@ -55,8 +55,10 @@ package androidx.activity {
     method public final void addOnPictureInPictureUiStateChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureUiStateCompat> listener);
     method public final void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer> listener);
     method public final void addOnUserLeaveHintListener(Runnable listener);
+    method @SuppressCompatibility @androidx.activity.ExportedActivityDefaultArgControl public static final void enableExportedActivityDefaultArgs(boolean enabled);
     method public final void enterPictureInPictureMode(androidx.core.app.PictureInPictureParamsCompat params);
     method @InaccessibleFromKotlin public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
+    method @InaccessibleFromKotlin public android.os.Bundle? getDefaultViewModelArgs();
     method @InaccessibleFromKotlin public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method @InaccessibleFromKotlin public androidx.activity.FullyDrawnReporter getFullyDrawnReporter();
     method @InaccessibleFromKotlin @Deprecated public Object? getLastCustomNonConfigurationInstance();
@@ -88,6 +90,7 @@ package androidx.activity {
     method @Deprecated @kotlin.jvm.Throws(exceptionClasses=SendIntentException::class) public void startIntentSenderForResult(android.content.IntentSender intent, int requestCode, android.content.Intent? fillInIntent, int flagsMask, int flagsValues, int extraFlags) throws android.content.IntentSender.SendIntentException;
     method @Deprecated @kotlin.jvm.Throws(exceptionClasses=SendIntentException::class) public void startIntentSenderForResult(android.content.IntentSender intent, int requestCode, android.content.Intent? fillInIntent, int flagsMask, int flagsValues, int extraFlags, android.os.Bundle? options) throws android.content.IntentSender.SendIntentException;
     property public final androidx.activity.result.ActivityResultRegistry activityResultRegistry;
+    property public android.os.Bundle? defaultViewModelArgs;
     property @CallSuper public androidx.lifecycle.viewmodel.CreationExtras defaultViewModelCreationExtras;
     property public androidx.lifecycle.ViewModelProvider.Factory defaultViewModelProviderFactory;
     property public androidx.activity.FullyDrawnReporter fullyDrawnReporter;
@@ -97,6 +100,11 @@ package androidx.activity {
     property public final androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
     property public final androidx.savedstate.SavedStateRegistry savedStateRegistry;
     property public androidx.lifecycle.ViewModelStore viewModelStore;
+    field public static final androidx.activity.ComponentActivity.Companion Companion;
+  }
+
+  public static final class ComponentActivity.Companion {
+    method @SuppressCompatibility @androidx.activity.ExportedActivityDefaultArgControl public void enableExportedActivityDefaultArgs(boolean enabled);
   }
 
   public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.navigationevent.NavigationEventDispatcherOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner {
@@ -123,6 +131,9 @@ package androidx.activity {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and may change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalActivityApi {
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface ExportedActivityDefaultArgControl {
   }
 
   public final class FullyDrawnReporter {
