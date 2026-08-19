@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// TODO: remove Suppress after XrLog is updated or removed pending b/537445115
+@file:Suppress("DEPRECATION")
 @file:SuppressLint("RestrictedApiAndroidX")
 
 package androidx.xr.scenecore.openxr
