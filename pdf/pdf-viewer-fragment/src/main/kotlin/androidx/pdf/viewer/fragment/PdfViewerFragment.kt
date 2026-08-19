@@ -82,7 +82,8 @@ import androidx.pdf.viewer.fragment.toolbox.ToolboxGestureEventProcessor.MotionE
 import androidx.pdf.viewer.fragment.toolbox.ToolboxGestureEventProcessor.MotionEventType.SingleTap
 import androidx.pdf.viewer.fragment.toolbox.ToolboxGestureEventProcessor.ToolboxGestureDelegate
 import androidx.pdf.viewer.fragment.util.getCenter
-import androidx.pdf.viewer.fragment.view.PdfViewManager
+import androidx.pdf.viewer.fragment.view.PdfHighlightManager
+import kotlin.time.Duration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -302,11 +303,12 @@ public open class PdfViewerFragment constructor() : Fragment() {
     private lateinit var _pdfContainer: PdfContentLayout
     private lateinit var errorView: TextView
     private lateinit var loadingView: ProgressBar
-    private lateinit var pdfViewManager: PdfViewManager
+    private lateinit var highlightManager: PdfHighlightManager
     private lateinit var pdfSearchViewManager: PdfSearchViewManager
 
     private var searchStateCollector: Job? = null
     private var highlightStateCollector: Job? = null
+    private var searchScrollStateCollector: Job? = null
     private var toolboxStateCollector: Job? = null
 
     private var pdfStylingOptions: PdfStylingOptions? = null
@@ -533,8 +535,8 @@ public open class PdfViewerFragment constructor() : Fragment() {
      */
     @OptIn(ExperimentalPdfApi::class)
     private fun setupPdfView() {
-        pdfViewManager =
-            PdfViewManager(
+        highlightManager =
+            PdfHighlightManager(
                 pdfView = _pdfView,
                 selectedHighlightColor =
                     ContextCompat.getColor(requireContext(), R.color.selected_highlight_color),
@@ -638,11 +640,12 @@ public open class PdfViewerFragment constructor() : Fragment() {
     private fun PdfSearchView.performSearch() {
         searchQueryBox.clearFocus()
 
-        searchDocument(searchQueryBox.text.toString())
-    }
-
-    private fun searchDocument(query: String) {
-        documentViewModel.searchDocument(query = query, visiblePageRange = _pdfView.visiblePages)
+        documentViewModel.searchDocument(
+            query = searchQueryBox.text.toString(),
+            visiblePageRange = _pdfView.visiblePages,
+            // Bypass typing debounce to trigger search immediately on IME action submission.
+            debounce = Duration.ZERO,
+        )
     }
 
     private fun setupToolbox() {
@@ -682,9 +685,14 @@ public open class PdfViewerFragment constructor() : Fragment() {
 
         highlightStateCollector = collectFlowOnLifecycleScope {
             documentViewModel.highlightsFlow.collect { highlightData ->
-                pdfViewManager.apply {
-                    setHighlights(highlightData)
-                    scrollToCurrentSearchResult(highlightData)
+                highlightManager.setHighlights(highlightData)
+            }
+        }
+
+        searchScrollStateCollector = collectFlowOnLifecycleScope {
+            documentViewModel.searchScrollPositionFlow.collect { point ->
+                if (_pdfView.gestureState == PdfView.GESTURE_STATE_IDLE) {
+                    _pdfView.scrollToPosition(point)
                 }
             }
         }
@@ -701,6 +709,8 @@ public open class PdfViewerFragment constructor() : Fragment() {
         searchStateCollector = null
         highlightStateCollector?.cancel()
         highlightStateCollector = null
+        searchScrollStateCollector?.cancel()
+        searchScrollStateCollector = null
         toolboxStateCollector?.cancel()
         toolboxStateCollector = null
     }

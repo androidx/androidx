@@ -18,8 +18,6 @@ package androidx.pdf.viewer.fragment.util
 
 import android.util.SparseArray
 import androidx.core.util.isEmpty
-import androidx.core.util.keyIterator
-import androidx.core.util.valueIterator
 import androidx.pdf.content.PageMatchBounds
 
 /**
@@ -27,8 +25,13 @@ import androidx.pdf.content.PageMatchBounds
  *
  * @return total number of results
  */
-internal fun SparseArray<List<PageMatchBounds>>.countTotalElements(): Int =
-    valueIterator().asSequence().map { it.size }.sum()
+internal fun SparseArray<List<PageMatchBounds>>.countTotalElements(): Int {
+    var total = 0
+    for (pageIndex in 0 until size()) {
+        total += valueAt(pageIndex).size
+    }
+    return total
+}
 
 /**
  * Calculates flatten index in sparse array, given key-index and list-index.
@@ -41,15 +44,15 @@ internal fun SparseArray<List<PageMatchBounds>>.getFlattenedIndex(
     selectedResultPageNum: Int,
     resultIndex: Int,
 ): Int {
-    // Count results up to selectedResultPageNum
-    var currentSelection =
-        keyIterator()
-            .asSequence()
-            .takeWhile { it < selectedResultPageNum }
-            .map { valueAt(indexOfKey(it)).size }
-            .sum()
-
-    // Now, add the item index within the specified list
+    var currentSelection = 0
+    for (pageIndex in 0 until size()) {
+        val pageNum = keyAt(pageIndex)
+        if (pageNum < selectedResultPageNum) {
+            currentSelection += valueAt(pageIndex).size
+        } else {
+            break
+        }
+    }
     currentSelection += resultIndex
 
     return if (isEmpty()) 0 else currentSelection

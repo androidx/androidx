@@ -55,14 +55,17 @@ internal class PdfSearchViewManager(private val pdfSearchView: PdfSearchView) {
 
     private fun updateViewAfterSearch(results: SearchViewUiState.Active) {
         pdfSearchView.apply {
-            matchStatusTextView.text =
-                prepareMatchStatusText(results.currentMatch, results.totalMatches)
+            val statusText = prepareMatchStatusText(results.currentMatch, results.totalMatches)
+            matchStatusTextView.text = if (results.isSearching) "$statusText…" else statusText
+
+            val statusDescriptionRes =
+                if (results.isSearching) {
+                    androidx.pdf.R.string.match_status_searching_description
+                } else {
+                    androidx.pdf.R.string.match_status_description
+                }
             matchStatusTextView.contentDescription =
-                context.getString(
-                    androidx.pdf.R.string.match_status_description,
-                    results.currentMatch,
-                    results.totalMatches,
-                )
+                context.getString(statusDescriptionRes, results.currentMatch, results.totalMatches)
 
             if (results.totalMatches == 0) {
                 /*
@@ -78,13 +81,6 @@ internal class PdfSearchViewManager(private val pdfSearchView: PdfSearchView) {
             }
 
             matchStatusTextView.visibility = View.VISIBLE
-
-            // Restores the search query in the EditText, if needed (e.g., after process death).
-            if (searchQueryBox.text.toString() != results.query) {
-                searchQueryBox.setText(results.query)
-                searchQueryBox.setSelection(results.query.length)
-            }
-
             visibility = View.VISIBLE
         }
     }

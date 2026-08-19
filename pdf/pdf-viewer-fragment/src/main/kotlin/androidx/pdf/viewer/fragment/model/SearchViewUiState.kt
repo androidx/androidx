@@ -44,7 +44,12 @@ internal sealed interface SearchViewUiState {
      * @param query for the current search operation.
      * @param currentMatch current match out of total matches.
      * @param totalMatches total number of matches after search operation.
+     * @param isSearching indicates whether the search operation is actively progressing.
      */
-    data class Active(val query: String, val currentMatch: Int, val totalMatches: Int) :
-        SearchViewUiState
+    data class Active(
+        val query: String,
+        val currentMatch: Int,
+        val totalMatches: Int,
+        val isSearching: Boolean = false,
+    ) : SearchViewUiState
 }
