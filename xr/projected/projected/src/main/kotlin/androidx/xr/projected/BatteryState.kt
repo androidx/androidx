@@ -24,8 +24,7 @@ import androidx.annotation.IntRange
  * @property isCharging true if the battery is currently charging, false otherwise
  * @property batteryLevel the current battery level, from 0 to 100 inclusive
  */
-public class BatteryState
-internal constructor(
+public class BatteryState(
     @get:JvmName("isCharging") public val isCharging: Boolean,
     @param:IntRange(from = 0, to = 100) public val batteryLevel: Int,
 ) {

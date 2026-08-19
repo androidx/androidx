@@ -2,6 +2,7 @@
 package androidx.xr.projected {
 
   public final class BatteryState {
+    ctor public BatteryState(boolean isCharging, @IntRange(from=0L, to=100L) int batteryLevel);
     method @InaccessibleFromKotlin public int getBatteryLevel();
     method @InaccessibleFromKotlin public boolean isCharging();
     property public int batteryLevel;
