@@ -292,4 +292,30 @@ public class CameraSelectorTest {
             .containsExactly(mRearCamera.cameraInfo, mFrontCamera.cameraInfo)
             .inOrder()
     }
+
+    @Test
+    fun fromSelector_copiesPhysicalCameraId() {
+        val physicalCameraId = "physical-camera-1"
+        val original =
+            CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                .setPhysicalCameraId(physicalCameraId)
+                .build()
+
+        val copy = CameraSelector.Builder.fromSelector(original).build()
+
+        assertThat(copy.physicalCameraId).isEqualTo(physicalCameraId)
+        assertThat(copy.lensFacing).isEqualTo(CameraSelector.LENS_FACING_BACK)
+    }
+
+    @Test
+    fun fromSelector_whenPhysicalCameraIdIsNull_remainsNull() {
+        val original =
+            CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_FRONT).build()
+
+        val copy = CameraSelector.Builder.fromSelector(original).build()
+
+        assertThat(copy.physicalCameraId).isNull()
+        assertThat(copy.lensFacing).isEqualTo(CameraSelector.LENS_FACING_FRONT)
+    }
 }
