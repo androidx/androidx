@@ -18,16 +18,22 @@ package androidx.wear.compose.material3.demos
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.LocalTextConfiguration
 import androidx.wear.compose.material3.SplitSwitchButton
+import androidx.wear.compose.material3.SwitchButtonDefaults
 import androidx.wear.compose.material3.Text
 
 @Composable
@@ -82,6 +88,40 @@ fun SplitSwitchButtonDemo() {
                 )
             }
         }
+        item { ListHeader { Text("Custom Shapes") } }
+        item {
+            DemoSplitSwitchButton(
+                enabled = true,
+                initiallyChecked = true,
+                primary = "Cut Corner Shape",
+                secondary = "Secondary label",
+                shape = CutCornerShape(14.dp),
+            )
+        }
+        item {
+            DemoSplitSwitchButton(
+                enabled = true,
+                initiallyChecked = false,
+                primary = "Asymmetric Corners",
+                secondary = "Secondary label",
+                shape =
+                    RoundedCornerShape(
+                        topStart = 24.dp,
+                        topEnd = 6.dp,
+                        bottomEnd = 6.dp,
+                        bottomStart = 24.dp,
+                    ),
+            )
+        }
+        item {
+            DemoSplitSwitchButton(
+                enabled = true,
+                initiallyChecked = true,
+                primary = "Pill / Circle Corners",
+                secondary = "Secondary label",
+                shape = CircleShape,
+            )
+        }
     }
 }
 
@@ -92,11 +132,13 @@ private fun DemoSplitSwitchButton(
     primary: String = "Primary label",
     primaryMaxLines: Int? = null,
     secondary: String? = null,
+    shape: Shape = SwitchButtonDefaults.splitSwitchButtonShape,
 ) {
     var checked by remember { mutableStateOf(initiallyChecked) }
     val context = LocalContext.current
     SplitSwitchButton(
         modifier = Modifier.fillMaxWidth(),
+        shape = shape,
         label = {
             Text(
                 primary,
