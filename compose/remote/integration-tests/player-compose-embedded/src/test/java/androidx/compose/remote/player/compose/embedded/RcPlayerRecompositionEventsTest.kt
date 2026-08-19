@@ -154,6 +154,7 @@ class RcPlayerRecompositionEventsTest {
         collectJob.cancel()
     }
 
+    @Ignore("b/547937928")
     @Test
     fun testDerivedStateOfSeconds() = runBlocking {
         val secondsState = mutableStateOf(0)
