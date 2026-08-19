@@ -16,6 +16,7 @@
 
 package androidx.ink.brush.behavior
 
+import androidx.ink.geometry.ImmutableVec
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
 import androidx.kruth.assertThat
@@ -38,7 +39,7 @@ class ResponseNodeTest {
 
     @Test
     fun responseNode_usesPassedInEasingFunction() {
-        val easingFunction = EasingFunction.CubicBezier(0f, 0f, 1f, 1f)
+        val easingFunction = EasingFunction.CubicBezier(ImmutableVec(0f, 0f), ImmutableVec(1f, 1f))
         val input = ConstantNode(0f)
         val node = ResponseNode(easingFunction, input)
         assertThat(node.responseCurve).isSameInstanceAs(easingFunction)

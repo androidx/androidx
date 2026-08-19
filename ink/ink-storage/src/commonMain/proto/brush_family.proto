@@ -1280,7 +1280,7 @@ message BrushBehavior {
   //
   // To be valid:
   //   * `damping_source` must be a valid `ProgressDomain` enumerator.
-  //   * `damping_gap` must be finite and non-negative.
+  //   * `strength` must be finite and non-negative.
   message DampingNode {
     option (ink.proto.message_min_version) = 0;
 
@@ -1288,10 +1288,10 @@ message BrushBehavior {
     optional ProgressDomain damping_source = 1
         [(ink.proto.field_min_version) = 0];
 
-    // A scaling factor, in `damping_source` units, for the damping. Smaller
-    // gaps result in less damping, so the output follows the input more
-    // closely.
-    optional float damping_gap = 2 [(ink.proto.field_min_version) = 0];
+    // A scaling factor, in `damping_source` units, for the damping. A smaller
+    // strength value results in less damping, so the output follows the input
+    // more closely.
+    optional float strength = 2 [(ink.proto.field_min_version) = 0];
   }
 
   // Value node for mapping a value through a response curve.
