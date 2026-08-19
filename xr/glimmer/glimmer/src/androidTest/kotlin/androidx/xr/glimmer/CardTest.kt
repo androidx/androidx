@@ -480,7 +480,7 @@ class CardTest {
     }
 
     @Test
-    fun action_cardIsNotInteractable() {
+    fun actionCard_isNotInteractable() {
         rule.setGlimmerThemeContent {
             ActionCard(
                 modifier = Modifier.testTag("card"),
@@ -496,7 +496,7 @@ class CardTest {
     }
 
     @Test
-    fun action_forcesMinimumConstraintsToBeMaxWidth() {
+    fun actionCard_forcesMinimumConstraintsToBeMaxWidth() {
         val cardWidth = 300.dp
         var mediumSpacing: Dp by Delegates.notNull()
         rule.setGlimmerThemeContent {
@@ -862,7 +862,7 @@ class CardTest {
     }
 
     @Test
-    fun positioning_action() {
+    fun positioning_actionCard() {
         var smallSpacing: Dp by Delegates.notNull()
         var mediumSpacing: Dp by Delegates.notNull()
         rule.setGlimmerThemeContent {
@@ -929,7 +929,7 @@ class CardTest {
     }
 
     @Test
-    fun positioning_action_withHeader_withExcessHeight() {
+    fun positioning_actionCard_withHeader_withExcessHeight() {
         val cardHeight = 500.dp
         var smallSpacing: Dp by Delegates.notNull()
         var mediumSpacing: Dp by Delegates.notNull()
@@ -1269,7 +1269,7 @@ class CardTest {
     }
 
     @Test
-    fun positioning_titleAndSubtitle_withImageAndIcons_withAction() {
+    fun positioning_actionCard_titleAndSubtitle_withImageAndIcons() {
         var smallSpacing: Dp by Delegates.notNull()
         var mediumSpacing: Dp by Delegates.notNull()
         rule.setGlimmerThemeContent {

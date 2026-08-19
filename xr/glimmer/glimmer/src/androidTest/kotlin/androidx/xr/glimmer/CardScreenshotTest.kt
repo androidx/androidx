@@ -73,12 +73,6 @@ class CardScreenshotTest {
     }
 
     @Test
-    fun card_withTitleAndAction() {
-        rule.setGlimmerThemeContent { ActionCardWithTitleSample() }
-        rule.assertRootAgainstGolden("card_titleAction", screenshotRule)
-    }
-
-    @Test
     fun card_withTitleAndSubtitleAndLeadingIconLongText() {
         rule.setGlimmerThemeContent { CardWithTitleAndSubtitleAndLeadingIconLongText() }
         rule.assertRootAgainstGolden("card_titleSubtitleLeadingIconLongText", screenshotRule)
@@ -135,5 +129,54 @@ class CardScreenshotTest {
         // Advance past the animation
         rule.mainClock.advanceTimeBy(10000)
         rule.assertRootAgainstGolden("card_focused_and_pressed", screenshotRule)
+    }
+
+    @Test
+    fun actionCard_withTitle() {
+        rule.setGlimmerThemeContent { ActionCardWithTitleSample() }
+        rule.assertRootAgainstGolden("card_titleAction", screenshotRule)
+    }
+
+    @Test
+    fun actionCard_focused() {
+        rule.mainClock.autoAdvance = false
+        rule.setGlimmerThemeContent {
+            ActionCard(
+                action = {
+                    Button(onClick = {}, interactionSource = AlwaysFocusedInteractionSource) {
+                        Text("Send")
+                    }
+                },
+                title = { Text("Title") },
+            ) {
+                Text("This is a card with a title and action")
+            }
+        }
+        // Advance past the animation
+        rule.mainClock.advanceTimeBy(10000)
+        rule.assertRootAgainstGolden("action_card_focused", screenshotRule)
+    }
+
+    @Test
+    fun actionCard_focused_and_pressed() {
+        rule.mainClock.autoAdvance = false
+        rule.setGlimmerThemeContent {
+            ActionCard(
+                action = {
+                    Button(
+                        onClick = {},
+                        interactionSource = AlwaysFocusedAndPressedInteractionSource,
+                    ) {
+                        Text("Send")
+                    }
+                },
+                title = { Text("Title") },
+            ) {
+                Text("This is a card with a title and action")
+            }
+        }
+        // Advance past the animation
+        rule.mainClock.advanceTimeBy(10000)
+        rule.assertRootAgainstGolden("action_card_focused_and_pressed", screenshotRule)
     }
 }
