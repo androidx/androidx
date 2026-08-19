@@ -71,6 +71,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
@@ -82,6 +84,7 @@ import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompa
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.InvalidId
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testClipEntry
 import androidx.compose.ui.platform.testTag
@@ -3819,6 +3822,42 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             assertThat(eventTypes).contains(AccessibilityEvent.TYPE_VIEW_FOCUSED)
             assertThat(eventTypes)
                 .doesNotContain(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED)
+        }
+    }
+
+    @Test
+    fun scroll_whenKeyboardFocused_dispatchesAccessibilityFocusEventPostScroll() {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.setInTouchMode(false)
+        try {
+            val scrollState = ScrollState(0)
+            var isFocused by mutableStateOf(false)
+            lateinit var inputModeManager: InputModeManager
+
+            rule.setContentWithAccessibilityEnabled {
+                inputModeManager = LocalInputModeManager.current
+                Column(Modifier.size(100.dp).verticalScroll(scrollState)) {
+                    Box(Modifier.size(50.dp).semantics { focused = isFocused })
+                    Box(Modifier.size(200.dp))
+                }
+            }
+
+            rule.runOnIdle { inputModeManager.requestInputMode(InputMode.Keyboard) }
+            assumeTrue("Device must support non-touch mode", !androidComposeView.isInTouchMode)
+
+            rule.runOnIdle { isFocused = true }
+            rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+            rule.runOnIdle { scrollState.dispatchRawDelta(50f) }
+            rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+            rule.runOnIdle {
+                val eventTypes = dispatchedAccessibilityEvents.map { it.eventType }
+                assertThat(eventTypes).contains(AccessibilityEvent.TYPE_VIEW_SCROLLED)
+                assertThat(eventTypes).contains(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED)
+            }
+        } finally {
+            instrumentation.setInTouchMode(true)
         }
     }
 
