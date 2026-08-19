@@ -29,6 +29,7 @@ import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.HandleAppFunctionRequest
 import androidx.appfunctions.SuspendingAppFunction
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
@@ -48,6 +49,7 @@ import kotlinx.coroutines.launch
  * A background [Service] running in the target test app process that enables out-of-process dynamic
  * app function registration and unregistration for E2E integration testing.
  */
+@OptIn(ExperimentalAppFunctionsApi::class)
 @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
 @SuppressLint("RestrictedApiAndroidX")
 class DynamicRegistrationService : Service() {
@@ -142,7 +144,7 @@ class DynamicRegistrationService : Service() {
             }
             ACTION_REGISTER_ADAPTER_ALL_PRIMITIVES -> {
                 val adapter =
-                    appFunctionManager.getAppFunctionAdapter(
+                    appFunctionManager.getHandleAppFunctionRequestAdapter(
                         DynamicAllPrimitivesInputsSignature::class.java
                     )
                 val implementation =
@@ -180,7 +182,7 @@ class DynamicRegistrationService : Service() {
             }
             ACTION_REGISTER_ADAPTER_COMPLEX_SERIALIZABLE -> {
                 val adapter =
-                    appFunctionManager.getAppFunctionAdapter(
+                    appFunctionManager.getHandleAppFunctionRequestAdapter(
                         DynamicComplexSerializableSignature::class.java
                     )
                 val implementation = DynamicComplexSerializableSignature { input ->
@@ -202,7 +204,9 @@ class DynamicRegistrationService : Service() {
             }
             ACTION_REGISTER_ADAPTER_VOID -> {
                 val adapter =
-                    appFunctionManager.getAppFunctionAdapter(DynamicVoidReturnSignature::class.java)
+                    appFunctionManager.getHandleAppFunctionRequestAdapter(
+                        DynamicVoidReturnSignature::class.java
+                    )
                 val implementation = DynamicVoidReturnSignature { message ->
                     // Do nothing, void return
                 }
@@ -212,7 +216,9 @@ class DynamicRegistrationService : Service() {
             }
             ACTION_REGISTER_ADAPTER_THROWING -> {
                 val adapter =
-                    appFunctionManager.getAppFunctionAdapter(DynamicThrowingSignature::class.java)
+                    appFunctionManager.getHandleAppFunctionRequestAdapter(
+                        DynamicThrowingSignature::class.java
+                    )
                 val implementation = DynamicThrowingSignature { _ ->
                     throw AppFunctionInvalidArgumentException("Simulated adapter exception")
                 }

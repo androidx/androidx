@@ -255,7 +255,7 @@ class AppFunctionSpecCodeBuilder {
 
     companion object {
         fun getGeneratedClassName(functionClassName: String): String {
-            return "$${functionClassName}_AppFunctionAdapter"
+            return "$${functionClassName}_HandleAppFunctionRequestAdapter"
         }
     }
 }

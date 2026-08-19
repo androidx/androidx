@@ -23,11 +23,13 @@ import androidx.appfunctions.compiler.core.AnnotatedAppFunctionSignature
 import androidx.appfunctions.compiler.core.AppFunctionSpecCodeBuilder
 import androidx.appfunctions.compiler.core.AppFunctionSymbolResolver
 import androidx.appfunctions.compiler.core.AppFunctionXmlGenerator
-import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAdapterClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionAdapterHelperClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.ExecuteAppFunctionRequestClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.ExecuteAppFunctionResponseClass
+import androidx.appfunctions.compiler.core.IntrospectionHelper.ExperimentalAppFunctionsApiAnnotation
+import androidx.appfunctions.compiler.core.IntrospectionHelper.HandleAppFunctionRequestAdapterClass
 import androidx.appfunctions.compiler.core.IntrospectionHelper.HandleAppFunctionRequestClass
+import androidx.appfunctions.compiler.core.IntrospectionHelper.OptInAnnotation
 import androidx.appfunctions.compiler.core.IntrospectionHelper.SuspendingAppFunctionClass
 import androidx.appfunctions.compiler.core.ensureQualifiedName
 import androidx.appfunctions.compiler.core.toClassName
@@ -45,6 +47,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.UNIT
@@ -88,14 +91,17 @@ class AppFunctionSignatureProcessor(
             }
             // Generate adapter classes for each signature
             for (signature in appFunctionSignatures) {
-                generateAppFunctionAdapterClass(signature, resolvedAnnotatedSerializableProxies)
+                generateHandleAppFunctionRequestAdapterClass(
+                    signature,
+                    resolvedAnnotatedSerializableProxies,
+                )
             }
         }
 
         return emptyList()
     }
 
-    private fun generateAppFunctionAdapterClass(
+    private fun generateHandleAppFunctionRequestAdapterClass(
         signature: AnnotatedAppFunctionSignature,
         resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
     ) {
@@ -125,10 +131,15 @@ class AppFunctionSignatureProcessor(
         val adapterClassSpec =
             TypeSpec.classBuilder(adapterClassName)
                 .addSuperinterface(
-                    AppFunctionAdapterClass.CLASS_NAME.parameterizedBy(enclosingClass)
+                    HandleAppFunctionRequestAdapterClass.CLASS_NAME.parameterizedBy(enclosingClass)
                 )
                 .addAnnotation(AppFunctionCompiler.GENERATED_ANNOTATION)
-                .addFunction(buildGetFunctionId(signature))
+                .addAnnotation(
+                    AnnotationSpec.builder(OptInAnnotation.CLASS_NAME)
+                        .addMember("%T::class", ExperimentalAppFunctionsApiAnnotation.CLASS_NAME)
+                        .build()
+                )
+                .addProperty(buildFunctionIdentifier(signature))
                 .addFunction(buildAdapt(signature))
                 .addFunction(buildWithExtractedArgsFunction(signature))
                 .addFunction(buildToExecuteAppFunctionResponseFunction(signature))
@@ -152,26 +163,28 @@ class AppFunctionSignatureProcessor(
             .use { fileSpec.writeTo(it) }
     }
 
-    private fun buildGetFunctionId(signature: AnnotatedAppFunctionSignature): FunSpec {
+    private fun buildFunctionIdentifier(signature: AnnotatedAppFunctionSignature): PropertySpec {
         val methodName = signature.appFunctionDeclaration.simpleName.asString()
         val functionId = "${signature.classDeclaration.ensureQualifiedName()}#$methodName"
 
-        return FunSpec.builder(AppFunctionAdapterClass.GetFunctionIdMethod.METHOD_NAME)
+        return PropertySpec.builder(
+                HandleAppFunctionRequestAdapterClass.FUNCTION_IDENTIFIER_PROPERTY_NAME,
+                String::class,
+            )
             .addModifiers(KModifier.OVERRIDE)
-            .returns(String::class)
-            .addStatement("return %S", functionId)
+            .initializer("%S", functionId)
             .build()
     }
 
     private fun buildAdapt(signature: AnnotatedAppFunctionSignature): FunSpec {
         val instanceParam =
             ParameterSpec.builder(
-                    AppFunctionAdapterClass.AdaptMethod.INSTANCE_PARAM_NAME,
+                    HandleAppFunctionRequestAdapterClass.AdaptMethod.INSTANCE_PARAM_NAME,
                     signature.classDeclaration.toClassName(),
                 )
                 .build()
 
-        return FunSpec.builder(AppFunctionAdapterClass.AdaptMethod.METHOD_NAME)
+        return FunSpec.builder(HandleAppFunctionRequestAdapterClass.AdaptMethod.METHOD_NAME)
             .addModifiers(KModifier.OVERRIDE)
             .addParameter(instanceParam)
             .returns(HandleAppFunctionRequestClass.CLASS_NAME)
@@ -180,15 +193,16 @@ class AppFunctionSignatureProcessor(
                     add("return %T(\n", HandleAppFunctionRequestClass.CLASS_NAME)
                     indent()
                     add(
-                        "%L = %N(),\n",
+                        "%L = %N,\n",
                         HandleAppFunctionRequestClass.FUNCTION_IDENTIFIER_PROPERTY_NAME,
-                        AppFunctionAdapterClass.GetFunctionIdMethod.METHOD_NAME,
+                        HandleAppFunctionRequestAdapterClass.FUNCTION_IDENTIFIER_PROPERTY_NAME,
                     )
                     add(
                         "%L = %T { %L ->\n",
                         HandleAppFunctionRequestClass.APP_FUNCTION_PROPERTY_NAME,
                         SuspendingAppFunctionClass.CLASS_NAME,
-                        AppFunctionAdapterClass.WithExtractedArgumentsMethod.REQUEST_PARAM_NAME,
+                        HandleAppFunctionRequestAdapterClass.WithExtractedArgumentsMethod
+                            .REQUEST_PARAM_NAME,
                     )
                     indent()
                     val methodName = signature.appFunctionDeclaration.simpleName.asString()
@@ -207,15 +221,19 @@ class AppFunctionSignatureProcessor(
                     if (signature.appFunctionDeclaration.parameters.isNotEmpty()) {
                         beginControlFlow(
                             "%N(%L) { %L ->",
-                            AppFunctionAdapterClass.WithExtractedArgumentsMethod.METHOD_NAME,
-                            AppFunctionAdapterClass.WithExtractedArgumentsMethod.REQUEST_PARAM_NAME,
+                            HandleAppFunctionRequestAdapterClass.WithExtractedArgumentsMethod
+                                .METHOD_NAME,
+                            HandleAppFunctionRequestAdapterClass.WithExtractedArgumentsMethod
+                                .REQUEST_PARAM_NAME,
                             lambdaParamsBlock,
                         )
                     } else {
                         beginControlFlow(
                             "%N(%L)",
-                            AppFunctionAdapterClass.WithExtractedArgumentsMethod.METHOD_NAME,
-                            AppFunctionAdapterClass.WithExtractedArgumentsMethod.REQUEST_PARAM_NAME,
+                            HandleAppFunctionRequestAdapterClass.WithExtractedArgumentsMethod
+                                .METHOD_NAME,
+                            HandleAppFunctionRequestAdapterClass.WithExtractedArgumentsMethod
+                                .REQUEST_PARAM_NAME,
                         )
                     }
 
@@ -232,17 +250,19 @@ class AppFunctionSignatureProcessor(
 
                     add(
                         "val %L = %L.%L(",
-                        AppFunctionAdapterClass.ToExecuteAppFunctionResponseMethod
+                        HandleAppFunctionRequestAdapterClass.ToExecuteAppFunctionResponseMethod
                             .RESULT_PARAM_NAME,
-                        AppFunctionAdapterClass.AdaptMethod.INSTANCE_PARAM_NAME,
+                        HandleAppFunctionRequestAdapterClass.AdaptMethod.INSTANCE_PARAM_NAME,
                         methodName,
                     )
                     add(callArgsBlock)
                     add(")\n")
                     addStatement(
                         "%N(%L)",
-                        AppFunctionAdapterClass.ToExecuteAppFunctionResponseMethod.METHOD_NAME,
-                        AppFunctionAdapterClass.ToExecuteAppFunctionResponseMethod.RESULT_PARAM_NAME,
+                        HandleAppFunctionRequestAdapterClass.ToExecuteAppFunctionResponseMethod
+                            .METHOD_NAME,
+                        HandleAppFunctionRequestAdapterClass.ToExecuteAppFunctionResponseMethod
+                            .RESULT_PARAM_NAME,
                     )
 
                     endControlFlow() // closes withExtractedArgs block
@@ -259,7 +279,8 @@ class AppFunctionSignatureProcessor(
     private fun buildWithExtractedArgsFunction(signature: AnnotatedAppFunctionSignature): FunSpec {
         val requestParam =
             ParameterSpec.builder(
-                    AppFunctionAdapterClass.WithExtractedArgumentsMethod.REQUEST_PARAM_NAME,
+                    HandleAppFunctionRequestAdapterClass.WithExtractedArgumentsMethod
+                        .REQUEST_PARAM_NAME,
                     ExecuteAppFunctionRequestClass.CLASS_NAME,
                 )
                 .build()
@@ -276,13 +297,16 @@ class AppFunctionSignatureProcessor(
 
         val blockParam =
             ParameterSpec.builder(
-                    AppFunctionAdapterClass.WithExtractedArgumentsMethod.BLOCK_PARAM_NAME,
+                    HandleAppFunctionRequestAdapterClass.WithExtractedArgumentsMethod
+                        .BLOCK_PARAM_NAME,
                     lambdaType,
                 )
                 .build()
 
         // TODO(b/524139557): Consider making this public for callback based implementations.
-        return FunSpec.builder(AppFunctionAdapterClass.WithExtractedArgumentsMethod.METHOD_NAME)
+        return FunSpec.builder(
+                HandleAppFunctionRequestAdapterClass.WithExtractedArgumentsMethod.METHOD_NAME
+            )
             .addAnnotation(
                 AnnotationSpec.builder(Suppress::class).addMember("%S", "UNCHECKED_CAST").build()
             )
@@ -301,7 +325,8 @@ class AppFunctionSignatureProcessor(
                         addStatement(
                             "val %L = %L.functionParameters.%M(%L) as %T",
                             paramName,
-                            AppFunctionAdapterClass.WithExtractedArgumentsMethod.REQUEST_PARAM_NAME,
+                            HandleAppFunctionRequestAdapterClass.WithExtractedArgumentsMethod
+                                .REQUEST_PARAM_NAME,
                             AppFunctionAdapterHelperClass.UnsafeGetParameterValueMethod.METHOD_NAME,
                             paramPropertyName,
                             paramType,
@@ -319,7 +344,8 @@ class AppFunctionSignatureProcessor(
                     }
                     add(
                         "return %L(",
-                        AppFunctionAdapterClass.WithExtractedArgumentsMethod.BLOCK_PARAM_NAME,
+                        HandleAppFunctionRequestAdapterClass.WithExtractedArgumentsMethod
+                            .BLOCK_PARAM_NAME,
                     )
                     add(argsBlock)
                     add(")\n")
@@ -335,14 +361,15 @@ class AppFunctionSignatureProcessor(
 
         val resultParam =
             ParameterSpec.builder(
-                    AppFunctionAdapterClass.ToExecuteAppFunctionResponseMethod.RESULT_PARAM_NAME,
+                    HandleAppFunctionRequestAdapterClass.ToExecuteAppFunctionResponseMethod
+                        .RESULT_PARAM_NAME,
                     returnType,
                 )
                 .build()
 
         // TODO(b/524139557): Consider making this public for callback based implementations.
         return FunSpec.builder(
-                AppFunctionAdapterClass.ToExecuteAppFunctionResponseMethod.METHOD_NAME
+                HandleAppFunctionRequestAdapterClass.ToExecuteAppFunctionResponseMethod.METHOD_NAME
             )
             .addModifiers(KModifier.PRIVATE)
             .addParameter(resultParam)
@@ -352,7 +379,8 @@ class AppFunctionSignatureProcessor(
                     addStatement(
                         "val returnValue = RESPONSE_SPEC.%M(%L)",
                         AppFunctionAdapterHelperClass.UnsafeBuildReturnValueMethod.METHOD_NAME,
-                        AppFunctionAdapterClass.ToExecuteAppFunctionResponseMethod.RESULT_PARAM_NAME,
+                        HandleAppFunctionRequestAdapterClass.ToExecuteAppFunctionResponseMethod
+                            .RESULT_PARAM_NAME,
                     )
                     addStatement(
                         "return %T(returnValue)",

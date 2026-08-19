@@ -1,24 +1,27 @@
 package com.test
 
-import androidx.appfunctions.AppFunctionAdapter
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.HandleAppFunctionRequest
+import androidx.appfunctions.HandleAppFunctionRequestAdapter
 import androidx.appfunctions.SuspendingAppFunction
 import androidx.appfunctions.`internal`.AppFunctionParameterSpec
 import androidx.appfunctions.`internal`.AppFunctionResponseSpec
 import androidx.appfunctions.`internal`.unsafeBuildReturnValue
 import androidx.appfunctions.`internal`.unsafeGetParameterValue
 import javax.`annotation`.processing.Generated
+import kotlin.OptIn
 import kotlin.String
 import kotlin.Suppress
 
 @Generated("androidx.appfunctions.compiler.AppFunctionCompiler")
-public class `$SerializableSignature_AppFunctionAdapter` : AppFunctionAdapter<SerializableSignature> {
-  override fun getFunctionId(): String = "com.test.SerializableSignature#processData"
+@OptIn(ExperimentalAppFunctionsApi::class)
+public class `$SerializableSignature_HandleAppFunctionRequestAdapter` : HandleAppFunctionRequestAdapter<SerializableSignature> {
+  override val functionIdentifier: String = "com.test.SerializableSignature#processData"
 
   override fun adapt(instance: SerializableSignature): HandleAppFunctionRequest = HandleAppFunctionRequest(
-    functionIdentifier = getFunctionId(),
+    functionIdentifier = functionIdentifier,
     appFunction = SuspendingAppFunction { request ->
       withExtractedArguments(request) { input ->
         val result = instance.processData(input)

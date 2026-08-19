@@ -56,12 +56,11 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  *
  * ### Step 3: Register the Implementation
  *
- * Retrieve the adapter via [AppFunctionManager.getAppFunctionAdapter] and register your logic using
- * [AppFunctionManager.handleAppFunction]:
+ * Retrieve the adapter via [AppFunctionManager.getHandleAppFunctionRequestAdapter] and register
+ * your logic using [AppFunctionManager.handleAppFunction]:
  * ```kotlin
- * val addToCartAppFunctionAdapter = appFunctionManager.getAppFunctionAdapter(
- *   AddCurrentItemToCart::class.java
- * )
+ * val addToCartAppFunctionAdapter =
+ *     appFunctionManager.getHandleAppFunctionRequestAdapter(AddCurrentItemToCart::class.java)
  *
  * coroutineScope.launch {
  *     appFunctionManager.handleAppFunction(
@@ -74,9 +73,9 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  * ```
  *
  * ## Best Practices
- * - **Adapter Caching:** Because [AppFunctionManager.getAppFunctionAdapter] uses reflection under
- *   the hood to instantiate the adapter, we recommend loading it in advance to avoid runtime
- *   latency.
+ * - **Adapter Caching:** Because [AppFunctionManager.getHandleAppFunctionRequestAdapter] uses
+ *   reflection under the hood to instantiate the adapter, we recommend loading it in advance to
+ *   avoid runtime latency.
  * - **Lifecycle Scope:** Since `handleAppFunction` is a suspending function, registration remains
  *   active only while its coroutine is running. We recommend using a scope that is alive between
  *   `onResume` and `onPause` (such as `Lifecycle.State.RESUMED`), or if registering within a
@@ -100,13 +99,14 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  *      </appfunction>
  *  </appfunctions>
  * ```
- * - **A concrete adapter class:** The compiler generates an implementation of `AppFunctionAdapter`
- *   in the same package as your annotated interface. This adapter maps the function string
- *   identifier to your interface call and handles request/response data conversions:
+ * - **A concrete adapter class:** The compiler generates an implementation of
+ *   [HandleAppFunctionRequestAdapter] in the same package as your annotated interface. This adapter
+ *   maps the function string identifier to your interface call and handles request/response data
+ *   conversions:
  * ```kotlin
- * appFunctionManager.getAppFunctionAdapter(AddCurrentItemToCart::class.java)
+ * appFunctionManager.getHandleAppFunctionRequestAdapter(AddCurrentItemToCart::class.java)
  * // Returns:
- * object : AppFunctionAdapter<AddCurrentItemToCart> {
+ * object : HandleAppFunctionRequestAdapter<AddCurrentItemToCart> {
  *     override val functionId: String = "com.example.AddCurrentItemToCart#addToCart"
  *
  *     override fun adapt(implementation: AddCurrentItemToCart): HandleAppFunctionRequest =
@@ -128,6 +128,9 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  * ## Supported Types
  *
  * See [androidx.appfunctions.AppFunctionSerializable] for supported parameter and return types.
+ *
+ * @see HandleAppFunctionRequestAdapter
+ * @see AppFunctionManager.getHandleAppFunctionRequestAdapter
  */
 @ExperimentalAppFunctionsApi
 @Retention(AnnotationRetention.BINARY)
