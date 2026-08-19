@@ -62,6 +62,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     SampledAnnotationDetector.UNRESOLVED_SAMPLE_LINK,
                     SampledAnnotationDetector.MULTIPLE_FUNCTIONS_FOUND,
                     SampledAnnotationDetector.INVALID_SAMPLES_LOCATION,
+                    SampledAnnotationDetector.EXPECT_ACTUAL_SAMPLE,
                     TestSizeAnnotationEnforcer.UNEXPECTED_TEST_SIZE_ANNOTATION,
                     BanUncheckedReflection.ISSUE,
                     ObsoleteBuildCompatUsageDetector.ISSUE,
