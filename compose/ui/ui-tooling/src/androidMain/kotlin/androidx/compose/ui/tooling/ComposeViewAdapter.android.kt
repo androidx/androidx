@@ -841,6 +841,55 @@ internal class ComposeViewAdapter : FrameLayout {
                 directNavigationEventInput.forwardCancelled()
             }
 
+            fun getHistory(): List<Any> {
+                return navigationEventDispatcher.history.value.mergedHistory
+            }
+
+            fun getCurrentIndex(): Int {
+                return navigationEventDispatcher.history.value.currentIndex
+            }
+
+            /**
+             * Pops the back stack until reaching the specified [navigationState] in history.
+             *
+             * @param navigationState the target state in history to navigate back to
+             * @return `true` if navigation was performed to reach [navigationState], `false`
+             *   otherwise
+             */
+            fun backToState(navigationState: Any): Boolean {
+                val history = navigationEventDispatcher.history.value
+                if (history.currentIndex <= 0) return false
+
+                // mergedHistory contains past (0 until currentIndex), current (currentIndex), and
+                // forward (currentIndex + 1 until size) states. We only search the back stack
+                // (past states) to ensure we do not match the active state or future/forward
+                // states.
+                val backStack = history.mergedHistory.take(history.currentIndex)
+                val targetIndex =
+                    backStack.indexOfFirst { it === navigationState }.takeIf { it >= 0 }
+                        ?: backStack.lastIndexOf(navigationState)
+
+                if (targetIndex < 0) {
+                    return false
+                }
+
+                val maxSteps = history.currentIndex - targetIndex
+                repeat(maxSteps) {
+                    // Stop if we have reached the root or back navigation is no longer possible
+                    // to prevent popping past the root and triggering the fallback dispatcher.
+                    if (!canBackPress()) {
+                        return true
+                    }
+                    onBackPressCompleted()
+                    // Stop early if a multi-pop back press already reached or passed the target
+                    // index.
+                    if (navigationEventDispatcher.history.value.currentIndex <= targetIndex) {
+                        return true
+                    }
+                }
+                return true
+            }
+
             private fun getNavigationEdgeFromString(edge: String): Int =
                 when (edge) {
                     "EDGE_LEFT" -> EDGE_LEFT
