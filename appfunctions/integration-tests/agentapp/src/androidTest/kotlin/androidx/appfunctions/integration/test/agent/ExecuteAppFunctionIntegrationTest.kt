@@ -83,7 +83,6 @@ import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.BAKLAVA)
@@ -1400,7 +1399,6 @@ class ExecuteAppFunctionIntegrationTest {
         }
     }
 
-    @Ignore("TODO: b/547884111 - Remove once legacy Uri fallback is resolved.")
     @Test
     fun executeFunction_uriConstraint_success() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
@@ -1411,18 +1409,17 @@ class ExecuteAppFunctionIntegrationTest {
                 targetPackageName = functionMetadata.packageName,
                 functionIdentifier = ECHO_URI_WITH_CONSTRAINT_FUNCTION_ID,
                 functionParameters =
-                    buildSingleStringParameterData(functionMetadata, "uriParam", validUri),
+                    buildSingleUriParameterData(functionMetadata, "uriParam", validUri),
             )
 
         val response = appFunctionManager.executeAppFunction(request)
 
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
         val successResponse = response as ExecuteAppFunctionResponse.Success
-        val returnedUri = successResponse.returnValue.getString(PROPERTY_RETURN_VALUE)
-        assertThat(returnedUri).isEqualTo(validUri)
+        val uriData = successResponse.returnValue.getAppFunctionData(PROPERTY_RETURN_VALUE)
+        assertThat(uriData?.getString("uri")).isEqualTo(validUri)
     }
 
-    @Ignore("TODO: b/547884111 - Remove once legacy Uri fallback is resolved.")
     @Test
     fun executeFunction_uriConstraint_failsForInvalidScheme() = doBlocking {
         assumeTrue(isDynamicIndexerAvailable(targetContext))
@@ -1430,7 +1427,7 @@ class ExecuteAppFunctionIntegrationTest {
         val invalidUri = "http://example.com"
 
         assertThrows(IllegalArgumentException::class.java) {
-            buildSingleStringParameterData(functionMetadata, "uriParam", invalidUri)
+            buildSingleUriParameterData(functionMetadata, "uriParam", invalidUri)
         }
     }
 
@@ -1482,6 +1479,26 @@ class ExecuteAppFunctionIntegrationTest {
         AppFunctionData.Builder(functionMetadata.parameters, functionMetadata.components)
             .setString(parameterName, value)
             .build()
+
+    private fun buildSingleUriParameterData(
+        functionMetadata: AppFunctionMetadata,
+        parameterName: String,
+        uriString: String,
+    ): AppFunctionData {
+        val uriObjectType =
+            requireTargetObjectTypeMetadata(
+                parameterName,
+                functionMetadata.parameters,
+                functionMetadata.components,
+            )
+        val uriDoc =
+            AppFunctionData.Builder(uriObjectType, functionMetadata.components)
+                .setString("uri", uriString)
+                .build()
+        return AppFunctionData.Builder(functionMetadata.parameters, functionMetadata.components)
+            .setAppFunctionData(parameterName, uriDoc)
+            .build()
+    }
 
     /**
      * Requires that [parameters] contains the [AppFunctionObjectTypeMetadata] under

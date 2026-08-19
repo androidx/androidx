@@ -16,7 +16,9 @@
 
 package androidx.appfunctions
 
+import android.os.Build
 import android.os.Parcelable
+import androidx.annotation.RequiresApi
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionBooleanTypeMetadata
@@ -37,6 +39,7 @@ import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import java.util.Objects
 
 /** Specification class defining the properties metadata for [AppFunctionData]. */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal abstract class AppFunctionDataSpec {
     abstract val objectQualifiedName: String
     abstract val componentMetadata: AppFunctionComponentsMetadata

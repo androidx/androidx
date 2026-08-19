@@ -2231,11 +2231,15 @@ class AppFunctionDataTest {
 
     @Test
     fun testValidateDataSpecMatches_stringPatternMismatch_throwsException() {
-        val stringTypeWithoutPattern =
-            AppFunctionStringTypeMetadata(pattern = null, format = "uri", isNullable = false)
+        val stringTypeWithConflictingPattern =
+            AppFunctionStringTypeMetadata(
+                pattern = "^http://.*",
+                format = "uri",
+                isNullable = false,
+            )
         val spec1 =
             AppFunctionObjectTypeMetadata(
-                properties = mapOf("uriParam" to stringTypeWithoutPattern),
+                properties = mapOf("uriParam" to stringTypeWithConflictingPattern),
                 required = listOf("uriParam"),
                 qualifiedName = "TestSpec",
                 isNullable = false,
@@ -2264,6 +2268,80 @@ class AppFunctionDataTest {
         val exception =
             assertFailsWith<IllegalArgumentException> { targetSpec.validateDataSpecMatches(data) }
         assertThat(exception).hasMessageThat().contains("Pattern mismatch for String type")
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_unconstrainedToConstrainedPattern_throwsException() {
+        val stringTypeWithoutPattern =
+            AppFunctionStringTypeMetadata(pattern = null, format = "uri", isNullable = false)
+        val spec1 =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("uriParam" to stringTypeWithoutPattern),
+                required = listOf("uriParam"),
+                qualifiedName = "TestSpec",
+                isNullable = false,
+            )
+
+        val stringTypeWithPattern =
+            AppFunctionStringTypeMetadata(
+                pattern = "^content://.*",
+                format = "uri",
+                isNullable = false,
+            )
+        val spec2 =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("uriParam" to stringTypeWithPattern),
+                required = listOf("uriParam"),
+                qualifiedName = "TestSpec",
+                isNullable = false,
+            )
+
+        val data =
+            AppFunctionData.Builder(spec1, AppFunctionComponentsMetadata())
+                .setString("uriParam", "content://media/123")
+                .build()
+
+        val targetSpec = AppFunctionDataSpec.create(spec2, AppFunctionComponentsMetadata())
+        val exception =
+            assertFailsWith<IllegalArgumentException> { targetSpec.validateDataSpecMatches(data) }
+        assertThat(exception).hasMessageThat().contains("Pattern mismatch for String type")
+    }
+
+    @Test
+    fun testValidateDataSpecMatches_nestedObjectConstraint_matchingPattern_succeeds() {
+        val uriInnerSpec =
+            AppFunctionStringTypeMetadata(
+                pattern = "^content:.*",
+                format = "uri",
+                isNullable = false,
+            )
+        val uriObjectSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("uri" to uriInnerSpec),
+                required = listOf("uri"),
+                qualifiedName = "android.net.Uri",
+                isNullable = false,
+            )
+        val outerSpec =
+            AppFunctionObjectTypeMetadata(
+                properties = mapOf("wallpaperUri" to uriObjectSpec),
+                required = listOf("wallpaperUri"),
+                qualifiedName = "OuterSpec",
+                isNullable = false,
+            )
+
+        val validUriData =
+            AppFunctionData.Builder(uriObjectSpec, AppFunctionComponentsMetadata())
+                .setString("uri", "content://media/external/images/1")
+                .build()
+
+        val outerData =
+            AppFunctionData.Builder(outerSpec, AppFunctionComponentsMetadata())
+                .setAppFunctionData("wallpaperUri", validUriData)
+                .build()
+
+        assertThat(outerData.getAppFunctionData("wallpaperUri")?.getString("uri"))
+            .isEqualTo("content://media/external/images/1")
     }
 
     @Test
