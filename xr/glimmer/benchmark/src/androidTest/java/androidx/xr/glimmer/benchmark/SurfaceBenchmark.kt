@@ -243,30 +243,17 @@ class SurfaceBenchmark {
     fun surface_firstFramePressAnimation() {
         with(benchmarkRule) {
             runBenchmarkFor({ SurfaceTestCase(addSurfaceModifierEnabledByDefault = true) }) {
-                runOnUiThread {
-                    // Complete the focus animation frames. (288 frame ~= 2 second in 144fps)
-                    doFramesUntilNoChangesPending(maxAmountOfFrames = 288)
-                }
-
                 val press = PressInteraction.Press(Offset.Zero)
                 measureRepeatedOnUiThread {
+                    runWithMeasurementDisabled {
+                        // Complete the focus animation frames.
+                        doFramesUntilNoChangesPending(maxAmountOfFrames = MaxAnimationSettleFrames)
+                    }
                     runBlocking { getTestCase().emitInteraction(press) }
 
                     doFrame()
 
-                    runWithMeasurementDisabled {
-                        // Don't dispose the content to re-use for the next press interaction.
-                        // Content will be disposed after `runBenchmarkFor` is completed.
-
-                        runBlocking {
-                            // We should reset the press state in surface for the next repeated
-                            // measure.
-                            getTestCase().emitInteraction(PressInteraction.Cancel(press))
-                        }
-
-                        // Run the release animation.
-                        doFramesUntilNoChangesPending()
-                    }
+                    runWithMeasurementDisabled { disposeContent() }
                 }
             }
         }
@@ -281,30 +268,23 @@ class SurfaceBenchmark {
     fun surface_firstFrameReleaseAnimation() {
         with(benchmarkRule) {
             runBenchmarkFor({ SurfaceTestCase(addSurfaceModifierEnabledByDefault = true) }) {
-                runOnUiThread {
-                    // Complete the focus animation frames. (288 frame ~= 2 second in 144fps)
-                    doFramesUntilNoChangesPending(maxAmountOfFrames = 288)
-                }
-
                 val press = PressInteraction.Press(Offset.Zero)
                 measureRepeatedOnUiThread {
                     runWithMeasurementDisabled {
-                        // Emit interaction to start press animation.
+                        doFrame()
+
+                        // Emit press interaction on after drawing first frame immediately
                         runBlocking { getTestCase().emitInteraction(press) }
 
-                        doFramesUntilNoChangesPending()
+                        // Wait for both focus and press animations to settle
+                        doFramesUntilNoChangesPending(maxAmountOfFrames = MaxAnimationSettleFrames)
                     }
-
                     // Emit interaction to trigger release animation
                     runBlocking { getTestCase().emitInteraction(PressInteraction.Release(press)) }
 
                     doFrame()
 
-                    runWithMeasurementDisabled {
-                        // Don't dispose the content to re-use for the next release interaction.
-                        // Content will be disposed after `runBenchmarkFor` is completed.
-                        doFramesUntilNoChangesPending()
-                    }
+                    runWithMeasurementDisabled { disposeContent() }
                 }
             }
         }
@@ -344,3 +324,6 @@ private class SurfaceTestCase(addSurfaceModifierEnabledByDefault: Boolean) :
         GlimmerTheme { content() }
     }
 }
+
+/** Maximum number of frames to allow animations to settle (720 frames ~= 5 seconds at 144 fps). */
+private const val MaxAnimationSettleFrames = 720
