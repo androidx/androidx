@@ -9,7 +9,7 @@ package androidx.text.vertical.compose {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void VerticalText-RtHMXFc(CharSequence, androidx.compose.ui.Modifier?, androidx.text.vertical.compose.VerticalTextStyle?, int, int, int, androidx.text.vertical.TextOrientation?, androidx.compose.runtime.Composer?, int, int);
   }
 
-  @androidx.text.vertical.compose.VerticalTextDsl public interface VerticalTextScope {
+  @androidx.text.vertical.compose.VerticalTextDsl public final class VerticalTextScope {
     method public void combineUpright(CharSequence text);
     method public void sideways(CharSequence text);
     method public void text(CharSequence text, optional java.util.Map<java.lang.String,java.lang.String> rubyMap);
