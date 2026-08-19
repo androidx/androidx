@@ -3064,31 +3064,82 @@ class RecordingCanvasTest {
     }
 
     @Test
-    fun testUnclosedSaveInChildSpanDoesNotCorruptOuterRestoreToCount() {
+    fun testUnbalancedSaveInChildSpanThrowsIllegalStateException() {
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
         val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
 
-        val outerSaveCount = canvas.save()
+        canvas.save()
         assertEquals(1, canvas.globalSaveCounter)
 
-        // Inside child span, perform an unbalanced save (no restore)
         val condition = RemoteBoolean(true)
-        canvas.drawConditionally(condition) {
-            canvas.save() // This increments globalSaveCounter temporarily from 1 to 2
-            // No restore called here inside child span
-        }
+        val ex1 =
+            assertThrows(IllegalStateException::class.java) {
+                canvas.drawConditionally(condition) {
+                    canvas.save() // Net +1 save
+                }
+            }
+        assertThat(ex1.message).contains("Unbalanced save/restore in child span")
 
-        // After recordInChildSpan completes, globalSaveCounter is reverted back to 1.
-        // Calling restoreToCount(outerSaveCount) leaves the outer save intact.
-        canvas.restoreToCount(outerSaveCount)
-
-        assertEquals(1, canvas.globalSaveCounter)
-        canvas.restore()
-        assertEquals(0, canvas.globalSaveCounter)
+        val ex2 =
+            assertThrows(IllegalStateException::class.java) {
+                canvas.drawConditionally(condition) {
+                    canvas.restore() // Net -1 save
+                }
+            }
+        assertThat(ex2.message).contains("Unbalanced save/restore in child span")
     }
 
     @Test
-    fun testCrossSpanRestoreThrowsIllegalStateException() {
+    fun testChildSpanUnbalancedSaveRestoresCanvasState() {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
+
+        val outerInsertPoint = canvas.buffer.insertPoint
+        canvas.save()
+        val outerSaveNode = canvas.currentSaveRestoreNode
+        val outerInitialSpanSaveCount = canvas.initialSpanSaveCount
+        val outerGlobalSaveCounter = canvas.globalSaveCounter
+
+        val condition = RemoteBoolean(true)
+        assertThrows(IllegalStateException::class.java) {
+            canvas.drawConditionally(condition) {
+                canvas.save() // Unbalanced save
+            }
+        }
+
+        // Verify canvas internal state was restored despite exception
+        assertThat(canvas.buffer.insertPoint).isSameInstanceAs(outerInsertPoint)
+        assertThat(canvas.currentSaveRestoreNode).isSameInstanceAs(outerSaveNode)
+        assertEquals(outerInitialSpanSaveCount, canvas.initialSpanSaveCount)
+        assertEquals(outerGlobalSaveCounter, canvas.globalSaveCounter)
+
+        // Calling restore() once should restore the 1 outer save and bring globalSaveCounter to 0
+        canvas.restore()
+        assertEquals(0, canvas.globalSaveCounter)
+        // A second restore should throw underflow
+        assertThrows(IllegalStateException::class.java) { canvas.restore() }
+    }
+
+    @Test
+    fun testChildSpanExceptionNotMaskedByUnbalancedSave() {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
+
+        class CustomUserException(msg: String) : RuntimeException(msg)
+
+        val condition = RemoteBoolean(true)
+        val thrown =
+            assertThrows(CustomUserException::class.java) {
+                canvas.drawConditionally(condition) {
+                    canvas.save() // Leaves save/restore unbalanced
+                    throw CustomUserException("original user failure")
+                }
+            }
+        assertThat(thrown.message).isEqualTo("original user failure")
+    }
+
+    @Test
+    fun testChildSpanCanPopAndReinstateOuterSaveFrames() {
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
         val canvas = RecordingCanvas(bitmap, enableOptimizations = false)
 
@@ -3100,21 +3151,26 @@ class RecordingCanvasTest {
         // 2. Enter child span via drawConditionally
         val dummyCondition = RemoteBoolean(true)
         canvas.drawConditionally(dummyCondition) {
-            // Inside childSpan, localSpanSaveCounter is 0, but globalSaveCounter is 2.
-            // Push 1 local save inside childSpan
+            // Inside child span, we can push local saves
             canvas.save()
-            assertEquals(1, canvas.localSpanSaveCounter)
             assertEquals(3, canvas.globalSaveCounter)
-
-            // Pop local save
             canvas.restore()
-            assertEquals(0, canvas.localSpanSaveCounter)
             assertEquals(2, canvas.globalSaveCounter)
 
-            // Attempting to pop outer parent save across span boundary must throw
-            // IllegalStateException
-            // to prevent unbalanced wire commands on the remote player stack.
+            // Temporarily pop outer saves
+            canvas.restore()
+            assertEquals(1, canvas.globalSaveCounter)
+            canvas.restore()
+            assertEquals(0, canvas.globalSaveCounter)
+
+            // Underflow throws IllegalStateException
             assertThrows(IllegalStateException::class.java) { canvas.restore() }
+
+            // Reinstate the popped outer saves
+            canvas.save()
+            assertEquals(1, canvas.globalSaveCounter)
+            canvas.save()
+            assertEquals(2, canvas.globalSaveCounter)
         }
 
         // 3. Pop outer saves on main canvas
@@ -3124,6 +3180,53 @@ class RecordingCanvasTest {
 
         // 4. Global underflow on main canvas must throw IllegalStateException
         assertThrows(IllegalStateException::class.java) { canvas.restore() }
+    }
+
+    @Test
+    fun testChildSpanPopAndReinstateExecutesOnCoreDocument() {
+        val calls = ArrayList<String>()
+        val buffer = RecordingTestRemoteComposeBuffer(calls)
+        val platform = AndroidxRcPlatformServices()
+        val profile =
+            Profile(CoreDocument.DOCUMENT_API_LEVEL, RcProfiles.PROFILE_ANDROIDX, platform) {
+                creationDisplayInfo,
+                profile,
+                callbacks ->
+                MyRemoteComposeWriterAndroid(
+                    profile,
+                    buffer,
+                    RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
+                    RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
+                    RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
+                )
+            }
+
+        val creationState =
+            RemoteComposeCreationState(RemoteCreationDisplayInfo(500, 500, 160, 1f), null, profile)
+        val bitmap = Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888)
+        val canvas = RecordingCanvas(bitmap)
+        canvas.creationState = creationState
+
+        canvas.save()
+        canvas.translate(20f, 30f)
+
+        canvas.drawConditionally(RemoteBoolean(true)) {
+            canvas.restore()
+            canvas.drawRect(0f, 0f, 10f, 10f, Paint())
+            canvas.save()
+            canvas.translate(20f, 30f)
+            canvas.drawRect(5f, 5f, 15f, 15f, Paint())
+        }
+
+        canvas.restore()
+        canvas.flush()
+
+        val coreDoc =
+            CoreDocument().apply {
+                buffer.buffer.index = 0
+                initFromBuffer(buffer)
+            }
+        assertThat(coreDoc.docInfo.mNumberOfOps).isGreaterThan(0)
     }
 }
 
