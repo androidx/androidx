@@ -44,6 +44,7 @@ class BasicTextFieldActivity : ComponentActivity() {
 
     private var didRequestFocus = false
     private var isImeAnimating = false
+    private var isDoneReported = false
     private var contentView: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +58,16 @@ class BasicTextFieldActivity : ComponentActivity() {
         contentView!!.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
 
         ViewCompat.setWindowInsetsAnimationCallback(contentView!!, imeAnimationCallback)
+
+        ViewCompat.setOnApplyWindowInsetsListener(contentView!!) { view, insets ->
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val isImeVisible =
+                insets.isVisible(WindowInsetsCompat.Type.ime()) || imeInsets.bottom > 0
+            if (didRequestFocus && isImeVisible && !isImeAnimating && !isDoneReported) {
+                markDone(view)
+            }
+            insets
+        }
 
         setContent {
             val focusRequester = remember { FocusRequester() }
@@ -83,9 +94,18 @@ class BasicTextFieldActivity : ComponentActivity() {
         }
     }
 
+    private fun markDone(view: View) {
+        if (!isDoneReported) {
+            isDoneReported = true
+            reportFullyDrawn()
+            view.contentDescription = "IME_ANIMATION_DONE"
+        }
+    }
+
     override fun onStop() {
         super.onStop()
         contentView = null
+        isDoneReported = false
     }
 
     // We track the IME state at the View level to not muddy the Compose contents of this benchmark
@@ -108,8 +128,7 @@ class BasicTextFieldActivity : ComponentActivity() {
             override fun onEnd(animation: WindowInsetsAnimationCompat) {
                 if ((animation.typeMask and WindowInsetsCompat.Type.ime()) != 0) {
                     if (didRequestFocus && isImeAnimating) {
-                        reportFullyDrawn()
-                        contentView?.contentDescription = "IME_ANIMATION_DONE"
+                        contentView?.let { markDone(it) }
                     }
                     isImeAnimating = false
                 }
