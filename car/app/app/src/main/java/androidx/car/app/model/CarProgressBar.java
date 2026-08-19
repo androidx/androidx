@@ -35,7 +35,7 @@ import java.util.Objects;
  *
  * <p>A progress bar displays the progress of a task or playback. It is a non-interactive element
  * that can be used in templates that support it, such as in a {@link Row} or {@link GridItem}.
- *`
+ * `
  * <p>The progress bar takes in the progress value as a mandatory field and can optionally set a
  * custom style.
  */
@@ -50,20 +50,6 @@ public final class CarProgressBar {
     /** Returns the progress between 0.0 and 1.0. */
     public float getProgress() {
         return mProgress;
-    }
-
-    /**
-     * Returns the color of the progress bar, or {@code null} if not set.
-     *
-     * @deprecated Method temporarily kept for integrity - to be removed soon in favor of
-     * {@link CarProgressBar#getStyle}.
-     */
-    @Deprecated
-    public @Nullable CarColor getColor() {
-        if (mStyle == null) {
-            return null;
-        }
-        return mStyle.getColor();
     }
 
     /** Returns the style of the progress bar, or {@code null} if not set. */
@@ -108,27 +94,6 @@ public final class CarProgressBar {
     public static final class Builder {
         float mProgress;
         @Nullable CarProgressBarStyle mStyle;
-
-        /**
-         * Sets the color of the progress bar.
-         *
-         * <p>If a color is not set, or if the provided color does not pass a contrast check, the
-         * host will use a default color.
-         *
-         * @throws NullPointerException if {@code color} is {@code null}
-         * @deprecated Method temporarily kept for integrity - to be removed soon in favor of
-         * {@link CarProgressBar.Builder#setStyle}.
-         */
-        @Deprecated
-        public @NonNull Builder setColor(@NonNull CarColor color) {
-            requireNonNull(color);
-            if (mStyle == null) {
-                mStyle = new CarProgressBarStyle.Builder().setColor(color).build();
-            } else {
-                mStyle = new CarProgressBarStyle.Builder(mStyle).setColor(color).build();
-            }
-            return this;
-        }
 
         /**
          * Sets the style of the progress bar.
