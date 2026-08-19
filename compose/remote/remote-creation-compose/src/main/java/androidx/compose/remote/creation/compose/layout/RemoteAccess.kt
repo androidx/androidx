@@ -21,6 +21,7 @@ import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.remoteSpring
 
 /**
  * A class that provides access to remote-specific utilities.
@@ -62,6 +63,46 @@ public class RemoteAccess(private val scope: RemoteDrawScope) {
     ): RemoteFloat {
         return animateFloat(content(), duration, type, spec, initialValue, wrap)
     }
+
+    /**
+     * Animates a [RemoteFloat] using a physics-based Spring engine.
+     *
+     * @param rf The target RemoteFloat to animate.
+     * @param stiffness The spring stiffness/tension.
+     * @param dampingRatio The damping ratio (1.0 = critically damped, < 1.0 = bouncy).
+     * @param stopThreshold The threshold at which the spring is considered at rest.
+     * @param boundaryMode Engine boundary mode (0 = standard/no bounds).
+     */
+    public fun animateSpring(
+        rf: RemoteFloat,
+        stiffness: Float = 50f,
+        dampingRatio: Float = 1f,
+        stopThreshold: Float = 0.001f,
+        boundaryMode: Int = 0,
+    ): RemoteFloat =
+        remoteSpring(
+                stiffness = stiffness,
+                dampingRatio = dampingRatio,
+                stopThreshold = stopThreshold,
+                boundaryMode = boundaryMode,
+            )
+            .animate(rf)
+
+    /** Animates a [RemoteFloat] created in [content] using a physics-based Spring engine. */
+    public fun animateSpring(
+        stiffness: Float = 50f,
+        dampingRatio: Float = 1f,
+        stopThreshold: Float = 0.001f,
+        boundaryMode: Int = 0,
+        content: () -> RemoteFloat,
+    ): RemoteFloat =
+        animateSpring(
+            rf = content(),
+            stiffness = stiffness,
+            dampingRatio = dampingRatio,
+            stopThreshold = stopThreshold,
+            boundaryMode = boundaryMode,
+        )
 
     /** Runs [content] in a loop. */
     public fun loop(
