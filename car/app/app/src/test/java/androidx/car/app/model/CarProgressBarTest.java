@@ -39,14 +39,6 @@ public class CarProgressBarTest {
     }
 
     @Test
-    @Deprecated
-    public void create_withColor() {
-        CarProgressBar bar = new CarProgressBar.Builder(0.5f).setColor(CarColor.RED).build();
-        assertThat(bar.getProgress()).isEqualTo(0.5f);
-        assertThat(bar.getColor()).isEqualTo(CarColor.RED);
-    }
-
-    @Test
     public void create_withStyle() {
         CarProgressBarStyle style = new CarProgressBarStyle.Builder().build();
         CarProgressBar bar = new CarProgressBar.Builder(0.5f).setStyle(style).build();
