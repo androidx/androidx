@@ -81,27 +81,30 @@ internal object MaterialA2uiDefaults {
     }
 
     /** Transition animation between loading, success, and error states for A2UI components. */
-    val transitionSpec: AnimatedContentTransitionScope<A2uiComponentState>.() -> ContentTransform
-        @Composable
-        get() {
-            // Effects specs are used for non-spatial opacity/color changes
-            val defaultEffectsSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
-            val fastEffectsSpec = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
+    @Composable
+    fun <S> transitionSpec(): AnimatedContentTransitionScope<S>.() -> ContentTransform {
+        // Effects specs are used for non-spatial opacity/color changes
+        val defaultEffectsSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+        val fastEffectsSpec = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
 
-            // Spatial specs are used for bounds/size/position changes
-            val defaultSpatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntSize>()
+        // Spatial specs are used for bounds/size/position changes
+        val defaultSpatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntSize>()
 
-            return remember(defaultEffectsSpec, fastEffectsSpec, defaultSpatialSpec) {
-                {
-                    (fadeIn(animationSpec = defaultEffectsSpec) togetherWith
-                            fadeOut(animationSpec = fastEffectsSpec))
-                        .using(
-                            SizeTransform(
-                                clip = true,
-                                sizeAnimationSpec = { _, _ -> defaultSpatialSpec },
-                            )
+        return remember(defaultEffectsSpec, fastEffectsSpec, defaultSpatialSpec) {
+            {
+                (fadeIn(animationSpec = defaultEffectsSpec) togetherWith
+                        fadeOut(animationSpec = fastEffectsSpec))
+                    .using(
+                        SizeTransform(
+                            clip = true,
+                            sizeAnimationSpec = { _, _ -> defaultSpatialSpec },
                         )
-                }
+                    )
             }
         }
+    }
+
+    /** Transition animation between loading, success, and error states for A2UI components. */
+    val transitionSpec: AnimatedContentTransitionScope<A2uiComponentState>.() -> ContentTransform
+        @Composable get() = transitionSpec()
 }
