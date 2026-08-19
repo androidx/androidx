@@ -414,4 +414,38 @@ class FrameStateTest {
         assertThat(fakeListener.imagesAvailableCalled.value).isEqualTo(1)
         assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(1)
     }
+
+    @Test
+    fun frameState_transitionsToComplete_whenNoStreamOutputsExpected() {
+        // Create a FrameState with no internal image streams (e.g., only external streams like a
+        // Viewfinder)
+        val emptyImageStreamsFrameState =
+            FrameState(
+                requestMetadata = fakeRequestMetadata,
+                frameNumber = frameNumber,
+                frameTimestamp = frameTimestamp,
+                imageStreams = emptySet(), // No internal image streams managed by CameraPipe
+                concurrentImageStreams = setOf(),
+            )
+
+        emptyImageStreamsFrameState.addListener(fakeListener)
+
+        // Since there are no image outputs expected, the state should initialize to
+        // STREAM_RESULTS_COMPLETE.
+        // Therefore, adding the listener should immediately trigger onStarted and
+        // onImagesAvailable.
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.imagesAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(0)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(0)
+
+        // When the camera metadata (FrameInfo) arrives, the frame should transition to COMPLETE.
+        emptyImageStreamsFrameState.onFrameInfoComplete()
+
+        // All callbacks should now be triggered exactly once.
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.imagesAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(1)
+    }
 }

@@ -23,8 +23,11 @@ import android.util.Size
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.CameraTimestamp
+import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameBuffers.tryPeekFirst
 import androidx.camera.camera2.pipe.FrameGraph
+import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.FrameReference.Companion.acquire
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
@@ -43,6 +46,7 @@ import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -602,6 +606,55 @@ class FrameGraphImplTest {
             assertThat(result).isNull()
 
             session.close()
+        }
+
+    @Test
+    fun capture_withoutManagedStreamsCompletesWithFrameInfo() =
+        testScope.runTest {
+            initialize(this)
+            val streamId = frameGraph.streams[streamConfig2]!!.id
+
+            val frameCapture = frameGraph.capture(Request(streams = listOf(streamId)))
+            advanceUntilIdle()
+
+            val imagesAvailable = atomic(false)
+            val completed = atomic(false)
+            val listener =
+                object : Frame.Listener {
+                    override fun onFrameStarted(
+                        frameNumber: FrameNumber,
+                        frameTimestamp: CameraTimestamp,
+                    ) {}
+
+                    override fun onFrameInfoAvailable() {}
+
+                    override fun onImagesAvailable() {
+                        imagesAvailable.value = true
+                    }
+
+                    override fun onFrameComplete() {
+                        completed.value = true
+                    }
+                }
+
+            val simulatedFrame = frameGraph.simulateNextFrame()
+            simulatedFrame.simulateComplete(emptyMap())
+            advanceUntilIdle()
+
+            val frame = frameCapture.getFrame()
+            advanceUntilIdle()
+            checkNotNull(frame)
+
+            frame.addListener(listener)
+            advanceUntilIdle()
+
+            frame.awaitFrameInfo()
+            advanceUntilIdle()
+
+            assertThat(imagesAvailable.value).isTrue()
+            assertThat(completed.value).isTrue()
+
+            assertThat(frame.imageStatus(streamId)).isEqualTo(OutputStatus.UNAVAILABLE)
         }
 
     @Test
