@@ -71,7 +71,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.animateRemoteFloat
+import androidx.compose.remote.creation.compose.state.animateRemoteFloatAsState
 import androidx.compose.remote.creation.compose.state.deltaFromReferenceInSeconds
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rc
@@ -79,6 +79,7 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteColor
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteLong
+import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
@@ -89,6 +90,7 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
@@ -2870,38 +2872,33 @@ class RcPlayerPrimitivesTest {
             val context = ApplicationProvider.getApplicationContext<Context>()
 
             val documentBytes =
-                androidx.compose.remote.creation.compose.capture
-                    .captureSingleRemoteDocument(
+                captureSingleRemoteDocument(
                         context = context,
                         content = {
-                            val animated = animateRemoteFloat(rf = 1.0f.rf, duration = 1.0f)
-                            androidx.compose.remote.creation.compose.layout.RemoteBox(
+                            val animated =
+                                animateRemoteFloatAsState(
+                                    targetValue = 1.0f.rf,
+                                    animationSpec = remoteTween(durationMillis = 1000),
+                                )
+                            RemoteBox(
                                 modifier =
                                     RemoteModifier.size(100.rdp).graphicsLayer(alpha = animated)
                             ) {
-                                androidx.compose.remote.creation.compose.layout.RemoteText(
-                                    "AnimatedFloat Content".rs
-                                )
+                                RemoteText("AnimatedFloat Content".rs)
                             }
                         },
                     )
                     .bytes
 
             val document =
-                androidx.compose.remote.core
-                    .CoreDocument(androidx.compose.remote.core.RemoteClock.SYSTEM)
-                    .apply {
-                        ByteArrayInputStream(documentBytes).use {
-                            initFromBuffer(
-                                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(it)
-                            )
-                        }
+                CoreDocument(RemoteClock.SYSTEM).apply {
+                    ByteArrayInputStream(documentBytes).use {
+                        initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                     }
+                }
 
             rule.setContent {
-                Box(modifier = androidx.compose.ui.Modifier.size(100.dp)) {
-                    RcPlayer(document = document)
-                }
+                Box(modifier = Modifier.size(100.dp)) { RcPlayer(document = document) }
             }
 
             rule.mainClock.advanceTimeBy(100)
