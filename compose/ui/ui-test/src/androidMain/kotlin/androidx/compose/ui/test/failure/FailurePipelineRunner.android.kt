@@ -24,6 +24,7 @@ import androidx.compose.ui.test.FailureArtifact
 import androidx.compose.ui.test.FailureContext
 import androidx.compose.ui.test.TestFailurePolicy.CaptureMode
 import androidx.compose.ui.util.fastForEach
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration
 
 private const val TAG = "ComposeUiTest"
@@ -54,8 +55,14 @@ internal class FailurePipelineRunner(
     private val screenshotHandler: ScreenshotHandler = AndroidScreenshotHandler(),
     private val uiHierarchyHandler: UiHierarchyHandler = AndroidUiHierarchyHandler(),
 ) {
+    private val hasRun = AtomicBoolean(false)
+
     fun runPipeline(throwable: Throwable, composeRoots: Set<ViewRootForTest>): Nothing {
         val error = throwable.wrapIfCoroutineTimeout(config.testTimeout)
+        if (!hasRun.compareAndSet(false, true)) {
+            throw error
+        }
+
         val artifacts = mutableListOf<FailureArtifact>()
 
         val policy = config.failurePolicy
