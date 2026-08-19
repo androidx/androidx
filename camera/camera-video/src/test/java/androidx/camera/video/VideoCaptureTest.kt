@@ -1731,6 +1731,36 @@ class VideoCaptureTest {
             .isEqualTo(sourceRotationDegrees - targetRotationDegrees)
     }
 
+    @Test
+    fun noAdjustCropRectAndRotation_withInProgressTransformationInfo_whenCameraHasNoTransform() {
+        // Arrange.
+        val inProgressCropRect = Rect(0, 0, 1024, 768)
+        val inProgressRotationDegrees = 90
+        var surfaceRequest: SurfaceRequest? = null
+        val videoOutput =
+            createVideoOutput(surfaceRequestListener = { request, _ -> surfaceRequest = request })
+        val videoCapture = createVideoCapture(videoOutput = videoOutput)
+        setupCamera(sensorRotation = 0, hasTransform = false)
+        createCameraUseCaseAdapter()
+        videoOutput.updateStreamInfo(
+            createStreamInfo(
+                transformationInfo =
+                    createTransformationInfo(
+                        cropRect = inProgressCropRect,
+                        rotationDegrees = inProgressRotationDegrees,
+                    )
+            )
+        )
+
+        // Act.
+        addAndAttachUseCases(videoCapture)
+
+        // Assert.
+        assertThat(surfaceRequest).isNotNull()
+        assertThat(videoCapture.cropRect).isNotEqualTo(inProgressCropRect)
+        assertThat(videoCapture.node).isNull()
+    }
+
     private fun testAdjustCropRectToValidSize(
         resolution: Size = RESOLUTION_720P,
         videoEncoderInfo: VideoEncoderInfo = createVideoEncoderInfo(),

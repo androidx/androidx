@@ -671,10 +671,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
-    private @NonNull Rect adjustCropRectWithInProgressTransformation(@NonNull Rect cropRect,
+    private @NonNull Rect adjustCropRectWithInProgressTransformation(
+            @NonNull CameraInternal camera,
+            @NonNull Rect cropRect,
             int rotationDegrees) {
         Rect adjustedCropRect = cropRect;
-        if (shouldCompensateTransformation()) {
+        if (shouldCompensateTransformation(camera)) {
             adjustedCropRect = TransformUtils.sizeToRect(TransformUtils.getRotatedSize(
                     requireNonNull(mStreamInfo.getInProgressTransformationInfo()).getCropRect(),
                     rotationDegrees));
@@ -691,7 +693,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private int getCompensatedRotation(@NonNull CameraInternal cameraInternal) {
         boolean isMirroringRequired = isMirroringRequired(cameraInternal);
         int rotationDegrees = getRelativeRotation(cameraInternal, isMirroringRequired);
-        if (shouldCompensateTransformation()) {
+        if (shouldCompensateTransformation(cameraInternal)) {
             TransformationInfo transformationInfo =
                     requireNonNull(mStreamInfo.getInProgressTransformationInfo());
             int inProgressDegrees = transformationInfo.getRotationDegrees();
@@ -705,10 +707,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return rotationDegrees;
     }
 
-    private @NonNull Size adjustResolutionWithInProgressTransformation(@NonNull Size resolution,
-            @NonNull Rect originalCropRect, @NonNull Rect targetCropRect) {
+    private @NonNull Size adjustResolutionWithInProgressTransformation(
+            @NonNull CameraInternal camera,
+            @NonNull Size resolution,
+            @NonNull Rect originalCropRect,
+            @NonNull Rect targetCropRect) {
         Size nodeResolution = resolution;
-        if (shouldCompensateTransformation() && !targetCropRect.equals(originalCropRect)) {
+        if (shouldCompensateTransformation(camera) && !targetCropRect.equals(originalCropRect)) {
             float targetRatio = ((float) targetCropRect.height()) / originalCropRect.height();
             nodeResolution = new Size((int) Math.ceil(resolution.getWidth() * targetRatio),
                     (int) Math.ceil(resolution.getHeight() * targetRatio));
@@ -769,13 +774,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 config.getVideoEncoderInfoFinder(), mediaInfo.getVideoMimeInfo());
         mRotationDegrees = getCompensatedRotation(camera);
         Rect originalCropRect = calculateCropRect(resolution, videoEncoderInfo);
-        mCropRect = adjustCropRectWithInProgressTransformation(originalCropRect, mRotationDegrees);
-        Size nodeResolution = adjustResolutionWithInProgressTransformation(resolution,
+        mCropRect = adjustCropRectWithInProgressTransformation(camera, originalCropRect,
+                mRotationDegrees);
+        Size nodeResolution = adjustResolutionWithInProgressTransformation(camera, resolution,
                 originalCropRect, mCropRect);
         boolean isBufferRotationRequired =
                 mRotationDegrees != 0 && !MediaConfigUtil.canWriteOrientationMetadata(
                         mediaInfo.getContainerInfo().getOutputFormat());
-        if (shouldCompensateTransformation()) {
+        if (shouldCompensateTransformation(camera)) {
             // If this pipeline is created with in-progress transformation, we need to reset the
             // pipeline when the transformation becomes invalid.
             mHasCompensatingTransformation = true;
@@ -1171,7 +1177,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 || shouldEnableSurfaceProcessingBasedOnDynamicRangeByQuirk(camera, dynamicRange)
                 || shouldCrop(cropRect, resolution)
                 || shouldMirror(camera)
-                || shouldCompensateTransformation();
+                || shouldCompensateTransformation(camera);
     }
 
     private @Nullable SurfaceProcessorNode createNodeIfNeeded(@NonNull CameraInternal camera,
@@ -1367,8 +1373,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         return camera.getHasTransform() && isMirroringRequired(camera);
     }
 
-    private boolean shouldCompensateTransformation() {
-        return mStreamInfo.getInProgressTransformationInfo() != null;
+    private boolean shouldCompensateTransformation(@NonNull CameraInternal camera) {
+        // If there has been a buffer copy, it means the surface processing is already enabled on
+        // input stream. Otherwise, compensate transformation as needed.
+        return camera.getHasTransform() && mStreamInfo.getInProgressTransformationInfo() != null;
     }
 
     private static boolean shouldCrop(@NonNull Rect cropRect, @NonNull Size resolution) {
