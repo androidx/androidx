@@ -31,25 +31,27 @@ class `$SchemaAppFunctionInventory_Impl` : SchemaAppFunctionInventory() {
             mapOf(
                 "CreateNote" to
                     AppFunctionMetadataTestHelper.FunctionMetadata.ADDITIONAL_LEGACY_CREATE_NOTE
-                        .toStaticCompileTimeMetadata(),
+                        .toStaticCompileTimeMetadata(isEnabled = true),
                 "NotePrint" to
                     AppFunctionMetadataTestHelper.FunctionMetadata.NOTES_SCHEMA_PRINT
-                        .toStaticCompileTimeMetadata(),
+                        .toStaticCompileTimeMetadata(isEnabled = true),
                 "MediaPrint1" to
                     AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA_PRINT
-                        .toStaticCompileTimeMetadata(),
+                        .toStaticCompileTimeMetadata(isEnabled = true),
                 "MediaPrint2" to
                     AppFunctionMetadataTestHelper.FunctionMetadata.MEDIA_SCHEMA2_PRINT
-                        .toStaticCompileTimeMetadata(),
+                        .toStaticCompileTimeMetadata(isEnabled = false),
             )
 
     override val componentsMetadata: AppFunctionComponentsMetadata
         get() = AppFunctionMetadataTestHelper.FunctionMetadata.NOTES_SCHEMA_PRINT.components
 
-    private fun AppFunctionMetadata.toStaticCompileTimeMetadata(): CompileTimeAppFunctionMetadata {
+    private fun AppFunctionMetadata.toStaticCompileTimeMetadata(
+        isEnabled: Boolean
+    ): CompileTimeAppFunctionMetadata {
         return CompileTimeAppFunctionMetadata(
             id = this.id,
-            isEnabledByDefault = this.isEnabled,
+            isEnabledByDefault = isEnabled,
             schema = this.schema,
             parameters = this.parameters,
             response = this.response,

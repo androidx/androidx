@@ -1565,7 +1565,6 @@ internal object AppFunctionMetadataHelper {
                         packageName = TARGET_APP_PACKAGE,
                         components = Components.SHARED_COMPONENTS,
                     ),
-                isEnabled = true,
                 description = "Returns the sum of the given two numbers.",
                 deprecation = null,
             )
@@ -1615,7 +1614,6 @@ internal object AppFunctionMetadataHelper {
                         packageName = TARGET_APP_PACKAGE,
                         components = Components.SHARED_COMPONENTS,
                     ),
-                isEnabled = true,
                 description = "Create a note.",
                 deprecation = null,
             )
@@ -1661,7 +1659,6 @@ internal object AppFunctionMetadataHelper {
                         packageName = TARGET_APP_PACKAGE,
                         components = Components.SHARED_COMPONENTS,
                     ),
-                isEnabled = true,
                 deprecation = null,
             )
     }
@@ -1682,7 +1679,6 @@ internal object AppFunctionMetadataHelper {
                         packageName = TARGET_APP_PACKAGE,
                         components = SHARED_COMPONENTS,
                     ),
-                isEnabled = true,
             )
 
         val ADDITIONAL_COMPONENT_FUNCTION_V2 =
@@ -1731,7 +1727,6 @@ internal object AppFunctionMetadataHelper {
                                         )
                             ),
                     ),
-                isEnabled = true,
             )
     }
 
@@ -1786,7 +1781,6 @@ internal object AppFunctionMetadataHelper {
                                         )
                             ),
                     ),
-                isEnabled = true,
             )
     }
 }

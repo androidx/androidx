@@ -223,27 +223,6 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         )
                     }
             )
-        val NO_SCHEMA_EXECUTION_SUCCEED =
-            AppFunctionMetadata(
-                name =
-                    AppFunctionName(
-                        packageName = TEST_PACKAGE_NAME,
-                        functionIdentifier = FunctionIds.NO_SCHEMA_EXECUTION_SUCCEED,
-                    ),
-                schema = null,
-                parameters = emptyList<AppFunctionParameterMetadata>(),
-                response =
-                    AppFunctionResponseMetadata(
-                        valueType = AppFunctionStringTypeMetadata(isNullable = false)
-                    ),
-                packageMetadata =
-                    AppFunctionPackageMetadata(
-                        packageName = TEST_PACKAGE_NAME,
-                        components = sharedComponents,
-                    ),
-                isEnabled = true,
-                description = "Test function without schema, successful execution expected.",
-            )
 
         val DYNAMIC_REGISTRATION_RETURN_SUCCESS =
             AppFunctionMetadata(
@@ -263,7 +242,6 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
-                isEnabled = false,
                 description = "",
             )
 
@@ -285,7 +263,6 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
-                isEnabled = false,
                 description = "",
             )
 
@@ -316,30 +293,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
-                isEnabled = true,
                 description = "Test function without schema, enabled by default.",
-            )
-
-        val NO_SCHEMA_DISABLED_BY_DEFAULT =
-            AppFunctionMetadata(
-                name =
-                    AppFunctionName(
-                        packageName = TEST_PACKAGE_NAME,
-                        functionIdentifier = FunctionIds.NO_SCHEMA_DISABLED_BY_DEFAULT,
-                    ),
-                schema = null,
-                parameters = emptyList<AppFunctionParameterMetadata>(),
-                response =
-                    AppFunctionResponseMetadata(
-                        valueType = AppFunctionUnitTypeMetadata(isNullable = false)
-                    ),
-                packageMetadata =
-                    AppFunctionPackageMetadata(
-                        packageName = TEST_PACKAGE_NAME,
-                        components = sharedComponents,
-                    ),
-                isEnabled = false,
-                description = "Test function without schema, disabled by default.",
             )
 
         val MEDIA_SCHEMA2_PRINT =
@@ -360,7 +314,6 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
-                isEnabled = false,
             )
 
         val MEDIA_SCHEMA_PRINT =
@@ -381,7 +334,6 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
-                isEnabled = true,
             )
 
         val NOTES_SCHEMA_PRINT =
@@ -402,29 +354,6 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
-                isEnabled = true,
-            )
-
-        val NO_SCHEMA_EXECUTION_FAIL =
-            AppFunctionMetadata(
-                name =
-                    AppFunctionName(
-                        packageName = TEST_PACKAGE_NAME,
-                        functionIdentifier = FunctionIds.NO_SCHEMA_EXECUTION_FAIL,
-                    ),
-                schema = null,
-                parameters = emptyList<AppFunctionParameterMetadata>(),
-                response =
-                    AppFunctionResponseMetadata(
-                        valueType = AppFunctionUnitTypeMetadata(isNullable = false)
-                    ),
-                packageMetadata =
-                    AppFunctionPackageMetadata(
-                        packageName = TEST_PACKAGE_NAME,
-                        components = sharedComponents,
-                    ),
-                isEnabled = true,
-                description = "Test function without schema, failed execution expected.",
             )
 
         val ADDITIONAL_LEGACY_CREATE_NOTE =
@@ -446,7 +375,6 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = "com.google.android.app.notes",
                         components = sharedComponents,
                     ),
-                isEnabled = true,
             )
     }
 

@@ -44,6 +44,7 @@ internal const val APP_FUNCTION_ID_EMPTY = "unused"
 public class AppFunctionMetadata
 // TODO(b/508188326): Replace this constructor with the secondary one once migrated all usages.
 @JvmOverloads
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
     /**
      * The ID used in an [androidx.appfunctions.ExecuteAppFunctionRequest] to refer to this
@@ -52,8 +53,11 @@ constructor(
     public val id: String,
     /** The package name of the Android app called to execute the app function. */
     public val packageName: String,
+    // TODO(b/500667251): remove isEnabled property. AppFunctionMetadata should now contain
+    //  static info only, in line with platform class, hence using a default false value until
+    //  we migrate.
     /** Indicates whether the function is enabled currently or not. */
-    public val isEnabled: Boolean,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val isEnabled: Boolean,
     /**
      * The predefined schema of the AppFunction. If null, it indicates this function is not
      * implement a particular predefined schema.
@@ -87,7 +91,6 @@ constructor(
         ),
 ) {
     @JvmOverloads
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         /** The name of the AppFunction. */
         name: AppFunctionName,
@@ -102,11 +105,6 @@ constructor(
         response: AppFunctionResponseMetadata,
         /** The metadata of the package providing this AppFunction. */
         packageMetadata: AppFunctionPackageMetadata,
-        // TODO(b/500667251): remove isEnabled property. AppFunctionMetadata should now contain
-        //  static info only, in line with platform class, hence using a default false value until
-        //  we migrate.
-        /** Indicates whether the function is enabled currently or not. */
-        isEnabled: Boolean,
         /** A description of the AppFunction and its intended use. */
         description: String = "",
         /**
@@ -117,7 +115,10 @@ constructor(
     ) : this(
         id = name.functionIdentifier,
         packageName = name.packageName,
-        isEnabled = isEnabled,
+        // TODO(b/500667251): remove isEnabled property. AppFunctionMetadata should now contain
+        //  static info only, in line with platform class, hence using a default false value until
+        //  we migrate.
+        isEnabled = false,
         schema = schema,
         parameters = parameters,
         response = response,
@@ -377,7 +378,6 @@ constructor(
                 parameters = parameterMetadata,
                 response = responseMetadata,
                 packageMetadata = packageMetadata,
-                isEnabled = isEnabled,
                 description = staticMetadataDocument.description ?: "",
                 deprecation = deprecationMetadata,
             )
