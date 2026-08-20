@@ -115,14 +115,25 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
         var uiModeSelection by remember { mutableStateOf(UiModeSelectionV2.SOFT) }
         val selectedMode =
             remember(uiModeSelection, softFollowDuration) {
+                val dimensions =
+                    TrackedDimensions(
+                        isXTracked = true,
+                        isYTracked = true,
+                        isZTracked = true,
+                        isPitchTracked = true,
+                        isYawTracked = true,
+                        isRollTracked = false,
+                    )
                 when (uiModeSelection) {
-                    UiModeSelectionV2.SOFT -> FollowMode.soft(durationMs = softFollowDuration)
-                    UiModeSelectionV2.EXPONENTIAL_DECAY -> FollowMode.exponentialDecay()
+                    UiModeSelectionV2.SOFT ->
+                        FollowMode.soft(durationMs = softFollowDuration, dimensions = dimensions)
+                    UiModeSelectionV2.EXPONENTIAL_DECAY ->
+                        FollowMode.exponentialDecay(dimensions = dimensions)
                 }
             }
 
         Subspace(
-            follow = FollowTarget.View(mode = FollowMode.snap),
+            follow = FollowTarget.View(mode = FollowMode.snap()),
             modifier = SubspaceModifier.offset(z = (-200).dp),
         ) {
             SpatialPanel(SubspaceModifier.height(400.dp).width(600.dp)) {
@@ -149,21 +160,7 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
             }
         }
 
-        Subspace(
-            follow =
-                FollowTarget.View(
-                    mode = selectedMode,
-                    dimensions =
-                        TrackedDimensions(
-                            isTranslationXTracked = true,
-                            isTranslationYTracked = true,
-                            isTranslationZTracked = true,
-                            isRotationXTracked = true,
-                            isRotationYTracked = true,
-                            isRotationZTracked = false,
-                        ),
-                )
-        ) {
+        Subspace(follow = FollowTarget.View(mode = selectedMode)) {
             SpatialPanel(SubspaceModifier.height(200.dp).width(450.dp).offset(y = (-50).dp)) {
                 Box(Modifier.fillMaxSize().background(Color.Cyan)) {
                     Row(modifier = Modifier.fillMaxWidth()) {
@@ -230,13 +227,16 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
         Subspace(
             follow =
                 FollowTarget.View(
-                    mode = FollowMode.soft(durationMs = softFollowDuration),
-                    dimensions =
-                        TrackedDimensions(
-                            isTranslationXTracked = true,
-                            isTranslationYTracked = true,
-                            isTranslationZTracked = true,
-                        ),
+                    mode =
+                        FollowMode.soft(
+                            durationMs = softFollowDuration,
+                            dimensions =
+                                TrackedDimensions(
+                                    isXTracked = true,
+                                    isYTracked = true,
+                                    isZTracked = true,
+                                ),
+                        )
                 )
         ) {
             SpatialCurvedRow(SubspaceModifier.width(1000.dp).height(300.dp), curveRadius = 500.dp) {
