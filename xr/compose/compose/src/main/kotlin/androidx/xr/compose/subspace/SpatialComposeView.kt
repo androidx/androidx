@@ -18,6 +18,7 @@ package androidx.xr.compose.subspace
 
 import android.content.Context
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewParent
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.platform.ComposeView
@@ -58,6 +59,14 @@ internal fun spatialComposeView(
 ): ComposeView =
     ComposeView(context).apply {
         id = View.generateViewId()
+        // Set WRAP_CONTENT LayoutParams so that when the view is reparented or hosted in a
+        // ViewGroup (such as SceneCore's FrameLayout wrapper), it does not default to MATCH_PARENT
+        // and is allowed to size itself to its intrinsic Compose content.
+        layoutParams =
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
 
         setViewTreeLifecycleOwner(parentView.findViewTreeLifecycleOwner())
         setViewTreeViewModelStoreOwner(parentView.findViewTreeViewModelStoreOwner())
