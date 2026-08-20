@@ -81,7 +81,7 @@ fun Project.configureMavenArtifactUpload(
     }
     // validate that all libraries that should be published actually get tasks registered.
     // named() will throw UnknownTaskException if the task is not registered.
-    gradle.taskGraph.whenReady { graph ->
+    gradle.taskGraph.whenReady { _ ->
         if (releaseTaskShouldBeRegistered(androidXExtension)) {
             tasks.named(Release.PROJECT_ARCHIVE_ZIP_TASK_NAME)
         }
