@@ -233,7 +233,6 @@ constructor(
          *
          * @see MediaRecorder.AudioSource.UNPROCESSED
          */
-        @RequiresApi(24)
         public const val SOURCE_UNPROCESSED: Int = MediaRecorder.AudioSource.UNPROCESSED
 
         /**

@@ -38,7 +38,6 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.Logger;
-import androidx.camera.video.internal.compat.Api24Impl;
 import androidx.camera.video.internal.compat.Api29Impl;
 import androidx.camera.video.internal.compat.Api31Impl;
 import androidx.camera.video.internal.compat.quirk.AudioTimestampFramePositionIncorrectQuirk;
@@ -250,9 +249,9 @@ public class AudioStreamImpl implements AudioStream {
 
     private long generatePresentationTimeNs() {
         long presentationTimeNs = -1;
-        if (Build.VERSION.SDK_INT >= 24 && !mShouldFallbackToSystemTime) {
+        if (!mShouldFallbackToSystemTime) {
             AudioTimestamp audioTimestamp = new AudioTimestamp();
-            if (Api24Impl.getTimestamp(mAudioRecord, audioTimestamp,
+            if (mAudioRecord.getTimestamp(audioTimestamp,
                     AudioTimestamp.TIMEBASE_MONOTONIC) == AudioRecord.SUCCESS) {
                 presentationTimeNs = computeInterpolatedTimeNs(mSettings.getCaptureSampleRate(),
                         mTotalFramesRead, audioTimestamp);
@@ -356,7 +355,7 @@ public class AudioStreamImpl implements AudioStream {
         @Override
         public void onRecordingConfigChanged(List<AudioRecordingConfiguration> configs) {
             for (AudioRecordingConfiguration config : configs) {
-                if (Api24Impl.getClientAudioSessionId(config) == mAudioRecord.getAudioSessionId()) {
+                if (config.getClientAudioSessionId() == mAudioRecord.getAudioSessionId()) {
                     boolean isSilenced = Api29Impl.isClientSilenced(config);
                     notifySilenced(isSilenced);
                     break;
