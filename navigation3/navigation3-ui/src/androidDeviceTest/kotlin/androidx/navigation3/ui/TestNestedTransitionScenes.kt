@@ -189,8 +189,7 @@ class CardStackScene<T : Any>(
     private fun CardStack(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
         Layout(content, modifier) { measurables, constraints ->
             val paddingInPixels = CARD_PADDING.dp.toPx().toInt()
-            val placeables =
-                measurables.mapIndexed { index, measurable -> measurable.measure(constraints) }
+            val placeables = measurables.map { measurable -> measurable.measure(constraints) }
 
             val height =
                 if (placeables.isNotEmpty()) {
