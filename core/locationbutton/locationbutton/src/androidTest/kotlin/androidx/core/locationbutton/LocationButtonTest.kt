@@ -305,7 +305,6 @@ public class LocationButtonTest {
             val button = LocationButton(activity)
 
             // Apply large padding to test clamping (Max 8dp)
-            val maxPaddingPx = (8 * activity.resources.displayMetrics.density).toInt()
             button.setPadding(100, 100, 100, 100)
 
             // Request EXACTLY 500dp width and EXACTLY 300dp height
