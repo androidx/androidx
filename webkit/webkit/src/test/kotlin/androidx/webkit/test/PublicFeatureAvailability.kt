@@ -117,4 +117,5 @@ internal val PUBLIC_FEATURE_UNHIDE_CLS =
         WF.HTTP_CACHE_MANAGER to "https://crrev.com/c/7958057",
         WF.ENQUEUE_PRECONNECT to "https://crrev.com/c/7979079",
         WF.DOWNLOAD_FAVICONS_ENABLED to "https://crrev.com/c/7984627",
+        WF.CROSS_ORIGIN_ISOLATED_ALLOWLIST to "https://crrev.com/c/8233544",
     )

@@ -998,7 +998,6 @@ public class WebViewFeature {
      * {@link Profile#setCrossOriginIsolatedAllowlist(Set)}
      * {@link Profile#getCrossOriginIsolatedAllowlist()}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String CROSS_ORIGIN_ISOLATED_ALLOWLIST =
             "CROSS_ORIGIN_ISOLATED_ALLOWLIST";
 

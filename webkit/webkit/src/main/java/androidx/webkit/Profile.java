@@ -755,7 +755,6 @@ public interface Profile {
      */
     @RequiresFeature(name = WebViewFeature.CROSS_ORIGIN_ISOLATED_ALLOWLIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     default @NonNull Set<String> getCrossOriginIsolatedAllowlist() {
         throw new UnsupportedOperationException("Profile#getCrossOriginIsolatedAllowlist is "
@@ -765,8 +764,8 @@ public interface Profile {
     /**
      * Set the list of origin patterns where <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Permissions-Policy/cross-origin-isolated">Cross Origin Isolated APIs</a> should be accessible.
      * <p>
-     * This API allows you to set an allowlist of origins where these APIs will be enabled, provided
-     * the loaded page has the correct <a href="https://developer.chrome.com/blog/document-isolation-policy">{@code Document-Isolation-Policy}</a>
+     * This API allows you to set an allowlist of origins where potentially risky APIs will be
+     * enabled, provided the loaded page has the correct <a href="https://developer.chrome.com/blog/document-isolation-policy">{@code Document-Isolation-Policy}</a>
      * response header.
      * <p>
      * WebView does not enable this feature by default because WebView does not support renderer
@@ -790,7 +789,6 @@ public interface Profile {
      */
     @RequiresFeature(name = WebViewFeature.CROSS_ORIGIN_ISOLATED_ALLOWLIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @UiThread
     default void setCrossOriginIsolatedAllowlist(@NonNull Set<String> allowedOriginRules) {
         throw new UnsupportedOperationException("Profile#setCrossOriginIsolatedAllowlist is "

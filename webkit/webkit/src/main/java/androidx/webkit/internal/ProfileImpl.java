@@ -25,7 +25,6 @@ import android.webkit.ServiceWorkerController;
 import android.webkit.WebStorage;
 
 import androidx.annotation.OptIn;
-import androidx.annotation.RestrictTo;
 import androidx.webkit.CustomHeader;
 import androidx.webkit.HttpCache;
 import androidx.webkit.PrefetchCache;
@@ -405,7 +404,6 @@ public class ProfileImpl implements Profile {
         return mHttpCache;
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public void setCrossOriginIsolatedAllowlist(@NonNull Set<String> allowedOriginRules) {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.CROSS_ORIGIN_ISOLATED_ALLOWLIST;
@@ -416,7 +414,6 @@ public class ProfileImpl implements Profile {
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public @NonNull Set<String> getCrossOriginIsolatedAllowlist() {
         ApiFeature.NoFramework feature = WebViewFeatureInternal.CROSS_ORIGIN_ISOLATED_ALLOWLIST;
