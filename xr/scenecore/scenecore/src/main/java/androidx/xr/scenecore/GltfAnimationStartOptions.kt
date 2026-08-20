@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.xr.scenecore
 
 import android.os.Build
@@ -42,12 +44,14 @@ import java.time.Duration
  *   zero-length playback window).
  *
  * **Note on Reverse Playback:** If [speed] is negative and [shouldLoop] is false, the animation
- * stops when it reaches [seekStartTime]. To play in reverse, the application must explicitly call
- * [GltfAnimation.seekTo] to set the playhead to a valid position between [seekStartTime] and the
- * duration.
+ * stops when it reaches [seekStartTime]. To play in reverse, the application must explicitly set
+ * the playhead to a valid position between [seekStartTime] and the duration.
  *
  * @throws IllegalArgumentException if [seekStartTime] is negative.
  */
+@Deprecated(
+    "Use GltfAnimation.loop and GltfAnimation.speed properties with parameterless start() instead."
+)
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalGltfAnimationApi
 public class GltfAnimationStartOptions
