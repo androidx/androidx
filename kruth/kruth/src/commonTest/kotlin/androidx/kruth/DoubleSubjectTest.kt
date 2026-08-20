@@ -37,8 +37,8 @@ class DoubleSubjectTest {
      */
     @Test
     fun doubleCornerCaseZero() = assumeNotJs {
-        var dynamicZeroDouble: Any = 0.0
-        var dynamicNegativeZeroDouble: Any = -0.0
+        val dynamicZeroDouble: Any = 0.0
+        val dynamicNegativeZeroDouble: Any = -0.0
         assertThat(dynamicZeroDouble == dynamicNegativeZeroDouble).isFalse()
         assertThatIsEqualToFails(-0.0, 0.0)
     }
