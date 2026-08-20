@@ -174,9 +174,9 @@ constructor(
         // Android C. For these older platform versions, the patches are loaded manually
         // from XML configuration files.
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.BAKLAVA) {
-            var systemSupplementalPatches =
+            val systemSupplementalPatches =
                 loadSupplementalPatchesFromFiles(systemSupplementalPatchConfigFiles)
-            var vendorSupplementalPatches =
+            val vendorSupplementalPatches =
                 loadSupplementalPatchesFromFiles(vendorSupplementalPatchConfigFiles)
 
             bundle.apply {
