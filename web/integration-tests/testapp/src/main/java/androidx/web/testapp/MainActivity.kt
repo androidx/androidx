@@ -38,7 +38,6 @@ import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.web.WebContent
@@ -75,7 +74,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 @Suppress("RestrictedApiAndroidX")
 fun AppContent() {
-    val context = LocalContext.current
     var forceFallback by rememberSaveable { mutableStateOf(false) }
 
     var lastLoadedUrl by retain { mutableStateOf<String?>(null) }
@@ -83,7 +81,7 @@ fun AppContent() {
     val webContent =
         retain(forceFallback) {
             if (!forceFallback && WebFeature.isFeatureSupported(WebFeature.WEB_CONTENT)) {
-                WebContent(context.applicationContext)
+                WebContent()
             } else {
                 FallbackWebContent(onDetach = { lastLoadedUrl = null })
             }
