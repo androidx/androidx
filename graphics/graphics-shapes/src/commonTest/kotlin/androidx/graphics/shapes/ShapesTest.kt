@@ -176,7 +176,7 @@ class ShapesTest {
         assertInBounds(star.cubics, min, max)
 
         assertThrows(IllegalArgumentException::class) {
-            star = RoundedPolygon.star(6, innerRadius = .5f, perVertexRounding = perVtxRounded)
+            RoundedPolygon.star(6, innerRadius = .5f, perVertexRounding = perVtxRounded)
         }
     }
 }
