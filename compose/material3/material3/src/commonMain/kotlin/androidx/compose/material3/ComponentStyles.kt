@@ -18,10 +18,13 @@ package androidx.compose.material3
 
 import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.material3.tokens.ColorToken
+import androidx.compose.material3.tokens.RadioButtonTokens
 import androidx.compose.material3.tokens.ShapeToken
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlin.jvm.JvmInline
 
 // Note that this file is supposed to be removed after the Style integration is done and should
@@ -45,6 +48,8 @@ internal value class ComponentState(val mask: Int = 0) {
 
     fun checked(checked: Boolean) = set(CHECKED, checked)
 
+    fun selected(selected: Boolean) = set(CHECKED, selected)
+
     fun focused(focused: Boolean) = set(FOCUSED, focused)
 
     fun indeterminate(indeterminate: Boolean) = set(INDETERMINATE, indeterminate)
@@ -67,6 +72,8 @@ internal value class ComponentState(val mask: Int = 0) {
         fun disabled(disabled: Boolean) = Default.disabled(disabled)
 
         fun checked(checked: Boolean) = Default.checked(checked)
+
+        fun selected(selected: Boolean) = Default.selected(selected)
 
         fun focused(focused: Boolean) = Default.focused(focused)
 
@@ -105,6 +112,10 @@ internal interface CheckedState<T : StatefulStyleScope<T>> : StatefulStyleScope<
     fun checked(style: T.() -> Unit) = setState(ComponentState.CHECKED, style)
 
     fun unchecked(style: T.() -> Unit) = setNotState(ComponentState.CHECKED, style)
+
+    fun selected(style: T.() -> Unit) = checked(style)
+
+    fun unselected(style: T.() -> Unit) = unchecked(style)
 }
 
 internal interface IndeterminateState<T : StatefulStyleScope<T>> : StatefulStyleScope<T> {
@@ -228,5 +239,61 @@ internal class CheckboxStyleScope(
 
     fun rippleColor(color: Color) {
         rippleColor = color
+    }
+}
+
+@JvmInline
+internal value class RadioButtonStyle(private val block: RadioButtonStyleScope.() -> Unit) {
+    fun RadioButtonStyleScope.applyStyle() {
+        block()
+    }
+
+    companion object {
+        val Default = RadioButtonStyle {
+            radioColor(RadioButtonTokens.UnselectedIconColor.value)
+            dotRadius(0.dp)
+            selected {
+                radioColor(RadioButtonTokens.SelectedIconColor.value)
+                dotRadius(6.dp)
+            }
+            disabled {
+                unselected {
+                    radioColor(
+                        RadioButtonTokens.DisabledUnselectedIconColor.value.copy(
+                            alpha = RadioButtonTokens.DisabledSelectedIconOpacity
+                        )
+                    )
+                }
+                selected {
+                    radioColor(
+                        RadioButtonTokens.DisabledSelectedIconColor.value.copy(
+                            alpha = RadioButtonTokens.DisabledUnselectedIconOpacity
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+internal class RadioButtonStyleScope(
+    override val theme: MaterialTheme.Values,
+    override val state: ComponentState = ComponentState.Default,
+) :
+    CheckedState<RadioButtonStyleScope>,
+    DisabledState<RadioButtonStyleScope>,
+    MaterialThemeAccessorScope {
+    var radioColor: Color = Color.Unspecified
+        private set
+
+    var dotRadius: Dp = Dp.Unspecified
+        private set
+
+    fun radioColor(color: Color) {
+        radioColor = color
+    }
+
+    fun dotRadius(radius: Dp) {
+        dotRadius = radius
     }
 }

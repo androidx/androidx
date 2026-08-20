@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme.LocalMaterialTheme
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.RadioButtonTokens
 import androidx.compose.runtime.Composable
@@ -88,6 +89,37 @@ public fun RadioButton(
         enabled = enabled,
         color = colors.radioColor(enabled, selected),
         dotRadius = if (selected) RadioButtonDotSize / 2 else 0.dp,
+        interactionSource = interactionSource,
+    )
+}
+
+// TODO (conradchen): add screenshot tests
+// Note that we cannot name this function as RadioButton as it will cause overload resolution
+// ambiguity. We will come back to this problem when we need to publish it.
+@Composable
+internal fun StyleableRadioButton(
+    selected: Boolean,
+    onClick: (() -> Unit)?,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    style: RadioButtonStyle? = null,
+    interactionSource: MutableInteractionSource? = null,
+) {
+    val localTheme = LocalMaterialTheme.current
+    val scope =
+        RadioButtonStyleScope(
+            theme = localTheme,
+            state = ComponentState.disabled(!enabled).checked(selected),
+        )
+    with(style ?: localTheme.componentProperties.radioButtonProperties.style) { scope.applyStyle() }
+
+    RadioButtonImpl(
+        selected = selected,
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        color = scope.radioColor,
+        dotRadius = scope.dotRadius,
         interactionSource = interactionSource,
     )
 }
