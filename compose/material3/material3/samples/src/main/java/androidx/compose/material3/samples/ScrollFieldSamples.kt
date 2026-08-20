@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollField
+import androidx.compose.material3.ScrollFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberScrollFieldState
 import androidx.compose.runtime.Composable
@@ -55,6 +56,7 @@ fun ScrollFieldSample() {
 
     val state = rememberScrollFieldState(itemCount = itemCount, index = 0)
     var selectedValue by remember { mutableIntStateOf(minVal) }
+    val colors = ScrollFieldDefaults.colors()
 
     Row(
         modifier =
@@ -71,22 +73,23 @@ fun ScrollFieldSample() {
             modifier = Modifier.size(width = 192.dp, height = 160.dp),
             contentDescription = "Select value between 1000 and 2000",
             fieldAccessibilityDescription = { index -> (minVal + index).toString() },
-            field = { index, isSelected ->
+            field = { index, selected, enabled ->
                 val valueToShow = minVal + index
                 Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
                     Text(
                         text = valueToShow.toString(),
                         style =
-                            if (isSelected) {
+                            if (selected) {
                                 MaterialTheme.typography.displayLargeEmphasized
                             } else {
                                 MaterialTheme.typography.displayMedium
                             },
                         color =
-                            if (isSelected) {
-                                MaterialTheme.colorScheme.onSurface
-                            } else {
-                                MaterialTheme.colorScheme.outline
+                            when {
+                                enabled && selected -> colors.selectedContentColor
+                                enabled && !selected -> colors.contentColor
+                                !enabled && selected -> colors.disabledSelectedContentColor
+                                else -> colors.disabledContentColor
                             },
                     )
                 }
@@ -158,6 +161,8 @@ fun UnitScrollFieldSample() {
 
     val units = listOf("L", "oz")
 
+    val colors = ScrollFieldDefaults.colors()
+
     Row(
         modifier =
             Modifier.background(
@@ -173,22 +178,23 @@ fun UnitScrollFieldSample() {
             modifier = Modifier.size(width = 120.dp, height = 160.dp),
             contentDescription = "Select amount",
             fieldAccessibilityDescription = { index -> ((index + 1) / 10.0).toString() },
-            field = { index, isSelected ->
+            field = { index, selected, enabled ->
                 val amount = (index + 1) / 10.0
                 Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "${(amount * 10).toInt() / 10.0}",
                         style =
-                            if (isSelected) {
+                            if (selected) {
                                 MaterialTheme.typography.displayLargeEmphasized
                             } else {
                                 MaterialTheme.typography.displayMedium
                             },
                         color =
-                            if (isSelected) {
-                                MaterialTheme.colorScheme.onSurface
-                            } else {
-                                MaterialTheme.colorScheme.outline
+                            when {
+                                enabled && selected -> colors.selectedContentColor
+                                enabled && !selected -> colors.contentColor
+                                !enabled && selected -> colors.disabledSelectedContentColor
+                                else -> colors.disabledContentColor
                             },
                     )
                 }
@@ -200,21 +206,22 @@ fun UnitScrollFieldSample() {
             modifier = Modifier.size(width = 120.dp, height = 160.dp),
             contentDescription = "Select unit",
             fieldAccessibilityDescription = { index -> units[index] },
-            field = { index, isSelected ->
+            field = { index, selected, enabled ->
                 Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
                     Text(
                         text = units[index],
                         style =
-                            if (isSelected) {
+                            if (selected) {
                                 MaterialTheme.typography.displayLargeEmphasized
                             } else {
                                 MaterialTheme.typography.displayMedium
                             },
                         color =
-                            if (isSelected) {
-                                MaterialTheme.colorScheme.onSurface
-                            } else {
-                                MaterialTheme.colorScheme.outline
+                            when {
+                                enabled && selected -> colors.selectedContentColor
+                                enabled && !selected -> colors.contentColor
+                                !enabled && selected -> colors.disabledSelectedContentColor
+                                else -> colors.disabledContentColor
                             },
                     )
                 }
