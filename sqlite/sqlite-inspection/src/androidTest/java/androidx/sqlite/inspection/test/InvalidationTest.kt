@@ -191,8 +191,6 @@ class InvalidationTest {
                     override fun getString(column: Int): String = ""
                 }
             )
-
-        Unit
     }
 
     private fun cursorForQuery(query: String): SQLiteCursor {
