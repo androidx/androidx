@@ -122,14 +122,21 @@ class A2uiCatalogTest {
                     modifier: Modifier,
                 ) {}
             }
+        val testCard =
+            object : A2uiBasicCatalogV1.Card {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier) {}
+            }
         val testFunction = StubFunction("TestFunc")
-        val basicCatalog = A2uiBasicCatalogV1(text = testText, functions = listOf(testFunction))
+        val basicCatalog =
+            A2uiBasicCatalogV1(text = testText, card = testCard, functions = listOf(testFunction))
 
         val catalog = A2uiCatalog(basicCatalog)
 
         assertThat(catalog.id).isEqualTo(A2uiBasicCatalogV1.CatalogId)
         assertThat(catalog.themeSchema).isEqualTo(A2uiBasicCatalogV1.ThemeSchema)
         assertThat(catalog.components["Text"]).isSameInstanceAs(testText)
+        assertThat(catalog.components["Card"]).isSameInstanceAs(testCard)
         assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
     }
 
