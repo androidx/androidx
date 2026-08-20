@@ -363,6 +363,37 @@ public class MediaRouterTest {
         assertFalse(newInstance.getRoutes().isEmpty());
     }
 
+    @Test
+    @SmallTest
+    @UiThreadTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    public void setRouterParams_togglingMediaTransfer_registersDiscoveryRequestWithMr2Provider() {
+        MediaRouteSelector selector =
+                new MediaRouteSelector.Builder().addControlCategory("test_category").build();
+        mRouter.addCallback(
+                selector,
+                new MediaRouterCallbackImpl(),
+                MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
+        MediaRouterParams.Builder builder = new MediaRouterParams.Builder();
+        MediaRouterParams disableParams = builder.setMediaTransferReceiverEnabled(false).build();
+        MediaRouterParams enableParams = builder.setMediaTransferReceiverEnabled(true).build();
+        mRouter.setRouterParams(disableParams);
+
+        mRouter.setRouterParams(enableParams);
+
+        MediaRouteProvider mr2Provider = null;
+        for (MediaRouter.ProviderInfo providerInfo : mRouter.getProviders()) {
+            if (providerInfo.getProviderInstance() instanceof MediaRoute2Provider) {
+                mr2Provider = providerInfo.getProviderInstance();
+                break;
+            }
+        }
+        assertNotNull(mr2Provider);
+        assertNotNull(mr2Provider.getDiscoveryRequest());
+        assertEquals(selector, mr2Provider.getDiscoveryRequest().getSelector());
+        assertTrue(mr2Provider.getDiscoveryRequest().isActiveScan());
+    }
+
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
         private boolean mOnPlayCalled;
         private boolean mOnPauseCalled;
