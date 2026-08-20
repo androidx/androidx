@@ -143,7 +143,6 @@ private const val TEST_ATTRIBUTION_TAG = "testAttribution"
 // file length and file size limit.
 private const val FILE_SIZE_LIMIT_BUFFER = 500 * 1024 // 500k threshold buffer
 
-@SdkSuppress(minSdkVersion = 23)
 @LargeTest
 @RunWith(Parameterized::class)
 class RecorderTest(private val implName: String, private val cameraConfig: CameraXConfig) {
