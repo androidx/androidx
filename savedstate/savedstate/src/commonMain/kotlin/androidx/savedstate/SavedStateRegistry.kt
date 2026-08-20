@@ -34,7 +34,7 @@ public expect class SavedStateRegistry : SavedStateProvider, SavedStateRestorer 
      *
      * @param initialState The initial saved state to restore from.
      */
-    public constructor(initialState: SavedState)
+    public constructor(initialState: SavedState?)
 
     internal constructor(impl: SavedStateRegistryImpl)
 

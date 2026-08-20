@@ -24,7 +24,9 @@ internal actual constructor(private val impl: SavedStateRegistryImpl) :
 
     public actual constructor() : this(SavedStateRegistryImpl())
 
-    public actual constructor(initialState: SavedState) : this(SavedStateRegistryImpl(initialState))
+    public actual constructor(
+        initialState: SavedState?
+    ) : this(SavedStateRegistryImpl(initialState))
 
     public actual override fun saveState(): SavedState = impl.saveState()
 
