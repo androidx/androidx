@@ -23,6 +23,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.junit.rules.ExpectedLogMessagesRule
 
+// TODO: remove Suppress after XrLog is updated or removed pending b/537445115
+@Suppress("DEPRECATION")
 @RunWith(AndroidJUnit4::class)
 class XrLogTest {
 
