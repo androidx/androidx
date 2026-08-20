@@ -74,6 +74,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.remote.core.CoreDocument
+import androidx.compose.remote.core.Limits
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.Theme
 import androidx.compose.remote.creation.RemoteComposeContext
@@ -116,6 +117,7 @@ import androidx.compose.remote.integration.view.demos.examples.RcSimpleClock1
 import androidx.compose.remote.integration.view.demos.examples.RcSimpleSwitchDemo
 import androidx.compose.remote.integration.view.demos.examples.RcStyleMacroDemo
 import androidx.compose.remote.integration.view.demos.examples.RcSwitchWidgetDemo
+import androidx.compose.remote.integration.view.demos.examples.RcTextAlignmentDemo
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo2
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo2b
@@ -592,6 +594,10 @@ class ExperimentActivity : ComponentActivity() {
                     getpc("Dynamic Size Text") { RcTextDemo6() },
                     getpc("Ellipsis Text") { RcTextDemo5() },
                     getpc("Variable fonts Text") { RcTextDemo4() },
+                    getpc("Text Alignment") { RcTextAlignmentDemo() },
+                    getb("issue.rc") {
+                        applicationContext.resources.openRawResource(R.raw.issue).readBytes()
+                    },
                     getpc("Alignment & Justification") { RcTextDemo3b() },
                     getpc("Long Text Ellipsis") { RcTextDemo3c() },
                     getpc("Line height Text") { RcTextDemo3() },
@@ -766,6 +772,9 @@ class ExperimentActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Limits.ENABLE_IMAGE_URLS = true
+        Limits.ENABLE_IMAGE_FILES = true
 
         val carLogo = BitmapFactory.decodeResource(getResources(), R.drawable.car_logo)
         val carDriver = BitmapFactory.decodeResource(getResources(), R.drawable.car_driver)
