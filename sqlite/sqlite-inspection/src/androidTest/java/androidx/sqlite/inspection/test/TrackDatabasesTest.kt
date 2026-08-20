@@ -393,7 +393,7 @@ class TrackDatabasesTest {
         val databaseName = "db1"
 
         assertNoQueuedEvents()
-        var id: Int
+        val id: Int
         openDatabase(databaseName, hooks).let { db ->
             id = receiveOpenedEventId(db)
             closeDatabase(db, hooks)
