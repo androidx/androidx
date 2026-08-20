@@ -27,5 +27,5 @@ adb shell am start -n androidx.web.testapp/.JavaWebActivity
 To run the instrumentation tests (which are located in the library itself), run the following command:
 
 ```bash
-PROJECT_PREFIX=:web: ./gradlew :web:web:connectedAndroidTest
+ALLOW_PUBLIC_REPOS=true PROJECT_PREFIX=:web: ./gradlew :web:web:connectedAndroidTest
 ```
