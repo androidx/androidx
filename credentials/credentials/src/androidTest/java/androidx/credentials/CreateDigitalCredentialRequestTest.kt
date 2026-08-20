@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,7 @@ class CreateDigitalCredentialRequestTest {
                 )
             )
             .isEqualTo(json)
+        assertThat(request.bindingTokenOptions).isNull()
         assertThat(request.displayInfo.userId)
             .isEqualTo(CreateDigitalCredentialRequest.UNUSED_USER_ID)
         assertThat(request.isSystemProviderRequired).isFalse()
@@ -111,6 +112,31 @@ class CreateDigitalCredentialRequestTest {
             )
 
         assertThat(request.candidateQueryData.getBoolean("test_key")).isTrue()
+    }
+
+    @Test
+    fun createFrom_withBindingTokenOptions_valid() {
+        val json = "{key: value}"
+        val origin = "origin"
+        val proofingToken = byteArrayOf(1, 2, 3, 4)
+        val algorithm = BindingTokenOptions.ALGORITHM_SHA_256
+        val bundle =
+            Bundle().apply {
+                putString(CreateDigitalCredentialRequest.BUNDLE_KEY_REQUEST_JSON, json)
+                putByteArray(
+                    CreateDigitalCredentialRequest.BUNDLE_KEY_BINDING_TOKEN_PROOFING_TOKEN,
+                    proofingToken,
+                )
+                putString(
+                    CreateDigitalCredentialRequest.BUNDLE_KEY_BINDING_TOKEN_ALGORITHM,
+                    algorithm,
+                )
+            }
+        val request = CreateDigitalCredentialRequest.createFrom(bundle, origin, Bundle())
+
+        assertThat(request.bindingTokenOptions).isNotNull()
+        assertThat(request.bindingTokenOptions!!.proofingToken).isEqualTo(proofingToken)
+        assertThat(request.bindingTokenOptions!!.bindingAlgorithm).isEqualTo(algorithm)
     }
 
     @Test
@@ -147,12 +173,42 @@ class CreateDigitalCredentialRequestTest {
                 )
             )
             .isEqualTo(json)
+        assertThat(request.bindingTokenOptions).isNull()
         assertThat(request.displayInfo.userId)
             .isEqualTo(CreateDigitalCredentialRequest.UNUSED_USER_ID)
         assertThat(request.isSystemProviderRequired).isFalse()
         assertThat(request.isAutoSelectAllowed).isFalse()
         assertThat(request.origin).isEqualTo(origin)
         assertThat(request.preferImmediatelyAvailableCredentials).isFalse()
+    }
+
+    @Test
+    fun constructor_developer_withBindingTokenOptions_valid() {
+        val json = "{key: value}"
+        val origin = "origin"
+        val proofingToken = byteArrayOf(10, 20, 30)
+        val bindingOptions =
+            BindingTokenOptions(proofingToken, BindingTokenOptions.ALGORITHM_SHA_384)
+        val request =
+            CreateDigitalCredentialRequest(
+                requestJson = json,
+                origin = origin,
+                bindingTokenOptions = bindingOptions,
+            )
+
+        assertThat(request.bindingTokenOptions).isEqualTo(bindingOptions)
+        assertThat(
+                request.credentialData.getByteArray(
+                    CreateDigitalCredentialRequest.BUNDLE_KEY_BINDING_TOKEN_PROOFING_TOKEN
+                )
+            )
+            .isEqualTo(proofingToken)
+        assertThat(
+                request.credentialData.getString(
+                    CreateDigitalCredentialRequest.BUNDLE_KEY_BINDING_TOKEN_ALGORITHM
+                )
+            )
+            .isEqualTo(BindingTokenOptions.ALGORITHM_SHA_384)
     }
 
     @Test
