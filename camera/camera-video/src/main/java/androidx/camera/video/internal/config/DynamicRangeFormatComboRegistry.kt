@@ -62,8 +62,6 @@ import androidx.camera.video.MediaSpec.Companion.OUTPUT_FORMAT_WEBM
 public object DynamicRangeFormatComboRegistry {
 
     // --- OS Gated Codec Constants ---
-    private val MIMETYPE_VIDEO_HEVC_GATED = MIMETYPE_VIDEO_HEVC.takeIf(minSdk = 24)
-    private val MIMETYPE_VIDEO_VP9_GATED = MIMETYPE_VIDEO_VP9.takeIf(minSdk = 24)
     private val MIMETYPE_AUDIO_OPUS_GATED = MIMETYPE_AUDIO_OPUS.takeIf(minSdk = 29)
     private val MIMETYPE_VIDEO_DOLBY_VISION_GATED = MIMETYPE_VIDEO_DOLBY_VISION.takeIf(minSdk = 33)
     private val MIMETYPE_VIDEO_AV1_GATED = MIMETYPE_VIDEO_AV1.takeIf(minSdk = 34)
@@ -131,7 +129,7 @@ public object DynamicRangeFormatComboRegistry {
                                 MIMETYPE_VIDEO_AVC,
                                 MIMETYPE_VIDEO_MPEG4,
                                 MIMETYPE_VIDEO_H263,
-                                MIMETYPE_VIDEO_HEVC_GATED,
+                                MIMETYPE_VIDEO_HEVC,
                                 MIMETYPE_VIDEO_AV1_GATED,
                                 MIMETYPE_VIDEO_APV_GATED,
                             ),
@@ -141,7 +139,7 @@ public object DynamicRangeFormatComboRegistry {
 
                 container(OUTPUT_FORMAT_WEBM) {
                     support(
-                        videoMimes = listOfNotNull(MIMETYPE_VIDEO_VP8, MIMETYPE_VIDEO_VP9_GATED),
+                        videoMimes = listOfNotNull(MIMETYPE_VIDEO_VP8, MIMETYPE_VIDEO_VP9),
                         audioMimes = standardWebmAudios,
                     )
                 }
@@ -156,7 +154,7 @@ public object DynamicRangeFormatComboRegistry {
                     support(
                         videoMimes =
                             listOfNotNull(
-                                MIMETYPE_VIDEO_HEVC_GATED,
+                                MIMETYPE_VIDEO_HEVC,
                                 MIMETYPE_VIDEO_AV1_GATED,
                                 MIMETYPE_VIDEO_APV_GATED,
                             ),
@@ -175,7 +173,7 @@ public object DynamicRangeFormatComboRegistry {
                     support(
                         videoMimes =
                             listOfNotNull(
-                                MIMETYPE_VIDEO_HEVC_GATED,
+                                MIMETYPE_VIDEO_HEVC,
                                 MIMETYPE_VIDEO_AV1_GATED,
                                 MIMETYPE_VIDEO_APV_GATED,
                             ),
@@ -187,7 +185,7 @@ public object DynamicRangeFormatComboRegistry {
                 // designed to carry HDR10 static metadata in WebM/Matroska.
                 container(OUTPUT_FORMAT_WEBM) {
                     support(
-                        videoMimes = listOfNotNull(MIMETYPE_VIDEO_VP9_GATED),
+                        videoMimes = listOfNotNull(MIMETYPE_VIDEO_VP9),
                         audioMimes = standardWebmAudios,
                     )
                 }
@@ -200,8 +198,7 @@ public object DynamicRangeFormatComboRegistry {
                 // HDR10+ are standardized for MP4 via HEVC/AV1.
                 container(OUTPUT_FORMAT_MPEG_4) {
                     support(
-                        videoMimes =
-                            listOfNotNull(MIMETYPE_VIDEO_HEVC_GATED, MIMETYPE_VIDEO_AV1_GATED),
+                        videoMimes = listOfNotNull(MIMETYPE_VIDEO_HEVC, MIMETYPE_VIDEO_AV1_GATED),
                         audioMimes = standardMp4Audios,
                     )
                 }

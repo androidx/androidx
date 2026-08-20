@@ -19,7 +19,6 @@ package androidx.camera.video
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -30,7 +29,6 @@ import org.junit.runners.Parameterized
  *
  * @see [VideoRecordingStreamSharingTest] for video recording with StreamSharing enabled.
  */
-@SdkSuppress(minSdkVersion = 23)
 @LargeTest
 @RunWith(Parameterized::class)
 class VideoRecordingTest(
