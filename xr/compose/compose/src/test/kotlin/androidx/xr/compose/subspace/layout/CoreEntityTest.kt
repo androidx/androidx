@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.Anchor
@@ -445,5 +446,47 @@ class CoreEntityTest {
         // Pose is updated from layout (Pose.Identity) because entity is not anchored to
         // AnchorSpace.
         assertThat(testEntity.getPose()).isEqualTo(Pose.Identity)
+    }
+
+    @Test
+    fun coreMainPanelEntity_dispose_disablesAndDetaches() {
+        val session = composeTestRule.configureFakeSession()
+        val coreMainPanelEntity = CoreMainPanelEntity(assertNotNull(session))
+        coreMainPanelEntity.dispose()
+
+        assertThat(coreMainPanelEntity.enabled).isFalse()
+        assertThat(coreMainPanelEntity.parent).isNull()
+    }
+
+    @Test
+    fun coreMainPanelEntity_reset_restoresDefaultProperties() {
+        val session = composeTestRule.configureFakeSession()
+        val coreMainPanelEntity = CoreMainPanelEntity(assertNotNull(session))
+        val initialSize = session.scene.mainPanelEntity.sizeInPixels
+        coreMainPanelEntity.size = IntVolumeSize(500, 500, 0)
+        coreMainPanelEntity.poseInMeters = Pose(Vector3(1f, 2f, 3f))
+        coreMainPanelEntity.alpha = 0.5f
+        coreMainPanelEntity.contentDescription = "3D Main Panel"
+
+        coreMainPanelEntity.reset(Density(1f), null)
+
+        assertThat(coreMainPanelEntity.size)
+            .isEqualTo(IntVolumeSize(initialSize.width, initialSize.height, 0))
+        assertThat(coreMainPanelEntity.poseInMeters).isEqualTo(Pose.Identity)
+        assertThat(coreMainPanelEntity.alpha).isEqualTo(1.0f)
+        assertThat(coreMainPanelEntity.contentDescription).isNull()
+    }
+
+    @Test
+    fun coreMainPanelEntity_resetWithoutSizeMutation_doesNotModifyProperties() {
+        val session = composeTestRule.configureFakeSession()
+        val coreMainPanelEntity = CoreMainPanelEntity(assertNotNull(session))
+        coreMainPanelEntity.poseInMeters = Pose(Vector3(1f, 2f, 3f))
+        coreMainPanelEntity.alpha = 0.5f
+
+        coreMainPanelEntity.reset(Density(1f), null)
+
+        assertThat(coreMainPanelEntity.poseInMeters).isEqualTo(Pose(Vector3(1f, 2f, 3f)))
+        assertThat(coreMainPanelEntity.alpha).isEqualTo(0.5f)
     }
 }

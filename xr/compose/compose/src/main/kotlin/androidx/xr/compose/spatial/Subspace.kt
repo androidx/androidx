@@ -43,7 +43,9 @@ import androidx.compose.ui.unit.IntSize
 import androidx.core.viewtree.getParentOrViewTreeDisjointParent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.xr.compose.ExperimentalSpatialComposeApi
 import androidx.xr.compose.R
+import androidx.xr.compose.SpatialComposeFlags
 import androidx.xr.compose.platform.LocalComposeXrOwners
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialConfiguration
@@ -52,6 +54,7 @@ import androidx.xr.compose.platform.SessionSpatialConfiguration
 import androidx.xr.compose.platform.SpatialComposeScene
 import androidx.xr.compose.platform.disposableValueOf
 import androidx.xr.compose.platform.findNearestParentEntity
+import androidx.xr.compose.platform.getActivity
 import androidx.xr.compose.platform.getValue
 import androidx.xr.compose.subspace.ArDeviceTarget
 import androidx.xr.compose.subspace.SpatialBox
@@ -172,7 +175,9 @@ private fun Subspace(
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val session = LocalSession.current ?: return
+    val density = LocalDensity.current
     val compositionContext = rememberCompositionContext()
+    val coreMainPanelEntity = LocalComposeXrOwners.current.coreMainPanelEntity
     val subspaceRoot = remember {
         Entity.create(
             session = session,
@@ -196,7 +201,28 @@ private fun Subspace(
             it.dispose()
             try {
                 if (SceneManager.getSceneCount(context) == 0) {
-                    session.scene.mainPanelEntity.setEnabled(true)
+                    @OptIn(ExperimentalSpatialComposeApi::class)
+                    if (SpatialComposeFlags.isMainPanelResetOnSubspaceDisposeEnabled) {
+                        // Last remaining Subspace is disposed. If the Activity is active,
+                        // reset the main panel when transitioning back to 2D content.
+                        val isActivityActive =
+                            lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED &&
+                                context.getActivity()?.isFinishing != true
+                        if (isActivityActive) {
+                            session.scene.mainPanelEntity.apply {
+                                // Main panel will always need to be re-enabled.
+                                setEnabled(true)
+
+                                // Restore original 2D window properties if rendered in 3D.
+                                coreMainPanelEntity?.reset(
+                                    density = density,
+                                    newParent = subspaceRootNode,
+                                )
+                            }
+                        }
+                    } else {
+                        session.scene.mainPanelEntity.setEnabled(true)
+                    }
                 }
             } catch (_: IllegalStateException) {
                 // TODO(b/450063142) The shutdown order of Impress, SceneCore, and Compose
