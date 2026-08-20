@@ -39,18 +39,8 @@ import androidx.annotation.RestrictTo
  * directly by clients. For testing, use the fakes in the `androidx.camera.common.testing` package,
  * such as `FakeCaptureResult`.
  *
- * ### Example
- *
- * ```kotlin
- * val resultMetadata: CaptureResultWrapper = ...
- *
- * // Querying standard CaptureResult keys
- * val lensState = resultMetadata[CaptureResult.LENS_STATE]
- *
- * // Querying custom Metadata keys
- * val customValue = resultMetadata[myCustomMetadataKey]
- * ```
- *
+ * @sample androidx.camera.common.samples.wrapCaptureResultSample
+ * @sample androidx.camera.common.samples.fakeCaptureResultSample
  * @see CaptureResultMetadata
  */
 public interface CaptureResultWrapper : CaptureResultMetadata {
@@ -120,6 +110,7 @@ public object CaptureResultWrappers {
      *   result.
      * @param metadata optional map of custom [Metadata.Key] values to attach to the wrapper.
      * @return a [CaptureResultWrapper] wrapping the given [captureResult] and metadata.
+     * @sample androidx.camera.common.samples.wrapCaptureResultSample
      */
     @JvmStatic
     @JvmName("wrap")
