@@ -78,6 +78,7 @@ private const val PROJECTED_DEVICE_NAME = "ProjectionDevice"
 internal const val REQUIRED_DISPLAY_CATEGORY_XR_PROJECTED =
     "android.hardware.display.category.XR_PROJECTED"
 @VisibleForTesting internal const val REQUIRED_DISPLAY_CATEGORY_XR_PROJECTED_LEGACY = "xr_projected"
+@VisibleForTesting internal const val FORCE_OPENXR_PROPERTY = "androidx.xr.force_openxr"
 
 private fun hasXrProjectedDisplayCategory(activityInfo: ActivityInfo): Boolean {
     // TODO b/460536048 - Remove reflection once requiredDisplayCategory is public in SDK 36
@@ -152,6 +153,22 @@ private fun isOpenXrStubLoaded(): Boolean {
     }
 }
 
+@Suppress("BanUncheckedReflection")
+private fun forceOpenXrFeature(): Boolean =
+    try {
+        val systemPropertiesClass = Class.forName("android.os.SystemProperties")
+        val getBooleanMethod =
+            systemPropertiesClass.getMethod(
+                "getBoolean",
+                String::class.java,
+                java.lang.Boolean.TYPE,
+            )
+        getBooleanMethod.invoke(/* obj= */ null, FORCE_OPENXR_PROPERTY, /* def= */ false)
+            as? Boolean == true
+    } catch (_: Exception) {
+        false
+    }
+
 /** Returns the set of features available for the current context associated with the device. */
 internal fun getDeviceContextFeatures(context: Context): Set<Feature> {
     // Short-circuit for unit tests environments.
@@ -170,7 +187,13 @@ internal fun getDeviceContextFeatures(context: Context): Set<Feature> {
         features.add(Feature.PROJECTED)
     }
 
-    if (packageManager.hasSystemFeature(FEATURE_XR_API_OPENXR) || isOpenXrStubLoaded()) {
+    if (
+        packageManager.hasSystemFeature(FEATURE_XR_API_OPENXR) ||
+            isOpenXrStubLoaded() ||
+            // TODO: b/548083314: Replace this with a version check for OpenXR once
+            // supported.
+            forceOpenXrFeature()
+    ) {
         features.add(Feature.OPEN_XR)
     }
 
