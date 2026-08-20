@@ -19,13 +19,11 @@ package androidx.compose.material
 import androidx.compose.material.R as MaterialR
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.R
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 
 @Composable
 internal actual fun getString(string: Strings): String {
-    LocalConfiguration.current
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
     @Suppress("PrivateResource")
     return when (string) {
         Strings.NavigationMenu -> resources.getString(R.string.navigation_menu)

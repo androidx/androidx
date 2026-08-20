@@ -128,15 +128,6 @@
     </issue>
 
     <issue
-        id="LocalContextResourcesRead"
-        message="Reading Resources using LocalContext.current.resources is not configuration-aware and may return stale values if the Configuration changes"
-        errorLine1="    val resources = LocalContext.current.resources"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidMain/kotlin/androidx/compose/material/Strings.android.kt"/>
-    </issue>
-
-    <issue
         id="UnusedMaterialScaffoldPaddingParameter"
         message="Content padding parameter it is not used"
         errorLine1="                Scaffold { Text(&quot;Scaffold body&quot;) }"
