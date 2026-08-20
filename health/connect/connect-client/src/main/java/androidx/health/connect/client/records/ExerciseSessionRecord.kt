@@ -128,11 +128,11 @@ internal constructor(
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                 isAtLeastSdkExtension21()
         ) {
-            val unused = this.toPlatformRecord()
+            @Suppress("UNUSED_VARIABLE") val unused = this.toPlatformRecord()
         } else {
             require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
             if (segments.isNotEmpty()) {
-                var sortedSegments =
+                val sortedSegments =
                     segments.sortedWith { a, b -> a.startTime.compareTo(b.startTime) }
                 for (i in 0 until sortedSegments.lastIndex) {
                     require(!sortedSegments[i].endTime.isAfter(sortedSegments[i + 1].startTime)) {

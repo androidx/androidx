@@ -2116,7 +2116,7 @@ class RecordConvertersTest {
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
 
-        var sdkMindfulnessSession =
+        val sdkMindfulnessSession =
             platformMindfulnessSessionBuilder.build().toSdkRecord() as MindfulnessSessionRecord
 
         assertSdkRecord(sdkMindfulnessSession) {
@@ -2143,7 +2143,7 @@ class RecordConvertersTest {
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
 
-        var sdkMindfulnessSession =
+        val sdkMindfulnessSession =
             platformMindfulnessSessionBuilder.build().toSdkRecord() as MindfulnessSessionRecord
 
         assertSdkRecord(sdkMindfulnessSession) {
@@ -2168,7 +2168,7 @@ class RecordConvertersTest {
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
 
-        var sdkActivityIntensityRecord =
+        val sdkActivityIntensityRecord =
             platformActivityIntensityRecordBuilder.build().toSdkRecord() as ActivityIntensityRecord
 
         assertSdkRecord(sdkActivityIntensityRecord) {
@@ -2191,7 +2191,7 @@ class RecordConvertersTest {
                 .setStartZoneOffset(START_ZONE_OFFSET)
                 .setEndZoneOffset(END_ZONE_OFFSET)
 
-        var sdkActivityIntensityRecord =
+        val sdkActivityIntensityRecord =
             platformActivityIntensityRecordBuilder.build().toSdkRecord() as ActivityIntensityRecord
 
         assertSdkRecord(sdkActivityIntensityRecord) {

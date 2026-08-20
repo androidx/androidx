@@ -93,7 +93,7 @@ constructor(
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                 isAtLeastSdkExtension21()
         ) {
-            val unused = this.toPlatformExerciseSegment()
+            @Suppress("UNUSED_VARIABLE") val unused = this.toPlatformExerciseSegment()
         } else {
             require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
             require(repetitions >= 0) { "repetitions can not be negative." }
