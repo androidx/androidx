@@ -218,7 +218,7 @@ internal class MotionEventAdapter {
             ComposeUiFlags.isTrackpadPanHoverFixEnabled &&
                 (action == ACTION_HOVER_ENTER ||
                     action == ACTION_HOVER_EXIT ||
-                    (action == ACTION_HOVER_MOVE && !isAnyPointerDown && !isTrackpadPanOngoing)) &&
+                    (action == ACTION_HOVER_MOVE && !isAnyPointerDown)) &&
                 (Build.VERSION.SDK_INT < 34 ||
                     (motionEvent.classification != MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE &&
                         motionEvent.classification != MotionEvent.CLASSIFICATION_PINCH))
