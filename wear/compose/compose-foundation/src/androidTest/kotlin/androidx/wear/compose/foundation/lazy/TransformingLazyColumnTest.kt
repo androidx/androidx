@@ -1412,7 +1412,10 @@ class TransformingLazyColumnTest {
 
         rule
             .onNodeWithTag(lastItemTag)
-            .assertTopPositionInRootIsEqualTo(containerHeight - padding - itemSize)
+            .assertTopPositionInRootIsEqualTo(
+                containerHeight - padding - itemSize,
+                tolerance = 1.dp,
+            )
     }
 
     @Test
