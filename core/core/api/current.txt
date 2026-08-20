@@ -3836,6 +3836,8 @@ package androidx.core.view {
 
   public final class ScreenOrientation {
     method public static int getScreenOrientationFromRotation(@UiContext android.content.Context, int);
+    method public static boolean isLandscape(@UiContext android.content.Context, int);
+    method public static boolean isPortrait(@UiContext android.content.Context, int);
   }
 
   public class ScrollFeedbackProviderCompat {

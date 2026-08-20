@@ -22,6 +22,8 @@ import android.view.Surface.ROTATION_180
 import android.view.Surface.ROTATION_270
 import android.view.Surface.ROTATION_90
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ScreenOrientationTest {
@@ -147,5 +149,20 @@ class ScreenOrientationTest {
             ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT,
             resolveFromBaseline(1920, 1080, ROTATION_0, true, ROTATION_270),
         )
+    }
+
+    @Test
+    fun testIsPortraitAndLandscape() {
+        assertTrue(ScreenOrientation.isPortrait(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
+        assertTrue(ScreenOrientation.isPortrait(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT))
+        assertFalse(ScreenOrientation.isPortrait(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE))
+        assertFalse(ScreenOrientation.isPortrait(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE))
+        assertFalse(ScreenOrientation.isPortrait(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
+
+        assertTrue(ScreenOrientation.isLandscape(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE))
+        assertTrue(ScreenOrientation.isLandscape(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE))
+        assertFalse(ScreenOrientation.isLandscape(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT))
+        assertFalse(ScreenOrientation.isLandscape(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT))
+        assertFalse(ScreenOrientation.isLandscape(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
     }
 }
