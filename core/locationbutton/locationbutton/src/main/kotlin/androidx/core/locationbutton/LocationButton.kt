@@ -141,10 +141,10 @@ constructor(
     /**
      * Sets the [LocaleList] that should be used by the button.
      *
-     * This controls the localized string resolution of the button. If null, the button will
+     * This controls the localized string resolution of the button. If empty, the button will
      * fallback to using the host [Context]'s configuration locales.
      */
-    public var locales: LocaleList? = null
+    public var locales: LocaleList = LocaleList.getEmptyLocaleList()
         set(value) {
             field = value
             remoteDelegate?.changeConfiguration(effectiveConfiguration)
@@ -155,7 +155,7 @@ constructor(
     internal val effectiveConfiguration: Configuration
         get() {
             val currentLocales = locales
-            if (currentLocales == null || currentLocales.isEmpty) {
+            if (currentLocales.isEmpty) {
                 return context.resources.configuration
             }
             val config = Configuration(context.resources.configuration)

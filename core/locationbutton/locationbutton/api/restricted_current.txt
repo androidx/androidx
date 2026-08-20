@@ -9,7 +9,7 @@ package androidx.core.locationbutton {
     ctor @BytecodeOnly public LocationButton(android.content.Context!, android.util.AttributeSet!, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public int getCompositionOrder();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) internal android.content.res.Configuration getEffectiveConfiguration$main();
-    method @InaccessibleFromKotlin public android.os.LocaleList? getLocales();
+    method @InaccessibleFromKotlin public android.os.LocaleList getLocales();
     method @InaccessibleFromKotlin public android.app.Activity? getParentActivity();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isLocalButtonVisible();
     method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isRemoteSessionActive();
@@ -18,7 +18,7 @@ package androidx.core.locationbutton {
     method public void setCompositionOrder(int order);
     method public void setCornerRadius(float radius);
     method public void setIconTint(int color);
-    method @InaccessibleFromKotlin public void setLocales(android.os.LocaleList?);
+    method @InaccessibleFromKotlin public void setLocales(android.os.LocaleList);
     method public void setOnErrorListener(androidx.core.locationbutton.OnErrorListener? listener);
     method public void setOnPermissionResultListener(androidx.core.locationbutton.OnPermissionResultListener? listener);
     method public void setOnRequestPermissionsListener(androidx.core.locationbutton.OnRequestPermissionsListener? listener);
@@ -32,7 +32,7 @@ package androidx.core.locationbutton {
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public boolean isLocalButtonVisible;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public boolean isRemoteSessionActive;
     property @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public boolean isSurfaceViewVisible;
-    property public android.os.LocaleList? locales;
+    property public android.os.LocaleList locales;
     property public android.app.Activity? parentActivity;
     field public static final androidx.core.locationbutton.LocationButton.Companion Companion;
     field public static final int TEXT_TYPE_NEAR_MY_PRECISE_LOCATION = 4; // 0x4
