@@ -24,6 +24,7 @@ import androidx.xr.scenecore.runtime.GltfEntity as RtGltfEntity
 import java.time.Duration
 import java.util.Collections
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 import java.util.function.Consumer
 import kotlin.collections.set
 import kotlinx.coroutines.Dispatchers
@@ -41,10 +42,8 @@ import kotlinx.coroutines.asExecutor
  *
  * @property index The index of this animation in the source glTF model.
  * @property name The name of this animation, or `null` if the animation is unnamed.
- * @property duration The duration of this animation.
  */
 @Suppress("NotCloseable")
-@RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalGltfAnimationApi
 public class GltfAnimation
 internal constructor(
@@ -52,8 +51,54 @@ internal constructor(
     private val rtGltfAnimation: RtGltfAnimation,
     public val index: Int,
     public val name: String?,
-    public val duration: Duration,
+    private val durationSeconds: Float,
 ) {
+    /**
+     * Whether this animation should loop when playing.
+     *
+     * The default value is `false` (playback does not loop). When looping is disabled (`false`) and
+     * playback reaches the end of the animation, the animation state transitions to
+     * [AnimationState.STOPPED], while remaining clamped at the final frame pose.
+     *
+     * Changes to the loop configuration only take effect during [start].
+     */
+    @get:MainThread
+    @set:MainThread
+    @get:Suppress("GetterSetterNames")
+    public var loop: Boolean = false
+
+    /**
+     * The playback speed multiplier for this animation.
+     *
+     * This can be changed while the animation is playing or paused.
+     *
+     * The default playback speed is `1.0f`. The speed multiplier determines the playback rate:
+     * * **1.0:** Normal speed.
+     * * **> 1.0:** Faster playback.
+     * * **> 0.0 and < 1.0:** Slower playback (e.g., 0.5 is half speed).
+     * * **0.0:** Freezes the animation at the current frame while keeping it active (unlike
+     *   pausing).
+     * * **< 0.0:** Plays the animation in reverse.
+     *
+     * **Note on Reverse Playback:** When playing in reverse without looping ([loop] set to
+     * `false`), starting the animation from the beginning causes it to reach the end of playback
+     * immediately. Enable looping via [loop] (setting `loop` to `true`) to play the animation in
+     * reverse continuously.
+     */
+    @get:MainThread
+    @set:MainThread
+    public var speed: Float = 1.0f
+        set(value) {
+            field = value
+            rtGltfAnimation.setAnimationSpeed(value)
+        }
+
+    /** The duration of this animation. */
+    @get:RequiresApi(Build.VERSION_CODES.O)
+    public val duration: Duration
+        get() =
+            java.time.Duration.ofMillis((durationSeconds * TimeUnit.SECONDS.toMillis(1)).toLong())
+
     private val mAnimationStateListeners: MutableMap<Consumer<AnimationState>, Executor> =
         Collections.synchronizedMap(mutableMapOf())
 
@@ -96,19 +141,47 @@ internal constructor(
     /**
      * Starts playing this animation.
      *
-     * This transitions the animation state to [AnimationState.PLAYING].
-     *
-     * @param options The options that describe how the glTF model will be animated. Using default
-     *   values if not specified.
+     * This transitions the animation state to [AnimationState.PLAYING]. By default, the animation
+     * plays once at normal speed (`1.0f`) without looping unless configured otherwise via [loop]
+     * and [speed]. Calling [start] while the animation is currently playing or paused will restart
+     * playback from the beginning.
      */
-    @JvmOverloads
     @MainThread
-    public fun start(options: GltfAnimationStartOptions = GltfAnimationStartOptions()) {
-        rtGltfAnimation.startAnimation(
-            options.shouldLoop,
-            options.speed,
-            options.seekStartTime.toMillis() / 1000.0f,
-        )
+    public fun start() {
+        rtGltfAnimation.startAnimation(loop, speed, /* startTimeSeconds= */ 0.0f)
+    }
+
+    /**
+     * Starts playing this animation with the specified [options].
+     *
+     * @param options Configuration options for starting the animation.
+     */
+    @Deprecated(
+        "Use GltfAnimation.loop and GltfAnimation.speed properties with parameterless start() instead.",
+        ReplaceWith("apply { loop = options.shouldLoop; speed = options.speed }.start()"),
+    )
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Suppress("DEPRECATION")
+    @MainThread
+    public fun start(options: GltfAnimationStartOptions) {
+        this.loop = options.shouldLoop
+        this.speed = options.speed
+        start()
+    }
+
+    /**
+     * Seeks this animation to the specified [time] offset.
+     *
+     * @param time The offset from the beginning of the animation.
+     * @throws IllegalArgumentException if [time] is negative.
+     */
+    @Deprecated("Seeking animation is no longer supported.")
+    @RequiresApi(Build.VERSION_CODES.O)
+    @MainThread
+    public fun seekTo(time: Duration) {
+        require(!time.isNegative) { "time must be non-negative." }
+
+        rtGltfAnimation.seekAnimation(time.toMillis() / 1000.0f)
     }
 
     /**
@@ -130,8 +203,7 @@ internal constructor(
      * [AnimationState.PAUSED]. Use [resume] to continue playback.
      *
      * Note: Calling [start] while in the [AnimationState.PAUSED] state will reset the playback time
-     * to [GltfAnimationStartOptions.seekStartTime] and transition the state to
-     * [AnimationState.PLAYING].
+     * to the start of the animation, and transitions the state to [AnimationState.PLAYING].
      */
     @MainThread
     public fun pause() {
@@ -150,59 +222,6 @@ internal constructor(
     @MainThread
     public fun resume() {
         rtGltfAnimation.resumeAnimation()
-    }
-
-    /**
-     * Seeks the animation to a specific time position.
-     *
-     * Note: This call is only valid during the [AnimationState.PLAYING] and [AnimationState.PAUSED]
-     * states. Calling this method while in the [AnimationState.STOPPED] state has no effect.
-     *
-     * The behavior depends on whether the animation is looping:
-     * * **Looping Enabled:** The time is treated as cyclical. Values exceeding the duration will
-     *   wrap around (modulo arithmetic).
-     * * **Looping Disabled:** The time is clamped to the valid playback range. Values less than
-     *   [GltfAnimationStartOptions.seekStartTime] clamp to the start. Values exceeding the duration
-     *   (or end time) clamp to the end.
-     *
-     * Interaction with [GltfAnimationStartOptions.seekStartTime]:
-     * * **Positive Speed:** If the seek time is less than
-     *   [GltfAnimationStartOptions.seekStartTime], the animation clamps to
-     *   [GltfAnimationStartOptions.seekStartTime] (the start of the valid window).
-     * * **Negative Speed:** If the seek time is less than
-     *   [GltfAnimationStartOptions.seekStartTime], the animation clamps to
-     *   [GltfAnimationStartOptions.seekStartTime]. Since the animation plays in reverse, it
-     *   effectively stops there if looping is disabled.
-     *
-     * @param time The offset from the beginning of the animation.
-     * @throws IllegalArgumentException if [time] is negative.
-     */
-    @MainThread
-    public fun seekTo(time: Duration) {
-        require(!time.isNegative) { "time must be non-negative." }
-
-        rtGltfAnimation.seekAnimation(time.toMillis() / 1000.0f)
-    }
-
-    /**
-     * Sets the playback speed for this animation.
-     *
-     * The speed multiplier determines the playback rate:
-     * * **1.0:** Normal speed.
-     * * **> 1.0:** Faster playback.
-     * * **> 0.0 and < 1.0:** Slower playback (e.g., 0.5 is half speed).
-     * * **0.0:** Freezes the animation at the current frame while keeping it active (unlike
-     *   pausing).
-     * * **< 0.0:** Plays the animation in reverse.
-     *
-     * Note: This call is only valid during the [AnimationState.PLAYING] and [AnimationState.PAUSED]
-     * states. Calling this method while in the [AnimationState.STOPPED] state will have no effect.
-     *
-     * @param speed The playback rate multiplier.
-     */
-    @MainThread
-    public fun setSpeed(speed: Float) {
-        rtGltfAnimation.setAnimationSpeed(speed)
     }
 
     /**

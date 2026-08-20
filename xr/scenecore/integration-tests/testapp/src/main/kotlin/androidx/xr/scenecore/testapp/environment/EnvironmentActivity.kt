@@ -37,7 +37,6 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.AlphaMode
-import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.ImageBasedLightingAsset
@@ -271,7 +270,10 @@ class EnvironmentActivity : AppCompatActivity() {
             dragonEntity
                 .getAnimations()
                 .find { it.name == "Fast_Flying" }
-                ?.start(GltfAnimationStartOptions(shouldLoop = true))
+                ?.apply {
+                    loop = true
+                    start()
+                }
 
             setImageBasedLightingAssetAndGeometry(
                 spatialEnvironmentPreference?.imageBasedLightingAsset,

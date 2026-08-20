@@ -40,7 +40,6 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AlphaMode
 import androidx.xr.scenecore.GltfAnimation
-import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.GltfModelNode
@@ -249,7 +248,8 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
                 if (animation?.animationState == GltfAnimation.AnimationState.PLAYING) {
                     animation.stop()
                 } else {
-                    animation?.start(GltfAnimationStartOptions(shouldLoop = true))
+                    animation?.loop = true
+                    animation?.start()
                 }
             }
         }

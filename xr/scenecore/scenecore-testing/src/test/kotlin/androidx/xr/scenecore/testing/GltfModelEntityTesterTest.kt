@@ -27,14 +27,11 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.GltfAnimationStartOptions
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
 import java.nio.file.Paths
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
@@ -130,32 +127,27 @@ class GltfModelEntityTesterTest {
         assertThat(gltfModelEntity.getGltfModelBoundingBox()).isEqualTo(expectedBoundingBox)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun testAnimation_startWithOptions_updatesProperties() {
+    fun testAnimation_loopAndSpeed_updatesProperties() {
         // Arrange
         val animation = TestGltfAnimation(animationName = "anim")
         tester.addAnimation(animation)
 
         // Act
         val gltfAnimation = gltfModelEntity.getAnimations()[0]
-        gltfAnimation.start(
-            GltfAnimationStartOptions(
-                shouldLoop = true,
-                speed = 2.5f,
-                seekStartTime = 1.5.seconds.toJavaDuration(),
-            )
-        )
+        gltfAnimation.loop = true
+        gltfAnimation.speed = 2.5f
+        assertThat(gltfAnimation.loop).isTrue()
+        assertThat(gltfAnimation.speed).isEqualTo(2.5f)
+        gltfAnimation.start()
 
         // Assert
         assertThat(animation.shouldLoop).isTrue()
         assertThat(animation.speed).isEqualTo(2.5f)
-        assertThat(animation.seekStartTime).isEqualTo(1.5f)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun testAnimation_setSpeed_updatesSpeedProperty() {
+    fun testAnimation_speed_updatesSpeedProperty() {
         // Arrange
         val animation = TestGltfAnimation(animationName = "anim")
         tester.addAnimation(animation)
@@ -163,26 +155,11 @@ class GltfModelEntityTesterTest {
         // Act
         val gltfAnimation = gltfModelEntity.getAnimations()[0]
         gltfAnimation.start()
-        gltfAnimation.setSpeed(3.0f)
+        gltfAnimation.speed = 3.0f
 
         // Assert
+        assertThat(gltfAnimation.speed).isEqualTo(3.0f)
         assertThat(animation.speed).isEqualTo(3.0f)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun testAnimation_seekTo_updatesSeekStartTimeProperty() {
-        // Arrange
-        val animation = TestGltfAnimation(animationName = "anim")
-        tester.addAnimation(animation)
-
-        // Act
-        val gltfAnimation = gltfModelEntity.getAnimations()[0]
-        gltfAnimation.start()
-        gltfAnimation.seekTo(2.0.seconds.toJavaDuration())
-
-        // Assert
-        assertThat(animation.seekStartTime).isEqualTo(2.0f)
     }
 
     @Test(expected = IllegalStateException::class)
