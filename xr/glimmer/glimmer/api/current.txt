@@ -223,6 +223,38 @@ package androidx.xr.glimmer {
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Dp> LocalIconSize;
   }
 
+  public final class IconMarkerDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public void DotIcon(optional androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void DotIcon(androidx.compose.ui.Modifier?, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color color(optional androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long color-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Color contentColor(optional androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public long contentColor-eb82Cgs(long, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding(androidx.xr.glimmer.IconMarkerSize size);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding-pBPnQvs(int, androidx.compose.runtime.Composer?, int);
+    field public static final androidx.xr.glimmer.IconMarkerDefaults INSTANCE;
+  }
+
+  public final class IconMarkerKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void IconMarker(String contentDescription, optional androidx.compose.ui.Modifier modifier, optional androidx.xr.glimmer.IconMarkerSize size, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void IconMarker(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, String contentDescription, optional androidx.compose.ui.Modifier modifier, optional androidx.xr.glimmer.IconMarkerSize size, optional androidx.compose.ui.graphics.Color color, optional androidx.compose.ui.graphics.Color contentColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void IconMarker-S11gU5g(kotlin.jvm.functions.Function0<kotlin.Unit!>, String, androidx.compose.ui.Modifier?, int, long, long, androidx.compose.foundation.layout.PaddingValues?, androidx.compose.foundation.interaction.MutableInteractionSource?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void IconMarker-uNRl8jQ(String, androidx.compose.ui.Modifier?, int, long, androidx.compose.foundation.layout.PaddingValues?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IconMarkerSize {
+    method @BytecodeOnly public static androidx.xr.glimmer.IconMarkerSize! box-impl(int);
+    method @BytecodeOnly public int unbox-impl();
+    field public static final androidx.xr.glimmer.IconMarkerSize.Companion Companion;
+  }
+
+  public static final class IconMarkerSize.Companion {
+    method @BytecodeOnly public int getMedium-a5a79n8();
+    method @BytecodeOnly public int getSmall-a5a79n8();
+    property public androidx.xr.glimmer.IconMarkerSize Medium;
+    property public androidx.xr.glimmer.IconMarkerSize Small;
+  }
+
   @androidx.compose.runtime.Immutable public final class IconSizes {
     ctor @KotlinOnly public IconSizes(optional androidx.compose.ui.unit.Dp small, optional androidx.compose.ui.unit.Dp medium, optional androidx.compose.ui.unit.Dp large);
     ctor @BytecodeOnly public IconSizes(float, float, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
