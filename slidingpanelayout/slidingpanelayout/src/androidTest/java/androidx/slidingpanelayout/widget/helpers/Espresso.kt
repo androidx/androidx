@@ -64,7 +64,7 @@ fun openPane(): ViewAction {
         }
 
         override fun perform(uiController: UiController?, view: View?) {
-            var slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
+            val slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
             if (uiController == null || slidingPaneLayout == null) return
             uiController.loopMainThreadUntilIdle()
             slidingPaneLayout.openPane()
@@ -84,7 +84,7 @@ fun openPane(duration: Int, interpolator: Interpolator): ViewAction {
         }
 
         override fun perform(uiController: UiController?, view: View?) {
-            var slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
+            val slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
             if (uiController == null || slidingPaneLayout == null) return
             uiController.loopMainThreadUntilIdle()
             slidingPaneLayout.openPane(duration, interpolator)
@@ -104,7 +104,7 @@ fun closePane(): ViewAction {
         }
 
         override fun perform(uiController: UiController?, view: View?) {
-            var slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
+            val slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
             if (uiController == null || slidingPaneLayout == null) return
             uiController.loopMainThreadUntilIdle()
             slidingPaneLayout.closePane()
@@ -124,7 +124,7 @@ fun closePane(duration: Int, interpolator: Interpolator): ViewAction {
         }
 
         override fun perform(uiController: UiController?, view: View?) {
-            var slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
+            val slidingPaneLayout: SlidingPaneLayout? = view as? SlidingPaneLayout
             if (uiController == null || slidingPaneLayout == null) return
             uiController.loopMainThreadUntilIdle()
             slidingPaneLayout.closePane(duration, interpolator)
