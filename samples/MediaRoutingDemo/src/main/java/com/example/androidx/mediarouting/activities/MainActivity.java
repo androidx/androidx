@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
             createTransferListener();
     private final MediaRouter.Callback mMediaRouterCB = new SampleMediaRouterCallback();
 
+    private RoutesManager mRoutesManager;
     private MediaRouter mMediaRouter;
     private MediaRouteSelector mSelector;
     private PlaylistAdapter mPlayListItems;
@@ -130,14 +131,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         requestRequiredPermissions();
-
         mMediaRouter = MediaRouter.getInstance(this);
+        mRoutesManager = RoutesManager.getInstance(getApplicationContext());
         mMediaRouter.setRouterParams(getRouterParams());
-
-        RoutesManager routesManager = RoutesManager.getInstance(getApplicationContext());
-        routesManager.reloadDialogType();
+        mRoutesManager.reloadDialogType();
 
         // Create a route selector for the type of routes that we care about.
         mSelector =
@@ -550,6 +548,8 @@ public class MainActivity extends AppCompatActivity {
         MediaRouterParams.Builder routerParams =
                 new MediaRouterParams.Builder()
                         .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
+                        .setMediaTransferReceiverEnabled(
+                                mRoutesManager.fetchIsMediaTransferEnabledPreference())
                         .setTransferToLocalEnabled(
                                 true); // Phone speaker will be shown when casting.
         boolean wrapperRouteProviderEnabled =
