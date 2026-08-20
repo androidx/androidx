@@ -17,6 +17,7 @@
 package androidx.ink.rendering.metal
 
 import androidx.annotation.RestrictTo
+import androidx.ink.brush.ExperimentalInkCrossPlatformRenderingApi
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
@@ -25,7 +26,6 @@ import androidx.ink.nativeloader.cinterop.MetalRendererNative_drawInProgressStro
 import androidx.ink.nativeloader.cinterop.MetalRendererNative_drawStroke
 import androidx.ink.nativeloader.cinterop.MetalRendererNative_free
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
-import androidx.ink.rendering.ExperimentalInkCrossPlatformRenderingApi
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 import kotlinx.cinterop.COpaque
@@ -49,7 +49,7 @@ import platform.Metal.MTLRenderCommandEncoderProtocol
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkCrossPlatformRenderingApi
 @OptIn(InkInternalOnlyApi::class, ExperimentalForeignApi::class)
-class MetalRenderer(
+public class MetalRenderer(
     device: MTLDeviceProtocol,
     colorPixelFormat: MTLPixelFormat,
     stencilPixelFormat: MTLPixelFormat,
@@ -84,13 +84,13 @@ class MetalRenderer(
      *   by default. Must transform from the world coordinate space to Y-up normalized device
      *   coordinates (the lower-left corner is (-1, -1) and the upper-right corner is (1, 1)).
      */
-    fun draw(
+    public fun draw(
         renderEncoder: MTLRenderCommandEncoderProtocol,
         inProgressStroke: InProgressStroke,
         modelTransform: AffineTransform = AffineTransform.IDENTITY,
         viewTransform: AffineTransform = AffineTransform.IDENTITY,
         projectionTransform: AffineTransform = AffineTransform.IDENTITY,
-    ) =
+    ) {
         MetalRendererNative_drawInProgressStroke(
             nativePointer,
             interpretCPointer<COpaque>(renderEncoder.objcPtr()),
@@ -114,6 +114,7 @@ class MetalRenderer(
             projectionTransform.m11,
             projectionTransform.m21,
         )
+    }
 
     /**
      * Draws a completed stroke using the given render encoder.
@@ -130,13 +131,13 @@ class MetalRenderer(
      *   by default. Must transform from the world coordinate space to Y-up normalized device
      *   coordinates (the lower-left corner is (-1, -1) and the upper-right corner is (1, 1)).
      */
-    fun draw(
+    public fun draw(
         renderEncoder: MTLRenderCommandEncoderProtocol,
         stroke: Stroke,
         modelTransform: AffineTransform = AffineTransform.IDENTITY,
         viewTransform: AffineTransform = AffineTransform.IDENTITY,
         projectionTransform: AffineTransform = AffineTransform.IDENTITY,
-    ) =
+    ) {
         MetalRendererNative_drawStroke(
             nativePointer,
             interpretCPointer<COpaque>(renderEncoder.objcPtr()),
@@ -160,4 +161,5 @@ class MetalRenderer(
             projectionTransform.m11,
             projectionTransform.m21,
         )
+    }
 }

@@ -16,12 +16,12 @@
 
 package androidx.ink.brush.behavior
 
-import androidx.annotation.FloatRange
 import androidx.collection.MutableIntObjectMap
 import androidx.ink.brush.ExperimentalInkCustomBrushApi
 import androidx.ink.brush.ImmutableCollections.unmodifiableList
 import androidx.ink.brush.Version
 import androidx.ink.geometry.ImmutableVec
+import androidx.ink.geometry.Vec
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
 import kotlin.jvm.JvmField
@@ -137,13 +137,13 @@ public abstract class EasingFunction private constructor(pointerAlloc: () -> Lon
     /**
      * Parameters for a custom cubic Bezier easing function.
      *
-     * A cubic Bezier is generally defined by four points, P0 - P3. In the case of the easing
+     * A cubic Bezier is generally defined by four points, from P0 to P3. In the case of the easing
      * function, P0 is defined to be the point (0, 0), and P3 is defined to be the point (1, 1). The
-     * values of [x1] and [x2] are required to be in the range [0, 1]. This guarantees that the
+     * x-values of [p1] and [p2] are required to be in the range [0, 1]. This guarantees that the
      * resulting curve is a function with respect to x and follows the
      * [CSS specification](https://www.w3.org/TR/css-easing-1/#cubic-bezier-easing-functions)
      *
-     * Valid parameters must have all finite values, and [x1] and [x2] must be in the interval
+     * Valid parameters must have all finite values, and [p1].x and [p2].x must be in the interval
      * [0, 1].
      *
      * Input x values that are outside the interval [0, 1] will be clamped, but output values will
@@ -156,53 +156,44 @@ public abstract class EasingFunction private constructor(pointerAlloc: () -> Lon
         /**
          * Creates a new [CubicBezier] easing function.
          *
-         * @param x1 The x-coordinate of the first control point. Must be in the range [0, 1].
-         * @param y1 The y-coordinate of the first control point.
-         * @param x2 The x-coordinate of the second control point. Must be in the range [0, 1].
-         * @param y2 The y-coordinate of the second control point.
+         * @param p1 The first control point. Its x-coordinate must be in the range [0, 1].
+         * @param p2 The second control point. Its x-coordinate must be in the range [0, 1].
          */
         public constructor(
-            @FloatRange(from = 0.0, to = 1.0) x1: Float,
-            y1: Float,
-            @FloatRange(from = 0.0, to = 1.0) x2: Float,
-            y2: Float,
-        ) : this({ EasingFunctionNative.createCubicBezier(x1, y1, x2, y2) })
+            p1: Vec,
+            p2: Vec,
+        ) : this({ EasingFunctionNative.createCubicBezier(p1.x, p1.y, p2.x, p2.y) })
 
-        /** The x-coordinate of the first control point. Must be in the range [0, 1]. */
-        @get:FloatRange(from = 0.0, to = 1.0)
-        public val x1: Float
-            get() = EasingFunctionNative.getCubicBezierX1(nativePointer)
+        /** The first control point. Its x-coordinate must be in the range [0, 1]. */
+        public val p1: ImmutableVec
+            get() =
+                ImmutableVec(
+                    EasingFunctionNative.getCubicBezierX1(nativePointer),
+                    EasingFunctionNative.getCubicBezierY1(nativePointer),
+                )
 
-        /** The y-coordinate of the first control point. */
-        public val y1: Float
-            get() = EasingFunctionNative.getCubicBezierY1(nativePointer)
-
-        /** The x-coordinate of the second control point. Must be in the range [0, 1]. */
-        @get:FloatRange(from = 0.0, to = 1.0)
-        public val x2: Float
-            get() = EasingFunctionNative.getCubicBezierX2(nativePointer)
-
-        /** The y-coordinate of the second control point. */
-        public val y2: Float
-            get() = EasingFunctionNative.getCubicBezierY2(nativePointer)
+        /** The second control point. Its x-coordinate must be in the range [0, 1]. */
+        public val p2: ImmutableVec
+            get() =
+                ImmutableVec(
+                    EasingFunctionNative.getCubicBezierX2(nativePointer),
+                    EasingFunctionNative.getCubicBezierY2(nativePointer),
+                )
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is CubicBezier) {
                 return false
             }
-            return x1 == other.x1 && x2 == other.x2 && y1 == other.y1 && y2 == other.y2
+            return p1 == other.p1 && p2 == other.p2
         }
 
         override fun hashCode(): Int {
-            var result = x1.hashCode()
-            result = 31 * result + x2.hashCode()
-            result = 31 * result + y1.hashCode()
-            result = 31 * result + y2.hashCode()
+            var result = p1.hashCode()
+            result = 31 * result + p2.hashCode()
             return result
         }
 
-        override fun toString(): String =
-            "EasingFunction.CubicBezier(x1=$x1, y1=$y1, x2=$x2, y2=$y2)"
+        override fun toString(): String = "EasingFunction.CubicBezier(p1=$p1, p2=$p2)"
 
         // Declared public to make extension functions available.
         public companion object {

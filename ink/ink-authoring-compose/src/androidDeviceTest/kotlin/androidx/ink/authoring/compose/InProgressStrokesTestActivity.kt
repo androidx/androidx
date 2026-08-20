@@ -38,6 +38,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.ink.brush.Brush
+import androidx.ink.brush.ExperimentalInkAnimationApi
 import androidx.ink.brush.TextureBitmapStore
 import androidx.ink.strokes.Stroke
 import java.util.concurrent.TimeUnit
@@ -140,6 +141,7 @@ private fun Root(
                 }
             }
     ) {
+        @OptIn(ExperimentalInkAnimationApi::class)
         InProgressStrokesImpl(
             nextBrush = nextBrush,
             nextPointerEventToWorldTransform = nextPointerEventToWorldTransform,

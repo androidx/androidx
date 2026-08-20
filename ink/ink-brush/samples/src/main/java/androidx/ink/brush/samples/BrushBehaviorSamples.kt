@@ -49,7 +49,7 @@ public fun createPressureToSizeBehavior(): BrushBehavior =
                     // distance of
                     // approximately 75% of the base brush diameter.
                     dampingSource = ProgressDomain.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE,
-                    dampingGap = 0.75f,
+                    strength = 0.75f,
                     input =
                         SourceNode(
                             // This behavior is based on stylus pressure, with minimum (0) pressure

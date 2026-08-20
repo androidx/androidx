@@ -33,7 +33,7 @@ class DampingNodeTest {
     }
 
     @Test
-    fun dampingNodeConstructor_throwsForNonFiniteDampingGap() {
+    fun dampingNodeConstructor_throwsForNonFiniteStrength() {
         val input = ConstantNode(0f)
         assertFailsWith<IllegalArgumentException> {
             DampingNode(ProgressDomain.TIME_IN_SECONDS, Float.POSITIVE_INFINITY, input)
@@ -44,7 +44,7 @@ class DampingNodeTest {
     }
 
     @Test
-    fun dampingNodeConstructor_throwsForNegativeDampingGap() {
+    fun dampingNodeConstructor_throwsForNegativeStrength() {
         val input = ConstantNode(0f)
         assertFailsWith<IllegalArgumentException> {
             DampingNode(ProgressDomain.TIME_IN_SECONDS, -1f, input)
@@ -91,11 +91,11 @@ class DampingNodeTest {
             assertFailsWith<IllegalArgumentException> {
                 DampingNode(
                     dampingSource = ProgressDomain.TIME_IN_SECONDS,
-                    dampingGap = -0.001f, // Less than 0.
+                    strength = -0.001f, // Less than 0.
                     input = ConstantNode(0f),
                 )
             }
-        assertThat(responseTimeMillisError.message).contains("damping_gap")
+        assertThat(responseTimeMillisError.message).contains("strength")
         assertThat(responseTimeMillisError.message).contains("non-negative")
     }
 
@@ -104,14 +104,14 @@ class DampingNodeTest {
         val original =
             DampingNode(
                 dampingSource = ProgressDomain.TIME_IN_SECONDS,
-                dampingGap = 0.001f,
+                strength = 0.001f,
                 input = ConstantNode(0f),
             )
         assertThat(
                 original.equals(
                     DampingNode(
                         dampingSource = ProgressDomain.DISTANCE_IN_CENTIMETERS, // different
-                        dampingGap = 0.001f,
+                        strength = 0.001f,
                         input = ConstantNode(0f),
                     )
                 )
@@ -121,7 +121,7 @@ class DampingNodeTest {
                 original.equals(
                     DampingNode(
                         dampingSource = ProgressDomain.TIME_IN_SECONDS,
-                        dampingGap = 0.035f, // different
+                        strength = 0.035f, // different
                         input = ConstantNode(0f),
                     )
                 )
@@ -131,7 +131,7 @@ class DampingNodeTest {
                 original.equals(
                     DampingNode(
                         dampingSource = ProgressDomain.TIME_IN_SECONDS,
-                        dampingGap = 0.001f,
+                        strength = 0.001f,
                         input = ConstantNode(1f), // different
                     )
                 )
