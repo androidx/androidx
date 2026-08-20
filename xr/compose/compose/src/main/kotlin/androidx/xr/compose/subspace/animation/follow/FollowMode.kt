@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
 /**
- * A FollowBehavior controls the motion of content as it is following another target, such as a
- * user's head. Currently, the options include "soft", which gradually catches up to the target and
- * "static", which does not continuously follow the target.
+ * A FollowMode controls the motion of content as it is following another target. Currently, the
+ * options include "soft", which gradually catches up to the target and "snap", which does not
+ * continuously follow the target.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public abstract class FollowBehavior internal constructor() {
+public abstract class FollowMode internal constructor() {
     internal abstract suspend fun start(
         session: Session,
         trailingEntity: CoreGroupEntity,
@@ -54,7 +54,7 @@ public abstract class FollowBehavior internal constructor() {
          * The content is placed once based on the target's initial pose and does not follow
          * subsequent movements.
          */
-        public val static: FollowBehavior = StaticFollowBehavior
+        public val snap: FollowMode = SnapFollowMode
 
         /**
          * The content follows the target as closely as possible.
@@ -62,15 +62,15 @@ public abstract class FollowBehavior internal constructor() {
          * In contrast to [soft], where the content lags behind the target, [tight] follow matches
          * the target's movement instantly.
          */
-        public val tight: FollowBehavior = TightFollowBehavior
+        public val tight: FollowMode = TightFollowMode
 
         /**
-         * Creates a behavior where the content smoothly animates to follow the target's movements.
+         * Creates a mode where the content smoothly animates to follow the target's movements.
          *
-         * This behavior is driven by a critically damped spring physics model, which uses
-         * exponential decay to smoothly decelerate the trailing entity as it approaches the target.
-         * The entity will accelerate to catch up and then decelerate without overshoot, simulating
-         * real-world physical inertia.
+         * This mode is driven by a critically damped spring physics model, which uses exponential
+         * decay to smoothly decelerate the trailing entity as it approaches the target. The entity
+         * will accelerate to catch up and then decelerate without overshoot, simulating real-world
+         * physical inertia.
          *
          * The use of this spring/exponential decay model is not optional, but the total duration of
          * the motion can be configured via [durationMs].
@@ -79,24 +79,24 @@ public abstract class FollowBehavior internal constructor() {
          *   user. Default is [DEFAULT_SOFT_DURATION_MS] milliseconds. A value less than
          *   [MIN_SOFT_DURATION_MS] will be rounded up to [MIN_SOFT_DURATION_MS] to allow enough
          *   time to complete the content movement.
-         * @return A [FollowBehavior] instance configured for soft following.
+         * @return A [FollowMode] instance configured for soft following.
          */
         public fun soft(
             @IntRange(from = MIN_SOFT_DURATION_MS.toLong())
             durationMs: Int = DEFAULT_SOFT_DURATION_MS
-        ): FollowBehavior = SoftFollowBehavior(durationMs)
+        ): FollowMode = SoftFollowMode(durationMs)
 
         /**
-         * Creates a behavior where the content animates to follow the target's movements using an
+         * Creates a mode where the content animates to follow the target's movements using an
          * exponential decay algorithm.
          *
-         * This behavior is driven by a first-order exponential decay model, matching the system's
+         * This mode is driven by a first-order exponential decay model, matching the system's
          * native HeadFollower implementation.
          *
-         * @return A [FollowBehavior] instance configured for exponential decay.
+         * @return A [FollowMode] instance configured for exponential decay.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public fun exponentialDecay(): FollowBehavior = ExponentialDecayFollowBehavior()
+        public fun exponentialDecay(): FollowMode = ExponentialDecayFollowMode()
 
         @VisibleForTesting
         internal var dispatcherOverride: CoroutineDispatcher = Dispatchers.Default
@@ -166,10 +166,10 @@ internal fun getPoseByTrackedDimensions(
 /**
  * A set of boolean flags which determine the dimensions of movement that are tracked.
  *
- * This is intended to be used with a [FollowBehavior]. These dimensions can be used to control how
- * one entity is follows another. For example, if a dev wants to place a marker on the floor showing
- * a user's position in a room, they might want to track only translationX and translationZ.
- * Possible values are: isTranslationXTracked, isTranslationYTracked, isTranslationZTracked,
+ * This is intended to be used with a [FollowMode]. These dimensions can be used to control how one
+ * entity is follows another. For example, if a dev wants to place a marker on the floor showing a
+ * user's position in a room, they might want to track only translationX and translationZ. Possible
+ * values are: isTranslationXTracked, isTranslationYTracked, isTranslationZTracked,
  * isRotationXTracked, isRotationYTracked, isRotationZTracked or [TrackedDimensions.All].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)

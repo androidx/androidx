@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,18 +30,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
- * Creates a behavior where the content smoothly animates to follow the user's movements, creating a
+ * Creates a mode where the content smoothly animates to follow the user's movements, creating a
  * comfortable "soft follow" effect. This is the implementation for SoftFollowing which is
- * accessible through the public interface as FollowBehavior.soft()
+ * accessible through the public interface as FollowMode.soft()
  *
  * @param durationMs Amount of milliseconds it takes for the content to catch up to the user.
- *   Default is [FollowBehavior.DEFAULT_SOFT_DURATION_MS] milliseconds. A value less than
- *   [FollowBehavior.MIN_SOFT_DURATION_MS] will be rounded up to
- *   [FollowBehavior.MIN_SOFT_DURATION_MS] to allow enough time to complete the content movement.
+ *   Default is [FollowMode.DEFAULT_SOFT_DURATION_MS] milliseconds. A value less than
+ *   [FollowMode.MIN_SOFT_DURATION_MS] will be rounded up to [FollowMode.MIN_SOFT_DURATION_MS] to
+ *   allow enough time to complete the content movement.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DURATION_MS) :
-    FollowBehavior() {
+internal class SoftFollowMode(private val durationMs: Int = DEFAULT_SOFT_DURATION_MS) :
+    FollowMode() {
     private val animationDurationMs: Int = durationMs.coerceAtLeast(MIN_SOFT_DURATION_MS)
     private var trailingEntity: CoreGroupEntity? = null
     private val animationProgress = Animatable(initialValue = ANIMATION_START_VALUE)
@@ -52,7 +52,7 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
         target: FollowTarget,
         dimensions: TrackedDimensions,
     ) = coroutineScope {
-        this@SoftFollowBehavior.trailingEntity = trailingEntity
+        this@SoftFollowMode.trailingEntity = trailingEntity
         val initialPose = trailingEntity.poseInMeters
 
         if (target is FollowTargetFlow) {
@@ -127,7 +127,7 @@ internal class SoftFollowBehavior(private val durationMs: Int = DEFAULT_SOFT_DUR
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is SoftFollowBehavior) return false
+        if (other !is SoftFollowMode) return false
 
         return durationMs == other.durationMs
     }

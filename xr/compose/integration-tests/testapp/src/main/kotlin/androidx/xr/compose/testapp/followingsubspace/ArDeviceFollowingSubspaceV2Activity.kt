@@ -67,7 +67,7 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialCurvedRow
 import androidx.xr.compose.subspace.SpatialPanel
-import androidx.xr.compose.subspace.animation.follow.FollowBehavior
+import androidx.xr.compose.subspace.animation.follow.FollowMode
 import androidx.xr.compose.subspace.animation.follow.FollowTarget
 import androidx.xr.compose.subspace.animation.follow.TrackedDimensions
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -80,7 +80,7 @@ import androidx.xr.runtime.DeviceTrackingMode
 import java.time.LocalDate
 import java.time.format.TextStyle
 
-private enum class UiBehaviorSelectionV2 {
+private enum class UiModeSelectionV2 {
     SOFT,
     EXPONENTIAL_DECAY,
 }
@@ -112,18 +112,17 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
         }
         // State for the soft follow duration slider
         var softFollowDuration by remember { mutableIntStateOf(1000) }
-        var uiBehaviorSelection by remember { mutableStateOf(UiBehaviorSelectionV2.SOFT) }
-        val selectedBehavior =
-            remember(uiBehaviorSelection, softFollowDuration) {
-                when (uiBehaviorSelection) {
-                    UiBehaviorSelectionV2.SOFT ->
-                        FollowBehavior.soft(durationMs = softFollowDuration)
-                    UiBehaviorSelectionV2.EXPONENTIAL_DECAY -> FollowBehavior.exponentialDecay()
+        var uiModeSelection by remember { mutableStateOf(UiModeSelectionV2.SOFT) }
+        val selectedMode =
+            remember(uiModeSelection, softFollowDuration) {
+                when (uiModeSelection) {
+                    UiModeSelectionV2.SOFT -> FollowMode.soft(durationMs = softFollowDuration)
+                    UiModeSelectionV2.EXPONENTIAL_DECAY -> FollowMode.exponentialDecay()
                 }
             }
 
         Subspace(
-            follow = FollowTarget.ArDevice(behavior = FollowBehavior.static),
+            follow = FollowTarget.View(mode = FollowMode.snap),
             modifier = SubspaceModifier.offset(z = (-200).dp),
         ) {
             SpatialPanel(SubspaceModifier.height(400.dp).width(600.dp)) {
@@ -152,8 +151,8 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
 
         Subspace(
             follow =
-                FollowTarget.ArDevice(
-                    behavior = selectedBehavior,
+                FollowTarget.View(
+                    mode = selectedMode,
                     dimensions =
                         TrackedDimensions(
                             isTranslationXTracked = true,
@@ -187,13 +186,11 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier =
-                                    Modifier.clickable {
-                                        uiBehaviorSelection = UiBehaviorSelectionV2.SOFT
-                                    },
+                                    Modifier.clickable { uiModeSelection = UiModeSelectionV2.SOFT },
                             ) {
                                 RadioButton(
-                                    selected = (uiBehaviorSelection == UiBehaviorSelectionV2.SOFT),
-                                    onClick = { uiBehaviorSelection = UiBehaviorSelectionV2.SOFT },
+                                    selected = (uiModeSelection == UiModeSelectionV2.SOFT),
+                                    onClick = { uiModeSelection = UiModeSelectionV2.SOFT },
                                 )
                                 Text("Soft", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             }
@@ -202,17 +199,14 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier =
                                     Modifier.clickable {
-                                        uiBehaviorSelection =
-                                            UiBehaviorSelectionV2.EXPONENTIAL_DECAY
+                                        uiModeSelection = UiModeSelectionV2.EXPONENTIAL_DECAY
                                     },
                             ) {
                                 RadioButton(
                                     selected =
-                                        (uiBehaviorSelection ==
-                                            UiBehaviorSelectionV2.EXPONENTIAL_DECAY),
+                                        (uiModeSelection == UiModeSelectionV2.EXPONENTIAL_DECAY),
                                     onClick = {
-                                        uiBehaviorSelection =
-                                            UiBehaviorSelectionV2.EXPONENTIAL_DECAY
+                                        uiModeSelection = UiModeSelectionV2.EXPONENTIAL_DECAY
                                     },
                                 )
                                 Text(
@@ -223,7 +217,7 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
                             }
                         }
 
-                        if (uiBehaviorSelection == UiBehaviorSelectionV2.SOFT) {
+                        if (uiModeSelection == UiModeSelectionV2.SOFT) {
                             SoftFollowSlider(
                                 duration = softFollowDuration,
                                 onDurationChange = { softFollowDuration = it.toInt() },
@@ -235,8 +229,8 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
         }
         Subspace(
             follow =
-                FollowTarget.ArDevice(
-                    behavior = FollowBehavior.soft(durationMs = softFollowDuration),
+                FollowTarget.View(
+                    mode = FollowMode.soft(durationMs = softFollowDuration),
                     dimensions =
                         TrackedDimensions(
                             isTranslationXTracked = true,

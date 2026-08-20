@@ -43,10 +43,10 @@ import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.TestPlane
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
-import androidx.xr.compose.subspace.animation.follow.ArDeviceTarget
-import androidx.xr.compose.subspace.animation.follow.FollowBehavior
+import androidx.xr.compose.subspace.animation.follow.FollowMode
 import androidx.xr.compose.subspace.animation.follow.FollowTarget
 import androidx.xr.compose.subspace.animation.follow.TrackedDimensions
+import androidx.xr.compose.subspace.animation.follow.ViewTarget
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxHeight
 import androidx.xr.compose.subspace.layout.fillMaxSize
@@ -124,14 +124,14 @@ class FollowingSubspaceV2Test {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun setUp() {
-        FollowBehavior.dispatcherOverride = testDispatcher
+        FollowMode.dispatcherOverride = testDispatcher
         androidx.xr.arcore.testing.FakeRuntimeAnchor.anchorsCreatedCount = 0
     }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @After
     fun tearDown() {
-        FollowBehavior.dispatcherOverride = Dispatchers.Default
+        FollowMode.dispatcherOverride = Dispatchers.Default
     }
 
     private object DefaultTestRecommendedBoxSize {
@@ -237,7 +237,7 @@ class FollowingSubspaceV2Test {
 
         composeTestRule.setContent {
             Subspace(
-                follow = FollowTarget.ArDevice(behavior = FollowBehavior.static),
+                follow = FollowTarget.View(mode = FollowMode.snap),
                 modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
             ) {}
         }
@@ -247,12 +247,12 @@ class FollowingSubspaceV2Test {
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
-    fun followingSubspaceV2_whenArDeviceTightUsedTogether_DoNotRender() {
+    fun followingSubspaceV2_whenViewTargetTightUsedTogether_DoNotRender() {
         composeTestRule.session = configureSessionWithDeviceTrackingMode()
 
         composeTestRule.setContent {
             Subspace(
-                follow = FollowTarget.ArDevice(behavior = FollowBehavior.tight),
+                follow = FollowTarget.View(mode = FollowMode.tight),
                 modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
             ) {}
         }
@@ -268,17 +268,14 @@ class FollowingSubspaceV2Test {
             val session = assertNotNull(composeTestRule.session)
 
             composeTestRule.setContent {
-                Subspace(
-                    follow =
-                        FollowTarget.ArDevice(behavior = FollowBehavior.soft(durationMs = 1000))
-                ) {
-                    SpatialPanel(modifier = SubspaceModifier.testTag("HeadPanel")) {}
+                Subspace(follow = FollowTarget.View(mode = FollowMode.soft(durationMs = 1000))) {
+                    SpatialPanel(modifier = SubspaceModifier.testTag("panel")) {}
                 }
             }
             testDispatcher.scheduler.advanceUntilIdle()
 
-            val headPanelPose = assertExistenceAndGetNodeWorldPose("HeadPanel")
-            assertThat(headPanelPose).isEqualTo(ArDeviceTarget.DEFAULT_OFFSET)
+            val panelPose = assertExistenceAndGetNodeWorldPose("panel")
+            assertThat(panelPose).isEqualTo(ViewTarget.DEFAULT_OFFSET)
         }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
@@ -290,7 +287,7 @@ class FollowingSubspaceV2Test {
 
             composeTestRule.setContent {
                 Subspace(
-                    follow = FollowTarget.ArDevice(behavior = FollowBehavior.soft()),
+                    follow = FollowTarget.View(mode = FollowMode.soft()),
                     modifier = SubspaceModifier.fillMaxSize(0.5f),
                 ) {
                     SpatialBox(SubspaceModifier.fillMaxSize(1.0f).testTag("box")) {}
@@ -325,7 +322,7 @@ class FollowingSubspaceV2Test {
         composeTestRule.setContent {
             // The user provides a requiredSize.
             Subspace(
-                follow = FollowTarget.ArDevice(behavior = FollowBehavior.soft()),
+                follow = FollowTarget.View(mode = FollowMode.soft()),
                 modifier = SubspaceModifier.requiredSize(requiredSize),
             ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
@@ -347,7 +344,7 @@ class FollowingSubspaceV2Test {
             // The user provides a requiredSizeIn.
             // Since fillMaxSize is 1f, it fills the maximum size.
             Subspace(
-                follow = FollowTarget.ArDevice(behavior = FollowBehavior.soft()),
+                follow = FollowTarget.View(mode = FollowMode.soft()),
                 modifier =
                     SubspaceModifier.requiredSizeIn(
                         maxWidth = requiredMaxSize,
@@ -378,7 +375,7 @@ class FollowingSubspaceV2Test {
 
             composeTestRule.setContent {
                 Subspace(
-                    follow = FollowTarget.ArDevice(behavior = FollowBehavior.soft()),
+                    follow = FollowTarget.View(mode = FollowMode.soft()),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
             }
@@ -418,9 +415,7 @@ class FollowingSubspaceV2Test {
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             var followTarget by
-                mutableStateOf(
-                    FollowTarget.ArDevice(behavior = FollowBehavior.soft(durationMs = 1000))
-                )
+                mutableStateOf(FollowTarget.View(mode = FollowMode.soft(durationMs = 1000)))
 
             composeTestRule.setContent {
                 Subspace(
@@ -441,7 +436,7 @@ class FollowingSubspaceV2Test {
             val success = assertIs<AnchorCreateSuccess>(anchorResult)
             testDispatcher.scheduler.advanceUntilIdle()
 
-            followTarget = FollowTarget.Anchor(success.anchor, behavior = FollowBehavior.tight)
+            followTarget = FollowTarget.Anchor(success.anchor, mode = FollowMode.tight)
             subspaceCurrentPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
             assertThat(subspaceCurrentPose.translation).isEqualTo(anchorTranslation)
         }
@@ -450,18 +445,17 @@ class FollowingSubspaceV2Test {
     @OptIn(ExperimentalFollowingSubspaceApi::class, ExperimentalCoroutinesApi::class)
     @Suppress("DEPRECATION")
     // TODO: b/494305963 Remove references to arcore-testing Fakes
-    fun followingSubspaceV2_whenFollowBehaviorChanges_actsLikeNewBehavior() =
+    fun followingSubspaceV2_whenFollowModeChanges_actsLikeNewMode() =
         runTest(testDispatcher) {
             composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
             val durationMs = 1000L
-            var followBehavior by
-                mutableStateOf(FollowBehavior.soft(durationMs = durationMs.toInt()))
+            var followMode by mutableStateOf(FollowMode.soft(durationMs = durationMs.toInt()))
 
             composeTestRule.setContent {
                 Subspace(
-                    follow = FollowTarget.ArDevice(behavior = followBehavior),
+                    follow = FollowTarget.View(mode = followMode),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
             }
@@ -469,17 +463,18 @@ class FollowingSubspaceV2Test {
             val unitVector = Vector3(x = 1F, y = 1F, z = 1F)
             translateDevice(fakeRuntime, unitVector, durationMs)
             translateDevice(fakeRuntime, unitVector, durationMs)
-            // With Soft behavior, subspace should have moved 2 unit vectors.
+
+            // With Soft mode, subspace should have moved 2 unit vectors.
             var subspaceCurrentPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
             assertThat(subspaceCurrentPose.translation).isEqualTo(unitVector * 2F)
 
-            followBehavior = FollowBehavior.static
+            followMode = FollowMode.snap
             composeTestRule.waitForIdle()
             translateDevice(fakeRuntime, unitVector, durationMs)
             translateDevice(fakeRuntime, unitVector, durationMs)
             testDispatcher.scheduler.advanceUntilIdle()
 
-            // With Static behavior, it should not move any more.
+            // With Snap mode, it should not move any more.
             subspaceCurrentPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
             assertThat(subspaceCurrentPose.translation).isEqualTo(unitVector * 2F)
         }
@@ -488,7 +483,7 @@ class FollowingSubspaceV2Test {
     @Test
     @Suppress("DEPRECATION")
     // TODO: b/494305963 Remove references to arcore-testing Fakes
-    fun followingSubspaceV2_whenStaticBehavior_OnlyMovesOnce() =
+    fun followingSubspaceV2_whenSnapMode_OnlyMovesOnce() =
         runTest(testDispatcher) {
             composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
@@ -497,8 +492,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.static,
+                        FollowTarget.View(
+                            mode = FollowMode.snap,
                             dimensions =
                                 TrackedDimensions(
                                     isTranslationXTracked = true,
@@ -533,10 +528,7 @@ class FollowingSubspaceV2Test {
 
             composeTestRule.setContent {
                 Subspace(
-                    follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = animationTime)
-                        ),
+                    follow = FollowTarget.View(mode = FollowMode.soft(durationMs = animationTime)),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
             }
@@ -582,8 +574,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions =
                                 TrackedDimensions(
                                     isTranslationXTracked = false,
@@ -595,19 +587,18 @@ class FollowingSubspaceV2Test {
                                 ),
                         )
                 ) {
-                    SpatialPanel(modifier = SubspaceModifier.testTag("HeadPanel")) {}
+                    SpatialPanel(modifier = SubspaceModifier.testTag("panel")) {}
                 }
             }
 
-            val headPanelInitialPose = assertExistenceAndGetNodeWorldPose("HeadPanel")
+            val panelInitialPose = assertExistenceAndGetNodeWorldPose("panel")
             val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
             translateDevice(fakeRuntime, offsetTranslation)
 
             val offsetRotation = Quaternion.fromEulerAngles(pitch = 15F, yaw = 30F, roll = 45F)
             rotateDevice(fakeRuntime, offsetRotation)
 
-            assertThat(assertExistenceAndGetNodeWorldPose("HeadPanel"))
-                .isEqualTo(headPanelInitialPose)
+            assertThat(assertExistenceAndGetNodeWorldPose("panel")).isEqualTo(panelInitialPose)
         }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
@@ -624,9 +615,7 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = durationMs.toInt())
-                        ),
+                        FollowTarget.View(mode = FollowMode.soft(durationMs = durationMs.toInt())),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
             }
@@ -656,8 +645,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions =
                                 TrackedDimensions(
                                     isTranslationXTracked = true,
@@ -697,8 +686,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions = TrackedDimensions(isTranslationXTracked = true),
                         ),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
@@ -734,8 +723,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions = TrackedDimensions(isTranslationYTracked = true),
                         ),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
@@ -771,8 +760,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions = TrackedDimensions(isTranslationZTracked = true),
                         ),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
@@ -808,8 +797,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = durationMs.toInt()),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = durationMs.toInt()),
                             dimensions =
                                 TrackedDimensions(
                                     isRotationXTracked = true,
@@ -821,7 +810,7 @@ class FollowingSubspaceV2Test {
                 ) {}
             }
 
-            val headPanelInitialPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            val subspaceInitialPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
             val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
             translateDevice(fakeRuntime, offsetTranslation, durationMs)
 
@@ -831,7 +820,7 @@ class FollowingSubspaceV2Test {
             assertThat(assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").rotation)
                 .isEqualTo(fakeArDevice.devicePose.rotation)
             assertThat(assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").translation)
-                .isEqualTo(headPanelInitialPose.translation)
+                .isEqualTo(subspaceInitialPose.translation)
         }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
@@ -848,15 +837,15 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions = TrackedDimensions(isRotationXTracked = true),
                         ),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
             }
 
-            val headPanelInitialPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            val subspaceInitialPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
             val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
             translateDevice(fakeRuntime, offsetTranslation)
 
@@ -874,7 +863,7 @@ class FollowingSubspaceV2Test {
             assertThat(currentRotation.y).isWithin(0f).of(expectedRotation.y)
             assertThat(currentRotation.z).isWithin(0f).of(expectedRotation.z)
             assertThat(currentRotation.w).isWithin(1f).of(expectedRotation.w)
-            assertThat(currentTranslation).isEqualTo(headPanelInitialPose.translation)
+            assertThat(currentTranslation).isEqualTo(subspaceInitialPose.translation)
         }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
@@ -891,15 +880,15 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions = TrackedDimensions(isRotationYTracked = true),
                         ),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
             }
 
-            val headPanelInitialPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            val subspaceInitialPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
             val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
             translateDevice(fakeRuntime, offsetTranslation)
 
@@ -917,7 +906,7 @@ class FollowingSubspaceV2Test {
             assertThat(currentRotation.y).isWithin(1f).of(expectedRotation.y)
             assertThat(currentRotation.z).isWithin(0f).of(expectedRotation.z)
             assertThat(currentRotation.w).isWithin(1f).of(expectedRotation.w)
-            assertThat(currentTranslation).isEqualTo(headPanelInitialPose.translation)
+            assertThat(currentTranslation).isEqualTo(subspaceInitialPose.translation)
         }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
@@ -934,15 +923,15 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions = TrackedDimensions(isRotationZTracked = true),
                         ),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
             }
 
-            val headPanelInitialPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            val subspaceInitialPose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
             val offsetTranslation = Vector3(x = 1F, y = 2F, z = 3F)
             translateDevice(fakeRuntime, offsetTranslation)
 
@@ -960,7 +949,7 @@ class FollowingSubspaceV2Test {
             assertThat(currentRotation.y).isWithin(0f).of(expectedRotation.y)
             assertThat(currentRotation.z).isWithin(1f).of(expectedRotation.z)
             assertThat(currentRotation.w).isWithin(1f).of(expectedRotation.w)
-            assertThat(currentTranslation).isEqualTo(headPanelInitialPose.translation)
+            assertThat(currentTranslation).isEqualTo(subspaceInitialPose.translation)
         }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
@@ -974,8 +963,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions =
                                 TrackedDimensions(
                                     isRotationXTracked = true,
@@ -1017,8 +1006,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions =
                                 TrackedDimensions(
                                     isRotationXTracked = false,
@@ -1063,8 +1052,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions =
                                 TrackedDimensions(
                                     isRotationXTracked = false,
@@ -1109,8 +1098,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions =
                                 TrackedDimensions(
                                     isRotationXTracked = true,
@@ -1155,8 +1144,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions =
                                 TrackedDimensions(
                                     isRotationXTracked = false,
@@ -1201,8 +1190,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions =
                                 TrackedDimensions(
                                     isRotationXTracked = true,
@@ -1251,8 +1240,8 @@ class FollowingSubspaceV2Test {
             composeTestRule.setContent {
                 Subspace(
                     follow =
-                        FollowTarget.ArDevice(
-                            behavior = FollowBehavior.soft(durationMs = 1000),
+                        FollowTarget.View(
+                            mode = FollowMode.soft(durationMs = 1000),
                             dimensions = trackedDimensions,
                         ),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
@@ -1284,7 +1273,7 @@ class FollowingSubspaceV2Test {
 
         composeTestRule.setContent {
             if (showSubspace) {
-                Subspace(follow = FollowTarget.ArDevice(behavior = FollowBehavior.soft())) {
+                Subspace(follow = FollowTarget.View(mode = FollowMode.soft())) {
                     SpatialPanel(SubspaceModifier.testTag("panel")) {}
                 }
             }
@@ -1308,7 +1297,7 @@ class FollowingSubspaceV2Test {
         composeTestRule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(higherDensity)) {
                 density = LocalDensity.current
-                Subspace(follow = FollowTarget.ArDevice(behavior = FollowBehavior.soft())) {
+                Subspace(follow = FollowTarget.View(mode = FollowMode.soft())) {
                     SpatialBox(SubspaceModifier.fillMaxSize(1.0f).testTag("box")) {}
                 }
             }
@@ -1345,7 +1334,7 @@ class FollowingSubspaceV2Test {
 
         composeTestRule.setContent {
             Subspace(
-                follow = FollowTarget.ArDevice(behavior = FollowBehavior.soft()),
+                follow = FollowTarget.View(mode = FollowMode.soft()),
                 modifier =
                     SubspaceModifier.requiredSizeIn(
                         maxWidth = Dp.Infinity,
@@ -1364,7 +1353,7 @@ class FollowingSubspaceV2Test {
             .assertPositionInRootIsEqualTo(
                 0.dp,
                 0.dp,
-                ArDeviceTarget.DEFAULT_OFFSET.translation.z.metersToDp(
+                ViewTarget.DEFAULT_OFFSET.translation.z.metersToDp(
                     composeTestRule.density,
                     session.scene.virtualPixelDensity,
                 ),
@@ -1392,7 +1381,7 @@ class FollowingSubspaceV2Test {
         val anchor = assertIs<AnchorCreateSuccess>(anchorResult).anchor
 
         composeTestRule.setContent {
-            Subspace(follow = FollowTarget.Anchor(anchor, behavior = FollowBehavior.tight)) {
+            Subspace(follow = FollowTarget.Anchor(anchor, mode = FollowMode.tight)) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
         }
@@ -1416,7 +1405,7 @@ class FollowingSubspaceV2Test {
         val anchor = assertIs<AnchorCreateSuccess>(anchorResult).anchor
 
         composeTestRule.setContent {
-            Subspace(follow = FollowTarget.Anchor(anchor, behavior = FollowBehavior.tight)) {
+            Subspace(follow = FollowTarget.Anchor(anchor, mode = FollowMode.tight)) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
         }
@@ -1441,7 +1430,7 @@ class FollowingSubspaceV2Test {
         composeTestRule.setContent {
             Subspace(modifier = SubspaceModifier.offset(x = 40.dp, y = 50.dp, z = 60.dp)) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("subspacePanel")) {}
-                Subspace(follow = FollowTarget.Anchor(anchor, behavior = FollowBehavior.tight)) {
+                Subspace(follow = FollowTarget.Anchor(anchor, mode = FollowMode.tight)) {
                     SpatialPanel(
                         SubspaceModifier.fillMaxSize().testTag("followingSubspaceV2Panel")
                     ) {}
@@ -1473,9 +1462,7 @@ class FollowingSubspaceV2Test {
         val success = assertIs<AnchorCreateSuccess>(anchorResult)
 
         composeTestRule.setContent {
-            Subspace(
-                follow = FollowTarget.Anchor(success.anchor, behavior = FollowBehavior.tight)
-            ) {
+            Subspace(follow = FollowTarget.Anchor(success.anchor, mode = FollowMode.tight)) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
         }
@@ -1495,7 +1482,7 @@ class FollowingSubspaceV2Test {
 
         val anchorResult = Anchor.create(session, Pose(Vector3(20.0f, 30.0f, 40.0f)))
         val success = assertIs<AnchorCreateSuccess>(anchorResult)
-        val target = FollowTarget.Anchor(success.anchor, behavior = FollowBehavior.tight)
+        val target = FollowTarget.Anchor(success.anchor, mode = FollowMode.tight)
 
         composeTestRule.setContent {
             Subspace(follow = target, modifier = SubspaceModifier.testTag("subspace")) {}
@@ -1533,7 +1520,7 @@ class FollowingSubspaceV2Test {
                 follow =
                     FollowTarget.Anchor(
                         assertNotNull(currentAnchorState.value),
-                        behavior = FollowBehavior.tight,
+                        mode = FollowMode.tight,
                     )
             ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
@@ -1562,8 +1549,7 @@ class FollowingSubspaceV2Test {
 
             composeTestRule.setContent {
                 Subspace(
-                    follow =
-                        FollowTarget.ArDevice(behavior = FollowBehavior.soft(durationMs = 1000)),
+                    follow = FollowTarget.View(mode = FollowMode.soft(durationMs = 1000)),
                     modifier = SubspaceModifier.testTag(followingSubspaceTag),
                 ) {}
             }
@@ -1600,10 +1586,7 @@ class FollowingSubspaceV2Test {
                 )
             val anchor = (Anchor.create(session, anchorPose) as AnchorCreateSuccess).anchor
             val anchorTarget =
-                FollowTarget.Anchor(
-                    anchor = anchor,
-                    behavior = FollowBehavior.soft(durationMs = 1000),
-                )
+                FollowTarget.Anchor(anchor = anchor, mode = FollowMode.soft(durationMs = 1000))
 
             // Start with the Anchor as the follow target
             var targetState by mutableStateOf(value = anchorTarget)
@@ -1617,8 +1600,8 @@ class FollowingSubspaceV2Test {
 
             translateDevice(fakeRuntime, offset = Vector3(x = 1f, y = 2f, z = 3f))
 
-            // Swap the target to ArDevice.
-            targetState = FollowTarget.ArDevice(behavior = FollowBehavior.soft(durationMs = 1000))
+            // Swap the target to ViewTarget.
+            targetState = FollowTarget.View(mode = FollowMode.soft(durationMs = 1000))
             composeTestRule.waitForIdle()
             testDispatcher.scheduler.advanceUntilIdle()
 
@@ -1650,7 +1633,7 @@ class FollowingSubspaceV2Test {
 
             composeTestRule.setContent {
                 Subspace(
-                    follow = FollowTarget.Anchor(anchor = anchor, behavior = FollowBehavior.soft()),
+                    follow = FollowTarget.Anchor(anchor = anchor, mode = FollowMode.soft()),
                     modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
                 ) {}
             }
@@ -1676,7 +1659,7 @@ class FollowingSubspaceV2Test {
 
         composeTestRule.setContent {
             if (showSubspace) {
-                Subspace(follow = FollowTarget.ArDevice(behavior = FollowBehavior.soft())) {}
+                Subspace(follow = FollowTarget.View(mode = FollowMode.soft())) {}
             }
         }
 
@@ -1724,7 +1707,7 @@ class FollowingSubspaceV2Test {
         customOwner.lifecycle.addObserver(lifecycleObserver)
 
         composeTestRule.setContent {
-            Subspace(follow = FollowTarget.ArDevice(behavior = FollowBehavior.soft())) {}
+            Subspace(follow = FollowTarget.View(mode = FollowMode.soft())) {}
         }
         composeTestRule.waitForIdle()
 
@@ -1748,9 +1731,7 @@ class FollowingSubspaceV2Test {
             val success = assertIs<AnchorCreateSuccess>(anchorResult)
 
             composeTestRule.setContent {
-                Subspace(
-                    follow = FollowTarget.Anchor(success.anchor, behavior = FollowBehavior.tight)
-                ) {
+                Subspace(follow = FollowTarget.Anchor(success.anchor, mode = FollowMode.tight)) {
                     SpatialPanel(SubspaceModifier.fillMaxSize().testTag("Panel")) {}
                 }
             }
@@ -1788,7 +1769,7 @@ class FollowingSubspaceV2Test {
         var currentAnchor by mutableStateOf(anchor1)
 
         composeTestRule.setContent {
-            val target = FollowTarget.Anchor(currentAnchor, behavior = FollowBehavior.tight)
+            val target = FollowTarget.Anchor(currentAnchor, mode = FollowMode.tight)
             Subspace(follow = target) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
@@ -1828,14 +1809,14 @@ class FollowingSubspaceV2TestWithArCoreTestRule {
     // TODO: b/494305963 Remove references to arcore-testing Fakes
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun setUp() {
-        FollowBehavior.dispatcherOverride = testDispatcher
+        FollowMode.dispatcherOverride = testDispatcher
         androidx.xr.arcore.testing.FakeRuntimeAnchor.anchorsCreatedCount = 0
     }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @After
     fun tearDown() {
-        FollowBehavior.dispatcherOverride = Dispatchers.Default
+        FollowMode.dispatcherOverride = Dispatchers.Default
     }
 
     private fun assertExistenceAndGetNodeWorldPose(testTag: String): Pose {
@@ -1870,7 +1851,7 @@ class FollowingSubspaceV2TestWithArCoreTestRule {
             val plane = Plane.subscribe(session).first().first()
             val anchorResult = plane.createAnchor(Pose.Identity)
             val anchor = assertIs<AnchorCreateSuccess>(anchorResult).anchor
-            val target = FollowTarget.Anchor(anchor, behavior = FollowBehavior.tight)
+            val target = FollowTarget.Anchor(anchor, mode = FollowMode.tight)
 
             composeTestRule.setContent {
                 Subspace(follow = target, modifier = SubspaceModifier.testTag("subspace")) {}
@@ -1916,8 +1897,7 @@ class FollowingSubspaceV2TestWithArCoreTestRule {
             val plane = Plane.subscribe(session).first().first()
             val anchorResult = plane.createAnchor(Pose.Identity)
             val anchor = assertIs<AnchorCreateSuccess>(anchorResult).anchor
-            val target =
-                FollowTarget.Anchor(anchor, behavior = FollowBehavior.soft(durationMs = 1000))
+            val target = FollowTarget.Anchor(anchor, mode = FollowMode.soft(durationMs = 1000))
 
             composeTestRule.setContent {
                 Subspace(follow = target, modifier = SubspaceModifier.testTag("subspace")) {}
@@ -1935,7 +1915,7 @@ class FollowingSubspaceV2TestWithArCoreTestRule {
     @Test
     @OptIn(ExperimentalFollowingSubspaceApi::class, ExperimentalCoroutinesApi::class)
     @Suppress("DEPRECATION")
-    fun followingSubspaceV2_whenAnchorUsesStaticFollow_movesOnlyOnce() {
+    fun followingSubspaceV2_whenAnchorUsesSnapMode_movesOnlyOnce() {
         runTest(testDispatcher) {
             val activity = composeTestRule.activity
             shadowOf(activity.application).grantPermissions(SCENE_UNDERSTANDING_COARSE)
@@ -1960,7 +1940,7 @@ class FollowingSubspaceV2TestWithArCoreTestRule {
             val plane = Plane.subscribe(session).first().first()
             val anchorResult = plane.createAnchor(Pose.Identity)
             val anchor = assertIs<AnchorCreateSuccess>(anchorResult).anchor
-            val target = FollowTarget.Anchor(anchor, behavior = FollowBehavior.static)
+            val target = FollowTarget.Anchor(anchor, mode = FollowMode.snap)
 
             composeTestRule.setContent {
                 Subspace(follow = target, modifier = SubspaceModifier.testTag("subspace")) {}

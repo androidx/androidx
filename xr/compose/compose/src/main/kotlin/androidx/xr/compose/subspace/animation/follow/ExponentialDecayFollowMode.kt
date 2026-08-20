@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class ExponentialDecayFollowBehavior : FollowBehavior() {
+internal class ExponentialDecayFollowMode : FollowMode() {
     override suspend fun start(
         session: Session,
         trailingEntity: CoreGroupEntity,
@@ -178,7 +178,7 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ExponentialDecayFollowBehavior) return false
+        if (other !is ExponentialDecayFollowMode) return false
 
         return true
     }
