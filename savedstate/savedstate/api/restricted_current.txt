@@ -181,7 +181,7 @@ package androidx.savedstate {
 
   public final class SavedStateRegistry implements androidx.savedstate.SavedStateProvider androidx.savedstate.SavedStateRestorer {
     ctor public SavedStateRegistry();
-    ctor public SavedStateRegistry(android.os.Bundle initialState);
+    ctor public SavedStateRegistry(android.os.Bundle? initialState);
     method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String key);
     method public androidx.savedstate.SavedStateRegistry.SavedStateProvider? getSavedStateProvider(String key);
     method @InaccessibleFromKotlin @MainThread public boolean isRestored();
