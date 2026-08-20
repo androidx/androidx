@@ -405,7 +405,7 @@ private object CardVerticalArrangement : Arrangement.Vertical {
     override fun Density.arrange(totalSize: Int, sizes: IntArray, outPositions: IntArray) {
         if (sizes.isEmpty()) return
         if (sizes.size == 1) {
-            with(Arrangement.Center) { arrange(totalSize, sizes, outPositions) }
+            outPositions[0] = CenterVertically.align(sizes[0], totalSize)
             return
         }
 
@@ -413,10 +413,8 @@ private object CardVerticalArrangement : Arrangement.Vertical {
         val actionHeight = sizes[1]
         val availableBodyHeight = totalSize - actionHeight
 
-        // Sets outPositions[0] using Arrangment.Center on the available space
-        with(Arrangement.Center) {
-            arrange(availableBodyHeight, intArrayOf(bodyHeight), outPositions)
-        }
+        // Sets outPositions[0] using CenterVertically on the available space
+        outPositions[0] = CenterVertically.align(size = bodyHeight, space = availableBodyHeight)
         outPositions[1] = totalSize - actionHeight
     }
 }
