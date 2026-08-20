@@ -4832,6 +4832,7 @@ package androidx.compose.ui.semantics {
     method @InaccessibleFromKotlin @Deprecated public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsContainer();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsDialog();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsEditable();
+    method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsPasswordObfuscated();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsPopup();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsSensitiveData();
     method @InaccessibleFromKotlin public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsShowingTextSubstitution();
@@ -4879,6 +4880,7 @@ package androidx.compose.ui.semantics {
     property @Deprecated public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsContainer;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsDialog;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsEditable;
+    property public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsPasswordObfuscated;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsPopup;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsSensitiveData;
     property public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsShowingTextSubstitution;
@@ -4997,7 +4999,9 @@ package androidx.compose.ui.semantics {
     method @BytecodeOnly public static void pageRight$default(androidx.compose.ui.semantics.SemanticsPropertyReceiver!, String!, kotlin.jvm.functions.Function0!, int, Object!);
     method public static void pageUp(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method @BytecodeOnly public static void pageUp$default(androidx.compose.ui.semantics.SemanticsPropertyReceiver!, String!, kotlin.jvm.functions.Function0!, int, Object!);
-    method public static void password(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
+    method @BytecodeOnly @Deprecated public static void password(androidx.compose.ui.semantics.SemanticsPropertyReceiver!);
+    method public static void password(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional boolean isPasswordObfuscated);
+    method @BytecodeOnly public static void password$default(androidx.compose.ui.semantics.SemanticsPropertyReceiver!, boolean, int, Object!);
     method public static void pasteText(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
     method @BytecodeOnly public static void pasteText$default(androidx.compose.ui.semantics.SemanticsPropertyReceiver!, String!, kotlin.jvm.functions.Function0!, int, Object!);
     method @Deprecated public static void performImeAction(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Boolean>? action);
