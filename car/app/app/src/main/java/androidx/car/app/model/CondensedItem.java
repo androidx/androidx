@@ -52,18 +52,10 @@ public final class CondensedItem implements Item {
      * The type of images supported within condensed items.
      */
     @RestrictTo(LIBRARY)
-    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_SMALL, IMAGE_TYPE_MEDIUM, IMAGE_TYPE_LARGE})
+    @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_MEDIUM, IMAGE_TYPE_LARGE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface CondensedItemImageType {
     }
-
-    /**
-     * Represents an icon to be displayed in the condensed item.
-     *
-     * @deprecated Use {@link #IMAGE_TYPE_SMALL} instead.
-     */
-    @Deprecated
-    public static final int IMAGE_TYPE_ICON = 1;
 
     /**
      * Represents a small icon-sized image to be displayed in the condensed item.
@@ -317,14 +309,14 @@ public final class CondensedItem implements Item {
         /**
          * Sets the leading image of the item.
          *
-         * <p>The leading image will default to {@link #IMAGE_TYPE_SMALL}.
+         * <p>The leading image will default to {@link #IMAGE_TYPE_MEDIUM}.
          *
          * @throws NullPointerException     if {@code image} is {@code null}
          * @throws IllegalArgumentException if {@code image} contains unsupported icon types
          */
         @CanIgnoreReturnValue
         public @NonNull Builder setLeadingImage(@NonNull CarIcon image) {
-            return setLeadingImage(requireNonNull(image), IMAGE_TYPE_SMALL);
+            return setLeadingImage(requireNonNull(image), IMAGE_TYPE_MEDIUM);
         }
 
         /**
@@ -347,14 +339,14 @@ public final class CondensedItem implements Item {
         /**
          * Sets the trailing image of the item.
          *
-         * <p>The trailing image will default to {@link #IMAGE_TYPE_SMALL}.
+         * <p>The trailing image will default to {@link #IMAGE_TYPE_MEDIUM}.
          *
          * @throws NullPointerException     if {@code image} is {@code null}
          * @throws IllegalArgumentException if {@code image} contains unsupported icon types
          */
         @CanIgnoreReturnValue
         public @NonNull Builder setTrailingImage(@NonNull CarIcon image) {
-            return setTrailingImage(requireNonNull(image), IMAGE_TYPE_SMALL);
+            return setTrailingImage(requireNonNull(image), IMAGE_TYPE_MEDIUM);
         }
 
         /**

@@ -1313,10 +1313,9 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText? getTitle();
     method public java.util.List<androidx.car.app.model.BannerElement!> getTrailingElements();
-    field @Deprecated public static final int IMAGE_TYPE_ICON = 1; // 0x1
-    field public static final int IMAGE_TYPE_LARGE = 4; // 0x4
-    field public static final int IMAGE_TYPE_MEDIUM = 3; // 0x3
-    field public static final int IMAGE_TYPE_SMALL = 2; // 0x2
+    field public static final int IMAGE_TYPE_LARGE = 3; // 0x3
+    field public static final int IMAGE_TYPE_MEDIUM = 2; // 0x2
+    field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final class Banner.Builder {
@@ -1560,7 +1559,6 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarIcon? getTrailingImage();
     method public int getTrailingImageType();
     method public boolean isIndexable();
-    field @Deprecated public static final int IMAGE_TYPE_ICON = 1; // 0x1
     field public static final int IMAGE_TYPE_LARGE = 3; // 0x3
     field public static final int IMAGE_TYPE_MEDIUM = 2; // 0x2
     field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
