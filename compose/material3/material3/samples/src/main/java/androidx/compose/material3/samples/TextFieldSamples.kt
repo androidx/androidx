@@ -286,8 +286,7 @@ fun PasswordTextField() {
                     if (passwordHidden) KeyboardType.Password else KeyboardType.PasswordVisible,
             ),
         textObfuscationMode =
-            if (passwordHidden) TextObfuscationMode.RevealLastTyped
-            else TextObfuscationMode.Visible,
+            if (passwordHidden) TextObfuscationMode.System else TextObfuscationMode.Visible,
         trailingIcon = {
             // Provide localized description for accessibility services
             val description = if (passwordHidden) "Show password" else "Hide password"
@@ -898,8 +897,7 @@ fun ExpressivePasswordTextField() {
         state = rememberTextFieldState(),
         label = { Text("Enter password") },
         textObfuscationMode =
-            if (passwordHidden) TextObfuscationMode.RevealLastTyped
-            else TextObfuscationMode.Visible,
+            if (passwordHidden) TextObfuscationMode.System else TextObfuscationMode.Visible,
         trailingIcon = {
             val description = if (passwordHidden) "Show password" else "Hide password"
             IconButton(onClick = { passwordHidden = !passwordHidden }) {
@@ -921,8 +919,7 @@ fun ExpressiveOutlinedPasswordTextField() {
         state = rememberTextFieldState(),
         label = { Text("Enter password") },
         textObfuscationMode =
-            if (passwordHidden) TextObfuscationMode.RevealLastTyped
-            else TextObfuscationMode.Visible,
+            if (passwordHidden) TextObfuscationMode.System else TextObfuscationMode.Visible,
         trailingIcon = {
             val description = if (passwordHidden) "Show password" else "Hide password"
             IconButton(onClick = { passwordHidden = !passwordHidden }) {
