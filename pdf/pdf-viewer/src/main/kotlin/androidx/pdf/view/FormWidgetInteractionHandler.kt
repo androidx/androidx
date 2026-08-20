@@ -251,13 +251,11 @@ internal class FormWidgetInteractionHandler(
         val listItemValues: List<String> = formWidgetInfo.listItems.map { it.label }
 
         MaterialAlertDialogBuilder(context)
-            .setMultiChoiceItems(listItemValues.toTypedArray(), selectedItems) {
-                dialog,
-                which,
-                isChecked ->
+            .setMultiChoiceItems(listItemValues.toTypedArray(), selectedItems) { _, which, isChecked
+                ->
                 selectedItems[which] = isChecked
             }
-            .setPositiveButton(context.getString(R.string.confirm_selection)) { dialog, which ->
+            .setPositiveButton(context.getString(R.string.confirm_selection)) { dialog, _ ->
                 handleSelectedItem(
                     pageNum,
                     formWidgetInfo,

@@ -128,7 +128,7 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
                 .also { pdfView.addOnGestureStateChangedListener(it) }
 
         pdfSearchView.searchQueryBox.onFocusChangeListener =
-            View.OnFocusChangeListener { v, hasFocus ->
+            View.OnFocusChangeListener { _, hasFocus ->
                 if (!hasFocus) {
                     pdfSearchFocusIdlingResource.decrement()
                 }
