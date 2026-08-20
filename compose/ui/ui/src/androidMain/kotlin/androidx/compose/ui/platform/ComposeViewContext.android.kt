@@ -308,7 +308,7 @@ private constructor(
         composeViewContext?.sharedDrawScope ?: LayoutNodeDrawScope()
 
     /** [WindowInfo] provide by [LocalWindowInfo]. */
-    internal val windowInfo: LazyWindowInfo = LazyWindowInfo()
+    internal val windowInfo: LazyWindowInfo = LazyWindowInfo(view.context)
 
     /**
      * A [CanvasHolder] that can be used for all AndroidComposeViews using this
@@ -409,6 +409,7 @@ private constructor(
         windowInfo.isWindowFocused = view.hasWindowFocus()
         windowInfo.setOnInitializeContainerSize(calculateWindowSizeLambda)
         windowInfo.updateContainerSizeIfObserved(calculateWindowSizeLambda)
+        windowInfo.observeCrossWindowBlurState()
         view.viewTreeObserver.addOnWindowFocusChangeListener(callback)
         view.viewTreeObserver.addOnGlobalLayoutListener(callback)
         pendingWindowInfoUpdate = false
@@ -425,6 +426,7 @@ private constructor(
     private fun stopObserving() {
         view.context.unregisterComponentCallbacks(callback)
         windowInfo.setOnInitializeContainerSize(null)
+        windowInfo.stopObservingCrossWindowBlurState()
         view.viewTreeObserver.removeOnWindowFocusChangeListener(callback)
         view.viewTreeObserver.removeOnGlobalLayoutListener(callback)
         pendingWindowInfoUpdate = false

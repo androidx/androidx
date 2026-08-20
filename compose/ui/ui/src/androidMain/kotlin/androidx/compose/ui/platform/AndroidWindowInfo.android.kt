@@ -21,7 +21,11 @@ import android.app.Application
 import android.content.Context
 import android.content.ContextWrapper
 import android.inputmethodservice.InputMethodService
+import android.os.Build
 import android.view.View
+import android.view.WindowManager
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,12 +39,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toIntSize
 import androidx.compose.ui.unit.toSize
 import androidx.window.layout.WindowMetricsCalculator
+import java.util.function.Consumer
+
+/**
+ * Whether cross-window blur is currently enabled by the system.
+ *
+ * Cross-window blur might not be supported by some devices due to GPU limitations. It can also be
+ * disabled at runtime (e.g., during battery saving mode, when multimedia tunneling is used, or when
+ * minimal post-processing is requested). In these situations, no blur is computed or drawn. Apps
+ * should check this flag to fall back to alternative styling (such as adjusting scrim opacity or
+ * changing themes) when blurs are disabled.
+ *
+ * This affects both window blur behind (see
+ * [android.view.WindowManager.LayoutParams.setBlurBehindRadius]) and window background blur (see
+ * [android.view.Window.setBackgroundBlurRadius]).
+ *
+ * On Android, this property queries [android.view.WindowManager.isCrossWindowBlurEnabled] on API
+ * 31+; on older API levels it always returns `false`.
+ */
+public val WindowInfo.isCrossWindowBlurEnabled: Boolean
+    get() = (this as? LazyWindowInfo)?.isCrossWindowBlurEnabled ?: false
 
 /**
  * WindowInfo that only calculates [containerSize] if the property has been read, to avoid expensive
  * size calculation when no one is reading the value.
  */
-internal class LazyWindowInfo : WindowInfo {
+internal class LazyWindowInfo(private val context: Context) : WindowInfo {
     private var onInitializeContainerSize: (() -> DerivedSize)? = null
     private var _containerSize: MutableState<DerivedSize>? = null
 
@@ -51,6 +75,19 @@ internal class LazyWindowInfo : WindowInfo {
         set(value) {
             GlobalKeyboardModifiers.value = value
         }
+
+    private val crossWindowBlurObserver = CrossWindowBlur(context)
+
+    val isCrossWindowBlurEnabled: Boolean
+        get() = crossWindowBlurObserver.isCrossWindowBlurEnabled
+
+    fun observeCrossWindowBlurState() {
+        crossWindowBlurObserver.onAttached()
+    }
+
+    fun stopObservingCrossWindowBlurState() {
+        crossWindowBlurObserver.onDetached()
+    }
 
     inline fun updateContainerSizeIfObserved(calculateContainerSize: () -> DerivedSize) {
         _containerSize?.let { it.value = calculateContainerSize() }
@@ -159,4 +196,117 @@ private fun tryUnwrapContext(context: Context): Context? {
     }
 
     return null
+}
+
+/**
+ * Observes system-wide cross-window blur state.
+ *
+ * On API 31+, it registers a listener with the system [WindowManager] (using
+ * [WindowManager.addCrossWindowBlurEnabledListener]) to receive updates whenever the system-wide
+ * blur state changes (e.g., when the user enters Battery Saver).
+ *
+ * It is instantiated per [ComposeViewContext] (via [LazyWindowInfo]) to tie the listener's
+ * lifecycle to the active views. This ensures we unregister the listener when all views are
+ * detached, preventing memory leaks of the [Context] used to retrieve the [WindowManager].
+ *
+ * Note: On API levels below 31, blurs are always reported as disabled, and no listener is
+ * registered.
+ */
+internal class CrossWindowBlur(private val context: Context) {
+    // Tracks whether the hosting view is attached to a window. To prevent memory leaks,
+    // we only register the WindowManager listener while the view is active (attached).
+    private var isAttached = false
+    // Tracks whether the blur property has been read in composition.
+    // Used for laziness: we defer registering the system listener until the app actually
+    // queries this state, saving resources for screens that don't use blurs.
+    private var isObserved = false
+
+    private var listenerRegistration: Api31Impl.Registration? = null
+
+    /** Shows whether cross-window blurs are currently enabled by the system. */
+    private var _isEnabled by mutableStateOf(false)
+
+    /**
+     * The system-wide cross-window blur state.
+     *
+     * Reading this property in composition subscribes the Composable to changes and lazily
+     * registers the system listener on the first read.
+     */
+    val isCrossWindowBlurEnabled: Boolean
+        get() {
+            if (!isObserved) {
+                isObserved = true
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !isAttached) {
+                    _isEnabled = Api31Impl.isCrossWindowBlurEnabled(context)
+                }
+                if (isAttached) {
+                    registerSystemListener()
+                }
+            }
+            return _isEnabled
+        }
+
+    /**
+     * Called when the associated view context becomes active (attached to a window).
+     *
+     * If a Composable already read the blur property while the context was inactive, this will now
+     * register the WindowManager listener.
+     */
+    fun onAttached() {
+        isAttached = true
+        if (isObserved) {
+            registerSystemListener()
+        }
+    }
+
+    /** Unregisters the listener on view detachment to prevent memory leaks. */
+    fun onDetached() {
+        isAttached = false
+        unregisterSystemListener()
+    }
+
+    private fun registerSystemListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && listenerRegistration == null) {
+            listenerRegistration =
+                Api31Impl.registerListener(context) { enabled -> _isEnabled = enabled }
+        }
+    }
+
+    private fun unregisterSystemListener() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            listenerRegistration?.unregister()
+        }
+        listenerRegistration = null
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private object Api31Impl {
+        /**
+         * Stores the [WindowManager] and [Consumer] callback instance to allow unregistering the
+         * listener.
+         */
+        class Registration(private val wm: WindowManager, private val consumer: Consumer<Boolean>) {
+            fun unregister() {
+                wm.removeCrossWindowBlurEnabledListener(consumer)
+            }
+        }
+
+        /** Queries the system-wide cross-window blur state. */
+        @DoNotInline
+        fun isCrossWindowBlurEnabled(context: Context): Boolean {
+            val wm = context.getSystemService(WindowManager::class.java) ?: return false
+            return wm.isCrossWindowBlurEnabled
+        }
+
+        /** Registers the blur listener using the provided [Context]. */
+        @DoNotInline
+        fun registerListener(context: Context, onBlurChanged: (Boolean) -> Unit): Registration? {
+            val wm = context.getSystemService(WindowManager::class.java) ?: return null
+            onBlurChanged(wm.isCrossWindowBlurEnabled)
+
+            val consumer = Consumer(onBlurChanged)
+            wm.addCrossWindowBlurEnabledListener(context.mainExecutor, consumer)
+            return Registration(wm, consumer)
+        }
+    }
 }
