@@ -101,7 +101,7 @@ class PreferencesFileSerializerTest {
 
     // TODO: This doesn't pass on native: https://youtrack.jetbrains.com/issue/KT-42903
     @Test
-    @Suppress("UNUSED_VARIABLE")
+    @Suppress("UNUSED_VARIABLE", "CAN_BE_VAL")
     fun testWrongTypeThrowsClassCastException() {
         val stringKey = stringPreferencesKey("string_key")
         val intKey = intPreferencesKey("string_key") // long key of the same name as stringKey!
