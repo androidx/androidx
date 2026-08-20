@@ -139,7 +139,7 @@ object MultiDisplay {
         onClick: (Navigation.End) -> Unit,
     ) =
         with(sharedTransitionScope) {
-            val visibleState = rememberUpdatedState(visible)
+            rememberUpdatedState(visible)
             val state = rememberLazyListState()
             LazyColumn(modifier = modifier.fillMaxSize(), state = state) {
                 items(
