@@ -47,6 +47,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -210,6 +211,7 @@ import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.zIndex
 import kotlin.jvm.JvmInline
 import kotlin.math.PI
@@ -2196,7 +2198,7 @@ private fun TimeInputImpl(
                     Modifier.padding(
                             start = shapes.orVibrant(startPadding, VibrantPeriodToggleLargePadding)
                         )
-                        .size(width = 48.dp, height = fieldHeight),
+                        .height(fieldHeight),
                 state = state,
                 colors = colors,
                 shapes = shapes,
@@ -2354,7 +2356,7 @@ private fun TimeScrollImpl(
                     Modifier.padding(
                             start = shapes.orVibrant(startPadding, PeriodTogglePaddingLarge)
                         )
-                        .size(width = 48.dp, height = fieldHeight),
+                        .height(fieldHeight),
                 state = state,
                 colors = colors.toTimeInputColors(),
                 shapes = shapes,
@@ -2707,13 +2709,21 @@ private fun SideControlColumn(
     toggle: @Composable (() -> Unit)? = null,
 ) {
     val measurePolicy = MeasurePolicy { measurables, constraints ->
-        val items =
-            measurables.fastMap { item ->
-                item.measure(Constraints.fixed(48.dp.roundToPx(), 48.dp.roundToPx()))
-            }
-        layout(constraints.maxWidth, constraints.maxHeight) {
-            val tapTargetHeight = 48.dp.roundToPx()
-            val totalHeight = items.size * tapTargetHeight
+        val tapTargetSize = MinimumInteractiveSize.roundToPx()
+        val itemConstraints =
+            Constraints(
+                minHeight = tapTargetSize,
+                maxHeight = tapTargetSize,
+                maxWidth = constraints.maxWidth,
+            )
+        val items = measurables.fastMap { it.measure(itemConstraints) }
+        val maxItemWidth = items.fastMaxOfOrNull { it.width } ?: 0
+        val columnWidth =
+            maxItemWidth
+                .coerceAtLeast(tapTargetSize)
+                .coerceIn(constraints.minWidth, constraints.maxWidth)
+        layout(columnWidth, constraints.maxHeight) {
+            val totalHeight = items.size * tapTargetSize
             var y = (constraints.maxHeight - totalHeight) / 2
             if (items.size == 3) {
                 // For 3 items (AM, PM, Switch) in 140dp:
@@ -2724,8 +2734,8 @@ private fun SideControlColumn(
                 y += 3.dp.roundToPx()
             }
             items.fastForEach {
-                it.place((constraints.maxWidth - it.width) / 2, y)
-                y += tapTargetHeight
+                it.place((columnWidth - it.width) / 2, y)
+                y += tapTargetSize
             }
         }
     }
@@ -2924,18 +2934,26 @@ private fun SideControlItem(
             pressedShape = RoundedCornerShape(12.dp),
             checkedShape = RoundedCornerShape(12.dp),
         )
-    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 48.dp) {
-        Box(modifier = modifier.size(48.dp), contentAlignment = Alignment.Center) {
+    CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides MinimumInteractiveSize) {
+        Box(
+            modifier =
+                modifier.defaultMinSize(
+                    minWidth = MinimumInteractiveSize,
+                    minHeight = MinimumInteractiveSize,
+                ),
+            contentAlignment = Alignment.Center,
+        ) {
             ToggleButton(
                 checked = checked,
                 onCheckedChange = { onClick() },
                 modifier =
-                    Modifier.zIndex(if (checked) 0f else 1f).size(40.dp).semantics {
-                        selected = checked
-                    },
+                    Modifier.zIndex(if (checked) 0f else 1f)
+                        .height(40.dp)
+                        .defaultMinSize(minWidth = 40.dp)
+                        .semantics { selected = checked },
                 shapes = toggleButtonShapes,
                 colors = toggleButtonColors,
-                contentPadding = PaddingValues(0.dp),
+                contentPadding = PaddingValues(horizontal = 4.dp),
                 content = content,
             )
         }

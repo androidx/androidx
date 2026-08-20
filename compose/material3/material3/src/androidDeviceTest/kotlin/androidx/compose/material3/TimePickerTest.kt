@@ -30,6 +30,7 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -47,10 +48,12 @@ import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertContentDescriptionContains
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelectable
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.filterToOne
 import androidx.compose.ui.test.hasAnyAncestor
@@ -72,6 +75,7 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onLast
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
@@ -82,6 +86,8 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -1423,6 +1429,58 @@ class TimePickerTest {
 
         displayMode = TimePickerDisplayMode.Input
         rule.onNodeWithContentDescription(scrollToggleDescription).assertExists()
+    }
+
+    @Test
+    fun timeScroll_withToggle_largeFont() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 30, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(
+                LocalDensity provides
+                    Density(density = LocalDensity.current.density, fontScale = 2f)
+            ) {
+                TimeScroll(
+                    state = state,
+                    shapes = TimePickerDefaults.shapes(),
+                    toggle = { Text("Toggle") },
+                )
+            }
+        }
+
+        rule.onNodeWithText("AM").assertIsDisplayed().assertIsSelected()
+        rule.onNodeWithText("AM").onParent().assertWidthIsAtLeast(48.dp)
+        rule.onNodeWithText("PM").assertIsDisplayed().assertIsNotSelected()
+        rule.onNodeWithText("PM").onParent().assertWidthIsAtLeast(48.dp)
+        rule.onNodeWithText("PM").performClick()
+        rule.onNodeWithText("PM").assertIsSelected()
+        rule.onNodeWithText("AM").assertIsNotSelected()
+    }
+
+    @Test
+    fun timeInput_withToggle_largeFont() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 30, is24Hour = false)
+
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(
+                LocalDensity provides
+                    Density(density = LocalDensity.current.density, fontScale = 2f)
+            ) {
+                TimeInput(
+                    state = state,
+                    shapes = TimePickerDefaults.shapes(),
+                    toggle = { Text("Toggle") },
+                )
+            }
+        }
+
+        rule.onNodeWithText("AM").assertIsDisplayed().assertIsSelected()
+        rule.onNodeWithText("AM").onParent().assertWidthIsAtLeast(48.dp)
+        rule.onNodeWithText("PM").assertIsDisplayed().assertIsNotSelected()
+        rule.onNodeWithText("PM").onParent().assertWidthIsAtLeast(48.dp)
+        rule.onNodeWithText("PM").performClick()
+        rule.onNodeWithText("PM").assertIsSelected()
+        rule.onNodeWithText("AM").assertIsNotSelected()
     }
 }
 
