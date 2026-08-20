@@ -1474,7 +1474,7 @@ package androidx.car.app.model {
     ctor public CarProgressBarStyle.Builder();
     ctor public CarProgressBarStyle.Builder(androidx.car.app.model.CarProgressBarStyle);
     method public androidx.car.app.model.CarProgressBarStyle build();
-    method public androidx.car.app.model.CarProgressBarStyle.Builder setColor(androidx.car.app.model.CarColor);
+    method public androidx.car.app.model.CarProgressBarStyle.Builder setColor(androidx.car.app.model.CarColor?);
     method public androidx.car.app.model.CarProgressBarStyle.Builder setStrokeCap(int);
   }
 
