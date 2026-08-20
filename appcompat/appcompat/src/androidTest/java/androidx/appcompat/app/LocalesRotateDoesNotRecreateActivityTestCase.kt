@@ -55,7 +55,7 @@ class LocalesRotateDoesNotRecreateActivityTestCase() {
     fun testRotateDoesNotRecreateActivity() {
         // Set locales to CUSTOM_LOCALE_LIST and wait for state RESUMED.
         val initialActivity = activityRule.launchActivity(null)
-        var systemLocales =
+        val systemLocales =
             LocalesUpdateActivity.getConfigLocales(initialActivity.resources.configuration)
         LifecycleOwnerUtils.waitUntilState(initialActivity, Lifecycle.State.RESUMED)
         setLocalesAndWaitForRecreate(initialActivity, CUSTOM_LOCALE_LIST)
