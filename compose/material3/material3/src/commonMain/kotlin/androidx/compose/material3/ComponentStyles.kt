@@ -20,6 +20,7 @@ import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.material3.tokens.ColorToken
 import androidx.compose.material3.tokens.RadioButtonTokens
 import androidx.compose.material3.tokens.ShapeToken
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -98,6 +99,33 @@ internal interface StatefulStyleScope<T : StatefulStyleScope<T>> {
     }
 }
 
+@Composable internal expect fun mediaQueryInfo(): MediaQueryInfo
+
+internal class MediaQueryInfo(val isLaptop: Boolean, val isTv: Boolean, val isAuto: Boolean)
+
+@Suppress("UNCHECKED_CAST") // Guaranteed by implementation
+internal interface AdaptiveStyleScope<T : AdaptiveStyleScope<T>> {
+    val mediaQueryInfo: MediaQueryInfo
+
+    fun laptop(style: T.() -> Unit) {
+        if (mediaQueryInfo.isLaptop) {
+            (this as T).style()
+        }
+    }
+
+    fun tv(style: T.() -> Unit) {
+        if (mediaQueryInfo.isTv) {
+            (this as T).style()
+        }
+    }
+
+    fun auto(style: T.() -> Unit) {
+        if (mediaQueryInfo.isAuto) {
+            (this as T).style()
+        }
+    }
+}
+
 internal interface MaterialThemeAccessorScope {
     val theme: MaterialTheme.Values
 
@@ -131,13 +159,23 @@ internal interface DisabledState<T : StatefulStyleScope<T>> : StatefulStyleScope
 // Component style definitions start from here.
 
 @JvmInline
-internal value class CheckboxStyle(private val block: CheckboxStyleScope.() -> Unit) {
+internal value class CheckboxStyle
+private constructor(private val block: CheckboxStyleScope.() -> Unit) {
     fun CheckboxStyleScope.applyStyle() {
+        block()
+    }
+
+    infix fun then(other: CheckboxStyle): CheckboxStyle = then(other.block)
+
+    infix fun then(block: CheckboxStyleScope.() -> Unit) = CheckboxStyle {
+        applyStyle()
         block()
     }
 
     companion object {
         val Default = CheckboxStyle {
+            size(CheckboxTokens.ContainerSize)
+            cornerSize(2.dp)
             checkmarkColor(Color.Transparent)
             backgroundColor(Color.Transparent)
             borderColor(CheckboxTokens.UnselectedOutlineColor.value)
@@ -188,16 +226,31 @@ internal value class CheckboxStyle(private val block: CheckboxStyleScope.() -> U
                 }
             }
         }
+
+        val Adaptive =
+            Default then
+                {
+                    auto {
+                        size(22.dp)
+                        cornerSize(4.dp)
+                    }
+                    tv {
+                        size(22.dp)
+                        cornerSize(4.dp)
+                    }
+                }
     }
 }
 
 internal class CheckboxStyleScope(
     override val theme: MaterialTheme.Values,
+    override val mediaQueryInfo: MediaQueryInfo,
     override val state: ComponentState = ComponentState.Default,
 ) :
     CheckedState<CheckboxStyleScope>,
     IndeterminateState<CheckboxStyleScope>,
     DisabledState<CheckboxStyleScope>,
+    AdaptiveStyleScope<CheckboxStyleScope>,
     MaterialThemeAccessorScope {
     var checkmarkColor: Color = Color.Unspecified
         private set
@@ -216,6 +269,10 @@ internal class CheckboxStyleScope(
 
     var borderStroke: Stroke? = null
         private set
+
+    var cornerSize: Dp = Dp.Unspecified
+
+    var size: Dp = Dp.Unspecified
 
     fun checkmarkStroke(stroke: Stroke) {
         checkmarkStroke = stroke
@@ -239,6 +296,14 @@ internal class CheckboxStyleScope(
 
     fun rippleColor(color: Color) {
         rippleColor = color
+    }
+
+    fun cornerSize(size: Dp) {
+        cornerSize = size
+    }
+
+    fun size(size: Dp) {
+        this.size = size
     }
 }
 
