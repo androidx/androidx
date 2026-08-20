@@ -71,7 +71,7 @@ internal fun List<String>.requireInOrder(
     vararg toFind: String,
     predicate: (String, String) -> (Boolean) = { line, nextToFind -> line.startsWith(nextToFind) },
 ): List<String> {
-    var remaining = toFind.filter { it.isNotBlank() }.toMutableList()
+    val remaining = toFind.filter { it.isNotBlank() }.toMutableList()
     for (line in this) {
         val next = remaining.firstOrNull() ?: return emptyList()
         if (predicate(line, next)) remaining.removeFirst()

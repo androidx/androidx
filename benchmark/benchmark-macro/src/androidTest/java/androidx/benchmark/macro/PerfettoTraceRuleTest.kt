@@ -94,7 +94,7 @@ class PerfettoTraceRuleTest {
             .around(
                 PerfettoTraceRule(
                     inProcessTracingMode = InProcessTracingMode.UseIfAvailable,
-                    labelProvider = { description -> "CUSTOM_LABEL" },
+                    labelProvider = { _ -> "CUSTOM_LABEL" },
                 ) {
                     trace = it
                 }

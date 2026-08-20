@@ -47,14 +47,14 @@ class AudioActivity() : AppCompatActivity() {
 
         // plays beeps continuously until activity is destroyed
         thread = thread {
-            var format =
+            val format =
                 AudioFormat.Builder()
                     .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                     .setSampleRate(sampleRateHz)
                     .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
                     .build()
 
-            var attributes =
+            val attributes =
                 AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_MEDIA)
                     .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -70,7 +70,7 @@ class AudioActivity() : AppCompatActivity() {
             track.play()
 
             while (!finished) {
-                var currentTime = System.currentTimeMillis()
+                val currentTime = System.currentTimeMillis()
                 track.write(buffer, 0, buffer.size)
 
                 // sleep twice as buffer duration to generate pauses
