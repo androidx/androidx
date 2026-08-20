@@ -153,3 +153,9 @@ private class FractionLazyLayoutCacheWindow(
         }
     }
 }
+
+/**
+ * The default ahead fraction used by LazyLayouts. This value is chosen as a reasonable default to
+ * prefetch some items ahead of the scroll direction.
+ */
+internal const val DEFAULT_LAZY_LAYOUT_CACHE_WINDOW_AHEAD_FRACTION = 0.1f
