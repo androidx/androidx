@@ -1640,16 +1640,22 @@ public class WindowInsetsCompat {
 
         @Override
         public @NonNull Insets getInsets(int typeMask) {
-            return toCompatInsets(
+            Insets insets = toCompatInsets(
                     mPlatformInsets.getInsets(TypeImpl30.toPlatformType(typeMask))
             );
+            // Sanitize negative insets erroneously received on Android 11, due to race conditions
+            // (e.g. during screen rotation). Prevents crash during subsequent preconditions check.
+            return Insets.max(Insets.NONE, insets);
         }
 
         @Override
         public @NonNull Insets getInsetsIgnoringVisibility(int typeMask) {
-            return toCompatInsets(
+            Insets insets = toCompatInsets(
                     mPlatformInsets.getInsetsIgnoringVisibility(TypeImpl30.toPlatformType(typeMask))
             );
+            // Sanitize negative insets erroneously received on Android 11, due to race conditions
+            // (e.g. during screen rotation). Prevents crash during subsequent preconditions check.
+            return Insets.max(Insets.NONE, insets);
         }
 
         @Override
@@ -1675,6 +1681,20 @@ public class WindowInsetsCompat {
 
         Impl31(@NonNull WindowInsetsCompat host, @NonNull Impl31 other) {
             super(host, other);
+        }
+
+        @Override
+        public @NonNull Insets getInsets(int typeMask) {
+            return toCompatInsets(
+                    mPlatformInsets.getInsets(TypeImpl30.toPlatformType(typeMask))
+            );
+        }
+
+        @Override
+        public @NonNull Insets getInsetsIgnoringVisibility(int typeMask) {
+            return toCompatInsets(
+                    mPlatformInsets.getInsetsIgnoringVisibility(TypeImpl30.toPlatformType(typeMask))
+            );
         }
 
         @Override
