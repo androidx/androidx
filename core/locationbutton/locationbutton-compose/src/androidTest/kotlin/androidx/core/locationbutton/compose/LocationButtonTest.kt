@@ -291,6 +291,11 @@ class LocationButtonTest {
         assertThat(request.paddingTop).isEqualTo(expectedTopPx)
         assertThat(request.paddingRight).isEqualTo(expectedRightPx)
         assertThat(request.paddingBottom).isEqualTo(expectedBottomPx)
+
+        // The requested size must be the size the caller asked for, not the placeholder the
+        // session state starts out with.
+        assertThat(request.width).isEqualTo(Math.round(200f * density))
+        assertThat(request.height).isEqualTo(Math.round(50f * density))
     }
 
     @Test

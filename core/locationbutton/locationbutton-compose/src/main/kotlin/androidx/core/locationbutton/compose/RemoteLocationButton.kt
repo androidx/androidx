@@ -33,7 +33,6 @@ import android.view.View.OnAttachStateChangeListener
 import android.view.ViewTreeObserver
 import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -53,11 +52,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.viewinterop.AndroidView
 
@@ -103,35 +110,6 @@ internal fun RemoteLocationButton(
     }
 
     val layoutDirection = LocalLayoutDirection.current
-    val safePaddings =
-        remember(density, clickablePadding, layoutDirection) {
-            with(density) {
-                val minPaddingPx = MinPadding.roundToPx()
-                val maxPaddingPx = MaxPadding.roundToPx()
-                SafePaddings(
-                    left =
-                        clickablePadding
-                            .calculateStartPadding(layoutDirection)
-                            .roundToPx()
-                            .coerceIn(minPaddingPx, maxPaddingPx),
-                    right =
-                        clickablePadding
-                            .calculateEndPadding(layoutDirection)
-                            .roundToPx()
-                            .coerceIn(minPaddingPx, maxPaddingPx),
-                    top =
-                        clickablePadding
-                            .calculateTopPadding()
-                            .roundToPx()
-                            .coerceIn(minPaddingPx, maxPaddingPx),
-                    bottom =
-                        clickablePadding
-                            .calculateBottomPadding()
-                            .roundToPx()
-                            .coerceIn(minPaddingPx, maxPaddingPx),
-                )
-            }
-        }
 
     var surfaceHostToken by remember { mutableStateOf<IBinder?>(null) }
     // The display the surface is shown on, which the session must be opened for. It isn't
@@ -140,247 +118,250 @@ internal fun RemoteLocationButton(
     var openedSession by remember { mutableStateOf<LocationButtonSession?>(null) }
     var surfaceViewRef by remember { mutableStateOf<SurfaceView?>(null) }
 
+    // The size resolved by layout, or null until the first layout pass. The session request
+    // carries this size, so it must not be built before it is known.
+    var layoutSize by remember { mutableStateOf<IntSize?>(null) }
+
     // Holder for last applied state to avoid multiple recompositions triggering redundant calls
     val sessionState = remember { SessionState() }
 
     val currentOnPermissionResult by rememberUpdatedState(onPermissionResult)
     val currentOnError by rememberUpdatedState(onError)
 
-    BoxWithConstraints(modifier = modifier) {
-        val widthPx =
-            with(density) {
-                if (maxWidth != Dp.Infinity) maxWidth.roundToPx()
-                else ButtonDefaults.MinWidth.roundToPx()
-            }
-        val heightPx =
-            with(density) {
-                if (maxHeight != Dp.Infinity) maxHeight.roundToPx()
-                else ButtonDefaults.MinHeight.roundToPx()
-            }
-
-        val hostToken = surfaceHostToken
-        val displayId = surfaceDisplayId
-        if (hostToken != null && displayId != Display.INVALID_DISPLAY) {
-            // This effect owns the session: it opens one once the surface is attached, and closes
-            // it when the surface or its display changes or the button leaves the composition.
-            DisposableEffect(hostToken, displayId) {
-                // Set when this effect is disposed. A session that only opens after that is closed
-                // right away, since nothing else would close it.
-                var isDisposed = false
-                val client =
-                    object : LocationButtonClient {
-                        override fun onPermissionResult(granted: Boolean) {
-                            currentOnPermissionResult(granted)
-                        }
-
-                        override fun onSessionError(throwable: Throwable) {
-                            if (isDisposed) {
-                                return
-                            }
-                            openedSession?.close()
-                            openedSession = null
-                            currentOnError(throwable)
-                        }
-
-                        override fun onSessionOpened(session: LocationButtonSession) {
-                            if (isDisposed) {
-                                session.close()
-                                return
-                            }
-                            openedSession = session
-
-                            surfaceViewRef?.let { view ->
-                                view.setChildSurfacePackage(session.surfacePackage)
-                                view.setCompositionOrder(compositionOrder)
-                                sessionState.compositionOrder = compositionOrder
-                                view.invalidate()
-                            }
-                        }
-                    }
-
-                val activity =
-                    activity
-                        ?: throw IllegalStateException(
-                            "LocationButton must be hosted within an Activity context"
-                        )
-
-                val requestBuilder =
-                    LocationButtonRequest.Builder(widthPx, heightPx, configuration)
-                        .setPaddingLeft(safePaddings.left)
-                        .setPaddingTop(safePaddings.top)
-                        .setPaddingRight(safePaddings.right)
-                        .setPaddingBottom(safePaddings.bottom)
-                        .setBackgroundColor(backgroundColor.toArgb())
-                        .setIconTint(iconTint.toArgb())
-                        .setTextType(textType)
-                        .setTextColor(textColor.toArgb())
-
-                if (strokeWidth.isSpecified) {
-                    val strokePx = with(density) { strokeWidth.roundToPx() }
-                    requestBuilder.setStrokeWidth(strokePx)
-                }
-                if (strokeColor.isSpecified) {
-                    requestBuilder.setStrokeColor(strokeColor.toArgb())
-                }
-
-                if (cornerRadius.isSpecified) {
-                    val cornerPx = with(density) { cornerRadius.toPx() }
-                    requestBuilder.setCornerRadius(cornerPx)
-                }
-                if (pressedCornerRadius.isSpecified) {
-                    val pressedPx = with(density) { pressedCornerRadius.toPx() }
-                    requestBuilder.setPressedCornerRadius(pressedPx)
-                }
-
-                val request = requestBuilder.build()
-
-                sessionState.initialize(request, configuration)
-
-                provider.openSession(
-                    activity,
-                    hostToken,
-                    displayId,
-                    request,
-                    context.mainExecutor,
-                    client,
-                )
-
-                onDispose {
-                    isDisposed = true
-                    openedSession?.close()
-                    openedSession = null
-                    surfaceViewRef?.clearChildSurfacePackage()
-                }
-            }
+    // A border needs both a width and a color, as for the local button. Otherwise the width is the
+    // platform's default of 0, which also removes a border whose width or color becomes
+    // unspecified.
+    val hasStroke = strokeWidth.isSpecified && strokeColor.isSpecified
+    val strokeWidthPx =
+        if (hasStroke) {
+            with(density) { strokeWidth.roundToPx() }
+        } else {
+            0
         }
 
-        AndroidView(
-            modifier = Modifier.fillMaxSize(),
-            factory = { viewContext ->
-                SurfaceView(viewContext).apply {
-                    holder.setFormat(PixelFormat.TRANSPARENT)
-                    setZOrderOnTop(true)
-                    surfaceViewRef = this
+    Layout(
+        modifier = modifier,
+        content = {
+            val hostToken = surfaceHostToken
+            val displayId = surfaceDisplayId
+            val size = layoutSize
+            // The session's callbacks update the views, so they run on the views' UI thread.
+            val handler = LocalView.current.handler
+            if (
+                hostToken != null &&
+                    displayId != Display.INVALID_DISPLAY &&
+                    size != null &&
+                    handler != null
+            ) {
+                // This effect owns the session: it opens one once the surface is attached and laid
+                // out, and closes it when the surface, its display or the UI thread handler changes
+                // or the button leaves the composition. A session can't go back to the default
+                // corner radius, so a radius that becomes specified or unspecified opens a new one.
+                // The provider is only used to open the session, so it isn't a key.
+                DisposableEffect(
+                    hostToken,
+                    displayId,
+                    handler,
+                    cornerRadius.isSpecified,
+                    pressedCornerRadius.isSpecified,
+                ) {
+                    // Set when this effect is disposed. A session that only opens after that is
+                    // closed right away, since nothing else would close it.
+                    var isDisposed = false
+                    val client =
+                        object : LocationButtonClient {
+                            override fun onPermissionResult(granted: Boolean) {
+                                currentOnPermissionResult(granted)
+                            }
 
-                    // A window that moves to another display is laid out again, with or without a
-                    // configuration change, so each layout reads the display.
-                    val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
-                        // A layout pass still calls a listener that was removed during the pass,
-                        // so this can run right after the surface is detached.
-                        if (!isAttachedToWindow) {
-                            return@OnGlobalLayoutListener
-                        }
-                        surfaceDisplayId =
-                            checkNotNull(display) {
-                                    "LocationButton's surface has no display while attached"
+                            override fun onSessionError(throwable: Throwable) {
+                                if (isDisposed) {
+                                    return
                                 }
-                                .displayId
-                    }
-
-                    addOnAttachStateChangeListener(
-                        object : OnAttachStateChangeListener {
-                            override fun onViewAttachedToWindow(v: View) {
-                                @Suppress("DEPRECATION") val token = (v as SurfaceView).hostToken
-                                surfaceHostToken = token
-                                surfaceDisplayId =
-                                    checkNotNull(v.display) {
-                                            "LocationButton's surface has no display while attached"
-                                        }
-                                        .displayId
-                                v.viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
+                                openedSession?.close()
+                                openedSession = null
+                                currentOnError(throwable)
                             }
 
-                            override fun onViewDetachedFromWindow(v: View) {
-                                v.viewTreeObserver.removeOnGlobalLayoutListener(
-                                    globalLayoutListener
-                                )
-                                surfaceHostToken = null
-                                surfaceDisplayId = Display.INVALID_DISPLAY
+                            override fun onSessionOpened(session: LocationButtonSession) {
+                                if (isDisposed) {
+                                    session.close()
+                                    return
+                                }
+                                openedSession = session
+
+                                surfaceViewRef?.let { view ->
+                                    view.setChildSurfacePackage(session.surfacePackage)
+                                    view.setCompositionOrder(compositionOrder)
+                                    sessionState.compositionOrder = compositionOrder
+                                    view.invalidate()
+                                }
                             }
                         }
-                    )
-                }
-            },
-            update = { view ->
-                openedSession?.let { session ->
-                    val currentLocales = configuration.locales
-                    if (currentLocales != sessionState.locales) {
-                        session.changeConfiguration(configuration)
-                        sessionState.locales = currentLocales
+
+                    val activity =
+                        activity
+                            ?: throw IllegalStateException(
+                                "LocationButton must be hosted within an Activity context"
+                            )
+                    val paddings = with(density) { safePaddings(clickablePadding, layoutDirection) }
+
+                    val requestBuilder =
+                        LocationButtonRequest.Builder(size.width, size.height, configuration)
+                            .setPaddingLeft(paddings.left)
+                            .setPaddingTop(paddings.top)
+                            .setPaddingRight(paddings.right)
+                            .setPaddingBottom(paddings.bottom)
+                            .setBackgroundColor(backgroundColor.toArgb())
+                            .setIconTint(iconTint.toArgb())
+                            .setTextType(textType)
+                            .setTextColor(textColor.toArgb())
+
+                    if (hasStroke) {
+                        requestBuilder.setStrokeWidth(strokeWidthPx)
+                        requestBuilder.setStrokeColor(strokeColor.toArgb())
                     }
 
-                    if (widthPx != sessionState.width || heightPx != sessionState.height) {
-                        session.resize(widthPx, heightPx)
-                        sessionState.width = widthPx
-                        sessionState.height = heightPx
-                    }
-
-                    if (
-                        safePaddings.left != sessionState.paddingLeft ||
-                            safePaddings.top != sessionState.paddingTop ||
-                            safePaddings.right != sessionState.paddingRight ||
-                            safePaddings.bottom != sessionState.paddingBottom
-                    ) {
-                        session.setPadding(
-                            safePaddings.left,
-                            safePaddings.top,
-                            safePaddings.right,
-                            safePaddings.bottom,
-                        )
-                        sessionState.paddingLeft = safePaddings.left
-                        sessionState.paddingTop = safePaddings.top
-                        sessionState.paddingRight = safePaddings.right
-                        sessionState.paddingBottom = safePaddings.bottom
-                    }
-
-                    if (backgroundColor != sessionState.backgroundColor) {
-                        session.setBackgroundColor(backgroundColor.toArgb())
-                        sessionState.backgroundColor = backgroundColor
-                    }
-                    if (strokeColor.isSpecified && strokeColor != sessionState.strokeColor) {
-                        session.setStrokeColor(strokeColor.toArgb())
-                        sessionState.strokeColor = strokeColor
-                    }
-                    if (strokeWidth.isSpecified) {
-                        val strokePx = with(density) { strokeWidth.roundToPx() }
-                        if (strokePx != sessionState.strokeWidth) {
-                            session.setStrokeWidth(strokePx)
-                            sessionState.strokeWidth = strokePx
-                        }
-                    }
                     if (cornerRadius.isSpecified) {
-                        val cornerRadiusPx = with(density) { cornerRadius.toPx() }
-                        if (cornerRadiusPx != sessionState.cornerRadius) {
-                            session.setCornerRadius(cornerRadiusPx)
-                            sessionState.cornerRadius = cornerRadiusPx
-                        }
+                        val cornerPx = with(density) { cornerRadius.toPx() }
+                        requestBuilder.setCornerRadius(cornerPx)
                     }
                     if (pressedCornerRadius.isSpecified) {
-                        val pressedCornerRadiusPx = with(density) { pressedCornerRadius.toPx() }
-                        if (pressedCornerRadiusPx != sessionState.pressedCornerRadius) {
-                            session.setPressedCornerRadius(pressedCornerRadiusPx)
-                            sessionState.pressedCornerRadius = pressedCornerRadiusPx
-                        }
+                        val pressedPx = with(density) { pressedCornerRadius.toPx() }
+                        requestBuilder.setPressedCornerRadius(pressedPx)
                     }
-                    if (iconTint != sessionState.iconTint) {
-                        session.setIconTint(iconTint.toArgb())
-                        sessionState.iconTint = iconTint
-                    }
-                    if (textType != sessionState.textType) {
-                        session.setTextType(textType)
-                        sessionState.textType = textType
-                    }
-                    if (textColor != sessionState.textColor) {
-                        session.setTextColor(textColor.toArgb())
-                        sessionState.textColor = textColor
-                    }
-                    if (compositionOrder != sessionState.compositionOrder) {
-                        view.setCompositionOrder(compositionOrder)
-                        sessionState.compositionOrder = compositionOrder
+
+                    val request = requestBuilder.build()
+
+                    sessionState.initialize(request, configuration)
+
+                    provider.openSession(
+                        activity,
+                        hostToken,
+                        displayId,
+                        request,
+                        handler::post,
+                        client,
+                    )
+
+                    onDispose {
+                        isDisposed = true
+                        openedSession?.close()
+                        openedSession = null
+                        surfaceViewRef?.clearChildSurfacePackage()
                     }
                 }
-            },
-        )
+            }
+
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { viewContext ->
+                    SurfaceView(viewContext).apply {
+                        holder.setFormat(PixelFormat.TRANSPARENT)
+                        setZOrderOnTop(true)
+                        surfaceViewRef = this
+
+                        // A window that moves to another display is laid out again, with or
+                        // without a configuration change, so each layout reads the display.
+                        val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
+                            // A layout pass still calls a listener that was removed during the
+                            // pass, so this can run right after the surface is detached.
+                            if (!isAttachedToWindow) {
+                                return@OnGlobalLayoutListener
+                            }
+                            surfaceDisplayId =
+                                checkNotNull(display) {
+                                        "LocationButton's surface has no display while attached"
+                                    }
+                                    .displayId
+                        }
+
+                        addOnAttachStateChangeListener(
+                            object : OnAttachStateChangeListener {
+                                override fun onViewAttachedToWindow(v: View) {
+                                    @Suppress("DEPRECATION")
+                                    val token = (v as SurfaceView).hostToken
+                                    surfaceHostToken = token
+                                    surfaceDisplayId =
+                                        checkNotNull(v.display) {
+                                                "LocationButton's surface has no display while attached"
+                                            }
+                                            .displayId
+                                    v.viewTreeObserver.addOnGlobalLayoutListener(
+                                        globalLayoutListener
+                                    )
+                                }
+
+                                override fun onViewDetachedFromWindow(v: View) {
+                                    v.viewTreeObserver.removeOnGlobalLayoutListener(
+                                        globalLayoutListener
+                                    )
+                                    surfaceHostToken = null
+                                    surfaceDisplayId = Display.INVALID_DISPLAY
+                                }
+                            }
+                        )
+                    }
+                },
+                update = { view ->
+                    // Each set method only calls the session when the value changed. This block
+                    // reads openedSession and layoutSize, so it also runs again when the session
+                    // opens or layout records a new size.
+                    openedSession?.let { session ->
+                        sessionState.setConfiguration(session, configuration)
+                        layoutSize?.let { size -> sessionState.setSize(session, size) }
+                        sessionState.setPadding(
+                            session,
+                            with(density) { safePaddings(clickablePadding, layoutDirection) },
+                        )
+                        sessionState.setBackgroundColor(session, backgroundColor)
+                        sessionState.setStrokeWidth(session, strokeWidthPx)
+                        if (hasStroke) {
+                            sessionState.setStrokeColor(session, strokeColor)
+                        }
+                        if (cornerRadius.isSpecified) {
+                            sessionState.setCornerRadius(
+                                session,
+                                with(density) { cornerRadius.toPx() },
+                            )
+                        }
+                        if (pressedCornerRadius.isSpecified) {
+                            sessionState.setPressedCornerRadius(
+                                session,
+                                with(density) { pressedCornerRadius.toPx() },
+                            )
+                        }
+                        sessionState.setIconTint(session, iconTint)
+                        sessionState.setTextType(session, textType)
+                        sessionState.setTextColor(session, textColor)
+                        sessionState.setCompositionOrder(view, compositionOrder)
+                    }
+                },
+            )
+        },
+    ) { measurables, constraints ->
+        // The measure policy only decides the size. Sending it to the system is a side effect,
+        // so the update block does it once placement has recorded the result.
+        val widthPx =
+            if (constraints.hasBoundedWidth) {
+                constraints.maxWidth
+            } else {
+                constraints.constrainWidth(ButtonDefaults.MinWidth.roundToPx())
+            }
+        val heightPx =
+            if (constraints.hasBoundedHeight) {
+                constraints.maxHeight
+            } else {
+                constraints.constrainHeight(ButtonDefaults.MinHeight.roundToPx())
+            }
+
+        val placeable = measurables.first().measure(Constraints.fixed(widthPx, heightPx))
+        layout(widthPx, heightPx) {
+            // Placement doesn't run for intrinsic measurements, so only a real layout pass records
+            // the size the session uses.
+            layoutSize = IntSize(widthPx, heightPx)
+            placeable.place(0, 0)
+        }
     }
 }
 
@@ -424,6 +405,128 @@ private class SessionState(
         this.textColor = Color(request.textColor)
         this.locales = config.locales
     }
+
+    // Each set method below only calls the session when the value differs from the last one it
+    // got, and then records the new value.
+
+    fun setConfiguration(session: LocationButtonSession, configuration: Configuration) {
+        if (configuration.locales != locales) {
+            session.changeConfiguration(configuration)
+            locales = configuration.locales
+        }
+    }
+
+    fun setSize(session: LocationButtonSession, size: IntSize) {
+        if (size.width != width || size.height != height) {
+            session.resize(size.width, size.height)
+            width = size.width
+            height = size.height
+        }
+    }
+
+    fun setPadding(session: LocationButtonSession, paddings: SafePaddings) {
+        if (
+            paddings.left != paddingLeft ||
+                paddings.top != paddingTop ||
+                paddings.right != paddingRight ||
+                paddings.bottom != paddingBottom
+        ) {
+            session.setPadding(paddings.left, paddings.top, paddings.right, paddings.bottom)
+            paddingLeft = paddings.left
+            paddingTop = paddings.top
+            paddingRight = paddings.right
+            paddingBottom = paddings.bottom
+        }
+    }
+
+    fun setBackgroundColor(session: LocationButtonSession, color: Color) {
+        if (color != backgroundColor) {
+            session.setBackgroundColor(color.toArgb())
+            backgroundColor = color
+        }
+    }
+
+    fun setStrokeColor(session: LocationButtonSession, color: Color) {
+        if (color != strokeColor) {
+            session.setStrokeColor(color.toArgb())
+            strokeColor = color
+        }
+    }
+
+    fun setStrokeWidth(session: LocationButtonSession, widthPx: Int) {
+        if (widthPx != strokeWidth) {
+            session.setStrokeWidth(widthPx)
+            strokeWidth = widthPx
+        }
+    }
+
+    fun setCornerRadius(session: LocationButtonSession, radiusPx: Float) {
+        if (radiusPx != cornerRadius) {
+            session.setCornerRadius(radiusPx)
+            cornerRadius = radiusPx
+        }
+    }
+
+    fun setPressedCornerRadius(session: LocationButtonSession, radiusPx: Float) {
+        if (radiusPx != pressedCornerRadius) {
+            session.setPressedCornerRadius(radiusPx)
+            pressedCornerRadius = radiusPx
+        }
+    }
+
+    fun setIconTint(session: LocationButtonSession, color: Color) {
+        if (color != iconTint) {
+            session.setIconTint(color.toArgb())
+            iconTint = color
+        }
+    }
+
+    fun setTextType(session: LocationButtonSession, textType: Int) {
+        if (textType != this.textType) {
+            session.setTextType(textType)
+            this.textType = textType
+        }
+    }
+
+    fun setTextColor(session: LocationButtonSession, color: Color) {
+        if (color != textColor) {
+            session.setTextColor(color.toArgb())
+            textColor = color
+        }
+    }
+
+    fun setCompositionOrder(view: SurfaceView, compositionOrder: Int) {
+        if (compositionOrder != this.compositionOrder) {
+            view.setCompositionOrder(compositionOrder)
+            this.compositionOrder = compositionOrder
+        }
+    }
+}
+
+/**
+ * Resolves [padding] to the padding in pixels the system accepts, between [MinPadding] and
+ * [MaxPadding] on each side.
+ */
+private fun Density.safePaddings(
+    padding: PaddingValues,
+    layoutDirection: LayoutDirection,
+): SafePaddings {
+    val minPaddingPx = MinPadding.roundToPx()
+    val maxPaddingPx = MaxPadding.roundToPx()
+    return SafePaddings(
+        left =
+            padding
+                .calculateStartPadding(layoutDirection)
+                .roundToPx()
+                .coerceIn(minPaddingPx, maxPaddingPx),
+        right =
+            padding
+                .calculateEndPadding(layoutDirection)
+                .roundToPx()
+                .coerceIn(minPaddingPx, maxPaddingPx),
+        top = padding.calculateTopPadding().roundToPx().coerceIn(minPaddingPx, maxPaddingPx),
+        bottom = padding.calculateBottomPadding().roundToPx().coerceIn(minPaddingPx, maxPaddingPx),
+    )
 }
 
 private data class SafePaddings(val left: Int, val top: Int, val right: Int, val bottom: Int)
