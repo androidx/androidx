@@ -298,7 +298,7 @@ internal fun ThreePaneScaffoldValue.isInteractable(role: ThreePaneScaffoldRole):
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private fun ThreePaneScaffoldValue.hasLevitatedPaneWithScrim(): Boolean {
-    forEach { role, value ->
+    forEach { _, value ->
         if ((value as? PaneAdaptedValue.Levitated)?.scrim != null) {
             return@hasLevitatedPaneWithScrim true
         }

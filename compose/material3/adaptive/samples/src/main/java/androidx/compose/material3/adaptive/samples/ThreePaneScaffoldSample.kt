@@ -496,8 +496,7 @@ fun <T> levitateAsDialogSample(): ThreePaneScaffoldNavigator<T> {
 fun <T> levitateAsBottomSheetSample(): ThreePaneScaffoldNavigator<T> {
     val scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfoV2())
     val dragToResizeState = rememberDragToResizeState(dockedEdge = DockedEdge.Bottom)
-    var navigator: ThreePaneScaffoldNavigator<T>? = null
-    navigator =
+    val navigator: ThreePaneScaffoldNavigator<T> =
         rememberSupportingPaneScaffoldNavigator<T>(
             scaffoldDirective = scaffoldDirective,
             adaptStrategies =

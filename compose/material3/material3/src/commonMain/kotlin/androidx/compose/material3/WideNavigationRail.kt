@@ -83,7 +83,6 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.paneTitle
@@ -288,7 +287,6 @@ private fun WideNavigationRailLayout(
             targetValue = if (!expanded) TopIconItemMinHeight else minimumA11ySize,
             animationSpec = animationSpec,
         )
-    val density = LocalDensity.current
 
     Surface(
         color = if (!isModal) colors.containerColor else colors.modalContainerColor,
@@ -1260,7 +1258,7 @@ private fun ModalWideNavigationRailContent(
         remember(anchoredDraggableFlingBehavior) {
             object : FlingBehavior {
                 override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-                    var remainingVelocity = 0f
+                    val remainingVelocity: Float
                     try {
                         remainingVelocity =
                             with(anchoredDraggableFlingBehavior) { performFling(initialVelocity) }

@@ -355,7 +355,6 @@ public fun TooltipScope.PlainTooltip(
     val tooltipModifier: Modifier
     if (caretShape != null) {
         val transformationMatrix = remember { mutableStateOf(Matrix()) }
-        val density = LocalDensity.current
         val layoutDirection = LocalLayoutDirection.current
         val windowContainerSize = LocalWindowInfo.current.containerSize
         tooltipModifier =
@@ -440,7 +439,6 @@ public fun TooltipScope.RichTooltip(
     val tooltipModifier: Modifier
     if (caretShape != null) {
         val transformationMatrix = remember { mutableStateOf(Matrix()) }
-        val density = LocalDensity.current
         val layoutDirection = LocalLayoutDirection.current
         val windowContainerSize = LocalWindowInfo.current.containerSize
         tooltipModifier =

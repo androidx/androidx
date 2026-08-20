@@ -111,8 +111,6 @@ class AppBarRowTest {
     @Test
     fun appbarRow_overflowMenu_opensAndCloses() {
         rule.setContent {
-            var menuState by remember { mutableStateOf(false) }
-
             AppBarRow(
                 overflowIndicator = {
                     IconButton(
