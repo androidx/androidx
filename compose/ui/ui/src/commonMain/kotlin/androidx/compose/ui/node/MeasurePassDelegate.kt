@@ -185,9 +185,7 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
                 // This is an edge case that might only happen during recursive alignment
                 // calculations, so we allocate the list here to preserve correctness instead of
                 // reserving a field for this.
-                childrenPlacingForAlignment =
-                    childrenPlacingForAlignment
-                        ?: MutableObjectList<LayoutNode>().also { childrenPlacingForAlignment = it }
+                childrenPlacingForAlignment = childrenPlacingForAlignment ?: MutableObjectList()
                 childrenPlacingForAlignment.add(it)
             }
             it.outerCoordinator.isPlacingForAlignment = innerCoordinator.isPlacingForAlignment

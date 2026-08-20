@@ -672,7 +672,7 @@ class TrackpadEventsTest : InputDispatcherTest() {
 
         // enter + hover
         var t = 0L
-        var buttonState = 0
+        val buttonState = 0
         events.removeFirst(2).let { (enterEvent, hoverEvent) ->
             enterEvent.verifyTrackpadEvent(ACTION_HOVER_ENTER, t, position1, buttonState)
             hoverEvent.verifyTrackpadEvent(ACTION_HOVER_MOVE, t, position1, buttonState)

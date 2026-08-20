@@ -75,8 +75,8 @@ internal class FrameworkVelocityTracker : PlatformVelocityTracker {
                 val position = event.originalEventPosition + offset
                 motionEvent.addBatch(
                     event.uptimeMillis,
-                    event.originalEventPosition.x + offset.x,
-                    event.originalEventPosition.y + offset.y,
+                    position.x,
+                    position.y,
                     0f, /* pressure */
                     0f, /* size */
                     0, /* metaState */
