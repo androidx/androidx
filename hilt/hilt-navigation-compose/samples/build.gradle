@@ -46,6 +46,6 @@ androidx {
 }
 
 android {
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
     namespace = "androidx.hilt.navigation.compose.samples"
 }

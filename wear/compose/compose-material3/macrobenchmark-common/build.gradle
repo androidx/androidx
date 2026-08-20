@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "androidx.wear.compose.material3.macrobenchmark.common"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
 
     defaultConfig {
         minSdk { version = release(25) }

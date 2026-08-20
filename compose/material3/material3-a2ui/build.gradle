@@ -60,7 +60,7 @@ dependencies {
 
 android {
     namespace = "androidx.compose.material3.a2ui"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
     defaultConfig {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
