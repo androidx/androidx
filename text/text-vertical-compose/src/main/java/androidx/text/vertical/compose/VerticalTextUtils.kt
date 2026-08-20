@@ -78,6 +78,8 @@ public class VerticalTextScope internal constructor(internal val density: Densit
      * Appends [text] and wraps it in a [TextOrientationSpan.CombineUpright] span: all of the
      * appended characters are combined horizontally and laid out within a single vertical slot
      * (tate-chu-yoko).
+     *
+     * Typically used for short strings (e.g., 2 to 4 characters) such as numbers or acronyms.
      */
     public fun combineUpright(text: CharSequence) {
         withSpan(TextOrientationSpan.CombineUpright()) { this.text(text) }
