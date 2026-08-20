@@ -1100,7 +1100,7 @@ class DeferredAnimatedVisibilityTest {
     fun visibility_previewOffset_handoffVelocity() {
         lateinit var state: DeferredTransitionState<Boolean>
         var previewVelocity by mutableStateOf(Offset.Zero)
-        var previewOffset = 100
+        val previewOffset = 100
 
         var measuredX = 0
 
