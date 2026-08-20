@@ -380,8 +380,8 @@ internal fun Modifier.legacyHeightInLines(
                 )
             }
 
-        var precomputedMinLinesHeight: Int? = null
-        var precomputedMaxLinesHeight: Int? = null
+        val precomputedMinLinesHeight: Int?
+        val precomputedMaxLinesHeight: Int?
 
         if (isBasicTextFieldHeightInLinesOptimizationEnabled) {
             val threeLinesParagraph =

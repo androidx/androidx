@@ -742,7 +742,7 @@ internal constructor(
             FlowLayoutOverflow.OverflowType.ExpandOrCollapseIndicator -> {
                 var measurable: Measurable? = null
                 var placeable: Placeable? = null
-                var ellipsisSize: IntIntPair?
+                val ellipsisSize: IntIntPair?
                 if (hasNext) {
                     measurable =
                         getOverflowMeasurable?.invoke(/* isExpandable */ true, shownItemCount)

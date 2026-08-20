@@ -442,7 +442,7 @@ class LazyScrollTest(private val orientation: Orientation) {
     fun overScrollingBackShouldIgnoreBeforeContentPadding() =
         testScroll(beforeContentPaddingPx = 5) {
             val floatItemSize = itemSizePx.toFloat()
-            var consumed: Float
+            val consumed: Float
             withContext(Dispatchers.Main) {
                 // scroll to next item
                 state.scrollBy(floatItemSize)

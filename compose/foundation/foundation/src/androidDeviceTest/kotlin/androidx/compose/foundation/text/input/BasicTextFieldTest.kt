@@ -1578,7 +1578,7 @@ internal class BasicTextFieldTest {
     fun whenWindowFocusGained_unfocusedTextFieldStateIsNotRecomposed() {
         val state = TextFieldState("Hello")
         var isWindowFocused by mutableStateOf(false)
-        var windowInfo =
+        val windowInfo =
             object : WindowInfo {
                 override val isWindowFocused: Boolean
                     get() = isWindowFocused
