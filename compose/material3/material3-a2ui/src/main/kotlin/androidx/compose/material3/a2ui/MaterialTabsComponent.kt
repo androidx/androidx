@@ -143,7 +143,7 @@ public object MaterialTabsComponent : A2uiComponent {
                         is A2uiComponentState.Success -> Pair(childId, state.component.type)
                     }
                 },
-                transitionSpec = MaterialA2uiDefaults.transitionSpec,
+                transitionSpec = MaterialA2uiDefaults.transitionSpec(),
                 label = "TabContentTransition",
                 modifier = TabContainerModifier,
             ) { state ->

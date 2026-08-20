@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.a2ui
 
-import androidx.a2ui.compose.runtime.A2uiComponentState
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
@@ -103,8 +102,4 @@ internal object MaterialA2uiDefaults {
             }
         }
     }
-
-    /** Transition animation between loading, success, and error states for A2UI components. */
-    val transitionSpec: AnimatedContentTransitionScope<A2uiComponentState>.() -> ContentTransform
-        @Composable get() = transitionSpec()
 }
