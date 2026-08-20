@@ -27,7 +27,7 @@ class WebkitIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
     override val api = 16
     override val issues: List<Issue>
-        get() = listOf(RenderProcessGoneDetector.ISSUE)
+        get() = listOf(RenderProcessGoneDetector.ISSUE, CrossOriginIsolatedAllowlistDetector.ISSUE)
 
     override val vendor =
         Vendor(
