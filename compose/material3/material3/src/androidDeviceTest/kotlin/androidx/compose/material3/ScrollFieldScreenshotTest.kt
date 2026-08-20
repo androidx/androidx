@@ -54,6 +54,18 @@ class ScrollFieldScreenshotTest() {
         assertScrollFieldAgainstGolden("scrollField_darkTheme")
     }
 
+    @Test
+    fun scrollField_lightTheme_disabled() {
+        rule.setMaterialContent(lightColorScheme()) { TestContent(enabled = false) }
+        assertScrollFieldAgainstGolden("scrollField_lightTheme_disabled")
+    }
+
+    @Test
+    fun scrollField_darkTheme_disabled() {
+        rule.setMaterialContent(darkColorScheme()) { TestContent(enabled = false) }
+        assertScrollFieldAgainstGolden("scrollField_darkTheme_disabled")
+    }
+
     private fun assertScrollFieldAgainstGolden(goldenIdentifier: String) {
         rule
             .onNodeWithTag(ScrollFieldTestTag)
@@ -64,7 +76,7 @@ class ScrollFieldScreenshotTest() {
     private val ScrollFieldTestTag = "scrollField"
 
     @Composable
-    private fun TestContent() {
+    private fun TestContent(enabled: Boolean = true) {
         val itemCount = 100
         // The hoisted state ensures the Pager starts exactly at our 'index'
         // for a deterministic screenshot.
@@ -72,6 +84,7 @@ class ScrollFieldScreenshotTest() {
 
         ScrollField(
             state = state,
+            enabled = enabled,
             contentDescription = null,
             // Since this is a static screenshot, a no-op is appropriate.
             modifier = Modifier.size(width = 100.dp, height = 120.dp).testTag(ScrollFieldTestTag),
