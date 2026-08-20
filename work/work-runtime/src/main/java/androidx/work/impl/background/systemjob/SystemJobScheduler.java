@@ -39,29 +39,36 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Consumer;
 import androidx.work.Configuration;
 import androidx.work.Logger;
+import androidx.work.RunnableScheduler;
 import androidx.work.WorkInfo;
+import androidx.work.impl.ForegroundListener;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.CoroutineRunnableScheduler;
 import androidx.work.impl.utils.IdGenerator;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A class that schedules work using {@link android.app.job.JobScheduler}.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class SystemJobScheduler implements Scheduler {
+public class SystemJobScheduler implements Scheduler, ForegroundListener {
 
     private static final String TAG = Logger.tagWithPrefix("SystemJobScheduler");
 
@@ -72,14 +79,32 @@ public class SystemJobScheduler implements Scheduler {
     private final WorkDatabase mWorkDatabase;
     private final Configuration mConfiguration;
 
+    /**
+     * The interval at which we periodically re-delay the backing JobScheduler job for work running
+     * in a Foreground Service.
+     */
+    @VisibleForTesting
+    static final long FGS_RESCHEDULE_INTERVAL_MILLIS = TimeUnit.HOURS.toMillis(1);
+
+    /**
+     * The artificial delay added to a JobScheduler job while its work is running in a Foreground
+     * Service to prevent JobScheduler from triggering execution during the FGS lifecycle.
+     */
+    @VisibleForTesting
+    static final long FGS_JOB_DELAY_MILLIS = TimeUnit.HOURS.toMillis(2);
+
+    private final RunnableScheduler mRunnableScheduler;
+    private final Map<WorkGenerationalId, Runnable> mDelayRunnables = new HashMap<>();
+
     public SystemJobScheduler(@NonNull Context context, @NonNull WorkDatabase workDatabase,
-            @NonNull Configuration configuration) {
+            @NonNull Configuration configuration, @NonNull TaskExecutor taskExecutor) {
         this(context,
                 workDatabase,
                 configuration,
                 getWmJobScheduler(context),
                 new SystemJobInfoConverter(context, configuration.getClock(),
-                        configuration.isMarkingJobsAsImportantWhileForeground())
+                        configuration.isMarkingJobsAsImportantWhileForeground()),
+                new CoroutineRunnableScheduler(taskExecutor)
         );
     }
 
@@ -89,12 +114,14 @@ public class SystemJobScheduler implements Scheduler {
             @NonNull WorkDatabase workDatabase,
             @NonNull Configuration configuration,
             @NonNull JobScheduler jobScheduler,
-            @NonNull SystemJobInfoConverter systemJobInfoConverter) {
+            @NonNull SystemJobInfoConverter systemJobInfoConverter,
+            @NonNull RunnableScheduler runnableScheduler) {
         mContext = context;
         mJobScheduler = jobScheduler;
         mSystemJobInfoConverter = systemJobInfoConverter;
         mWorkDatabase = workDatabase;
         mConfiguration = configuration;
+        mRunnableScheduler = runnableScheduler;
     }
 
     @Override
@@ -188,6 +215,10 @@ public class SystemJobScheduler implements Scheduler {
     @VisibleForTesting
     public void scheduleInternal(@NonNull WorkSpec workSpec, int jobId) {
         JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec, jobId);
+        scheduleInternal(workSpec, jobId, jobInfo);
+    }
+
+    private void scheduleInternal(@NonNull WorkSpec workSpec, int jobId, @NonNull JobInfo jobInfo) {
         Logger.get().debug(
                 TAG,
                 "Scheduling work ID " + workSpec.id + " (" + workSpec.workerClassName
@@ -419,5 +450,83 @@ public class SystemJobScheduler implements Scheduler {
             // null.
         }
         return null;
+    }
+
+    @Override
+    public void onForegroundChanged(@NonNull WorkGenerationalId id, boolean isForeground) {
+        if (isForeground) {
+            startDelayingJob(id);
+        } else {
+            // We don't need to manually reschedule the job here upon demotion or completion.
+            // When the work finishes or is cancelled, WorkManager's Schedulers execution
+            // listener will explicitly cancel or reschedule the JobScheduler job accordingly.
+            stopDelayingJob(id);
+        }
+    }
+
+    /**
+     * Starts a periodic loop that delays the JobScheduler job for this work. While a worker is
+     * running as a Foreground Service, we don't want its backing JobScheduler job to trigger. We
+     * periodically reschedule the job into the future to keep it "delayed" until the FGS lifecycle
+     * ends.
+     */
+    private void startDelayingJob(@NonNull WorkGenerationalId id) {
+        if (mDelayRunnables.containsKey(id)) {
+            return;
+        }
+        Runnable runnable =
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!mDelayRunnables.containsKey(id)) {
+                            return;
+                        }
+                        if (delayWork(id.getWorkSpecId())) {
+                            mRunnableScheduler.scheduleWithDelay(
+                                    FGS_RESCHEDULE_INTERVAL_MILLIS, this);
+                        } else {
+                            mDelayRunnables.remove(id);
+                        }
+                    }
+                };
+        mDelayRunnables.put(id, runnable);
+        runnable.run();
+    }
+
+    private void stopDelayingJob(@NonNull WorkGenerationalId id) {
+        Runnable runnable = mDelayRunnables.remove(id);
+        if (runnable != null) {
+            mRunnableScheduler.cancel(runnable);
+        }
+    }
+
+    /**
+     * Delay the scheduled job for this work.
+     *
+     * @param workSpecId work to delay
+     * @return true if the job exists
+     */
+    private boolean delayWork(@NonNull String workSpecId) {
+        Logger.get()
+                .debug(TAG, "Delaying workSpec " + workSpecId + " because its running as an FGS");
+        WorkSpec workSpec = mWorkDatabase.workSpecDao().getWorkSpec(workSpecId);
+        if (workSpec == null || workSpec.state != WorkInfo.State.RUNNING) {
+            return false;
+        }
+        WorkGenerationalId generationalId = generationalId(workSpec);
+        SystemIdInfo info = mWorkDatabase.systemIdInfoDao().getSystemIdInfo(generationalId);
+        if (info == null) {
+            return false;
+        }
+        int jobId = info.systemId;
+        // Safe to override calculateNextRuntime offset because the work is already running.
+        JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec, jobId, FGS_JOB_DELAY_MILLIS);
+        try {
+            scheduleInternal(workSpec, jobId, jobInfo);
+            return true;
+        } catch (Exception e) {
+            Logger.get().error(TAG, "Unable to delay work " + workSpecId, e);
+            return true;
+        }
     }
 }
