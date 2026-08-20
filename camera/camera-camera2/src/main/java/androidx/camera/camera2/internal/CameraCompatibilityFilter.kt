@@ -17,11 +17,12 @@ package androidx.camera.camera2.internal
 
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CameraMetadata as Camera2Metadata
 import android.os.Build
 import androidx.camera.camera2.impl.Camera2Logger
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.InitializationException
 
 /**
@@ -34,30 +35,25 @@ public object CameraCompatibilityFilter {
     public fun getBackwardCompatibleCameraIds(
         cameraDevices: CameraDevices,
         availableCameraIds: List<String>,
-    ): List<String> {
-        val backwardCompatibleCameraIds = mutableListOf<String>()
-        for (cameraId in availableCameraIds) {
+    ): List<String> =
+        availableCameraIds.filter { cameraId ->
             // Heuristic: Always include camera IDs "0" and "1" to align with camera-camera2
             // behavior, assuming they are the default back and front cameras.
             if (cameraId == "0" || cameraId == "1") {
-                backwardCompatibleCameraIds.add(cameraId)
-                continue
-            }
-
-            if (isBackwardCompatible(cameraId, cameraDevices)) {
-                backwardCompatibleCameraIds.add(cameraId)
+                true
+            } else if (isBackwardCompatible(cameraId, cameraDevices)) {
+                true
             } else {
                 Camera2Logger.debug {
                     "Camera $cameraId is filtered out because its capabilities " +
                         "do not contain REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE."
                 }
+                false
             }
         }
-        return backwardCompatibleCameraIds
-    }
 
     @JvmStatic
-    public fun isBackwardCompatible(cameraId: String, cameraDevices: CameraDevices): Boolean {
+    public fun isBackwardCompatible(cameraMetadata: CameraMetadata): Boolean {
         // Always returns true to not break robolectric tests because the cameras setup in
         // robolectric don't have REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE capability
         // by default.
@@ -67,20 +63,34 @@ public object CameraCompatibilityFilter {
             }
             return true
         }
-        try {
-            val cameraMetadata = checkNotNull(cameraDevices.awaitCameraMetadata(CameraId(cameraId)))
-            val availableCapabilities =
-                cameraMetadata[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]
-            if (availableCapabilities != null) {
-                return availableCapabilities.contains(
-                    CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE
-                )
+        val availableCapabilities =
+            cameraMetadata[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]
+        return availableCapabilities?.contains(
+            Camera2Metadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE
+        ) == true
+    }
+
+    @JvmStatic
+    public fun isBackwardCompatible(cameraId: String, cameraDevices: CameraDevices): Boolean {
+        if (Build.FINGERPRINT == "robolectric") {
+            Camera2Logger.debug {
+                "isBackwardCompatible method returns true because robolectric build detected."
             }
+            return true
+        }
+        try {
+            val cameraMetadata =
+                cameraDevices.awaitCameraMetadata(CameraId(cameraId))
+                    ?: throw InitializationException(
+                        CameraAccessException(
+                            CameraAccessException.CAMERA_ERROR,
+                            "Failed to get camera metadata for cameraID: $cameraId",
+                        )
+                    )
+            return isBackwardCompatible(cameraMetadata)
         } catch (e: CameraAccessException) {
             Camera2Logger.error(e) { "Error while accessing metadata for cameraID: $cameraId" }
             throw InitializationException(e)
         }
-
-        return false
     }
 }

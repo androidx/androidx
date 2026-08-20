@@ -353,16 +353,12 @@ class Camera2CameraControlDeviceTest {
     @SdkSuppress(minSdkVersion = 28)
     @Test
     fun canSetPhysicalCameraId() = runBlocking {
-        val physicalCameraIds =
-            CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)!!
-                .physicalCameraIds
-                .toList()
+        Assume.assumeTrue(camera.cameraInfo.isLogicalMultiCameraSupported)
+        val physicalCameraInfos = camera.cameraInfo.physicalCameraInfos
+        // Skip the test if the camera has no available physical cameras.
+        Assume.assumeTrue(physicalCameraInfos.isNotEmpty())
 
-        // Skip the test if the camera is not a logical camera.
-        Assume.assumeTrue(physicalCameraIds.isNotEmpty())
-
-        // Arrange.
-        val physicalCameraId = physicalCameraIds[0]
+        val physicalCameraId = Camera2Interop.getCameraId(physicalCameraInfos.first())
         val useCase =
             ImageAnalysis.Builder()
                 .also { imageAnalysisBuilder ->
