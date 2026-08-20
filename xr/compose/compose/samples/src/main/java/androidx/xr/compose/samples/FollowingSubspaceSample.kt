@@ -82,7 +82,7 @@ public fun FollowingSubspaceSample() {
             }
         }
 
-        var anchor =
+        val anchor =
             remember(session) {
                 when (val anchorResult = Anchor.create(session, Pose.Identity)) {
                     is AnchorCreateSuccess -> AnchorSpace.create(session, anchorResult.anchor)

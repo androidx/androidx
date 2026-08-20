@@ -184,10 +184,9 @@ class PlatformReferenceScenePoseTest(
         val direction = Vector3(0.0f, 1.0f, 0.0f)
         val filter = ScenePose.HitTestFilter.SELF_SCENE
 
-        val deferredHitTestResult =
-            async(start = CoroutineStart.UNDISPATCHED) {
-                testScenePose.hitTest(origin, direction, filter)
-            }
+        async(start = CoroutineStart.UNDISPATCHED) {
+            testScenePose.hitTest(origin, direction, filter)
+        }
         executor.runAll()
 
         verify(testActivitySpace)

@@ -140,7 +140,7 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
                 check(entity == surfaceEntity) {
                     "Listener should only be attached to surfaceEntity."
                 }
-                var curParentPose = movieParent!!.getPose()
+                val curParentPose = movieParent!!.getPose()
                 // Apply the currentPose to the movieParent to move the surfaceEntity.
                 movieParent?.setPose(curParentPose.compose(currentPose))
             }
@@ -407,6 +407,7 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
                 // video canvases which appear behind it.
                 if (movableComponentMP == null) {
                     movableComponentMP = MovableComponent.createSystemMovable(session)
+                    @Suppress("UNUSED_VARIABLE")
                     val unused = session.scene.mainPanelEntity.addComponent(movableComponentMP!!)
                 }
 
@@ -717,6 +718,7 @@ class SurfaceEntityCustomMeshActivity : ComponentActivity() {
                     movableComponent!!.size = FloatSize3d(1.0f, 1.0f, 1.0f)
 
                     if (shape is SurfaceEntity.Shape.Quad) {
+                        @Suppress("UNUSED_VARIABLE")
                         val unused = surfaceEntity!!.addComponent(movableComponent!!)
                     }
                 }

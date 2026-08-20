@@ -621,7 +621,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
                         stickToHead = false,
                         shapeOffset = Pose(Vector3(0.0f, 0.0f, -1.0f), Quaternion.Identity),
                         canvasShape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
-                        inputHandlerProvider = { parent, player -> ClickVideoInputHandler(player) },
+                        inputHandlerProvider = { _, player -> ClickVideoInputHandler(player) },
                     ),
                 VideoEnums.GALAXY_360_MVHEVC_BUTTON.ordinal to
                     VideoAttributes(

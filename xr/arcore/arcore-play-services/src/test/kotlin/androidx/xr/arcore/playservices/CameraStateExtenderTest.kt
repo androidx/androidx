@@ -61,7 +61,7 @@ class CameraStateExtenderTest {
     fun setUp() {
         val activity = Activity()
         timeSource = TestTimeSource()
-        var arCoreTimeSource = ArCoreTimeSource()
+        val arCoreTimeSource = ArCoreTimeSource()
         perceptionManager = ArCorePerceptionManager(ArCoreTimeSource())
         runtime = ArCoreRuntime(activity, perceptionManager, arCoreTimeSource)
         frame = mock<Frame>()

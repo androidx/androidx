@@ -143,7 +143,7 @@ internal class CameraStateExtender : StateExtender {
                 /* near= */ 0.1f,
                 /* far= */ 100.0f,
             )
-            var viewMatrixData = FloatArray(16)
+            val viewMatrixData = FloatArray(16)
             camera.getViewMatrix(viewMatrixData, 0)
             return CameraState(
                 coreState.timeMark,

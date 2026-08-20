@@ -165,7 +165,7 @@ internal class MovableComponentImpl(
             Ray(inputOriginInParentSpace, inputDirectionInParentSpace)
         val currentEntityPoseInParentSpace: Pose = targetEntity.getPose()
         val currentEntityScaleInParentSpace: Vector3 = targetEntity.getScale()
-        var moveState = -1
+        val moveState: Int
 
         when (inputEvent.action) {
             InputEvent.Action.DOWN -> {

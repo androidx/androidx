@@ -161,7 +161,7 @@ class HelloArPlaneActivity : ComponentActivity() {
                     )
                     Text(
                         modifier = Modifier.padding(start = 10.dp).weight(3f),
-                        text = "${arDeviceState.trackingState.asString()}",
+                        text = arDeviceState.trackingState.asString(),
                         fontSize = 20.sp,
                     )
                 }

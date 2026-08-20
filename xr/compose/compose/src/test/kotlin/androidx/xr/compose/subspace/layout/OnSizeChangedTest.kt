@@ -137,8 +137,6 @@ class OnSizeChangedModifierTest {
         var callbackInvocationCount = 0
 
         composeTestRule.setContent {
-            val stateRead = unrelatedState
-
             val callback: (IntVolumeSize) -> Unit = remember { { callbackInvocationCount++ } }
 
             Subspace {

@@ -169,7 +169,6 @@ internal class EngagementModeClient(context: Context, private val mHandler: Hand
             }
 
             override fun onServiceDisconnected(className: ComponentName?) {
-                var callbacksToNotify: MutableMap<Consumer<Int>, Executor>? = null
                 synchronized(mLock) {
                     mService = null
                     mIsBound = false

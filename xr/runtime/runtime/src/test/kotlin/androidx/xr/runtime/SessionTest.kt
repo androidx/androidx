@@ -569,13 +569,12 @@ class SessionTest {
         val activityController2 = Robolectric.buildActivity(ComponentActivity::class.java)
         val secondActivity = activityController2.get()
 
-        val underTest = createSession()
-        val secondSession =
-            (runBlocking {
-                    Session.create(context = secondActivity!!, coroutineContext = testDispatcher)
-                }
-                    as SessionCreateSuccess)
-                .session
+        createSession()
+        (runBlocking {
+                Session.create(context = secondActivity!!, coroutineContext = testDispatcher)
+            }
+                as SessionCreateSuccess)
+            .session
         activityController.create().start().resume()
         activityController2.create().start().resume()
 
@@ -596,12 +595,11 @@ class SessionTest {
         val activityController2 = Robolectric.buildActivity(ComponentActivity::class.java)
         val secondActivity = activityController2.get()
         underTest = createSession()
-        val secondSession =
-            (runBlocking {
-                    Session.create(context = secondActivity!!, coroutineContext = testDispatcher)
-                }
-                    as SessionCreateSuccess)
-                .session
+        (runBlocking {
+                Session.create(context = secondActivity!!, coroutineContext = testDispatcher)
+            }
+                as SessionCreateSuccess)
+            .session
         activityController2.create().start().resume()
         activityController2.destroy()
         activityController.create().start().resume()

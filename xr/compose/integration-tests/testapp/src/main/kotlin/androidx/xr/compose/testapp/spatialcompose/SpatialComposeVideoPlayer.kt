@@ -898,7 +898,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     check(width >= 0 && height >= 0) { "Video dimensions must be positive" }
                     // Resize the canvas to match the video aspect ratio - accounting for the stereo
                     // mode.
-                    var dimensions = getCanvasAspectRatio(surfaceEntity!!.stereoMode, width, height)
+                    val dimensions = getCanvasAspectRatio(surfaceEntity!!.stereoMode, width, height)
                     surfaceEntity!!.shape = SurfaceEntity.Shape.Quad(dimensions)
 
                     // Resize the MovableComponent to match the canvas dimensions.
