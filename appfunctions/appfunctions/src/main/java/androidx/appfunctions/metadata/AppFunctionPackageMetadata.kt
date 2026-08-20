@@ -37,6 +37,7 @@ import org.xmlpull.v1.XmlPullParser
 public class AppFunctionPackageMetadata
 // TODO(b/500667251): Replace this constructor with the secondary one once migrated all usages.
 @JvmOverloads
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
     /** The name of the package */
     public val packageName: String,
@@ -44,12 +45,11 @@ constructor(
     // TODO(b/500667251): remove this property after migrating to the new constructor.
     //  This is a circular reference since we now reverse the relationship between package
     //  and function metadata.
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val appFunctions: List<AppFunctionMetadata>,
     /** Reusable components that could be shared within the function specification. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
 ) {
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public constructor(
         packageName: String,
         components: AppFunctionComponentsMetadata,
