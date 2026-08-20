@@ -2117,15 +2117,15 @@ internal open class Measurer(
         if (fontSizeString != null) {
             fontSize = fontSizeString.toFloat().sp
         }
-        var textColor = getColor(params["color"])
+        val textColor = getColor(params["color"])
         return TextStyle(fontSize = fontSize, color = textColor)
     }
 
     @Composable
     fun createDesignElements() {
         designElements.fastForEach { element ->
-            var id = element.id
-            var function = DesignElements.map[element.type]
+            val id = element.id
+            val function = DesignElements.map[element.type]
             if (function != null) {
                 function(id, element.params)
             } else {
