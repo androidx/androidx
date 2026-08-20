@@ -57,12 +57,14 @@ package androidx.a2ui.compose.ui {
 package androidx.a2ui.compose.ui.catalog {
 
   public final class A2uiBasicCatalogV1 {
-    ctor public A2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions);
+    ctor public A2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions);
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card getCard();
     method @InaccessibleFromKotlin public String getCatalogId();
     method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.ui.A2uiComponent> getComponents();
     method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> getFunctions();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text getText();
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getThemeSchema();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card;
     property public String catalogId;
     property public java.util.List<androidx.a2ui.compose.ui.A2uiComponent> components;
     property public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> functions;
@@ -70,6 +72,25 @@ package androidx.a2ui.compose.ui.catalog {
     property public androidx.a2ui.model.schema.A2uiSchema themeSchema;
     field public static final String CatalogId = "https://a2ui.org/specification/v0_9_1/catalogs/basic/catalog.json";
     field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Companion Companion;
+  }
+
+  public static interface A2uiBasicCatalogV1.Card extends androidx.a2ui.compose.ui.A2uiComponent {
+    method @KotlinOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String childId, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public default String getDescription();
+    method @InaccessibleFromKotlin public default String getName();
+    method @InaccessibleFromKotlin public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
+    property public default String description;
+    property public default String name;
+    property public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties;
+    field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card.Companion Companion;
+  }
+
+  public static final class A2uiBasicCatalogV1.Card.Companion {
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> getChildProperty();
+    property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> ChildProperty;
   }
 
   public static final class A2uiBasicCatalogV1.Companion {

@@ -38,12 +38,14 @@ import androidx.compose.ui.util.fastFirstOrNull
  * Glimmer, TV Compose) wishing to implement the basic catalog specification.
  *
  * @property text The [Text] component implementation.
+ * @property card The [Card] component implementation.
  * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
  *   to create the function list using
  *   [androidx.a2ui.model.catalog.basiccatalog.createBasicCatalogFunctions]
  */
 public class A2uiBasicCatalogV1(
     public val text: Text,
+    public val card: Card,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
     public val functions: List<A2uiFunction>,
 ) {
@@ -57,7 +59,8 @@ public class A2uiBasicCatalogV1(
     /** The list of [A2uiComponent]s supported by this catalog. */
     public val components: List<A2uiComponent> =
         listOf(
-            text
+            text,
+            card,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
         )
 
@@ -180,6 +183,53 @@ public class A2uiBasicCatalogV1(
         )
     }
 
+    /**
+     * The A2UI `"Card"` component for displaying content in a styled container.
+     *
+     * **Schema Properties:**
+     * * `child` (Component ID String, required): The ID of the child component to be rendered
+     *   inside the card. Multiple elements must be wrapped in a layout container (e.g. Row or
+     *   Column).
+     */
+    public interface Card : A2uiComponent {
+        override val name: String
+            get() = "Card"
+
+        override val description: String
+            get() = "A layout component that wraps its child content in a styled card container."
+
+        public companion object {
+            public val ChildProperty: StaticA2uiProperty<String> =
+                A2uiProperty.componentId(
+                    key = "child",
+                    required = true,
+                    description =
+                        "The ID of the single child component to be rendered inside the card. To " +
+                            "display multiple elements, you MUST wrap them in a layout component " +
+                            "(like Column or Row) and pass that container's ID here. Do NOT pass " +
+                            "multiple IDs or a non-existent ID.",
+                )
+            internal val ComponentProperties: List<A2uiProperty<*>> = listOf(ChildProperty)
+        }
+
+        override val properties: List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val childId =
+                checkNotNull(properties[ChildProperty]) {
+                    "Required property '${ChildProperty.key}' is missing."
+                }
+            TypedContent(childId = childId, modifier = modifier)
+        }
+
+        @Composable public fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is A2uiBasicCatalogV1) return false
@@ -191,7 +241,7 @@ public class A2uiBasicCatalogV1(
 
     override fun hashCode(): Int {
         var result = catalogId.hashCode()
-        result = 31 * result + text.hashCode()
+        result = 31 * result + components.hashCode()
         result = 31 * result + functions.hashCode()
         result = 31 * result + themeSchema.hashCode()
         return result
@@ -200,7 +250,7 @@ public class A2uiBasicCatalogV1(
     override fun toString(): String {
         return "A2uiBasicCatalogV1(" +
             "catalogId=$catalogId, " +
-            "text=$text, " +
+            "components=$components, " +
             "functions=$functions, " +
             "themeSchema=$themeSchema" +
             ")"

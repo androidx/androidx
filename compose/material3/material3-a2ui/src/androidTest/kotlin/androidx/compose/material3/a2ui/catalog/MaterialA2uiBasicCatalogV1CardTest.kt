@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiComponentPayload
@@ -26,25 +26,29 @@ import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.a2ui.MaterialA2uiDefaults
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class MaterialCardComponentTest {
+class MaterialA2uiBasicCatalogV1CardTest {
 
     private val testCatalog =
-        A2uiCatalog(catalogId = "test_catalog", components = listOf(MaterialCardComponent))
+        A2uiCatalog(
+            catalogId = "test_catalog",
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.card),
+        )
 
     @Test
     fun child_rendersChildComponent() = runComposeUiTest {
