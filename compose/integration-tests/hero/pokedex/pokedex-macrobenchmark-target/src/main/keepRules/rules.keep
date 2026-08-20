@@ -1,3 +1,7 @@
+# Preserve Pokedex data models and fields for Retrofit JSON serialization/deserialization
+-keep class com.skydoves.pokedex.core.model.** { *; }
+-keepclassmembers class com.skydoves.pokedex.core.model.** { *; }
+
 # Obfuscating doesn't impact performance in a meaningful way. Ensure we don't obfuscate for easier
-#  debugging in case of benchmark breakages.
+# debugging in case of benchmark breakages.
 -dontobfuscate
