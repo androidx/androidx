@@ -16,8 +16,11 @@
 
 package androidx.build
 
+import com.autonomousapps.grammar.gradle.GradleScriptLexer
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.Token
 import org.gradle.api.Project
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
@@ -26,42 +29,38 @@ abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
     @Transient val cache: MutableMap<File, ParsedProject> = ConcurrentHashMap()
 
     fun get(buildFile: File): ParsedProject {
-        return cache.getOrPut(key = buildFile) {
-            val text = buildFile.readLines()
-            parseProject(text)
-        }
+        return cache.getOrPut(key = buildFile) { parseProject(buildFile.readText()) }
     }
 
-    private fun parseProject(fileLines: List<String>): ParsedProject {
-        var softwareType: String? = null
-        var publish: String? = null
-        var specifiesVersion = false
-        fileLines.forEach { line ->
-            if (softwareType == null)
-                softwareType = line.extractVariableValue(" type = SoftwareType.")
-            if (publish == null) publish = line.extractVariableValue(" publish = Publish.")
-            if (line.contains("mavenVersion =")) specifiesVersion = true
-        }
-        val softwareTypeEnum = softwareType?.let { SoftwareType.valueOf(it) } ?: SoftwareType.UNSET
-        return ParsedProject(softwareType = softwareTypeEnum, specifiesVersion = specifiesVersion)
-    }
-
-    data class ParsedProject(val softwareType: SoftwareType, val specifiesVersion: Boolean) {
+    data class ParsedProject(
+        val softwareType: SoftwareType = SoftwareType.UNSET,
+        val specifiesVersion: Boolean = false,
+    ) {
         fun shouldPublish(): Boolean = softwareType.publish.shouldPublish()
 
         fun shouldRelease(): Boolean = softwareType.publish.shouldRelease()
     }
-}
 
-private fun String.extractVariableValue(prefix: String): String? {
-    val declarationIndex = this.indexOf(prefix)
-    if (declarationIndex >= 0) {
-        val suffix = this.substring(declarationIndex + prefix.length)
-        val spaceIndex = suffix.indexOf(" ")
-        if (spaceIndex > 0) return suffix.substring(0, spaceIndex)
-        return suffix
+    companion object {
+        fun parseProject(text: String): ParsedProject {
+            val lexer = GradleScriptLexer(CharStreams.fromString(text, "build.gradle"))
+            return lexer.tokens().fold(ParsedProject()) { acc, token ->
+                when {
+                    token.text.startsWith("SoftwareType.") ->
+                        acc.copy(
+                            softwareType =
+                                SoftwareType.valueOf(token.text.removePrefix("SoftwareType."))
+                        )
+                    token.text == "mavenVersion" -> acc.copy(specifiesVersion = true)
+                    else -> acc
+                }
+            }
+        }
+
+        private fun GradleScriptLexer.tokens(): Sequence<Token> = generateSequence {
+            nextToken().takeUnless { it.type == GradleScriptLexer.EOF }
+        }
     }
-    return null
 }
 
 fun Project.parse(): ProjectParser.ParsedProject {

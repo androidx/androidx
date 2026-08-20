@@ -41,6 +41,7 @@ dependencyAnalysisGradlePlugin = "2.11.0"
 dexmaker = "2.28.6"
 espresso = "3.7.0"
 espressoDevice = "1.1.0"
+gradleScriptGrammar = "0.7"
 grpc = "1.52.0"
 gson = "2.9.0"
 guavaJre = "33.2.1-jre"
@@ -181,6 +182,7 @@ junit = { module = "junit:junit", version = "4.13.2" }
 gcmNetworkManager = { module = "com.google.android.gms:play-services-gcm", version = "17.0.0" }
 googleCompileTesting = { module = "com.google.testing.compile:compile-testing", version = "0.22.0" }
 gradlePluginCompatibility = { module = "org.gradle.plugin:compatibility-plugin", version = "1.0.0" }
+gradleScriptGrammar = { module = "com.autonomousapps:gradle-script-grammar", version.ref = "gradleScriptGrammar" }
 grpcAndroid = { module = "io.grpc:grpc-android", version.ref = "grpc" }
 grpcBinder = { module = "io.grpc:grpc-binder", version.ref = "grpc" }
 grpcProtobufCompiler = { module = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
