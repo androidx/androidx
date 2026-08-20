@@ -69,7 +69,7 @@ class ConfirmCredentialUiLauncherTest {
     fun setUp() {
         viewModelStore.put(
             "androidx.lifecycle.ViewModelProvider.DefaultKey:" +
-                "${AuthenticationViewModel::class.java.canonicalName}",
+                AuthenticationViewModel::class.java.canonicalName,
             viewModel,
         )
         whenever(mockViewModelStoreOwner.viewModelStore).thenReturn(viewModelStore)
