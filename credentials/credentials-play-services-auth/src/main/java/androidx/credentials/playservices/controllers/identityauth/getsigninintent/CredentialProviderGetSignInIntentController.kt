@@ -206,7 +206,7 @@ internal class CredentialProviderGetSignInIntentController(context: Context) :
 
     @VisibleForTesting
     fun createGoogleIdCredential(response: SignInCredential): GoogleIdTokenCredential {
-        var cred = GoogleIdTokenCredential.Builder().setId(response.id)
+        val cred = GoogleIdTokenCredential.Builder().setId(response.id)
         try {
             cred.setIdToken(response.googleIdToken!!)
         } catch (e: Exception) {

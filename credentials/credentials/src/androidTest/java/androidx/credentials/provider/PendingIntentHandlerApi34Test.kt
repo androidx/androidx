@@ -425,15 +425,15 @@ class PendingIntentHandlerApi34Test {
     ) {
         if (biometricPromptResult.isSuccessful) {
             Assert.assertNotNull(biometricPromptResult.authenticationResult)
-            var extraResultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE
+            val extraResultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE
             intent.putExtra(
                 extraResultKey,
                 biometricPromptResult.authenticationResult!!.authenticationType,
             )
         } else {
             Assert.assertNotNull(biometricPromptResult.authenticationError)
-            var extraErrorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR
-            var extraErrorMessageKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE
+            val extraErrorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR
+            val extraErrorMessageKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE
             intent.putExtra(extraErrorKey, biometricPromptResult.authenticationError!!.errorCode)
             intent.putExtra(
                 extraErrorMessageKey,

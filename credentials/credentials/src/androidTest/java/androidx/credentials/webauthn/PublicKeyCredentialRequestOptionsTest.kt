@@ -39,7 +39,7 @@ class PublicKeyCredentialRequestOptionsTest {
                  "userVerification": "enabled"
              }
           """
-        var options = PublicKeyCredentialRequestOptions(json)
+        val options = PublicKeyCredentialRequestOptions(json)
         assertThat(options.challenge).isEqualTo(rawId)
         assertThat(options.rpId).isEqualTo("rp id")
         assertThat(options.timeout).isEqualTo(10)
@@ -58,7 +58,7 @@ class PublicKeyCredentialRequestOptionsTest {
                  "userVerification": "enabled"
              }
           """
-        var options = PublicKeyCredentialRequestOptions(json)
+        val options = PublicKeyCredentialRequestOptions(json)
         assertThat(options.challenge).isEqualTo(rawId)
         assertThat(options.rpId).isEqualTo("rp id")
         assertThat(options.timeout).isEqualTo(0)
@@ -77,7 +77,7 @@ class PublicKeyCredentialRequestOptionsTest {
                  "userVerification": "enabled"
              }
           """
-        var options = PublicKeyCredentialRequestOptions(json)
+        val options = PublicKeyCredentialRequestOptions(json)
         assertThat(options.challenge).isEqualTo(rawId)
         assertThat(options.rpId).isEqualTo("")
         assertThat(options.timeout).isEqualTo(10)
@@ -96,7 +96,7 @@ class PublicKeyCredentialRequestOptionsTest {
                  "timeout": 10
              }
           """
-        var options = PublicKeyCredentialRequestOptions(json)
+        val options = PublicKeyCredentialRequestOptions(json)
         assertThat(options.challenge).isEqualTo(rawId)
         assertThat(options.rpId).isEqualTo("rp id")
         assertThat(options.timeout).isEqualTo(10)

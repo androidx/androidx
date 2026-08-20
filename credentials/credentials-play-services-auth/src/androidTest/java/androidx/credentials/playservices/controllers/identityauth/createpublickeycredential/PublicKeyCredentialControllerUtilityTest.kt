@@ -147,7 +147,7 @@ class PublicKeyCredentialControllerUtilityTest {
     @Test
     fun toAssertPasskeyResponse_authenticatorErrorResponse_success() {
         ERROR_CODE_TO_TYPES.forEach { entry ->
-            var exception =
+            val exception =
                 PublicKeyCredentialControllerUtility
                     .beginSignInPublicKeyCredentialResponseContainsError(entry.key, "test message")
             assertThat(exception.type).isEqualTo(entry.value)
@@ -160,7 +160,7 @@ class PublicKeyCredentialControllerUtilityTest {
         val json = JSONObject()
         val byteArrayClientDataJson = byteArrayOf(0x48, 101, 108, 108, 111)
         val byteArrayAttestationObject = byteArrayOf(0x48, 101, 108, 108, 112)
-        var transportArray = arrayOf("transport")
+        val transportArray = arrayOf("transport")
 
         PublicKeyCredentialControllerUtility.addAuthenticatorAttestationResponse(
             byteArrayClientDataJson,
@@ -169,7 +169,7 @@ class PublicKeyCredentialControllerUtilityTest {
             json,
         )
 
-        var response = json.getJSONObject(PublicKeyCredentialControllerUtility.JSON_KEY_RESPONSE)
+        val response = json.getJSONObject(PublicKeyCredentialControllerUtility.JSON_KEY_RESPONSE)
 
         assertThat(response.get(PublicKeyCredentialControllerUtility.JSON_KEY_CLIENT_DATA))
             .isEqualTo(PublicKeyCredentialControllerUtility.b64Encode(byteArrayClientDataJson))
@@ -181,7 +181,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_requiredFields_success() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"rp\": {" +
@@ -202,7 +202,7 @@ class PublicKeyCredentialControllerUtilityTest {
                     "}" +
                     "}"
             )
-        var output = PublicKeyCredentialControllerUtility.convertJSON(json)
+        val output = PublicKeyCredentialControllerUtility.convertJSON(json)
 
         assertThat(output.user.id).isNotEmpty()
         assertThat(output.user.name).isEqualTo("Name of User")
@@ -218,7 +218,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_requiredFields_failOnMissingRpId() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"rp\": {" +
@@ -244,7 +244,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_requiredFields_failOnMissingRpName() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"rp\": {" +
@@ -270,7 +270,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_requiredFields_failOnMissingRp() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"pubKeyCredParams\": [{" +
@@ -292,7 +292,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_requiredFields_failOnMissingPubKeyCredParams() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"rp\": {" +
@@ -315,7 +315,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_requiredFields_failOnMissingChallenge() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"rp\": {" +
@@ -341,7 +341,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_requiredFields_failOnMissingUser() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"rp\": {" +
@@ -362,7 +362,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_requiredFields_failOnMissingUserId() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"rp\": {" +
@@ -388,7 +388,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_requiredFields_failOnMissingUserName() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"rp\": {" +
@@ -414,7 +414,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_requiredFields_failOnMissingUserDisplayName() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"rp\": {" +
@@ -440,7 +440,7 @@ class PublicKeyCredentialControllerUtilityTest {
 
     @Test
     fun convertJSON_optionalFields_extensions_success() {
-        var json =
+        val json =
             JSONObject(
                 "{" +
                     "\"rp\": {" +
@@ -465,7 +465,7 @@ class PublicKeyCredentialControllerUtilityTest {
                     "}" +
                     "}"
             )
-        var output = PublicKeyCredentialControllerUtility.convertJSON(json)
+        val output = PublicKeyCredentialControllerUtility.convertJSON(json)
 
         assertThat(output.authenticationExtensions!!.fidoAppIdExtension!!.appId)
             .isEqualTo("https://www.android.com/appid1")
