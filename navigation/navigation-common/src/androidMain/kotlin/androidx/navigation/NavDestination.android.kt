@@ -380,11 +380,12 @@ actual constructor(public actual val navigatorName: String) {
         val equalActions =
             actions.size() == other.actions.size() &&
                 actions.keyIterator().asSequence().all { actions.get(it) == other.actions.get(it) }
-
+        val args = impl.arguments
+        val otherArgs = other.impl.arguments
         val equalArguments =
-            arguments.size == other.arguments.size &&
-                arguments.asSequence().all {
-                    other.arguments.containsKey(it.key) && other.arguments[it.key] == it.value
+            args.size == otherArgs.size &&
+                args.asSequence().all {
+                    otherArgs.containsKey(it.key) && otherArgs[it.key] == it.value
                 }
 
         return id == other.id &&
@@ -408,9 +409,10 @@ actual constructor(public actual val navigatorName: String) {
             result = 31 * result + value.navOptions.hashCode()
             value.defaultArguments?.read { result = 31 * result + contentDeepHashCode() }
         }
-        arguments.keys.forEach {
+        val args = impl.arguments
+        args.keys.forEach {
             result = 31 * result + it.hashCode()
-            result = 31 * result + arguments[it].hashCode()
+            result = 31 * result + args[it].hashCode()
         }
         return result
     }
