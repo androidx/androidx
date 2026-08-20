@@ -259,7 +259,7 @@ public open class ActivityNavigator(
         override fun onInflate(context: Context, attrs: AttributeSet) {
             super.onInflate(context, attrs)
             context.resources.obtainAttributes(attrs, R.styleable.ActivityNavigator).use { array ->
-                var targetPackage =
+                val targetPackage =
                     parseApplicationId(
                         context,
                         array.getString(R.styleable.ActivityNavigator_targetPackage),

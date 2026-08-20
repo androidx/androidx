@@ -1120,7 +1120,7 @@ class NavControllerTest {
 
                 val navigator =
                     navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-                var backStack = navigator.backStack
+                val backStack = navigator.backStack
 
                 assertThat(backStack).hasSize(1)
                 with(backStack[0]) {

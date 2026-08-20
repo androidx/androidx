@@ -174,7 +174,7 @@ class NavDeepLinkBuilderTest {
 
     @Test
     fun buildDeepLinkEmptyUriKClass() {
-        var exception: IllegalArgumentException? = null
+        val exception: IllegalArgumentException?
         try {
             navDeepLink<TestClass>("") { action = "action" }
             fail("NavDeepLink must throw when attempting to build an empty builder.")
@@ -187,7 +187,7 @@ class NavDeepLinkBuilderTest {
 
     @Test
     fun buildDeepLinkEmptyActionKClass() {
-        var exception: IllegalArgumentException? = null
+        val exception: IllegalArgumentException?
         try {
             navDeepLink<TestClass>("base") { action = "" }
             fail("NavDeepLink must throw when attempting to build with an empty action.")
