@@ -769,23 +769,55 @@ private class SpatialViewPanelMeasurePolicy(private val view: View) : SubspaceMe
         constraints: VolumeConstraints,
     ): SubspaceMeasureResult {
         view.setTag(R.id.compose_xr_panel_volume_constraints, constraints)
-        view.measure(
-            MeasureSpec.makeMeasureSpec(
-                constraints.maxWidth.coerceAtMost(MAX_MEASURE_SPEC_SIZE),
-                MeasureSpec.AT_MOST,
-            ),
-            MeasureSpec.makeMeasureSpec(
-                constraints.maxHeight.coerceAtMost(MAX_MEASURE_SPEC_SIZE),
-                MeasureSpec.AT_MOST,
-            ),
-        )
+        val widthSpec =
+            createViewPanelMeasureSpec(
+                constraints.minWidth,
+                constraints.maxWidth,
+                constraints.hasBoundedWidth,
+            )
+        val heightSpec =
+            createViewPanelMeasureSpec(
+                constraints.minHeight,
+                constraints.maxHeight,
+                constraints.hasBoundedHeight,
+            )
+
+        view.measure(widthSpec, heightSpec)
+
         // The measured size of the view is used to lay out the SubspaceNode.
         val width = view.measuredWidth.coerceIn(constraints.minWidth, constraints.maxWidth)
         val height = view.measuredHeight.coerceIn(constraints.minHeight, constraints.maxHeight)
         val depth = constraints.minDepth.coerceAtLeast(0)
-        return layout(width, height, depth) {}
+        return layout(width, height, depth) { view.layout(0, 0, width, height) }
     }
 }
+
+/**
+ * Computes the [MeasureSpec] for a panel dimension according to the panel's layout constraints.
+ *
+ * When an explicit size is set on the panel, the hosted view fills the entire allocated space. When
+ * constraints specify an upper bound or allow flexible sizing, the panel wraps its content up to
+ * that limit. If unconstrained, the panel sizes itself naturally to fit its content.
+ *
+ * @param minSize The minimum allowed size in pixels.
+ * @param maxSize The maximum allowed size in pixels.
+ * @param hasBoundedSize Whether an upper bound constraint exists.
+ * @return The [MeasureSpec] encoding the sizing behavior for the hosted view.
+ */
+private fun createViewPanelMeasureSpec(minSize: Int, maxSize: Int, hasBoundedSize: Boolean): Int =
+    when {
+        minSize == maxSize ->
+            MeasureSpec.makeMeasureSpec(
+                maxSize.coerceAtMost(MAX_MEASURE_SPEC_SIZE),
+                MeasureSpec.EXACTLY,
+            )
+        hasBoundedSize ->
+            MeasureSpec.makeMeasureSpec(
+                maxSize.coerceAtMost(MAX_MEASURE_SPEC_SIZE),
+                MeasureSpec.AT_MOST,
+            )
+        else -> MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+    }
 
 /**
  * Applies move, anchor, and resize policies to a [SubspaceModifier], returning the combined final
