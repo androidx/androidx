@@ -2786,7 +2786,7 @@ class SharedTransitionTest {
     @Test
     fun testLookaheadPositionInSkipToLookaheadSize() {
         var target by mutableStateOf(true)
-        var targetPos: MutableList<Offset?> = mutableListOf()
+        val targetPos: MutableList<Offset?> = mutableListOf()
         var scope: SharedTransitionScope? = null
         rule.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
@@ -3131,7 +3131,7 @@ class SharedTransitionTest {
         // The alignment will be changed amid animation.
         var alignment by mutableStateOf(TopStart)
         var positionInTransition: Offset? = null
-        var selectFirstPositionInTransition: Offset? = null
+        var selectFirstPositionInTransition: Offset?
         var scope: SharedTransitionScope? = null
         rule.setContent {
             val key = remember { Any() }
@@ -3324,7 +3324,7 @@ class SharedTransitionTest {
         var position1: Offset? = null
         var position2: Offset? = null
         val state = LazyListState()
-        var scrollPosition by mutableStateOf(0)
+        val scrollPosition = 0
         rule.setContent {
             val key = remember { Any() }
             CompositionLocalProvider(LocalDensity provides Density(1f)) {
@@ -4785,8 +4785,8 @@ class SharedTransitionTest {
     fun zeroInitialVelocityForExit() {
         var exit by mutableStateOf(false)
         var sharedContentState: SharedTransitionScope.SharedContentState? = null
-        var position: MutableList<Offset> = mutableListOf()
-        var controlPosition: MutableList<Offset> = mutableListOf()
+        val position: MutableList<Offset> = mutableListOf()
+        val controlPosition: MutableList<Offset> = mutableListOf()
         rule.setContent {
             SharedTransitionLayout {
                 AnimatedContent(targetState = exit) {
@@ -4852,8 +4852,8 @@ class SharedTransitionTest {
     fun initialVelocityForDisabledElement() {
         var exit by mutableStateOf(false)
         var sharedContentState: SharedTransitionScope.SharedContentState? = null
-        var position: MutableList<Offset> = mutableListOf()
-        var controlPosition: MutableList<Offset> = mutableListOf()
+        val position: MutableList<Offset> = mutableListOf()
+        val controlPosition: MutableList<Offset> = mutableListOf()
         rule.setContent {
             SharedTransitionLayout {
                 AnimatedContent(targetState = exit) {

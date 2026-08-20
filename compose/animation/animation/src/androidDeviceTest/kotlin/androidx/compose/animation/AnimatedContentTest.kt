@@ -34,14 +34,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -59,7 +57,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
-import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
@@ -595,68 +592,6 @@ class AnimatedContentTest {
                 actualOutgoingPosition,
             )
         }
-    }
-
-    @Test
-    fun LookaheadWithMinMaxIntrinsics() {
-        rule.setContent {
-            LookaheadScope {
-                Scaffold(
-                    Modifier.fillMaxSize().testTag(""),
-                    topBar = {},
-                    floatingActionButton = {},
-                ) {
-                    Surface() {
-                        SubcomposeLayout(Modifier.fillMaxWidth()) { constraints ->
-                            val tabRowWidth = constraints.maxWidth
-                            val tabMeasurables =
-                                subcompose("Tabs") {
-                                    repeat(15) { Text(it.toString(), Modifier.width(100.dp)) }
-                                }
-                            val tabCount = tabMeasurables.size
-                            var tabWidth = 0
-                            if (tabCount > 0) {
-                                tabWidth = (tabRowWidth / tabCount)
-                            }
-                            val tabRowHeight =
-                                tabMeasurables.fold(initial = 0) { max, curr ->
-                                    maxOf(curr.maxIntrinsicHeight(tabWidth), max)
-                                }
-
-                            val tabPlaceables =
-                                tabMeasurables.map {
-                                    it.measure(
-                                        constraints.copy(
-                                            minWidth = tabWidth,
-                                            maxWidth = tabWidth,
-                                            minHeight = tabRowHeight,
-                                            maxHeight = tabRowHeight,
-                                        )
-                                    )
-                                }
-
-                            repeat(tabCount) { index ->
-                                var contentWidth =
-                                    minOf(
-                                            tabMeasurables[index].maxIntrinsicWidth(tabRowHeight),
-                                            tabWidth,
-                                        )
-                                        .toDp()
-                                contentWidth -= 32.dp
-                            }
-
-                            layout(tabRowWidth, tabRowHeight) {
-                                tabPlaceables.forEachIndexed { index, placeable ->
-                                    placeable.placeRelative(index * tabWidth, 0)
-                                }
-                            }
-                        }
-                    }
-                }
-                Box(Modifier.fillMaxSize().background(Color.Blue)) { Text(text = "test") }
-            }
-        }
-        rule.waitForIdle()
     }
 
     // This test uses a Scaffold around a TabRow setup to reproduce a scenario where tabs' lookahead

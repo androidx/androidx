@@ -2587,7 +2587,7 @@ class SeekableTransitionStateTest {
     @Test
     fun testCleanupAfterDispose() {
 
-        var seekableState: SeekableTransitionState<*> = SeekableTransitionState(true)
+        val seekableState: SeekableTransitionState<*> = SeekableTransitionState(true)
         var disposed by mutableStateOf(false)
 
         fun isObserving(): Boolean {
