@@ -75,7 +75,7 @@ class ImageAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val imageUri: Uri = getShareableImageUri(context)
+        getShareableImageUri(context)
 
         provideContent {
             Scaffold(titleBar = { Header() }, content = { /*BodyContent(imageUri = imageUri) */ })

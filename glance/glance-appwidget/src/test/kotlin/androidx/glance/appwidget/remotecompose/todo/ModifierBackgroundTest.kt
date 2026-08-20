@@ -96,7 +96,7 @@ class ModifierBackgroundTest : BaseRemoteComposeTest() {
                 }
             }
 
-        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        @Suppress("UNUSED_VARIABLE") val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
         /*
          * TODO:
@@ -110,6 +110,7 @@ class ModifierBackgroundTest : BaseRemoteComposeTest() {
     }
 
     // TODO(b/450985714): Fix and re-enable this test
+    @Suppress("UNUSED_VARIABLE")
     @Ignore("Test not yet written, see b/450985714")
     @Test
     fun translateBox_backgroundColor_Resource() = fakeCoroutineScope.runTest {
@@ -141,19 +142,18 @@ class ModifierBackgroundTest : BaseRemoteComposeTest() {
             drawRect(0f, 0f, 100f, 100f, paint)
         }
 
-        val (_, wireBuffer: WireBuffer) =
-            context.runAndTranslateSingleRoot {
-                Box(
-                    modifier =
-                        GlanceModifier.Companion.size(100.dp, 100.dp)
-                            .background(
-                                imageProvider = ImageProvider(bitmap),
-                                contentScale = ContentScale.Companion.FillBounds,
-                            )
-                ) {
-                    // no content
-                }
+        context.runAndTranslateSingleRoot {
+            Box(
+                modifier =
+                    GlanceModifier.Companion.size(100.dp, 100.dp)
+                        .background(
+                            imageProvider = ImageProvider(bitmap),
+                            contentScale = ContentScale.Companion.FillBounds,
+                        )
+            ) {
+                // no content
             }
+        }
 
         TODO("Translate a box with a background set to a bitmap")
     }
@@ -170,19 +170,18 @@ class ModifierBackgroundTest : BaseRemoteComposeTest() {
             drawRect(0f, 0f, 100f, 100f, paint)
         }
 
-        val (_, wireBuffer: WireBuffer) =
-            context.runAndTranslateSingleRoot {
-                Box(
-                    modifier =
-                        GlanceModifier.Companion.size(100.dp, 150.dp)
-                            .background(
-                                imageProvider = ImageProvider(bitmap),
-                                contentScale = ContentScale.Companion.Fit,
-                            )
-                ) {
-                    // no content
-                }
+        context.runAndTranslateSingleRoot {
+            Box(
+                modifier =
+                    GlanceModifier.Companion.size(100.dp, 150.dp)
+                        .background(
+                            imageProvider = ImageProvider(bitmap),
+                            contentScale = ContentScale.Companion.Fit,
+                        )
+            ) {
+                // no content
             }
+        }
 
         TODO("Translate a box with a background set to a bitmap and check the content scaling")
     }

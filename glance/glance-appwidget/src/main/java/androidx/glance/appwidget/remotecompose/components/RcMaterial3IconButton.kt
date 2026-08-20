@@ -87,7 +87,6 @@ internal class RcMaterial3IconButton(
                 ?: defaults.defaultBackground
 
         val paddingPx = defaults.padding.toPixels(context)
-        val minSizePx = defaults.minSize.toPixels(context).toFloat()
         val iconSizePx = defaults.iconSize.toPixels(context)
         val contentColor: ColorProvider = emittableButton.contentColor!!
 

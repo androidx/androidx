@@ -108,7 +108,7 @@ internal class RcButton(emittableButton: EmittableButton, translationContext: Tr
             // Apply button text defaults
             val buttonTextEmittable =
                 emittableButton.toEmittableText().also { it.modifier = GlanceModifier }
-            var textStyle = buttonTextEmittable.style ?: TextStyle()
+            val textStyle = buttonTextEmittable.style ?: TextStyle()
             if (
                 textStyle.fontSize == null &&
                     textStyle.fontWeight == null &&

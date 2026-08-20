@@ -249,8 +249,6 @@ private fun applyBackgroundModifier(
                 Log.i(TAG, "Eagerly resolving resourceId color in applyBackgroundColorModifier")
             }
             is DayNightColorProvider -> {
-                val day = colorProvider.day.toArgb()
-                val night = colorProvider.night.toArgb()
                 Log.w(TAG, "TODO: support DayNightColorProvider in applyBackgroundModifier()")
             }
             else ->

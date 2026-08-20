@@ -81,15 +81,14 @@ class TranslateEmittableImageTest : BaseRemoteComposeTest() {
         @DrawableRes val id = R.drawable.ic_secure
         val bmp = BitmapFactory.decodeResource(context.resources, id)
 
-        val (_, wireBuffer: WireBuffer) =
-            context.runAndTranslateSingleRoot {
-                Box(
-                    modifier =
-                        GlanceModifier.Companion.size(100.dp, 100.dp).background(ImageProvider(bmp))
-                ) {
-                    // no content
-                }
+        context.runAndTranslateSingleRoot {
+            Box(
+                modifier =
+                    GlanceModifier.Companion.size(100.dp, 100.dp).background(ImageProvider(bmp))
+            ) {
+                // no content
             }
+        }
 
         TODO("test BitmapImageProvider")
     }

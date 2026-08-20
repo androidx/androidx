@@ -141,7 +141,7 @@ class ButtonsGlanceTest {
 
     @Test
     fun hasAnyDescendent_columnAndM3FilledButton() = runGlanceAppWidgetUnitTest {
-        val (action, intent) = startActivityAction()
+        val (action, _) = startActivityAction()
 
         provideComposable {
             Column(GlanceModifier.semantics { testTag = columnTestTag }) {

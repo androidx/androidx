@@ -376,23 +376,11 @@ class FakeClImageGridDataRepository {
         context: Context,
         items: List<ImageGridItemBackendData>,
     ): List<ClImageGridItemData> {
-        val maxAllowedBytes = ClImageUtils.getMaxWidgetMemoryAllowedSizeInBytes(context)
-        val maxAllowedBytesPerImage = maxAllowedBytes / items.size
-        val imageSizeLimit =
-            ClImageUtils.getMaxPossibleImageSize(
-                aspectRatio = 16.0 / 9.0,
-                memoryLimitBytes = maxAllowedBytesPerImage,
-                maxImages = 1,
-            )
-
-        val width = IMAGE_SIZE.coerceAtMost(imageSizeLimit.width)
-        val height = width * 9 / 16
-
         val mappedItems = runBlocking {
             items
                 .map { item ->
                     async(Dispatchers.IO) {
-                        var bitmap: Bitmap? =
+                        val bitmap: Bitmap? =
                             fetchLocalImage(
                                 context,
                                 R.drawable.sample_recipe_matcha_mellowness_1x1_small,
