@@ -19,8 +19,10 @@ package androidx.compose.foundation.text.input.internal
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.allCaps
+import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.insert
-import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.maxLengthReject
+import androidx.compose.foundation.text.input.maxLengthTrim
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.intl.Locale
 import com.google.common.truth.Truth.assertThat
@@ -507,9 +509,36 @@ internal class BatchEditTest : ImeEditCommandTest() {
     }
 
     @Test
-    fun batchEdit_withLengthLimitInputTransformation() {
+    fun batchEdit_withMaxLengthTrimInputTransformation() {
         initialize("ABC", TextRange(3))
-        transformedState.update(InputTransformation.maxLength(4))
+        transformedState.update(InputTransformation.maxLengthTrim(4))
+        imeScope.beginBatchEdit()
+        imeScope.commitText("D", 1)
+        imeScope.commitText("E", 1)
+        imeScope.endBatchEdit()
+        // The entire batch is applied as one atomic operation when no OutputTransformation is
+        // present.
+        // Truncates inserted text to cap total length at 4.
+        assertThat(state.text.toString()).isEqualTo("ABCD")
+    }
+
+    @Test
+    fun batchEdit_withMaxLengthTrim_multipleEditsInBatch() {
+        initialize("", TextRange(0))
+        transformedState.update(InputTransformation.maxLengthTrim(5))
+        imeScope.beginBatchEdit()
+        imeScope.commitText("1234567890", 1)
+        imeScope.edit { delete(0, 7) }
+        imeScope.commitText("123", 1)
+        imeScope.endBatchEdit()
+        // 1234567890 -> delete(0, 7) = 890 -> commitText("123") = 890123 -> trimmed to 89012
+        assertThat(state.text.toString()).isEqualTo("89012")
+    }
+
+    @Test
+    fun batchEdit_withMaxLengthRejectInputTransformation() {
+        initialize("ABC", TextRange(3))
+        transformedState.update(InputTransformation.maxLengthReject(4))
         imeScope.beginBatchEdit()
         imeScope.commitText("D", 1)
         imeScope.commitText("E", 1)

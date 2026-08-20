@@ -38,7 +38,8 @@ import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.allCaps
 import androidx.compose.foundation.text.input.forEachChange
-import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.maxLengthReject
+import androidx.compose.foundation.text.input.maxLengthTrim
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
@@ -58,8 +59,11 @@ fun BasicTextFieldInputTransformationDemos() {
         TagLine(tag = "allCaps")
         FilterDemo(filter = InputTransformation.allCaps(Locale.current))
 
-        TagLine(tag = "maxLength(5)")
-        FilterDemo(filter = InputTransformation.maxLength(5))
+        TagLine(tag = "maxLengthTrim(5)")
+        FilterDemo(filter = InputTransformation.maxLengthTrim(5))
+
+        TagLine(tag = "maxLengthReject(5)")
+        FilterDemo(filter = InputTransformation.maxLengthReject(5))
 
         TagLine(tag = "Digits Only BasicTextField")
         DigitsOnlyDemo()

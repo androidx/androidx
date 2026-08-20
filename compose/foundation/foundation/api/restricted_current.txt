@@ -2949,7 +2949,9 @@ package androidx.compose.foundation.text.input {
   public final class InputTransformationKt {
     method @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation allCaps(androidx.compose.foundation.text.input.InputTransformation, androidx.compose.ui.text.intl.Locale locale);
     method @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation byValue(androidx.compose.foundation.text.input.InputTransformation, kotlin.jvm.functions.Function2<? super java.lang.CharSequence,? super java.lang.CharSequence,? extends java.lang.CharSequence> transformation);
-    method @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation maxLength(androidx.compose.foundation.text.input.InputTransformation, int maxLength);
+    method @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation maxLength(androidx.compose.foundation.text.input.InputTransformation, int maxLength);
+    method @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation maxLengthReject(androidx.compose.foundation.text.input.InputTransformation, int maxLength);
+    method @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation maxLengthTrim(androidx.compose.foundation.text.input.InputTransformation, int maxLength);
     method @androidx.compose.runtime.Stable public static androidx.compose.foundation.text.input.InputTransformation then(androidx.compose.foundation.text.input.InputTransformation, androidx.compose.foundation.text.input.InputTransformation next);
   }
 

@@ -37,7 +37,8 @@ import androidx.compose.ui.text.toUpperCase
  * To chain filters together, call [then].
  *
  * Prebuilt filters are provided for common filter operations. See:
- * - [InputTransformation].[maxLength]`()`
+ * - [InputTransformation].[maxLengthTrim]`()`
+ * - [InputTransformation].[maxLengthReject]`()`
  * - [InputTransformation].[allCaps]`()`
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
@@ -128,6 +129,47 @@ public fun InputTransformation.allCaps(locale: Locale): InputTransformation =
     this.then(AllCapsTransformation(locale))
 
 /**
+ * Limits the total length of the text field to [maxLength] characters by truncating inserted
+ * characters.
+ *
+ * When text is inserted (e.g. by typing or pasting) that would cause the total length to exceed
+ * [maxLength], only enough inserted characters are kept to fill the text field up to [maxLength],
+ * and excess characters are trimmed and discarded. For example, pasting "12345" into a text field
+ * that already has 8 characters and a [maxLength] of 10 will insert only "12", resulting in 10
+ * characters.
+ *
+ * This transformation sets the maximum text length for accessibility services.
+ * [OutputTransformation] does not affect this limit. When using an [OutputTransformation] that adds
+ * decorating characters, set [SemanticsPropertyReceiver.maxTextLength] manually in a custom
+ * [InputTransformation] to include those characters in the announced limit.
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationMaxLengthCustom
+ */
+@Stable
+public fun InputTransformation.maxLengthTrim(maxLength: Int): InputTransformation =
+    this.then(MaxLengthFilterTrim(maxLength))
+
+/**
+ * Rejects input changes that would cause the total length of the text field to exceed [maxLength]
+ * characters.
+ *
+ * When text is inserted (e.g. by typing or pasting) that would cause the total length to exceed
+ * [maxLength], the entire edit operation is rejected and reverted, leaving the existing text
+ * unchanged. For example, pasting "12345" into a text field that already has 8 characters and a
+ * [maxLength] of 10 will reject the paste completely, leaving the original 8 characters unchanged.
+ *
+ * This transformation sets the maximum text length for accessibility services.
+ * [OutputTransformation] does not affect this limit. When using an [OutputTransformation] that adds
+ * decorating characters, set [SemanticsPropertyReceiver.maxTextLength] manually in a custom
+ * [InputTransformation] to include those characters in the announced limit.
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationMaxLengthCustom
+ */
+@Stable
+public fun InputTransformation.maxLengthReject(maxLength: Int): InputTransformation =
+    this.then(MaxLengthFilterReject(maxLength))
+
+/**
  * Returns [InputTransformation] that rejects input which causes the total length of the text field
  * to be more than [maxLength] characters.
  *
@@ -138,9 +180,15 @@ public fun InputTransformation.allCaps(locale: Locale): InputTransformation =
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldInputTransformationMaxLengthCustom
  */
+@Deprecated(
+    message =
+        "Use maxLengthTrim to truncate excess characters or maxLengthReject to reject input " +
+            "exceeding maxLength.",
+    replaceWith = ReplaceWith("this.maxLengthReject(maxLength)"),
+)
 @Stable
 public fun InputTransformation.maxLength(maxLength: Int): InputTransformation =
-    this.then(MaxLengthFilter(maxLength))
+    this.then(MaxLengthFilterReject(maxLength))
 
 // endregion
 // region Transformation implementations
@@ -226,8 +274,43 @@ private data class AllCapsTransformation(private val locale: Locale) : InputTran
     override fun toString(): String = "InputTransformation.allCaps(locale=$locale)"
 }
 
-// This is a very naive implementation for now, not intended to be production-ready.
-private data class MaxLengthFilter(private val maxLength: Int) : InputTransformation {
+@OptIn(ExperimentalFoundationApi::class)
+private data class MaxLengthFilterTrim(private val maxLength: Int) : InputTransformation {
+
+    init {
+        requirePrecondition(maxLength >= 0) { "maxLength must be at least zero" }
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        maxTextLength = maxLength
+    }
+
+    override fun TextFieldBuffer.transformInput() {
+        if (length <= maxLength) return
+
+        var excess = length - maxLength
+        changes.forEachChangeReversed { range, _ ->
+            if (excess > 0) {
+                val insertedLength = range.length
+                if (insertedLength > 0) {
+                    val toDelete = minOf(excess, insertedLength)
+                    delete(range.max - toDelete, range.max)
+                    excess -= toDelete
+                }
+            }
+        }
+        if (length > maxLength) {
+            delete(maxLength, length)
+        }
+    }
+
+    override fun toString(): String {
+        return "InputTransformation.maxLengthTrim($maxLength)"
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private data class MaxLengthFilterReject(private val maxLength: Int) : InputTransformation {
 
     init {
         requirePrecondition(maxLength >= 0) { "maxLength must be at least zero" }
@@ -244,6 +327,6 @@ private data class MaxLengthFilter(private val maxLength: Int) : InputTransforma
     }
 
     override fun toString(): String {
-        return "InputTransformation.maxLength($maxLength)"
+        return "InputTransformation.maxLengthReject($maxLength)"
     }
 }
