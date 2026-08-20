@@ -30,16 +30,11 @@ internal const val APP_FUNCTION_NAMESPACE = "appfunctions"
 internal const val APP_FUNCTION_ID_EMPTY = "unused"
 
 /**
- * Represents an AppFunction's metadata.
+ * Contains an app function's metadata, essential for its invocation and discovery, retrieved using
+ * [androidx.appfunctions.AppFunctionManager.searchAppFunctions].
  *
- * The class provides the essential information to call an AppFunction. The caller has two options
- * to invoke a function:
- * * Using function schema to identify input/output: The function schema defines the input and
- *   output of a function. If [schema] is not null, the caller can look up the input/output
- *   information based on the schema definition, and call the function accordingly.
- * * Examine [parameters] and [response]: A function metadata also has parameters and response
- *   properties describe the input and output of a function. The caller can examine these fields to
- *   obtain the input/output information, and call the function accordingly.
+ * See [androidx.appfunctions.AppFunctionManager.getAppFunctionStates] for details on retrieving the
+ * runtime state of the app functions.
  */
 public class AppFunctionMetadata
 // TODO(b/508188326): Replace this constructor with the secondary one once migrated all usages.
@@ -47,8 +42,8 @@ public class AppFunctionMetadata
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
     /**
-     * The ID used in an [androidx.appfunctions.ExecuteAppFunctionRequest] to refer to this
-     * AppFunction.
+     * The ID used in an [androidx.appfunctions.ExecuteAppFunctionRequest] to refer to this app
+     * function.
      */
     public val id: String,
     /** The package name of the Android app called to execute the app function. */
@@ -58,51 +53,45 @@ constructor(
     //  we migrate.
     /** Indicates whether the function is enabled currently or not. */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val isEnabled: Boolean,
-    /**
-     * The predefined schema of the AppFunction. If null, it indicates this function is not
-     * implement a particular predefined schema.
-     */
+    /** The identifying metadata for a pre-defined schema which this app function implements. */
     public val schema: AppFunctionSchemaMetadata?,
-    /** The parameters of the AppFunction. */
+    /** The parameters of the app function. */
     public val parameters: List<AppFunctionParameterMetadata>,
-    /** The response of the AppFunction. */
+    /** The response of the app function. */
     public val response: AppFunctionResponseMetadata,
     /** Reusable components that could be shared within the function specification. */
     // TODO(b/508188326): remove property once legacy observeAppFunction is removed
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
-    /** A description of the AppFunction and its intended use. */
+    /** A description of the app function and its intended use. */
     public val description: String = "",
     /**
-     * Deprecation details about the function, if the AppFunction is deprecated. This will be `null`
-     * if the function is not deprecated.
+     * Deprecation details about the function, if the app function is deprecated. This will be
+     * `null` if the function is not deprecated.
      */
     public val deprecation: AppFunctionDeprecationMetadata? = null,
-    /** The name of the AppFunction. */
+    /** The qualified name of the app function. */
     public val name: AppFunctionName = AppFunctionName(packageName, id),
-    /** The metadata of the package providing this AppFunction. */
+    /** The [AppFunctionPackageMetadata] of the enclosing package. */
     public val packageMetadata: AppFunctionPackageMetadata =
         AppFunctionPackageMetadata(packageName = packageName, components = components),
 ) {
     @JvmOverloads
     public constructor(
-        /** The name of the AppFunction. */
+        /** The qualified name of the app function. */
         name: AppFunctionName,
-        /**
-         * The predefined schema of the AppFunction. If null, it indicates this function is not
-         * implement a particular predefined schema.
-         */
+        /** The identifying metadata for a pre-defined schema which this app function implements. */
         schema: AppFunctionSchemaMetadata?,
-        /** The parameters of the AppFunction. */
+        /** The parameters of the app function. */
         parameters: List<AppFunctionParameterMetadata>,
-        /** The response of the AppFunction. */
+        /** The response of the app function. */
         response: AppFunctionResponseMetadata,
-        /** The metadata of the package providing this AppFunction. */
+        /** The [AppFunctionPackageMetadata] of the enclosing package. */
         packageMetadata: AppFunctionPackageMetadata,
-        /** A description of the AppFunction and its intended use. */
+        /** A description of the app function and its intended use. */
         description: String = "",
         /**
-         * Deprecation details about the function, if the AppFunction is deprecated. This will be
+         * Deprecation details about the function, if the app function is deprecated. This will be
          * `null` if the function is not deprecated.
          */
         deprecation: AppFunctionDeprecationMetadata? = null,
@@ -204,7 +193,7 @@ constructor(
         )
     }
 
-    /** Specifies the lifecycle scope of an AppFunction. */
+    /** Specifies the lifecycle scope of an app function. */
     @Retention(AnnotationRetention.SOURCE)
     @androidx.annotation.IntDef(SCOPE_GLOBAL, SCOPE_ACTIVITY)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -213,9 +202,7 @@ constructor(
     public companion object {
 
         // TODO(b/501032667): Update links to the androidx verions of
-        // ExecuteAppFunctionRequest.setActivityId,
-        // getAppFunctionStates, getAppFunctionActivityStates,
-        // registerAppFunction
+        //  ExecuteAppFunctionRequest.setActivityId
         /**
          * A constant indicating an app function is globally-scoped.
          *
@@ -223,8 +210,8 @@ constructor(
          * this scope. This is useful for functions that are tied to a singleton component, such as
          * a foreground service.
          *
-         * When using [android.app.appfunctions.AppFunctionManager.registerAppFunction], the
-         * function remains registered until it is explicitly unregistered or the calling context is
+         * When using [androidx.appfunctions.AppFunctionManager.registerAppFunction], the function
+         * remains registered until it is explicitly unregistered or the calling context is
          * destroyed.
          *
          * To execute a globally-scoped function, the caller of
@@ -235,7 +222,7 @@ constructor(
          * This is always the scope for [androidx.appfunctions.AppFunctionService]-based functions.
          *
          * **IMPORTANT:** Functions provided with
-         * [android.app.appfunctions.AppFunctionManager.registerAppFunction] called from an
+         * [androidx.appfunctions.AppFunctionManager.registerAppFunction] called from an
          * [android.app.Activity] context should prefer [SCOPE_ACTIVITY]. Only use [SCOPE_GLOBAL]
          * for such functions if you are absolutely sure there can be only one instance of that
          * activity.
@@ -261,14 +248,14 @@ constructor(
          * [androidx.appfunctions.AppFunctionFunctionNotFoundException] will be returned.
          *
          * To discover the specific activities where an activity-scoped function is currently
-         * registered, see [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] and
-         * [android.app.appfunctions.AppFunctionManager.getAppFunctionActivityStates].
+         * registered, see [androidx.appfunctions.AppFunctionManager.getAppFunctionStates] and
+         * [androidx.appfunctions.AppFunctionManager.getAppFunctionActivityStates].
          *
          * The function remains registered until it is explicitly unregistered or the activity is
          * destroyed.
          *
          * **IMPORTANT:** Functions provided with
-         * [android.app.appfunctions.AppFunctionManager.registerAppFunction] called from an
+         * [androidx.appfunctions.AppFunctionManager.registerAppFunction] called from an
          * [android.app.Activity] context should prefer [SCOPE_ACTIVITY]. Only use [SCOPE_GLOBAL]
          * for such functions if you are absolutely sure there can be only one instance of that
          * activity.
@@ -427,7 +414,7 @@ constructor(
 }
 
 /**
- * Represents the computed compile-time metadata of an AppFunction.
+ * Represents the computed compile-time metadata of an app function.
  *
  * This class is used to generate AppFunctionInventory and an intermediate representation to persist
  * the metadata in AppSearch.
