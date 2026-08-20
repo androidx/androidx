@@ -61,7 +61,11 @@ class A2uiBasicCatalogV1TextUiTest {
         }
 
     private val testCatalog =
-        A2uiCatalog(A2uiBasicCatalogV1(text = testText, functions = emptyList()))
+        A2uiCatalog(
+            catalogId = "test_catalog",
+            components = listOf(testText),
+            functions = emptyList(),
+        )
 
     @Test
     fun isReady_pendingDynamicData_returnsFalseAndGuardsContent() = runComposeUiTest {
@@ -226,10 +230,9 @@ class A2uiBasicCatalogV1TextUiTest {
     fun content_functionExpression_evaluatesAndPassesToTypedContent() = runComposeUiTest {
         val catalogWithFunctions =
             A2uiCatalog(
-                A2uiBasicCatalogV1(
-                    text = testText,
-                    functions = listOf(A2uiFormatStringFunction.INSTANCE),
-                )
+                catalogId = "test_catalog",
+                components = listOf(testText),
+                functions = listOf(A2uiFormatStringFunction.INSTANCE),
             )
         val controller =
             A2uiTestController(

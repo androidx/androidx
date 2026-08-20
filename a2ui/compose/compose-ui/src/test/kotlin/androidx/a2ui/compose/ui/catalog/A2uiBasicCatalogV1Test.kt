@@ -17,6 +17,7 @@
 package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.compose.runtime.Composable
@@ -31,7 +32,7 @@ class A2uiBasicCatalogV1Test {
 
     @Test
     fun catalogId_matchesExpectedSpecificationUri() {
-        val catalog = A2uiBasicCatalogV1(text = TestTextComponent(), functions = emptyList())
+        val catalog = createTestBasicCatalog()
 
         assertThat(catalog.catalogId).isEqualTo(A2uiBasicCatalogV1.CatalogId)
         assertThat(catalog.catalogId)
@@ -40,7 +41,7 @@ class A2uiBasicCatalogV1Test {
 
     @Test
     fun themeSchema_matchesExpectedStructure() {
-        val catalog = A2uiBasicCatalogV1(text = TestTextComponent(), functions = emptyList())
+        val catalog = createTestBasicCatalog()
 
         assertThat(catalog.themeSchema).isEqualTo(A2uiBasicCatalogV1.ThemeSchema)
         assertThat(catalog.themeSchema).isInstanceOf(A2uiObjectSchema::class.java)
@@ -54,7 +55,10 @@ class A2uiBasicCatalogV1Test {
     fun properties_initializedWithConstructorArguments() {
         val text = TestTextComponent()
         val catalog =
-            A2uiBasicCatalogV1(text = text, functions = listOf(A2uiFormatStringFunction.INSTANCE))
+            createTestBasicCatalog(
+                text = text,
+                functions = listOf(A2uiFormatStringFunction.INSTANCE),
+            )
 
         assertThat(catalog.text).isSameInstanceAs(text)
         assertThat(catalog.functions).containsExactly(A2uiFormatStringFunction.INSTANCE)
@@ -63,16 +67,18 @@ class A2uiBasicCatalogV1Test {
     @Test
     fun components_containsRegisteredComponents() {
         val text = TestTextComponent()
-        val catalog = A2uiBasicCatalogV1(text = text, functions = emptyList())
+        val card = TestCardComponent()
+        val catalog = createTestBasicCatalog(text = text, card = card, functions = emptyList())
 
-        assertThat(catalog.components).containsExactly(text)
+        assertThat(catalog.components).containsExactly(text, card)
     }
 
     @Test
     fun equalsAndHashCode_equalCatalogs_match() {
         val text = TestTextComponent()
-        val catalog1 = A2uiBasicCatalogV1(text = text, functions = emptyList())
-        val catalog2 = A2uiBasicCatalogV1(text = text, functions = emptyList())
+        val card = TestCardComponent()
+        val catalog1 = createTestBasicCatalog(text = text, card = card, functions = emptyList())
+        val catalog2 = createTestBasicCatalog(text = text, card = card, functions = emptyList())
 
         assertThat(catalog1).isEqualTo(catalog2)
         assertThat(catalog1.hashCode()).isEqualTo(catalog2.hashCode())
@@ -82,8 +88,11 @@ class A2uiBasicCatalogV1Test {
     fun equalsAndHashCode_differentCatalogs_doNotMatch() {
         val text1 = TestTextComponent()
         val text2 = TestTextComponent()
-        val catalog1 = A2uiBasicCatalogV1(text = text1, functions = emptyList())
-        val catalog2 = A2uiBasicCatalogV1(text = text2, functions = emptyList())
+        val sharedCard = TestCardComponent()
+        val catalog1 =
+            createTestBasicCatalog(text = text1, card = sharedCard, functions = emptyList())
+        val catalog2 =
+            createTestBasicCatalog(text = text2, card = sharedCard, functions = emptyList())
 
         assertThat(catalog1).isNotEqualTo(catalog2)
     }
@@ -91,13 +100,19 @@ class A2uiBasicCatalogV1Test {
     @Test
     fun toString_containsExpectedProperties() {
         val text = TestTextComponent()
-        val catalog = A2uiBasicCatalogV1(text = text, functions = emptyList())
+        val catalog = createTestBasicCatalog(text = text, functions = emptyList())
 
         assertThat(catalog.toString()).contains("catalogId=${A2uiBasicCatalogV1.CatalogId}")
         assertThat(catalog.toString()).contains("themeSchema=${A2uiBasicCatalogV1.ThemeSchema}")
-        assertThat(catalog.toString()).contains("text=$text")
+        assertThat(catalog.toString()).containsMatch("components=.*TestTextComponent")
         assertThat(catalog.toString()).contains("functions=[]")
     }
+
+    private fun createTestBasicCatalog(
+        text: A2uiBasicCatalogV1.Text = TestTextComponent(),
+        card: A2uiBasicCatalogV1.Card = TestCardComponent(),
+        functions: List<A2uiFunction> = emptyList(),
+    ) = A2uiBasicCatalogV1(text = text, card = card, functions = functions)
 
     private class TestTextComponent : A2uiBasicCatalogV1.Text {
         @Composable
@@ -106,5 +121,10 @@ class A2uiBasicCatalogV1Test {
             variant: A2uiBasicCatalogV1.Text.Variant,
             modifier: Modifier,
         ) {}
+    }
+
+    private class TestCardComponent : A2uiBasicCatalogV1.Card {
+        @Composable
+        override fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier) {}
     }
 }
