@@ -420,8 +420,8 @@ class ArcLayoutTest(private val testHeight: Int) {
 
     @Test
     fun testLayoutWeight() {
-        var child1: CurvedTextView
-        var child2: CurvedTextView
+        val child1: CurvedTextView
+        val child2: CurvedTextView
         doOneTest(
             "layout_weight_180",
             listOf(

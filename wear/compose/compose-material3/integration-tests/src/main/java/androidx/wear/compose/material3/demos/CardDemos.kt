@@ -293,11 +293,6 @@ fun ImageCardBuilder() {
 
         item { ListHeader { Text("Image Card") } }
         item {
-            val painter =
-                painterResource(
-                    androidx.wear.compose.material3.demos.R.drawable.backgroundsplitimage
-                )
-
             TitleCard(
                 onClick = { /* Do something */ },
                 title = { Text("Title") },

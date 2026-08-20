@@ -162,7 +162,7 @@ class ComplicationDataSourceServiceTest {
 
     @Test
     fun onBind_actionWearSdkComplicationUpdateRequest_returnsComplicationDataRequester() {
-        var binder =
+        val binder =
             mService.onBind(
                 Intent(ComplicationDataSourceService.ACTION_WEAR_SDK_COMPLICATION_UPDATE_REQUEST)
             )
@@ -173,12 +173,12 @@ class ComplicationDataSourceServiceTest {
 
     @Test
     fun complicationDataRequester_onComplicationRequest_callsServiceMethod() {
-        var requester =
+        val requester =
             mService.onBind(
                 Intent(ComplicationDataSourceService.ACTION_WEAR_SDK_COMPLICATION_UPDATE_REQUEST)
             ) as ComplicationDataSourceService.ComplicationDataRequester
-        var fakeRequest = ComplicationRequest(0, ComplicationType.SHORT_TEXT, false)
-        var mockListener = mock<ComplicationDataSourceService.ComplicationRequestListener>()
+        val fakeRequest = ComplicationRequest(0, ComplicationType.SHORT_TEXT, false)
+        val mockListener = mock<ComplicationDataSourceService.ComplicationRequestListener>()
 
         requester.onComplicationRequest(fakeRequest, mockListener)
 

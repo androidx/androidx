@@ -426,7 +426,7 @@ private fun RemoteDrawScope.calculateTimerArcParams(
         countDown.select(ifTrue = 1.0f.rf - animatedProgress, ifFalse = animatedProgress)
 
     val isZero = elapsedTimerProgress.isLessThanOrEqualTo(0f.rf)
-    val isOne = elapsedTimerProgress.isGreaterThanOrEqualTo(1f.rf)
+    elapsedTimerProgress.isGreaterThanOrEqualTo(1f.rf)
 
     // Evaluate fractions locally using standard Kotlin to bypass constructing redundant remote AST
     // nodes
@@ -444,8 +444,7 @@ private fun RemoteDrawScope.calculateTimerArcParams(
     val isOverOutroThreshold = elapsedTimerProgress.isGreaterThan(outroTriggerThreshold)
 
     val remainingScaleRange = max(EPSILON, outroTriggerThreshold - outroCollapseStartThreshold)
-    val remainingScaleUnclamped =
-        clamp((outroTriggerThreshold - elapsedTimerProgress) / remainingScaleRange, 0f.rf, 1f.rf)
+    clamp((outroTriggerThreshold - elapsedTimerProgress) / remainingScaleRange, 0f.rf, 1f.rf)
 
     val animateScale = { target: RemoteFloat ->
         remote.animateSpring(

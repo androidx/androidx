@@ -387,7 +387,7 @@ fun CurvedFonts() {
             )
             .forEach { (name, ff) ->
                 basicCurvedText(
-                    "$name",
+                    name,
                     style = CurvedTextStyle(color = Color.White, fontFamily = ff),
                     modifier = CurvedModifier.padding(5.dp),
                 )

@@ -73,7 +73,7 @@ internal class CurvedRowChild(
     ): PartialLayoutInfo {
         // position children, sum angles.
         @Suppress("ListIterator")
-        var totalSweep =
+        val totalSweep =
             children.sumOf { child ->
                 var childRadialPosition = parentOuterRadius
                 var childThickness = parentThickness
