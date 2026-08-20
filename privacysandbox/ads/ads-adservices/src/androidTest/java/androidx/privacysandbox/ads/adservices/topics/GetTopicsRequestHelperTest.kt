@@ -40,8 +40,8 @@ class GetTopicsRequestHelperTest {
             mValidAdServicesSdkExt4Version || mValidAdExtServicesSdkExtVersion,
         )
 
-        var request = GetTopicsRequest("sdk1")
-        var convertedRequest =
+        val request = GetTopicsRequest("sdk1")
+        val convertedRequest =
             GetTopicsRequestHelper.convertRequestWithoutRecordObservation(request)
 
         assertEquals("sdk1", convertedRequest.adsSdkName)
@@ -54,8 +54,8 @@ class GetTopicsRequestHelperTest {
             mValidAdServicesSdkExt5Version || mValidAdExtServicesSdkExtVersion,
         )
 
-        var request = GetTopicsRequest("sdk1", true)
-        var convertedRequest = GetTopicsRequestHelper.convertRequestWithRecordObservation(request)
+        val request = GetTopicsRequest("sdk1", true)
+        val convertedRequest = GetTopicsRequestHelper.convertRequestWithRecordObservation(request)
 
         assertEquals("sdk1", convertedRequest.adsSdkName)
         assertEquals(true, convertedRequest.shouldRecordObservation())

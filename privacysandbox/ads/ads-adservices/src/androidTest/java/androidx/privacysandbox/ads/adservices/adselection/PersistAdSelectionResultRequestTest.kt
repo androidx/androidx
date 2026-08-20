@@ -46,7 +46,7 @@ class PersistAdSelectionResultRequestTest {
     fun testEquals() {
         val persistAdSelectionResultRequest =
             PersistAdSelectionResultRequest(adSelectionId, seller, adSelectionResult)
-        var persistAdSelectionResultRequest2 =
+        val persistAdSelectionResultRequest2 =
             PersistAdSelectionResultRequest(
                 1234L,
                 AdTechIdentifier("1234"),

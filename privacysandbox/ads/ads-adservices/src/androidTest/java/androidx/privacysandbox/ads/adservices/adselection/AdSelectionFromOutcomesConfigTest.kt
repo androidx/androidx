@@ -60,7 +60,7 @@ class AdSelectionFromOutcomesConfigTest {
                 adSelectionSignals,
                 selectionLogicUri,
             )
-        var adSelectionFromOutcomesConfig2 =
+        val adSelectionFromOutcomesConfig2 =
             AdSelectionFromOutcomesConfig(
                 AdTechIdentifier("1234"),
                 adSelectionIds,

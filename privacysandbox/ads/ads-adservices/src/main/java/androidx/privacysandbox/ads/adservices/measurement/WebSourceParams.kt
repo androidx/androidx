@@ -58,7 +58,7 @@ public constructor(public val registrationUri: Uri, public val debugKeyAllowed: 
         internal fun convertWebSourceParams(
             request: List<WebSourceParams>
         ): List<android.adservices.measurement.WebSourceParams> {
-            var result = mutableListOf<android.adservices.measurement.WebSourceParams>()
+            val result = mutableListOf<android.adservices.measurement.WebSourceParams>()
             for (param in request) {
                 result.add(
                     android.adservices.measurement.WebSourceParams.Builder(param.registrationUri)

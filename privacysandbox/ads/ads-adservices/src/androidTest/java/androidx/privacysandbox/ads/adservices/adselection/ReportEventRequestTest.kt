@@ -63,7 +63,7 @@ class ReportEventRequestTest {
                 reportingDestinations,
                 inputEvent,
             )
-        var reportEventRequest2 =
+        val reportEventRequest2 =
             ReportEventRequest(
                 1234L,
                 "click",

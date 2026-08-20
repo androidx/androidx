@@ -61,7 +61,7 @@ class AdDataTest {
     @Test
     fun testEquals() {
         val adData1 = AdData(uri, metadata, adCounterKeys, adFilters, adRenderId)
-        var adData2 =
+        val adData2 =
             AdData(
                 Uri.parse("abc.com"),
                 "metadata",

@@ -69,7 +69,7 @@ class FrequencyCapFiltersTest {
                 keyedFrequencyCapsForViewEvents,
                 keyedFrequencyCapsForClickEvents,
             )
-        var frequencyCapFilters2 =
+        val frequencyCapFilters2 =
             FrequencyCapFilters(
                 listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
                 listOf(KeyedFrequencyCap(2, 4, Duration.ofSeconds(2))),
