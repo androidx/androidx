@@ -105,18 +105,17 @@ class AuthenticationHandlerTest {
     @Test
     fun onAuthenticationResult_multipleHandlers_dispatchedToCorrectHandler() {
         var authResult1: BiometricPrompt.AuthenticationResult? = null
-        val handler1 =
-            createHandler(
-                mainExecutor = { it.run() },
-                authenticationCallback =
-                    object : BiometricPrompt.AuthenticationCallback() {
-                        override fun onAuthenticationSucceeded(
-                            result: BiometricPrompt.AuthenticationResult
-                        ) {
-                            authResult1 = result
-                        }
-                    },
-            )
+        createHandler(
+            mainExecutor = { it.run() },
+            authenticationCallback =
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(
+                        result: BiometricPrompt.AuthenticationResult
+                    ) {
+                        authResult1 = result
+                    }
+                },
+        )
 
         var authResult2: BiometricPrompt.AuthenticationResult? = null
         val handler2 =
@@ -145,7 +144,7 @@ class AuthenticationHandlerTest {
     @Test
     fun init_reconnectsToHandler_onlyValidForCorrectKey() {
         // create two handlers and authenticate with the second one
-        val handler1Initial = createHandler()
+        createHandler()
         val handler2Initial = createHandler()
 
         handler2Initial.authenticate(bioAndCredentialInfo, null)
