@@ -545,7 +545,6 @@ class CompositionObserverTests {
             }
 
         var seen = data
-        var composition2: Composition? = null
         compose {
             Text("Root: $data")
 

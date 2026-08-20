@@ -749,7 +749,7 @@ class RetainTests {
             recomposeScope = currentRecomposeScope
             if (includeContent) {
                 LocalRetainedValuesStoreProvider(store) {
-                    @Suppress("UnusedVariable")
+                    @Suppress("UnusedVariable", "UNUSED_VARIABLE")
                     val retained = retain { CountingRetainObject().also { factoryResults += it } }
                 }
             }
@@ -796,7 +796,7 @@ class RetainTests {
             recomposeScope = currentRecomposeScope
             val content = remember {
                 movableContentOf {
-                    @Suppress("UnusedVariable")
+                    @Suppress("UnusedVariable", "UNUSED_VARIABLE")
                     val retained = retain { CountingRetainObject().also { factoryResults += it } }
                 }
             }
@@ -846,7 +846,7 @@ class RetainTests {
             recomposeScope = currentRecomposeScope
             val content = remember {
                 movableContentOf {
-                    @Suppress("UnusedVariable")
+                    @Suppress("UnusedVariable", "UNUSED_VARIABLE")
                     val retained = retain { CountingRetainObject().also { factoryResults += it } }
                 }
             }
@@ -1424,7 +1424,7 @@ class RetainTests {
         }
 
         var expectedAText = "A:0"
-        var expectedBText = "B:1"
+        val expectedBText = "B:1"
         validate {
             if (includeA) Text(expectedAText)
             if (includeB) Text(expectedBText)

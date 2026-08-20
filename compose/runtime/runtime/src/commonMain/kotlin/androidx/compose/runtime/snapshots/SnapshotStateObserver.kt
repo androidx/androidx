@@ -136,8 +136,8 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
     private fun removeChanges(): Set<Any>? {
         while (true) {
             val old = pendingChanges.get()
-            var result: Set<Any>?
-            var new: Any?
+            val result: Set<Any>?
+            val new: Any?
             when (old) {
                 null -> return null // The queue is empty
                 is Set<*> -> {
