@@ -17,6 +17,7 @@
 package androidx.ink.strokes
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.WorkerThread
 import androidx.ink.brush.Brush
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.PartitionedMesh
@@ -192,7 +193,7 @@ private constructor(
      * @return The [Stroke] remaining after the subtraction.
      */
     @ExperimentalInkEraserApi
-    // TODO(b/534309122): Add WorkerThread annotation once that's supported in KMP-common.
+    @WorkerThread
     public fun subtract(
         maskShape: PartitionedMesh,
         maskToWorldTransform: AffineTransform,
@@ -243,7 +244,7 @@ private constructor(
      *   them connected.
      */
     @ExperimentalInkEraserApi
-    // TODO(b/534309122): Add WorkerThread annotation once that's supported in KMP-common.
+    @WorkerThread
     public fun split(strokeToWorldTransform: AffineTransform, tolerance: Float): Set<Stroke> =
         MultipleStrokes.createWithSplit(this, strokeToWorldTransform, tolerance)
 
