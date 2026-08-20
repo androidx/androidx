@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.Dp
 /**
  * The configuration for the ripple node created by [createRippleModifierNode].
  *
+ * @sample androidx.compose.material3.ripple.samples.CreateRippleModifierNodeSample
  * @param isBounded if true, ripples are clipped by the bounds of the target layout. Unbounded
  *   ripples always animate from the target layout center, bounded ripples animate from the touch
  *   position.
