@@ -33,6 +33,10 @@ import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringListSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicValueSchema
 import androidx.annotation.IntRange
+import androidx.collection.DoubleList
+import androidx.collection.FloatList
+import androidx.collection.IntList
+import androidx.collection.LongList
 import androidx.compose.runtime.Immutable
 import java.lang.StringBuilder
 
@@ -166,7 +170,97 @@ public sealed class A2uiProperty<out T> {
             key: String,
             required: Boolean = false,
             description: String? = null,
-        ): StaticA2uiProperty<Number> = NumberProperty(key, required, description)
+        ): StaticA2uiProperty<Number> =
+            NumberProperty(
+                key,
+                isRequired = required,
+                description = description,
+                defaultValue = null,
+            )
+
+        /**
+         * Creates an optional static property expecting a literal numeric value with an integer
+         * default value.
+         *
+         * @param key The key for this property.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to a [Number] at runtime.
+         */
+        public fun number(
+            key: String,
+            defaultValue: Int,
+            description: String? = null,
+        ): StaticA2uiProperty<Number> =
+            NumberProperty(
+                key,
+                isRequired = false,
+                description = description,
+                defaultValue = defaultValue,
+            )
+
+        /**
+         * Creates an optional static property expecting a literal numeric value with a float
+         * default value.
+         *
+         * @param key The key for this property.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to a [Number] at runtime.
+         */
+        public fun number(
+            key: String,
+            defaultValue: Float,
+            description: String? = null,
+        ): StaticA2uiProperty<Number> =
+            NumberProperty(
+                key,
+                isRequired = false,
+                description = description,
+                defaultValue = defaultValue,
+            )
+
+        /**
+         * Creates an optional static property expecting a literal numeric value with a double
+         * default value.
+         *
+         * @param key The key for this property.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to a [Number] at runtime.
+         */
+        public fun number(
+            key: String,
+            defaultValue: Double,
+            description: String? = null,
+        ): StaticA2uiProperty<Number> =
+            NumberProperty(
+                key,
+                isRequired = false,
+                description = description,
+                defaultValue = defaultValue,
+            )
+
+        /**
+         * Creates an optional static property expecting a literal numeric value with a long default
+         * value.
+         *
+         * @param key The key for this property.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to a [Number] at runtime.
+         */
+        public fun number(
+            key: String,
+            defaultValue: Long,
+            description: String? = null,
+        ): StaticA2uiProperty<Number> =
+            NumberProperty(
+                key,
+                isRequired = false,
+                description = description,
+                defaultValue = defaultValue,
+            )
 
         /**
          * Creates a static property expecting a literal boolean value.
@@ -181,7 +275,34 @@ public sealed class A2uiProperty<out T> {
             key: String,
             required: Boolean = false,
             description: String? = null,
-        ): StaticA2uiProperty<Boolean> = BooleanProperty(key, required, description)
+        ): StaticA2uiProperty<Boolean> =
+            BooleanProperty(
+                key,
+                isRequired = required,
+                description = description,
+                defaultValue = null,
+            )
+
+        /**
+         * Creates an optional static property expecting a literal boolean value with a default
+         * value.
+         *
+         * @param key The key for this property.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to a [Boolean] at runtime.
+         */
+        public fun booleanWithDefault(
+            key: String,
+            defaultValue: Boolean,
+            description: String? = null,
+        ): StaticA2uiProperty<Boolean> =
+            BooleanProperty(
+                key,
+                isRequired = false,
+                description = description,
+                defaultValue = defaultValue,
+            )
 
         /**
          * Creates a static property accepting an arbitrary payload without strict type enforcement.
@@ -300,7 +421,39 @@ public sealed class A2uiProperty<out T> {
             enumValues: List<String>,
             required: Boolean = false,
             description: String? = null,
-        ): StaticA2uiProperty<String> = StringEnumProperty(key, required, description, enumValues)
+        ): StaticA2uiProperty<String> =
+            StringEnumProperty(
+                key,
+                isRequired = required,
+                description = description,
+                enumValues = enumValues,
+                defaultValue = null,
+            )
+
+        /**
+         * Creates an optional static property expecting a string value strictly bounded to a
+         * predefined list of options with a default value.
+         *
+         * @param key The key for this property.
+         * @param enumValues A list of valid string values the agent is allowed to supply for this
+         *   property.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to a [String] at runtime.
+         */
+        public fun stringEnum(
+            key: String,
+            enumValues: List<String>,
+            defaultValue: String,
+            description: String? = null,
+        ): StaticA2uiProperty<String> =
+            StringEnumProperty(
+                key,
+                isRequired = false,
+                description = description,
+                enumValues = enumValues,
+                defaultValue = defaultValue,
+            )
 
         /**
          * Creates a static property expecting a number value strictly bounded to a predefined list
@@ -319,7 +472,114 @@ public sealed class A2uiProperty<out T> {
             enumValues: List<Number>,
             required: Boolean = false,
             description: String? = null,
-        ): StaticA2uiProperty<Number> = NumberEnumProperty(key, required, description, enumValues)
+        ): StaticA2uiProperty<Number> =
+            NumberEnumProperty(
+                key,
+                isRequired = required,
+                description = description,
+                enumValues = enumValues,
+                defaultValue = null,
+            )
+
+        /**
+         * Creates an optional static property expecting an integer value strictly bounded to a
+         * predefined list of options with a specified default value.
+         *
+         * @param key The key for this property.
+         * @param enumValues A list of valid integer values the agent is allowed to supply for this
+         *   property.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to a [Number] at runtime.
+         */
+        public fun numberEnum(
+            key: String,
+            enumValues: IntList,
+            defaultValue: Int,
+            description: String? = null,
+        ): StaticA2uiProperty<Number> =
+            NumberEnumProperty(
+                key,
+                isRequired = false,
+                description = description,
+                enumValues = List(enumValues.size) { enumValues[it] },
+                defaultValue = defaultValue,
+            )
+
+        /**
+         * Creates an optional static property expecting a float value strictly bounded to a
+         * predefined list of options with a specified default value.
+         *
+         * @param key The key for this property.
+         * @param enumValues A list of valid float values the agent is allowed to supply for this
+         *   property.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to a [Number] at runtime.
+         */
+        public fun numberEnum(
+            key: String,
+            enumValues: FloatList,
+            defaultValue: Float,
+            description: String? = null,
+        ): StaticA2uiProperty<Number> =
+            NumberEnumProperty(
+                key,
+                isRequired = false,
+                description = description,
+                enumValues = List(enumValues.size) { enumValues[it] },
+                defaultValue = defaultValue,
+            )
+
+        /**
+         * Creates an optional static property expecting a double value strictly bounded to a
+         * predefined list of options with a specified default value.
+         *
+         * @param key The key for this property.
+         * @param enumValues A list of valid double values the agent is allowed to supply for this
+         *   property.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to a [Number] at runtime.
+         */
+        public fun numberEnum(
+            key: String,
+            enumValues: DoubleList,
+            defaultValue: Double,
+            description: String? = null,
+        ): StaticA2uiProperty<Number> =
+            NumberEnumProperty(
+                key,
+                isRequired = false,
+                description = description,
+                enumValues = List(enumValues.size) { enumValues[it] },
+                defaultValue = defaultValue,
+            )
+
+        /**
+         * Creates an optional static property expecting a long value strictly bounded to a
+         * predefined list of options with a specified default value.
+         *
+         * @param key The key for this property.
+         * @param enumValues A list of valid long values the agent is allowed to supply for this
+         *   property.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to a [Number] at runtime.
+         */
+        public fun numberEnum(
+            key: String,
+            enumValues: LongList,
+            defaultValue: Long,
+            description: String? = null,
+        ): StaticA2uiProperty<Number> =
+            NumberEnumProperty(
+                key,
+                isRequired = false,
+                description = description,
+                enumValues = List(enumValues.size) { enumValues[it] },
+                defaultValue = defaultValue,
+            )
 
         /**
          * Creates a static property expecting an enum value strictly bounded to a predefined list
@@ -346,7 +606,48 @@ public sealed class A2uiProperty<out T> {
             required: Boolean = false,
             description: String? = null,
         ): StaticA2uiProperty<T> =
-            EnumProperty(key, required, description, enumValues, mapToString, convertFromString)
+            EnumProperty(
+                key,
+                isRequired = required,
+                description = description,
+                enumValues = enumValues,
+                mapToString = mapToString,
+                convertFromString = convertFromString,
+                defaultValue = null,
+            )
+
+        /**
+         * Creates an optional static property expecting an enum value strictly bounded to a
+         * predefined list of enum options with a default value.
+         *
+         * @param key The key for this property.
+         * @param enumValues A list of valid enum values the agent is allowed to supply for this
+         *   property.
+         * @param mapToString A mapping function to serialize an enum entry into its string schema
+         *   value.
+         * @param convertFromString A parsing function to convert a raw string value into an enum
+         *   entry.
+         * @param defaultValue The default value for this property.
+         * @param description An optional string explaining this property's purpose to the agent.
+         * @return A [StaticA2uiProperty] that resolves to [T] at runtime.
+         */
+        public fun <T : Enum<T>> enum(
+            key: String,
+            enumValues: List<T>,
+            mapToString: (T) -> String,
+            convertFromString: (String) -> T?,
+            defaultValue: T,
+            description: String? = null,
+        ): StaticA2uiProperty<T> =
+            EnumProperty(
+                key,
+                isRequired = false,
+                description = description,
+                enumValues = enumValues,
+                mapToString = mapToString,
+                convertFromString = convertFromString,
+                defaultValue = defaultValue,
+            )
 
         /**
          * Creates a static property with a custom schema and type-casting logic.
@@ -678,8 +979,13 @@ internal class NumberProperty(
     override val key: String,
     override val isRequired: Boolean,
     description: String?,
+    defaultValue: Number?,
 ) : StaticA2uiProperty<Number>() {
-    override val schema: A2uiSchema = A2uiNumberSchema(description = description)
+    override val schema: A2uiSchema =
+        A2uiNumberSchema(
+            description = description,
+            keywords = listOfNotNull(defaultValue?.let { A2uiSchemaKeyword.Default(it) }),
+        )
 
     override fun safeCast(value: Any): Number? = value as? Number
 }
@@ -689,8 +995,13 @@ internal class BooleanProperty(
     override val key: String,
     override val isRequired: Boolean,
     description: String?,
+    defaultValue: Boolean?,
 ) : StaticA2uiProperty<Boolean>() {
-    override val schema: A2uiSchema = A2uiBooleanSchema(description = description)
+    override val schema: A2uiSchema =
+        A2uiBooleanSchema(
+            description = description,
+            keywords = listOfNotNull(defaultValue?.let { A2uiSchemaKeyword.Default(it) }),
+        )
 
     override fun safeCast(value: Any): Boolean? = value as? Boolean
 }
@@ -791,11 +1102,22 @@ internal class StringEnumProperty(
     override val isRequired: Boolean,
     description: String?,
     enumValues: List<String>,
+    defaultValue: String?,
 ) : StaticA2uiProperty<String>() {
+    init {
+        require(defaultValue == null || defaultValue in enumValues) {
+            "The default value ($defaultValue) must be one of the specified enumValues: $enumValues"
+        }
+    }
+
     override val schema: A2uiSchema =
         A2uiStringSchema(
             description = description,
-            keywords = listOf(A2uiSchemaKeyword.Enum(enumValues)),
+            keywords =
+                listOfNotNull(
+                    A2uiSchemaKeyword.Enum(enumValues),
+                    defaultValue?.let { A2uiSchemaKeyword.Default(it) },
+                ),
         )
 
     override fun safeCast(value: Any): String? = value as? String
@@ -807,11 +1129,22 @@ internal class NumberEnumProperty(
     override val isRequired: Boolean,
     description: String?,
     enumValues: List<Number>,
+    defaultValue: Number?,
 ) : StaticA2uiProperty<Number>() {
+    init {
+        require(defaultValue == null || defaultValue in enumValues) {
+            "The default value ($defaultValue) must be one of the specified enumValues: $enumValues"
+        }
+    }
+
     override val schema: A2uiSchema =
         A2uiNumberSchema(
             description = description,
-            keywords = listOf(A2uiSchemaKeyword.Enum(enumValues)),
+            keywords =
+                listOfNotNull(
+                    A2uiSchemaKeyword.Enum(enumValues),
+                    defaultValue?.let { A2uiSchemaKeyword.Default(it) },
+                ),
         )
 
     override fun safeCast(value: Any): Number? = value as? Number
@@ -825,16 +1158,25 @@ internal class EnumProperty<T>(
     private val enumValues: List<T>,
     mapToString: (T) -> String,
     private val convertFromString: (String) -> T?,
+    defaultValue: T?,
 ) : StaticA2uiProperty<T>() {
+    init {
+        require(defaultValue == null || defaultValue in enumValues) {
+            "The default value ($defaultValue) must be one of the specified enumValues: $enumValues"
+        }
+    }
+
     override val schema: A2uiSchema = run {
         val mappedEnumValues = ArrayList<String>(enumValues.size)
         for (i in enumValues.indices) {
             mappedEnumValues.add(mapToString(enumValues[i]))
         }
-        A2uiStringSchema(
-            description = description,
-            keywords = listOf(A2uiSchemaKeyword.Enum(mappedEnumValues)),
-        )
+        val keywords =
+            listOfNotNull(
+                A2uiSchemaKeyword.Enum(mappedEnumValues),
+                defaultValue?.let { A2uiSchemaKeyword.Default(mapToString(it)) },
+            )
+        A2uiStringSchema(description = description, keywords = keywords)
     }
 
     override fun safeCast(value: Any): T? =
