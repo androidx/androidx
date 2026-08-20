@@ -279,9 +279,7 @@ class ProcessorTests : DatabaseTest() {
         var firstListenerCalled = false
         var secondListenerCalled = false
 
-        val secondListener = ExecutionListener { id, needsReschedule ->
-            secondListenerCalled = true
-        }
+        val secondListener = ExecutionListener { _, _ -> secondListenerCalled = true }
 
         val firstListener =
             object : ExecutionListener {
@@ -321,9 +319,7 @@ class ProcessorTests : DatabaseTest() {
         var firstListenerCalled = false
         var secondListenerCalled = false
 
-        val secondListener = ExecutionListener { id, needsReschedule ->
-            secondListenerCalled = true
-        }
+        val secondListener = ExecutionListener { _, _ -> secondListenerCalled = true }
 
         val firstListener =
             object : ExecutionListener {
