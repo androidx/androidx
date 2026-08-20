@@ -163,7 +163,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
         }
     }
 
-    private fun listOfStrings(strings: List<String>) = buildCodeBlock { language ->
+    private fun listOfStrings(strings: List<String>) = buildCodeBlock { _ ->
         val placeholders = List(strings.size) { "%S" }.joinToString()
         add("listOf($placeholders)", *strings.toTypedArray())
     }

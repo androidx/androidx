@@ -203,7 +203,7 @@ class KspFilerTest {
             annotation: XAnnotation?,
             annotationValue: XAnnotationValue?,
         ) {
-            var errorMsg =
+            val errorMsg =
                 "${kind.name} element: $element " +
                     "annotation: $annotation " +
                     "annotationValue: $annotationValue " +

@@ -413,7 +413,7 @@ class DatabaseWriter(val database: Database, writerContext: WriterContext) :
                 visibility = VisibilityModifier.PUBLIC,
                 isOverride = true,
             )
-            .applyTo { language ->
+            .applyTo { _ ->
                 val classOfAutoMigrationSpecTypeName =
                     CommonTypeNames.KOTLIN_CLASS.parametrizedBy(
                         XTypeName.getProducerExtendsName(RoomTypeNames.AUTO_MIGRATION_SPEC)

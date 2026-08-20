@@ -181,7 +181,7 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
         functionName: String,
         converters: Set<XClassName>,
     ): XFunSpec {
-        val body = buildCodeBlock { language ->
+        val body = buildCodeBlock { _ ->
             if (converters.isEmpty()) {
                 addStatement("return emptyList()")
             } else {
@@ -193,7 +193,7 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
         }
         return XFunSpec.builder(functionName, VisibilityModifier.PUBLIC)
             .applyToJavaPoet { addModifiers(javax.lang.model.element.Modifier.STATIC) }
-            .applyTo { language ->
+            .applyTo { _ ->
                 returns(
                     CommonTypeNames.LIST.parametrizedBy(
                         CommonTypeNames.KOTLIN_CLASS.parametrizedBy(XTypeName.ANY_WILDCARD)
