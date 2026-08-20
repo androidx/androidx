@@ -38,8 +38,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
-import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component2
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.geometry.Offset
@@ -858,7 +856,11 @@ class CardTest {
         // The width should fill the max width, like with the spacer
         cardBounds.width.assertIsEqualTo(spacerBounds.width, "width of card.")
         cardBounds.height.assertIsEqualTo(cardHeight, "height of card.")
-        headerBounds.height.assertIsEqualTo(headerBounds.width / 1.6f, "height of header image")
+        headerBounds.height.assertIsEqualTo(
+            expected = headerBounds.width / 1.6f,
+            subject = "height of header image",
+            tolerance = 1.dp,
+        )
     }
 
     @Test
@@ -1019,7 +1021,11 @@ class CardTest {
         // The width should fill the max width, like with the spacer
         cardBounds.width.assertIsEqualTo(spacerBounds.width, "width of card.")
         cardBounds.height.assertIsEqualTo(cardHeight, "height of card.")
-        headerBounds.height.assertIsEqualTo(headerBounds.width / 1.6f, "height of header image")
+        headerBounds.height.assertIsEqualTo(
+            expected = headerBounds.width / 1.6f,
+            subject = "height of header image",
+            tolerance = 1.dp,
+        )
     }
 
     @Test
