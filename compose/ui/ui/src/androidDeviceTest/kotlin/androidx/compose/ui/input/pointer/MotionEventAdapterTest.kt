@@ -1747,6 +1747,72 @@ class MotionEventAdapterTest {
         assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPanOngoing_noResetOnSimulatedHoverMoveMidGesture() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        // Start mid-gesture with ACTION_MOVE (swipe)
+        // This simulates the case where the adapter might have missed ACTION_DOWN,
+        // or we want to verify that isTrackpadPanOngoing alone prevents the reset.
+        val moveSwipe =
+            MotionEvent(
+                eventTime = 1,
+                action = ACTION_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(moveSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+
+        // Simulated hover move (classification NONE) should NOT reset if pan is ongoing,
+        // even if isAnyPointerDown is false.
+        val simulatedHoverMove =
+            MotionEvent(
+                eventTime = 2,
+                action = ACTION_HOVER_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(simulatedHoverMove)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+
+        // When ACTION_UP arrives at the end of the gesture stream, isTrackpadPanOngoing should
+        // reset to false.
+        val upSwipe =
+            MotionEvent(
+                eventTime = 3,
+                action = ACTION_UP,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(upSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+
+        // Subsequent hover move events should maintain isTrackpadPanOngoing as false.
+        val postGestureHoverMove =
+            MotionEvent(
+                eventTime = 4,
+                action = ACTION_HOVER_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(postGestureHoverMove)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+    }
+
     private fun MotionEventAdapter.convertToPointerInputEvent(motionEvent: MotionEvent) =
         convertToPointerInputEvent(motionEvent, positionCalculator)
 
