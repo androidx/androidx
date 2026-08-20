@@ -230,7 +230,7 @@ class WindowInfoTrackerImplTest {
     @Test
     fun testSupportedWindowPostures_throwsBeforeApi6() {
         assumeBeforeWindowExtensionVersion(6)
-        activityScenario.scenario.onActivity { testActivity ->
+        activityScenario.scenario.onActivity { _ ->
             assertFailsWith<UnsupportedOperationException> { tracker.supportedPostures }
         }
     }
@@ -238,7 +238,7 @@ class WindowInfoTrackerImplTest {
     @Test
     fun testSupportedWindowPostures_reportsFeatures() {
         assumeAtLeastWindowExtensionVersion(6)
-        activityScenario.scenario.onActivity { testActivity ->
+        activityScenario.scenario.onActivity { _ ->
             val fakeBackend =
                 FakeWindowBackend(supportedPostures = listOf(SupportedPosture.TABLETOP))
             val tracker =

@@ -130,7 +130,7 @@ class WindowMetricsCalculatorCompatTest {
 
     @Test
     fun testGetCurrentWindowMetricsOrNull_returnsNullOnOtherContext() {
-        activityScenarioRule.scenario.onActivity { activity ->
+        activityScenarioRule.scenario.onActivity { _ ->
             val calculator = WindowMetricsCalculator.getOrCreate()
 
             val actual = calculator.computeCurrentWindowMetricsOrNull(mock(Context::class.java))
@@ -141,7 +141,7 @@ class WindowMetricsCalculatorCompatTest {
 
     @Test
     fun testGetMaximumWindowMetrics_returnsNullOnOtherContext() {
-        activityScenarioRule.scenario.onActivity { activity ->
+        activityScenarioRule.scenario.onActivity { _ ->
             val calculator = WindowMetricsCalculator.getOrCreate()
 
             val actual = calculator.computeMaximumWindowMetricsOrNull(mock(Context::class.java))

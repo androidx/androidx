@@ -51,13 +51,13 @@ internal object ReflectionUtils {
             }
             result
         } catch (noClass: ClassNotFoundException) {
-            Log.e("ReflectionGuard", "ClassNotFound: ${errorMessage.orEmpty()}")
+            Log.e("ReflectionGuard", "ClassNotFound: $errorMessage")
             false
         } catch (noMethod: NoSuchMethodException) {
-            Log.e("ReflectionGuard", "NoSuchMethod: ${errorMessage.orEmpty()}")
+            Log.e("ReflectionGuard", "NoSuchMethod: $errorMessage")
             false
         } catch (noField: NoSuchFieldException) {
-            Log.e("ReflectionGuard", "NoSuchField: ${errorMessage.orEmpty()}")
+            Log.e("ReflectionGuard", "NoSuchField: $errorMessage")
             false
         }
     }
