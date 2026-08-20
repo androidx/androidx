@@ -73,7 +73,7 @@ public object AndroidComposeUiFlags {
     // TODO: b/529483648
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isDelayAndroidViewsHandlerCreationEnabled: Boolean = false
+    public var isDelayAndroidViewsHandlerCreationEnabled: Boolean = true
 
     /**
      * This flag forces scroll capture to center the content being rendered even if it's already
