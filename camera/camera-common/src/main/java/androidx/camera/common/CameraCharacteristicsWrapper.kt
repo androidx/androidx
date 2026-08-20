@@ -44,23 +44,8 @@ import androidx.camera.common.compat.Api34Compat
  * directly by clients. For testing, use the fakes in `androidx.camera.common.testing` package (such
  * as `FakeCameraCharacteristics`).
  *
- * ### Example
- *
- * Querying native and custom keys:
- * ```kotlin
- * val characteristics: CameraCharacteristicsWrapper = ...
- *
- * // Query a native CameraCharacteristics key:
- * val lensFacing: Int? = characteristics[CameraCharacteristics.LENS_FACING]
- *
- * // Query a custom Metadata key:
- * val customValue: String? = characteristics[MY_CUSTOM_METADATA_KEY]
- * ```
- *
- * Unwrapping the native object (unsafe):
- * ```kotlin
- * val nativeCharacteristics: CameraCharacteristics? = characteristics.unwrapAs()
- * ```
+ * @sample androidx.camera.common.samples.wrapCameraCharacteristicsSample
+ * @sample androidx.camera.common.samples.accessCameraCharacteristicsPropertiesSample
  */
 public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     /**
