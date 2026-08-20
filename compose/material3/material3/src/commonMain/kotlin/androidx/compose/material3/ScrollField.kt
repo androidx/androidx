@@ -176,6 +176,8 @@ public fun rememberScrollFieldState(itemCount: Int, index: Int = 0): ScrollField
  *   "Select year between 2000 and 2025"). Because the wheel wraps around endlessly, this
  *   description is the only way for an accessibility user to learn the field's bounds.
  * @param modifier the [Modifier] to be applied to the ScrollField container.
+ * @param enabled whether the ScrollField is enabled. When false the disabled colors from
+ *   [ScrollFieldColors] will be used, and the ScrollField will not be interactable.
  * @param colors [ScrollFieldColors] that will be used to resolve the colors used for this
  *   ScrollField in different states.
  * @param fieldAccessibilityDescription returns the text accessibility services (e.g. TalkBack)
@@ -189,20 +191,31 @@ public fun ScrollField(
     state: ScrollFieldState,
     contentDescription: String?,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     colors: ScrollFieldColors = ScrollFieldDefaults.colors(),
     fieldAccessibilityDescription: (index: Int) -> String = { index -> index.toLocalString() },
     interactionSource: MutableInteractionSource? = null,
-    field: @Composable (index: Int, selected: Boolean) -> Unit = { index, selected ->
-        ScrollFieldDefaults.Item(index = index, selected = selected, colors = colors)
-    },
+    field: @Composable (index: Int, selected: Boolean, enabled: Boolean) -> Unit =
+        { index, selected, enabled ->
+            ScrollFieldDefaults.Item(
+                index = index,
+                selected = selected,
+                enabled = enabled,
+                colors = colors,
+            )
+        },
 ) {
     val scope = rememberCoroutineScope()
 
     VerticalPager(
         state = state.pagerState,
+        userScrollEnabled = enabled,
         modifier =
             modifier
-                .background(colors.containerColor, shape = ScrollFieldDefaults.shape)
+                .background(
+                    color = if (enabled) colors.containerColor else colors.disabledContainerColor,
+                    shape = ScrollFieldDefaults.shape,
+                )
                 .onKeyEvent { event ->
                     if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
                     val direction =
@@ -215,7 +228,7 @@ public fun ScrollField(
                     scope.launch { state.pagerState.animateScrollToPage(nextPage) }
                     true
                 }
-                .focusable(interactionSource = interactionSource)
+                .focusable(interactionSource = interactionSource, enabled = enabled)
                 .clearAndSetSemantics {
                     if (contentDescription != null) {
                         this.contentDescription = contentDescription
@@ -248,21 +261,39 @@ public fun ScrollField(
             modifier =
                 Modifier.fillMaxHeight()
                     .focusProperties { canFocus = false }
-                    .clickable { scope.launch { state.animateScrollToOption(index) } }
+                    .clickable(enabled = enabled) {
+                        scope.launch { state.animateScrollToOption(index) }
+                    }
                     .semantics { selected = isSelected },
             contentAlignment = Alignment.Center,
         ) {
-            field(index, isSelected)
+            field(index, isSelected, enabled)
         }
     }
 }
 
-/** Represents the colors used by a [ScrollField] in different states. */
+/**
+ * Represents the colors used by a [ScrollField] in different states.
+ *
+ * @param containerColor The color of the [ScrollField] container, when enabled.
+ * @param contentColor The color of the numerical value(s) visible on the screen that are not
+ *   chosen, when enabled.
+ * @param selectedContentColor The color of the numerical value that is centered and snapped into
+ *   place, when enabled.
+ * @param disabledContainerColor The color of the [ScrollField] container, when disabled.
+ * @param disabledContentColor The color of the numerical value(s) visible on the screen that are
+ *   not chosen, when disabled.
+ * @param disabledSelectedContentColor The color of the numerical value that is centered and snapped
+ *   into place, when disabled.
+ */
 @Immutable
 public class ScrollFieldColors(
     public val containerColor: Color,
-    public val unselectedContentColor: Color,
+    public val contentColor: Color,
     public val selectedContentColor: Color,
+    public val disabledContainerColor: Color,
+    public val disabledContentColor: Color,
+    public val disabledSelectedContentColor: Color,
 ) {
     /**
      * Returns a copy of this ScrollFieldColors, optionally overriding some of the values. This uses
@@ -270,28 +301,40 @@ public class ScrollFieldColors(
      */
     public fun copy(
         containerColor: Color = this.containerColor,
-        unselectedContentColor: Color = this.unselectedContentColor,
+        contentColor: Color = this.contentColor,
         selectedContentColor: Color = this.selectedContentColor,
+        disabledContainerColor: Color = this.disabledContainerColor,
+        disabledContentColor: Color = this.disabledContentColor,
+        disabledSelectedContentColor: Color = this.disabledSelectedContentColor,
     ): ScrollFieldColors =
         ScrollFieldColors(
             containerColor.takeOrElse { this.containerColor },
-            unselectedContentColor.takeOrElse { this.unselectedContentColor },
+            contentColor.takeOrElse { this.contentColor },
             selectedContentColor.takeOrElse { this.selectedContentColor },
+            disabledContainerColor.takeOrElse { this.disabledContainerColor },
+            disabledContentColor.takeOrElse { this.disabledContentColor },
+            disabledSelectedContentColor.takeOrElse { this.disabledSelectedContentColor },
         )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is ScrollFieldColors) return false
         if (containerColor != other.containerColor) return false
-        if (unselectedContentColor != other.unselectedContentColor) return false
+        if (contentColor != other.contentColor) return false
         if (selectedContentColor != other.selectedContentColor) return false
+        if (disabledContainerColor != other.disabledContainerColor) return false
+        if (disabledContentColor != other.disabledContentColor) return false
+        if (disabledSelectedContentColor != other.disabledSelectedContentColor) return false
         return true
     }
 
     override fun hashCode(): Int {
         var result = containerColor.hashCode()
-        result = 31 * result + unselectedContentColor.hashCode()
+        result = 31 * result + contentColor.hashCode()
         result = 31 * result + selectedContentColor.hashCode()
+        result = 31 * result + disabledContainerColor.hashCode()
+        result = 31 * result + disabledContentColor.hashCode()
+        result = 31 * result + disabledSelectedContentColor.hashCode()
         return result
     }
 }
@@ -314,25 +357,36 @@ public object ScrollFieldDefaults {
     public fun colors(): ScrollFieldColors = MaterialTheme.colorScheme.defaultScrollFieldColors
 
     /**
-     * Creates a [ScrollFieldColors] that represents the default container, unselected, and selected
+     * Creates a [ScrollFieldColors] that represents the default container, content, and selected
      * colors used in a [ScrollField].
      *
-     * @param containerColor The color of the [ScrollField] container.
-     * @param unselectedContentColor The color of the numerical value(s) visible on the screen that
-     *   are not chosen.
+     * @param containerColor The color of the [ScrollField] container, when enabled.
+     * @param contentColor The color of the numerical value(s) visible on the screen that are not
+     *   chosen, when enabled.
      * @param selectedContentColor The color of the numerical value that is centered and snapped
-     *   into place.
+     *   into place, when enabled.
+     * @param disabledContainerColor The color of the [ScrollField] container, when disabled.
+     * @param disabledContentColor The color of the numerical value(s) visible on the screen that
+     *   are not chosen, when disabled.
+     * @param disabledSelectedContentColor The color of the numerical value that is centered and
+     *   snapped into place, when disabled.
      */
     @Composable
     public fun colors(
         containerColor: Color = Color.Unspecified,
-        unselectedContentColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
         selectedContentColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledContentColor: Color = Color.Unspecified,
+        disabledSelectedContentColor: Color = Color.Unspecified,
     ): ScrollFieldColors =
         MaterialTheme.colorScheme.defaultScrollFieldColors.copy(
             containerColor = containerColor,
-            unselectedContentColor = unselectedContentColor,
+            contentColor = contentColor,
             selectedContentColor = selectedContentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+            disabledSelectedContentColor = disabledSelectedContentColor,
         )
 
     internal val ColorScheme.defaultScrollFieldColors: ScrollFieldColors
@@ -341,8 +395,14 @@ public object ScrollFieldDefaults {
             return defaultScrollFieldColorsCached
                 ?: ScrollFieldColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                        unselectedContentColor = MaterialTheme.colorScheme.outline,
+                        contentColor = MaterialTheme.colorScheme.outline,
                         selectedContentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContainerColor =
+                            MaterialTheme.colorScheme.surfaceContainerLowest.copy(DisabledAlpha),
+                        disabledContentColor =
+                            MaterialTheme.colorScheme.onSurface.copy(DisabledAlpha),
+                        disabledSelectedContentColor =
+                            MaterialTheme.colorScheme.onSurface.copy(DisabledAlpha),
                     )
                     .also { defaultScrollFieldColorsCached = it }
         }
@@ -352,12 +412,23 @@ public object ScrollFieldDefaults {
      *
      * @param index the current item index.
      * @param selected whether this item is currently selected (centered).
+     * @param enabled whether this item is currently enabled.
      * @param colors the colors to use for the text content.
      */
     @Composable
-    public fun Item(index: Int, selected: Boolean, colors: ScrollFieldColors = colors()) {
+    public fun Item(
+        index: Int,
+        selected: Boolean,
+        enabled: Boolean = true,
+        colors: ScrollFieldColors = colors(),
+    ) {
         val targetColor =
-            if (selected) colors.selectedContentColor else colors.unselectedContentColor
+            when {
+                enabled && selected -> colors.selectedContentColor
+                enabled && !selected -> colors.contentColor
+                !enabled && selected -> colors.disabledSelectedContentColor
+                else -> colors.disabledContentColor
+            }
 
         val selectionFraction by
             animateFloatAsState(
