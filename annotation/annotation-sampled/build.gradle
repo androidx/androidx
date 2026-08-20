@@ -14,11 +14,23 @@
  * limitations under the License.
  */
 
+import androidx.build.PlatformIdentifier
+
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
 }
 
-dependencies {
-}
+androidXMultiplatform {
+    androidNative()
+    ios()
+    js()
+    jvm()
+    linux()
+    mac()
+    mingwX64()
+    tvos()
+    wasmJs()
+    watchos()
 
+    defaultPlatform(PlatformIdentifier.JVM)
+}

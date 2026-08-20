@@ -32,7 +32,7 @@ import androidx.build.isIsolatedProjectsEnabled
 import androidx.build.metalava.versionMetadataUsage
 import androidx.build.multiplatformExtension
 import androidx.build.sources.PROJECT_STRUCTURE_METADATA_FILENAME
-import androidx.build.sources.multiplatformUsage
+import androidx.build.sources.SourceJarAttributeConfiguration.multiplatformUsage
 import androidx.build.versionCatalog
 import androidx.build.workaroundAndroidXDependencyResolutions
 import com.android.build.api.attributes.BuildTypeAttr

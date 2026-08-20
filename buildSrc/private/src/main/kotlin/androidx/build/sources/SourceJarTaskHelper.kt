@@ -23,6 +23,7 @@ import androidx.build.dackka.docsPlatform
 import androidx.build.multiplatformExtension
 import androidx.build.registerAsComponentForKmpPublishing
 import androidx.build.registerAsComponentForPublishing
+import androidx.build.sources.SourceJarAttributeConfiguration.multiplatformUsage
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import com.google.gson.GsonBuilder
@@ -190,9 +191,6 @@ fun Project.disableUnusedSourceJarTasks(disableNames: Set<String>) {
         }
     }
 }
-
-internal val Project.multiplatformUsage
-    get() = objects.named<Usage>("androidx-multiplatform-docs")
 
 private fun Project.registerMultiplatformSourcesVariant(sourceJar: TaskProvider<Jar>) =
     registerSourcesVariant(PublishingVariant.KmpSourcesElements.name, sourceJar, multiplatformUsage)
