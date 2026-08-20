@@ -22,11 +22,11 @@ import androidx.collection.arraySetOf
 /** Integration (actually build) test for source compatibility for usages of ArraySet. */
 @Suppress("unused")
 fun arraySetSourceCompatibility(): Boolean {
-    @Suppress("VARIABLE_WITH_REDUNDANT_INITIALIZER") var arraySet: ArraySet<Int> = ArraySet()
+    @Suppress("VARIABLE_INITIALIZER_IS_REDUNDANT") var arraySet: ArraySet<Int> = ArraySet()
     arraySet = ArraySet<Int>(5)
-    @Suppress("UNUSED_VALUE")
+    @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
     arraySet = ArraySet(arraySet)
-    @Suppress("UNUSED_VALUE")
+    @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
     arraySet = ArraySet(setOf())
     arraySet = ArraySet(arrayOf())
 
