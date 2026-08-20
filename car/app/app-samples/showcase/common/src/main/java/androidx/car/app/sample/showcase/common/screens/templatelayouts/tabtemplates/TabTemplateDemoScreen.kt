@@ -193,7 +193,7 @@ class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
     }
 
     private fun buildRowForTemplate(title: String, clickable: Boolean): Row {
-        val rowBuilder = Row.Builder().setTitle("$title")
+        val rowBuilder = Row.Builder().setTitle(title)
         if (clickable) {
             rowBuilder.setOnClickListener {
                 screenManager.push(ShortMessageTemplateDemoScreen(carContext))
