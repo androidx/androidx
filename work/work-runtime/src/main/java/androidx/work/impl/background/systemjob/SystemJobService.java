@@ -135,6 +135,12 @@ public class SystemJobService extends JobService implements ExecutionListener {
             return false;
         }
 
+        if (mWorkManagerImpl.getProcessor().isForeground(workGenerationalId)) {
+            Logger.get().debug(TAG, "Job is already running in foreground: " + workGenerationalId);
+            jobFinished(params, /* wantReschedule= */ true);
+            return false;
+        }
+
         if (mJobParameters.containsKey(workGenerationalId)) {
             // This condition may happen due to our workaround for an undesired behavior in API
             // 23.  See the documentation in {@link SystemJobScheduler#schedule}.

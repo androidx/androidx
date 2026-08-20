@@ -50,6 +50,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.RunnableScheduler;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.WorkDatabase;
@@ -126,7 +127,8 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
                         mJobScheduler,
                         new SystemJobInfoConverter(context, configuration.getClock(),
                                 configuration.isMarkingJobsAsImportantWhileForeground()
-                        )));
+                        ),
+                        mock(RunnableScheduler.class)));
 
         doNothing().when(mSystemJobScheduler).scheduleInternal(any(WorkSpec.class), anyInt());
     }
