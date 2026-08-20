@@ -30,10 +30,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.a2ui.MaterialA2uiDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -50,47 +49,53 @@ internal object MaterialA2uiBasicCatalogV1List : A2uiBasicCatalogV1.List {
         modifier: Modifier,
     ) {
         val itemModifier =
-            remember(align, direction) {
-                if (align == A2uiBasicCatalogV1.List.Align.Stretch) {
-                    Modifier.applyStretch(direction)
-                } else {
-                    Modifier
-                }
+            when {
+                align != A2uiBasicCatalogV1.List.Align.Stretch -> Modifier
+                direction == A2uiBasicCatalogV1.List.Direction.Vertical -> VerticalStretchModifier
+                else -> HorizontalStretchModifier
             }
 
         val listModifier = modifier.a2uiAccessibility(accessibility)
 
-        when (direction) {
-            A2uiBasicCatalogV1.List.Direction.Vertical -> {
-                LazyColumn(
-                    modifier = listModifier,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalAlignment = align.horizontalAlignment,
-                ) {
-                    items(children, key = { Pair(it.id, it.baseDataPath) }) { childRef ->
-                        ListItemStateWrapper(
-                            childRef = childRef,
-                            direction = direction,
-                            align = align,
-                            modifier = itemModifier,
-                        )
+        MaterialA2uiDefaults.LoadingIndicatorGroup { shimmerRootModifier ->
+            when (direction) {
+                A2uiBasicCatalogV1.List.Direction.Vertical -> {
+                    LazyColumn(
+                        modifier = listModifier.then(shimmerRootModifier),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = align.horizontalAlignment,
+                    ) {
+                        itemsIndexed(
+                            children,
+                            key = { _, item -> Pair(item.id, item.baseDataPath) },
+                        ) { index, childRef ->
+                            ListItemStateWrapper(
+                                childRef = childRef,
+                                direction = direction,
+                                index = index,
+                                modifier = itemModifier,
+                            )
+                        }
                     }
                 }
-            }
 
-            A2uiBasicCatalogV1.List.Direction.Horizontal -> {
-                LazyRow(
-                    modifier = listModifier,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = align.verticalAlignment,
-                ) {
-                    items(children, key = { Pair(it.id, it.baseDataPath) }) { childRef ->
-                        ListItemStateWrapper(
-                            childRef = childRef,
-                            direction = direction,
-                            align = align,
-                            modifier = itemModifier,
-                        )
+                A2uiBasicCatalogV1.List.Direction.Horizontal -> {
+                    LazyRow(
+                        modifier = listModifier.then(shimmerRootModifier),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = align.verticalAlignment,
+                    ) {
+                        itemsIndexed(
+                            children,
+                            key = { _, item -> Pair(item.id, item.baseDataPath) },
+                        ) { index, childRef ->
+                            ListItemStateWrapper(
+                                childRef = childRef,
+                                direction = direction,
+                                index = index,
+                                modifier = itemModifier,
+                            )
+                        }
                     }
                 }
             }
@@ -101,21 +106,16 @@ internal object MaterialA2uiBasicCatalogV1List : A2uiBasicCatalogV1.List {
     private fun A2uiComponentScope.ListItemStateWrapper(
         childRef: A2uiComponentReference,
         direction: A2uiBasicCatalogV1.List.Direction,
-        align: A2uiBasicCatalogV1.List.Align,
+        index: Int,
         modifier: Modifier = Modifier,
     ) {
         val childState = observeA2uiComponentState(childRef)
-
-        val childModifier =
-            remember(align, direction) {
-                if (align == A2uiBasicCatalogV1.List.Align.Stretch) {
-                    Modifier.applyStretch(direction)
-                } else {
-                    Modifier
-                }
+        val loadingModifier =
+            if (direction == A2uiBasicCatalogV1.List.Direction.Vertical) {
+                VerticalLoadingModifier
+            } else {
+                HorizontalLoadingModifier
             }
-
-        val loadingModifier = remember(direction) { Modifier.applyLoadingSize(direction) }
 
         AnimatedContent(
             modifier = modifier,
@@ -132,34 +132,28 @@ internal object MaterialA2uiBasicCatalogV1List : A2uiBasicCatalogV1.List {
         ) { state ->
             when (state) {
                 is A2uiComponentState.Error -> {
-                    MaterialA2uiDefaults.ErrorFallback(state.exception, modifier = childModifier)
+                    MaterialA2uiDefaults.ErrorFallback(state.exception, modifier = modifier)
                 }
 
                 is A2uiComponentState.Loading -> {
-                    MaterialA2uiDefaults.LoadingIndicator(modifier = loadingModifier)
+                    MaterialA2uiDefaults.LoadingIndicator(
+                        modifier = loadingModifier,
+                        index = index,
+                    )
                 }
 
                 is A2uiComponentState.Success -> {
-                    A2uiComponent(component = state.component, modifier = childModifier)
+                    A2uiComponent(component = state.component, modifier = modifier)
                 }
             }
         }
     }
 }
 
-private fun Modifier.applyStretch(direction: A2uiBasicCatalogV1.List.Direction): Modifier =
-    if (direction == A2uiBasicCatalogV1.List.Direction.Vertical) {
-        fillMaxWidth()
-    } else {
-        fillMaxHeight()
-    }
-
-private fun Modifier.applyLoadingSize(direction: A2uiBasicCatalogV1.List.Direction): Modifier =
-    if (direction == A2uiBasicCatalogV1.List.Direction.Vertical) {
-        fillMaxWidth().height(48.dp)
-    } else {
-        fillMaxHeight().width(48.dp)
-    }
+private val VerticalStretchModifier = Modifier.fillMaxWidth()
+private val HorizontalStretchModifier = Modifier.fillMaxHeight()
+private val VerticalLoadingModifier = Modifier.fillMaxWidth().height(56.dp)
+private val HorizontalLoadingModifier = Modifier.fillMaxHeight().width(56.dp)
 
 private val A2uiBasicCatalogV1.List.Align.horizontalAlignment: Alignment.Horizontal
     get() =
