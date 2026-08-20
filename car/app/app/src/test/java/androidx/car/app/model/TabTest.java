@@ -41,7 +41,8 @@ public class TabTest {
                     "ic_test_1"))
             .setContentId("id")
             .setStyle(
-                    new TabStyle.Builder().setShape(Shape.CORNER_FULL).build()
+                    new TabStyle.Builder().setShape(Shape.CORNER_FULL)
+                            .setSelectedBackgroundColor(CarColor.BLUE).build()
             )
             .build();
 
@@ -99,10 +100,9 @@ public class TabTest {
     }
 
     @Test
-    public void setStyle_null_throws() {
-        assertThrows(
-                NullPointerException.class,
-                () -> new Tab.Builder().setStyle(null));
+    public void setStyle_null_clearsStyle() {
+        Tab tab = new Tab.Builder(TEST_TAB).setStyle(null).build();
+        assertEquals(null, tab.getStyle());
     }
 
     @Test
@@ -114,7 +114,8 @@ public class TabTest {
                 "ic_test_1"))
                 .setContentId("id")
                 .setStyle(
-                        new TabStyle.Builder().setShape(Shape.CORNER_EXTRA_LARGE).build()
+                        new TabStyle.Builder().setShape(Shape.CORNER_EXTRA_LARGE)
+                                .setSelectedBackgroundColor(CarColor.GREEN).build()
                 )
                 .build();
 
@@ -130,7 +131,8 @@ public class TabTest {
                         "ic_test_1"))
                 .setContentId("id")
                 .setStyle(
-                        new TabStyle.Builder().setShape(Shape.CORNER_FULL).build()
+                        new TabStyle.Builder().setShape(Shape.CORNER_FULL)
+                                .setSelectedBackgroundColor(CarColor.BLUE).build()
                 )
                 .build();
 
