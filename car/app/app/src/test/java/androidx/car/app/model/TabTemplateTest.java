@@ -433,6 +433,37 @@ public class TabTemplateTest {
                 () -> TabsConstraints.API_9.validateOrThrow(tabs, "ID_0"));
     }
 
+    @Test
+    public void setTabStyle_getTabStyle_returnsSetTabStyle() {
+        TabStyle tabStyle = new TabStyle.Builder().setShape(Shape.CORNER_FULL).build();
+        TabTemplate template = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setStyle(tabStyle)
+                .build();
+
+        assertEquals(tabStyle, template.getStyle());
+    }
+
+    @Test
+    public void setTabStyle_null_clearsStyle() {
+        TabStyle tabStyle = new TabStyle.Builder().setShape(Shape.CORNER_FULL).build();
+        TabTemplate template = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setStyle(tabStyle)
+                .build();
+
+        TabTemplate copy = new TabTemplate.Builder(template).setStyle(null).build();
+        assertEquals(null, copy.getStyle());
+    }
+
     private static Tab getTab(String title, String contentId) {
         return new Tab.Builder()
                 .setContentId(contentId)

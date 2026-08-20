@@ -23,8 +23,10 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 
+import androidx.annotation.OptIn;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.TabsConstraints;
@@ -58,6 +60,7 @@ import java.util.Objects;
 @CarProtocol
 @RequiresCarApi(6)
 @KeepFields
+@OptIn(markerClass = ExperimentalCarApi.class)
 public class TabTemplate implements Template {
 
     /** A listener for tab selection. */
@@ -79,6 +82,7 @@ public class TabTemplate implements Template {
     private final @Nullable TabContents mTabContents;
     private final @Nullable List<Tab> mTabs;
     private final @Nullable String mActiveTabContentId;
+    private final @Nullable TabStyle mStyle;
 
     /**
      * Returns the {@link Action} that is set to be displayed in the header of the template, or
@@ -127,6 +131,17 @@ public class TabTemplate implements Template {
         return requireNonNull(mActiveTabContentId);
     }
 
+    /**
+     * Returns the {@link TabStyle} for tabs in the template, or {@code null} if not set.
+     *
+     * @see TabTemplate.Builder#setStyle(TabStyle)
+     */
+    @RequiresCarApi(9)
+    @ExperimentalCarApi
+    public @Nullable TabStyle getStyle() {
+        return mStyle;
+    }
+
     @Override
     public @NonNull String toString() {
         return "TabTemplate";
@@ -134,7 +149,8 @@ public class TabTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIsLoading, mHeaderAction, mTabs, mTabContents, mActiveTabContentId);
+        return Objects.hash(mIsLoading, mHeaderAction, mTabs, mTabContents, mActiveTabContentId,
+                mStyle);
     }
 
     @Override
@@ -150,7 +166,8 @@ public class TabTemplate implements Template {
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mTabs, otherTemplate.mTabs)
                 && Objects.equals(mTabContents, otherTemplate.mTabContents)
-                && Objects.equals(mActiveTabContentId, otherTemplate.mActiveTabContentId);
+                && Objects.equals(mActiveTabContentId, otherTemplate.mActiveTabContentId)
+                && Objects.equals(mStyle, otherTemplate.mStyle);
     }
 
     TabTemplate(TabTemplate.Builder builder) {
@@ -160,6 +177,7 @@ public class TabTemplate implements Template {
         mTabContents = builder.mTabContents;
         mTabCallbackDelegate = builder.mTabCallbackDelegate;
         mActiveTabContentId = builder.mActiveTabContentId;
+        mStyle = builder.mStyle;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -170,9 +188,11 @@ public class TabTemplate implements Template {
         mTabContents = null;
         mTabCallbackDelegate = null;
         mActiveTabContentId = null;
+        mStyle = null;
     }
 
     /** A builder of {@link TabTemplate}. */
+    @OptIn(markerClass = ExperimentalCarApi.class)
     public static final class Builder {
         final @NonNull TabCallbackDelegate mTabCallbackDelegate;
 
@@ -184,6 +204,8 @@ public class TabTemplate implements Template {
         @Nullable TabContents mTabContents;
 
         @Nullable String mActiveTabContentId;
+
+        @Nullable TabStyle mStyle;
 
         /**
          * Sets whether the template is in a loading state.
@@ -242,6 +264,20 @@ public class TabTemplate implements Template {
                 throw new IllegalArgumentException("The content ID cannot be null or empty");
             }
             mActiveTabContentId = contentId;
+            return this;
+        }
+
+        /**
+         * Sets the {@link TabStyle} for all tabs in this template, or {@code null} to clear the
+         * style.
+         *
+         * <p>Any fields not explicitly set here or in the individual tab styling of
+         * {@link Tab.Builder#setStyle} will fall back to host defaults.
+         */
+        @RequiresCarApi(9)
+        @ExperimentalCarApi
+        public TabTemplate.@NonNull Builder setStyle(@Nullable TabStyle tabStyle) {
+            mStyle = tabStyle;
             return this;
         }
 
@@ -329,6 +365,7 @@ public class TabTemplate implements Template {
             mTabContents = tabTemplate.getTabContents();
             mTabCallbackDelegate = tabTemplate.getTabCallbackDelegate();
             mActiveTabContentId = tabTemplate.getActiveTabContentId();
+            mStyle = tabTemplate.getStyle();
         }
     }
 }
