@@ -120,13 +120,30 @@ class SavedStateRegistryTest {
     @Test
     fun registerWithSameKey() {
         startFlow { registry ->
-            registry.registerSavedStateProvider("key") { bundleOf("foo", "a") }
+            val provider1 = SavedStateRegistry.SavedStateProvider { bundleOf("foo", "a") }
+            val provider2 = SavedStateRegistry.SavedStateProvider { bundleOf("foo", "b") }
+            registry.registerSavedStateProvider("key", provider1)
             try {
-                registry.registerSavedStateProvider("key") { bundleOf("foo", "b") }
+                registry.registerSavedStateProvider("key", provider2)
                 Assert.fail("can't register with the same key")
             } catch (e: IllegalArgumentException) {
-                // fail as expected
+                assertThat(e)
+                    .hasMessageThat()
+                    .contains(
+                        "SavedStateProvider with key 'key' already registered. " +
+                            "Existing instance: '$provider1'. New instance: '$provider2'."
+                    )
             }
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun registerSameProviderIdempotent() {
+        startFlow { registry ->
+            val provider = SavedStateRegistry.SavedStateProvider { bundleOf("foo", "a") }
+            registry.registerSavedStateProvider("key", provider)
+            registry.registerSavedStateProvider("key", provider)
         }
     }
 
