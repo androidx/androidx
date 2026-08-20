@@ -110,7 +110,7 @@ internal object TestUtil {
     fun Context.assertReadInaccessible(uri: Uri) {
         val contentResolver = getContentResolver()
         try {
-            contentResolver.openAssetFile(uri, "r", null).use { fd -> }
+            contentResolver.openAssetFile(uri, "r", null).use { _ -> }
         } catch (_: SecurityException) {
             return
         }

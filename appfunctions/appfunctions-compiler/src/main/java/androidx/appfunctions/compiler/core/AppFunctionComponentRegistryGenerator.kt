@@ -63,7 +63,7 @@ class AppFunctionComponentRegistryGenerator(private val codeGenerator: CodeGener
         // Ensure the generated registry is stable
         val sortedComponents = components.sortedBy { it.qualifiedName }
         val className = getRegistryClassName(moduleName, category)
-        var annotationBuilder =
+        val annotationBuilder =
             AnnotationSpec.builder(AppFunctionComponentRegistryAnnotation.CLASS_NAME)
                 .addMember(
                     "${AppFunctionComponentRegistryAnnotation.PROPERTY_COMPONENT_CATEGORY} = %S",
