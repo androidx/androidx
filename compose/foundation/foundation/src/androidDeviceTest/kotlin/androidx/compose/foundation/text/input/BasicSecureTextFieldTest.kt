@@ -119,6 +119,7 @@ internal class BasicSecureTextFieldTest {
         rule.onNodeWithTag(Tag).requestFocus()
         rule.waitForIdle()
         rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Password))
+        rule.onNodeWithTag(Tag).assert(expectValue(SemanticsProperties.IsPasswordObfuscated, true))
         rule
             .onNodeWithTag(Tag)
             .assert(expectValue(SemanticsProperties.ContentType, ContentType.Password))
@@ -129,6 +130,78 @@ internal class BasicSecureTextFieldTest {
 
         rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CopyText))
         rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CutText))
+    }
+
+    @Test
+    fun passwordSemanticsAndIsPasswordObfuscated_whenVisible() {
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = remember { TextFieldState("Hello", initialSelection = TextRange(0, 1)) },
+                modifier = Modifier.testTag(Tag),
+                textObfuscationMode = TextObfuscationMode.Visible,
+            )
+        }
+
+        rule.onNodeWithTag(Tag).requestFocus()
+        rule.waitForIdle()
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Password))
+        rule.onNodeWithTag(Tag).assert(expectValue(SemanticsProperties.IsPasswordObfuscated, false))
+        rule
+            .onNodeWithTag(Tag)
+            .assert(expectValue(SemanticsProperties.ContentType, ContentType.Password))
+        rule
+            .onNodeWithTag(Tag)
+            .assert(expectValue(SemanticsProperties.ContentDataType, ContentDataType.Text))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.PasteText))
+
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CopyText))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CutText))
+    }
+
+    @Test
+    fun passwordSemanticsIsPasswordObfuscated_updatesDynamically() {
+        var obfuscationMode by mutableStateOf(TextObfuscationMode.Hidden)
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = remember { TextFieldState("Hello") },
+                modifier = Modifier.testTag(Tag),
+                textObfuscationMode = obfuscationMode,
+            )
+        }
+
+        rule.onNodeWithTag(Tag).assert(expectValue(SemanticsProperties.IsPasswordObfuscated, true))
+
+        obfuscationMode = TextObfuscationMode.Visible
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithTag(Tag).assert(expectValue(SemanticsProperties.IsPasswordObfuscated, false))
+
+        obfuscationMode = TextObfuscationMode.Hidden
+        rule.mainClock.advanceTimeByFrame()
+        rule.onNodeWithTag(Tag).assert(expectValue(SemanticsProperties.IsPasswordObfuscated, true))
+    }
+
+    @Test
+    fun passwordSemanticsIsPasswordObfuscated_whenHidden() {
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                textObfuscationMode = TextObfuscationMode.Hidden,
+            )
+        }
+        rule.onNodeWithTag(Tag).assert(expectValue(SemanticsProperties.IsPasswordObfuscated, true))
+    }
+
+    @Test
+    fun passwordSemanticsIsPasswordObfuscated_whenRevealLastTyped() {
+        inputMethodInterceptor.setContent {
+            BasicSecureTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(Tag),
+                textObfuscationMode = TextObfuscationMode.RevealLastTyped,
+            )
+        }
+        rule.onNodeWithTag(Tag).assert(expectValue(SemanticsProperties.IsPasswordObfuscated, true))
     }
 
     @Test
