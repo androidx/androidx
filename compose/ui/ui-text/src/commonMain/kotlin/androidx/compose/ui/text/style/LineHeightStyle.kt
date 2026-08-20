@@ -202,14 +202,14 @@ public class LineHeightStyle(
          * Returns true if this [Trim] configuration trims the space at the top of the first line.
          */
         public fun isTrimFirstLineTop(): Boolean {
-            return value and FlagTrimTop > 0
+            return value and FlagTrimTop != 0
         }
 
         /**
          * Returns true if this [Trim] configuration trims the space at the bottom of the last line.
          */
         public fun isTrimLastLineBottom(): Boolean {
-            return value and FlagTrimBottom > 0
+            return value and FlagTrimBottom != 0
         }
     }
 

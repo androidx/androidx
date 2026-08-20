@@ -123,4 +123,24 @@ class LineHeightStyleTest {
             )
         assertThat(lineHeightStyle.hashCode()).isEqualTo(otherLineHeightStyle.hashCode())
     }
+
+    @Test
+    fun isTrimFirstLineTop() {
+        assertThat(Trim.FirstLineTop.isTrimFirstLineTop()).isTrue()
+        assertThat(Trim.Both.isTrimFirstLineTop()).isTrue()
+        assertThat(Trim.LastLineBottom.isTrimFirstLineTop()).isFalse()
+        assertThat(Trim.None.isTrimFirstLineTop()).isFalse()
+        assertThat(Trim(0x01 or 0x80000000.toInt()).isTrimFirstLineTop()).isTrue()
+        assertThat(Trim(0x80000000.toInt()).isTrimFirstLineTop()).isFalse()
+    }
+
+    @Test
+    fun isTrimLastLineBottom() {
+        assertThat(Trim.LastLineBottom.isTrimLastLineBottom()).isTrue()
+        assertThat(Trim.Both.isTrimLastLineBottom()).isTrue()
+        assertThat(Trim.FirstLineTop.isTrimLastLineBottom()).isFalse()
+        assertThat(Trim.None.isTrimLastLineBottom()).isFalse()
+        assertThat(Trim(0x10 or 0x80000000.toInt()).isTrimLastLineBottom()).isTrue()
+        assertThat(Trim(0x80000000.toInt()).isTrimLastLineBottom()).isFalse()
+    }
 }
