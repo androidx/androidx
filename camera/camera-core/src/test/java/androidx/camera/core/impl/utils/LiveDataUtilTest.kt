@@ -234,7 +234,7 @@ class LiveDataUtilTest {
         runBlocking(Dispatchers.Main) {
             val sourceLiveData = MutableLiveData<Int?>()
             sourceLiveData.value = 0
-            var redirectableLiveData =
+            val redirectableLiveData =
                 MappingRedirectableLiveData<Int?, Int?>(0) { it }
                     .apply { redirectTo(sourceLiveData) }
 

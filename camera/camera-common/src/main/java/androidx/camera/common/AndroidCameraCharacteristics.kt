@@ -125,15 +125,20 @@ public constructor(
         get() = _physicalCameraIds.value
 
     private val _keys: Lazy<Set<CameraCharacteristics.Key<*>>> =
-        lazy(LazyThreadSafetyMode.PUBLICATION) { characteristics.keys.orEmpty().toSet() }
+        lazy(LazyThreadSafetyMode.PUBLICATION) {
+            @Suppress("UselessCallOnNotNull", "USELESS_CALL_ON_NOT_NULL") // Untrusted API
+            characteristics.keys.orEmpty().toSet()
+        }
 
     private val _captureRequestKeys: Lazy<Set<CaptureRequest.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
+            @Suppress("UselessCallOnNotNull", "USELESS_CALL_ON_NOT_NULL") // Untrusted API
             characteristics.availableCaptureRequestKeys.orEmpty().toSet()
         }
 
     private val _captureResultKeys: Lazy<Set<CaptureResult.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
+            @Suppress("UselessCallOnNotNull", "USELESS_CALL_ON_NOT_NULL") // Untrusted API
             characteristics.availableCaptureResultKeys.orEmpty().toSet()
         }
 
@@ -171,6 +176,7 @@ public constructor(
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                 emptySet()
             } else {
+                @Suppress("UselessCallOnNotNull", "USELESS_CALL_ON_NOT_NULL") // Untrusted API
                 Api29Compat.getKeysNeedingPermission(characteristics).orEmpty().toSet()
             }
         }
@@ -180,6 +186,7 @@ public constructor(
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
                 emptySet()
             } else {
+                @Suppress("UselessCallOnNotNull", "USELESS_CALL_ON_NOT_NULL") // Untrusted API
                 Api28Compat.getPhysicalCameraIds(characteristics)
                     .orEmpty()
                     .map { CameraId(it) }

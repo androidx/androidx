@@ -1487,8 +1487,8 @@ class VideoCaptureTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         // Assert.
-        var videoContentDegrees: Int
-        var metadataDegrees: Int
+        val videoContentDegrees: Int
+        val metadataDegrees: Int
         cameraInfo.getRelativeRotation(initialTargetRotation, requireMirroring).let {
             if (videoCapture.isSurfaceProcessingEnabled()) {
                 // If effect is enabled, the rotation is applied on video content but not metadata.

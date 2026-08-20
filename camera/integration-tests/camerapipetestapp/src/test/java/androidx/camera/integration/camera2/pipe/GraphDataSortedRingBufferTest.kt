@@ -110,7 +110,7 @@ class GraphDataSortedRingBufferTest {
 
     @Test
     fun add_toAtCapacityList() {
-        var graphData = GraphDataSortedRingBuffer()
+        val graphData = GraphDataSortedRingBuffer()
         graphData.addPoint(GraphDataPoint(1, 0, 0, 0))
         (2..CAPACITY).forEach {
             val point = GraphDataPoint(it.toLong(), 1, 0, 2)
@@ -126,7 +126,7 @@ class GraphDataSortedRingBufferTest {
 
     @Test
     fun add_outOfOrder() {
-        var graphData = GraphDataSortedRingBuffer()
+        val graphData = GraphDataSortedRingBuffer()
 
         val p1 = GraphDataPoint(1, 48, 0, 1)
         val p2 = GraphDataPoint(2, 49, 0, 2)
@@ -145,7 +145,7 @@ class GraphDataSortedRingBufferTest {
 
     @Test
     fun addOutOfOrderAndGetPoints_slidingTimeWindow() {
-        var graphData = GraphDataSortedRingBuffer()
+        val graphData = GraphDataSortedRingBuffer()
         val p1 = GraphDataPoint(1, 43, 0, 2)
         val p2 = GraphDataPoint(2, 44, 0, 2)
         val p3 = GraphDataPoint(3, 45, 0, 1)

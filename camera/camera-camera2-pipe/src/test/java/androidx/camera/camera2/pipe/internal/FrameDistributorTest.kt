@@ -461,7 +461,7 @@ class FrameDistributorTest {
             CameraTimestamp(500_000_000L),
         )
         val frame = fakeFrameBuffer.frames[0]
-        val unused = localImageSimulator.simulateImage(streamId, 405_000_000L)
+        localImageSimulator.simulateImage(streamId, 405_000_000L)
 
         assertThat(frame.isImageAvailable(streamId)).isTrue()
         assertThat(frame.isImageAvailable(outputId)).isTrue()
@@ -505,7 +505,7 @@ class FrameDistributorTest {
             CameraTimestamp(500_000_000L),
         )
         val frame = fakeFrameBuffer.frames[0]
-        val unused = localImageSimulator.simulateImage(streamId, 395_000_000L)
+        localImageSimulator.simulateImage(streamId, 395_000_000L)
 
         assertThat(frame.isImageAvailable(streamId)).isTrue()
         assertThat(frame.isImageAvailable(outputId)).isTrue()

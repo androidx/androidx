@@ -298,7 +298,7 @@ class TransformationsTest {
             .convertToIntArray()
 
     private fun FloatArray.convertToIntArray(): IntArray {
-        var result = IntArray(size)
+        val result = IntArray(size)
 
         for ((index, element) in withIndex()) {
             result[index] = element.roundToInt()

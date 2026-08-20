@@ -340,8 +340,8 @@ internal class OutputDistributor<T>(
     }
 
     override fun close() {
-        var outputsToFinalize: List<OutputResult<T>>
-        var outputsToCancel: List<StartedOutput<T>>
+        val outputsToFinalize: List<OutputResult<T>>
+        val outputsToCancel: List<StartedOutput<T>>
 
         synchronized(lock) {
             if (closed) {

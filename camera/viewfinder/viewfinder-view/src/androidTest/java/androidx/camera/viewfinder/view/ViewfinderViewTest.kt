@@ -106,7 +106,7 @@ class ViewfinderViewTest(private val implementationMode: ImplementationMode) {
             )
             .isTrue()
 
-        var surface: Surface
+        val surface: Surface
         withTimeout(REQUEST_TIMEOUT) {
                 withContext(Dispatchers.Main) { viewfinder.requestSurfaceSession(surfaceRequest) }
             }
@@ -129,7 +129,7 @@ class ViewfinderViewTest(private val implementationMode: ImplementationMode) {
 
     @Test
     fun surfaceReleased_afterSessionClosed_thenViewRemoved() = runViewfinderTest {
-        var surface: Surface
+        val surface: Surface
         withTimeout(REQUEST_TIMEOUT) {
                 withContext(Dispatchers.Main) { viewfinder.requestSurfaceSession(surfaceRequest) }
             }

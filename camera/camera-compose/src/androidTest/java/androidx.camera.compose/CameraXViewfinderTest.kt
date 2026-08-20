@@ -503,7 +503,7 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
         composeTest.setContent {
             val currentSurfaceRequest: SurfaceRequest? by surfaceRequests.collectAsState()
             val context = LocalContext.current
-            val window = (context as? android.app.Activity)?.window
+            (context as? android.app.Activity)?.window
             currentSurfaceRequest?.let { surfaceRequest ->
                 CameraXViewfinder(
                     surfaceRequest = surfaceRequest,

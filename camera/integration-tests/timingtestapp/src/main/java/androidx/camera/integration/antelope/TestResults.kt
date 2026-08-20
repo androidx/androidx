@@ -392,7 +392,7 @@ fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
  * @param csv The comma-based csv string
  */
 fun writeCSVAfterQ(activity: MainActivity, prefix: String, csv: String) {
-    var output: OutputStream?
+    val output: OutputStream?
     val resolver: ContentResolver = activity.contentResolver
     val contentValues =
         ContentValues().apply {

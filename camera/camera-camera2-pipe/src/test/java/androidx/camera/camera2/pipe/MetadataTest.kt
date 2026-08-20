@@ -41,9 +41,7 @@ class MetadataTest {
 
     @Test
     fun keysWithSameNameAndDifferentTypesThrowsExceptions() {
-        val key1 = Metadata.Key.create<String>("metadata.test.key")
-        assertThrows<IllegalStateException> {
-            val key2 = Metadata.Key.create<Int>("metadata.test.key")
-        }
+        Metadata.Key.create<String>("metadata.test.key")
+        assertThrows<IllegalStateException> { Metadata.Key.create<Int>("metadata.test.key") }
     }
 }
