@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ink.rendering
+package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
 

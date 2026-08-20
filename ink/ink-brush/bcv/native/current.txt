@@ -14,22 +14,22 @@ open annotation class androidx.ink.brush/ExperimentalInkBrushCompatibilityApi : 
     constructor <init>() // androidx.ink.brush/ExperimentalInkBrushCompatibilityApi.<init>|<init>(){}[0]
 }
 
+open annotation class androidx.ink.brush/ExperimentalInkCrossPlatformRenderingApi : kotlin/Annotation { // androidx.ink.brush/ExperimentalInkCrossPlatformRenderingApi|null[0]
+    constructor <init>() // androidx.ink.brush/ExperimentalInkCrossPlatformRenderingApi.<init>|<init>(){}[0]
+}
+
 open annotation class androidx.ink.brush/ExperimentalInkCustomBrushApi : kotlin/Annotation { // androidx.ink.brush/ExperimentalInkCustomBrushApi|null[0]
     constructor <init>() // androidx.ink.brush/ExperimentalInkCustomBrushApi.<init>|<init>(){}[0]
 }
 
 abstract class androidx.ink.brush.behavior/EasingFunction { // androidx.ink.brush.behavior/EasingFunction|null[0]
     final class CubicBezier : androidx.ink.brush.behavior/EasingFunction { // androidx.ink.brush.behavior/EasingFunction.CubicBezier|null[0]
-        constructor <init>(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float) // androidx.ink.brush.behavior/EasingFunction.CubicBezier.<init>|<init>(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
+        constructor <init>(androidx.ink.geometry/Vec, androidx.ink.geometry/Vec) // androidx.ink.brush.behavior/EasingFunction.CubicBezier.<init>|<init>(androidx.ink.geometry.Vec;androidx.ink.geometry.Vec){}[0]
 
-        final val x1 // androidx.ink.brush.behavior/EasingFunction.CubicBezier.x1|{}x1[0]
-            final fun <get-x1>(): kotlin/Float // androidx.ink.brush.behavior/EasingFunction.CubicBezier.x1.<get-x1>|<get-x1>(){}[0]
-        final val x2 // androidx.ink.brush.behavior/EasingFunction.CubicBezier.x2|{}x2[0]
-            final fun <get-x2>(): kotlin/Float // androidx.ink.brush.behavior/EasingFunction.CubicBezier.x2.<get-x2>|<get-x2>(){}[0]
-        final val y1 // androidx.ink.brush.behavior/EasingFunction.CubicBezier.y1|{}y1[0]
-            final fun <get-y1>(): kotlin/Float // androidx.ink.brush.behavior/EasingFunction.CubicBezier.y1.<get-y1>|<get-y1>(){}[0]
-        final val y2 // androidx.ink.brush.behavior/EasingFunction.CubicBezier.y2|{}y2[0]
-            final fun <get-y2>(): kotlin/Float // androidx.ink.brush.behavior/EasingFunction.CubicBezier.y2.<get-y2>|<get-y2>(){}[0]
+        final val p1 // androidx.ink.brush.behavior/EasingFunction.CubicBezier.p1|{}p1[0]
+            final fun <get-p1>(): androidx.ink.geometry/ImmutableVec // androidx.ink.brush.behavior/EasingFunction.CubicBezier.p1.<get-p1>|<get-p1>(){}[0]
+        final val p2 // androidx.ink.brush.behavior/EasingFunction.CubicBezier.p2|{}p2[0]
+            final fun <get-p2>(): androidx.ink.geometry/ImmutableVec // androidx.ink.brush.behavior/EasingFunction.CubicBezier.p2.<get-p2>|<get-p2>(){}[0]
 
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush.behavior/EasingFunction.CubicBezier.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.ink.brush.behavior/EasingFunction.CubicBezier.hashCode|hashCode(){}[0]
@@ -166,12 +166,12 @@ final class androidx.ink.brush.behavior/ConstantNode : androidx.ink.brush.behavi
 final class androidx.ink.brush.behavior/DampingNode : androidx.ink.brush.behavior/ValueNode { // androidx.ink.brush.behavior/DampingNode|null[0]
     constructor <init>(androidx.ink.brush.behavior/ProgressDomain, kotlin/Float, androidx.ink.brush.behavior/ValueNode) // androidx.ink.brush.behavior/DampingNode.<init>|<init>(androidx.ink.brush.behavior.ProgressDomain;kotlin.Float;androidx.ink.brush.behavior.ValueNode){}[0]
 
-    final val dampingGap // androidx.ink.brush.behavior/DampingNode.dampingGap|{}dampingGap[0]
-        final fun <get-dampingGap>(): kotlin/Float // androidx.ink.brush.behavior/DampingNode.dampingGap.<get-dampingGap>|<get-dampingGap>(){}[0]
     final val dampingSource // androidx.ink.brush.behavior/DampingNode.dampingSource|{}dampingSource[0]
         final fun <get-dampingSource>(): androidx.ink.brush.behavior/ProgressDomain // androidx.ink.brush.behavior/DampingNode.dampingSource.<get-dampingSource>|<get-dampingSource>(){}[0]
     final val input // androidx.ink.brush.behavior/DampingNode.input|{}input[0]
         final fun <get-input>(): androidx.ink.brush.behavior/ValueNode // androidx.ink.brush.behavior/DampingNode.input.<get-input>|<get-input>(){}[0]
+    final val strength // androidx.ink.brush.behavior/DampingNode.strength|{}strength[0]
+        final fun <get-strength>(): kotlin/Float // androidx.ink.brush.behavior/DampingNode.strength.<get-strength>|<get-strength>(){}[0]
 
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.ink.brush.behavior/DampingNode.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.ink.brush.behavior/DampingNode.hashCode|hashCode(){}[0]

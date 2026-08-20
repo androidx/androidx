@@ -68,6 +68,9 @@ public fun awaitNativePointerCleanupAfter(
     timeoutMillis: Long = 1000L,
     block: () -> Unit,
 ) {
+    // Ensure that we start with a clean slate, since a previous test may have exercised the case
+    // where a NativePointer was still referenced until the conclusion of the test.
+    GarbageCollectorController.collect()
     val cleanupsMapMutex = Mutex()
     val cleanupsToAwait = mutableMapOf<Long, CompletableDeferred<Unit>>()
     observingNativePointers(

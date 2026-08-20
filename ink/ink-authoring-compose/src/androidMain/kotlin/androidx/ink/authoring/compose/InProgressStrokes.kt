@@ -16,6 +16,7 @@
 
 package androidx.ink.authoring.compose
 
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Matrix
@@ -113,6 +114,7 @@ import java.util.concurrent.TimeUnit
  *   thread, it may not be in the same UI thread run loop and lead to a flicker.
  */
 @Composable
+@OptIn(ExperimentalInkAnimationApi::class)
 public fun InProgressStrokes(
     defaultBrush: Brush?,
     nextBrush: () -> Brush? = { defaultBrush },
@@ -133,6 +135,32 @@ public fun InProgressStrokes(
     )
 }
 
+/** Experimental overload of [InProgressStrokes] that accepts a [StrokePaintAnimationClock]. */
+@Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
+@ExperimentalInkAnimationApi
+public fun InProgressStrokes(
+    defaultBrush: Brush?,
+    nextBrush: () -> Brush? = { defaultBrush },
+    pointerEventToWorldTransform: Matrix = IDENTITY_MATRIX,
+    strokeToWorldTransform: Matrix = IDENTITY_MATRIX,
+    maskPath: Path? = null,
+    textureBitmapStore: TextureBitmapStore = TextureBitmapStore { null },
+    strokePaintAnimationClock: StrokePaintAnimationClock = StrokePaintAnimationClock.STOPPED_CLOCK,
+    onStrokesFinished: (List<Stroke>) -> Unit,
+) {
+    // NOMUTANTS -- Tests need to use InProgressStrokesImpl for its onSyncAvailable parameter.
+    InProgressStrokesImpl(
+        nextBrush = nextBrush,
+        nextPointerEventToWorldTransform = { pointerEventToWorldTransform },
+        nextStrokeToWorldTransform = { strokeToWorldTransform },
+        maskPath = maskPath,
+        textureBitmapStore = textureBitmapStore,
+        strokePaintAnimationClock = strokePaintAnimationClock,
+        onStrokesFinished = onStrokesFinished,
+    )
+}
+
 @VisibleForTesting
 @Composable
 @OptIn(ExperimentalInkAnimationApi::class, InkInternalOnlyApi::class)
@@ -143,13 +171,13 @@ internal fun InProgressStrokesImpl(
     maskPath: Path? = null,
     textureBitmapStore: TextureBitmapStore = TextureBitmapStore { null },
     onSyncAvailable: ((Long, TimeUnit) -> Unit) -> Unit = {},
+    strokePaintAnimationClock: StrokePaintAnimationClock = StrokePaintAnimationClock.STOPPED_CLOCK,
     onStrokesFinished: (List<Stroke>) -> Unit,
 ) {
     @OptIn(ExperimentalInkCustomShapeWorkflowApi::class)
     InProgressShapesImpl(
-        // TODO(b/512471476): Support paint animation with Compose.
         customShapeWorkflow =
-            InkShapeWorkflow(StrokePaintAnimationClock.STOPPED_CLOCK) {
+            InkShapeWorkflow(strokePaintAnimationClock) {
                 CanvasStrokeRenderer.create(textureBitmapStore)
             },
         nextShapeSpec = nextBrush,
@@ -159,6 +187,11 @@ internal fun InProgressStrokesImpl(
         onSyncAvailable = onSyncAvailable,
         onShapesCompleted = onStrokesFinished,
     )
+}
+
+@OptIn(ExperimentalInkAnimationApi::class)
+private class AnimationClockImpl(internal var clockStateMillis: Long) : StrokePaintAnimationClock {
+    override fun getClockStateMillis(): Long = clockStateMillis
 }
 
 private val IDENTITY_MATRIX = Matrix()

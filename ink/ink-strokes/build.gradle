@@ -35,7 +35,7 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            api(libs.androidx.annotation)
+            api(project(":annotation:annotation"))
             implementation(project(":ink:ink-brush"))
             implementation(project(":ink:ink-geometry"))
             implementation(project(":ink:ink-nativeloader"))

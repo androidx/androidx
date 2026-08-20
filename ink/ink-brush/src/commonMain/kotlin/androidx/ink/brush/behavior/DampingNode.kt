@@ -39,15 +39,16 @@ private constructor(
      * case for programmatically-generated inputs), then the output value will be null regardless of
      * the input.
      *
-     * @param dampingSource the source of the damping
-     * @param dampingGap the amount of damping to apply
+     * @param dampingSource The domain units over which damping is applied.
+     * @param strength A scaling factor, in `dampingSource` units, for the damping. A smaller
+     *   `strength` value results in less damping, so the output follows the input more closely.
      * @param input input node that produces the value to be modified by the damping
      */
     public constructor(
         dampingSource: ProgressDomain,
-        dampingGap: Float,
+        strength: Float,
         input: ValueNode,
-    ) : this({ DampingNodeNative.create(dampingSource.value, dampingGap) }, input)
+    ) : this({ DampingNodeNative.create(dampingSource.value, strength) }, input)
 
     internal companion object {
         internal fun wrapNative(nativeAlloc: () -> Long, inputStack: ArrayDeque<ValueNode>) =
@@ -59,23 +60,23 @@ private constructor(
         ProgressDomain.fromInt(DampingNodeNative.getDampingSourceInt(nativePointer))
 
     /** The amount of damping to apply. */
-    public val dampingGap: Float
-        get() = DampingNodeNative.getDampingGap(nativePointer)
+    public val strength: Float
+        get() = DampingNodeNative.getStrength(nativePointer)
 
     override fun toString(): String =
-        "DampingNode(${dampingSource.toSimpleString()}, $dampingGap, $input)"
+        "DampingNode(${dampingSource.toSimpleString()}, $strength, $input)"
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is DampingNode) return false
         if (other === this) return true
         return dampingSource == other.dampingSource &&
-            dampingGap == other.dampingGap &&
+            strength == other.strength &&
             input == other.input
     }
 
     override fun hashCode(): Int {
         var result = dampingSource.hashCode()
-        result = 31 * result + dampingGap.hashCode()
+        result = 31 * result + strength.hashCode()
         result = 31 * result + input.hashCode()
         return result
     }
@@ -88,9 +89,9 @@ private constructor(
  * [Node.nativePointer] all wrap the _same_ native type (a specialization of `std::variant`).
  */
 expect internal object DampingNodeNative {
-    fun create(dampingSource: Int, dampingGap: Float): Long
+    fun create(dampingSource: Int, strength: Float): Long
 
     fun getDampingSourceInt(nativePointer: Long): Int
 
-    fun getDampingGap(nativePointer: Long): Float
+    fun getStrength(nativePointer: Long): Float
 }

@@ -25,7 +25,7 @@ import java.awt.image.BufferedImage
  * corresponding to a client-provided texture ID.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
-@ExperimentalInkCustomBrushApi
+@ExperimentalInkCrossPlatformRenderingApi
 @UsedByNative
 public fun interface TextureBufferedImageStore {
     /**

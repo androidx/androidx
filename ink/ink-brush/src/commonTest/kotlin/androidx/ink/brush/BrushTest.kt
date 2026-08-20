@@ -425,7 +425,7 @@ class BrushTest {
                                         input =
                                             DampingNode(
                                                 dampingSource = ProgressDomain.TIME_IN_SECONDS,
-                                                dampingGap = 0.001f,
+                                                strength = 0.001f,
                                                 input =
                                                     ResponseNode(
                                                         responseCurve =

@@ -19,12 +19,13 @@ package androidx.ink.rendering.metal
 import androidx.annotation.ColorInt
 import androidx.ink.brush.Brush
 import androidx.ink.brush.BrushFamily
+import androidx.ink.brush.ExperimentalInkCrossPlatformRenderingApi
 import androidx.ink.brush.InputToolType
 import androidx.ink.geometry.ImmutableAffineTransform
-import androidx.ink.rendering.ExperimentalInkCrossPlatformRenderingApi
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.MutableStrokeInputBatch
+import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
@@ -48,6 +49,7 @@ import platform.Metal.MTLTextureProtocol
 import platform.Metal.MTLTextureUsageRenderTarget
 import platform.Metal.MTLTextureUsageShaderRead
 import platform.UIKit.UIImage
+import platform.UIKit.UIImagePNGRepresentation
 
 @OptIn(ExperimentalInkCrossPlatformRenderingApi::class, ExperimentalForeignApi::class)
 class MetalRendererTest {
@@ -170,34 +172,56 @@ class MetalRendererTest {
         return colorTexture.toImage()
     }
 
+    private val emptyImageData = UIImagePNGRepresentation(renderToImage(200, 200) {})!!
+
+    @Test
+    fun renderToImage_comparisonTest() {
+        // Verifies that comparing the results of renderToImage works as expected.
+        val otherEmptyImageData = UIImagePNGRepresentation(renderToImage(200, 200) {})
+        assertThat(emptyImageData).isEqualTo(otherEmptyImageData)
+        assertThat(emptyImageData).isNotSameInstanceAs(otherEmptyImageData)
+    }
+
     @Test
     fun drawInProgressStroke_shouldDraw() {
         val width = 200
         val height = 200
+        val inProgressStroke = testInProgressStroke()
         val image =
             renderToImage(width, height) { renderEncoder ->
                 renderer.draw(
                     renderEncoder,
-                    testInProgressStroke(),
+                    inProgressStroke,
                     projectionTransform = screenCoordsToNormalized(width, height),
                 )
             }
-        // TODO(b/542290747): This is currently tested upstream only.
+
+        // As a smoke-test that can deal with the lack of Jetpack image-diff test infra that works
+        // on Kotlin-native / iOS, we compare the rendered image to an empty image.
+        assertThat(UIImagePNGRepresentation(image)!!).isNotEqualTo(emptyImageData)
+
+        // TODO(b/542290747): Specific image-diff assertion is currently upstream only.
     }
 
     @Test
     fun drawStroke_shouldDraw() {
         val width = 200
         val height = 200
+        val stroke = testInProgressStroke().toImmutable()
         val image =
             renderToImage(width, height) { renderEncoder ->
                 renderer.draw(
                     renderEncoder,
-                    testInProgressStroke().toImmutable(),
+                    stroke,
                     projectionTransform = screenCoordsToNormalized(width, height),
                 )
             }
-        // TODO(b/542290747): This is currently tested upstream only.
+
+        // As a smoke-test that can deal with the lack of Jetpack image-diff test infra that works
+        // on Kotlin-native / iOS, we compare the rendered image to an empty image.
+        assertThat(UIImagePNGRepresentation(image)!!).isNotEqualTo(emptyImageData)
+
+        // TODO(b/542290747): Specific image-diff assertion is currently upstream only.
     }
 
     private companion object {
