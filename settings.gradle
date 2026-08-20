@@ -523,6 +523,7 @@ includeProject(":camera:camera-camera2:camera-camera2-samples", "camera/camera-c
 includeProject(":camera:camera-camera2-pipe", [BuildType.CAMERA])
 includeProject(":camera:camera-camera2-pipe-testing", [BuildType.CAMERA])
 includeProject(":camera:camera-common", [BuildType.CAMERA])
+includeProject(":camera:camera-common:camera-common-samples", "camera/camera-common/samples", [BuildType.CAMERA])
 includeProject(":camera:camera-common-testing", [BuildType.CAMERA])
 includeProject(":camera:camera-compose", [BuildType.CAMERA])
 includeProject(":camera:camera-compose:camera-compose-samples", "camera/camera-compose/samples", [BuildType.CAMERA])
