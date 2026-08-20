@@ -256,6 +256,11 @@ public class WorkManagerImpl extends WorkManager {
         mPreferenceUtils = new PreferenceUtils(mWorkDatabase);
         Schedulers.registerRescheduling(schedulers, mProcessor,
                 workTaskExecutor.getSerialTaskExecutor(), mWorkDatabase, configuration);
+        for (Scheduler scheduler : schedulers) {
+            if (scheduler instanceof ForegroundListener) {
+                mProcessor.addForegroundListener((ForegroundListener) scheduler);
+            }
+        }
         // Checks for app force stops.
         mWorkTaskExecutor.executeOnTaskThread(new ForceStopRunnable(context, this));
         maybeLaunchUnfinishedWorkListener(mWorkManagerScope, mContext, configuration, workDatabase);

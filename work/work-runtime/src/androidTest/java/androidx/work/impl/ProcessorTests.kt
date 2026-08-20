@@ -48,7 +48,10 @@ import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -375,6 +378,111 @@ class ProcessorTests : DatabaseTest() {
 
         assertTrue(secondListenerCalled)
         assertFalse(firstListenerCalled)
+    }
+
+    @Test
+    @MediumTest
+    fun testForegroundStart_notifiesListener() = runBlocking {
+        val request = OneTimeWorkRequest.Builder(LatchWorker::class.java).build()
+        insertWork(request)
+        val id = request.workSpec.generationalId()
+        val startStopToken = StartStopToken(id)
+
+        val deferred = CompletableDeferred<Pair<WorkGenerationalId, Boolean>>()
+
+        val listener = ForegroundListener { generationalId, isForeground ->
+            deferred.complete(generationalId to isForeground)
+        }
+
+        processor.addForegroundListener(listener)
+
+        processor.startWork(startStopToken)
+
+        // Promote to foreground
+        processor.startForeground(startStopToken.id.workSpecId, foregroundInfo)
+
+        val (notifiedId, foregroundState) = withTimeout(3000) { deferred.await() }
+        assertEquals(id, notifiedId)
+        assertTrue(foregroundState)
+
+        // Clean up / stop work so it doesn't leak into teardown
+        val executionFinished = CompletableDeferred<Unit>()
+        processor.addExecutionListener { _, _ -> executionFinished.complete(Unit) }
+        val firstWorker = factory.awaitWorker(request.id)
+        (firstWorker as LatchWorker).mLatch.countDown()
+        withTimeout(3000) { executionFinished.await() }
+    }
+
+    @Test
+    @MediumTest
+    fun testExecutionFinishes_notifiesForegroundListener() = runBlocking {
+        val request = OneTimeWorkRequest.Builder(LatchWorker::class.java).build()
+        insertWork(request)
+        val id = request.workSpec.generationalId()
+        val startStopToken = StartStopToken(id)
+
+        val deferred = CompletableDeferred<Pair<WorkGenerationalId, Boolean>>()
+
+        val listener = ForegroundListener { generationalId, isForeground ->
+            if (!isForeground) {
+                deferred.complete(generationalId to isForeground)
+            }
+        }
+
+        processor.addForegroundListener(listener)
+
+        processor.startWork(startStopToken)
+
+        // Promote to foreground
+        processor.startForeground(startStopToken.id.workSpecId, foregroundInfo)
+
+        // Clean up / stop foreground work
+        val executionFinished = CompletableDeferred<Unit>()
+        processor.addExecutionListener { _, _ -> executionFinished.complete(Unit) }
+        val firstWorker = factory.awaitWorker(request.id)
+        (firstWorker as LatchWorker).mLatch.countDown()
+        withTimeout(3000) { executionFinished.await() }
+
+        val (notifiedId, foregroundState) = withTimeout(3000) { deferred.await() }
+        assertEquals(id, notifiedId)
+        assertFalse(foregroundState)
+    }
+
+    @Test
+    @MediumTest
+    fun testStopForegroundWork_notifiesListener() = runBlocking {
+        val request = OneTimeWorkRequest.Builder(LatchWorker::class.java).build()
+        insertWork(request)
+        val id = request.workSpec.generationalId()
+        val startStopToken = StartStopToken(id)
+
+        val deferred = CompletableDeferred<Pair<WorkGenerationalId, Boolean>>()
+
+        val listener = ForegroundListener { generationalId, isForeground ->
+            if (!isForeground) {
+                deferred.complete(generationalId to isForeground)
+            }
+        }
+
+        processor.addForegroundListener(listener)
+
+        processor.startWork(startStopToken)
+
+        // Promote to foreground
+        processor.startForeground(startStopToken.id.workSpecId, foregroundInfo)
+
+        val executionFinished = CompletableDeferred<Unit>()
+        processor.addExecutionListener { _, _ -> executionFinished.complete(Unit) }
+
+        // Stop foreground work explicitly
+        processor.stopForegroundWork(startStopToken, 0)
+
+        val (notifiedId, foregroundState) = withTimeout(3000) { deferred.await() }
+        assertEquals(id, notifiedId)
+        assertFalse(foregroundState)
+
+        // Wait for worker execution finish to clean up (stopForegroundWork interrupts LatchWorker)
+        withTimeout(3000) { executionFinished.await() }
     }
 
     @After
