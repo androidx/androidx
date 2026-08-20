@@ -252,7 +252,7 @@ internal constructor(
      * Retrieves the current playback speed of the animation.
      *
      * This reflects the underlying runtime state typically modified by [GltfAnimation.start] or
-     * [GltfAnimation.setSpeed].
+     * [GltfAnimation.speed].
      *
      * @return The playback speed multiplier of the animation.
      */

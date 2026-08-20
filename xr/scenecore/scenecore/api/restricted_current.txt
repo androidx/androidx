@@ -246,26 +246,30 @@ package androidx.xr.scenecore {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSurfaceEntityPixelDimensionsApi {
   }
 
-  @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.xr.scenecore.ExperimentalGltfAnimationApi public final class GltfAnimation {
+  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalGltfAnimationApi public final class GltfAnimation {
     method public void addAnimationStateListener(java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.GltfAnimation.AnimationState> listener);
     method public void addAnimationStateListener(java.util.function.Consumer<androidx.xr.scenecore.GltfAnimation.AnimationState> listener);
     method @InaccessibleFromKotlin @MainThread public androidx.xr.scenecore.GltfAnimation.AnimationState getAnimationState();
-    method @InaccessibleFromKotlin public java.time.Duration getDuration();
+    method @InaccessibleFromKotlin @RequiresApi(android.os.Build.VERSION_CODES.O) public java.time.Duration getDuration();
     method @InaccessibleFromKotlin public int getIndex();
+    method @InaccessibleFromKotlin @MainThread public boolean getLoop();
     method @InaccessibleFromKotlin public String? getName();
+    method @InaccessibleFromKotlin @MainThread public float getSpeed();
     method @MainThread public void pause();
     method public void removeAnimationStateListener(java.util.function.Consumer<androidx.xr.scenecore.GltfAnimation.AnimationState> listener);
     method @MainThread public void resume();
-    method @MainThread public void seekTo(java.time.Duration time);
-    method @MainThread public void setSpeed(float speed);
+    method @Deprecated @MainThread @RequiresApi(android.os.Build.VERSION_CODES.O) public void seekTo(java.time.Duration time);
+    method @InaccessibleFromKotlin @MainThread public void setLoop(boolean);
+    method @InaccessibleFromKotlin @MainThread public void setSpeed(float);
     method @MainThread public void start();
-    method @MainThread public void start(optional androidx.xr.scenecore.GltfAnimationStartOptions options);
-    method @BytecodeOnly @MainThread public static void start$default(androidx.xr.scenecore.GltfAnimation!, androidx.xr.scenecore.GltfAnimationStartOptions!, int, Object!);
+    method @Deprecated @MainThread @RequiresApi(android.os.Build.VERSION_CODES.O) public void start(androidx.xr.scenecore.GltfAnimationStartOptions options);
     method @MainThread public void stop();
     property @MainThread public androidx.xr.scenecore.GltfAnimation.AnimationState animationState;
-    property public java.time.Duration duration;
+    property @RequiresApi(android.os.Build.VERSION_CODES.O) public java.time.Duration duration;
     property public int index;
+    property @MainThread public boolean loop;
     property public String? name;
+    property @MainThread public float speed;
   }
 
   @SuppressCompatibility @androidx.xr.scenecore.ExperimentalGltfAnimationApi public static final class GltfAnimation.AnimationState {
@@ -281,23 +285,23 @@ package androidx.xr.scenecore {
     property public androidx.xr.scenecore.GltfAnimation.AnimationState STOPPED;
   }
 
-  @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.xr.scenecore.ExperimentalGltfAnimationApi public final class GltfAnimationStartOptions {
-    ctor public GltfAnimationStartOptions();
-    ctor public GltfAnimationStartOptions(optional boolean shouldLoop);
-    ctor public GltfAnimationStartOptions(optional boolean shouldLoop, optional float speed);
-    ctor public GltfAnimationStartOptions(optional boolean shouldLoop, optional float speed, optional java.time.Duration seekStartTime);
-    ctor @BytecodeOnly public GltfAnimationStartOptions(boolean, float, java.time.Duration!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public androidx.xr.scenecore.GltfAnimationStartOptions copy();
-    method public androidx.xr.scenecore.GltfAnimationStartOptions copy(optional boolean shouldLoop);
-    method public androidx.xr.scenecore.GltfAnimationStartOptions copy(optional boolean shouldLoop, optional float speed);
-    method public androidx.xr.scenecore.GltfAnimationStartOptions copy(optional boolean shouldLoop, optional float speed, optional java.time.Duration seekStartTime);
-    method @BytecodeOnly public static androidx.xr.scenecore.GltfAnimationStartOptions! copy$default(androidx.xr.scenecore.GltfAnimationStartOptions!, boolean, float, java.time.Duration!, int, Object!);
-    method @InaccessibleFromKotlin public java.time.Duration getSeekStartTime();
-    method @InaccessibleFromKotlin public float getSpeed();
-    method @InaccessibleFromKotlin public boolean shouldLoop();
-    property public java.time.Duration seekStartTime;
-    property public boolean shouldLoop;
-    property public float speed;
+  @Deprecated @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.xr.scenecore.ExperimentalGltfAnimationApi public final class GltfAnimationStartOptions {
+    ctor @Deprecated public GltfAnimationStartOptions();
+    ctor @Deprecated public GltfAnimationStartOptions(optional boolean shouldLoop);
+    ctor @Deprecated public GltfAnimationStartOptions(optional boolean shouldLoop, optional float speed);
+    ctor @Deprecated public GltfAnimationStartOptions(optional boolean shouldLoop, optional float speed, optional java.time.Duration seekStartTime);
+    ctor @BytecodeOnly @Deprecated public GltfAnimationStartOptions(boolean, float, java.time.Duration!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @Deprecated public androidx.xr.scenecore.GltfAnimationStartOptions copy();
+    method @Deprecated public androidx.xr.scenecore.GltfAnimationStartOptions copy(optional boolean shouldLoop);
+    method @Deprecated public androidx.xr.scenecore.GltfAnimationStartOptions copy(optional boolean shouldLoop, optional float speed);
+    method @Deprecated public androidx.xr.scenecore.GltfAnimationStartOptions copy(optional boolean shouldLoop, optional float speed, optional java.time.Duration seekStartTime);
+    method @BytecodeOnly @Deprecated public static androidx.xr.scenecore.GltfAnimationStartOptions! copy$default(androidx.xr.scenecore.GltfAnimationStartOptions!, boolean, float, java.time.Duration!, int, Object!);
+    method @InaccessibleFromKotlin @Deprecated public java.time.Duration getSeekStartTime();
+    method @InaccessibleFromKotlin @Deprecated public float getSpeed();
+    method @InaccessibleFromKotlin @Deprecated public boolean shouldLoop();
+    property @Deprecated public java.time.Duration seekStartTime;
+    property @Deprecated public boolean shouldLoop;
+    property @Deprecated public float speed;
   }
 
   public final class GltfModel implements java.lang.AutoCloseable {
@@ -316,9 +320,10 @@ package androidx.xr.scenecore {
     method @MainThread public static androidx.xr.scenecore.GltfModelEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.GltfModel model);
     method @MainThread public static androidx.xr.scenecore.GltfModelEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.GltfModel model, optional androidx.xr.runtime.math.Pose pose);
     method @MainThread public static androidx.xr.scenecore.GltfModelEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.GltfModel model, optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Entity? parent);
-    method @SuppressCompatibility @MainThread @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.xr.scenecore.ExperimentalGltfAnimationApi public java.util.List<androidx.xr.scenecore.GltfAnimation> getAnimations();
+    method @SuppressCompatibility @MainThread @androidx.xr.scenecore.ExperimentalGltfAnimationApi public java.util.List<androidx.xr.scenecore.GltfAnimation> getAnimations();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox();
     method @InaccessibleFromKotlin @MainThread public java.util.List<androidx.xr.scenecore.GltfModelNode> getNodes();
+    method @SuppressCompatibility @MainThread @androidx.xr.scenecore.ExperimentalGltfAnimationApi public void stopAllAnimations();
     property @MainThread public java.util.List<androidx.xr.scenecore.GltfModelNode> nodes;
     field public static final androidx.xr.scenecore.GltfModelEntity.Companion Companion;
   }
