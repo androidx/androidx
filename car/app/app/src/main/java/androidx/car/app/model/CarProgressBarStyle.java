@@ -137,11 +137,11 @@ public final class CarProgressBarStyle {
          *
          * <p>If a color is not set, or if the provided color does not pass a contrast check, the
          * host will use a default color.
-         *
-         * @throws NullPointerException if {@code color} is {@code null}
          */
-        public @NonNull Builder setColor(@NonNull CarColor color) {
-            CarColorConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(color));
+        public @NonNull Builder setColor(@Nullable CarColor color) {
+            if (color != null) {
+                CarColorConstraints.UNCONSTRAINED.validateOrThrow(color);
+            }
             mColor = color;
             return this;
         }

@@ -45,6 +45,15 @@ public class CarProgressBarStyleTest {
     }
 
     @Test
+    public void setNullColor() {
+        CarColor color = CarColor.BLUE;
+        CarProgressBarStyle style = new CarProgressBarStyle.Builder().setColor(color).setColor(
+                null).build();
+        assertThat(style.getColor()).isNull();
+        assertThat(style.getStrokeCap()).isEqualTo(CarProgressBarStyle.STROKE_CAP_DEFAULT);
+    }
+
+    @Test
     public void setStrokeCap() {
         int strokeCap = CarProgressBarStyle.STROKE_CAP_SQUARE;
         CarProgressBarStyle style = new CarProgressBarStyle.Builder().setStrokeCap(
