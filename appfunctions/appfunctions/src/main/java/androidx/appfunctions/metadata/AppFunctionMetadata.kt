@@ -68,6 +68,8 @@ constructor(
     /** The response of the AppFunction. */
     public val response: AppFunctionResponseMetadata,
     /** Reusable components that could be shared within the function specification. */
+    // TODO(b/508188326): remove property once legacy observeAppFunction is removed
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
     /** A description of the AppFunction and its intended use. */
     public val description: String = "",
@@ -77,18 +79,10 @@ constructor(
      */
     public val deprecation: AppFunctionDeprecationMetadata? = null,
     /** The name of the AppFunction. */
-    // TODO(b/508188326): Remove annotation once legacy observeAppFunctions API is removed.
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val name: AppFunctionName = AppFunctionName(packageName, id),
     /** The metadata of the package providing this AppFunction. */
-    // TODO(b/508188326): Remove annotation once legacy observeAppFunctions API is removed.
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val packageMetadata: AppFunctionPackageMetadata =
-        AppFunctionPackageMetadata(
-            packageName = packageName,
-            appFunctions = listOf(),
-            components = components,
-        ),
+        AppFunctionPackageMetadata(packageName = packageName, components = components),
 ) {
     @JvmOverloads
     public constructor(
