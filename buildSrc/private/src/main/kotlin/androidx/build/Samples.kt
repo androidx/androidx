@@ -16,6 +16,8 @@
 
 package androidx.build
 
+import androidx.build.sources.SourceJarAttributeConfiguration
+import androidx.build.sources.SourceJarAttributeConfiguration.docsSourceJarUsage
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -39,13 +41,16 @@ import org.gradle.work.DisableCachingByDefault
  * Can only be called once so only one samples library can exist per library b/318840087.
  */
 internal fun Project.configureSamplesProject() {
+    // Set up attribute resolution rules so that the correct KMP or non-KMP source jar is resolved.
+    SourceJarAttributeConfiguration.register(project)
+
     fun Configuration.setResolveSources() {
         // While a sample library can have more dependencies than the library it has samples
         // for, in Studio sample code is not executable or inspectable, so we don't need them.
         isTransitive = false
         isCanBeConsumed = false
         attributes {
-            it.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named<Usage>(Usage.JAVA_RUNTIME))
+            it.attribute(Usage.USAGE_ATTRIBUTE, docsSourceJarUsage)
             it.attribute(
                 Category.CATEGORY_ATTRIBUTE,
                 project.objects.named<Category>(Category.DOCUMENTATION),
