@@ -364,6 +364,10 @@ package androidx.wear.compose.remote.material3 {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getCurvedIndicatorStartAngle();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getCurvedIndicatorStrokeWidth();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getCurvedIndicatorSweepAngle();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getDefaultStrokeWidth();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getStartAngle();
+    method public androidx.compose.remote.creation.compose.state.RemoteDp largeStrokeWidth(androidx.compose.remote.creation.compose.state.RemoteDp screenSize);
+    method public androidx.compose.remote.creation.compose.state.RemoteDp smallStrokeWidth(androidx.compose.remote.creation.compose.state.RemoteDp screenSize);
     property public static int AnimationDurationMillis;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat CurvedIndicatorDotCollapseFreezeFraction;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat CurvedIndicatorGapAngleDegrees;
@@ -371,6 +375,8 @@ package androidx.wear.compose.remote.material3 {
     property public androidx.compose.remote.creation.compose.state.RemoteFloat CurvedIndicatorStartAngle;
     property public androidx.compose.remote.creation.compose.state.RemoteDp CurvedIndicatorStrokeWidth;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat CurvedIndicatorSweepAngle;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp DefaultStrokeWidth;
+    property public androidx.compose.remote.creation.compose.state.RemoteFloat StartAngle;
     field public static final int AnimationDurationMillis = 125; // 0x7d
     field public static final androidx.wear.compose.remote.material3.RemoteProgressIndicatorDefaults INSTANCE;
   }

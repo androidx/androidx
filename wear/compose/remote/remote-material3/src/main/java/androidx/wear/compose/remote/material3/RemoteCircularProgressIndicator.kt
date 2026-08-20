@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.asin
 import androidx.compose.remote.creation.compose.state.cubicEasing
 import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.max
@@ -38,7 +39,6 @@ import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.creation.compose.state.selectIfLt
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
@@ -62,7 +62,8 @@ import androidx.compose.ui.graphics.StrokeCap
  * @param endAngle The ending position of the progress arc.
  * @param colors [RemoteProgressIndicatorColors] that will be used to resolve the indicator and
  *   track color.
- * @param strokeWidth The stroke width for the progress indicator.
+ * @param strokeWidth The stroke width for the progress indicator. Defaults to
+ *   [RemoteProgressIndicatorDefaults.DefaultStrokeWidth].
  * @param gapSize The size (in RemoteDp) of the gap between the ends of the progress indicator and
  *   the track. The stroke endcaps are not included in this distance.
  */
@@ -72,10 +73,10 @@ public fun RemoteCircularProgressIndicator(
     progress: RemoteFloat,
     modifier: RemoteModifier = RemoteModifier,
     enabled: RemoteBoolean = true.rb,
-    startAngle: RemoteFloat = 270f.rf,
+    startAngle: RemoteFloat = RemoteProgressIndicatorDefaults.StartAngle,
     endAngle: RemoteFloat = startAngle,
     colors: RemoteProgressIndicatorColors = RemoteProgressIndicatorDefaults.colors(),
-    strokeWidth: RemoteDp = 8.rdp,
+    strokeWidth: RemoteDp = RemoteProgressIndicatorDefaults.DefaultStrokeWidth,
     gapSize: RemoteDp = RemoteProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),
 ) {
     RemoteCanvas(modifier = modifier.fillMaxSize()) {
@@ -133,7 +134,7 @@ public fun RemoteCircularProgressIndicator(
             )
         val sweepAnimation =
             sweepConditions.foldRight(lerp(0.8f.rf, 0f.rf, easedProgress)) { pair, acc ->
-                selectIfLt(timeProgress, pair.first, pair.second, acc)
+                timeProgress.isLessThan(pair.first).select(pair.second, acc)
             }
 
         val rotationConditions =
@@ -144,7 +145,7 @@ public fun RemoteCircularProgressIndicator(
             )
         val additionalRotation =
             rotationConditions.foldRight(lerp(360f.rf, 720f.rf, easedProgress)) { pair, acc ->
-                selectIfLt(timeProgress, pair.first, pair.second, acc)
+                timeProgress.isLessThan(pair.first).select(pair.second, acc)
             }
 
         val totalRotation = 270f.rf + globalRotation + additionalRotation
@@ -167,6 +168,7 @@ private fun RemoteDrawScope.drawIndicatorArcs(
     enabled: RemoteBoolean,
 ) {
     val strokePx = strokeWidth.toPx()
+    val gapSizePx = gapSize.toPx()
     val diameter = min(width, height)
     val diameterOffset = strokePx / 2f.rf
     val arcDimen = diameter - (diameterOffset * 2f.rf)
@@ -176,7 +178,9 @@ private fun RemoteDrawScope.drawIndicatorArcs(
     val right = left + arcDimen
     val bottom = top + arcDimen
 
-    val gapSweep = ((strokePx + gapSize.toPx()) / (Math.PI.toFloat().rf * diameter)) * 360f.rf
+    val chordRatio =
+        min(1f.rf, max(0f.rf, (strokePx + gapSizePx) / max(0.001f.rf, diameter - strokePx)))
+    val gapSweep = asin(chordRatio) * (360f / Math.PI.toFloat()).rf
 
     val trackGapSweep = min(sweepAngle, gapSweep)
 
@@ -221,6 +225,33 @@ public object RemoteProgressIndicatorDefaults {
     /** Default stroke width for indeterminate [RemoteCircularProgressIndicator]. */
     public val IndeterminateStrokeWidth: RemoteDp = 3.rdp
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
+
+    /** Small screen breakpoint in Dp for circular progress indicator. */
+    internal val SmallScreenBreakpoint: RemoteDp = 225.rdp
+
+    /** Default stroke width for [RemoteCircularProgressIndicator]. */
+    public val DefaultStrokeWidth: RemoteDp = 12.rdp
+
+    /**
+     * Large stroke width for circular progress indicator based on [screenSize].
+     *
+     * @param screenSize Screen size in [RemoteDp] used to determine stroke width.
+     * @return 8.rdp if [screenSize] is less than [SmallScreenBreakpoint], 12.rdp otherwise.
+     */
+    public fun largeStrokeWidth(screenSize: RemoteDp): RemoteDp =
+        screenSize.isLessThan(SmallScreenBreakpoint).select(8.rdp, 12.rdp)
+
+    /**
+     * Small stroke width for circular progress indicator based on [screenSize].
+     *
+     * @param screenSize Screen size in [RemoteDp] used to determine stroke width.
+     * @return 5.rdp if [screenSize] is less than [SmallScreenBreakpoint], 8.rdp otherwise.
+     */
+    public fun smallStrokeWidth(screenSize: RemoteDp): RemoteDp =
+        screenSize.isLessThan(SmallScreenBreakpoint).select(5.rdp, 8.rdp)
+
+    /** Default start angle for [RemoteCircularProgressIndicator]. */
+    public val StartAngle: RemoteFloat = 270f.rf
 
     /** Default start angle for [RemoteCurvedProgressIndicator]. */
     public val CurvedIndicatorStartAngle: RemoteFloat = 135f.rf
