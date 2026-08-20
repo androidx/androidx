@@ -284,6 +284,8 @@ fun Project.configureSbomPublishing() {
             }
         }
 
+        sbomExtension.onlyUseLocalLicenses.set(true)
+
         sbomExtension.targets.create("release") { target ->
             val googleOrganization = "Organization: Google LLC"
             val document = target.document
