@@ -61,9 +61,8 @@ import androidx.compose.ui.unit.dp
  *
  * ### Setup and Initialization
  * To obtain a valid [surfaceModel] instance:
- * 1. Define an [A2uiCatalog] using the [androidx.a2ui.compose.ui.A2uiCatalog] factory function,
- *    registering supported [A2uiComponent] implementations (e.g., [MaterialTextComponent],
- *    [MaterialButtonComponent]).
+ * 1. Create an [A2uiCatalog] using the [androidx.a2ui.compose.ui.A2uiCatalog] or
+ *    [androidx.compose.material3.a2ui.catalog.materialA2uiBasicCatalogV1] factory functions.
  * 2. Create an [androidx.a2ui.model.processor.A2uiMessageProcessor] using the
  *    [androidx.a2ui.compose.ui.A2uiMessageProcessor] factory function with the catalog(s),
  *    typically hosted in a `ViewModel`.

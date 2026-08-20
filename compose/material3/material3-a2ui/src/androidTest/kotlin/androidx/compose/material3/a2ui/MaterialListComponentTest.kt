@@ -27,6 +27,7 @@ import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.a2ui.catalog.MaterialA2uiBasicCatalogV1Defaults
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -49,7 +50,7 @@ class MaterialListComponentTest {
     private val testCatalog =
         A2uiCatalog(
             catalogId = "test_catalog",
-            components = listOf(MaterialListComponent, MaterialTextComponent),
+            components = listOf(MaterialListComponent, MaterialA2uiBasicCatalogV1Defaults.text),
             functions = listOf(A2uiFormatStringFunction.INSTANCE),
         )
 
