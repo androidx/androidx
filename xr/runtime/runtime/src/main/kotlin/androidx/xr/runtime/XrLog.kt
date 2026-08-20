@@ -20,6 +20,7 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 
 /** Logging utilities for JetpackXR messages and Logcat compile-time print controls. */
+@Deprecated("The current XrLog is going to be replaced and should not be used.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object XrLog {
 
