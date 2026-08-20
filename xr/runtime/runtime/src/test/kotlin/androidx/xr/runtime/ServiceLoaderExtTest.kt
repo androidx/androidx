@@ -35,6 +35,7 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowBuild
+import org.robolectric.shadows.ShadowSystemProperties
 
 @RunWith(AndroidJUnit4::class)
 class ServiceLoaderExtTest {
@@ -87,6 +88,33 @@ class ServiceLoaderExtTest {
             .setSystemFeature(FEATURE_XR_API_OPENXR, /* supported= */ true)
 
         assertThat(getDeviceContextFeatures(context)).contains(Feature.OPEN_XR)
+    }
+
+    @Test
+    fun getDeviceContextFeatures_withForceOpenXrPropOne_addsOpenXr() {
+        ShadowBuild.setFingerprint("a_real_device")
+        ShadowSystemProperties.override(FORCE_OPENXR_PROPERTY, "1")
+
+        assertThat(getDeviceContextFeatures(ApplicationProvider.getApplicationContext()))
+            .contains(Feature.OPEN_XR)
+    }
+
+    @Test
+    fun getDeviceContextFeatures_withForceOpenXrPropTrue_addsOpenXr() {
+        ShadowBuild.setFingerprint("a_real_device")
+        ShadowSystemProperties.override(FORCE_OPENXR_PROPERTY, "true")
+
+        assertThat(getDeviceContextFeatures(ApplicationProvider.getApplicationContext()))
+            .contains(Feature.OPEN_XR)
+    }
+
+    @Test
+    fun getDeviceContextFeatures_withForceOpenXrPropDisabled_doesNotAddOpenXr() {
+        ShadowBuild.setFingerprint("a_real_device")
+        ShadowSystemProperties.override(FORCE_OPENXR_PROPERTY, "0")
+
+        assertThat(getDeviceContextFeatures(ApplicationProvider.getApplicationContext()))
+            .doesNotContain(Feature.OPEN_XR)
     }
 
     @Test
