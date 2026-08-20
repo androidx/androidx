@@ -88,7 +88,7 @@ public object AndroidComposeUiFlags {
     // TODO(b/513525072): Cleanup once proven stable.
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isOutOfFrameSchedulerForTextInputEventsEnabled: Boolean = false
+    public var isOutOfFrameSchedulerForTextInputEventsEnabled: Boolean = true
 
     /**
      * Enables sorting of accessibility children based on their traversal index when the parent is a
