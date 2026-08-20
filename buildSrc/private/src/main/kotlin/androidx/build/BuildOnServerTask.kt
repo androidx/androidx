@@ -48,8 +48,7 @@ abstract class BuildOnServerTask : DefaultTask() {
     fun checkAllBuildOutputs() {
         if (!aggregateBuildInfoFile.get().asFile.exists()) {
             throw FileNotFoundException(
-                "buildOnServer required output missing: " +
-                    "${aggregateBuildInfoFile.get().asFile.path}"
+                "buildOnServer required output missing: " + aggregateBuildInfoFile.get().asFile.path
             )
         }
     }

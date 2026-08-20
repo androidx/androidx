@@ -72,7 +72,7 @@ abstract class ProjectCreatorTask : DefaultTask() {
                 }
                 .get()
 
-        var groupId = ""
+        var groupId: String
         do {
             groupId =
                 userInput
@@ -93,7 +93,7 @@ abstract class ProjectCreatorTask : DefaultTask() {
             error("Unknown project type: $projectTypeName")
         }
 
-        var artifactId = ""
+        var artifactId: String
         do {
             artifactId =
                 userInput
