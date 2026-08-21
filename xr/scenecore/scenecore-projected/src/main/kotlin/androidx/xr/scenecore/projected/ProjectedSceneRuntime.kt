@@ -66,7 +66,7 @@ import java.util.function.Consumer
 
 internal class ProjectedSceneRuntime
 internal constructor(
-    private val activity: Activity,
+    private var activity: Activity?,
     private val mServiceClient: ProjectedSceneCoreServiceClient,
     private val executor: ScheduledExecutorService,
 ) : SceneRuntime {
@@ -309,6 +309,7 @@ internal constructor(
         super.destroy()
         mServiceClient.unbindService()
         mIsDestroyed = true
+        activity = null
     }
 
     public companion object {
