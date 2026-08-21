@@ -123,6 +123,7 @@ public class FloatExpression extends Operation
             }
         }
         float v = mLastCalculatedValue;
+        boolean isStartup = Float.isNaN(mLastCalculatedValue);
         if (value_changed) { // inputs changed check if output changed
             v = mExp.eval(mPreCalcValue, mPreCalcValue.length);
             if (v != mLastCalculatedValue) {
@@ -141,6 +142,9 @@ public class FloatExpression extends Operation
             }
             mFloatAnimation.setTargetValue(v);
         } else if (value_changed && mSpring != null) {
+            if (isStartup) {
+                mSpring.setInitialValue(v);
+            }
             mSpring.setTargetValue(v);
         }
     }
@@ -194,6 +198,20 @@ public class FloatExpression extends Operation
                 markDirty();
             }
         } else if (mSpring != null) { // support damped spring animation
+            if (Float.isNaN(mLastCalculatedValue)) { // startup
+                try {
+                    mLastCalculatedValue =
+                            mExp.eval(
+                                    Objects.requireNonNull(context.getCollectionsAccess()),
+                                    mPreCalcValue,
+                                    mPreCalcValue.length);
+                    mSpring.setTargetValue(mLastCalculatedValue);
+                    mSpring.setInitialValue(mLastCalculatedValue);
+                } catch (Exception e) {
+                    throw new RuntimeException(
+                            this.toString() + " len = " + mPreCalcValue.length, e);
+                }
+            }
             float lastComputedValue = mSpring.get(t);
             float epsilon = 0.01f;
             if (lastComputedValue != mLastAnimatedValue
