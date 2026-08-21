@@ -36,6 +36,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata
  * @property attribution The attribution that can be used by the privacy setting to provide
  *   transparency to the user about why an app function was invoked.
  */
+// TODO(b/549624111): Add ActivityId property.
 public class ExecuteAppFunctionRequest
 @RestrictTo(LIBRARY_GROUP)
 constructor(
