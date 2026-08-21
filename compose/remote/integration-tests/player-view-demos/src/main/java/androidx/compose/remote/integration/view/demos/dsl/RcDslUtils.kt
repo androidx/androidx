@@ -18,7 +18,14 @@ package androidx.compose.remote.integration.view.demos.dsl
 
 import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.RemotePathBase
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.ceil
+import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.sin
+import kotlin.math.sqrt
+import kotlin.math.tan
 
 @Suppress("RestrictedApiAndroidX")
 public fun String.toPathData(): RcPlatformServices.RcPathArrayCreator {
@@ -192,5 +199,77 @@ public fun RemotePathBase.arcTo(
     x1: Float,
     y1: Float,
 ) {
-    this.arcTo(x0, y0, rx, ry, angle, largeArc, sweep, x1, y1)
+    if (rx == 0f || ry == 0f) {
+        lineTo(x1, y1)
+        return
+    }
+    val alpha = Math.toRadians(angle.toDouble())
+    val cosAlpha = cos(alpha)
+    val sinAlpha = sin(alpha)
+
+    val dx = (x0 - x1) / 2.0
+    val dy = (y0 - y1) / 2.0
+    val x1p = cosAlpha * dx + sinAlpha * dy
+    val y1p = -sinAlpha * dx + cosAlpha * dy
+
+    var rxp = abs(rx).toDouble()
+    var ryp = abs(ry).toDouble()
+    val check = (x1p * x1p) / (rxp * rxp) + (y1p * y1p) / (ryp * ryp)
+    if (check > 1.0) {
+        val s = sqrt(check)
+        rxp *= s
+        ryp *= s
+    }
+
+    val sign = if (largeArc == sweep) -1.0 else 1.0
+    val numerator = ((rxp * rxp * ryp * ryp) - (rxp * rxp * y1p * y1p) - (ryp * ryp * x1p * x1p))
+    val denominator = (rxp * rxp * y1p * y1p) + (ryp * ryp * x1p * x1p)
+    val root = sqrt(max(0.0, numerator / denominator))
+    val cxp = sign * root * rxp * y1p / ryp
+    val cyp = -sign * root * ryp * x1p / rxp
+
+    val cx = cosAlpha * cxp - sinAlpha * cyp + (x0 + x1) / 2.0
+    val cy = sinAlpha * cxp + cosAlpha * cyp + (y0 + y1) / 2.0
+
+    val theta1 = atan2((y1p - cyp) / ryp, (x1p - cxp) / rxp)
+    var dTheta = atan2((-y1p - cyp) / ryp, (-x1p - cxp) / rxp) - theta1
+
+    if (sweep && dTheta < 0) {
+        dTheta += 2 * Math.PI
+    } else if (!sweep && dTheta > 0) {
+        dTheta -= 2 * Math.PI
+    }
+
+    var segments = ceil(abs(dTheta) / (Math.PI / 2.0)).toInt()
+    if (segments == 0) {
+        segments = 1
+    }
+
+    for (i in 0..<segments) {
+        val s1 = theta1 + i * dTheta / segments
+        val s2 = theta1 + (i + 1) * dTheta / segments
+
+        val t = 4.0 / 3.0 * tan((s2 - s1) / 4.0)
+
+        val xstart = cosAlpha * rxp * cos(s1) - sinAlpha * ryp * sin(s1) + cx
+        val ystart = sinAlpha * rxp * cos(s1) + cosAlpha * ryp * sin(s1) + cy
+
+        val xend = cosAlpha * rxp * cos(s2) - sinAlpha * ryp * sin(s2) + cx
+        val yend = sinAlpha * rxp * cos(s2) + cosAlpha * ryp * sin(s2) + cy
+
+        val cp1x = xstart + t * (-cosAlpha * rxp * sin(s1) - sinAlpha * ryp * cos(s1))
+        val cp1y = ystart + t * (-sinAlpha * rxp * sin(s1) + cosAlpha * ryp * cos(s1))
+
+        val cp2x = xend - t * (-cosAlpha * rxp * sin(s2) - sinAlpha * ryp * cos(s2))
+        val cp2y = yend - t * (-sinAlpha * rxp * sin(s2) + cosAlpha * ryp * cos(s2))
+
+        cubicTo(
+            cp1x.toFloat(),
+            cp1y.toFloat(),
+            cp2x.toFloat(),
+            cp2y.toFloat(),
+            xend.toFloat(),
+            yend.toFloat(),
+        )
+    }
 }
