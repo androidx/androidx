@@ -149,32 +149,6 @@ class SavedStateRegistryTest {
 
     @UiThreadTest
     @Test
-    fun restorerMergesStateIntoExistingState() {
-        val initial = savedState { putSavedState("existing", bundleOf("value", 1)) }
-        val registry = SavedStateRegistry(initial)
-
-        var restoredA: Int? = null
-        var restoredB: Int? = null
-        val providerA =
-            TestProviderRestorer(
-                onRestore = { state -> restoredA = state?.read { getInt("value") } }
-            )
-        val providerB =
-            TestProviderRestorer(
-                onRestore = { state -> restoredB = state?.read { getInt("value") } }
-            )
-        registry.registerSavedStateProvider("existing", providerA)
-        registry.registerSavedStateProvider("incoming", providerB)
-
-        val incoming = savedState { putSavedState("incoming", bundleOf("value", 2)) }
-        registry.restoreState(incoming)
-
-        assertThat(restoredA).isEqualTo(1)
-        assertThat(restoredB).isEqualTo(2)
-    }
-
-    @UiThreadTest
-    @Test
     fun consumeRestoredStateForKey_returnsNullWhenUnrestored() {
         val registry = SavedStateRegistry()
         assertThat(registry.consumeRestoredStateForKey("unregistered")).isNull()
@@ -342,7 +316,7 @@ class SavedStateRegistryTest {
     private class TestProviderRestorer(
         val onSave: () -> SavedState = { savedState() },
         val onRestore: (SavedState?) -> Unit = {},
-    ) : SavedStateRegistry.SavedStateProvider, SavedStateRestorer {
+    ) : SavedStateRegistry.SavedStateProvider, SavedStateRegistry.SavedStateRestorer {
         override fun saveState(): SavedState = onSave()
 
         override fun restoreState(savedState: SavedState?) = onRestore(savedState)

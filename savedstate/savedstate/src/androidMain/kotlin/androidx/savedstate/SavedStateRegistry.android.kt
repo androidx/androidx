@@ -20,20 +20,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.savedstate.internal.SavedStateRegistryImpl
 
 public actual class SavedStateRegistry
-internal actual constructor(private val impl: SavedStateRegistryImpl) :
-    SavedStateProvider, SavedStateRestorer {
+internal actual constructor(private val impl: SavedStateRegistryImpl) {
 
     public actual constructor() : this(SavedStateRegistryImpl())
 
     public actual constructor(
         initialState: SavedState?
     ) : this(SavedStateRegistryImpl(initialState))
-
-    public actual override fun saveState(): SavedState = impl.saveState()
-
-    public actual override fun restoreState(savedState: SavedState?) {
-        impl.restoreState(savedState)
-    }
 
     @get:MainThread
     public actual val isRestored: Boolean
@@ -56,8 +49,12 @@ internal actual constructor(private val impl: SavedStateRegistryImpl) :
         impl.unregisterSavedStateProvider(key)
     }
 
-    public actual fun interface SavedStateProvider : androidx.savedstate.SavedStateProvider {
-        public actual override fun saveState(): SavedState
+    public actual fun interface SavedStateProvider {
+        public actual fun saveState(): SavedState
+    }
+
+    public actual fun interface SavedStateRestorer {
+        public actual fun restoreState(savedState: SavedState?)
     }
 
     /**
