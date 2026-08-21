@@ -29,6 +29,8 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import instantiateImpl
 import java.io.File
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -510,6 +512,31 @@ class BuilderTest {
             }
             .hasMessageThat()
             .isEqualTo("Number of writers must be greater than 0")
+    }
+
+    @Test
+    fun setConnectionPoolTimeout() {
+        val myDb =
+            databaseBuilder<TestDatabase>("test.db")
+                .setConnectionPoolTimeout(500.milliseconds)
+                .build()
+        assertThat(myDb.getConfiguration().connectionPoolTimeout).isEqualTo(500.milliseconds)
+        myDb.close()
+    }
+
+    @Test
+    fun setConnectionPoolTimeout_invalid() {
+        assertThrows<IllegalArgumentException> {
+                databaseBuilder<TestDatabase>("test.db").setConnectionPoolTimeout(0.seconds)
+            }
+            .hasMessageThat()
+            .isEqualTo("Timeout must be positive")
+
+        assertThrows<IllegalArgumentException> {
+                databaseBuilder<TestDatabase>("test.db").setConnectionPoolTimeout((-1).seconds)
+            }
+            .hasMessageThat()
+            .isEqualTo("Timeout must be positive")
     }
 
     internal abstract class TestDatabase : RoomDatabase()
