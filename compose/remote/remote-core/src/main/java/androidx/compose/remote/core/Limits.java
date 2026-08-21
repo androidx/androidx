@@ -104,5 +104,8 @@ public class Limits {
     /** Maximum nested container depth allowed in a document */
     public static final int MAX_NESTING_DEPTH = 256;
 
+    /** Allow host actions to be called from run actions */
+    public static boolean ENABLE_RUN_ACTION_HOST_ACTIONS = false;
+
     private Limits() {}
 }
