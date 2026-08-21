@@ -222,6 +222,9 @@ private fun CameraScreen(
 
         val cameraSelector =
             if (lensFacing == LENS_FACING_BACK) {
+                // When switching to rear camera, reset flashMode before binding to avoid
+                // IllegalArgumentException: Not a front camera despite setting FLASH_MODE_SCREEN
+                imageCapture.flashMode = ImageCapture.FLASH_MODE_OFF
                 DEFAULT_BACK_CAMERA
             } else {
                 DEFAULT_FRONT_CAMERA
