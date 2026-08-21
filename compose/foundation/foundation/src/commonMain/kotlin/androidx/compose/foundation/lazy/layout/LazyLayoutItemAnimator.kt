@@ -145,7 +145,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                             isVertical,
                         )
                         if (shouldAnimateAppearance) {
-                            newItemInfo.animations.forEach { it?.animateAppearance() }
+                            newItemInfo.animations.forEach { it?.animateEnterTransition() }
                         }
                     }
                 } else {
@@ -173,7 +173,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                                         disappearingItems.remove(it)
                                         displayingNode?.invalidateDraw()
                                     }
-                                    it.animateAppearance()
+                                    it.animateEnterTransition()
                                 }
                             }
                         }
@@ -241,7 +241,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                             displayingNode?.invalidateDraw()
                         } else {
                             if (animation.layer != null) {
-                                animation.animateDisappearance()
+                                animation.animateExitTransition()
                             }
                             if (animation.isDisappearanceAnimationInProgress) {
                                 disappearingItems.add(animation)
@@ -527,9 +527,9 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                                     onLayerPropertyChanged = { displayingNode?.invalidateDraw() },
                                 )
                                 .also { animations[index] = it }
-                    animation.fadeInSpec = specs.fadeInSpec
+                    animation.enterTransition = specs.enterTransition
+                    animation.exitTransition = specs.exitTransition
                     animation.placementSpec = specs.placementSpec
-                    animation.fadeOutSpec = specs.fadeOutSpec
                 }
             }
         }
