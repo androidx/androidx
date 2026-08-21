@@ -96,7 +96,7 @@ internal constructor(
                     )
                 Multiply -> asRemoteColor(args[0]) * asRemoteColor(args[1])
                 Tween ->
-                    tween(args[0] as RemoteColor, args[1] as RemoteColor, args[2] as RemoteFloat)
+                    tween(asRemoteColor(args[0]), asRemoteColor(args[1]), args[2] as RemoteFloat)
                 TweenInt -> {
                     val from = args[0]
                     val to = args[1]
@@ -110,7 +110,7 @@ internal constructor(
                     }
                 }
                 Component -> {
-                    val color = args[0] as RemoteColor
+                    val color = asRemoteColor(args[0])
                     when (val component = asConstantInt(args[1]).toShort()) {
                         ColorAttribute.COLOR_ALPHA -> color.alpha
                         ColorAttribute.COLOR_RED -> color.red
