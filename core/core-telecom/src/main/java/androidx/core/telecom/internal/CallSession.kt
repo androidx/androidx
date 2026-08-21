@@ -686,7 +686,19 @@ internal open class CallSession(
 
     suspend fun disconnect(disconnectCause: DisconnectCause): CallControlResult {
         val result: CompletableDeferred<CallControlResult> = CompletableDeferred()
-        mPlatformInterface?.disconnect(disconnectCause, Runnable::run, CallControlReceiver(result))
+        val remappedCause =
+            if (VERSION.SDK_INT < 38 && disconnectCause.code == DisconnectCause.ERROR) {
+                DisconnectCause(
+                    DisconnectCause.LOCAL,
+                    disconnectCause.label,
+                    disconnectCause.description,
+                    disconnectCause.reason,
+                    disconnectCause.tone,
+                )
+            } else {
+                disconnectCause
+            }
+        mPlatformInterface?.disconnect(remappedCause, Runnable::run, CallControlReceiver(result))
         val callControlResult = result.await()
         moveState(callControlResult, CallStateEvent.DISCONNECTED)
         return callControlResult
