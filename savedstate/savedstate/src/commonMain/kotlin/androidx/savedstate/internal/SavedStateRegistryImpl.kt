@@ -89,10 +89,17 @@ internal class SavedStateRegistryImpl(
     @MainThread
     fun registerSavedStateProvider(key: String, provider: SavedStateProvider) {
         synchronized(lock) {
-            require(key !in keyToProviders) {
-                "SavedStateProvider with the given key is already registered"
+            val oldProvider = keyToProviders.put(key, provider)
+
+            // Allow idempotent re-registration of the exact same provider instance.
+            if (oldProvider === provider) {
+                return@synchronized
             }
-            keyToProviders[key] = provider
+
+            // Prevent key collisions between different provider instances.
+            require(oldProvider == null) {
+                "SavedStateProvider with key '$key' already registered. Existing instance: '$oldProvider'. New instance: '$provider'."
+            }
 
             // If registry is restored, restore state immediately for late registration.
             if (provider is SavedStateRestorer && isRestored) {
