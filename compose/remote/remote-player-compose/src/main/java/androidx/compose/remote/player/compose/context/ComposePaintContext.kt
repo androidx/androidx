@@ -343,11 +343,31 @@ internal class ComposePaintContext(
         staticLayoutBuilder.setIncludePad(false)
 
         val staticLayout = staticLayoutBuilder.build()
+        val lineCount = staticLayout.lineCount
+        var minLeft = Float.MAX_VALUE
+        var maxRight = 0f
+        for (i in 0 until lineCount) {
+            val lineLeft = staticLayout.getLineLeft(i)
+            val lineRight = staticLayout.getLineRight(i)
+            if (lineLeft < minLeft) {
+                minLeft = lineLeft
+            }
+            if (lineRight > maxRight) {
+                maxRight = lineRight
+            }
+        }
+        if (minLeft == Float.MAX_VALUE) {
+            minLeft = 0f
+        }
+        val left = minLeft
+        val width = kotlin.math.ceil(maxRight - minLeft)
+
         return AndroidComputedTextLayout(
             staticLayout,
-            staticLayout.width.toFloat(),
+            left,
+            width,
             staticLayout.height.toFloat(),
-            staticLayout.getLineCount(),
+            staticLayout.lineCount,
             false,
         )
     }
@@ -384,8 +404,16 @@ internal class ComposePaintContext(
         if (computedTextLayout == null) {
             return
         }
-        val staticLayout = (computedTextLayout as AndroidComputedTextLayout).get()
-        staticLayout.draw(nativeCanvas())
+        val androidLayout = computedTextLayout as AndroidComputedTextLayout
+        val staticLayout = androidLayout.get()
+        val left = androidLayout.left
+        if (left != 0f) {
+            nativeCanvas().translate(-left, 0f)
+            staticLayout.draw(nativeCanvas())
+            nativeCanvas().translate(left, 0f)
+        } else {
+            staticLayout.draw(nativeCanvas())
+        }
     }
 
     override fun drawTweenPath(

@@ -191,4 +191,210 @@ class CoreTextAutosizeTest {
 
         assertThat(computedMeasureFontSize).isGreaterThan(baseFontSize)
     }
+
+    @Test
+    fun testAutosizeCenteredText_calculatesCorrectPxAndTranslates() {
+        val textId = 1
+        val computedLayoutWidth = 100f
+        val computedLayoutHeight = 40f
+        val mockComputedLayout: androidx.compose.remote.core.RcPlatformServices.ComputedTextLayout =
+            mock {
+                on { width } doReturn computedLayoutWidth
+                on { height } doReturn computedLayoutHeight
+                on { visibleLineCount } doReturn 1
+                on { isHyphenatedText } doReturn false
+            }
+
+        val mockRemoteContext: RemoteContext = mock {
+            on { getText(textId) } doReturn "Centered Autosize"
+        }
+        val mockPaintContext: PaintContext = mock {
+            on { density } doReturn 1.0f
+            on { context } doReturn mockRemoteContext
+            on {
+                layoutComplexText(
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                )
+            } doReturn mockComputedLayout
+        }
+        org.mockito.kotlin.whenever(mockRemoteContext.paintContext).thenReturn(mockPaintContext)
+
+        val containerWidth = 300f
+        val coreText =
+            CoreText(
+                null,
+                102,
+                -1,
+                0f,
+                0f,
+                containerWidth,
+                100f,
+                textId,
+                0xFF000000.toInt(),
+                -1,
+                14f,
+                8f,
+                100f,
+                0,
+                TextStyle.DEFAULT_FONT_WEIGHT,
+                -1,
+                CoreText.TEXT_ALIGN_CENTER,
+                1,
+                Int.MAX_VALUE,
+                0f,
+                0f,
+                1f,
+                0,
+                0,
+                0,
+                false,
+                false,
+                null,
+                null,
+                true,
+                0,
+                -1,
+            )
+
+        coreText.updateVariables(mockRemoteContext)
+        val measurePass = MeasurePass()
+        val outSize = Size(0f, 0f)
+        coreText.computeWrapSize(
+            mockPaintContext,
+            0f,
+            containerWidth,
+            0f,
+            100f,
+            true,
+            true,
+            measurePass,
+            outSize,
+        )
+
+        // Text width is 100f, container width is 300f -> expected px is (300 - 100) / 2 = 100f
+        coreText.paintingComponent(mockPaintContext)
+
+        val expectedPx = (containerWidth - computedLayoutWidth) / 2f
+        org.mockito.kotlin.verify(mockPaintContext).translate(expectedPx, 0f)
+        org.mockito.kotlin.verify(mockPaintContext).drawComplexText(mockComputedLayout)
+    }
+
+    @Test
+    fun testAutosizeRightAlignedText_calculatesCorrectPxAndTranslates() {
+        val textId = 1
+        val computedLayoutWidth = 80f
+        val computedLayoutHeight = 30f
+        val mockComputedLayout: androidx.compose.remote.core.RcPlatformServices.ComputedTextLayout =
+            mock {
+                on { width } doReturn computedLayoutWidth
+                on { height } doReturn computedLayoutHeight
+                on { visibleLineCount } doReturn 1
+                on { isHyphenatedText } doReturn false
+            }
+
+        val mockRemoteContext: RemoteContext = mock {
+            on { getText(textId) } doReturn "Right Autosize"
+        }
+        val mockPaintContext: PaintContext = mock {
+            on { density } doReturn 1.0f
+            on { context } doReturn mockRemoteContext
+            on {
+                layoutComplexText(
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                    org.mockito.kotlin.any(),
+                )
+            } doReturn mockComputedLayout
+        }
+        org.mockito.kotlin.whenever(mockRemoteContext.paintContext).thenReturn(mockPaintContext)
+
+        val containerWidth = 250f
+        val coreText =
+            CoreText(
+                null,
+                103,
+                -1,
+                0f,
+                0f,
+                containerWidth,
+                100f,
+                textId,
+                0xFF000000.toInt(),
+                -1,
+                14f,
+                8f,
+                100f,
+                0,
+                TextStyle.DEFAULT_FONT_WEIGHT,
+                -1,
+                CoreText.TEXT_ALIGN_RIGHT,
+                1,
+                Int.MAX_VALUE,
+                0f,
+                0f,
+                1f,
+                0,
+                0,
+                0,
+                false,
+                false,
+                null,
+                null,
+                true,
+                0,
+                -1,
+            )
+
+        coreText.updateVariables(mockRemoteContext)
+        val measurePass = MeasurePass()
+        val outSize = Size(0f, 0f)
+        coreText.computeWrapSize(
+            mockPaintContext,
+            0f,
+            containerWidth,
+            0f,
+            100f,
+            true,
+            true,
+            measurePass,
+            outSize,
+        )
+
+        // Text width is 80f, container width is 250f -> expected px is 250 - 80 = 170f
+        coreText.paintingComponent(mockPaintContext)
+
+        val expectedPx = containerWidth - computedLayoutWidth
+        org.mockito.kotlin.verify(mockPaintContext).translate(expectedPx, 0f)
+        org.mockito.kotlin.verify(mockPaintContext).drawComplexText(mockComputedLayout)
+    }
 }
