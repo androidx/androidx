@@ -237,8 +237,33 @@ When directed to an index page, directory list, or guide linking to sub-guides
   ensuring all usage aligns with the framework's design.
 - **Standard Verification Procedure**: Never skip the verification steps.
   Always compile (build), run related tests, run lint, perform **self-review**
-  (using the *Code Review Guidelines* at the top of this file), and **verify code
-  elegance and regression prevention** before finalizing any code changes or declaring a task complete.
+  (using the *Code Review Guidelines* at the top of this file), and **verify
+  code elegance and regression prevention** before finalizing any code changes
+  or declaring a task complete.
+- **Pre-Upload Quality Gate & ErrorProne Release Check**:
+  Before committing or uploading a CL (via `repo upload`), you **MUST** run:
+  1. **Kotlin Formatting**:
+     `./gradlew :ktCheckFile --format --file <modified_file.kt>`.
+  2. **Checkstyle & Import Order**: Java imports must follow strict
+     alphabetical ordering without unused imports or unused static imports.
+  3. **ErrorProne Release Variant Compilation**: Presubmit build bots execute
+     ErrorProne on release variants. Run ErrorProne locally on modified
+     modules to catch release-only compiler errors (such as `[UnusedVariable]`
+     and `[BadInstanceof]`):
+     ```bash
+     ./gradlew :camera:camera-core:runErrorProneRelease \
+       :camera:camera-camera2:runErrorProneRelease
+     ```
+- **Multi-Commit Stack Hygiene & Anti-Churn Rule**:
+  When developing a multi-CL series (e.g. core fix → device quirk → cleanup):
+  - **Zero Intermediate Test Churn**: Do not leave temporary test workarounds
+    (e.g. temporary `assumeFalse`) in earlier commits that are subsequently
+    modified or removed in later commits.
+  - **Self-Contained Atomicity**: Each commit in the stack must compile
+    cleanly, pass its unit tests, and be fully self-contained with its own
+    scoped test coverage.
+  - Rebase and squash intermediate workarounds before uploading to ensure
+    clean git review histories.
 
 
 ## Testing
@@ -451,6 +476,100 @@ CameraX involves complex hardware interactions, making robust testing essential.
      device (and using the specific test that failed, if available) before
      finalizing the fix. Use the lab infrastructure (see `AGENTS_INTERNAL.md`
      for instructions) to run the tests on the target device.
+#### 6. Decision Framework: Core Fix vs. Device Quirk vs. Test Cleanup
+When encountering hardware failures, test errors, or pipeline bugs, apply this
+long-term decision rubric:
+
+1. **Core Architecture Fix**:
+   - **When**: The issue stems from CameraX internal pipeline transformations,
+     surface configuration, state machines, or UseCase format and resolution
+     routing (e.g. node packet delivery, stream index mapping, or lifecycle
+     re-binding).
+   - **Action**: Fix directly in core framework abstractions (`camera-core` or
+     `camera-camera2`).
+2. **Device Quirk**:
+   - **When**: The issue stems from OEM vendor HAL non-compliance, driver
+     limitations, or hardware capabilities advertised in `CameraCharacteristics`
+     that fail at runtime during camera session creation or streaming.
+   - **Action**: Implement a `DeviceQuirk` (under `camera-core` or
+     `camera-camera2` compat quirks) to gracefully adapt pipeline behavior or
+     filter unsupported modes from public capability queries (e.g.
+     `ImageCaptureCapabilities`). **Avoid** adding ad-hoc test assumptions
+     (`assumeFalse`) when a quirk can protect production applications.
+   - *Case Study*: Exclude unsupported simultaneous multi-stream combinations
+     via a quirk on devices where HAL rejects concurrent maximum-resolution
+     streams.
+3. **Test Assumption Cleanup**:
+   - **When**: Previous manual test skips (e.g. `assumeFalse(DEVICE)`) are
+     rendered obsolete because a companion quirk or core pipeline fix now
+     resolves the root problem.
+   - **Action**: Create a dedicated cleanup CL removing the obsolete
+     assumptions to re-enable continuous regression testing on physical devices.
+
+#### 7. Safety & Code Path Auditing Protocol
+Before finalizing changes to shared infrastructure (e.g. `UseCase`,
+`ImageInputConfig`, `UseCaseManager`, `SessionConfig`, `Node` pipelines):
+1. **Audit Standard Single-Stream Flow**: Verify that standard single-stream use
+   cases (`Preview`, `VideoCapture`, `ImageAnalysis`, standard `ImageCapture`)
+   execute identical code paths with 100% backward compatibility.
+2. **Audit Multi-Stream / Advanced Flows**: Verify that concurrent, dual-stream,
+   or composite configurations map surfaces, formats, and sizes accurately by
+   stream index.
+3. **Audit Binary & API Compatibility**: Verify that public and restricted
+   (`LIBRARY_GROUP`) API contracts and binary signatures remain fully backward
+   compatible.
+
+---
+
+## Skill: CameraX Agent Guidelines & Experience Capture
+
+### Use when:
+- Capturing lessons, troubleshooting workflows, compiler checks, or decision
+  rubrics from a coding session into `camera/AGENTS.md` (AOSP) or
+  `AGENTS_INTERNAL.md` (Google3).
+- The user requests to update agent guidelines based on recent findings.
+
+### Workflow & Long-Term Governance:
+
+#### 1. The 3-Tier Signal Filter (Signal vs. Noise)
+Before proposing documentation updates, filter session findings through three
+levels of abstraction:
+* **Tier 1 (Transient Noise — DO NOT ADD)**: Temporary workarounds, specific
+  bug IDs, daily flake reports, or raw log traces belong in Buganizer comments
+  and CL descriptions, not in long-term guidelines.
+* **Tier 2 (Implementation Details — Code/KDoc)**: Specific device model
+  strings, OEM build identifiers, or quirk class implementation details belong
+  in source code KDoc and Quirk classes.
+* **Tier 3 (Universal Engineering Patterns — ADD to AGENTS.md)**: Deterministic
+  pre-upload quality gates, compiler checks (`runErrorProneRelease`), commit
+  stack anti-churn rules, architectural decision trees, and safety audit
+  protocols belong in `AGENTS.md`.
+
+#### 2. The 1-Year Litmus Test
+Evaluate every prospective rule against this long-term criterion:
+> *"Will this guideline save time and prevent regressions for an engineer
+> working on an unrelated CameraX feature 1–2 years from now?"*
+* If **Yes**: Distill into a generalized principle with a concise case study.
+* If **No**: Preserve it in the issue tracker.
+
+#### 3. Consolidate & Refine (Prevent Unbounded Growth)
+Do not infinitely append new bullet points. When updating guidelines:
+1. Locate existing relevant sections (`General Instructions`, `Testing`,
+   `Troubleshooting`).
+2. Refine, clarify, or consolidate existing guidelines with new insights.
+3. Maintain clean Markdown formatting wrapped strictly at **80 characters**.
+
+#### 4. Target Repository Routing & CL Staging
+Route documentation updates according to repository scope:
+* **Public AOSP Guidelines (`frameworks/support/camera/AGENTS.md`)**:
+  Public architecture, Kotlin/Java style, Checkstyle, ErrorProne release
+  checks, pre-upload quality gates, commit hygiene, and general troubleshooting.
+* **Google-Internal Guidelines (`AGENTS_INTERNAL.md` in Google3)**:
+  Internal tooling (`run_camerax_g3_tests.sh`), host memory concurrency
+  estimation, Sponge CLI, physical lab device health triage, and CitC
+  protocols.
+
+---
 
 ## Git Commit Messages
 
