@@ -39,8 +39,8 @@ public abstract class ObserveAppFunctionsEvent private constructor() {
      * with [AppFunctionSearchSpec.packageNames] to retrieve the updated
      * [androidx.appfunctions.metadata.AppFunctionMetadata] for affected functions.
      *
-     * Clients should call [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] to
-     * retrieve the latest [AppFunctionState] for packages affected by these changes.
+     * Clients should call [AppFunctionManager.getAppFunctionStates] to retrieve the latest
+     * [AppFunctionState] for packages affected by these changes.
      *
      * **Note:** If packages are reported to have changed but are not returned from
      * [AppFunctionManager.searchAppFunctions], it means that the packages have been uninstalled or
@@ -69,11 +69,9 @@ public abstract class ObserveAppFunctionsEvent private constructor() {
     /**
      * Triggered when the runtime state of one or more app functions changes.
      *
-     * Upon receiving this notification, clients can call
-     * [android.app.appfunctions.AppFunctionManager.getAppFunctionStates] to retrieve the updated
-     * [AppFunctionState] for the affected functions.
+     * Upon receiving this notification, clients can call [AppFunctionManager.getAppFunctionStates]
+     * to retrieve the updated [AppFunctionState] for the affected functions.
      */
-    // TODO(b/494238383) : Reference jetpack getAppFunctionState in KDoc once available.
     public class StatesChanged(
         /** The set of [AppFunctionName]s representing functions whose state has changed. */
         public val changedFunctionNames: Set<AppFunctionName>

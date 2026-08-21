@@ -33,13 +33,13 @@ import androidx.appfunctions.metadata.AppFunctionPackageMetadata.Companion.APP_M
 import androidx.appsearch.app.GenericDocument
 import org.xmlpull.v1.XmlPullParser
 
-/** Represents metadata about a package providing app functions. */
+/** Contains metadata about a package providing app functions. */
 public class AppFunctionPackageMetadata
 // TODO(b/500667251): Replace this constructor with the secondary one once migrated all usages.
 @JvmOverloads
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(
-    /** The name of the package */
+    /** The name of the package providing app functions. */
     public val packageName: String,
     /** The list of [AppFunctionMetadata] for each app function provided by the app. */
     // TODO(b/500667251): remove this property after migrating to the new constructor.
@@ -47,11 +47,15 @@ constructor(
     //  and function metadata.
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val appFunctions: List<AppFunctionMetadata>,
-    /** Reusable components that could be shared within the function specification. */
+    /** Reusable components that could be shared within the package's functions' specifications. */
     public val components: AppFunctionComponentsMetadata = AppFunctionComponentsMetadata(),
 ) {
     public constructor(
+        /** The name of the package providing app functions. */
         packageName: String,
+        /**
+         * Reusable components that could be shared within the package's functions' specifications.
+         */
         components: AppFunctionComponentsMetadata,
     ) : this(packageName = packageName, appFunctions = listOf(), components = components)
 
