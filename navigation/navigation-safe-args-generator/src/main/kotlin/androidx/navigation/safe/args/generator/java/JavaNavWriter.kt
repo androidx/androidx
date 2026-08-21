@@ -234,7 +234,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
                         addAnnotation(
                             specs.suppressAnnotationSpec
                                 .toBuilder()
-                                .addMember("value", "$S", "deprecation")
+                                .addMember("value", S, "deprecation")
                                 .build()
                         )
                     } else {
@@ -408,7 +408,7 @@ private class ClassWithArgsSpecs(
 
     val suppressAnnotationSpec =
         AnnotationSpec.builder(SuppressWarnings::class.java)
-            .addMember("value", "$S", "unchecked")
+            .addMember("value", S, "unchecked")
             .build()
 
     val hashMapFieldSpec =

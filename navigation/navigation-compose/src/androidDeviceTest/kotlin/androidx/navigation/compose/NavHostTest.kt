@@ -327,7 +327,7 @@ class NavHostTest {
     @Test
     fun testViewModelClearedAfterPopWithConfigChange() {
         lateinit var navController: NavHostController
-        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         lateinit var state: MutableState<Int>
         lateinit var viewModel: TestViewModel
         composeTestRule.setContent {
@@ -367,7 +367,7 @@ class NavHostTest {
     @Test
     fun testViewModelClearedAfterPopMultipleWithConfigChange() {
         lateinit var navController: NavHostController
-        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         lateinit var state: MutableState<Int>
         lateinit var viewModel_second: TestViewModel
         lateinit var viewModel_third: TestViewModel
@@ -1376,7 +1376,7 @@ class NavHostTest {
     @Test
     fun testPopWithBackHandler() {
         lateinit var navController: NavHostController
-        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         var backPressedDispatcher: OnBackPressedDispatcher? = null
         var count = 0
         var wasCalled = false
