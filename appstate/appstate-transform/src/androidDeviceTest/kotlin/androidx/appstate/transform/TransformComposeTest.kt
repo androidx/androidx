@@ -34,8 +34,8 @@ class TransformComposeTest {
         var state: State<Int>? = null
         composeTestRule.setContent {
             state =
-                transform(defaultValue = 0) {
-                    val innerState = transform(defaultValue = 10) { 20 }
+                transform(initialValue = 0) {
+                    val innerState = transform(initialValue = 10) { 20 }
                     innerState.value
                 }
         }

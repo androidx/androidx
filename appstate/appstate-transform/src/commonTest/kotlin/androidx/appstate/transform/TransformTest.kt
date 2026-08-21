@@ -35,7 +35,7 @@ class TransformTest {
 
     @Test
     fun testBasicTransform() = runTest {
-        val state = transform(defaultValue = 0, backgroundScope, dispatcher = testDispatcher) { 1 }
+        val state = transform(initialValue = 0, backgroundScope, dispatcher = testDispatcher) { 1 }
         assertThat(state.value).isEqualTo(1)
     }
 
@@ -43,7 +43,7 @@ class TransformTest {
     fun testStateUpdate() = runTest {
         var sourceState by mutableStateOf(0)
         val state =
-            transform(defaultValue = 0, scope = backgroundScope, dispatcher = testDispatcher) {
+            transform(initialValue = 0, scope = backgroundScope, dispatcher = testDispatcher) {
                 sourceState
             }
 
@@ -64,7 +64,7 @@ class TransformTest {
             )
         var sourceState by mutableStateOf(0)
         val state =
-            transform(defaultValue = 0, childScope, dispatcher = testDispatcher) { sourceState }
+            transform(initialValue = 0, childScope, dispatcher = testDispatcher) { sourceState }
 
         assertThat(state.value).isEqualTo(0)
 
@@ -84,7 +84,7 @@ class TransformTest {
     fun testSingleStateFlowToState() = runTest {
         val flow = MutableStateFlow(0)
         val state =
-            transform(defaultValue = -1, scope = backgroundScope, dispatcher = testDispatcher) {
+            transform(initialValue = -1, scope = backgroundScope, dispatcher = testDispatcher) {
                 flow.collectAsState().value
             }
 
@@ -102,7 +102,7 @@ class TransformTest {
         val flow3 = MutableStateFlow(3)
 
         val state =
-            transform(defaultValue = 0, scope = backgroundScope, dispatcher = testDispatcher) {
+            transform(initialValue = 0, scope = backgroundScope, dispatcher = testDispatcher) {
                 val v1 = flow1.collectAsState().value
                 val v2 = flow2.collectAsState().value
                 val v3 = flow3.collectAsState().value

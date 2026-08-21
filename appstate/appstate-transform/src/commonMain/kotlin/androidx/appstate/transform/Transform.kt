@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
  * automatically recomposed whenever any Compose state it reads is updated, and the newly returned
  * value is pushed into the resulting [State].
  *
- * @param defaultValue The initial value to populate the returned [State] before the first
+ * @param initialValue The initial value to populate the returned [State] before the first
  *   composition completes.
  * @param scope The [CoroutineScope] in which the recomposer and frame clock will run.
  * @param dispatcher The [CoroutineDispatcher] thread this transform should run on.
@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
  * @return A [State] containing the latest result of the [transform] block.
  */
 public fun <R> transform(
-    defaultValue: R,
+    initialValue: R,
     scope: CoroutineScope,
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     onUpdate: @Composable () -> R,
@@ -68,7 +68,7 @@ public fun <R> transform(
         }
     }
 
-    val state = mutableStateOf(defaultValue)
+    val state = mutableStateOf(initialValue)
 
     composition.setContent { state.value = onUpdate() }
 
@@ -79,7 +79,7 @@ public fun <R> transform(
  * A Composable [transform] that remembers the resulting [State] and ties the headless composition
  * to the current [CoroutineScope] provided by the Compose lifecycle.
  *
- * @param defaultValue The initial value to populate the returned [State] before the first
+ * @param initialValue The initial value to populate the returned [State] before the first
  *   composition completes.
  * @param dispatcher The [CoroutineDispatcher] thread this transform should run on.
  * @param onUpdate The [Composable] block that computes the value of type [R].
@@ -87,12 +87,12 @@ public fun <R> transform(
  */
 @Composable
 public fun <R> transform(
-    defaultValue: R,
+    initialValue: R,
     dispatcher: CoroutineDispatcher = Dispatchers.Default,
     onUpdate: @Composable () -> R,
 ): State<R> {
     val scope = rememberCoroutineScope()
-    return remember(scope) { transform(defaultValue, scope, dispatcher, onUpdate) }
+    return remember(scope) { transform(initialValue, scope, dispatcher, onUpdate) }
 }
 
 private object UnitApplier : AbstractApplier<Unit>(Unit) {
