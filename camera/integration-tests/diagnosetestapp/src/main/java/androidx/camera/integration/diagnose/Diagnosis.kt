@@ -42,7 +42,7 @@ class Diagnosis {
         tasks.forEach { task ->
             task.runDiagnosisTask(cameraController, dataStore, context)
             if (!isAggregated) {
-                dataStore.flushTextToTextFile("${task.getTaskName()}")
+                dataStore.flushTextToTextFile(task.getTaskName())
             }
         }
         if (isAggregated) {

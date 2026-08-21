@@ -1389,7 +1389,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         suffix: String,
         rotationDegrees: Int,
     ): Uri? {
-        var uri: Uri?
+        val uri: Uri?
 
         imageReader.acquireLatestImage().let { image ->
             try {

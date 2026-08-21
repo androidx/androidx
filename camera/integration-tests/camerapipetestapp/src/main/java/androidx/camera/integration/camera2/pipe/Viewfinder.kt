@@ -149,8 +149,8 @@ class Viewfinder(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, def
         val viewHeight: Int = MeasureSpec.getSize(heightMeasureSpec)
         debugLog { "onMeasure:          " + viewWidth + "x" + viewHeight }
 
-        var vfSize: Size?
-        var vfLayout: ViewfinderLayout
+        val vfSize: Size?
+        val vfLayout: ViewfinderLayout
         synchronized(this) {
             vfSize = viewfinderSize
             vfLayout = _viewfinderLayout
@@ -175,8 +175,8 @@ class Viewfinder(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, def
         for (x in 0 until count) {
             val view: View = getChildAt(x)
             if (view.visibility != View.GONE) {
-                var childWidth: Int
-                var childHeight: Int
+                val childWidth: Int
+                val childHeight: Int
                 val params: LayoutParams = view.layoutParams
                 childWidth =
                     when (params.width) {
@@ -216,8 +216,8 @@ class Viewfinder(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, def
     ) {
         debugLog { "onLayout:           $layoutLeft, $layoutTop, $layoutRight, $layoutBottom" }
 
-        var vfSize: Size?
-        var vfLayout: ViewfinderLayout
+        val vfSize: Size?
+        val vfLayout: ViewfinderLayout
         synchronized(this) {
             vfSize = viewfinderSize
             vfLayout = _viewfinderLayout

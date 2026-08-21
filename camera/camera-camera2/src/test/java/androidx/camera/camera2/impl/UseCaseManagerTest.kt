@@ -911,6 +911,7 @@ class UseCaseManagerTest {
         useCaseManager.detach(listOf(useCase!!))
 
         useCaseList.remove(useCase!!)
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         useCase = null
         ShadowLooper.idleMainLooper()
         GarbageCollectionUtil.runFinalization()
@@ -933,6 +934,7 @@ class UseCaseManagerTest {
         useCaseManager.detach(listOf(useCase!!))
 
         useCaseList.remove(useCase!!)
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         useCase = null
         ShadowLooper.idleMainLooper()
         GarbageCollectionUtil.runFinalization()
@@ -959,6 +961,7 @@ class UseCaseManagerTest {
         useCaseManager.detach(listOf(useCase!!))
 
         useCaseList.remove(useCase!!)
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         useCase = null
         ShadowLooper.idleMainLooper()
         GarbageCollectionUtil.runFinalization()

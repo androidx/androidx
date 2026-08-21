@@ -207,7 +207,7 @@ class DefaultSurfaceProcessorTest {
                     try {
                         val image = reader.acquireNextImage()
                         if (image != null) {
-                            continuation.resume(image) { cause, _, _ -> null }
+                            continuation.resume(image) { cause, _, _ -> }
                         } else {
                             continuation.resumeWithException(IllegalStateException("Image is null"))
                         }

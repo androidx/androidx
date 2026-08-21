@@ -399,8 +399,6 @@ class FrameStateTest {
 
     @Test
     fun concurrentFrameStateChangeAndNewListenerAdded_ensureCallbacksCalledOnce() = runBlocking {
-        val numCoroutines = 4
-
         val jobs =
             listOf(
                 launch(Dispatchers.Default) { frameState.onFrameInfoComplete() },

@@ -169,7 +169,7 @@ internal class Camera2CameraMetadata(
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
                 Debug.trace("$camera#keys") {
-                    @Suppress("UselessCallOnNotNull") // Untrusted API
+                    @Suppress("UselessCallOnNotNull", "USELESS_CALL_ON_NOT_NULL") // Untrusted API
                     characteristics.keys.orEmpty().toSet()
                 }
             } catch (e: AssertionError) {
@@ -182,7 +182,7 @@ internal class Camera2CameraMetadata(
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
                 Debug.trace("$camera#availableCaptureRequestKeys") {
-                    @Suppress("UselessCallOnNotNull") // Untrusted API
+                    @Suppress("UselessCallOnNotNull", "USELESS_CALL_ON_NOT_NULL") // Untrusted API
                     characteristics.availableCaptureRequestKeys.orEmpty().toSet()
                 }
             } catch (e: AssertionError) {
@@ -195,7 +195,7 @@ internal class Camera2CameraMetadata(
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
                 Debug.trace("$camera#availableCaptureResultKeys") {
-                    @Suppress("UselessCallOnNotNull") // Untrusted API
+                    @Suppress("UselessCallOnNotNull", "USELESS_CALL_ON_NOT_NULL") // Untrusted API
                     characteristics.availableCaptureResultKeys.orEmpty().toSet()
                 }
             } catch (e: AssertionError) {
@@ -214,7 +214,11 @@ internal class Camera2CameraMetadata(
                         val ids = Api28Compat.getPhysicalCameraIds(characteristics)
                         Log.info { "Loaded physicalCameraIds from $camera: $ids" }
 
-                        @Suppress("UselessCallOnNotNull") ids.orEmpty().map { CameraId(it) }.toSet()
+                        @Suppress(
+                            "UselessCallOnNotNull",
+                            "USELESS_CALL_ON_NOT_NULL",
+                        ) // Untrusted API
+                        ids.orEmpty().map { CameraId(it) }.toSet()
                     }
                 } catch (e: AssertionError) {
                     Log.warn(e) { "Failed to getPhysicalCameraIds from $camera" }

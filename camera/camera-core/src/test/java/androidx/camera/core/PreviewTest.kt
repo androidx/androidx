@@ -711,7 +711,7 @@ class PreviewTest {
         preview.setSurfaceProvider { request ->
             request.setTransformationInfoListener(
                 CameraXExecutors.directExecutor(),
-                SurfaceRequest.TransformationInfoListener { receivedTransformationInfo = it },
+                SurfaceRequest.TransformationInfoListener {},
             )
             receivedSurfaceRequest = request
         }
