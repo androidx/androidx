@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,12 @@ import androidx.xr.scenecore.scene
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-/** A FollowTarget can be used to have an element follow a target such as an anchor or AR device. */
+/** A FollowTarget can be used to have an element follow a target such as an anchor or view. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class FollowTarget
-internal constructor(
-    internal val behavior: FollowBehavior,
-    internal val dimensions: TrackedDimensions,
-) {
+internal constructor(internal val mode: FollowMode, internal val dimensions: TrackedDimensions) {
     internal suspend fun start(session: Session, trailingEntity: CoreGroupEntity) {
-        behavior.start(
+        mode.start(
             session = session,
             trailingEntity = trailingEntity,
             target = this,
@@ -45,29 +42,29 @@ internal constructor(
 
     public companion object {
         /**
-         * By designating content to follow the AR device, it will keep that content near the device
-         * and typically within the field of view, even as the device moves around.
+         * By designating content to follow the user's view, it will keep that content near the user
+         * and typically within the field of view, even as the user moves around.
          *
-         * @param behavior determines how the trailing element follows the target. It can be made to
-         *   move faster and be more responsive. The default is [FollowBehavior.soft()].
+         * @param mode determines how the trailing element follows the target. It can be made to
+         *   move faster and be more responsive. The default is [FollowMode.soft()].
          * @param dimensions set of boolean flags to determine the dimensions of movement that are
          *   tracked. Three rotation and three translation dimensions are available to be tracked.
          *   By default, all dimensions are tracked. Any dimensions not listed will not be tracked.
          *   For example if translationY is not listed, this means the content will not move as the
          *   user moves vertically up and down.
          */
-        public fun ArDevice(
-            behavior: FollowBehavior = FollowBehavior.soft(),
+        public fun View(
+            mode: FollowMode = FollowMode.soft(),
             dimensions: TrackedDimensions = TrackedDimensions.All,
-        ): FollowTarget = ArDeviceTarget(behavior, dimensions)
+        ): FollowTarget = ViewTarget(mode, dimensions)
 
         /**
          * Targeting an anchor allows content to be positioned relative to that anchor's location.
          *
          * @param anchor represents the anchor which the trailing element will be tethered to. As
          *   the anchor moves, so will the element.
-         * @param behavior determines how the trailing element follows the target. It can be made to
-         *   move faster and be more responsive. The default is [FollowBehavior.tight].
+         * @param mode determines how the trailing element follows the target. It can be made to
+         *   move faster and be more responsive. The default is [FollowMode.tight].
          * @param dimensions set of boolean flags to determine the dimensions of movement that are
          *   tracked. Three rotation and three translation dimensions are available to be tracked.
          *   By default, all dimensions are tracked. Any dimensions not listed will not be tracked.
@@ -76,9 +73,9 @@ internal constructor(
          */
         public fun Anchor(
             anchor: Anchor,
-            behavior: FollowBehavior = FollowBehavior.tight,
+            mode: FollowMode = FollowMode.tight,
             dimensions: TrackedDimensions = TrackedDimensions.All,
-        ): FollowTarget = AnchorTarget(anchor, behavior, dimensions)
+        ): FollowTarget = AnchorTarget(anchor, mode, dimensions)
     }
 }
 
@@ -88,10 +85,10 @@ internal interface FollowTargetFlow {
 
 /** A concrete [FollowTarget] that wraps the head pose updates from [ArDevice]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class ArDeviceTarget(
-    behavior: FollowBehavior = FollowBehavior.soft(),
+internal class ViewTarget(
+    mode: FollowMode = FollowMode.soft(),
     dimensions: TrackedDimensions = TrackedDimensions.All,
-) : FollowTarget(behavior, dimensions), FollowTargetFlow {
+) : FollowTarget(mode, dimensions), FollowTargetFlow {
     // Distance to stay away from the target when following it.
     val offset: Pose = DEFAULT_OFFSET
 
@@ -105,16 +102,16 @@ internal class ArDeviceTarget(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ArDeviceTarget) return false
+        if (other !is ViewTarget) return false
 
-        if (behavior != other.behavior) return false
+        if (mode != other.mode) return false
         if (dimensions != other.dimensions) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = behavior.hashCode()
+        var result = mode.hashCode()
         result = 31 * result + dimensions.hashCode()
         return result
     }
@@ -132,9 +129,9 @@ internal class ArDeviceTarget(
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class AnchorTarget(
     val anchor: Anchor,
-    behavior: FollowBehavior = FollowBehavior.tight,
+    mode: FollowMode = FollowMode.tight,
     dimensions: TrackedDimensions = TrackedDimensions.All,
-) : FollowTarget(behavior, dimensions), FollowTargetFlow {
+) : FollowTarget(mode, dimensions), FollowTargetFlow {
 
     override fun poseUpdates(session: Session): Flow<Pose> =
         anchor.state.map { state ->
@@ -149,7 +146,7 @@ internal class AnchorTarget(
         if (other !is AnchorTarget) return false
 
         if (anchor != other.anchor) return false
-        if (behavior != other.behavior) return false
+        if (mode != other.mode) return false
         if (dimensions != other.dimensions) return false
 
         return true
@@ -157,7 +154,7 @@ internal class AnchorTarget(
 
     override fun hashCode(): Int {
         var result = anchor.hashCode()
-        result = 31 * result + behavior.hashCode()
+        result = 31 * result + mode.hashCode()
         result = 31 * result + dimensions.hashCode()
         return result
     }

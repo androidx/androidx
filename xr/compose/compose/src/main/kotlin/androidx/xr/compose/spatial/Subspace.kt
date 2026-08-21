@@ -62,9 +62,9 @@ import androidx.xr.compose.subspace.SpatialBoxScope
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.TrackedDimensions
 import androidx.xr.compose.subspace.animation.follow.AnchorTarget as AnchorTargetV2
-import androidx.xr.compose.subspace.animation.follow.ArDeviceTarget as ArDeviceTargetV2
-import androidx.xr.compose.subspace.animation.follow.FollowBehavior as FollowBehaviorV2
+import androidx.xr.compose.subspace.animation.follow.FollowMode
 import androidx.xr.compose.subspace.animation.follow.FollowTarget as FollowTargetV2
+import androidx.xr.compose.subspace.animation.follow.ViewTarget
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.SubspaceLayout
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -552,18 +552,18 @@ public fun FollowingSubspace(
  * solely by its `follow` parameter. By default, this Subspace is automatically bounded by the
  * system's recommended content box, similar to [Subspace].
  *
- * When the `follow` parameter is specified to be [FollowTarget.ArDevice], the content will be
- * positioned relative the view of the AR device. This is sometimes referred to as head-locked
- * content. For this API, it is required for device tracking to not be disabled in the session
- * configuration. If it is disabled, this API will not return anything. The session configuration
- * should resemble `session.configure( config =
+ * When the `follow` parameter is specified to be
+ * [androidx.xr.compose.subspace.animation.follow.FollowTarget.View], the content will be positioned
+ * relative the view of the AR device. This is sometimes referred to as head-locked content. For
+ * this API, it is required for device tracking to not be disabled in the session configuration. If
+ * it is disabled, this API will not return anything. The session configuration should resemble
+ * `session.configure( config =
  * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )` The
- * [FollowTarget.ArDevice] is not compatible with
- * [androidx.xr.compose.subspace.animation.follow.FollowBehavior.tight]. Combining these together
- * will cause this composable to not be displayed. For a near tight experience, use
- * [androidx.xr.compose.subspace.animation.follow.FollowBehavior.soft] with a low duration value
- * such as
- * `FollowBehavior.soft([androidx.xr.compose.subspace.animation.follow.FollowBehavior.Companion.MIN_SOFT_DURATION_MS])`
+ * [androidx.xr.compose.subspace.animation.follow.FollowTarget.View] is not compatible with
+ * [androidx.xr.compose.subspace.animation.follow.FollowMode.tight]. Combining these together will
+ * cause this composable to not be displayed. For a near tight experience, use
+ * [androidx.xr.compose.subspace.animation.follow.FollowMode.soft] with a low duration value such as
+ * `FollowMode.soft([androidx.xr.compose.subspace.animation.follow.FollowMode.Companion.MIN_SOFT_DURATION_MS])`
  *
  * When the `follow` parameter is specified to be [FollowTarget.Anchor], the content will be
  * positioned around an anchor. This is useful for placing UI elements on real-world surfaces or at
@@ -617,7 +617,7 @@ public fun Subspace(
 
     // If we're following an anchor and want the content to follow it as tightly as possible,
     // it's best to link them together in the scene graph rather than implement custom logic.
-    if (follow is AnchorTargetV2 && follow.behavior == FollowBehaviorV2.tight) {
+    if (follow is AnchorTargetV2 && follow.mode == FollowMode.tight) {
         val anchorSpace = remember(follow.anchor) { AnchorSpace.create(session, follow.anchor) }
         Subspace(modifier = modifier, subspaceRootNode = anchorSpace, content = content)
         return
@@ -738,7 +738,7 @@ private fun validateFollowingSubspaceConfiguration(
 }
 
 private fun getInitialSubspaceOffset(follow: FollowTargetV2): Pose {
-    return if (follow is ArDeviceTargetV2) follow.offset else Pose.Identity
+    return if (follow is ViewTarget) follow.offset else Pose.Identity
 }
 
 @Composable
@@ -786,12 +786,12 @@ private fun validateFollowingSubspaceConfiguration(
     config: Config,
 ): Boolean {
     // Following an AR device requires device tracking to be enabled.
-    if (follow is ArDeviceTargetV2 && config.deviceTracking == DeviceTrackingMode.DISABLED) {
+    if (follow is ViewTarget && config.deviceTracking == DeviceTrackingMode.DISABLED) {
         return false
     }
 
     // Tight follow for AR devices was not performant enough to be supported at this time.
-    if (follow is ArDeviceTargetV2 && follow.behavior == FollowBehaviorV2.tight) {
+    if (follow is ViewTarget && follow.mode == FollowMode.tight) {
         return false
     }
 
