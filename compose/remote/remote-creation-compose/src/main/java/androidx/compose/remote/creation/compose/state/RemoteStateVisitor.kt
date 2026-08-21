@@ -17,6 +17,9 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.Dp
 
 /**
  * Traverses a [BaseRemoteState] expression DAG to inspect, collect, or rewrite nodes.
@@ -133,23 +136,18 @@ private fun hasArgsChanged(
 
 /** Resolves or creates a [BaseRemoteState] corresponding to the given [RemoteConstantCacheKey]. */
 internal fun resolveConstantState(key: RemoteConstantCacheKey): BaseRemoteState<*> {
-    key.state?.let {
-        return it
+    return when (val v = key.value) {
+        is Float -> RemoteFloat(v)
+        is Int -> RemoteInt(v)
+        is Boolean -> RemoteBoolean(v)
+        is String -> RemoteString(v)
+        is Color -> RemoteColor(v)
+        is Dp -> RemoteDp(RemoteFloat(v.value))
+        is ImageBitmap -> RemoteImageBitmap(v)
+        is Double -> RemoteFloat(v.toFloat())
+        is Long -> RemoteLong(v)
+        is Number -> RemoteFloat(v.toFloat())
+        null -> RemoteString("null")
+        else -> throw IllegalArgumentException("Unsupported constant type: ${v.javaClass}")
     }
-    val state: BaseRemoteState<*> =
-        when (val v = key.value) {
-            is Float -> RemoteFloat(v)
-            is Int -> RemoteInt(v)
-            is Boolean -> RemoteBoolean(v)
-            is String -> RemoteString(v)
-            is androidx.compose.ui.graphics.Color -> RemoteColor(v)
-            is androidx.compose.ui.unit.Dp -> RemoteDp(RemoteFloat(v.value))
-            is Double -> RemoteFloat(v.toFloat())
-            is Long -> RemoteLong(v)
-            is Number -> RemoteFloat(v.toFloat())
-            null -> RemoteString("null")
-            else -> throw IllegalArgumentException("Unsupported constant type: ${v.javaClass}")
-        }
-    key.state = state
-    return state
 }
