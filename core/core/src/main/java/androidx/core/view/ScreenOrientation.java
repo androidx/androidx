@@ -88,6 +88,48 @@ public final class ScreenOrientation {
                 isReverseDefaultRotation(context), targetRotation);
     }
 
+    /**
+     * Resolves a raw rotation angle for the specified UI {@link Context} and returns whether the
+     * resulting visual orientation is portrait (portrait or reverse portrait).
+     *
+     * @param context        the visual UI {@link Context} (e.g., Activity or WindowContext)
+     * @param targetRotation the rotation angle to evaluate, defined by {@link Surface} constants
+     *                       (e.g., {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                       {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270})
+     * @return {@code true} if the target rotation maps to a portrait screen orientation;
+     *         {@code false} otherwise
+     */
+    public static boolean isPortrait(@NonNull @UiContext Context context, int targetRotation) {
+        return isPortrait(getScreenOrientationFromRotation(context, targetRotation));
+    }
+
+    /**
+     * Resolves a raw rotation angle for the specified UI {@link Context} and returns whether the
+     * resulting visual orientation is landscape (landscape or reverse landscape).
+     *
+     * @param context        the visual UI {@link Context} (e.g., Activity or WindowContext)
+     * @param targetRotation the rotation angle to evaluate, defined by {@link Surface} constants
+     *                       (e.g., {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                       {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270})
+     * @return {@code true} if the target rotation maps to a landscape screen orientation;
+     *         {@code false} otherwise
+     */
+    public static boolean isLandscape(@NonNull @UiContext Context context, int targetRotation) {
+        return isLandscape(getScreenOrientationFromRotation(context, targetRotation));
+    }
+
+    @VisibleForTesting
+    static boolean isPortrait(int orientation) {
+        return orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                || orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+    }
+
+    @VisibleForTesting
+    static boolean isLandscape(int orientation) {
+        return orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                || orientation == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+    }
+
     @VisibleForTesting
     static int resolveOrientation(int currentWidth, int currentHeight, int currentRotation,
             boolean isReverseDefault, int targetRotation) {
