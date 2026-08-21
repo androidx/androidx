@@ -129,7 +129,7 @@ class SurfaceEntityImageActivity : ComponentActivity() {
                 check(entity == surfaceEntity) {
                     "Listener should only be attached to surfaceEntity."
                 }
-                var curParentPose = movieParent!!.getPose()
+                val curParentPose = movieParent!!.getPose()
                 // Apply the currentPose to the movieParent to move the surfaceEntity.
                 movieParent?.setPose(curParentPose.compose(currentPose))
             }
@@ -516,9 +516,9 @@ class SurfaceEntityImageActivity : ComponentActivity() {
         var controlOffsetY: Float = 0.0f
         var controlOffsetZ: Float = 0.0f
 
-        var rotation =
+        val rotation =
             Quaternion.fromAxisAngle(Vector3.Forward, currentVideoRotationDegrees.toFloat())
-        var newPose = surfaceEntity!!.getPose().compose(Pose(Vector3.Zero, rotation))
+        val newPose = surfaceEntity!!.getPose().compose(Pose(Vector3.Zero, rotation))
         surfaceEntity!!.setPose(newPose)
         controlPanelEntity!!.parent = movieParent!!
 

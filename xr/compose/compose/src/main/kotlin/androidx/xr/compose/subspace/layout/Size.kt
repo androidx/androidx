@@ -17,7 +17,6 @@
 package androidx.xr.compose.subspace.layout
 
 import androidx.annotation.FloatRange
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.xr.compose.platform.LocalSession
@@ -230,7 +229,6 @@ private class RecommendedSizeNode :
         constraints: VolumeConstraints,
     ): SubspaceMeasureResult {
         val session = currentValueOf(LocalSession)
-        val density = currentValueOf(LocalDensity)
 
         if (session == null) {
             val placeable = measurable.measure(constraints)

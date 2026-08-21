@@ -288,8 +288,6 @@ class FollowingSubspaceV2Test {
             composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
 
-            var density: Density? = null
-
             composeTestRule.setContent {
                 Subspace(
                     follow = FollowTarget.ArDevice(behavior = FollowBehavior.soft()),
@@ -972,7 +970,6 @@ class FollowingSubspaceV2Test {
             composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
-            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
 
             composeTestRule.setContent {
                 Subspace(

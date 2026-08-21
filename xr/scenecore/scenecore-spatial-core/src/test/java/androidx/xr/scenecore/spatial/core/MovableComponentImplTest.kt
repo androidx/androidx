@@ -1131,12 +1131,6 @@ class MovableComponentImplTest {
 
         val proposedPoseInActivitySpace =
             Pose(Vector3(1.0f, 1.0f, 1.0f), Quaternion(0.0f, 0.0f, 0.0f, 1.0f))
-        val proposedPosition =
-            Vec3(
-                proposedPoseInActivitySpace.translation.x,
-                proposedPoseInActivitySpace.translation.y,
-                proposedPoseInActivitySpace.translation.z,
-            )
         val proposedPoseInOxr = proposedPoseInActivitySpace.translate(activitySpacePose.translation)
         val expectedPlanePoseInOxr = proposedPoseInOxr.translate(Vector3(0.0f, 1.0f, 0.0f))
 

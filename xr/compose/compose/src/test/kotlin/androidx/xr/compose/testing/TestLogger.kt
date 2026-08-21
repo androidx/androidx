@@ -162,10 +162,9 @@ internal class TestLogger : Logger {
      * possible values of [node].
      */
     fun assertMeasureRequested(node: Any): TestLogger {
-        val match =
-            nextMatch<MeasureRequest>("Measure request action not found for $node") {
-                checkNodesMatch(node, it.node)
-            }
+        nextMatch<MeasureRequest>("Measure request action not found for $node") {
+            checkNodesMatch(node, it.node)
+        }
         return this
     }
 
@@ -174,10 +173,9 @@ internal class TestLogger : Logger {
      * possible values of [node].
      */
     fun assertLayoutRequested(node: Any): TestLogger {
-        val match =
-            nextMatch<LayoutRequest>("Layout request action not found for $node") {
-                checkNodesMatch(node, it.node)
-            }
+        nextMatch<LayoutRequest>("Layout request action not found for $node") {
+            checkNodesMatch(node, it.node)
+        }
         return this
     }
 

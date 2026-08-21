@@ -107,7 +107,7 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
     private var controlPanelEntity: PanelEntity? = null
 
     private val pickMedia =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
             Log.i(TAG, "Media Selected")
         }
 
@@ -126,6 +126,7 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
 
                 if (movableComponentMp == null) {
                     movableComponentMp = MovableComponent.createSystemMovable(session)
+                    @Suppress("UNUSED_VARIABLE")
                     val unused = session.scene.mainPanelEntity.addComponent(movableComponentMp!!)
                 }
 
@@ -294,6 +295,7 @@ class VideoPlayerDrmTestActivity : ComponentActivity() {
             movableComponent!!.size = FloatSize3d(1.0f, 1.0f, 1.0f)
 
             if (shape is SurfaceEntity.Shape.Quad) {
+                @Suppress("UNUSED_VARIABLE")
                 val unused = surfaceEntity!!.addComponent(movableComponent!!)
             }
         }

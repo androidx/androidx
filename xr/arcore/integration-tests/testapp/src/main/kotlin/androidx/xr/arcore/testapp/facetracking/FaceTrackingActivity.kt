@@ -227,7 +227,10 @@ class FaceTrackingActivity : ComponentActivity() {
                             }
                             Column(modifier = Modifier.fillMaxSize()) {
                                 Text(currentExpression.toString(), fontSize = 30.sp)
-                                Text(text = "${emoteTextMap[currentExpression]}", fontSize = 200.sp)
+                                Text(
+                                    text = emoteTextMap[currentExpression].orEmpty(),
+                                    fontSize = 200.sp,
+                                )
                             }
                         }
                     }

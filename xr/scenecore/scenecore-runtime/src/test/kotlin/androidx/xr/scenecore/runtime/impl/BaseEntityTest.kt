@@ -202,7 +202,7 @@ class BaseEntityTest {
         assertThat(accessibilityLayout).isNotNull()
 
         // Nullify and GC
-        @Suppress("UNUSED_VALUE")
+        @Suppress("UNUSED_VALUE", "ASSIGNED_VALUE_IS_NEVER_READ")
         entity = null
 
         // Verify cleanup: accessibilityLayout is removed from decorView

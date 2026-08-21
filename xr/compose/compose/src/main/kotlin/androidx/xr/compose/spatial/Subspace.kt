@@ -174,7 +174,6 @@ private fun Subspace(
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val session = LocalSession.current ?: return
-    val density = LocalDensity.current
     val compositionContext = rememberCompositionContext()
     val subspaceRoot = remember {
         Entity.create(
