@@ -37,6 +37,6 @@ public suspend fun listener(
     onUpdate: @Composable () -> Unit,
 ) {
     coroutineScope {
-        transform(defaultValue = Unit, scope = this, dispatcher = dispatcher, onUpdate)
+        transform(initialValue = Unit, scope = this, dispatcher = dispatcher, onUpdate)
     }
 }
