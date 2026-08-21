@@ -32,7 +32,11 @@ package androidx.compose.foundation.lazy.layout
  * limitations under the License.
  */
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
@@ -41,33 +45,41 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 
 internal data class LazyLayoutAnimateItemElement(
-    private val fadeInSpec: FiniteAnimationSpec<Float>?,
+    private val enterTransition: EnterTransition?,
+    private val exitTransition: ExitTransition?,
     private val placementSpec: FiniteAnimationSpec<IntOffset>?,
-    private val fadeOutSpec: FiniteAnimationSpec<Float>?,
 ) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
+    constructor(
+        fadeInSpec: FiniteAnimationSpec<Float>?,
+        placementSpec: FiniteAnimationSpec<IntOffset>?,
+        fadeOutSpec: FiniteAnimationSpec<Float>?,
+    ) : this(
+        enterTransition = fadeInSpec?.let { fadeIn(animationSpec = it, initialAlpha = 0f) },
+        exitTransition = fadeOutSpec?.let { fadeOut(animationSpec = it, targetAlpha = 0f) },
+        placementSpec = placementSpec,
+    )
 
     override fun create(): LazyLayoutAnimationSpecsNode =
-        LazyLayoutAnimationSpecsNode(fadeInSpec, placementSpec, fadeOutSpec)
+        LazyLayoutAnimationSpecsNode(enterTransition, exitTransition, placementSpec)
 
     override fun update(node: LazyLayoutAnimationSpecsNode) {
-        node.fadeInSpec = fadeInSpec
+        node.enterTransition = enterTransition
+        node.exitTransition = exitTransition
         node.placementSpec = placementSpec
-        node.fadeOutSpec = fadeOutSpec
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "animateItem"
-        properties["fadeInSpec"] = fadeInSpec
+        properties["enterTransition"] = enterTransition
+        properties["exitTransition"] = exitTransition
         properties["placementSpec"] = placementSpec
-        properties["fadeOutSpec"] = fadeOutSpec
     }
 }
 
 internal class LazyLayoutAnimationSpecsNode(
-    var fadeInSpec: FiniteAnimationSpec<Float>?,
+    var enterTransition: EnterTransition?,
+    var exitTransition: ExitTransition?,
     var placementSpec: FiniteAnimationSpec<IntOffset>?,
-    var fadeOutSpec: FiniteAnimationSpec<Float>?,
 ) : Modifier.Node(), ParentDataModifierNode {
-
     override fun Density.modifyParentData(parentData: Any?): Any = this@LazyLayoutAnimationSpecsNode
 }
