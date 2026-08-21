@@ -256,8 +256,8 @@ class MotionGridTest {
         val columns = 2
         var leftX = 0.dp
         var topY = 0.dp
-        var rightX: Dp
-        var bottomY: Dp
+        val rightX: Dp
+        val bottomY: Dp
 
         // 10.dp is the size of a singular box
         val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
