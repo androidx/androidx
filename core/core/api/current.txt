@@ -3834,7 +3834,7 @@ package androidx.core.view {
     method @Deprecated public static void setQuickScaleEnabled(Object!, boolean);
   }
 
-  public final class ScreenOrientationCompat {
+  public final class ScreenOrientation {
     method public static int getScreenOrientationFromRotation(@UiContext android.content.Context, int);
   }
 

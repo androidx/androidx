@@ -37,11 +37,11 @@ import org.jspecify.annotations.NonNull;
 /**
  * Helper for resolving screen orientations.
  */
-public final class ScreenOrientationCompat {
+public final class ScreenOrientation {
 
     private static volatile Boolean sCachedIsReverseDefaultRotation;
 
-    private ScreenOrientationCompat() {}
+    private ScreenOrientation() {}
 
     /**
      * Resolves a raw rotation angle into one of the four 4-way screen orientations relative to
