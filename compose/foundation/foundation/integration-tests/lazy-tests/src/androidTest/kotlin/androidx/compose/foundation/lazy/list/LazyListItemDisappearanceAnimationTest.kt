@@ -24,6 +24,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
@@ -31,9 +32,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -42,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.captureToImage
@@ -50,6 +54,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.test.filters.LargeTest
@@ -163,6 +168,34 @@ class LazyListItemDisappearanceAnimationTest {
 
         onAnimationFrame { fraction ->
             assertPixels(itemSize * 3) { offset ->
+                when (offset) {
+                    in 0 until itemSize -> Color.Red.copy(alpha = 1f - fraction)
+                    in itemSize until itemSize * 2 -> Color.Black
+                    else -> Color.Transparent
+                }
+            }
+        }
+    }
+
+    @Test
+    fun oneRemoved_rtl_contentPadding() {
+        var list by mutableStateOf(listOf(Color.Black, Color.Red))
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                LazyList(
+                    containerSize = itemSizeDp * 3,
+                    contentPadding = PaddingValues(start = itemSizeDp),
+                    isVertical = false,
+                ) {
+                    items(list, key = { it.toArgb() }) { Item(it, isVertical = false) }
+                }
+            }
+        }
+
+        rule.runOnUiThread { list = listOf(Color.Black) }
+
+        onAnimationFrame { fraction ->
+            assertPixels(itemSize * 3, isVertical = false) { offset ->
                 when (offset) {
                     in 0 until itemSize -> Color.Red.copy(alpha = 1f - fraction)
                     in itemSize until itemSize * 2 -> Color.Black
@@ -372,12 +405,18 @@ class LazyListItemDisappearanceAnimationTest {
     private fun assertPixels(
         mainAxisSize: Int,
         crossAxisSize: Int = this.crossAxisSize,
+        isVertical: Boolean = true,
         expectedColorProvider: (offset: Int) -> Color?,
     ) {
         rule.onNodeWithTag(ContainerTag).captureToImage().assertPixels(
-            IntSize(crossAxisSize, mainAxisSize)
+            if (isVertical) {
+                IntSize(crossAxisSize, mainAxisSize)
+            } else {
+                IntSize(mainAxisSize, crossAxisSize)
+            }
         ) {
-            expectedColorProvider(it.y)?.compositeOver(Color.White)
+            val offset = if (isVertical) it.y else it.x
+            expectedColorProvider(offset)?.compositeOver(Color.White)
         }
     }
 
@@ -404,33 +443,60 @@ class LazyListItemDisappearanceAnimationTest {
         crossAxisSize: Dp = crossAxisSizeDp,
         reverseLayout: Boolean = false,
         contentPadding: PaddingValues = PaddingValues(0.dp),
+        isVertical: Boolean = true,
         content: LazyListScope.() -> Unit,
     ) {
         state = rememberLazyListState(startIndex)
 
-        LazyColumn(
-            state = state,
-            modifier =
-                Modifier.then(
-                        if (containerSize != null) {
-                            Modifier.requiredHeight(containerSize)
-                        } else {
-                            Modifier
-                        }
-                    )
-                    .background(Color.White)
-                    .then(
-                        if (crossAxisSize != Dp.Unspecified) {
-                            Modifier.requiredWidth(crossAxisSize)
-                        } else {
-                            Modifier.fillMaxWidth()
-                        }
-                    )
-                    .testTag(ContainerTag),
-            contentPadding = contentPadding,
-            reverseLayout = reverseLayout,
-            content = content,
-        )
+        if (isVertical) {
+            LazyColumn(
+                state = state,
+                modifier =
+                    Modifier.then(
+                            if (containerSize != null) {
+                                Modifier.requiredHeight(containerSize)
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .background(Color.White)
+                        .then(
+                            if (crossAxisSize != Dp.Unspecified) {
+                                Modifier.requiredWidth(crossAxisSize)
+                            } else {
+                                Modifier.fillMaxWidth()
+                            }
+                        )
+                        .testTag(ContainerTag),
+                contentPadding = contentPadding,
+                reverseLayout = reverseLayout,
+                content = content,
+            )
+        } else {
+            LazyRow(
+                state = state,
+                modifier =
+                    Modifier.then(
+                            if (containerSize != null) {
+                                Modifier.requiredWidth(containerSize)
+                            } else {
+                                Modifier
+                            }
+                        )
+                        .background(Color.White)
+                        .then(
+                            if (crossAxisSize != Dp.Unspecified) {
+                                Modifier.requiredHeight(crossAxisSize)
+                            } else {
+                                Modifier.fillMaxHeight()
+                            }
+                        )
+                        .testTag(ContainerTag),
+                contentPadding = contentPadding,
+                reverseLayout = reverseLayout,
+                content = content,
+            )
+        }
     }
 
     @Composable
@@ -440,6 +506,7 @@ class LazyListItemDisappearanceAnimationTest {
         crossAxisSize: Dp = crossAxisSizeDp,
         disappearanceSpec: FiniteAnimationSpec<Float>? = AnimSpec,
         appearanceSpec: FiniteAnimationSpec<Float>? = null,
+        isVertical: Boolean = true,
     ) {
         Box(
             Modifier.animateItem(
@@ -448,8 +515,13 @@ class LazyListItemDisappearanceAnimationTest {
                     fadeOutSpec = disappearanceSpec,
                 )
                 .background(color)
-                .requiredHeight(size)
-                .requiredWidth(crossAxisSize)
+                .then(
+                    if (isVertical) {
+                        Modifier.requiredHeight(size).requiredWidth(crossAxisSize)
+                    } else {
+                        Modifier.requiredWidth(size).requiredHeight(crossAxisSize)
+                    }
+                )
         )
     }
 }
