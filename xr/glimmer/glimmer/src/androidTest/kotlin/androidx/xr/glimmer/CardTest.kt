@@ -856,11 +856,7 @@ class CardTest {
         // The width should fill the max width, like with the spacer
         cardBounds.width.assertIsEqualTo(spacerBounds.width, "width of card.")
         cardBounds.height.assertIsEqualTo(cardHeight, "height of card.")
-        headerBounds.height.assertIsEqualTo(
-            expected = headerBounds.width / 1.6f,
-            subject = "height of header image",
-            tolerance = 1.dp,
-        )
+        headerBounds.height.assertIsEqualTo(headerBounds.width / 1.6f, "height of header image")
     }
 
     @Test
@@ -1021,11 +1017,7 @@ class CardTest {
         // The width should fill the max width, like with the spacer
         cardBounds.width.assertIsEqualTo(spacerBounds.width, "width of card.")
         cardBounds.height.assertIsEqualTo(cardHeight, "height of card.")
-        headerBounds.height.assertIsEqualTo(
-            expected = headerBounds.width / 1.6f,
-            subject = "height of header image",
-            tolerance = 1.dp,
-        )
+        headerBounds.height.assertIsEqualTo(headerBounds.width / 1.6f, "height of header image")
     }
 
     @Test
