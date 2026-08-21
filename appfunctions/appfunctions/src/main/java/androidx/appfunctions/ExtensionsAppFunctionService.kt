@@ -132,7 +132,7 @@ public abstract class ExtensionsAppFunctionService :
                         AppFunctionFunctionNotFoundException(
                                 "No function found with identifier: " +
                                     "${request.functionIdentifier} in package: " +
-                                    "${this@ExtensionsAppFunctionService.packageName}"
+                                    this@ExtensionsAppFunctionService.packageName
                             )
                             .toPlatformExtensionsClass()
                     )

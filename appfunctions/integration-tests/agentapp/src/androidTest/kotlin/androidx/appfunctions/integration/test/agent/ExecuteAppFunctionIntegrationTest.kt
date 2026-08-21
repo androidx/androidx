@@ -1288,7 +1288,7 @@ class ExecuteAppFunctionIntegrationTest {
         val response = appFunctionManager.executeAppFunction(request)
 
         assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
-        val successResponse = response as ExecuteAppFunctionResponse.Success
+        response as ExecuteAppFunctionResponse.Success
         assertThat(
                 response.returnValue.getAppFunctionDataList(PROPERTY_RETURN_VALUE)?.map {
                     it.deserialize(OneOfSealedNestedSerializable::class.java)
