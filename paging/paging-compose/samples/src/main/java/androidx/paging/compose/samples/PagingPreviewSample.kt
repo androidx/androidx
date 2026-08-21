@@ -48,7 +48,7 @@ fun PagingPreview() {
         LazyColumn(modifier = Modifier.fillMaxSize().background(Color.Red)) {
             items(count = lazyPagingItems.itemCount) { index ->
                 val item = lazyPagingItems[index]
-                Text(text = "$item", fontSize = 35.sp, color = Color.Black)
+                Text(text = item ?: "null", fontSize = 35.sp, color = Color.Black)
             }
         }
     }
