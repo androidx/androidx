@@ -1422,6 +1422,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         )
     }
 
+    internal fun isLinkAt(event: MotionEvent): Boolean {
+        val localPageLayoutManager = pageLayoutManager ?: return false
+        val touchPoint =
+            localPageLayoutManager.getPdfPointAt(
+                toContentX(event.x),
+                toContentY(event.y),
+                getVisibleAreaInContentCoords(),
+            ) ?: return false
+
+        val links = pageManager?.getPageLinks(touchPoint.pageNum) ?: return false
+
+        val allLinks = links.gotoLinks + links.externalLinks
+        return allLinks.any { link -> link.bounds.any { it.contains(touchPoint.x, touchPoint.y) } }
+    }
+
     private fun scrollAsYouSelect() {
         prevDragEvent?.let { event ->
             if (event.y > height * SCROLL_SELECTION_TOLERANCE_RATIO) {
