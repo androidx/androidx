@@ -16,6 +16,7 @@
 
 package androidx.core.telecom.test
 
+import android.media.ToneGenerator
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.telecom.Call
@@ -693,5 +694,96 @@ class BasicCallControlsTest : BaseTelecomTest() {
             }
         }
         return null
+    }
+
+    /**
+     * Verifies that calling CallControlScope.disconnect with DisconnectCause.ERROR maps the cause
+     * to DisconnectCause.LOCAL on SDK < 38 and disconnects successfully using V2 APIs.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testDisconnectWithErrorCause() {
+        runBlocking {
+            usingIcs { ics ->
+                mCallsManager.addCall(
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                ) {
+                    launch {
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                        assertNotNull("The returned Call object is <NULL>", call)
+                        assertEquals(CallControlResult.Success(), setActive())
+                        TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+
+                        // Disconnect the call with ERROR disconnect cause:
+                        val errorCause =
+                            DisconnectCause(
+                                DisconnectCause.ERROR,
+                                "label",
+                                "description",
+                                "reason",
+                                ToneGenerator.TONE_PROP_BEEP,
+                            )
+                        assertEquals(CallControlResult.Success(), disconnect(errorCause))
+                        TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
+                        if (Build.VERSION.SDK_INT < 38) {
+                            assertEquals(DisconnectCause.LOCAL, call.details.disconnectCause.code)
+                        } else {
+                            assertEquals(DisconnectCause.ERROR, call.details.disconnectCause.code)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Verifies that calling CallControlScope.disconnect with DisconnectCause.ERROR maps the cause
+     * to DisconnectCause.LOCAL and disconnects successfully using legacy ConnectionService APIs.
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @LargeTest
+    @Test(timeout = 10000)
+    fun testDisconnectWithErrorCause_BackwardsCompat() {
+        setUpBackwardsCompatTest()
+        runBlocking {
+            usingIcs { ics ->
+                mCallsManager.addCall(
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                ) {
+                    launch {
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                        assertNotNull("The returned Call object is <NULL>", call)
+                        assertEquals(CallControlResult.Success(), setActive())
+                        TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+
+                        // Disconnect the call with ERROR disconnect cause:
+                        val errorCause =
+                            DisconnectCause(
+                                DisconnectCause.ERROR,
+                                "label",
+                                "description",
+                                "reason",
+                                ToneGenerator.TONE_PROP_BEEP,
+                            )
+                        assertEquals(CallControlResult.Success(), disconnect(errorCause))
+                        TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
+                        if (Build.VERSION.SDK_INT < 38) {
+                            assertEquals(DisconnectCause.LOCAL, call.details.disconnectCause.code)
+                        } else {
+                            assertEquals(DisconnectCause.ERROR, call.details.disconnectCause.code)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
