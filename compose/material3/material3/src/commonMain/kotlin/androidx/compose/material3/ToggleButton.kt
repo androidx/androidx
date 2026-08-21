@@ -91,28 +91,14 @@ import kotlin.jvm.JvmInline
  * ![Filled toggle button
  * image](https://developer.android.com/images/reference/androidx/compose/material3/filled-toggle-buttons.png)
  *
- * @param checked whether the toggle button is toggled on or off.
- * @param onCheckedChange called when the toggle button is clicked.
- * @param modifier the [Modifier] to be applied to the toggle button.
- * @param enabled controls the enabled state of this toggle button. When `false`, this component
- *   will not respond to user input, and it will appear visually disabled and disabled to
- *   accessibility services.
- * @param shapes the [ToggleButtonShapes] that the toggle button will morph between depending on the
- *   user's interaction with the toggle button.
- * @param colors [ToggleButtonColors] that will be used to resolve the colors used for this toggle
- *   button in different states. See [ToggleButtonDefaults.colors].
- * @param elevation [ToggleButtonElevation] used to resolve the elevation for this button in
- *   different states. This controls the size of the shadow below the button. See
- *   [ToggleButtonElevation.shadowElevation]. Additionally, when the container color is
- *   [ColorScheme.surface], this controls the amount of primary color applied as an overlay.
- * @param border the border to draw around the container of this toggle button.
- * @param contentPadding the spacing values to apply internally between the container and the
- *   content
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
- *   appearance or preview the toggle button in different states. Note that if `null` is provided,
- *   interactions will still happen internally.
- * @param content The content displayed on the toggle button, expected to be text, icon or image.
+ * This uses a [ToggleButtonSize] and optional [icon] to automatically configure container size,
+ * shapes, content padding, icon sizes, icon spacing, and typography.
+ *
+ * There are multiple button size variants. Providing a different [ToggleButtonSize] will affect
+ * default values used inside this button, such as the corner shape and padding. Note that you can
+ * still provide a size modifier such as [androidx.compose.foundation.layout.size] to change the
+ * layout size of this button, [ToggleButtonSize] affects default values and values internal to the
+ * button.
  *
  * [ToggleButton] with text content sample:
  *
@@ -138,54 +124,6 @@ import kotlin.jvm.JvmInline
  * For a [ToggleButton] that uses the design for extra large:
  *
  * @sample androidx.compose.material3.samples.XLargeToggleButtonWithIconSample
- * @see [Button] for a static button that doesn't need to be toggled.
- * @see [IconToggleButton] for a toggleable button where the content is specifically an [Icon].
- */
-@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun ToggleButton(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    shapes: ToggleButtonShapes = ToggleButtonDefaults.shapesFor(ToggleButtonDefaults.MinHeight),
-    colors: ToggleButtonColors = ToggleButtonDefaults.colors(),
-    elevation: ToggleButtonElevation? = ToggleButtonDefaults.elevation(),
-    border: BorderStroke? = null,
-    contentPadding: PaddingValues =
-        ToggleButtonDefaults.contentPaddingFor(ToggleButtonDefaults.MinHeight),
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit,
-) {
-    ToggleButton(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier,
-        buttonSize = ToggleButtonSize.Small,
-        enabled = enabled,
-        shapes = shapes,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        content = content,
-    )
-}
-
-/**
- * [Material Design toggle
- * button](https://m3.material.io/components/buttons/overview#f8ba981c-a363-4ccd-a332-ee1b0e124e5c)
- *
- * This overload accepts an explicit [buttonSize] and optional [icon] to automatically configure
- * container size, shapes, content padding, icon sizes, icon spacing, and typography.
- *
- * There are multiple button size variants - providing a different [ToggleButtonSize] will affect
- * default values used inside this button, such as the corner shape and padding. Note that you can
- * still provide a size modifier such as [androidx.compose.foundation.layout.size] to change the
- * layout size of this button, [buttonSize] affects default values and values internal to the
- * button.
- *
  * @sample androidx.compose.material3.samples.ToggleButtonWithButtonSizeSample
  * @param checked whether the toggle button is toggled on or off.
  * @param onCheckedChange called when the toggle button is clicked.
@@ -201,12 +139,16 @@ public fun ToggleButton(
  * @param colors [ToggleButtonColors] that will be used to resolve the colors used for this toggle
  *   button in different states. See [ToggleButtonDefaults.colors].
  * @param elevation [ToggleButtonElevation] used to resolve the elevation for this button in
- *   different states.
+ *   different states. See [ToggleButtonElevation.shadowElevation]. Additionally, when the container
+ *   color is [ColorScheme.surface], this controls the amount of primary color applied as an
+ *   overlay.
  * @param border the border to draw around the container of this toggle button.
  * @param contentPadding the spacing values to apply internally between the container and the
- *   content
+ *   content.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this toggle button.
+ *   emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
+ *   appearance or preview the toggle button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  * @see [Button] for a static button that doesn't need to be toggled.
  * @see [IconToggleButton] for a toggleable button where the content is specifically an [Icon].
@@ -216,7 +158,7 @@ public fun ToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    buttonSize: ToggleButtonSize = ToggleButtonSize.Small,
+    buttonSize: ToggleButtonSize = ToggleButtonDefaults.size,
     enabled: Boolean = true,
     icon: @Composable (() -> Unit)? = null,
     shapes: ToggleButtonShapes = ToggleButtonDefaults.shapesFor(buttonSize),
@@ -290,28 +232,39 @@ public fun ToggleButton(
  * ![Elevated toggle button
  * image](https://developer.android.com/images/reference/androidx/compose/material3/elevated-toggle-buttons.png)
  *
- * Elevated toggle buttons are high-emphasis Toggle buttons. To prevent shadow creep, only use them
- * when absolutely necessary, such as when the toggle button requires visual separation from
+ * Elevated toggle buttons are high-emphasis toggle buttons. To prevent shadow creep, only use them
+ * when absolutely necessary, such as when the toggle button requires visual separation from a
  * patterned container.
  *
+ * This uses a [ToggleButtonSize] and optional [icon] to automatically configure container size,
+ * shapes, content padding, icon sizes, icon spacing, and typography.
+ *
+ * There are multiple button size variants. Providing a different [ToggleButtonSize] will affect
+ * default values used inside this button, such as the corner shape and padding. Note that you can
+ * still provide a size modifier such as [androidx.compose.foundation.layout.size] to change the
+ * layout size of this button, [ToggleButtonSize] affects default values and values internal to the
+ * button.
+ *
  * @sample androidx.compose.material3.samples.ElevatedToggleButtonSample
+ * @sample androidx.compose.material3.samples.ToggleButtonWithButtonSizeSample
  * @param checked whether the toggle button is toggled on or off.
  * @param onCheckedChange called when the toggle button is clicked.
  * @param modifier the [Modifier] to be applied to the toggle button.
+ * @param buttonSize the [ToggleButtonSize] of this toggle button, controlling its height, padding,
+ *   and icon sizing.
  * @param enabled controls the enabled state of this toggle button. When `false`, this component
  *   will not respond to user input, and it will appear visually disabled and disabled to
  *   accessibility services.
- * @param shapes the [ToggleButtonShapes] that the toggle button will morph between depending on the
- *   user's interaction with the toggle button.
+ * @param icon optional icon to be placed before the [content].
+ * @param shapes the [ToggleButtonShapes] used for this toggle button.
  * @param colors [ToggleButtonColors] that will be used to resolve the colors used for this toggle
  *   button in different states. See [ElevatedToggleButtonDefaults.colors].
  * @param elevation [ToggleButtonElevation] used to resolve the elevation for this button in
  *   different states. This controls the size of the shadow below the button. Additionally, when the
  *   container color is [ColorScheme.surface], this controls the amount of primary color applied as
  *   an overlay. See [ElevatedToggleButtonDefaults.elevation].
- * @param border the border to draw around the container of this toggle button.
- * @param contentPadding the spacing values to apply internally between the container and the
- *   content
+ * @param border the border to draw around the container.
+ * @param contentPadding the spacing values to apply internally.
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
  *   appearance or preview the toggle button in different states. Note that if `null` is provided,
@@ -319,82 +272,20 @@ public fun ToggleButton(
  * @param content The content displayed on the toggle button, expected to be text, icon or image.
  * @see [ElevatedButton] for a static button that doesn't need to be toggled.
  */
-@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
 @Composable
 public fun ElevatedToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    shapes: ToggleButtonShapes = ToggleButtonDefaults.shapesFor(ToggleButtonDefaults.MinHeight),
-    colors: ToggleButtonColors = ElevatedToggleButtonDefaults.colors(),
-    elevation: ToggleButtonElevation? = ElevatedToggleButtonDefaults.elevation(),
-    border: BorderStroke? = null,
-    contentPadding: PaddingValues =
-        ToggleButtonDefaults.contentPaddingFor(ToggleButtonDefaults.MinHeight),
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit,
-) {
-    ElevatedToggleButton(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier,
-        buttonSize = ToggleButtonSize.Small,
-        enabled = enabled,
-        shapes = shapes,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        content = content,
-    )
-}
-
-/**
- * [Material Design toggle
- * button](https://m3.material.io/components/buttons/overview#f8ba981c-a363-4ccd-a332-ee1b0e124e5c)
- *
- * This overload accepts an explicit [buttonSize] and optional [icon] to automatically configure
- * container size, shapes, content padding, icon sizes, icon spacing, and typography.
- *
- * There are multiple button size variants - providing a different [ToggleButtonSize] will affect
- * default values used inside this button, such as the corner shape and padding. Note that you can
- * still provide a size modifier such as [androidx.compose.foundation.layout.size] to change the
- * layout size of this button, [buttonSize] affects default values and values internal to the
- * button.
- *
- * @sample androidx.compose.material3.samples.ToggleButtonWithButtonSizeSample
- * @param checked whether the toggle button is toggled on or off.
- * @param onCheckedChange called when the toggle button is clicked.
- * @param modifier the [Modifier] to be applied to the toggle button.
- * @param buttonSize the [ToggleButtonSize] of this toggle button.
- * @param enabled controls the enabled state of this toggle button.
- * @param icon optional icon to be placed before the [content].
- * @param shapes the [ToggleButtonShapes] used for this toggle button.
- * @param colors [ToggleButtonColors] used for this toggle button. See
- *   [ElevatedToggleButtonDefaults.colors].
- * @param elevation [ToggleButtonElevation] used for this button. See
- *   [ElevatedToggleButtonDefaults.elevation].
- * @param border the border to draw around the container.
- * @param contentPadding the spacing values to apply internally.
- * @param interactionSource an optional hoisted [MutableInteractionSource].
- * @param content The content displayed on the toggle button.
- */
-@Composable
-public fun ElevatedToggleButton(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    buttonSize: ToggleButtonSize = ToggleButtonSize.Small,
+    buttonSize: ToggleButtonSize = ElevatedToggleButtonDefaults.size,
     enabled: Boolean = true,
     icon: @Composable (() -> Unit)? = null,
-    shapes: ToggleButtonShapes = ToggleButtonDefaults.shapesFor(buttonSize),
+    shapes: ToggleButtonShapes = ElevatedToggleButtonDefaults.shapesFor(buttonSize),
     colors: ToggleButtonColors = ElevatedToggleButtonDefaults.colors(),
     elevation: ToggleButtonElevation? = ElevatedToggleButtonDefaults.elevation(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues =
-        ToggleButtonDefaults.contentPaddingFor(buttonSize, hasStartIcon = icon != null),
+        ElevatedToggleButtonDefaults.contentPaddingFor(buttonSize, hasStartIcon = icon != null),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -428,169 +319,30 @@ public fun ElevatedToggleButton(
  * ![Filled Tonal toggle button
  * image](https://developer.android.com/images/reference/androidx/compose/material3/tonal-toggle-buttons.png)
  *
- * tonal toggle buttons are medium-emphasis buttons that is an alternative middle ground between
- * default [ToggleButton]s (filled) and [OutlinedToggleButton]s. They can be used in contexts where
- * lower-priority button requires slightly more emphasis than an outline would give. Tonal toggle
- * buttons use the secondary color mapping.
- *
- * @sample androidx.compose.material3.samples.FilledTonalToggleButtonSample
- * @param checked whether the toggle button is toggled on or off.
- * @param onCheckedChange called when the toggle button is clicked.
- * @param modifier the [Modifier] to be applied to the toggle button.
- * @param enabled controls the enabled state of this toggle button. When `false`, this component
- *   will not respond to user input, and it will appear visually disabled and disabled to
- *   accessibility services.
- * @param shapes the [ToggleButtonShapes] that the toggle button will morph between depending on the
- *   user's interaction with the toggle button.
- * @param colors [ToggleButtonColors] that will be used to resolve the colors used for this toggle
- *   button in different states. See [FilledTonalToggleButtonDefaults.colors].
- * @param elevation [ToggleButtonElevation] used to resolve the elevation for this button in
- *   different states. This controls the size of the shadow below the button. Additionally, when the
- *   container color is [ColorScheme.surface], this controls the amount of primary color applied as
- *   an overlay.
- * @param border the border to draw around the container of this toggle button.
- * @param contentPadding the spacing values to apply internally between the container and the
- *   content
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
- *   appearance or preview the toggle button in different states. Note that if `null` is provided,
- *   interactions will still happen internally.
- * @param content The content displayed on the toggle button, expected to be text, icon or image.
- * @see [FilledTonalButton] for a static button that doesn't need to be toggled.
- * @see [FilledTonalIconToggleButton] for a toggleable button where the content is specifically an
- *   [Icon].
- *
- * @material3expressive
- */
-@Deprecated(message = "Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-@ExperimentalMaterial3ExpressiveApi
-@Composable
-public fun TonalToggleButton(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    shapes: ToggleButtonShapes = ToggleButtonDefaults.shapesFor(ToggleButtonDefaults.MinHeight),
-    colors: ToggleButtonColors = FilledTonalToggleButtonDefaults.colors(),
-    elevation: ToggleButtonElevation? = FilledTonalToggleButtonDefaults.elevation(),
-    border: BorderStroke? = null,
-    contentPadding: PaddingValues =
-        ToggleButtonDefaults.contentPaddingFor(ToggleButtonDefaults.MinHeight),
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit,
-) {
-    FilledTonalToggleButton(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier,
-        buttonSize = ToggleButtonSize.Small,
-        enabled = enabled,
-        shapes = shapes,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        content = content,
-    )
-}
-
-/**
- * [Material Design toggle
- * button](https://m3.material.io/components/buttons/overview#f8ba981c-a363-4ccd-a332-ee1b0e124e5c)
- *
- * Toggle button is a toggleable button that switches between primary and tonal colors depending on
- * [checked]'s value. It also morphs between the three shapes provided in [shapes] depending on the
- * state of the interaction with the toggle button as long as the three shapes provided are
- * [CornerBasedShape]s. If a shape in [shapes] isn't a [CornerBasedShape], then toggle button will
- * toggle between the [ToggleButtonShapes] according to user interaction.
- *
- * ![Filled Tonal toggle button
- * image](https://developer.android.com/images/reference/androidx/compose/material3/tonal-toggle-buttons.png)
- *
- * filled tonal toggle buttons are medium-emphasis buttons that is an alternative middle ground
+ * Filled tonal toggle buttons are medium-emphasis buttons that are an alternative middle ground
  * between default [ToggleButton]s (filled) and [OutlinedToggleButton]s. They can be used in
- * contexts where lower-priority button requires slightly more emphasis than an outline would give.
- * Tonal toggle buttons use the secondary color mapping.
+ * contexts where a lower-priority button requires slightly more emphasis than an outline would
+ * give. Tonal toggle buttons use the secondary color mapping.
  *
- * @sample androidx.compose.material3.samples.FilledTonalToggleButtonSample
- * @param checked whether the toggle button is toggled on or off.
- * @param onCheckedChange called when the toggle button is clicked.
- * @param modifier the [Modifier] to be applied to the toggle button.
- * @param enabled controls the enabled state of this toggle button. When `false`, this component
- *   will not respond to user input, and it will appear visually disabled and disabled to
- *   accessibility services.
- * @param shapes the [ToggleButtonShapes] that the toggle button will morph between depending on the
- *   user's interaction with the toggle button.
- * @param colors [ToggleButtonColors] that will be used to resolve the colors used for this toggle
- *   button in different states. See [FilledTonalToggleButtonDefaults.colors].
- * @param elevation [ToggleButtonElevation] used to resolve the elevation for this button in
- *   different states. This controls the size of the shadow below the button. Additionally, when the
- *   container color is [ColorScheme.surface], this controls the amount of primary color applied as
- *   an overlay. See [FilledTonalToggleButtonDefaults.elevation].
- * @param border the border to draw around the container of this toggle button.
- * @param contentPadding the spacing values to apply internally between the container and the
- *   content
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
- *   appearance or preview the toggle button in different states. Note that if `null` is provided,
- *   interactions will still happen internally.
- * @param content The content displayed on the toggle button, expected to be text, icon or image.
- * @see [FilledTonalButton] for a static button that doesn't need to be toggled.
- * @see [FilledTonalIconToggleButton] for a toggleable button where the content is specifically an
- *   [Icon].
- */
-@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun FilledTonalToggleButton(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    shapes: ToggleButtonShapes = ToggleButtonDefaults.shapesFor(ToggleButtonDefaults.MinHeight),
-    colors: ToggleButtonColors = FilledTonalToggleButtonDefaults.colors(),
-    elevation: ToggleButtonElevation? = FilledTonalToggleButtonDefaults.elevation(),
-    border: BorderStroke? = null,
-    contentPadding: PaddingValues =
-        ToggleButtonDefaults.contentPaddingFor(ToggleButtonDefaults.MinHeight),
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit,
-) {
-    FilledTonalToggleButton(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier,
-        buttonSize = ToggleButtonSize.Small,
-        enabled = enabled,
-        shapes = shapes,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        content = content,
-    )
-}
-
-/**
- * [Material Design toggle
- * button](https://m3.material.io/components/buttons/overview#f8ba981c-a363-4ccd-a332-ee1b0e124e5c)
+ * This uses a [ToggleButtonSize] and optional [icon] to automatically configure container size,
+ * shapes, content padding, icon sizes, icon spacing, and typography.
  *
- * This overload accepts an explicit [buttonSize] and optional [icon] to automatically configure
- * container size, shapes, content padding, icon sizes, icon spacing, and typography.
- *
- * There are multiple button size variants - providing a different [ToggleButtonSize] will affect
+ * There are multiple button size variants. Providing a different [ToggleButtonSize] will affect
  * default values used inside this button, such as the corner shape and padding. Note that you can
  * still provide a size modifier such as [androidx.compose.foundation.layout.size] to change the
- * layout size of this button, [buttonSize] affects default values and values internal to the
+ * layout size of this button, [ToggleButtonSize] affects default values and values internal to the
  * button.
  *
+ * @sample androidx.compose.material3.samples.FilledTonalToggleButtonSample
  * @sample androidx.compose.material3.samples.ToggleButtonWithButtonSizeSample
  * @param checked whether the toggle button is toggled on or off.
  * @param onCheckedChange called when the toggle button is clicked.
  * @param modifier the [Modifier] to be applied to the toggle button.
- * @param buttonSize the [ToggleButtonSize] of this toggle button.
- * @param enabled controls the enabled state of this toggle button.
+ * @param buttonSize the [ToggleButtonSize] of this toggle button, controlling its height, padding,
+ *   and icon sizing.
+ * @param enabled controls the enabled state of this toggle button. When `false`, this component
+ *   will not respond to user input, and it will appear visually disabled and disabled to
+ *   accessibility services.
  * @param icon optional icon to be placed before the [content].
  * @param shapes the [ToggleButtonShapes] used for this toggle button.
  * @param colors [ToggleButtonColors] used for this toggle button. See
@@ -599,23 +351,29 @@ public fun FilledTonalToggleButton(
  *   [FilledTonalToggleButtonDefaults.elevation].
  * @param border the border to draw around the container.
  * @param contentPadding the spacing values to apply internally.
- * @param interactionSource an optional hoisted [MutableInteractionSource].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
+ *   appearance or preview the toggle button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param content The content displayed on the toggle button.
+ * @see [FilledTonalButton] for a static button that doesn't need to be toggled.
+ * @see [FilledTonalIconToggleButton] for a toggleable button where the content is specifically an
+ *   [Icon].
  */
 @Composable
 public fun FilledTonalToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    buttonSize: ToggleButtonSize = ToggleButtonSize.Small,
+    buttonSize: ToggleButtonSize = FilledTonalToggleButtonDefaults.size,
     enabled: Boolean = true,
     icon: @Composable (() -> Unit)? = null,
-    shapes: ToggleButtonShapes = ToggleButtonDefaults.shapesFor(buttonSize),
+    shapes: ToggleButtonShapes = FilledTonalToggleButtonDefaults.shapesFor(buttonSize),
     colors: ToggleButtonColors = FilledTonalToggleButtonDefaults.colors(),
     elevation: ToggleButtonElevation? = FilledTonalToggleButtonDefaults.elevation(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues =
-        ToggleButtonDefaults.contentPaddingFor(buttonSize, hasStartIcon = icon != null),
+        FilledTonalToggleButtonDefaults.contentPaddingFor(buttonSize, hasStartIcon = icon != null),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -653,85 +411,25 @@ public fun FilledTonalToggleButton(
  * are not the primary action in an app. Outlined buttons pair well with [ToggleButton]s to indicate
  * an alternative, secondary action.
  *
- * @sample androidx.compose.material3.samples.OutlinedToggleButtonSample
- * @param checked whether the toggle button is toggled on or off.
- * @param onCheckedChange called when the toggle button is clicked.
- * @param modifier the [Modifier] to be applied to the toggle button.
- * @param enabled controls the enabled state of this toggle button. When `false`, this component
- *   will not respond to user input, and it will appear visually disabled and disabled to
- *   accessibility services.
- * @param shapes the [ToggleButtonShapes] that the toggle button will morph between depending on the
- *   user's interaction with the toggle button.
- * @param colors [ToggleButtonColors] that will be used to resolve the colors used for this toggle
- *   button in different states. See [OutlinedToggleButtonDefaults.colors].
- * @param elevation [ToggleButtonElevation] used to resolve the elevation for this button in
- *   different states. This controls the size of the shadow below the button. Additionally, when the
- *   container color is [ColorScheme.surface], this controls the amount of primary color applied as
- *   an overlay.
- * @param border the border to draw around the container of this toggle button. See
- *   [OutlinedToggleButtonDefaults.border].
- * @param contentPadding the spacing values to apply internally between the container and the
- *   content
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- *   emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
- *   appearance or preview the toggle button in different states. Note that if `null` is provided,
- *   interactions will still happen internally.
- * @param content The content displayed on the toggle button, expected to be text, icon or image.
- * @see [OutlinedButton] for a static button that doesn't need to be toggled.
- * @see [OutlinedIconToggleButton] for a toggleable button where the content is specifically an
- *   [Icon].
- */
-@Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-@Composable
-public fun OutlinedToggleButton(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    shapes: ToggleButtonShapes = ToggleButtonDefaults.shapesFor(ToggleButtonDefaults.MinHeight),
-    colors: ToggleButtonColors = OutlinedToggleButtonDefaults.colors(),
-    elevation: ToggleButtonElevation? = null,
-    border: BorderStroke? = OutlinedToggleButtonDefaults.border(enabled, checked),
-    contentPadding: PaddingValues =
-        ToggleButtonDefaults.contentPaddingFor(ToggleButtonDefaults.MinHeight),
-    interactionSource: MutableInteractionSource? = null,
-    content: @Composable RowScope.() -> Unit,
-) {
-    OutlinedToggleButton(
-        checked = checked,
-        onCheckedChange = onCheckedChange,
-        modifier = modifier,
-        buttonSize = ToggleButtonSize.Small,
-        enabled = enabled,
-        shapes = shapes,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        contentPadding = contentPadding,
-        interactionSource = interactionSource,
-        content = content,
-    )
-}
-
-/**
- * [Material Design toggle
- * button](https://m3.material.io/components/buttons/overview#f8ba981c-a363-4ccd-a332-ee1b0e124e5c)
+ * This uses a [ToggleButtonSize] and optional [icon] to automatically configure container size,
+ * shapes, content padding, icon sizes, icon spacing, and typography.
  *
- * This overload accepts an explicit [buttonSize] and optional [icon] to automatically configure
- * container size, shapes, content padding, icon sizes, icon spacing, and typography.
- *
- * There are multiple button size variants - providing a different [ToggleButtonSize] will affect
+ * There are multiple button size variants. Providing a different [ToggleButtonSize] will affect
  * default values used inside this button, such as the corner shape and padding. Note that you can
  * still provide a size modifier such as [androidx.compose.foundation.layout.size] to change the
- * layout size of this button, [buttonSize] affects default values and values internal to the
+ * layout size of this button, [ToggleButtonSize] affects default values and values internal to the
  * button.
  *
+ * @sample androidx.compose.material3.samples.OutlinedToggleButtonSample
  * @sample androidx.compose.material3.samples.ToggleButtonWithButtonSizeSample
  * @param checked whether the toggle button is toggled on or off.
  * @param onCheckedChange called when the toggle button is clicked.
  * @param modifier the [Modifier] to be applied to the toggle button.
- * @param buttonSize the [ToggleButtonSize] of this toggle button.
- * @param enabled controls the enabled state of this toggle button.
+ * @param buttonSize the [ToggleButtonSize] of this toggle button, controlling its height, padding,
+ *   and icon sizing.
+ * @param enabled controls the enabled state of this toggle button. When `false`, this component
+ *   will not respond to user input, and it will appear visually disabled and disabled to
+ *   accessibility services.
  * @param icon optional icon to be placed before the [content].
  * @param shapes the [ToggleButtonShapes] used for this toggle button.
  * @param colors [ToggleButtonColors] used for this toggle button. See
@@ -739,23 +437,29 @@ public fun OutlinedToggleButton(
  * @param elevation [ToggleButtonElevation] used for this button.
  * @param border the border to draw around the container. See [OutlinedToggleButtonDefaults.border].
  * @param contentPadding the spacing values to apply internally.
- * @param interactionSource an optional hoisted [MutableInteractionSource].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this toggle button. You can use this to change the toggle button's
+ *   appearance or preview the toggle button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
  * @param content The content displayed on the toggle button.
+ * @see [OutlinedButton] for a static button that doesn't need to be toggled.
+ * @see [OutlinedIconToggleButton] for a toggleable button where the content is specifically an
+ *   [Icon].
  */
 @Composable
 public fun OutlinedToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    buttonSize: ToggleButtonSize = ToggleButtonSize.Small,
+    buttonSize: ToggleButtonSize = OutlinedToggleButtonDefaults.size,
     enabled: Boolean = true,
     icon: @Composable (() -> Unit)? = null,
-    shapes: ToggleButtonShapes = ToggleButtonDefaults.shapesFor(buttonSize),
+    shapes: ToggleButtonShapes = OutlinedToggleButtonDefaults.shapesFor(buttonSize),
     colors: ToggleButtonColors = OutlinedToggleButtonDefaults.colors(),
     elevation: ToggleButtonElevation? = null,
     border: BorderStroke? = OutlinedToggleButtonDefaults.border(enabled, checked),
     contentPadding: PaddingValues =
-        ToggleButtonDefaults.contentPaddingFor(buttonSize, hasStartIcon = icon != null),
+        OutlinedToggleButtonDefaults.contentPaddingFor(buttonSize, hasStartIcon = icon != null),
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -777,10 +481,13 @@ public fun OutlinedToggleButton(
 }
 
 /**
- * Represents the size of a [ToggleButton].
+ * Represents the size of a [ToggleButton] and its variants.
  *
- * Changing the toggle button size will affect default values used by a toggle button, such as
- * container height, shapes, padding, icon size, and icon spacing.
+ * Providing a different [ToggleButtonSize] will affect default internal layout configurations used
+ * by the button, such as container height, shapes, content padding, icon sizes, and icon spacing.
+ * Note that standard layout modifiers (such as [androidx.compose.foundation.layout.size] or
+ * [androidx.compose.foundation.layout.heightIn]) can still be applied to adjust overall container
+ * dimensions.
  */
 @Immutable
 @JvmInline
@@ -791,7 +498,7 @@ public value class ToggleButtonSize internal constructor(public val height: Dp) 
             ToggleButtonSize(ButtonDefaults.ExtraSmallContainerHeight)
 
         /** Small toggle button size. */
-        public val Small: ToggleButtonSize = ToggleButtonSize(ToggleButtonDefaults.MinHeight)
+        public val Small: ToggleButtonSize = ToggleButtonSize(ButtonSmallTokens.ContainerHeight)
 
         /** Medium toggle button size. */
         public val Medium: ToggleButtonSize = ToggleButtonSize(ButtonDefaults.MediumContainerHeight)
@@ -805,11 +512,20 @@ public value class ToggleButtonSize internal constructor(public val height: Dp) 
     }
 }
 
-/** Contains the default values for all five toggle button types. */
+/**
+ * Contains the default values and utility functions used by [ToggleButton].
+ *
+ * Resolving defaults with a [ToggleButtonSize] (such as with [shapesFor] or [contentPaddingFor])
+ * configures default internal layout properties (such as corner shapes, icon spacing, and content
+ * padding) while standard layout modifiers (such as [androidx.compose.foundation.layout.size]) can
+ * still be applied to adjust overall container dimensions.
+ */
 public object ToggleButtonDefaults {
+    /** The default [ToggleButtonSize] of a [ToggleButton]. */
+    public val size: ToggleButtonSize = ToggleButtonSize.Small
+
     /**
-     * The default min height applied for all toggle button variants ([ToggleButton],
-     * [ElevatedToggleButton], [FilledTonalToggleButton], [OutlinedToggleButton]).
+     * The default min height applied for [ToggleButton].
      *
      * Override it by applying [Modifier.heightIn][androidx.compose.foundation.layout.heightIn]
      * directly on the toggle button composable.
@@ -821,15 +537,12 @@ public object ToggleButtonDefaults {
     private val ButtonVerticalPadding = 8.dp
 
     /**
-     * The default size of the spacing between an icon and a text when they used inside any toggle
-     * button.
+     * The default size of the spacing between an icon and a text when they are used inside a
+     * [ToggleButton].
      */
     public val IconSpacing: Dp = ButtonSmallTokens.IconLabelSpace
 
-    /**
-     * The default size of the spacing between an icon and a text when they used inside any toggle
-     * button.
-     */
+    /** The default size of an icon when used inside a [ToggleButton]. */
     public val IconSize: Dp = ButtonSmallTokens.IconSize
 
     private val ContentPadding: PaddingValues =
@@ -842,10 +555,6 @@ public object ToggleButtonDefaults {
 
     /**
      * Recommended [PaddingValues] for a provided toggle button height.
-     *
-     * This padding is the same across all toggle button variants and should be used with
-     * [ToggleButton], [ElevatedToggleButton], [FilledTonalToggleButton], and
-     * [OutlinedToggleButton].
      *
      * The returned content padding is based on standard container height values and is not directly
      * interpolated from the provided [buttonHeight].
@@ -875,9 +584,8 @@ public object ToggleButtonDefaults {
     /**
      * Recommended [PaddingValues] for a provided [buttonSize].
      *
-     * This padding is the same across all toggle button variants and should be used with
-     * [ToggleButton], [ElevatedToggleButton], [FilledTonalToggleButton], and
-     * [OutlinedToggleButton].
+     * The returned content padding is based on standard container height values and is not directly
+     * interpolated from the provided [buttonSize].
      *
      * @param buttonSize the [ToggleButtonSize] of the toggle button
      * @param hasStartIcon whether the toggle button has a leading icon
@@ -993,37 +701,6 @@ public object ToggleButtonDefaults {
             disabledElevation = disabledElevation,
         )
 
-    /**
-     * Creates a [ToggleButtonShapes] that represents the default shape, pressedShape, and
-     * checkedShape used in a [ToggleButton].
-     */
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun shapes(): ToggleButtonShapes = MaterialTheme.shapes.defaultToggleButtonShapes
-
-    /**
-     * Creates a [ToggleButtonShapes] that represents the default shape, pressedShape, and
-     * checkedShape used in a [ToggleButton] and its variants.
-     *
-     * @param shape the unchecked shape for [ToggleButtonShapes]
-     * @param pressedShape the unchecked shape for [ToggleButtonShapes]
-     * @param checkedShape the unchecked shape for [ToggleButtonShapes]
-     */
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun shapes(
-        shape: Shape? = null,
-        pressedShape: Shape? = null,
-        checkedShape: Shape? = null,
-    ): ToggleButtonShapes {
-        val defaultShapes = MaterialTheme.shapes.defaultToggleButtonShapes
-        return defaultShapes.copy(
-            shape = shape ?: defaultShapes.shape,
-            pressedShape = pressedShape ?: defaultShapes.pressedShape,
-            checkedShape = checkedShape ?: defaultShapes.checkedShape,
-        )
-    }
-
     internal val Shapes.defaultToggleButtonShapes: ToggleButtonShapes
         get() {
             return defaultToggleButtonShapesCached
@@ -1128,113 +805,8 @@ public object ToggleButtonDefaults {
                     .also { defaultToggleButtonColorsCached = it }
         }
 
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun elevatedToggleButtonColors(): ToggleButtonColors =
-        ElevatedToggleButtonDefaults.colors()
-
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun elevatedToggleButtonColors(
-        containerColor: Color = Color.Unspecified,
-        contentColor: Color = Color.Unspecified,
-        disabledContainerColor: Color = Color.Unspecified,
-        disabledContentColor: Color = Color.Unspecified,
-        checkedContainerColor: Color = Color.Unspecified,
-        checkedContentColor: Color = Color.Unspecified,
-    ): ToggleButtonColors =
-        ElevatedToggleButtonDefaults.colors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor,
-            checkedContainerColor = checkedContainerColor,
-            checkedContentColor = checkedContentColor,
-        )
-
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun tonalToggleButtonColors(): ToggleButtonColors =
-        FilledTonalToggleButtonDefaults.colors()
-
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun tonalToggleButtonColors(
-        containerColor: Color = Color.Unspecified,
-        contentColor: Color = Color.Unspecified,
-        disabledContainerColor: Color = Color.Unspecified,
-        disabledContentColor: Color = Color.Unspecified,
-        checkedContainerColor: Color = Color.Unspecified,
-        checkedContentColor: Color = Color.Unspecified,
-    ): ToggleButtonColors =
-        FilledTonalToggleButtonDefaults.colors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor,
-            checkedContainerColor = checkedContainerColor,
-            checkedContentColor = checkedContentColor,
-        )
-
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun filledTonalToggleButtonColors(): ToggleButtonColors =
-        FilledTonalToggleButtonDefaults.colors()
-
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun filledTonalToggleButtonColors(
-        containerColor: Color = Color.Unspecified,
-        contentColor: Color = Color.Unspecified,
-        disabledContainerColor: Color = Color.Unspecified,
-        disabledContentColor: Color = Color.Unspecified,
-        checkedContainerColor: Color = Color.Unspecified,
-        checkedContentColor: Color = Color.Unspecified,
-    ): ToggleButtonColors =
-        FilledTonalToggleButtonDefaults.colors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor,
-            checkedContainerColor = checkedContainerColor,
-            checkedContentColor = checkedContentColor,
-        )
-
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun outlinedToggleButtonColors(): ToggleButtonColors =
-        OutlinedToggleButtonDefaults.colors()
-
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun outlinedToggleButtonColors(
-        containerColor: Color = Color.Unspecified,
-        contentColor: Color = Color.Unspecified,
-        disabledContainerColor: Color = Color.Unspecified,
-        disabledContentColor: Color = Color.Unspecified,
-        checkedContainerColor: Color = Color.Unspecified,
-        checkedContentColor: Color = Color.Unspecified,
-    ): ToggleButtonColors =
-        OutlinedToggleButtonDefaults.colors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor,
-            checkedContainerColor = checkedContainerColor,
-            checkedContentColor = checkedContentColor,
-        )
-
-    @Deprecated("Maintained for binary compatibility.", level = DeprecationLevel.HIDDEN)
-    @Composable
-    public fun outlinedToggleButtonBorder(enabled: Boolean, checked: Boolean): BorderStroke? =
-        OutlinedToggleButtonDefaults.border(enabled, checked)
-
     /**
      * Resolves the recommended [ToggleButtonShapes] for a given toggle button height.
-     *
-     * These shapes are the same across all toggle button variants and should be used with
-     * [ToggleButton], [ElevatedToggleButton], [FilledTonalToggleButton], and
-     * [OutlinedToggleButton].
      *
      * The input height is categorized into a shape bucket (such as extra small, small, medium,
      * large, or extra large) based on the closest standard button height.
@@ -1281,10 +853,6 @@ public object ToggleButtonDefaults {
     /**
      * Resolves the recommended [ToggleButtonShapes] for a given [buttonSize].
      *
-     * These shapes are the same across all toggle button variants and should be used with
-     * [ToggleButton], [ElevatedToggleButton], [FilledTonalToggleButton], and
-     * [OutlinedToggleButton].
-     *
      * @param buttonSize [ToggleButtonSize] used to resolve the shape bucket
      */
     @Composable
@@ -1294,6 +862,98 @@ public object ToggleButtonDefaults {
 
 /** Contains default values used by [ElevatedToggleButton]. */
 public object ElevatedToggleButtonDefaults {
+    /** The default [ToggleButtonSize] of an [ElevatedToggleButton]. */
+    public val size: ToggleButtonSize = ToggleButtonDefaults.size
+
+    /**
+     * The default min height applied for [ElevatedToggleButton].
+     *
+     * Override it by applying [Modifier.heightIn][androidx.compose.foundation.layout.heightIn]
+     * directly on the toggle button composable.
+     */
+    public val MinHeight: Dp = ToggleButtonDefaults.MinHeight
+
+    /**
+     * The default size of the spacing between an icon and a text when they are used inside an
+     * [ElevatedToggleButton].
+     */
+    public val IconSpacing: Dp = ToggleButtonDefaults.IconSpacing
+
+    /** The default size of an icon when used inside an [ElevatedToggleButton]. */
+    public val IconSize: Dp = ToggleButtonDefaults.IconSize
+
+    /**
+     * Recommended [PaddingValues] for a provided toggle button height.
+     *
+     * The returned content padding is based on standard container height values and is not directly
+     * interpolated from the provided [buttonHeight].
+     *
+     * @param buttonHeight the height of the toggle button
+     * @param hasStartIcon whether the toggle button has a leading icon
+     * @param hasEndIcon whether the toggle button has a trailing icon
+     */
+    public fun contentPaddingFor(
+        buttonHeight: Dp,
+        hasStartIcon: Boolean = false,
+        hasEndIcon: Boolean = false,
+    ): PaddingValues =
+        ToggleButtonDefaults.contentPaddingFor(
+            buttonHeight = buttonHeight,
+            hasStartIcon = hasStartIcon,
+            hasEndIcon = hasEndIcon,
+        )
+
+    /**
+     * Recommended [PaddingValues] for a provided [buttonSize].
+     *
+     * @param buttonSize the [ToggleButtonSize] of the toggle button
+     * @param hasStartIcon whether the toggle button has a leading icon
+     * @param hasEndIcon whether the toggle button has a trailing icon
+     */
+    public fun contentPaddingFor(
+        buttonSize: ToggleButtonSize,
+        hasStartIcon: Boolean = false,
+        hasEndIcon: Boolean = false,
+    ): PaddingValues =
+        ToggleButtonDefaults.contentPaddingFor(
+            buttonSize = buttonSize,
+            hasStartIcon = hasStartIcon,
+            hasEndIcon = hasEndIcon,
+        )
+
+    /** The default unchecked shape for [ElevatedToggleButton] */
+    public val shape: Shape
+        @Composable get() = ToggleButtonDefaults.shape
+
+    /** The default pressed shape for [ElevatedToggleButton] */
+    public val pressedShape: Shape
+        @Composable get() = ToggleButtonDefaults.pressedShape
+
+    /** The default checked shape for [ElevatedToggleButton] */
+    public val checkedShape: Shape
+        @Composable get() = ToggleButtonDefaults.checkedShape
+
+    /**
+     * Resolves the recommended [ToggleButtonShapes] for a given toggle button height.
+     *
+     * The input height is categorized into a shape bucket (such as extra small, small, medium,
+     * large, or extra large) based on the closest standard button height.
+     *
+     * @param buttonHeight height of the button used to resolve the shape bucket
+     */
+    @Composable
+    public fun shapesFor(buttonHeight: Dp): ToggleButtonShapes =
+        ToggleButtonDefaults.shapesFor(buttonHeight)
+
+    /**
+     * Resolves the recommended [ToggleButtonShapes] for a given [buttonSize].
+     *
+     * @param buttonSize [ToggleButtonSize] used to resolve the shape bucket
+     */
+    @Composable
+    public fun shapesFor(buttonSize: ToggleButtonSize): ToggleButtonShapes =
+        ToggleButtonDefaults.shapesFor(buttonSize)
+
     /**
      * Creates a [ToggleButtonColors] that represents the default container and content colors used
      * in a [ElevatedToggleButton].
@@ -1387,6 +1047,98 @@ public object ElevatedToggleButtonDefaults {
 
 /** Contains default values used by [FilledTonalToggleButton]. */
 public object FilledTonalToggleButtonDefaults {
+    /** The default [ToggleButtonSize] of a [FilledTonalToggleButton]. */
+    public val size: ToggleButtonSize = ToggleButtonDefaults.size
+
+    /**
+     * The default min height applied for [FilledTonalToggleButton].
+     *
+     * Override it by applying [Modifier.heightIn][androidx.compose.foundation.layout.heightIn]
+     * directly on the toggle button composable.
+     */
+    public val MinHeight: Dp = ToggleButtonDefaults.MinHeight
+
+    /**
+     * The default size of the spacing between an icon and a text when they are used inside a
+     * [FilledTonalToggleButton].
+     */
+    public val IconSpacing: Dp = ToggleButtonDefaults.IconSpacing
+
+    /** The default size of an icon when used inside a [FilledTonalToggleButton]. */
+    public val IconSize: Dp = ToggleButtonDefaults.IconSize
+
+    /**
+     * Recommended [PaddingValues] for a provided toggle button height.
+     *
+     * The returned content padding is based on standard container height values and is not directly
+     * interpolated from the provided [buttonHeight].
+     *
+     * @param buttonHeight the height of the toggle button
+     * @param hasStartIcon whether the toggle button has a leading icon
+     * @param hasEndIcon whether the toggle button has a trailing icon
+     */
+    public fun contentPaddingFor(
+        buttonHeight: Dp,
+        hasStartIcon: Boolean = false,
+        hasEndIcon: Boolean = false,
+    ): PaddingValues =
+        ToggleButtonDefaults.contentPaddingFor(
+            buttonHeight = buttonHeight,
+            hasStartIcon = hasStartIcon,
+            hasEndIcon = hasEndIcon,
+        )
+
+    /**
+     * Recommended [PaddingValues] for a provided [buttonSize].
+     *
+     * @param buttonSize the [ToggleButtonSize] of the toggle button
+     * @param hasStartIcon whether the toggle button has a leading icon
+     * @param hasEndIcon whether the toggle button has a trailing icon
+     */
+    public fun contentPaddingFor(
+        buttonSize: ToggleButtonSize,
+        hasStartIcon: Boolean = false,
+        hasEndIcon: Boolean = false,
+    ): PaddingValues =
+        ToggleButtonDefaults.contentPaddingFor(
+            buttonSize = buttonSize,
+            hasStartIcon = hasStartIcon,
+            hasEndIcon = hasEndIcon,
+        )
+
+    /** The default unchecked shape for [FilledTonalToggleButton] */
+    public val shape: Shape
+        @Composable get() = ToggleButtonDefaults.shape
+
+    /** The default pressed shape for [FilledTonalToggleButton] */
+    public val pressedShape: Shape
+        @Composable get() = ToggleButtonDefaults.pressedShape
+
+    /** The default checked shape for [FilledTonalToggleButton] */
+    public val checkedShape: Shape
+        @Composable get() = ToggleButtonDefaults.checkedShape
+
+    /**
+     * Resolves the recommended [ToggleButtonShapes] for a given toggle button height.
+     *
+     * The input height is categorized into a shape bucket (such as extra small, small, medium,
+     * large, or extra large) based on the closest standard button height.
+     *
+     * @param buttonHeight height of the button used to resolve the shape bucket
+     */
+    @Composable
+    public fun shapesFor(buttonHeight: Dp): ToggleButtonShapes =
+        ToggleButtonDefaults.shapesFor(buttonHeight)
+
+    /**
+     * Resolves the recommended [ToggleButtonShapes] for a given [buttonSize].
+     *
+     * @param buttonSize [ToggleButtonSize] used to resolve the shape bucket
+     */
+    @Composable
+    public fun shapesFor(buttonSize: ToggleButtonSize): ToggleButtonShapes =
+        ToggleButtonDefaults.shapesFor(buttonSize)
+
     /**
      * Creates a [ToggleButtonColors] that represents the default container and content colors used
      * in a [FilledTonalToggleButton].
@@ -1479,6 +1231,98 @@ public object FilledTonalToggleButtonDefaults {
 
 /** Contains default values used by [OutlinedToggleButton]. */
 public object OutlinedToggleButtonDefaults {
+    /** The default [ToggleButtonSize] of an [OutlinedToggleButton]. */
+    public val size: ToggleButtonSize = ToggleButtonDefaults.size
+
+    /**
+     * The default min height applied for [OutlinedToggleButton].
+     *
+     * Override it by applying [Modifier.heightIn][androidx.compose.foundation.layout.heightIn]
+     * directly on the toggle button composable.
+     */
+    public val MinHeight: Dp = ToggleButtonDefaults.MinHeight
+
+    /**
+     * The default size of the spacing between an icon and a text when they are used inside an
+     * [OutlinedToggleButton].
+     */
+    public val IconSpacing: Dp = ToggleButtonDefaults.IconSpacing
+
+    /** The default size of an icon when used inside an [OutlinedToggleButton]. */
+    public val IconSize: Dp = ToggleButtonDefaults.IconSize
+
+    /**
+     * Recommended [PaddingValues] for a provided toggle button height.
+     *
+     * The returned content padding is based on standard container height values and is not directly
+     * interpolated from the provided [buttonHeight].
+     *
+     * @param buttonHeight the height of the toggle button
+     * @param hasStartIcon whether the toggle button has a leading icon
+     * @param hasEndIcon whether the toggle button has a trailing icon
+     */
+    public fun contentPaddingFor(
+        buttonHeight: Dp,
+        hasStartIcon: Boolean = false,
+        hasEndIcon: Boolean = false,
+    ): PaddingValues =
+        ToggleButtonDefaults.contentPaddingFor(
+            buttonHeight = buttonHeight,
+            hasStartIcon = hasStartIcon,
+            hasEndIcon = hasEndIcon,
+        )
+
+    /**
+     * Recommended [PaddingValues] for a provided [buttonSize].
+     *
+     * @param buttonSize the [ToggleButtonSize] of the toggle button
+     * @param hasStartIcon whether the toggle button has a leading icon
+     * @param hasEndIcon whether the toggle button has a trailing icon
+     */
+    public fun contentPaddingFor(
+        buttonSize: ToggleButtonSize,
+        hasStartIcon: Boolean = false,
+        hasEndIcon: Boolean = false,
+    ): PaddingValues =
+        ToggleButtonDefaults.contentPaddingFor(
+            buttonSize = buttonSize,
+            hasStartIcon = hasStartIcon,
+            hasEndIcon = hasEndIcon,
+        )
+
+    /** The default unchecked shape for [OutlinedToggleButton] */
+    public val shape: Shape
+        @Composable get() = ToggleButtonDefaults.shape
+
+    /** The default pressed shape for [OutlinedToggleButton] */
+    public val pressedShape: Shape
+        @Composable get() = ToggleButtonDefaults.pressedShape
+
+    /** The default checked shape for [OutlinedToggleButton] */
+    public val checkedShape: Shape
+        @Composable get() = ToggleButtonDefaults.checkedShape
+
+    /**
+     * Resolves the recommended [ToggleButtonShapes] for a given toggle button height.
+     *
+     * The input height is categorized into a shape bucket (such as extra small, small, medium,
+     * large, or extra large) based on the closest standard button height.
+     *
+     * @param buttonHeight height of the button used to resolve the shape bucket
+     */
+    @Composable
+    public fun shapesFor(buttonHeight: Dp): ToggleButtonShapes =
+        ToggleButtonDefaults.shapesFor(buttonHeight)
+
+    /**
+     * Resolves the recommended [ToggleButtonShapes] for a given [buttonSize].
+     *
+     * @param buttonSize [ToggleButtonSize] used to resolve the shape bucket
+     */
+    @Composable
+    public fun shapesFor(buttonSize: ToggleButtonSize): ToggleButtonShapes =
+        ToggleButtonDefaults.shapesFor(buttonSize)
+
     /**
      * Creates a [ToggleButtonColors] that represents the default container and content colors used
      * in a [OutlinedToggleButton].
@@ -1581,8 +1425,8 @@ public class ToggleButtonColors(
     public val checkedContentColor: Color,
 ) {
     /**
-     * Returns a copy of this ToggleButtonColors, optionally overriding some of the values. This
-     * uses the Color.Unspecified to mean “use the value from the source”
+     * Returns a copy of this [ToggleButtonColors], optionally overriding some of the values. This
+     * uses [Color.Unspecified] to mean "use the value from the source".
      */
     public fun copy(
         containerColor: Color = this.containerColor,
@@ -1662,9 +1506,9 @@ public class ToggleButtonColors(
  * shapes depending on the interaction of the toggle button, assuming all of the shapes are
  * [CornerBasedShape]s.
  *
- * @property shape is the unchecked shape.
- * @property pressedShape is the pressed shape.
- * @property checkedShape is the checked shape.
+ * @property shape the unchecked [Shape].
+ * @property pressedShape the pressed [Shape].
+ * @property checkedShape the checked [Shape].
  */
 @Immutable
 public class ToggleButtonShapes(
@@ -1716,10 +1560,11 @@ public class ToggleButtonShapes(
 
 /**
  * Represents the elevation used in a toggle button in different states.
- * - See [ToggleButtonDefaults.elevation] for the default elevation used in a [ToggleButton].
- * - See [ElevatedToggleButtonDefaults.elevation] for the default elevation used in an
+ *
+ * @see [ToggleButtonDefaults.elevation] for the default elevation used in a [ToggleButton].
+ * @see [ElevatedToggleButtonDefaults.elevation] for the default elevation used in an
  *   [ElevatedToggleButton].
- * - See [FilledTonalToggleButtonDefaults.elevation] for the default elevation used in a
+ * @see [FilledTonalToggleButtonDefaults.elevation] for the default elevation used in a
  *   [FilledTonalToggleButton].
  */
 @Stable
