@@ -19,7 +19,6 @@ package androidx.camera.integration.core
 import android.Manifest
 import android.content.Context
 import android.graphics.ImageFormat
-import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
@@ -46,7 +45,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
-import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -112,17 +110,11 @@ class ImageCaptureRawFormatTest(implName: String, private val cameraXConfig: Cam
 
     @Test
     fun takePicture_withRawOutputFormatAndOnDiscCallback() = runBlocking {
-        // RAW image saving on disc does not work in redmi 8
-        assumeFalse(Build.DEVICE.equals("olive", ignoreCase = true)) // Redmi 8
-
         testImageCapture(OUTPUT_FORMAT_RAW, ON_DISC_CALLBACK)
     }
 
     @Test
     fun takePicture_withRawJpegOutputFormatAndOnDiscCallback() = runBlocking {
-        // RAW image saving on disc does not work in redmi 8
-        assumeFalse(Build.DEVICE.equals("olive", ignoreCase = true)) // Redmi 8
-
         testImageCapture(OUTPUT_FORMAT_RAW_JPEG, ON_DISC_CALLBACK)
     }
 
