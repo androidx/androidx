@@ -124,8 +124,6 @@ data class AnnotatedAppFunction(
                 functionAnnotations = appFunctionDeclaration.annotations,
             )
 
-        val deprecationMetadata = appFunctionDeclaration.getDeprecationMetadata()
-
         return CompileTimeAppFunctionMetadata(
             id = getAppFunctionIdentifier(enclosingClass),
             isEnabledByDefault = checkNotNull(appFunctionAnnotationProperties.isEnabledByDefault),

@@ -103,7 +103,7 @@ public abstract class AppFunctionService :
                         AppFunctionFunctionNotFoundException(
                                 "No function found with identifier: " +
                                     "${request.functionIdentifier} in package: " +
-                                    "${this@AppFunctionService.packageName}"
+                                    this@AppFunctionService.packageName
                             )
                             .toPlatformClass()
                     )
