@@ -580,7 +580,19 @@ internal class CallSessionLegacy(
     }
 
     fun setConnectionDisconnect(cause: DisconnectCause): CallControlResult {
-        setDisconnected(cause)
+        val remappedCause =
+            if (VERSION.SDK_INT < 38 && cause.code == DisconnectCause.ERROR) {
+                DisconnectCause(
+                    DisconnectCause.LOCAL,
+                    cause.label,
+                    cause.description,
+                    cause.reason,
+                    cause.tone,
+                )
+            } else {
+                cause
+            }
+        setDisconnected(remappedCause)
         destroy()
         moveState(CallStateEvent.DISCONNECTED)
         return CallControlResult.Success()
