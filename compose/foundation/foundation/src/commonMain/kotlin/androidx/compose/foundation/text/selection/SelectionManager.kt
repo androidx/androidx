@@ -708,7 +708,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
                         }
                     }
                 },
-                createBoundarySelection = { selectable, isStart, offset, isCrossed ->
+                createBoundarySelection = { selectable, isStart, _, isCrossed ->
                     selectable.getSelectAllSelection()?.let { selectAll ->
                         if (isStart) {
                             if (isCrossed) {

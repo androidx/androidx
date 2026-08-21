@@ -301,7 +301,7 @@ open class SelectionContainerContextMenuTest {
     @Ignore("b/534893012")
     @Test
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
-    fun contextMenu_processText_itemsMatch() = runCorrectItemsTest { selection ->
+    fun contextMenu_processText_itemsMatch() = runCorrectItemsTest { _ ->
         rule.assertContextMenuItem(
             label = ContextMenuItemLabels.PROCESS_TEXT_1,
             state = ContextMenuItemState.ENABLED,

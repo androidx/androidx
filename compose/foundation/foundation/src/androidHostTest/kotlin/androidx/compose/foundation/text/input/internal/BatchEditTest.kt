@@ -810,7 +810,6 @@ internal class BatchEditTest : ImeEditCommandTest() {
 
     @Test
     fun stressTest_manyCommitsThenDelete() {
-        val random = kotlin.random.Random(456)
         repeat(100) { iteration ->
             initialize("", TextRange(0))
             val log = StringBuilder()

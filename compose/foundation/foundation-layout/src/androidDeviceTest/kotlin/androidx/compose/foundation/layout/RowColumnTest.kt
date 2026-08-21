@@ -904,7 +904,6 @@ class RowColumnTest : LayoutTest() {
     fun testRow_withCustomVerticalAlignModifier() {
         with(density) {
             val rowHeight = 200.dp
-            val centerAt = 50.dp.roundToPx()
             val boxSize = 20.dp
             var boxOffset = 0f
             val drawLatch = CountDownLatch(1)

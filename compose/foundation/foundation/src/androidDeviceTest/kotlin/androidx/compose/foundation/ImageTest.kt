@@ -491,7 +491,7 @@ class ImageTest {
     @LargeTest
     fun testPainterResourceWithImage() {
         val testTag = "testTag"
-        var imageColor = Color(0.023529412f, 0.0f, 1.0f, 1.0f) // ic_image_test color
+        val imageColor = Color(0.023529412f, 0.0f, 1.0f, 1.0f) // ic_image_test color
 
         rule.setContent {
             val painterId = remember { mutableStateOf(R.drawable.ic_vector_square_asset_test) }

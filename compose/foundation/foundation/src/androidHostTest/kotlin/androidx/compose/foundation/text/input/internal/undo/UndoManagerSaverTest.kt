@@ -45,7 +45,7 @@ class UndoManagerSaverTest {
         assertThat(restoredState.canUndo).isTrue()
         assertThat(restoredState.canRedo).isTrue()
 
-        var redoValue = undoManager.redo()
+        val redoValue = undoManager.redo()
 
         assertThat(redoValue).isEqualTo(3)
 

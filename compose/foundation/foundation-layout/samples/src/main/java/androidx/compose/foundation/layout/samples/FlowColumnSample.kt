@@ -132,7 +132,7 @@ fun SimpleFlowColumnMaxLinesWithSeeMore() {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SimpleFlowColumnWithMaxWidth() {
-    var initialWidth = 200.dp // Reversed from initialHeight
+    val initialWidth = 200.dp // Reversed from initialHeight
     var width by remember { mutableStateOf(initialWidth) } // Reversed from height
 
     Text(

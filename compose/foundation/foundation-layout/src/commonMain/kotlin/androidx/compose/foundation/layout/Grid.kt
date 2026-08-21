@@ -1168,8 +1168,8 @@ private fun resolveGridItemIndices(
             alignment = parentData.alignment
             // Determine the specified layout coordinates and spans for this item.
             // These can originate from either a semantic Named Area or direct modifier coordinates.
-            var specifiedRow: Int
-            var specifiedCol: Int
+            val specifiedRow: Int
+            val specifiedCol: Int
             val areaId = parentData.areaId
             if (areaId != null) {
                 // Handle Named Area Placement
