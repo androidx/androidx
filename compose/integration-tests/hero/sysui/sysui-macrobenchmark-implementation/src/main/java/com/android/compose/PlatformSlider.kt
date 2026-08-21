@@ -15,6 +15,7 @@
  */
 
 @file:OptIn(ExperimentalMaterial3Api::class)
+@file:Suppress("DEPRECATION")
 
 package com.android.compose
 
@@ -84,7 +85,6 @@ import androidx.compose.ui.util.fastFirstOrNull
  *   slider
  * @param label is shown next to the icon.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlatformSlider(
     value: Float,
@@ -99,6 +99,9 @@ fun PlatformSlider(
     icon: (@Composable (isDragging: Boolean) -> Unit)? = null,
     label: (@Composable (isDragging: Boolean) -> Unit)? = null,
 ) {
+    val sliderState = remember(valueRange) { SliderState(value = value, trackRange = valueRange) }
+    sliderState.value = value
+
     val sliderHeight: Dp = 64.dp
     val thumbSize: Dp = sliderHeight
     var isDragging by remember { mutableStateOf(false) }
@@ -118,10 +121,9 @@ fun PlatformSlider(
 
     Box(modifier = modifier.height(sliderHeight)) {
         Slider(
+            state = sliderState,
             modifier = Modifier.fillMaxSize(),
-            value = value,
             onValueChange = onValueChange,
-            valueRange = valueRange,
             onValueChangeFinished = onValueChangeFinished,
             interactionSource = interactionSource,
             enabled = enabled,
@@ -412,17 +414,9 @@ private data class DrawingState(
 private val DrawingState.isLabelOnTopOfIndicator: Boolean
     get() = labelWidth < indicatorRight - indicatorLeft - iconWidth
 
-/** [SliderState.value] normalized using [SliderState.valueRange]. The result belongs to [0, 1] */
+/** [SliderState.value] normalized using [SliderState.trackRange]. The result belongs to [0, 1] */
 private val SliderState.coercedNormalizedValue: Float
-    get() {
-        val dif = valueRange.endInclusive - valueRange.start
-        return if (dif == 0f) {
-            0f
-        } else {
-            val coercedValue = value.coerceIn(valueRange.start, valueRange.endInclusive)
-            (coercedValue - valueRange.start) / dif
-        }
-    }
+    get() = coercedValueAsFraction
 
 /**
  * [PlatformSlider] color scheme.

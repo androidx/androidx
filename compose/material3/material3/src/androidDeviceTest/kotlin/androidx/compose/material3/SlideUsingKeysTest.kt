@@ -51,6 +51,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SlideUsingKeysTest {
 
+    @Suppress("DEPRECATION")
     @Test
     fun slider_ltr_0steps_change_using_keys() = runComposeUiTest {
         val state = mutableStateOf(0.5f)
@@ -113,6 +114,7 @@ class SlideUsingKeysTest {
         runOnIdle { assertEquals(0f, state.value) }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun slider_rtl_0steps_change_using_keys() = runComposeUiTest {
         val state = mutableStateOf(0.5f)
@@ -176,6 +178,7 @@ class SlideUsingKeysTest {
         runOnIdle { assertEquals(0f, state.value) }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun slider_ltr_29steps_using_keys() = runComposeUiTest {
         val state = mutableStateOf(15f)
@@ -241,13 +244,12 @@ class SlideUsingKeysTest {
                     // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
                     // there are 9 steps (10, 20, ..., 90).
                     steps = 9,
-                    valueRange = 0f..100f,
+                    trackRange = 0f..100f,
                 )
             currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
-            state.onValueChange = { newValue -> currentValue.floatValue = newValue }
-
             VerticalSlider(
                 state = state,
+                onValueChange = { newValue -> currentValue.floatValue = newValue },
                 modifier =
                     Modifier.testTag("Slider").height(300.dp).onFocusChanged {
                         sliderFocused = it.isFocused
@@ -303,13 +305,12 @@ class SlideUsingKeysTest {
                     // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
                     // there are 9 steps (10, 20, ..., 90).
                     steps = 9,
-                    valueRange = 0f..100f,
+                    trackRange = 0f..100f,
                 )
             currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
-            state.onValueChange = { newValue -> currentValue.floatValue = newValue }
-
             VerticalSlider(
                 state = state,
+                onValueChange = { newValue -> currentValue.floatValue = newValue },
                 modifier =
                     Modifier.testTag("Slider").height(300.dp).onFocusChanged {
                         sliderFocused = it.isFocused
@@ -367,13 +368,12 @@ class SlideUsingKeysTest {
                         // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
                         // there are 9 steps (10, 20, ..., 90).
                         steps = 9,
-                        valueRange = 0f..100f,
+                        trackRange = 0f..100f,
                     )
                 currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
-                state.onValueChange = { newValue -> currentValue.floatValue = newValue }
-
                 VerticalSlider(
                     state = state,
+                    onValueChange = { newValue -> currentValue.floatValue = newValue },
                     modifier =
                         Modifier.testTag("Slider").height(300.dp).onFocusChanged {
                             sliderFocused = it.isFocused
@@ -431,13 +431,13 @@ class SlideUsingKeysTest {
                         // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
                         // there are 9 steps (10, 20, ..., 90).
                         steps = 9,
-                        valueRange = 0f..100f,
+                        trackRange = 0f..100f,
                     )
                 currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
-                state.onValueChange = { newValue -> currentValue.floatValue = newValue }
 
                 VerticalSlider(
                     state = state,
+                    onValueChange = { newValue -> currentValue.floatValue = newValue },
                     modifier =
                         Modifier.testTag("Slider").height(300.dp).onFocusChanged {
                             sliderFocused = it.isFocused

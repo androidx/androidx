@@ -176,6 +176,7 @@ private fun TestCaseRow(
  * A shared, stateless 2D Composable that renders the UI controls (sliders and switch). This removes
  * code duplication from the interactive test panels.
  */
+@Suppress("DEPRECATION")
 @Composable
 private fun GravityTestControls(
     isGravityAligned: Boolean,

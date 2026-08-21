@@ -82,10 +82,10 @@ internal class RangeSliderTestCase : LayeredComposeTestCase(), ToggleableTestCas
     }
 
     override fun toggleState() {
-        if (state.activeRangeStart == 0f) {
-            state.activeRangeStart = .7f
+        if (state.startValue == 0f) {
+            state.startValue = .7f
         } else {
-            state.activeRangeStart = 0f
+            state.startValue = 0f
         }
     }
 }

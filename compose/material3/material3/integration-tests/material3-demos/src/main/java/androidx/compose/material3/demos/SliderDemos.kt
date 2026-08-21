@@ -121,7 +121,7 @@ private fun SysUiSlider(
     value: Float,
     onValueChanged: (Float) -> Unit,
     modifier: Modifier = Modifier,
-    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    trackRange: ClosedFloatingPointRange<Float> = 0f..1f,
     steps: Int = 0,
     isVertical: Boolean = false,
     isReverseDirection: Boolean = false,
@@ -135,18 +135,18 @@ private fun SysUiSlider(
     val sliderState =
         rememberSaveable(
             steps,
-            valueRange,
+            trackRange,
             isVertical,
             isReverseDirection,
-            saver = SliderState.Saver(steps, valueRange, null),
+            saver = SliderState.Saver(steps, trackRange),
         ) {
-            SliderState(value, steps, valueRange = valueRange)
+            SliderState(value, steps, trackRange = trackRange)
         }
 
     // Sync internal state with external value updates
     LaunchedEffect(value) { if (sliderState.value != value) sliderState.value = value }
 
-    sliderState.onValueChange = { newValue ->
+    val onValueChangeAction: (Float) -> Unit = { newValue ->
         if (sliderState.isDragging) sliderState.value = newValue
         onValueChanged(newValue)
     }
@@ -154,6 +154,7 @@ private fun SysUiSlider(
     if (isVertical) {
         VerticalSlider(
             state = sliderState,
+            onValueChange = onValueChangeAction,
             topToBottom = !isReverseDirection,
             interactionSource = interactionSource,
             track = track,
@@ -163,6 +164,7 @@ private fun SysUiSlider(
     } else {
         Slider(
             state = sliderState,
+            onValueChange = onValueChangeAction,
             interactionSource = interactionSource,
             track = track,
             thumb = { thumb(it, interactionSource) },

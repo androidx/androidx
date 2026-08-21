@@ -171,6 +171,7 @@ fun LegendChip(text: String, color: Color) {
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 fun DoubleLabelledSlider(
     name: String,
