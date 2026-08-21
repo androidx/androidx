@@ -262,7 +262,7 @@ class EngagementModeClientTest {
         mClient!!.addUpdateCallback(mDirectExecutor, mMockConsumer)
 
         // Add another listener. This should not trigger binding again.
-        mClient!!.addUpdateCallback(mDirectExecutor, Consumer { i: Int -> })
+        mClient!!.addUpdateCallback(mDirectExecutor, Consumer { _: Int -> })
 
         // Verify bindService is only called once
         verify<Context>(mMockContext).bindService(any(), any(), any<Int>())
@@ -293,7 +293,7 @@ class EngagementModeClientTest {
         whenever(mMockContext.bindService(any(), mServiceConnectionCaptor!!.capture(), any<Int>()))
             .thenReturn(true)
         mClient = EngagementModeClient(mMockContext, mMockHandler)
-        val anotherConsumer = Consumer { i: Int -> }
+        val anotherConsumer = Consumer { _: Int -> }
         // Add two listeners
         mClient!!.addUpdateCallback(mDirectExecutor, mMockConsumer)
         mClient!!.addUpdateCallback(mDirectExecutor, anotherConsumer)

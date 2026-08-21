@@ -196,10 +196,7 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<Slider>(R.id.gltf_model_metallic_slider).addOnChangeListener {
-            slider,
-            value,
-            fromUser ->
+        findViewById<Slider>(R.id.gltf_model_metallic_slider).addOnChangeListener { _, value, _ ->
             khronosPbrMaterial?.setMetallicFactor(value)
         }
 

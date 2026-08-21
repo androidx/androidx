@@ -279,7 +279,7 @@ class GltfModelAnimationActivity : AppCompatActivity() {
 
             val adapter = ArrayAdapter<String?>(this, android.R.layout.simple_spinner_item, options)
             animationList.setAdapter(adapter)
-            animationList.setOnItemClickListener { parent, view, position, id ->
+            animationList.setOnItemClickListener { _, _, position, _ ->
                 selectedIndexAtAnimationList = position
 
                 animationStateText.text =

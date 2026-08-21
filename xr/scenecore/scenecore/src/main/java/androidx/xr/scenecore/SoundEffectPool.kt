@@ -83,7 +83,7 @@ public class SoundEffectPool private constructor(sceneRuntime: SceneRuntime, max
         rtSoundEffectPool.setOnLoadCompleteListener(HandlerExecutor.mainThreadExecutor) {
             rtSoundEffect: RtSoundEffect,
             success ->
-            var soundEffect = rtSoundEffect.toSoundEffect()
+            val soundEffect = rtSoundEffect.toSoundEffect()
             loadCompleteListeners.fire(Pair(soundEffect, success))
         }
     }

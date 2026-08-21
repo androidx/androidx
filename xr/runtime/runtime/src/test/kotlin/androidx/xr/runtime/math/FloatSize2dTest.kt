@@ -27,7 +27,7 @@ class FloatSize2dTest {
     @Test
     fun equals_withIdenticalValues_returnsTrue() {
         val size1 = FloatSize2d(width = 1.0f, height = 2.0f)
-        var size2 = FloatSize2d(width = 1.0f, height = 2.0f)
+        val size2 = FloatSize2d(width = 1.0f, height = 2.0f)
 
         assertThat(size1.width).isEqualTo(size2.width)
         assertThat(size1.height).isEqualTo(size2.height)

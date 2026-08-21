@@ -44,6 +44,7 @@ class ReferenceCleanerTest {
         cleaner.register(obj!!, executor) { latch.countDown() }
 
         // Nullify the strong reference
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         obj = null
 
         // Force GC to trigger the phantom reference queue
@@ -114,7 +115,9 @@ class ReferenceCleanerTest {
         cleaner.register(obj2!!, validExecutor) { latch.countDown() }
 
         // Nullify strong references
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         obj1 = null
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         obj2 = null
 
         // Force GC to trigger the phantom reference queue
@@ -150,6 +153,7 @@ class ReferenceCleanerTest {
         cleaner.register(obj!!, executor) { latch1.countDown() }
         cleaner.register(obj, executor) { latch2.countDown() }
 
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         obj = null
 
         var gcAttempts = 0
@@ -184,7 +188,9 @@ class ReferenceCleanerTest {
         cleaner.register(obj1!!, executor) { latch1.countDown() }
         cleaner.register(obj2!!, executor) { latch2.countDown() }
 
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         obj1 = null
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         obj2 = null
 
         var gcAttempts = 0
@@ -221,7 +227,9 @@ class ReferenceCleanerTest {
         // Second action should still run
         cleaner.register(obj2!!, executor) { latch.countDown() }
 
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         obj1 = null
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         obj2 = null
 
         var gcAttempts = 0

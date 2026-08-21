@@ -63,7 +63,7 @@ class SurfaceEntityManager(private val session: Session, activity: AppCompatActi
 
     init {
         updateButtonStates()
-        surfaceEntityRadioGroup.setOnCheckedChangeListener { group, checkedId ->
+        surfaceEntityRadioGroup.setOnCheckedChangeListener { _, checkedId ->
             selectedShapeOption =
                 when (checkedId) {
                     R.id.radiobutton_quad -> canvasRadioOptions[0]

@@ -84,15 +84,14 @@ class StandaloneActivity : AppCompatActivity() {
             // Create a single panel with text
             @SuppressLint("InflateParams")
             val panelEntityView = layoutInflater.inflate(R.layout.standalone_panel, null)
-            val panelEntity =
-                PanelEntity.create(
-                    session!!,
-                    panelEntityView,
-                    IntSize2d(720, 480),
-                    "panel_entity",
-                    Pose(Vector3(0f, -0.25f, 0.1f)),
-                    parent = session!!.scene.mainPanelEntity,
-                )
+            PanelEntity.create(
+                session!!,
+                panelEntityView,
+                IntSize2d(720, 480),
+                "panel_entity",
+                Pose(Vector3(0f, -0.25f, 0.1f)),
+                parent = session!!.scene.mainPanelEntity,
+            )
 
             lifecycleScope.launch {
                 // load 3D Model

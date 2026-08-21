@@ -146,7 +146,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
                 check(entity == surfaceEntity) {
                     "Listener should only be attached to surfaceEntity."
                 }
-                var curParentPose = movieParent!!.getPose()
+                val curParentPose = movieParent!!.getPose()
                 // Apply the currentPose to the movieParent to move the surfaceEntity.
                 movieParent?.setPose(curParentPose.compose(currentPose))
             }
@@ -518,9 +518,9 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
         var controlOffsetZ: Float = 0.0f
 
         Log.i(TAG, "SurfaceEntity visuals updated. Pose: $activePoseForVideo")
-        var rotation =
+        val rotation =
             Quaternion.fromAxisAngle(Vector3.Forward, currentVideoRotationDegrees.toFloat())
-        var newPose = surfaceEntity!!.getPose().compose(Pose(Vector3.Zero, rotation))
+        val newPose = surfaceEntity!!.getPose().compose(Pose(Vector3.Zero, rotation))
         surfaceEntity!!.setPose(newPose)
         controlPanelEntity!!.parent = movieParent!!
 
@@ -716,7 +716,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
 
                                         // Extract and update rotation
                                         var updateSurfaceEntityVisuals = false
-                                        var newRotation = videoFormat.rotationDegrees
+                                        val newRotation = videoFormat.rotationDegrees
                                         Log.d(TAG, "newRotation: $newRotation")
                                         if (currentVideoRotationDegrees != newRotation) {
                                             currentVideoRotationDegrees = newRotation
@@ -724,7 +724,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
                                         }
 
                                         // Extract and update pixel aspect ratio
-                                        var newPixelAspectRatio = videoFormat.pixelWidthHeightRatio
+                                        val newPixelAspectRatio = videoFormat.pixelWidthHeightRatio
                                         Log.d(TAG, "newPixelAspectRatio: $newPixelAspectRatio")
                                         if (currentPixelAspectRatio != newPixelAspectRatio) {
                                             currentPixelAspectRatio = newPixelAspectRatio

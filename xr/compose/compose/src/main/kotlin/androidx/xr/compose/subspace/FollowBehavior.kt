@@ -261,7 +261,7 @@ internal class ExponentialDecayFollowBehavior : FollowBehavior() {
         val isAnimating = AtomicBoolean(false)
         val initialPoseMeter: Pose = trailingEntity.poseInMeters
         val followTargetFlow = target as? FollowTargetFlow ?: return@coroutineScope
-        var currentTargetPoseMeter = Pose.Identity
+        var currentTargetPoseMeter: Pose
 
         withContext(dispatcherOverride) {
             val pose: Pose = target.poseUpdates.first()
