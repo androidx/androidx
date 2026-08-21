@@ -202,9 +202,9 @@ class SharedByteBufferTest {
             Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         val buf = ByteBuffer.allocate(16)
-        var origLimit: Int
-        var sharedInstanceLimit0: Int
-        var sharedInstanceLimit1: Int
+        val origLimit: Int
+        val sharedInstanceLimit0: Int
+        val sharedInstanceLimit1: Int
         SharedByteBuffer.newSharedInstance(buf, CameraXExecutors.directExecutor()) {
                 // no-op close action
             }
@@ -235,9 +235,9 @@ class SharedByteBufferTest {
             Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         val buf = ByteBuffer.allocate(16)
-        var origPos: Int
-        var sharedInstancePos0: Int
-        var sharedInstancePos1: Int
+        val origPos: Int
+        val sharedInstancePos0: Int
+        val sharedInstancePos1: Int
         SharedByteBuffer.newSharedInstance(buf, CameraXExecutors.directExecutor()) {
                 // no-op close action
             }
@@ -268,9 +268,9 @@ class SharedByteBufferTest {
             Build.VERSION.SDK_INT == 30 && isEmulator(),
         )
         val buf = ByteBuffer.allocate(16)
-        var origMark: Int
-        var sharedInstanceMark0: Int
-        var sharedInstanceMark1: Int
+        val origMark: Int
+        val sharedInstanceMark0: Int
+        val sharedInstanceMark1: Int
         SharedByteBuffer.newSharedInstance(buf, CameraXExecutors.directExecutor()) {
                 // no-op close action
             }

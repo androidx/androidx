@@ -96,10 +96,9 @@ constructor(
 
         val imageReaderCapacity = clampImageReaderCapacity(capacity, maxImageReaderCapacity)
 
-        val outputBytesMap =
-            cameraStream.outputs.associate {
-                it.id to StreamFormat.bytesPerImage(it.format, it.size.width, it.size.height)
-            }
+        cameraStream.outputs.associate {
+            it.id to StreamFormat.bytesPerImage(it.format, it.size.width, it.size.height)
+        }
 
         if (cameraStream.outputs.size == 1) {
             val output = cameraStream.outputs.single()

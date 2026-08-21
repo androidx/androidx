@@ -336,7 +336,7 @@ class SurfaceRequestTest {
             // Act.
             // Null out the original reference to the SurfaceRequest. DeferrableSurface should be
             // the only reference remaining.
-            null.also { request = it }
+            @Suppress("ASSIGNED_VALUE_IS_NEVER_READ") null.also { request = it }
             GarbageCollectionUtil.runFinalization()
             val requestFinalized = referenceQueue.poll() != null
 
@@ -367,7 +367,7 @@ class SurfaceRequestTest {
             // Act.
             // Null out the original reference to the DeferrableSurface. SurfaceRequest should be
             // the only reference remaining.
-            null.also { deferrableSurface = it }
+            @Suppress("ASSIGNED_VALUE_IS_NEVER_READ") null.also { deferrableSurface = it }
             GarbageCollectionUtil.runFinalization()
             val deferrableSurfaceFinalized = referenceQueue.poll() != null
 

@@ -138,14 +138,12 @@ internal constructor(
                 return sDeinitializeFuture!!
             }
 
-            val availability: ExtensionsAvailability?
-
             // Wait for the extension to be initialized before deinitializing. Block since
             // this is only used for testing.
             try {
                 sInitializeFuture!!.get()
                 sInitializeFuture = null
-                availability = sExtensionsManager!!.extensionsAvailability
+                sExtensionsManager!!.extensionsAvailability
                 sExtensionsManager = null
             } catch (e: ExecutionException) {
                 sDeinitializeFuture = Futures.immediateFailedFuture<Void>(e)
@@ -381,7 +379,7 @@ internal constructor(
                 val deinitInProgress = sDeinitializeFuture?.isDone == false
                 check(!deinitInProgress) { "Not yet done deinitializing extensions" }
                 sDeinitializeFuture = null
-                val applicationContext = ContextUtil.getPersistentApplicationContext(context)
+                ContextUtil.getPersistentApplicationContext(context)
 
                 // CameraX Extensions run on CameraPipe with Camera2 Extensions API. Only devices
                 // with API level 33+ can be supported. For devices with API level < 33, we will

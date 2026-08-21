@@ -1573,7 +1573,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val builder = ImageCapture.Builder()
 
         val useCase = builder.build()
-        var camera: Camera
+        val camera: Camera
         withContext(Dispatchers.Main) {
             camera =
                 cameraProvider.bindToLifecycle(
@@ -1610,7 +1610,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val builder = ImageCapture.Builder()
 
         val useCase = builder.build()
-        var camera: Camera
+        val camera: Camera
         withContext(Dispatchers.Main) {
             camera =
                 cameraProvider.bindToLifecycle(
@@ -1647,7 +1647,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     fun returnYuvImage_withYuvBufferFormat() = runBlocking {
         val builder = ImageCapture.Builder().setBufferFormat(ImageFormat.YUV_420_888)
         val useCase = builder.build()
-        var camera: Camera
+        val camera: Camera
         withContext(Dispatchers.Main) {
             camera =
                 cameraProvider.bindToLifecycle(
@@ -1679,7 +1679,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val builder = ImageCapture.Builder().setBufferFormat(ImageFormat.YUV_420_888)
 
         val useCase = builder.build()
-        var camera: Camera
+        val camera: Camera
         withContext(Dispatchers.Main) {
             camera =
                 cameraProvider.bindToLifecycle(

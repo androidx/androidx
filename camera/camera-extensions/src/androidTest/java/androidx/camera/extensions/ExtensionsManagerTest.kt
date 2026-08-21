@@ -194,7 +194,7 @@ class ExtensionsManagerTest(
             camera = cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
         }
 
-        var extensionsConfig = camera.extendedConfig as ExtensionsConfig
+        val extensionsConfig = camera.extendedConfig as ExtensionsConfig
         assertThat(extensionsConfig.extensionMode).isEqualTo(extensionMode)
     }
 
@@ -427,7 +427,7 @@ class ExtensionsManagerTest(
     @SdkSuppress(minSdkVersion = 31)
     @Test
     fun canProvideCorrectTypeOfSessionProcessor(): Unit = runBlocking {
-        var extensionCameraSelector = checkExtensionAvailabilityAndInit()
+        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
 
         // Get and check the session processor type is correct
         (cameraProvider.getCameraInfo(extensionCameraSelector) as AdapterCameraInfo)
@@ -436,8 +436,8 @@ class ExtensionsManagerTest(
     }
 
     private fun isExtensionAvailableByCameraInfo(cameraInfo: CameraInfo): Boolean {
-        var vendorExtender = ExtensionsTestUtil.createVendorExtender(context, extensionMode)
-        val cameraId = (cameraInfo as CameraInfoInternal).cameraId
+        val vendorExtender = ExtensionsTestUtil.createVendorExtender(context, extensionMode)
+        (cameraInfo as CameraInfoInternal).cameraId
 
         return vendorExtender.isExtensionAvailable(cameraInfo)
     }
