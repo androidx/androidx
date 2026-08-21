@@ -473,6 +473,7 @@ private fun Counter(
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 private fun <T> Slider(
     value: T,
@@ -488,6 +489,7 @@ private fun <T> Slider(
     )
 }
 
+@Suppress("DEPRECATION")
 @Composable
 private fun Slider(
     value: Float,

@@ -29,9 +29,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -138,17 +140,25 @@ public object MaterialSliderComponent : A2uiComponent {
                     Text(text = coercedValue.toString())
                 }
 
+                val sliderState =
+                    remember(steps, valueRange) {
+                        SliderState(
+                            value = coercedValue.toFloat(),
+                            steps = steps,
+                            trackRange = valueRange,
+                        )
+                    }
+                sliderState.value = coercedValue.toFloat()
+
                 Slider(
-                    value = coercedValue.toFloat(),
+                    state = sliderState,
                     onValueChange = { newValue ->
                         onRemoteValueChange?.invoke(newValue.roundToInt())
                     },
-                    valueRange = valueRange,
-                    steps = steps,
                     enabled = isEnabled,
-                    track = { sliderState ->
+                    track = { state ->
                         SliderDefaults.Track(
-                            sliderState = sliderState,
+                            sliderState = state,
                             enabled = isEnabled,
                             drawTick = EmptySliderTrack,
                         )

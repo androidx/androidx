@@ -403,6 +403,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
         return view
     }
 
+    @Suppress("DEPRECATION")
     @Composable
     fun VideoPlayerControls(session: Session, arDevice: ArDevice) {
         var featherRadiusX by remember { mutableFloatStateOf(0.0f) }
