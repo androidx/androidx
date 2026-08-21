@@ -1396,9 +1396,9 @@ class SnapshotTests {
     @Test // b/442791065 -- test adapted from the report.
     fun testMergePolicy() {
         var mergeCalled = false
-        var lastSeenPrevious = -1
-        var lastSeenCurrent = -1
-        var lastSeenApplied = -1
+        var lastSeenPrevious: Int
+        var lastSeenCurrent: Int
+        var lastSeenApplied: Int
 
         fun myPolicy(): SnapshotMutationPolicy<Int> =
             object : SnapshotMutationPolicy<Int> {

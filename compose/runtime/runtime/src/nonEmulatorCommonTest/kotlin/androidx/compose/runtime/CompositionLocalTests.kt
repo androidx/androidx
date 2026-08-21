@@ -608,7 +608,7 @@ class CompositionLocalTests {
 
     @Test // Regression test for b/233064044
     fun testRecomposeCacheInvalidation() = compositionTest {
-        var state = mutableStateOf(0)
+        val state = mutableStateOf(0)
 
         compose { CacheInvalidate(state) }
 
@@ -950,7 +950,12 @@ class CompositionLocalTests {
                         // We force access with !! because some platforms (e.g., JS) are more
                         // "relaxed" about nullability at runtime. The assertion ensures the
                         // failure happens here rather than leaking into later code.
-                        @Suppress("UnusedVariable", "unused", "UNNECESSARY_NOT_NULL_ASSERTION")
+                        @Suppress(
+                            "UnusedVariable",
+                            "unused",
+                            "UNNECESSARY_NOT_NULL_ASSERTION",
+                            "UNUSED_VARIABLE",
+                        )
                         val unused: String = local.current!!
                     }
                 }

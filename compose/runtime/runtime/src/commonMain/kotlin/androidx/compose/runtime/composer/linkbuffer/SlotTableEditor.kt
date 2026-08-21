@@ -462,7 +462,7 @@ internal class SlotTableEditor(val table: SlotTable) {
         if (slotRange == NULL_ADDRESS) {
             addressSpace.writeSlot(parent, 0, value)
         } else {
-            addressSpace.slotAddressAndSize(slotRange) { address, size ->
+            addressSpace.slotAddressAndSize(slotRange) { _, size ->
                 addressSpace.writeSlot(parent, size, value)
             }
         }
