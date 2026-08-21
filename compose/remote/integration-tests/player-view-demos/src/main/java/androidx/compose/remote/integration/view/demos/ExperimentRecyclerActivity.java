@@ -748,6 +748,8 @@ public class ExperimentRecyclerActivity extends Activity {
             mPlayer.setCustomSupport(new AndroidCustomSupport(mPlayer));
             mTitle = new TextView(context);
             mStats = new TextView(context);
+            System.out.println("adding id listener");
+
             mPlayer.setShaderControl(new ShaderControl() {
                 @Override
                 public boolean isShaderValid(@NonNull String shader) {
@@ -959,6 +961,9 @@ public class ExperimentRecyclerActivity extends Activity {
                 }
                 if (docData != null) {
                     mUi.mPlayer.setDocument(byteData);
+                    mUi.mPlayer.addIdActionListener((id, action) -> {
+                        System.out.println("action id: " + id + " action: \"" + action + "\"");
+                    });
                 }
             }
 

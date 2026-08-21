@@ -241,7 +241,7 @@ class ResourceParser {
                         for (int i = 0; i < path.size(); i++) pathData[i] = path.get(i);
                         id = mWriter.addPathData(pathData);
                     } else {
-                        id = mWriter.addPathString((String) value);
+                        id = mWriter.addPathData(new PathParser((String) value));
                     }
                     mParser.mPaths.put(name, id);
                     mParser.recordVariable(name, id);
@@ -456,4 +456,5 @@ class ResourceParser {
         if (key.equalsIgnoreCase("floatArrays")) return "floatArrays";
         return key;
     }
+
 }
