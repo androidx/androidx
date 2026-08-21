@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
@@ -627,5 +628,87 @@ class RemoteStateVisitorTest {
 
         val replaced = element.replaceNamedVariables(mapOf(index to 1.ri))
         assertThat(replaced).isInstanceOf(RemoteFloat::class.java)
+    }
+
+    @Test
+    fun testRemoteMutableFloatArray_statePreservedAcrossTransform() {
+        val array = RemoteMutableFloatArray(5)
+        array[0] = 42f.rf
+        val index = RemoteInt.createNamedRemoteInt("idx", 0)
+        val element = array[index]
+
+        val replaced = element.replaceNamedVariables(mapOf(index to 0.ri))
+        assertThat(replaced.hasConstantValue).isTrue()
+        assertThat(replaced.constantValue).isEqualTo(42f)
+    }
+
+    @Test
+    fun testRemoteMutableFloatArray_identityPreservedAcrossTransform() {
+        val array = RemoteMutableFloatArray(5)
+        val index = RemoteInt.createNamedRemoteInt("idx", 0)
+        val element = array[index]
+
+        // Transform with unrelated replacement so the expression args shouldn't change
+        val otherVar = RemoteInt.createNamedRemoteInt("other", 1)
+        val replaced = element.replaceNamedVariables(mapOf(otherVar to 2.ri))
+
+        // Since the expression arguments didn't change, the resulting operation should reuse the
+        // same array
+        val arrayArg = (replaced.cacheKey as RemoteOperationCacheKey).args[0]
+        assertThat(arrayArg).isSameInstanceAs(array.cacheKey)
+    }
+
+    @Test
+    fun testContextVariable_inExpression_transform() {
+        val time =
+            RemoteFloatExpression(constantValueOrNull = null, cacheKey = RemoteStateIdKey(100)) {
+                floatArrayOf(Utils.asNan(100))
+            }
+        val offset = RemoteFloat.createNamedRemoteFloat("offset", 5f)
+        val expr = time + offset
+
+        val replaced = expr.replaceNamedVariables(mapOf(offset to 10f.rf))
+        assertThat(replaced).isNotNull()
+    }
+
+    @Test
+    fun testComponentVariable_inExpression_transform() {
+        val compWidth =
+            RemoteFloatExpression(
+                constantValueOrNull = null,
+                cacheKey = RemoteComponentCacheKey(1, "width"),
+            ) {
+                floatArrayOf(1f)
+            }
+        val scale = RemoteFloat.createNamedRemoteFloat("scale", 2f)
+        val expr = compWidth * scale
+
+        val replaced = expr.replaceNamedVariables(mapOf(scale to 3f.rf))
+        assertThat(replaced).isNotNull()
+    }
+
+    @Test
+    fun testInstanceKey_inExpression_transform() {
+        val customKeyFloat =
+            RemoteFloatExpression(constantValueOrNull = null, cacheKey = RemoteStateInstanceKey()) {
+                floatArrayOf(1f)
+            }
+        val scale = RemoteFloat.createNamedRemoteFloat("scale", 2f)
+        val expr = customKeyFloat * scale
+
+        val replaced = expr.replaceNamedVariables(mapOf(scale to 3f.rf))
+        assertThat(replaced).isNotNull()
+    }
+
+    @Test
+    fun testEnumConstant_inExpression_transform() {
+        val entries = kotlin.enums.enumEntries<TestEnum>()
+        val enumState = RemoteEnum(TestEnum.First, entries)
+        val str = enumState.toRemoteString()
+        val suffix = RemoteString.createNamedRemoteString("suffix", "!")
+        val expr = str + suffix
+
+        val replaced = expr.replaceNamedVariables(mapOf(suffix to "?".rs))
+        assertThat(replaced).isNotNull()
     }
 }

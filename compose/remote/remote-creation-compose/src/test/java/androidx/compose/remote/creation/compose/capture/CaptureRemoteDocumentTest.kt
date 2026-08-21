@@ -29,11 +29,15 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import java.io.ByteArrayInputStream
+import java.lang.ref.WeakReference
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -138,4 +142,27 @@ class CaptureRemoteDocumentTest {
             // Assert that it is not a constant
             assertNull(capturedDensity?.density?.constantValueOrNull)
         }
+
+    @Test
+    fun constantCacheKey_doesNotRetainRemoteStateInstance() {
+        var weakRef: WeakReference<RemoteString>? = null
+        val creationState =
+            RemoteComposeCreationState(
+                creationDisplayInfo = createCreationDisplayInfo(context),
+                profile = RcPlatformProfiles.ANDROIDX,
+                writerEvents = null,
+                layoutDirection = LayoutDirection.Ltr,
+            )
+
+        fun createAndRegister() {
+            val str = RemoteString("TestConstant")
+            weakRef = WeakReference(str)
+            str.getIdForCreationState(creationState)
+        }
+
+        createAndRegister()
+        System.gc()
+
+        assertNull(weakRef?.get())
+    }
 }
