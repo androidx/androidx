@@ -24,7 +24,7 @@ import android.view.Surface.ROTATION_90
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class ScreenOrientationCompatTest {
+class ScreenOrientationTest {
 
     /**
      * Simulates resolving an orientation by taking unrotated baseline display dimensions, rotating
@@ -40,7 +40,7 @@ class ScreenOrientationCompatTest {
         val isSideways = currentRotation == ROTATION_90 || currentRotation == ROTATION_270
         val currentWidth = if (isSideways) baseHeight else baseWidth
         val currentHeight = if (isSideways) baseWidth else baseHeight
-        return ScreenOrientationCompat.resolveOrientation(
+        return ScreenOrientation.resolveOrientation(
             currentWidth,
             currentHeight,
             currentRotation,
