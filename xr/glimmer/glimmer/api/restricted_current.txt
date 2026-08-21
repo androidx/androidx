@@ -602,8 +602,8 @@ package androidx.xr.glimmer.pager {
   @androidx.compose.runtime.Stable public final class GlimmerPagerState implements androidx.compose.foundation.gestures.ScrollableState {
     ctor @BytecodeOnly @androidx.compose.runtime.annotation.RememberInComposition public GlimmerPagerState(int, float, kotlin.jvm.functions.Function0!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @androidx.compose.runtime.annotation.RememberInComposition public GlimmerPagerState(optional @IntRange(from=0L) int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
-    method public suspend Object? animateScrollToPage(int page, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @BytecodeOnly public static Object! animateScrollToPage$default(androidx.xr.glimmer.pager.GlimmerPagerState!, int, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
+    method public suspend Object? animateScrollToPage(@IntRange(from=0L) int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! animateScrollToPage$default(androidx.xr.glimmer.pager.GlimmerPagerState!, int, float, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
     method public float dispatchRawDelta(float delta);
     method @InaccessibleFromKotlin public int getCurrentPage();
     method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getCurrentPageOffsetFraction();
@@ -617,7 +617,8 @@ package androidx.xr.glimmer.pager {
     method public void requestScrollToPage(@IntRange(from=0L) int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction);
     method @BytecodeOnly public static void requestScrollToPage$default(androidx.xr.glimmer.pager.GlimmerPagerState!, int, float, int, Object!);
     method public suspend Object? scroll(optional androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public suspend Object? scrollToPage(int page, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scrollToPage(@IntRange(from=0L) int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @BytecodeOnly public static Object! scrollToPage$default(androidx.xr.glimmer.pager.GlimmerPagerState!, int, float, kotlin.coroutines.Continuation!, int, Object!);
     method public void updateCurrentPage(androidx.compose.foundation.gestures.ScrollScope, int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction);
     method @BytecodeOnly public static void updateCurrentPage$default(androidx.xr.glimmer.pager.GlimmerPagerState!, androidx.compose.foundation.gestures.ScrollScope!, int, float, int, Object!);
     method public void updateTargetPage(androidx.compose.foundation.gestures.ScrollScope, int targetPage);

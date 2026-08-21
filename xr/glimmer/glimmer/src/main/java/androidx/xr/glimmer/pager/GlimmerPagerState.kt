@@ -167,8 +167,8 @@ constructor(
      *
      * @sample androidx.xr.glimmer.samples.GlimmerPagerStateCustomAnimateScrollToPageSample
      * @param page The destination page to scroll to
-     * @param pageOffsetFraction A fraction of the page size that indicates the offset the
-     *   destination page will be offset from its snapped position.
+     * @param pageOffsetFraction A fraction of the page size that determines how far the destination
+     *   page shifts from its snapped position.
      */
     public fun ScrollScope.updateCurrentPage(
         page: Int,
@@ -215,7 +215,8 @@ constructor(
      * Any scroll in progress will be cancelled.
      *
      * @param page the index to which to scroll. Must be non-negative.
-     * @param pageOffsetFraction the offset fraction that the page should end up after the scroll.
+     * @param pageOffsetFraction A fraction of the page size that determines how far the destination
+     *   page shifts from its snapped position.
      */
     public fun requestScrollToPage(
         @IntRange(from = 0) page: Int,
@@ -229,9 +230,14 @@ constructor(
      *
      * @sample androidx.xr.glimmer.samples.GlimmerPagerStateScrollToPageSample
      * @param page the index of the page to scroll to.
+     * @param pageOffsetFraction A fraction of the page size that determines how far the destination
+     *   page shifts from its snapped position.
      */
-    public suspend fun scrollToPage(page: Int) {
-        foundationPagerState.scrollToPage(page)
+    public suspend fun scrollToPage(
+        @IntRange(from = 0) page: Int,
+        @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f,
+    ) {
+        foundationPagerState.scrollToPage(page, pageOffsetFraction)
     }
 
     /**
@@ -239,13 +245,20 @@ constructor(
      *
      * @sample androidx.xr.glimmer.samples.GlimmerPagerStateAnimateScrollToPageSample
      * @param page the index of the page to scroll to.
+     * @param pageOffsetFraction A fraction of the page size that determines how far the destination
+     *   page shifts from its snapped position.
      * @param animationSpec the [AnimationSpec] to be used for the scroll animation.
      */
     public suspend fun animateScrollToPage(
-        page: Int,
+        @IntRange(from = 0) page: Int,
+        @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f,
         animationSpec: AnimationSpec<Float> = spring(),
     ) {
-        foundationPagerState.animateScrollToPage(page, animationSpec = animationSpec)
+        foundationPagerState.animateScrollToPage(
+            page = page,
+            pageOffsetFraction = pageOffsetFraction,
+            animationSpec = animationSpec,
+        )
     }
 
     /**
