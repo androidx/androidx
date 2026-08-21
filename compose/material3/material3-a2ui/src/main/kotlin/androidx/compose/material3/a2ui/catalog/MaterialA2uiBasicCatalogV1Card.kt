@@ -14,57 +14,27 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
-import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiComponentState
-import androidx.a2ui.compose.runtime.A2uiProperty
-import androidx.a2ui.compose.runtime.StaticA2uiProperty
-import androidx.a2ui.compose.runtime.observeA2uiComponentState
 import androidx.a2ui.compose.ui.A2uiComponent
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.a2ui.MaterialA2uiDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-/**
- * A Jetpack Compose Material 3 implementation of the A2UI `"Card"` component schema.
- *
- * Resolves a single target `child` component to display inside a styled Material 3 [Card]
- * container.
- *
- * **Schema Properties:**
- * * `child` (ComponentId, required): The ID of the single child component to be rendered inside the
- *   card.
- */
-public object MaterialCardComponent : A2uiComponent {
-
-    private val childProp =
-        A2uiProperty.componentId(
-            key = "child",
-            required = true,
-            description =
-                "The ID of the single child component to be rendered inside the card. To display multiple elements, you MUST wrap them in a layout component (like Column or Row) and pass that container's ID here. Do NOT pass multiple IDs or a non-existent ID.",
-        )
-
-    override val name: String = "Card"
-    override val description: String =
-        "A layout component that wraps its child content in a styled card container."
-    override val properties: List<StaticA2uiProperty<*>> = listOf(childProp)
+/** A Jetpack Compose Material 3 implementation of the A2UI Basic Catalog `"Card"` component. */
+internal object MaterialA2uiBasicCatalogV1Card : A2uiBasicCatalogV1.Card {
 
     @Composable
-    override fun A2uiComponentScope.Content(
-        properties: A2uiComponentProperties,
-        modifier: Modifier,
-    ) {
-        val childId =
-            properties[childProp]
-                ?: throw IllegalStateException("Required property '${childProp.key}' is missing.")
+    override fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier) {
         val childState = observeA2uiComponentState(childId)
 
         Card(modifier = modifier) {

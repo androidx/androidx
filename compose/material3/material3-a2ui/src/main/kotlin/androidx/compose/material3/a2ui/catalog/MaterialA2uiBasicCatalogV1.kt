@@ -36,6 +36,8 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  *   locale
  * @param text [A2uiBasicCatalogV1.Text] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.text]
+ * @param card [A2uiBasicCatalogV1.Card] component implementation, defaults to
+ *   [MaterialA2uiBasicCatalogV1Defaults.card]
  * @return an [A2uiCatalog] configured with Material 3 basic components and functions
  */
 public fun materialA2uiBasicCatalogV1(
@@ -43,11 +45,13 @@ public fun materialA2uiBasicCatalogV1(
     messageFormatter: A2uiMessageFormatter,
     localeProvider: A2uiLocaleProvider,
     text: A2uiBasicCatalogV1.Text = MaterialA2uiBasicCatalogV1Defaults.text,
+    card: A2uiBasicCatalogV1.Card = MaterialA2uiBasicCatalogV1Defaults.card,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
 ): A2uiCatalog =
     A2uiCatalog(
         A2uiBasicCatalogV1(
             text = text,
+            card = card,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
             functions = createBasicCatalogFunctions(urlOpener, messageFormatter, localeProvider),
         )
@@ -57,6 +61,9 @@ public fun materialA2uiBasicCatalogV1(
 public object MaterialA2uiBasicCatalogV1Defaults {
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Text] component. */
     public val text: A2uiBasicCatalogV1.Text = MaterialA2uiBasicCatalogV1Text
+
+    /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Card] component. */
+    public val card: A2uiBasicCatalogV1.Card = MaterialA2uiBasicCatalogV1Card
 
     // TODO(b/547851648): Add the rest of the basic catalog component types.
 }

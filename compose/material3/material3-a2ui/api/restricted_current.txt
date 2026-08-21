@@ -28,18 +28,6 @@ package androidx.compose.material3.a2ui {
     field public static final androidx.compose.material3.a2ui.MaterialButtonComponent INSTANCE;
   }
 
-  public final class MaterialCardComponent implements androidx.a2ui.compose.ui.A2uiComponent {
-    method @KotlinOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @InaccessibleFromKotlin public String getDescription();
-    method @InaccessibleFromKotlin public String getName();
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.runtime.StaticA2uiProperty<? extends java.lang.Object?>> getProperties();
-    property public String description;
-    property public String name;
-    property public java.util.List<androidx.a2ui.compose.runtime.StaticA2uiProperty<? extends java.lang.Object?>> properties;
-    field public static final androidx.compose.material3.a2ui.MaterialCardComponent INSTANCE;
-  }
-
   public final class MaterialCheckBoxComponent implements androidx.a2ui.compose.ui.A2uiComponent {
     method @KotlinOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
@@ -133,14 +121,16 @@ package androidx.compose.material3.a2ui {
 package androidx.compose.material3.a2ui.catalog {
 
   public final class MaterialA2uiBasicCatalogV1Defaults {
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card getCard();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text getText();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text;
     field public static final androidx.compose.material3.a2ui.catalog.MaterialA2uiBasicCatalogV1Defaults INSTANCE;
   }
 
   public final class MaterialA2uiBasicCatalogV1Kt {
-    method public static androidx.a2ui.compose.ui.A2uiCatalog materialA2uiBasicCatalogV1(androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text);
-    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! materialA2uiBasicCatalogV1$default(androidx.a2ui.model.catalog.functions.A2uiUrlOpener!, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text!, int, Object!);
+    method public static androidx.a2ui.compose.ui.A2uiCatalog materialA2uiBasicCatalogV1(androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card);
+    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! materialA2uiBasicCatalogV1$default(androidx.a2ui.model.catalog.functions.A2uiUrlOpener!, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card!, int, Object!);
   }
 
 }
