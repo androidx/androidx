@@ -292,7 +292,7 @@ class ScaleTest {
                 recorder.run {
                     assertTimestampsAreIncreasing()
 
-                    assertThat(events.size).isEqualTo(5)
+                    assertThat(events.size).isEqualTo(7)
                     events[0].let { event ->
                         assertThat(event.pointers.size).isEqualTo(1)
                         event.getPointer(0).let { pointer ->
@@ -301,7 +301,7 @@ class ScaleTest {
                                 .isEqualTo(MotionEvent.CLASSIFICATION_NONE)
                         }
                     }
-                    events[1].let { event -> // ACTION_POINTER_DOWN (ScaleStart)
+                    events[1].let { event -> // ACTION_DOWN (ScaleStart)
                         assertThat(event.pointers.size).isEqualTo(1)
                         event.getPointer(0).let { pointer ->
                             pointer.verifyTrackpadEvent(
@@ -316,7 +316,22 @@ class ScaleTest {
                                 .isEqualTo(MotionEvent.CLASSIFICATION_PINCH)
                         }
                     }
-                    events[2].let { event -> // ACTION_MOVE (ScaleChange)
+                    events[2].let { event -> // ACTION_POINTER_DOWN (ScaleChange)
+                        assertThat(event.pointers.size).isEqualTo(1)
+                        event.getPointer(0).let { pointer ->
+                            pointer.verifyTrackpadEvent(
+                                expectedTimestamp = T,
+                                expectedEventType = ScaleChange,
+                                expectedDown = false,
+                                expectedPosition = Offset(150f, 150f),
+                                expectedPointerType = PointerType.Mouse,
+                            )
+                            assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
+                            assertThat(pointer.classification)
+                                .isEqualTo(MotionEvent.CLASSIFICATION_PINCH)
+                        }
+                    }
+                    events[3].let { event -> // ACTION_MOVE (ScaleChange)
                         assertThat(event.pointers.size).isEqualTo(1)
                         event.getPointer(0).let { pointer ->
                             pointer.verifyTrackpadEvent(
@@ -331,7 +346,22 @@ class ScaleTest {
                                 .isEqualTo(MotionEvent.CLASSIFICATION_PINCH)
                         }
                     }
-                    events[3].let { event -> // ACTION_POINTER_UP (ScaleEnd)
+                    events[4].let { event -> // ACTION_POINTER_UP (ScaleChange)
+                        assertThat(event.pointers.size).isEqualTo(1)
+                        event.getPointer(0).let { pointer ->
+                            pointer.verifyTrackpadEvent(
+                                expectedTimestamp = T * 3,
+                                expectedEventType = ScaleChange,
+                                expectedDown = false,
+                                expectedPosition = Offset(150f, 150f),
+                                expectedPointerType = PointerType.Mouse,
+                            )
+                            assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
+                            assertThat(pointer.classification)
+                                .isEqualTo(MotionEvent.CLASSIFICATION_PINCH)
+                        }
+                    }
+                    events[5].let { event -> // ACTION_UP (ScaleEnd)
                         assertThat(event.pointers.size).isEqualTo(1)
                         event.getPointer(0).let { pointer ->
                             pointer.verifyTrackpadEvent(
@@ -346,7 +376,7 @@ class ScaleTest {
                                 .isEqualTo(MotionEvent.CLASSIFICATION_PINCH)
                         }
                     }
-                    events[4].let { event -> // ACTION_HOVER_ENTER
+                    events[6].let { event -> // ACTION_HOVER_ENTER
                         assertThat(event.pointers.size).isEqualTo(1)
                         event.getPointer(0).let { pointer ->
                             pointer.verifyTrackpadEvent(T * 3, Enter, false, Offset(150f, 150f))
@@ -589,7 +619,7 @@ class ScaleTest {
                 recorder.run {
                     assertTimestampsAreIncreasing()
 
-                    assertThat(events.size).isEqualTo(5)
+                    assertThat(events.size).isEqualTo(7)
                     events[0].let { event ->
                         assertThat(event.pointers.size).isEqualTo(1)
                         event.getPointer(0).let { pointer ->
@@ -598,7 +628,7 @@ class ScaleTest {
                                 .isEqualTo(MotionEvent.CLASSIFICATION_NONE)
                         }
                     }
-                    events[1].let { event -> // ACTION_POINTER_DOWN (ScaleStart)
+                    events[1].let { event -> // ACTION_DOWN (ScaleStart)
                         assertThat(event.pointers.size).isEqualTo(1)
                         event.getPointer(0).let { pointer ->
                             pointer.verifyTrackpadEvent(
@@ -613,7 +643,22 @@ class ScaleTest {
                                 .isEqualTo(MotionEvent.CLASSIFICATION_PINCH)
                         }
                     }
-                    events[2].let { event -> // ACTION_MOVE (ScaleChange)
+                    events[2].let { event -> // ACTION_POINTER_DOWN (ScaleChange)
+                        assertThat(event.pointers.size).isEqualTo(1)
+                        event.getPointer(0).let { pointer ->
+                            pointer.verifyTrackpadEvent(
+                                expectedTimestamp = T,
+                                expectedEventType = ScaleChange,
+                                expectedDown = false,
+                                expectedPosition = Offset(150f, 150f),
+                                expectedPointerType = PointerType.Mouse,
+                            )
+                            assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
+                            assertThat(pointer.classification)
+                                .isEqualTo(MotionEvent.CLASSIFICATION_PINCH)
+                        }
+                    }
+                    events[3].let { event -> // ACTION_MOVE (ScaleChange)
                         assertThat(event.pointers.size).isEqualTo(1)
                         event.getPointer(0).let { pointer ->
                             pointer.verifyTrackpadEvent(
@@ -628,7 +673,22 @@ class ScaleTest {
                                 .isEqualTo(MotionEvent.CLASSIFICATION_PINCH)
                         }
                     }
-                    events[3].let { event -> // ACTION_POINTER_UP (ScaleEnd)
+                    events[4].let { event -> // ACTION_POINTER_UP (ScaleChange)
+                        assertThat(event.pointers.size).isEqualTo(1)
+                        event.getPointer(0).let { pointer ->
+                            pointer.verifyTrackpadEvent(
+                                expectedTimestamp = T * 3,
+                                expectedEventType = ScaleChange,
+                                expectedDown = false,
+                                expectedPosition = Offset(150f, 150f),
+                                expectedPointerType = PointerType.Mouse,
+                            )
+                            assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
+                            assertThat(pointer.classification)
+                                .isEqualTo(MotionEvent.CLASSIFICATION_PINCH)
+                        }
+                    }
+                    events[5].let { event -> // ACTION_UP (ScaleEnd)
                         assertThat(event.pointers.size).isEqualTo(1)
                         event.getPointer(0).let { pointer ->
                             pointer.verifyTrackpadEvent(
@@ -643,7 +703,7 @@ class ScaleTest {
                                 .isEqualTo(MotionEvent.CLASSIFICATION_PINCH)
                         }
                     }
-                    events[4].let { event -> // ACTION_HOVER_ENTER
+                    events[6].let { event -> // ACTION_HOVER_ENTER
                         assertThat(event.pointers.size).isEqualTo(1)
                         event.getPointer(0).let { pointer ->
                             pointer.verifyTrackpadEvent(T * 3, Enter, false, Offset(150f, 150f))
