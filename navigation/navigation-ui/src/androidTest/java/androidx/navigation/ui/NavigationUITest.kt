@@ -64,7 +64,7 @@ class NavigationUITest {
         val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
         navController.navigate(endDestination + "/${androidx.navigation.ui.R.string.dest_title}")
 
-        val expected = "${context.resources.getString(androidx.navigation.ui.R.string.dest_title)}"
+        val expected = context.resources.getString(androidx.navigation.ui.R.string.dest_title)
         assertThat(toolbar.title.toString()).isEqualTo(expected)
     }
 
