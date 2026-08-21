@@ -491,5 +491,5 @@ fun RememberWrapper(onComposed: () -> Unit, onRemembered: () -> Unit) {
 
 @Composable
 fun LayoutWrapper(modifier: Modifier) {
-    Layout(modifier) { measurables, constraints -> layout(10, 10) {} }
+    Layout(modifier) { _, _ -> layout(10, 10) {} }
 }

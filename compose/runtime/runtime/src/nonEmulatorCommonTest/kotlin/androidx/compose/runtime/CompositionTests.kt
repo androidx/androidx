@@ -3501,7 +3501,8 @@ class CompositionTests {
     fun testModificationsPropagateToSubcomposition() = compositionTest {
         var value by mutableIntStateOf(0)
         val content: MutableState<@Composable () -> Unit> = mutableStateOf({})
-        @Suppress("VARIABLE_WITH_REDUNDANT_INITIALIZER") var subCompositionOccurred = false
+        @Suppress("VARIABLE_WITH_REDUNDANT_INITIALIZER", "VARIABLE_INITIALIZER_IS_REDUNDANT")
+        var subCompositionOccurred = false
 
         @Composable
         fun ComposeContent() {
@@ -3780,6 +3781,7 @@ class CompositionTests {
 
             key(Unit) {}
 
+            @Suppress("UNUSED_VARIABLE")
             val unused = remember {
                 assertEquals(
                     1,
@@ -3808,6 +3810,7 @@ class CompositionTests {
 
             key(Unit) { key(Unit) {} }
 
+            @Suppress("UNUSED_VARIABLE")
             val unused = remember {
                 assertEquals(
                     1,

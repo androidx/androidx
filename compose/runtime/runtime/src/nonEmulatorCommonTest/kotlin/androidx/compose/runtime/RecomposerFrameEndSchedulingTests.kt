@@ -131,7 +131,7 @@ class RecomposerFrameEndSchedulingTests {
             "Recomposer should have pending work after awaitNextFrameEnd() suspends",
         )
 
-        val job2 = compositionContext.scheduleFrameEndCallback { resumed += "Job 2" }
+        compositionContext.scheduleFrameEndCallback { resumed += "Job 2" }
 
         job1.cancel()
 

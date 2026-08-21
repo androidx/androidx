@@ -276,7 +276,7 @@ internal class SlotTableAddressSpace(
                 groups.groupSlotRange(group, newRange)
                 newRange
             } else
-                slotAddressAndSize(range) { address, size ->
+                slotAddressAndSize(range) { _, size ->
                     if (offset >= size) {
                         growSlotRangeAtGroup(group, size, offset + 1)
                     } else range

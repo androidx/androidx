@@ -58,8 +58,8 @@ class SnapshotFlowTestsJvm {
                 val numStateObjects = 10
                 val stateObjects = List(numStateObjects) { mutableIntStateOf(1) }
 
-                var firstValueReceived = AtomicBoolean(false)
-                var lastValueReceived = AtomicBoolean(false)
+                val firstValueReceived = AtomicBoolean(false)
+                val lastValueReceived = AtomicBoolean(false)
                 lateinit var job: Job
                 // When [SnapshotFlowManagerKind.MULTI_SUBSCRIPTION] is specified as the
                 // [snapshotFlowManagerKind] argument, [manager] is made to manage subscriptions

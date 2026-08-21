@@ -1224,9 +1224,7 @@ class SlotTableTests {
         table.read {
             table.traverseTable { group ->
                 var expectedLastChild = firstChildOf(group)
-                if (expectedLastChild < 0) {
-                    expectedLastChild = group
-                } else {
+                if (expectedLastChild > 0) {
                     while (
                         firstChildOf(expectedLastChild) >= 0 ||
                             nextSiblingOf(expectedLastChild) >= 0
