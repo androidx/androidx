@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 /**
  * Card is a component used to group related information into a single digestible unit. A card can
@@ -446,7 +447,7 @@ private fun Modifier.constrainHeightToAspectRatio(widthToHeightRatio: Float): Mo
 
         val height =
             (constraints.maxWidth / widthToHeightRatio)
-                .toInt()
+                .roundToInt()
                 // Handle the case where the width is more than ratio times larger than available
                 // height
                 .coerceAtMost(constraints.maxHeight)
