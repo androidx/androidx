@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ import kotlinx.coroutines.withContext
 
 /**
  * This is the implementation for TightFollowing which is accessible through the public interface as
- * FollowBehavior.tight()
+ * FollowMode.tight
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal object TightFollowBehavior : FollowBehavior() {
+internal object TightFollowMode : FollowMode() {
     override suspend fun start(
         session: Session,
         trailingEntity: CoreGroupEntity,

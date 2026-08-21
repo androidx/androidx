@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 
 /**
- * This is the implementation for StaticFollowBehavior which is accessible through the public
- * interface as FollowBehavior.static()
+ * This is the implementation for SnapFollowMode which is accessible through the public interface as
+ * FollowMode.snap
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal object StaticFollowBehavior : FollowBehavior() {
+internal object SnapFollowMode : FollowMode() {
     override suspend fun start(
         session: Session,
         trailingEntity: CoreGroupEntity,
