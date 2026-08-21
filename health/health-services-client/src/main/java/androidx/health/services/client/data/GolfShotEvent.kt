@@ -112,7 +112,7 @@ public class GolfShotEvent(
     }
 
     override fun toString(): String {
-        return "${this::class.simpleName}" +
+        return this::class.simpleName +
             "(durationSinceBoot=$durationSinceBoot, swingType=$swingType)"
     }
 }
