@@ -300,7 +300,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
             errorContext: OperationErrorContext?,
         ) {
             val count = getInt(Count)
-            slots.forEachTailSlot(slots.parent, count) { slotIndex, value ->
+            slots.forEachTailSlot(slots.parent, count) { _, value ->
                 when (value) {
                     is RememberObserverHolder -> {
                         rememberManager.forgetting(instance = value)

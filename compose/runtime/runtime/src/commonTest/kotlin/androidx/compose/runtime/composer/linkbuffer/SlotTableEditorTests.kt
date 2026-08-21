@@ -259,7 +259,7 @@ class SlotTableEditorTests {
                 }
             }
         data class ReaderState(val parent: Int, val previous: Int, val current: Int)
-        var keys: IntList =
+        val keys: IntList =
             table.read {
                 val keys = mutableIntListOf()
                 table.addressSpace.traverseGroup(table.root, includeSiblingsOfStartGroup = true) {

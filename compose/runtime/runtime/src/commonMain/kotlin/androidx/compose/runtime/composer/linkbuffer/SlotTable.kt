@@ -463,7 +463,7 @@ internal class SlotTable(
 
         fun validateSlotRange(group: Int, slotRange: SlotRange) {
             if (slotRange == NULL_ADDRESS) return
-            addressSpace.slotAddressAndSize(slotRange) { address, size ->
+            addressSpace.slotAddressAndSize(slotRange) { address, _ ->
                 if (address < 0 || address >= slots.size) {
                     error("Slot index for group $group out of bounds: $address")
                 }
