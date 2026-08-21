@@ -1588,6 +1588,7 @@ class ProcessCameraProviderTest(
             assertThat(provider.isBound(useCase!!)).isFalse()
         }
 
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         useCase = null
         GarbageCollectionUtil.runFinalization()
 

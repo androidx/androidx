@@ -157,8 +157,8 @@ internal class ThreadConfigModule(private val threadConfig: CameraPipe.ThreadCon
             }
         }
 
-        var cameraPipeScope: CoroutineScope
-        var cameraPipeDispatchScope: CoroutineScope
+        val cameraPipeScope: CoroutineScope
+        val cameraPipeDispatchScope: CoroutineScope
         if (threadConfig.testOnlyScope != null) {
             cameraPipeScope = threadConfig.testOnlyScope
             cameraPipeDispatchScope = threadConfig.testOnlyScope

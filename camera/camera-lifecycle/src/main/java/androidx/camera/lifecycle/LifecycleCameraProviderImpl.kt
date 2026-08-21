@@ -525,7 +525,7 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
                 for (cameraSelectors in concurrentCameraSelectorLists) {
                     val cameraInfos: MutableList<CameraInfo> = ArrayList()
                     for (cameraSelector in cameraSelectors) {
-                        var cameraInfo: CameraInfo
+                        val cameraInfo: CameraInfo
                         try {
                             cameraInfo = getCameraInfo(cameraSelector)
                         } catch (_: IllegalArgumentException) {

@@ -241,10 +241,9 @@ internal class Camera2DeviceManagerImplTest {
             advanceTimeBy(100.milliseconds)
 
             // Now open the same camera again.
-            val virtualCamera2 =
-                checkNotNull(
-                    deviceManager.open(cameraId0, emptyList(), fakeGraphListener2, false) { true }
-                )
+            checkNotNull(
+                deviceManager.open(cameraId0, emptyList(), fakeGraphListener2, false) { true }
+            )
             advanceUntilIdle()
 
             // The first virtual camera should be disconnected.
@@ -349,10 +348,9 @@ internal class Camera2DeviceManagerImplTest {
     @Test
     fun openingDifferentCameraClosesThePreviousOne() =
         testScope.runTest {
-            val virtualCamera1 =
-                checkNotNull(
-                    deviceManager.open(cameraId0, emptyList(), fakeGraphListener1, false) { true }
-                )
+            checkNotNull(
+                deviceManager.open(cameraId0, emptyList(), fakeGraphListener1, false) { true }
+            )
             advanceUntilIdle()
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(1)
@@ -360,10 +358,9 @@ internal class Camera2DeviceManagerImplTest {
             assertThat(androidCameraState1.cameraId).isEqualTo(cameraId0)
 
             // Now open a different camera. To do so, the previous camera would have to be closed.
-            val virtualCamera2 =
-                checkNotNull(
-                    deviceManager.open(cameraId1, emptyList(), fakeGraphListener2, false) { true }
-                )
+            checkNotNull(
+                deviceManager.open(cameraId1, emptyList(), fakeGraphListener2, false) { true }
+            )
             advanceUntilIdle()
 
             assertThat(fakeRetryingCameraStateOpener.androidCameraStates.size).isEqualTo(2)
@@ -997,7 +994,7 @@ internal class Camera2DeviceManagerImplTest {
             val requestOpen2 =
                 createFakeRequestOpen(cameraId0, listOf(cameraId1), fakeGraphListener2)
             val requestOpen3 = createFakeRequestOpen(cameraId0, emptyList(), fakeGraphListener3)
-            var requestList =
+            val requestList =
                 mutableListOf<CameraRequest>(
                     RequestCloseById(cameraId1),
                     requestOpen1,

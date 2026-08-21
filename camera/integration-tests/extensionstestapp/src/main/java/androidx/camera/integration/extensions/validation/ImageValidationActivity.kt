@@ -279,7 +279,7 @@ class ImageValidationActivity : AppCompatActivity() {
     private fun saveCurrentImage() {
         val formatter: Format = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
         val savedFileName =
-            "${imageUris[viewPager.currentItem].lastPathSegment}" +
+            imageUris[viewPager.currentItem].lastPathSegment +
                 "[${formatter.format(Calendar.getInstance().time)}].jpg"
 
         val contentValues =
@@ -525,7 +525,7 @@ class ImageValidationActivity : AppCompatActivity() {
         // Updates the index and file name to the subtitle
         supportActionBar!!.subtitle =
             "[${viewPager.currentItem + 1}/${imageUris.size}]" +
-                "${imageUris[viewPager.currentItem].lastPathSegment}"
+                imageUris[viewPager.currentItem].lastPathSegment
     }
 
     private fun updateScaledBitmapDims(width: Int, height: Int) {

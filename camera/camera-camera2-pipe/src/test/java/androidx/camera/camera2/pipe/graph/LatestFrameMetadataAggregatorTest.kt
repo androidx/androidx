@@ -647,7 +647,7 @@ class LatestFrameMetadataAggregatorTest {
             val sim = startSimulator()
 
             var latestParams: LatestFrameMetadata? = null
-            val targetRequest = Request(streams = sim.streams.streams.map { it.id })
+            Request(streams = sim.streams.streams.map { it.id })
             val excludeRequest = Request(streams = sim.streams.streams.map { it.id })
 
             val listener =

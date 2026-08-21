@@ -189,7 +189,7 @@ private constructor(
          */
         @JvmStatic
         public fun from(cameraControl: CameraControl): Camera2CameraControl {
-            var cameraControlImpl = (cameraControl as CameraControlInternal).implementation
+            val cameraControlImpl = (cameraControl as CameraControlInternal).implementation
             Preconditions.checkArgument(
                 cameraControlImpl is CameraControlAdapter,
                 "CameraControl doesn't contain Camera2 implementation.",

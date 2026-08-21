@@ -42,7 +42,7 @@ fun assertBitmapColorAndSize(bitmap: Bitmap, color: Int, width: Int, height: Int
 
 /** Reading and returning complete String from buffer */
 fun readText(br: BufferedReader): String {
-    var lines = StringBuilder()
+    val lines = StringBuilder()
     while (br.ready()) {
         lines.append(br.readLine())
     }

@@ -104,7 +104,7 @@ class ZoomControlTest {
     fun applyDefaultZoomState_compatNotResetAndSetToDefault() {
         // Arrange.
         var zoomRatioToUpdate = 0.0f
-        var resetCalled = false
+        var resetCalled: Boolean
         val zoomCompat =
             object : FakeZoomCompat(1.0f, 5.0f) {
                 override fun applyAsync(
