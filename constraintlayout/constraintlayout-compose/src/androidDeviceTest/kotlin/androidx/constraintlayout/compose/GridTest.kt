@@ -80,8 +80,8 @@ class GridTest {
         }
         var leftX = 0.dp
         var topY = 0.dp
-        var rightX: Dp
-        var bottomY: Dp
+        val rightX: Dp
+        val bottomY: Dp
 
         // 10.dp is the size of a singular box
         val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
@@ -122,8 +122,8 @@ class GridTest {
         }
         var leftX = 0.dp
         var topY = 0.dp
-        var rightX: Dp
-        var bottomY: Dp
+        val rightX: Dp
+        val bottomY: Dp
 
         // 10.dp is the size of a singular box
         val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
@@ -248,8 +248,8 @@ class GridTest {
         }
         var leftX = 0.dp
         var topY = 0.dp
-        var rightX: Dp
-        var bottomY: Dp
+        val rightX: Dp
+        val bottomY: Dp
 
         // 10.dp is the size of a singular box
         val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
@@ -289,8 +289,8 @@ class GridTest {
         }
         var leftX = 0.dp
         var topY = 0.dp
-        var rightX: Dp
-        var bottomY: Dp
+        val rightX: Dp
+        val bottomY: Dp
 
         // 10.dp is the size of a singular box
         val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
@@ -329,11 +329,11 @@ class GridTest {
         }
         var leftX = 0.dp
         var topY = 0.dp
-        var rightX: Dp
-        var bottomY: Dp
+        val rightX: Dp
+        val bottomY: Dp
 
         // 10.dp is the size of a singular box
-        var spanLeft = (rootSize - 10.dp) / 2f
+        val spanLeft = (rootSize - 10.dp) / 2f
         val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
         rule.waitForIdle()
         leftX += gapSize
@@ -370,10 +370,10 @@ class GridTest {
             )
         }
         var topY = 0.dp
-        var bottomY: Dp
+        val bottomY: Dp
 
         // 10.dp is the size of a singular box
-        var spanLeft = (rootSize - 10.dp) / 2f
+        val spanLeft = (rootSize - 10.dp) / 2f
         val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
         rule.waitForIdle()
         topY += gapSize
@@ -408,11 +408,11 @@ class GridTest {
         }
         var leftX = 0.dp
         var topY = 0.dp
-        var rightX: Dp
-        var bottomY: Dp
+        val rightX: Dp
+        val bottomY: Dp
 
         // 10.dp is the size of a singular box
-        var spanTop = (rootSize - 10.dp) / 2f
+        val spanTop = (rootSize - 10.dp) / 2f
         val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
         rule.waitForIdle()
         leftX += gapSize
@@ -450,11 +450,11 @@ class GridTest {
         }
         var leftX = 0.dp
         var topY = 0.dp
-        var rightX: Dp
-        var bottomY: Dp
+        val rightX: Dp
+        val bottomY: Dp
 
         // 10.dp is the size of a singular box
-        var spanLeft = (rootSize - 10.dp) / 2f
+        val spanLeft = (rootSize - 10.dp) / 2f
         val gapSize = (rootSize - (10.dp * 2f)) / (columns * 2f)
         rule.waitForIdle()
         leftX += gapSize
@@ -490,7 +490,7 @@ class GridTest {
                 flags = "''",
             )
         }
-        var expectedLeft = (rootSize - 10.dp) / 2f
+        val expectedLeft = (rootSize - 10.dp) / 2f
         var expectedTop = 0.dp
 
         // 10.dp is the size of a singular box
@@ -530,7 +530,7 @@ class GridTest {
             )
         }
         var expectedLeft = 0.dp
-        var expectedTop = (rootSize - 10.dp) / 2f
+        val expectedTop = (rootSize - 10.dp) / 2f
 
         // 10.dp is the size of a singular box
         // first box takes the 1/4 of the width
