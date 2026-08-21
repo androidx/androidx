@@ -55,7 +55,7 @@ package androidx.activity {
     method public final void addOnPictureInPictureUiStateChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureUiStateCompat> listener);
     method public final void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer> listener);
     method public final void addOnUserLeaveHintListener(Runnable listener);
-    method @SuppressCompatibility @androidx.activity.ExportedActivityDefaultArgControl public static final void enableExportedActivityDefaultArgs(boolean enabled);
+    method @Deprecated @SuppressCompatibility @androidx.activity.ExportedActivityDefaultArgControl public static final void enableExportedActivityDefaultArgs(boolean enabled);
     method public final void enterPictureInPictureMode(androidx.core.app.PictureInPictureParamsCompat params);
     method @InaccessibleFromKotlin public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
     method @InaccessibleFromKotlin public android.os.Bundle? getDefaultViewModelArgs();
@@ -104,7 +104,7 @@ package androidx.activity {
   }
 
   public static final class ComponentActivity.Companion {
-    method @SuppressCompatibility @androidx.activity.ExportedActivityDefaultArgControl public void enableExportedActivityDefaultArgs(boolean enabled);
+    method @Deprecated @SuppressCompatibility @androidx.activity.ExportedActivityDefaultArgControl public void enableExportedActivityDefaultArgs(boolean enabled);
   }
 
   public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.navigationevent.NavigationEventDispatcherOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner {
