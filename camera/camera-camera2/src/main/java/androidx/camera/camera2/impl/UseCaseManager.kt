@@ -688,11 +688,13 @@ constructor(
     private fun Collection<UseCase>.getSessionSurfacesConfigs(): List<SurfaceConfig> =
         mutableListOf<SurfaceConfig>().apply {
             this@getSessionSurfacesConfigs.forEach { useCase ->
-                useCase.sessionConfig.surfaces.forEach { deferrableSurface ->
+                val inputFormats = useCase.inputFormats
+                useCase.sessionConfig.surfaces.forEachIndexed { index, deferrableSurface ->
+                    val format = inputFormats.getOrElse(index) { inputFormats.first() }
                     add(
                         supportedSurfaceCombination.transformSurfaceConfig(
                             getCameraMode(),
-                            useCase.currentConfig.inputFormat,
+                            format,
                             deferrableSurface.prescribedSize,
                             useCase.currentConfig.streamUseCase,
                         )
