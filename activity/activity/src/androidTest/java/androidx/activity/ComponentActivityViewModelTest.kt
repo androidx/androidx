@@ -17,14 +17,17 @@
 package androidx.activity
 
 import android.app.Application
+import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
@@ -123,6 +126,35 @@ class ComponentActivityViewModelTest {
             recreate()
             assertThat(withActivity { ViewModelProvider(this)["test", TestViewModel::class.java] })
                 .isSameInstanceAs(creationViewModel)
+        }
+    }
+
+    @Test
+    fun testExportedActivityDefaultViewModelArgsNull() {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ViewModelActivity::class.java)
+                .apply { putExtra("test_extra", "extra_value") }
+        withUse(ActivityScenario.launch<ViewModelActivity>(intent)) {
+            val extras = withActivity { defaultViewModelCreationExtras }
+            assertThat(extras[DEFAULT_ARGS_KEY]).isNull()
+        }
+    }
+
+    @OptIn(ExportedActivityDefaultArgControl::class)
+    @Test
+    fun testExportedActivityDefaultViewModelArgsDisabled() {
+        ComponentActivity.enableExportedActivityDefaultArgs(false)
+        try {
+            val intent =
+                Intent(ApplicationProvider.getApplicationContext(), ViewModelActivity::class.java)
+                    .apply { putExtra("test_extra", "extra_value") }
+            withUse(ActivityScenario.launch<ViewModelActivity>(intent)) {
+                val extras = withActivity { defaultViewModelCreationExtras }
+                assertThat(extras[DEFAULT_ARGS_KEY]?.getString("test_extra"))
+                    .isEqualTo("extra_value")
+            }
+        } finally {
+            ComponentActivity.enableExportedActivityDefaultArgs(true)
         }
     }
 }
