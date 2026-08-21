@@ -3343,7 +3343,7 @@ package androidx.compose.foundation.text.input {
     method public Appendable append(CharSequence? text, int start, int end);
     method public CharSequence asCharSequence();
     method public char charAt(int index);
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList getChanges();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList getChanges();
     method @BytecodeOnly public int getExpandPolicy-DIMv-cw(androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object!>);
     method @InaccessibleFromKotlin public int getLength();
     method @BytecodeOnly public long getOriginalSelection-d9O1mEE();
@@ -3368,7 +3368,7 @@ package androidx.compose.foundation.text.input {
     method @BytecodeOnly public void setSelection-5zc-tL8(long);
     method @InaccessibleFromKotlin public void setSpanStyle(androidx.compose.foundation.text.input.TrackedRange<androidx.compose.ui.text.SpanStyle>, androidx.compose.ui.text.SpanStyle);
     method @BytecodeOnly public void setTextRange-FDrldGo(androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object!>, long);
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList changes;
+    property public androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList changes;
     property public androidx.compose.foundation.text.input.ExpandPolicy androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object?>.expandPolicy;
     property public boolean hasSelection;
     property public boolean androidx.compose.foundation.text.input.TrackedRange<? extends java.lang.Object?>.isValid;
@@ -3392,8 +3392,8 @@ package androidx.compose.foundation.text.input {
 
   public final class TextFieldBufferKt {
     method public static void delete(androidx.compose.foundation.text.input.TextFieldBuffer, int start, int end);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static inline void forEachChange(androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList, kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.TextRange,? super androidx.compose.ui.text.TextRange,kotlin.Unit> block);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static inline void forEachChangeReversed(androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList, kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.TextRange,? super androidx.compose.ui.text.TextRange,kotlin.Unit> block);
+    method public static inline void forEachChange(androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList, kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.TextRange,? super androidx.compose.ui.text.TextRange,kotlin.Unit> block);
+    method public static inline void forEachChangeReversed(androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList, kotlin.jvm.functions.Function2<? super androidx.compose.ui.text.TextRange,? super androidx.compose.ui.text.TextRange,kotlin.Unit> block);
     method public static void insert(androidx.compose.foundation.text.input.TextFieldBuffer, int index, String text);
     method public static void placeCursorAtEnd(androidx.compose.foundation.text.input.TextFieldBuffer);
     method public static void selectAll(androidx.compose.foundation.text.input.TextFieldBuffer);

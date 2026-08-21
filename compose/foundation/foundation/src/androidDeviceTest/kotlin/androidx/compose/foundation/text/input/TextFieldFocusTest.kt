@@ -21,7 +21,6 @@ import android.view.InputDevice
 import android.view.InputDevice.SOURCE_DPAD
 import android.view.InputDevice.SOURCE_KEYBOARD
 import android.view.KeyEvent
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
@@ -103,7 +102,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 internal class TextFieldFocusTest {
@@ -1058,7 +1056,7 @@ internal class TextFieldFocusTest {
         rule: ComposeContentTestRule,
         keyCode: Int,
         count: Int = 1,
-    ) = keyPressOnPhysicalDevice(rule, keyCode, InputDevice.SOURCE_DPAD, count)
+    ) = keyPressOnPhysicalDevice(rule, keyCode, SOURCE_DPAD, count)
 
     /** Triggers a key press on the root node from a non-virtual keyboard device (if supported). */
     private fun keyPressOnKeyboardInputDevice(
