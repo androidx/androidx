@@ -163,35 +163,36 @@ public fun Modifier.surface(
 public object SurfaceDefaults {
 
     /**
-     * Calculates the background [Color] for a surface derived from the provided [color].
+     * Returns the background [Color] for a surface derived from the provided [baseColor].
      *
-     * Adjusts the provided [color] so that it is suitable for use as a surface background.
+     * Adjusts the provided [baseColor] so that it is suitable for use as a surface background.
      *
-     * @param color the base [Color] of the surface
+     * @param baseColor the base [Color] of the surface
      * @return the surface background [Color], adjusted to improve content contrast
      */
     @Composable
-    public fun color(color: Color = GlimmerTheme.colors.surface): Color =
-        if (color == DefaultSurfaceColor) {
+    public fun color(baseColor: Color = GlimmerTheme.colors.surface): Color =
+        if (baseColor == DefaultSurfaceColor) {
             DefaultSurfaceColor
         } else {
-            color.withToneAndChroma(newTone = SurfaceColorTone, newChroma = SurfaceColorChroma)
+            baseColor.withToneAndChroma(newTone = SurfaceColorTone, newChroma = SurfaceColorChroma)
         }
 
     /**
-     * Calculates the focused background [Color] for a surface derived from the provided [color].
+     * Returns the focused background [Color] for a surface derived from the provided [baseColor].
      *
-     * Adjusts the provided [color] so that it is suitable for use as a focused surface background.
+     * Adjusts the provided [baseColor] so that it is suitable for use as a focused surface
+     * background.
      *
-     * @param color the base [Color] of the surface
+     * @param baseColor the base [Color] of the surface
      * @return the focused surface background [Color], adjusted to improve content contrast
      */
     @Composable
-    public fun focusedColor(color: Color = GlimmerTheme.colors.surface): Color =
-        if (color == DefaultSurfaceColor) {
+    public fun focusedColor(baseColor: Color = GlimmerTheme.colors.surface): Color =
+        if (baseColor == DefaultSurfaceColor) {
             DefaultSurfaceColor
         } else {
-            color.withToneAndChroma(newTone = FocusedColorTone, newChroma = FocusedColorChroma)
+            baseColor.withToneAndChroma(newTone = FocusedColorTone, newChroma = FocusedColorChroma)
         }
 }
 
