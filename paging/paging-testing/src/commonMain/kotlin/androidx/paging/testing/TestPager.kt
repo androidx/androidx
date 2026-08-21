@@ -349,7 +349,7 @@ public class TestPager<Key : Any, Value : Any>(
         // check if maxSize has been set
         if (config.maxSize == PagingConfig.MAX_SIZE_UNBOUNDED) return
 
-        var itemCount = pages.flatten().size
+        val itemCount = pages.flatten().size
         if (itemCount < config.maxSize) return
 
         // represents the max droppable amount of items
