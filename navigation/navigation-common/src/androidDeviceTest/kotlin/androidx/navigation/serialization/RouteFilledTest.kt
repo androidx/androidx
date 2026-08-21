@@ -252,7 +252,7 @@ class RouteFilledTest {
 
         val clazz = TestClass()
         assertThatRouteFilledFrom(clazz, listOf(intArrayArgument("array")))
-            .isEqualTo("$PATH_SERIAL_NAME")
+            .isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
@@ -660,7 +660,7 @@ class RouteFilledTest {
                 nullable = true
             }
 
-        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
@@ -690,7 +690,7 @@ class RouteFilledTest {
                 nullable = false
             }
 
-        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
@@ -705,7 +705,7 @@ class RouteFilledTest {
                 nullable = false
             }
 
-        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
@@ -722,7 +722,7 @@ class RouteFilledTest {
                 nullable = false
             }
 
-        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
@@ -739,7 +739,7 @@ class RouteFilledTest {
                 nullable = false
             }
 
-        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo("$PATH_SERIAL_NAME")
+        assertThatRouteFilledFrom(clazz, listOf(listArg)).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
@@ -800,7 +800,7 @@ class RouteFilledTest {
                 type = InternalNavType.DoubleArrayType
                 nullable = true
             }
-        assertThatRouteFilledFrom(clazz, listOf(arg)).isEqualTo("$PATH_SERIAL_NAME")
+        assertThatRouteFilledFrom(clazz, listOf(arg)).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
@@ -827,7 +827,7 @@ class RouteFilledTest {
                 type = InternalNavType.DoubleListType
                 nullable = true
             }
-        assertThatRouteFilledFrom(clazz, listOf(arg)).isEqualTo("$PATH_SERIAL_NAME")
+        assertThatRouteFilledFrom(clazz, listOf(arg)).isEqualTo(PATH_SERIAL_NAME)
     }
 
     @Test
