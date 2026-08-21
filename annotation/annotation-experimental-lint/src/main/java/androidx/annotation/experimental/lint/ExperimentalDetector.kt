@@ -269,17 +269,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                         if (annotated is PsiModifierListOwner) {
                             var found = false
 
-                            for (uAnnotation in
+                            uAnnotations =
                                 uAnnotations
-                                    ?: run {
-                                        val list =
-                                            context.evaluator.getAnnotations(
-                                                annotated,
-                                                inHierarchy = false,
-                                            )
-                                        uAnnotations = list
-                                        list
-                                    }) {
+                                    ?: context.evaluator.getAnnotations(
+                                        annotated,
+                                        inHierarchy = false,
+                                    )
+                            for (uAnnotation in uAnnotations) {
                                 val qualifiedName = uAnnotation.qualifiedName
                                 if (qualifiedName == signature) {
                                     found = true

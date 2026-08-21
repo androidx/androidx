@@ -30,7 +30,7 @@ abstract class AnnotationPluginVisitorFactory : AsmClassVisitorFactory<Annotatio
         nextClassVisitor: ClassVisitor,
     ): ClassVisitor {
         // At this point we should have already created a file that can hold the keep rules.
-        val keepRulesPath = annotationPluginParameters.keepRules
+        @Suppress("UNUSED_VARIABLE") val keepRulesPath = annotationPluginParameters.keepRules
         // R8 will provide a ClassVisitor that we can eventually use.
         /*
         return KeepAnno.createClassVisitorForKeepRulesExtraction { rule ->
