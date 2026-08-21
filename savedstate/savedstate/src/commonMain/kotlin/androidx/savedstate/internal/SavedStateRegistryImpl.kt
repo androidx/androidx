@@ -19,8 +19,7 @@ package androidx.savedstate.internal
 import androidx.annotation.MainThread
 import androidx.collection.mutableScatterMapOf
 import androidx.savedstate.SavedState
-import androidx.savedstate.SavedStateProvider
-import androidx.savedstate.SavedStateRestorer
+import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.read
 import androidx.savedstate.savedState
 import androidx.savedstate.write
@@ -28,10 +27,11 @@ import androidx.savedstate.write
 internal class SavedStateRegistryImpl(
     initialState: SavedState? = null,
     private val onConsumeRestoredStateForKey: (key: String) -> Unit = {},
-) : SavedStateProvider, SavedStateRestorer {
+) : SavedStateRegistry.SavedStateProvider, SavedStateRegistry.SavedStateRestorer {
 
     private val lock = SynchronizedObject()
-    private val keyToProviders = mutableScatterMapOf<String, SavedStateProvider>()
+    private val keyToProviders =
+        mutableScatterMapOf<String, SavedStateRegistry.SavedStateProvider>()
     private var restoredState: SavedState? = initialState
 
     @get:MainThread
@@ -63,7 +63,7 @@ internal class SavedStateRegistryImpl(
         synchronized(lock) {
             keyToProviders.forEach { key, provider ->
                 // Automatically restore components that implement SavedStateRestorer.
-                if (provider is SavedStateRestorer && isRestored) {
+                if (provider is SavedStateRegistry.SavedStateRestorer && isRestored) {
                     provider.restoreState(savedState = consumeRestoredStateForKey(key))
                 }
             }
@@ -87,7 +87,7 @@ internal class SavedStateRegistryImpl(
     }
 
     @MainThread
-    fun registerSavedStateProvider(key: String, provider: SavedStateProvider) {
+    fun registerSavedStateProvider(key: String, provider: SavedStateRegistry.SavedStateProvider) {
         synchronized(lock) {
             val oldProvider = keyToProviders.put(key, provider)
 
@@ -102,13 +102,13 @@ internal class SavedStateRegistryImpl(
             }
 
             // If registry is restored, restore state immediately for late registration.
-            if (provider is SavedStateRestorer && isRestored) {
+            if (provider is SavedStateRegistry.SavedStateRestorer && isRestored) {
                 provider.restoreState(savedState = consumeRestoredStateForKey(key))
             }
         }
     }
 
-    fun getSavedStateProvider(key: String): SavedStateProvider? {
+    fun getSavedStateProvider(key: String): SavedStateRegistry.SavedStateProvider? {
         return synchronized(lock) { keyToProviders[key] }
     }
 

@@ -24,7 +24,7 @@ import androidx.savedstate.internal.SavedStateRegistryImpl
  *
  * Use this registry to save and restore component state across process death or recreation.
  */
-public expect class SavedStateRegistry : SavedStateProvider, SavedStateRestorer {
+public expect class SavedStateRegistry {
 
     /** Creates an empty [SavedStateRegistry]. */
     public constructor()
@@ -38,24 +38,39 @@ public expect class SavedStateRegistry : SavedStateProvider, SavedStateRestorer 
 
     internal constructor(impl: SavedStateRegistryImpl)
 
-    override fun saveState(): SavedState
-
-    override fun restoreState(savedState: SavedState?)
-
     /**
      * Contributes to the saved state.
      *
      * Implementations can optionally implement [SavedStateRestorer] to receive and restore state
      * during the state restoration phase.
      */
-    public fun interface SavedStateProvider : androidx.savedstate.SavedStateProvider {
+    public fun interface SavedStateProvider {
         /**
          * Called to retrieve the state from a component before it is killed so the state can be
          * retrieved later from [consumeRestoredStateForKey].
          *
          * @return The [SavedState] containing the saved state.
          */
-        override fun saveState(): SavedState
+        public fun saveState(): SavedState
+    }
+
+    /**
+     * Restores state for a component.
+     *
+     * Implement this interface on a [SavedStateProvider] registered via
+     * [registerSavedStateProvider] to receive restored state automatically.
+     *
+     * The registry will invoke [restoreState] during the restoration phase or immediately upon
+     * registration if the state is already restored.
+     */
+    public fun interface SavedStateRestorer {
+        /**
+         * Called to restore the state of a component.
+         *
+         * @param savedState The [SavedState] containing the previously saved state, or `null` if no
+         *   state was previously saved for this component.
+         */
+        public fun restoreState(savedState: SavedState?)
     }
 
     /**
