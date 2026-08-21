@@ -127,3 +127,14 @@ Studio, which displays referenced samples as hover-over pop-ups.
 
 To achieve this, samples modules must declare the same MavenGroup and `publish`
 as the library(s) they are samples for.
+
+**Multiplatform samples**
+
+The samples project for a KMP project can also be KMP (though it does not have
+to be).
+
+If a samples project is KMP, it is possible to write `@Sampled` functions which
+use platform-specific APIs and to write KMP tests which use the samples.
+
+A KMP samples project **cannot** contain expect/actual samples declarations as
+this will break samples resolution within Dackka.
