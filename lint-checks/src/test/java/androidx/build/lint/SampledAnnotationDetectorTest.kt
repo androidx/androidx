@@ -45,6 +45,7 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
             SampledAnnotationDetector.UNRESOLVED_SAMPLE_LINK,
             SampledAnnotationDetector.MULTIPLE_FUNCTIONS_FOUND,
             SampledAnnotationDetector.INVALID_SAMPLES_LOCATION,
+            SampledAnnotationDetector.EXPECT_ACTUAL_SAMPLE,
         )
 
     private val fooModuleName = "foo"
@@ -795,5 +796,73 @@ class SampledAnnotationDetectorTest : LintDetectorTest() {
             }
 
         lint().projects(commonProject, actualProject, sampleProject).run().expectClean()
+    }
+
+    @Test
+    fun expectActualSamples() {
+        val sourceFile =
+            kotlin(
+                """
+                package foo
+                /** @sample foo.samples.sampleBar */
+                class Bar
+                """
+            )
+        val sourceProject =
+            ProjectDescription().apply {
+                name = fooModuleName
+                type = ProjectDescription.Type.LIBRARY
+                addFile(sourceFile)
+            }
+
+        val expectSampleFile =
+            kotlin(
+                """
+                package foo.samples
+                import androidx.annotation.Sampled
+                @Sampled
+                expect fun sampleBar()
+                """
+            )
+        val expectSampleProject =
+            ProjectDescription().apply {
+                name = sampleModuleName + "Expect"
+                type = ProjectDescription.Type.LIBRARY
+                files = arrayOf(expectSampleFile, sampledStub)
+            }
+
+        val actualSampleFile =
+            kotlin(
+                """
+                package foo.samples
+                import androidx.annotation.Sampled
+                @Sampled
+                actual fun sampleBar() = Unit
+                """
+            )
+        val actualSampleProject =
+            ProjectDescription().apply {
+                name = sampleModuleName + "Actual"
+                type = ProjectDescription.Type.LIBRARY
+                dependsOn(expectSampleProject)
+                files = arrayOf(actualSampleFile, sampledStub)
+            }
+
+        val expected =
+            """
+            ../samplesActual/src/foo/samples/test.kt:5: Error: sampleBar cannot be expect/actual @Sampled function [ExpectActualSample]
+                            actual fun sampleBar() = Unit
+                                       ~~~~~~~~~
+            ../samplesExpect/src/foo/samples/test.kt:5: Error: sampleBar cannot be expect/actual @Sampled function [ExpectActualSample]
+                            expect fun sampleBar()
+                                       ~~~~~~~~~
+            2 errors
+            """
+                .trimIndent()
+
+        lint()
+            .projects(sourceProject, expectSampleProject, actualSampleProject)
+            .run()
+            .expect(expected)
     }
 }

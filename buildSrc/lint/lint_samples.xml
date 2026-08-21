@@ -36,4 +36,5 @@
     <issue id="MultipleSampledFunctions" severity="fatal" />
     <issue id="UnresolvedSampleLink" severity="fatal" />
     <issue id="ObsoleteSampledAnnotation" severity="fatal" />
+    <issue id="ExpectActualSample" severity="fatal" />
 </lint>
