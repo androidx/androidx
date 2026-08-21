@@ -83,8 +83,14 @@ class MaterialA2uiBasicCatalogV1Test {
     }
 
     @Test
-    fun materialA2uiBasicCatalogV1Defaults_text_isMaterialA2uiBasicCatalogV1Text() {
+    fun materialA2uiBasicCatalogV1Defaults_providesExpectedObjects() {
         assertThat(MaterialA2uiBasicCatalogV1Defaults.text)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Text)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.card)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Card)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.row)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Row)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.column)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Column)
     }
 }
