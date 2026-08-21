@@ -197,7 +197,7 @@ class DefaultTextContextMenuDropdownProviderTest {
         val innerContentTestTag = "inner"
         val smallerSize = 50
         val largerSize = 100
-        var expectedConstraints =
+        val expectedConstraints =
             Constraints(
                 minWidth = smallerSize,
                 minHeight = smallerSize,

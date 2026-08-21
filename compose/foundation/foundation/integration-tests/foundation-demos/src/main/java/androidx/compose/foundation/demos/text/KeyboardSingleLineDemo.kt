@@ -104,7 +104,7 @@ private val ImeOptionsList =
 fun ImeSingleLineDemo() {
     LazyColumn {
         items(ImeOptionsList) {
-            TagLine(tag = "${it.name}")
+            TagLine(tag = it.name)
             MyTextField(it)
         }
     }

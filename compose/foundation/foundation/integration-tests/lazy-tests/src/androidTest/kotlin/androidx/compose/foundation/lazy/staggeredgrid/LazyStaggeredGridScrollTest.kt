@@ -377,7 +377,7 @@ class LazyStaggeredGridScrollTest(private val orientation: Orientation) :
         setContent(beforeContentPaddingPx = 5)
 
         val floatItemSize = itemSizePx.toFloat()
-        var consumed: Float
+        val consumed: Float
         runBlocking {
             withContext(Dispatchers.Main + AutoTestFrameClock()) {
                 // scroll to next item
