@@ -25,6 +25,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
+import androidx.compose.remote.integration.view.demos.dsl.DslButtonsDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCollapsiblePriorityDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCustomComponentDemoKt;
 import androidx.compose.remote.integration.view.demos.dsl.DslCustomComposeDemoKt;
@@ -467,7 +468,8 @@ public abstract class DemosCreation {
                     get("1/60/03dslTickerPreview", RcDslTickerKt::dslTicker),
 
                     get("1/61/dslTheme1", RcDslDemoKt::dslTheme1),
-                    get("1/62/dslTheme2", RcDslDemoKt::dslTheme2)
+                    get("1/62/dslTheme2", RcDslDemoKt::dslTheme2),
+                    get("1/63/Buttons", DslButtonsDemoKt::dslButtonsDemo)
             ));
         }
         if (dsl2) {
