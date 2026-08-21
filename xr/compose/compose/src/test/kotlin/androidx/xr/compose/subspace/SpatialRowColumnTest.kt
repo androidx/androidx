@@ -514,7 +514,6 @@ class SpatialRowColumnTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun deprecatedSpatialRowColumn_internalElementsAreLaidOutProperly() {
         composeTestRule.setContent {
             Subspace {
@@ -546,69 +545,5 @@ class SpatialRowColumnTest {
             .onSubspaceNodeWithTag("column2")
             .assertLeftPositionInRootIsEqualTo(2.dp)
             .assertWidthIsEqualTo(3.dp)
-    }
-
-    @Test
-    @Suppress("DEPRECATION")
-    fun deprecatedSpatialColumn_internalElementsAreAligned() {
-        composeTestRule.setContent {
-            Subspace {
-                SpatialColumn(
-                    SubspaceModifier.testTag("column1").size(20.dp),
-                    alignment = SpatialAlignment.TopCenter,
-                ) {
-                    SpatialRow(SubspaceModifier.testTag("row1").size(5.dp)) {
-                        SpatialPanel { Text(text = "SpatialRow 1") }
-                    }
-                    SpatialRow(SubspaceModifier.testTag("row2").size(5.dp)) {
-                        SpatialPanel { Text(text = "SpatialRow 2") }
-                    }
-                }
-            }
-        }
-
-        composeTestRule
-            .onSubspaceNodeWithTag("column1")
-            .assertTopPositionInRootIsEqualTo(10.dp)
-            .assertYPositionInRootIsEqualTo(0.dp)
-            .assertHeightIsEqualTo(20.dp)
-
-        composeTestRule
-            .onSubspaceNodeWithTag("row1")
-            .assertTopPositionInRootIsEqualTo(10.dp)
-            .assertHeightIsEqualTo(5.dp)
-
-        composeTestRule
-            .onSubspaceNodeWithTag("row2")
-            .assertTopPositionInRootIsEqualTo(5.dp)
-            .assertHeightIsEqualTo(5.dp)
-    }
-
-    @Test
-    @Suppress("DEPRECATION")
-    fun deprecatedSpatialColumn_internalElementsAreAligned_withModifier() {
-        composeTestRule.setContent {
-            Subspace {
-                SpatialColumn(
-                    SubspaceModifier.testTag("column1").size(20.dp),
-                    alignment = SpatialAlignment.TopCenter,
-                ) {
-                    SpatialRow(
-                        SubspaceModifier.testTag("row1").size(10.dp).align(SpatialAlignment.Start)
-                    ) {
-                        SpatialPanel { Text(text = "SpatialRow 1") }
-                    }
-                    SpatialRow(
-                        SubspaceModifier.testTag("row2").size(10.dp).align(SpatialAlignment.Back)
-                    ) {
-                        SpatialPanel { Text(text = "SpatialRow 2") }
-                    }
-                }
-            }
-        }
-
-        composeTestRule.onSubspaceNodeWithTag("row1").assertXPositionInRootIsEqualTo(-5.dp)
-
-        composeTestRule.onSubspaceNodeWithTag("row2").assertZPositionInRootIsEqualTo(-5.dp)
     }
 }
