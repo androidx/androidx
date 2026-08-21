@@ -31,6 +31,11 @@ internal class PdfViewMouseActionHandler(pdfView: PdfView) : PdfViewExternalInpu
     fun dragSelection(event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
             pdfView.requestFocus()
+            // Bypass drag selection if a link is present under the pointer, allowing the click
+            // to be handled as a link click.
+            if (pdfView.isLinkAt(event)) {
+                return false
+            }
         }
         return pdfView.maybeDragSelection(event, isSourceMouse = true)
     }

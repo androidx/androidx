@@ -460,6 +460,29 @@ internal fun performSingleTapOnCoords(x: Float, y: Float): ViewAction {
 }
 
 /**
+ * Performs a [ViewAction] that results in a single click on a specific location (x, y) relative to
+ * a given view, simulating a mouse or trackpad event with [InputDevice.SOURCE_MOUSE] and
+ * [MotionEvent.BUTTON_PRIMARY].
+ */
+internal fun performMouseClickOnCoords(x: Float, y: Float): ViewAction {
+    return GeneralClickAction(
+        Tap.SINGLE,
+        { view ->
+            val screenPos = IntArray(2)
+            view.getLocationOnScreen(screenPos)
+
+            val screenX = (screenPos[0] + x)
+            val screenY = (screenPos[1] + y)
+
+            floatArrayOf(screenX, screenY)
+        },
+        Press.PINPOINT,
+        InputDevice.SOURCE_MOUSE,
+        MotionEvent.BUTTON_PRIMARY,
+    )
+}
+
+/**
  * Converts the center of the given [RectF] on a PDF page to view coordinates.
  *
  * @param pdfView The [PdfView] instance used to convert coordinates.
