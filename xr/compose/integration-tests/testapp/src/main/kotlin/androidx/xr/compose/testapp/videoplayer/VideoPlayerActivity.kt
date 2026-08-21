@@ -479,6 +479,7 @@ class VideoPlayerActivity : ComponentActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Composable
     private fun FeatherRadius() {
         var featherRadiusX by remember { mutableFloatStateOf(0.0f) }

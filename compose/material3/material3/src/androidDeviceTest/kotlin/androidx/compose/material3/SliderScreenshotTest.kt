@@ -506,7 +506,7 @@ class SliderScreenshotTest {
     fun centeredSliderTest() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                val sliderState = remember { SliderState(value = -25f, valueRange = -50f..50f) }
+                val sliderState = remember { SliderState(value = -25f, trackRange = -50f..50f) }
                 Slider(
                     sliderState,
                     track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
@@ -520,7 +520,7 @@ class SliderScreenshotTest {
     fun centeredSliderTest_dark() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                val sliderState = remember { SliderState(value = -25f, valueRange = -50f..50f) }
+                val sliderState = remember { SliderState(value = -25f, trackRange = -50f..50f) }
                 Slider(
                     sliderState,
                     track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
@@ -535,7 +535,7 @@ class SliderScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 Box(wrap.testTag(wrapperTestTag)) {
-                    val sliderState = remember { SliderState(value = -25f, valueRange = -50f..50f) }
+                    val sliderState = remember { SliderState(value = -25f, trackRange = -50f..50f) }
                     Slider(
                         sliderState,
                         track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
@@ -550,7 +550,7 @@ class SliderScreenshotTest {
     fun centeredSliderTest_middle() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
-                val sliderState = remember { SliderState(value = 0f, valueRange = -50f..50f) }
+                val sliderState = remember { SliderState(value = 0f, trackRange = -50f..50f) }
                 Slider(
                     sliderState,
                     track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },
@@ -565,7 +565,7 @@ class SliderScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
                 val sliderState = remember {
-                    SliderState(value = 30f, valueRange = -50f..50f, steps = 9)
+                    SliderState(value = 30f, trackRange = -50f..50f, steps = 9)
                 }
                 Slider(
                     sliderState,
@@ -579,7 +579,7 @@ class SliderScreenshotTest {
     @Test
     fun verticalCenteredSliderTest() {
         rule.setMaterialContent(lightColorScheme()) {
-            val sliderState = remember { SliderState(value = -25f, valueRange = -50f..50f) }
+            val sliderState = remember { SliderState(value = -25f, trackRange = -50f..50f) }
             Box(wrap.testTag(wrapperTestTag)) {
                 VerticalSlider(
                     state = sliderState,
@@ -817,7 +817,7 @@ class SliderScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {
                 val state = remember {
-                    RangeSliderState(30f, 70f, steps = 9, valueRange = 0f..100f)
+                    RangeSliderState(30f, 70f, steps = 9, trackRange = 0f..100f)
                 }
                 RangeSlider(
                     state = state,

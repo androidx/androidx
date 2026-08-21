@@ -155,6 +155,7 @@ fun AnimatedMorphViewHeader(selectedIndex: Int, onSelectedModeIndexChanged: (Int
     )
 }
 
+@Suppress("DEPRECATION")
 @Composable
 private fun AnimationControls(
     progress: Animatable<Float, AnimationVector1D>,
