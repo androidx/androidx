@@ -24,7 +24,7 @@ import kotlin.collections.mutableSetOf
 import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room3.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL", "MemberExtensionConflict"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL", "OPT_IN_USAGE_ERROR", "OPT_IN_USAGE", "MemberExtensionConflict"])
 internal class MyDatabase_Impl : MyDatabase() {
   private val _myDao: Lazy<MyDao> = lazy {
     MyDao_Impl(this)
