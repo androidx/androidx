@@ -48,7 +48,6 @@ public fun RemoteCurvedProgressIndicatorSample(
         modifier = modifier,
         startAngle = 135f.rf,
         sweepAngle = 90f.rf,
-        animationDurationMillis = 0,
     )
 }
 
