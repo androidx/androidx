@@ -3276,7 +3276,6 @@ class GridTest : LayoutTest() {
     fun testGrid_namedArea_overlapsWithExplicitPlacement() =
         with(density) {
             val size = 50.dp
-            val sizePx = size.roundToPx().toFloat()
 
             val latch = CountDownLatch(2)
             val pos1 = Ref<Offset>()

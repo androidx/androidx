@@ -74,13 +74,13 @@ fun TextLineHeightDemo() {
         Modifier.verticalScroll(rememberScrollState())
             .background(TextMetricColors.Default.background)
     ) {
-        var lineHeightSp = remember { mutableFloatStateOf(60f) }
-        var lineHeightEm = remember { mutableFloatStateOf(1f) }
-        var lineHeightEnabled = remember { mutableStateOf(false) }
+        val lineHeightSp = remember { mutableFloatStateOf(60f) }
+        val lineHeightEm = remember { mutableFloatStateOf(1f) }
+        val lineHeightEnabled = remember { mutableStateOf(false) }
         val lineHeightStyleEnabled = remember { mutableStateOf(false) }
-        var lineHeightAlignment = remember { mutableStateOf(LineHeightStyle.Default.alignment) }
-        var lineHeightTrim = remember { mutableStateOf(LineHeightStyle.Default.trim) }
-        var lineHeightMode = remember { mutableStateOf(LineHeightStyle.Default.mode) }
+        val lineHeightAlignment = remember { mutableStateOf(LineHeightStyle.Default.alignment) }
+        val lineHeightTrim = remember { mutableStateOf(LineHeightStyle.Default.trim) }
+        val lineHeightMode = remember { mutableStateOf(LineHeightStyle.Default.mode) }
         val includeFontPadding = remember { mutableStateOf(false) }
         val applyMaxLines = remember { mutableStateOf(false) }
         val ellipsize = remember { mutableStateOf(false) }
