@@ -145,7 +145,7 @@ internal abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
      * Associated BaseRemoteState instance, used for common sub-expression elimination and DAG
      * traversal.
      */
-    internal var state: BaseRemoteState<*>? = null
+    internal open var state: BaseRemoteState<*>? = null
 
     override fun <R> accept(
         visitor: RemoteStateVisitor<R>,
@@ -195,6 +195,12 @@ internal class RemoteStateArrayKey(internal val size: Int) : BaseRemoteStateCach
 
 /** A cache key for constant values (primitive types, strings, etc.). */
 internal class RemoteConstantCacheKey(internal val value: Any?) : BaseRemoteStateCacheKey() {
+    // Explicitly opt out of state retention to prevent constant keys in remoteVariableToId
+    // from anchoring intermediate wrapper objects and lambda closures.
+    override var state: BaseRemoteState<*>?
+        get() = null
+        set(_) {}
+
     init {
         if (value is Float) {
             check(!value.isNaN()) { "Float constant value cannot be NaN" }
@@ -324,9 +330,11 @@ internal class FloatArrayRemoteState(internal val floatArray: FloatArray, key: F
 }
 
 internal class FloatArrayCacheKey(internal val floatArray: FloatArray) : BaseRemoteStateCacheKey() {
-    init {
-        state = FloatArrayRemoteState(floatArray, this)
-    }
+    // Explicitly opt out of state retention to avoid retaining transient FloatArrayRemoteState
+    // wrappers.
+    override var state: BaseRemoteState<*>?
+        get() = null
+        set(_) {}
 
     override fun equals(other: Any?): Boolean {
         return other is FloatArrayCacheKey && floatArray.contentEquals(other.floatArray)
@@ -371,7 +379,6 @@ internal class RemoteOperationCacheKey(
     internal val op: Enum<*>,
     override val args: List<RemoteStateCacheKey>,
 ) : BaseRemoteStateCacheKey() {
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteOperationCacheKey) return false
