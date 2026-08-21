@@ -106,7 +106,7 @@ class DynamicRegistrationService : Service() {
             }
 
             ACTION_REGISTER_LONG_RUNNING -> {
-                val appFunction = CallbackAppFunction { request, cancellationSignal, callback ->
+                val appFunction = CallbackAppFunction { _, cancellationSignal, callback ->
                     val job =
                         scope.launch {
                             try {
@@ -207,7 +207,7 @@ class DynamicRegistrationService : Service() {
                     appFunctionManager.getHandleAppFunctionRequestAdapter(
                         DynamicVoidReturnSignature::class.java
                     )
-                val implementation = DynamicVoidReturnSignature { message ->
+                val implementation = DynamicVoidReturnSignature { _ ->
                     // Do nothing, void return
                 }
                 val request = adapter.adapt(implementation)

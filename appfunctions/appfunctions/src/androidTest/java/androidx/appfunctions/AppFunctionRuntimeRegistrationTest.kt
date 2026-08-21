@@ -322,7 +322,7 @@ class AppFunctionRuntimeRegistrationTest {
             val functionStartedDeferred = CompletableDeferred<Unit>()
             val functionCancelledDeferred = CompletableDeferred<Unit>()
 
-            val callbackAppFunction = CallbackAppFunction { _, cancellationSignal, callback ->
+            val callbackAppFunction = CallbackAppFunction { _, cancellationSignal, _ ->
                 functionStartedDeferred.complete(Unit)
                 cancellationSignal.setOnCancelListener { functionCancelledDeferred.complete(Unit) }
             }
@@ -376,7 +376,7 @@ class AppFunctionRuntimeRegistrationTest {
                 Thread(runnable, "my-custom-test-executor-thread")
             }
 
-        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+        runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
             val executionThreadNameDeferred = CompletableDeferred<String>()
             val callbackAppFunction = CallbackAppFunction { _, _, callback ->
                 executionThreadNameDeferred.complete(Thread.currentThread().name)
@@ -451,7 +451,7 @@ class AppFunctionRuntimeRegistrationTest {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
 
-        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+        runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
             val functionStartedDeferred = CompletableDeferred<Unit>()
             val functionCancelledDeferred = CompletableDeferred<Unit>()
 
@@ -516,7 +516,7 @@ class AppFunctionRuntimeRegistrationTest {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
 
-        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+        runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
             val functionStartedDeferred = CompletableDeferred<Unit>()
 
             val longRunningAppFunction = SuspendingAppFunction { _ ->
@@ -652,7 +652,7 @@ class AppFunctionRuntimeRegistrationTest {
             createReturnStringResponse("$currentName:$threadName")
         }
 
-        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+        runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
             val handleJob =
                 launch(CoroutineName("my-test-scope") + customDispatcher) {
                     activityAppFunctionManager.handleAppFunction(
@@ -698,7 +698,7 @@ class AppFunctionRuntimeRegistrationTest {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
 
-        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+        runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
             val handleThreadDeferred = CompletableDeferred<String>()
 
             val suspendAppFunction = SuspendingAppFunction { _ ->
@@ -755,7 +755,7 @@ class AppFunctionRuntimeRegistrationTest {
             }
         val customDispatcher = executor.asCoroutineDispatcher()
 
-        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+        runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
             val suspendAppFunction = SuspendingAppFunction { _ ->
                 createReturnStringResponse("success")
             }
@@ -792,15 +792,14 @@ class AppFunctionRuntimeRegistrationTest {
                     )
 
                 val responseDeferred = CompletableDeferred<ExecuteAppFunctionResponse>()
-                val executionJob =
-                    launch(Dispatchers.Default) {
-                        try {
-                            val response = appFunctionManager.executeAppFunction(request)
-                            responseDeferred.complete(response)
-                        } catch (e: Throwable) {
-                            responseDeferred.completeExceptionally(e)
-                        }
+                launch(Dispatchers.Default) {
+                    try {
+                        val response = appFunctionManager.executeAppFunction(request)
+                        responseDeferred.complete(response)
+                    } catch (e: Throwable) {
+                        responseDeferred.completeExceptionally(e)
                     }
+                }
 
                 // Wait for the execution coroutine to be queued onto the blocked customDispatcher.
                 delay(WAIT_FOR_COROUTINE_ENQUEUE_DELAY_MS)
@@ -831,7 +830,7 @@ class AppFunctionRuntimeRegistrationTest {
                 Thread(runnable, "my-custom-test-executor-thread")
             }
 
-        runWithActivityAppFunctionManager { activity, activityAppFunctionManager ->
+        runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
             val callbackAppFunction = CallbackAppFunction { _, _, callback ->
                 callback.accept(createReturnStringResponse("success"))
             }
@@ -911,10 +910,9 @@ class AppFunctionRuntimeRegistrationTest {
                 // Verify we receive the AppFunctionException.
                 // Without CoroutineStart.ATOMIC, the OutcomeReceiver is silently dropped and this
                 // await() would hang until timeout.
-                val error =
-                    assertFailsWith<android.app.appfunctions.AppFunctionException> {
-                        withTimeout(EXECUTION_TIMEOUT_MS) { responseDeferred.await() }
-                    }
+                assertFailsWith<android.app.appfunctions.AppFunctionException> {
+                    withTimeout(EXECUTION_TIMEOUT_MS) { responseDeferred.await() }
+                }
             } finally {
                 registration.unregister()
                 executor.shutdown()
