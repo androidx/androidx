@@ -22,6 +22,7 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.layout.DEFAULT_LAZY_LAYOUT_CACHE_WINDOW_AHEAD_FRACTION
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
@@ -790,11 +791,9 @@ public inline fun <T> LazyGridScope.itemsIndexed(
         itemContent(it, items[it])
     }
 
-private const val DEFAULT_LAZY_GRID_CACHE_WINDOW_AHEAD_FRACTION = 0.25f
-
 internal object DefaultLazyGridCacheWindow :
     LazyLayoutCacheWindow by LazyLayoutCacheWindow(
         behindFraction = 0f,
-        aheadFraction = DEFAULT_LAZY_GRID_CACHE_WINDOW_AHEAD_FRACTION,
+        aheadFraction = DEFAULT_LAZY_LAYOUT_CACHE_WINDOW_AHEAD_FRACTION,
         isNonScrollCachingEnabled = false,
     )
