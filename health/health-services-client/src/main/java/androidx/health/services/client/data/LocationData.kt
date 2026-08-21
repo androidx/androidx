@@ -133,7 +133,7 @@ public class LocationData(
                     ALTITUDE_UNAVAILABLE
                 }
 
-            var bearing =
+            val bearing =
                 if (proto.doubleArrayVal.doubleArrayCount > BEARING_INDEX) {
                     proto.doubleArrayVal.getDoubleArray(BEARING_INDEX)
                 } else {

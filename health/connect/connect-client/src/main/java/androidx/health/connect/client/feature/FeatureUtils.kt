@@ -58,7 +58,7 @@ internal fun createExceptionDueToFeatureUnavailable(featureConstantName: String,
  * an [UnsupportedOperationException] pointing to `apiName`.
  */
 internal fun <T> withPhrFeatureCheck(kClass: KClass<*>, block: () -> T): T =
-    withPhrFeatureCheck("${kClass.simpleName}", block)
+    withPhrFeatureCheck(kClass.simpleName ?: "null", block)
 
 /**
  * Similar to [with], this method executes `block` if PHR feature is available, otherwise throwing
@@ -108,7 +108,7 @@ internal suspend fun <T> withPhrFeatureCheckSuspend(apiName: String, block: susp
  * throwing an [UnsupportedOperationException] pointing to `apiName`.
  */
 internal fun <T> withMatchmakingFeatureCheck(kClass: KClass<*>, block: () -> T): T =
-    withMatchmakingFeatureCheck("${kClass.simpleName}", block)
+    withMatchmakingFeatureCheck(kClass.simpleName ?: "null", block)
 
 /**
  * Similar to [with], this method executes `block` if Matchmaking feature is available, otherwise
