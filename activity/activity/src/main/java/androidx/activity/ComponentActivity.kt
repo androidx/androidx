@@ -255,6 +255,15 @@ public open class ComponentActivity() :
 
     private var hasPictureInPictureSystemFeature: Boolean = false
 
+    private val isExported: Boolean by lazy {
+        try {
+            val info = packageManager.getActivityInfo(componentName, 0)
+            info.exported
+        } catch (_: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor for
      * API 27 and lower devices or when using the default [android.app.AppComponentFactory].
@@ -561,8 +570,23 @@ public open class ComponentActivity() :
         }
     }
 
+    /**
+     * The default arguments [Bundle] to pass to [DEFAULT_ARGS_KEY] in
+     * [defaultViewModelCreationExtras].
+     *
+     * For exported activities (activities that can be launched by external applications), this
+     * returns `null` by default to prevent untrusted intent extras from populating ViewModel saved
+     * state. For non-exported activities, this returns `intent?.extras`.
+     *
+     * Override this property to explicitly pass or validate intent extras for ViewModels created by
+     * this Activity.
+     */
+    public open val defaultViewModelArgs: Bundle?
+        @Suppress("NullableCollection") /* align with Intent.extras */
+        get() = if (USE_DEFAULT_VIEW_MODEL_ARGS && isExported) null else intent?.extras
+
     override val defaultViewModelProviderFactory: ViewModelProvider.Factory by lazy {
-        SavedStateViewModelFactory(application, this, if (intent != null) intent.extras else null)
+        SavedStateViewModelFactory(application, this, defaultViewModelArgs)
     }
 
     @get:CallSuper
@@ -580,7 +604,7 @@ public open class ComponentActivity() :
             }
             extras[SAVED_STATE_REGISTRY_OWNER_KEY] = this
             extras[VIEW_MODEL_STORE_OWNER_KEY] = this
-            val intentExtras = intent?.extras
+            val intentExtras = defaultViewModelArgs
             if (intentExtras != null) {
                 extras[DEFAULT_ARGS_KEY] = intentExtras
             }
@@ -1167,7 +1191,26 @@ public open class ComponentActivity() :
         }
     }
 
-    private companion object {
+    public companion object {
         private const val ACTIVITY_RESULT_TAG = "android:support:activity-result"
+
+        @get:JvmSynthetic internal var USE_DEFAULT_VIEW_MODEL_ARGS: Boolean = true
+
+        /**
+         * Control whether [ComponentActivity] uses the new defaultViewModelArgs solution that
+         * prevents untrusted intent extras from populating ViewModel saved state in exported
+         * activities.
+         *
+         * This should be set before ViewModels are created or [defaultViewModelArgs] is accessed
+         * (e.g., in your [android.app.Application] class or prior to `super.onCreate()` in your
+         * activity).
+         *
+         * @param enabled Whether the new defaultViewModelArgs solution should be enabled.
+         */
+        @ExportedActivityDefaultArgControl
+        @JvmStatic
+        public fun enableExportedActivityDefaultArgs(enabled: Boolean) {
+            USE_DEFAULT_VIEW_MODEL_ARGS = enabled
+        }
     }
 }
