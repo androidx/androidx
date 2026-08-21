@@ -332,7 +332,6 @@ internal class ResizableComponentImpl(
         }
 
         val reformState = reformEvent.state
-        val currentEntity = entity
 
         if (autoHideContent && reformState != ReformEvent.REFORM_STATE_END) {
             // Set the alpha to 0 when the resize is active before any

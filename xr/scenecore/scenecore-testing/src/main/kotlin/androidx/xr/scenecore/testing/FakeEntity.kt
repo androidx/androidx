@@ -118,7 +118,7 @@ internal constructor(public val name: String = "", fakeInternal: InternalFakeEnt
             )
         }
 
-        var parentPose = this.parent?.getPose(relativeTo)
+        val parentPose = this.parent?.getPose(relativeTo)
         return parentPose?.compose(pose) ?: pose
     }
 

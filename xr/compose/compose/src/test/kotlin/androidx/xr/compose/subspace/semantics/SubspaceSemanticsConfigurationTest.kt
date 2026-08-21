@@ -152,6 +152,7 @@ class SubspaceSemanticsConfigurationTest {
 
         val exception: IllegalStateException =
             assertFailsWith<IllegalStateException> {
+                @Suppress("UNUSED_VARIABLE")
                 val unused: String = configuration[SemanticsProperties.TestTag]
             }
 

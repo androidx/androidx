@@ -1062,9 +1062,7 @@ class SurfaceTest {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
-        var surfaceColor = Color.Unspecified
         rule.setGlimmerThemeContent {
-            surfaceColor = GlimmerTheme.colors.surface
             scope = rememberCoroutineScope()
             Column {
                 Box(
@@ -1112,10 +1110,8 @@ class SurfaceTest {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
-        var surfaceColor = Color.Unspecified
         rule.setGlimmerThemeContent {
             scope = rememberCoroutineScope()
-            surfaceColor = GlimmerTheme.colors.surface
             Column {
                 Box(
                     Modifier.size(100.dp)

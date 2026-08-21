@@ -178,7 +178,7 @@ class DepthActivity : ComponentActivity(), SampleRender.Companion.Renderer {
         runBlocking {
             configurationMutex.withLock {
                 var floatBuffer: FloatBuffer? = null
-                var currentDepthData: Depth? = null
+                val currentDepthData: Depth?
                 try {
                     currentDepthData = runCatching { Depth.mono(session) }.getOrNull()
                     if (currentDepthData != null) {

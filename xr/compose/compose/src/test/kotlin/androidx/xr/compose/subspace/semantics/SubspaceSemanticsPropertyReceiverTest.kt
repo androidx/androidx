@@ -72,7 +72,7 @@ class SubspaceSemanticsPropertyReceiverTest {
 
         val exception: UnsupportedOperationException =
             assertFailsWith<UnsupportedOperationException> {
-                val unused: String = receiver.testTag
+                @Suppress("UNUSED_VARIABLE") val unused: String = receiver.testTag
             }
 
         assertThat(exception).hasMessageThat().contains("You cannot read semantics properties")
@@ -86,7 +86,7 @@ class SubspaceSemanticsPropertyReceiverTest {
 
         val exception: UnsupportedOperationException =
             assertFailsWith<UnsupportedOperationException> {
-                val unused: String = receiver.contentDescription
+                @Suppress("UNUSED_VARIABLE") val unused: String = receiver.contentDescription
             }
 
         assertThat(exception).hasMessageThat().contains("You cannot read semantics properties")

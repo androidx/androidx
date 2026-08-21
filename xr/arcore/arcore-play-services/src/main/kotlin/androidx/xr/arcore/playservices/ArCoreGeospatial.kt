@@ -248,7 +248,7 @@ public class ArCoreEarth internal constructor(private val resources: XrResources
 
             continuation.invokeOnCancellation {
                 // No cleanup is necessary, so we don't care if it is completed or not.
-                val unused = future.cancel()
+                @Suppress("UNUSED_VARIABLE") val unused = future.cancel()
             }
         }
     }

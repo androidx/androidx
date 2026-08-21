@@ -384,10 +384,10 @@ internal object HctSolver {
         for (n in 0..11) {
             val coordA = if (n % 4 <= 1) 0.0 else 100.0
             val coordB = if (n % 2 == 0) 0.0 else 100.0
-            var vR: Double
-            var vG: Double
-            var vB: Double
-            var valid: Boolean
+            val vR: Double
+            val vG: Double
+            val vB: Double
+            val valid: Boolean
 
             when {
                 n < 4 -> {

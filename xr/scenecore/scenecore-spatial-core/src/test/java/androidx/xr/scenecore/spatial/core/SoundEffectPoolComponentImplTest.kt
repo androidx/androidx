@@ -90,7 +90,6 @@ class SoundEffectPoolComponentImplTest {
         val soundEffectPool =
             SoundEffectPoolImpl(maxStreams = 1, mockSoundPoolExtensions, mockSoundEffectPlayer)
 
-        val params = PointSourceParams()
         val component = SoundEffectPoolComponentImpl(soundEffectPool)
         val mockEntity = mock<Entity>()
 

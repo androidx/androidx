@@ -1684,6 +1684,7 @@ class EntityTest {
         val weakRef = WeakReference(child)
 
         // Nullify the local strong reference
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         child = null
 
         // Force GC. The parent should still hold a strong reference to the child via its internal
@@ -1703,6 +1704,7 @@ class EntityTest {
         val weakRef = WeakReference(entity)
 
         // Nullify the strong reference and ensure it's not in the scenegraph
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         entity = null
 
         MemoryUtils.assertGarbageCollected(
@@ -1791,7 +1793,7 @@ class EntityTest {
         assertThat(entityRegistry.getEntityForRtEntity(mockRtEntity)).isEqualTo(sdkEntity)
 
         // Nullify and GC
-        @Suppress("UNUSED_VALUE")
+        @Suppress("UNUSED_VALUE", "ASSIGNED_VALUE_IS_NEVER_READ")
         sdkEntity = null
         MemoryUtils.assertGarbageCollected(
             weakRef,

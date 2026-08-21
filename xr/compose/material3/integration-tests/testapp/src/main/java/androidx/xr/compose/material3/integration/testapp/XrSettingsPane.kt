@@ -135,7 +135,7 @@ private fun <T> SimpleDropdown(
     itemLabel: (T) -> String,
     onSelectedChange: (T) -> Unit,
 ) {
-    var state = rememberTextFieldState(itemLabel(selectedItem))
+    val state = rememberTextFieldState(itemLabel(selectedItem))
     Column {
         Text(text = dropdownLabel, style = MaterialTheme.typography.labelMedium)
         ExposedDropdownMenuBox(

@@ -429,9 +429,8 @@ class AnchorsPlanesHitTestActivity : ComponentActivity(), SampleRender.Companion
         if (cameraState == null || cameraState.displayOrientedPose == null) {
             return
         }
-        val pose = cameraState.displayOrientedPose!!
-        var projMatrix = FloatArray(16)
-        var viewMatrix = FloatArray(16)
+        val projMatrix: FloatArray
+        val viewMatrix: FloatArray
         projMatrix = cameraState.projectionMatrix!!.data
         viewMatrix = cameraState.viewMatrix!!.data
 

@@ -146,7 +146,7 @@ class SpatialComposeWindowManager : ComponentActivity() {
 
     @Composable
     fun PanelContent() {
-        var showDialog = remember { mutableStateOf(false) }
+        val showDialog = remember { mutableStateOf(false) }
         val context = LocalContext.current
         val textToShare = "https://www.google.com/"
         val isSpatialUiEnabled = LocalSpatialCapabilities.current.isSpatialUiEnabled

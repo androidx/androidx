@@ -193,8 +193,8 @@ open class ThreadingStressTestActivity : ComponentActivity() {
             }
             try {
                 // Accessing cached in-memory state objects (does not generate AIDL traffic)
-                val unusedPose = arDevice.state.value.devicePose
-                val unusedGeo = geospatial.state.value
+                @Suppress("UNUSED_VARIABLE") val unusedPose = arDevice.state.value.devicePose
+                @Suppress("UNUSED_VARIABLE") val unusedGeo = geospatial.state.value
                 updateCount++
             } catch (e: Exception) {
                 recordError("State polling error", e)
