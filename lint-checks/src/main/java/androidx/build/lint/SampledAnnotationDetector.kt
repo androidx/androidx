@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import androidx.build.lint.SampledAnnotationDetector.Companion.EXPECT_ACTUAL_SAMPLE
 import androidx.build.lint.SampledAnnotationDetector.Companion.INVALID_SAMPLES_LOCATION
 import androidx.build.lint.SampledAnnotationDetector.Companion.MULTIPLE_FUNCTIONS_FOUND
 import androidx.build.lint.SampledAnnotationDetector.Companion.OBSOLETE_SAMPLED_ANNOTATION
@@ -42,14 +43,16 @@ import com.android.tools.lint.detector.api.PartialResult
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import org.jetbrains.kotlin.analysis.api.KaExperimentalApi
 import org.jetbrains.kotlin.kdoc.psi.api.KDoc
 import org.jetbrains.kotlin.kdoc.psi.impl.KDocSection
 import org.jetbrains.kotlin.psi.KtFile
+import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.psiUtil.forEachDescendantOfType
-import org.jetbrains.uast.UDeclaration
+import org.jetbrains.kotlin.psi.psiUtil.hasActualModifier
+import org.jetbrains.kotlin.psi.psiUtil.hasExpectModifier
+import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UFile
-import org.jetbrains.uast.UMethod
+import org.jetbrains.uast.toUElementOfType
 
 /**
  * Detector responsible for enforcing @Sampled annotation usage
@@ -61,27 +64,27 @@ import org.jetbrains.uast.UMethod
  *   directory structure guidelines - [INVALID_SAMPLES_LOCATION]
  * - There are never multiple functions with the same fully qualified name that could be resolved by
  *   an @sample link - [MULTIPLE_FUNCTIONS_FOUND]
+ * - Functions annotated with @Sampled are not expect/actual.
  */
 class SampledAnnotationDetector : Detector(), SourceCodeScanner {
 
-    override fun getApplicableUastTypes() = listOf(UDeclaration::class.java, UFile::class.java)
+    override fun getApplicableUastTypes() = listOf(UFile::class.java)
 
     override fun createUastHandler(context: JavaContext) =
         object : UElementHandler() {
-            // UAST tree omits `expect` interface methods (see b/496863565, b/246340708).
-            // If we rely solely on UAST's visitDeclaration, we will miss @sample tags in
-            // commonMain. By scanning the raw KtFile PSI directly, we guarantee all KDocs
-            // are evaluated.
+            /**
+             * UAST tree omits `expect` functions (see b/496863565, b/246340708). If we rely solely
+             * on UAST's visitDeclaration, we will miss @sample and @Sampled tags in commonMain. By
+             * scanning the raw KtFile PSI directly, we guarantee all KDocs and @Sampled functions
+             * are evaluated.
+             */
             override fun visitFile(node: UFile) {
                 val psiFile = node.sourcePsi as? KtFile ?: return
                 psiFile.forEachDescendantOfType<KDoc> { kdoc ->
                     KDocSampleLinkHandler(context).handleSampleLink(kdoc)
                 }
-            }
-
-            override fun visitDeclaration(node: UDeclaration) {
-                if (node is UMethod) {
-                    SampledAnnotationHandler(context).visitMethod(node)
+                psiFile.forEachDescendantOfType<KtFunction> { ktFunction ->
+                    SampledAnnotationHandler(context).visitKtFunction(ktFunction)
                 }
             }
         }
@@ -239,6 +242,20 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
                 implementation =
                     Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
+
+        val EXPECT_ACTUAL_SAMPLE =
+            Issue.create(
+                id = "ExpectActualSample",
+                briefDescription = "@Sampled function cannot be expect/actual",
+                explanation =
+                    "This @Sampled function is expect/actual, which will break resolution of " +
+                        "samples within Dackka.",
+                category = Category.CORRECTNESS,
+                priority = 5,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(SampledAnnotationDetector::class.java, Scope.JAVA_FILE_SCOPE),
+            )
     }
 }
 
@@ -247,7 +264,6 @@ class SampledAnnotationDetector : Detector(), SourceCodeScanner {
  *
  * Checks KDoc in all applicable UDeclarations - this includes classes, functions, fields...
  */
-@OptIn(KaExperimentalApi::class)
 private class KDocSampleLinkHandler(private val context: JavaContext) {
     fun handleSampleLink(kdoc: KDoc) {
         val sections: List<KDocSection> = kdoc.children.mapNotNull { it as? KDocSection }
@@ -286,13 +302,17 @@ private class KDocSampleLinkHandler(private val context: JavaContext) {
 /** Handles sample functions annotated with @Sampled */
 private class SampledAnnotationHandler(private val context: JavaContext) {
 
-    fun visitMethod(node: UMethod) {
-        if (node.hasAnnotation(SAMPLED_ANNOTATION_FQN)) {
+    fun visitKtFunction(node: KtFunction) {
+        if (
+            node.annotationEntries.any {
+                it.toUElementOfType<UAnnotation>()?.qualifiedName == SAMPLED_ANNOTATION_FQN
+            }
+        ) {
             handleSampleCode(node)
         }
     }
 
-    private fun handleSampleCode(node: UMethod) {
+    private fun handleSampleCode(node: KtFunction) {
         val currentPath = context.psiFile!!.virtualFile.path
 
         if (SAMPLES_DIRECTORY !in currentPath) {
@@ -332,5 +352,14 @@ private class SampledAnnotationHandler(private val context: JavaContext) {
         }
 
         sampledFunctionLintMap.put(fullFqName, location)
+
+        if (node.hasActualModifier() || node.hasExpectModifier()) {
+            val incident =
+                Incident(context)
+                    .issue(EXPECT_ACTUAL_SAMPLE)
+                    .location(location)
+                    .message("${node.name} cannot be expect/actual @Sampled function")
+            context.report(incident)
+        }
     }
 }
