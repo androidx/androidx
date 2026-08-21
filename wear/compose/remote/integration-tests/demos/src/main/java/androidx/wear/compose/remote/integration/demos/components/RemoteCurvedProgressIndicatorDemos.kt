@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.wear.compose.remote.integration.demos.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,11 +28,16 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressEnabled
-import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressFullCollapseHigh
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorCollapseToZero
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorCountdownIntroLoop
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorCountdownOutroLoop
 import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorCustomColor
 import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorDisabled
-import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressNoCollapseHigh
-import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressSemiCollapseHigh
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorExpandFromZero
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorIntroLoop
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorNoCollapse
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressIndicatorOutroLoop
+import androidx.wear.compose.remote.material3.previews.RemoteCurvedProgressNoGap
 import androidx.wear.compose.remote.material3.samples.RemoteCurvedProgressIndicatorAnimatedSample
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
@@ -41,7 +45,6 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 fun RemoteCurvedProgressIndicatorDemos(modifier: Modifier = Modifier) {
     val transformationSpec = rememberTransformationSpec()
     val columnState = rememberTransformingLazyColumnState()
-
     ScreenScaffold(scrollState = columnState, modifier = modifier) { contentPadding ->
         TransformingLazyColumn(state = columnState, contentPadding = contentPadding) {
             item {
@@ -61,22 +64,24 @@ fun RemoteCurvedProgressIndicatorDemos(modifier: Modifier = Modifier) {
                     )
                 }
             }
-            remoteDemoItem("Enabled (75% Progress)") { RemoteCurvedProgressEnabled() }
-
-            // 99% Progress Demos (High Progress - Remaining Track Collapse)
-            remoteDemoItem("99% Progress - Full Collapse (Threshold = 0)") {
-                RemoteCurvedProgressFullCollapseHigh()
-            }
-            remoteDemoItem("99% Progress - Semi Collapse (Threshold = 0.5)") {
-                RemoteCurvedProgressSemiCollapseHigh()
-            }
-            remoteDemoItem("99% Progress - No Collapse (Threshold = 1)") {
-                RemoteCurvedProgressNoCollapseHigh()
-            }
-
+            // Basic Demos
+            remoteDemoItem("Enabled") { RemoteCurvedProgressEnabled() }
             remoteDemoItem("Disabled") { RemoteCurvedProgressIndicatorDisabled() }
             remoteDemoItem("Custom Color") { RemoteCurvedProgressIndicatorCustomColor() }
+            remoteDemoItem("No Gap Custom Angle") { RemoteCurvedProgressNoGap() }
             remoteDemoItem("Animated") { RemoteCurvedProgressIndicatorAnimatedSample() }
+            // Dynamic looping demos
+            remoteDemoItem("Intro Dot Loop") { RemoteCurvedProgressIndicatorIntroLoop() }
+            remoteDemoItem("Outro Dot Loop") { RemoteCurvedProgressIndicatorOutroLoop() }
+            remoteDemoItem("Countdown Intro Loop") {
+                RemoteCurvedProgressIndicatorCountdownIntroLoop()
+            }
+            remoteDemoItem("Countdown Outro Loop") {
+                RemoteCurvedProgressIndicatorCountdownOutroLoop()
+            }
+            remoteDemoItem("Expand from Zero") { RemoteCurvedProgressIndicatorExpandFromZero() }
+            remoteDemoItem("Collapse to Zero") { RemoteCurvedProgressIndicatorCollapseToZero() }
+            remoteDemoItem("No Collapse") { RemoteCurvedProgressIndicatorNoCollapse() }
         }
     }
 }
