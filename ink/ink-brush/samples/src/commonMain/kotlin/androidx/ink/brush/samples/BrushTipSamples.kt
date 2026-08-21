@@ -20,6 +20,7 @@ package androidx.ink.brush.samples
 
 import androidx.annotation.Sampled
 import androidx.ink.brush.BrushTip
+import kotlin.jvm.JvmName
 
 /** Creates a brush tip shaped like a rounded parallelogram. */
 @Sampled

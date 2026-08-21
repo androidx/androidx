@@ -26,6 +26,7 @@ import androidx.ink.brush.behavior.SourceNode
 import androidx.ink.brush.behavior.SourceNode.Source
 import androidx.ink.brush.behavior.TargetNode
 import androidx.ink.brush.behavior.TargetNode.Target
+import kotlin.jvm.JvmName
 
 /**
  * Creates a brush behavior that maps stylus pressure to a tip size multiplier, with some
