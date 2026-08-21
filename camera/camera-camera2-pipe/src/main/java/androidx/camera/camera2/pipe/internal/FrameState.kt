@@ -86,7 +86,10 @@ internal class FrameState(
         COMPLETE,
     }
 
-    private val state = atomic(STARTED)
+    // The state is initialized as STARTED, and we are expected to receive all stream results and
+    // the frame info to mark the frame as completed. However, if we are not expecting any stream
+    // outputs then arrival of frame info is sufficient for frame completion.
+    private val state = atomic(if (imageOutputs.isEmpty()) STREAM_RESULTS_COMPLETE else STARTED)
     private val remainingStreamCount = atomic(imageOutputs.map { it.streamId }.distinct().size)
 
     // A list of ListenerState, one for each listener.
