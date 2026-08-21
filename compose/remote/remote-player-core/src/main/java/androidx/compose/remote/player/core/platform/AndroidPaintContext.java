@@ -574,7 +574,8 @@ public class AndroidPaintContext extends PaintContext implements CustomContext {
 
         TextPaint textPaint = new TextPaint();
 
-        boolean useAdvancedFeatures = (flags & PaintContext.TEXT_MEASURE_AUTOSIZE) != 0;
+        boolean useAdvancedFeatures =
+                (flags & (PaintContext.TEXT_MEASURE_AUTOSIZE | PaintContext.TEXT_COMPLEX)) != 0;
 
         if (letterSpacing != 0f) {
             mPaint.setLetterSpacing(letterSpacing);
