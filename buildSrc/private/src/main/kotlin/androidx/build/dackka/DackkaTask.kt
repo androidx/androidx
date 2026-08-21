@@ -227,8 +227,8 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                                 displayName = sourceSet.name,
                                 analysisPlatform = sourceSet.analysisPlatform,
                                 sourceRoots = objects.fileCollection().from(sourceDir),
-                                // TODO(b/181224204): KMP samples aren't supported, dackka assumes
-                                // all samples are in common
+                                // All KMP samples are in the common source set, where they can be
+                                // accessed from other KMP source sets as well.
                                 samples =
                                     if (sourceSet.name == "commonMain") {
                                         getSampleSourceFileCollection()
