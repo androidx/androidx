@@ -1031,7 +1031,7 @@ class OutlinedTextFieldTest {
         val errorMessage = "Special symbols not allowed"
         lateinit var defaultErrorMessage: String
         rule.setMaterialContent {
-            var isError = remember { mutableStateOf(true) }
+            val isError = remember { mutableStateOf(true) }
             OutlinedTextField(
                 state = rememberTextFieldState("test"),
                 modifier =

@@ -687,14 +687,13 @@ internal suspend fun <T> AnchoredDraggableState<T>.animateTo(
     anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
         val targetOffset = anchors.positionOf(latestTarget)
         if (!targetOffset.isNaN()) {
-            var prev = if (offset.isNaN()) 0f else offset
+            val prev = if (offset.isNaN()) 0f else offset
             animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
                 // Our onDrag coerces the value within the bounds, but an animation may
                 // overshoot, for example a spring animation or an overshooting interpolator
                 // We respect the user's intention and allow the overshoot, but still use
                 // DraggableState's drag for its mutex.
                 dragTo(value, velocity)
-                prev = value
             }
         }
     }
