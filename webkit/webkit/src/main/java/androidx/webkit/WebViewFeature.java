@@ -974,6 +974,18 @@ public class WebViewFeature {
             "WEBVIEW_NAVIGATE_EXPERIMENTAL_V1";
 
     /**
+     * When this feature is enabled,
+     * {@link WebViewCompat#navigate(WebView, String, NavigationParameters)}
+     * will drain the prefetch queue before navigating.
+     * <p>
+     * This will become the default behavior of
+     * {@link WebViewCompat#navigate(WebView, String, NavigationParameters)}.
+     */
+    @WebViewCompat.ExperimentalNavigate
+    public static final String WEBVIEW_NAVIGATE_DRAIN_PREFETCH =
+            "WEBVIEW_NAVIGATE_DRAIN_PREFETCH";
+
+    /**
      * Feature for
      * {@link WebSettingsCompat#setDownloadFaviconsEnabled(WebSettings, boolean)},
      * {@link WebSettingsCompat#getDownloadFaviconsEnabled(WebSettings)}

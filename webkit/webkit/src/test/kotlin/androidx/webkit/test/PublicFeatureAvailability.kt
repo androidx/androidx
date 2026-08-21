@@ -118,4 +118,5 @@ internal val PUBLIC_FEATURE_UNHIDE_CLS =
         WF.ENQUEUE_PRECONNECT to "https://crrev.com/c/7979079",
         WF.DOWNLOAD_FAVICONS_ENABLED to "https://crrev.com/c/7984627",
         WF.CROSS_ORIGIN_ISOLATED_ALLOWLIST to "https://crrev.com/c/8233544",
+        WF.WEBVIEW_NAVIGATE_DRAIN_PREFETCH to "https://crrev.com/c/8256949",
     )
