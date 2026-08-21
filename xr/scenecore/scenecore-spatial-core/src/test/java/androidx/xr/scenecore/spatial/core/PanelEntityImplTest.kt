@@ -17,8 +17,16 @@ package androidx.xr.scenecore.spatial.core
 
 import android.app.Activity
 import android.hardware.display.DisplayManager
+import android.os.Binder
+import android.os.Build
+import android.view.SurfaceControlViewHost
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
+import androidx.annotation.RequiresApi
+import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.math.FieldOfView
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
@@ -30,10 +38,12 @@ import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.Space
 import androidx.xr.scenecore.testing.FakeScheduledExecutorService
+import androidx.xr.scenecore.testing.MemoryUtils
 import com.android.extensions.xr.ShadowConfig
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.NodeRepository
 import com.google.common.truth.Truth
+import java.lang.ref.WeakReference
 import kotlin.math.atan
 import kotlin.test.assertTrue
 import org.junit.After
@@ -48,6 +58,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
@@ -422,6 +433,149 @@ class PanelEntityImplTest : AndroidXrEntityImplTest() {
         }
 
         Truth.assertThat(panelEntity.contentDescription.toString()).isEqualTo(label)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private class FakeOnBackInvokedDispatcher : OnBackInvokedDispatcher {
+        val registeredCallbacks = mutableListOf<OnBackInvokedCallback>()
+        val unregisteredCallbacks = mutableListOf<OnBackInvokedCallback>()
+
+        override fun registerOnBackInvokedCallback(priority: Int, callback: OnBackInvokedCallback) {
+            registeredCallbacks.add(callback)
+        }
+
+        override fun unregisterOnBackInvokedCallback(callback: OnBackInvokedCallback) {
+            unregisteredCallbacks.add(callback)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    fun cleanupAction_unregistersOnBackInvokedCallback() {
+        val dispatcher = FakeOnBackInvokedDispatcher()
+        val callback = OnBackInvokedCallback {}
+        val display = activity.getSystemService(DisplayManager::class.java).displays[0]
+        val surfaceControlViewHost = SurfaceControlViewHost(activity, display!!, Binder())
+
+        val cleanupAction =
+            PanelEntityImpl.PanelEntityCleanupAction(
+                surfaceControlViewHost = surfaceControlViewHost,
+                backDispatcher = dispatcher,
+                onBackInvokedCallback = callback,
+            )
+
+        cleanupAction.run()
+
+        Truth.assertThat(dispatcher.unregisteredCallbacks).containsExactly(callback)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun cleanupAction_detachesChildViewOnMainThread() {
+        val display = activity.getSystemService(DisplayManager::class.java).displays[0]
+        val displayContext = activity.createDisplayContext(display!!)
+        val parent = FrameLayout(displayContext)
+        val child = View(displayContext)
+        parent.addView(child)
+        val surfaceControlViewHost = SurfaceControlViewHost(activity, display, Binder())
+
+        val cleanupAction =
+            PanelEntityImpl.PanelEntityCleanupAction(
+                surfaceControlViewHost = surfaceControlViewHost,
+                backDispatcher = null,
+                onBackInvokedCallback = null,
+                wrapperViewGroupRef = WeakReference(parent),
+                childViewRef = WeakReference(child),
+            )
+
+        cleanupAction.run()
+        Truth.assertThat(child.parent).isNull()
+    }
+
+    @Test
+    fun dispose_executesSuccessfullyWithoutThrowing() {
+        val display = activity.getSystemService(DisplayManager::class.java).displays[0]
+        val displayContext = activity.createDisplayContext(display!!)
+        val view = View(displayContext)
+
+        val panelEntity =
+            PanelEntityImpl(
+                displayContext,
+                xrExtensions.createNode(),
+                view,
+                xrExtensions,
+                sceneNodeRegistry,
+                K_VGA_RESOLUTION_PX,
+                "test",
+                fakeExecutor,
+            )
+
+        panelEntity.dispose()
+        fakeExecutor.runAll()
+        ShadowLooper.idleMainLooper()
+    }
+
+    @Test
+    fun dispose_detachesReparentedView() {
+        val childView = View(activity)
+        Truth.assertThat(childView.parent).isNull()
+
+        val panelEntity = createPanelEntity(K_VGA_RESOLUTION_PX, childView)
+
+        val wrapper = childView.parent
+        Truth.assertThat(wrapper).isNotNull()
+        Truth.assertThat(wrapper).isInstanceOf(ViewGroup::class.java)
+
+        panelEntity.dispose()
+        fakeExecutor.runAll()
+        ShadowLooper.idleMainLooper()
+
+        Truth.assertThat(childView.parent).isNull()
+    }
+
+    @Test
+    fun garbageCollection_detachesReparentedView() {
+        val display = activity.getSystemService(DisplayManager::class.java).displays[0]
+        val displayContext = activity.createDisplayContext(display!!)
+        val childView = View(displayContext)
+        Truth.assertThat(childView.parent).isNull()
+
+        fun createAndDropPanelEntity(): java.lang.ref.WeakReference<PanelEntityImpl> {
+            val entity =
+                PanelEntityImpl(
+                    displayContext,
+                    xrExtensions.createNode(),
+                    childView,
+                    xrExtensions,
+                    sceneNodeRegistry,
+                    PixelDimensions(
+                        K_VGA_RESOLUTION_PX.width.toInt(),
+                        K_VGA_RESOLUTION_PX.height.toInt(),
+                    ),
+                    "panel",
+                    fakeExecutor,
+                )
+            return java.lang.ref.WeakReference(entity)
+        }
+
+        val weakRef = createAndDropPanelEntity()
+        val wrapper = childView.parent
+        Truth.assertThat(wrapper).isNotNull()
+        Truth.assertThat(wrapper).isInstanceOf(ViewGroup::class.java)
+
+        MemoryUtils.assertGarbageCollected(
+            weakRef = weakRef,
+            onAttempt = {
+                fakeExecutor.runAll()
+                ShadowLooper.idleMainLooper()
+            },
+            afterGcCondition = {
+                ShadowLooper.idleMainLooper()
+                childView.parent == null
+            },
+        )
+        ShadowLooper.idleMainLooper()
+        Truth.assertThat(childView.parent).isNull()
     }
 
     companion object {
