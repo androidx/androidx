@@ -128,6 +128,8 @@ import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.ScreenFlashWrapper;
 import androidx.camera.core.internal.SupportedOutputSizesSorter;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.core.internal.compat.quirk.SimultaneousRawJpegNotSupportedQuirk;
 import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
 import androidx.camera.core.internal.utils.ImageUtil;
@@ -1124,7 +1126,11 @@ public final class ImageCapture extends UseCase {
 
             if (isRawSupported()) {
                 formats.add(OUTPUT_FORMAT_RAW);
-                formats.add(OUTPUT_FORMAT_RAW_JPEG);
+                // Exclude simultaneous RAW+JPEG on devices where HAL cannot configure concurrent
+                // maximum-resolution RAW and JPEG streams.
+                if (DeviceQuirks.get(SimultaneousRawJpegNotSupportedQuirk.class) == null) {
+                    formats.add(OUTPUT_FORMAT_RAW_JPEG);
+                }
             }
 
             return formats;
