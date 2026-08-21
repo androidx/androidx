@@ -32,7 +32,7 @@ import androidx.compose.remote.creation.actions.ValueStringChange
 /** Scope for recording interaction logic. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RcDslMarker
-public interface RcActionScope {
+public interface RcRunActionScope {
     /** Sets a float variable to a new value. */
     public fun setValue(variable: RcFloat, value: Float)
 
@@ -53,14 +53,21 @@ public interface RcActionScope {
 
     /** Sets a boolean variable to a boolean-expression value. */
     public fun setValue(variable: RcBool, expression: RcBool)
+}
 
-    /** Triggers a named host action. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface RcActionScope : RcRunActionScope {
     public fun hostAction(name: String)
+
+    public fun hostAction(id: Int, metadata: RcText)
+
+    public fun hostAction(name: String, type: Int, value: Int)
 }
 
 /** Internal implementation of [RcActionScope] that bridges to the legacy [Action] system. */
-internal class RcActionScopeImpl : RcActionScope {
-    private val actionBuilders = mutableListOf<(RemoteComposeWriter) -> Action>()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+internal open class RcRunActionScopeImpl : RcRunActionScope {
+    protected val actionBuilders = mutableListOf<(RemoteComposeWriter) -> Action>()
 
     override fun setValue(variable: RcFloat, value: Float) {
         actionBuilders.add { _ ->
@@ -97,11 +104,23 @@ internal class RcActionScopeImpl : RcActionScope {
         actionBuilders.add { _ -> ValueStringChange(variable.id, value) }
     }
 
+    fun build(writer: RemoteComposeWriter): List<Action> {
+        return actionBuilders.map { it(writer) }
+    }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+internal class RcActionScopeImpl : RcRunActionScopeImpl(), RcActionScope {
+
     override fun hostAction(name: String) {
         actionBuilders.add { _ -> HostAction(name) }
     }
 
-    fun build(writer: RemoteComposeWriter): List<Action> {
-        return actionBuilders.map { it(writer) }
+    override fun hostAction(id: Int, metadata: RcText) {
+        actionBuilders.add { _ -> HostAction(id, metadata.id) }
+    }
+
+    override fun hostAction(name: String, type: Int, value: Int) {
+        actionBuilders.add { _ -> HostAction(name, type, value) }
     }
 }

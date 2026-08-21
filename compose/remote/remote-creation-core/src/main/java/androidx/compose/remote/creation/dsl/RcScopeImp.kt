@@ -1611,7 +1611,7 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         )
     }
 
-    override fun runAction(block: RcActionScope.() -> Unit) {
+    override fun runAction(block: RcRunActionScope.() -> Unit) {
         writer.startRunActions()
         val scope = RcActionScopeImpl()
         scope.block()
