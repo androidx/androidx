@@ -318,29 +318,42 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
             return;
         }
         int length = mCachedString.length();
-        if (mComputedTextLayout != null) {
-            context.drawComplexText(mComputedTextLayout);
-        } else {
-            float px = mTextX;
-            switch (mTextAlignValue) {
-                case TEXT_ALIGN_CENTER:
-                    px = (mWidth - mPaddingLeft - mPaddingRight - mTextW) / 2f;
-                    break;
-                case TEXT_ALIGN_RIGHT:
-                case TEXT_ALIGN_END:
-                    px = (mWidth - mPaddingLeft - mPaddingRight - mTextW);
-                    break;
-                case TEXT_ALIGN_LEFT:
-                case TEXT_ALIGN_START:
-                default:
-            }
+        float contentW = mWidth - mPaddingLeft - mPaddingRight;
+        float px = 0f;
+        switch (mTextAlignValue) {
+            case TEXT_ALIGN_CENTER:
+                px = (contentW - mTextW) / 2f;
+                break;
+            case TEXT_ALIGN_RIGHT:
+            case TEXT_ALIGN_END:
+                px = contentW - mTextW;
+                break;
+            case TEXT_ALIGN_LEFT:
+            case TEXT_ALIGN_START:
+            default:
+                px = 0f;
+        }
 
-            if (mTextW > (mWidth - mPaddingLeft - mPaddingRight)) {
+        if (mComputedTextLayout != null) {
+            context.save();
+            if (mOverflow != OVERFLOW_VISIBLE) {
+                context.clipRect(
+                        0f,
+                        0f,
+                        contentW,
+                        mHeight - mPaddingTop - mPaddingBottom);
+            }
+            context.translate(getScrollX() + px, getScrollY());
+            context.drawComplexText(mComputedTextLayout);
+            context.restore();
+        } else {
+            px += mTextX;
+            if (mTextW > contentW) {
                 context.save();
                 context.clipRect(
                         0f,
                         0f,
-                        mWidth - mPaddingLeft - mPaddingRight,
+                        contentW,
                         mHeight - mPaddingTop - mPaddingBottom);
                 context.translate(getScrollX(), getScrollY());
                 context.drawTextRun(mTextId, 0, length, 0, 0, px, mTextY, false);

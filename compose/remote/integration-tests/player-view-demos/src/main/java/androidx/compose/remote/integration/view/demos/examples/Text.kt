@@ -640,6 +640,271 @@ fun RcTextDemo(): RemoteComposeContext {
     }
 }
 
+@Suppress("RestrictedApiAndroidX")
+fun RcTextAlignmentDemo(): RemoteComposeContext {
+    return RemoteComposeContextAndroid(
+        AndroidxRcPlatformServices(),
+        7,
+        hTag(Header.DOC_WIDTH, 600),
+        hTag(Header.DOC_HEIGHT, 1150),
+        hTag(Header.FEATURE_PAINT_MEASURE, 0),
+        hTag(Header.DOC_CONTENT_DESCRIPTION, "Text Alignment Demo"),
+        hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL),
+    ) {
+        root {
+            column(Modifier.fillMaxSize().background(0xFFF0F2F5.toInt()).padding(16)) {
+                // Section 1: Fixed Size Single-Line Text
+                row(Modifier.fillMaxWidth().background(0xFF1E293B.toInt()).padding(8)) {
+                    text(
+                        "1. Fixed Size Text (Single Line)",
+                        Modifier.fillMaxWidth(),
+                        color = Color.WHITE,
+                        fontWeight = 700f,
+                        fontSize = 16f,
+                    )
+                }
+                box(Modifier.height(6))
+                column(Modifier.fillMaxWidth().background(Color.WHITE).padding(10)) {
+                    text(
+                        "Left Aligned",
+                        Modifier.fillMaxWidth().background(0xFFE2E8F0.toInt()).padding(4),
+                        fontSize = 16f,
+                        textAlign = CoreText.TEXT_ALIGN_LEFT,
+                    )
+                    box(Modifier.height(6))
+                    text(
+                        "Center Aligned",
+                        Modifier.fillMaxWidth().background(0xFFFEF3C7.toInt()).padding(4),
+                        fontSize = 16f,
+                        textAlign = CoreText.TEXT_ALIGN_CENTER,
+                    )
+                    box(Modifier.height(6))
+                    text(
+                        "Right Aligned",
+                        Modifier.fillMaxWidth().background(0xFFD1FAE5.toInt()).padding(4),
+                        fontSize = 16f,
+                        textAlign = CoreText.TEXT_ALIGN_RIGHT,
+                    )
+                }
+
+                box(Modifier.height(14))
+
+                // Section 2: Autosize Single-Line Text
+                row(Modifier.fillMaxWidth().background(0xFF1E293B.toInt()).padding(8)) {
+                    text(
+                        "2. Autosize Text (Single Line)",
+                        Modifier.fillMaxWidth(),
+                        color = Color.WHITE,
+                        fontWeight = 700f,
+                        fontSize = 16f,
+                    )
+                }
+                box(Modifier.height(6))
+                column(Modifier.fillMaxWidth().background(Color.WHITE).padding(10)) {
+                    box(Modifier.fillMaxWidth().height(64).background(0xFFE2E8F0.toInt())) {
+                        text(
+                            "Autosize Left",
+                            Modifier.fillMaxSize().padding(2),
+                            autosize = true,
+                            minFontSize = 14f,
+                            maxFontSize = 48f,
+                            textAlign = CoreText.TEXT_ALIGN_LEFT,
+                            hyphenationFrequency = CoreText.HYPHENATION_FREQUENCY_NONE,
+                        )
+                    }
+                    box(Modifier.height(6))
+                    box(Modifier.fillMaxWidth().height(64).background(0xFFFEF3C7.toInt())) {
+                        text(
+                            "Autosize Center",
+                            Modifier.fillMaxSize().padding(2),
+                            autosize = true,
+                            minFontSize = 14f,
+                            maxFontSize = 48f,
+                            textAlign = CoreText.TEXT_ALIGN_CENTER,
+                            hyphenationFrequency = CoreText.HYPHENATION_FREQUENCY_NONE,
+                        )
+                    }
+                    box(Modifier.height(6))
+                    box(Modifier.fillMaxWidth().height(64).background(0xFFD1FAE5.toInt())) {
+                        text(
+                            "Autosize Right",
+                            Modifier.fillMaxSize().padding(2),
+                            autosize = true,
+                            minFontSize = 14f,
+                            maxFontSize = 48f,
+                            textAlign = CoreText.TEXT_ALIGN_RIGHT,
+                            hyphenationFrequency = CoreText.HYPHENATION_FREQUENCY_NONE,
+                        )
+                    }
+                }
+
+                box(Modifier.height(14))
+
+                // Section 3: Fixed Size Multi-Line Text
+                row(Modifier.fillMaxWidth().background(0xFF1E293B.toInt()).padding(8)) {
+                    text(
+                        "3. Fixed Size Text (Multi-Line)",
+                        Modifier.fillMaxWidth(),
+                        color = Color.WHITE,
+                        fontWeight = 700f,
+                        fontSize = 16f,
+                    )
+                }
+                box(Modifier.height(6))
+                row(Modifier.fillMaxWidth()) {
+                    column(
+                        Modifier.horizontalWeight(1f)
+                            .height(105)
+                            .background(0xFFE2E8F0.toInt())
+                            .padding(6)
+                    ) {
+                        text(
+                            "Multiline Left",
+                            fontSize = 11f,
+                            color = Color.DKGRAY,
+                            fontWeight = 700f,
+                        )
+                        text(
+                            "The quick brown fox\njumps over\nthe lazy dog.",
+                            Modifier.fillMaxSize().padding(2),
+                            fontSize = 13f,
+                            textAlign = CoreText.TEXT_ALIGN_LEFT,
+                        )
+                    }
+                    box(Modifier.size(6))
+                    column(
+                        Modifier.horizontalWeight(1f)
+                            .height(105)
+                            .background(0xFFFEF3C7.toInt())
+                            .padding(6)
+                    ) {
+                        text(
+                            "Multiline Center",
+                            fontSize = 11f,
+                            color = Color.DKGRAY,
+                            fontWeight = 700f,
+                        )
+                        text(
+                            "The quick brown fox\njumps over\nthe lazy dog.",
+                            Modifier.fillMaxSize().padding(2),
+                            fontSize = 13f,
+                            textAlign = CoreText.TEXT_ALIGN_CENTER,
+                        )
+                    }
+                    box(Modifier.size(6))
+                    column(
+                        Modifier.horizontalWeight(1f)
+                            .height(105)
+                            .background(0xFFD1FAE5.toInt())
+                            .padding(6)
+                    ) {
+                        text(
+                            "Multiline Right",
+                            fontSize = 11f,
+                            color = Color.DKGRAY,
+                            fontWeight = 700f,
+                        )
+                        text(
+                            "The quick brown fox\njumps over\nthe lazy dog.",
+                            Modifier.fillMaxSize().padding(2),
+                            fontSize = 13f,
+                            textAlign = CoreText.TEXT_ALIGN_RIGHT,
+                        )
+                    }
+                }
+
+                box(Modifier.height(14))
+
+                // Section 4: Autosize Multi-Line Text
+                row(Modifier.fillMaxWidth().background(0xFF1E293B.toInt()).padding(8)) {
+                    text(
+                        "4. Autosize Text (Multi-Line)",
+                        Modifier.fillMaxWidth(),
+                        color = Color.WHITE,
+                        fontWeight = 700f,
+                        fontSize = 16f,
+                    )
+                }
+                box(Modifier.height(6))
+                row(Modifier.fillMaxWidth()) {
+                    column(
+                        Modifier.horizontalWeight(1f)
+                            .height(115)
+                            .background(0xFFE2E8F0.toInt())
+                            .padding(6)
+                    ) {
+                        text(
+                            "Autosize Multi Left",
+                            fontSize = 11f,
+                            color = Color.DKGRAY,
+                            fontWeight = 700f,
+                        )
+                        text(
+                            "Autosized Left\nMulti Line\nParagraph",
+                            Modifier.fillMaxSize().padding(2),
+                            autosize = true,
+                            minFontSize = 10f,
+                            maxFontSize = 22f,
+                            maxLines = 3,
+                            textAlign = CoreText.TEXT_ALIGN_LEFT,
+                        )
+                    }
+                    box(Modifier.size(6))
+                    column(
+                        Modifier.horizontalWeight(1f)
+                            .height(115)
+                            .background(0xFFFEF3C7.toInt())
+                            .padding(6)
+                    ) {
+                        text(
+                            "Autosize Multi Center",
+                            fontSize = 11f,
+                            color = Color.DKGRAY,
+                            fontWeight = 700f,
+                        )
+                        text(
+                            "Autosized Center\nMulti Line\nParagraph",
+                            Modifier.fillMaxSize().padding(2),
+                            autosize = true,
+                            minFontSize = 10f,
+                            maxFontSize = 22f,
+                            maxLines = 3,
+                            textAlign = CoreText.TEXT_ALIGN_CENTER,
+                        )
+                    }
+                    box(Modifier.size(6))
+                    column(
+                        Modifier.horizontalWeight(1f)
+                            .height(115)
+                            .background(0xFFD1FAE5.toInt())
+                            .padding(6)
+                    ) {
+                        text(
+                            "Autosize Multi Right",
+                            fontSize = 11f,
+                            color = Color.DKGRAY,
+                            fontWeight = 700f,
+                        )
+                        text(
+                            "Autosized Right\nMulti Line\nParagraph",
+                            Modifier.fillMaxSize().padding(2),
+                            autosize = true,
+                            minFontSize = 10f,
+                            maxFontSize = 22f,
+                            maxLines = 3,
+                            textAlign = CoreText.TEXT_ALIGN_RIGHT,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun RcTextAlignmentDemoPreview() = RemoteDocumentPreview(RcTextAlignmentDemo())
+
 @Preview @Composable private fun RcCardAutosizePreview() = RemoteDocumentPreview(RcTextDemo2b())
 
 @Preview @Composable private fun RcTextDemoPreview() = RemoteDocumentPreview(RcTextDemo())
