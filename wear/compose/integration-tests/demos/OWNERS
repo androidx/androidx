@@ -1,0 +1,2 @@
+# Allow release bot to Autosubmit automated version bumps for weekly demo app releases.
+per-file build.gradle = wear-compose-release-bot@google.com
