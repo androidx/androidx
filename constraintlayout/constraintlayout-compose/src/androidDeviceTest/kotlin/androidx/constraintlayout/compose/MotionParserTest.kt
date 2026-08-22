@@ -65,7 +65,7 @@ internal class MotionParserTest {
     @Test
     fun testTransitionParseFailsSilently() {
         // We don't want applications to hard-crash when the parser sees an error
-        var coreTransition = androidx.constraintlayout.core.state.Transition { dp -> dp }
+        val coreTransition = androidx.constraintlayout.core.state.Transition { dp -> dp }
         val transitionContent =
             """
             {
@@ -85,7 +85,7 @@ internal class MotionParserTest {
         assertFailsWith<CLParsingException> {
             TransitionParser.parse(CLParser.parse(transitionContent), coreTransition)
         }
-        coreTransition = androidx.constraintlayout.core.state.Transition { dp -> dp }
+        androidx.constraintlayout.core.state.Transition { dp -> dp }
         rule.setContent {
             val transition = Transition(content = transitionContent)
             MotionLayout(
