@@ -16,7 +16,7 @@
 
 package androidx.xr.compose.subspace.animation.follow
 
-import androidx.annotation.RestrictTo
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.runtime.Session
 import kotlinx.coroutines.withContext
@@ -25,7 +25,7 @@ import kotlinx.coroutines.withContext
  * This is the implementation for TightFollowing which is accessible through the public interface as
  * FollowMode.tight
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class TightFollowMode(private val dimensions: TrackedDimensions = TrackedDimensions.All) :
     FollowMode() {
     override suspend fun start(

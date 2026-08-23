@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.subspace.animation.follow
 
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFalse
 import org.junit.Test
@@ -23,6 +24,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 class SnapFollowModeTest {
 
     @Test
