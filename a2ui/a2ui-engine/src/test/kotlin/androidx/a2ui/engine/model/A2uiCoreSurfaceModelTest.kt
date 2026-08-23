@@ -444,10 +444,9 @@ class A2uiCoreSurfaceModelTest {
     fun updateComponents_associatedComponentCache_clearsCachedValues() {
         val surface = createTestSurface()
 
-        val value1 =
-            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
-                "cached_value_1"
-            }
+        surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+            "cached_value_1"
+        }
 
         surface.updateComponents(listOf(A2uiComponentPayload(COMPONENT_ID_1, "button", emptyMap())))
 
@@ -462,10 +461,9 @@ class A2uiCoreSurfaceModelTest {
     fun updateComponents_associatedComponentCacheWithDifferentComponent_cacheUntouched() {
         val surface = createTestSurface()
 
-        val value1 =
-            surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
-                "cached_value_1"
-            }
+        surface.getOrCreateFunctionScopedCache(COMPONENT_ID_1, TestFunctionDefinition1) {
+            "cached_value_1"
+        }
 
         surface.updateComponents(listOf(A2uiComponentPayload(COMPONENT_ID_2, "button", emptyMap())))
 
