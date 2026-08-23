@@ -30,11 +30,15 @@ import java.util.Locale
  * Interface to format messages with arguments using the ICU MessageFormat syntax.
  *
  * The implementation of this interface should be provided by the platform (e.g., using
- * android.icu.text.MessageFormat or com.ibm.icu.text.MessageFormat).
+ * [android.icu.text.MessageFormat] or `com.ibm.icu.text.MessageFormat`).
  */
 public fun interface A2uiMessageFormatter {
     /**
      * Formats the specified pattern using the given locale and arguments.
+     *
+     * Implementations should ignore extra keys in [arguments] that are not present in the
+     * [pattern]. If a key required by the [pattern] is missing from [arguments], the implementation
+     * should throw an exception.
      *
      * @param pattern the message format pattern in ICU MessageFormat syntax
      * @param locale the locale to use for formatting
