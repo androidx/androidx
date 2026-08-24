@@ -1208,6 +1208,10 @@ public open class ComponentActivity() :
          * @param enabled Whether the new defaultViewModelArgs solution should be enabled.
          */
         @ExportedActivityDefaultArgControl
+        @Deprecated(
+            "To pass default arguments to the exported Activity override " +
+                "[defaultViewModelArgs]."
+        )
         @JvmStatic
         public fun enableExportedActivityDefaultArgs(enabled: Boolean) {
             USE_DEFAULT_VIEW_MODEL_ARGS = enabled
