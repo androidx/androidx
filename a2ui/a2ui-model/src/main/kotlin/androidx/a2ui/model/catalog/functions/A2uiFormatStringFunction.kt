@@ -22,7 +22,6 @@ package androidx.a2ui.model.catalog.functions
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
-import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.a2ui.model.protocol.A2uiExecutionContext
 import androidx.a2ui.model.schema.A2uiObjectSchema
@@ -89,9 +88,7 @@ public class A2uiFormatStringFunction private constructor() : A2uiFunction {
                 when (part) {
                     is TemplatePart.Literal -> append(part.text)
                     is TemplatePart.Expression -> {
-                        val evaluated =
-                            executionContext.evaluatePayload(A2uiDataPath(""), part.expressionAst)
-                                ?: ""
+                        val evaluated = executionContext.evaluatePayload(part.expressionAst) ?: ""
                         append(evaluated.toString())
                     }
                 }

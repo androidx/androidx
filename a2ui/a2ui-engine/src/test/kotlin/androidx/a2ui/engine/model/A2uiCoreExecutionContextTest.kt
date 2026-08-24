@@ -139,9 +139,9 @@ class A2uiCoreExecutionContextTest {
                     return "evaluated_val"
                 }
             }
-        val env = createTestEnvironment(dynamicEvaluator = evaluator)
+        val env = createTestEnvironment(dataPath = path, dynamicEvaluator = evaluator)
 
-        val result = env.context.evaluatePayload(path, "payload")
+        val result = env.context.evaluatePayload("payload")
 
         assertThat(result).isEqualTo("evaluated_val")
         assertThat(evaluatedDataPath).isEqualTo(path)
@@ -202,6 +202,7 @@ class A2uiCoreExecutionContextTest {
         }
 
     private fun createTestEnvironment(
+        dataPath: A2uiDataPath = A2uiDataPath(""),
         catalogFunctions: List<A2uiFunction> = emptyList(),
         valueResolver: A2uiCoreValueResolver = A2uiCoreValueResolver { null },
         dynamicEvaluator: A2uiCoreDynamicEvaluator = A2uiCoreDynamicEvaluatorImpl,
@@ -210,6 +211,7 @@ class A2uiCoreExecutionContextTest {
         var dispatchedError: DispatchedError? = null
         val context =
             A2uiCoreExecutionContext(
+                dataPath = dataPath,
                 componentId = COMPONENT_ID_1,
                 catalog = TestCatalog(functions = catalogFunctions),
                 dispatchError = { exception, componentId ->

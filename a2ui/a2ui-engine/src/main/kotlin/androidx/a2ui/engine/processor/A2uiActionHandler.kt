@@ -21,7 +21,6 @@ import androidx.a2ui.model.processor.A2uiActionInterceptor
 import androidx.a2ui.model.protocol.A2uiClientDataModel
 import androidx.a2ui.model.protocol.A2uiClientEventMessage
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
-import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiEventAction
 import androidx.a2ui.model.protocol.A2uiFunctionCallAction
 import androidx.a2ui.model.protocol.A2uiUserAction
@@ -72,7 +71,6 @@ internal class A2uiActionHandler(
         executionContext: A2uiCoreExecutionContext,
         payload: Map<String, Any?>,
     ): Map<String, Any> {
-        return executionContext.evaluatePayload(A2uiDataPath("/"), payload) as? Map<String, Any>
-            ?: emptyMap()
+        return executionContext.evaluatePayload(payload) as? Map<String, Any> ?: emptyMap()
     }
 }

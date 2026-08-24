@@ -23,14 +23,16 @@ import androidx.a2ui.model.catalog.A2uiFunctionDefinition
  * within the scope of a specific component.
  */
 public interface A2uiExecutionContext {
+    /** The base data path used to resolve relative paths in this context. */
+    public val dataPath: A2uiDataPath
+
     /**
      * Evaluates a dynamic payload.
      *
-     * @param dataPath base path used to resolve relative paths
      * @param payload payload to evaluate
      * @return evaluated result, or null if evaluation fails
      */
-    public fun evaluatePayload(dataPath: A2uiDataPath, payload: Any?): Any?
+    public fun evaluatePayload(payload: Any?): Any?
 
     /**
      * Executes a catalog function by name.

@@ -25,6 +25,7 @@ import androidx.a2ui.model.protocol.A2uiExecutionContext
 /**
  * Represents the execution environment of a specific component.
  *
+ * @param dataPath base path used to resolve relative paths
  * @param componentId unique identifier of the component associated with this context
  * @param catalog catalog containing registered components and functions
  * @param dispatchError callback run when an error is dispatched, receiving the `componentId`
@@ -34,6 +35,7 @@ import androidx.a2ui.model.protocol.A2uiExecutionContext
  * @param cacheProvider provider to retrieve or create a component-scoped cache
  */
 internal class A2uiCoreExecutionContext(
+    override val dataPath: A2uiDataPath,
     private val componentId: String,
     private val catalog: A2uiCoreCatalog,
     private val dispatchError: (A2uiException, String?) -> Unit,
@@ -41,7 +43,7 @@ internal class A2uiCoreExecutionContext(
     private val dynamicEvaluator: A2uiCoreDynamicEvaluator,
     private val cacheProvider: A2uiCoreCacheProvider,
 ) : A2uiExecutionContext {
-    override fun evaluatePayload(dataPath: A2uiDataPath, payload: Any?): Any? =
+    override fun evaluatePayload(payload: Any?): Any? =
         dynamicEvaluator.evaluate(dataPath, payload, this)
 
     override fun executeFunction(name: String, args: Map<String, Any>): Any? {
