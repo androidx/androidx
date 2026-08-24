@@ -191,7 +191,10 @@ internal class WindowInsetsWatcher(val view: View) :
                             insets.getInsetsIgnoringVisibility(type)
                         }
                     inset != none
-                }
+                } ||
+                    insets.displayCutout?.let {
+                        it.waterfallInsets != Insets.NONE || it.boundingRects.isNotEmpty()
+                    } == true
             if (!hasValue) {
                 return
             }

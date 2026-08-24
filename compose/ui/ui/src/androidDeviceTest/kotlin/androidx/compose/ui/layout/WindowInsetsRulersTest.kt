@@ -436,6 +436,54 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
     }
 
     @Test
+    fun isRulerProvided_beforeInsets_returnsFalse() {
+        var left = -100f
+        var top = -100f
+        setContent {
+            Box(
+                Modifier.fillMaxSize().layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                        left = StatusBars.current.left.current(Float.NaN)
+                        top = StatusBars.current.top.current(Float.NaN)
+                    }
+                }
+            )
+        }
+        rule.waitForIdle()
+
+        assertThat(left).isNaN()
+        assertThat(top).isNaN()
+    }
+
+    @Test
+    fun onlyWaterfallInsets_initializesRulers() {
+        val rulerState = mutableStateOf(Waterfall)
+        setSimpleRulerContent(rulerState)
+        rule.waitForIdle()
+
+        sendOnApplyWindowInsets(createInsets(WaterfallType to Insets.of(1, 2, 3, 5)))
+        rule.runOnIdle {
+            assertThat(insetsRect).isEqualTo(IntRect(1, 2, contentWidth - 3, contentHeight - 5))
+            assertThat(maximumRect).isEqualTo(IntRect(1, 2, contentWidth - 3, contentHeight - 5))
+            assertThat(isVisible).isTrue()
+        }
+    }
+
+    @Test
+    fun onlyDisplayCutoutBoundingRects_initializesRulers() {
+        setSimpleRulerContent(mutableStateOf(DisplayCutout))
+        rule.waitForIdle()
+
+        sendOnApplyWindowInsets(createInsets(Type.displayCutout() to Insets.of(0, 20, 0, 0)))
+        rule.runOnIdle {
+            assertThat(displayCutoutRects.size).isEqualTo(1)
+            assertThat(displayCutoutRects[0]).isEqualTo(IntRect(0, 0, contentWidth, 20))
+        }
+    }
+
+    @Test
     fun mergedRulers() {
         val mergedRulersMap =
             mapOf(

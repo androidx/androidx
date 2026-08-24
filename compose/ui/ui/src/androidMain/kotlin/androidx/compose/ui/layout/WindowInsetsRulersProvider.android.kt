@@ -198,6 +198,9 @@ internal class WindowInsetsRulersProvider(val insetsWatcher: WindowInsetsWatcher
         }
 
     fun isRulerProvided(ruler: Ruler): Boolean {
+        if (currentInsets == null) {
+            return false
+        }
         var found = false
         findWindowInsetsRuler(ruler) { _, _, _, _ -> found = true }
         return found
@@ -299,7 +302,7 @@ internal class WindowInsetsRulersProvider(val insetsWatcher: WindowInsetsWatcher
             get() = NeverProvidedRectRulers
 
         override val isVisible: Boolean
-            get() = currentInsets?.displayCutout?.waterfallInsets?.equals(Insets.NONE) == false
+            get() = currentInsets?.displayCutout?.let { it.waterfallInsets != Insets.NONE } == true
 
         override val isAnimating: Boolean
             get() = false
