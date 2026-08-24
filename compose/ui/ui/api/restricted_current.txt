@@ -689,12 +689,30 @@ package androidx.compose.ui.draw {
   }
 
   public final class BlurKt {
+    method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier blur(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.blur.BlurRadiusSpec radius, optional androidx.compose.ui.draw.BlurredEdgeTreatment edgeTreatment, optional float alpha);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier blur(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp radius, optional androidx.compose.ui.draw.BlurredEdgeTreatment edgeTreatment);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier blur(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp radiusX, androidx.compose.ui.unit.Dp radiusY, optional androidx.compose.ui.draw.BlurredEdgeTreatment edgeTreatment);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier blur(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.draw.BlurScope,kotlin.Unit> block);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier blur-1fqS-gw(androidx.compose.ui.Modifier, float, float, androidx.compose.ui.graphics.Shape);
     method @BytecodeOnly public static androidx.compose.ui.Modifier! blur-1fqS-gw$default(androidx.compose.ui.Modifier!, float, float, androidx.compose.ui.draw.BlurredEdgeTreatment!, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier blur-F8QBwvs(androidx.compose.ui.Modifier, float, androidx.compose.ui.graphics.Shape);
     method @BytecodeOnly public static androidx.compose.ui.Modifier! blur-F8QBwvs$default(androidx.compose.ui.Modifier!, float, androidx.compose.ui.draw.BlurredEdgeTreatment!, int, Object!);
+    method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier blur-d3-LrFo(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.blur.BlurRadiusSpec, androidx.compose.ui.graphics.Shape, float);
+    method @BytecodeOnly public static androidx.compose.ui.Modifier! blur-d3-LrFo$default(androidx.compose.ui.Modifier!, androidx.compose.ui.graphics.blur.BlurRadiusSpec!, androidx.compose.ui.draw.BlurredEdgeTreatment!, float, int, Object!);
+  }
+
+  public sealed nonexhaustive interface BlurScope extends androidx.compose.ui.unit.Density {
+    method @InaccessibleFromKotlin public float getAlpha();
+    method @BytecodeOnly public androidx.compose.ui.graphics.Shape getEdgeTreatment---Goahg();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.blur.BlurRadiusSpec getRadius();
+    method @BytecodeOnly public long getSize-MYxV2XQ();
+    method @InaccessibleFromKotlin public void setAlpha(float);
+    method @BytecodeOnly public void setEdgeTreatment-JyGir4Q(androidx.compose.ui.graphics.Shape);
+    method @InaccessibleFromKotlin public void setRadius(androidx.compose.ui.graphics.blur.BlurRadiusSpec);
+    property public abstract float alpha;
+    property public abstract androidx.compose.ui.draw.BlurredEdgeTreatment edgeTreatment;
+    property public abstract androidx.compose.ui.graphics.blur.BlurRadiusSpec radius;
+    property public abstract androidx.compose.ui.unit.DpSize size;
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class BlurredEdgeTreatment {

@@ -1255,6 +1255,21 @@ sealed interface androidx.compose.ui.draganddrop/DragAndDropSourceModifierNode :
 
 sealed interface androidx.compose.ui.draganddrop/DragAndDropTargetModifierNode : androidx.compose.ui.node/LayoutAwareModifierNode // androidx.compose.ui.draganddrop/DragAndDropTargetModifierNode|null[0]
 
+sealed interface androidx.compose.ui.draw/BlurScope : androidx.compose.ui.unit/Density { // androidx.compose.ui.draw/BlurScope|null[0]
+    abstract val size // androidx.compose.ui.draw/BlurScope.size|{}size[0]
+        abstract fun <get-size>(): androidx.compose.ui.unit/DpSize // androidx.compose.ui.draw/BlurScope.size.<get-size>|<get-size>(){}[0]
+
+    abstract var alpha // androidx.compose.ui.draw/BlurScope.alpha|{}alpha[0]
+        abstract fun <get-alpha>(): kotlin/Float // androidx.compose.ui.draw/BlurScope.alpha.<get-alpha>|<get-alpha>(){}[0]
+        abstract fun <set-alpha>(kotlin/Float) // androidx.compose.ui.draw/BlurScope.alpha.<set-alpha>|<set-alpha>(kotlin.Float){}[0]
+    abstract var edgeTreatment // androidx.compose.ui.draw/BlurScope.edgeTreatment|{}edgeTreatment[0]
+        abstract fun <get-edgeTreatment>(): androidx.compose.ui.draw/BlurredEdgeTreatment // androidx.compose.ui.draw/BlurScope.edgeTreatment.<get-edgeTreatment>|<get-edgeTreatment>(){}[0]
+        abstract fun <set-edgeTreatment>(androidx.compose.ui.draw/BlurredEdgeTreatment) // androidx.compose.ui.draw/BlurScope.edgeTreatment.<set-edgeTreatment>|<set-edgeTreatment>(androidx.compose.ui.draw.BlurredEdgeTreatment){}[0]
+    abstract var radius // androidx.compose.ui.draw/BlurScope.radius|{}radius[0]
+        abstract fun <get-radius>(): androidx.compose.ui.graphics.blur/BlurRadiusSpec // androidx.compose.ui.draw/BlurScope.radius.<get-radius>|<get-radius>(){}[0]
+        abstract fun <set-radius>(androidx.compose.ui.graphics.blur/BlurRadiusSpec) // androidx.compose.ui.draw/BlurScope.radius.<set-radius>|<set-radius>(androidx.compose.ui.graphics.blur.BlurRadiusSpec){}[0]
+}
+
 sealed interface androidx.compose.ui.draw/CacheDrawModifierNode : androidx.compose.ui.node/DrawModifierNode { // androidx.compose.ui.draw/CacheDrawModifierNode|null[0]
     abstract fun invalidateDrawCache() // androidx.compose.ui.draw/CacheDrawModifierNode.invalidateDrawCache|invalidateDrawCache(){}[0]
 }
@@ -4166,8 +4181,10 @@ final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).androidx.com
 final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).androidx.compose.ui.semantics/textEntryKey() // androidx.compose.ui.semantics/textEntryKey|textEntryKey@androidx.compose.ui.semantics.SemanticsPropertyReceiver(){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.ui.autofill/contentType(androidx.compose.ui.autofill/ContentType): androidx.compose.ui/Modifier // androidx.compose.ui.autofill/contentType|contentType@androidx.compose.ui.Modifier(androidx.compose.ui.autofill.ContentType){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.ui.draw/alpha(kotlin/Float): androidx.compose.ui/Modifier // androidx.compose.ui.draw/alpha|alpha@androidx.compose.ui.Modifier(kotlin.Float){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.ui.draw/blur(androidx.compose.ui.graphics.blur/BlurRadiusSpec, androidx.compose.ui.draw/BlurredEdgeTreatment = ..., kotlin/Float = ...): androidx.compose.ui/Modifier // androidx.compose.ui.draw/blur|blur@androidx.compose.ui.Modifier(androidx.compose.ui.graphics.blur.BlurRadiusSpec;androidx.compose.ui.draw.BlurredEdgeTreatment;kotlin.Float){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.ui.draw/blur(androidx.compose.ui.unit/Dp, androidx.compose.ui.draw/BlurredEdgeTreatment = ...): androidx.compose.ui/Modifier // androidx.compose.ui.draw/blur|blur@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.draw.BlurredEdgeTreatment){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.ui.draw/blur(androidx.compose.ui.unit/Dp, androidx.compose.ui.unit/Dp, androidx.compose.ui.draw/BlurredEdgeTreatment = ...): androidx.compose.ui/Modifier // androidx.compose.ui.draw/blur|blur@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.draw.BlurredEdgeTreatment){}[0]
+final fun (androidx.compose.ui/Modifier).androidx.compose.ui.draw/blur(kotlin/Function1<androidx.compose.ui.draw/BlurScope, kotlin/Unit>): androidx.compose.ui/Modifier // androidx.compose.ui.draw/blur|blur@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.draw.BlurScope,kotlin.Unit>){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.ui.draw/clip(androidx.compose.ui.graphics/Shape): androidx.compose.ui/Modifier // androidx.compose.ui.draw/clip|clip@androidx.compose.ui.Modifier(androidx.compose.ui.graphics.Shape){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.ui.draw/clipToBounds(): androidx.compose.ui/Modifier // androidx.compose.ui.draw/clipToBounds|clipToBounds@androidx.compose.ui.Modifier(){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.ui.draw/drawBehind(kotlin/Function1<androidx.compose.ui.graphics.drawscope/DrawScope, kotlin/Unit>): androidx.compose.ui/Modifier // androidx.compose.ui.draw/drawBehind|drawBehind@androidx.compose.ui.Modifier(kotlin.Function1<androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>){}[0]
