@@ -36,6 +36,7 @@ import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
@@ -516,6 +517,92 @@ class PaintTrackerTest {
         assertThat(changes.mShaderMatrix).isNull()
     }
 
+    @Test
+    fun testFilterQuality_initialSync_default() {
+        val paint = RemotePaint {}
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(paint, bundle, recordingCanvas)
+
+        assertThat(tracker.isChanged).isTrue()
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.filterBitmapSet).isTrue()
+        assertThat(changes.mFilterBitmap).isTrue() // Defaults to Low -> true
+    }
+
+    @Test
+    fun testFilterQuality_initialSync_none() {
+        val paint = RemotePaint { filterQuality = FilterQuality.None }
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(paint, bundle, recordingCanvas)
+
+        assertThat(tracker.isChanged).isTrue()
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.filterBitmapSet).isTrue()
+        assertThat(changes.mFilterBitmap).isFalse()
+    }
+
+    @Test
+    fun testFilterQuality_initialSync_low() {
+        val paint = RemotePaint { filterQuality = FilterQuality.Low }
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(paint, bundle, recordingCanvas)
+
+        assertThat(tracker.isChanged).isTrue()
+
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+
+        assertThat(changes.filterBitmapSet).isTrue()
+        assertThat(changes.mFilterBitmap).isTrue()
+    }
+
+    @Test
+    fun testFilterQuality_deltaOptimization() {
+        // Initial draw with Low (filtering on)
+        val paint1 = RemotePaint { filterQuality = FilterQuality.Low }
+        tracker.updateWithPaint(paint1, PaintBundle(), recordingCanvas)
+        tracker.reset(force = false)
+
+        // Second draw with None (filtering off) -> should emit update
+        val paint2 = RemotePaint { filterQuality = FilterQuality.None }
+        val bundle2 = PaintBundle()
+        tracker.updateWithPaint(paint2, bundle2, recordingCanvas)
+
+        assertThat(tracker.isChanged).isTrue()
+        val changes2 = TestPaintChanges()
+        bundle2.applyPaintChange(paintContext, changes2)
+        assertThat(changes2.filterBitmapSet).isTrue()
+        assertThat(changes2.mFilterBitmap).isFalse()
+
+        // Third draw with None -> delta optimization should NOT re-emit filterBitmap
+        tracker.reset(force = false)
+        val paint3 = RemotePaint { filterQuality = FilterQuality.None }
+        val bundle3 = PaintBundle()
+        tracker.updateWithPaint(paint3, bundle3, recordingCanvas)
+        val changes3 = TestPaintChanges()
+        bundle3.applyPaintChange(paintContext, changes3)
+        assertThat(changes3.filterBitmapSet).isFalse()
+    }
+
+    @Test
+    fun testFilterQuality_compatAndroidRemotePaintFilterBitmapFalse() {
+        val compatPaint = CompatAndroidRemotePaint().apply { isFilterBitmap = false }
+        val bundle = PaintBundle()
+        tracker.updateWithPaint(compatPaint.remotePaint, bundle, recordingCanvas)
+
+        assertThat(tracker.isChanged).isTrue()
+        val changes = TestPaintChanges()
+        bundle.applyPaintChange(paintContext, changes)
+        assertThat(changes.filterBitmapSet).isTrue()
+        assertThat(changes.mFilterBitmap).isFalse()
+    }
+
     private class DummyShader(override var remoteMatrix3x3: RemoteMatrix3x3) : RemoteShader() {
         override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
             paintBundle.setShader(1)
@@ -595,7 +682,13 @@ class PaintTrackerTest {
 
         override fun setBlendMode(mode: Int) {}
 
-        override fun setFilterBitmap(filter: Boolean) {}
+        var mFilterBitmap: Boolean = true
+        var filterBitmapSet: Boolean = false
+
+        override fun setFilterBitmap(filter: Boolean) {
+            this.mFilterBitmap = filter
+            this.filterBitmapSet = true
+        }
 
         override fun setAntiAlias(aa: Boolean) {}
 
