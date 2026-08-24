@@ -2359,8 +2359,7 @@ class LookaheadScopeTest {
                 CompositionLocalProvider(LocalDensity provides Density(1f)) {
                     Row(Modifier.width(IntrinsicSize.Max)) {
                         Box(
-                            Modifier.fillMaxSize()
-                                .then(modifierList[iteration])
+                            Modifier.then(modifierList[iteration])
                                 .then(TestElement(lookaheadIntrinsicsResult, intrinsicsResult))
                                 .layout { measurable, constraints ->
                                     measurable.measure(constraints).run {
