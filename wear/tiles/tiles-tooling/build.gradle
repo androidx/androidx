@@ -13,8 +13,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(':wear:protolayout:protolayout'))
-    implementation(project(':wear:protolayout:protolayout-expression'))
+    implementation(project(":wear:protolayout:protolayout"))
+    implementation(project(":wear:protolayout:protolayout-expression"))
     implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
     implementation(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-renderer"))

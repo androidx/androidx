@@ -30,7 +30,7 @@ plugins {
 dependencies {
     api(libs.jspecify)
     api(libs.androidx.annotation)
-    api(project(':wear:protolayout:protolayout-expression'))
+    api(project(":wear:protolayout:protolayout-expression"))
     api(project(":wear:tiles:tiles"))
 
     implementation(project(":wear:tiles:tiles-proto"))

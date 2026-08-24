@@ -71,7 +71,7 @@ wire {
     kotlin {}
 
     sourcePath {
-        srcDir 'src/main/proto'
+        srcDir "src/main/proto"
     }
 }
 

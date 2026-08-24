@@ -25,7 +25,7 @@ plugins {
     id("com.android.library")
 }
 dependencies {
-    api 'androidx.fragment:fragment:1.2.5'
+    api "androidx.fragment:fragment:1.2.5"
 
     compileOnly(project(":annotation:annotation-sampled"))
 

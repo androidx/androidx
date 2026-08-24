@@ -133,10 +133,10 @@ abstract class ProtocolApiTask extends DefaultTask {
         List<String> standardArgs = [
                 "--classpath",
                 (bootClasspath.files + dependencyClasspath.files).join(File.pathSeparator),
-                '--source-path',
+                "--source-path",
                 sourceDirs.filter { it.exists() }.join(File.pathSeparator),
-                '--format=4.0',
-                '--quiet'
+                "--format=4.0",
+                "--quiet"
         ]
         standardArgs.addAll(additionalArgs)
 
@@ -163,7 +163,7 @@ abstract class GenerateProtocolApiTask extends ProtocolApiTask {
     @TaskAction
     def exec() {
         List<String> args = [
-                '--api',
+                "--api",
                 generatedApi.toString(),
                 "--show-annotation",
                 "androidx.car.app.annotations.CarProtocol",
@@ -263,7 +263,7 @@ abstract class CheckProtocolApiCompatibilityTask extends ProtocolApiTask {
         }
 
         List<String> args = [
-                '--source-files',
+                "--source-files",
                 generatedApi.toString(),
                 "--check-compatibility:api:released",
                 previousApi.toString()

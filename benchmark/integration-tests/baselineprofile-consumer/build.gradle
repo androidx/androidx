@@ -89,7 +89,7 @@ configurations {
         attributes {
             attribute(
                     LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-                    objects.named(LibraryElements, 'profileverification-apkAssets')
+                    objects.named(LibraryElements, "profileverification-apkAssets")
             )
         }
     }
