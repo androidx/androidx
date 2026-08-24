@@ -14,61 +14,40 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
-import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiComponentState
-import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.runtime.observeA2uiComponentState
 import androidx.a2ui.compose.ui.A2uiComponent
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.a2ui.MaterialA2uiDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 
-/**
- * A Jetpack Compose implementation of the A2UI `"Column"` component schema.
- *
- * Lays out A2UI children vertically. Supports fixed child lists and dynamic child template.
- *
- * **Schema Properties:**
- * * `children` (ChildList, required): An array of component IDs or dynamic child template.
- */
-public object MaterialColumnComponent : A2uiComponent {
+/** A Jetpack Compose Material 3 implementation of the A2UI Basic Catalog `"Column"` component. */
+internal object MaterialA2uiBasicCatalogV1Column : A2uiBasicCatalogV1.Column {
 
-    private val childrenProp =
-        A2uiProperty.childList(
-            "children",
-            required = true,
-            description =
-                "Defines the children. Use an array of strings for a fixed set of children, or a template object to generate children from a data list. Children cannot be defined inline, they must be referred to by ID.",
-        )
-
-    // TODO(b/546052129): Add support for `alignment` and `distribution` schema properties.
-
-    override val name: String = "Column"
-    override val description: String =
-        "A layout component that arranges its children vertically. To create a grid layout, " +
-            "nest Rows within this Column."
-    override val properties: List<A2uiProperty<*>> = listOf(childrenProp)
+    // TODO(b/546052129): Add support for `justify` and `align` schema properties.
 
     @Composable
-    override fun A2uiComponentScope.Content(
-        properties: A2uiComponentProperties,
+    override fun A2uiComponentScope.TypedContent(
+        children: List<A2uiComponentReference>,
+        justify: A2uiBasicCatalogV1.Column.Justify,
+        align: A2uiBasicCatalogV1.Column.Align,
         modifier: Modifier,
     ) {
-        val children = properties.bindChildReferences(childrenProp)
-
         Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            children?.fastForEach { reference ->
+            children.fastForEach { reference ->
                 key(reference.id, reference.baseDataPath) { ColumnChildItem(reference = reference) }
             }
         }

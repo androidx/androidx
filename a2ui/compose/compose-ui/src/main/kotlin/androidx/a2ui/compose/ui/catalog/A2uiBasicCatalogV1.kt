@@ -17,8 +17,10 @@
 package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentProperties
+import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiProperty
+import androidx.a2ui.compose.runtime.ChildListA2uiProperty
 import androidx.a2ui.compose.runtime.DynamicA2uiProperty
 import androidx.a2ui.compose.runtime.StaticA2uiProperty
 import androidx.a2ui.compose.ui.A2uiComponent
@@ -39,6 +41,8 @@ import androidx.compose.ui.util.fastFirstOrNull
  *
  * @property text The [Text] component implementation.
  * @property card The [Card] component implementation.
+ * @property row The [Row] component implementation.
+ * @property column The [Column] component implementation.
  * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
  *   to create the function list using
  *   [androidx.a2ui.model.catalog.basiccatalog.createBasicCatalogFunctions]
@@ -46,6 +50,8 @@ import androidx.compose.ui.util.fastFirstOrNull
 public class A2uiBasicCatalogV1(
     public val text: Text,
     public val card: Card,
+    public val row: Row,
+    public val column: Column,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
     public val functions: List<A2uiFunction>,
 ) {
@@ -61,6 +67,8 @@ public class A2uiBasicCatalogV1(
         listOf(
             text,
             card,
+            row,
+            column,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
         )
 
@@ -228,6 +236,283 @@ public class A2uiBasicCatalogV1(
         }
 
         @Composable public fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier)
+    }
+
+    /**
+     * The A2UI `"Row"` component for displaying content in a horizontal layout.
+     *
+     * **Schema Properties:**
+     * * `children` (ChildList, required): Defines the children, accepting either an array of
+     *   strings for a fixed set of children, or a template object to generate children from a data
+     *   list.
+     * * `justify` (String Enum, optional): Defines the arrangement of children along the main axis
+     *   (horizontally). Valid options: `"center"`, `"end"`, `"spaceAround"`, `"spaceBetween"`,
+     *   `"spaceEvenly"`, `"start"`, `"stretch"`. Defaults to `"start"`.
+     * * `align` (String Enum, optional): Defines the alignment of children along the cross axis
+     *   (vertically). Valid options: `"start"`, `"center"`, `"end"`, `"stretch"`. Defaults to
+     *   `"stretch"`.
+     */
+    public interface Row : A2uiComponent {
+        override val name: String
+            get() = "Row"
+
+        override val description: String
+            get() =
+                "A layout component that arranges its children horizontally. To create a grid " +
+                    "layout, nest Columns within this Row."
+
+        /** Arrangement of children along the main axis. */
+        public enum class Justify(public val value: String) {
+            Center("center"),
+            End("end"),
+            SpaceAround("spaceAround"),
+            SpaceBetween("spaceBetween"),
+            SpaceEvenly("spaceEvenly"),
+            Start("start"),
+            Stretch("stretch");
+
+            public companion object {
+                /** Returns the [Justify] matching [value], or [Start] if unknown. */
+                public fun fromValue(value: String): Justify =
+                    entries.fastFirstOrNull { it.value == value } ?: Start
+            }
+        }
+
+        /** Alignment of children along the cross axis. */
+        public enum class Align(public val value: String) {
+            Start("start"),
+            Center("center"),
+            End("end"),
+            Stretch("stretch");
+
+            public companion object {
+                /** Returns the [Align] matching [value], or [Stretch] if unknown. */
+                public fun fromValue(value: String): Align =
+                    entries.fastFirstOrNull { it.value == value } ?: Stretch
+            }
+        }
+
+        public companion object {
+            /** The [A2uiProperty] for the `"children"` property of a [Row]. */
+            public val ChildrenProperty: ChildListA2uiProperty =
+                A2uiProperty.childList(
+                    key = "children",
+                    required = true,
+                    description =
+                        "Defines the children. Use an array of strings for a fixed set of " +
+                            "children, or a template object to generate children from a data " +
+                            "list. Children cannot be defined inline, they must be referred to " +
+                            "by ID.",
+                )
+
+            /** The [A2uiProperty] for the `"justify"` property of a [Row]. */
+            public val JustifyProperty: StaticA2uiProperty<Justify> =
+                A2uiProperty.enum(
+                    key = "justify",
+                    enumValues = Justify.entries,
+                    mapToString = { it.value },
+                    convertFromString = Justify::fromValue,
+                    defaultValue = Justify.Start,
+                    description =
+                        "Defines the arrangement of children along the main axis (horizontally). " +
+                            "Use 'spaceBetween' to push items to the edges, or " +
+                            "'start'/'end'/'center' to pack them together.",
+                )
+
+            /** The [A2uiProperty] for the `"align"` property of a [Row]. */
+            public val AlignProperty: StaticA2uiProperty<Align> =
+                A2uiProperty.enum(
+                    key = "align",
+                    enumValues = Align.entries,
+                    mapToString = { it.value },
+                    convertFromString = Align::fromValue,
+                    defaultValue = Align.Stretch,
+                    description =
+                        "Defines the alignment of children along the cross axis (vertically). " +
+                            "This is similar to the CSS 'align-items' property, but uses " +
+                            "camelCase values (e.g., 'start').",
+                )
+
+            internal val ComponentProperties: List<A2uiProperty<*>> =
+                listOf(ChildrenProperty, JustifyProperty, AlignProperty)
+        }
+
+        override val properties: List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bindChildReferences(ChildrenProperty) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val children =
+                checkNotNull(properties.bindChildReferences(ChildrenProperty)) {
+                    "Required property '${ChildrenProperty.key}' is missing or could not be " +
+                        "resolved."
+                }
+            val justify = properties[JustifyProperty] ?: Justify.Start
+            val align = properties[AlignProperty] ?: Align.Stretch
+
+            TypedContent(children = children, justify = justify, align = align, modifier = modifier)
+        }
+
+        /**
+         * Renders the [Row] with its resolved [children], [justify], and [align] properties.
+         *
+         * @param children list of child [A2uiComponentReference]s to render in this row
+         * @param justify [Justify] arrangement of children along the horizontal main axis
+         * @param align [Align] alignment of children along the vertical cross axis
+         * @param modifier [Modifier] to apply to the layout
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            children: List<A2uiComponentReference>,
+            justify: Justify,
+            align: Align,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"Column"` component for arranging children vertically.
+     *
+     * **Schema Properties:**
+     * * `children` (ChildList, required): Defines the children, accepting either an array of
+     *   strings for a fixed set of children, or a template object to generate children from a data
+     *   list.
+     * * `justify` (String Enum, optional): Defines the arrangement of children along the main axis
+     *   (vertically). Valid options: `"start"`, `"center"`, `"end"`, `"spaceBetween"`,
+     *   `"spaceAround"`, `"spaceEvenly"`, `"stretch"`. Defaults to `"start"`.
+     * * `align` (String Enum, optional): Defines the alignment of children along the cross axis
+     *   (horizontally). Valid options: `"center"`, `"end"`, `"start"`, `"stretch"`. Defaults to
+     *   `"stretch"`.
+     */
+    public interface Column : A2uiComponent {
+        override val name: String
+            get() = "Column"
+
+        override val description: String
+            get() =
+                "A layout component that arranges its children vertically. To create a grid " +
+                    "layout, nest Rows within this Column."
+
+        /** Arrangement of children along the main axis. */
+        public enum class Justify(public val value: String) {
+            Start("start"),
+            Center("center"),
+            End("end"),
+            SpaceBetween("spaceBetween"),
+            SpaceAround("spaceAround"),
+            SpaceEvenly("spaceEvenly"),
+            Stretch("stretch");
+
+            public companion object {
+                /** Returns the [Justify] matching [value], or [Start] if unknown. */
+                public fun fromValue(value: String): Justify =
+                    entries.fastFirstOrNull { it.value == value } ?: Start
+            }
+        }
+
+        /** Alignment of children along the cross axis. */
+        public enum class Align(public val value: String) {
+            Center("center"),
+            End("end"),
+            Start("start"),
+            Stretch("stretch");
+
+            public companion object {
+                /** Returns the [Align] matching [value], or [Stretch] if unknown. */
+                public fun fromValue(value: String): Align =
+                    entries.fastFirstOrNull { it.value == value } ?: Stretch
+            }
+        }
+
+        public companion object {
+            /** The [A2uiProperty] for the `"children"` property of a [Column]. */
+            public val ChildrenProperty: ChildListA2uiProperty =
+                A2uiProperty.childList(
+                    key = "children",
+                    required = true,
+                    description =
+                        "Defines the children. Use an array of strings for a fixed set of " +
+                            "children, or a template object to generate children from a data " +
+                            "list. Children cannot be defined inline, they must be referred to " +
+                            "by ID.",
+                )
+
+            /** The [A2uiProperty] for the `"justify"` property of a [Column]. */
+            public val JustifyProperty: StaticA2uiProperty<Justify> =
+                A2uiProperty.enum(
+                    key = "justify",
+                    enumValues = Justify.entries,
+                    mapToString = { it.value },
+                    convertFromString = Justify::fromValue,
+                    defaultValue = Justify.Start,
+                    description =
+                        "Defines the arrangement of children along the main axis (vertically). " +
+                            "Use 'spaceBetween' to push items to the edges (e.g. header at top, " +
+                            "footer at bottom), or 'start'/'end'/'center' to pack them together.",
+                )
+
+            /** The [A2uiProperty] for the `"align"` property of a [Column]. */
+            public val AlignProperty: StaticA2uiProperty<Align> =
+                A2uiProperty.enum(
+                    key = "align",
+                    enumValues = Align.entries,
+                    mapToString = { it.value },
+                    convertFromString = Align::fromValue,
+                    defaultValue = Align.Stretch,
+                    description =
+                        "Defines the alignment of children along the cross axis (horizontally). " +
+                            "This is similar to the CSS 'align-items' property.",
+                )
+
+            internal val ComponentProperties: List<A2uiProperty<*>> =
+                listOf(ChildrenProperty, JustifyProperty, AlignProperty)
+        }
+
+        override val properties: List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bindChildReferences(ChildrenProperty) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val children =
+                checkNotNull(properties.bindChildReferences(ChildrenProperty)) {
+                    "Required property '${ChildrenProperty.key}' is missing or could not be " +
+                        "resolved."
+                }
+            val justify = properties[JustifyProperty] ?: Justify.Start
+            val align = properties[AlignProperty] ?: Align.Stretch
+
+            TypedContent(children = children, justify = justify, align = align, modifier = modifier)
+        }
+
+        /**
+         * Renders the [Column] with its resolved [children], [justify], and [align] properties.
+         *
+         * @param children list of child [A2uiComponentReference]s to render in this column
+         * @param justify [Justify] arrangement of children along the vertical main axis
+         * @param align [Align] alignment of children along the horizontal cross axis
+         * @param modifier [Modifier] to apply to the layout
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            children: List<A2uiComponentReference>,
+            justify: Justify,
+            align: Align,
+            modifier: Modifier,
+        )
     }
 
     override fun equals(other: Any?): Boolean {
