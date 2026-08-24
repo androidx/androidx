@@ -19,7 +19,9 @@ package androidx.glance.adaptive.appwidget
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
@@ -54,6 +56,7 @@ private const val TAG = "GlanceAdaptiveReceiver"
  * <receiver android:name=".MyGlanceAdaptiveWidgetReceiver" android:exported="true">
  *     <intent-filter>
  *         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+ *         <action android:name="android.intent.action.LOCALE_CHANGED" />
  *     </intent-filter>
  *     <meta-data
  *         android:name="androidx.glance.adaptive.WIDGET_NAME"
@@ -109,6 +112,24 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         goAsync(coroutineContext) { onUpdate(context) }
     }
 
+    override fun onReceive(context: Context, intent: Intent) {
+        runAndLogExceptions {
+            when (intent.action) {
+                Intent.ACTION_LOCALE_CHANGED -> {
+                    val appWidgetManager = AppWidgetManager.getInstance(context)
+                    val componentName = ComponentName(context, javaClass)
+                    val ids =
+                        intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
+                            ?: appWidgetManager.getAppWidgetIds(componentName)
+                    if (ids.isNotEmpty()) {
+                        onUpdate(context, appWidgetManager, ids)
+                    }
+                }
+                else -> super.onReceive(context, intent)
+            }
+        }
+    }
+
     public companion object {
         /**
          * Manifest `<meta-data>` name used to associate an [AppWidgetProvider] receiver with a
@@ -151,5 +172,15 @@ internal fun BroadcastReceiver.goAsync(
                 Log.e(TAG, "Error thrown when trying to finish broadcast", e)
             }
         }
+    }
+}
+
+private inline fun runAndLogExceptions(block: () -> Unit) {
+    try {
+        block()
+    } catch (ex: CancellationException) {
+        // Regular cancellation, ignore
+    } catch (ex: Exception) {
+        Log.e(TAG, "Error in Glance Adaptive Widget Receiver", ex)
     }
 }
