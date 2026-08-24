@@ -1288,7 +1288,7 @@ internal class CanvasOperationBuffer(val enableOptimizations: Boolean = false) {
 
         val idealSpan = keyToIdealSpan[key] ?: return
 
-        val state = expressionMap[key] ?: key.state
+        val state = expressionMap[key] ?: key.getState()
         if (state is BaseRemoteState<*>) {
             // Recurse on children first!
             for (i in 0 until key.args.size) {
