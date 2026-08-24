@@ -21,18 +21,6 @@ package androidx.compose.material3.a2ui {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void A2uiSurface(androidx.a2ui.model.processor.A2uiSurfaceModel, androidx.compose.ui.Modifier?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function3<? super androidx.a2ui.model.protocol.A2uiException!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>?, kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<androidx.a2ui.compose.runtime.A2uiComponentState!>!,androidx.compose.animation.ContentTransform!>?, androidx.compose.runtime.Composer?, int, int);
   }
 
-  public final class MaterialButtonComponent implements androidx.a2ui.compose.ui.A2uiComponent {
-    method @KotlinOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @InaccessibleFromKotlin public String getDescription();
-    method @InaccessibleFromKotlin public String getName();
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.runtime.StaticA2uiProperty<? extends java.lang.Object?>> getProperties();
-    property public String description;
-    property public String name;
-    property public java.util.List<androidx.a2ui.compose.runtime.StaticA2uiProperty<? extends java.lang.Object?>> properties;
-    field public static final androidx.compose.material3.a2ui.MaterialButtonComponent INSTANCE;
-  }
-
   public final class MaterialCheckBoxComponent implements androidx.a2ui.compose.ui.A2uiComponent {
     method @KotlinOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
@@ -132,10 +120,12 @@ package androidx.compose.material3.a2ui {
 package androidx.compose.material3.a2ui.catalog {
 
   public final class MaterialA2uiBasicCatalogV1Defaults {
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button getButton();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card getCard();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column getColumn();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row getRow();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text getText();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row;
@@ -144,8 +134,8 @@ package androidx.compose.material3.a2ui.catalog {
   }
 
   public final class MaterialA2uiBasicCatalogV1Kt {
-    method public static androidx.a2ui.compose.ui.A2uiCatalog materialA2uiBasicCatalogV1(androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column);
-    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! materialA2uiBasicCatalogV1$default(androidx.a2ui.model.catalog.functions.A2uiUrlOpener!, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column!, int, Object!);
+    method public static androidx.a2ui.compose.ui.A2uiCatalog materialA2uiBasicCatalogV1(androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button);
+    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! materialA2uiBasicCatalogV1$default(androidx.a2ui.model.catalog.functions.A2uiUrlOpener!, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button!, int, Object!);
   }
 
 }
