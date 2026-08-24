@@ -764,6 +764,40 @@ public class ImageAnalysisTest {
         return imagesReceived;
     }
 
+    @Test
+    public void recreatedProcessedImageReaderProxy_isClosed_afterUnbind() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
+                .setOutputImageRotationEnabled(true)
+                .setSessionOptionUnpacker((resolution, config, builder) -> {
+                })
+                .setCaptureOptionUnpacker((config, builder) -> {
+                })
+                .build();
+
+        imageAnalysis.setTargetRotation(Surface.ROTATION_0);
+        CameraInternal camera = new FakeCamera();
+        imageAnalysis.bindToCamera(camera, null, null, null);
+        imageAnalysis.onSuggestedStreamSpecUpdated(
+                StreamSpec.builder(new Size(800, 600)).build(), null);
+
+        imageAnalysis.setAnalyzer(CameraXExecutors.directExecutor(),
+                mock(ImageAnalysis.Analyzer.class));
+        ImageAnalysisAbstractAnalyzer abstractAnalyzer =
+                imageAnalysis.mImageAnalysisAbstractAnalyzer;
+
+        imageAnalysis.setTargetRotation(Surface.ROTATION_180);
+
+        SafeCloseImageReaderProxy recreatedReader =
+                abstractAnalyzer.getProcessedImageReaderProxy();
+        assertThat(recreatedReader).isNotNull();
+        assertThat(recreatedReader.isClosed()).isFalse();
+
+        imageAnalysis.unbindFromCamera(camera);
+
+        assertThat(recreatedReader.isClosed()).isTrue();
+        assertThat(recreatedReader.getOutstandingImages()).isEqualTo(0);
+    }
+
     /**
      * Flushes a {@link Handler} to run all pending tasks.
      *
