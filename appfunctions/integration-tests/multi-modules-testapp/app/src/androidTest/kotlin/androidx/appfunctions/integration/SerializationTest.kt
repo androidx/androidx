@@ -97,7 +97,6 @@ class SerializationTest {
         assertThat(intEnumSerializable.value).isEqualTo(10)
     }
 
-    @Ignore("TODO: b/547884111 - Remove once legacy Uri fallback is resolved.")
     @Test
     fun serializeAppFunctionSerializable_uriConstraint_success() {
         val uriConstraintSerializable =
@@ -112,7 +111,8 @@ class SerializationTest {
                 UriConstraintSerializable::class.java,
             )
 
-        assertThat(afd.getString("uri")).isEqualTo("content://media/external/images/media/1")
+        assertThat(afd.getAppFunctionData("uri")?.getString("uri"))
+            .isEqualTo("content://media/external/images/media/1")
         assertThat(afd.getString("numericString")).isEqualTo("12345")
     }
 

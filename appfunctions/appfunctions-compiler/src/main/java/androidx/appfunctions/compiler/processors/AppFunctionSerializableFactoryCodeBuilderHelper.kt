@@ -459,7 +459,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                     afType.itemTypeReference,
                     isRequired,
                 )
-            SERIALIZABLE_PROXY_SINGULAR -> {
+            SERIALIZABLE_PROXY_SINGULAR,
+            URI_SINGULAR -> {
                 val targetSerializableProxy =
                     resolvedAnnotatedSerializableProxies.getSerializableProxyForTypeReference(
                         afType
@@ -470,7 +471,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                     afType,
                 )
             }
-            SERIALIZABLE_PROXY_LIST -> {
+            SERIALIZABLE_PROXY_LIST,
+            URI_LIST -> {
                 val targetSerializableProxy =
                     resolvedAnnotatedSerializableProxies.getSerializableProxyForTypeReference(
                         afType
@@ -482,8 +484,6 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                     isRequired,
                 )
             }
-            URI_SINGULAR -> appendUriGetterStatement(paramName, afType, isRequired)
-            URI_LIST -> appendUriListGetterStatement(paramName, afType, isRequired)
             else -> {
                 throw ProcessingException(
                     "Unsupported type for @AppFunctionSerializable: ${afType.typeCategory}",
@@ -657,83 +657,6 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
         return this
     }
 
-    private fun CodeBlock.Builder.appendUriGetterStatement(
-        paramName: String,
-        afType: AppFunctionTypeReference,
-        isRequired: Boolean,
-    ): CodeBlock.Builder {
-        val formatStringMap =
-            mapOf<String, Any>(
-                "param_name" to paramName,
-                "app_function_data_param_name" to APP_FUNCTION_DATA_WITH_SPEC_VARIABLE_NAME,
-                "uri_class" to IntrospectionHelper.URI_CLASS_NAME,
-            )
-
-        if (!afType.isNullable && isRequired) {
-            addNamed(
-                "val %param_name:LString = checkNotNull(%app_function_data_param_name:L.getStringOrNull(\"%param_name:L\"))\n",
-                formatStringMap,
-            )
-            addNamed(
-                "val %param_name:L = %uri_class:T.parse(%param_name:LString)\n",
-                formatStringMap,
-            )
-        } else {
-            addNamed(
-                "val %param_name:LString = %app_function_data_param_name:L.getStringOrNull(\"%param_name:L\")\n",
-                formatStringMap,
-            )
-            addNamed(
-                "val %param_name:L = if (%param_name:LString != null) %uri_class:T.parse(%param_name:LString) else null\n",
-                formatStringMap,
-            )
-        }
-        return this
-    }
-
-    private fun CodeBlock.Builder.appendUriListGetterStatement(
-        paramName: String,
-        afType: AppFunctionTypeReference,
-        isRequired: Boolean,
-    ): CodeBlock.Builder {
-        val formatStringMap =
-            mapOf<String, Any>(
-                "param_name" to paramName,
-                "app_function_data_param_name" to APP_FUNCTION_DATA_WITH_SPEC_VARIABLE_NAME,
-                "uri_class" to IntrospectionHelper.URI_CLASS_NAME,
-            )
-
-        if (!afType.isNullable && isRequired) {
-            addNamed(
-                "val %param_name:LStringList = checkNotNull(%app_function_data_param_name:L.getStringList(\"%param_name:L\"))\n",
-                formatStringMap,
-            )
-            addNamed(
-                "val %param_name:L = %param_name:LStringList.map { uriString -> %uri_class:T.parse(uriString) }\n",
-                formatStringMap,
-            )
-        } else if (!afType.isNullable && !isRequired) {
-            addNamed(
-                "val %param_name:LStringList = %app_function_data_param_name:L.getStringList(\"%param_name:L\") ?: emptyList()\n",
-                formatStringMap,
-            )
-            addNamed(
-                "val %param_name:L = %param_name:LStringList.map { uriString -> %uri_class:T.parse(uriString) }\n",
-                formatStringMap,
-            )
-        } else {
-            addNamed(
-                "val %param_name:LStringList = %app_function_data_param_name:L.getStringList(\"%param_name:L\")\n",
-                formatStringMap,
-            )
-            addNamed(
-                "val %param_name:L = %param_name:LStringList?.map { uriString -> %uri_class:T.parse(uriString) }\n",
-                formatStringMap,
-            )
-        }
-        return this
-    }
-
     private fun CodeBlock.Builder.appendGetterResultConstructorCallStatement(
         originalClassName: ClassName,
         properties: List<AppFunctionPropertyDeclaration>,
@@ -801,7 +724,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                 )
             SERIALIZABLE_LIST ->
                 appendSerializableListSetterStatement(paramName, afType, afType.itemTypeReference)
-            SERIALIZABLE_PROXY_SINGULAR -> {
+            SERIALIZABLE_PROXY_SINGULAR,
+            URI_SINGULAR -> {
                 val targetSerializableProxy =
                     resolvedAnnotatedSerializableProxies.getSerializableProxyForTypeReference(
                         afType
@@ -812,7 +736,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                     afType,
                 )
             }
-            SERIALIZABLE_PROXY_LIST -> {
+            SERIALIZABLE_PROXY_LIST,
+            URI_LIST -> {
                 val targetSerializableProxy =
                     resolvedAnnotatedSerializableProxies.getSerializableProxyForTypeReference(
                         afType
@@ -823,8 +748,6 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                     targetSerializableProxy.serializableReferenceType,
                 )
             }
-            URI_SINGULAR -> appendUriSetterStatement(paramName)
-            URI_LIST -> appendUriListSetterStatement(paramName)
             else -> {
                 throw ProcessingException(
                     "Unsupported type for @AppFunctionSerializable: ${afType.typeCategory}",
@@ -832,26 +755,6 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                 )
             }
         }
-    }
-
-    private fun CodeBlock.Builder.appendUriSetterStatement(paramName: String): CodeBlock.Builder {
-        val formatStringMap = mapOf<String, Any>("param_name" to paramName)
-        addNamed(
-            "builder.setString(\"%param_name:L\", %param_name:L.toString())\n",
-            formatStringMap,
-        )
-        return this
-    }
-
-    private fun CodeBlock.Builder.appendUriListSetterStatement(
-        paramName: String
-    ): CodeBlock.Builder {
-        val formatStringMap = mapOf<String, Any>("param_name" to paramName)
-        addNamed(
-            "builder.setStringList(\"%param_name:L\", %param_name:L.map { uri -> uri.toString() })\n",
-            formatStringMap,
-        )
-        return this
     }
 
     private fun CodeBlock.Builder.appendPrimitiveSetterStatement(
@@ -931,10 +834,10 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
         return when (afType.typeCategory) {
             PRIMITIVE_SINGULAR -> "get${shortTypeName}OrNull"
             PRIMITIVE_ARRAY -> "get$shortTypeName"
-            URI_SINGULAR -> "getStringOrNull"
-            URI_LIST -> "getStringList"
+            URI_SINGULAR,
             SERIALIZABLE_PROXY_SINGULAR,
             SERIALIZABLE_SINGULAR -> "getAppFunctionData"
+            URI_LIST,
             SERIALIZABLE_PROXY_LIST,
             SERIALIZABLE_LIST -> "getAppFunctionDataList"
             PRIMITIVE_LIST -> "get${shortTypeName}List"
@@ -988,10 +891,10 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
             PRIMITIVE_SINGULAR,
             PRIMITIVE_ARRAY -> "set${afType.selfOrItemTypeReference.getTypeShortName()}"
             PRIMITIVE_LIST -> "set${afType.selfOrItemTypeReference.getTypeShortName()}List"
-            URI_SINGULAR -> "setString"
-            URI_LIST -> "setStringList"
+            URI_SINGULAR,
             SERIALIZABLE_SINGULAR,
             SERIALIZABLE_PROXY_SINGULAR -> "setAppFunctionData"
+            URI_LIST,
             SERIALIZABLE_PROXY_LIST,
             SERIALIZABLE_LIST -> "setAppFunctionDataList"
             PARCELABLE_SINGULAR -> "setParcelable"
@@ -1083,8 +986,7 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
         val afType = AppFunctionTypeReference(typeReference)
 
         when (afType.typeCategory) {
-            PRIMITIVE_SINGULAR,
-            URI_SINGULAR -> {
+            PRIMITIVE_SINGULAR -> {
                 appendTypeParameterInstanceCreation(
                     IntrospectionHelper.AppFunctionSerializableFactoryClass.TypeParameterClass
                         .PrimitiveTypeParameterClass
@@ -1099,8 +1001,7 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                         .CLASS_NAME,
                     afType.selfTypeReference.toTypeName(),
                 )
-            PRIMITIVE_LIST,
-            URI_LIST ->
+            PRIMITIVE_LIST ->
                 appendTypeParameterInstanceCreation(
                     IntrospectionHelper.AppFunctionSerializableFactoryClass.TypeParameterClass
                         .PrimitiveListTypeParameter
@@ -1125,7 +1026,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                     getAnnotatedSerializable(afType).factoryClassName,
                 )
             }
-            SERIALIZABLE_PROXY_SINGULAR -> {
+            SERIALIZABLE_PROXY_SINGULAR,
+            URI_SINGULAR -> {
                 val typeParameterAnnotatedSerializableProxy =
                     resolvedAnnotatedSerializableProxies.getSerializableProxyForTypeReference(
                         afType
@@ -1139,7 +1041,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                     typeParameterAnnotatedSerializableProxy.factoryClassName,
                 )
             }
-            SERIALIZABLE_PROXY_LIST -> {
+            SERIALIZABLE_PROXY_LIST,
+            URI_LIST -> {
                 val typeParameterAnnotatedSerializableProxy =
                     resolvedAnnotatedSerializableProxies.getSerializableProxyForTypeReference(
                         afType

@@ -5,10 +5,22 @@
         <enabledByDefault>true</enabledByDefault>
         <parameters>
             <dataTypeMetadata>
-                <dataTypeReference>android.net.Uri</dataTypeReference>
                 <id>unused</id>
                 <isNullable>false</isNullable>
-                <type>11</type>
+                <objectQualifiedName>android.net.Uri</objectQualifiedName>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <pattern>^\Qcontent\E:.*</pattern>
+                        <format>uri</format>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>uri</name>
+                </properties>
+                <required>uri</required>
+                <type>3</type>
             </dataTypeMetadata>
             <id>unused</id>
             <isRequired>true</isRequired>
@@ -29,10 +41,22 @@
         <enabledByDefault>true</enabledByDefault>
         <parameters>
             <dataTypeMetadata>
-                <dataTypeReference>android.net.Uri</dataTypeReference>
                 <id>unused</id>
                 <isNullable>false</isNullable>
-                <type>11</type>
+                <objectQualifiedName>android.net.Uri</objectQualifiedName>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <pattern>^(\Qcontent\E|\Qfile\E):.*</pattern>
+                        <format>uri</format>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>uri</name>
+                </properties>
+                <required>uri</required>
+                <type>3</type>
             </dataTypeMetadata>
             <id>unused</id>
             <isRequired>true</isRequired>
@@ -53,10 +77,21 @@
         <enabledByDefault>true</enabledByDefault>
         <parameters>
             <dataTypeMetadata>
-                <dataTypeReference>android.net.Uri</dataTypeReference>
                 <id>unused</id>
                 <isNullable>false</isNullable>
-                <type>11</type>
+                <objectQualifiedName>android.net.Uri</objectQualifiedName>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <format>uri</format>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>uri</name>
+                </properties>
+                <required>uri</required>
+                <type>3</type>
             </dataTypeMetadata>
             <id>unused</id>
             <isRequired>true</isRequired>
@@ -127,10 +162,22 @@
         <response>
             <id>unused</id>
             <valueType>
-                <dataTypeReference>android.net.Uri</dataTypeReference>
                 <id>unused</id>
                 <isNullable>false</isNullable>
-                <type>11</type>
+                <objectQualifiedName>android.net.Uri</objectQualifiedName>
+                <properties>
+                    <dataTypeMetadata>
+                        <id>unused</id>
+                        <isNullable>false</isNullable>
+                        <pattern>^\Qcontent\E:.*</pattern>
+                        <format>uri</format>
+                        <type>8</type>
+                    </dataTypeMetadata>
+                    <id>unused</id>
+                    <name>uri</name>
+                </properties>
+                <required>uri</required>
+                <type>3</type>
             </valueType>
         </response>
         <functionId>com.testdata.ValidUriConstraintService#functionWithUriReturn</functionId>
@@ -140,33 +187,25 @@
             <dataTypeMetadata>
                 <id>unused</id>
                 <isNullable>true</isNullable>
-                <objectQualifiedName>android.net.Uri</objectQualifiedName>
-                <properties>
-                    <dataTypeMetadata>
-                        <id>unused</id>
-                        <isNullable>false</isNullable>
-                        <type>8</type>
-                    </dataTypeMetadata>
-                    <id>unused</id>
-                    <name>uri</name>
-                </properties>
-                <required>uri</required>
-                <type>3</type>
-            </dataTypeMetadata>
-            <id>unused</id>
-            <name>android.net.Uri</name>
-        </dataTypes>
-        <dataTypes>
-            <dataTypeMetadata>
-                <id>unused</id>
-                <isNullable>true</isNullable>
                 <objectQualifiedName>com.testdata.SerializableWithValueConstraints</objectQualifiedName>
                 <properties>
                     <dataTypeMetadata>
-                        <dataTypeReference>android.net.Uri</dataTypeReference>
                         <id>unused</id>
                         <isNullable>false</isNullable>
-                        <type>11</type>
+                        <objectQualifiedName>android.net.Uri</objectQualifiedName>
+                        <properties>
+                            <dataTypeMetadata>
+                                <id>unused</id>
+                                <isNullable>false</isNullable>
+                                <pattern>^\Qcontent\E:.*</pattern>
+                                <format>uri</format>
+                                <type>8</type>
+                            </dataTypeMetadata>
+                            <id>unused</id>
+                            <name>uri</name>
+                        </properties>
+                        <required>uri</required>
+                        <type>3</type>
                     </dataTypeMetadata>
                     <id>unused</id>
                     <name>contentUri</name>

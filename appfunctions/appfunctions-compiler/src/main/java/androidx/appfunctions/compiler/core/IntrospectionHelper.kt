@@ -485,5 +485,9 @@ object IntrospectionHelper {
         AnnotationSpec.builder(RequiresApiAnnotation.CLASS_NAME).addMember("%L", 33).build()
 
     val PARCELABLE_CLASS_NAME = ClassName("android.os", "Parcelable")
-    val URI_CLASS_NAME = ClassName("android.net", "Uri")
+
+    object UriClass {
+        val URI_CLASS_NAME = ClassName("android.net", "Uri")
+        const val PROPERTY_URI_NAME = "uri"
+    }
 }

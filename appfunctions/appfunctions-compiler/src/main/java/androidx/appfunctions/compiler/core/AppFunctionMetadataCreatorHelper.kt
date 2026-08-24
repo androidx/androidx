@@ -391,7 +391,7 @@ class AppFunctionMetadataCreatorHelper(
                 )
             }
             URI_SINGULAR ->
-                buildUriStringTypeMetadata(
+                buildUriObjectTypeMetadata(
                     annotations,
                     isNullable = appFunctionTypeReference.isNullable,
                     description = description,
@@ -399,7 +399,7 @@ class AppFunctionMetadataCreatorHelper(
             URI_LIST ->
                 AppFunctionArrayTypeMetadata(
                     itemType =
-                        buildUriStringTypeMetadata(
+                        buildUriObjectTypeMetadata(
                             annotations,
                             isNullable =
                                 AppFunctionTypeReference(appFunctionTypeReference.itemTypeReference)
@@ -506,11 +506,11 @@ class AppFunctionMetadataCreatorHelper(
             )
     }
 
-    private fun buildUriStringTypeMetadata(
+    private fun buildUriObjectTypeMetadata(
         annotations: Sequence<KSAnnotation>,
         isNullable: Boolean,
         description: String,
-    ): AppFunctionStringTypeMetadata {
+    ): AppFunctionObjectTypeMetadata {
         val uriConstraint =
             annotations.findAnnotation(
                 IntrospectionHelper.AppFunctionUriValueConstraintAnnotation.CLASS_NAME
@@ -526,11 +526,19 @@ class AppFunctionMetadataCreatorHelper(
 
         val pattern = buildAllowedSchemeRegex(allowedSchemes)
 
-        return AppFunctionStringTypeMetadata(
+        val uriStringMetadata =
+            AppFunctionStringTypeMetadata(
+                isNullable = false,
+                description = "",
+                pattern = pattern,
+                format = AppFunctionStringTypeMetadata.FORMAT_URI,
+            )
+        return AppFunctionObjectTypeMetadata(
+            properties = mapOf(IntrospectionHelper.UriClass.PROPERTY_URI_NAME to uriStringMetadata),
+            required = listOf(IntrospectionHelper.UriClass.PROPERTY_URI_NAME),
+            qualifiedName = IntrospectionHelper.UriClass.URI_CLASS_NAME.canonicalName,
             isNullable = isNullable,
             description = description,
-            pattern = pattern,
-            format = AppFunctionStringTypeMetadata.FORMAT_URI,
         )
     }
 
@@ -810,7 +818,7 @@ class AppFunctionMetadataCreatorHelper(
     private fun AppFunctionTypeReference.toAppFunctionDataType(): Int {
         return when (this.typeCategory) {
             PRIMITIVE_SINGULAR -> selfTypeReference.toAppFunctionDatatype()
-            URI_SINGULAR -> AppFunctionDataTypeMetadata.TYPE_STRING
+            URI_SINGULAR,
             SERIALIZABLE_INTERFACE_SINGULAR,
             SERIALIZABLE_PROXY_SINGULAR,
             SERIALIZABLE_SINGULAR -> AppFunctionObjectTypeMetadata.TYPE
@@ -829,8 +837,8 @@ class AppFunctionMetadataCreatorHelper(
         return when (this.typeCategory) {
             SERIALIZABLE_INTERFACE_LIST,
             SERIALIZABLE_PROXY_LIST,
-            SERIALIZABLE_LIST -> AppFunctionObjectTypeMetadata.TYPE
-            URI_LIST -> AppFunctionDataTypeMetadata.TYPE_STRING
+            SERIALIZABLE_LIST,
+            URI_LIST -> AppFunctionObjectTypeMetadata.TYPE
             PRIMITIVE_ARRAY -> selfTypeReference.toAppFunctionDatatype()
             PRIMITIVE_LIST -> itemTypeReference.toAppFunctionDatatype()
             PARCELABLE_LIST -> AppFunctionParcelableTypeMetadata.TYPE
