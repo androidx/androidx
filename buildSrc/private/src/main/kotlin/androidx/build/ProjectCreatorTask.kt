@@ -635,7 +635,7 @@ internal class ProjectGenerator {
                 """
                 androidLibrary {
                     namespace = "androidx.compose.${artifactId.removePrefix("compose-").replace("-", ".")}"
-                    compileSdk { version = release(37) { minorApiLevel = 1 } }
+                    compileSdk { version = release(35) }
                 }
                 jvmStubs()
                 linuxX64Stubs()
