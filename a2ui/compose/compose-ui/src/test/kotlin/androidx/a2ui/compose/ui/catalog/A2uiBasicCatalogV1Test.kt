@@ -58,12 +58,14 @@ class A2uiBasicCatalogV1Test {
         val card = TestCardComponent()
         val row = TestRowComponent()
         val column = TestColumnComponent()
+        val button = TestButtonComponent()
         val catalog =
             createTestBasicCatalog(
                 text = text,
                 card = card,
                 row = row,
                 column = column,
+                button = button,
                 functions = listOf(A2uiFormatStringFunction.INSTANCE),
             )
 
@@ -71,6 +73,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.card).isSameInstanceAs(card)
         assertThat(catalog.row).isSameInstanceAs(row)
         assertThat(catalog.column).isSameInstanceAs(column)
+        assertThat(catalog.button).isSameInstanceAs(button)
         assertThat(catalog.functions).containsExactly(A2uiFormatStringFunction.INSTANCE)
     }
 
@@ -80,9 +83,17 @@ class A2uiBasicCatalogV1Test {
         val card = TestCardComponent()
         val row = TestRowComponent()
         val column = TestColumnComponent()
-        val catalog = createTestBasicCatalog(text = text, card = card, row = row, column = column)
+        val button = TestButtonComponent()
+        val catalog =
+            createTestBasicCatalog(
+                text = text,
+                card = card,
+                row = row,
+                column = column,
+                button = button,
+            )
 
-        assertThat(catalog.components).containsExactly(text, card, row, column)
+        assertThat(catalog.components).containsExactly(text, card, row, column, button)
     }
 
     @Test
@@ -91,8 +102,23 @@ class A2uiBasicCatalogV1Test {
         val card = TestCardComponent()
         val row = TestRowComponent()
         val column = TestColumnComponent()
-        val catalog1 = createTestBasicCatalog(text = text, card = card, row = row, column = column)
-        val catalog2 = createTestBasicCatalog(text = text, card = card, row = row, column = column)
+        val button = TestButtonComponent()
+        val catalog1 =
+            createTestBasicCatalog(
+                text = text,
+                card = card,
+                row = row,
+                column = column,
+                button = button,
+            )
+        val catalog2 =
+            createTestBasicCatalog(
+                text = text,
+                card = card,
+                row = row,
+                column = column,
+                button = button,
+            )
 
         assertThat(catalog1).isEqualTo(catalog2)
         assertThat(catalog1.hashCode()).isEqualTo(catalog2.hashCode())
@@ -105,12 +131,14 @@ class A2uiBasicCatalogV1Test {
         val sharedCard = TestCardComponent()
         val sharedRow = TestRowComponent()
         val sharedColumn = TestColumnComponent()
+        val sharedButton = TestButtonComponent()
         val catalog1 =
             createTestBasicCatalog(
                 text = text1,
                 card = sharedCard,
                 row = sharedRow,
                 column = sharedColumn,
+                button = sharedButton,
             )
         val catalog2 =
             createTestBasicCatalog(
@@ -118,9 +146,11 @@ class A2uiBasicCatalogV1Test {
                 card = sharedCard,
                 row = sharedRow,
                 column = sharedColumn,
+                button = sharedButton,
             )
 
         assertThat(catalog1).isNotEqualTo(catalog2)
+        assertThat(catalog1.hashCode()).isNotEqualTo(catalog2.hashCode())
     }
 
     @Test
@@ -129,7 +159,7 @@ class A2uiBasicCatalogV1Test {
 
         assertThat(catalog.toString()).contains("catalogId=${A2uiBasicCatalogV1.CatalogId}")
         assertThat(catalog.toString()).contains("themeSchema=${A2uiBasicCatalogV1.ThemeSchema}")
-        assertThat(catalog.toString()).containsMatch("components=.*Text.*Card.*Row.*Column")
+        assertThat(catalog.toString()).containsMatch("components=.*Text.*Card.*Row.*Column.*Button")
         assertThat(catalog.toString()).contains("functions=[]")
     }
 
@@ -138,6 +168,7 @@ class A2uiBasicCatalogV1Test {
         card: A2uiBasicCatalogV1.Card = TestCardComponent(),
         row: A2uiBasicCatalogV1.Row = TestRowComponent(),
         column: A2uiBasicCatalogV1.Column = TestColumnComponent(),
+        button: A2uiBasicCatalogV1.Button = TestButtonComponent(),
         functions: List<A2uiFunction> = emptyList(),
     ) =
         A2uiBasicCatalogV1(
@@ -145,6 +176,7 @@ class A2uiBasicCatalogV1Test {
             card = card,
             row = row,
             column = column,
+            button = button,
             functions = functions,
         )
 
@@ -178,6 +210,16 @@ class A2uiBasicCatalogV1Test {
             children: List<A2uiComponentReference>,
             justify: A2uiBasicCatalogV1.Column.Justify,
             align: A2uiBasicCatalogV1.Column.Align,
+            modifier: Modifier,
+        ) {}
+    }
+
+    private class TestButtonComponent : A2uiBasicCatalogV1.Button {
+        @Composable
+        override fun A2uiComponentScope.TypedContent(
+            childId: String,
+            variant: A2uiBasicCatalogV1.Button.Variant,
+            action: Map<String, Any?>,
             modifier: Modifier,
         ) {}
     }
