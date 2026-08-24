@@ -61,22 +61,26 @@ class TorchFlashRequiredFor3AUpdateQuirkTest(
     }
 
     private fun getCameraQuirks(lensFacing: Int, externalFlashAeModeSupported: Boolean): Quirks {
+        val cameraCharacteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
+        val shadowCharacteristics =
+            Shadow.extract<ShadowCameraCharacteristics>(cameraCharacteristics)
         val characteristicsMap =
             mutableMapOf<CameraCharacteristics.Key<*>, Any?>()
                 .apply {
                     this[CameraCharacteristics.LENS_FACING] = lensFacing
+                    shadowCharacteristics.set(CameraCharacteristics.LENS_FACING, lensFacing)
 
-                    this[CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES] =
+                    val modes =
                         if (externalFlashAeModeSupported) {
                             intArrayOf(CameraMetadata.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
                         } else intArrayOf(CameraMetadata.CONTROL_AE_MODE_ON)
+                    this[CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES] = modes
+                    shadowCharacteristics.set(
+                        CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES,
+                        modes,
+                    )
                 }
                 .toMap()
-
-        val cameraCharacteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
-        val shadowCharacteristics =
-            Shadow.extract<ShadowCameraCharacteristics>(cameraCharacteristics)
-        characteristicsMap.forEach { entry -> shadowCharacteristics.set(entry.key, entry.value) }
 
         val cameraMetadata =
             FakeCameraMetadata.fromTemplate(

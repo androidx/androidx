@@ -73,7 +73,6 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowPackageManager
 import org.robolectric.shadows.ShadowSystemClock
 import org.robolectric.shadows.ShadowVirtualDeviceManager
-import org.robolectric.versioning.AndroidVersions
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
@@ -747,7 +746,7 @@ class CameraXInitRetryTest {
 
     @Implements(
         value = VirtualDeviceManager::class,
-        minSdk = AndroidVersions.U.SDK_INT,
+        minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE,
         isInAndroidSdk = false,
     )
     class TestShadowVDM : ShadowVirtualDeviceManager() {

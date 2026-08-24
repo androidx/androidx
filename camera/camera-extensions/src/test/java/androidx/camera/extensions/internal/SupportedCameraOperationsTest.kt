@@ -58,7 +58,7 @@ class SupportedCameraOperationsTest {
         )
         shadowCharacteristics.set(
             CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES,
-            arrayOf(
+            intArrayOf(
                 CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE,
                 CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA,
             ),
