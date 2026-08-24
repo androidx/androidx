@@ -25,8 +25,8 @@ import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraStreamConfigurationMap
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.common.Metadata
 
 /**
  * Default implementation of [DeviceTemplate] simulating a standard Android emulator (Cuttlefish).

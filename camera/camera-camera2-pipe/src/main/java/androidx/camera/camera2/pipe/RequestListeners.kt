@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe
 import android.hardware.camera2.CaptureResult
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.graph.LatestFrameMetadataAggregator
+import androidx.camera.common.Metadata
 
 /**
  * [RequestListeners] is a Set-like interface that stores a collection of [Request.Listener]s.

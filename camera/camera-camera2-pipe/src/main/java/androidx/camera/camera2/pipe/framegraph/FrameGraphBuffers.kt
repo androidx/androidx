@@ -21,7 +21,6 @@ import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.FrameBuffer
 import androidx.camera.camera2.pipe.FrameReference
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.FrameGraphCoroutineScope
@@ -29,6 +28,7 @@ import androidx.camera.camera2.pipe.config.FrameGraphScope
 import androidx.camera.camera2.pipe.filterToCaptureRequestParameters
 import androidx.camera.camera2.pipe.filterToMetadataParameters
 import androidx.camera.camera2.pipe.internal.FrameDistributor
+import androidx.camera.common.Metadata
 import java.util.Objects.deepEquals
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope

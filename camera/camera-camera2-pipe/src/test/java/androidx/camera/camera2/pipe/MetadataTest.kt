@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.pipe
 
+import androidx.camera.camera2.pipe.Metadata as PipeMetadata
+import androidx.camera.common.Metadata
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -27,21 +29,55 @@ class MetadataTest {
 
     @Test
     fun keysWithSameNameAreSameInstance() {
-        val key1 = Metadata.Key.create<String>("metadata.test.key")
-        val key2 = Metadata.Key.create<String>("metadata.test.key")
+        val key1 = Metadata.Key<String>("metadata.test.key")
+        val key2 = Metadata.Key<String>("metadata.test.key")
         assertThat(key1).isSameInstanceAs(key2)
     }
 
     @Test
     fun keysWithDifferentNamesAreNotSameInstance() {
-        val key1 = Metadata.Key.create<String>("metadata.test.key1")
-        val key2 = Metadata.Key.create<String>("metadata.test.key2")
+        val key1 = Metadata.Key<String>("metadata.test.key1")
+        val key2 = Metadata.Key<String>("metadata.test.key2")
         assertThat(key1).isNotSameInstanceAs(key2)
     }
 
     @Test
     fun keysWithSameNameAndDifferentTypesThrowsExceptions() {
-        Metadata.Key.create<String>("metadata.test.key")
-        assertThrows<IllegalStateException> { Metadata.Key.create<Int>("metadata.test.key") }
+        Metadata.Key<String>("metadata.test.key")
+        assertThrows<IllegalStateException> { Metadata.Key<Int>("metadata.test.key") }
+    }
+
+    @Test
+    fun pipeKeysWithSameNameAreSameInstance() {
+        val key1 = PipeMetadata.Key.create("metadata.test.key", String::class)
+        val key2 = PipeMetadata.Key.create("metadata.test.key", String::class)
+        assertThat(key1).isSameInstanceAs(key2)
+    }
+
+    @Test
+    fun pipeKeysWithDifferentNamesAreNotSameInstance() {
+        val key1 = PipeMetadata.Key.create("metadata.test.key1", String::class)
+        val key2 = PipeMetadata.Key.create("metadata.test.key2", String::class)
+        assertThat(key1).isNotSameInstanceAs(key2)
+    }
+
+    @Test
+    fun pipeKeysWithSameNameAndDifferentTypesThrowsExceptions() {
+        val key1 = PipeMetadata.Key.create("metadata.test.key", String::class)
+        assertThrows<IllegalStateException> {
+            val key2 = PipeMetadata.Key.create("metadata.test.key", Int::class)
+        }
+    }
+
+    @Test
+    fun pipeKeyCorrectlyMapsToCommonKey() {
+        val pipeKey = PipeMetadata.Key.create("metadata.test.key", String::class)
+        val commonKey = pipeKey.commonKey
+        assertThat(commonKey.name).isEqualTo(pipeKey.name)
+        assertThat(commonKey.type).isEqualTo(pipeKey.type.java)
+
+        // Also verify that it resolves to the same common key instance
+        val directCommonKey = Metadata.Key.create("metadata.test.key", String::class.java)
+        assertThat(commonKey).isSameInstanceAs(directCommonKey)
     }
 }

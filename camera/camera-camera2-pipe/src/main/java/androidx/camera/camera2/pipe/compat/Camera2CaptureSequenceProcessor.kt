@@ -28,7 +28,6 @@ import androidx.camera.camera2.pipe.CameraControls3A.Companion.REQUEST_3A_KEYS
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
@@ -46,6 +45,7 @@ import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.media.AndroidImageWriter
 import androidx.camera.camera2.pipe.media.ImageWriterWrapper
 import androidx.camera.camera2.pipe.writeParameters
+import androidx.camera.common.Metadata
 import androidx.camera.common.unwrapAs
 import java.lang.Class
 import javax.inject.Inject
@@ -645,12 +645,20 @@ internal class Camera2RequestMetadata(
     override val request: Request,
     override val requestNumber: RequestNumber,
 ) : RequestMetadata {
+    override val metadataKeys: Set<Metadata.Key<*>>
+        get() = buildSet {
+            requiredParameters.keys.forEach { if (it is Metadata.Key<*>) add(it) }
+            addAll(request.extras.keys)
+            graphParameters.keys.forEach { if (it is Metadata.Key<*>) add(it) }
+            defaultParameters.keys.forEach { if (it is Metadata.Key<*>) add(it) }
+        }
+
     override fun <T> get(key: CaptureRequest.Key<T>): T? = captureRequest[key]
 
     override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: Metadata.Key<T>): T? =
+    override fun <T : Any> get(key: Metadata.Key<T>): T? =
         when {
             requiredParameters.containsKey(key) -> {
                 requiredParameters[key] as T?
@@ -666,7 +674,7 @@ internal class Camera2RequestMetadata(
             }
         }
 
-    override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
+    override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
 
     @Suppress("UNCHECKED_CAST", "NewApi")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =

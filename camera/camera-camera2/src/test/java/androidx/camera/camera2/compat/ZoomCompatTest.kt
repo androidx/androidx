@@ -27,7 +27,6 @@ import androidx.camera.camera2.impl.CameraProperties
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.testing.FakeCameraProperties
@@ -175,18 +174,6 @@ class ZoomCompatTest {
                     @Suppress("UNCHECKED_CAST") // T is guaranteed to be Rect
                     return Rect(0, 0, 4000, 3000) as T?
                 }
-                TODO("Not yet implemented")
-            }
-
-            override fun <T> get(key: Metadata.Key<T>): T? {
-                TODO("Not yet implemented")
-            }
-
-            override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
-                TODO("Not yet implemented")
-            }
-
-            override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T {
                 TODO("Not yet implemented")
             }
 

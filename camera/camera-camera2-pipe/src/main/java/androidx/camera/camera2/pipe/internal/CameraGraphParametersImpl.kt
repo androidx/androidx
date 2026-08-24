@@ -21,7 +21,6 @@ import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.ParameterUpdateListener
 import androidx.camera.camera2.pipe.Parameters
 import androidx.camera.camera2.pipe.Request
@@ -31,6 +30,7 @@ import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.graph.GraphProcessor
+import androidx.camera.common.Metadata
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -63,11 +63,11 @@ internal constructor(
 
     @Suppress("UNCHECKED_CAST")
     public override operator fun <T> get(key: CaptureRequest.Key<T>): T? =
-        synchronized(lock) { parameters[key] as T }
+        synchronized(lock) { parameters[key] as T? }
 
     @Suppress("UNCHECKED_CAST")
-    public override operator fun <T> get(key: Metadata.Key<T>): T? =
-        synchronized(lock) { parameters[key] as T }
+    public override operator fun <T : Any> get(key: Metadata.Key<T>): T? =
+        synchronized(lock) { parameters[key] as T? }
 
     public override operator fun <T : Any> set(key: CaptureRequest.Key<T>, value: T?) {
         setAll(mapOf(key to value))
@@ -191,7 +191,7 @@ internal constructor(
         return removeAll(setOf(key))
     }
 
-    public override fun <T> remove(key: Metadata.Key<T>): Boolean {
+    public override fun <T : Any> remove(key: Metadata.Key<T>): Boolean {
         return removeAll(setOf(key))
     }
 

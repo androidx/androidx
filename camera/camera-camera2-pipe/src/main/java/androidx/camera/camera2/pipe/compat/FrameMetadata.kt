@@ -24,18 +24,21 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.common.Metadata
 
 /** An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object */
 internal class AndroidFrameMetadata(
     private val captureResult: CaptureResult,
     override val camera: CameraId,
 ) : FrameMetadata {
-    override fun <T> get(key: Metadata.Key<T>): T? = null
+    override fun <T : Any> get(key: Metadata.Key<T>): T? = null
 
-    override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = default
+    override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T = default
+
+    override val metadataKeys: Set<Metadata.Key<*>>
+        get() = emptySet()
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: CaptureResult.Key<T>): T? =
@@ -67,9 +70,16 @@ internal class CorrectedFrameMetadata(
 ) : FrameMetadata {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: Metadata.Key<T>): T? = extraMetadata[key] as T? ?: frameMetadata[key]
+    override fun <T : Any> get(key: Metadata.Key<T>): T? =
+        extraMetadata[key] as T? ?: frameMetadata[key]
 
-    override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
+    override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
+
+    override val metadataKeys: Set<Metadata.Key<*>>
+        get() = buildSet {
+            addAll(frameMetadata.metadataKeys)
+            extraMetadata.keys.forEach { if (it is Metadata.Key<*>) add(it) }
+        }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: CaptureResult.Key<T>): T? =

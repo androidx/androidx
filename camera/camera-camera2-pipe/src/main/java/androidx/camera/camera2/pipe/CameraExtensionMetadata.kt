@@ -23,7 +23,7 @@ import android.hardware.camera2.CaptureResult
 import android.util.Range
 import android.util.Size
 import androidx.annotation.RestrictTo
-import androidx.camera.common.UnsafeWrapper
+import androidx.camera.common.CameraCharacteristicsMetadata
 
 /**
  * [CameraExtensionMetadata] is a compatibility wrapper around [CameraExtensionCharacteristics].
@@ -36,11 +36,7 @@ import androidx.camera.common.UnsafeWrapper
  * easier to test and reason about.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface CameraExtensionMetadata : Metadata, UnsafeWrapper {
-    public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
-
-    public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
-
+public interface CameraExtensionMetadata : CameraCharacteristicsMetadata {
     public val camera: CameraId
     public val cameraExtension: Int
 
