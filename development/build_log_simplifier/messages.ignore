@@ -693,3 +693,4 @@ warning: lifecycle\-compiler is deprecated\. Use DefaultLifecycleObserver or Lif
 w: .*/test/java/com/android/build/gradle/internal/fixtures/FakeGradleExecOperations\.kt:120:15 Suppression of error 'NOTHING_TO_OVERRIDE' might compile and work, but the compiler behavior is UNSPECIFIED and WILL NOT BE PRESERVED.*
 # Robolectric 4.17 images logs this
 .*HWUI    : Using FreeType backend \(prop=Auto\)
+.*HWUI    : Davey! duration=.*
