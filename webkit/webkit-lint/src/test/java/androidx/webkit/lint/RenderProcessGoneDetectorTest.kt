@@ -134,6 +134,38 @@ class RenderProcessGoneDetectorTest : LintDetectorTest() {
     }
 
     @Test
+    fun testDirectKotlinWebViewClientInstantiation() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+                import android.webkit.WebViewClient
+                import android.webkit.WebView
+
+                class MyClass {
+                    fun doSomething(webView: WebView) {
+                        webView.setWebViewClient(WebViewClient())
+                    }
+                }
+                """
+                    )
+                    .indented(),
+                *stubs,
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/MyClass.kt:7: Warning: WebViewClient should implement onRenderProcessGone to handle render process crashes or out-of-memory errors. Otherwise, the app will crash when the render process is shut down. [MissingOnRenderProcessGone]
+                        webView.setWebViewClient(WebViewClient())
+                                                 ~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
     fun testAnonymousWebViewClientInstantiation() {
         lint()
             .files(
@@ -163,12 +195,165 @@ class RenderProcessGoneDetectorTest : LintDetectorTest() {
             .expectClean()
     }
 
+    @Test
+    fun testKotlinNamedWebViewClient() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import android.webkit.WebViewClient
+                import android.webkit.WebView
+                import android.webkit.RenderProcessGoneDetail
+
+                class MyWebViewClient : WebViewClient() {
+                    override fun onRenderProcessGone(
+                        view: WebView?,
+                        detail: RenderProcessGoneDetail?
+                    ): Boolean {
+                        return true
+                    }
+                }
+                """
+                    )
+                    .indented(),
+                *stubs,
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testKotlinNamedWebViewClientMissingMethod() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import android.webkit.WebViewClient
+
+                class MyWebViewClient : WebViewClient()
+                """
+                    )
+                    .indented(),
+                *stubs,
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/MyWebViewClient.kt:5: Warning: WebViewClient should implement onRenderProcessGone to handle render process crashes or out-of-memory errors. Otherwise, the app will crash when the render process is shut down. [MissingOnRenderProcessGone]
+                class MyWebViewClient : WebViewClient()
+                      ~~~~~~~~~~~~~~~
+                0 errors, 1 warnings
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun testKotlinAnonymousWebViewClient() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import android.webkit.WebViewClient
+                import android.webkit.WebView
+                import android.webkit.RenderProcessGoneDetail
+
+                class MyClass {
+                    fun doSomething(webView: WebView) {
+                        val client = object : WebViewClient() {
+                            override fun onRenderProcessGone(
+                                view: WebView?,
+                                detail: RenderProcessGoneDetail?
+                            ): Boolean {
+                                return true
+                            }
+                        }
+                    }
+                }
+                """
+                    )
+                    .indented(),
+                *stubs,
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testKotlinAnonymousWebViewClientMissingMethod() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import android.webkit.WebViewClient
+
+                class MyClass {
+                    fun doSomething() {
+                        val client = object : WebViewClient() {}
+                    }
+                }
+                """
+                    )
+                    .indented(),
+                *stubs,
+            )
+            .run()
+            .expect(
+                """
+                src/com/example/MyClass.kt:7: Warning: WebViewClient should implement onRenderProcessGone to handle render process crashes or out-of-memory errors. Otherwise, the app will crash when the render process is shut down. [MissingOnRenderProcessGone]
+                        val client = object : WebViewClient() {}
+                                     ~~~~~~
+                0 errors, 1 warnings
+                """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun testJavaSubclassWithExplicitSuperCall() {
+        lint()
+            .files(
+                java(
+                        """
+                package com.example;
+                import android.webkit.WebViewClient;
+                import android.webkit.WebView;
+                import android.webkit.RenderProcessGoneDetail;
+
+                public class MyWebViewClient extends WebViewClient {
+                    public MyWebViewClient() {
+                        super();
+                    }
+
+                    @Override
+                    public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                        return true;
+                    }
+                }
+                """
+                    )
+                    .indented(),
+                *stubs,
+            )
+            .run()
+            .expectClean()
+    }
+
     private val stubs =
         arrayOf(
             java(
                     """
             package android.webkit;
             public class WebViewClient {
+                public WebViewClient() {}
                 public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
                     return false;
                 }
