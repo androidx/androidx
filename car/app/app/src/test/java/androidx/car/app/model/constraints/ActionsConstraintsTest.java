@@ -344,4 +344,47 @@ public class ActionsConstraintsTest {
                         .build()
                         .getActions());
     }
+
+    @Test
+    public void validateTabActionConstraints() {
+        CarIcon carIcon = TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                "ic_test_1");
+        Action action1 = TestUtils.createAction(null, carIcon);
+        Action action2 = TestUtils.createAction(null, carIcon);
+        Action action3 = TestUtils.createAction(null, carIcon);
+        Action actionWithTitle = TestUtils.createAction("Title", carIcon);
+        Action actionWithoutIcon = TestUtils.createAction("Title", null);
+
+        // Positive case: 1 valid icon-only action
+        ActionsConstraints.ACTIONS_CONSTRAINTS_TAB_ACTIONS.validateOrThrow(
+                Collections.singletonList(action1));
+
+        // Over max allowed actions (2 > 1)
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_TAB_ACTIONS.validateOrThrow(
+                        Arrays.asList(action1, action2)));
+
+        // Action with title
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_TAB_ACTIONS.validateOrThrow(
+                        Collections.singletonList(actionWithTitle)));
+
+        // Action without icon
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_TAB_ACTIONS.validateOrThrow(
+                        Collections.singletonList(actionWithoutIcon)));
+
+        // Standard actions (e.g. Action.APP_ICON, Action.BACK) are disallowed
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_TAB_ACTIONS.validateOrThrow(
+                        Collections.singletonList(Action.APP_ICON)));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ActionsConstraints.ACTIONS_CONSTRAINTS_TAB_ACTIONS.validateOrThrow(
+                        Collections.singletonList(Action.BACK)));
+    }
 }

@@ -199,6 +199,19 @@ public final class ActionsConstraints {
                     .build();
 
     /**
+     * Constraints for {@link androidx.car.app.model.TabTemplate} actions.
+     */
+    @RequiresCarApi(9)
+    public static final @NonNull ActionsConstraints ACTIONS_CONSTRAINTS_TAB_ACTIONS =
+            new ActionsConstraints.Builder()
+                    .setMaxActions(1)
+                    .setRequireActionIcons(true)
+                    .setMaxCustomTitles(0)
+                    .setOnClickListenerAllowed(true)
+                    .addAllowedActionType(Action.TYPE_CUSTOM)
+                    .build();
+
+    /**
      * Constraints for the {@link androidx.car.app.dialer.InCallTemplate} header action.
      *
      * <ul>
