@@ -14,34 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
-import androidx.a2ui.compose.runtime.A2uiComponentState
-import androidx.a2ui.compose.runtime.LocalA2uiReadinessEvaluator
-import androidx.a2ui.compose.runtime.observeA2uiComponentState
 import androidx.a2ui.compose.ui.A2uiCatalog
-import androidx.a2ui.compose.ui.A2uiComponent
-import androidx.a2ui.compose.ui.asReadinessEvaluator
 import androidx.a2ui.compose.ui.testing.A2uiComponentPayload
 import androidx.a2ui.compose.ui.testing.A2uiComponentStub
 import androidx.a2ui.compose.ui.testing.A2uiTestController
-import androidx.a2ui.engine.model.A2uiCoreSurfaceModel
-import androidx.a2ui.model.processor.A2uiSurfaceModel
+import androidx.a2ui.compose.ui.testing.A2uiTestSurface
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -54,16 +44,20 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class MaterialButtonComponentTest {
+class MaterialA2uiBasicCatalogV1ButtonTest {
 
     private val testCatalog =
-        A2uiCatalog(catalogId = "test_catalog", components = listOf(MaterialButtonComponent))
+        A2uiCatalog(
+            catalogId = "test_catalog",
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.button),
+        )
 
     @Test
     fun defaultVariant_rendersChildAndDispatchesActionOnClick() = runComposeUiTest {
@@ -753,29 +747,5 @@ class MaterialButtonComponentTest {
 
         onNode(hasText("Accessible Button") and hasClickAction())
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
-    }
-
-    @Composable
-    private fun A2uiTestSurface(surface: A2uiSurfaceModel, modifier: Modifier = Modifier) {
-        surface as? A2uiCoreSurfaceModel
-            ?: throw IllegalArgumentException("A2uiTestSurface requires an A2uiCoreSurfaceModel.")
-
-        val composeCatalog =
-            surface.catalog as? A2uiCatalog
-                ?: throw IllegalArgumentException("Catalog must implement A2uiCatalog.")
-
-        val readinessEvaluator = remember(composeCatalog) { composeCatalog.asReadinessEvaluator() }
-
-        CompositionLocalProvider(LocalA2uiReadinessEvaluator provides readinessEvaluator) {
-            when (val rootState = observeA2uiComponentState(surface = surface)) {
-                is A2uiComponentState.Success -> {
-                    A2uiComponent(component = rootState.component, modifier = modifier)
-                }
-                is A2uiComponentState.Error -> {
-                    throw rootState.exception
-                }
-                is A2uiComponentState.Loading -> {}
-            }
-        }
     }
 }
