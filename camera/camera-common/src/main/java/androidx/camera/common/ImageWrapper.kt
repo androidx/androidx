@@ -29,6 +29,9 @@ import java.nio.ByteBuffer
  *
  * This wrapper abstracts the underlying platform image format to support common operations and ease
  * testing by allowing mocking.
+ *
+ * @sample androidx.camera.common.samples.wrapImageSample
+ * @sample androidx.camera.common.samples.fakeImageSample
  */
 public interface ImageWrapper : UnsafeWrapper, AutoCloseable {
     /**
@@ -209,7 +212,11 @@ public interface ImagePlane : UnsafeWrapper {
 
 /** Utility methods for [ImageWrapper]. */
 public object ImageWrappers {
-    /** Wraps a native [Image] into a [MutableImageWrapper]. */
+    /**
+     * Wraps a native [Image] into a [MutableImageWrapper].
+     *
+     * @sample androidx.camera.common.samples.wrapImageSample
+     */
     @JvmStatic
     @JvmName("wrap")
     @Suppress("INAPPLICABLE_JVM_NAME")

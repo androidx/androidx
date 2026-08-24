@@ -27,34 +27,12 @@ import android.hardware.camera2.CaptureRequest
  * 2. Extension or custom metadata keys via [Metadata.Key] (using [Metadata.get], inherited from
  *    [Metadata]).
  *
- * Additionally, if access to the underlying native Android [CaptureRequest] is required, this
- * interface can be unwrapped using [unwrapAs] (inherited from [UnsafeWrapper]).
- *
- * ### Example Usage
- *
- * #### Querying a native Camera2 CaptureRequest key:
- * ```kotlin
- * val requestWrapper: CaptureRequestWrapper = ...
- * val exposureTime: Long? = requestWrapper[CaptureRequest.SENSOR_EXPOSURE_TIME]
- * ```
- *
- * #### Querying a custom metadata key:
- * ```kotlin
- * val requestWrapper: CaptureRequestWrapper = ...
- * val customExtensionKey = Metadata.Key<Int>("androidx.camera.custom_extension")
- * val customValue: Int? = requestWrapper[customExtensionKey]
- * ```
- *
- * #### Unwrapping the underlying native CaptureRequest:
- * ```kotlin
- * val requestWrapper: CaptureRequestWrapper = ...
- * val nativeRequest: CaptureRequest? = requestWrapper.unwrapAs<CaptureRequest>()
- * ```
- *
  * **Note:** This interface is not stable for inheritance. Implementations should not be created
  * directly by clients. For testing, use the fakes in the `androidx.camera.common.testing` package
  * (such as `FakeCaptureRequest`).
  *
+ * @sample androidx.camera.common.samples.wrapCaptureRequestSample
+ * @sample androidx.camera.common.samples.fakeCaptureRequestSample
  * @see CaptureRequestMetadata
  */
 public interface CaptureRequestWrapper : CaptureRequestMetadata {
@@ -75,6 +53,7 @@ public object CaptureRequestWrappers {
      * @param captureRequest the native [CaptureRequest] to wrap.
      * @param metadata optional map of custom [Metadata.Key] values to attach to the wrapper.
      * @return a [CaptureRequestWrapper] wrapping the given [captureRequest] and [metadata].
+     * @sample androidx.camera.common.samples.wrapCaptureRequestSample
      */
     @JvmStatic
     @JvmName("wrap")
