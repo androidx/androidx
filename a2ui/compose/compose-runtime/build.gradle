@@ -32,10 +32,10 @@ plugins {
 dependencies {
     api(project(":compose:runtime:runtime"))
     api(project(":a2ui:a2ui-model"))
+    api(project(":collection:collection"))
 
     implementation(project(":a2ui:a2ui-engine"))
     implementation(project(":annotation:annotation"))
-    implementation(project(":collection:collection"))
 
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)

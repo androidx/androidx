@@ -31,8 +31,13 @@ import androidx.a2ui.model.schema.commontypes.A2uiDynamicNumberSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringListSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicValueSchema
+import androidx.collection.doubleListOf
+import androidx.collection.floatListOf
+import androidx.collection.intListOf
+import androidx.collection.longListOf
 import com.google.common.truth.Truth.assertThat
 import java.lang.StringBuilder
+import kotlin.test.assertFailsWith
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -295,6 +300,38 @@ class A2uiPropertyTest {
     }
 
     @Test
+    fun numberProperty_initialization_withIntDefault_setsCorrectSchema() {
+        val prop = A2uiProperty.number("test", defaultValue = 42)
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiNumberSchema(keywords = listOf(A2uiSchemaKeyword.Default(42))))
+    }
+
+    @Test
+    fun numberProperty_initialization_withFloatDefault_setsCorrectSchema() {
+        val prop = A2uiProperty.number("test", defaultValue = 42.5f)
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiNumberSchema(keywords = listOf(A2uiSchemaKeyword.Default(42.5f))))
+    }
+
+    @Test
+    fun numberProperty_initialization_withDoubleDefault_setsCorrectSchema() {
+        val prop = A2uiProperty.number("test", defaultValue = 42.5)
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiNumberSchema(keywords = listOf(A2uiSchemaKeyword.Default(42.5))))
+    }
+
+    @Test
+    fun numberProperty_initialization_withLongDefault_setsCorrectSchema() {
+        val prop = A2uiProperty.number("test", defaultValue = 42L)
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiNumberSchema(keywords = listOf(A2uiSchemaKeyword.Default(42L))))
+    }
+
+    @Test
     fun numberProperty_safeCast_enforcesStrictTypes() {
         val prop = A2uiProperty.number("test")
 
@@ -314,6 +351,14 @@ class A2uiPropertyTest {
         assertThat(prop.key).isEqualTo("test")
         assertThat(prop.isRequired).isTrue()
         assertThat(prop.schema).isEqualTo(A2uiBooleanSchema("Test boolean"))
+    }
+
+    @Test
+    fun booleanProperty_initialization_withDefault_setsCorrectSchema() {
+        val prop = A2uiProperty.booleanWithDefault("test", defaultValue = true)
+
+        assertThat(prop.schema)
+            .isEqualTo(A2uiBooleanSchema(keywords = listOf(A2uiSchemaKeyword.Default(true))))
     }
 
     @Test
@@ -589,6 +634,27 @@ class A2uiPropertyTest {
     }
 
     @Test
+    fun stringEnumProperty_initialization_withDefault_setsCorrectSchema() {
+        val enumValues = listOf("A", "B")
+        val prop = A2uiProperty.stringEnum("test", enumValues = enumValues, defaultValue = "A")
+
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiStringSchema(
+                    keywords =
+                        listOf(A2uiSchemaKeyword.Enum(enumValues), A2uiSchemaKeyword.Default("A"))
+                )
+            )
+    }
+
+    @Test
+    fun stringEnumProperty_initialization_withInvalidDefault_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.stringEnum("test", enumValues = listOf("A", "B"), defaultValue = "C")
+        }
+    }
+
+    @Test
     fun stringEnumProperty_safeCast_requiresString() {
         val prop = A2uiProperty.stringEnum("test", enumValues = listOf("A", "B"))
 
@@ -635,6 +701,106 @@ class A2uiPropertyTest {
                     keywords = listOf(A2uiSchemaKeyword.Enum(enumValues)),
                 )
             )
+    }
+
+    @Test
+    fun numberEnumProperty_initialization_withIntDefault_setsCorrectSchema() {
+        val enumValues = intListOf(1, 2, 3)
+        val prop = A2uiProperty.numberEnum("test", enumValues = enumValues, defaultValue = 1)
+
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiNumberSchema(
+                    keywords =
+                        listOf(
+                            A2uiSchemaKeyword.Enum(List(enumValues.size) { enumValues[it] }),
+                            A2uiSchemaKeyword.Default(1),
+                        )
+                )
+            )
+    }
+
+    @Test
+    fun numberEnumProperty_initialization_withFloatDefault_setsCorrectSchema() {
+        val enumValues = floatListOf(1.0f, 2.0f, 3.0f)
+        val prop = A2uiProperty.numberEnum("test", enumValues = enumValues, defaultValue = 1.0f)
+
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiNumberSchema(
+                    keywords =
+                        listOf(
+                            A2uiSchemaKeyword.Enum(List(enumValues.size) { enumValues[it] }),
+                            A2uiSchemaKeyword.Default(1.0f),
+                        )
+                )
+            )
+    }
+
+    @Test
+    fun numberEnumProperty_initialization_withDoubleDefault_setsCorrectSchema() {
+        val enumValues = doubleListOf(1.0, 2.0, 3.0)
+        val prop = A2uiProperty.numberEnum("test", enumValues = enumValues, defaultValue = 1.0)
+
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiNumberSchema(
+                    keywords =
+                        listOf(
+                            A2uiSchemaKeyword.Enum(List(enumValues.size) { enumValues[it] }),
+                            A2uiSchemaKeyword.Default(1.0),
+                        )
+                )
+            )
+    }
+
+    @Test
+    fun numberEnumProperty_initialization_withLongDefault_setsCorrectSchema() {
+        val enumValues = longListOf(1L, 2L, 3L)
+        val prop = A2uiProperty.numberEnum("test", enumValues = enumValues, defaultValue = 1L)
+
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiNumberSchema(
+                    keywords =
+                        listOf(
+                            A2uiSchemaKeyword.Enum(List(enumValues.size) { enumValues[it] }),
+                            A2uiSchemaKeyword.Default(1L),
+                        )
+                )
+            )
+    }
+
+    @Test
+    fun numberEnumProperty_initialization_withInvalidIntDefault_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.numberEnum("test", enumValues = intListOf(1, 2), defaultValue = 3)
+        }
+    }
+
+    @Test
+    fun numberEnumProperty_initialization_withInvalidFloatDefault_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.numberEnum(
+                "test",
+                enumValues = floatListOf(1.0f, 2.0f),
+                defaultValue = 3.0f,
+            )
+        }
+    }
+
+    @Test
+    fun numberEnumProperty_initialization_withInvalidDoubleDefault_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.numberEnum("test", enumValues = doubleListOf(1.0, 2.0), defaultValue = 3.0)
+        }
+    }
+
+    @Test
+    fun numberEnumProperty_initialization_withInvalidLongDefault_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.numberEnum("test", enumValues = longListOf(1L, 2L), defaultValue = 3L)
+        }
     }
 
     @Test
@@ -697,6 +863,45 @@ class A2uiPropertyTest {
                         ),
                 )
             )
+    }
+
+    @Test
+    fun enumProperty_initialization_withDefault_setsCorrectSchema() {
+        val enumValues = TestEnum.entries
+        val prop =
+            A2uiProperty.enum(
+                key = "test",
+                enumValues = enumValues,
+                mapToString = { it.value },
+                convertFromString = TestEnum::fromValue,
+                defaultValue = TestEnum.OPTION_A,
+            )
+
+        assertThat(prop.schema)
+            .isEqualTo(
+                A2uiStringSchema(
+                    keywords =
+                        listOf(
+                            A2uiSchemaKeyword.Enum(
+                                listOf(TestEnum.OPTION_A.value, TestEnum.OPTION_B.value)
+                            ),
+                            A2uiSchemaKeyword.Default(TestEnum.OPTION_A.value),
+                        )
+                )
+            )
+    }
+
+    @Test
+    fun enumProperty_initialization_withInvalidDefault_throwsException() {
+        assertFailsWith<IllegalArgumentException> {
+            A2uiProperty.enum(
+                key = "test",
+                enumValues = listOf(TestEnum.OPTION_A),
+                mapToString = { it.value },
+                convertFromString = TestEnum::fromValue,
+                defaultValue = TestEnum.OPTION_B,
+            )
+        }
     }
 
     @Test
