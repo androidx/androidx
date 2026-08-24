@@ -112,7 +112,6 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.hamcrest.Matchers.startsWith
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -694,7 +693,6 @@ class OneHandedGestureTest {
         }
     }
 
-    @Ignore("b/530276661")
     @Test
     fun alert_dialog_confirm_and_dismiss() {
         val sdkGestureInputManager = SdkGestureInputManagerMock(false)
