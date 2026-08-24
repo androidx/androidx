@@ -154,7 +154,7 @@ abstract class CompilerTestBase {
         val goldenResPath = "goldens/${testName.methodName}DocumentMap_${roundIndex}.JAVA"
         val actualPackageDir = File(genFilesDir, "com/example/appsearch")
         val files: Array<File>? =
-            actualPackageDir.listFiles { dir: File, name: String ->
+            actualPackageDir.listFiles { _: File, name: String ->
                 name.startsWith("${IntrospectionHelper.GEN_CLASS_PREFIX}DocumentClassMap") &&
                     name.endsWith("_$roundIndex.java")
             }
