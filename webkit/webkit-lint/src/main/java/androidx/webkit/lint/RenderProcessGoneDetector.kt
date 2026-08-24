@@ -25,6 +25,9 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
+import com.intellij.psi.PsiMethodCallExpression
+import org.jetbrains.kotlin.psi.KtConstructorDelegationCall
+import org.jetbrains.kotlin.psi.KtSuperTypeCallEntry
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 
@@ -72,6 +75,14 @@ class RenderProcessGoneDetector : Detector(), SourceCodeScanner {
         node: UCallExpression,
         constructor: PsiMethod,
     ) {
+        val sourcePsi = node.sourcePsi
+        if (
+            sourcePsi is KtSuperTypeCallEntry ||
+                sourcePsi is KtConstructorDelegationCall ||
+                sourcePsi is PsiMethodCallExpression
+        ) {
+            return
+        }
         context.report(ISSUE, node, context.getLocation(node), ERROR_MESSAGE)
     }
 
