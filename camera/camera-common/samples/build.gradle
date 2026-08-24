@@ -25,6 +25,7 @@ dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
     implementation(project(":camera:camera-common"))
+    implementation(project(":camera:camera-common-testing"))
 }
 
 android {
