@@ -240,10 +240,10 @@ data class AnnotatedAppFunction(
                 )
             if (
                 uriConstraint != null &&
-                    !ksValueParameter.type.isOfType(IntrospectionHelper.URI_CLASS_NAME)
+                    !ksValueParameter.type.isOfType(IntrospectionHelper.UriClass.URI_CLASS_NAME)
             ) {
                 throw ProcessingException(
-                    "@${IntrospectionHelper.AppFunctionUriValueConstraintAnnotation.CLASS_NAME.simpleName} can only be applied to ${IntrospectionHelper.URI_CLASS_NAME.canonicalName}",
+                    "@${IntrospectionHelper.AppFunctionUriValueConstraintAnnotation.CLASS_NAME.simpleName} can only be applied to ${IntrospectionHelper.UriClass.URI_CLASS_NAME.canonicalName}",
                     ksValueParameter,
                 )
             }

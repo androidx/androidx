@@ -206,10 +206,10 @@ class AppFunctionSerializableValidateHelper(
             )
         if (
             uriConstraint != null &&
-                !propertyDeclaration.type.isOfType(IntrospectionHelper.URI_CLASS_NAME)
+                !propertyDeclaration.type.isOfType(IntrospectionHelper.UriClass.URI_CLASS_NAME)
         ) {
             throw ProcessingException(
-                "@${IntrospectionHelper.AppFunctionUriValueConstraintAnnotation.CLASS_NAME.simpleName} can only be applied to ${IntrospectionHelper.URI_CLASS_NAME.canonicalName}",
+                "@${IntrospectionHelper.AppFunctionUriValueConstraintAnnotation.CLASS_NAME.simpleName} can only be applied to ${IntrospectionHelper.UriClass.URI_CLASS_NAME.canonicalName}",
                 propertyDeclaration.type,
             )
         }
