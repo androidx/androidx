@@ -17,7 +17,9 @@
 package androidx.compose.ui.platform
 
 import android.content.Context
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -115,7 +117,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 
                     // Recreate the composition now if we are attached.
                     if (isAttachedToWindow) {
-                        ensureCompositionCreated()
+                        if (Looper.myLooper() === handler?.looper) {
+                            ensureCompositionCreated()
+                        } else {
+                            post { ensureCompositionCreated() }
+                        }
                     }
                 }
             }
@@ -237,16 +243,24 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
      * with [ComposeViewContext] as an argument.
      */
     public fun createComposition() {
-        check(
-            parentContext != null ||
-                isAttachedToWindow ||
-                (composeViewContext != null && composeViewContext?.view?.isAttachedToWindow == true)
-        ) {
+        val attachedView = if (isAttachedToWindow) this else composeViewContext?.view
+        check(parentContext != null || attachedView != null) {
             "createComposition requires a previous call to createComposition(ComposeViewContext)," +
                 " a parent reference, or the View to be attached to a window. Attach the View or " +
-                "call setParentCompositionReference."
+                "call setParentCompositionContext."
         }
-        ensureCompositionCreated()
+        // If createComposition() is executed off of the UI thread, then we should ensure that
+        // composition is created on the UI thread.
+        val looper = attachedView?.handler?.looper ?: Looper.getMainLooper()
+        if (looper !== Looper.myLooper()) {
+            if (attachedView != null) {
+                attachedView.post { ensureCompositionCreated() }
+            } else {
+                Handler(looper).post { ensureCompositionCreated() }
+            }
+        } else {
+            ensureCompositionCreated()
+        }
     }
 
     /**
@@ -273,7 +287,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
             "createComposition requires the ComposeViewContext's view to be attached to a window."
         }
         this.composeViewContext = composeViewContext
-        ensureCompositionCreated()
+        createComposition()
     }
 
     private var creatingComposition = false
@@ -327,7 +341,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     @OptIn(ExperimentalStdlibApi::class)
     @Suppress("DEPRECATION") // Still using ViewGroup.setContent for now
     private fun ensureCompositionCreated() {
-        if (composition == null) {
+        if (composition == null && !creatingComposition) {
             try {
                 creatingComposition = true
                 trace("Compose:initializeView") {
