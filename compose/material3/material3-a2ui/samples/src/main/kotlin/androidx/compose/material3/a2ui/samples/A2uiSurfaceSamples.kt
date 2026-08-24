@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.a2ui.A2uiSurface
+import androidx.compose.material3.a2ui.catalog.MaterialA2uiBasicCatalogV1Defaults
 import androidx.compose.material3.a2ui.catalog.materialA2uiBasicCatalogV1
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +56,7 @@ import kotlinx.coroutines.launch
 fun A2uiSurfaceSample() {
     val catalog = remember {
         materialA2uiBasicCatalogV1(
+            image = MaterialA2uiBasicCatalogV1Defaults.image { _, _, _, _, _ -> },
             urlOpener = {},
             messageFormatter = { pattern, _, _ -> pattern },
             localeProvider = A2uiLocaleProvider.Default,
@@ -98,6 +100,7 @@ fun A2uiSurfaceSample() {
 fun A2uiSurfaceCustomLoadingAndErrorContentSample() {
     val catalog = remember {
         materialA2uiBasicCatalogV1(
+            image = MaterialA2uiBasicCatalogV1Defaults.image { _, _, _, _, _ -> },
             urlOpener = {},
             messageFormatter = { pattern, _, _ -> pattern },
             localeProvider = A2uiLocaleProvider.Default,
@@ -169,6 +172,7 @@ fun A2uiSurfaceCustomLoadingAndErrorContentSample() {
 fun A2uiSurfaceCustomTransitionSpecSample() {
     val catalog = remember {
         materialA2uiBasicCatalogV1(
+            image = MaterialA2uiBasicCatalogV1Defaults.image { _, _, _, _, _ -> },
             urlOpener = {},
             messageFormatter = { pattern, _, _ -> pattern },
             localeProvider = A2uiLocaleProvider.Default,
