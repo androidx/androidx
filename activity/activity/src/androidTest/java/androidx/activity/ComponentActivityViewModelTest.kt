@@ -140,6 +140,7 @@ class ComponentActivityViewModelTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @OptIn(ExportedActivityDefaultArgControl::class)
     @Test
     fun testExportedActivityDefaultViewModelArgsDisabled() {
