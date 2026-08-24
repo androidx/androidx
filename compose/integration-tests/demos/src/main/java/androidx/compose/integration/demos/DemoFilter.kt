@@ -109,7 +109,6 @@ private fun FilteredDemoListItem(demo: Demo, filterText: String, onNavigate: (De
             val index = result.range.first
             if (index > currentIndex) {
                 append(title.substring(currentIndex, index))
-                currentIndex = index
             }
             withStyle(SpanStyle(color = primary)) { append(result.value) }
             currentIndex = result.range.last + 1
