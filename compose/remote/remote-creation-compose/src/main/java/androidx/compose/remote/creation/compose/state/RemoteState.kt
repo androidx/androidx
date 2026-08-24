@@ -131,7 +131,7 @@ internal constructor(initialCacheKey: RemoteStateCacheKey) : RemoteState<T> {
     init {
         // Register with BaseRemoteStateCacheKey.
         if (initialCacheKey is BaseRemoteStateCacheKey) {
-            initialCacheKey.state = this
+            initialCacheKey.setState(this)
         }
     }
 
