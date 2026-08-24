@@ -173,7 +173,7 @@ internal class GetCredentialController(context: Context) :
         response: GetCredentialResponse
     ): androidx.credentials.GetCredentialResponse {
         val credential = Credential.createFrom(response.credential.type, response.credential.data)
-        return androidx.credentials.GetCredentialResponse(credential)
+        return androidx.credentials.GetCredentialResponse(listOf(credential))
     }
 
     private fun convertCredentialOptionToPlayServices(

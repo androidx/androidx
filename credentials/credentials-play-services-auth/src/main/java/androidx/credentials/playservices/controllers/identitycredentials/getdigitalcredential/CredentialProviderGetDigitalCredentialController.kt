@@ -216,10 +216,13 @@ internal class CredentialProviderGetDigitalCredentialController(context: Context
         response: com.google.android.gms.identitycredentials.GetCredentialResponse
     ): GetCredentialResponse {
         return GetCredentialResponse(
-            Credential.createFrom(
-                DigitalCredential.TYPE_DIGITAL_CREDENTIAL, // TODO: b/361100869 - use the real type
-                // returned as the response
-                response.credential.data,
+            listOf(
+                Credential.createFrom(
+                    DigitalCredential
+                        .TYPE_DIGITAL_CREDENTIAL, // TODO: b/361100869 - use the real type
+                    // returned as the response
+                    response.credential.data,
+                )
             )
         )
     }

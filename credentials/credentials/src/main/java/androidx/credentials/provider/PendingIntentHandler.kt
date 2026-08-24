@@ -527,6 +527,7 @@ class PendingIntentHandler {
             }
 
             @JvmStatic
+            @Suppress("DEPRECATION")
             fun setGetCredentialResponse(
                 intent: Intent,
                 response: GetCredentialResponse,
@@ -822,10 +823,12 @@ class PendingIntentHandler {
                 if (bundle.containsKey(GetCredentialResponse.EXTRA_CREDENTIAL_LIST_SIZE)) {
                     return GetCredentialResponse.fromBundle(bundle)
                 }
+                @Suppress("DEPRECATION")
                 return GetCredentialResponse(Credential.createFrom(credential))
             }
 
             @JvmStatic
+            @Suppress("DEPRECATION")
             fun setGetCredentialResponse(
                 intent: Intent,
                 response: GetCredentialResponse,

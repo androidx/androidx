@@ -301,6 +301,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         return toJetpackCreateException(error.type, error.message)
     }
 
+    @Suppress("DEPRECATION")
     internal fun convertGetResponseToJetpackClass(
         response: android.credentials.GetCredentialResponse
     ): GetCredentialResponse {

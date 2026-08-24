@@ -77,7 +77,7 @@ fun callGetCredential(
                     context = activity,
                     request = request,
                 )
-            signInWithCredential(response.credential)
+            signInWithCredential(response.credentials.first())
         } catch (e: GetCredentialException) {
             handleGetCredentialFailure(e)
         }

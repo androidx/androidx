@@ -31,6 +31,7 @@ class FrameworkImplHelper {
     companion object {
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @JvmStatic
+        @Suppress("DEPRECATION")
         fun convertGetResponseToJetpackClass(
             response: android.credentials.GetCredentialResponse
         ): GetCredentialResponse {

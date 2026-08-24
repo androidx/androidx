@@ -472,7 +472,12 @@ fun equals(
     getCredentialResponse1: GetCredentialResponse,
     getCredentialResponse2: GetCredentialResponse,
 ) {
-    equals(getCredentialResponse1.credential, getCredentialResponse2.credential)
+    assertThat(getCredentialResponse1.credentials.size)
+        .isEqualTo(getCredentialResponse2.credentials.size)
+    getCredentialResponse1.credentials.zip(getCredentialResponse2.credentials).forEach {
+        (cred1, cred2) ->
+        equals(cred1, cred2)
+    }
 }
 
 @RequiresApi(34)
@@ -488,7 +493,7 @@ fun assertEquals(
     actual: android.credentials.GetCredentialResponse,
     expected: GetCredentialResponse,
 ) {
-    equals(actual.credential, expected.credential)
+    equals(actual.credential, expected.credentials.first())
 }
 
 @RequiresApi(34)

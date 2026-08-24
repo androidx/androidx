@@ -27,6 +27,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 @OptIn(ExperimentalDigitalCredentialApi::class)
+@Suppress("DEPRECATION")
 class GetCredentialResponseTest {
 
     @Test
