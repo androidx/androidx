@@ -29,6 +29,8 @@ import androidx.compose.ui.ExperimentalMediaQueryApi
 import androidx.compose.ui.UiMediaScope.KeyboardKind
 import androidx.compose.ui.UiMediaScope.PointerPrecision
 import androidx.compose.ui.UiMediaScope.ViewingDistance
+import androidx.compose.ui.layout.WindowInsetsRulers
+import androidx.compose.ui.layout.WindowInsetsRulersProvider
 import androidx.compose.ui.mediaQuery
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalView
@@ -374,6 +376,22 @@ class MediaQueryIntegrationTest {
         val hasDockReceiver = shadowApp.hasReceiverForAction(Intent.ACTION_DOCK_EVENT)
         assertTrue("Dock receiver should be registered lazily after read", hasDockReceiver)
         assertTrue(result)
+    }
+
+    @Test
+    fun windowInsetsRulers_isRulerProvided_uninitialized() {
+        lateinit var composeView: AndroidComposeView
+        rule.setContent { composeView = LocalView.current as AndroidComposeView }
+        rule.waitForIdle()
+
+        val watcher = composeView.insetsWatcher
+        if (watcher != null) {
+            val provider = WindowInsetsRulersProvider(watcher)
+            assertFalse(
+                "Ruler should not be provided when insets are uninitialized",
+                provider.isRulerProvided(WindowInsetsRulers.StatusBars.current.left),
+            )
+        }
     }
 
     private fun ShadowApplication.hasReceiverForAction(action: String): Boolean {
