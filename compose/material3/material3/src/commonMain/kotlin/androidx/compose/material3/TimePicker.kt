@@ -983,26 +983,6 @@ public class TimePickerShapes(
  *   buttons to switch between hour and minutes
  * @property timeSelectorContentColor color used for the content of the display buttons to switch
  *   between hour and minutes
- * @param clockDialColor the color of the clock dial
- * @param selectorColor the color of the clock dial selector
- * @param containerColor the container color of the time picker
- * @param periodSelectorBorderColor the color used for the border of the AM/PM toggle
- * @param clockDialSelectedContentColor the color of the numbers of the clock dial when they are
- *   selected or overlapping with the selector
- * @param clockDialContentColor the color of the numbers of the clock dial when they are unselected
- * @param periodSelectorSelectedContainerColor the color used for the selected container of the
- *   AM/PM toggle
- * @param periodSelectorContainerColor the color used for the container of the AM/PM toggle
- * @param periodSelectorSelectedContentColor color used for the selected content of the AM/PM toggle
- * @param periodSelectorContentColor color used for the content of the AM/PM toggle
- * @param timeSelectorSelectedContainerColor color used for the selected container of the display
- *   buttons to switch between hour and minutes
- * @param timeSelectorContainerColor color used for the container of the display buttons to switch
- *   between hour and minutes
- * @param timeSelectorSelectedContentColor color used for the selected content of the display
- *   buttons to switch between hour and minutes
- * @param timeSelectorContentColor color used for the content of the display buttons to switch
- *   between hour and minutes
  * @constructor create an instance with arbitrary colors. See [TimePickerDefaults.colors] for the
  *   default implementation that follows Material specifications.
  */
@@ -1251,14 +1231,6 @@ public constructor(
  *   toggle
  * @property periodSelectorContentColor color used for the content of the AM/PM toggle
  * @property timeTextFieldColors the [TextFieldColors] used for the hour and minute text fields
- * @param containerColor the container color of the time input
- * @param periodSelectorBorderColor the color used for the border of the AM/PM toggle
- * @param periodSelectorSelectedContainerColor the color used for the selected container of the
- *   AM/PM toggle
- * @param periodSelectorContainerColor the color used for the container of the AM/PM toggle
- * @param periodSelectorSelectedContentColor color used for the selected content of the AM/PM toggle
- * @param periodSelectorContentColor color used for the content of the AM/PM toggle
- * @param timeTextFieldColors the [TextFieldColors] used for the hour and minute text fields
  * @constructor create an instance with arbitrary colors. See [TimeInputDefaults.colors] for the
  *   default implementation that follows Material specifications.
  */
@@ -1321,6 +1293,22 @@ public constructor(
                 periodSelectorContentColor.takeOrElse { this.periodSelectorContentColor },
             timeTextFieldColors = timeTextFieldColors ?: this.timeTextFieldColors,
         )
+
+    @Deprecated(
+        message = "Use periodSelectorContainerColor instead",
+        replaceWith = ReplaceWith("periodSelectorContainerColor"),
+        level = DeprecationLevel.HIDDEN,
+    )
+    public val periodSelectorUnselectedContainerColor: Color
+        get() = periodSelectorContainerColor
+
+    @Deprecated(
+        message = "Use periodSelectorContentColor instead",
+        replaceWith = ReplaceWith("periodSelectorContentColor"),
+        level = DeprecationLevel.HIDDEN,
+    )
+    public val periodSelectorUnselectedContentColor: Color
+        get() = periodSelectorContentColor
 
     @Stable
     internal fun periodSelectorContainerColor(selected: Boolean) =
