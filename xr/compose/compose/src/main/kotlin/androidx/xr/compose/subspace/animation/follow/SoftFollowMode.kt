@@ -38,10 +38,14 @@ import kotlinx.coroutines.withContext
  *   Default is [FollowMode.DEFAULT_SOFT_DURATION_MS] milliseconds. A value less than
  *   [FollowMode.MIN_SOFT_DURATION_MS] will be rounded up to [FollowMode.MIN_SOFT_DURATION_MS] to
  *   allow enough time to complete the content movement.
+ * @param dimensions A set of boolean flags which determine the dimensions of movement that are
+ *   tracked. By default, all dimensions are tracked.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class SoftFollowMode(private val durationMs: Int = DEFAULT_SOFT_DURATION_MS) :
-    FollowMode() {
+internal class SoftFollowMode(
+    private val durationMs: Int = DEFAULT_SOFT_DURATION_MS,
+    private val dimensions: TrackedDimensions = TrackedDimensions.All,
+) : FollowMode() {
     private val animationDurationMs: Int = durationMs.coerceAtLeast(MIN_SOFT_DURATION_MS)
     private var trailingEntity: CoreGroupEntity? = null
     private val animationProgress = Animatable(initialValue = ANIMATION_START_VALUE)
@@ -50,7 +54,6 @@ internal class SoftFollowMode(private val durationMs: Int = DEFAULT_SOFT_DURATIO
         session: Session,
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
-        dimensions: TrackedDimensions,
     ) = coroutineScope {
         this@SoftFollowMode.trailingEntity = trailingEntity
         val initialPose = trailingEntity.poseInMeters
@@ -65,11 +68,7 @@ internal class SoftFollowMode(private val durationMs: Int = DEFAULT_SOFT_DURATIO
                 // TODO: b/548122230 Avoid double flow subscription in following subspace.
                 val pose = poseUpdatesFlow.first()
                 var currentTargetPoseMeter: Pose =
-                    getPoseByTrackedDimensions(
-                        pose = pose,
-                        dimensions = dimensions,
-                        fallbackPose = initialPose,
-                    )
+                    dimensions.getPoseByTrackedDimensions(pose = pose, fallbackPose = initialPose)
                 trailingEntity.poseInMeters = currentTargetPoseMeter
                 trailingEntity.enabled = true
                 var lastIntendedEndPoseMeter: Pose = currentTargetPoseMeter
@@ -78,9 +77,8 @@ internal class SoftFollowMode(private val durationMs: Int = DEFAULT_SOFT_DURATIO
                     // Determine the target pose using the source pose but ignoring the
                     // dimensions we are not tracking.
                     currentTargetPoseMeter =
-                        getPoseByTrackedDimensions(
+                        dimensions.getPoseByTrackedDimensions(
                             pose = pose,
-                            dimensions = dimensions,
                             fallbackPose = initialPose,
                         )
 
@@ -129,20 +127,23 @@ internal class SoftFollowMode(private val durationMs: Int = DEFAULT_SOFT_DURATIO
         if (this === other) return true
         if (other !is SoftFollowMode) return false
 
-        return durationMs == other.durationMs
+        if (durationMs != other.durationMs) return false
+        if (dimensions != other.dimensions) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
-        var result = javaClass.hashCode()
-        result = 31 * result + durationMs.hashCode()
+        var result = durationMs.hashCode()
+        result = 31 * result + dimensions.hashCode()
         return result
     }
 
     private companion object {
-        private const val TRANSLATION_THRESHOLD: Float = 0.1f
-        private const val ROTATION_THRESHOLD: Float = 3f
-        private const val ANIMATION_START_VALUE: Float = 0f
-        private const val ANIMATION_END_VALUE: Float = 1f
+        private val TRANSLATION_THRESHOLD: Float = 0.1f
+        private val ROTATION_THRESHOLD: Float = 3f
+        private val ANIMATION_START_VALUE: Float = 0f
+        private val ANIMATION_END_VALUE: Float = 1f
 
         /**
          * Applies Smoothstep function (a specific implementation of a Cubic Hermite interpolation
