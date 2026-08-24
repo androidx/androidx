@@ -4428,6 +4428,8 @@ package androidx.compose.material3 {
     method @BytecodeOnly public long getPeriodSelectorContentColor-0d7_KjU();
     method @BytecodeOnly public long getPeriodSelectorSelectedContainerColor-0d7_KjU();
     method @BytecodeOnly public long getPeriodSelectorSelectedContentColor-0d7_KjU();
+    method @BytecodeOnly @Deprecated public long getPeriodSelectorUnselectedContainerColor-0d7_KjU();
+    method @BytecodeOnly @Deprecated public long getPeriodSelectorUnselectedContentColor-0d7_KjU();
     method @InaccessibleFromKotlin public androidx.compose.material3.TextFieldColors getTimeTextFieldColors();
     property public androidx.compose.ui.graphics.Color containerColor;
     property public androidx.compose.ui.graphics.Color periodSelectorBorderColor;
