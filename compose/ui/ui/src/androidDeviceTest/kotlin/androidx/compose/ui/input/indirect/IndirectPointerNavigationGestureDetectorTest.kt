@@ -60,7 +60,7 @@ class IndirectPointerNavigationGestureDetectorTest {
             context = activity
             indirectPointerNavigationGestureDetector =
                 IndirectPointerNavigationGestureDetector(
-                    context,
+                    activity.window.decorView.rootView,
                     { focusDirection: FocusDirection -> currentFocusDirection = focusDirection },
                 )
             // All tests in file require the primary axis to be X:

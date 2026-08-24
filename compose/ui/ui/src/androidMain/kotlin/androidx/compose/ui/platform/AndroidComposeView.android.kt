@@ -1138,7 +1138,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     // Determines scroll/swipe to next or previous focusable element for indirect pointer events.
     private val indirectPointerNavigationGestureDetector =
-        IndirectPointerNavigationGestureDetector(context) {
+        IndirectPointerNavigationGestureDetector(this) {
             focusOwner.moveFocus(focusDirection = it, wrapAroundForOneDimensionalFocus = false)
         }
 
@@ -4398,7 +4398,7 @@ private object Api35Impl {
 }
 
 internal class IndirectPointerNavigationGestureDetector(
-    context: Context,
+    private val view: View,
     private val onMoveFocus: (FocusDirection) -> Unit,
 ) {
     var primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.None
@@ -4407,59 +4407,65 @@ internal class IndirectPointerNavigationGestureDetector(
     // This is set if a move event is consumed by another component.
     private var ignoreCurrentGestureStream = false
 
-    private val gestureDetector: GestureDetector =
-        GestureDetector(
-            context,
-            object : GestureDetector.OnGestureListener {
-                override fun onDown(e: MotionEvent) = true
+    private var _gestureDetector: GestureDetector? = null
 
-                override fun onShowPress(e: MotionEvent) {}
+    private fun getOrCreateGestureDetector(): GestureDetector {
+        return _gestureDetector
+            ?: GestureDetector(view.context, gestureListener, view.handler).also {
+                _gestureDetector = it
+            }
+    }
 
-                override fun onSingleTapUp(e: MotionEvent): Boolean = true
+    private val gestureListener =
+        object : GestureDetector.OnGestureListener {
+            override fun onDown(e: MotionEvent) = true
 
-                override fun onScroll(
-                    e1: MotionEvent?,
-                    e2: MotionEvent,
-                    distanceX: Float,
-                    distanceY: Float,
-                ) = true
+            override fun onShowPress(e: MotionEvent) {}
 
-                override fun onLongPress(e: MotionEvent) {}
+            override fun onSingleTapUp(e: MotionEvent): Boolean = true
 
-                override fun onFling(
-                    e1: MotionEvent?,
-                    e2: MotionEvent,
-                    velocityX: Float,
-                    velocityY: Float,
-                ): Boolean {
-                    if (ignoreCurrentGestureStream) return true
+            override fun onScroll(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                distanceX: Float,
+                distanceY: Float,
+            ) = true
 
-                    if (
-                        primaryDirectionalMotionAxis ==
-                            IndirectPointerEventPrimaryDirectionalMotionAxis.X
-                    ) {
-                        if (abs(velocityX) > abs(velocityY)) {
-                            val direction =
-                                if (velocityX > 0f) FocusDirection.Next else FocusDirection.Previous
-                            onMoveFocus(direction)
-                        }
-                    } else if (
-                        primaryDirectionalMotionAxis ==
-                            IndirectPointerEventPrimaryDirectionalMotionAxis.Y
-                    ) {
-                        if (abs(velocityY) > abs(velocityX)) {
-                            val direction =
-                                if (velocityY > 0f) FocusDirection.Next else FocusDirection.Previous
-                            onMoveFocus(direction)
-                        }
+            override fun onLongPress(e: MotionEvent) {}
+
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float,
+            ): Boolean {
+                if (ignoreCurrentGestureStream) return true
+
+                if (
+                    primaryDirectionalMotionAxis ==
+                        IndirectPointerEventPrimaryDirectionalMotionAxis.X
+                ) {
+                    if (abs(velocityX) > abs(velocityY)) {
+                        val direction =
+                            if (velocityX > 0f) FocusDirection.Next else FocusDirection.Previous
+                        onMoveFocus(direction)
                     }
-                    // If it gets here, it means there isn't a primary axis specified, which means
-                    // the event will be translated by system to key up, down, left, and right.
-
-                    return true
+                } else if (
+                    primaryDirectionalMotionAxis ==
+                        IndirectPointerEventPrimaryDirectionalMotionAxis.Y
+                ) {
+                    if (abs(velocityY) > abs(velocityX)) {
+                        val direction =
+                            if (velocityY > 0f) FocusDirection.Next else FocusDirection.Previous
+                        onMoveFocus(direction)
+                    }
                 }
-            },
-        )
+                // If it gets here, it means there isn't a primary axis specified, which means
+                // the event will be translated by system to key up, down, left, and right.
+
+                return true
+            }
+        }
 
     fun onIndirectPointerEvent(
         indirectPointerEvent: IndirectPointerEvent,
@@ -4481,7 +4487,7 @@ internal class IndirectPointerNavigationGestureDetector(
                 }
             }
         }
-        return gestureDetector.onTouchEvent(motionEvent)
+        return getOrCreateGestureDetector().onTouchEvent(motionEvent)
     }
 
     /**
@@ -4507,17 +4513,19 @@ internal class IndirectPointerNavigationGestureDetector(
     fun dispose() {
         primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.None
         ignoreCurrentGestureStream = true
-        val cancelEvent =
-            MotionEvent.obtain(
-                /* downTime = */ 0L,
-                /* eventTime = */ 0L,
-                MotionEvent.ACTION_CANCEL,
-                /* x = */ 0f,
-                /* y = */ 0f,
-                /* metaState = */ 0,
-            )
-        gestureDetector.onTouchEvent(cancelEvent)
-        cancelEvent.recycle()
+        _gestureDetector?.let { detector ->
+            val cancelEvent =
+                MotionEvent.obtain(
+                    /* downTime = */ 0L,
+                    /* eventTime = */ 0L,
+                    MotionEvent.ACTION_CANCEL,
+                    /* x = */ 0f,
+                    /* y = */ 0f,
+                    /* metaState = */ 0,
+                )
+            detector.onTouchEvent(cancelEvent)
+            cancelEvent.recycle()
+        }
     }
 }
 
