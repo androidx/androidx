@@ -56,7 +56,7 @@ fun findPokemonNamesWithoutCachedImage(filesDir: File, limit: Int = 150): List<S
     }
 
 private fun findPokemonNamesWithCachedImages(filesDir: File): List<String> {
-    val alreadyStoredPngs = filesDir.listFiles { dir, name -> name.endsWith(".png") }.orEmpty()
+    val alreadyStoredPngs = filesDir.listFiles { _, name -> name.endsWith(".png") }.orEmpty()
     return alreadyStoredPngs.map { it.nameWithoutExtension }
 }
 
