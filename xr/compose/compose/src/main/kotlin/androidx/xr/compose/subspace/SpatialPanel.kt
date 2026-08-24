@@ -59,11 +59,7 @@ import androidx.xr.compose.platform.getValue
 import androidx.xr.compose.subspace.layout.CoreActivityPanelEntity
 import androidx.xr.compose.subspace.layout.CoreMainPanelEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
-import androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy
 import androidx.xr.compose.subspace.layout.InteractionPolicy
-import androidx.xr.compose.subspace.layout.PlaneOrientation
-import androidx.xr.compose.subspace.layout.PlaneSemantic
-import androidx.xr.compose.subspace.layout.SpatialMoveEvent
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SpatialShape
 import androidx.xr.compose.subspace.layout.SubspaceLayout
@@ -72,9 +68,7 @@ import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
 import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
 import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.anchorable
 import androidx.xr.compose.subspace.layout.interactable
-import androidx.xr.compose.subspace.layout.movable
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCompositionLocalMap
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetCoreEntity
@@ -110,139 +104,6 @@ public object SpatialPanelDefaults {
 }
 
 /**
- * Base Policy for motion behavior of spatial objects.
- *
- * This class serves as the foundation for defining how a spatial object can be moved or anchored in
- * the environment. Implementations of this class, such as [MovePolicy] and [AnchorPolicy], are
- * mutually exclusive.
- */
-@Deprecated("Use SubspaceModifier.movable() on the Composable's modifier instead.")
-public abstract class DragPolicy internal constructor()
-
-/**
- * Represents the anchoring behavior of a spatial object.
- *
- * An AnchorPolicy object can be placed and re-anchored on detected surfaces in the environment.
- * This class defines properties that control how anchoring behaves, such as whether it's enabled
- * and what types of planes it can anchor to.
- *
- * This functionality requires [androidx.xr.runtime.Session.configure] to be called with
- * [androidx.xr.runtime.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL]. This configuration requires that
- * the `SCENE_UNDERSTANDING_COARSE` Android permission is granted. If not granted, the `anchorable`
- * functionality will be disabled, and the element will behave as if the anchorable modifier was not
- * applied.
- *
- * @property isEnabled Whether anchoring is enabled for this object. If `false`, the object will not
- *   be able to anchor to surfaces. Defaults to `true`.
- * @property anchorPlaneOrientations A set of [PlaneOrientation] values that define the orientations
- *   of planes this object can anchor to. An empty set means anchoring is not restricted by
- *   orientation. For example, [PlaneOrientation.Horizontal] for floors/ceilings or
- *   [PlaneOrientation.Vertical] for walls. Defaults to an empty set.
- * @property anchorPlaneSemantics A set of [PlaneSemantic] values that define the semantic types of
- *   planes this object can anchor to. An empty set means anchoring is not restricted by semantic
- *   type. For example, [PlaneSemantic.Floor] or [PlaneSemantic.Wall]. Defaults to an empty set.
- */
-@OptIn(ExperimentalMoveAnchorPolicy::class)
-@Deprecated(
-    message =
-        "Use SubspaceModifier.movable(movePolicy = MovePolicy.anchor()) on the Composable's modifier instead."
-)
-@Suppress("DEPRECATION")
-public class AnchorPolicy(
-    public val isEnabled: Boolean = true,
-    @Suppress("PrimitiveInCollection")
-    public val anchorPlaneOrientations: Set<PlaneOrientation> = emptySet(),
-    @Suppress("PrimitiveInCollection")
-    public val anchorPlaneSemantics: Set<PlaneSemantic> = emptySet(),
-) : DragPolicy() {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is AnchorPolicy) return false
-        if (isEnabled != other.isEnabled) return false
-        if (anchorPlaneOrientations != other.anchorPlaneOrientations) return false
-        if (anchorPlaneSemantics != other.anchorPlaneSemantics) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = anchorPlaneOrientations.hashCode()
-        result = 31 * result + isEnabled.hashCode()
-        result = 31 * result + anchorPlaneSemantics.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "AnchorPolicy(enabled=$isEnabled, anchorPlaneOrientations=$anchorPlaneOrientations, " +
-            "anchorPlaneSemantics=$anchorPlaneSemantics)"
-    }
-}
-
-/**
- * Defines the movement policy for a spatial object.
- *
- * This class configures how a spatial object can be moved by user interaction or programmatic
- * changes. It provides options for enabling/disabling movement, controlling "stickiness" to its
- * current pose, and defining callbacks for various stages of the move operation.
- *
- * @property isEnabled Whether movement is enabled for this object. If `false`, the object cannot be
- *   moved. Defaults to `true`.
- * @property isStickyPose If `true`, the object will attempt to maintain its relative position and
- *   orientation to the user's view or the environment when moved, making it feel "sticky." If
- *   `false`, movement will be more direct. Defaults to `false`.
- * @property shouldScaleWithDistance If `true`, the object's perceived size will scale with its
- *   distance from the user during movement, giving an illusion of constant visual size. If `false`,
- *   its physical size remains constant. Defaults to `true`.
- * @property onMoveStart A callback function invoked when a move operation begins. It receives a
- *   [SpatialMoveEvent] providing initial move details. Defaults to `null`.
- * @property onMoveEnd A callback function invoked when a move operation ends. It receives a
- *   [SpatialMoveEvent] providing final move details. Defaults to `null`.
- * @property onMove A callback function invoked repeatedly during a move operation. It receives a
- *   [SpatialMoveEvent] with current move details and should return `true` to indicate the move
- *   should continue, or `false` to cancel it. Defaults to `null`.
- */
-@Deprecated(
-    message =
-        "Use SubspaceModifier.movable(movePolicy = MovePolicy.system()) or SubspaceModifier.movable(movePolicy = MovePolicy.custom()) on the Composable's modifier instead."
-)
-@Suppress("DEPRECATION")
-public class MovePolicy(
-    public val isEnabled: Boolean = true,
-    public val isStickyPose: Boolean = false,
-    @get:JvmName("shouldScaleWithDistance") public val shouldScaleWithDistance: Boolean = true,
-    public val onMoveStart: ((SpatialMoveEvent) -> Unit)? = null,
-    public val onMoveEnd: ((SpatialMoveEvent) -> Unit)? = null,
-    public val onMove: ((SpatialMoveEvent) -> Boolean)? = null,
-) : DragPolicy() {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is MovePolicy) return false
-        if (isEnabled != other.isEnabled) return false
-        if (isStickyPose != other.isStickyPose) return false
-        if (shouldScaleWithDistance != other.shouldScaleWithDistance) return false
-        if (onMoveStart !== other.onMoveStart) return false
-        if (onMoveEnd !== other.onMoveEnd) return false
-        if (onMove !== other.onMove) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = isStickyPose.hashCode()
-        result = 31 * result + isEnabled.hashCode()
-        result = 31 * result + shouldScaleWithDistance.hashCode()
-        result = 31 * result + onMoveStart.hashCode()
-        result = 31 * result + onMoveEnd.hashCode()
-        result = 31 * result + onMove.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "MovePolicy(enabled=$isEnabled, stickyPose=$isStickyPose, " +
-            "scaleWithDistance=$shouldScaleWithDistance, onMoveStart=$onMoveStart, onMoveEnd=$onMoveEnd, " +
-            "onMove=$onMove)"
-    }
-}
-
-/**
  * Creates a [SpatialAndroidViewPanel] representing a 2D plane in 3D space where an Android View
  * will be hosted.
  *
@@ -266,31 +127,21 @@ public class MovePolicy(
  *   prism created by the layout size.
  * @param update A lambda that allows updating the created Android View [T].
  * @param shape The shape of this Spatial Panel.
- * @param dragPolicy An optional [DragPolicy] that defines the motion behavior of the
- *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
- *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
- *   allowing the user to manipulate the panel in 3D space. If null, no motion behavior is applied.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events. Setting this will not intercept 2D input events and is intended to provide additional
  *   spatial input information.
  */
 @Composable
 @SubspaceComposable
-@Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun <T : View> SpatialAndroidViewPanel(
     factory: (Context) -> T,
     modifier: SubspaceModifier = SubspaceModifier,
     update: (T) -> Unit = {},
     shape: SpatialShape = SpatialPanelDefaults.shape,
-    dragPolicy: DragPolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
 ) {
     val finalModifier =
-        buildSpatialPanelModifier(
-            baseModifier = modifier,
-            dragPolicy = dragPolicy,
-            interactionPolicy = interactionPolicy,
-        )
+        buildSpatialPanelModifier(baseModifier = modifier, interactionPolicy = interactionPolicy)
     val dialogManager = LocalDialogManager.current
     val parentView = LocalView.current
 
@@ -393,10 +244,6 @@ private fun <T : View> AndroidViewPanel(
  *   rendered shape will be a flat rectangle that is positioned on the front face of the rectangular
  *   prism created by the layout size.
  * @param shape The shape of this Spatial Panel.
- * @param dragPolicy An optional [DragPolicy] that defines the motion behavior of the
- *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
- *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
- *   allowing the user to manipulate the panel in 3D space. If null, no motion behavior is applied.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events. Setting this will not intercept 2D input events and is intended to provide additional
  *   spatial input information.
@@ -404,20 +251,14 @@ private fun <T : View> AndroidViewPanel(
  */
 @Composable
 @SubspaceComposable
-@Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun SpatialPanel(
     modifier: SubspaceModifier = SubspaceModifier,
     shape: SpatialShape = SpatialPanelDefaults.shape,
-    dragPolicy: DragPolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
     content: @Composable @UiComposable () -> Unit,
 ) {
     val finalModifier =
-        buildSpatialPanelModifier(
-            baseModifier = modifier,
-            dragPolicy = dragPolicy,
-            interactionPolicy = interactionPolicy,
-        )
+        buildSpatialPanelModifier(baseModifier = modifier, interactionPolicy = interactionPolicy)
 
     val localId = currentCompositeKeyHashCode
     val context = LocalContext.current
@@ -514,10 +355,6 @@ public fun SpatialPanel(
  *   rectangle that is positioned on the front face of the rectangular prism created by the layout
  *   size.
  * @param shape The shape of this Spatial Panel.
- * @param dragPolicy An optional [DragPolicy] that defines the motion behavior of the
- *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
- *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
- *   allowing the user to manipulate the panel in 3D space. If null, no motion behavior is applied.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events. Setting this will not intercept 2D input events and is intended to provide additional
  *   spatial input information.
@@ -525,19 +362,13 @@ public fun SpatialPanel(
  */
 @Composable
 @SubspaceComposable
-@Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun SpatialMainPanel(
     modifier: SubspaceModifier = SubspaceModifier,
     shape: SpatialShape = SpatialPanelDefaults.shape,
-    dragPolicy: DragPolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
 ) {
     val finalModifier =
-        buildSpatialPanelModifier(
-            baseModifier = modifier,
-            dragPolicy = dragPolicy,
-            interactionPolicy = interactionPolicy,
-        )
+        buildSpatialPanelModifier(baseModifier = modifier, interactionPolicy = interactionPolicy)
     val mainPanel = requestMainPanelOwnership().value ?: return
     val density = LocalDensity.current
     val view = LocalView.current
@@ -647,10 +478,6 @@ internal class MainPanelOwnerQueue(private val queue: ArrayDeque<() -> Unit> = A
  *   rendered shape will be a flat rectangle that is positioned on the front face of the rectangular
  *   prism created by the layout size.
  * @param shape The shape of this Spatial Panel.
- * @param dragPolicy An optional [DragPolicy] that defines the motion behavior of the
- *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
- *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
- *   allowing the user to manipulate the panel in 3D space. If null, no motion behavior is applied.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events. Setting this will not intercept 2D input events and is intended to provide additional
  *   spatial input information.
@@ -666,20 +493,14 @@ internal class MainPanelOwnerQueue(private val queue: ArrayDeque<() -> Unit> = A
             "your drag and resize policy to use the `SubspaceModifier.movable()` and " +
             "`SubspaceModifier.resizable()` modifiers."
 )
-@Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun SpatialActivityPanel(
     intent: Intent,
     modifier: SubspaceModifier = SubspaceModifier,
     shape: SpatialShape = SpatialPanelDefaults.shape,
-    dragPolicy: DragPolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
 ) {
     val finalModifier =
-        buildSpatialPanelModifier(
-            baseModifier = modifier,
-            dragPolicy = dragPolicy,
-            interactionPolicy = interactionPolicy,
-        )
+        buildSpatialPanelModifier(baseModifier = modifier, interactionPolicy = interactionPolicy)
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val pixelDensity = session.scene.virtualPixelDensity
     val dialogManager = LocalDialogManager.current
@@ -820,47 +641,19 @@ private fun createViewPanelMeasureSpec(minSize: Int, maxSize: Int, hasBoundedSiz
     }
 
 /**
- * Applies move, anchor, and resize policies to a [SubspaceModifier], returning the combined final
- * modifier. This is a private helper function for [SpatialPanel] and [SpatialExternalSurface].
+ * Applies interaction policies to a [SubspaceModifier], returning the combined final modifier. This
+ * is a private helper function for [SpatialPanel] and [SpatialExternalSurface].
  *
  * @param baseModifier The initial [SubspaceModifier] to which policies will be applied.
- * @param dragPolicy An optional [AnchorPolicy] or [MovePolicy] to configure either anchoring or
- *   movement behavior.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
  *   events.
  * @return A [SubspaceModifier] with all applicable policies integrated.
  */
-@Suppress("DEPRECATION")
-@OptIn(ExperimentalMoveAnchorPolicy::class)
 internal fun buildSpatialPanelModifier(
     baseModifier: SubspaceModifier,
-    dragPolicy: DragPolicy?,
     interactionPolicy: InteractionPolicy? = null,
 ): SubspaceModifier {
-    var finalModifier =
-        when (dragPolicy) {
-            is AnchorPolicy ->
-                baseModifier.anchorable(
-                    enabled = dragPolicy.isEnabled,
-                    anchorPlaneOrientations = dragPolicy.anchorPlaneOrientations,
-                    anchorPlaneSemantics = dragPolicy.anchorPlaneSemantics,
-                )
-
-            is MovePolicy ->
-                SubspaceModifier.movable(
-                        enabled = dragPolicy.isEnabled,
-                        stickyPose = dragPolicy.isStickyPose,
-                        scaleWithDistance = dragPolicy.shouldScaleWithDistance,
-                        onMoveStart = dragPolicy.onMoveStart,
-                        onMoveEnd = dragPolicy.onMoveEnd,
-                        onMove = dragPolicy.onMove,
-                    )
-                    .then(baseModifier)
-
-            else -> {
-                baseModifier
-            }
-        }
+    var finalModifier = baseModifier
 
     if (interactionPolicy != null) {
         finalModifier =
