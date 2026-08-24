@@ -137,7 +137,7 @@ class MutableContextTrackerTest {
             }
 
             // Fire onResult to complete the flow and trigger unregistration
-            val mockResponse = GetCredentialResponse(PasswordCredential("id", "password"))
+            val mockResponse = GetCredentialResponse(listOf(PasswordCredential("id", "password")))
             wrappedCallback!!.onResult(mockResponse)
 
             assertThat(callbackLatch.await(100, TimeUnit.MILLISECONDS)).isTrue()

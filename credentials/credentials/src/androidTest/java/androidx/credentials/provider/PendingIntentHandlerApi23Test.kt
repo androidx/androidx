@@ -478,7 +478,7 @@ class PendingIntentHandlerApi23Test {
         val byteArray = Random.nextBytes(1024 * 1024 + 100)
         largeData.putByteArray("large_array", byteArray)
         val customCredential = CustomCredential("type", largeData)
-        val initialResponse = GetCredentialResponse(customCredential)
+        val initialResponse = GetCredentialResponse(listOf(customCredential))
         var receivedIntent: Intent? = null
         val requestData = Bundle()
         val receiver =
@@ -499,7 +499,8 @@ class PendingIntentHandlerApi23Test {
         // Verify that the GetCredentialResponse can be successfully retrieved from the same
         // process.
         val finalResponse = PendingIntentHandler.retrieveGetCredentialResponse(receivedIntent!!)
-        assertThat(finalResponse!!.credential.data.getByteArray("large_array")).isEqualTo(byteArray)
+        assertThat(finalResponse!!.credentials.first().data.getByteArray("large_array"))
+            .isEqualTo(byteArray)
     }
 
     @Test
@@ -509,7 +510,7 @@ class PendingIntentHandlerApi23Test {
         val byteArray = ByteArray(205000)
         largeData.putByteArray("large_array", byteArray)
         val customCredential = CustomCredential("type", largeData)
-        val initialResponse = GetCredentialResponse(customCredential)
+        val initialResponse = GetCredentialResponse(listOf(customCredential))
 
         val option = GetCustomCredentialOption("type", Bundle(), Bundle(), false, true)
         val request = ProviderGetCredentialRequest(listOf(option), getTestCallingAppInfo("origin"))

@@ -22,9 +22,10 @@ import androidx.annotation.RestrictTo
 /**
  * Encapsulates the result of a user credential request.
  *
- * Typically, a response contains a single user credential in [credential] (such as a passkey or a
- * password). However, for [DigitalCredential]s, a single request may yield multiple credentials
- * returned in [credentials].
+ * The number of credentials returned depends on what was requested. For example, for authentication
+ * types of credentials such as [PasswordCredential] or [PublicKeyCredential], this list contains
+ * exactly one credential. Meanwhile, for [DigitalCredential]s, a single request may yield multiple
+ * credentials returned in [credentials].
  *
  * @property credentials the list of user credentials returned by the provider(s) that can be used
  *   to authenticate to your app
@@ -45,6 +46,10 @@ class GetCredentialResponse(val credentials: List<Credential>) {
      * @param credential the user credential that can be used to authenticate to your app
      * @throws NullPointerException If [credential] is null
      */
+    @Deprecated(
+        "Use the constructor that takes a list of credentials instead.",
+        ReplaceWith("GetCredentialResponse(listOf(credential))"),
+    )
     constructor(credential: Credential) : this(listOf(credential))
 
     /**
@@ -52,6 +57,7 @@ class GetCredentialResponse(val credentials: List<Credential>) {
      *
      * When multiple credentials are returned in [credentials], this returns the first credential.
      */
+    @Deprecated("Use credentials instead.", ReplaceWith("credentials.first()"))
     val credential: Credential
         get() = credentials.first()
 
@@ -70,6 +76,7 @@ class GetCredentialResponse(val credentials: List<Credential>) {
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Suppress("DEPRECATION")
         fun asBundle(response: GetCredentialResponse): Bundle =
             Bundle().apply {
                 putString(EXTRA_CREDENTIAL_TYPE, response.credential.type)
@@ -83,6 +90,7 @@ class GetCredentialResponse(val credentials: List<Credential>) {
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @Suppress("DEPRECATION")
         fun fromBundle(bundle: Bundle): GetCredentialResponse? {
             val size = bundle.getInt(EXTRA_CREDENTIAL_LIST_SIZE, -1)
             if (size > 0) {

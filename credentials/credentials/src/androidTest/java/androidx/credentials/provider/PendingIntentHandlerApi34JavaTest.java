@@ -31,6 +31,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.service.credentials.CallingAppInfo;
 
+import java.util.Collections;
+
 import androidx.credentials.CreatePasswordResponse;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.PasswordCredential;
@@ -358,7 +360,8 @@ public class PendingIntentHandlerApi34JavaTest {
     public void test_credentialResponse() {
         Intent intent = new Intent();
         PasswordCredential credential = new PasswordCredential("a", "b");
-        GetCredentialResponse initialResponse = new GetCredentialResponse(credential);
+        GetCredentialResponse initialResponse =
+                new GetCredentialResponse(Collections.singletonList(credential));
 
         PendingIntentHandler.setGetCredentialResponse(intent, initialResponse,
                 createDummyProviderGetCredentialRequest());
