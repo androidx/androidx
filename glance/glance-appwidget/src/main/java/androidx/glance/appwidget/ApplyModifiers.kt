@@ -50,11 +50,19 @@ import androidx.glance.unit.Dimension
 import androidx.glance.unit.FixedColorProvider
 import androidx.glance.unit.ResourceColorProvider
 
+/**
+ * @param shouldOptimizeVisibility set to true if it is safe to not call
+ *   `setViewVisibility(VISIBLE)` on this view. This should be false for compound buttons and
+ *   AndroidRemoteViews, but true for any other component that does not have its visibility
+ *   overridden in xml. This logic will only run on Api 33+. The optimization will NOT be run on
+ *   list view items due to recycling.
+ */
 internal fun applyModifiers(
     translationContext: TranslationContext,
     rv: RemoteViews,
     modifiers: GlanceModifier,
     viewDef: InsertedViewInfo,
+    shouldOptimizeVisibility: Boolean,
 ) {
     val context = translationContext.context
     var widthModifier: WidthModifier? = null
@@ -135,7 +143,17 @@ internal fun applyModifiers(
             rv.setContentDescription(viewDef.mainViewId, contentDescription.joinToString())
         }
     }
-    rv.setViewVisibility(viewDef.mainViewId, visibility.toViewVisibility())
+
+    val optimizeVisibility: Boolean =
+        shouldOptimizeVisibility && // components can opt out
+            Build.VERSION.SDK_INT > 33 && // glance uses stubs with visibility sub 33
+            !translationContext.isLazyCollectionDescendant // don't break recycled views
+    if (visibility.toViewVisibility() == View.VISIBLE && optimizeVisibility) {
+        // Pass. Don't call setVisibility(Visibile) because this is the default for normal views
+        // and will eat up limited space in our binder transaction.
+    } else {
+        rv.setViewVisibility(viewDef.mainViewId, visibility.toViewVisibility())
+    }
 }
 
 private fun Visibility.toViewVisibility() =

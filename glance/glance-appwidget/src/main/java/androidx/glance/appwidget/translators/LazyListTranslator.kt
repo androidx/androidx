@@ -99,7 +99,13 @@ private fun RemoteViews.translateEmittableLazyList(
         translationContext.layoutSize.toSizeString(),
         items,
     )
-    applyModifiers(translationContext, this, element.modifier, viewDef)
+    applyModifiers(
+        translationContext,
+        this,
+        element.modifier,
+        viewDef,
+        shouldOptimizeVisibility = true,
+    )
 }
 
 /**
