@@ -62,4 +62,6 @@ component.
 
 The number of object allocations occurring during a benchmark loop. It's
 important to keep allocations low, especially during recurring operations like
-scrolling, as allocations increase memory pressure.
+scrolling, as allocations increase memory pressure. See
+[Compose Memory Performance & Tooling](compose_memory.md) for more details on
+memory measurement and analysis.
