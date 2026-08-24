@@ -38,6 +38,7 @@ class StorageContextSwitchTest {
             // trigger a read to run read assertions in storage
             assertEquals("Initial Value", store.data.first().value)
 
+            @Suppress("UNUSED_VARIABLE")
             val unused =
                 store.updateData {
                     assertEquals(TestElement1("caller_key_1"), currentCoroutineContext()[TestKey1])
