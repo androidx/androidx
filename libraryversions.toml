@@ -188,7 +188,7 @@ WORK = "2.13.0-alpha01"
 XR_ARCORE = "1.1.0-alpha01"
 XR_COMPOSE = "1.0.0-beta01"
 XR_GLIMMER = "1.0.0-alpha18"
-XR_PROJECTED = "1.0.0-alpha12"
+XR_PROJECTED = "1.0.0-alpha13"
 XR_RUNTIME = "1.1.0-alpha01"
 XR_SCENECORE = "1.1.0-alpha01"
 
