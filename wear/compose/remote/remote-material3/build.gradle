@@ -33,7 +33,7 @@ androidx {
 
 android {
     namespace = "androidx.wear.compose.remote.material3"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
     defaultConfig {
         minSdk { version = release(29) }
     }
@@ -52,6 +52,7 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.4.0")
     implementation("androidx.compose.runtime:runtime:1.11.0")
     implementation("androidx.compose.foundation:foundation-layout:1.11.0")
+
 
     androidTestImplementation(project(":wear:compose:remote:remote-material3-samples"))
     androidTestImplementation(project(":compose:remote:remote-creation"))
