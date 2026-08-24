@@ -143,13 +143,16 @@ public abstract class OutputOptions {
          * Sets a {@link Location} object representing a geographic location where the video was
          * recorded.
          *
-         * <p>When use with {@link Recorder}, the geographic location is stored in udta box if the
-         * output format is MP4, and is ignored for other formats. The geographic location is
-         * stored according to ISO-6709 standard.
+         * <p>When used with {@link Recorder}, only the latitude and longitude from the
+         * {@link Location} are stored in the udta box if the output format is MP4, and are
+         * ignored for other formats. Other location data (such as altitude) is not stored. The
+         * geographic location is stored according to the ISO-6709 standard.
          *
          * <p>If {@code null}, no location information will be saved with the video. Default
          * value is {@code null}.
          *
+         * @param location the location object, or {@code null} if no location should be saved.
+         * @return this Builder.
          * @throws IllegalArgumentException if the latitude of the location is not in the range
          * {@code [-90, 90]} or the longitude of the location is not in the range {@code [-180,
          * 180]}.
