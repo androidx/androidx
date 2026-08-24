@@ -22,20 +22,31 @@
  */
 
 import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
-android {
+androidXMultiplatform {
+  // Only supported on non-Android JVM for Linux on x86_64 and Mac on arm64
+  jvm()
+
+  androidLibrary {
     namespace = "androidx.ink.brush.samples"
-}
+  }
 
-dependencies {
-    api(libs.jspecify)
-    compileOnly(project(":annotation:annotation-sampled"))
-    implementation(project(":ink:ink-brush"))
+  ios()
+
+  defaultPlatform(PlatformIdentifier.JVM)
+
+  sourceSets {
+    commonMain.dependencies {
+      api(libs.jspecify)
+      api(project(":annotation:annotation-sampled"))
+      implementation(project(":ink:ink-brush"))
+    }
+  }
 }
 
 androidx {
