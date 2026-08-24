@@ -26,7 +26,6 @@ import androidx.camera.camera2.pipe.CameraGraphBase.Companion.subscribeToLatestF
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.LatestFrameMetadata
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestListeners
 import androidx.camera.camera2.pipe.StreamFormat
@@ -37,6 +36,7 @@ import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.HighEndDeviceTemplate
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.common.Metadata
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -57,7 +57,7 @@ class LatestFrameMetadataAggregatorTest {
     private val fakeRequestMetadata = FakeRequestMetadata()
     private val keyX = CaptureResult.SENSOR_EXPOSURE_TIME
     private val keyY = CaptureResult.SENSOR_SENSITIVITY
-    private val metaKeyZ = Metadata.Key.create<Int>("test.key.z")
+    private val metaKeyZ = Metadata.Key<Int>("test.key.z")
 
     // Simulator test helpers
     private val testScope = TestScope()

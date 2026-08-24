@@ -27,10 +27,10 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.core.lazyOrEmptySet
 import androidx.camera.camera2.pipe.core.lazyOrFalse
 import androidx.camera.camera2.pipe.core.lazyOrNull
+import androidx.camera.common.Metadata
 import java.lang.Class
 
 /**
@@ -59,7 +59,7 @@ internal class Camera2CameraExtensionMetadata(
     private val estimatedCaptureLatencyRangeMillis =
         mutableMapOf<Pair<Size, Int>, Lazy<Range<Long>?>>()
 
-    override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
+    override fun <T : Any> get(key: CameraCharacteristics.Key<T>): T? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             return Api35Compat.getExtensionCharacteristic(
                 extensionCharacteristics,
@@ -70,9 +70,10 @@ internal class Camera2CameraExtensionMetadata(
         return null
     }
 
-    @Suppress("UNCHECKED_CAST") override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> get(key: Metadata.Key<T>): T? = metadata[key] as T?
 
-    override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
+    override fun <T : Any> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             return Api35Compat.getExtensionCharacteristic(
                 extensionCharacteristics,
@@ -84,8 +85,11 @@ internal class Camera2CameraExtensionMetadata(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T =
+    override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T =
         metadata[key] as T? ?: default
+
+    override val metadataKeys: Set<Metadata.Key<*>>
+        get() = metadata.keys
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: Class<T>): T? =

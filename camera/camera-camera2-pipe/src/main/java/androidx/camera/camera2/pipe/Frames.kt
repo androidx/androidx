@@ -20,7 +20,9 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.camera.camera2.pipe.Metadata as PipeMetadata
 import androidx.camera.camera2.pipe.graph.LatestFrameMetadataImpl
+import androidx.camera.common.Metadata
 import androidx.camera.common.UnsafeWrapper
 
 /**
@@ -52,10 +54,7 @@ public interface FrameInfo : UnsafeWrapper {
 
 /** [FrameMetadata] is a wrapper around [CaptureResult]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface FrameMetadata : Metadata, UnsafeWrapper {
-    public operator fun <T> get(key: CaptureResult.Key<T>): T?
-
-    public fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
+public interface FrameMetadata : PipeMetadata, UnsafeWrapper {
 
     public val camera: CameraId
     public val frameNumber: FrameNumber
@@ -65,6 +64,12 @@ public interface FrameMetadata : Metadata, UnsafeWrapper {
      * exposed separately to allow other systems to know what is altered relative to Camera2.
      */
     public val extraMetadata: Map<*, Any?>
+
+    public operator fun <T> get(key: CaptureResult.Key<T>): T?
+
+    public fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T {
+        return get(key) ?: default
+    }
 }
 
 /**
@@ -82,8 +87,8 @@ public interface LatestFrameMetadata : Metadata {
     /** Returns the list of [CaptureResult.Key]s currently present in these parameters. */
     public val keys: List<CaptureResult.Key<*>>
 
-    /** Returns the list of [Metadata.Key]s currently present in these parameters. */
-    public val metadataKeys: List<Metadata.Key<*>>
+    /** Returns the set of [Metadata.Key]s currently present in these parameters. */
+    override val metadataKeys: Set<Metadata.Key<*>>
 
     public operator fun <T> get(key: CaptureResult.Key<T>): T?
 

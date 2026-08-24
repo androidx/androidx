@@ -22,12 +22,12 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.Metadata
 import androidx.camera.core.impl.CameraCaptureResult
 import java.lang.Class
 
@@ -67,9 +67,11 @@ public object FrameMetadataConverter {
             override val request: Request = Request(listOf())
             override val requestNumber: RequestNumber = RequestNumber(0)
 
-            override fun <T> get(key: Metadata.Key<T>): T? = null
+            override fun <T : Any> get(key: Metadata.Key<T>): T? = null
 
-            override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = default
+            override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T = default
+
+            override val metadataKeys: Set<Metadata.Key<*>> = emptySet()
 
             override fun <T : Any> unwrapAs(type: Class<T>): T? = null
         }

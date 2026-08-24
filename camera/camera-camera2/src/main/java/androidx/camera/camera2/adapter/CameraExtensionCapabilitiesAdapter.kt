@@ -30,10 +30,11 @@ import androidx.camera.core.impl.CameraExtensionCapabilities
 internal class CameraExtensionCapabilitiesAdapter(
     private val extensionMetadata: CameraExtensionMetadata
 ) : CameraExtensionCapabilities {
+    @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: Any): T? {
         if (key is CameraCharacteristics.Key<*>) {
-            @Suppress("UNCHECKED_CAST")
-            return extensionMetadata[key as CameraCharacteristics.Key<T>]
+            val charKey = key as CameraCharacteristics.Key<Any>
+            return extensionMetadata[charKey] as T?
         }
         return null
     }
