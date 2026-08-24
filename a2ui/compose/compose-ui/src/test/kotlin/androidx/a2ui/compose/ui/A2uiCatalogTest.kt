@@ -17,6 +17,7 @@
 package androidx.a2ui.compose.ui
 
 import androidx.a2ui.compose.runtime.A2uiComponentProperties
+import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
@@ -127,9 +128,35 @@ class A2uiCatalogTest {
                 @Composable
                 override fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier) {}
             }
+        val testRow =
+            object : A2uiBasicCatalogV1.Row {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    children: List<A2uiComponentReference>,
+                    justify: A2uiBasicCatalogV1.Row.Justify,
+                    align: A2uiBasicCatalogV1.Row.Align,
+                    modifier: Modifier,
+                ) {}
+            }
+        val testColumn =
+            object : A2uiBasicCatalogV1.Column {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    children: List<A2uiComponentReference>,
+                    justify: A2uiBasicCatalogV1.Column.Justify,
+                    align: A2uiBasicCatalogV1.Column.Align,
+                    modifier: Modifier,
+                ) {}
+            }
         val testFunction = StubFunction("TestFunc")
         val basicCatalog =
-            A2uiBasicCatalogV1(text = testText, card = testCard, functions = listOf(testFunction))
+            A2uiBasicCatalogV1(
+                text = testText,
+                card = testCard,
+                row = testRow,
+                column = testColumn,
+                functions = listOf(testFunction),
+            )
 
         val catalog = A2uiCatalog(basicCatalog)
 
@@ -137,6 +164,8 @@ class A2uiCatalogTest {
         assertThat(catalog.themeSchema).isEqualTo(A2uiBasicCatalogV1.ThemeSchema)
         assertThat(catalog.components["Text"]).isSameInstanceAs(testText)
         assertThat(catalog.components["Card"]).isSameInstanceAs(testCard)
+        assertThat(catalog.components["Row"]).isSameInstanceAs(testRow)
+        assertThat(catalog.components["Column"]).isSameInstanceAs(testColumn)
         assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
     }
 
