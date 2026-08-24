@@ -262,7 +262,7 @@ class CanvasBufferedRendererTests {
 
         val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
 
-        var renderResult: CanvasBufferedRenderer.RenderResult?
+        val renderResult: CanvasBufferedRenderer.RenderResult?
         runBlocking {
             renderResult = renderer.obtainRenderRequest().setColorSpace(colorSpace).draw()
         }
@@ -300,7 +300,7 @@ class CanvasBufferedRendererTests {
 
         val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
 
-        var renderResult: CanvasBufferedRenderer.RenderResult?
+        val renderResult: CanvasBufferedRenderer.RenderResult?
         runBlocking {
             renderResult = renderer.obtainRenderRequest().setColorSpace(colorSpace).draw(false)
         }

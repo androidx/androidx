@@ -92,7 +92,7 @@ class CubicTest {
     @Test
     fun plusTest() {
         val offsetCubic = cubic * 2f
-        var plusCubic = cubic + offsetCubic
+        val plusCubic = cubic + offsetCubic
         assertPointsEqualish(
             p0 + Point(offsetCubic.anchor0X, offsetCubic.anchor0Y),
             Point(plusCubic.anchor0X, plusCubic.anchor0Y),
