@@ -921,7 +921,7 @@ class XElementTest {
                 methods.forEach { assertThat(it.enclosingElement).isEqualTo(enclosingElement) }
             }
 
-            companionObj.getDeclaredFields().let { fields ->
+            companionObj.getDeclaredFields().let { _ ->
                 assertThat(companionObj.getDeclaredFields()).isEmpty()
             }
 
