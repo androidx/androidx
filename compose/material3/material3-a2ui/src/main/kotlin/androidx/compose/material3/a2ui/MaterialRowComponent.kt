@@ -84,7 +84,7 @@ private fun A2uiComponentScope.RowChildItem(reference: A2uiComponentReference) {
 
     AnimatedContent(
         targetState = childState,
-        transitionSpec = MaterialA2uiDefaults.transitionSpec,
+        transitionSpec = MaterialA2uiDefaults.transitionSpec(),
         contentKey = { state ->
             when (state) {
                 is A2uiComponentState.Loading -> "loading"
