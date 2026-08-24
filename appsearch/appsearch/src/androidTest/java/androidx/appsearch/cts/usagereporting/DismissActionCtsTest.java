@@ -20,7 +20,6 @@ package androidx.appsearch.cts.usagereporting;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.usagereporting.ActionConstants;
 import androidx.appsearch.usagereporting.DismissAction;
 import androidx.appsearch.usagereporting.TakenAction;
 
@@ -42,7 +41,7 @@ public class DismissActionCtsTest {
         assertThat(dismissAction.getId()).isEqualTo("id");
         assertThat(dismissAction.getActionTimestampMillis()).isEqualTo(123);
         assertThat(dismissAction.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(dismissAction.getActionType()).isEqualTo(ActionConstants.ACTION_TYPE_DISMISS);
+        assertThat(dismissAction.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_DISMISS);
         assertThat(dismissAction.getQuery()).isEqualTo("query");
         assertThat(dismissAction.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
         assertThat(dismissAction.getResultRankInBlock()).isEqualTo(1);
@@ -60,7 +59,7 @@ public class DismissActionCtsTest {
         assertThat(dismissAction.getActionTimestampMillis()).isEqualTo(123);
         assertThat(dismissAction.getDocumentTtlMillis())
                 .isEqualTo(TakenAction.DEFAULT_DOCUMENT_TTL_MILLIS);
-        assertThat(dismissAction.getActionType()).isEqualTo(ActionConstants.ACTION_TYPE_DISMISS);
+        assertThat(dismissAction.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_DISMISS);
         assertThat(dismissAction.getQuery()).isNull();
         assertThat(dismissAction.getReferencedQualifiedId()).isNull();
         assertThat(dismissAction.getResultRankInBlock()).isEqualTo(-1);
@@ -85,7 +84,7 @@ public class DismissActionCtsTest {
         assertThat(dismissAction2.getId()).isEqualTo("id");
         assertThat(dismissAction2.getActionTimestampMillis()).isEqualTo(123);
         assertThat(dismissAction2.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(dismissAction2.getActionType()).isEqualTo(ActionConstants.ACTION_TYPE_DISMISS);
+        assertThat(dismissAction2.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_DISMISS);
         assertThat(dismissAction2.getQuery()).isEqualTo("query");
         assertThat(dismissAction2.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
         assertThat(dismissAction2.getResultRankInBlock()).isEqualTo(1);
@@ -109,7 +108,7 @@ public class DismissActionCtsTest {
         assertThat(document.getCreationTimestampMillis()).isEqualTo(123);
         assertThat(document.getTtlMillis()).isEqualTo(456);
         assertThat(document.getPropertyLong("actionType"))
-                .isEqualTo(ActionConstants.ACTION_TYPE_DISMISS);
+                .isEqualTo(TakenAction.ACTION_TYPE_DISMISS);
         assertThat(document.getPropertyString("query")).isEqualTo("query");
         assertThat(document.getPropertyString("referencedQualifiedId"))
                 .isEqualTo("pkg$db/ns#refId");

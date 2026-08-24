@@ -46,15 +46,53 @@ public abstract class TakenAction {
     /** AppSearch taken action type. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
-            ActionConstants.ACTION_TYPE_UNKNOWN,
-            ActionConstants.ACTION_TYPE_SEARCH,
-            ActionConstants.ACTION_TYPE_CLICK,
-            ActionConstants.ACTION_TYPE_IMPRESSION,
-            ActionConstants.ACTION_TYPE_DISMISS,
+            ACTION_TYPE_UNKNOWN,
+            ACTION_TYPE_SEARCH,
+            ACTION_TYPE_CLICK,
+            ACTION_TYPE_IMPRESSION,
+            ACTION_TYPE_DISMISS,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionType {
     }
+
+    // ActionConstants are redefined here in TakenAction to match the location of ActionType
+
+    /**
+     * Unknown action type.
+     *
+     * <p>It is defined for abstract action class and compatibility, so it should not be used in any
+     * concrete instances.
+     */
+    public static final int ACTION_TYPE_UNKNOWN = ActionConstants.ACTION_TYPE_UNKNOWN;
+
+    /**
+     * Search action type.
+     *
+     * <p>It is the action type for {@link SearchAction}.
+     */
+    public static final int ACTION_TYPE_SEARCH = ActionConstants.ACTION_TYPE_SEARCH;
+
+    /**
+     * Click action type.
+     *
+     * <p>It is the action type for {@link ClickAction}.
+     */
+    public static final int ACTION_TYPE_CLICK = ActionConstants.ACTION_TYPE_CLICK;
+
+    /**
+     * Impression action type.
+     *
+     * <p>It is the action type for {@link ImpressionAction}.
+     */
+    public static final int ACTION_TYPE_IMPRESSION = ActionConstants.ACTION_TYPE_IMPRESSION;
+
+    /**
+     * Dismiss action type.
+     *
+     * <p>It is the action type for {@link DismissAction}.
+     */
+    public static final int ACTION_TYPE_DISMISS = ActionConstants.ACTION_TYPE_DISMISS;
 
     @Document.Namespace
     private final @NonNull String mNamespace;
@@ -126,7 +164,6 @@ public abstract class TakenAction {
      *
      * @see TakenAction.ActionType
      */
-    @ExperimentalAppSearchApi
     @ActionType
     public int getActionType() {
         return mActionType;
