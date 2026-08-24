@@ -1460,6 +1460,8 @@ private val VibrantPeriodToggleWidth
 private val VibrantPeriodToggleHeight
     get() = 120.dp
 private val UncontainedTimeFieldHeight
+    get() = 136.dp
+private val UncontainedToggleHeight
     get() = 140.dp
 private val VibrantPeriodToggleHorizontalHeight
     get() = 48.dp
@@ -2079,6 +2081,7 @@ private fun TimeInputImpl(
     val hasSideControlColumn = toggle != null
     val fieldHeight =
         if (hasSideControlColumn) UncontainedTimeFieldHeight else VibrantTimeFieldHeight
+
     Row(
         modifier =
             modifier
@@ -2196,9 +2199,9 @@ private fun TimeInputImpl(
             SideControlColumn(
                 modifier =
                     Modifier.padding(
-                            start = shapes.orVibrant(startPadding, VibrantPeriodToggleLargePadding)
+                            start = shapes.orVibrant(startPadding, PeriodTogglePaddingSmall)
                         )
-                        .height(fieldHeight),
+                        .height(UncontainedToggleHeight),
                 state = state,
                 colors = colors,
                 shapes = shapes,
@@ -2280,6 +2283,7 @@ private fun TimeScrollImpl(
     val hasSideControlColumn = toggle != null
     val fieldHeight =
         if (hasSideControlColumn) UncontainedTimeFieldHeight else VibrantTimeFieldHeight
+
     Row(
         modifier =
             modifier
@@ -2355,9 +2359,9 @@ private fun TimeScrollImpl(
             SideControlColumn(
                 modifier =
                     Modifier.padding(
-                            start = shapes.orVibrant(startPadding, PeriodTogglePaddingLarge)
+                            start = shapes.orVibrant(startPadding, PeriodTogglePaddingSmall)
                         )
-                        .height(fieldHeight),
+                        .height(UncontainedToggleHeight),
                 state = state,
                 colors = colors.toTimeInputColors(),
                 shapes = shapes,
@@ -2727,16 +2731,43 @@ private fun SideControlColumn(
             val totalHeight = items.size * tapTargetSize
             var y = (constraints.maxHeight - totalHeight) / 2
             if (items.size == 3) {
-                // For 3 items (AM, PM, Switch) in 140dp:
-                // We want 8dp gap between AM/PM visual (40dp) and 16dp between PM/Switch visual
-                // (24dp icon).
-                // This is achieved by placing 48dp tap targets at y=1dp, 49dp, 97dp.
-                // (140 - 144) / 2 = -2. Adding 3dp gives y=1dp.
-                y += 3.dp.roundToPx()
-            }
-            items.fastForEach {
-                it.place((columnWidth - it.width) / 2, y)
-                y += tapTargetSize
+                // AM, PM, Switch in 140dp (UncontainedToggleHeight).
+                // Start tracking at visualY = 0dp (AM visual top aligns with top of number fields).
+                var visualY = 0.dp
+
+                // 1. AM Placement
+                // AM visual height is 40dp, tap target is 48dp. Offset is (48 - 40) / 2 = 4dp.
+                val amY = (visualY - 4.dp).roundToPx()
+
+                // 2. Advance visualY to PM visual top
+                // AM visual height (40dp) + gap (8dp) = 48dp
+                visualY += 40.dp + 8.dp
+                // PM visual height is 40dp, tap target is 48dp. Offset is (48 - 40) / 2 = 4dp.
+                val pmY = (visualY - 4.dp).roundToPx()
+
+                // 3. Advance visualY to Switch visual top
+                // PM visual height (40dp) + gap (16dp) = 56dp
+                visualY += 40.dp + 16.dp
+                // Switch visual height is 24dp, tap target is 48dp. Offset is (48 - 24) / 2 = 12dp.
+                val toggleY = (visualY - 12.dp).roundToPx()
+
+                items[0].place((columnWidth - items[0].width) / 2, amY)
+                items[1].place((columnWidth - items[1].width) / 2, pmY)
+                items[2].place((columnWidth - items[2].width) / 2, toggleY)
+            } else if (items.size == 1) {
+                // Toggle only (24h mode).
+                // Aligned to the bottom of the numbers frame (120dp).
+                // Toggle visual bottom at 120. Visual is 24dp. Top at 96.
+                // Tap target top at 96 - 12 = 84dp.
+                val toggleY = 84.dp.roundToPx()
+                items[0].place((columnWidth - items[0].width) / 2, toggleY)
+            } else {
+                val totalHeight = items.size * tapTargetSize
+                var y = (constraints.maxHeight - totalHeight) / 2
+                items.fastForEach {
+                    it.place((columnWidth - it.width) / 2, y)
+                    y += tapTargetSize
+                }
             }
         }
     }
