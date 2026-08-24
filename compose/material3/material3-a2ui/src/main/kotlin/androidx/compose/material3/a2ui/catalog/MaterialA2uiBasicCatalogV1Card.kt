@@ -40,7 +40,7 @@ internal object MaterialA2uiBasicCatalogV1Card : A2uiBasicCatalogV1.Card {
         Card(modifier = modifier) {
             AnimatedContent(
                 targetState = childState,
-                transitionSpec = MaterialA2uiDefaults.transitionSpec,
+                transitionSpec = MaterialA2uiDefaults.transitionSpec(),
                 contentKey = { state ->
                     when (state) {
                         is A2uiComponentState.Loading -> "loading"
