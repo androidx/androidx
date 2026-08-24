@@ -30,12 +30,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class ExponentialDecayFollowMode : FollowMode() {
+internal class ExponentialDecayFollowMode(
+    private val dimensions: TrackedDimensions = TrackedDimensions.All
+) : FollowMode() {
     override suspend fun start(
         session: Session,
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
-        dimensions: TrackedDimensions,
     ) = coroutineScope {
         val isAnimating = AtomicBoolean(false)
         val initialPoseMeter: Pose = trailingEntity.poseInMeters
@@ -45,22 +46,20 @@ internal class ExponentialDecayFollowMode : FollowMode() {
         withContext(dispatcherOverride) {
             val poseUpdatesFlow = followTargetFlow.poseUpdates(session)
 
+            // The first device pose received is handled differently than the rest. There is no
+            // animation to the trailingEntity, it will instantly appear at the device location.
+            // It will also be made visible, enabled, at this time.
             // TODO: b/548122230 Avoid double flow subscription in following subspace.
             val pose: Pose = poseUpdatesFlow.first()
             currentTargetPoseMeter =
-                getPoseByTrackedDimensions(
-                    pose = pose,
-                    dimensions = dimensions,
-                    fallbackPose = initialPoseMeter,
-                )
+                dimensions.getPoseByTrackedDimensions(pose = pose, fallbackPose = initialPoseMeter)
             trailingEntity.poseInMeters = currentTargetPoseMeter
             trailingEntity.enabled = true
 
             poseUpdatesFlow.collect { pose ->
                 currentTargetPoseMeter =
-                    getPoseByTrackedDimensions(
+                    dimensions.getPoseByTrackedDimensions(
                         pose = pose,
-                        dimensions = dimensions,
                         fallbackPose = initialPoseMeter,
                     )
 
@@ -180,18 +179,18 @@ internal class ExponentialDecayFollowMode : FollowMode() {
         if (this === other) return true
         if (other !is ExponentialDecayFollowMode) return false
 
-        return true
+        return dimensions == other.dimensions
     }
 
     override fun hashCode(): Int {
-        return javaClass.hashCode()
+        return dimensions.hashCode()
     }
 
     private companion object {
-        private const val LERP_DIVISOR = 18000f
-        private const val SETTLE_TRANSLATION_THRESHOLD: Float = 0.01f
-        private const val SETTLE_ROTATION_THRESHOLD: Float = 0.01f
-        private const val TRANSLATION_THRESHOLD: Float = 0.1f
-        private const val ROTATION_THRESHOLD: Float = 3f
+        private val LERP_DIVISOR = 18000f
+        private val SETTLE_TRANSLATION_THRESHOLD: Float = 0.01f
+        private val SETTLE_ROTATION_THRESHOLD: Float = 0.01f
+        private val TRANSLATION_THRESHOLD: Float = 0.1f
+        private val ROTATION_THRESHOLD: Float = 3f
     }
 }

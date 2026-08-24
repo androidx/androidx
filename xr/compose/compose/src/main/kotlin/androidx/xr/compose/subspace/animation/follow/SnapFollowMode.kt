@@ -28,17 +28,21 @@ import kotlinx.coroutines.withContext
  * FollowMode.snap
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal object SnapFollowMode : FollowMode() {
+internal class SnapFollowMode(private val dimensions: TrackedDimensions = TrackedDimensions.All) :
+    FollowMode() {
     override suspend fun start(
         session: Session,
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
-        dimensions: TrackedDimensions,
     ) {
         if (target is FollowTargetFlow) {
             withContext(dispatcherOverride) {
                 // Suspends until the first item is emitted, then cancel automatically.
-                val firstPose: Pose = target.poseUpdates(session).first()
+                val firstPose: Pose =
+                    dimensions.getPoseByTrackedDimensions(
+                        pose = target.poseUpdates(session).first(),
+                        fallbackPose = trailingEntity.poseInMeters,
+                    )
 
                 // The pose should be updated first before enabling.
                 trailingEntity.poseInMeters = firstPose
@@ -46,4 +50,13 @@ internal object SnapFollowMode : FollowMode() {
             }
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SnapFollowMode) return false
+
+        return dimensions == other.dimensions
+    }
+
+    override fun hashCode(): Int = dimensions.hashCode()
 }

@@ -29,15 +29,9 @@ import kotlinx.coroutines.flow.map
 
 /** A FollowTarget can be used to have an element follow a target such as an anchor or view. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public abstract class FollowTarget
-internal constructor(internal val mode: FollowMode, internal val dimensions: TrackedDimensions) {
+public abstract class FollowTarget internal constructor(internal val mode: FollowMode) {
     internal suspend fun start(session: Session, trailingEntity: CoreGroupEntity) {
-        mode.start(
-            session = session,
-            trailingEntity = trailingEntity,
-            target = this,
-            dimensions = dimensions,
-        )
+        mode.start(session = session, trailingEntity = trailingEntity, target = this)
     }
 
     public companion object {
@@ -47,16 +41,8 @@ internal constructor(internal val mode: FollowMode, internal val dimensions: Tra
          *
          * @param mode determines how the trailing element follows the target. It can be made to
          *   move faster and be more responsive. The default is [FollowMode.soft()].
-         * @param dimensions set of boolean flags to determine the dimensions of movement that are
-         *   tracked. Three rotation and three translation dimensions are available to be tracked.
-         *   By default, all dimensions are tracked. Any dimensions not listed will not be tracked.
-         *   For example if translationY is not listed, this means the content will not move as the
-         *   user moves vertically up and down.
          */
-        public fun View(
-            mode: FollowMode = FollowMode.soft(),
-            dimensions: TrackedDimensions = TrackedDimensions.All,
-        ): FollowTarget = ViewTarget(mode, dimensions)
+        public fun View(mode: FollowMode = FollowMode.soft()): FollowTarget = ViewTarget(mode)
 
         /**
          * Targeting an anchor allows content to be positioned relative to that anchor's location.
@@ -64,18 +50,10 @@ internal constructor(internal val mode: FollowMode, internal val dimensions: Tra
          * @param anchor represents the anchor which the trailing element will be tethered to. As
          *   the anchor moves, so will the element.
          * @param mode determines how the trailing element follows the target. It can be made to
-         *   move faster and be more responsive. The default is [FollowMode.tight].
-         * @param dimensions set of boolean flags to determine the dimensions of movement that are
-         *   tracked. Three rotation and three translation dimensions are available to be tracked.
-         *   By default, all dimensions are tracked. Any dimensions not listed will not be tracked.
-         *   For example if translationY is not listed, this means the content will not move as the
-         *   user moves vertically up and down.
+         *   move faster and be more responsive. The default is [FollowMode.tight()].
          */
-        public fun Anchor(
-            anchor: Anchor,
-            mode: FollowMode = FollowMode.tight,
-            dimensions: TrackedDimensions = TrackedDimensions.All,
-        ): FollowTarget = AnchorTarget(anchor, mode, dimensions)
+        public fun Anchor(anchor: Anchor, mode: FollowMode = FollowMode.tight()): FollowTarget =
+            AnchorTarget(anchor, mode)
     }
 }
 
@@ -85,10 +63,8 @@ internal interface FollowTargetFlow {
 
 /** A concrete [FollowTarget] that wraps the head pose updates from [ArDevice]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class ViewTarget(
-    mode: FollowMode = FollowMode.soft(),
-    dimensions: TrackedDimensions = TrackedDimensions.All,
-) : FollowTarget(mode, dimensions), FollowTargetFlow {
+internal class ViewTarget(mode: FollowMode = FollowMode.soft()) :
+    FollowTarget(mode), FollowTargetFlow {
     // Distance to stay away from the target when following it.
     val offset: Pose = DEFAULT_OFFSET
 
@@ -104,17 +80,10 @@ internal class ViewTarget(
         if (this === other) return true
         if (other !is ViewTarget) return false
 
-        if (mode != other.mode) return false
-        if (dimensions != other.dimensions) return false
-
-        return true
+        return mode == other.mode
     }
 
-    override fun hashCode(): Int {
-        var result = mode.hashCode()
-        result = 31 * result + dimensions.hashCode()
-        return result
-    }
+    override fun hashCode(): Int = mode.hashCode()
 
     internal companion object {
         // Distance to stay away from the target in meters.
@@ -127,11 +96,8 @@ internal class ViewTarget(
  * of pose updates.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal class AnchorTarget(
-    val anchor: Anchor,
-    mode: FollowMode = FollowMode.tight,
-    dimensions: TrackedDimensions = TrackedDimensions.All,
-) : FollowTarget(mode, dimensions), FollowTargetFlow {
+internal class AnchorTarget(val anchor: Anchor, mode: FollowMode = FollowMode.tight()) :
+    FollowTarget(mode), FollowTargetFlow {
 
     override fun poseUpdates(session: Session): Flow<Pose> =
         anchor.state.map { state ->
@@ -147,7 +113,6 @@ internal class AnchorTarget(
 
         if (anchor != other.anchor) return false
         if (mode != other.mode) return false
-        if (dimensions != other.dimensions) return false
 
         return true
     }
@@ -155,7 +120,6 @@ internal class AnchorTarget(
     override fun hashCode(): Int {
         var result = anchor.hashCode()
         result = 31 * result + mode.hashCode()
-        result = 31 * result + dimensions.hashCode()
         return result
     }
 }

@@ -26,25 +26,36 @@ import kotlinx.coroutines.withContext
  * FollowMode.tight
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal object TightFollowMode : FollowMode() {
+internal class TightFollowMode(private val dimensions: TrackedDimensions = TrackedDimensions.All) :
+    FollowMode() {
     override suspend fun start(
         session: Session,
         trailingEntity: CoreGroupEntity,
         target: FollowTarget,
-        dimensions: TrackedDimensions,
     ) {
         var isInitialized: Boolean = false
+        val initialPose = trailingEntity.poseInMeters
 
-        if (target is FollowTargetFlow) {
-            withContext(dispatcherOverride) {
-                target.poseUpdates(session).collect { pose ->
-                    trailingEntity.poseInMeters = pose
-                    if (!isInitialized) {
-                        trailingEntity.enabled = true
-                        isInitialized = true
-                    }
+        if (target !is FollowTargetFlow) return
+
+        withContext(dispatcherOverride) {
+            target.poseUpdates(session).collect { pose ->
+                trailingEntity.poseInMeters =
+                    dimensions.getPoseByTrackedDimensions(pose = pose, fallbackPose = initialPose)
+                if (!isInitialized) {
+                    trailingEntity.enabled = true
+                    isInitialized = true
                 }
             }
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TightFollowMode) return false
+
+        return dimensions == other.dimensions
+    }
+
+    override fun hashCode(): Int = dimensions.hashCode()
 }

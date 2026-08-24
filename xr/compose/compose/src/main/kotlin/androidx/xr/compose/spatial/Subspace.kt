@@ -64,6 +64,8 @@ import androidx.xr.compose.subspace.TrackedDimensions
 import androidx.xr.compose.subspace.animation.follow.AnchorTarget as AnchorTargetV2
 import androidx.xr.compose.subspace.animation.follow.FollowMode
 import androidx.xr.compose.subspace.animation.follow.FollowTarget as FollowTargetV2
+import androidx.xr.compose.subspace.animation.follow.TightFollowMode
+import androidx.xr.compose.subspace.animation.follow.TrackedDimensions as TrackedDimensionsV2
 import androidx.xr.compose.subspace.animation.follow.ViewTarget
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.SubspaceLayout
@@ -615,9 +617,13 @@ public fun Subspace(
 
     if (!validateFollowingSubspaceConfiguration(follow, session.config)) return
 
-    // If we're following an anchor and want the content to follow it as tightly as possible,
-    // it's best to link them together in the scene graph rather than implement custom logic.
-    if (follow is AnchorTargetV2 && follow.mode == FollowMode.tight) {
+    // If we're following an anchor and want the content to follow it as tightly as possible across
+    // all dimensions, it's best to link them together in the scene graph rather than implement
+    // custom logic.
+    if (
+        follow is AnchorTargetV2 &&
+            follow.mode == FollowMode.tight(dimensions = TrackedDimensionsV2.All)
+    ) {
         val anchorSpace = remember(follow.anchor) { AnchorSpace.create(session, follow.anchor) }
         Subspace(modifier = modifier, subspaceRootNode = anchorSpace, content = content)
         return
@@ -791,7 +797,7 @@ private fun validateFollowingSubspaceConfiguration(
     }
 
     // Tight follow for AR devices was not performant enough to be supported at this time.
-    if (follow is ViewTarget && follow.mode == FollowMode.tight) {
+    if (follow is ViewTarget && follow.mode is TightFollowMode) {
         return false
     }
 
