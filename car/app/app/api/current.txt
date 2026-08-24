@@ -967,10 +967,23 @@ package androidx.car.app.media {
 
 package androidx.car.app.media.model {
 
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class MediaPlaybackStyle {
+    method public androidx.car.app.model.CarColor? getMediaAccentColor();
+    method public int getProgressBarStrokeCap();
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class MediaPlaybackStyle.Builder {
+    ctor public MediaPlaybackStyle.Builder();
+    ctor public MediaPlaybackStyle.Builder(androidx.car.app.media.model.MediaPlaybackStyle);
+    method public androidx.car.app.media.model.MediaPlaybackStyle build();
+    method public androidx.car.app.media.model.MediaPlaybackStyle.Builder setMediaAccentColor(androidx.car.app.model.CarColor?);
+    method public androidx.car.app.media.model.MediaPlaybackStyle.Builder setProgressBarStrokeCap(int);
+  }
+
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(8) public class MediaPlaybackTemplate implements androidx.car.app.model.Template {
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Banner? getBanner();
     method public androidx.car.app.model.Header? getHeader();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.CarColor? getMediaAccentColor();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackStyle? getStyle();
   }
 
   @androidx.car.app.annotations.RequiresCarApi(8) public static final class MediaPlaybackTemplate.Builder {
@@ -979,7 +992,7 @@ package androidx.car.app.media.model {
     method public androidx.car.app.media.model.MediaPlaybackTemplate build();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setBanner(androidx.car.app.model.Banner?);
     method public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setHeader(androidx.car.app.model.Header?);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setMediaAccentColor(androidx.car.app.model.CarColor?);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.media.model.MediaPlaybackTemplate.Builder setStyle(androidx.car.app.media.model.MediaPlaybackStyle?);
   }
 
 }
@@ -1464,9 +1477,6 @@ package androidx.car.app.model {
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class CarProgressBarStyle {
     method public androidx.car.app.model.CarColor? getColor();
     method public int getStrokeCap();
-    field public static final int STROKE_CAP_DEFAULT = 0; // 0x0
-    field public static final int STROKE_CAP_ROUND = 1; // 0x1
-    field public static final int STROKE_CAP_SQUARE = 2; // 0x2
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class CarProgressBarStyle.Builder {
@@ -2230,6 +2240,12 @@ package androidx.car.app.model {
     ctor public SpotlightSection.Builder(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.SpotlightSection build();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SpotlightSection.Builder setIncompleteLastColumnStrategy(int);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public final class StrokeCap {
+    field public static final int DEFAULT = 0; // 0x0
+    field public static final int ROUND = 1; // 0x1
+    field public static final int SQUARE = 2; // 0x2
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public final class Tab implements androidx.car.app.model.Content {

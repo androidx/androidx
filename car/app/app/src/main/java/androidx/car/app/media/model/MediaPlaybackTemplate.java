@@ -16,13 +16,13 @@
 
 package androidx.car.app.media.model;
 
+import androidx.annotation.OptIn;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.media.MediaPlaybackManager;
 import androidx.car.app.model.Banner;
-import androidx.car.app.model.CarColor;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.Template;
 
@@ -56,7 +56,7 @@ public class MediaPlaybackTemplate implements Template {
     private final @Nullable Banner mBanner;
     @ExperimentalCarApi
     @RequiresCarApi(9)
-    private final @Nullable CarColor mMediaAccentColor;
+    private final @Nullable MediaPlaybackStyle mStyle;
 
     /**
      * Returns the {@link Header} to display in this template or not to display one if it is {@code
@@ -77,13 +77,12 @@ public class MediaPlaybackTemplate implements Template {
     }
 
     /**
-     * Returns the custom media accent {@link CarColor} for this template or {@code null} if none
-     * was set.
+     * Returns the {@link MediaPlaybackStyle} for this template or {@code null} if none was set.
      */
     @ExperimentalCarApi
     @RequiresCarApi(9)
-    public @Nullable CarColor getMediaAccentColor() {
-        return mMediaAccentColor;
+    public @Nullable MediaPlaybackStyle getStyle() {
+        return mStyle;
     }
 
     @Override
@@ -91,13 +90,13 @@ public class MediaPlaybackTemplate implements Template {
         return "MediaPlaybackTemplate";
     }
 
-    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
+    @OptIn(markerClass = ExperimentalCarApi.class)
     @Override
     public int hashCode() {
-        return Objects.hash(mHeader, mBanner, mMediaAccentColor);
+        return Objects.hash(mHeader, mBanner, mStyle);
     }
 
-    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
+    @OptIn(markerClass = ExperimentalCarApi.class)
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -110,22 +109,22 @@ public class MediaPlaybackTemplate implements Template {
 
         return Objects.equals(mHeader, otherTemplate.mHeader)
                 && Objects.equals(mBanner, otherTemplate.mBanner)
-                && Objects.equals(mMediaAccentColor, otherTemplate.mMediaAccentColor);
+                && Objects.equals(mStyle, otherTemplate.mStyle);
     }
 
     /** Constructs an empty instance, used by serialization code. */
-    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
+    @OptIn(markerClass = ExperimentalCarApi.class)
     private MediaPlaybackTemplate() {
         mHeader = null;
         mBanner = null;
-        mMediaAccentColor = null;
+        mStyle = null;
     }
 
-    @androidx.annotation.OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)
+    @OptIn(markerClass = ExperimentalCarApi.class)
     MediaPlaybackTemplate(Builder builder) {
         mHeader = builder.mHeader;
         mBanner = builder.mBanner;
-        mMediaAccentColor = builder.mMediaAccentColor;
+        mStyle = builder.mStyle;
     }
 
     /** Builder for the {@link MediaPlaybackTemplate} */
@@ -135,7 +134,7 @@ public class MediaPlaybackTemplate implements Template {
         @ExperimentalCarApi
         @Nullable Banner mBanner;
         @ExperimentalCarApi
-        @Nullable CarColor mMediaAccentColor;
+        @Nullable MediaPlaybackStyle mStyle;
 
         /**
          * Sets the {@link Header} for this template or {code null} to not display a {@link
@@ -162,16 +161,16 @@ public class MediaPlaybackTemplate implements Template {
         }
 
         /**
-         * Sets the custom accent {@link CarColor} for media interactive controls in this template
-         * or {@code null} to use default host styling.
+         * Sets the {@link MediaPlaybackStyle} for this template or {@code null} to use default
+         * host styling.
          *
          * <p>Defaults to {@code null}, which means default host styling is used.
          */
         @ExperimentalCarApi
         @RequiresCarApi(9)
-        public MediaPlaybackTemplate.@NonNull Builder setMediaAccentColor(
-                @Nullable CarColor mediaAccentColor) {
-            this.mMediaAccentColor = mediaAccentColor;
+        public MediaPlaybackTemplate.@NonNull Builder setStyle(
+                @Nullable MediaPlaybackStyle style) {
+            this.mStyle = style;
             return this;
         }
 
@@ -184,12 +183,11 @@ public class MediaPlaybackTemplate implements Template {
         public Builder() {};
 
         /** Creates a new {@link Builder}, populated from the input {@link MediaPlaybackTemplate} */
-        @androidx.annotation.OptIn(markerClass =
-                androidx.car.app.annotations.ExperimentalCarApi.class)
+        @OptIn(markerClass = ExperimentalCarApi.class)
         public Builder(@NonNull MediaPlaybackTemplate template) {
             mHeader = template.getHeader();
             mBanner = template.getBanner();
-            mMediaAccentColor = template.getMediaAccentColor();
+            mStyle = template.getStyle();
         }
     }
 }
