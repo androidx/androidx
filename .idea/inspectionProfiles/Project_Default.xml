@@ -3,6 +3,7 @@
     <option name="myName" value="Project Default" />
     <inspection_tool class="AndroidLintJavaPluginLanguageLevel" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="AndroidLintUseTomlInstead" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="ComposableCallWithoutComposePlugin" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="ComposePreviewDimensionRespectsLimit" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="composableFile" value="true" />
       <option name="previewFile" value="true" />
