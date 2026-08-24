@@ -24,6 +24,7 @@ import androidx.ink.brush.BrushPaint
 import androidx.ink.brush.BrushPaint.ColorFunction
 import androidx.ink.brush.BrushPaint.StampingTexture
 import androidx.ink.brush.BrushTip
+import kotlin.jvm.JvmName
 
 /**
  * Creates a brush coat with a fallback paint that should be used by renderers that can't support
