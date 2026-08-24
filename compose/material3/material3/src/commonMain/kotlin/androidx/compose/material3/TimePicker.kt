@@ -1461,10 +1461,6 @@ private val VibrantHorizontalTimePickerGap
     get() = 52.dp
 private val VibrantVerticalTimePickerGap
     get() = 36.dp
-private val VibrantTimePickerPaddingVertical
-    get() = 12.dp
-private val VibrantTimePickerPaddingHorizontal
-    get() = 24.dp
 
 /**
  * A state object that can be hoisted to observe the time picker state. It holds the current values
@@ -1951,10 +1947,7 @@ internal fun VerticalTimePicker(
     shapes: TimePickerShapes? = null,
 ) {
     Column(
-        modifier =
-            modifier
-                .semantics { isTraversalGroup = true }
-                .padding(shapes.orVibrant(0.dp, VibrantTimePickerPaddingVertical)),
+        modifier = modifier.semantics { isTraversalGroup = true },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         VerticalClockDisplay(state = state, colors = colors, shapes = shapes)
@@ -1983,10 +1976,7 @@ internal fun HorizontalTimePicker(
     shapes: TimePickerShapes? = null,
 ) {
     Row(
-        modifier =
-            modifier
-                .semantics { isTraversalGroup = true }
-                .padding(shapes.orVibrant(0.dp, VibrantTimePickerPaddingHorizontal)),
+        modifier = modifier.semantics { isTraversalGroup = true },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         HorizontalClockDisplay(state, colors, shapes)
@@ -2071,12 +2061,7 @@ private fun TimeInputImpl(
         if (hasSideControlColumn) UncontainedTimeFieldHeight else VibrantTimeFieldHeight
 
     Row(
-        modifier =
-            modifier
-                .semantics { isTraversalGroup = true }
-                .then(
-                    shapes.orVibrant(Modifier, Modifier.padding(VibrantTimePickerPaddingVertical))
-                ),
+        modifier = modifier.semantics { isTraversalGroup = true },
         verticalAlignment = Alignment.Top,
     ) {
         val textStyle =
@@ -2197,9 +2182,7 @@ private fun TimeInputImpl(
             )
         } else if (!state.is24hour) {
             Box(
-                Modifier.padding(
-                    start = shapes.orVibrant(startPadding, VibrantPeriodToggleLargePadding)
-                )
+                Modifier.padding(start = shapes.orVibrant(startPadding, VibrantPeriodTogglePadding))
             ) {
                 VerticalPeriodToggle(
                     modifier =
@@ -2273,12 +2256,7 @@ private fun TimeScrollImpl(
         if (hasSideControlColumn) UncontainedTimeFieldHeight else VibrantTimeFieldHeight
 
     Row(
-        modifier =
-            modifier
-                .semantics { isTraversalGroup = true }
-                .then(
-                    shapes.orVibrant(Modifier, Modifier.padding(VibrantTimePickerPaddingVertical))
-                ),
+        modifier = modifier.semantics { isTraversalGroup = true },
         verticalAlignment = Alignment.Top,
     ) {
         val textStyle =
@@ -2357,7 +2335,7 @@ private fun TimeScrollImpl(
             )
         } else if (!state.is24hour) {
             Box(
-                Modifier.padding(start = shapes.orVibrant(startPadding, PeriodTogglePaddingLarge))
+                Modifier.padding(start = shapes.orVibrant(startPadding, VibrantPeriodTogglePadding))
             ) {
                 VerticalPeriodToggle(
                     modifier =
