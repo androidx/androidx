@@ -825,6 +825,72 @@ class UriDeepLinkMatcherTest {
     }
 
     @Test
+    fun matchRequest_duplicatePlaceholderInPath_throws() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/users/{id}/details/{id}"),
+                serializer<TestDefaultArgKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/users/123/details/456")
+        assertFailsWith<IllegalArgumentException> { matcher.match(request) }
+    }
+
+    @Test
+    fun matchRequest_duplicatePlaceholderInQuery_throws() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com?user={id}&detail={id}"),
+                serializer<TestDefaultArgKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com?user=123&detail=456")
+        assertFailsWith<IllegalArgumentException> { matcher.match(request) }
+    }
+
+    @Test
+    fun matchRequest_duplicatePlaceholderInFragment_throws() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com#section_{id}_{id}"),
+                serializer<TestDefaultArgKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com#section_123_456")
+        assertFailsWith<IllegalArgumentException> { matcher.match(request) }
+    }
+
+    @Test
+    fun matchRequest_duplicatePlaceholderBetweenPathAndQuery_throws() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/users/{id}?user={id}"),
+                serializer<TestDefaultArgKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/users/123?user=456")
+        assertFailsWith<IllegalArgumentException> { matcher.match(request) }
+    }
+
+    @Test
+    fun matchRequest_duplicatePlaceholderBetweenPathAndFragment_throws() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com/users/{id}#section_{id}"),
+                serializer<TestDefaultArgKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com/users/123#section_456")
+        assertFailsWith<IllegalArgumentException> { matcher.match(request) }
+    }
+
+    @Test
+    fun matchRequest_duplicatePlaceholderBetweenQueryAndFragment_throws() {
+        val matcher =
+            UriDeepLinkMatcher(
+                DeepLinkUri("https://example.com?filter={id}#section_{id}"),
+                serializer<TestDefaultArgKey>(),
+            )
+        val request = DeepLinkRequest.fromUriString("https://example.com?filter=123#section_456")
+        assertFailsWith<IllegalArgumentException> { matcher.match(request) }
+    }
+
+    @Test
     fun compare_matchersTypedOnDerivedKeys() {
         val matcher1 =
             object :

@@ -541,6 +541,18 @@ class UriDeepLinkParserTest {
     }
 
     @Test
+    fun testParsePath_duplicatePlaceholderInSameSegmentThrows() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/{id}_{id}")
+        assertFailsWith<IllegalArgumentException> { UriPatternParser.parsePath(uriPattern) }
+    }
+
+    @Test
+    fun testParsePath_duplicatePlaceholderAcrossSegmentsThrows() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users/{id}/details/{id}")
+        assertFailsWith<IllegalArgumentException> { UriPatternParser.parsePath(uriPattern) }
+    }
+
+    @Test
     fun testExtractQueryArgs_multipleUnnamedParamsThrows() {
         val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?{rawQuery1}&{rawQuery2}")
         assertFailsWith<IllegalArgumentException> { UriPatternParser.parseQuery(uriPattern) }
@@ -549,6 +561,18 @@ class UriDeepLinkParserTest {
     @Test
     fun testExtractQueryArgs_duplicateParamNameThrows() {
         val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name={first}&name={last}")
+        assertFailsWith<IllegalArgumentException> { UriPatternParser.parseQuery(uriPattern) }
+    }
+
+    @Test
+    fun testParseQuery_duplicatePlaceholderInSameParamThrows() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?name={first}_{first}")
+        assertFailsWith<IllegalArgumentException> { UriPatternParser.parseQuery(uriPattern) }
+    }
+
+    @Test
+    fun testParseQuery_duplicatePlaceholderAcrossParamsThrows() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH?user={id}&detail={id}")
         assertFailsWith<IllegalArgumentException> { UriPatternParser.parseQuery(uriPattern) }
     }
 
@@ -613,6 +637,12 @@ class UriDeepLinkParserTest {
         val requestedUri = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/a#123")
         val result = UriRequestParser.extractFragmentArgs(parsedFragment, requestedUri)
         assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun testParseFragment_duplicatePlaceholderThrows() {
+        val uriPattern = DeepLinkUri("https://$DEEP_LINK_BASE_PATH/users#section_{id}_{id}")
+        assertFailsWith<IllegalArgumentException> { UriPatternParser.parseFragment(uriPattern) }
     }
 
     companion object {
