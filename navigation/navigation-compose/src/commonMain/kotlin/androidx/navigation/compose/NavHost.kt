@@ -27,7 +27,6 @@ import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -988,7 +987,11 @@ public fun NavHost(
                         finalSizeTransform(this),
                     )
                 } else {
-                    EnterTransition.None togetherWith ExitTransition.None
+                    ContentTransform(
+                        EnterTransition.None,
+                        ExitTransition.None,
+                        sizeTransform = finalSizeTransform(this),
+                    )
                 }
             },
             contentAlignment,
