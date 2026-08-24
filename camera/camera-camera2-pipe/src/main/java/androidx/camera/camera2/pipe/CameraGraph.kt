@@ -37,6 +37,7 @@ import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBefo
 import androidx.camera.camera2.pipe.CameraGraph.Session
 import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.common.Metadata
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.channels.awaitClose
@@ -872,7 +873,7 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public fun <T> CameraGraphBase<*>.subscribeToLatestFrameResult(
+        public fun <T : Any> CameraGraphBase<*>.subscribeToLatestFrameResult(
             metadataKey: Metadata.Key<T>,
             filter: ((RequestMetadata) -> Boolean)? = null,
         ): Flow<T?> =

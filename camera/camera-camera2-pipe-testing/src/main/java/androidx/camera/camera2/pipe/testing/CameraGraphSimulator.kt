@@ -29,11 +29,11 @@ import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.common.Metadata
 import kotlin.time.Duration.Companion.nanoseconds
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.TestScope

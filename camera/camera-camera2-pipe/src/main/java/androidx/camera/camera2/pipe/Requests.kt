@@ -24,9 +24,11 @@ import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.Metadata as PipeMetadata
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.ImageWrapper
+import androidx.camera.common.Metadata
 import androidx.camera.common.UnsafeWrapper
 
 /**
@@ -65,7 +67,7 @@ public class Request(
 ) {
     public operator fun <T> get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)
 
-    public operator fun <T> get(key: Metadata.Key<T>): T? = getUnchecked(key)
+    public operator fun <T : Any> get(key: Metadata.Key<T>): T? = getUnchecked(key)
 
     /**
      * This listener is used to observe the state and progress of a [Request] that has been issued
@@ -285,7 +287,7 @@ public class Request(
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <T> getUnchecked(key: Metadata.Key<T>): T? = this.extras[key] as T?
+    private fun <T : Any> getUnchecked(key: Metadata.Key<T>): T? = this.extras[key] as T?
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> getUnchecked(key: CaptureRequest.Key<T>): T? = this.parameters[key] as T?
@@ -377,10 +379,7 @@ public data class InputRequest(val image: ImageWrapper, val frameInfo: FrameInfo
  * different) from the request that was used to create the Camera2 [CaptureRequest].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface RequestMetadata : Metadata, UnsafeWrapper {
-    public operator fun <T> get(key: CaptureRequest.Key<T>): T?
-
-    public fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T
+public interface RequestMetadata : PipeMetadata, UnsafeWrapper {
 
     /** The actual Camera2 template that was used when creating this [CaptureRequest] */
     public val template: RequestTemplate
@@ -400,6 +399,12 @@ public interface RequestMetadata : Metadata, UnsafeWrapper {
 
     /** An internal number used to identify a specific [CaptureRequest] */
     public val requestNumber: RequestNumber
+
+    public operator fun <T> get(key: CaptureRequest.Key<T>): T?
+
+    public fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T {
+        return get(key) ?: default
+    }
 }
 
 /**
@@ -426,7 +431,8 @@ public value class CameraTimestamp(public val value: Long)
 public value class SensorTimestamp(public val value: Long)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T> Request.getOrDefault(key: Metadata.Key<T>, default: T): T = this[key] ?: default
+public fun <T : Any> Request.getOrDefault(key: Metadata.Key<T>, default: T): T =
+    this[key] ?: default
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T> Request.getOrDefault(key: CaptureRequest.Key<T>, default: T): T =

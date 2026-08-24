@@ -63,7 +63,8 @@ private constructor(
                 return it.second as T
             }
         }
-        return cameraProperties.metadata.getSafely(key)
+        @Suppress("UNCHECKED_CAST")
+        return cameraProperties.metadata.getSafely(key as CameraCharacteristics.Key<Any>) as T?
     }
 
     /**

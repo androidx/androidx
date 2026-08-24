@@ -25,9 +25,9 @@ import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import androidx.camera.camera2.pipe.Metadata
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.common.Metadata
 import java.lang.Class
 
 /**
@@ -48,11 +48,15 @@ internal class Camera2CameraMetadata(
     @GuardedBy("extensionCache")
     private val extensionCache = ArrayMap<Int, CameraExtensionMetadata>()
 
-    @Suppress("UNCHECKED_CAST") override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> get(key: Metadata.Key<T>): T? = metadata[key] as T?
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T =
+    override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T =
         metadata[key] as T? ?: default
+
+    override val metadataKeys: Set<Metadata.Key<*>>
+        get() = metadata.keys
 
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
         if (cacheBlocklist.contains(key)) {

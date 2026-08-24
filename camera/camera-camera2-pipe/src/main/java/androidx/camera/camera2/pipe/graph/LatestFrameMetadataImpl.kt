@@ -20,7 +20,7 @@ import android.hardware.camera2.CaptureResult
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.LatestFrameMetadata
-import androidx.camera.camera2.pipe.Metadata
+import androidx.camera.common.Metadata
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class LatestFrameMetadataImpl(
@@ -35,11 +35,11 @@ internal class LatestFrameMetadataImpl(
     override val keys: List<CaptureResult.Key<*>>
         get() = captureResultKeys.asList()
 
-    override val metadataKeys: List<Metadata.Key<*>>
-        get() = rawMetadataKeys.asList()
+    override val metadataKeys: Set<Metadata.Key<*>>
+        get() = rawMetadataKeys.toSet()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> get(key: Metadata.Key<T>): T? {
+    override fun <T : Any> get(key: Metadata.Key<T>): T? {
         for (i in rawMetadataKeys.indices) {
             if (rawMetadataKeys[i] == key) {
                 return metadataValues[i] as T?
@@ -48,7 +48,7 @@ internal class LatestFrameMetadataImpl(
         return null
     }
 
-    override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
+    override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T = get(key) ?: default
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: CaptureResult.Key<T>): T? {

@@ -25,7 +25,7 @@ import android.hardware.camera2.CaptureResult
 import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.Metadata
+import androidx.camera.common.Metadata
 
 /**
  * Sanitized implementation of [DeviceTemplate] simulating a high-end device.
