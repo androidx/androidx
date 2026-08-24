@@ -192,7 +192,7 @@ internal class InsetsListener(val composeView: AndroidComposeView) :
         prepared = false
         savedInsets = null
 
-        if (animation.durationMillis > 0L && insets != null) {
+        if (animation.durationMillis != 0L && insets != null) {
             val type = animation.typeMask
             runningAnimationMask = runningAnimationMask or type
             // This is the animation's target value

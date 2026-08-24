@@ -618,20 +618,22 @@ private class InsetsListener(val composeInsets: WindowInsetsHolder) :
     var prepared = false
 
     /** `true` if there is an animation in progress. */
-    var runningAnimation = false
+    private var runningAnimationMask = 0
+
+    val runningAnimation: Boolean
+        get() = runningAnimationMask != 0
 
     var savedInsets: WindowInsetsCompat? = null
 
     /** Resets the internal state of the listener. */
     fun resetState() {
         prepared = false
-        runningAnimation = false
+        runningAnimationMask = 0
         savedInsets = null
     }
 
     override fun onPrepare(animation: WindowInsetsAnimationCompat) {
         prepared = true
-        runningAnimation = true
         super.onPrepare(animation)
     }
 
@@ -640,6 +642,12 @@ private class InsetsListener(val composeInsets: WindowInsetsHolder) :
         bounds: WindowInsetsAnimationCompat.BoundsCompat,
     ): WindowInsetsAnimationCompat.BoundsCompat {
         prepared = false
+
+        if (animation.durationMillis != 0L) {
+            val type = animation.typeMask
+            runningAnimationMask = runningAnimationMask or type
+        }
+
         return super.onStart(animation, bounds)
     }
 
@@ -653,14 +661,22 @@ private class InsetsListener(val composeInsets: WindowInsetsHolder) :
 
     override fun onEnd(animation: WindowInsetsAnimationCompat) {
         prepared = false
-        runningAnimation = false
+        val type = animation.typeMask
         val insets = savedInsets
-        if (animation.durationMillis > 0L && insets != null) {
-            composeInsets.updateImeAnimationSource(insets)
-            composeInsets.updateImeAnimationTarget(insets)
-            composeInsets.update(insets)
+        runningAnimationMask = runningAnimationMask and type.inv()
+        val allFinished = runningAnimationMask == 0
+        if (insets != null) {
+            if (allFinished || type and WindowInsetsCompat.Type.ime() != 0) {
+                composeInsets.updateImeAnimationSource(insets)
+                composeInsets.updateImeAnimationTarget(insets)
+            }
+            if (allFinished) {
+                composeInsets.update(insets)
+            }
         }
-        savedInsets = null
+        if (allFinished) {
+            savedInsets = null
+        }
         super.onEnd(animation)
     }
 
@@ -677,7 +693,7 @@ private class InsetsListener(val composeInsets: WindowInsetsHolder) :
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
                 view.post(this)
             }
-        } else if (!runningAnimation) {
+        } else if (runningAnimationMask == 0) {
             // If an animation is running, rely on onProgress() to update the insets
             // On APIs less than 30 where the IME animation is backported, this avoids reporting
             // the final insets for a frame while the animation is running.
@@ -696,8 +712,8 @@ private class InsetsListener(val composeInsets: WindowInsetsHolder) :
      */
     override fun run() {
         if (prepared) {
+            runningAnimationMask = 0
             prepared = false
-            runningAnimation = false
             savedInsets?.let {
                 composeInsets.updateImeAnimationSource(it)
                 composeInsets.update(it)
