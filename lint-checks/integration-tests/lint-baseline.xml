@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.4.0-alpha05)" variant="all" version="9.4.0-alpha05">
+<issues format="6" by="lint 9.5.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha05)" variant="all" version="9.5.0-alpha05">
 
     <issue
         id="ExperimentalCompanionElement"
@@ -174,7 +174,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        performStopActivity3ParamsMethod.invoke(activityThread,"
         errorLine2="                        ^">
         <location
@@ -183,7 +183,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        performStopActivity2ParamsMethod.invoke(activityThread,"
         errorLine2="                        ^">
         <location
@@ -192,7 +192,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        performStopActivity3ParamsMethod!!.invoke("
         errorLine2="                        ^">
         <location
@@ -201,7 +201,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
         errorLine1="                        performStopActivity2ParamsMethod!!.invoke(activityThread, token, false)"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

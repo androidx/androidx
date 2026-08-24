@@ -4,10 +4,10 @@
     <issue
         id="BanUncheckedReflection"
         message="Method.invoke requires an SDK bounds check to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
-        errorLine1="            return get.invoke(c, ALIAS_BITSET_PROP_NAME, &quot;&quot;) as String"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            return (Boolean) method.invoke(null);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/backported/fixes/SystemPropertyResolver.kt"/>
+            file="src/main/java/androidx/appsearch/testutil/FrameworkFlagUtils.java"/>
     </issue>
 
 </issues>
