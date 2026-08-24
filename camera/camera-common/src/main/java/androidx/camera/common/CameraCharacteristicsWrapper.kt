@@ -45,7 +45,9 @@ import androidx.camera.common.compat.Api34Compat
  * as `FakeCameraCharacteristics`).
  *
  * @sample androidx.camera.common.samples.wrapCameraCharacteristicsSample
+ * @sample androidx.camera.common.samples.loadCameraCharacteristicsSample
  * @sample androidx.camera.common.samples.accessCameraCharacteristicsPropertiesSample
+ * @sample androidx.camera.common.samples.fakeCameraCharacteristicsSample
  */
 public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
     /**
@@ -183,14 +185,10 @@ public interface CameraCharacteristicsWrapper : CameraCharacteristicsMetadata {
          * Use this key to query the compatibility wrapper for
          * [android.hardware.camera2.params.StreamConfigurationMap].
          *
-         * ### Example
-         *
-         * ```kotlin
-         * val mapWrapper = cameraCharacteristics[CameraCharacteristicsWrapper.Keys.STREAM_CONFIGURATION_MAP]
-         * ```
-         *
          * Prefer using the [CameraCharacteristicsWrappers.streamConfigurationMap] property to
          * access this value.
+         *
+         * @sample androidx.camera.common.samples.fakeCameraCharacteristicsSample
          */
         @JvmField
         public val STREAM_CONFIGURATION_MAP: Metadata.Key<StreamConfigurationMapWrapper> =
@@ -217,6 +215,9 @@ public object CameraCharacteristicsWrappers {
      * fallback to creating a wrapper from the standard
      * [CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP] if the compatibility key is not
      * populated.
+     *
+     * @sample androidx.camera.common.samples.accessCameraCharacteristicsPropertiesSample
+     * @sample androidx.camera.common.samples.fakeCameraCharacteristicsSample
      */
     @get:JvmStatic
     public val CameraCharacteristicsMetadata.streamConfigurationMap: StreamConfigurationMapWrapper?
@@ -234,7 +235,11 @@ public object CameraCharacteristicsWrappers {
             return null
         }
 
-    /** Returns the [ColorSpaceProfilesWrapper] supported by the camera device. */
+    /**
+     * Returns the [ColorSpaceProfilesWrapper] supported by the camera device.
+     *
+     * @sample androidx.camera.common.samples.accessCameraCharacteristicsPropertiesSample
+     */
     @JvmStatic
     public val CameraCharacteristicsMetadata.availableColorSpaceProfiles: ColorSpaceProfilesWrapper
         get() =
@@ -248,6 +253,7 @@ public object CameraCharacteristicsWrappers {
     /**
      * Returns the [DynamicRangeProfilesWrapper] supported by the camera device.
      *
+     * @sample androidx.camera.common.samples.accessCameraCharacteristicsPropertiesSample
      * @see android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES
      */
     @JvmStatic
@@ -266,6 +272,8 @@ public object CameraCharacteristicsWrappers {
      *
      * This method will perform an instantaneous check to determine if the camera permission is
      * granted, setting [CameraCharacteristicsWrapper.isRestricted] accordingly.
+     *
+     * @sample androidx.camera.common.samples.loadCameraCharacteristicsSample
      */
     @JvmStatic
     @JvmName("loadFrom")
@@ -286,7 +294,11 @@ public object CameraCharacteristicsWrappers {
         return loadFrom(cameraManager, cameraId, !hasPermission, dynamicKeys)
     }
 
-    /** Loads [CameraCharacteristicsWrapper] for the given [cameraId] using [CameraManager]. */
+    /**
+     * Loads [CameraCharacteristicsWrapper] for the given [cameraId] using [CameraManager].
+     *
+     * @sample androidx.camera.common.samples.loadCameraCharacteristicsSample
+     */
     @JvmStatic
     @JvmName("loadFrom")
     @Suppress("INAPPLICABLE_JVM_NAME")
@@ -301,7 +313,11 @@ public object CameraCharacteristicsWrappers {
         return AndroidCameraCharacteristics(cameraId, characteristics, isRestricted, dynamicKeys)
     }
 
-    /** Wraps a native [CameraCharacteristics] into a [CameraCharacteristicsWrapper]. */
+    /**
+     * Wraps a native [CameraCharacteristics] into a [CameraCharacteristicsWrapper].
+     *
+     * @sample androidx.camera.common.samples.wrapCameraCharacteristicsSample
+     */
     @JvmStatic
     @JvmName("wrap")
     @Suppress("INAPPLICABLE_JVM_NAME")
