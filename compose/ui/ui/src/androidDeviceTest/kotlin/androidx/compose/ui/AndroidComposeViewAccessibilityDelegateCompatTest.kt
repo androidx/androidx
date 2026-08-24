@@ -3804,6 +3804,24 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         }
     }
 
+    @Test
+    fun focusChange_dispatchesOnlyTypeViewFocused() {
+        var isFocused by mutableStateOf(false)
+        rule.setContentWithAccessibilityEnabled {
+            Box(Modifier.size(50.dp).testTag("focusableBox").semantics { focused = isFocused })
+        }
+
+        rule.runOnIdle { isFocused = true }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        rule.runOnIdle {
+            val eventTypes = dispatchedAccessibilityEvents.map { it.eventType }
+            assertThat(eventTypes).contains(AccessibilityEvent.TYPE_VIEW_FOCUSED)
+            assertThat(eventTypes)
+                .doesNotContain(AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED)
+        }
+    }
+
     private val View.composeAccessibilityDelegate: AndroidComposeViewAccessibilityDelegateCompat
         get() =
             ViewCompat.getAccessibilityDelegate(this)
