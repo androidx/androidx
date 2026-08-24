@@ -1892,6 +1892,10 @@ final class androidx.compose.material3/TimeInputColors { // androidx.compose.mat
         final fun <get-periodSelectorSelectedContainerColor>(): androidx.compose.ui.graphics/Color // androidx.compose.material3/TimeInputColors.periodSelectorSelectedContainerColor.<get-periodSelectorSelectedContainerColor>|<get-periodSelectorSelectedContainerColor>(){}[0]
     final val periodSelectorSelectedContentColor // androidx.compose.material3/TimeInputColors.periodSelectorSelectedContentColor|{}periodSelectorSelectedContentColor[0]
         final fun <get-periodSelectorSelectedContentColor>(): androidx.compose.ui.graphics/Color // androidx.compose.material3/TimeInputColors.periodSelectorSelectedContentColor.<get-periodSelectorSelectedContentColor>|<get-periodSelectorSelectedContentColor>(){}[0]
+    final val periodSelectorUnselectedContainerColor // androidx.compose.material3/TimeInputColors.periodSelectorUnselectedContainerColor|{}periodSelectorUnselectedContainerColor[0]
+        final fun <get-periodSelectorUnselectedContainerColor>(): androidx.compose.ui.graphics/Color // androidx.compose.material3/TimeInputColors.periodSelectorUnselectedContainerColor.<get-periodSelectorUnselectedContainerColor>|<get-periodSelectorUnselectedContainerColor>(){}[0]
+    final val periodSelectorUnselectedContentColor // androidx.compose.material3/TimeInputColors.periodSelectorUnselectedContentColor|{}periodSelectorUnselectedContentColor[0]
+        final fun <get-periodSelectorUnselectedContentColor>(): androidx.compose.ui.graphics/Color // androidx.compose.material3/TimeInputColors.periodSelectorUnselectedContentColor.<get-periodSelectorUnselectedContentColor>|<get-periodSelectorUnselectedContentColor>(){}[0]
     final val timeTextFieldColors // androidx.compose.material3/TimeInputColors.timeTextFieldColors|{}timeTextFieldColors[0]
         final fun <get-timeTextFieldColors>(): androidx.compose.material3/TextFieldColors // androidx.compose.material3/TimeInputColors.timeTextFieldColors.<get-timeTextFieldColors>|<get-timeTextFieldColors>(){}[0]
 
