@@ -269,7 +269,7 @@ public class RemoteWorkManagerClientTest {
         }
 
         try {
-            val conf = Configuration.Builder().setRemoteSessionTimeoutMillis(-1).build()
+            Configuration.Builder().setRemoteSessionTimeoutMillis(-1).build()
             fail("Expected illegal argument exception thrown for negative session timeout")
         } catch (e: IllegalArgumentException) {
             assertEquals("The remote session timeout must not be negative.", e.message)

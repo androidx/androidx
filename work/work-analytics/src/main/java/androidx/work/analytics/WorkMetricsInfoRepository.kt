@@ -394,7 +394,7 @@ internal constructor(
 
                 if (isPeriodic) {
                     val nextWorkInfo = pendingUpdate ?: workInfo
-                    var newSpec = nextWorkInfo.toWorkMetricsSpec(periodCount = spec.periodCount + 1)
+                    val newSpec = nextWorkInfo.toWorkMetricsSpec(periodCount = spec.periodCount + 1)
                     newSpec.state = WorkMetricsInfo.State.ENQUEUED_PENDING
                     insertWorkMetricsSpec(newSpec, nextWorkInfo.tags)
                 }
