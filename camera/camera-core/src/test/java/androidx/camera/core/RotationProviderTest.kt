@@ -24,7 +24,6 @@ import android.view.Surface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -204,7 +203,6 @@ class RotationProviderTest {
         assertThat(getOrientationListener(provider)).isNotNull()
     }
 
-    @Ignore("b/537368009")
     @Test
     fun nullableCleanup() {
         val context = InstrumentationRegistry.getInstrumentation().context
@@ -230,7 +228,6 @@ class RotationProviderTest {
         assertThat(getBackgroundThread(provider)).isNull()
     }
 
-    @Ignore("b/537368009")
     @Test
     fun shutdown_cleansUpActiveThread() {
         val context = InstrumentationRegistry.getInstrumentation().context
@@ -254,7 +251,6 @@ class RotationProviderTest {
         assertThat(getBackgroundThread(provider)).isNull()
     }
 
-    @Ignore("b/537368009")
     @Test
     @Config(shadows = [ShadowOrientationEventListener::class])
     @Suppress("DEPRECATION")
