@@ -111,7 +111,7 @@ internal class WindowInsetsWatcher(val view: View) :
         prepared = false
         savedInsets = null
 
-        if (animation.durationMillis > 0L && insets != null) {
+        if (animation.durationMillis != 0L && insets != null) {
             val type = animation.typeMask
             val current = currentInsets?.getInsets(type)
             val target = insets.getInsets(type)
