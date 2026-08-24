@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.node
 
+import androidx.collection.MutableObjectList
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -177,13 +178,26 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
         clearPlaceOrder()
         forEachChildAlignmentLinesOwner { it.alignmentLines.usedDuringParentLayout = false }
 
-        if (innerCoordinator.isPlacingForAlignment) {
-            layoutNode.children.fastForEach { it.outerCoordinator.isPlacingForAlignment = true }
+        var childrenPlacingForAlignment: MutableObjectList<LayoutNode>? = null
+        layoutNode.children.fastForEach {
+            val isPlacingForAlignment = it.outerCoordinator.isPlacingForAlignment
+            if (isPlacingForAlignment) {
+                // This is an edge case that might only happen during recursive alignment
+                // calculations, so we allocate the list here to preserve correctness instead of
+                // reserving a field for this.
+                childrenPlacingForAlignment =
+                    childrenPlacingForAlignment
+                        ?: MutableObjectList<LayoutNode>().also { childrenPlacingForAlignment = it }
+                childrenPlacingForAlignment.add(it)
+            }
+            it.outerCoordinator.isPlacingForAlignment = innerCoordinator.isPlacingForAlignment
         }
+
         innerCoordinator.measureResult.placeChildren()
 
-        if (innerCoordinator.isPlacingForAlignment) {
-            layoutNode.children.fastForEach { it.outerCoordinator.isPlacingForAlignment = false }
+        layoutNode.children.fastForEach {
+            val wasPlacingForAlignment = childrenPlacingForAlignment?.contains(it) == true
+            it.outerCoordinator.isPlacingForAlignment = wasPlacingForAlignment
         }
 
         checkChildrenPlaceOrderForUpdates()
