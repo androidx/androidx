@@ -25,12 +25,25 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("AndroidXComposePlugin")
 }
 
 dependencies {
     api(project(":glance:adaptive:adaptive-core"))
-    api("androidx.glance:glance:1.1.1")
+    api("androidx.annotation:annotation:1.8.1")
+    api("androidx.compose.runtime:runtime:1.12.0")
+    implementation("androidx.collection:collection:1.4.2")
+    implementation(libs.kotlinCoroutinesCore)
     api("androidx.glance:glance-appwidget:1.1.1")
+
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.robolectric)
 }
 
 android {

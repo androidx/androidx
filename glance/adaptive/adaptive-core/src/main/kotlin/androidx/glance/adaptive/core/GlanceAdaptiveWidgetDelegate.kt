@@ -17,9 +17,23 @@
 package androidx.glance.adaptive.core
 
 import androidx.annotation.RestrictTo
+import androidx.glance.adaptive.core.templates.AdaptiveGlanceTemplate
 
 /** Internal interface abstracting underlying framework vs compat widget operations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface GlanceAdaptiveWidgetDelegate {
-    public suspend fun pushUpdate()
+    /**
+     * Pushes template data updates to target widget placements.
+     *
+     * @param widgetName The developer-defined identifier of the widget definition.
+     * @param currentData The declarative template data payload to render.
+     * @param widgetIds Optional collection of developer target widget instance String identifiers.
+     *   If omitted (`null`), updates broadcast to all instances matching [widgetName]. If an empty
+     *   collection is passed, no widgets will be updated.
+     */
+    public suspend fun pushUpdate(
+        widgetName: String,
+        currentData: AdaptiveGlanceTemplate,
+        widgetIds: Set<String>? = null,
+    )
 }
