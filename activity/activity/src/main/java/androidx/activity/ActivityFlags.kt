@@ -65,4 +65,19 @@ public object ActivityFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isOnBackPressedLifecycleOrderMaintained: Boolean = true
+
+    /**
+     * Control whether [ComponentActivity] allows untrusted Intent extras, such as those from
+     * exported activities, to populate ViewModel saved state.
+     *
+     * This should be set before ViewModels are created or [ComponentActivity.defaultViewModelArgs]
+     * is accessed (e.g., in your [android.app.Application] class or prior to `super.onCreate()` in
+     * your activity).
+     */
+    @Deprecated(
+        "To pass default arguments to the exported Activity override " + "[defaultViewModelArgs]."
+    )
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isUntrustedActivityDefaultViewModelArgsEnabled: Boolean = false
 }
