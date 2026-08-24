@@ -23,6 +23,8 @@ import androidx.appstate.datastore.AppStatePreferences
 import androidx.appstate.datastore.PersistToDataStore
 import androidx.appstate.datastore.addAppStateToDataStoreListener
 import androidx.datastore.core.DataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 
 @Serializable @PersistToDataStore private object SampleKey : AppStateKey<String>()
@@ -35,4 +37,18 @@ suspend fun AppStateDataStoreListenerSample(dataStore: DataStore<AppStatePrefere
     val state = appState.getState(SampleKey, "default")
 
     appState.addAppStateToDataStoreListener(dataStore)
+}
+
+@Sampled
+suspend fun AppStateDataStoreListenerPathSample() {
+    val appState = AppState()
+
+    // Register the key by getting the state before attaching the listener
+    val state = appState.getState(SampleKey, "default")
+
+    // The path must include the directory, for example, on Android:
+    // val path = context.filesDir.resolve("appstate.preferences_pb").absolutePath
+    val path = "/path/to/directory/appstate.preferences_pb"
+
+    appState.addAppStateToDataStoreListener(path, CoroutineScope(Dispatchers.IO))
 }
