@@ -145,6 +145,17 @@ public class SafeCloseImageReaderProxy implements ImageReaderProxy {
     }
 
     /**
+     * Returns the number of outstanding images that have been acquired from this reader but not
+     * yet closed.
+     */
+    @VisibleForTesting
+    int getOutstandingImages() {
+        synchronized (mLock) {
+            return mOutstandingImages;
+        }
+    }
+
+    /**
      * Returns the number of empty slots in the queue.
      */
     public int getCapacity() {
