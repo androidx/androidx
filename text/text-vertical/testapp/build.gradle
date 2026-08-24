@@ -42,5 +42,5 @@ androidx {
 
 android {
     namespace = "androidx.text.vertical.testapp"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
 }

@@ -23,7 +23,7 @@ plugins {
 group="androidx.compose.remote"
 
 android {
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
 
     namespace = "androidx.compose.remote.integration.macrobenchmark.target"
     defaultConfig.minSdk { version = release(29) }
