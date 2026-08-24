@@ -62,15 +62,18 @@ class QuickSuccessiveImageCaptureFailsRepeatingRequestQuirkTest(
     }
 
     private fun getCameraQuirks(cameraHwLevel: Int): Quirks {
-        val characteristicsMap =
-            mutableMapOf<CameraCharacteristics.Key<*>, Any?>()
-                .apply { this[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL] = cameraHwLevel }
-                .toMap()
-
         val cameraCharacteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         val shadowCharacteristics =
             Shadow.extract<ShadowCameraCharacteristics>(cameraCharacteristics)
-        characteristicsMap.forEach { entry -> shadowCharacteristics.set(entry.key, entry.value) }
+
+        val characteristicsMap =
+            mutableMapOf<CameraCharacteristics.Key<*>, Any?>(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to cameraHwLevel
+            )
+        shadowCharacteristics.set(
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
+            cameraHwLevel,
+        )
 
         val cameraMetadata =
             FakeCameraMetadata.fromTemplate(

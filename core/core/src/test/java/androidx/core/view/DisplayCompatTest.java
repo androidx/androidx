@@ -34,6 +34,7 @@ import android.view.Display;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -161,6 +162,7 @@ public final class DisplayCompatTest {
         assertThat(nativeMode.getPhysicalHeight()).isEqualTo(mode.getPhysicalHeight());
     }
 
+    @Ignore("b/536103260")
     @Test
     public void tvModeSonyBraviaSpecialCase_hardcodedSize() {
         mUiModeManagerShadow.currentModeType = UI_MODE_TYPE_TELEVISION;

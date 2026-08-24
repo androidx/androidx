@@ -68,7 +68,6 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.Shadows.shadowOf
-import org.robolectric.shadows.ShadowSensor
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -488,7 +487,10 @@ class ArCoreRuntimeTest {
                 as android.hardware.SensorManager
         val shadowSensorManager = shadowOf(sensorManager)
         shadowSensorManager.addSensor(
-            ShadowSensor.newInstance(android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR)
+            @Suppress("DEPRECATION") // b/536940019
+            org.robolectric.shadows.ShadowSensor.newInstance(
+                android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR
+            )
         )
         val perceptionManager = ArCorePerceptionManager(timeSource)
         val runtime = ArCoreRuntime(context, perceptionManager, timeSource, mockArCoreApk)
@@ -511,7 +513,10 @@ class ArCoreRuntimeTest {
                 as android.hardware.SensorManager
         val shadowSensorManager = shadowOf(sensorManager)
         shadowSensorManager.addSensor(
-            ShadowSensor.newInstance(android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR)
+            @Suppress("DEPRECATION") // b/536940019
+            org.robolectric.shadows.ShadowSensor.newInstance(
+                android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR
+            )
         )
         val perceptionManager = ArCorePerceptionManager(timeSource)
         val runtime = ArCoreRuntime(context, perceptionManager, timeSource, mockArCoreApk)
