@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core
+package androidx.glance.adaptive.appwidget
 
 import android.content.Context
+import androidx.annotation.RestrictTo
+import androidx.glance.adaptive.core.GlanceAdaptiveWidgetManager
 
-internal class BaseWidgetDelegate(context: Context) : GlanceAdaptiveWidgetDelegate {
-
-    override suspend fun pushUpdate() {
-        // Placeholder for base push update implementation
-    }
-}
+/**
+ * Creates a [GlanceAdaptiveWidgetManager] configured with the platform AppWidget delegate for phone
+ * widget operations.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun GlanceAdaptiveWidgetManager(context: Context): GlanceAdaptiveWidgetManager =
+    GlanceAdaptiveWidgetManager(BaseWidgetDelegate(context))

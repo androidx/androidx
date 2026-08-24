@@ -16,16 +16,71 @@
 
 package androidx.glance.adaptive.core
 
-import android.content.Context
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
+import androidx.glance.adaptive.core.templates.AdaptiveGlanceTemplate
 
 /** Entry point for managing Glance Adaptive widgets. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class GlanceAdaptiveWidgetManager
-internal constructor(private val delegate: GlanceAdaptiveWidgetDelegate) {
-    public constructor(context: Context) : this(BaseWidgetDelegate(context))
+public class GlanceAdaptiveWidgetManager(
+    @get:VisibleForTesting
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val delegate: GlanceAdaptiveWidgetDelegate
+) {
 
-    public suspend fun pushUpdate() {
-        delegate.pushUpdate()
+    /**
+     * Pushes live template data updates to all placed instances matching [widgetName].
+     *
+     * @param widgetName Developer widget definition String identifier matching
+     *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
+     * @param currentData The declarative template data payload implementing
+     *   [AdaptiveGlanceTemplate].
+     */
+    public suspend fun pushUpdate(widgetName: String, currentData: AdaptiveGlanceTemplate) {
+        delegate.pushUpdate(widgetName = widgetName, currentData = currentData, widgetIds = null)
+    }
+
+    /**
+     * Pushes live template data updates to a specific collection of target widget instance String
+     * identifiers.
+     *
+     * @param widgetName Developer widget definition String identifier matching
+     *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
+     * @param currentData The declarative template data payload implementing
+     *   [AdaptiveGlanceTemplate].
+     * @param widgetIds Collection of target developer widget instance String identifiers to update.
+     *   Passing an explicit empty collection restricts updates strictly to zero instances.
+     */
+    public suspend fun pushUpdate(
+        widgetName: String,
+        currentData: AdaptiveGlanceTemplate,
+        widgetIds: Set<String>,
+    ) {
+        delegate.pushUpdate(
+            widgetName = widgetName,
+            currentData = currentData,
+            widgetIds = widgetIds,
+        )
+    }
+
+    /**
+     * Pushes live template data updates to a single target widget instance String identifier.
+     *
+     * @param widgetName Developer widget definition String identifier matching
+     *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
+     * @param currentData The declarative template data payload implementing
+     *   [AdaptiveGlanceTemplate].
+     * @param widgetId Single target developer widget instance String identifier to update.
+     */
+    public suspend fun pushUpdate(
+        widgetName: String,
+        currentData: AdaptiveGlanceTemplate,
+        widgetId: String,
+    ) {
+        delegate.pushUpdate(
+            widgetName = widgetName,
+            currentData = currentData,
+            widgetIds = setOf(widgetId),
+        )
     }
 }

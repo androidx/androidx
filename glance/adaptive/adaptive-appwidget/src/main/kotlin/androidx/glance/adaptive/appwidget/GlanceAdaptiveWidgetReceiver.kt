@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core
+package androidx.glance.adaptive.appwidget
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -38,13 +38,28 @@ private const val TAG = "GlanceAdaptiveReceiver"
  * [AppWidgetProvider] using Glance Adaptive to process widget lifecycle events and updates.
  *
  * This should typically be used as:
- *
- *     class MyGlanceAdaptiveWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
- *         override val widgetId: String = "my_widget_id"
- *         override suspend fun onUpdate(context: Context) {
- *             // Provide or push updated template data
- *         }
+ * ```kotlin
+ * class MyGlanceAdaptiveWidgetReceiver : GlanceAdaptiveWidgetReceiver() {
+ *     override val widgetName: String = "profile_widget"
+ *     override suspend fun onUpdate(context: Context) {
+ *         // Provide or push updated template data
  *     }
+ * }
+ * ```
+ *
+ * To filter broadcast updates by widget name at the manifest level (recommended when using multiple
+ * widget receivers in the same application), add the [META_DATA_WIDGET_NAME] meta-data tag to the
+ * receiver declaration in `AndroidManifest.xml`:
+ * ```xml
+ * <receiver android:name=".MyGlanceAdaptiveWidgetReceiver" android:exported="true">
+ *     <intent-filter>
+ *         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+ *     </intent-filter>
+ *     <meta-data
+ *         android:name="androidx.glance.adaptive.WIDGET_NAME"
+ *         android:value="profile_widget" />
+ * </receiver>
+ * ```
  *
  * Note: If you override any methods of this class or [AppWidgetProvider], ensure you call their
  * superclass implementation. For the [onUpdate] flow managed by this receiver, do not call
@@ -61,7 +76,7 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
      * This identifier should correspond to the widget template definition or layout configuration
      * registered with the adaptive widget framework.
      */
-    public abstract val widgetId: String
+    public abstract val widgetName: String
 
     /**
      * Override [coroutineContext] to provide a custom [CoroutineContext] in which background update
@@ -92,6 +107,20 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         @Suppress("InvalidNullabilityOverride") appWidgetIds: IntArray?,
     ) {
         goAsync(coroutineContext) { onUpdate(context) }
+    }
+
+    public companion object {
+        /**
+         * Manifest `<meta-data>` name used to associate an [AppWidgetProvider] receiver with a
+         * specific developer [widgetName] string identifier in `AndroidManifest.xml`.
+         */
+        public const val META_DATA_WIDGET_NAME: String = "androidx.glance.adaptive.WIDGET_NAME"
+
+        /**
+         * Key for storing the developer String instance identifier in [AppWidgetManager] widget
+         * options bundle.
+         */
+        public const val EXTRA_WIDGET_ID: String = "androidx.glance.adaptive.WIDGET_ID"
     }
 }
 
