@@ -36,7 +36,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         withJava()
-        compileSdk { version = release(37) }
+        compileSdk { version = release(37) { minorApiLevel = 1 } }
         androidResources.enable = true
         namespace = "androidx.compose.ui"
         // namespace has to be unique, but default androidx.compose.ui.test package is taken by

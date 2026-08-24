@@ -31,7 +31,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk { version = release(35) }
+        compileSdk { version = release(37) { minorApiLevel = 1 } }
         namespace = "androidx.compose.material.ripple"
     }
     jvmStubs()

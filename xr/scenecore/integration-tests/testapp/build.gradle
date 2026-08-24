@@ -25,7 +25,7 @@ plugins {
 
 android {
     namespace = "androidx.xr.scenecore.testapp"
-    compileSdk { version = release(37) }
+    compileSdk { version = release(37) { minorApiLevel = 1 } }
 
     defaultConfig {
         applicationId = "androidx.xr.scenecore.testapp"
