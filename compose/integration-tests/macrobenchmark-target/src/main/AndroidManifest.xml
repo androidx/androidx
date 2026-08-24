@@ -282,6 +282,19 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".ProgressiveBlurActivity"
+            android:exported="true"
+            android:label="Compose Progressive Blur Benchmark">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.PROGRESSIVE_BLUR_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".PagerOfLazyGridActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat">
