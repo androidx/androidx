@@ -949,6 +949,18 @@ class RectListIntegrationTest {
         }
     }
 
+    @Test
+    @SmallTest
+    fun testRectListDuringAlignment_withLayoutModifier() {
+        rule.setContent {
+            Row {
+                Row(Modifier.padding(10.dp).alignByBaseline()) {
+                    BasicText("text", Modifier.size(10.dp).alignByBaseline())
+                }
+            }
+        }
+    }
+
     /**
      * Lazy Column example that can be used to reproduce issues related to re-using LayoutNodes
      * where each item has the same Layout.

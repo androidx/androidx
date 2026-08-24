@@ -469,7 +469,7 @@ internal abstract class NodeCoordinator(override val layoutNode: LayoutNode) :
             layoutNode.owner?.onLayoutChange(layoutNode)
         }
         this.zIndex = zIndex
-        if (this === layoutNode.outerCoordinator) {
+        if (this === layoutNode.outerCoordinator && !isPlacingForAlignment) {
             layoutNode.requireOwner().rectManager.recalculateRectIfDirty(layoutNode)
         }
         if (!isPlacingForAlignment) {
