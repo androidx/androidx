@@ -35,7 +35,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.SensorEventBuilder
-import org.robolectric.shadows.ShadowSensor
 
 @RunWith(AndroidJUnit4::class)
 class ArCoreDeviceTest {
@@ -75,6 +74,7 @@ class ArCoreDeviceTest {
             context.getSystemService(Context.SENSOR_SERVICE) as android.hardware.SensorManager
         val shadowSensorManager = shadowOf(sensorManager)
         val sensor =
+            @Suppress("DEPRECATION") // b/536940019
             org.robolectric.shadows.ShadowSensor.newInstance(
                 android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR
             )
@@ -84,8 +84,7 @@ class ArCoreDeviceTest {
         underTest.resume()
 
         val eventValues = floatArrayOf(0f, 0f, 0f, 1f)
-        val sensorEvent =
-            SensorEventBuilder.newBuilder().setSensor(sensor).setValues(eventValues).build()
+        val sensorEvent = SensorEventBuilder.newBuilder(sensor, eventValues).build()
         shadowSensorManager.sendSensorEventToListeners(sensorEvent)
 
         val tempArray = FloatArray(4)
@@ -125,6 +124,7 @@ class ArCoreDeviceTest {
             context.getSystemService(Context.SENSOR_SERVICE) as android.hardware.SensorManager
         val shadowSensorManager = shadowOf(sensorManager)
         val sensor =
+            @Suppress("DEPRECATION") // b/536940019
             org.robolectric.shadows.ShadowSensor.newInstance(
                 android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR
             )
@@ -134,8 +134,7 @@ class ArCoreDeviceTest {
         underTest.resume()
 
         val eventValues = floatArrayOf(0f, 0f, 0f, 1f)
-        val sensorEvent =
-            SensorEventBuilder.newBuilder().setSensor(sensor).setValues(eventValues).build()
+        val sensorEvent = SensorEventBuilder.newBuilder(sensor, eventValues).build()
         shadowSensorManager.sendSensorEventToListeners(sensorEvent)
 
         underTest.pause()
@@ -160,6 +159,7 @@ class ArCoreDeviceTest {
             context.getSystemService(Context.SENSOR_SERVICE) as android.hardware.SensorManager
         val shadowSensorManager = shadowOf(sensorManager)
         shadowSensorManager.addSensor(
+            @Suppress("DEPRECATION") // b/536940019
             org.robolectric.shadows.ShadowSensor.newInstance(
                 android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR
             )
@@ -178,6 +178,7 @@ class ArCoreDeviceTest {
             context.getSystemService(Context.SENSOR_SERVICE) as android.hardware.SensorManager
         val shadowSensorManager = shadowOf(sensorManager)
         shadowSensorManager.addSensor(
+            @Suppress("DEPRECATION") // b/536940019
             org.robolectric.shadows.ShadowSensor.newInstance(
                 android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR
             )

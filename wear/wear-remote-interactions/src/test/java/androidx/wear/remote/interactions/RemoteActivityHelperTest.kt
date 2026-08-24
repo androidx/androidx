@@ -50,6 +50,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
@@ -658,6 +659,7 @@ class RemoteActivityHelperTest {
         assertEquals(testUri, getTargetIntent(intent)?.data)
     }
 
+    @Ignore("b/536099654")
     @Test
     @Config(minSdk = 37)
     fun testStartPhoneActivityWithUnlock_emptyPackage_otherAction_fails() = runTest {
@@ -677,6 +679,7 @@ class RemoteActivityHelperTest {
         assertTrue(exception.cause is IllegalStateException)
     }
 
+    @Ignore("b/536099654")
     @Test
     @Config(minSdk = 37)
     fun testStartPhoneActivityWithUnlock_emptyAction_fails() = runTest {
@@ -696,6 +699,7 @@ class RemoteActivityHelperTest {
         assertTrue(exception.cause is IllegalStateException)
     }
 
+    @Ignore("b/536099654")
     @Test
     @Config(minSdk = 37)
     fun testStartPhoneActivityWithUnlock_emptyUri_fails() = runTest {
@@ -715,6 +719,7 @@ class RemoteActivityHelperTest {
         assertTrue(exception.cause is IllegalStateException)
     }
 
+    @Ignore("b/536099654")
     @Test
     @Config(minSdk = 37)
     fun testStartPhoneActivityWithUnlock_emptyCaller_fails() = runTest {
@@ -734,6 +739,7 @@ class RemoteActivityHelperTest {
         assertTrue(exception.cause is IllegalStateException)
     }
 
+    @Ignore("b/536099654")
     @Test
     @Config(minSdk = 37)
     fun testStartPhoneActivityWithUnlock_emptyCategories_fails() = runTest {

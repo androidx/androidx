@@ -301,6 +301,7 @@
          <trusted-key id="47EB6836245D2D40E89DFB4136D4E9618F3ADAB5" group="io.github.microutils" name="kotlin-logging-jvm"/>
          <trusted-key id="4857D1CE04E78FAB2A172E8F39B48E1BADDB933F" group="com.gradleup.shadow"/>
          <trusted-key id="48B086A7D843CFA258E83286928FBF39003C0425" group="org.springframework"/>
+         <trusted-key id="49CF4E3B2996BE658A57DD39655CCC51B9BD2C38" group="org.conscrypt"/>
          <trusted-key id="4BF79B8259007B566D2FCE82296CD27F60EED12C" group="com.google.crypto.tink"/>
          <trusted-key id="4DADED739CDF2CD0E48E0EC44044EDF1BB73EFEA" group="jaxen" name="jaxen"/>
          <trusted-key id="4DB1A49729B053CAF015CEE9A6ADFC93EF34893E" group="org.hamcrest"/>

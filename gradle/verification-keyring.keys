@@ -9800,6 +9800,22 @@ Q3i7h7uk
 =KWYu
 -----END PGP PUBLIC KEY BLOCK-----
 
+pub    655CCC51B9BD2C38
+uid    Juerg Wullschleger (Key for signing maven artifacts) <juerg@google.com>
+
+sub    1D8420104D50DEB6
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xjMEaha/UBYJKwYBBAHaRw8BAQdAbsQnyQZeUSn3HeAYjG4LfUmBiGA8AbVgdh4o
+r94PKTG0R0p1ZXJnIFd1bGxzY2hsZWdlciAoS2V5IGZvciBzaWduaW5nIG1hdmVu
+IGFydGlmYWN0cykgPGp1ZXJnQGdvb2dsZS5jb20+zjgEaha/UBIKKwYBBAGXVQEF
+AQEHQBZaO7bwfVR88kyicIFPVrz3GhdM7MBYoQk54gSx2hw+AwEIB8J+BBgWCgAm
+FiEESc9OOymWvmWKV905ZVzMUbm9LDgFAmoWv1ACGwwFCQHhM4AACgkQZVzMUbm9
+LDhPFQD/fJsIXrtRDbCR7PkozwpPY8z6dOGZ3qRTFxuyWjuWoycA/RMUHBSGOJeP
++QiG9g497f/rjbC8s02quHS1CHna0lIC
+=Eb5c
+-----END PGP PUBLIC KEY BLOCK-----
+
 pub    6601E5C08DCCBB96
 uid    Popma Remko <remkop@yahoo.com>
 
