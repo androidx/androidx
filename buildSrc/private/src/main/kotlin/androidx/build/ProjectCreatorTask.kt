@@ -26,7 +26,11 @@ import java.time.LocalDate
 import org.gradle.api.DefaultTask
 import org.gradle.api.internal.tasks.userinput.UserInputHandler
 import org.gradle.api.internal.tasks.userinput.UserQuestions
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
 import org.tomlj.Toml
 import org.tomlj.TomlParseResult
@@ -35,6 +39,46 @@ import org.tomlj.TomlTable
 @DisableCachingByDefault(because = "Interactive task, must run every time")
 abstract class ProjectCreatorTask : DefaultTask() {
     private val supportDir = project.getSupportRootFolder()
+
+    @get:Input
+    @get:Optional
+    @get:Option(
+        option = "type",
+        description =
+            "Type of the project to create (can be ANDROID_LIBRARY, KMP, JAVA, or TEST_APP)",
+    )
+    abstract val cliProjectType: Property<String>
+
+    @get:Input
+    @get:Optional
+    @get:Option(
+        option = "group-id",
+        description =
+            "Group id (must start with 'androidx', e.g. androidx.core or androidx.compose)",
+    )
+    abstract val cliGroupId: Property<String>
+
+    @get:Input
+    @get:Optional
+    @get:Option(option = "artifact-id", description = "Artifact id (e.g. core-telecom).")
+    abstract val cliArtifactId: Property<String>
+
+    @get:Input
+    @get:Optional
+    @get:Option(
+        option = "description",
+        description = "Project description (to be added in build.gradle)",
+    )
+    abstract val cliProjectDescription: Property<String>
+
+    @get:Input
+    @get:Optional
+    @get:Option(
+        option = "project-dir",
+        description =
+            "Directory for testapp creation. If not specified, it will be created in an integration-tests directory within the new project",
+    )
+    abstract val cliProjectDir: Property<String>
 
     @TaskAction
     fun exec() {
@@ -54,6 +98,53 @@ abstract class ProjectCreatorTask : DefaultTask() {
     }
 
     private fun promptForProjectSpec(): ProjectSpec {
+
+        // Check if the script non-interactive mode was used and fully specified
+        if (
+            listOf(
+                    cliProjectType.orNull,
+                    cliGroupId.orNull,
+                    cliArtifactId.orNull,
+                    cliProjectDescription.orNull != null,
+                )
+                .any { it != null }
+        ) {
+            if (
+                listOf(
+                        cliProjectType.orNull,
+                        cliGroupId.orNull,
+                        cliArtifactId.orNull,
+                        cliProjectDescription.orNull != null,
+                    )
+                    .all { it != null }
+            ) {
+                val projectType = getAndValidateProjectType(cliProjectType.get())
+                if (!isGroupIdValid(cliGroupId.get())) {
+                    error(
+                        "Group id must start with 'androidx', e.g. androidx.core or androidx.compose"
+                    )
+                }
+                if (!isArtifactIdValid(cliGroupId.get(), cliArtifactId.get(), projectType)) {
+                    error("Artifact ID must start with the last segment of the Group ID")
+                }
+                val projectDir =
+                    cliProjectDir.orNull
+                        ?: """${cliGroupId.get().removePrefix("androidx.").replace(".", "/")}/integration-tests/${cliArtifactId.get()}"""
+                return ProjectSpec(
+                    cliGroupId.get(),
+                    cliArtifactId.get(),
+                    projectType,
+                    cliProjectDescription.get(),
+                    projectDir,
+                    supportDir,
+                )
+            } else {
+                error(
+                    "When using the non-interactive mode, project type, group id, artifact id, and description must all be specified. For example, --type=ANDROID_LIBRARY --group-id=\"androidx.newlib\" --artifact-id=\"newlib-artifact\" --description=\"description to put in build.gradle\""
+                )
+            }
+        }
+
         // This println here is intentional, it allows any error messages from groupIdIsValid() and
         // artifactIdIsValid() to be shown right after the respective prompt. For some reason,
         // without this empty println, those printlns in the validation functions don't get flushed
@@ -72,6 +163,8 @@ abstract class ProjectCreatorTask : DefaultTask() {
                 }
                 .get()
 
+        val projectType = getAndValidateProjectType(projectTypeName)
+
         var groupId: String
         do {
             groupId =
@@ -86,12 +179,6 @@ abstract class ProjectCreatorTask : DefaultTask() {
                     }
                     .get()
         } while (!isGroupIdValid(groupId))
-
-        val projectType = ProjectType.entries.find { it.description == projectTypeName }
-
-        if (projectType == null) {
-            error("Unknown project type: $projectTypeName")
-        }
 
         var artifactId: String
         do {
@@ -147,6 +234,21 @@ abstract class ProjectCreatorTask : DefaultTask() {
             projectDir,
             supportDir,
         )
+    }
+
+    private fun getAndValidateProjectType(projectTypeName: String): ProjectType {
+        val projectType =
+            ProjectType.entries.find {
+                it.description.equals(projectTypeName, ignoreCase = true) ||
+                    it.name.equals(projectTypeName, ignoreCase = true)
+            }
+
+        if (projectType == null) {
+            error(
+                "Unknown project type: '$projectTypeName'. Valid types are: ${ProjectType.entries.joinToString { "'${it.description}'" }}"
+            )
+        }
+        return projectType
     }
 
     private fun printTodoList(projectSpec: ProjectSpec) {
@@ -738,7 +840,7 @@ internal data class ProjectSpec(
     val groupId = groupIdWithPrefix.removePrefix("androidx.")
 
     val fullArtifactPath =
-        if (projectDir != null) {
+        if (projectDir != null && projectType == ProjectType.TEST_APP) {
             File(supportRoot, projectDir)
         } else {
             File(supportRoot, groupId.replace('.', '/'))
