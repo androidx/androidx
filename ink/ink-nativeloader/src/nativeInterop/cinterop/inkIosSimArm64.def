@@ -2,3 +2,6 @@ package = androidx.ink.nativeloader.cinterop
 headers = ink_cinterop.h
 libraryPaths = ../../../../prebuilts/androidx/ink/native/ios-sim-arm64/
 staticLibraries = libink.a
+linkerOpts = \
+  -framework CoreGraphics \
+  -framework MetalKit

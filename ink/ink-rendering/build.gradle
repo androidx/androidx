@@ -28,17 +28,28 @@ androidXMultiplatform {
         androidResources.enable = true
     }
 
+    ios()
+
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        androidMain.dependencies {
-            implementation("androidx.collection:collection:1.4.3")
-            implementation("androidx.core:core:1.16.0")
-            implementation("androidx.core:core-ktx:1.16.0")
+        commonMain.dependencies {
             implementation(project(":ink:ink-nativeloader"))
             implementation(project(":ink:ink-geometry"))
             implementation(project(":ink:ink-brush"))
             implementation(project(":ink:ink-strokes"))
+        }
+
+        androidMain.dependencies {
+            implementation("androidx.collection:collection:1.4.3")
+            implementation("androidx.core:core:1.16.0")
+            implementation("androidx.core:core-ktx:1.16.0")
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":ink:ink-storage"))
         }
 
         androidDeviceTest.dependencies {
@@ -47,12 +58,37 @@ androidXMultiplatform {
             implementation(libs.testRunner)
             implementation(libs.espressoCore)
             implementation(libs.junit)
-            implementation(libs.kotlinTest)
             implementation(libs.testParameterInjector)
 	    implementation(libs.truth)
             implementation("androidx.core:core-ktx:1.15.0")
             implementation(project(":test:screenshot:screenshot"))
-            implementation(project(":ink:ink-storage"))
+        }
+    }
+}
+
+interface InjectedExecOps {
+    @Inject
+    ExecOperations getExecOps()
+}
+
+tasks.named("iosSimulatorArm64Test") {
+    // Metal renderer does not work on the simulator if it's started with
+    // --standalone, which is the default. If that is disabled, there needs to
+    // be some setup/teardown to boot and shut down the simulator. That's not
+    // currently handled by the KMP Gradle Plugin, see
+    // https://youtrack.jetbrains.com/issue/KMT-2955.
+    standalone = false
+    def injected = project.objects.newInstance(InjectedExecOps)
+    doFirst {
+        injected.execOps.exec {
+            commandLine 'xcrun', 'simctl', 'boot', device.get()
+            ignoreExitValue = true
+        }
+    }
+    doLast {
+        injected.execOps.exec {
+            commandLine 'xcrun', 'simctl', 'shutdown', device.get()
+            ignoreExitValue = true
         }
     }
 }
