@@ -414,9 +414,13 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
          * Returns the target-specific klibs required for docs. Currently, this is just posix to
          * resolve pthread references.
          */
-        private fun klibsForTarget(target: KotlinNativeTarget): Provider<Directory> {
+        private fun klibsForTarget(target: KotlinNativeTarget): Provider<List<Directory>> {
             return platformKlibDir.map {
-                it.dir(target.konanTarget.name).dir("org.jetbrains.kotlin.native.platform.posix")
+                val klibDir = it.dir(target.konanTarget.name)
+                listOf(
+                    klibDir.dir("org.jetbrains.kotlin.native.platform.posix"),
+                    klibDir.dir("org.jetbrains.kotlin.native.platform.Metal"),
+                )
             }
         }
 
