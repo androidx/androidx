@@ -84,7 +84,7 @@ data class RelationCollector(
             scope.getTmpVar(
                 "_collection${relation.property.getPath().stripNonJava().capitalize(Locale.US)}"
             )
-        scope.builder.applyTo { language ->
+        scope.builder.applyTo { _ ->
             if (
                 mapTypeName.rawTypeName == ARRAY_MAP || mapTypeName.rawTypeName == LONG_SPARSE_ARRAY
             ) {

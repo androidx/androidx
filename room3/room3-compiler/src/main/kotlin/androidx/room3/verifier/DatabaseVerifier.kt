@@ -166,7 +166,7 @@ private constructor(
             try {
                 stmt.executeUpdate(stripLocalizeCollations(createTableQuery))
             } catch (e: SQLException) {
-                context.logger.e(entity.element, "${e.message}")
+                context.logger.e(entity.element, e.message ?: "null")
             }
             entity.indices.forEach { stmt.executeUpdate(it.createQuery(entity.tableName)) }
         }
@@ -175,7 +175,7 @@ private constructor(
             try {
                 stmt.executeUpdate(stripLocalizeCollations(view.createViewQuery))
             } catch (e: SQLException) {
-                context.logger.e(view.element, "${e.message}")
+                context.logger.e(view.element, e.message ?: "null")
             }
         }
     }

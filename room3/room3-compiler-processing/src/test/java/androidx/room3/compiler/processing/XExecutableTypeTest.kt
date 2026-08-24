@@ -590,7 +590,7 @@ class XExecutableTypeTest {
             )
 
         fun handler(invocation: XTestInvocation) {
-            val isKsp2 = invocation.isKsp && (invocation.processingEnv as KspProcessingEnv).isKsp2
+            invocation.isKsp && (invocation.processingEnv as KspProcessingEnv).isKsp2
             listOf("KotlinSubject", "JavaSubject").forEach { subjectFqn ->
                 val subject = invocation.processingEnv.requireTypeElement(subjectFqn)
                 subject.getMethodByJvmName("oneTypeVar").let {
