@@ -177,6 +177,9 @@ private class IntrinsicWidthNode(var width: IntrinsicSize, override var enforceI
         measurable: Measurable,
         constraints: Constraints,
     ): Constraints {
+        if (enforceIncoming && constraints.hasFixedWidth) {
+            return constraints
+        }
         var measuredWidth =
             if (width == IntrinsicSize.Min) {
                 measurable.minIntrinsicWidth(constraints.maxHeight)
@@ -238,6 +241,9 @@ private class IntrinsicHeightNode(
         measurable: Measurable,
         constraints: Constraints,
     ): Constraints {
+        if (enforceIncoming && constraints.hasFixedHeight) {
+            return constraints
+        }
         var measuredHeight =
             if (height == IntrinsicSize.Min) {
                 measurable.minIntrinsicHeight(constraints.maxWidth)
