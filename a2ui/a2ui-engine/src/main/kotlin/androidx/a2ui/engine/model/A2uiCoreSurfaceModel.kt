@@ -164,6 +164,7 @@ public class A2uiCoreSurfaceModel(
     ): Any? {
         val executionContext =
             A2uiCoreExecutionContext(
+                dataPath = dataPath,
                 componentId = componentId,
                 catalog = catalog,
                 dispatchError = ::dispatchError,
@@ -171,7 +172,7 @@ public class A2uiCoreSurfaceModel(
                 dynamicEvaluator = dynamicEvaluator,
                 cacheProvider = this,
             )
-        return executionContext.evaluatePayload(dataPath, payload)
+        return executionContext.evaluatePayload(payload)
     }
 
     /**

@@ -68,6 +68,7 @@ class A2uiActionHandlerTest {
 
         val executionContext =
             A2uiCoreExecutionContext(
+                dataPath = A2uiDataPath("/"),
                 componentId = "comp-1",
                 catalog = FakeCatalog(),
                 dispatchError = { _, _ -> },
@@ -110,6 +111,7 @@ class A2uiActionHandlerTest {
 
             val executionContext =
                 A2uiCoreExecutionContext(
+                    dataPath = A2uiDataPath("/"),
                     componentId = "comp-1",
                     catalog = FakeCatalog(),
                     dispatchError = { _, _ -> },
@@ -169,6 +171,7 @@ class A2uiActionHandlerTest {
 
         val executionContext =
             A2uiCoreExecutionContext(
+                dataPath = A2uiDataPath("/"),
                 componentId = "comp-1",
                 catalog = catalog,
                 dispatchError = { _, _ -> },
@@ -205,6 +208,7 @@ class A2uiActionHandlerTest {
 
         val executionContext =
             A2uiCoreExecutionContext(
+                dataPath = A2uiDataPath("/"),
                 componentId = "comp-1",
                 catalog = FakeCatalog(),
                 dispatchError = { _, _ -> },
@@ -252,6 +256,7 @@ class A2uiActionHandlerTest {
 
         val executionContext =
             A2uiCoreExecutionContext(
+                dataPath = A2uiDataPath("/"),
                 componentId = "comp-1",
                 catalog = FakeCatalog(),
                 dispatchError = { _, _ -> },
@@ -313,6 +318,7 @@ class A2uiActionHandlerTest {
 
         val executionContext =
             A2uiCoreExecutionContext(
+                dataPath = A2uiDataPath("/"),
                 componentId = "comp-1",
                 catalog = FakeCatalog(),
                 dispatchError = { _, _ -> },
@@ -354,6 +360,7 @@ class A2uiActionHandlerTest {
 
         val executionContext =
             A2uiCoreExecutionContext(
+                dataPath = A2uiDataPath("/"),
                 componentId = "comp-1",
                 catalog = FakeCatalog(),
                 dispatchError = { _, _ -> },

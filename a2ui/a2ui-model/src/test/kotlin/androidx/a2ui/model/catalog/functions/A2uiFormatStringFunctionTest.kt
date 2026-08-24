@@ -340,12 +340,33 @@ class A2uiFormatStringFunctionTest {
         }
     }
 
+    @Test
+    fun execute_withRelativePathBinding_passesCorrectPayloadToEvaluatePayload() {
+        val capturedPayloads = mutableListOf<Any?>()
+        val context =
+            createSpyContext(
+                capturedPayloads = capturedPayloads,
+                resolveMap = mapOf(mapOf("path" to "relative/path") to "resolved_relative"),
+                dataPath = A2uiDataPath("/base/path"),
+            )
+        val result =
+            A2uiFormatStringFunction.INSTANCE.execute(
+                mapOf("value" to "${"$"}{relative/path}"),
+                context,
+            )
+        assertThat(result).isEqualTo("resolved_relative")
+        assertThat(capturedPayloads).containsExactly(mapOf("path" to "relative/path"))
+    }
+
     private fun createSpyContext(
         capturedPayloads: MutableList<Any?>,
         resolveMap: Map<Any?, Any?> = emptyMap(),
+        dataPath: A2uiDataPath = A2uiDataPath(""),
     ): A2uiExecutionContext {
         return object : A2uiExecutionContext {
-            override fun evaluatePayload(dataPath: A2uiDataPath, payload: Any?): Any? {
+            override val dataPath: A2uiDataPath = dataPath
+
+            override fun evaluatePayload(payload: Any?): Any? {
                 capturedPayloads.add(payload)
                 return resolveMap[payload]
             }
