@@ -198,19 +198,14 @@ public open class UriDeepLinkMatcher<out T : Any>(
             }
         }
 
-    // Pair of path pattern regex to list of extracted arg names. List is empty if path
-    // has no args.
-    private val parsedPath: Pair<Regex, List<String>> by
-        lazy(LazyThreadSafetyMode.SYNCHRONIZED) { UriPatternParser.parsePath(normalizedUriPattern) }
-    // empty if uriPattern does not have any query or query params
-    private val parsedQuery: Map<String, QueryParamPattern> by
+    private val parsedPattern: ParsedPattern by
         lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-            UriPatternParser.parseQuery(normalizedUriPattern)
-        }
-    // null if uriPattern does not have a fragment. null list if fragment has no args.
-    private val parsedFragment: Pair<Regex, List<String>>? by
-        lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-            UriPatternParser.parseFragment(normalizedUriPattern)
+            // Keeping iterated arg names to detect duplicates.
+            val takenArgNames = mutableSetOf<String>()
+            val path = UriPatternParser.parsePath(normalizedUriPattern, takenArgNames)
+            val query = UriPatternParser.parseQuery(normalizedUriPattern, takenArgNames)
+            val fragment = UriPatternParser.parseFragment(normalizedUriPattern, takenArgNames)
+            ParsedPattern(path, query, fragment)
         }
 
     /**
@@ -239,6 +234,10 @@ public open class UriDeepLinkMatcher<out T : Any>(
      *   matched, null otherwise.
      */
     protected open fun matchUri(uri: DeepLinkUri): UriMatchResult<T>? {
+        val parsedPath = parsedPattern.path
+        val parsedQuery = parsedPattern.query
+        val parsedFragment = parsedPattern.fragment
+
         val regexPattern = parsedPath.first.pattern
         val schemeRegex =
             regexPattern.substring(1, regexPattern.indexOf("://")).toRegex(RegexOption.IGNORE_CASE)
@@ -382,6 +381,22 @@ public open class UriMatchResult<out T : Any>(
     }
 }
 
+/**
+ * Holds the parsed components of a [UriDeepLinkMatcher]'s uri pattern.
+ *
+ * @param path Pair of path pattern regex to list of extracted arg names. List is empty if path has
+ *   no args.
+ * @param query Map of query key to [QueryParamPattern]. Empty if the pattern does not contain any
+ *   query parameters.
+ * @param fragment Pair of fragment pattern regex to list of extracted arg names. Null if pattern
+ *   does not have a fragment.
+ */
+private class ParsedPattern(
+    val path: Pair<Regex, List<String>>,
+    val query: Map<String, QueryParamPattern>,
+    val fragment: Pair<Regex, List<String>>?,
+)
+
 internal object UriPatternParser {
     /**
      * Parses the path of [uriPattern] into a REGEX and extracts path arguments. This includes
@@ -391,11 +406,15 @@ internal object UriPatternParser {
      * placeholders (i.e., `{id}`) as argument names.
      *
      * @param uriPattern the uri pattern of a supported deep link
+     * @param takenArgNames the list of argument names already taken in the pattern
      * @return A list of extracted argument names in the order they appear in the path. Returns
      *   empty list if path does not contain arguments.
      * @see [UriDeepLinkMatcher] for supported path patterns and examples
      */
-    internal fun parsePath(uriPattern: DeepLinkUri): Pair<Regex, List<String>> {
+    internal fun parsePath(
+        uriPattern: DeepLinkUri,
+        takenArgNames: MutableSet<String> = mutableSetOf(),
+    ): Pair<Regex, List<String>> {
         val uriRegex = StringBuilder("^")
         val segments = uriPattern.getPathSegments().fastFilter { it.isNotEmpty() }
 
@@ -415,7 +434,7 @@ internal object UriPatternParser {
         // parse path segments
         val args = mutableListOf<String>()
         segments.fastForEachIndexed { index, segment ->
-            buildRegex(segment, args, uriRegex)
+            buildRegex(uriPattern, segment, args, uriRegex, takenArgNames)
             if (index != segments.lastIndex) uriRegex.append("/")
         }
         if (uriPattern.toString().substringBefore('?').substringBefore('#').endsWith("/")) {
@@ -438,13 +457,18 @@ internal object UriPatternParser {
      *
      * Extra query input that are not declared in [uriPattern] are ignored.
      *
+     * @param uriPattern the uri pattern of a supported deep link
+     * @param takenArgNames the set of argument names already taken in the pattern
      * @return A map where the key is the query parameter name from the pattern, and the value is
      *   the parsed [QueryParamPattern] containing the matching regex and extracted argument names.
      *   Returns null if [uriPattern] does not contain any query, or if it does not contain any
      *   parameters (DeepLinkUri.getQueryParameterNames() is empty i.e. "www.example.com?=").
      * @see [UriDeepLinkMatcher] for supported query patterns and examples.
      */
-    internal fun parseQuery(uriPattern: DeepLinkUri): Map<String, QueryParamPattern> = buildMap {
+    internal fun parseQuery(
+        uriPattern: DeepLinkUri,
+        takenArgNames: MutableSet<String> = mutableSetOf(),
+    ): Map<String, QueryParamPattern> = buildMap {
         var unnamedParam: String? = null
         // get all query parameter names in the uriPattern, i.e.
         // "...?user={id}&place={location}" returns "user" and "place"
@@ -511,6 +535,12 @@ internal object UriPatternParser {
                 }
             }
 
+            paramPattern.arguments.fastForEachOrForEach { argName ->
+                require(takenArgNames.add(argName)) {
+                    "Duplicate placeholder name [$argName] found in query of [$uriPattern]."
+                }
+            }
+
             put(paramName, paramPattern)
         }
     }
@@ -521,16 +551,21 @@ internal object UriPatternParser {
      * This method extracts placeholders (e.g., `{name}`) from the fragment and builds a regular
      * expression to match against a requested URI's fragment.
      *
+     * @param uriPattern the uri pattern of a supported deep link
+     * @param takenArgNames the set of argument names already taken in the pattern
      * @return A list of extracted argument names in the order they appear in the fragment. Returns
      *   null if the uri pattern does not have a fragment. Returns an empty if the fragment does not
      *   have arguments.
      * @see [UriDeepLinkMatcher] for supported fragment patterns and examples.
      */
-    internal fun parseFragment(uriPattern: DeepLinkUri): Pair<Regex, List<String>>? {
+    internal fun parseFragment(
+        uriPattern: DeepLinkUri,
+        takenArgNames: MutableSet<String> = mutableSetOf(),
+    ): Pair<Regex, List<String>>? {
         val fragment = uriPattern.getFragment() ?: return null
         val fragRegex = StringBuilder()
         val args = mutableListOf<String>()
-        buildRegex(fragment, args, fragRegex)
+        buildRegex(uriPattern, fragment, args, fragRegex, takenArgNames)
 
         val regex = Regex(saveWildcardInRegex(fragRegex.toString()), RegexOption.IGNORE_CASE)
         return Pair(regex, args)
@@ -543,11 +578,19 @@ internal object UriPatternParser {
      * - It extracts the argument name "id" and adds it to [args].
      * - It builds the regex "user_([^/]*?|)_profile" and appends it to [uriRegex].
      *
+     * @param uriPattern the uri pattern of a supported deep link
      * @param segment The URI segment to parse i.e. path segment or fragment
      * @param args The list of extracted argument names
      * @param uriRegex The StringBuilder to build the regex
+     * @param takenArgNames the set of argument names already taken in the pattern
      */
-    private fun buildRegex(segment: String, args: MutableList<String>, uriRegex: StringBuilder) {
+    private fun buildRegex(
+        uriPattern: DeepLinkUri,
+        segment: String,
+        args: MutableList<String>,
+        uriRegex: StringBuilder,
+        takenArgNames: MutableSet<String>,
+    ) {
         // if there are no placeholders, just append the string literal
         if (!segment.contains('{')) {
             uriRegex.append(Regex.escape(segment))
@@ -560,6 +603,9 @@ internal object UriPatternParser {
         // iterate through all possible placeholders in the segment
         while (result != null) {
             val argName = result.groups[1]!!.value
+            require(takenArgNames.add(argName)) {
+                "Duplicate placeholder name [$argName] found in uri pattern [$uriPattern]."
+            }
             args.add(argName)
             // string literal before the placeholder
             if (result.range.first > appendPos) {
