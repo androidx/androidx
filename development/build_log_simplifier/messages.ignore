@@ -136,6 +136,10 @@ WARN: Couldn't resolve link: \[GlanceWearWidget\.onActivated\] in .*\/unzippedJv
 WARN: Couldn't resolve link: \[GPUInstance\.waitAny\] in .*\/unzippedJvmSources\/androidx\/webgpu\/InstanceFeatureName\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[LayoutModifierNode\.invalidateLayout\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/draw\/PainterModifier\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[NavigationEventProcessor\.isPredictiveInProgress\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/navigationevent\/NavigationEventInput\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
+# TODO: b/550553520 - Currently missing iOS types for platforms.Metal
+WARN: `MTLDeviceProtocol` is unresolved in file:///\$OUT_DIR/androidx/docs\-tip\-of\-tree/build/unzippedMultiplatformSources/iosMain/androidx/ink/rendering/metal/MetalRenderer\.ios\.kt:[0-9]+:[0-9]+
+WARN: `MTLPixelFormat` is unresolved in file:///\$OUT_DIR/androidx/docs\-tip\-of\-tree/build/unzippedMultiplatformSources/iosMain/androidx/ink/rendering/metal/MetalRenderer\.ios\.kt:[0-9]+:[0-9]+
+WARN: `MTLRenderCommandEncoderProtocol` is unresolved in file:///\$OUT_DIR/androidx/docs\-tip\-of\-tree/build/unzippedMultiplatformSources/iosMain/androidx/ink/rendering/metal/MetalRenderer\.ios\.kt:[0-9]+:[0-9]+
 WARN: Couldn't resolve link: \[PagingDataAdapter\.refresh\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/Pager\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[PlatformParagraphStyle\.includeFontPadding\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/text\/style\/LineHeightStyle\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
 WARN: Couldn't resolve link: \[RenderBox\] in .*\/unzippedMultiplatformSources\/commonMain\/androidx\/compose\/ui\/geometry\/Offset\.kt:[0-9]+:[0-9]+ \(androidx\/.*\)
