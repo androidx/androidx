@@ -39,7 +39,9 @@ Rate** and frame duration.
 
 For a breakdown of Compose performance metrics, how they are calculated, and
 what they signify, please read our dedicated
-[Compose Metrics Overview](compose_metrics.md).
+[Compose Metrics Overview](compose_metrics.md). For memory analysis and
+profiling guidelines, see
+[Compose Memory Performance & Tooling](compose_memory.md).
 
 ### Skia Perf Dashboards
 
