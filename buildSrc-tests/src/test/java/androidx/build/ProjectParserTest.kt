@@ -164,4 +164,124 @@ class ProjectParserTest {
         assertThat(parsed.softwareType).isEqualTo(SoftwareType.INTERNAL_TEST_LIBRARY)
         assertThat(parsed.specifiesVersion).isFalse()
     }
+
+    @Test
+    fun parseDetectsSingleQuotesInDependencies() {
+        val parsed =
+            ProjectParser.parseProject(
+                """
+                dependencies {
+                    implementation('androidx.annotation:annotation:1.8.0')
+                    api(project(':core:core'))
+                }
+                """
+                    .trimIndent()
+            )
+        assertThat(parsed.singleQuoteViolations)
+            .containsExactly("line 2:20", "line 2:57", "line 3:17", "line 3:28")
+    }
+
+    @Test
+    fun parseDetectsSingleQuotesInPluginsAndProperties() {
+        val parsed =
+            ProjectParser.parseProject(
+                """
+                plugins {
+                    id('com.android.library')
+                }
+                androidx {
+                    name = 'My Library'
+                    inceptionYear = '2024'
+                }
+                """
+                    .trimIndent()
+            )
+        assertThat(parsed.singleQuoteViolations).hasSize(6)
+    }
+
+    @Test
+    fun parseIgnoresSingleQuotesInComments() {
+        val parsed =
+            ProjectParser.parseProject(
+                """
+                // Don't remove this dependency, it's required
+                /* Here's a multi-line comment with 'single quotes' */
+                dependencies {
+                    implementation("androidx.annotation:annotation:1.8.0")
+                }
+                """
+                    .trimIndent()
+            )
+        assertThat(parsed.singleQuoteViolations).isEmpty()
+    }
+
+    @Test
+    fun parseDoubleQuotesHasNoViolations() {
+        val parsed =
+            ProjectParser.parseProject(
+                """
+                plugins {
+                    id("AndroidXPlugin")
+                    id("com.android.library")
+                }
+                dependencies {
+                    implementation("androidx.annotation:annotation:1.8.0")
+                    api(project(":core:core"))
+                }
+                androidx {
+                    name = "Activity"
+                    type = SoftwareType.PUBLISHED_LIBRARY
+                    mavenVersion = LibraryVersions.ACTIVITY
+                    inceptionYear = "2018"
+                }
+                """
+                    .trimIndent()
+            )
+        assertThat(parsed.singleQuoteViolations).isEmpty()
+    }
+
+    @Test
+    fun parseDoubleQuotesWithNestedSingleQuotesHasNoViolations() {
+        val parsed =
+            ProjectParser.parseProject(
+                """
+                androidx {
+                    name = "Lifecycle ViewModel Testing"
+                    type = SoftwareType.PUBLISHED_TEST_LIBRARY
+                    inceptionYear = "2024"
+                    description = "Testing utilities for 'lifecycle-viewmodel' artifact"
+                }
+                """
+                    .trimIndent()
+            )
+        assertThat(parsed.singleQuoteViolations).isEmpty()
+    }
+
+    @Test
+    fun parseDoubleQuotesWithEscapedQuotesHasNoViolations() {
+        val parsed =
+            ProjectParser.parseProject(
+                """
+                androidx {
+                    description = "Here's an escaped quote: \"nested 'quote'\" in string"
+                }
+                """
+                    .trimIndent()
+            )
+        assertThat(parsed.singleQuoteViolations).isEmpty()
+    }
+
+    @Test
+    fun parseDetectsSingleQuotesInMultilineStrings() {
+        val parsed =
+            ProjectParser.parseProject(
+                """
+                androidx {
+                    description = '''Testing utilities for 'lifecycle-viewmodel' artifact'''
+                }
+                """
+                    .trimIndent()
+            )
+        assertThat(parsed.singleQuoteViolations).isNotEmpty()
+    }
 }

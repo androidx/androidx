@@ -35,6 +35,7 @@ abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
     data class ParsedProject(
         val softwareType: SoftwareType = SoftwareType.UNSET,
         val specifiesVersion: Boolean = false,
+        val singleQuoteViolations: List<String> = emptyList(),
     ) {
         fun shouldPublish(): Boolean = softwareType.publish.shouldPublish()
 
@@ -42,19 +43,38 @@ abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
     }
 
     companion object {
-        fun parseProject(text: String): ParsedProject {
-            val lexer = GradleScriptLexer(CharStreams.fromString(text, "build.gradle"))
-            return lexer.tokens().fold(ParsedProject()) { acc, token ->
-                when {
-                    token.text.startsWith("SoftwareType.") ->
-                        acc.copy(
-                            softwareType =
-                                SoftwareType.valueOf(token.text.removePrefix("SoftwareType."))
-                        )
-                    token.text == "mavenVersion" -> acc.copy(specifiesVersion = true)
-                    else -> acc
+        fun parseProject(text: String, fileName: String = "build.gradle"): ParsedProject {
+            val lexer = GradleScriptLexer(CharStreams.fromString(text, fileName))
+            val violations = mutableListOf<String>()
+            var inQuotes = false
+            var prevType = 0
+            var softwareType: SoftwareType = SoftwareType.UNSET
+            var specifiesVersion = false
+
+            for (token in lexer.tokens()) {
+                when (token.type) {
+                    GradleScriptLexer.QUOTE_DOUBLE -> {
+                        if (prevType != GradleScriptLexer.BACKSLASH) inQuotes = !inQuotes
+                    }
+                    GradleScriptLexer.QUOTE_SINGLE -> {
+                        if (!inQuotes) {
+                            violations += "line ${token.line}:${token.charPositionInLine + 1}"
+                        }
+                    }
+                    else ->
+                        if (!inQuotes) {
+                            if (token.text.startsWith("SoftwareType.")) {
+                                softwareType =
+                                    SoftwareType.valueOf(token.text.removePrefix("SoftwareType."))
+                            } else if (token.text == "mavenVersion") {
+                                specifiesVersion = true
+                            }
+                        }
                 }
+                prevType = token.type
             }
+
+            return ParsedProject(softwareType, specifiesVersion, violations)
         }
 
         private fun GradleScriptLexer.tokens(): Sequence<Token> = generateSequence {
