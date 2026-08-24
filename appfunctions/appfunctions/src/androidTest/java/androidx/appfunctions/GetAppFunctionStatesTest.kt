@@ -38,6 +38,7 @@ import org.junit.Assume.assumeNotNull
 import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalAppFunctionsApi::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 class GetAppFunctionStatesTest {
 
