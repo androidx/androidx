@@ -2908,19 +2908,20 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         scheduleScrollEventIfNeeded(scope)
                     }
                     SemanticsProperties.Focused -> {
+                        val virtualId = semanticsNodeIdToAccessibilityVirtualNodeId(newNode.id)
                         if (value as Boolean) {
-                            sendEvent(
-                                createEvent(
-                                    semanticsNodeIdToAccessibilityVirtualNodeId(newNode.id),
-                                    AccessibilityEvent.TYPE_VIEW_FOCUSED,
-                                )
-                            )
+                            focusedVirtualViewId = virtualId
+                            sendEvent(createEvent(virtualId, AccessibilityEvent.TYPE_VIEW_FOCUSED))
+                        } else {
+                            if (focusedVirtualViewId == virtualId) {
+                                focusedVirtualViewId = InvalidId
+                            }
                         }
                         // In View.java this window event is sent for unfocused view. But we send
                         // it for focused too so that TalkBack invalidates its cache. Otherwise
                         // PasteText edit option is not displayed properly on some OS versions.
                         sendEventForVirtualView(
-                            semanticsNodeIdToAccessibilityVirtualNodeId(newNode.id),
+                            virtualId,
                             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
                             AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED,
                         )
