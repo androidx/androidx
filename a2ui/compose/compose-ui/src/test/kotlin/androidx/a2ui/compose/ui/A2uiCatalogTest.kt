@@ -148,6 +148,16 @@ class A2uiCatalogTest {
                     modifier: Modifier,
                 ) {}
             }
+        val testButton =
+            object : A2uiBasicCatalogV1.Button {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    childId: String,
+                    variant: A2uiBasicCatalogV1.Button.Variant,
+                    action: Map<String, Any?>,
+                    modifier: Modifier,
+                ) {}
+            }
         val testFunction = StubFunction("TestFunc")
         val basicCatalog =
             A2uiBasicCatalogV1(
@@ -155,6 +165,7 @@ class A2uiCatalogTest {
                 card = testCard,
                 row = testRow,
                 column = testColumn,
+                button = testButton,
                 functions = listOf(testFunction),
             )
 
@@ -166,6 +177,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components["Card"]).isSameInstanceAs(testCard)
         assertThat(catalog.components["Row"]).isSameInstanceAs(testRow)
         assertThat(catalog.components["Column"]).isSameInstanceAs(testColumn)
+        assertThat(catalog.components["Button"]).isSameInstanceAs(testButton)
         assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
     }
 

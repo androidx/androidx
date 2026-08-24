@@ -43,6 +43,7 @@ import androidx.compose.ui.util.fastFirstOrNull
  * @property card The [Card] component implementation.
  * @property row The [Row] component implementation.
  * @property column The [Column] component implementation.
+ * @property button The [Button] component implementation.
  * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
  *   to create the function list using
  *   [androidx.a2ui.model.catalog.basiccatalog.createBasicCatalogFunctions]
@@ -52,6 +53,7 @@ public class A2uiBasicCatalogV1(
     public val card: Card,
     public val row: Row,
     public val column: Column,
+    public val button: Button,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
     public val functions: List<A2uiFunction>,
 ) {
@@ -69,6 +71,7 @@ public class A2uiBasicCatalogV1(
             card,
             row,
             column,
+            button,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
         )
 
@@ -511,6 +514,114 @@ public class A2uiBasicCatalogV1(
             children: List<A2uiComponentReference>,
             justify: Justify,
             align: Align,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"Button"` component for clickable buttons that dispatch actions.
+     *
+     * **Schema Properties:**
+     * * `child` (Component ID String, required): The ID of the child component inside the button
+     *   (e.g., a `"Text"` or `"Icon"` component).
+     * * `variant` (String Enum, optional): A hint for the button style. This is a static
+     *   configuration and does not support dynamic data bindings. Valid options: `"default"`,
+     *   `"primary"`, `"borderless"`. Defaults to `"default"`.
+     * * `action` (Action Object, required): The action payload dispatched when the button is
+     *   clicked.
+     */
+    public interface Button : A2uiComponent {
+        override val name: String
+            get() = "Button"
+
+        override val description: String
+            get() = "A clickable button that dispatches an action."
+
+        /** Visual style variant for a [Button]. */
+        public enum class Variant(public val value: String) {
+            Default("default"),
+            Primary("primary"),
+            Borderless("borderless");
+
+            public companion object {
+                /** Returns the [Variant] matching [value], or [Default] if unknown. */
+                public fun fromValue(value: String): Variant =
+                    entries.fastFirstOrNull { it.value == value } ?: Default
+            }
+        }
+
+        public companion object {
+            /** The [A2uiProperty] for the `"child"` property of a [Button]. */
+            public val ChildProperty: StaticA2uiProperty<String> =
+                A2uiProperty.componentId(
+                    key = "child",
+                    required = true,
+                    description =
+                        "The ID of the child component. Use a 'Text' component for a labeled " +
+                            "button. Only use an 'Icon' if the requirements explicitly ask for " +
+                            "an icon-only button.",
+                )
+
+            /** The [A2uiProperty] for the `"variant"` property of a [Button]. */
+            public val VariantProperty: StaticA2uiProperty<Variant> =
+                A2uiProperty.enum(
+                    key = "variant",
+                    enumValues = Variant.entries,
+                    mapToString = { it.value },
+                    convertFromString = Variant::fromValue,
+                    defaultValue = Variant.Default,
+                    description =
+                        "A hint for the button style. If omitted, a default button style is " +
+                            "used. 'primary' indicates this is the main call-to-action button. " +
+                            "'borderless' means the button has no visual border or background, " +
+                            "making its child content appear like a clickable link.",
+                )
+
+            /** The [A2uiProperty] for the `"action"` property of a [Button]. */
+            public val ActionProperty: StaticA2uiProperty<Map<String, Any?>> =
+                A2uiProperty.action(key = "action", required = true)
+
+            internal val ComponentProperties: List<A2uiProperty<*>> =
+                listOf(ChildProperty, VariantProperty, ActionProperty)
+        }
+
+        override val properties: List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean = true
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val childId =
+                checkNotNull(properties[ChildProperty]) {
+                    "Required property '${ChildProperty.key}' is missing."
+                }
+            val variant = properties[VariantProperty] ?: Variant.Default
+            val action =
+                checkNotNull(properties[ActionProperty]) {
+                    "Required property '${ActionProperty.key}' is missing."
+                }
+
+            TypedContent(childId = childId, variant = variant, action = action, modifier = modifier)
+        }
+
+        /**
+         * Renders the [Button] with its resolved [childId], [variant], and [action] properties.
+         *
+         * @param childId ID of the child component to render inside this button
+         * @param variant [Variant] visual style variant of the button
+         * @param action action payload [Map] dispatched when clicked
+         * @param modifier [Modifier] to apply to the layout
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            childId: String,
+            variant: Variant,
+            action: Map<String, Any?>,
             modifier: Modifier,
         )
     }
