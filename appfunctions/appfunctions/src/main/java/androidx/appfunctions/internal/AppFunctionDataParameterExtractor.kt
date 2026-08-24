@@ -16,7 +16,6 @@
 
 package androidx.appfunctions.internal
 
-import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
 import android.util.Log
@@ -321,12 +320,7 @@ internal fun AppFunctionData.unsafeGetParameterValue(
                     }
                 }
                 is AppFunctionStringTypeMetadata -> {
-                    val stringValue = getString(key)
-                    if (castDataType.format == AppFunctionStringTypeMetadata.FORMAT_URI) {
-                        if (stringValue != null) Uri.parse(stringValue) else null
-                    } else {
-                        stringValue
-                    }
+                    getString(key)
                 }
                 is AppFunctionParcelableTypeMetadata -> {
                     val parcelableClass = getParcelableClass(castDataType.qualifiedName)
@@ -418,16 +412,10 @@ private fun AppFunctionData.getArrayTypeParameterValue(
             throw IllegalStateException("List<ByteArray> is not supported")
         }
         is AppFunctionStringTypeMetadata -> {
-            val stringList =
-                if (!isRequired && !isNullable) {
-                    getStringList(key) ?: emptyList<String>()
-                } else {
-                    getStringList(key)
-                }
-            if (itemType.format == AppFunctionStringTypeMetadata.FORMAT_URI) {
-                stringList?.map { uriString -> Uri.parse(uriString) }
+            if (!isRequired && !isNullable) {
+                getStringList(key) ?: emptyList<String>()
             } else {
-                stringList
+                getStringList(key)
             }
         }
         is AppFunctionParcelableTypeMetadata -> {

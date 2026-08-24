@@ -22,6 +22,8 @@ import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionS
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.SERIALIZABLE_PROXY_LIST
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.SERIALIZABLE_PROXY_SINGULAR
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.SERIALIZABLE_SINGULAR
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.URI_LIST
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.URI_SINGULAR
 import androidx.appfunctions.compiler.core.IntrospectionHelper.AppFunctionSerializableAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
@@ -226,7 +228,9 @@ interface AppFunctionSerializableType {
             .map { property -> AppFunctionTypeReference(property.type) }
             .filter { afType ->
                 afType.isOfTypeCategory(SERIALIZABLE_PROXY_SINGULAR) ||
-                    afType.isOfTypeCategory(SERIALIZABLE_PROXY_LIST)
+                    afType.isOfTypeCategory(SERIALIZABLE_PROXY_LIST) ||
+                    afType.isOfTypeCategory(URI_SINGULAR) ||
+                    afType.isOfTypeCategory(URI_LIST)
             }
             .toSet()
 

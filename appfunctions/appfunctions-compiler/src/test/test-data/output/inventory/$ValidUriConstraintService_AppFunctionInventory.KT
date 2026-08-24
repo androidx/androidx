@@ -31,36 +31,30 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
     "com.testdata.ValidUriConstraintService#functionWithUriReturn" to ComTestdataValidUriConstraintServiceFunctionWithUriReturnMetadataObject.APP_FUNCTION_METADATA,
   )
 
-  private val ANDROID_NET_URI_OBJECT_DATA_TYPE_PROPERTIES_MAP_URI: AppFunctionStringTypeMetadata =
-      AppFunctionStringTypeMetadata(
+  private val COM_TESTDATA_SERIALIZABLEWITHVALUECONSTRAINTS_OBJECT_DATA_TYPE_PROPERTIES_MAP_CONTENTURI_PROPERTIES_MAP_URI:
+      AppFunctionStringTypeMetadata = AppFunctionStringTypeMetadata(
           isNullable = false,
           description = "",
           enumValues = null,
-          pattern = null,
-          format = null,
+          pattern = "^\\Qcontent\\E:.*",
+          format = "uri",
       )
 
-  private val ANDROID_NET_URI_OBJECT_DATA_TYPE_PROPERTIES_MAP:
+  private val COM_TESTDATA_SERIALIZABLEWITHVALUECONSTRAINTS_OBJECT_DATA_TYPE_PROPERTIES_MAP_CONTENTURI_PROPERTIES_MAP:
       Map<String, AppFunctionDataTypeMetadata> = mapOf(
-    "uri" to ANDROID_NET_URI_OBJECT_DATA_TYPE_PROPERTIES_MAP_URI,
+    "uri" to COM_TESTDATA_SERIALIZABLEWITHVALUECONSTRAINTS_OBJECT_DATA_TYPE_PROPERTIES_MAP_CONTENTURI_PROPERTIES_MAP_URI,
   )
 
-  private val ANDROID_NET_URI_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST: List<String> = listOf(
+  private val COM_TESTDATA_SERIALIZABLEWITHVALUECONSTRAINTS_OBJECT_DATA_TYPE_PROPERTIES_MAP_CONTENTURI_REQUIRED_PROPERTIES_LIST:
+      List<String> = listOf(
     "uri",
   )
 
-  private val ANDROID_NET_URI_OBJECT_DATA_TYPE: AppFunctionObjectTypeMetadata =
-      AppFunctionObjectTypeMetadata(
-          properties = ANDROID_NET_URI_OBJECT_DATA_TYPE_PROPERTIES_MAP,
-          required = ANDROID_NET_URI_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST,
-          qualifiedName = "android.net.Uri",
-          isNullable = true,
-          description = ""
-      )
-
   private val COM_TESTDATA_SERIALIZABLEWITHVALUECONSTRAINTS_OBJECT_DATA_TYPE_PROPERTIES_MAP_CONTENTURI:
-      AppFunctionReferenceTypeMetadata = AppFunctionReferenceTypeMetadata(
-          referenceDataType = "android.net.Uri",
+      AppFunctionObjectTypeMetadata = AppFunctionObjectTypeMetadata(
+          properties = COM_TESTDATA_SERIALIZABLEWITHVALUECONSTRAINTS_OBJECT_DATA_TYPE_PROPERTIES_MAP_CONTENTURI_PROPERTIES_MAP,
+          required = COM_TESTDATA_SERIALIZABLEWITHVALUECONSTRAINTS_OBJECT_DATA_TYPE_PROPERTIES_MAP_CONTENTURI_REQUIRED_PROPERTIES_LIST,
+          qualifiedName = "android.net.Uri",
           isNullable = false,
           description = ""
       )
@@ -96,7 +90,6 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
       )
 
   private val componentsMetadataDataTypesMap: Map<String, AppFunctionDataTypeMetadata> = mapOf(
-    "android.net.Uri" to ANDROID_NET_URI_OBJECT_DATA_TYPE,
     "com.testdata.SerializableWithValueConstraints" to COM_TESTDATA_SERIALIZABLEWITHVALUECONSTRAINTS_OBJECT_DATA_TYPE,
     )
 
@@ -107,9 +100,30 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
   private object ComTestdataValidUriConstraintServiceFunctionWithContentUriMetadataObject {
     private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
 
-    private val PARAMETER_METADATA_FILEURI_REFERENCE_DATA_TYPE: AppFunctionReferenceTypeMetadata =
-        AppFunctionReferenceTypeMetadata(
-            referenceDataType = "android.net.Uri",
+    private val PARAMETER_METADATA_FILEURI_OBJECT_DATA_TYPE_PROPERTIES_MAP_URI:
+        AppFunctionStringTypeMetadata = AppFunctionStringTypeMetadata(
+            isNullable = false,
+            description = "",
+            enumValues = null,
+            pattern = "^\\Qcontent\\E:.*",
+            format = "uri",
+        )
+
+    private val PARAMETER_METADATA_FILEURI_OBJECT_DATA_TYPE_PROPERTIES_MAP:
+        Map<String, AppFunctionDataTypeMetadata> = mapOf(
+      "uri" to PARAMETER_METADATA_FILEURI_OBJECT_DATA_TYPE_PROPERTIES_MAP_URI,
+    )
+
+    private val PARAMETER_METADATA_FILEURI_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST: List<String> =
+        listOf(
+      "uri",
+    )
+
+    private val PARAMETER_METADATA_FILEURI_OBJECT_DATA_TYPE: AppFunctionObjectTypeMetadata =
+        AppFunctionObjectTypeMetadata(
+            properties = PARAMETER_METADATA_FILEURI_OBJECT_DATA_TYPE_PROPERTIES_MAP,
+            required = PARAMETER_METADATA_FILEURI_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST,
+            qualifiedName = "android.net.Uri",
             isNullable = false,
             description = ""
         )
@@ -118,7 +132,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
         AppFunctionParameterMetadata(
             name = "fileUri",
             isRequired = true,
-            dataType = PARAMETER_METADATA_FILEURI_REFERENCE_DATA_TYPE,
+            dataType = PARAMETER_METADATA_FILEURI_OBJECT_DATA_TYPE,
             description = "",
         )
 
@@ -150,9 +164,30 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
   private object ComTestdataValidUriConstraintServiceFunctionWithMultiSchemeUriMetadataObject {
     private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
 
-    private val PARAMETER_METADATA_MULTIURI_REFERENCE_DATA_TYPE: AppFunctionReferenceTypeMetadata =
-        AppFunctionReferenceTypeMetadata(
-            referenceDataType = "android.net.Uri",
+    private val PARAMETER_METADATA_MULTIURI_OBJECT_DATA_TYPE_PROPERTIES_MAP_URI:
+        AppFunctionStringTypeMetadata = AppFunctionStringTypeMetadata(
+            isNullable = false,
+            description = "",
+            enumValues = null,
+            pattern = "^(\\Qcontent\\E|\\Qfile\\E):.*",
+            format = "uri",
+        )
+
+    private val PARAMETER_METADATA_MULTIURI_OBJECT_DATA_TYPE_PROPERTIES_MAP:
+        Map<String, AppFunctionDataTypeMetadata> = mapOf(
+      "uri" to PARAMETER_METADATA_MULTIURI_OBJECT_DATA_TYPE_PROPERTIES_MAP_URI,
+    )
+
+    private val PARAMETER_METADATA_MULTIURI_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST: List<String>
+        = listOf(
+      "uri",
+    )
+
+    private val PARAMETER_METADATA_MULTIURI_OBJECT_DATA_TYPE: AppFunctionObjectTypeMetadata =
+        AppFunctionObjectTypeMetadata(
+            properties = PARAMETER_METADATA_MULTIURI_OBJECT_DATA_TYPE_PROPERTIES_MAP,
+            required = PARAMETER_METADATA_MULTIURI_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST,
+            qualifiedName = "android.net.Uri",
             isNullable = false,
             description = ""
         )
@@ -161,7 +196,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
         AppFunctionParameterMetadata(
             name = "multiUri",
             isRequired = true,
-            dataType = PARAMETER_METADATA_MULTIURI_REFERENCE_DATA_TYPE,
+            dataType = PARAMETER_METADATA_MULTIURI_OBJECT_DATA_TYPE,
             description = "",
         )
 
@@ -193,9 +228,30 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
   private object ComTestdataValidUriConstraintServiceFunctionWithUnconstrainedUriMetadataObject {
     private val SCHEMA_METADATA: AppFunctionSchemaMetadata? = null
 
-    private val PARAMETER_METADATA_PLAINURI_REFERENCE_DATA_TYPE: AppFunctionReferenceTypeMetadata =
-        AppFunctionReferenceTypeMetadata(
-            referenceDataType = "android.net.Uri",
+    private val PARAMETER_METADATA_PLAINURI_OBJECT_DATA_TYPE_PROPERTIES_MAP_URI:
+        AppFunctionStringTypeMetadata = AppFunctionStringTypeMetadata(
+            isNullable = false,
+            description = "",
+            enumValues = null,
+            pattern = null,
+            format = "uri",
+        )
+
+    private val PARAMETER_METADATA_PLAINURI_OBJECT_DATA_TYPE_PROPERTIES_MAP:
+        Map<String, AppFunctionDataTypeMetadata> = mapOf(
+      "uri" to PARAMETER_METADATA_PLAINURI_OBJECT_DATA_TYPE_PROPERTIES_MAP_URI,
+    )
+
+    private val PARAMETER_METADATA_PLAINURI_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST: List<String>
+        = listOf(
+      "uri",
+    )
+
+    private val PARAMETER_METADATA_PLAINURI_OBJECT_DATA_TYPE: AppFunctionObjectTypeMetadata =
+        AppFunctionObjectTypeMetadata(
+            properties = PARAMETER_METADATA_PLAINURI_OBJECT_DATA_TYPE_PROPERTIES_MAP,
+            required = PARAMETER_METADATA_PLAINURI_OBJECT_DATA_TYPE_REQUIRED_PROPERTIES_LIST,
+            qualifiedName = "android.net.Uri",
             isNullable = false,
             description = ""
         )
@@ -204,7 +260,7 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
         AppFunctionParameterMetadata(
             name = "plainUri",
             isRequired = true,
-            dataType = PARAMETER_METADATA_PLAINURI_REFERENCE_DATA_TYPE,
+            dataType = PARAMETER_METADATA_PLAINURI_OBJECT_DATA_TYPE,
             description = "",
         )
 
@@ -327,15 +383,35 @@ public class `$ValidUriConstraintService_AppFunctionInventory` : AppFunctionInve
     private val PARAMETER_METADATA_LIST: List<AppFunctionParameterMetadata> = listOf(
     )
 
-    private val REFERENCE_RESPONSE_VALUE_TYPE: AppFunctionReferenceTypeMetadata =
-        AppFunctionReferenceTypeMetadata(
-            referenceDataType = "android.net.Uri",
+    private val OBJECT_RESPONSE_VALUE_TYPE_PROPERTIES_MAP_URI: AppFunctionStringTypeMetadata =
+        AppFunctionStringTypeMetadata(
+            isNullable = false,
+            description = "",
+            enumValues = null,
+            pattern = "^\\Qcontent\\E:.*",
+            format = "uri",
+        )
+
+    private val OBJECT_RESPONSE_VALUE_TYPE_PROPERTIES_MAP: Map<String, AppFunctionDataTypeMetadata>
+        = mapOf(
+      "uri" to OBJECT_RESPONSE_VALUE_TYPE_PROPERTIES_MAP_URI,
+    )
+
+    private val OBJECT_RESPONSE_VALUE_TYPE_REQUIRED_PROPERTIES_LIST: List<String> = listOf(
+      "uri",
+    )
+
+    private val OBJECT_RESPONSE_VALUE_TYPE: AppFunctionObjectTypeMetadata =
+        AppFunctionObjectTypeMetadata(
+            properties = OBJECT_RESPONSE_VALUE_TYPE_PROPERTIES_MAP,
+            required = OBJECT_RESPONSE_VALUE_TYPE_REQUIRED_PROPERTIES_LIST,
+            qualifiedName = "android.net.Uri",
             isNullable = false,
             description = ""
         )
 
     private val RESPONSE_METADATA: AppFunctionResponseMetadata = AppFunctionResponseMetadata(
-            valueType = REFERENCE_RESPONSE_VALUE_TYPE,
+            valueType = OBJECT_RESPONSE_VALUE_TYPE,
             description = ""
         )
 
