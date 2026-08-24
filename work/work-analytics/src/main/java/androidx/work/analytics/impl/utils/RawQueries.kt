@@ -84,7 +84,6 @@ internal fun WorkMetricsQuery.toRawQuery(): SupportSQLiteQuery {
     if (endTimeMillis < Long.MAX_VALUE) {
         builder.append("$conjunction enqueue_time_ms <= ?")
         arguments.add(endTimeMillis)
-        conjunction = " AND"
     }
 
     builder.append(" ORDER BY enqueue_time_ms ASC;")
