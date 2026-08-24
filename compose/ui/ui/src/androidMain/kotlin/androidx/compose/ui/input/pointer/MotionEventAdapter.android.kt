@@ -202,13 +202,7 @@ internal class MotionEventAdapter {
                 resetFakeFingerGesture()
             }
         }
-        if (
-            action == ACTION_DOWN ||
-                action == ACTION_POINTER_DOWN ||
-                (Build.VERSION.SDK_INT >= 34 &&
-                    (motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE ||
-                        motionEvent.classification == MotionEvent.CLASSIFICATION_PINCH))
-        ) {
+        if (action == ACTION_DOWN || action == ACTION_POINTER_DOWN) {
             isAnyPointerDown = true
         }
 
