@@ -60,6 +60,15 @@ class AppStateDataStoreTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val defaultValue = "default"
+        val appState = AppState()
+        val job = launch {
+            appState.addAppStateToDataStoreListener(testFile.toString(), backgroundScope)
+        }
+
+        val state = appState.getState(StringKey, defaultValue)
+        assertThat(state.value).isEqualTo(defaultValue)
+
         val dataStore =
             DataStoreFactory.create(
                 storage =
@@ -68,13 +77,6 @@ class AppStateDataStoreTest {
                     },
                 scope = backgroundScope,
             )
-        val defaultValue = "default"
-        val appState = AppState()
-        val job = launch { appState.addAppStateToDataStoreListener(dataStore) }
-
-        val state = appState.getState(StringKey, defaultValue)
-        assertThat(state.value).isEqualTo(defaultValue)
-
         val appStateDataStore = dataStore.data.first()
         assertThat(appStateDataStore.asMap().isEmpty()).isTrue()
 
