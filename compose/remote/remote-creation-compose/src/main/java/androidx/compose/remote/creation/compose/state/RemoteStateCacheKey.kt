@@ -143,9 +143,16 @@ internal abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
 
     /**
      * Associated BaseRemoteState instance, used for common sub-expression elimination and DAG
-     * traversal.
+     * traversal. Default implementation returns null. Note to save memory this deliberately doesn't
+     * have a backing field because not all sub-classes need it.
      */
-    internal open var state: BaseRemoteState<*>? = null
+    internal open fun getState(): BaseRemoteState<*>? = null
+
+    /**
+     * Associates this key with a BaseRemoteState instance. Default implementation is a no-op to
+     * avoid allocating backing fields on keys that do not retain state.
+     */
+    internal open fun setState(state: BaseRemoteState<*>?) {}
 
     override fun <R> accept(
         visitor: RemoteStateVisitor<R>,
@@ -158,7 +165,7 @@ internal abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
         for (i in args.indices) {
             visitedArgs.add(args[i].accept(visitor, memo))
         }
-        val result = visitor.visit(this, state, visitedArgs)
+        val result = visitor.visit(this, getState(), visitedArgs)
         memo[this] = result
         return result
     }
@@ -178,6 +185,14 @@ internal abstract class BaseRemoteStateCacheKey : RemoteStateCacheKey {
 
 /** A fallback cache key based on the identity of this key instance. */
 internal class RemoteStateInstanceKey : BaseRemoteStateCacheKey() {
+    private var state: BaseRemoteState<*>? = null
+
+    override fun getState(): BaseRemoteState<*>? = state
+
+    override fun setState(state: BaseRemoteState<*>?) {
+        this.state = state
+    }
+
     override fun hashCodeImpl(): Int = System.identityHashCode(this)
 
     override fun equals(other: Any?): Boolean = this === other
@@ -186,6 +201,14 @@ internal class RemoteStateInstanceKey : BaseRemoteStateCacheKey() {
 }
 
 internal class RemoteStateArrayKey(internal val size: Int) : BaseRemoteStateCacheKey() {
+    private var state: BaseRemoteState<*>? = null
+
+    override fun getState(): BaseRemoteState<*>? = state
+
+    override fun setState(state: BaseRemoteState<*>?) {
+        this.state = state
+    }
+
     override fun hashCodeImpl(): Int = System.identityHashCode(this)
 
     override fun equals(other: Any?): Boolean = this === other
@@ -195,12 +218,6 @@ internal class RemoteStateArrayKey(internal val size: Int) : BaseRemoteStateCach
 
 /** A cache key for constant values (primitive types, strings, etc.). */
 internal class RemoteConstantCacheKey(internal val value: Any?) : BaseRemoteStateCacheKey() {
-    // Explicitly opt out of state retention to prevent constant keys in remoteVariableToId
-    // from anchoring intermediate wrapper objects and lambda closures.
-    override var state: BaseRemoteState<*>?
-        get() = null
-        set(_) {}
-
     init {
         if (value is Float) {
             check(!value.isNaN()) { "Float constant value cannot be NaN" }
@@ -242,6 +259,14 @@ internal class RemoteNamedCacheKey(
     internal val domain: RemoteState.Domain,
     internal val name: String,
 ) : BaseRemoteStateCacheKey() {
+    private var state: BaseRemoteState<*>? = null
+
+    override fun getState(): BaseRemoteState<*>? = state
+
+    override fun setState(state: BaseRemoteState<*>?) {
+        this.state = state
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteNamedCacheKey) return false
@@ -263,6 +288,14 @@ internal class RemoteNamedCacheKey(
 
 /** A cache key for variable by id. */
 internal class RemoteStateIdKey(internal val id: Int) : BaseRemoteStateCacheKey() {
+    private var state: BaseRemoteState<*>? = null
+
+    override fun getState(): BaseRemoteState<*>? = state
+
+    override fun setState(state: BaseRemoteState<*>?) {
+        this.state = state
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteStateIdKey) return false
@@ -330,12 +363,6 @@ internal class FloatArrayRemoteState(internal val floatArray: FloatArray, key: F
 }
 
 internal class FloatArrayCacheKey(internal val floatArray: FloatArray) : BaseRemoteStateCacheKey() {
-    // Explicitly opt out of state retention to avoid retaining transient FloatArrayRemoteState
-    // wrappers.
-    override var state: BaseRemoteState<*>?
-        get() = null
-        set(_) {}
-
     override fun equals(other: Any?): Boolean {
         return other is FloatArrayCacheKey && floatArray.contentEquals(other.floatArray)
     }
@@ -351,6 +378,14 @@ internal class FloatArrayCacheKey(internal val floatArray: FloatArray) : BaseRem
  */
 internal class RemoteComponentCacheKey(internal val componentId: Int, internal val type: String) :
     BaseRemoteStateCacheKey() {
+    private var state: BaseRemoteState<*>? = null
+
+    override fun getState(): BaseRemoteState<*>? = state
+
+    override fun setState(state: BaseRemoteState<*>?) {
+        this.state = state
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteComponentCacheKey) return false
@@ -379,6 +414,14 @@ internal class RemoteOperationCacheKey(
     internal val op: Enum<*>,
     override val args: List<RemoteStateCacheKey>,
 ) : BaseRemoteStateCacheKey() {
+    private var state: BaseRemoteState<*>? = null
+
+    override fun getState(): BaseRemoteState<*>? = state
+
+    override fun setState(state: BaseRemoteState<*>?) {
+        this.state = state
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RemoteOperationCacheKey) return false
