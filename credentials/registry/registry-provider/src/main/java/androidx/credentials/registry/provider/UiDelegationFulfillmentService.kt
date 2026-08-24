@@ -38,18 +38,34 @@ import androidx.credentials.registry.provider.internal.UiDelegationFulfillmentPr
  * [RegistryManager.ACTION_GET_CREDENTIAL]) unless all selected credentials in the set support
  * [DelegationType.FULL] delegation.
  *
+ * ### Security & Caller Verification
+ * The service is protected through runtime caller verification enforced by the library. The
+ * [onBind] method is `final` to ensure that only the trusted Credential Manager implementation can
+ * establish IPC communication and dispatch requests.
+ *
  * ### Registration & Discovery
  * - Extend this class and implement the required methods.
  * - To enable Credential Manager to discover and bind to this service, the provider must declare it
  *   in their `AndroidManifest.xml` with an `<intent-filter>` handling the service action specified
  *   during credential registration (see [RegisterCredentialsRequest.serviceAction], defaulting to
  *   [RegistryManager.ACTION_GET_CREDENTIAL_SERVICE]).
+ *
+ * For example:
+ * ```xml
+ * <service
+ *     android:name=".MyUiDelegationFulfillmentService"
+ *     android:exported="true">
+ *     <intent-filter>
+ *         <action android:name="androidx.credentials.action.GET_CREDENTIAL_SERVICE" />
+ *     </intent-filter>
+ * </service>
+ * ```
  */
 public abstract class UiDelegationFulfillmentService : Service() {
 
     private val factory = UiDelegationFulfillmentProviderFactory()
 
-    override fun onBind(intent: Intent?): IBinder? {
+    final override fun onBind(intent: Intent?): IBinder? {
         if (intent == null) {
             return null
         }
