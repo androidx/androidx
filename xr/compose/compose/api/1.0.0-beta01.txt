@@ -854,11 +854,7 @@ package androidx.xr.compose.subspace.layout {
 
   public final class MovableKt {
     method public static androidx.xr.compose.subspace.layout.SubspaceModifier movable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional androidx.xr.compose.subspace.layout.MovePolicy movePolicy);
-    method @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier movable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional boolean stickyPose, optional boolean scaleWithDistance, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMoveStart, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMoveEnd, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,java.lang.Boolean>? onMove);
-    method @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier movable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional boolean scaleWithDistance, kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit> onMove);
     method @BytecodeOnly public static androidx.xr.compose.subspace.layout.SubspaceModifier! movable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, androidx.xr.compose.subspace.layout.MovePolicy!, int, Object!);
-    method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier! movable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, boolean, boolean, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
-    method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier! movable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, boolean, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
   public sealed nonexhaustive interface MovePolicy {
@@ -1469,15 +1465,6 @@ package androidx.xr.compose.subspace.layout {
     property public androidx.xr.compose.subspace.layout.SubspaceLayoutCoordinates? coordinates;
     property protected abstract androidx.compose.ui.unit.LayoutDirection parentLayoutDirection;
   }
-
-  public final class TransformingMovableKt {
-    method @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier transformingMovable(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean enabled, optional boolean scaleWithDistance, optional kotlin.jvm.functions.Function1<? super androidx.xr.compose.subspace.layout.SpatialMoveEvent,kotlin.Unit>? onMove);
-    method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.layout.SubspaceModifier! transformingMovable$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, boolean, kotlin.jvm.functions.Function1!, int, Object!);
-  }
-
-  @Deprecated public typealias SpatialMoveEndEvent = androidx.xr.compose.subspace.layout.SpatialMoveEvent;
-
-  @Deprecated public typealias SpatialMoveStartEvent = androidx.xr.compose.subspace.layout.SpatialMoveEvent;
 
 }
 
