@@ -22,6 +22,7 @@
  */
 import androidx.build.AndroidXConfig
 import androidx.build.SoftwareType
+import com.android.build.api.variant.HasAndroidTest
 
 plugins {
     id("AndroidXPlugin")
@@ -52,7 +53,8 @@ androidComponents {
             AndroidXConfig.getPrebuiltsRoot(project),
             "androidx/traceprocessor/testdata").absolutePath
     onVariants(selector().all()) { variant ->
-        variant.sources.assets.addStaticSourceDirectory(testDataPath)
+        def androidTestAssets = (variant as HasAndroidTest).androidTest.sources.assets
+        androidTestAssets.addStaticSourceDirectory(testDataPath)
     }
 }
 
