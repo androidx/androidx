@@ -744,7 +744,7 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
             BasicTextField(
                 state = state,
                 modifier = Modifier.testTag(Tag),
-                inputTransformation = InputTransformation.maxLength(10),
+                inputTransformation = InputTransformation.maxLengthTrim(10),
             )
         }
         rule.onNodeWithTag(Tag).assertKey(10, SemanticsProperties.MaxTextLength)

@@ -31,7 +31,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
-import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.maxLengthTrim
 import androidx.compose.foundation.text.input.then
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.LocalContentAlpha
@@ -146,7 +146,7 @@ private class PinState(val maxDigits: Int) {
 
     /*internal*/ val textState = TextFieldState()
     /*internal*/ val filter: InputTransformation =
-        OnlyDigitsTransformation.then(InputTransformation.maxLength(maxDigits))
+        OnlyDigitsTransformation.then(InputTransformation.maxLengthTrim(maxDigits))
 
     fun clear() {
         textState.clearText()
