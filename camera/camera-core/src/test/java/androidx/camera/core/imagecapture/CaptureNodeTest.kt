@@ -101,8 +101,10 @@ class CaptureNodeTest {
         // Assert
         assertThat(output.outputFormats.size).isEqualTo(2)
         assertThat(input.surface).isNotNull()
+        assertThat(input.surface.prescribedStreamFormat).isEqualTo(RAW_SENSOR)
         assertThat(input.cameraCaptureCallback).isNotNull()
         assertThat(input.secondarySurface).isNotNull()
+        assertThat(input.secondarySurface!!.prescribedStreamFormat).isEqualTo(JPEG)
         assertThat(input.secondaryCameraCaptureCallback).isNotNull()
     }
 
@@ -135,6 +137,39 @@ class CaptureNodeTest {
         shadowOf(getMainLooper()).idle()
         // Assert: ImageReader is closed.
         assertThat(captureNode.mSafeCloseImageReaderProxy!!.isClosed).isTrue()
+    }
+
+    @Test
+    fun release_simultaneousCapture_imageReadersNotClosedUntilTermination() {
+        val input =
+            CaptureNode.In.of(Size(10, 10), RAW_SENSOR, listOf(RAW_SENSOR, JPEG), false, null)
+        val node = CaptureNode()
+        node.transform(input)
+
+        // Arrange: increment use count on both primary and secondary surfaces
+        input.surface.incrementUseCount()
+        input.secondarySurface!!.incrementUseCount()
+
+        // Act: release node
+        node.release()
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: both ImageReaders remain open
+        assertThat(node.mSafeCloseImageReaderProxy!!.isClosed).isFalse()
+        assertThat(node.mSecondarySafeCloseImageReaderProxy!!.isClosed).isFalse()
+
+        // Act: decrement primary surface use count
+        input.surface.decrementUseCount()
+        shadowOf(getMainLooper()).idle()
+        // Assert: primary closed, secondary still open
+        assertThat(node.mSafeCloseImageReaderProxy!!.isClosed).isTrue()
+        assertThat(node.mSecondarySafeCloseImageReaderProxy!!.isClosed).isFalse()
+
+        // Act: decrement secondary surface use count
+        input.secondarySurface!!.decrementUseCount()
+        shadowOf(getMainLooper()).idle()
+        // Assert: both closed
+        assertThat(node.mSecondarySafeCloseImageReaderProxy!!.isClosed).isTrue()
     }
 
     @Test

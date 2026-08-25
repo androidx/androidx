@@ -71,6 +71,10 @@ public class DeviceQuirksLoader {
                 PreviewGreenTintQuirk.load())) {
             quirks.add(PreviewGreenTintQuirk.INSTANCE);
         }
+        if (quirkSettings.shouldEnableQuirk(SimultaneousRawJpegNotSupportedQuirk.class,
+                SimultaneousRawJpegNotSupportedQuirk.load())) {
+            quirks.add(new SimultaneousRawJpegNotSupportedQuirk());
+        }
 
         return quirks;
     }
