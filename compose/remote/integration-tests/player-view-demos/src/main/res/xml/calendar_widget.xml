@@ -15,6 +15,7 @@
   -->
 
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialLayout="@layout/initial_widget_layout"
     android:minHeight="250dp"
     android:minResizeHeight="180dp"
     android:minResizeWidth="180dp"
