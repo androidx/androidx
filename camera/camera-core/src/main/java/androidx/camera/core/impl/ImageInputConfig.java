@@ -24,6 +24,10 @@ import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 /** Configuration containing options for configuring the input image data of a pipeline. */
 public interface ImageInputConfig extends ReadableConfig {
     Config.Option<Integer> OPTION_INPUT_FORMAT =
@@ -63,6 +67,23 @@ public interface ImageInputConfig extends ReadableConfig {
      */
     default int getSecondaryInputFormat() {
         return retrieveOption(OPTION_SECONDARY_INPUT_FORMAT, ImageFormat.UNKNOWN);
+    }
+
+    /**
+     * Returns the list of input image formats configured for this pipeline.
+     *
+     * <p>If a secondary input format is specified (e.g. for simultaneous capture), both primary
+     * and secondary input formats will be returned in order (e.g. {@code [RAW_SENSOR, JPEG]}).
+     * Otherwise, a single-element list containing {@link #getInputFormat()} is returned.
+     *
+     * @return An unmodifiable list of input image formats.
+     */
+    default @NonNull List<Integer> getInputFormats() {
+        int secondary = getSecondaryInputFormat();
+        if (secondary != ImageFormat.UNKNOWN) {
+            return Collections.unmodifiableList(Arrays.asList(getInputFormat(), secondary));
+        }
+        return Collections.singletonList(getInputFormat());
     }
 
     /**

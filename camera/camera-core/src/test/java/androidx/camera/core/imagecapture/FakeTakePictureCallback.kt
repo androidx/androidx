@@ -27,9 +27,11 @@ internal class FakeTakePictureCallback : TakePictureCallback {
     var onCaptureStarted = false
     var onImageCapturedCalled = false
     var inMemoryResult: ImageProxy? = null
+    val inMemoryResults: MutableList<ImageProxy> = mutableListOf()
     var captureFailure: ImageCaptureException? = null
     var processFailure: ImageCaptureException? = null
     var onDiskResult: OutputFileResults? = null
+    val onDiskResults: MutableList<OutputFileResults> = mutableListOf()
     var captureProcessProgressList: MutableList<Int> = mutableListOf()
     var onPostviewBitmapAvailable: Bitmap? = null
 
@@ -45,10 +47,12 @@ internal class FakeTakePictureCallback : TakePictureCallback {
 
     override fun onFinalResult(outputFileResults: OutputFileResults) {
         onDiskResult = outputFileResults
+        onDiskResults.add(outputFileResults)
     }
 
     override fun onFinalResult(imageProxy: ImageProxy) {
         inMemoryResult = imageProxy
+        inMemoryResults.add(imageProxy)
     }
 
     override fun onCaptureFailure(imageCaptureException: ImageCaptureException) {
