@@ -29,7 +29,11 @@ class PreferencesMapCompat {
             return try {
                 PreferencesProto.PreferenceMap.parseFrom(input)
             } catch (ipbe: InvalidProtocolBufferException) {
-                throw CorruptionException("Unable to parse preferences proto.", ipbe)
+                throw CorruptionException(
+                    "Unable to parse preferences proto. Consider providing a " +
+                        "CorruptionHandler to the DataStore factory to handle such scenarios.",
+                    ipbe,
+                )
             }
         }
     }

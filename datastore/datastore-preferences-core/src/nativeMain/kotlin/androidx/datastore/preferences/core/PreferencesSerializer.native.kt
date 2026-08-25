@@ -44,7 +44,11 @@ actual object PreferencesSerializer : OkioSerializer<Preferences> {
             try {
                 ProtoBuf.decodeFromByteArray(source.readByteArray())
             } catch (e: SerializationException) {
-                throw CorruptionException("Unable to parse preferences proto.", e)
+                throw CorruptionException(
+                    "Unable to parse preferences proto. Consider providing a " +
+                        "CorruptionHandler to the DataStore factory to handle such scenarios.",
+                    e,
+                )
             }
 
         val mutablePreferences = mutablePreferencesOf()

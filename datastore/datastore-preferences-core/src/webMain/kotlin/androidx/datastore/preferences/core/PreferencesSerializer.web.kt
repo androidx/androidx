@@ -101,7 +101,12 @@ actual object PreferencesSerializer : OkioSerializer<Preferences> {
             }
             return mutablePreferences.toPreferences()
         } catch (ex: Exception) {
-            throw CorruptionException("Unable to parse preferences json.", ex)
+
+            throw CorruptionException(
+                "Unable to parse preferences json. Consider providing a " +
+                    "CorruptionHandler to the DataStore factory to handle such scenarios.",
+                ex,
+            )
         }
     }
 

@@ -223,7 +223,7 @@ private suspend fun <T> runFileDiagnosticsIfNotCorruption(file: File, block: sus
         return block()
     } catch (ex: IOException) {
         if (ex is CorruptionException) {
-            throw ex
+            throw CorruptionException("Corruption in file $file", ex)
         }
         throw FileDiagnostics.attachFileDebugInfo(file, ex)
     }
