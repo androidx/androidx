@@ -1782,14 +1782,14 @@ Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCastKotlin.kt line 47
         // to the generated call -- that's fine, the developer can easily fix that.
         val expectedFix =
             """
-            Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 25: Extract to static inner class:
+            Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 26: Extract to static inner class:
             @@ -19,0 +20,2 @@
             +import androidx.annotation.DoNotInline
             +import androidx.annotation.RequiresFlag
-            @@ -25 +27 @@
+            @@ -26 +28 @@
             -            val resultA = FlaggedApiContainer.apiWithTypeArgument(null)
             +            val resultA = FlagMyFlagImpl.apiWithTypeArgument(null)
-            @@ -28,0 +31,9 @@
+            @@ -29,0 +32,9 @@
             +    }
             +
             +@RequiresApi(10000) // Required when calling pre-release APIs
@@ -1799,16 +1799,16 @@ Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCastKotlin.kt line 47
             +    @JvmStatic
             +    fun apiWithTypeArgument(param: BiConsumer<Integer, Float>): List<Array<Int>> {
             +        return FlaggedApiContainer.apiWithTypeArgument(param)
-            @@ -29,0 +41 @@
+            @@ -30,0 +42 @@
             +}
-            Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 26: Extract to static inner class:
+            Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 27: Extract to static inner class:
             @@ -19,0 +20,2 @@
             +import androidx.annotation.DoNotInline
             +import androidx.annotation.RequiresFlag
-            @@ -26 +28 @@
+            @@ -27 +29 @@
             -            val resultB = FlaggedApiContainer.apiWithGenericType<Int?, Float>(null)
             +            val resultB = FlagMyFlagImpl.apiWithGenericType(null)
-            @@ -28,0 +31,9 @@
+            @@ -29,0 +32,9 @@
             +    }
             +
             +@RequiresApi(10000) // Required when calling pre-release APIs
@@ -1818,16 +1818,16 @@ Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCastKotlin.kt line 47
             +    @JvmStatic
             +    fun <T, R> apiWithGenericType(param: R): T {
             +        return FlaggedApiContainer.apiWithGenericType(param)
-            @@ -29,0 +41 @@
+            @@ -30,0 +42 @@
             +}
-            Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 27: Extract to static inner class:
+            Fix for src/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt line 28: Extract to static inner class:
             @@ -19,0 +20,2 @@
             +import androidx.annotation.DoNotInline
             +import androidx.annotation.RequiresFlag
-            @@ -27 +29 @@
+            @@ -28 +30 @@
             -            val resultC = FlaggedApiContainer.apiWithTwoDimensionalArray(null)
             +            val resultC = FlagMyFlagImpl.apiWithTwoDimensionalArray(null)
-            @@ -28,0 +31,9 @@
+            @@ -29,0 +32,9 @@
             +    }
             +
             +@RequiresApi(10000) // Required when calling pre-release APIs
@@ -1837,7 +1837,7 @@ Fix for src/androidx/AutofixOnUnsafeCallWithImplicitVarArgsCastKotlin.kt line 47
             +    @JvmStatic
             +    fun apiWithTwoDimensionalArray(param: Array<Int>): Array<Array<Float>> {
             +        return FlaggedApiContainer.apiWithTwoDimensionalArray(param)
-            @@ -29,0 +41 @@
+            @@ -30,0 +42 @@
             +}
             """
                 .trimIndent()

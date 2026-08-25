@@ -348,14 +348,6 @@ src/androidTest/androidx/foo/TestJava.java:13: Error: @SdkSuppress on screenshot
                     .within("src/test")
             )
 
-        val expected =
-            """
-       src/androidDeviceTest/androidx/foo/TestInInstrumentedTestDirKotlin.kt:11: Error: Screenshot test class TestInInstrumentedTestDirKotlin must be annotated with @SdkSuppress to run only on API 35. [ScreenshotTestSdkSuppress]
-                class TestInInstrumentedTestDirKotlin {
-                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 error
-        """
-
         check(*input).expectClean()
     }
 

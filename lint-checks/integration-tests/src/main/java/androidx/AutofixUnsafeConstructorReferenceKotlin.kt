@@ -21,7 +21,7 @@ import android.view.View
 import android.view.accessibility.AccessibilityNodeInfo
 
 /** Test class containing unsafe method references. */
-@Suppress("unused")
+@Suppress("unused", "UNUSED_VARIABLE")
 class AutofixUnsafeConstructorReferenceKotlin {
     /** Unsafe reference to a new API with an SDK_INT check that satisfies the NewApi lint. */
     fun unsafeReferenceWithSdkCheck(context: Context?) {
