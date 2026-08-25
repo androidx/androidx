@@ -53,5 +53,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- [START android_datastore_multiprocess_manifest] -->
+        <service
+            android:name="com.example.datastore.snippets.TimestampUpdateService"
+            android:exported="false"
+            android:process=":service" />
+        <!-- [END android_datastore_multiprocess_manifest] -->
     </application>
 </manifest>
