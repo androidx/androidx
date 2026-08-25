@@ -269,12 +269,12 @@ open class BaseTest {
                 return // these assertions only apply to enhanced a11y
             }
 
-            var customActions = getActionList(viewPager)
-            var currentPage = viewPager.currentItem
-            var numPages = viewPager.adapter!!.itemCount
-            var isUserInputEnabled = viewPager.isUserInputEnabled
-            var isHorizontalOrientation = viewPager.orientation == ViewPager2.ORIENTATION_HORIZONTAL
-            var isVerticalOrientation = viewPager.orientation == ViewPager2.ORIENTATION_VERTICAL
+            val customActions = getActionList(viewPager)
+            val currentPage = viewPager.currentItem
+            val numPages = viewPager.adapter!!.itemCount
+            val isUserInputEnabled = viewPager.isUserInputEnabled
+            val isHorizontalOrientation = viewPager.orientation == ViewPager2.ORIENTATION_HORIZONTAL
+            val isVerticalOrientation = viewPager.orientation == ViewPager2.ORIENTATION_VERTICAL
 
             val expectPageLeftAction =
                 isUserInputEnabled &&
@@ -317,9 +317,9 @@ open class BaseTest {
                 equalTo(expectPageDownAction),
             )
 
-            @Suppress("DEPRECATION") var node = AccessibilityNodeInfo.obtain()
+            @Suppress("DEPRECATION") val node = AccessibilityNodeInfo.obtain()
             runOnUiThreadSync { viewPager.onInitializeAccessibilityNodeInfo(node) }
-            @Suppress("DEPRECATION") var standardActions = node.actions
+            @Suppress("DEPRECATION") val standardActions = node.actions
 
             assertThat(
                 "scroll backward action expected: $expectScrollBackwardAction",

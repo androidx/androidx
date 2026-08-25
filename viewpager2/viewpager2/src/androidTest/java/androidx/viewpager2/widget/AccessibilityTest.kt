@@ -106,9 +106,9 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
             setAdapterSync(viewAdapterProvider.provider(stringSequence(numberOfItems)))
             assertBasicState(viewPager.currentItem, null)
 
-            var node = AccessibilityNodeInfo.obtain()
+            val node = AccessibilityNodeInfo.obtain()
             runOnUiThreadSync { viewPager.onInitializeAccessibilityNodeInfo(node) }
-            var collectionInfo = node.collectionInfo
+            val collectionInfo = node.collectionInfo
             if (config.orientation == ORIENTATION_VERTICAL) {
                 assertThat(collectionInfo.rowCount, equalTo(numberOfItems))
                 assertThat(collectionInfo.columnCount, equalTo(1))
@@ -129,10 +129,10 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
             listOf(1, 0, 2, 5).forEach { targetPage ->
                 viewPager.setCurrentItemSync(targetPage, false, 2, TimeUnit.SECONDS)
                 assertBasicState(targetPage)
-                var nodeChild = AccessibilityNodeInfo.obtain()
+                val nodeChild = AccessibilityNodeInfo.obtain()
                 val item = viewPager.linearLayoutManager.findViewByPosition(targetPage)
                 runOnUiThreadSync { item!!.onInitializeAccessibilityNodeInfo(nodeChild) }
-                var collectionItemInfo = nodeChild.collectionItemInfo
+                val collectionItemInfo = nodeChild.collectionItemInfo
                 if (config.orientation == ORIENTATION_VERTICAL) {
                     assertThat(collectionItemInfo.rowIndex, equalTo(targetPage))
                     assertThat(collectionItemInfo.columnIndex, equalTo(0))
