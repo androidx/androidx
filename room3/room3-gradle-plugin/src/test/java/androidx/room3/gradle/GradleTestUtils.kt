@@ -35,6 +35,7 @@ internal fun runGradle(
             .withDebug(false)
             // workaround for b/231154556
             .withArguments("-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m", *args)
+    projectSetup.setUpGradleVersion(runner, "8.14")
     return if (expectFailure) {
         runner.buildAndFail()
     } else {
