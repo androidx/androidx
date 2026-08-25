@@ -93,5 +93,3 @@ public class Colors(
         return "Colors(primary=$primary, secondary=$secondary, positive=$positive, negative=$negative, background=$background, surface=$surface)"
     }
 }
-
-internal val DefaultSurfaceColor: Color = Color(0xFF303030)

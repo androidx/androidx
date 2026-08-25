@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import androidx.xr.glimmer.internal.color.withToneAndChroma
+import androidx.xr.glimmer.internal.color.withTone
 
 /**
  * A Jetpack Compose Glimmer toggle button that changes its appearance depending on the [checked]
@@ -253,13 +253,9 @@ public object ToggleButtonDefaults {
      */
     @Composable
     public fun checkedBackgroundColor(color: Color = GlimmerTheme.colors.primary): Color =
-        color.withToneAndChroma(
-            newTone = CheckedBackgroundColorTone,
-            newChroma = CheckedBackgroundColorChroma,
-        )
+        color.withTone(newTone = CheckedBackgroundColorTone)
 
     private const val CheckedBackgroundColorTone = 70f
-    private const val CheckedBackgroundColorChroma = 50f
 
     /** Default shape for [ToggleButton] and [IconToggleButton] in the checked state. */
     public val CheckedShape: Shape = RoundedCornerShape(20.dp)
