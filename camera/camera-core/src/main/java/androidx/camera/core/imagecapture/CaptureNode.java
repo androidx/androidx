@@ -16,9 +16,6 @@
 
 package androidx.camera.core.imagecapture;
 
-import static android.graphics.ImageFormat.JPEG;
-import static android.graphics.ImageFormat.RAW_SENSOR;
-
 import static androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
@@ -133,14 +130,15 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         if (hasMetadata && inputEdge.getImageReaderProxyProvider() == null) {
             if (isSimultaneousCaptureEnabled) {
                 MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
-                        size.getHeight(), JPEG, MAX_IMAGES);
+                        size.getHeight(), format, MAX_IMAGES);
                 cameraCaptureCallbacks =
                         CameraCaptureCallbacks.createComboCallback(
                                 progressCallback, metadataImageReader.getCameraCaptureCallback());
                 wrappedImageReader = metadataImageReader;
 
+                int secondaryFormat = inputEdge.getOutputFormats().get(1);
                 MetadataImageReader secondaryMetadataImageReader = new MetadataImageReader(
-                        size.getWidth(), size.getHeight(), RAW_SENSOR, MAX_IMAGES);
+                        size.getWidth(), size.getHeight(), secondaryFormat, MAX_IMAGES);
                 secondaryCameraCaptureCallback =
                         CameraCaptureCallbacks.createComboCallback(
                                 progressCallback,
@@ -206,7 +204,9 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
 
         // Simultaneous capture RAW + JPEG
         if (isSimultaneousCaptureEnabled && secondaryWrappedImageReader != null) {
-            inputEdge.setSecondarySurface(secondaryWrappedImageReader.getSurface());
+            int secondaryFormat = inputEdge.getOutputFormats().get(1);
+            inputEdge.setSecondarySurface(secondaryWrappedImageReader.getSurface(),
+                    secondaryFormat);
             mSecondarySafeCloseImageReaderProxy = new SafeCloseImageReaderProxy(
                     secondaryWrappedImageReader);
             setOnImageAvailableListener(secondaryWrappedImageReader);
@@ -535,9 +535,15 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         }
 
         void setSecondarySurface(@NonNull Surface surface) {
+            int secondaryFormat = getOutputFormats().size() > 1
+                    ? getOutputFormats().get(1) : getInputFormat();
+            setSecondarySurface(surface, secondaryFormat);
+        }
+
+        void setSecondarySurface(@NonNull Surface surface, int format) {
             checkState(mSecondarySurface == null, "The secondary surface is "
                     + "already set.");
-            mSecondarySurface = new ImmediateSurface(surface, getSize(), getInputFormat());
+            mSecondarySurface = new ImmediateSurface(surface, getSize(), format);
         }
 
         /**

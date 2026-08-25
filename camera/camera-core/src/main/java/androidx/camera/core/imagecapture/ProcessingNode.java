@@ -193,20 +193,12 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         CameraXTracer.trace("processInputPacket", () -> {
             ProcessingRequest request = inputPacket.getProcessingRequest();
             try {
-                // If simultaneous capture RAW + JPEG, only trigger callback when both images
-                // are available and processed.
-                boolean isSimultaneousCaptureEnabled = mInputEdge.getOutputFormats().size() > 1;
                 if (inputPacket.getProcessingRequest().isInMemoryCapture()) {
                     ImageProxy result = processInMemoryCapture(inputPacket);
                     mainThreadExecutor().execute(() -> request.onFinalResult(result));
                 } else {
                     ImageCapture.OutputFileResults result = processOnDiskCapture(inputPacket);
-                    boolean isProcessed =
-                            !isSimultaneousCaptureEnabled || request.getTakePictureRequest()
-                                    .isFormatProcessedInSimultaneousCapture();
-                    if (isProcessed) {
-                        mainThreadExecutor().execute(() -> request.onFinalResult(result));
-                    }
+                    mainThreadExecutor().execute(() -> request.onFinalResult(result));
                 }
             } catch (ImageCaptureException e) {
                 sendError(request, e);

@@ -15,14 +15,17 @@
  */
 package androidx.camera.core.impl
 
+import android.graphics.ImageFormat
 import android.util.Range
 import android.util.Size
 import androidx.camera.core.impl.FrameRates.FRAME_RATE_UNLIMITED
 import androidx.camera.core.impl.SessionConfig.SESSION_TYPE_HIGH_SPEED
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_720P
+import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -38,7 +41,7 @@ class UseCaseConfigTest {
         val useCaseBuilder = FakeUseCaseConfig.Builder()
         val sessionType = SESSION_TYPE_HIGH_SPEED
         useCaseBuilder.mutableConfig.insertOption(UseCaseConfig.OPTION_SESSION_TYPE, sessionType)
-        Truth.assertThat(useCaseBuilder.useCaseConfig.sessionType).isEqualTo(sessionType)
+        assertThat(useCaseBuilder.useCaseConfig.sessionType).isEqualTo(sessionType)
     }
 
     @Test
@@ -46,7 +49,7 @@ class UseCaseConfigTest {
         val useCaseBuilder = FakeUseCaseConfig.Builder()
         val range = Range(10, 20)
         useCaseBuilder.mutableConfig.insertOption(UseCaseConfig.OPTION_TARGET_FRAME_RATE, range)
-        Truth.assertThat(useCaseBuilder.useCaseConfig.targetFrameRate).isEqualTo(range)
+        assertThat(useCaseBuilder.useCaseConfig.targetFrameRate).isEqualTo(range)
     }
 
     @Test
@@ -57,11 +60,11 @@ class UseCaseConfigTest {
             UseCaseConfig.OPTION_RESOLUTION_TO_MAX_FRAME_RATES,
             sizeToMaxFpsMap,
         )
-        Truth.assertThat(useCaseBuilder.useCaseConfig.getCustomMaxFrameRate(RESOLUTION_1080P))
+        assertThat(useCaseBuilder.useCaseConfig.getCustomMaxFrameRate(RESOLUTION_1080P))
             .isEqualTo(30)
-        Truth.assertThat(useCaseBuilder.useCaseConfig.getCustomMaxFrameRate(RESOLUTION_720P))
+        assertThat(useCaseBuilder.useCaseConfig.getCustomMaxFrameRate(RESOLUTION_720P))
             .isEqualTo(60)
-        Truth.assertThat(useCaseBuilder.useCaseConfig.getCustomMaxFrameRate(Size(100, 100)))
+        assertThat(useCaseBuilder.useCaseConfig.getCustomMaxFrameRate(Size(100, 100)))
             .isEqualTo(FRAME_RATE_UNLIMITED)
     }
 
@@ -69,6 +72,48 @@ class UseCaseConfigTest {
     fun canGetIsZslDisabled() {
         val useCaseBuilder = FakeUseCaseConfig.Builder()
         useCaseBuilder.mutableConfig.insertOption(UseCaseConfig.OPTION_ZSL_DISABLED, true)
-        Truth.assertThat(useCaseBuilder.useCaseConfig.isZslDisabled(false)).isTrue()
+        assertThat(useCaseBuilder.useCaseConfig.isZslDisabled(false)).isTrue()
+    }
+
+    @Test
+    fun canGetInputFormats_whenSingleFormat() {
+        val useCaseBuilder = FakeUseCaseConfig.Builder()
+        useCaseBuilder.mutableConfig.insertOption(
+            ImageInputConfig.OPTION_INPUT_FORMAT,
+            ImageFormat.JPEG,
+        )
+        val config = useCaseBuilder.useCaseConfig
+        assertThat(config.inputFormats).containsExactly(ImageFormat.JPEG).inOrder()
+
+        val fakeUseCase = FakeUseCase(config)
+        assertThat(fakeUseCase.inputFormats).containsExactly(ImageFormat.JPEG).inOrder()
+    }
+
+    @Test
+    fun canGetInputFormats_whenSimultaneousCaptureFormats() {
+        val useCaseBuilder = FakeUseCaseConfig.Builder()
+        useCaseBuilder.mutableConfig.insertOption(
+            ImageInputConfig.OPTION_INPUT_FORMAT,
+            ImageFormat.RAW_SENSOR,
+        )
+        useCaseBuilder.mutableConfig.insertOption(
+            ImageInputConfig.OPTION_SECONDARY_INPUT_FORMAT,
+            ImageFormat.JPEG,
+        )
+        val config = useCaseBuilder.useCaseConfig
+        assertThat(config.inputFormats)
+            .containsExactly(ImageFormat.RAW_SENSOR, ImageFormat.JPEG)
+            .inOrder()
+        assertThrows(UnsupportedOperationException::class.java) {
+            (config.inputFormats as MutableList).add(ImageFormat.YUV_420_888)
+        }
+        assertThrows(UnsupportedOperationException::class.java) {
+            (config.inputFormats as MutableList)[0] = ImageFormat.YUV_420_888
+        }
+
+        val fakeUseCase = FakeUseCase(config)
+        assertThat(fakeUseCase.inputFormats)
+            .containsExactly(ImageFormat.RAW_SENSOR, ImageFormat.JPEG)
+            .inOrder()
     }
 }

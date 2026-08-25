@@ -772,6 +772,18 @@ public abstract class UseCase {
     }
 
     /**
+     * Returns the list of input image formats configured for this UseCase.
+     *
+     * <p>If this UseCase is configured for simultaneous capture (e.g. RAW + JPEG), the returned
+     * list contains all configured input formats in order (e.g. {@code [RAW_SENSOR, JPEG]}).
+     * Otherwise, a single-element list containing the primary input format is returned.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public @NonNull List<Integer> getInputFormats() {
+        return mCurrentConfig.getInputFormats();
+    }
+
+    /**
      * Returns the currently attached {@link Camera} or {@code null} if none is attached.
      *
      */
