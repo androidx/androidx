@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.foundation.lazy.list
 
 import androidx.compose.foundation.AutoTestFrameClock

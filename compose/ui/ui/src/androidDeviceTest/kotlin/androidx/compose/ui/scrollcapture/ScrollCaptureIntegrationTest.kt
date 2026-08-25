@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.scrollcapture
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.horizontalScroll
@@ -47,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.dp
@@ -239,20 +239,21 @@ class ScrollCaptureIntegrationTest {
             assertThat(targets.isEmpty())
         }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun capture_LazyColumn_stickyHeadersDisabled_byLayout() =
         captureTester.runTest {
             val headerHeight = 5
             val state = LazyListState()
             var firstHeaderCoords by mutableStateOf<LayoutCoordinates?>(null, neverEqualPolicy())
+            var firstHeaderIsVisible by mutableStateOf(false)
             var firstItemCoords by mutableStateOf<LayoutCoordinates?>(null, neverEqualPolicy())
+            var firstItemIsVisible by mutableStateOf(false)
 
             fun assertHeaderNotStuck() {
                 val headerBounds =
-                    firstHeaderCoords?.takeIf { it.isAttached }?.boundsInParent() ?: return
+                    firstHeaderCoords?.takeIf { firstHeaderIsVisible }?.boundsInParent() ?: return
                 val itemBounds =
-                    firstItemCoords?.takeIf { it.isAttached }?.boundsInParent() ?: return
+                    firstItemCoords?.takeIf { firstItemIsVisible }?.boundsInParent() ?: return
                 assertThat(headerBounds.bottom).isEqualTo(itemBounds.top)
             }
 
@@ -265,6 +266,7 @@ class ScrollCaptureIntegrationTest {
                                     .fillMaxWidth()
                                     .height(headerHeight.toDp())
                                     .onGloballyPositioned { firstHeaderCoords = it }
+                                    .onVisibilityChanged { firstHeaderIsVisible = it }
                             )
                             DisposableEffect(Unit) { onDispose { firstHeaderCoords = null } }
                         }
@@ -273,6 +275,7 @@ class ScrollCaptureIntegrationTest {
                                 Modifier.background(Color.Green)
                                     .size(10.toDp())
                                     .onGloballyPositioned { firstItemCoords = it }
+                                    .onVisibilityChanged { firstItemIsVisible = it }
                             )
                             DisposableEffect(Unit) { onDispose { firstItemCoords = null } }
                         }
