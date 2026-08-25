@@ -60,5 +60,5 @@ public object AndroidComposeUiTextFlags {
     // TODO(b/512676269) remove the flag
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isSingleLineLineHeightOptimizationEnabled: Boolean = false
+    public var isSingleLineLineHeightOptimizationEnabled: Boolean = true
 }
