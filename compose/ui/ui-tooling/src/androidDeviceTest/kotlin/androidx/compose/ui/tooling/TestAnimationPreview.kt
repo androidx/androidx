@@ -488,9 +488,8 @@ fun AnimatedVisibilityWithTrigger() {
 @Composable
 fun AnimateValueAsStateWithTrigger() {
     val trigger by remember { simpleTrigger() }
-    val size: Dp by
-        animateDpAsState(targetValue = if (trigger) 0.dp else 10.dp, label = "animation1")
-    val offset by animateIntAsState(targetValue = if (trigger) 2 else 1, label = "animation2")
+    animateDpAsState(targetValue = if (trigger) 0.dp else 10.dp, label = "animation1")
+    animateIntAsState(targetValue = if (trigger) 2 else 1, label = "animation2")
 }
 
 @Preview
@@ -548,8 +547,7 @@ fun AnimationsWithManyTriggers() {
             "intState",
         )
     }
-    val size: Dp by
-        animateDpAsState(targetValue = if (intState == 1) 0.dp else 10.dp, label = "animation2")
+    animateDpAsState(targetValue = if (intState == 1) 0.dp else 10.dp, label = "animation2")
 
     val dataState by remember {
         animationDebugMutableStateOf(

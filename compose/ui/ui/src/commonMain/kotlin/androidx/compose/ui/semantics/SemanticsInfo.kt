@@ -79,7 +79,7 @@ internal fun SemanticsInfo.mergedSemanticsConfiguration(): SemanticsConfiguratio
         return unMergedConfig
     }
 
-    var mergedConfig: SemanticsConfiguration = unMergedConfig.copy()
+    val mergedConfig: SemanticsConfiguration = unMergedConfig.copy()
     val needsMerging: MutableObjectList<SemanticsInfo> =
         MutableObjectList<SemanticsInfo>(childrenInfo.size).apply { addAll(childrenInfo) }
 

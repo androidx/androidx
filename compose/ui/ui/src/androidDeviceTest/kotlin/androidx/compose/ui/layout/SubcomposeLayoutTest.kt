@@ -2836,8 +2836,8 @@ class SubcomposeLayoutTest {
         var lookaheadSize: IntSize? = null
         var approachSize: IntSize? = null
         var itemCount by mutableStateOf(1)
-        var lookaheadPos: Array<Offset?> = arrayOfNulls(6)
-        var approachPos: Array<Offset?> = arrayOfNulls(6)
+        val lookaheadPos: Array<Offset?> = arrayOfNulls(6)
+        val approachPos: Array<Offset?> = arrayOfNulls(6)
         rule.setContent {
             SubcomposeLayoutWithItemDetachedFromLookaheadPlacement {
                 // The content that is detached from LookaheadPlacement
@@ -2893,8 +2893,8 @@ class SubcomposeLayoutTest {
         var lookaheadSize: IntSize? = null
         var approachSize: IntSize? = null
         var itemCount by mutableStateOf(1)
-        var lookaheadPos: Array<Offset?> = arrayOfNulls(6)
-        var approachPos: Array<Offset?> = arrayOfNulls(6)
+        val lookaheadPos: Array<Offset?> = arrayOfNulls(6)
+        val approachPos: Array<Offset?> = arrayOfNulls(6)
         rule.setContent {
             SubcomposeLayoutWithItemDetachedFromLookaheadPlacement {
                 SubcomposeLayoutWithItemDetachedFromLookaheadPlacement {

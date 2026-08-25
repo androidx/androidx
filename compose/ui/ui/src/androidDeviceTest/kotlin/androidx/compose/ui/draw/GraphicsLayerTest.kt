@@ -352,7 +352,6 @@ class GraphicsLayerTest {
                 }
             }
         }
-        val b = rule.onRoot().captureToImage()
         val pixelMap = rule.onRoot().captureToImage().toPixelMap()
 
         for (i in 0..<outerBoxSizePx) {

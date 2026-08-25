@@ -529,7 +529,7 @@ class OnVisibilityChangedTest(private val useDelegation: Boolean) {
     fun testNotVisibleNotCalledWhenWasVisibleForLessThanMinDuration() {
         var called = 0
         var parentSize by mutableStateOf(100.dp)
-        val callback: (Boolean) -> Unit = { visible: Boolean -> called++ }
+        val callback: (Boolean) -> Unit = { _: Boolean -> called++ }
         rule.setContent {
             Column {
                 Column(Modifier.size(parentSize)) {
@@ -554,7 +554,7 @@ class OnVisibilityChangedTest(private val useDelegation: Boolean) {
     fun visibilityTriggeredOnViewDetach() {
         var called = 0
         var present by mutableStateOf(true)
-        val callback: (Boolean) -> Unit = { visible: Boolean -> called++ }
+        val callback: (Boolean) -> Unit = { _: Boolean -> called++ }
         val view =
             ComposeView(rule.activity).apply {
                 setContent {

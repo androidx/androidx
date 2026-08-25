@@ -267,7 +267,7 @@ class InvalidatingNotPlacedChildTest {
         content: @Composable (State<Boolean>, State<Color>) -> Unit
     ) {
         val shouldPlace = mutableStateOf(true)
-        var color = mutableStateOf(Color.Gray)
+        val color = mutableStateOf(Color.Gray)
         composeTestRule.setContent {
             Box(Modifier.background(Color.Blue).testTag("node")) { content(shouldPlace, color) }
         }

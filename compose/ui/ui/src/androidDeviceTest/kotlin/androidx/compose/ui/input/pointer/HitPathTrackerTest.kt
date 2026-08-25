@@ -2876,7 +2876,6 @@ class HitPathTrackerTest {
         // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
         layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
 
-        lateinit var pifRef: PointerInputNodeMock
         val pif =
             PointerInputNodeMock(
                 pointerEventHandler = { pointerEvent, pass, _ ->
@@ -2887,7 +2886,6 @@ class HitPathTrackerTest {
                 },
                 coordinator = parentLayoutNode.outerCoordinator,
             )
-        pifRef = pif
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
         hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
