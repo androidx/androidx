@@ -34,7 +34,6 @@ import androidx.xr.runtime.math.Pose
  * @property size The unscaled initial [IntVolumeSize] value that includes the width, height and
  *   depth of the composable. To get the current perceived (scaled) size, multiply this value by
  *   [scale].
- * @see transformingMovable
  * @see movable
  */
 public class SpatialMoveEvent(

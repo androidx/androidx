@@ -356,9 +356,9 @@ class RotateToLookAtUserActivity : ComponentActivity() {
                 // Rotation Constraints: Interactive panel with dynamic yaw/pitch toggles
                 InteractiveConstraintsPanel(isFeatureOn = isFeatureOn)
 
-                // Panel that uses transformingMovable
+                // Panel that uses system movable
                 TestPanelContainer(
-                    title = "RotateToLookAtUser +\ntransformingMovable",
+                    title = "RotateToLookAtUser +\nsystem movable",
                     isFeatureOn = isFeatureOn,
                     modifier = SubspaceModifier.movable(),
                 ) { modifier, content ->
