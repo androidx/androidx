@@ -40,12 +40,12 @@ import com.google.common.util.concurrent.ListenableFuture
  * [ImageCapture.Builder.camera2Interop] extension function.
  *
  * Options configured via [UseCaseCamera2Interop] include:
- * - Physical camera ID ([UseCaseCamera2Interop.setPhysicalCameraId])
- * - Stream use case ([UseCaseCamera2Interop.setStreamUseCase])
- * - Mirror mode ([UseCaseCamera2Interop.setMirrorMode])
- * - Timestamp base ([UseCaseCamera2Interop.setTimestampBase])
- * - Dynamic range profile ([UseCaseCamera2Interop.setDynamicRangeProfile])
- * - Surface group ID ([UseCaseCamera2Interop.setSurfaceGroupId])
+ * - Physical camera ID ([UseCaseCamera2Interop.physicalCameraId])
+ * - Stream use case ([UseCaseCamera2Interop.streamUseCase])
+ * - Mirror mode ([UseCaseCamera2Interop.mirrorMode])
+ * - Timestamp base ([UseCaseCamera2Interop.timestampBase])
+ * - Dynamic range profile ([UseCaseCamera2Interop.dynamicRangeProfile])
+ * - Surface group ID ([UseCaseCamera2Interop.surfaceGroupId])
  *
  * **Note:** Using Camera2 interop options can override internal CameraX configurations. If an
  * option configured via interop conflicts with options required by CameraX internally, the option
@@ -68,17 +68,18 @@ public inline fun <B : UseCase.InteropConfigurable<B>> B.camera2Interop(
  * Configures Camera2 options specific to [ImageCapture.Builder].
  *
  * Options configured via [ImageCaptureCamera2Interop] include:
- * - Physical camera ID ([ImageCaptureCamera2Interop.setPhysicalCameraId])
- * - Stream use case ([ImageCaptureCamera2Interop.setStreamUseCase])
- * - Mirror mode ([ImageCaptureCamera2Interop.setMirrorMode])
- * - Timestamp base ([ImageCaptureCamera2Interop.setTimestampBase])
- * - Dynamic range profile ([ImageCaptureCamera2Interop.setDynamicRangeProfile])
- * - Surface group ID ([ImageCaptureCamera2Interop.setSurfaceGroupId])
- * - Still capture request key-value pairs
- *   ([ImageCaptureCamera2Interop.setStillCaptureRequestOption])
+ * - Physical camera ID ([ImageCaptureCamera2Interop.physicalCameraId])
+ * - Stream use case ([ImageCaptureCamera2Interop.streamUseCase])
+ * - Mirror mode ([ImageCaptureCamera2Interop.mirrorMode])
+ * - Timestamp base ([ImageCaptureCamera2Interop.timestampBase])
+ * - Dynamic range profile ([ImageCaptureCamera2Interop.dynamicRangeProfile])
+ * - Surface group ID ([ImageCaptureCamera2Interop.surfaceGroupId])
+ * - Still capture request key-value pairs ([ImageCaptureCamera2Interop.stillCaptureRequest] via
+ *   `stillCaptureRequest[...]` or [ImageCaptureCamera2Interop.setStillCaptureRequestOption])
  * - Still capture request template type
- *   ([ImageCaptureCamera2Interop.setStillCaptureRequestTemplateType])
- * - Still capture callbacks ([ImageCaptureCamera2Interop.setStillCaptureCallback])
+ *   ([ImageCaptureCamera2Interop.stillCaptureRequestTemplateType])
+ * - Still capture callbacks ([ImageCaptureCamera2Interop.setStillCaptureCallback] or
+ *   [ImageCaptureCamera2Interop.stillCaptureCallback])
  *
  * **Note:** Using Camera2 interop options can override internal CameraX configurations. The capture
  * request keys for one-shot still captures (such as
@@ -126,12 +127,12 @@ public inline fun ImageCapture.Builder.camera2Interop(
  * }`, use the dedicated [ImageCaptureScope.camera2Interop] extension function.
  *
  * Options configured via [UseCaseCamera2Interop] include:
- * - Physical camera ID ([UseCaseCamera2Interop.setPhysicalCameraId])
- * - Stream use case ([UseCaseCamera2Interop.setStreamUseCase])
- * - Mirror mode ([UseCaseCamera2Interop.setMirrorMode])
- * - Timestamp base ([UseCaseCamera2Interop.setTimestampBase])
- * - Dynamic range profile ([UseCaseCamera2Interop.setDynamicRangeProfile])
- * - Surface group ID ([UseCaseCamera2Interop.setSurfaceGroupId])
+ * - Physical camera ID ([UseCaseCamera2Interop.physicalCameraId])
+ * - Stream use case ([UseCaseCamera2Interop.streamUseCase])
+ * - Mirror mode ([UseCaseCamera2Interop.mirrorMode])
+ * - Timestamp base ([UseCaseCamera2Interop.timestampBase])
+ * - Dynamic range profile ([UseCaseCamera2Interop.dynamicRangeProfile])
+ * - Surface group ID ([UseCaseCamera2Interop.surfaceGroupId])
  *
  * **Note:** Using Camera2 interop options can override internal CameraX configurations. If an
  * option configured via interop conflicts with options required by CameraX internally, the option
@@ -153,17 +154,18 @@ public inline fun <B : UseCase.InteropConfigurable<B>> InteropConfigurableScope<
  * }` DSL block.
  *
  * Options configured via [ImageCaptureCamera2Interop] include:
- * - Physical camera ID ([ImageCaptureCamera2Interop.setPhysicalCameraId])
- * - Stream use case ([ImageCaptureCamera2Interop.setStreamUseCase])
- * - Mirror mode ([ImageCaptureCamera2Interop.setMirrorMode])
- * - Timestamp base ([ImageCaptureCamera2Interop.setTimestampBase])
- * - Dynamic range profile ([ImageCaptureCamera2Interop.setDynamicRangeProfile])
- * - Surface group ID ([ImageCaptureCamera2Interop.setSurfaceGroupId])
- * - Still capture request key-value pairs
- *   ([ImageCaptureCamera2Interop.setStillCaptureRequestOption])
+ * - Physical camera ID ([ImageCaptureCamera2Interop.physicalCameraId])
+ * - Stream use case ([ImageCaptureCamera2Interop.streamUseCase])
+ * - Mirror mode ([ImageCaptureCamera2Interop.mirrorMode])
+ * - Timestamp base ([ImageCaptureCamera2Interop.timestampBase])
+ * - Dynamic range profile ([ImageCaptureCamera2Interop.dynamicRangeProfile])
+ * - Surface group ID ([ImageCaptureCamera2Interop.surfaceGroupId])
+ * - Still capture request key-value pairs ([ImageCaptureCamera2Interop.stillCaptureRequest] via
+ *   `stillCaptureRequest[...]` or [ImageCaptureCamera2Interop.setStillCaptureRequestOption])
  * - Still capture request template type
- *   ([ImageCaptureCamera2Interop.setStillCaptureRequestTemplateType])
- * - Still capture callbacks ([ImageCaptureCamera2Interop.setStillCaptureCallback])
+ *   ([ImageCaptureCamera2Interop.stillCaptureRequestTemplateType])
+ * - Still capture callbacks ([ImageCaptureCamera2Interop.setStillCaptureCallback] or
+ *   [ImageCaptureCamera2Interop.stillCaptureCallback])
  *
  * **Note:** Using Camera2 interop options can override internal CameraX configurations. The capture
  * request keys for one-shot still captures (such as
@@ -208,18 +210,22 @@ public inline fun ImageCaptureScope.camera2Interop(
  * [SessionConfig.Builder] directly or within a [androidx.camera.core.sessionConfig] DSL block.
  *
  * Options configured via [SessionConfigCamera2Interop] include:
- * - Session parameters ([SessionConfigCamera2Interop.setSessionParameter])
- * - Session type ([SessionConfigCamera2Interop.setSessionType])
- * - Color space ([SessionConfigCamera2Interop.setColorSpace])
- * - Session state callbacks ([SessionConfigCamera2Interop.setSessionStateCallback])
- * - Device state callbacks ([SessionConfigCamera2Interop.setDeviceStateCallback])
- * - Capture request key-value pairs ([SessionConfigCamera2Interop.setCaptureRequestOption])
+ * - Session parameters ([SessionConfigCamera2Interop.sessionParameter] via `sessionParameter[...]`
+ *   or [SessionConfigCamera2Interop.setSessionParameter])
+ * - Session type ([SessionConfigCamera2Interop.sessionType])
+ * - Color space ([SessionConfigCamera2Interop.colorSpace])
+ * - Session state callbacks ([SessionConfigCamera2Interop.setSessionStateCallback] or
+ *   [SessionConfigCamera2Interop.sessionStateCallback])
+ * - Device state callbacks ([SessionConfigCamera2Interop.setDeviceStateCallback] or
+ *   [SessionConfigCamera2Interop.deviceStateCallback])
+ * - Capture request key-value pairs ([SessionConfigCamera2Interop.captureRequest] via
+ *   `captureRequest[...]` or [SessionConfigCamera2Interop.setCaptureRequestOption])
  * - Clearing specific capture request keys
  *   ([SessionConfigCamera2Interop.clearCaptureRequestOption])
  * - Clearing all capture request keys ([SessionConfigCamera2Interop.clearAllCaptureRequestOptions])
- * - Capture request template type
- *   ([SessionConfigCamera2Interop.setRepeatingCaptureRequestTemplate])
- * - Repeating capture callbacks ([SessionConfigCamera2Interop.setRepeatingCaptureCallback])
+ * - Capture request template type ([SessionConfigCamera2Interop.repeatingCaptureRequestTemplate])
+ * - Repeating capture callbacks ([SessionConfigCamera2Interop.setRepeatingCaptureCallback] or
+ *   [SessionConfigCamera2Interop.repeatingCaptureCallback])
  *
  * **Note:** Using Camera2 interop options can override internal CameraX configurations. If an
  * option configured via interop conflicts with options required by CameraX internally, the option
@@ -286,12 +292,12 @@ public inline fun SessionConfigScope.camera2Interop(
  * [SessionConfig.Builder.camera2Interop]).
  *
  * Options configured via [CameraControlCamera2Interop] include:
- * - Capture request key-value pairs ([CameraControlCamera2Interop.setCaptureRequestOption])
+ * - Capture request key-value pairs ([CameraControlCamera2Interop.captureRequest] via
+ *   `captureRequest[...]` or [CameraControlCamera2Interop.setCaptureRequestOption])
  * - Clearing specific capture request keys
  *   ([CameraControlCamera2Interop.clearCaptureRequestOption])
  * - Clearing all capture request keys ([CameraControlCamera2Interop.clearAllCaptureRequestOptions])
- * - Capture request template type ([CameraControlCamera2Interop.setRepeatingCaptureRequestTemplate]
- *   or [CameraControlCamera2Interop.repeatingCaptureRequestTemplate])
+ * - Capture request template type ([CameraControlCamera2Interop.repeatingCaptureRequestTemplate])
  * - Repeating capture callbacks ([CameraControlCamera2Interop.setRepeatingCaptureCallback] or
  *   [CameraControlCamera2Interop.repeatingCaptureCallback])
  *
@@ -349,12 +355,12 @@ public inline fun CameraControl.applyCamera2InteropAsync(
  * operation takes effect or if the camera is closed.
  *
  * Options configured via [CameraControlCamera2Interop] include:
- * - Capture request key-value pairs ([CameraControlCamera2Interop.setCaptureRequestOption])
+ * - Capture request key-value pairs ([CameraControlCamera2Interop.captureRequest] via
+ *   `captureRequest[...]` or [CameraControlCamera2Interop.setCaptureRequestOption])
  * - Clearing specific capture request keys
  *   ([CameraControlCamera2Interop.clearCaptureRequestOption])
  * - Clearing all capture request keys ([CameraControlCamera2Interop.clearAllCaptureRequestOptions])
- * - Capture request template type ([CameraControlCamera2Interop.setRepeatingCaptureRequestTemplate]
- *   or [CameraControlCamera2Interop.repeatingCaptureRequestTemplate])
+ * - Capture request template type ([CameraControlCamera2Interop.repeatingCaptureRequestTemplate])
  * - Repeating capture callbacks ([CameraControlCamera2Interop.setRepeatingCaptureCallback] or
  *   [CameraControlCamera2Interop.repeatingCaptureCallback])
  *
