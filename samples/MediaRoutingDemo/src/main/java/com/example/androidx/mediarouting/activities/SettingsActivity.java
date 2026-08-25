@@ -163,6 +163,7 @@ public final class SettingsActivity extends AppCompatActivity {
     private void setUpViews() {
         setUpDynamicGroupsEnabledSwitch();
         setUpTransferToLocalSwitch();
+        setUpMediaTransferEnabledSwitch();
         setUpDynamicProviderEnabledSwitch();
         setUpSimpleProviderEnabledSwitch();
         setUpWrapperProviderEnabledSwitch();
@@ -194,6 +195,16 @@ public final class SettingsActivity extends AppCompatActivity {
                             new MediaRouterParams.Builder(mMediaRouter.getRouterParams());
                     builder.setTransferToLocalEnabled(enabled);
                     mMediaRouter.setRouterParams(builder.build());
+                });
+    }
+
+    private void setUpMediaTransferEnabledSwitch() {
+        Switch mediaRouter2ModeSwitch = findViewById(R.id.enable_media_transfer_switch);
+        mediaRouter2ModeSwitch.setChecked(
+                mMediaRouter.getRouterParams().isMediaTransferReceiverEnabled());
+        mediaRouter2ModeSwitch.setOnCheckedChangeListener(
+                (compoundButton, enabled) -> {
+                    mRoutesManager.setIsMediaTransferEnabledAndStore(enabled);
                 });
     }
 
