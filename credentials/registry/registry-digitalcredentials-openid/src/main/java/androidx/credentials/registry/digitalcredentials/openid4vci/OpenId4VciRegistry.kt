@@ -57,12 +57,17 @@ public class OpenId4VciDisplayData(
      * Provides issuer-specific or default terms and information.
      *
      * The explainer text supports markdown formatting, but only links (e.g., `[link text](url)`)
-     * are supported. When rendered, the text must not exceed 150 characters.
+     * are supported. When rendered, the text must not exceed [MAX_EXPLAINER_LENGTH] (150)
+     * characters.
      *
      * @property perIssuer map of issuer origin to issuer-specific explainer text. The text must not
-     *   exceed 150 characters when rendered and only link markdown is supported.
+     *   exceed [MAX_EXPLAINER_LENGTH] characters when rendered and only link markdown is supported.
      * @property default default explainer text used if no issuer-specific text matches. The text
-     *   must not exceed 150 characters when rendered and only link markdown is supported.
+     *   must not exceed [MAX_EXPLAINER_LENGTH] characters when rendered and only link markdown is
+     *   supported.
+     * @throws IllegalArgumentException if [perIssuer] is empty and [default] is null, if issuer
+     *   origins or explainer texts are blank, or if rendered text exceeds [MAX_EXPLAINER_LENGTH]
+     *   characters
      */
     public class Explainer(
         public val perIssuer: Map<String, String> = emptyMap(),
@@ -73,11 +78,20 @@ public class OpenId4VciDisplayData(
                 "Explainer must have at least one issuer-specific or default terms."
             }
             require(perIssuer.keys.all { it.isNotBlank() }) { "Issuer origins must not be blank." }
-            require(perIssuer.values.all { it.isNotBlank() }) {
-                "Explainer text must not be blank."
+            perIssuer.forEach { (issuer, text) ->
+                validateExplainerText(text, "Explainer text for issuer '$issuer'")
             }
             if (default != null) {
-                require(default.isNotBlank()) { "Default explainer text must not be blank." }
+                validateExplainerText(default, "Default explainer text")
+            }
+        }
+
+        private fun validateExplainerText(text: String, label: String) {
+            require(text.isNotBlank()) { "$label must not be blank." }
+            val renderedLength = ExplainerTextParser.computeRenderedLength(text)
+            require(renderedLength <= MAX_EXPLAINER_LENGTH) {
+                "$label exceeds maximum allowed length of $MAX_EXPLAINER_LENGTH characters " +
+                    "(rendered length: $renderedLength)."
             }
         }
 
@@ -88,6 +102,11 @@ public class OpenId4VciDisplayData(
                     put("default", default)
                 }
             }
+
+        public companion object {
+            /** Maximum allowed character length for rendered explainer text. */
+            public const val MAX_EXPLAINER_LENGTH: Int = 150
+        }
     }
 
     /**
