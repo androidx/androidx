@@ -178,6 +178,66 @@ class VideoCallSpeakerManagerTest {
         assertThat(fakeBluetoothDeviceChecker.wasChecked).isFalse()
     }
 
+    /**
+     * Verifies that when a wired headset is available during a video call, the manager does not
+     * recommend switching to the speakerphone, ensuring audio routes to or stays on the connected
+     * headset.
+     */
+    @Test
+    fun shouldSwitchToSpeaker_wiredHeadsetAvailable_returnsFalse() {
+        val availableEndpoints = listOf(earpiece, speaker, wiredHeadset)
+
+        val result =
+            speakerManager.shouldSwitchToSpeaker(
+                isVideoCall = true,
+                currentEndpoint = earpiece,
+                availableEndpoints = availableEndpoints,
+            )
+
+        assertThat(result).isFalse()
+        assertThat(fakeBluetoothDeviceChecker.wasChecked).isFalse()
+    }
+
+    /**
+     * Verifies that when both a wired headset and a watch Bluetooth device are available, the
+     * presence of the wired headset prevents switching to speaker without requiring Bluetooth
+     * device checks.
+     */
+    @Test
+    fun shouldSwitchToSpeaker_wiredHeadsetAndWatchBluetoothAvailable_returnsFalse() {
+        val availableEndpoints = listOf(earpiece, speaker, wiredHeadset, watch)
+
+        val result =
+            speakerManager.shouldSwitchToSpeaker(
+                isVideoCall = true,
+                currentEndpoint = earpiece,
+                availableEndpoints = availableEndpoints,
+            )
+
+        assertThat(result).isFalse()
+        // Verify Bluetooth check was skipped due to early exit on wired headset
+        assertThat(fakeBluetoothDeviceChecker.wasChecked).isFalse()
+    }
+
+    /**
+     * Verifies that when the current active audio endpoint is already the wired headset, the
+     * manager skips switching to speakerphone.
+     */
+    @Test
+    fun shouldSwitchToSpeaker_audioOnWiredHeadset_returnsFalse() {
+        val availableEndpoints = listOf(wiredHeadset, speaker)
+
+        val result =
+            speakerManager.shouldSwitchToSpeaker(
+                isVideoCall = true,
+                currentEndpoint = wiredHeadset,
+                availableEndpoints = availableEndpoints,
+            )
+
+        assertThat(result).isFalse()
+        assertThat(fakeBluetoothDeviceChecker.wasChecked).isFalse()
+    }
+
     @Test
     fun shouldSwitchToSpeaker_nonWatchBluetoothDeviceAvailable_returnsFalse() {
         // Arrange: Configure the fake to return true (a non-watch device is present)
