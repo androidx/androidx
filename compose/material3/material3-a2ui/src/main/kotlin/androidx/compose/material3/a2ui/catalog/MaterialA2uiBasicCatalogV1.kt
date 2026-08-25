@@ -29,6 +29,9 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  * Provides default Material 3 implementations for all components in the A2UI Basic Catalog V1
  * specification, while allowing individual component implementations to be overridden.
  *
+ * @param image [A2uiBasicCatalogV1.Image] component implementation. Use
+ *   [MaterialA2uiBasicCatalogV1Defaults.image] to create a default Material 3 implementation with
+ *   an [A2uiImageRenderer]
  * @param urlOpener [A2uiUrlOpener] used by catalog functions to open URLs
  * @param messageFormatter [A2uiMessageFormatter] used by catalog functions to format localized
  *   messages with arguments
@@ -47,6 +50,7 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  * @return an [A2uiCatalog] configured with Material 3 basic components and functions
  */
 public fun materialA2uiBasicCatalogV1(
+    image: A2uiBasicCatalogV1.Image,
     urlOpener: A2uiUrlOpener,
     messageFormatter: A2uiMessageFormatter,
     localeProvider: A2uiLocaleProvider,
@@ -60,6 +64,7 @@ public fun materialA2uiBasicCatalogV1(
     A2uiCatalog(
         A2uiBasicCatalogV1(
             text = text,
+            image = image,
             card = card,
             row = row,
             column = column,
@@ -73,6 +78,15 @@ public fun materialA2uiBasicCatalogV1(
 public object MaterialA2uiBasicCatalogV1Defaults {
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Text] component. */
     public val text: A2uiBasicCatalogV1.Text = MaterialA2uiBasicCatalogV1Text
+
+    /**
+     * Creates a default Material 3 implementation of the [A2uiBasicCatalogV1.Image] component.
+     *
+     * @param imageRenderer [A2uiImageRenderer] used to render images
+     * @return an [A2uiBasicCatalogV1.Image] instance
+     */
+    public fun image(imageRenderer: A2uiImageRenderer): A2uiBasicCatalogV1.Image =
+        MaterialA2uiBasicCatalogV1Image(imageRenderer)
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Card] component. */
     public val card: A2uiBasicCatalogV1.Card = MaterialA2uiBasicCatalogV1Card
