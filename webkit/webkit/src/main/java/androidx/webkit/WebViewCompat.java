@@ -1803,6 +1803,11 @@ public class WebViewCompat {
      * with more features available on the builder and different header handling,
      * (see {@link NavigationParameters.Builder#addAdditionalHeader(String, String)}).
      *
+     * <p>
+     * Note that this method will also cause the prefetch queue to be drained if
+     * the {@link WebViewFeature#WEBVIEW_NAVIGATE_DRAIN_PREFETCH} feature is supported.
+     * This can be checked using {@link WebViewFeature#isFeatureSupported}.
+     *
      * @param webview The WebView to perform the navigation on.
      * @param url The URL to load.
      * @param params The navigation parameters.
