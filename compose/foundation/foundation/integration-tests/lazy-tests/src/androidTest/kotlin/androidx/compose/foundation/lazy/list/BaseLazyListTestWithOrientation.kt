@@ -35,6 +35,7 @@ import androidx.compose.foundation.lazy.LazyList
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
@@ -113,6 +114,12 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
         overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
         spacedBy: Dp = 0.dp,
         isCrossAxis: Boolean = false,
+        cacheWindow: LazyLayoutCacheWindow =
+            LazyLayoutCacheWindow(
+                behindFraction = 0f,
+                aheadFraction = 0.5f,
+                isNonScrollCachingEnabled = false,
+            ),
         content: LazyListScope.() -> Unit,
     ) {
         if (vertical xor isCrossAxis) {
@@ -131,6 +138,7 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
                 userScrollEnabled = userScrollEnabled,
                 overscrollEffect = overscrollEffect,
                 verticalArrangement = verticalArrangement,
+                cacheWindow = cacheWindow,
                 content = content,
             )
         } else {
@@ -149,6 +157,7 @@ open class BaseLazyListTestWithOrientation(private val orientation: Orientation)
                 userScrollEnabled = userScrollEnabled,
                 overscrollEffect = overscrollEffect,
                 horizontalArrangement = horizontalArrangement,
+                cacheWindow = cacheWindow,
                 content = content,
             )
         }

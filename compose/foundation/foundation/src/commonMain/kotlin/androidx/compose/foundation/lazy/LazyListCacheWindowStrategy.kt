@@ -33,7 +33,7 @@ import kotlin.math.absoluteValue
  * movement (ahead).
  */
 @OptIn(ExperimentalFoundationApi::class)
-internal class LazyListCacheWindowStrategy(cacheWindow: LazyLayoutCacheWindow) :
+internal class LazyListCacheWindowStrategy(override val cacheWindow: LazyLayoutCacheWindow) :
     LazyListPrefetchStrategy, CacheWindowLogic by CacheWindowLogic(cacheWindow) {
     private val cacheWindowScope = LazyListCacheWindowScope()
 

@@ -106,7 +106,10 @@ internal fun LazyGrid(
             state.legacyPrefetchStrategy
                 ?: when (cacheWindow) {
                     is DefaultLazyGridCacheWindow ->
-                        if (ComposeFoundationFlags.isPreferDefaultCacheWindowOverPrefetchStrategy) {
+                        if (
+                            ComposeFoundationFlags
+                                .isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid
+                        ) {
                             LazyGridCacheWindowPrefetchStrategy(cacheWindow)
                         } else {
                             LazyGridPrefetchStrategy()

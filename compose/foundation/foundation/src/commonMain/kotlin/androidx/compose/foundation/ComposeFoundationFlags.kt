@@ -269,14 +269,24 @@ public object ComposeFoundationFlags {
     public var isKeepAroundDuringLookaheadDisabled: Boolean = true
 
     /**
-     * This flag controls whether [androidx.compose.foundation.lazy.grid.LazyGrid] prefers using the
+     * This flag controls whether [androidx.compose.foundation.lazy.LazyList] prefers using the
      * default [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow] over
-     * [androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy].
+     * [androidx.compose.foundation.lazy.LazyListPrefetchStrategy].
      */
     // TODO: b/536884365
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isPreferDefaultCacheWindowOverPrefetchStrategy: Boolean = true
+    public var isPreferDefaultCacheWindowOverPrefetchStrategyLazyList: Boolean = true
+
+    /**
+     * This flag controls whether [androidx.compose.foundation.lazy.grid.LazyGrid] prefers using the
+     * default [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow] over
+     * [androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategy].
+     */
+    // TODO: b/543758449
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid: Boolean = true
 
     /**
      * This flag controls whether lazy list measure passes calculate `firstVisibleIndex` and

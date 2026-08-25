@@ -25,6 +25,7 @@ import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
+import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
 import androidx.compose.foundation.lazy.layout.StickyItemsPlacement
 import androidx.compose.foundation.lazy.layout.applyStickyItems
@@ -77,6 +78,8 @@ internal fun measureLazyList(
     stickyItemsPlacement: StickyItemsPlacement?,
     shouldRunItemAnimation: Boolean,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
+    prefetchState: LazyLayoutPrefetchState?,
+    prefetchStrategy: LazyListPrefetchStrategy?,
 ): LazyListMeasureResult {
     requirePrecondition(beforeContentPadding >= 0) { "invalid beforeContentPadding" }
     requirePrecondition(afterContentPadding >= 0) { "invalid afterContentPadding" }
@@ -130,6 +133,8 @@ internal fun measureLazyList(
             density = density,
             childConstraints = measuredItemProvider.childConstraints,
             stickingItemsCombinedSize = 0,
+            prefetchState = prefetchState,
+            prefetchStrategy = prefetchStrategy,
         )
     } else {
         var currentFirstItemIndex = firstVisibleItemIndex
@@ -472,6 +477,8 @@ internal fun measureLazyList(
             density = density,
             childConstraints = measuredItemProvider.childConstraints,
             stickingItemsCombinedSize = stickingItems.fastSumBy { it.size },
+            prefetchState = prefetchState,
+            prefetchStrategy = prefetchStrategy,
         )
     }
 }

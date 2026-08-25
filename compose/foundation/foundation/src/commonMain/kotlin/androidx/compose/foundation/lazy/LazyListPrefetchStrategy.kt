@@ -134,8 +134,9 @@ public fun LazyListPrefetchStrategy(nestedPrefetchItemCount: Int = 2): LazyListP
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-private class DefaultLazyListPrefetchStrategy(private val initialNestedPrefetchItemCount: Int = 2) :
-    LazyListPrefetchStrategy {
+internal class DefaultLazyListPrefetchStrategy(
+    private val initialNestedPrefetchItemCount: Int = 2
+) : LazyListPrefetchStrategy {
 
     /**
      * The index scheduled to be prefetched (or the last prefetched index if the prefetch is done).

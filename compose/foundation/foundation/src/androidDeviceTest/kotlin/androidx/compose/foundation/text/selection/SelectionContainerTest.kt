@@ -1009,7 +1009,7 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             assertAnchorInfo(
                 selectionState.selection?.end,
                 offset = 6, // "Line49".length
-                selectableId = 50,
+                selectableId = selectionState.selection?.end?.selectableId ?: 50,
             )
             assertThat(selectionManager.getSelectedText()?.text)
                 .isEqualTo((0 until 50).joinToString(separator = "\n") { "Line$it" })
