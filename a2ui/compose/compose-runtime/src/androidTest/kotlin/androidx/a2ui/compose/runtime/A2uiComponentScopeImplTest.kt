@@ -40,6 +40,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
@@ -1304,15 +1305,388 @@ class A2uiComponentScopeImplTest {
             .contains("Action payload failed to match either 'event' or 'functionCall'")
     }
 
+    @Test
+    fun dispatchAction_directScopeConstructorWithActionInterceptorProvider_intercepts() {
+        var interceptedPayload: Map<String, Any?>? = null
+        val scope =
+            A2uiComponentScopeImpl(
+                id = TestComponentId,
+                baseDataPath = A2uiDataPath("/"),
+                surface = surface,
+                actionInterceptorProducer = {
+                    { payload ->
+                        interceptedPayload = payload
+                        true
+                    }
+                },
+            )
+
+        scope.dispatchAction(mapOf("event" to mapOf("name" to "test")))
+
+        assertThat(interceptedPayload).isEqualTo(mapOf("event" to mapOf("name" to "test")))
+        assertThat(dispatchedActions).isEmpty()
+    }
+
+    @Test
+    fun dispatchAction_withProvideActionInterceptor_consumedAction_doesNotDispatchToSurface() =
+        runComposeUiTest {
+            var interceptedPayload: Map<String, Any?>? = null
+            var scopeInsideInterceptor: A2uiComponentScope? = null
+
+            val testPayload =
+                mapOf("event" to mapOf("name" to "btn_click", "context" to mapOf("k" to "v")))
+
+            setContent {
+                val outerScope = rememberComponentScope(path = "/base")
+                outerScope.ProvideActionInterceptor(
+                    onIntercept = { payload ->
+                        interceptedPayload = payload
+                        true // Consume the action
+                    }
+                ) {
+                    val currentScope = rememberComponentScope(path = "/base/child")
+                    scopeInsideInterceptor = currentScope
+                }
+            }
+            waitForIdle()
+
+            scopeInsideInterceptor?.dispatchAction(testPayload)
+            waitForIdle()
+
+            assertThat(interceptedPayload).isEqualTo(testPayload)
+            assertThat(dispatchedActions).isEmpty()
+        }
+
+    @Test
+    fun dispatchAction_withProvideActionInterceptor_unconsumedAction_dispatchesToSurface() =
+        runComposeUiTest {
+            var interceptedPayload: Map<String, Any?>? = null
+            var scopeInsideInterceptor: A2uiComponentScope? = null
+
+            val testPayload = mapOf("event" to mapOf("name" to "unhandled_event"))
+
+            setContent {
+                val outerScope = rememberComponentScope(path = "/base")
+                outerScope.ProvideActionInterceptor(
+                    onIntercept = { payload ->
+                        interceptedPayload = payload
+                        false // Do not consume
+                    }
+                ) {
+                    val currentScope = rememberComponentScope(path = "/base/child")
+                    scopeInsideInterceptor = currentScope
+                }
+            }
+            waitForIdle()
+
+            scopeInsideInterceptor?.dispatchAction(testPayload)
+            waitForIdle()
+
+            assertThat(interceptedPayload).isEqualTo(testPayload)
+            assertThat(dispatchedActions).hasSize(1)
+            val action = assertIs<A2uiEventAction>(dispatchedActions.first())
+            assertThat(action.eventName).isEqualTo("unhandled_event")
+        }
+
+    @Test
+    fun dispatchAction_withProvideActionInterceptor_nestedChaining_innerConsumes() =
+        runComposeUiTest {
+            val executionOrder = mutableListOf<String>()
+            var innerScope: A2uiComponentScope? = null
+
+            setContent {
+                val outerScope = rememberComponentScope(path = "/base")
+                outerScope.ProvideActionInterceptor(
+                    onIntercept = {
+                        executionOrder.add("outer")
+                        true
+                    }
+                ) {
+                    val midScope = rememberComponentScope(path = "/base/mid")
+                    midScope.ProvideActionInterceptor(
+                        onIntercept = {
+                            executionOrder.add("inner")
+                            true // Inner consumes
+                        }
+                    ) {
+                        innerScope = rememberComponentScope(path = "/base/mid/inner")
+                    }
+                }
+            }
+            waitForIdle()
+
+            innerScope?.dispatchAction(mapOf("event" to mapOf("name" to "click")))
+            waitForIdle()
+
+            assertThat(executionOrder).containsExactly("inner")
+            assertThat(dispatchedActions).isEmpty()
+        }
+
+    @Test
+    fun dispatchAction_withProvideActionInterceptor_nestedChaining_innerPassesOuterConsumes() =
+        runComposeUiTest {
+            val executionOrder = mutableListOf<String>()
+            var innerScope: A2uiComponentScope? = null
+
+            setContent {
+                val outerScope = rememberComponentScope(path = "/base")
+                outerScope.ProvideActionInterceptor(
+                    onIntercept = {
+                        executionOrder.add("outer")
+                        true // Outer consumes
+                    }
+                ) {
+                    val midScope = rememberComponentScope(path = "/base/mid")
+                    midScope.ProvideActionInterceptor(
+                        onIntercept = {
+                            executionOrder.add("inner")
+                            false // Inner passes through
+                        }
+                    ) {
+                        innerScope = rememberComponentScope(path = "/base/mid/inner")
+                    }
+                }
+            }
+            waitForIdle()
+
+            innerScope?.dispatchAction(mapOf("event" to mapOf("name" to "click")))
+            waitForIdle()
+
+            assertThat(executionOrder).containsExactly("inner", "outer").inOrder()
+            assertThat(dispatchedActions).isEmpty()
+        }
+
+    @Test
+    fun dispatchAction_withProvideActionInterceptor_nestedChaining_bothPass_dispatchesToSurface() =
+        runComposeUiTest {
+            val executionOrder = mutableListOf<String>()
+            var innerScope: A2uiComponentScope? = null
+
+            setContent {
+                val outerScope = rememberComponentScope(path = "/base")
+                outerScope.ProvideActionInterceptor(
+                    onIntercept = {
+                        executionOrder.add("outer")
+                        false
+                    }
+                ) {
+                    val midScope = rememberComponentScope(path = "/base/mid")
+                    midScope.ProvideActionInterceptor(
+                        onIntercept = {
+                            executionOrder.add("inner")
+                            false
+                        }
+                    ) {
+                        innerScope = rememberComponentScope(path = "/base/mid/inner")
+                    }
+                }
+            }
+            waitForIdle()
+
+            innerScope?.dispatchAction(mapOf("event" to mapOf("name" to "click")))
+            waitForIdle()
+
+            assertThat(executionOrder).containsExactly("inner", "outer").inOrder()
+            assertThat(dispatchedActions).hasSize(1)
+        }
+
+    @Test
+    fun dispatchAction_withProvideActionInterceptor_updatedState_usesLatestLambda() =
+        runComposeUiTest {
+            var interceptedWithVersion: Int? = null
+            var currentVersion by mutableStateOf(1)
+            var scopeInsideInterceptor: A2uiComponentScope? = null
+
+            setContent {
+                val outerScope = rememberComponentScope(path = "/base")
+                val version = currentVersion
+                outerScope.ProvideActionInterceptor(
+                    onIntercept = {
+                        interceptedWithVersion = version
+                        true
+                    }
+                ) {
+                    scopeInsideInterceptor = rememberComponentScope(path = "/base/child")
+                }
+            }
+            waitForIdle()
+
+            // First invocation with version 1
+            scopeInsideInterceptor?.dispatchAction(mapOf("event" to mapOf("name" to "v1")))
+            waitForIdle()
+            assertThat(interceptedWithVersion).isEqualTo(1)
+
+            // Update state
+            currentVersion = 2
+            waitForIdle()
+
+            // Second invocation should run the latest lambda with version 2
+            scopeInsideInterceptor?.dispatchAction(mapOf("event" to mapOf("name" to "v2")))
+            waitForIdle()
+            assertThat(interceptedWithVersion).isEqualTo(2)
+        }
+
+    @Test
+    fun dispatchAction_withProvideActionInterceptor_scopeFromObserveA2uiComponentState_interceptsAction() =
+        runComposeUiTest {
+            componentRegistry.update(
+                listOf(
+                    A2uiComponentPayload(
+                        id = "child_component",
+                        type = "Button",
+                        properties = mapOf("label" to "Click"),
+                    )
+                )
+            )
+
+            var childScope: A2uiComponentScope? = null
+            var interceptedAction = false
+
+            setContent {
+                val parentScope = rememberComponentScope(path = "/base")
+                parentScope.ProvideActionInterceptor(
+                    onIntercept = {
+                        interceptedAction = true
+                        true
+                    }
+                ) {
+                    val childState = parentScope.observeA2uiComponentState(id = "child_component")
+                    if (childState is A2uiComponentState.Success) {
+                        childScope = childState.component.scope
+                    }
+                }
+            }
+            waitForIdle()
+
+            assertThat(childScope).isNotNull()
+            childScope?.dispatchAction(mapOf("event" to mapOf("name" to "button_click")))
+            waitForIdle()
+
+            assertThat(interceptedAction).isTrue()
+            assertThat(dispatchedActions).isEmpty()
+        }
+
+    @Test
+    fun dispatchAction_withProvideActionInterceptor_interceptsFunctionCallAction() =
+        runComposeUiTest {
+            var interceptedFunction: String? = null
+            var innerScope: A2uiComponentScope? = null
+
+            setContent {
+                val outerScope = rememberComponentScope(path = "/base")
+                outerScope.ProvideActionInterceptor(
+                    onIntercept = { payload ->
+                        val functionCall = payload["functionCall"] as? Map<*, *>
+                        interceptedFunction = functionCall?.get("call") as? String
+                        true
+                    }
+                ) {
+                    innerScope = rememberComponentScope(path = "/base/inner")
+                }
+            }
+            waitForIdle()
+
+            innerScope?.dispatchAction(
+                mapOf(
+                    "functionCall" to
+                        mapOf(
+                            "call" to "openBrowser",
+                            "args" to mapOf("url" to "https://google.com"),
+                        )
+                )
+            )
+            waitForIdle()
+
+            assertThat(interceptedFunction).isEqualTo("openBrowser")
+            assertThat(dispatchedActions).isEmpty()
+        }
+
+    @Test
+    fun dispatchAction_withProvideActionInterceptor_parentInterceptorChanges_updatesChainedInterceptor() =
+        runComposeUiTest {
+            var parentVersion by mutableStateOf(1)
+            var interceptedByParent = 0
+            var innerScope: A2uiComponentScope? = null
+
+            setContent {
+                val rootScope = rememberComponentScope(path = "/root")
+
+                // Simulating a parent interceptor changing state
+                val currentParentVersion = parentVersion
+                rootScope.ProvideActionInterceptor(
+                    onIntercept = {
+                        interceptedByParent = currentParentVersion
+                        true // Consume
+                    }
+                ) {
+                    val outerScope = rememberComponentScope(path = "/base")
+                    outerScope.ProvideActionInterceptor(
+                        onIntercept = {
+                            false // Pass to parent
+                        }
+                    ) {
+                        innerScope = rememberComponentScope(path = "/base/inner")
+                    }
+                }
+            }
+            waitForIdle()
+
+            innerScope?.dispatchAction(mapOf("event" to mapOf("name" to "test1")))
+            waitForIdle()
+            assertThat(interceptedByParent).isEqualTo(1)
+
+            // Update the state that the parent interceptor captures
+            parentVersion = 2
+            waitForIdle()
+
+            innerScope?.dispatchAction(mapOf("event" to mapOf("name" to "test2")))
+            waitForIdle()
+            // The chained interceptor should invoke the newly updated parent interceptor logic
+            assertThat(interceptedByParent).isEqualTo(2)
+        }
+
+    @Test
+    fun dispatchAction_outsideProvideActionInterceptor_dispatchesDirectlyToSurface() =
+        runComposeUiTest {
+            var interceptorCalled = false
+            var outsideScope: A2uiComponentScope? = null
+
+            setContent {
+                val outerScope = rememberComponentScope(path = "/base")
+                outsideScope = outerScope
+
+                outerScope.ProvideActionInterceptor(
+                    onIntercept = {
+                        interceptorCalled = true
+                        true
+                    }
+                ) {
+                    // Content inside interceptor
+                }
+            }
+            waitForIdle()
+
+            outsideScope?.dispatchAction(mapOf("event" to mapOf("name" to "outside_action")))
+            waitForIdle()
+
+            assertThat(interceptorCalled).isFalse()
+            assertThat(dispatchedActions).hasSize(1)
+            val action = assertIs<A2uiEventAction>(dispatchedActions.first())
+            assertThat(action.eventName).isEqualTo("outside_action")
+        }
+
     @Composable
-    private fun rememberComponentScope(path: String) =
-        remember(path) {
+    private fun rememberComponentScope(path: String): A2uiComponentScope {
+        val localActionInterceptor by rememberUpdatedState(LocalA2uiActionInterceptor.current)
+        return remember(path) {
             A2uiComponentScopeImpl(
                 id = TestComponentId,
                 baseDataPath = A2uiDataPath(path),
                 surface = surface,
+                actionInterceptorProducer = { localActionInterceptor },
             )
         }
+    }
 
     private fun createCatalog(functions: List<A2uiFunction> = emptyList()) =
         object : A2uiCoreCatalog {
