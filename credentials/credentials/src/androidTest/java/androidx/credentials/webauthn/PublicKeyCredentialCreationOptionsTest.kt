@@ -53,7 +53,7 @@ class PublicKeyCredentialCreationOptionsTest {
                 "attestation": "enabled"
             }
          """
-        var options = PublicKeyCredentialCreationOptions(json)
+        val options = PublicKeyCredentialCreationOptions(json)
         assertThat(options.challenge).isEqualTo(rawId)
         assertThat(options.attestation).isEqualTo("enabled")
         assertThat(options.timeout).isEqualTo(1)
@@ -91,7 +91,7 @@ class PublicKeyCredentialCreationOptionsTest {
                 "timeout": 1
             }
          """
-        var options = PublicKeyCredentialCreationOptions(json)
+        val options = PublicKeyCredentialCreationOptions(json)
         assertThat(options.challenge).isEqualTo(rawId)
         assertThat(options.attestation).isEqualTo("none")
         assertThat(options.timeout).isEqualTo(1)

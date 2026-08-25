@@ -190,7 +190,7 @@ internal class PublicKeyCredentialControllerUtility {
         }
 
         fun toAssertPasskeyResponse(cred: SignInCredential): String {
-            var json = JSONObject()
+            val json = JSONObject()
             val publicKeyCred = cred.publicKeyCredential
 
             when (val authenticatorResponse = publicKeyCred?.response!!) {
@@ -283,8 +283,8 @@ internal class PublicKeyCredentialControllerUtility {
             val authenticatorResponse: AuthenticatorResponse = cred.response
             if (authenticatorResponse is AuthenticatorErrorResponse) {
                 val code = authenticatorResponse.errorCode
-                var exceptionError = orderedErrorCodeToExceptions[code]
-                var msg = authenticatorResponse.errorMessage
+                val exceptionError = orderedErrorCodeToExceptions[code]
+                val msg = authenticatorResponse.errorMessage
                 val exception: CreateCredentialException
                 if (exceptionError == null) {
                     exception =
@@ -318,7 +318,7 @@ internal class PublicKeyCredentialControllerUtility {
             code: ErrorCode,
             msg: String?,
         ): GetCredentialException {
-            var exceptionError = orderedErrorCodeToExceptions[code]
+            val exceptionError = orderedErrorCodeToExceptions[code]
             val exception: GetCredentialException
             if (exceptionError == null) {
                 exception =

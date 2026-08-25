@@ -133,6 +133,7 @@ class UiDelegationFulfillmentProviderPlayServicesTest {
         val binder = provider.getStubImplementation(fakeService!!)!!
         val stub = IDelegatedCredentialService.Stub.asInterface(binder)
 
+        @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
         fakeService = null
         Runtime.getRuntime().gc()
         System.gc()

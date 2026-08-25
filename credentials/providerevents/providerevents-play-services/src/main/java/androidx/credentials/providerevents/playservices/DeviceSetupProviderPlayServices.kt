@@ -98,7 +98,7 @@ public class DeviceSetupProviderPlayServices : DeviceSetupProvider {
                 return
                 // TODO(b/416798373): revisit the error types
             }
-            var jetpackRequest: ExportCredentialsRequest?
+            val jetpackRequest: ExportCredentialsRequest?
             try {
                 // TODO(b/385394695): Fix being able to create CallingAppInfo with GMS
                 //  CallingAppInfoParcelable

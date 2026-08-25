@@ -95,8 +95,8 @@ class ImportCredentialsControllerTest {
         val result =
             maybeReportErrorResultCode(
                 Activity.RESULT_OK,
-                { s, f -> f() },
-                { e -> run { Assert.fail("No error should be thrown") } },
+                { _, f -> f() },
+                { _ -> run { Assert.fail("No error should be thrown") } },
                 CancellationSignal(),
                 null,
             )
@@ -109,7 +109,7 @@ class ImportCredentialsControllerTest {
         val result =
             maybeReportErrorResultCode(
                 Activity.RESULT_CANCELED,
-                { s, f -> f() },
+                { _, f -> f() },
                 { e ->
                     run {
                         assertThat(e)
@@ -129,7 +129,7 @@ class ImportCredentialsControllerTest {
         val result =
             maybeReportErrorResultCode(
                 Activity.RESULT_CANCELED,
-                { s, f -> f() },
+                { _, f -> f() },
                 { e ->
                     run {
                         assertThat(e)

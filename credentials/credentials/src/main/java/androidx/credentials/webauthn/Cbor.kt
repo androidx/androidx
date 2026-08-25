@@ -69,20 +69,20 @@ class Cbor {
             // See:
             // https://fidoalliance.org/specs/fido-v2.1-ps-20210615/fido-client-to-authenticator-protocol-v2.1-ps-20210615.html#ctap2-canonical-cbor-encoding-form
             var ret = createArg(TYPE_MAP, data.size.toLong())
-            var byteMap: MutableMap<ByteArray, ByteArray> = mutableMapOf()
+            val byteMap: MutableMap<ByteArray, ByteArray> = mutableMapOf()
             for (i in data) {
                 // Convert to byte arrays so we can sort them.
                 byteMap.put(encode(i.key!!), encode(i.value!!))
             }
 
-            var keysList = ArrayList<ByteArray>(byteMap.keys)
+            val keysList = ArrayList<ByteArray>(byteMap.keys)
             keysList.sortedWith(
                 Comparator<ByteArray> { a, b ->
                     // If two keys have different lengths, the shorter one sorts earlier;
                     // If two keys have the same length, the one with the lower value in (byte-wise)
                     // lexical order sorts earlier.
-                    var aBytes = byteMap.get(a)!!
-                    var bBytes = byteMap.get(b)!!
+                    val aBytes = byteMap.get(a)!!
+                    val bBytes = byteMap.get(b)!!
                     when {
                         a.size > b.size -> 1
                         a.size < b.size -> -1

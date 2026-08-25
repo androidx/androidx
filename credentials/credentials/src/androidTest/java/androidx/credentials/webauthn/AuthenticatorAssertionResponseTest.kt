@@ -39,8 +39,8 @@ class AuthenticatorAssertionResponseTest {
                  "userVerification": "enabled"
              }
           """
-        var options = PublicKeyCredentialRequestOptions(rawJson)
-        var response =
+        val options = PublicKeyCredentialRequestOptions(rawJson)
+        val response =
             AuthenticatorAssertionResponse(
                 options,
                 rawId,
@@ -51,8 +51,8 @@ class AuthenticatorAssertionResponseTest {
                 true,
                 rawUserHandle,
             )
-        var json = response.json()
-        var authData = response.defaultAuthenticatorData()
+        val json = response.json()
+        val authData = response.defaultAuthenticatorData()
 
         assertThat(json.getString("authenticatorData")).isEqualTo(WebAuthnUtils.b64Encode(authData))
         assertThat(json.getString("userHandle")).isEqualTo(WebAuthnUtils.b64Encode(rawUserHandle))

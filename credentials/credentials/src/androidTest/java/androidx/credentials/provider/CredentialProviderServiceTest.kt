@@ -37,10 +37,10 @@ class CredentialProviderServiceTest {
 
     @Test
     fun test_createRequest() {
-        var service = CredentialProviderServiceTestImpl()
+        val service = CredentialProviderServiceTestImpl()
         service.isTestMode = true
 
-        var request = android.service.credentials.BeginCreateCredentialRequest("test", Bundle())
+        val request = android.service.credentials.BeginCreateCredentialRequest("test", Bundle())
         val outcome =
             OutcomeReceiver<
                 android.service.credentials.BeginCreateCredentialResponse,
@@ -63,11 +63,11 @@ class CredentialProviderServiceTest {
 
     @Test
     fun test_getRequest() {
-        var service = CredentialProviderServiceTestImpl()
+        val service = CredentialProviderServiceTestImpl()
         service.isTestMode = true
 
-        var option = android.service.credentials.BeginGetCredentialOption("id", "type", Bundle())
-        var request =
+        val option = android.service.credentials.BeginGetCredentialOption("id", "type", Bundle())
+        val request =
             android.service.credentials.BeginGetCredentialRequest.Builder()
                 .setBeginGetCredentialOptions(listOf(option))
                 .build()
@@ -93,10 +93,10 @@ class CredentialProviderServiceTest {
 
     @Test
     fun test_clearRequest() {
-        var service = CredentialProviderServiceTestImpl()
+        val service = CredentialProviderServiceTestImpl()
         service.isTestMode = true
 
-        var request =
+        val request =
             android.service.credentials.ClearCredentialStateRequest(
                 android.service.credentials.CallingAppInfo("name", SigningInfo()),
                 Bundle(),

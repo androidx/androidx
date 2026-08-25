@@ -108,7 +108,7 @@ internal class BeginSignInControllerUtility {
         private fun convertToGoogleIdTokenOption(
             option: GetGoogleIdOption
         ): GoogleIdTokenRequestOptions {
-            var idTokenOption =
+            val idTokenOption =
                 GoogleIdTokenRequestOptions.builder()
                     .setFilterByAuthorizedAccounts(option.filterByAuthorizedAccounts)
                     .setNonce(option.nonce)
