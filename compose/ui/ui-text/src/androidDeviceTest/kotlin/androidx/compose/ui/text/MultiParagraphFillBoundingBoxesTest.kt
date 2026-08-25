@@ -127,7 +127,7 @@ class MultiParagraphFillBoundingBoxesTest {
     @Test
     fun ltrAndRtlParagraphs() {
         val paragraph1 = "a\nb"
-        var paragraph2 = "\u05D0\n\u05D1"
+        val paragraph2 = "\u05D0\n\u05D1"
         val text = createAnnotatedString(paragraph1, paragraph2)
         val width = fontSizeInPx * 3
         val paragraph = simpleMultiParagraph(text, width = width)

@@ -234,7 +234,7 @@ class MultiPointerInputRecorder : ModifierNodeElement<MultiPointerInputRecorderN
     }
 
     override fun hashCode(): Int {
-        var result = _events.hashCode()
+        val result = _events.hashCode()
         return result
     }
 

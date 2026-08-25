@@ -3492,7 +3492,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         @JvmStatic
         fun setExtraRenderingInfo(node: SemanticsNode, info: AccessibilityNodeInfo) {
-            val view = node.layoutNode.owner as? AndroidComposeView ?: return
+            node.layoutNode.owner as? AndroidComposeView ?: return
 
             val builder = AccessibilityNodeInfo.ExtraRenderingInfo.Builder()
 

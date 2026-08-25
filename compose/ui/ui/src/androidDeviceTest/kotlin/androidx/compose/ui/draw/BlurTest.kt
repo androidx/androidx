@@ -120,8 +120,8 @@ class BlurTest {
             }
         }
 
-        var blurBuffer: IntArray
-        var graphicsLayerBuffer: IntArray
+        val blurBuffer: IntArray
+        val graphicsLayerBuffer: IntArray
 
         val blurPixelMap =
             rule.onNodeWithTag(blurTag).captureToImage().apply {

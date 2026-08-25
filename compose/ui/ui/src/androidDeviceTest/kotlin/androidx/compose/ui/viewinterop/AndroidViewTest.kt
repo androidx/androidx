@@ -238,7 +238,7 @@ class AndroidViewTest {
             )
         }
         // the first drawn was not caused by invalidation, thus add it to expected draw count.
-        var expectedDraws = timesToInvalidate + 1
+        val expectedDraws = timesToInvalidate + 1
         repeat(expectedDraws) { rule.mainClock.advanceTimeByFrame() }
 
         // Ensure we wait until the time advancement actually happened as sometimes we can race if

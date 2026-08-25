@@ -822,7 +822,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
         val exceptionHandler = uncaughtExceptionHandler
-        var command =
+        val command =
             if (exceptionHandler != null) {
                 {
                     try {
