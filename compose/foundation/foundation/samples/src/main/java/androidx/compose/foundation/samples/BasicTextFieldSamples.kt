@@ -48,7 +48,7 @@ import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.forEachChange
 import androidx.compose.foundation.text.input.forEachChangeReversed
 import androidx.compose.foundation.text.input.insert
-import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.maxLengthTrim
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.text.input.then
@@ -73,6 +73,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
@@ -383,7 +384,7 @@ fun BasicTextFieldOutputTransformationSample() {
         state,
         inputTransformation =
             InputTransformation.byValue { _, proposed -> proposed.filter { it.isDigit() } }
-                .maxLength(10),
+                .maxLengthTrim(10),
         outputTransformation = PhoneNumberOutputTransformation(false),
     )
 }
@@ -396,7 +397,7 @@ fun BasicTextFieldAnnotatedOutputTransformationSample() {
         state,
         inputTransformation =
             InputTransformation.byValue { _, proposed -> proposed.filter { it.isDigit() } }
-                .maxLength(10),
+                .maxLengthTrim(10),
         outputTransformation =
             OutputTransformation {
                 // Find hashtags
@@ -470,7 +471,7 @@ fun BasicTextFieldInputTransformationMaxLengthCustom() {
                     // The output transformation formats "1234567890" to "(123) 456-7890",
                     // which is 14 characters long. We set the accessibility maximum length
                     // to 14 so screen readers announce the correct limit.
-                    maxLength(14)
+                    maxTextLength = 14
                 }
 
                 override fun TextFieldBuffer.transformInput() {

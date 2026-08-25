@@ -30,7 +30,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.allCaps
 import androidx.compose.foundation.text.input.byValue
-import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.maxLengthTrim
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
@@ -200,7 +200,7 @@ fun CheckoutRegisterFormSample() {
                 ),
             inputTransformation =
                 InputTransformation.byValue { _, proposed -> proposed.filter { it.isDigit() } }
-                    .maxLength(pinLength),
+                    .maxLengthTrim(pinLength),
             modifier = Modifier.fillMaxWidth(),
         )
 
