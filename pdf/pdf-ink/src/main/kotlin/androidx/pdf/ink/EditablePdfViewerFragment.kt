@@ -264,16 +264,10 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
         }
 
     private val onAnnotationLocatedListener =
-        object : AnnotationsView.OnAnnotationLocatedListener {
-            override fun onAnnotationsLocated(
-                x: Float,
-                y: Float,
-                annotations: List<KeyedPdfAnnotation>,
-            ) {
-                if (documentViewModel.drawingMode.value == AnnotationDrawingMode.EraserMode) {
-                    val topAnnotation = annotations.first()
-                    documentViewModel.removeAnnotation(topAnnotation.key)
-                }
+        AnnotationsView.OnAnnotationLocatedListener { _, _, annotations ->
+            if (documentViewModel.drawingMode.value == AnnotationDrawingMode.EraserMode) {
+                val topAnnotation = annotations.first()
+                documentViewModel.removeAnnotation(topAnnotation.key)
             }
         }
 
@@ -423,7 +417,7 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
     }
 
     private fun setupToolbarCoordinator(toolbar: AnnotationToolbarView) {
-        toolbarCoordinator.apply { attachToolbar(toolbar) }
+        toolbarCoordinator.apply { addView(toolbar) }
     }
 
     override fun onDestroyView() {
@@ -484,7 +478,6 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
                 reset()
                 wetStrokesView.maskPath = null
             }
-            toolbarCoordinator.updateLayout()
         }
     }
 
