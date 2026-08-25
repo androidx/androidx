@@ -22,6 +22,9 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
+import android.os.Build
+import android.os.Bundle
+import android.util.SizeF
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
@@ -47,6 +50,7 @@ class GlanceAdaptiveWidgetReceiverTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         context.applicationInfo.flags =
             context.applicationInfo.flags or ApplicationInfo.FLAG_DEBUGGABLE
+        GlanceAdaptiveWidgetReceiver.clearOptionsCache()
     }
 
     private class TestReceiver : GlanceAdaptiveWidgetReceiver() {
@@ -61,6 +65,19 @@ class GlanceAdaptiveWidgetReceiverTest {
 
     private class DefaultReceiver : GlanceAdaptiveWidgetReceiver() {
         override val widgetName: String = "default_widget"
+    }
+
+    private class TestCountingReceiver : GlanceAdaptiveWidgetReceiver() {
+        override val widgetName: String = "test_widget"
+        var updateCallCount: Int = 0
+
+        override fun onUpdate(
+            context: Context,
+            appWidgetManager: AppWidgetManager,
+            appWidgetIds: IntArray?,
+        ) {
+            updateCallCount++
+        }
     }
 
     @Test
@@ -104,6 +121,169 @@ class GlanceAdaptiveWidgetReceiverTest {
 
         val called = receiver.onUpdateCalled.await()
         assertThat(called).isTrue()
+    }
+
+    @Test
+    fun onAppWidgetOptionsChanged_whenOptionsChanged_invokesOnUpdateForTargetWidgetId() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        var updatedAppWidgetIds: IntArray? = null
+        val receiver =
+            object : GlanceAdaptiveWidgetReceiver() {
+                override val widgetName: String = "test_widget"
+                val onUpdateCalled = CompletableDeferred<Boolean>()
+
+                override fun onUpdate(
+                    context: Context,
+                    appWidgetManager: AppWidgetManager,
+                    appWidgetIds: IntArray?,
+                ) {
+                    updatedAppWidgetIds = appWidgetIds
+                    super.onUpdate(context, appWidgetManager, appWidgetIds)
+                }
+
+                override suspend fun onUpdate(context: Context) {
+                    onUpdateCalled.complete(true)
+                }
+            }
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val targetAppWidgetId = 42
+        val options =
+            Bundle().apply {
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 100)
+                putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 100)
+            }
+
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, targetAppWidgetId, options)
+
+        val called = receiver.onUpdateCalled.await()
+        assertThat(called).isTrue()
+        assertThat(updatedAppWidgetIds).isEqualTo(intArrayOf(targetAppWidgetId))
+    }
+
+    @Test
+    fun onAppWidgetOptionsChanged_whenOptionsUnchanged_deduplicatesAndDoesNotInvokeOnUpdate() =
+        runTest {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val receiver = TestCountingReceiver()
+            val targetAppWidgetId = 43
+            val options =
+                Bundle().apply {
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 100)
+                    putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 100)
+                }
+
+            receiver.onAppWidgetOptionsChanged(
+                context,
+                appWidgetManager,
+                targetAppWidgetId,
+                options,
+            )
+            assertThat(receiver.updateCallCount).isEqualTo(1)
+
+            receiver.onAppWidgetOptionsChanged(
+                context,
+                appWidgetManager,
+                targetAppWidgetId,
+                options,
+            )
+            assertThat(receiver.updateCallCount).isEqualTo(1)
+        }
+
+    @Test
+    fun onAppWidgetOptionsChanged_whenAppWidgetSizesChanged_invokesOnUpdate() = runTest {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return@runTest
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val receiver = TestCountingReceiver()
+        val targetAppWidgetId = 44
+        val initialOptions =
+            Bundle().apply {
+                putParcelableArrayList(
+                    AppWidgetManager.OPTION_APPWIDGET_SIZES,
+                    arrayListOf(SizeF(100f, 100f)),
+                )
+            }
+        val updatedOptions =
+            Bundle().apply {
+                putParcelableArrayList(
+                    AppWidgetManager.OPTION_APPWIDGET_SIZES,
+                    arrayListOf(SizeF(100f, 100f), SizeF(200f, 200f)),
+                )
+            }
+
+        receiver.onAppWidgetOptionsChanged(
+            context,
+            appWidgetManager,
+            targetAppWidgetId,
+            initialOptions,
+        )
+        assertThat(receiver.updateCallCount).isEqualTo(1)
+
+        receiver.onAppWidgetOptionsChanged(
+            context,
+            appWidgetManager,
+            targetAppWidgetId,
+            updatedOptions,
+        )
+        assertThat(receiver.updateCallCount).isEqualTo(2)
+    }
+
+    @Test
+    fun onAppWidgetOptionsChanged_whenAppWidgetSizesReordered_deduplicatesAndDoesNotInvokeOnUpdate() =
+        runTest {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return@runTest
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val receiver = TestCountingReceiver()
+            val targetAppWidgetId = 46
+            val initialOptions =
+                Bundle().apply {
+                    putParcelableArrayList(
+                        AppWidgetManager.OPTION_APPWIDGET_SIZES,
+                        arrayListOf(SizeF(100f, 100f), SizeF(200f, 200f)),
+                    )
+                }
+            val reorderedOptions =
+                Bundle().apply {
+                    putParcelableArrayList(
+                        AppWidgetManager.OPTION_APPWIDGET_SIZES,
+                        arrayListOf(SizeF(200f, 200f), SizeF(100f, 100f)),
+                    )
+                }
+
+            receiver.onAppWidgetOptionsChanged(
+                context,
+                appWidgetManager,
+                targetAppWidgetId,
+                initialOptions,
+            )
+            assertThat(receiver.updateCallCount).isEqualTo(1)
+
+            receiver.onAppWidgetOptionsChanged(
+                context,
+                appWidgetManager,
+                targetAppWidgetId,
+                reorderedOptions,
+            )
+            assertThat(receiver.updateCallCount).isEqualTo(1)
+        }
+
+    @Test
+    fun onDeleted_removesWidgetOptionsFromCache() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val receiver = TestCountingReceiver()
+        val targetAppWidgetId = 45
+        val options = Bundle().apply { putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 100) }
+
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, targetAppWidgetId, options)
+        assertThat(receiver.updateCallCount).isEqualTo(1)
+
+        receiver.onDeleted(context, intArrayOf(targetAppWidgetId))
+
+        receiver.onAppWidgetOptionsChanged(context, appWidgetManager, targetAppWidgetId, options)
+        assertThat(receiver.updateCallCount).isEqualTo(2)
     }
 
     @Test

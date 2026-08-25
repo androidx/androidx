@@ -23,9 +23,15 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
+import android.os.Build
+import android.os.Bundle
 import android.util.Log
+import android.util.SizeF
 import androidx.annotation.CallSuper
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
+import androidx.collection.MutableIntObjectMap
+import androidx.collection.mutableIntObjectMapOf
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -110,7 +116,63 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
         @Suppress("InvalidNullabilityOverride") appWidgetManager: AppWidgetManager,
         @Suppress("InvalidNullabilityOverride") appWidgetIds: IntArray?,
     ) {
-        goAsync(coroutineContext) { onUpdate(context) }
+        runAndLogExceptions {
+            cacheWidgetOptionsIfMissing(appWidgetManager, appWidgetIds)
+            goAsync(coroutineContext) { onUpdate(context) }
+        }
+    }
+
+    private fun cacheWidgetOptionsIfMissing(
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray?,
+    ) {
+        appWidgetIds?.forEach { id ->
+            val isCached = synchronized(lock) { lastOptionsCache.containsKey(id) }
+            if (!isCached) {
+                val options = appWidgetManager.getAppWidgetOptions(id)
+                if (options != null) {
+                    val state = WidgetOptionsState.from(options)
+                    synchronized(lock) { lastOptionsCache[id] = state }
+                }
+            }
+        }
+    }
+
+    @CallSuper
+    override fun onAppWidgetOptionsChanged(
+        @Suppress("InvalidNullabilityOverride") context: Context,
+        @Suppress("InvalidNullabilityOverride") appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        @Suppress("InvalidNullabilityOverride") newOptions: Bundle,
+    ) {
+        runAndLogExceptions {
+            super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
+            val newState = WidgetOptionsState.from(newOptions)
+            val oldState =
+                synchronized(lock) {
+                    val prev = lastOptionsCache[appWidgetId]
+                    lastOptionsCache[appWidgetId] = newState
+                    prev
+                }
+            if (oldState != newState) {
+                onUpdate(context, appWidgetManager, intArrayOf(appWidgetId))
+            }
+        }
+    }
+
+    @CallSuper
+    override fun onDeleted(
+        @Suppress("InvalidNullabilityOverride") context: Context,
+        @Suppress("InvalidNullabilityOverride") appWidgetIds: IntArray,
+    ) {
+        runAndLogExceptions {
+            super.onDeleted(context, appWidgetIds)
+            synchronized(lock) {
+                for (id in appWidgetIds) {
+                    lastOptionsCache.remove(id)
+                }
+            }
+        }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -141,6 +203,15 @@ public abstract class GlanceAdaptiveWidgetReceiver : AppWidgetProvider() {
     }
 
     public companion object {
+        private val lock = Any()
+        private val lastOptionsCache: MutableIntObjectMap<WidgetOptionsState> =
+            mutableIntObjectMapOf()
+
+        @VisibleForTesting
+        internal fun clearOptionsCache() {
+            synchronized(lock) { lastOptionsCache.clear() }
+        }
+
         /**
          * Broadcast action to force a debug update of the Glance Adaptive widget via adb: `adb
          * shell am broadcast -a androidx.glance.adaptive.action.DEBUG_UPDATE -n APP/COMPONENT`
@@ -204,4 +275,46 @@ private inline fun runAndLogExceptions(block: () -> Unit) {
     } catch (ex: Exception) {
         Log.e(TAG, "Error in Glance Adaptive Widget Receiver", ex)
     }
+}
+
+private data class WidgetOptionsState(
+    val minWidth: Int?,
+    val minHeight: Int?,
+    val maxWidth: Int?,
+    val maxHeight: Int?,
+    val sizes: List<SizeF>?,
+) {
+    companion object {
+        fun from(options: Bundle): WidgetOptionsState {
+            fun getIntOrNull(key: String): Int? =
+                if (options.containsKey(key)) options.getInt(key) else null
+
+            return WidgetOptionsState(
+                minWidth = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH),
+                minHeight = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT),
+                maxWidth = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH),
+                maxHeight = getIntOrNull(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT),
+                sizes = getWidgetSizes(options),
+            )
+        }
+    }
+}
+
+private fun getWidgetSizes(options: Bundle): List<SizeF>? {
+    val rawSizes =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            options.getParcelableArrayList(
+                AppWidgetManager.OPTION_APPWIDGET_SIZES,
+                SizeF::class.java,
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            options.getParcelableArrayList<SizeF>(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+        } ?: return null
+
+    rawSizes.sortWith { a, b ->
+        val widthCompare = a.width.compareTo(b.width)
+        if (widthCompare != 0) widthCompare else a.height.compareTo(b.height)
+    }
+    return rawSizes
 }
