@@ -17,10 +17,11 @@
 package androidx.pdf.view.annotation.state
 
 import android.content.Context
+import androidx.pdf.ExperimentalPdfApi
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
 import androidx.pdf.view.annotation.colorpalette.model.getHighlightPaletteItems
 import androidx.pdf.view.annotation.colorpalette.model.getPenPaletteItems
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
 import androidx.pdf.view.annotation.tool.model.AnnotationToolsKey.PEN
 
 /** Responsible for creating the fully-formed initial state for the annotation toolbar */
@@ -77,6 +78,7 @@ internal object ToolbarInitializer {
      * @param context The context used to access screen configuration.
      * @return The calculated default dock state.
      */
+    @OptIn(ExperimentalPdfApi::class)
     private fun getDefaultDockState(context: Context): Int {
         val screenWidthDp = context.resources.configuration.smallestScreenWidthDp
         return if (screenWidthDp >= TABLET_SMALLEST_SCREEN_WIDTH_DP) DOCK_STATE_END

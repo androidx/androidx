@@ -16,10 +16,11 @@
 
 package androidx.pdf.view.annotation.state
 
+import androidx.pdf.view.annotation.AnnotationToolbarView
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.view.annotation.AnnotationToolbarViewModel
 import androidx.pdf.view.annotation.brush.model.BrushSizes
 import androidx.pdf.view.annotation.colorpalette.model.Color
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.view.annotation.tool.Eraser
 import androidx.pdf.view.annotation.tool.Highlighter
 import androidx.pdf.view.annotation.tool.Pen
@@ -37,6 +38,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(androidx.pdf.ExperimentalPdfApi::class)
 @RunWith(JUnit4::class)
 class AnnotationToolbarViewModelTest {
 
@@ -377,8 +379,7 @@ class AnnotationToolbarViewModelTest {
     fun onAction_DockedStateChanged_updatesState() {
         val viewmodel = createViewModel()
         // Assuming the initial state is DOCK_STATE_BOTTOM, change it to DOCK_STATE_END
-        val newDockState =
-            androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
+        val newDockState = AnnotationToolbarView.DOCK_STATE_END
 
         viewmodel.onAction(ToolbarIntent.DockStateChanged(newDockState))
 

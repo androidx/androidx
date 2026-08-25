@@ -18,12 +18,14 @@ package androidx.pdf.view.annotation.layout
 
 import android.content.Context
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
+import androidx.pdf.view.annotation.AnnotationToolbarView
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 
+@OptIn(ExperimentalPdfApi::class)
 internal class AnnotationToolbarConstraintSet(context: Context) {
 
     private val margin16dp = context.resources.getDimensionPixelSize(R.dimen.margin_16dp)
@@ -32,24 +34,34 @@ internal class AnnotationToolbarConstraintSet(context: Context) {
     private val colorPaletteMaxHeight =
         context.resources.getDimensionPixelSize(R.dimen.color_palette_max_height)
 
+    private val collapsedToolWidth =
+        context.resources.getDimensionPixelSize(R.dimen.annotation_tool_width)
+    private val collapsedToolHeight =
+        context.resources.getDimensionPixelSize(R.dimen.annotation_tool_height)
+
     val dockStateStart: ConstraintSet = createConstraintSetFor(DOCK_STATE_START)
     val dockStateEnd: ConstraintSet = createConstraintSetFor(DOCK_STATE_END)
     val dockStateBottom: ConstraintSet = createConstraintSetFor(DOCK_STATE_BOTTOM)
 
     /**
-     * Creates a new [ConstraintSet] configured for the given [ToolbarDockState.DockState]. This is
-     * the main factory method that delegates to helper functions.
+     * Creates a new [ConstraintSet] configured for the given [AnnotationToolbarView.DockState].
+     * This is the main factory method that delegates to helper functions.
      */
-    private fun createConstraintSetFor(@ToolbarDockState.DockState dockState: Int): ConstraintSet {
+    private fun createConstraintSetFor(
+        @AnnotationToolbarView.DockState dockState: Int
+    ): ConstraintSet {
         return ConstraintSet().apply {
             applyToolTrayConstraints(dockState)
             applyColorPaletteConstraints(dockState)
             applyBrushSliderConstraints(dockState)
+            applyCollapsedToolConstraints(dockState)
         }
     }
 
     /** Applies the constraints for the main `scrollable_tool_tray_container`. */
-    private fun ConstraintSet.applyToolTrayConstraints(@ToolbarDockState.DockState dockState: Int) {
+    private fun ConstraintSet.applyToolTrayConstraints(
+        @AnnotationToolbarView.DockState dockState: Int
+    ) {
         clear(R.id.scrollable_tool_tray_container, ConstraintSet.TOP)
         clear(R.id.scrollable_tool_tray_container, ConstraintSet.BOTTOM)
         clear(R.id.scrollable_tool_tray_container, ConstraintSet.START)
@@ -124,7 +136,7 @@ internal class AnnotationToolbarConstraintSet(context: Context) {
 
     /** Applies the constraints for the `color_palette` view. */
     private fun ConstraintSet.applyColorPaletteConstraints(
-        @ToolbarDockState.DockState dockState: Int
+        @AnnotationToolbarView.DockState dockState: Int
     ) {
         clear(R.id.color_palette, ConstraintSet.TOP)
         clear(R.id.color_palette, ConstraintSet.BOTTOM)
@@ -233,7 +245,7 @@ internal class AnnotationToolbarConstraintSet(context: Context) {
 
     /** Applies the constraints for the `brush_size_selector` view. */
     private fun ConstraintSet.applyBrushSliderConstraints(
-        @ToolbarDockState.DockState dockState: Int
+        @AnnotationToolbarView.DockState dockState: Int
     ) {
         clear(R.id.brush_size_selector, ConstraintSet.TOP)
         clear(R.id.brush_size_selector, ConstraintSet.BOTTOM)
@@ -335,5 +347,33 @@ internal class AnnotationToolbarConstraintSet(context: Context) {
                 setMargin(R.id.brush_size_selector, ConstraintSet.BOTTOM, margin16dp)
             }
         }
+    }
+
+    /** Applies the constraints for the `collapsed_tool` view. */
+    private fun ConstraintSet.applyCollapsedToolConstraints(
+        @AnnotationToolbarView.DockState dockState: Int
+    ) {
+        clear(R.id.collapsed_tool, ConstraintSet.TOP)
+        clear(R.id.collapsed_tool, ConstraintSet.BOTTOM)
+        clear(R.id.collapsed_tool, ConstraintSet.START)
+        clear(R.id.collapsed_tool, ConstraintSet.END)
+
+        constrainWidth(R.id.collapsed_tool, collapsedToolWidth)
+        constrainHeight(R.id.collapsed_tool, collapsedToolHeight)
+
+        connect(R.id.collapsed_tool, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        connect(
+            R.id.collapsed_tool,
+            ConstraintSet.BOTTOM,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.BOTTOM,
+        )
+        connect(
+            R.id.collapsed_tool,
+            ConstraintSet.START,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.START,
+        )
+        connect(R.id.collapsed_tool, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
     }
 }

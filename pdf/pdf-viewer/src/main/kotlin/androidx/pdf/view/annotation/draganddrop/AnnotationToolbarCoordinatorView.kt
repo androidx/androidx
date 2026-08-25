@@ -22,6 +22,8 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.DragEvent
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -30,24 +32,26 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.R
 import androidx.pdf.view.annotation.AnnotationToolbarView
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 
 /**
- * A [ConstraintLayout] layout that manages the dragging, dropping, and docking of an
- * [AnnotationToolbarView].
+ * A [ViewGroup] layout that manages the dragging, dropping, and docking of an
+ * [androidx.pdf.view.annotation.AnnotationToolbarView].
  *
  * This coordinator is responsible for providing visible anchor points for docking, listening for
  * drag gestures initiated on the attached toolbar, moving the toolbar in response to the user's
  * drag input and finally snapping it to the closest anchor when the drag ends.
  *
- * It also applied the correct layout parameters and orientation for toolbar's final docked state.
+ * It also applies the correct layout parameters and orientation for toolbar's final docked state.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @OptIn(ExperimentalPdfApi::class)
-public class AnnotationToolbarCoordinatorView(context: Context, attrs: AttributeSet? = null) :
-    ConstraintLayout(context, attrs) {
+public class AnnotationToolbarCoordinatorView
+@JvmOverloads
+constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+    ViewGroup(context, attrs, defStyleAttr) {
 
     // Required to disable any animation while performing ui tests
     @VisibleForTesting
@@ -55,6 +59,11 @@ public class AnnotationToolbarCoordinatorView(context: Context, attrs: Attribute
         set(value) {
             field = value
             toolbar?.areAnimationsEnabled = value
+        }
+
+    private val container: ConstraintLayout =
+        ConstraintLayout(context).apply {
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         }
 
     private var toolbar: AnnotationToolbarView? = null
@@ -68,36 +77,20 @@ public class AnnotationToolbarCoordinatorView(context: Context, attrs: Attribute
     private val margin16Dp = resources.getDimensionPixelSize(R.dimen.margin_16dp)
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.toolbar_coordinator, this, true)
+        super.addView(container)
+        LayoutInflater.from(context).inflate(R.layout.toolbar_coordinator, container, true)
 
         anchorManager =
             AnchorManager(
-                left = findViewById(R.id.anchorLeft),
-                right = findViewById(R.id.anchorRight),
-                bottom = findViewById(R.id.anchorBottom),
+                left = container.findViewById(R.id.anchorLeft),
+                right = container.findViewById(R.id.anchorRight),
+                bottom = container.findViewById(R.id.anchorBottom),
             )
     }
 
-    /**
-     * Attaches the [AnnotationToolbarView] to this coordinator and sets up drag-and-drop handling.
-     *
-     * @param view The [AnnotationToolbarView] instance to manage.
-     */
-    public fun attachToolbar(view: AnnotationToolbarView) {
-        // Remove if already added
-        toolbar?.let { removeView(it) }
-
-        this.toolbar = view
-        view.areAnimationsEnabled = areAnimationsEnabled
-
-        addView(view)
-        initializeDragAndDrop()
-        updateLayout()
-    }
-
     /** Re-applies the layout constraints for the toolbar's current dock state. */
-    public fun updateLayout() {
-        val localToolbar = toolbar ?: throw IllegalStateException("toolbar is not attached")
+    internal fun updateLayout() {
+        val localToolbar = toolbar ?: return
 
         applyDockLayoutParams(localToolbar.dockState)
     }
@@ -106,6 +99,93 @@ public class AnnotationToolbarCoordinatorView(context: Context, attrs: Attribute
         super.dispatchRestoreInstanceState(container)
         // update layout after toolbar has restored its previous dock state
         updateLayout()
+    }
+
+    /**
+     * Adds an [AnnotationToolbarView] to the coordinator.
+     *
+     * Supports only a single [AnnotationToolbarView]. Calling this method again will remove and
+     * replace any previously attached toolbar instance.
+     *
+     * @param child child [AnnotationToolbarView] to attach
+     * @param index ignored; the toolbar is always attached as the top-most view above internal
+     *   anchors.
+     * @param params layout parameters for the child
+     * @throws IllegalArgumentException if [child] is not an [AnnotationToolbarView]
+     */
+    override fun addView(child: View?, index: Int, params: LayoutParams?) {
+        if (child == null) return
+        if (child === container) {
+            super.addView(child, index, params)
+            return
+        }
+
+        require(child is AnnotationToolbarView) {
+            "AnnotationToolbarCoordinatorView only supports child of type AnnotationToolbarView"
+        }
+
+        if (child.id == NO_ID) {
+            child.id = generateViewId()
+        }
+
+        // Remove if already added
+        toolbar?.let { container.removeView(it) }
+
+        this.toolbar = child
+        child.areAnimationsEnabled = areAnimationsEnabled
+        child.setOnDockStateChangedListener { dockState -> applyDockLayoutParams(dockState) }
+
+        container.addView(child, -1, params)
+        initializeDragAndDrop()
+        updateLayout()
+    }
+
+    /**
+     * Removes the specified view from this coordinator.
+     *
+     * Supports only removing the attached [AnnotationToolbarView]. If the provided view is not the
+     * attached [AnnotationToolbarView], this method does nothing.
+     *
+     * @param view The [View] to remove.
+     */
+    override fun removeView(view: View?) {
+        if (view == toolbar) {
+            container.removeView(view)
+            this.toolbar = null
+        } else if (view == container) {
+            super.removeView(view)
+        }
+    }
+
+    /**
+     * Removing views by index is unsupported on [AnnotationToolbarCoordinatorView], as it can hold
+     * at most 1 child of type [AnnotationToolbarView].
+     *
+     * @throws UnsupportedOperationException always.
+     */
+    override fun removeViewAt(index: Int) {
+        throw UnsupportedOperationException(
+            "removeViewAt(index) is not supported on AnnotationToolbarCoordinatorView."
+        )
+    }
+
+    /**
+     * Removes the attached [AnnotationToolbarView] from this coordinator and clears internal state.
+     */
+    override fun removeAllViews() {
+        toolbar?.let {
+            container.removeView(it)
+            this.toolbar = null
+        }
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        container.measure(widthMeasureSpec, heightMeasureSpec)
+        setMeasuredDimension(container.measuredWidth, container.measuredHeight)
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        container.layout(0, 0, r - l, b - t)
     }
 
     private fun initializeDragAndDrop() {
@@ -162,9 +242,9 @@ public class AnnotationToolbarCoordinatorView(context: Context, attrs: Attribute
     /**
      * Animates the toolbar to its final position over the target anchor.
      *
-     * @param state The target [ToolbarDockState] to snap to.
+     * @param state The target [AnnotationToolbarView.DockState] to snap to.
      */
-    private fun snapToState(@ToolbarDockState.DockState state: Int) {
+    private fun snapToState(@AnnotationToolbarView.DockState state: Int) {
         val localToolbar = toolbar ?: return
         val targetAnchor = anchorManager.getAnchorView(state) ?: return
 
@@ -204,9 +284,9 @@ public class AnnotationToolbarCoordinatorView(context: Context, attrs: Attribute
     /**
      * Applies the final layout parameters to the toolbar based on its new docked state.
      *
-     * @param state The target [ToolbarDockState].
+     * @param state The target [AnnotationToolbarView.DockState].
      */
-    private fun applyDockLayoutParams(@ToolbarDockState.DockState state: Int) {
+    private fun applyDockLayoutParams(@AnnotationToolbarView.DockState state: Int) {
         val localToolbar = toolbar ?: return
         val toolbarId = localToolbar.id
 
@@ -216,7 +296,7 @@ public class AnnotationToolbarCoordinatorView(context: Context, attrs: Attribute
         localToolbar.translationY = 0f
 
         ConstraintSet().apply {
-            clone(this@AnnotationToolbarCoordinatorView)
+            clone(container)
             clear(toolbarId)
 
             constrainWidth(toolbarId, ConstraintSet.WRAP_CONTENT)
@@ -243,7 +323,7 @@ public class AnnotationToolbarCoordinatorView(context: Context, attrs: Attribute
                 }
             }
 
-            applyTo(this@AnnotationToolbarCoordinatorView)
+            applyTo(container)
         }
         localToolbar.dockState = state
     }

@@ -40,9 +40,9 @@ import androidx.pdf.util.ToolbarMatchers.matchesToolbarMask
 import androidx.pdf.util.ToolbarMatchers.withDockState
 import androidx.pdf.view.PdfView
 import androidx.pdf.view.annotation.AnnotationToolbarView
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 import androidx.pdf.viewer.fragment.R as PdfFragmentR
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
@@ -147,6 +147,7 @@ class EditablePdfViewerFragmentTests {
         onIdle()
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun test_annotationToolbar_dockedAtBottom_andCanDragToStart() {
         if (!isAnnotationsFeatureAvailable()) return
@@ -179,6 +180,7 @@ class EditablePdfViewerFragmentTests {
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun test_annotationToolbar_persistsDockStateThroughRotation() {
         if (!isAnnotationsFeatureAvailable()) return
@@ -235,6 +237,7 @@ class EditablePdfViewerFragmentTests {
         onView(withId(PdfR.id.pdf_wet_strokes_view)).check(matches(matchesToolbarMask(toolbar!!)))
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun test_annotationToolbar_reExpands_onLongPressWithoutMove() {
         if (!isAnnotationsFeatureAvailable()) return
