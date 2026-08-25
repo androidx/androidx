@@ -789,6 +789,7 @@ package androidx.webkit {
     field @SuppressCompatibility @androidx.webkit.WebViewBuilder.Experimental public static final String WEBVIEW_BUILDER_EXPERIMENTAL_V1 = "WEBVIEW_BUILDER_EXPERIMENTAL_V1";
     field @SuppressCompatibility @androidx.webkit.WebViewBuilder.Experimental public static final String WEBVIEW_BUILDER_EXPERIMENTAL_V2 = "WEBVIEW_BUILDER_EXPERIMENTAL_V2";
     field public static final String WEBVIEW_MEDIA_INTEGRITY_API_STATUS = "WEBVIEW_MEDIA_INTEGRITY_API_STATUS";
+    field @SuppressCompatibility @androidx.webkit.WebViewCompat.ExperimentalNavigate public static final String WEBVIEW_NAVIGATE_DRAIN_PREFETCH = "WEBVIEW_NAVIGATE_DRAIN_PREFETCH";
     field @SuppressCompatibility @androidx.webkit.WebViewCompat.ExperimentalNavigate public static final String WEBVIEW_NAVIGATE_EXPERIMENTAL_V1 = "WEBVIEW_NAVIGATE_EXPERIMENTAL_V1";
     field public static final String WEB_AUTHENTICATION = "WEB_AUTHENTICATION";
     field public static final String WEB_MESSAGE_ARRAY_BUFFER = "WEB_MESSAGE_ARRAY_BUFFER";
