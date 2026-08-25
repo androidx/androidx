@@ -53,8 +53,8 @@ class AuthenticatorAttestationResponseTest {
                  "attestation": "enabled"
              }
           """
-        var options = PublicKeyCredentialCreationOptions(rawJson)
-        var response =
+        val options = PublicKeyCredentialCreationOptions(rawJson)
+        val response =
             AuthenticatorAttestationResponse(
                 options,
                 rawId,
@@ -65,8 +65,8 @@ class AuthenticatorAttestationResponseTest {
                 false,
                 true,
             )
-        var json = response.json()
-        var attestationObject = response.defaultAttestationObject()
+        val json = response.json()
+        val attestationObject = response.defaultAttestationObject()
 
         assertThat(json.getString("attestationObject"))
             .isEqualTo(WebAuthnUtils.b64Encode(attestationObject))

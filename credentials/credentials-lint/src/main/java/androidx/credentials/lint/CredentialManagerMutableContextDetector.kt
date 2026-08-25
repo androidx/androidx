@@ -49,7 +49,7 @@ class CredentialManagerMutableContextDetector : Detector(), SourceCodeScanner {
         val mapping = context.evaluator.computeArgumentMapping(node, method)
         val contextArgEntry = mapping.entries.find { it.value.name == "context" } ?: return
         val contextArg = contextArgEntry.key
-        var type = contextArg.getExpressionType() ?: return
+        val type = contextArg.getExpressionType() ?: return
 
         var typeClass = context.evaluator.getTypeClass(type)
 

@@ -140,7 +140,7 @@ internal class GetCredentialController(context: Context) :
                     }
                 }
             }
-            .addOnFailureListener { e ->
+            .addOnFailureListener { _ ->
                 val context = contextReference.get() ?: return@addOnFailureListener
                 if (isGetSignInIntentRequest(request)) {
                     Log.w(

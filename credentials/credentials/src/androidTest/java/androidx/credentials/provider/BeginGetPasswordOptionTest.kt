@@ -60,7 +60,7 @@ class BeginGetPasswordOptionTest {
             ArrayList(expectedAllowedUserIds),
         )
 
-        var option = BeginGetPasswordOption.createForTest(bundle, "id")
+        val option = BeginGetPasswordOption.createForTest(bundle, "id")
         assertThat(option.id).isEqualTo("id")
     }
 }
