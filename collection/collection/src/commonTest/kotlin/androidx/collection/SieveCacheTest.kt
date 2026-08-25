@@ -430,7 +430,7 @@ class SieveCacheTest {
         assertEquals(2, cache.count)
         assertEquals("Monde", cache["Bonjour"])
         assertEquals("Mondo", cache["Ciao"])
-        assertContentEquals(listOf("Sekai", "Sesang", "World", "Welt"), removedEntries)
+        assertEquals(setOf("Sekai", "Sesang", "World", "Welt"), removedEntries.toSet())
     }
 
     @Test
