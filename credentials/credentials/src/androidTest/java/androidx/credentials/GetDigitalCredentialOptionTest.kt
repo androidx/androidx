@@ -32,11 +32,57 @@ class GetDigitalCredentialOptionTest {
         val option = GetDigitalCredentialOption(TEST_REQUEST_JSON)
 
         assertThat(option.requestJson).isEqualTo(TEST_REQUEST_JSON)
+        assertThat(option.uiWarningLevelHint)
+            .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_NO_ISSUES)
         assertThat(option.allowedProviders).isEmpty()
         assertThat(option.isSystemProviderRequired).isFalse()
         assertThat(option.isAutoSelectAllowed).isFalse()
         assertThat(option.type).isEqualTo(DigitalCredential.TYPE_DIGITAL_CREDENTIAL)
         assertThat(option.typePriorityHint).isEqualTo(EXPECTED_PRIORITY)
+        assertThat(
+                option.requestData.getInt(
+                    GetDigitalCredentialOption.BUNDLE_KEY_UI_WARNING_LEVEL_HINT
+                )
+            )
+            .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_NO_ISSUES)
+    }
+
+    @Test
+    fun constructorAndGetter_customUiWarningLevelHint() {
+        val option =
+            GetDigitalCredentialOption(
+                TEST_REQUEST_JSON,
+                GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_CAUTION,
+            )
+
+        assertThat(option.requestJson).isEqualTo(TEST_REQUEST_JSON)
+        assertThat(option.uiWarningLevelHint)
+            .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_CAUTION)
+        assertThat(
+                option.requestData.getInt(
+                    GetDigitalCredentialOption.BUNDLE_KEY_UI_WARNING_LEVEL_HINT
+                )
+            )
+            .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_CAUTION)
+    }
+
+    @Test
+    fun constructorAndGetter_highRiskUiWarningLevelHint() {
+        val option =
+            GetDigitalCredentialOption(
+                TEST_REQUEST_JSON,
+                GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_HIGH_RISK,
+            )
+
+        assertThat(option.requestJson).isEqualTo(TEST_REQUEST_JSON)
+        assertThat(option.uiWarningLevelHint)
+            .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_HIGH_RISK)
+        assertThat(
+                option.requestData.getInt(
+                    GetDigitalCredentialOption.BUNDLE_KEY_UI_WARNING_LEVEL_HINT
+                )
+            )
+            .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_HIGH_RISK)
     }
 
     @Test
@@ -67,11 +113,36 @@ class GetDigitalCredentialOptionTest {
         assertThat(actualOption.isAutoSelectAllowed).isFalse()
         assertThat(actualOption.allowedProviders).isEmpty()
         assertThat(actualOption.requestJson).isEqualTo(TEST_REQUEST_JSON)
+        assertThat(actualOption.uiWarningLevelHint)
+            .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_NO_ISSUES)
         assertThat(convertedOption.requestData.getString(customRequestDataKey))
             .isEqualTo(customRequestDataValue)
         assertThat(convertedOption.candidateQueryData.getBoolean(customCandidateQueryDataKey))
             .isEqualTo(customCandidateQueryDataValue)
         assertThat(convertedOption.typePriorityHint).isEqualTo(EXPECTED_PRIORITY)
+    }
+
+    @Test
+    fun frameworkConversion_customUiWarningLevelHint_success() {
+        val option =
+            GetDigitalCredentialOption(
+                TEST_REQUEST_JSON,
+                GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_CAUTION,
+            )
+
+        val convertedOption =
+            createFrom(
+                option.type,
+                option.requestData,
+                option.candidateQueryData,
+                option.isSystemProviderRequired,
+                option.allowedProviders,
+            )
+
+        assertThat(convertedOption).isInstanceOf(GetDigitalCredentialOption::class.java)
+        val actualOption = convertedOption as GetDigitalCredentialOption
+        assertThat(actualOption.uiWarningLevelHint)
+            .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_CAUTION)
     }
 
     companion object {

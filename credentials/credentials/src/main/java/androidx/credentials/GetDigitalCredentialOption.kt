@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
+import androidx.annotation.IntDef
 import androidx.credentials.internal.FrameworkClassParsingException
 import androidx.credentials.internal.RequestValidationHelper
 
@@ -30,11 +31,16 @@ import androidx.credentials.internal.RequestValidationHelper
  *
  * @property requestJson the request in the JSON format; the latest format is defined at
  *   https://wicg.github.io/digital-credentials/#the-digitalcredentialrequestoptions-dictionary
+ * @property uiWarningLevelHint the warning level hint indicating how the credential selector UI
+ *   should be presented; defaults to [UI_WARNING_LEVEL_HINT_NO_ISSUES] where the standard Android
+ *   Credential Selector is displayed. Set this to an elevated level if the request asks for
+ *   sensitive user information so that Android displays additional warnings in the UI
  */
 @ExperimentalDigitalCredentialApi
 class GetDigitalCredentialOption
 internal constructor(
     val requestJson: String,
+    val uiWarningLevelHint: @UiWarningLevelHint Int,
     requestData: Bundle,
     candidateQueryData: Bundle,
     isSystemProviderRequired: Boolean,
@@ -66,13 +72,20 @@ internal constructor(
      *
      * @param requestJson the request in the JSON format; the latest format is defined at
      *   https://wicg.github.io/digital-credentials/#the-digitalcredentialrequestoptions-dictionary
+     * @param uiWarningLevelHint the warning level hint indicating how the credential selector UI
+     *   should be presented; defaults to [UI_WARNING_LEVEL_HINT_NO_ISSUES] where the standard
+     *   Android Credential Selector is displayed. Set this to an elevated level if the request asks
+     *   for sensitive user information so that Android displays additional warnings in the UI
      * @throws IllegalArgumentException if the `credentialJson` is not a valid json
      */
+    @JvmOverloads
     constructor(
-        requestJson: String
+        requestJson: String,
+        uiWarningLevelHint: @UiWarningLevelHint Int = UI_WARNING_LEVEL_HINT_NO_ISSUES,
     ) : this(
         requestJson = requestJson,
-        requestData = toBundle(requestJson),
+        uiWarningLevelHint = uiWarningLevelHint,
+        requestData = toBundle(requestJson, uiWarningLevelHint),
         candidateQueryData = Bundle(),
         isSystemProviderRequired = false,
         isAutoSelectAllowed = false,
@@ -80,14 +93,55 @@ internal constructor(
         typePriorityHint = PRIORITY_PASSKEY_OR_SIMILAR,
     )
 
+    /** UI warning level hints for [GetDigitalCredentialOption]. */
+    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        value =
+            [
+                UI_WARNING_LEVEL_HINT_NO_ISSUES,
+                UI_WARNING_LEVEL_HINT_CAUTION,
+                UI_WARNING_LEVEL_HINT_HIGH_RISK,
+            ]
+    )
+    internal annotation class UiWarningLevelHint
+
     /** Companion constants / helpers for [GetDigitalCredentialOption]. */
-    internal companion object {
+    companion object {
+        /**
+         * Indicates that the standard Android Credential Selector UI should be displayed with no
+         * additional warnings.
+         */
+        const val UI_WARNING_LEVEL_HINT_NO_ISSUES = 0
+        /**
+         * Indicates a request is asking for an unusually high amount of sensitive user information,
+         * or data that falls outside typical usage patterns.
+         *
+         * The UI should render additional warnings highlighting the sensitive data being requested.
+         */
+        const val UI_WARNING_LEVEL_HINT_CAUTION = 1
+
+        /**
+         * Indicates strong signals that the request may be fraudulent, malicious, or highly
+         * dangerous to the user.
+         *
+         * The UI should present maximum friction, clearly alerting the user of the severe risk. It
+         * should strongly discourage the user from proceeding.
+         */
+        const val UI_WARNING_LEVEL_HINT_HIGH_RISK = 2
+
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
+        internal const val BUNDLE_KEY_UI_WARNING_LEVEL_HINT =
+            "androidx.credentials.BUNDLE_KEY_UI_WARNING_LEVEL_HINT"
 
         @JvmStatic
-        internal fun toBundle(requestJson: String): Bundle {
+        internal fun toBundle(
+            requestJson: String,
+            uiWarningLevelHint: @UiWarningLevelHint Int,
+        ): Bundle {
             val bundle = Bundle()
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, requestJson)
+            bundle.putInt(BUNDLE_KEY_UI_WARNING_LEVEL_HINT, uiWarningLevelHint)
             return bundle
         }
 
@@ -100,8 +154,14 @@ internal constructor(
         ): GetDigitalCredentialOption {
             try {
                 val requestJson = requestData.getString(BUNDLE_KEY_REQUEST_JSON)!!
+                val uiWarningLevelHint =
+                    requestData.getInt(
+                        BUNDLE_KEY_UI_WARNING_LEVEL_HINT,
+                        UI_WARNING_LEVEL_HINT_NO_ISSUES,
+                    )
                 return GetDigitalCredentialOption(
                     requestJson = requestJson,
+                    uiWarningLevelHint = uiWarningLevelHint,
                     requestData = requestData,
                     candidateQueryData = candidateQueryData,
                     isSystemProviderRequired = requireSystemProvider,
