@@ -16,13 +16,17 @@
 
 package androidx.compose.ui.platform
 
+import android.app.Activity
+import android.content.ContextWrapper
 import android.content.res.Configuration
 import android.view.View
+import android.view.Window
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -104,5 +108,80 @@ class AndroidCompositionLocalTest {
         // New instance and different fields, so we should invalidate LocalConfiguration
         view.dispatchConfigurationChanged(configurationCopy3)
         rule.runOnIdle { assertThat(compositionCount).isEqualTo(3) }
+    }
+
+    @Test
+    fun localWindow_providesActivityWindow() {
+        var localWindow: Window? = null
+        lateinit var view: View
+        rule.setContent {
+            view = LocalView.current
+            localWindow = LocalWindow.current
+        }
+        rule.runOnIdle {
+            assertThat(localWindow).isNotNull()
+            var context = view.context
+            var activity: Activity? = null
+            while (context is ContextWrapper) {
+                if (context is Activity) {
+                    activity = context
+                    break
+                }
+                context = context.baseContext
+            }
+            assertThat(activity).isNotNull()
+            assertThat(localWindow).isSameInstanceAs(activity!!.window)
+        }
+    }
+
+    @Test
+    fun localWindow_providesDialogWindow_insideDialog() {
+        var activityLocalWindow: Window? = null
+        var dialogLocalWindow: Window? = null
+        rule.setContent {
+            activityLocalWindow = LocalWindow.current
+            Dialog(onDismissRequest = {}) { dialogLocalWindow = LocalWindow.current }
+        }
+        rule.runOnIdle {
+            assertThat(activityLocalWindow).isNotNull()
+            assertThat(dialogLocalWindow).isNotNull()
+            assertThat(dialogLocalWindow).isNotSameInstanceAs(activityLocalWindow)
+        }
+    }
+
+    @Test
+    fun localWindow_providesActivityWindow_insidePopup() {
+        var activityLocalWindow: Window? = null
+        var popupLocalWindow: Window? = null
+        rule.setContent {
+            activityLocalWindow = LocalWindow.current
+            Popup { popupLocalWindow = LocalWindow.current }
+        }
+        rule.runOnIdle {
+            assertThat(activityLocalWindow).isNotNull()
+            assertThat(popupLocalWindow).isNotNull()
+            assertThat(popupLocalWindow).isSameInstanceAs(activityLocalWindow)
+        }
+    }
+
+    @Test
+    fun localWindow_providesDialogWindow_insidePopupInDialog() {
+        var activityLocalWindow: Window? = null
+        var dialogLocalWindow: Window? = null
+        var popupLocalWindow: Window? = null
+        rule.setContent {
+            activityLocalWindow = LocalWindow.current
+            Dialog(onDismissRequest = {}) {
+                dialogLocalWindow = LocalWindow.current
+                Popup { popupLocalWindow = LocalWindow.current }
+            }
+        }
+        rule.runOnIdle {
+            assertThat(activityLocalWindow).isNotNull()
+            assertThat(dialogLocalWindow).isNotNull()
+            assertThat(popupLocalWindow).isNotNull()
+            assertThat(dialogLocalWindow).isNotSameInstanceAs(activityLocalWindow)
+            assertThat(popupLocalWindow).isSameInstanceAs(dialogLocalWindow)
+        }
     }
 }

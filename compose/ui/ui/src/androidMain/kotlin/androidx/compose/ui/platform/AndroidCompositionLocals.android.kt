@@ -17,10 +17,13 @@
 package androidx.compose.ui.platform
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.view.View
+import android.view.Window
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
@@ -28,6 +31,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalWithComputedDefaultOf
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogWindowProvider
+import androidx.compose.ui.window.PopupLayout
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
@@ -42,6 +48,17 @@ private inline fun <T : Any> computedDefaultOf(
         staticCompositionLocalWithComputedDefaultOf { compute() }
     } else {
         staticCompositionLocalOf { noLocalProvidedFor(name) }
+    }
+
+@SuppressLint("NullAnnotationGroup", "BanInlineOptIn")
+@OptIn(ExperimentalComposeUiApi::class)
+private inline fun <T : Any> computedNullableDefaultOf(
+    crossinline compute: androidx.compose.runtime.CompositionLocalAccessorScope.() -> T?
+): ProvidableCompositionLocal<T?> =
+    if (ComposeUiFlags.isMinimalistLocalsEnabled) {
+        staticCompositionLocalWithComputedDefaultOf { compute() }
+    } else {
+        staticCompositionLocalOf { null }
     }
 
 /**
@@ -114,6 +131,57 @@ public val LocalView: ProvidableCompositionLocal<View> =
     computedDefaultOf<View>("LocalView") {
         LocalAndroidComposeView.currentValue ?: noLocalProvidedFor("LocalView")
     }
+
+/** The CompositionLocal containing the current [Window] if available. */
+public val LocalWindow: ProvidableCompositionLocal<Window?> = computedNullableDefaultOf {
+    LocalAndroidComposeView.currentValue?.window
+}
+
+/**
+ * Recursively traverses up the [View] parent hierarchy to find a containing [DialogWindowProvider].
+ *
+ * This is used to locate the [Window] associated with a Compose [Dialog], which is hosted in a
+ * separate window layer from the main Activity.
+ *
+ * @param view The starting [View] (typically the [AndroidComposeView] root of the composition).
+ * @return The [Window] of the containing dialog if found, or `null` otherwise.
+ */
+internal fun findDialogWindow(view: View): Window? {
+    var current: View? = view
+    while (current != null) {
+        if (current is DialogWindowProvider) {
+            return current.window
+        }
+        if (current is PopupLayout) {
+            current = current.composeView
+            continue
+        }
+        val parent = current.parent
+        current = parent as? View
+    }
+    return null
+}
+
+/**
+ * Recursively unwraps the [Context] chain of the given [View] to find the hosting [Activity].
+ *
+ * Views do not have a direct public API to retrieve their hosting [Window]. Instead, this helper
+ * traverses and unwraps [ContextWrapper]s (e.g., theme or configuration wrappers) to find the
+ * underlying [Activity] instance and access its [Window].
+ *
+ * @param view The [View] whose context chain should be searched.
+ * @return The [Window] of the hosting [Activity] if found, or `null` otherwise.
+ */
+internal fun findActivityWindow(view: View): Window? {
+    var context = view.context
+    while (context is ContextWrapper) {
+        if (context is Activity) {
+            return context.window
+        }
+        context = context.baseContext
+    }
+    return null
+}
 
 private fun noLocalProvidedFor(name: String): Nothing {
     error("CompositionLocal $name not present")
