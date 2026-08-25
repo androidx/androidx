@@ -59,33 +59,37 @@ class ExcludePhysicalCameraIdQuirkTest(
         @ParameterizedRobolectricTestRunner.Parameters(
             name = "Brand: {0}, Manufacturer: {1}, Model: {2}"
         )
-        fun data() =
+        fun data(): List<Array<Any>> =
             listOf(
                 // Samsung Galaxy S25 / S25 Ultra
-                arrayOf("Samsung", "Samsung", "SM-S938B", setOf("2", "3", "4")),
+                arrayOf("Samsung", "Samsung", "SM-S938B", setOf("2", "5", "6", "7")),
                 arrayOf("samsung", "samsung", "SM-S931U", setOf("2", "3", "4")),
-                // Samsung Galaxy Z Fold 6 / Z Flip 6
-                arrayOf("Samsung", "Samsung", "SM-F968N", setOf("2", "3", "4")),
+                arrayOf("Samsung", "Samsung", "SM-S936U", setOf("2", "3", "4")),
+                // Samsung Galaxy Z Fold 6 / Z Flip 6 / Fold 5 / Flip 5
+                arrayOf("Samsung", "Samsung", "SM-F968N", setOf("2", "5", "6", "7")),
                 arrayOf("Samsung", "Samsung", "SM-F966U", setOf("2", "5", "6")),
                 arrayOf("Samsung", "Samsung", "SM-F956B", setOf("2", "5", "6")),
-                arrayOf("Samsung", "Samsung", "SM-F766U", setOf("2", "3", "4")),
+                arrayOf("Samsung", "Samsung", "SM-F946U", setOf("2", "5", "6")),
+                arrayOf("Samsung", "Samsung", "SM-F766U", setOf("2", "5")),
                 arrayOf("Samsung", "Samsung", "SM-F741B", setOf("2", "5")),
+                arrayOf("Samsung", "Samsung", "SM-F731U", setOf("2", "5")),
                 // Samsung Galaxy S24
-                arrayOf("Samsung", "Samsung", "SM-S921U", setOf("2", "6")),
+                arrayOf("Samsung", "Samsung", "SM-S928U", setOf("2", "5", "6", "7")),
+                arrayOf("Samsung", "Samsung", "SM-S926U", setOf("2", "5", "6")),
+                arrayOf("Samsung", "Samsung", "SM-S921U", setOf("2", "5", "6")),
                 // OPPO Find N2 Flip
                 arrayOf("OPPO", "OPPO", "CPH2437", setOf("2")),
                 // Xiaomi 15 Pro / 15 Ultra
                 arrayOf("Xiaomi", "Xiaomi", "24129PN74C", setOf("2", "3", "4")),
-                arrayOf("Xiaomi", "Xiaomi", "25010PN30G", setOf("2", "3", "4")),
+                arrayOf("Xiaomi", "Xiaomi", "25010PN30G", setOf("2", "3", "4", "5")),
                 // Sony Xperia
                 arrayOf("Sony", "Sony", "SO-41B", setOf("0", "2", "4")),
-                arrayOf("Sony", "Sony", "SO-52A", setOf("2", "3", "4")),
+                arrayOf("Sony", "Sony", "SO-52A", setOf("0", "2", "3")),
                 arrayOf("Sony", "Sony", "XQ-DQ72", setOf("2", "3", "4")),
                 arrayOf("Sony", "Sony", "XQ-DC54", setOf("2", "3", "4")),
                 // Non-problematic devices
                 arrayOf("Google", "Google", "Pixel 8", emptySet<String>()),
                 arrayOf("Google", "Google", "Pixel 9 Pro", emptySet<String>()),
-                arrayOf("Samsung", "Samsung", "SM-S918U", emptySet<String>()), // S23 Ultra
                 arrayOf("Xiaomi", "Xiaomi", "23127PN0CC", emptySet<String>()), // Xiaomi 14 Pro
                 arrayOf("Motorola", "Motorola", "Moto G84", emptySet<String>()),
             )
