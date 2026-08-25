@@ -39,6 +39,8 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  *   locale
  * @param text [A2uiBasicCatalogV1.Text] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.text]
+ * @param icon [A2uiBasicCatalogV1.Icon] component implementation, defaults to
+ *   [MaterialA2uiBasicCatalogV1Defaults.icon]
  * @param card [A2uiBasicCatalogV1.Card] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.card]
  * @param row [A2uiBasicCatalogV1.Row] component implementation, defaults to
@@ -57,6 +59,7 @@ public fun materialA2uiBasicCatalogV1(
     messageFormatter: A2uiMessageFormatter,
     localeProvider: A2uiLocaleProvider,
     text: A2uiBasicCatalogV1.Text = MaterialA2uiBasicCatalogV1Defaults.text,
+    icon: A2uiBasicCatalogV1.Icon = MaterialA2uiBasicCatalogV1Defaults.icon,
     card: A2uiBasicCatalogV1.Card = MaterialA2uiBasicCatalogV1Defaults.card,
     row: A2uiBasicCatalogV1.Row = MaterialA2uiBasicCatalogV1Defaults.row,
     column: A2uiBasicCatalogV1.Column = MaterialA2uiBasicCatalogV1Defaults.column,
@@ -69,6 +72,7 @@ public fun materialA2uiBasicCatalogV1(
         A2uiBasicCatalogV1(
             text = text,
             image = image,
+            icon = icon,
             card = card,
             row = row,
             column = column,
@@ -92,6 +96,9 @@ public object MaterialA2uiBasicCatalogV1Defaults {
      */
     public fun image(imageRenderer: A2uiImageRenderer): A2uiBasicCatalogV1.Image =
         MaterialA2uiBasicCatalogV1Image(imageRenderer)
+
+    /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Icon] component. */
+    public val icon: A2uiBasicCatalogV1.Icon = MaterialA2uiBasicCatalogV1Icon
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Card] component. */
     public val card: A2uiBasicCatalogV1.Card = MaterialA2uiBasicCatalogV1Card

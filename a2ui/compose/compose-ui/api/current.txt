@@ -62,7 +62,7 @@ package androidx.a2ui.compose.ui {
 package androidx.a2ui.compose.ui.catalog {
 
   public final class A2uiBasicCatalogV1 {
-    ctor public A2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput, java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions);
+    ctor public A2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon icon, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput, java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions);
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button getButton();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card getCard();
     method @InaccessibleFromKotlin public String getCatalogId();
@@ -70,6 +70,7 @@ package androidx.a2ui.compose.ui.catalog {
     method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.ui.A2uiComponent> getComponents();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput getDateTimeInput();
     method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> getFunctions();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon getIcon();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image getImage();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row getRow();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text getText();
@@ -81,12 +82,23 @@ package androidx.a2ui.compose.ui.catalog {
     property public java.util.List<androidx.a2ui.compose.ui.A2uiComponent> components;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput;
     property public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> functions;
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon icon;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text;
     property public androidx.a2ui.model.schema.A2uiSchema themeSchema;
     field public static final String CatalogId = "https://a2ui.org/specification/v0_9_1/catalogs/basic/catalog.json";
     field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Companion Companion;
+  }
+
+  @androidx.compose.runtime.Immutable public static final class A2uiBasicCatalogV1.AccessibilityAttributes {
+    ctor public A2uiBasicCatalogV1.AccessibilityAttributes();
+    ctor public A2uiBasicCatalogV1.AccessibilityAttributes(optional String? label, optional String? description);
+    ctor @BytecodeOnly public A2uiBasicCatalogV1.AccessibilityAttributes(String!, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String? getDescription();
+    method @InaccessibleFromKotlin public String? getLabel();
+    property public String? description;
+    property public String? label;
   }
 
   public static interface A2uiBasicCatalogV1.Button extends androidx.a2ui.compose.ui.A2uiComponent {
@@ -231,6 +243,111 @@ package androidx.a2ui.compose.ui.catalog {
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> MaxProperty;
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> MinProperty;
     property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> ValueProperty;
+  }
+
+  public static interface A2uiBasicCatalogV1.Icon extends androidx.a2ui.compose.ui.A2uiComponent {
+    method @KotlinOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.Source source, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes? accessibility, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.Source, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes?, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public default String getDescription();
+    method @InaccessibleFromKotlin public default String getName();
+    method @InaccessibleFromKotlin public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
+    property public default String description;
+    property public default String name;
+    property public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties;
+    field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.Companion Companion;
+  }
+
+  public enum A2uiBasicCatalogV1.Icon.BuiltIn implements androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.Source {
+    method @InaccessibleFromKotlin public String getValue();
+    property public String value;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn AccountCircle;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Add;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn ArrowBack;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn ArrowForward;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn AttachFile;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn CalendarToday;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Call;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Camera;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Check;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Close;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Delete;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Download;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Edit;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Error;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Event;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn FastForward;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Favorite;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn FavoriteOff;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Folder;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Help;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Home;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Info;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn LocationOn;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Lock;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn LockOpen;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Mail;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Menu;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn MoreHoriz;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn MoreVert;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Notifications;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn NotificationsOff;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Pause;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Payment;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Person;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Phone;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Photo;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Play;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Print;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Refresh;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Rewind;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Search;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Send;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Settings;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Share;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn ShoppingCart;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn SkipNext;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn SkipPrevious;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Star;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn StarHalf;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn StarOff;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Stop;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Upload;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Visibility;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn VisibilityOff;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn VolumeDown;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn VolumeMute;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn VolumeOff;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn VolumeUp;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn Warning;
+    field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn.Companion Companion;
+  }
+
+  public static final class A2uiBasicCatalogV1.Icon.BuiltIn.Companion {
+    method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.BuiltIn? fromValue(String value);
+  }
+
+  public static final class A2uiBasicCatalogV1.Icon.Companion {
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> getAccessibilityProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.Source> getNameProperty();
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AccessibilityAttributes> AccessibilityProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.Source> NameProperty;
+  }
+
+  public static sealed exhaustive interface A2uiBasicCatalogV1.Icon.Source {
+  }
+
+  @androidx.compose.runtime.Immutable public static final class A2uiBasicCatalogV1.Icon.SvgPath implements androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.Source {
+    ctor public A2uiBasicCatalogV1.Icon.SvgPath(String svgPath);
+    method @InaccessibleFromKotlin public String getSvgPath();
+    property public String svgPath;
+  }
+
+  @androidx.compose.runtime.Immutable public static final class A2uiBasicCatalogV1.Icon.Unrecognized implements androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon.Source {
+    ctor public A2uiBasicCatalogV1.Icon.Unrecognized(String name);
+    method @InaccessibleFromKotlin public String getName();
+    property public String name;
   }
 
   public static interface A2uiBasicCatalogV1.Image extends androidx.a2ui.compose.ui.A2uiComponent {
