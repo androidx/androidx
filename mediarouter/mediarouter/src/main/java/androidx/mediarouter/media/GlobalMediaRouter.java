@@ -398,6 +398,7 @@ import java.util.concurrent.Executor;
             if (mMr2Provider != null) {
                 removeProvider(mMr2Provider);
                 mMr2Provider = null;
+                mDiscoveryRequestForMr2Provider = null;
                 mRegisteredProviderWatcher.rescan();
             }
         }
