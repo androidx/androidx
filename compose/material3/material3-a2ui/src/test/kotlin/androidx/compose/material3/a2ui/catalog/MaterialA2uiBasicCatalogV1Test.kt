@@ -33,14 +33,17 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class MaterialA2uiBasicCatalogV1Test {
 
+    private val fakeImageRenderer = A2uiImageRenderer { _, _, _, _, _ -> }
     private val fakeUrlOpener = A2uiUrlOpener { _ -> }
     private val fakeMessageFormatter = A2uiMessageFormatter { _, _, _ -> "" }
     private val fakeLocaleProvider = A2uiLocaleProvider { Locale.US }
 
     @Test
     fun factory_withDefaults_createsCatalogWithDefaultComponentsAndBasicFunctions() {
+        val image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer)
         val catalog =
             materialA2uiBasicCatalogV1(
+                image = image,
                 urlOpener = fakeUrlOpener,
                 messageFormatter = fakeMessageFormatter,
                 localeProvider = fakeLocaleProvider,
@@ -52,6 +55,7 @@ class MaterialA2uiBasicCatalogV1Test {
         // Verifies the default components are populated
         assertThat(catalog.components["Text"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.text)
+        assertThat(catalog.components["Image"]).isSameInstanceAs(image)
         assertThat(catalog.components["Card"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.card)
         assertThat(catalog.components["Row"])
@@ -80,6 +84,7 @@ class MaterialA2uiBasicCatalogV1Test {
 
         val catalog =
             materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
                 urlOpener = fakeUrlOpener,
                 messageFormatter = fakeMessageFormatter,
                 localeProvider = fakeLocaleProvider,
@@ -92,6 +97,33 @@ class MaterialA2uiBasicCatalogV1Test {
     }
 
     @Test
+    fun factory_withCustomImageComponent_overridesDefaultMaterialImage() {
+        val customImage =
+            object : A2uiBasicCatalogV1.Image {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    url: String,
+                    description: String?,
+                    fit: A2uiBasicCatalogV1.Image.Fit,
+                    variant: A2uiBasicCatalogV1.Image.Variant,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        val catalog =
+            materialA2uiBasicCatalogV1(
+                image = customImage,
+                urlOpener = fakeUrlOpener,
+                messageFormatter = fakeMessageFormatter,
+                localeProvider = fakeLocaleProvider,
+            )
+
+        assertThat(catalog.components["Image"]).isSameInstanceAs(customImage)
+        assertThat(catalog.components["Image"])
+            .isNotSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer))
+    }
+
+    @Test
     fun factory_withCustomCardComponent_overridesDefaultMaterialCard() {
         val customCard =
             object : A2uiBasicCatalogV1.Card {
@@ -101,6 +133,7 @@ class MaterialA2uiBasicCatalogV1Test {
 
         val catalog =
             materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
                 urlOpener = fakeUrlOpener,
                 messageFormatter = fakeMessageFormatter,
                 localeProvider = fakeLocaleProvider,
@@ -127,6 +160,7 @@ class MaterialA2uiBasicCatalogV1Test {
 
         val catalog =
             materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
                 urlOpener = fakeUrlOpener,
                 messageFormatter = fakeMessageFormatter,
                 localeProvider = fakeLocaleProvider,
@@ -153,6 +187,7 @@ class MaterialA2uiBasicCatalogV1Test {
 
         val catalog =
             materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
                 urlOpener = fakeUrlOpener,
                 messageFormatter = fakeMessageFormatter,
                 localeProvider = fakeLocaleProvider,
@@ -179,6 +214,7 @@ class MaterialA2uiBasicCatalogV1Test {
 
         val catalog =
             materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
                 urlOpener = fakeUrlOpener,
                 messageFormatter = fakeMessageFormatter,
                 localeProvider = fakeLocaleProvider,
@@ -194,6 +230,8 @@ class MaterialA2uiBasicCatalogV1Test {
     fun materialA2uiBasicCatalogV1Defaults_providesExpectedObjects() {
         assertThat(MaterialA2uiBasicCatalogV1Defaults.text)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Text)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer))
+            .isInstanceOf(MaterialA2uiBasicCatalogV1Image::class.java)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.card)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Card)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.row)

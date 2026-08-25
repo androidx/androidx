@@ -40,6 +40,7 @@ import androidx.compose.ui.util.fastFirstOrNull
  * Glimmer, TV Compose) wishing to implement the basic catalog specification.
  *
  * @property text The [Text] component implementation.
+ * @property image The [Image] component implementation.
  * @property card The [Card] component implementation.
  * @property row The [Row] component implementation.
  * @property column The [Column] component implementation.
@@ -50,6 +51,7 @@ import androidx.compose.ui.util.fastFirstOrNull
  */
 public class A2uiBasicCatalogV1(
     public val text: Text,
+    public val image: Image,
     public val card: Card,
     public val row: Row,
     public val column: Column,
@@ -68,6 +70,7 @@ public class A2uiBasicCatalogV1(
     public val components: List<A2uiComponent> =
         listOf(
             text,
+            image,
             card,
             row,
             column,
@@ -189,6 +192,151 @@ public class A2uiBasicCatalogV1(
         @Composable
         public fun A2uiComponentScope.TypedContent(
             text: String,
+            variant: Variant,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"Image"` component for displaying an image from a URL.
+     *
+     * **Schema Properties:**
+     * * `url` (Dynamic String, required): The URL of the image to display.
+     * * `description` (Dynamic String, optional): Accessibility text for the image.
+     * * `fit` (String Enum, optional): Specifies how the image should be resized to fit its
+     *   container. This corresponds to the CSS 'object-fit' property. Valid options: `"contain"`,
+     *   `"cover"`, `"fill"`, `"none"`, `"scaleDown"`. Defaults to `"fill"`.
+     * * `variant` (String Enum, optional): A hint for the image size and style. Valid options:
+     *   `"icon"`, `"avatar"`, `"smallFeature"`, `"mediumFeature"`, `"largeFeature"`, `"header"`.
+     *   Defaults to `"mediumFeature"`.
+     */
+    public interface Image : A2uiComponent {
+        override val name: String
+            get() = "Image"
+
+        override val description: String
+            get() = "Displays an image from a URL."
+
+        /** Specifies how the image should be resized to fit its container. */
+        public enum class Fit(public val value: String) {
+            Contain("contain"),
+            Cover("cover"),
+            Fill("fill"),
+            None("none"),
+            ScaleDown("scaleDown");
+
+            public companion object {
+                /** Returns the [Fit] matching [value], or [Fill] if unknown. */
+                public fun fromValue(value: String): Fit =
+                    entries.fastFirstOrNull { it.value == value } ?: Fill
+            }
+        }
+
+        /** A visual variant determining the image size and style hint. */
+        public enum class Variant(public val value: String) {
+            Icon("icon"),
+            Avatar("avatar"),
+            SmallFeature("smallFeature"),
+            MediumFeature("mediumFeature"),
+            LargeFeature("largeFeature"),
+            Header("header");
+
+            public companion object {
+                /** Returns the [Variant] matching [value], or [MediumFeature] if unknown. */
+                public fun fromValue(value: String): Variant =
+                    entries.fastFirstOrNull { it.value == value } ?: MediumFeature
+            }
+        }
+
+        public companion object {
+            /** The [A2uiProperty] for the `"url"` property of an [Image]. */
+            public val UrlProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "url",
+                    required = true,
+                    description = "The URL of the image to display.",
+                )
+
+            /** The [A2uiProperty] for the `"description"` property of an [Image]. */
+            public val DescriptionProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "description",
+                    required = false,
+                    description = "Accessibility text for the image.",
+                )
+
+            /** The [A2uiProperty] for the `"fit"` property of an [Image]. */
+            public val FitProperty: StaticA2uiProperty<Fit> =
+                A2uiProperty.enum(
+                    key = "fit",
+                    enumValues = Fit.entries,
+                    mapToString = { it.value },
+                    convertFromString = Fit::fromValue,
+                    defaultValue = Fit.Fill,
+                    description =
+                        "Specifies how the image should be resized to fit its container. " +
+                            "This corresponds to the CSS 'object-fit' property.",
+                )
+
+            /** The [A2uiProperty] for the `"variant"` property of an [Image]. */
+            public val VariantProperty: StaticA2uiProperty<Variant> =
+                A2uiProperty.enum(
+                    key = "variant",
+                    enumValues = Variant.entries,
+                    mapToString = { it.value },
+                    convertFromString = Variant::fromValue,
+                    defaultValue = Variant.MediumFeature,
+                    description = "A hint for the image size and style.",
+                )
+
+            internal val ComponentProperties: List<A2uiProperty<*>> =
+                listOf(UrlProperty, DescriptionProperty, FitProperty, VariantProperty)
+        }
+
+        override val properties: List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bind(UrlProperty) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val url =
+                checkNotNull(properties.bind(UrlProperty)) {
+                    "Required property '${UrlProperty.key}' is missing."
+                }
+            val description = properties.bind(DescriptionProperty)
+            val fit = properties[FitProperty] ?: Fit.Fill
+            val variant = properties[VariantProperty] ?: Variant.MediumFeature
+
+            TypedContent(
+                url = url,
+                description = description,
+                fit = fit,
+                variant = variant,
+                modifier = modifier,
+            )
+        }
+
+        /**
+         * Renders the [Image] with its resolved [url], [description], [fit], and [variant]
+         * properties.
+         *
+         * @param url The URL of the image to display.
+         * @param description Accessibility text for the image.
+         * @param fit Specifies how the image should be resized to fit its container.
+         * @param variant A hint for the image size and style.
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            url: String,
+            description: String?,
+            fit: Fit,
             variant: Variant,
             modifier: Modifier,
         )
