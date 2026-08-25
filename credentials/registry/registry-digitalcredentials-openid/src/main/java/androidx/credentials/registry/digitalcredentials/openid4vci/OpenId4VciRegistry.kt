@@ -228,7 +228,7 @@ private constructor(
             displayData: OpenId4VciDisplayData?,
             preferredProtocols: List<String>,
         ): ByteArray {
-            var icon: ByteArray? = null
+            val icon: ByteArray?
             var jsonPackageInfo: JSONObject? = null
             var jsonResolvedPackageInfo: JSONObject? = null
 

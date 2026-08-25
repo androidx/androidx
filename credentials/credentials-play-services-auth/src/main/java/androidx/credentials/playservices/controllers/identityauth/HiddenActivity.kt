@@ -116,14 +116,14 @@ open class HiddenActivity : Activity() {
                 setupFailure(
                     resultReceiver!!,
                     CredentialProviderBaseController.Companion.GET_UNKNOWN,
-                    "During begin sign in, one tap ui intent sender " + "failure: " + "${e.message}",
+                    "During begin sign in, one tap ui intent sender failure: ${e.message}",
                 )
             }
             CredentialProviderBaseController.CREATE_PASSWORD_TAG -> {
                 setupFailure(
                     resultReceiver!!,
                     CredentialProviderBaseController.Companion.CREATE_UNKNOWN,
-                    "During save password, found UI intent sender " + "failure: ${e.message}",
+                    "During save password, found UI intent sender failure: ${e.message}",
                 )
             }
             CredentialProviderBaseController.CREATE_PUBLIC_KEY_CREDENTIAL_TAG -> {
@@ -138,7 +138,7 @@ open class HiddenActivity : Activity() {
                 setupFailure(
                     resultReceiver!!,
                     CredentialProviderBaseController.Companion.GET_UNKNOWN,
-                    "During get sign-in intent, one tap ui intent sender " + "failure: ${e.message}",
+                    "During get sign-in intent, one tap ui intent sender failure: ${e.message}",
                 )
             }
         }

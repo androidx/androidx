@@ -70,7 +70,7 @@ class AuthenticatorAssertionResponse(
 
     fun dataToSign(): ByteArray {
         val md = MessageDigest.getInstance("SHA-256")
-        var hash: ByteArray
+        val hash: ByteArray
         if (clientDataHash != null) {
             hash = clientDataHash
         } else {

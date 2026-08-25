@@ -40,7 +40,7 @@ class CreatePasswordCredentialControllerTest {
 
         val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
 
-        activityScenario.onActivity { activity: TestCredentialsActivity? ->
+        activityScenario.onActivity { _: TestCredentialsActivity? ->
             val controller = CreatePasswordCredentialController(context)
             val convertedRequest = controller.convertRequestToPlayServices(request)
             assertThat(convertedRequest.origin).isEqualTo(request.origin)
