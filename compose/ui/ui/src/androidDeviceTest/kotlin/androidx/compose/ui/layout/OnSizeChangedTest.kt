@@ -154,7 +154,7 @@ class OnSizeChangedTest {
     fun layoutButNoSizeChange() {
         var changedSize = IntSize.Zero
         var sizePx by mutableStateOf(10)
-        var called = false
+        var called: Boolean
 
         rule.setContent {
             with(LocalDensity.current) {

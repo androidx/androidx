@@ -127,8 +127,8 @@ fun CardRow(
 @Preview
 @Composable
 fun NestedContainersFalseDemo() {
-    var topSampleText = "Top text in column "
-    var bottomSampleText = "Bottom text in column "
+    val topSampleText = "Top text in column "
+    val bottomSampleText = "Bottom text in column "
     Column(Modifier.testTag("Test Tag").semantics { isTraversalGroup = true }) {
         Row() {
             Modifier.semantics { isTraversalGroup = true }
@@ -151,8 +151,8 @@ fun NestedContainersFalseDemo() {
 @Preview
 @Composable
 fun NestedContainersTrueDemo() {
-    var topSampleText = "Top text in column "
-    var bottomSampleText = "Bottom text in column "
+    val topSampleText = "Top text in column "
+    val bottomSampleText = "Bottom text in column "
     Column(Modifier.testTag("Test Tag").semantics { isTraversalGroup = true }) {
         Row() {
             Modifier.semantics { isTraversalGroup = true }
@@ -181,7 +181,7 @@ fun TopAppBar() {
 @Composable
 fun ScrollColumn(padding: PaddingValues) {
     var counter = 0
-    var sampleText = "Sample text in column"
+    val sampleText = "Sample text in column"
     Column(Modifier.verticalScroll(rememberScrollState()).padding(padding).testTag("Test Tag")) {
         repeat(100) { Text(sampleText + counter++) }
     }
@@ -231,7 +231,7 @@ fun ScaffoldSampleScrollDemo() {
 @Preview
 @Composable
 fun ScrollingColumnDemo() {
-    var sampleText = "Sample text in column"
+    val sampleText = "Sample text in column"
     var counter = 0
 
     Column(Modifier.verticalScroll(rememberScrollState()).testTag("Test Tag")) {
@@ -283,7 +283,7 @@ fun FloatingBox() {
 @Composable
 fun ContentColumn(padding: PaddingValues) {
     var counter = 0
-    var sampleText = "Sample text in column"
+    val sampleText = "Sample text in column"
     Column(Modifier.verticalScroll(rememberScrollState()).padding(padding).testTag("Test Tag")) {
         // every other value has an explicitly set `traversalIndex`
         Text(text = sampleText + counter++)

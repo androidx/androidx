@@ -646,7 +646,7 @@ private object OutlineUtils {
             // b/18175261 On the initial Lollipop release invalidateOutline
             // would not invalidate shadows so directly call rebuildOutline
             try {
-                var method: Method?
+                val method: Method?
                 synchronized(this) {
                     if (!hasRetrievedMethod) {
                         hasRetrievedMethod = true

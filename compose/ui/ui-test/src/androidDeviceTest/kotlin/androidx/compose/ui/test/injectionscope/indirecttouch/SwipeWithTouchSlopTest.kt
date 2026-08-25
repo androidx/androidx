@@ -61,9 +61,7 @@ class SwipeWithTouchSlopTest {
     fun swipeScrollable_accountForTouchSlop() {
         val touchSlop = 18f
         val scrollState = ScrollState(initial = 5000)
-        var composeView: android.view.View? = null
         rule.setContent {
-            composeView = androidx.compose.ui.platform.LocalView.current
             WithTouchSlop(touchSlop) {
                 with(LocalDensity.current) {
                     // Scrollable with a viewport the size of 10 boxes

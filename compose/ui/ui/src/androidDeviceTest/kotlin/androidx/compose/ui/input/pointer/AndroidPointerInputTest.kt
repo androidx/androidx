@@ -1861,7 +1861,7 @@ class AndroidPointerInputTest {
         val actionIndex = 0
         val pointerProperties =
             arrayOf(PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_FINGER })
-        var pointerCoords: Array<PointerCoords>? = null
+        var pointerCoords: Array<PointerCoords>?
 
         // --> Act
         var dispatchResult = false

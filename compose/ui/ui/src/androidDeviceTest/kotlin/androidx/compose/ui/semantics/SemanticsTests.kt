@@ -520,7 +520,7 @@ class SemanticsTests {
             }
         }
 
-        rule.onNodeWithTag(tag1).assertTestPropertyEquals("$label4")
+        rule.onNodeWithTag(tag1).assertTestPropertyEquals(label4)
     }
 
     @Test
@@ -551,7 +551,7 @@ class SemanticsTests {
 
         rule.onNodeWithTag(tag1).assertTestPropertyEquals("$label1, $label3")
         rule.onNodeWithTag(tag1).assertTextEquals(label3)
-        rule.onNodeWithTag(tag2).assertTestPropertyEquals("$label1")
+        rule.onNodeWithTag(tag2).assertTestPropertyEquals(label1)
         rule.onNodeWithTag(tag2).assertDoesNotHaveProperty(SemanticsProperties.Text)
     }
 

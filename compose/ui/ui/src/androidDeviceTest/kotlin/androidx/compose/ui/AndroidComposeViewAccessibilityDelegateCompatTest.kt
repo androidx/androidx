@@ -2994,7 +2994,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                 )
             }
         }
-        val childId = rule.onNodeWithTag(tagChild, useUnmergedTree = true).semanticsId()
+        rule.waitForIdle()
         val delegate = androidComposeView.composeAccessibilityDelegate
 
         // Act.
