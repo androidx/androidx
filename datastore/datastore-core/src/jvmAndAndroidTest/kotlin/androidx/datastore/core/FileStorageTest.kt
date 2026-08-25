@@ -340,6 +340,18 @@ class FileStorageTest {
             assertThat(testConnection.readData()).isEqualTo(1)
         }
 
+    @Test
+    fun corruptionExceptionIncludesFilePath() =
+        testScope.runTest {
+            testingSerializerConfig.failReadWithCorruptionException = true
+            testConnection.writeData(1)
+
+            val ex = assertThrows<CorruptionException> { testConnection.readData() }
+
+            ex.hasMessageThat().contains("Corruption in file")
+            ex.hasMessageThat().contains(testFile.canonicalPath)
+        }
+
     private fun getTempFolder(): File {
         return File.createTempFile("test", "test").parentFile!!
     }
