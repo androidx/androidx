@@ -99,9 +99,17 @@ class PhysicalCameraDeviceTest {
         testPhysicalCameraStreaming(StreamConfig.COMBINED)
     }
 
+    private data class PhysicalCameraFailure(
+        val logicalCameraId: String,
+        val lensFacing: Int,
+        val physicalCameraId: String,
+        val errorMessage: String,
+    )
+
     private suspend fun testPhysicalCameraStreaming(streamConfig: StreamConfig) {
         val lensFacings = listOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
         var testedAnyPhysicalCamera = false
+        val failures = mutableListOf<PhysicalCameraFailure>()
 
         for (lensFacing in lensFacings) {
             if (!CameraUtil.hasCameraWithLensFacing(lensFacing)) {
@@ -109,6 +117,16 @@ class PhysicalCameraDeviceTest {
             }
 
             val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+
+            // Step 1: Verify that the logical camera itself can open and stream frames.
+            if (!isLogicalCameraFunctional(cameraSelector)) {
+                println(
+                    "Skipping lensFacing $lensFacing: logical camera failed to stream frames on " +
+                        "${Build.MANUFACTURER} ${Build.MODEL}."
+                )
+                continue
+            }
+
             val cameraUseCaseAdapter =
                 CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
             val cameraInfo = cameraUseCaseAdapter.cameraInfo
@@ -122,17 +140,94 @@ class PhysicalCameraDeviceTest {
                 continue
             }
 
+            val logicalCameraId = Camera2Interop.getCameraId(cameraInfo)
+
+            // Step 2: Check physical cameras on the logical camera one by one.
             for (physicalCameraInfo in physicalCameraInfos) {
                 val physicalCameraId = Camera2Interop.getCameraId(physicalCameraInfo)
-                verifyPhysicalCameraStreaming(cameraSelector, physicalCameraId, streamConfig)
                 testedAnyPhysicalCamera = true
+                try {
+                    verifyPhysicalCameraStreaming(cameraSelector, physicalCameraId, streamConfig)
+                } catch (t: Throwable) {
+                    val errorMsg = t.message ?: t.javaClass.simpleName
+                    println(
+                        "FAILED Physical Camera $physicalCameraId on Logical Camera $logicalCameraId " +
+                            "(${if (lensFacing == CameraSelector.LENS_FACING_BACK) "BACK" else "FRONT"}): $errorMsg"
+                    )
+                    failures.add(
+                        PhysicalCameraFailure(
+                            logicalCameraId = logicalCameraId,
+                            lensFacing = lensFacing,
+                            physicalCameraId = physicalCameraId,
+                            errorMessage = errorMsg,
+                        )
+                    )
+                }
             }
         }
 
         assumeTrue(
-            "Device does not have any logical multi-camera with available physical cameras",
+            "Device does not have any functional logical multi-camera with available physical cameras",
             testedAnyPhysicalCamera,
         )
+
+        // Step 3: List failure physical cameras and corresponding logical camera for quirk
+        // updating.
+        if (failures.isNotEmpty()) {
+            val failureReport = buildString {
+                appendLine(
+                    "Physical camera streaming failed on ${Build.MANUFACTURER} ${Build.MODEL} (${Build.BRAND}):"
+                )
+                val groupedByLogical = failures.groupBy { it.logicalCameraId to it.lensFacing }
+                for ((logicalKey, logicalFailures) in groupedByLogical) {
+                    val (logicalId, facing) = logicalKey
+                    val facingStr =
+                        if (facing == CameraSelector.LENS_FACING_BACK) "BACK" else "FRONT"
+                    appendLine("  Logical Camera $logicalId ($facingStr):")
+                    for (f in logicalFailures) {
+                        appendLine(
+                            "    - Physical Camera ID ${f.physicalCameraId}: ${f.errorMessage}"
+                        )
+                    }
+                }
+                appendLine("Suggested ExcludePhysicalCameraIdQuirk mapping entry:")
+                val failedIds =
+                    failures
+                        .map { "\"${it.physicalCameraId}\"" }
+                        .distinct()
+                        .sorted()
+                        .joinToString(", ")
+                appendLine("  \"${Build.MODEL}\" to setOf($failedIds)")
+            }
+            org.junit.Assert.fail(failureReport)
+        }
+    }
+
+    private suspend fun isLogicalCameraFunctional(cameraSelector: CameraSelector): Boolean {
+        val preview = Preview.Builder().build()
+        val previewLatch = CountDownLatch(3)
+        val listener = SurfaceTexture.OnFrameAvailableListener { previewLatch.countDown() }
+
+        var cameraProvider: androidx.camera.core.internal.CameraUseCaseAdapter? = null
+        return try {
+            val camera = CameraUtil.createCameraAndAttachUseCase(context, cameraSelector, preview)
+            cameraProvider = camera as? androidx.camera.core.internal.CameraUseCaseAdapter
+            withContext(Dispatchers.Main) {
+                preview.setSurfaceProvider(
+                    SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider(listener)
+                )
+            }
+            previewLatch.await(5, TimeUnit.SECONDS)
+        } catch (t: Throwable) {
+            println("Logical camera probe failed on ${Build.MODEL}: ${t.message}")
+            false
+        } finally {
+            try {
+                cameraProvider?.let {
+                    withContext(Dispatchers.Main) { it.removeUseCases(listOf(preview)) }
+                }
+            } catch (_: Throwable) {}
+        }
     }
 
     @Suppress("DEPRECATION")
