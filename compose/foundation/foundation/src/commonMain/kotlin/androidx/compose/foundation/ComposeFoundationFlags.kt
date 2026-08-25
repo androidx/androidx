@@ -82,17 +82,6 @@ public object ComposeFoundationFlags {
     public var isInheritedTextStyleEnabled: Boolean = false
 
     /**
-     * Selecting flag to enable the use of new PausableComposition in lazy layout prefetch. This
-     * change allows us to distribute work we need to do during the prefetch better, for example we
-     * can only perform the composition for parts of the LazyColumn's next item during one ui frame,
-     * and then continue composing the rest of it in the next frames.
-     */
-    // TODO: b/455589928
-    @field:Suppress("MutableBareField")
-    @JvmField
-    public var isPausableCompositionInPrefetchEnabled: Boolean = true
-
-    /**
      * With this flag on, Pager will use
      * [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow] as the default prefetching
      * strategy, instead of 1 item in the direction of the scroll. The window used will be 1 view
