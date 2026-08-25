@@ -1305,7 +1305,7 @@ internal class BasicTextFieldTest {
 
     @Test
     fun changingInputTransformation_doesNotRestartInput() {
-        var inputTransformation by mutableStateOf(InputTransformation.maxLength(10))
+        var inputTransformation by mutableStateOf(InputTransformation.maxLengthTrim(10))
         inputMethodInterceptor.setTextFieldTestContent {
             val state = remember { TextFieldState() }
             BasicTextField(
@@ -1319,7 +1319,7 @@ internal class BasicTextFieldTest {
         inputMethodInterceptor.assertSessionActive()
         inputMethodInterceptor.assertThatSessionCount().isEqualTo(1)
 
-        inputTransformation = InputTransformation.maxLength(15)
+        inputTransformation = InputTransformation.maxLengthTrim(15)
 
         inputMethodInterceptor.assertSessionActive()
         inputMethodInterceptor.assertThatSessionCount().isEqualTo(1)

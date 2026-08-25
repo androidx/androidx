@@ -34,7 +34,7 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.insert
-import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.maxLengthTrim
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.then
 import androidx.compose.material.icons.Icons
@@ -123,7 +123,7 @@ fun TextFieldWithTransformations() {
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         // Input transformation to limit user input to 10 digits
         inputTransformation =
-            InputTransformation.maxLength(10).then {
+            InputTransformation.maxLengthTrim(10).then {
                 if (!this.asCharSequence().isDigitsOnly()) {
                     revertAllChanges()
                 }
