@@ -33,6 +33,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.text.RemoteTypeface
 import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asAndroidColorFilter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontVariation
@@ -54,6 +55,7 @@ internal class PaintTracker {
     var typefaceIsItalic: Boolean = false
     var colorFilter: RemoteColorFilter? = null
     var blendMode: BlendMode? = null
+    var filterQuality: FilterQuality? = null
     var shader: RemoteShader? = null
     var usingShaderMatrix: Boolean = false
     var fontVariationSettings: FontVariation.Settings? = null
@@ -238,6 +240,12 @@ internal class PaintTracker {
         updateIfChanged(composeBlendMode, blendMode) {
             blendMode = composeBlendMode
             paintBundle.setBlendMode(composeBlendMode.toInt())
+        }
+
+        val targetFilterQuality = newPaint.filterQuality
+        updateIfChanged(targetFilterQuality, filterQuality) {
+            filterQuality = targetFilterQuality
+            paintBundle.setFilterBitmap(targetFilterQuality != FilterQuality.None)
         }
 
         val targetShader = newPaint.shader
