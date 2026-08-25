@@ -1562,16 +1562,28 @@ class ScatterMapTest {
         val asMap = map.asMap()
 
         val keysString = asMap.keys.toString()
-        assertEquals(keysString, "[one, two]", "Keys toString was: $keysString")
+        assertTrue(
+            keysString == "[one, two]" || keysString == "[two, one]",
+            "Keys toString was: $keysString",
+        )
 
         val valuesString = asMap.values.toString()
-        assertEquals(valuesString, "[1, 2]", "Values toString was: $valuesString")
+        assertTrue(
+            valuesString == "[1, 2]" || valuesString == "[2, 1]",
+            "Values toString was: $valuesString",
+        )
 
         val entriesString = asMap.entries.toString()
-        assertEquals(entriesString, "[one=1, two=2]", "Entries toString was: $entriesString")
+        assertTrue(
+            entriesString == "[one=1, two=2]" || entriesString == "[two=2, one=1]",
+            "Entries toString was: $entriesString",
+        )
 
         val entryString = asMap.entries.first().toString()
-        assertEquals(entryString, "one=1", "MapEntry toString was: $entryString")
+        assertTrue(
+            entryString == "one=1" || entryString == "two=2",
+            "MapEntry toString was: $entryString",
+        )
     }
 
     @Test

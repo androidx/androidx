@@ -877,12 +877,16 @@ public class MutableLongSet(initialCapacity: Int = DefaultScatterCapacity) : Lon
 }
 
 /**
- * Returns the hash code of [k]. The hash spreads low bits to minimize collisions in high 25-bits
- * that are used for probing.
+ * Returns the hash code of [k]. The hash spreads both low and high bits to minimize collisions in
+ * both the high 25-bits used for probing and the low 7-bits used for metadata.
  */
 internal inline fun hash(k: Long): Int {
-    // scramble bits to account for collisions between similar hash values.
-    val hash = k.hashCode() * MurmurHashC1
-    // spread low bits into high bits that are used for probing
-    return hash xor (hash shl 16)
+    val h = k.hashCode()
+    // Fold high bits down so keys with zeroed low bits (e.g. floats) contribute to the multiplier
+    val folded = h xor (h ushr 16)
+    // Avalanche differences across all 32 bits using MurmurHash constant (multiplication propagates
+    // bits up)
+    val scrambled = folded * MurmurHashC1
+    // Fold scrambled high bits into low bits so H2 control tag (lower 7 bits) receives entropy
+    return scrambled xor (scrambled ushr 16)
 }
