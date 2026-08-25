@@ -867,6 +867,10 @@ class ComposeViewAdapterTest {
                 "onForwardPressProgress(float,String): void",
                 "onForwardPressCompleted(): void",
                 "onForwardPressCancelled(): void",
+                // History navigation APIs
+                "getHistory(): List",
+                "getCurrentIndex(): int",
+                "backToState(Object): boolean",
             )
 
         for (expectedMethod in expectedMethods) {
