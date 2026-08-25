@@ -39,19 +39,19 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui"))
-                implementation(project(":compose:ui:ui-unit"))
-                implementation(project(":compose:ui:ui-graphics"))
-                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation("androidx.compose.runtime:runtime:1.12.0")
+                implementation("androidx.compose.ui:ui:1.12.0")
+                implementation("androidx.compose.ui:ui-unit:1.12.0")
+                implementation("androidx.compose.ui:ui-graphics:1.12.0")
+                implementation("androidx.compose.ui:ui-test-junit4:1.12.0")
             }
         }
         androidMain.dependencies {
             api("androidx.activity:activity:1.7.1")
             // workaround for https://github.com/gradle/gradle/issues/8489
             implementation("androidx.lifecycle:lifecycle-common:2.6.1")
-            implementation "androidx.activity:activity-compose:1.3.1"
-            api(project(":compose:ui:ui-test-junit4"))
+            implementation("androidx.activity:activity-compose:1.3.1")
+            api("androidx.compose.ui:ui-test-junit4:1.12.0")
             api(project(":test:screenshot:screenshot"))
             // This has stub APIs for access to legacy Android APIs, so we don't want
             // any dependency on this module.
@@ -63,7 +63,8 @@ androidXMultiplatform {
 
         androidDeviceTest.dependencies {
             implementation(libs.truth)
-            implementation(project(":compose:material:material"))
+            api(project(":compose:ui:ui-test-junit4"))
+            implementation("androidx.compose.material:material:1.12.0")
         }
 
         androidHostTest.dependencies {

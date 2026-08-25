@@ -55,7 +55,7 @@ dependencies {
     implementation(project(":compose:remote:remote-creation-compose"))
     implementation(project(":compose:remote:remote-player-core"))
     implementation(project(":compose:remote:remote-player-compose"))
-    implementation(project(":compose:ui:ui-test"))
+    implementation("androidx.compose.ui:ui-test:1.12.0")
     implementation(project(":test:screenshot:screenshot"))
     implementation(libs.mockitoCore)
 
