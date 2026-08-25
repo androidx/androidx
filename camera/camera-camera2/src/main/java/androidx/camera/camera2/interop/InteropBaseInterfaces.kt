@@ -49,108 +49,35 @@ import java.util.concurrent.Executor
 // =========================================================================================
 
 /** Configures Camera2 [android.hardware.camera2.params.OutputConfiguration] options. */
-public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
-    /**
-     * Sets the physical camera ID.
-     *
-     * @param cameraId physical camera ID
-     * @return this [OutputConfigurationInterop] instance
-     */
-    @RequiresApi(28) public fun setPhysicalCameraId(cameraId: String?): T
-
-    /**
-     * Sets or gets the physical camera ID.
-     *
-     * @see setPhysicalCameraId
-     */
+public interface OutputConfigurationInterop {
+    /** The physical camera ID. */
     @get:RequiresApi(28) @set:RequiresApi(28) public var physicalCameraId: String?
 
-    /**
-     * Sets the stream use case.
-     *
-     * @param streamUseCase stream use case
-     * @return this [OutputConfigurationInterop] instance
-     */
-    @RequiresApi(33) public fun setStreamUseCase(streamUseCase: Long): T
-
-    /**
-     * Sets or gets the stream use case.
-     *
-     * @see setStreamUseCase
-     */
+    /** The stream use case. */
     @get:RequiresApi(33) @set:RequiresApi(33) public var streamUseCase: Long
 
-    /**
-     * Sets the mirror mode.
-     *
-     * @param mirrorMode mirror mode
-     * @return this [OutputConfigurationInterop] instance
-     */
-    @RequiresApi(33) public fun setMirrorMode(mirrorMode: Int): T
-
-    /**
-     * Sets or gets the mirror mode.
-     *
-     * @see setMirrorMode
-     */
+    /** The mirror mode. */
     @get:RequiresApi(33) @set:RequiresApi(33) public var mirrorMode: Int
 
-    /**
-     * Sets the timestamp base.
-     *
-     * @param timestampBase timestamp base
-     * @return this [OutputConfigurationInterop] instance
-     */
-    @RequiresApi(33) public fun setTimestampBase(timestampBase: Int): T
-
-    /**
-     * Sets or gets the timestamp base.
-     *
-     * @see setTimestampBase
-     */
+    /** The timestamp base. */
     @get:RequiresApi(33) @set:RequiresApi(33) public var timestampBase: Int
 
-    /**
-     * Sets the dynamic range profile.
-     *
-     * @param dynamicRangeProfile dynamic range profile
-     * @return this [OutputConfigurationInterop] instance
-     */
-    @RequiresApi(33) public fun setDynamicRangeProfile(dynamicRangeProfile: Long): T
-
-    /**
-     * Sets or gets the dynamic range profile.
-     *
-     * @see setDynamicRangeProfile
-     */
+    /** The dynamic range profile. */
     @get:RequiresApi(33) @set:RequiresApi(33) public var dynamicRangeProfile: Long
 
-    /**
-     * Sets the surface group ID.
-     *
-     * @param groupId surface group ID
-     * @return this [OutputConfigurationInterop] instance
-     */
-    public fun setSurfaceGroupId(groupId: Int): T
-
-    /**
-     * Sets or gets the surface group ID.
-     *
-     * @see setSurfaceGroupId
-     */
+    /** The surface group ID. */
     public var surfaceGroupId: Int
 
     /**
      * Adds a sensor pixel mode that this output configuration will be used in.
      *
      * @param sensorPixelMode sensor pixel mode to add
-     * @return this [OutputConfigurationInterop] instance
      * @see android.hardware.camera2.params.OutputConfiguration.addSensorPixelModeUsed
      */
-    @RequiresApi(31) public fun addSensorPixelModeUsed(sensorPixelMode: Int): T
+    @RequiresApi(31) public fun addSensorPixelModeUsed(sensorPixelMode: Int)
 
     /**
-     * Sets or gets the sensor pixel modes that this output configuration will be used in.
+     * The sensor pixel modes that this output configuration will be used in.
      *
      * @see addSensorPixelModeUsed
      */
@@ -158,15 +85,14 @@ public interface OutputConfigurationInterop<T : OutputConfigurationInterop<T>> {
 }
 
 /** Configures Camera2 [android.hardware.camera2.CameraCaptureSession] options. */
-public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>> {
+public interface CameraCaptureSessionInterop {
     /**
      * Sets a [CaptureRequest.Key] and value on repeating and one-shot requests.
      *
      * @param key capture request option key
      * @param value option value
-     * @return this [CameraCaptureSessionInterop] instance
      */
-    public fun <V> setCaptureRequestOption(key: CaptureRequest.Key<V>, value: V): T
+    public fun <V> setCaptureRequestOption(key: CaptureRequest.Key<V>, value: V)
 
     /** Helper target property supporting `captureRequest[key] = value` indexing operator syntax. */
     public val captureRequest: CaptureRequestOptionTarget
@@ -176,35 +102,20 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
      * Clears a [CaptureRequest.Key] previously set on this target.
      *
      * @param key capture request option key
-     * @return this [CameraCaptureSessionInterop] instance
      */
-    public fun clearCaptureRequestOption(key: CaptureRequest.Key<*>): T
+    public fun clearCaptureRequestOption(key: CaptureRequest.Key<*>)
+
+    /** Clears all [CaptureRequest.Key]s previously set on this target. */
+    public fun clearAllCaptureRequestOptions()
 
     /**
-     * Clears all [CaptureRequest.Key]s previously set on this target.
-     *
-     * @return this [CameraCaptureSessionInterop] instance
-     */
-    public fun clearAllCaptureRequestOptions(): T
-
-    /**
-     * Sets the repeating capture request template type.
-     *
-     * @param templateType template type (e.g.,
-     *   [android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW])
-     * @return this [CameraCaptureSessionInterop] instance
-     */
-    public fun setRepeatingCaptureRequestTemplate(templateType: Int): T
-
-    /**
-     * Sets or gets the repeating capture request template type.
-     *
-     * @see setRepeatingCaptureRequestTemplate
+     * The repeating capture request template type (e.g.,
+     * [android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW]).
      */
     public var repeatingCaptureRequestTemplate: Int
 
     /**
-     * Sets the callback to receive repeating capture updates.
+     * Sets the callback to receive repeating capture updates with an executor.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
      * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
@@ -226,17 +137,16 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
      *
      * @param executor executor to run the callback on
      * @param callback repeating capture callback
-     * @return this [CameraCaptureSessionInterop] instance
      */
     public fun setRepeatingCaptureCallback(
         executor: Executor,
         callback: CameraCaptureSession.CaptureCallback,
-    ): T
+    )
 
     /**
-     * Sets the callback to receive repeating capture updates on a direct executor.
+     * The callback to receive repeating capture updates on a direct executor.
      *
-     * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
+     * **Warning:** The callback receives raw [android.hardware.camera2.CameraCaptureSession]
      * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
      * these raw objects bypasses CameraX pipeline management and causes state desynchronization,
      * stream freezing, or crashes. Do not invoke:
@@ -253,17 +163,6 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
      *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
      *   [android.hardware.camera2.CameraCaptureSession.prepare], or
      *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
-     *
-     * @param callback repeating capture callback
-     * @return this [CameraCaptureSessionInterop] instance
-     */
-    public fun setRepeatingCaptureCallback(callback: CameraCaptureSession.CaptureCallback): T =
-        setRepeatingCaptureCallback({ it.run() }, callback)
-
-    /**
-     * Sets or gets the callback to receive repeating capture updates on a direct executor.
-     *
-     * @see setRepeatingCaptureCallback
      */
     public var repeatingCaptureCallback: CameraCaptureSession.CaptureCallback?
 }
@@ -273,7 +172,7 @@ public interface CameraCaptureSessionInterop<T : CameraCaptureSessionInterop<T>>
  *
  * Keys configured for still capture requests override corresponding keys set in repeating requests.
  */
-public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
+public interface StillCaptureInterop {
     /**
      * Sets a [CaptureRequest.Key] and value for still capture requests.
      *
@@ -286,9 +185,8 @@ public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
      *
      * @param key capture request option key
      * @param value option value
-     * @return this [StillCaptureInterop] instance
      */
-    public fun <V> setStillCaptureRequestOption(key: CaptureRequest.Key<V>, value: V): T
+    public fun <V> setStillCaptureRequestOption(key: CaptureRequest.Key<V>, value: V)
 
     /**
      * Helper target property supporting `stillCaptureRequest[key] = value` indexing operator
@@ -297,18 +195,11 @@ public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
     public val stillCaptureRequest: StillCaptureRequestOptionTarget
         get() = StillCaptureRequestOptionTarget(this)
 
-    /** Sets the template type for still capture requests. */
-    public fun setStillCaptureRequestTemplateType(templateType: Int): T
-
-    /**
-     * Sets or gets the template type for still capture requests.
-     *
-     * @see setStillCaptureRequestTemplateType
-     */
+    /** The template type for still capture requests. */
     public var stillCaptureRequestTemplateType: Int
 
     /**
-     * Sets the callback to receive still capture updates.
+     * Sets the callback to receive still capture updates with an executor.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
      * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
@@ -330,17 +221,16 @@ public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
      *
      * @param executor executor to run the callback on
      * @param callback still capture callback
-     * @return this [StillCaptureInterop] instance
      */
     public fun setStillCaptureCallback(
         executor: Executor,
         callback: CameraCaptureSession.CaptureCallback,
-    ): T
+    )
 
     /**
-     * Sets the callback to receive still capture updates on a direct executor.
+     * The callback to receive still capture updates on a direct executor.
      *
-     * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
+     * **Warning:** The callback receives raw [android.hardware.camera2.CameraCaptureSession]
      * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
      * these raw objects bypasses CameraX pipeline management and causes state desynchronization,
      * stream freezing, or crashes. Do not invoke:
@@ -357,31 +247,19 @@ public interface StillCaptureInterop<T : StillCaptureInterop<T>> {
      *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
      *   [android.hardware.camera2.CameraCaptureSession.prepare], or
      *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
-     *
-     * @param callback still capture callback
-     * @return this [StillCaptureInterop] instance
-     */
-    public fun setStillCaptureCallback(callback: CameraCaptureSession.CaptureCallback): T =
-        setStillCaptureCallback({ it.run() }, callback)
-
-    /**
-     * Sets or gets the callback to receive still capture updates on a direct executor.
-     *
-     * @see setStillCaptureCallback
      */
     public var stillCaptureCallback: CameraCaptureSession.CaptureCallback?
 }
 
 /** Configures Camera2 [android.hardware.camera2.params.SessionConfiguration] options. */
-public interface SessionConfigurationInterop<T : SessionConfigurationInterop<T>> {
+public interface SessionConfigurationInterop {
     /**
      * Sets a session parameter used during session creation.
      *
      * @param key session parameter key
      * @param value parameter value
-     * @return this [SessionConfigurationInterop] instance
      */
-    @RequiresApi(28) public fun <V> setSessionParameter(key: CaptureRequest.Key<V>, value: V): T
+    @RequiresApi(28) public fun <V> setSessionParameter(key: CaptureRequest.Key<V>, value: V)
 
     /**
      * Helper target property supporting `sessionParameter[key] = value` indexing operator syntax.
@@ -390,28 +268,14 @@ public interface SessionConfigurationInterop<T : SessionConfigurationInterop<T>>
     public val sessionParameter: SessionParameterTarget
         get() = SessionParameterTarget(this)
 
-    /** Sets the operating mode session type. */
-    @RequiresApi(28) public fun setSessionType(sessionType: Int): T
-
-    /**
-     * Sets or gets the operating mode session type.
-     *
-     * @see setSessionType
-     */
+    /** The operating mode session type. */
     @get:RequiresApi(28) @set:RequiresApi(28) public var sessionType: Int
 
-    /** Sets the session color space. */
-    @RequiresApi(34) public fun setColorSpace(colorSpace: ColorSpace.Named): T
-
-    /**
-     * Sets or gets the session color space.
-     *
-     * @see setColorSpace
-     */
+    /** The session color space. */
     @get:RequiresApi(34) @set:RequiresApi(34) public var colorSpace: ColorSpace.Named?
 
     /**
-     * Sets the callback to receive session state updates.
+     * Sets the callback to receive session state updates with an executor.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
      * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
@@ -433,17 +297,16 @@ public interface SessionConfigurationInterop<T : SessionConfigurationInterop<T>>
      *
      * @param executor executor to run the callback on
      * @param callback session state callback
-     * @return this [SessionConfigurationInterop] instance
      */
     public fun setSessionStateCallback(
         executor: Executor,
         callback: CameraCaptureSession.StateCallback,
-    ): T
+    )
 
     /**
-     * Sets the callback to receive session state updates on a direct executor.
+     * The callback to receive session state updates on a direct executor.
      *
-     * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraCaptureSession]
+     * **Warning:** The callback receives raw [android.hardware.camera2.CameraCaptureSession]
      * instances. Directly invoking state-altering, lifecycle, or request-submitting methods on
      * these raw objects bypasses CameraX pipeline management and causes state desynchronization,
      * stream freezing, or crashes. Do not invoke:
@@ -460,25 +323,14 @@ public interface SessionConfigurationInterop<T : SessionConfigurationInterop<T>>
      *   [android.hardware.camera2.CameraCaptureSession.finalizeOutputConfigurations],
      *   [android.hardware.camera2.CameraCaptureSession.prepare], or
      *   [android.hardware.camera2.CameraCaptureSession.switchToOffline]
-     *
-     * @param callback session state callback
-     * @return this [SessionConfigurationInterop] instance
-     */
-    public fun setSessionStateCallback(callback: CameraCaptureSession.StateCallback): T =
-        setSessionStateCallback({ it.run() }, callback)
-
-    /**
-     * Sets or gets the callback to receive session state updates on a direct executor.
-     *
-     * @see setSessionStateCallback
      */
     public var sessionStateCallback: CameraCaptureSession.StateCallback?
 }
 
 /** Configures Camera2 [android.hardware.camera2.CameraDevice] options. */
-public interface CameraDeviceInterop<T : CameraDeviceInterop<T>> {
+public interface CameraDeviceInterop {
     /**
-     * Sets the callback to receive camera device state updates.
+     * Sets the callback to receive camera device state updates with an executor.
      *
      * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraDevice] instances.
      * Directly invoking state-altering, lifecycle, or session-creation methods on these raw objects
@@ -492,14 +344,13 @@ public interface CameraDeviceInterop<T : CameraDeviceInterop<T>> {
      *
      * @param executor executor to run the callback on
      * @param callback device state callback
-     * @return this [CameraDeviceInterop] instance
      */
-    public fun setDeviceStateCallback(executor: Executor, callback: CameraDevice.StateCallback): T
+    public fun setDeviceStateCallback(executor: Executor, callback: CameraDevice.StateCallback)
 
     /**
-     * Sets the callback to receive camera device state updates on a direct executor.
+     * The callback to receive camera device state updates on a direct executor.
      *
-     * **Warning:** The [callback] receives raw [android.hardware.camera2.CameraDevice] instances.
+     * **Warning:** The callback receives raw [android.hardware.camera2.CameraDevice] instances.
      * Directly invoking state-altering, lifecycle, or session-creation methods on these raw objects
      * bypasses CameraX pipeline management and causes state desynchronization, stream interruption,
      * or crashes. Do not invoke:
@@ -508,17 +359,6 @@ public interface CameraDeviceInterop<T : CameraDeviceInterop<T>> {
      *   [android.hardware.camera2.CameraDevice.createCaptureSessionByOutputConfigurations],
      *   [android.hardware.camera2.CameraDevice.createReprocessableCaptureSession], or
      *   [android.hardware.camera2.CameraDevice.createExtensionSession]
-     *
-     * @param callback device state callback
-     * @return this [CameraDeviceInterop] instance
-     */
-    public fun setDeviceStateCallback(callback: CameraDevice.StateCallback): T =
-        setDeviceStateCallback({ it.run() }, callback)
-
-    /**
-     * Sets or gets the callback to receive camera device state updates on a direct executor.
-     *
-     * @see setDeviceStateCallback
      */
     public var deviceStateCallback: CameraDevice.StateCallback?
 }
@@ -528,8 +368,7 @@ public interface CameraDeviceInterop<T : CameraDeviceInterop<T>> {
 // =========================================================================================
 
 /** Provides default implementation for [OutputConfigurationInterop] using a [MutableConfig]. */
-internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInterop<T>> :
-    OutputConfigurationInterop<T> {
+internal interface OutputConfigurationInteropDelegate : OutputConfigurationInterop {
     val mutableConfig: MutableConfig
 
     @get:RequiresApi(28)
@@ -538,7 +377,7 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
         get() =
             mutableConfig.retrieveOption(Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION, null)
         set(value) {
-            setPhysicalCameraId(value)
+            mutableConfig.insertOption(Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION, value)
         }
 
     @get:RequiresApi(33)
@@ -550,7 +389,7 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
                 CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT.toLong(),
             )!!
         set(value) {
-            setStreamUseCase(value)
+            mutableConfig.insertOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION, value)
         }
 
     @get:RequiresApi(33)
@@ -562,7 +401,7 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
                 OutputConfiguration.MIRROR_MODE_AUTO,
             )!!
         set(value) {
-            setMirrorMode(value)
+            mutableConfig.insertOption(Camera2ImplConfig.SESSION_MIRROR_MODE_OPTION, value)
         }
 
     @get:RequiresApi(33)
@@ -574,7 +413,7 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
                 OutputConfiguration.TIMESTAMP_BASE_DEFAULT,
             )!!
         set(value) {
-            setTimestampBase(value)
+            mutableConfig.insertOption(Camera2ImplConfig.TIMESTAMP_BASE_OPTION, value)
         }
 
     @get:RequiresApi(33)
@@ -586,7 +425,7 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
                 DynamicRangeProfiles.STANDARD,
             )!!
         set(value) {
-            setDynamicRangeProfile(value)
+            mutableConfig.insertOption(Camera2ImplConfig.DYNAMIC_RANGE_PROFILE_OPTION, value)
         }
 
     override var surfaceGroupId: Int
@@ -596,7 +435,7 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
                 OutputConfiguration.SURFACE_GROUP_ID_NONE,
             )!!
         set(value) {
-            setSurfaceGroupId(value)
+            mutableConfig.insertOption(Camera2ImplConfig.SURFACE_GROUP_ID_OPTION, value)
         }
 
     @get:RequiresApi(31)
@@ -611,53 +450,8 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
             mutableConfig.insertOption(Camera2ImplConfig.SENSOR_PIXEL_MODES_USED_OPTION, value)
         }
 
-    @RequiresApi(28)
-    @Suppress("UNCHECKED_CAST")
-    override fun setPhysicalCameraId(cameraId: String?): T {
-        mutableConfig.insertOption(Camera2ImplConfig.SESSION_PHYSICAL_CAMERA_ID_OPTION, cameraId)
-        return this as T
-    }
-
-    @RequiresApi(33)
-    @Suppress("UNCHECKED_CAST")
-    override fun setStreamUseCase(streamUseCase: Long): T {
-        mutableConfig.insertOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION, streamUseCase)
-        return this as T
-    }
-
-    @RequiresApi(33)
-    @Suppress("UNCHECKED_CAST")
-    override fun setMirrorMode(mirrorMode: Int): T {
-        mutableConfig.insertOption(Camera2ImplConfig.SESSION_MIRROR_MODE_OPTION, mirrorMode)
-        return this as T
-    }
-
-    @RequiresApi(33)
-    @Suppress("UNCHECKED_CAST")
-    override fun setTimestampBase(timestampBase: Int): T {
-        mutableConfig.insertOption(Camera2ImplConfig.TIMESTAMP_BASE_OPTION, timestampBase)
-        return this as T
-    }
-
-    @RequiresApi(33)
-    @Suppress("UNCHECKED_CAST")
-    override fun setDynamicRangeProfile(dynamicRangeProfile: Long): T {
-        mutableConfig.insertOption(
-            Camera2ImplConfig.DYNAMIC_RANGE_PROFILE_OPTION,
-            dynamicRangeProfile,
-        )
-        return this as T
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun setSurfaceGroupId(groupId: Int): T {
-        mutableConfig.insertOption(Camera2ImplConfig.SURFACE_GROUP_ID_OPTION, groupId)
-        return this as T
-    }
-
     @RequiresApi(31)
-    @Suppress("UNCHECKED_CAST")
-    override fun addSensorPixelModeUsed(sensorPixelMode: Int): T {
+    override fun addSensorPixelModeUsed(sensorPixelMode: Int) {
         val current =
             mutableConfig.retrieveOption(
                 Camera2ImplConfig.SENSOR_PIXEL_MODES_USED_OPTION,
@@ -667,13 +461,11 @@ internal interface OutputConfigurationInteropDelegate<T : OutputConfigurationInt
             Camera2ImplConfig.SENSOR_PIXEL_MODES_USED_OPTION,
             current + sensorPixelMode,
         )
-        return this as T
     }
 }
 
 /** Provides default implementation for [CameraCaptureSessionInterop] using a [MutableConfig]. */
-internal interface CameraCaptureSessionInteropDelegate<T : CameraCaptureSessionInterop<T>> :
-    CameraCaptureSessionInterop<T> {
+internal interface CameraCaptureSessionInteropDelegate : CameraCaptureSessionInterop {
     val mutableConfig: MutableConfig
 
     override var repeatingCaptureRequestTemplate: Int
@@ -683,7 +475,7 @@ internal interface CameraCaptureSessionInteropDelegate<T : CameraCaptureSessionI
                 CameraDevice.TEMPLATE_PREVIEW,
             )!!
         set(value) {
-            setRepeatingCaptureRequestTemplate(value)
+            mutableConfig.insertOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION, value)
         }
 
     override var repeatingCaptureCallback: CameraCaptureSession.CaptureCallback?
@@ -695,7 +487,7 @@ internal interface CameraCaptureSessionInteropDelegate<T : CameraCaptureSessionI
                 ?.callback
         set(value) {
             if (value != null) {
-                setRepeatingCaptureCallback(value)
+                setRepeatingCaptureCallback({ it.run() }, value)
             } else {
                 mutableConfig.removeOption(
                     Camera2ImplConfig.SESSION_REPEATING_CAPTURE_CALLBACK_OPTION
@@ -703,22 +495,17 @@ internal interface CameraCaptureSessionInteropDelegate<T : CameraCaptureSessionI
             }
         }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <V> setCaptureRequestOption(key: CaptureRequest.Key<V>, value: V): T {
+    override fun <V> setCaptureRequestOption(key: CaptureRequest.Key<V>, value: V) {
         val opt = key.createCaptureRequestOption()
         mutableConfig.insertOption(opt, Config.OptionPriority.ALWAYS_OVERRIDE, value)
-        return this as T
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun clearCaptureRequestOption(key: CaptureRequest.Key<*>): T {
+    override fun clearCaptureRequestOption(key: CaptureRequest.Key<*>) {
         val opt = key.createCaptureRequestOption()
         mutableConfig.removeOption(opt)
-        return this as T
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun clearAllCaptureRequestOptions(): T {
+    override fun clearAllCaptureRequestOptions() {
         val optionsToRemove =
             mutableConfig.listOptions().filter {
                 it.id.startsWith(Camera2ImplConfig.CAPTURE_REQUEST_ID_STEM)
@@ -726,32 +513,22 @@ internal interface CameraCaptureSessionInteropDelegate<T : CameraCaptureSessionI
         for (opt in optionsToRemove) {
             mutableConfig.removeOption(opt)
         }
-        return this as T
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun setRepeatingCaptureRequestTemplate(templateType: Int): T {
-        mutableConfig.insertOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION, templateType)
-        return this as T
-    }
-
-    @Suppress("UNCHECKED_CAST")
     override fun setRepeatingCaptureCallback(
         executor: Executor,
         callback: CameraCaptureSession.CaptureCallback,
-    ): T {
+    ) {
         val wrappedCallback = CaptureCallbackExecutorWrapper(executor, callback)
         mutableConfig.insertOption(
             Camera2ImplConfig.SESSION_REPEATING_CAPTURE_CALLBACK_OPTION,
             wrappedCallback,
         )
-        return this as T
     }
 }
 
 /** Provides default implementation for [StillCaptureInterop] using a [MutableConfig]. */
-internal interface StillCaptureInteropDelegate<T : StillCaptureInterop<T>> :
-    StillCaptureInterop<T> {
+internal interface StillCaptureInteropDelegate : StillCaptureInterop {
     val mutableConfig: MutableConfig
 
     override var stillCaptureRequestTemplateType: Int
@@ -761,7 +538,7 @@ internal interface StillCaptureInteropDelegate<T : StillCaptureInterop<T>> :
                 CameraDevice.TEMPLATE_STILL_CAPTURE,
             )!!
         set(value) {
-            setStillCaptureRequestTemplateType(value)
+            mutableConfig.insertOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION, value)
         }
 
     override var stillCaptureCallback: CameraCaptureSession.CaptureCallback?
@@ -771,39 +548,28 @@ internal interface StillCaptureInteropDelegate<T : StillCaptureInterop<T>> :
                 ?.callback
         set(value) {
             if (value != null) {
-                setStillCaptureCallback(value)
+                setStillCaptureCallback({ it.run() }, value)
             } else {
                 mutableConfig.removeOption(Camera2ImplConfig.STILL_CAPTURE_CALLBACK_OPTION)
             }
         }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <V> setStillCaptureRequestOption(key: CaptureRequest.Key<V>, value: V): T {
+    override fun <V> setStillCaptureRequestOption(key: CaptureRequest.Key<V>, value: V) {
         val stillOpt = key.createStillCaptureRequestOption()
         mutableConfig.insertOption(stillOpt, Config.OptionPriority.ALWAYS_OVERRIDE, value)
-        return this as T
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun setStillCaptureRequestTemplateType(templateType: Int): T {
-        mutableConfig.insertOption(Camera2ImplConfig.TEMPLATE_TYPE_OPTION, templateType)
-        return this as T
-    }
-
-    @Suppress("UNCHECKED_CAST")
     override fun setStillCaptureCallback(
         executor: Executor,
         callback: CameraCaptureSession.CaptureCallback,
-    ): T {
+    ) {
         val wrappedCallback = CaptureCallbackExecutorWrapper(executor, callback)
         mutableConfig.insertOption(Camera2ImplConfig.STILL_CAPTURE_CALLBACK_OPTION, wrappedCallback)
-        return this as T
     }
 }
 
 /** Provides default implementation for [SessionConfigurationInterop] using a [MutableConfig]. */
-internal interface SessionConfigurationInteropDelegate<T : SessionConfigurationInterop<T>> :
-    SessionConfigurationInterop<T> {
+internal interface SessionConfigurationInteropDelegate : SessionConfigurationInterop {
     val mutableConfig: MutableConfig
 
     @get:RequiresApi(28)
@@ -815,7 +581,7 @@ internal interface SessionConfigurationInteropDelegate<T : SessionConfigurationI
                 SessionConfiguration.SESSION_REGULAR,
             )!!
         set(value) {
-            setSessionType(value)
+            mutableConfig.insertOption(Camera2ImplConfig.SESSION_TYPE_OPTION, value)
         }
 
     @get:RequiresApi(34)
@@ -832,7 +598,10 @@ internal interface SessionConfigurationInteropDelegate<T : SessionConfigurationI
         }
         set(value) {
             if (value != null) {
-                setColorSpace(value)
+                mutableConfig.insertOption(
+                    Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION,
+                    value.ordinal,
+                )
             } else {
                 mutableConfig.removeOption(Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION)
             }
@@ -845,48 +614,29 @@ internal interface SessionConfigurationInteropDelegate<T : SessionConfigurationI
                 ?.callback
         set(value) {
             if (value != null) {
-                setSessionStateCallback(value)
+                setSessionStateCallback({ it.run() }, value)
             } else {
                 mutableConfig.removeOption(Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION)
             }
         }
 
     @RequiresApi(28)
-    @Suppress("UNCHECKED_CAST")
-    override fun <V> setSessionParameter(key: CaptureRequest.Key<V>, value: V): T {
+    override fun <V> setSessionParameter(key: CaptureRequest.Key<V>, value: V) {
         val opt = key.createSessionParameterOption()
         mutableConfig.insertOption(opt, Config.OptionPriority.ALWAYS_OVERRIDE, value)
-        return this as T
     }
 
-    @RequiresApi(28)
-    @Suppress("UNCHECKED_CAST")
-    override fun setSessionType(sessionType: Int): T {
-        mutableConfig.insertOption(Camera2ImplConfig.SESSION_TYPE_OPTION, sessionType)
-        return this as T
-    }
-
-    @RequiresApi(34)
-    @Suppress("UNCHECKED_CAST")
-    override fun setColorSpace(colorSpace: ColorSpace.Named): T {
-        mutableConfig.insertOption(Camera2ImplConfig.SESSION_COLOR_SPACE_OPTION, colorSpace.ordinal)
-        return this as T
-    }
-
-    @Suppress("UNCHECKED_CAST")
     override fun setSessionStateCallback(
         executor: Executor,
         callback: CameraCaptureSession.StateCallback,
-    ): T {
+    ) {
         val wrappedCallback = SessionStateCallbackExecutorWrapper(executor, callback)
         mutableConfig.insertOption(Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION, wrappedCallback)
-        return this as T
     }
 }
 
 /** Provides default implementation for [CameraDeviceInterop] using a [MutableConfig]. */
-internal interface CameraDeviceInteropDelegate<T : CameraDeviceInterop<T>> :
-    CameraDeviceInterop<T> {
+internal interface CameraDeviceInteropDelegate : CameraDeviceInterop {
     val mutableConfig: MutableConfig
 
     override var deviceStateCallback: CameraDevice.StateCallback?
@@ -896,20 +646,15 @@ internal interface CameraDeviceInteropDelegate<T : CameraDeviceInterop<T>> :
                 ?.callback
         set(value) {
             if (value != null) {
-                setDeviceStateCallback(value)
+                setDeviceStateCallback({ it.run() }, value)
             } else {
                 mutableConfig.removeOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION)
             }
         }
 
-    @Suppress("UNCHECKED_CAST")
-    override fun setDeviceStateCallback(
-        executor: Executor,
-        callback: CameraDevice.StateCallback,
-    ): T {
+    override fun setDeviceStateCallback(executor: Executor, callback: CameraDevice.StateCallback) {
         val wrappedCallback = DeviceStateCallbackExecutorWrapper(executor, callback)
         mutableConfig.insertOption(Camera2ImplConfig.DEVICE_STATE_CALLBACK_OPTION, wrappedCallback)
-        return this as T
     }
 }
 
@@ -1046,7 +791,7 @@ internal class CaptureCallbackExecutorWrapper(
 
 /** Target class supporting `captureRequest[key] = value` indexing operator syntax. */
 public class CaptureRequestOptionTarget
-internal constructor(private val interop: CameraCaptureSessionInterop<*>) {
+internal constructor(private val interop: CameraCaptureSessionInterop) {
     /** Sets a [CaptureRequest.Key] and value on repeating and one-shot requests. */
     public operator fun <V> set(key: CaptureRequest.Key<V>, value: V) {
         interop.setCaptureRequestOption(key, value)
@@ -1055,7 +800,7 @@ internal constructor(private val interop: CameraCaptureSessionInterop<*>) {
 
 /** Target class supporting `stillCaptureRequest[key] = value` indexing operator syntax. */
 public class StillCaptureRequestOptionTarget
-internal constructor(private val interop: StillCaptureInterop<*>) {
+internal constructor(private val interop: StillCaptureInterop) {
     /** Sets a [CaptureRequest.Key] and value for still capture requests. */
     public operator fun <V> set(key: CaptureRequest.Key<V>, value: V) {
         interop.setStillCaptureRequestOption(key, value)
@@ -1064,7 +809,7 @@ internal constructor(private val interop: StillCaptureInterop<*>) {
 
 /** Target class supporting `sessionParameter[key] = value` indexing operator syntax. */
 public class SessionParameterTarget
-internal constructor(private val interop: SessionConfigurationInterop<*>) {
+internal constructor(private val interop: SessionConfigurationInterop) {
     /** Sets a session parameter used during session creation. */
     @RequiresApi(28)
     public operator fun <V> set(key: CaptureRequest.Key<V>, value: V) {
