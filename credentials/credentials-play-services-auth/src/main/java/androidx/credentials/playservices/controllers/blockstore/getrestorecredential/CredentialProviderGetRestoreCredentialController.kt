@@ -121,9 +121,11 @@ internal class CredentialProviderGetRestoreCredentialController(private val cont
         response: GetRestoreCredentialResponse
     ): GetCredentialResponse {
         return GetCredentialResponse(
-            Credential.createFrom(
-                androidx.credentials.RestoreCredential.TYPE_RESTORE_CREDENTIAL,
-                response.responseBundle,
+            listOf(
+                Credential.createFrom(
+                    androidx.credentials.RestoreCredential.TYPE_RESTORE_CREDENTIAL,
+                    response.responseBundle,
+                )
             )
         )
     }
