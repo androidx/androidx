@@ -98,6 +98,38 @@ public fun Switch(
     colors: SwitchColors = SwitchDefaults.colors(),
     interactionSource: MutableInteractionSource? = null,
 ) {
+    SwitchImpl(
+        modifier = modifier,
+        onCheckedChange = onCheckedChange,
+        checked = checked,
+        enabled = enabled,
+        thumbContent = thumbContent,
+        thumbShape = SwitchTokens.HandleShape.value,
+        trackShape = SwitchTokens.TrackShape.value,
+        thumbColor = colors.thumbColor(enabled, checked),
+        iconColor = colors.iconColor(enabled, checked),
+        trackColor = colors.trackColor(enabled, checked),
+        borderColor = colors.borderColor(enabled, checked),
+        interactionSource = interactionSource,
+    )
+}
+
+@Composable
+@Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
+private fun SwitchImpl(
+    modifier: Modifier,
+    onCheckedChange: ((Boolean) -> Unit)?,
+    checked: Boolean,
+    enabled: Boolean,
+    thumbContent: (@Composable () -> Unit)?,
+    thumbShape: Shape,
+    trackShape: Shape,
+    thumbColor: Color,
+    iconColor: Color,
+    trackColor: Color,
+    borderColor: Color,
+    interactionSource: MutableInteractionSource?,
+) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
 
@@ -117,40 +149,10 @@ public fun Switch(
             Modifier
         }
 
-    SwitchImpl(
-        modifier =
-            modifier
-                .then(toggleableModifier)
-                .wrapContentSize(Alignment.Center)
-                .requiredSize(SwitchWidth, SwitchHeight),
-        checked = checked,
-        enabled = enabled,
-        colors = colors,
-        interactionSource = interactionSource,
-        thumbShape = SwitchTokens.HandleShape.value,
-        thumbContent = thumbContent,
-    )
-}
-
-@Composable
-@Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
-private fun SwitchImpl(
-    modifier: Modifier,
-    checked: Boolean,
-    enabled: Boolean,
-    colors: SwitchColors,
-    thumbContent: (@Composable () -> Unit)?,
-    interactionSource: InteractionSource,
-    thumbShape: Shape,
-) {
-    val trackColor = colors.trackColor(enabled, checked)
-    val resolvedThumbColor = colors.thumbColor(enabled, checked)
-    val trackShape = SwitchTokens.TrackShape.value
-
+    val useInsetRing =
+        LocalRippleThemeConfiguration.current.focus is RippleThemeConfiguration.Focus.InsetRing
     val focusRingModifier =
-        if (
-            LocalRippleThemeConfiguration.current.focus is RippleThemeConfiguration.Focus.InsetRing
-        ) {
+        if (useInsetRing) {
             Modifier.indication(
                 interactionSource = interactionSource,
                 indication =
@@ -168,7 +170,10 @@ private fun SwitchImpl(
 
     Box(
         modifier
-            .border(TrackOutlineWidth, colors.borderColor(enabled, checked), trackShape)
+            .then(toggleableModifier)
+            .wrapContentSize(Alignment.Center)
+            .requiredSize(SwitchWidth, SwitchHeight)
+            .border(TrackOutlineWidth, borderColor, trackShape)
             .background(trackColor, trackShape)
             .then(focusRingModifier)
     ) {
@@ -189,16 +194,13 @@ private fun SwitchImpl(
                             ripple(
                                 bounded = false,
                                 radius = SwitchTokens.StateLayerSize / 2,
-                                enableFocusIndication =
-                                    LocalRippleThemeConfiguration.current.focus
-                                        !is RippleThemeConfiguration.Focus.InsetRing,
+                                enableFocusIndication = !useInsetRing,
                             ),
                     )
-                    .background(resolvedThumbColor, thumbShape),
+                    .background(thumbColor, thumbShape),
             contentAlignment = Alignment.Center,
         ) {
             if (thumbContent != null) {
-                val iconColor = colors.iconColor(enabled, checked)
                 CompositionLocalProvider(
                     LocalContentColor provides iconColor,
                     content = thumbContent,
