@@ -17,17 +17,25 @@
 package androidx.web
 
 import android.view.ContextThemeWrapper
+import android.view.ViewGroup
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
+import java.lang.ref.WeakReference
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
@@ -84,10 +92,8 @@ class WebContentTest {
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.runOnActivityAndWait { activity, done ->
                     onPageFinishedCallback = done
-                    val view =
-                        webContent.attach(activity, ::WebContentView).apply {
-                            webViewClient = client1
-                        }
+                    val view = webContent.attach(activity, ::WebContentView)
+                    view.webViewClient = client1
                     view.loadUrl("about:blank")
                 }
                 assertEquals(1, client1Count)
@@ -177,45 +183,91 @@ class WebContentTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
-    fun testTransfersToNewActivity() {
+    fun testPreservesStateOnCrossActivityReattach() {
         WebContent().use { webContent ->
+            var expectedScale = 0f
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
+                lateinit var view: WebContentView
                 scenario.runOnActivityAndWait { activity, done ->
-                    val view = webContent.attach(activity, ::WebContentView)
+                    view = webContent.attach(activity, ::WebContentView)
                     view.settings.javaScriptEnabled = true
+                    view.settings.setSupportZoom(true)
+
+                    view.addJavascriptInterface(TestObject(), "injectedObject")
                     view.webViewClient = OnPageFinishedClient(done)
-                    view.loadUrl("about:blank")
+                    view.loadUrl("data:text/html,<html><body>Page 1</body></html>")
                 }
 
                 scenario.runOnActivityAndWait { activity, done ->
-                    val view = webContent.attach(activity, ::WebContentView)
-                    view.settings.javaScriptEnabled = true
-                    view.evaluateJavascript(
-                        "window.transferTestVar = 'transferred_across_activities';"
-                    ) {
-                        done()
-                    }
+                    view.webViewClient = OnPageFinishedClient(done)
+                    val html =
+                        "<html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"></head><body>Page 2</body></html>"
+                    view.loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
                 }
 
-                scenario.onActivity { webContent.detach() }
+                val zoomLatch = CountDownLatch(1)
+                scenario.runOnActivityAndWait { activity, done ->
+                    view.evaluateJavascript("window.transferTestVar = 'transferred_state';") {}
+
+                    view.webViewClient =
+                        object : WebViewClient() {
+                            override fun onScaleChanged(
+                                view: WebView,
+                                oldScale: Float,
+                                newScale: Float,
+                            ) {
+                                super.onScaleChanged(view, oldScale, newScale)
+                                expectedScale = newScale
+                                zoomLatch.countDown()
+                            }
+                        }
+                    view.zoomBy(2.0f)
+                    done()
+                }
+
+                assertTrue(zoomLatch.await(5, TimeUnit.SECONDS))
+
+                scenario.onActivity { activity -> webContent.detach() }
             }
 
-            lateinit var evaluatedValue: String
             ActivityScenario.launch(TestActivity2::class.java).use { scenario ->
+                lateinit var view: WebContentView
+                var transferVar: String? = null
+                var injectedVar: String? = null
+
                 scenario.runOnActivityAndWait { activity, done ->
-                    val view = webContent.attach(activity, ::WebContentView)
-                    view.settings.javaScriptEnabled = true
-                    view.evaluateJavascript("window.transferTestVar") { result ->
-                        evaluatedValue = result
-                        done()
+                    view = webContent.attach(activity, ::WebContentView)
+
+                    assertTrue(view.canGoBack())
+                    val history = view.copyBackForwardList()
+                    assertNotNull(history)
+                    assertEquals(2, history.size)
+                    assertEquals(1, history.currentIndex)
+
+                    view.evaluateJavascript("window.transferTestVar") { r1 ->
+                        transferVar = r1
+                        view.evaluateJavascript("window.injectedObject.someMethod()") { r2 ->
+                            injectedVar = r2
+                            done()
+                        }
                     }
                 }
 
-                scenario.onActivity { webContent.detach() }
-            }
+                assertEquals("\"transferred_state\"", transferVar)
+                assertEquals("\"injected_success\"", injectedVar)
 
-            assertEquals("\"transferred_across_activities\"", evaluatedValue)
+                runBlocking {
+                    withTimeout(5000) {
+                        var actualScale = 0f
+                        while (abs(actualScale - expectedScale) >= 0.01f) {
+                            scenario.onActivity { actualScale = view.scale }
+                            delay(10)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -284,9 +336,8 @@ class WebContentTest {
         WebContent().use { webContent ->
             ActivityScenario.launch(TestActivity::class.java).use { scenario ->
                 scenario.onActivity { activity ->
-                    webContent.attach(activity, ::WebContentView).apply {
-                        webChromeClient = chromeClient
-                    }
+                    val view = webContent.attach(activity, ::WebContentView)
+                    view.webChromeClient = chromeClient
                     webContent.detach()
                 }
 
@@ -330,7 +381,7 @@ class WebContentTest {
                 scenario.runOnActivityAndWait { activity, done ->
                     val view = webContent.attachToActivity(activity)
                     assertThrows(IllegalStateException::class.java) { webContent.detach() }
-                    (view.parent as? android.view.ViewGroup)?.removeView(view)
+                    (view.parent as? ViewGroup)?.removeView(view)
                     webContent.detach()
                     done()
                 }
@@ -486,6 +537,147 @@ class WebContentTest {
                     assertThrows(IllegalStateException::class.java) {
                         webContent.attach(activity) { _ -> externalView }
                     }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testHandlesInFlightNavigationOnReattach() {
+        WebContent().use { webContent ->
+            val latch = CountDownLatch(1)
+            ActivityScenario.launch(TestActivity::class.java).use { scenario ->
+                scenario.onActivity { activity ->
+                    val view = webContent.attach(activity, ::WebContentView)
+                    view.webViewClient = OnPageFinishedClient { latch.countDown() }
+                    view.loadUrl("data:text/html,<html><body>Inflight</body></html>")
+                    webContent.detach()
+                }
+            }
+
+            ActivityScenario.launch(TestActivity2::class.java).use { scenario ->
+                scenario.onActivity { activity -> webContent.attach(activity, ::WebContentView) }
+            }
+
+            assertTrue(latch.await(5, TimeUnit.SECONDS))
+        }
+    }
+
+    @Test
+    fun testAllowsGarbageCollectionOfOldActivity() {
+        var weakActivity: WeakReference<TestActivity>? = null
+
+        WebContent().use { webContent ->
+            ActivityScenario.launch(TestActivity::class.java).use { scenario ->
+                scenario.onActivity { activity ->
+                    webContent.attach(activity, ::WebContentView)
+                    weakActivity = WeakReference(activity)
+                }
+                scenario.onActivity { webContent.detach() }
+            }
+
+            ActivityScenario.launch(TestActivity2::class.java).use { scenario ->
+                scenario.onActivity { activity -> webContent.attach(activity, ::WebContentView) }
+            }
+
+            runBlocking {
+                withTimeout(5000) {
+                    while (weakActivity?.get() != null) {
+                        Runtime.getRuntime().gc()
+                        delay(100)
+                    }
+                }
+            }
+            assertNull(weakActivity?.get())
+        }
+    }
+
+    @Test
+    fun testDestroyingOldViewDoesNotCorruptState() {
+        WebContent().use { webContent ->
+            lateinit var oldView: WebContentView
+            ActivityScenario.launch(TestActivity::class.java).use { scenario ->
+                scenario.runOnActivityAndWait { activity, done ->
+                    oldView = webContent.attach(activity, ::WebContentView)
+                    oldView.settings.javaScriptEnabled = true
+                    oldView.webViewClient = OnPageFinishedClient(done)
+                    oldView.loadUrl("about:blank")
+                }
+                scenario.onActivity {
+                    oldView.evaluateJavascript("window.testState = 'intact';", null)
+                    webContent.detach()
+                    oldView.destroy()
+                }
+            }
+
+            ActivityScenario.launch(TestActivity2::class.java).use { scenario ->
+                scenario.runOnActivityAndWait { activity, done ->
+                    val newView = webContent.attach(activity, ::WebContentView)
+                    newView.evaluateJavascript("window.testState") { result ->
+                        assertEquals("\"intact\"", result)
+                        done()
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testIsolatesStateForMultipleInstances() {
+        WebContent().use { content1 ->
+            WebContent().use { content2 ->
+                ActivityScenario.launch(TestActivity::class.java).use { scenario ->
+                    lateinit var view1: WebContentView
+                    lateinit var view2: WebContentView
+
+                    scenario.runOnActivityAndWait { activity, done ->
+                        view1 = content1.attach(activity, ::WebContentView)
+                        view2 = content2.attach(activity, ::WebContentView)
+
+                        view1.settings.javaScriptEnabled = true
+                        view2.settings.javaScriptEnabled = true
+
+                        var loaded = 0
+                        val pageFinished = {
+                            loaded++
+                            if (loaded == 2) done()
+                        }
+
+                        view1.webViewClient = OnPageFinishedClient(pageFinished)
+                        view2.webViewClient = OnPageFinishedClient(pageFinished)
+
+                        view1.loadUrl("about:blank")
+                        view2.loadUrl("data:text/html,<html></html>")
+                    }
+
+                    scenario.runOnActivityAndWait { activity, done ->
+                        view1.evaluateJavascript("window.id = 'content1';") {
+                            view2.evaluateJavascript("window.id = 'content2';") { done() }
+                        }
+                    }
+
+                    scenario.onActivity {
+                        content1.detach()
+                        content2.detach()
+                    }
+
+                    var result1: String? = null
+                    var result2: String? = null
+                    scenario.runOnActivityAndWait { activity, done ->
+                        val newView1 = content2.attach(activity, ::WebContentView)
+                        val newView2 = content1.attach(activity, ::WebContentView)
+
+                        newView1.evaluateJavascript("window.id") { r1 ->
+                            result1 = r1
+                            newView2.evaluateJavascript("window.id") { r2 ->
+                                result2 = r2
+                                done()
+                            }
+                        }
+                    }
+
+                    assertEquals("\"content2\"", result1)
+                    assertEquals("\"content1\"", result2)
                 }
             }
         }
