@@ -201,7 +201,7 @@ internal class CredentialProviderGetSignInIntentController(context: Context) :
                 "When attempting to convert get response, " + "null credential found"
             )
         }
-        return GetCredentialResponse(cred)
+        return GetCredentialResponse(listOf(cred))
     }
 
     @VisibleForTesting
