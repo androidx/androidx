@@ -24,6 +24,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":xr:assets"))
     implementation(project(":xr:projected:projected"))
 
     implementation("androidx.activity:activity:1.12.1")
