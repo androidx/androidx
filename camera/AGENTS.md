@@ -356,6 +356,24 @@ CameraX involves complex hardware interactions, making robust testing essential.
   - Test sequence of calls, subsets, and conditional bindings to ensure isolated stability.
   - Simulate background/foreground transitions using `fakeLifecycleOwner.pauseAndStop()` and
     `startAndResume()` to verify pipeline recovery.
+- **Hierarchical Pre-Flight Verification & Fault Domain Isolation**:
+  - **Pre-Flight Primary Baseline Check**: When writing integration or device
+    tests for specialized, secondary, or composite camera features (e.g. Physical
+    Sub-Cameras, Camera Extensions, DynamicRange/HDR, RAW+JPEG simultaneous capture,
+    VideoRecording, High-Speed FPS), always verify that the **primary baseline
+    camera pipeline** can open and produce frames *first*. If a device cannot even
+    open or stream its primary camera (e.g., due to dead hardware, offline lab
+    infrastructure, or missing permissions), gracefully skip/ignore the test via
+    `Assume.assumeTrue` rather than causing false-positive test suite failures on the
+    advanced feature.
+  - **Sequential Sub-Feature Isolation & Diagnostic Reporting**: When verifying
+    multiple permutations, modes, or sub-streams (e.g., testing multiple resolutions,
+    multiple extension modes, or physical sub-sensors), evaluate each sub-stream
+    sequentially with individual fault boundaries so that a single failing sub-stream
+    does not mask the health of the remaining streams. Log structured failure
+    summaries with the **Parent ID / Lens Facing**, failing **Sub-Feature / Stream
+    Parameters**, and a copy-pasteable **Suggested Quirk Entry** to streamline future
+    triage.
 
 #### 3. Execution & Validation
 - **Local Compile Check**: Compile the entire CameraX project tests and debug APKs using:
@@ -458,12 +476,32 @@ CameraX involves complex hardware interactions, making robust testing essential.
        lenses not supporting reprocessing).
      - Explore if a generic workaround is possible without session
        reconfiguration.
-      - **Format/Size Quirks**: If the failure is format-specific (e.g., RAW capture crashing):
+     - **Format/Size Quirks**: If the failure is format-specific (e.g., RAW capture crashing):
        a. Check if it's a resolution-specific mismatch (which might be corrected
           by excluding the buggy size via `ExcludedSupportedSizesQuirk`).
        b. If the format is fundamentally broken for all sizes (e.g., HAL advertised
           sizes do not align with physical sensor size required by `DngCreator`),
           disable the format entirely via `UnsupportedFormatsQuirk`.
+     - **Quirk Precision & Empirical Scope (Zero Magic Assumptions)**: When
+       implementing or expanding any `DeviceQuirk` (e.g. format exclusions, size
+       filters, physical camera exclusions, ZSL disablers, or surface combination
+       overrides):
+       a. **Zero Magic Heuristics**: Avoid arbitrary catch-all magic sets, speculative
+          ranges, or broad wildcard regexes (e.g. guessing resolution ranges or
+          arbitrary ID sets). Every quirk mapping MUST be backed by reproducible
+          empirical diagnostics on physical devices.
+       b. **OEM Implementation Diversity Awareness**: Never assume all vendor HALs
+          follow identical internal conventions (e.g., capability key availability,
+          stream ID allocation, or metadata delivery timing). For example:
+          - *ID Conventions:* Pixel & Samsung assign physical sub-camera IDs starting
+            at `"2"`, whereas Sony Xperia assigns physical ID `"0"` to the primary
+            physical sensor underlying logical rear camera `"0"`.
+          - *Metadata Delivery:* Certain vendor HALs only support fused multi-camera
+            engine pipelines and omit individual stream metadata callbacks.
+       c. **Diagnostic Logging for Quirk Discovery**: Instrument tests to print
+          clear, copy-pasteable Quirk mapping code snippets when a hardware
+          incompatibility is encountered, enabling instantaneous reproduction and
+          triage for future maintainers.
      - **Quirk as Last Resort**: If it is a HAL bug and no generic workaround
        is possible, add the device model to the corresponding Quirk class
        (e.g., `ZslDisablerQuirk`).
@@ -589,6 +627,7 @@ Test: <test instructions>
 **Commit Title:**
 - A short, descriptive summary of the change.
 - Use the imperative mood (e.g., "Add feature" not "Added feature").
+- Strictly <= 50 characters (or < 60 characters) to prevent Gerrit upload warnings.
 
 **Additional Details (Optional):**
 - Explain the problem the change solves and the approach taken.
