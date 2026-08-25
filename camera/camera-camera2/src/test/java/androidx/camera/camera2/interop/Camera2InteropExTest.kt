@@ -115,7 +115,8 @@ class Camera2InteropExTest {
                 timestampBase = 2
                 dynamicRangeProfile = 4L
                 surfaceGroupId = 5
-                sensorPixelModesUsed = setOf(0, 1)
+                addSensorPixelModeUsed(0)
+                addSensorPixelModeUsed(1)
             }
         }
         val config = Camera2ImplConfig(preview.currentConfig)
@@ -138,6 +139,13 @@ class Camera2InteropExTest {
         }
         val config = Camera2ImplConfig(preview.currentConfig)
         assertThat(config.getSensorPixelModesUsed(null)).containsExactly(0, 1)
+    }
+
+    @Test
+    fun previewDsl_camera2Interop_sensorPixelModesUsedProperty() {
+        val preview = preview { camera2Interop { sensorPixelModesUsed = setOf(0, 1, 2) } }
+        val config = Camera2ImplConfig(preview.currentConfig)
+        assertThat(config.getSensorPixelModesUsed(null)).containsExactly(0, 1, 2)
     }
 
     @Test
