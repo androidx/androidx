@@ -20,10 +20,11 @@ import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.core.os.ParcelCompat
+import androidx.pdf.ExperimentalPdfApi
+import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.brush.BrushSizeSelectorView
 import androidx.pdf.view.annotation.colorpalette.ColorPaletteView
 import androidx.pdf.view.annotation.colorpalette.model.PaletteItem
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState
 import androidx.pdf.view.annotation.tool.model.AnnotationToolsKey.HIGHLIGHTER
 import androidx.pdf.view.annotation.tool.model.AnnotationToolsKey.PEN
 
@@ -89,6 +90,7 @@ internal data class ToolAttributes(
  * any given moment. Views observe changes to this state and update themselves accordingly.
  */
 @SuppressLint("BanParcelableUsage")
+@OptIn(ExperimentalPdfApi::class)
 internal data class AnnotationToolbarState(
     /** The current selected tool on the toolbar. */
     val selectedTool: String?,
@@ -119,7 +121,9 @@ internal data class AnnotationToolbarState(
     val highlighterState: ToolAttributes,
 
     /** The current docking state of the toolbar. */
-    @get:ToolbarDockState.DockState @param:ToolbarDockState.DockState val dockedState: Int,
+    @get:AnnotationToolbarView.DockState
+    @param:AnnotationToolbarView.DockState
+    val dockedState: Int,
 
     /** Whether the toolbar is currently expanded. */
     val isExpanded: Boolean,

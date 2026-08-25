@@ -24,9 +24,9 @@ import androidx.pdf.PdfTestActivity
 import androidx.pdf.util.ToolbarViewActions
 import androidx.pdf.util.ToolbarViewActions.performDragAndDrop
 import androidx.pdf.view.annotation.AnnotationToolbarView
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_BOTTOM
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -69,7 +69,7 @@ class ToolbarCoordinatorTest {
                     ViewGroup.LayoutParams.MATCH_PARENT,
                 ),
             )
-            coordinator.attachToolbar(toolbar)
+            coordinator.addView(toolbar)
         }
         onIdle()
     }
@@ -81,7 +81,7 @@ class ToolbarCoordinatorTest {
     }
 
     @Test
-    fun attachToolbar_setsInitialStateOnTabAndPhone() {
+    fun addView_setsInitialStateOnTabAndPhone() {
         onIdle()
         val screenWidthDp = instrumentation.context.resources.configuration.smallestScreenWidthDp
         val params = toolbar.layoutParams as ConstraintLayout.LayoutParams
@@ -96,6 +96,13 @@ class ToolbarCoordinatorTest {
             // Verify pinned to Bottom
             assertThat(params.verticalBias).isEqualTo(1f)
             assertThat(params.horizontalBias).isEqualTo(0.5f)
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun addView_throwsIllegalArgumentException_whenNonAnnotationToolbarAdded() {
+        activityRule.scenario.onActivity { activity ->
+            coordinator.addView(android.view.View(activity))
         }
     }
 
@@ -135,10 +142,7 @@ class ToolbarCoordinatorTest {
     @Test
     fun dragAndDrop_toBottomSide_snapsToBottom() {
         // Move to Start first so we can drag back to bottom
-        activityRule.scenario.onActivity {
-            toolbar.dockState = DOCK_STATE_START
-            coordinator.updateLayout()
-        }
+        activityRule.scenario.onActivity { toolbar.dockState = DOCK_STATE_START }
         onIdle()
 
         performDragAndDrop(

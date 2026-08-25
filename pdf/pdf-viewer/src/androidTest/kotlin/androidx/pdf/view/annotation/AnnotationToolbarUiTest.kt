@@ -39,9 +39,9 @@ import androidx.pdf.R as PdfR
 import androidx.pdf.assertScreenshot
 import androidx.pdf.util.clickItemAt
 import androidx.pdf.util.setSliderValue
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_END
+import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 import androidx.pdf.view.annotation.colorpalette.ColorPaletteAdapter
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
-import androidx.pdf.view.annotation.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
 import androidx.pdf.view.annotation.tool.AnnotationToolView
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
