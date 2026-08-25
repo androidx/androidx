@@ -74,7 +74,7 @@ class LazyGridPrefetchPrecedenceTest {
 
     @Before
     fun setup() {
-        ComposeFoundationFlags.isPreferDefaultCacheWindowOverPrefetchStrategy = true
+        ComposeFoundationFlags.isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid = true
     }
 
     @Test
@@ -88,7 +88,7 @@ class LazyGridPrefetchPrecedenceTest {
 
     @Test
     fun usesDefaultPrefetchStrategyWhenFeatureFlagDisabled() {
-        ComposeFoundationFlags.isPreferDefaultCacheWindowOverPrefetchStrategy = false
+        ComposeFoundationFlags.isPreferDefaultCacheWindowOverPrefetchStrategyLazyGrid = false
         composeLazyGrid(state = LazyGridState().also { state = it }, cacheWindow = null)
 
         assertThat(state.layoutInfoState.value.prefetchStrategy)

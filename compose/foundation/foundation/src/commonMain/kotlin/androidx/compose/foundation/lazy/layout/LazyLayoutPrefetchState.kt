@@ -423,7 +423,7 @@ internal class Averages {
     }
 }
 
-private object DummyHandle : PrefetchHandle {
+internal object DummyHandle : PrefetchHandle {
     override fun cancel() {}
 
     override fun markAsUrgent() {}
