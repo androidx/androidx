@@ -80,29 +80,30 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
         // Don't warn for Kotlin replacement in Kotlin files -- that's the Kotlin Compiler's job.
         if (qualifiedName == KOTLIN_DEPRECATED_ANNOTATION && isKotlin(usage.lang)) return
 
-        var (expression, imports) =
-            when (qualifiedName) {
-                KOTLIN_DEPRECATED_ANNOTATION -> {
-                    val replaceWith =
-                        annotation.findAttributeValue("replaceWith")?.unwrap() as? UCallExpression
-                            ?: return
-                    val expression =
-                        replaceWith.valueArguments.getOrNull(0)?.parseLiteral(context) ?: return
-                    val imports =
-                        replaceWith.valueArguments.getOrNull(1)?.parseVarargLiteral(context)
-                            ?: emptyList()
-                    Pair(expression, imports)
-                }
-                JAVA_REPLACE_WITH_ANNOTATION -> {
-                    val expression =
-                        annotation.findAttributeValue("expression")?.let { expr ->
-                            ConstantEvaluator.evaluate(context, expr)
-                        } as? String ?: return
-                    val imports = annotation.getAttributeValueVarargLiteral(context, "imports")
-                    Pair(expression, imports)
-                }
-                else -> return
+        var expression: String
+        val imports: List<String>
+        when (qualifiedName) {
+            KOTLIN_DEPRECATED_ANNOTATION -> {
+                val replaceWith =
+                    annotation.findAttributeValue("replaceWith")?.unwrap() as? UCallExpression
+                        ?: return
+                expression =
+                    replaceWith.valueArguments.getOrNull(0)?.parseLiteral(context) ?: return
+                imports =
+                    replaceWith.valueArguments.getOrNull(1)?.parseVarargLiteral(context)
+                        ?: emptyList()
+                Pair(expression, imports)
             }
+            JAVA_REPLACE_WITH_ANNOTATION -> {
+                expression =
+                    annotation.findAttributeValue("expression")?.let { expr ->
+                        ConstantEvaluator.evaluate(context, expr)
+                    } as? String ?: return
+                imports = annotation.getAttributeValueVarargLiteral(context, "imports")
+                Pair(expression, imports)
+            }
+            else -> return
+        }
 
         var location = context.getLocation(usage)
         val includeReceiver = expressionWithReceiverRegex.matches(expression)

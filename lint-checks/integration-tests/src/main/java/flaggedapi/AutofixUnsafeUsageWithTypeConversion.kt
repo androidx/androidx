@@ -19,6 +19,7 @@ package flaggedapi
 import android.flagging.FlaggedApiContainer
 import androidx.core.flagging.Flags
 
+@Suppress("UNUSED_VARIABLE")
 object AutofixUnsafeUsageWithTypeConversion {
     fun usafeUsages() {
         if (Flags.Companion.getBooleanFlagValue("flaggedapi", "myFlag")) {
