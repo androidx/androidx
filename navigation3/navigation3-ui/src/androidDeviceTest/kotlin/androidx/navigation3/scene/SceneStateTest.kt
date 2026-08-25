@@ -171,7 +171,7 @@ internal class SceneStateTest {
                 )
 
             // Read tick to participate in recomposition without changing inputs.
-            @Suppress("UnusedVariable", "unused") val unused = tick
+            @Suppress("UnusedVariable", "unused", "UNUSED_VARIABLE") val unused = tick
 
             sceneStates += rememberSceneState(entries, listOf(strategy), onBack = {})
         }
