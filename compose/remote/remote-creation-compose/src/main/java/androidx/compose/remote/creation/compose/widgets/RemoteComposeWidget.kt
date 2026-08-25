@@ -25,12 +25,17 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemoteComposeContext
+import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 
 /** provider for an app widget */
 @SuppressLint("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class RemoteComposeWidget(useCompose: Boolean = true) : AppWidgetProvider() {
+public abstract class RemoteComposeWidget
+@JvmOverloads
+constructor(useCompose: Boolean = true, profile: Profile = RcPlatformProfiles.WIDGETS_V6) :
+    AppWidgetProvider() {
 
     public companion object {
         public var sAppWidgetIds: IntArray? = null
@@ -41,7 +46,7 @@ public abstract class RemoteComposeWidget(useCompose: Boolean = true) : AppWidge
 
     init {
         if (useCompose) {
-            widget = RCWidget { context, widgetId -> Content(context, widgetId) }
+            widget = RCWidget(profile) { context, widgetId -> Content(context, widgetId) }
         } else {
             widget = ProceduralRCWidget { context, widgetId ->
                 ProceduralContent(context, widgetId)?.buffer
@@ -86,9 +91,6 @@ public abstract class RemoteComposeWidget(useCompose: Boolean = true) : AppWidge
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     public fun updateWidgets(context: Context, widgetId: Int, lambdaToRun: Int) {
-        if (sAppWidgetIds == null) {
-            return
-        }
         val appWidgetManager = AppWidgetManager.getInstance(context)
         widget.updateRemoteView(context, appWidgetManager, this, widgetId, lambdaToRun)
     }

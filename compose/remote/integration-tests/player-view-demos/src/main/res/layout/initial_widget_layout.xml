@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   Copyright 2026 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +14,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
-<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:initialLayout="@layout/initial_widget_layout"
-    android:minHeight="250dp"
-    android:minResizeHeight="180dp"
-    android:minResizeWidth="180dp"
-    android:minWidth="250dp"
-    android:resizeMode="horizontal|vertical"
-    android:updatePeriodMillis="1800000">
-</appwidget-provider>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />

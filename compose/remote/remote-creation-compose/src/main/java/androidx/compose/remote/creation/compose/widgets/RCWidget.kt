@@ -27,14 +27,22 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import kotlinx.coroutines.runBlocking
 
 /** Widget implementation that takes a composable */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RCWidget(public val content: @Composable (Context, Int) -> Unit) :
-    AbstractRCWidget() {
+public open class RCWidget(
+    public val profile: Profile = RcPlatformProfiles.WIDGETS_V6,
+    public val content: @Composable (Context, Int) -> Unit,
+) : AbstractRCWidget() {
+
+    public constructor(
+        content: @Composable (Context, Int) -> Unit
+    ) : this(RcPlatformProfiles.WIDGETS_V6, content)
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun createRemoteView(
@@ -47,9 +55,10 @@ public open class RCWidget(public val content: @Composable (Context, Int) -> Uni
 
         val widgetInformation = WidgetInformation(widgetId)
 
-        runBlocking {
+        val doc = runBlocking {
             captureSingleRemoteDocument(
                 context = context,
+                profile = profile,
                 content = {
                     CompositionLocalProvider(LocalWidget.provides(widgetInformation)) {
                         content(context, widgetId)
@@ -57,6 +66,8 @@ public open class RCWidget(public val content: @Composable (Context, Int) -> Uni
                 },
             )
         }
+        val widget = getRemoteView(context, doc, provider, widgetId)
+        appWidgetManager.updateAppWidget(widgetId, widget)
     }
 
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
@@ -72,9 +83,10 @@ public open class RCWidget(public val content: @Composable (Context, Int) -> Uni
 
         val widgetInformation = WidgetInformation(widgetId)
 
-        val doc = runBlocking {
+        runBlocking {
             captureSingleRemoteDocument(
                 context = context,
+                profile = profile,
                 content = {
                     CompositionLocalProvider(LocalWidget.provides(widgetInformation)) {
                         content(context, widgetId)
@@ -87,6 +99,18 @@ public open class RCWidget(public val content: @Composable (Context, Int) -> Uni
         WidgetLambdaAction.run(lambdaId)
         // and recreate the document.
         WidgetLambdaAction.clear()
+
+        val doc = runBlocking {
+            captureSingleRemoteDocument(
+                context = context,
+                profile = profile,
+                content = {
+                    CompositionLocalProvider(LocalWidget.provides(widgetInformation)) {
+                        content(context, widgetId)
+                    }
+                },
+            )
+        }
 
         val widget = getRemoteView(context, doc, provider, widgetId)
         appWidgetManager.updateAppWidget(widgetId, widget)
