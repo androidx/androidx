@@ -53,6 +53,9 @@ public final class RoutesManager {
 
     private static RoutesManager sInstance;
 
+    private static final String PREF_NAME_MEDIA_ROUTING_DEMO = "MediaRoutingDemo";
+    private static final String PREF_KEY_MEDIA_TRANSFER_ENABLED = "media_transfer_enabled";
+
     private final Context mContext;
     private final Map<String, RouteItem> mRouteItems;
     private boolean mDynamicRoutingEnabled;
@@ -96,6 +99,30 @@ public final class RoutesManager {
 
     public void setDialogType(@NonNull DialogType dialogType) {
         this.mDialogType = dialogType;
+    }
+
+    /**
+     * Returns any stored shared preference for {@link
+     * MediaRouterParams#isMediaTransferReceiverEnabled()}, or true if there's no stored value.
+     */
+    public boolean fetchIsMediaTransferEnabledPreference() {
+        return mContext.getSharedPreferences(PREF_NAME_MEDIA_ROUTING_DEMO, Context.MODE_PRIVATE)
+                .getBoolean(PREF_KEY_MEDIA_TRANSFER_ENABLED, true);
+    }
+
+    /**
+     * Sets {@link MediaRouterParams#isMediaTransferReceiverEnabled()} to the given value and
+     * persists this information in the shared preferences.
+     */
+    public void setIsMediaTransferEnabledAndStore(boolean enabled) {
+        MediaRouterParams.Builder builder =
+                new MediaRouterParams.Builder(mMediaRouter.getRouterParams());
+        builder.setMediaTransferReceiverEnabled(enabled);
+        mMediaRouter.setRouterParams(builder.build());
+        mContext.getSharedPreferences(PREF_NAME_MEDIA_ROUTING_DEMO, Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(PREF_KEY_MEDIA_TRANSFER_ENABLED, enabled)
+                .apply();
     }
 
     /**
