@@ -41,7 +41,7 @@ public class PrefetchParametersTest {
         PrefetchParameters parameters = builder.build();
         assertTrue(parameters.getAdditionalHeaders().isEmpty());
         assertNull(parameters.getExpectedNoVarySearchHeader());
-        assertFalse(parameters.isJavaScriptEnabled());
+        assertFalse(parameters.getShouldSendClientHints());
         assertNull(parameters.getVariationsId());
     }
 
@@ -51,7 +51,7 @@ public class PrefetchParametersTest {
         PrefetchParameters.Builder builder = new PrefetchParameters.Builder();
 
         builder.addAdditionalHeader("key1", "value1");
-        builder.setJavaScriptEnabled(true);
+        builder.setShouldSendClientHints(true);
         builder.setVariationsId(123);
 
         NoVarySearchHeader noVarySearchHeader = NoVarySearchHeader.neverVaryHeader();
@@ -61,7 +61,7 @@ public class PrefetchParametersTest {
 
         assertEquals(1, parameters.getAdditionalHeaders().size());
         assertEquals("value1", parameters.getAdditionalHeaders().get("key1"));
-        assertTrue(parameters.isJavaScriptEnabled());
+        assertTrue(parameters.getShouldSendClientHints());
         assertEquals(Integer.valueOf(123), parameters.getVariationsId());
         assertEquals(noVarySearchHeader, parameters.getExpectedNoVarySearchHeader());
     }
@@ -81,5 +81,21 @@ public class PrefetchParametersTest {
 
         PrefetchParameters parameters = builder.build();
         assertEquals(headers, parameters.getAdditionalHeaders());
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    public void testDeprecatedValues() {
+        WebkitUtils.checkFeature(WebViewFeature.PROFILE_URL_PREFETCH);
+        PrefetchParameters.Builder builder = new PrefetchParameters.Builder();
+        builder.setJavaScriptEnabled(true);
+        NoVarySearchHeader noVarySearchHeader = NoVarySearchHeader.neverVaryHeader();
+        builder.setExpectedNoVarySearchData(noVarySearchHeader);
+
+        PrefetchParameters parameters = builder.build();
+        assertTrue(parameters.isJavaScriptEnabled());
+        assertTrue(parameters.getShouldSendClientHints());
+        assertEquals(noVarySearchHeader, parameters.getExpectedNoVarySearchData());
+        assertEquals(noVarySearchHeader, parameters.getExpectedNoVarySearchHeader());
     }
 }

@@ -30,15 +30,15 @@ import java.util.Map;
 public final class PrefetchParameters {
     private final @NonNull Map<String, String> mAdditionalHeaders;
     private final @Nullable NoVarySearchHeader mExpectedNoVarySearchHeader;
-    private final boolean mIsJavaScriptEnabled;
+    private final boolean mShouldSendClientHints;
     private final @Nullable Integer mVariationsId;
 
     private PrefetchParameters(@NonNull Map<String, String> additionalHeaders,
-            @Nullable NoVarySearchHeader noVarySearchHeader, boolean isJavaScriptEnabled,
+            @Nullable NoVarySearchHeader noVarySearchHeader, boolean shouldSendClientHints,
             @Nullable Integer variationsId) {
         mAdditionalHeaders = additionalHeaders;
         mExpectedNoVarySearchHeader = noVarySearchHeader;
-        mIsJavaScriptEnabled = isJavaScriptEnabled;
+        mShouldSendClientHints = shouldSendClientHints;
         mVariationsId = variationsId;
     }
 
@@ -73,9 +73,22 @@ public final class PrefetchParameters {
     /**
      * Returns whether JavaScript is enabled for the prefetch, which influences the sending
      * of client hints.
+     *
+     * @deprecated This method has been renamed to {@link #getShouldSendClientHints} and will be
+     * removed in a future release.
      */
+    @Deprecated
     public boolean isJavaScriptEnabled() {
-        return mIsJavaScriptEnabled;
+        return mShouldSendClientHints;
+    }
+
+    /**
+     * Returns whether the prefetch request will include client hints.
+     *
+     * See {@link androidx.webkit.PrefetchParameters.Builder#setShouldSendClientHints}.
+     */
+    public boolean getShouldSendClientHints() {
+        return mShouldSendClientHints;
     }
 
     /**
@@ -92,7 +105,7 @@ public final class PrefetchParameters {
     public static final class Builder {
         private final @NonNull Map<String, String> mAdditionalHeaders = new HashMap<>();
         private @Nullable NoVarySearchHeader mExpectedNoVarySearchHeader;
-        private boolean mIsJavaScriptEnabled;
+        private boolean mShouldSendClientHints;
         private @Nullable Integer mVariationsId;
 
         /** Construct a new Builder. */
@@ -105,7 +118,7 @@ public final class PrefetchParameters {
         @Profile.ExperimentalUrlPrefetch
         public @NonNull PrefetchParameters build() {
             return new PrefetchParameters(mAdditionalHeaders, mExpectedNoVarySearchHeader,
-                    mIsJavaScriptEnabled, mVariationsId);
+                    mShouldSendClientHints, mVariationsId);
         }
 
         /**
@@ -203,10 +216,32 @@ public final class PrefetchParameters {
          * @param javaScriptEnabled {@code true} if the WebView that will be loading the
          *                          prefetched response will have JavaScript enabled.
          * @return This builder instance for chaining.
+         * @deprecated This method has been renamed to {@link #setShouldSendClientHints} and will
+         * be removed in a future release.
          */
         @Profile.ExperimentalUrlPrefetch
+        @Deprecated
         public @NonNull Builder setJavaScriptEnabled(boolean javaScriptEnabled) {
-            mIsJavaScriptEnabled = javaScriptEnabled;
+            return setShouldSendClientHints(javaScriptEnabled);
+        }
+
+        /**
+         * Sets whether the prefetch request will include client hints headers.
+         * <p>
+         * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Client_hints">Client hints</a>
+         * are headers that tell the server about the current device, network or user, such as the
+         * device model or viewport size.
+         * When {@code true}, the prefetch request will include {@code Set-CH-*} headers. This
+         * includes low entropy hints and the high entropy hints that the server has previously
+         * requested.
+         *
+         * @param shouldSendClientHints {@code true} if the prefetch target requires client hints.
+         * @return This builder instance for chaining.
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        @Profile.ExperimentalUrlPrefetch
+        public @NonNull Builder setShouldSendClientHints(boolean shouldSendClientHints) {
+            mShouldSendClientHints = shouldSendClientHints;
             return this;
         }
 

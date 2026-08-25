@@ -54,7 +54,7 @@ public final class SpeculativeLoadingParameters {
         this(
                 prefetchParameters.getAdditionalHeaders(),
                 prefetchParameters.getExpectedNoVarySearchHeader(),
-                prefetchParameters.isJavaScriptEnabled(),
+                prefetchParameters.getShouldSendClientHints(),
                 prefetchParameters.getVariationsId()
         );
     }
