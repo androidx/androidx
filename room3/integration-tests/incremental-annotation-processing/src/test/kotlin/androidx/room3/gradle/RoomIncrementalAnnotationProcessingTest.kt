@@ -199,12 +199,14 @@ class RoomIncrementalAnnotationProcessingTest() {
     }
 
     private fun runGradleTasks(vararg args: String): BuildResult {
-        return GradleRunner.create()
-            .withProjectDir(projectSetup.rootDir)
-            .withPluginClasspath()
-            // workaround for b/231154556
-            .withArguments("-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m", *args)
-            .build()
+        val runner =
+            GradleRunner.create()
+                .withProjectDir(projectSetup.rootDir)
+                .withPluginClasspath()
+                // workaround for b/231154556
+                .withArguments("-Dorg.gradle.jvmargs=-Xmx1g -XX:MaxMetaspaceSize=512m", *args)
+        projectSetup.setUpGradleVersion(runner, "8.14")
+        return runner.build()
     }
 
     private fun runFullBuild(): BuildResult {
