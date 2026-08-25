@@ -44,6 +44,7 @@ import androidx.xr.projected.testapp.battery.BatteryActivity
 import androidx.xr.projected.testapp.camera.CameraActivity
 import androidx.xr.projected.testapp.controller.DisplayControllerActivity
 import androidx.xr.projected.testapp.input.ProjectedInputActivity
+import androidx.xr.projected.testapp.inputorchestration.InputOrchestrationActivity
 import androidx.xr.projected.testapp.permissions.PermissionsActivity
 import androidx.xr.projected.testapp.projectedcontext.ProjectedContextActivity
 
@@ -134,6 +135,7 @@ class MainActivity : ComponentActivity() {
                 "Display Controller" to DisplayControllerActivity::class.java,
                 "Camera" to CameraActivity::class.java,
                 "Battery" to BatteryActivity::class.java,
+                "Input Orchestration" to InputOrchestrationActivity::class.java,
             )
 
         // A list of projected activities that are launchable from the main activity.

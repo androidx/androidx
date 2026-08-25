@@ -76,6 +76,18 @@
             android:exported="true"
             android:label="Battery Activity">
         </activity>
+        <activity
+            android:name="androidx.xr.projected.testapp.inputorchestration.InputOrchestrationActivity"
+            android:exported="true"
+            android:label="Input Orchestration Activity">
+        </activity>
+        <activity
+            android:name="androidx.xr.projected.testapp.inputorchestration.InputOrchestrationProjectedActivity"
+            android:exported="false"
+            android:label="Input Orchestration Projected Activity"
+            android:launchMode="singleInstance"
+            android:requiredDisplayCategory="xr_projected">
+        </activity>
     </application>
 
     <uses-feature android:name="android.hardware.camera" />
