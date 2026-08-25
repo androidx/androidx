@@ -16,9 +16,12 @@
 
 package androidx.web
 
+import android.app.Activity
 import android.content.Context
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.test.core.app.ActivityScenario
@@ -28,30 +31,30 @@ import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertTrue
 
 internal fun <T : WebContentView> WebContent.attachToActivity(
-    activity: android.app.Activity,
+    activity: Activity,
     factory: (Context) -> T,
 ): T {
     val view = attach(activity, factory)
     activity.setContentView(
         view,
-        android.view.ViewGroup.LayoutParams(
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+        ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT,
         ),
     )
     return view
 }
 
-internal fun WebContent.attachToActivity(activity: android.app.Activity): WebContentView {
+internal fun WebContent.attachToActivity(activity: Activity): WebContentView {
     return attachToActivity(activity, ::WebContentView)
 }
 
 internal fun WebContent.detachFromView(view: WebContentView) {
-    (view.parent as? android.view.ViewGroup)?.removeView(view)
+    (view.parent as? ViewGroup)?.removeView(view)
     detach()
 }
 
-internal inline fun <reified A : android.app.Activity> ActivityScenario<A>.runOnActivityAndWait(
+internal inline fun <reified A : Activity> ActivityScenario<A>.runOnActivityAndWait(
     timeoutSeconds: Long = 5,
     crossinline block: (activity: A, done: () -> Unit) -> Unit,
 ) {
@@ -85,12 +88,16 @@ internal class TestWebContentView(context: Context) : WebContentView(context) {
     }
 }
 
-class TestActivity : android.app.Activity()
+class TestActivity : Activity()
 
-class TestActivity2 : android.app.Activity()
+class TestActivity2 : Activity()
 
 internal class OnPageFinishedClient(private val onPageFinished: () -> Unit) : WebViewClient() {
     override fun onPageFinished(view: WebView?, url: String?) {
         onPageFinished()
     }
+}
+
+internal class TestObject {
+    @JavascriptInterface fun someMethod() = "injected_success"
 }
