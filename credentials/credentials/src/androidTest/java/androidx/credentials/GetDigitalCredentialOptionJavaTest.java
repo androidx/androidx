@@ -34,19 +34,62 @@ public class GetDigitalCredentialOptionJavaTest {
     private static final String TEST_REQUEST_JSON =
             "{\"protocol\":{\"preview\":{\"test\":\"val\"}}}";
 
-    private static final int EXPECTED_PRIORITY =
-            CredentialOption.PRIORITY_PASSKEY_OR_SIMILAR;
+    private static final int EXPECTED_PRIORITY = CredentialOption.PRIORITY_PASSKEY_OR_SIMILAR;
 
     @Test
     public void constructorAndGetter() {
         GetDigitalCredentialOption option = new GetDigitalCredentialOption(TEST_REQUEST_JSON);
 
         assertThat(option.getRequestJson()).isEqualTo(TEST_REQUEST_JSON);
+        assertThat(option.getUiWarningLevelHint())
+                .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_NO_ISSUES);
         assertThat(option.getAllowedProviders()).isEmpty();
         assertThat(option.isSystemProviderRequired()).isFalse();
         assertThat(option.isAutoSelectAllowed()).isFalse();
         assertThat(option.getType()).isEqualTo(DigitalCredential.TYPE_DIGITAL_CREDENTIAL);
         assertThat(option.getTypePriorityHint()).isEqualTo(EXPECTED_PRIORITY);
+        assertThat(
+                        option.getRequestData()
+                                .getInt(
+                                        GetDigitalCredentialOption
+                                                .BUNDLE_KEY_UI_WARNING_LEVEL_HINT))
+                .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_NO_ISSUES);
+    }
+
+    @Test
+    public void constructorAndGetter_customUiWarningLevelHint() {
+        GetDigitalCredentialOption option =
+                new GetDigitalCredentialOption(
+                        TEST_REQUEST_JSON,
+                        GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_CAUTION);
+
+        assertThat(option.getRequestJson()).isEqualTo(TEST_REQUEST_JSON);
+        assertThat(option.getUiWarningLevelHint())
+                .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_CAUTION);
+        assertThat(
+                        option.getRequestData()
+                                .getInt(
+                                        GetDigitalCredentialOption
+                                                .BUNDLE_KEY_UI_WARNING_LEVEL_HINT))
+                .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_CAUTION);
+    }
+
+    @Test
+    public void constructorAndGetter_highRiskUiWarningLevelHint() {
+        GetDigitalCredentialOption option =
+                new GetDigitalCredentialOption(
+                        TEST_REQUEST_JSON,
+                        GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_HIGH_RISK);
+
+        assertThat(option.getRequestJson()).isEqualTo(TEST_REQUEST_JSON);
+        assertThat(option.getUiWarningLevelHint())
+                .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_HIGH_RISK);
+        assertThat(
+                        option.getRequestData()
+                                .getInt(
+                                        GetDigitalCredentialOption
+                                                .BUNDLE_KEY_UI_WARNING_LEVEL_HINT))
+                .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_HIGH_RISK);
     }
 
     @Test
@@ -63,19 +106,46 @@ public class GetDigitalCredentialOptionJavaTest {
         boolean customCandidateQueryDataValue = true;
         candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue);
 
-        CredentialOption convertedOption = CredentialOption.createFrom(
-                option.getType(), requestData, candidateQueryData,
-                option.isSystemProviderRequired(), option.getAllowedProviders());
+        CredentialOption convertedOption =
+                CredentialOption.createFrom(
+                        option.getType(),
+                        requestData,
+                        candidateQueryData,
+                        option.isSystemProviderRequired(),
+                        option.getAllowedProviders());
 
         assertThat(convertedOption).isInstanceOf(GetDigitalCredentialOption.class);
         GetDigitalCredentialOption actualOption = (GetDigitalCredentialOption) convertedOption;
         assertThat(actualOption.isAutoSelectAllowed()).isFalse();
         assertThat(actualOption.getAllowedProviders()).isEmpty();
         assertThat(actualOption.getRequestJson()).isEqualTo(TEST_REQUEST_JSON);
+        assertThat(actualOption.getUiWarningLevelHint())
+                .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_NO_ISSUES);
         assertThat(convertedOption.getRequestData().getString(customRequestDataKey))
                 .isEqualTo(customRequestDataValue);
         assertThat(convertedOption.getCandidateQueryData().getBoolean(customCandidateQueryDataKey))
                 .isEqualTo(customCandidateQueryDataValue);
         assertThat(convertedOption.getTypePriorityHint()).isEqualTo(EXPECTED_PRIORITY);
+    }
+
+    @Test
+    public void frameworkConversion_customUiWarningLevelHint_success() {
+        GetDigitalCredentialOption option =
+                new GetDigitalCredentialOption(
+                        TEST_REQUEST_JSON,
+                        GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_CAUTION);
+
+        CredentialOption convertedOption =
+                CredentialOption.createFrom(
+                        option.getType(),
+                        option.getRequestData(),
+                        option.getCandidateQueryData(),
+                        option.isSystemProviderRequired(),
+                        option.getAllowedProviders());
+
+        assertThat(convertedOption).isInstanceOf(GetDigitalCredentialOption.class);
+        GetDigitalCredentialOption actualOption = (GetDigitalCredentialOption) convertedOption;
+        assertThat(actualOption.getUiWarningLevelHint())
+                .isEqualTo(GetDigitalCredentialOption.UI_WARNING_LEVEL_HINT_CAUTION);
     }
 }
