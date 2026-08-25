@@ -44,7 +44,6 @@ import java.util.Locale
 import java.util.TimeZone
 import org.junit.Assert.assertThrows
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -569,7 +568,6 @@ class StaticPreviewDataParserTest {
         }
     }
 
-    @Ignore("b/536104082")
     @Test
     @Throws(Exception::class)
     fun timeComponentComplication() {
