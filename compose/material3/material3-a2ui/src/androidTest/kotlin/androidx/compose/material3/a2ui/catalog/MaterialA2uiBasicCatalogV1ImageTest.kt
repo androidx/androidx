@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -46,7 +46,7 @@ import org.junit.runner.RunWith
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
-class MaterialImageComponentTest {
+class MaterialA2uiBasicCatalogV1ImageTest {
 
     var capturedUrl: String? = null
     var capturedContentScale: ContentScale? = null
@@ -76,7 +76,7 @@ class MaterialImageComponentTest {
     private val testCatalog =
         A2uiCatalog(
             catalogId = "test_catalog",
-            components = listOf(MaterialImageComponent(fakeImageRenderer)),
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer)),
             functions = listOf(A2uiFormatStringFunction.INSTANCE),
         )
 

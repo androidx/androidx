@@ -158,10 +158,22 @@ class A2uiCatalogTest {
                     modifier: Modifier,
                 ) {}
             }
+        val testImage =
+            object : A2uiBasicCatalogV1.Image {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    url: String,
+                    description: String?,
+                    fit: A2uiBasicCatalogV1.Image.Fit,
+                    variant: A2uiBasicCatalogV1.Image.Variant,
+                    modifier: Modifier,
+                ) {}
+            }
         val testFunction = StubFunction("TestFunc")
         val basicCatalog =
             A2uiBasicCatalogV1(
                 text = testText,
+                image = testImage,
                 card = testCard,
                 row = testRow,
                 column = testColumn,
@@ -174,6 +186,7 @@ class A2uiCatalogTest {
         assertThat(catalog.id).isEqualTo(A2uiBasicCatalogV1.CatalogId)
         assertThat(catalog.themeSchema).isEqualTo(A2uiBasicCatalogV1.ThemeSchema)
         assertThat(catalog.components["Text"]).isSameInstanceAs(testText)
+        assertThat(catalog.components["Image"]).isSameInstanceAs(testImage)
         assertThat(catalog.components["Card"]).isSameInstanceAs(testCard)
         assertThat(catalog.components["Row"]).isSameInstanceAs(testRow)
         assertThat(catalog.components["Column"]).isSameInstanceAs(testColumn)
