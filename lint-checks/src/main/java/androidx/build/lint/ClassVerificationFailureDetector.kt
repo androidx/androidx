@@ -1130,7 +1130,7 @@ ${wrapperMethodBody.prependIndent("                            ")}
 
             val typeParamsStr =
                 if (method.typeParameters.isNotEmpty()) {
-                    "<${method.typeParameters.joinToString(", ") { param -> "${param.name}" }}> "
+                    "<${method.typeParameters.joinToString(", ") { param -> param.name.toString() }}> "
                 } else {
                     ""
                 }
@@ -1178,7 +1178,7 @@ ${wrapperMethodBody.prependIndent("                            ")}
                     paramsWithTypes.map { (type, _) -> type }
 
             val namedParamsStr =
-                method.parameters.joinToString(separator = ", ") { param -> "${param.name}" }
+                method.parameters.joinToString(separator = ", ") { param -> param.name.toString() }
 
             val methodName: String
             var wrapperMethodName: String
