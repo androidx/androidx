@@ -27,6 +27,7 @@ import org.junit.runners.Parameterized.Parameters
 class ScatterMapBenchmarkTest(private val size: Int) {
     private val sourceSet = createDataSet(size)
     private val badHashSourceSet = createBadHashDataSet(size)
+    private val floatSourceSet = createFloatDataSet(size)
 
     @get:Rule val benchmark = BenchmarkRule()
 
@@ -38,6 +39,11 @@ class ScatterMapBenchmarkTest(private val size: Int) {
     @Test
     fun insert_bad_hash() {
         benchmark.runCollectionBenchmark(ScatterMapInsertBenchmarkBadHash(badHashSourceSet))
+    }
+
+    @Test
+    fun insert_float() {
+        benchmark.runCollectionBenchmark(ScatterMapInsertBenchmarkFloat(floatSourceSet))
     }
 
     @Test
@@ -53,6 +59,11 @@ class ScatterMapBenchmarkTest(private val size: Int) {
     @Test
     fun read_bad_hash() {
         benchmark.runCollectionBenchmark(ScatterHashMapReadBadHashBenchmark(badHashSourceSet))
+    }
+
+    @Test
+    fun read_float() {
+        benchmark.runCollectionBenchmark(ScatterHashMapReadBenchmarkFloat(floatSourceSet))
     }
 
     @Test
@@ -81,8 +92,6 @@ class ScatterMapBenchmarkTest(private val size: Int) {
     }
 
     companion object {
-        @JvmStatic
-        @Parameters(name = "size={0}")
-        fun parameters() = buildParameters(listOf(10, 100, 1_000, 16_000))
+        @JvmStatic @Parameters(name = "size={0}") fun parameters() = buildParameters(listOf(1_000))
     }
 }
