@@ -174,7 +174,7 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
  * cannot be used for rendering still images.
  *
  * It is not currently possible to synchronize StereoMode changes with application rendering or
- * video decoding. This composable currently cannot render in front of other panels, so [dragPolicy]
+ * video decoding. This composable currently cannot render in front of other panels, so [movable]
  * usage is not recommended if there are other panels in the layout, aside from the content block of
  * this Composable.
  *
@@ -192,10 +192,6 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
  * @param surfaceProtection Sets the Surface's content protection. Use this to redact content in
  *   screen recordings. Setting this to [SpatialExternalSurfaceProtection.Protected] is required if
  *   decoding DRM media content.
- * @param dragPolicy An optional [DragPolicy] that defines the motion behavior of the
- *   [SpatialPanel]. This can be either a [MovePolicy] for free movement or an [AnchorPolicy] for
- *   anchoring to real-world surfaces. If a policy is provided, draggable UI controls will be shown,
- *   allowing the user to manipulate the panel in 3D space. If null, no motion behavior is applied.
  * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect input events.
  * @param superSamplingPattern The pattern to use to super sample this surface, or
  *   [SuperSamplingPattern.None] to disable super sampling.
@@ -207,18 +203,16 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
  */
 @Composable
 @SubspaceComposable
-@Suppress("DEPRECATION", "ReferencesDeprecated")
 public fun SpatialExternalSurface(
     stereoMode: StereoMode,
     modifier: SubspaceModifier = SubspaceModifier,
     featheringEffect: SpatialFeatheringEffect? = null,
     surfaceProtection: SpatialExternalSurfaceProtection = SpatialExternalSurfaceProtection.None,
-    dragPolicy: DragPolicy? = null,
     interactionPolicy: InteractionPolicy? = null,
     superSamplingPattern: SuperSamplingPattern = SuperSamplingPattern.Pentagon,
     content: @Composable @SubspaceComposable SpatialExternalSurfaceScope.() -> Unit,
 ) {
-    val finalModifier = buildSpatialPanelModifier(modifier, dragPolicy, interactionPolicy)
+    val finalModifier = buildSpatialPanelModifier(modifier, interactionPolicy)
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val density = LocalDensity.current
 
@@ -416,7 +410,7 @@ private fun SpatialExternalSurfaceBaseSphere(
         } else {
             SPHERE_RADIUS_METERS
         }
-    val finalModifier = buildSpatialPanelModifier(modifier, null, interactionPolicy)
+    val finalModifier = buildSpatialPanelModifier(modifier, interactionPolicy)
 
     val coreSurfaceEntity =
         remember(surfaceProtection, superSamplingPattern) {
