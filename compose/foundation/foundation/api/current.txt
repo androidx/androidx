@@ -176,7 +176,6 @@ package androidx.compose.foundation {
     property public boolean isMouseSelectionBetweenTextEnabled;
     property public boolean isMultiLaneCacheWindowEnabled;
     property public boolean isNewContextMenuEnabled;
-    property public boolean isPausableCompositionInPrefetchEnabled;
     property public boolean isPreferDefaultCacheWindowOverPrefetchStrategy;
     property public boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
     property public boolean isSelectionAutoScrollEnabled;
@@ -201,7 +200,6 @@ package androidx.compose.foundation {
     field public static boolean isMouseSelectionBetweenTextEnabled;
     field public static boolean isMultiLaneCacheWindowEnabled;
     field public static boolean isNewContextMenuEnabled;
-    field public static boolean isPausableCompositionInPrefetchEnabled;
     field public static boolean isPreferDefaultCacheWindowOverPrefetchStrategy;
     field public static boolean isReverseLayoutNestedScrollConnectionInPagerFixEnabled;
     field public static boolean isSelectionAutoScrollEnabled;
