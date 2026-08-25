@@ -174,7 +174,7 @@ internal class StreamGraphCapacity(
             if (totalBytesRequired <= 0L) {
                 Int.MAX_VALUE
             } else {
-                (availableMemory / totalBytesRequired).toInt()
+                (availableMemory / totalBytesRequired).coerceAtMost(Int.MAX_VALUE.toLong()).toInt()
             }
         return minOf(minAvailableAtSource, maxOf(0, availableMemorySlots))
     }

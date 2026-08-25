@@ -298,6 +298,29 @@ class StreamGraphCapacityEstimationTest {
             tightSimulator.close()
         }
 
+    @Test
+    fun streamGraphCapacityAvoidsIntegerOverflowWithHugeMemory() =
+        testScope.runTest {
+            // Calculate a memory size that intentionally causes a 32-bit integer overflow
+            // when available slots are computed.
+            // Int.MAX_VALUE + 100 = 2147483747L
+            // Multiplied by the image size (1,382,400), this fits safely inside a 64-bit Long
+            // (approx. 2.9 quadrillion, well below Long.MAX_VALUE).
+            val slotsToForceOverflow = Int.MAX_VALUE.toLong() + 100L
+            val overflowMemorySize = slotsToForceOverflow * largeImageSize
+
+            val overflowEstimator = MemoryEstimator.create(overflowMemorySize)
+            val overflowSimulator = createSimulator(overflowEstimator)
+            val overflowGraph = createAndStartFrameGraph(overflowSimulator)
+            val streamId = overflowGraph.streams[streamConfigLarge]!!.id
+
+            // In case of no overflow the final estimate should be 5 instead of 0.
+            assertThat(overflowGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
+
+            overflowGraph.close()
+            overflowSimulator.close()
+        }
+
     private fun createSimulator(memoryEstimator: MemoryEstimator): CameraPipeSimulator {
         return CameraPipeSimulator.create(
             testScope = testScope,
