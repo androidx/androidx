@@ -102,7 +102,7 @@ class LocalesStackedHandlingTestCase {
             }
         )
 
-        var systemLocales =
+        val systemLocales =
             LocalesUpdateActivity.getConfigLocales(activityA.resources.configuration)
 
         // Activity A is hidden, wait for it to stop.
@@ -134,7 +134,7 @@ class LocalesStackedHandlingTestCase {
         val activityA2 = expectRecreate(monitorA, activityA) as LocalesUpdateActivity
         val activityB2 = expectRecreate(monitorB, activityB) as LocalesUpdateActivity
 
-        var expectedLocales =
+        val expectedLocales =
             LocalesUpdateActivity.overlayCustomAndSystemLocales(CUSTOM_LOCALE_LIST, systemLocales)
         // Activity C should have received a locales configuration change.
         listOf(activityC, activityA2, activityB2).forEach { activity ->
@@ -208,7 +208,7 @@ class LocalesStackedHandlingTestCase {
             }
         )
 
-        var systemLocales =
+        val systemLocales =
             LocalesUpdateActivity.getConfigLocales(activityA.resources.configuration)
 
         // Activity A is hidden, wait for it to stop.
@@ -242,7 +242,7 @@ class LocalesStackedHandlingTestCase {
             activity.expectOnConfigurationChange(/* timeout= */ 3000)
         }
 
-        var expectedLocales =
+        val expectedLocales =
             LocalesUpdateActivity.overlayCustomAndSystemLocales(CUSTOM_LOCALE_LIST, systemLocales)
 
         // Activities A, B, and C should have all received the new configuration.
