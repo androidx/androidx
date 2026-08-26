@@ -16,8 +16,12 @@
 
 package androidx.build
 
+import androidx.build.pinneddependencies.TIP_OF_TREE_EXEMPTIONS_FILE_NAME
+import androidx.build.pinneddependencies.TipOfTreeExemption
+import androidx.build.pinneddependencies.parseTipOfTreeExemptions
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
@@ -28,20 +32,37 @@ import org.tomlj.TomlTable
 /** Loads Library groups and versions from a specified TOML file. */
 abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Parameters> {
     interface Parameters : BuildServiceParameters {
-        var tomlFileName: String
-        var tomlFileContents: Provider<String>
+        val tomlFileName: Property<String>
+        val tomlFileContents: Property<String>
+        val tipOfTreeExemptionsFileName: Property<String>
+        val tipOfTreeExemptionsFileContents: Property<String>
     }
 
     private val parsedTomlFile: TomlParseResult by lazy {
+        val fileName = parameters.tomlFileName.get()
         val result = Toml.parse(parameters.tomlFileContents.get())
         if (result.hasErrors()) {
             val issues =
                 result.errors().joinToString(separator = "\n") {
-                    "${parameters.tomlFileName}:${it.position()}: ${it.message}"
+                    "$fileName:${it.position()}: ${it.message}"
                 }
-            throw Exception("${parameters.tomlFileName} file has issues.\n$issues")
+            throw GradleException("$fileName file has issues.\n$issues")
         }
         result
+    }
+
+    /**
+     * Exemptions declared in [TIP_OF_TREE_EXEMPTIONS_FILE_NAME], parsed only if something reads
+     * them.
+     *
+     * An absent file parses to an empty list rather than failing, so that a checkout without it, or
+     * a build that never consults it, behaves as though nothing is exempted.
+     */
+    internal val tipOfTreeExemptions: List<TipOfTreeExemption> by lazy {
+        parseTipOfTreeExemptions(
+            parameters.tipOfTreeExemptionsFileContents.orNull,
+            parameters.tipOfTreeExemptionsFileName.get(),
+        )
     }
 
     private fun getTable(key: String): TomlTable {
@@ -157,13 +178,17 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         internal fun registerOrGet(project: Project): Provider<LibraryVersionsService> {
             val tomlFileName = "libraryversions.toml"
             val toml = project.lazyReadFile(tomlFileName)
+            val exemptionsFileName = TIP_OF_TREE_EXEMPTIONS_FILE_NAME
+            val exemptions = project.lazyReadFile(exemptionsFileName)
 
             return project.gradle.sharedServices.registerIfAbsent(
                 "libraryVersionsService",
                 LibraryVersionsService::class.java,
             ) { spec ->
-                spec.parameters.tomlFileName = tomlFileName
-                spec.parameters.tomlFileContents = toml
+                spec.parameters.tomlFileName.set(tomlFileName)
+                spec.parameters.tomlFileContents.set(toml)
+                spec.parameters.tipOfTreeExemptionsFileName.set(exemptionsFileName)
+                spec.parameters.tipOfTreeExemptionsFileContents.set(exemptions)
             }
         }
     }
