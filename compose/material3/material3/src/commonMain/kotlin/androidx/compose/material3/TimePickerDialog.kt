@@ -338,9 +338,8 @@ internal fun VibrantTimePickerCustomLayout(
     val measurePolicy = MeasurePolicy { measurables, constraints ->
         val contentMeasurable = measurables.fastFirst { it.layoutId == "timePickerContent" }
         val actionsMeasurable = measurables.fastFirst { it.layoutId == "actions" }
-        val contentPadding = 12.dp.roundToPx()
         val landContentTopPadding = 12.dp.roundToPx()
-        val landContentActionsPadding = 8.dp.roundToPx()
+        val landContentActionsPadding = 24.dp.roundToPx()
         val landActionsBottomPadding = 12.dp.roundToPx()
         val portTitleTopPadding = 12.dp.roundToPx()
         val portActionsBottomPadding = 12.dp.roundToPx()
@@ -351,6 +350,7 @@ internal fun VibrantTimePickerCustomLayout(
         val isLandscape =
             contentPlaceable.width > contentPlaceable.height &&
                 contentPlaceable.height >= truncate(ClockDialMinContainerSize.toPx())
+        val contentPadding = if (isLandscape) 24.dp.roundToPx() else 12.dp.roundToPx()
         val dialogWidth = contentPlaceable.width + contentPadding * 2
         val actionsPlaceable =
             actionsMeasurable.measure(
@@ -385,10 +385,7 @@ internal fun VibrantTimePickerCustomLayout(
                 val timePickerContentY = landContentTopPadding + remainingSpace / 2
                 contentPlaceable.place(x = timePickerContentX, y = timePickerContentY)
                 val actionsY =
-                    timePickerContentY +
-                        contentPlaceable.height +
-                        landContentActionsPadding +
-                        remainingSpace / 2
+                    timePickerContentY + contentPlaceable.height + landContentActionsPadding
                 actionsPlaceable.place(x = timePickerContentX, y = actionsY)
             } else {
                 val contentX = (dialogWidth - contentPlaceable.width) / 2
@@ -460,7 +457,11 @@ public object TimePickerDialogDefaults {
                     } else {
                         Icons.Filled.Schedule
                     }
-                Icon(imageVector = icon, contentDescription = contentDescription)
+                Icon(
+                    imageVector = icon,
+                    contentDescription = contentDescription,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }
@@ -501,7 +502,11 @@ public object TimePickerDialogDefaults {
                     } else {
                         Icons.Filled.SwipeVertical
                     }
-                Icon(imageVector = icon, contentDescription = contentDescription)
+                Icon(
+                    imageVector = icon,
+                    contentDescription = contentDescription,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }
