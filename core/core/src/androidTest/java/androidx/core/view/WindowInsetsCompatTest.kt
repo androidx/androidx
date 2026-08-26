@@ -410,4 +410,66 @@ class WindowInsetsCompatTest {
         assertEquals(100, removeNavBarInsets.getInsets(Type.statusBars()).top)
         assertEquals(0, removeNavBarInsets.getInsets(Type.navigationBars()).bottom)
     }
+
+    @SdkSuppress(minSdkVersion = 30, maxSdkVersion = 30)
+    @Test
+    public fun getInsets_clampsNegativeValues() {
+        val insets = Insets.of(-10, -20, 30, -375)
+        val insetsCompat = WindowInsetsCompat.Builder().setInsets(Type.ime(), insets).build()
+
+        val result = insetsCompat.getInsets(Type.ime())
+
+        assertEquals(0, result.left)
+        assertEquals(0, result.top)
+        assertEquals(30, result.right)
+        assertEquals(0, result.bottom)
+    }
+
+    @SdkSuppress(minSdkVersion = 30, maxSdkVersion = 30)
+    @Test
+    public fun getInsetsIgnoringVisibility_clampsNegativeValues() {
+        val insets = Insets.of(-10, -20, 30, -375)
+        val insetsCompat =
+            WindowInsetsCompat.Builder()
+                .setInsetsIgnoringVisibility(Type.systemBars(), insets)
+                .build()
+
+        val result = insetsCompat.getInsetsIgnoringVisibility(Type.systemBars())
+
+        assertEquals(0, result.left)
+        assertEquals(0, result.top)
+        assertEquals(30, result.right)
+        assertEquals(0, result.bottom)
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public fun getInsets_doesNotClampNegativeValues() {
+        val insets = Insets.of(-10, -20, 30, -375)
+        val insetsCompat = WindowInsetsCompat.Builder().setInsets(Type.ime(), insets).build()
+
+        val result = insetsCompat.getInsets(Type.ime())
+
+        assertEquals(-10, result.left)
+        assertEquals(-20, result.top)
+        assertEquals(30, result.right)
+        assertEquals(-375, result.bottom)
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    public fun getInsetsIgnoringVisibility_doesNotClampNegativeValues() {
+        val insets = Insets.of(-10, -20, 30, -375)
+        val insetsCompat =
+            WindowInsetsCompat.Builder()
+                .setInsetsIgnoringVisibility(Type.systemBars(), insets)
+                .build()
+
+        val result = insetsCompat.getInsetsIgnoringVisibility(Type.systemBars())
+
+        assertEquals(-10, result.left)
+        assertEquals(-20, result.top)
+        assertEquals(30, result.right)
+        assertEquals(-375, result.bottom)
+    }
 }
