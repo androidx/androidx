@@ -230,12 +230,12 @@ internal class MotionEventAdapter {
             resetFakeFingerGesture()
         }
 
-        if (
-            ComposeUiFlags.isTrackpadPanHoverFixEnabled &&
-                Build.VERSION.SDK_INT >= 34 &&
-                motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-        ) {
-            isTrackpadPanOngoing = true
+        if (ComposeUiFlags.isTrackpadPanHoverFixEnabled && Build.VERSION.SDK_INT >= 34) {
+            if (motionEvent.classification == MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE) {
+                isTrackpadPanOngoing = true
+            } else if (motionEvent.classification == MotionEvent.CLASSIFICATION_PINCH) {
+                isTrackpadPanOngoing = false
+            }
         }
 
         addFreshIds(motionEvent)
@@ -614,6 +614,7 @@ internal class MotionEventAdapter {
             previousSource = source
             activeHoverIds.clear()
             motionEventToComposePointerIdMap.clear()
+            resetFakeFingerGesture()
             lastHoverRawOffset = null
         }
     }
@@ -690,8 +691,14 @@ internal class MotionEventAdapter {
                     val originalEventPosition = Offset(x, y) // hit path will convert to local
                     val isPan =
                         Build.VERSION.SDK_INT >= 34 &&
-                            motionEvent.classification ==
-                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                            if (ComposeUiFlags.isTrackpadPanHoverFixEnabled) {
+                                motionEvent.classification ==
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE ||
+                                    isTrackpadPanOngoing
+                            } else {
+                                motionEvent.classification ==
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                            }
 
                     val historicalChange =
                         HistoricalChange(
