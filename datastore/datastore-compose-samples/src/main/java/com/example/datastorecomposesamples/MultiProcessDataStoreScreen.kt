@@ -16,7 +16,22 @@
 
 package com.example.datastorecomposesamples
 
+import android.app.Service
 import android.content.Context
+import android.content.Intent
+import android.os.IBinder
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.sp
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.MultiProcessDataStoreFactory
@@ -84,4 +99,35 @@ object TimeSerializer : Serializer<Time> {
         output.write(Json.encodeToString(Time.serializer(), t).encodeToByteArray())
     }
 }
+
 // [END android_datastore_multiprocess_serializer]
+
+class TimestampUpdateService : Service() {
+    override fun onBind(intent: Intent?): IBinder? = null
+}
+
+@Composable
+fun MultiProcessDataStoreScreen() {
+    Column(Modifier.fillMaxSize()) {
+        Text(text = "Multi-process DataStore", fontSize = 30.sp)
+
+        // [START android_datastore_multiprocess_app]
+        val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
+        val multiProcessDataStore = remember(context) { MultiProcessDataStore(context) }
+
+        // Display time written by other process.
+        val lastUpdateTime by
+            multiProcessDataStore
+                .timeFlow()
+                .collectAsState(initial = 0, coroutineScope.coroutineContext)
+        Text(text = "Last updated: $lastUpdateTime", fontSize = 25.sp)
+
+        DisposableEffect(context) {
+            val serviceIntent = Intent(context, TimestampUpdateService::class.java)
+            context.startService(serviceIntent)
+            onDispose { context.stopService(serviceIntent) }
+        }
+        // [END android_datastore_multiprocess_app]
+    }
+}
