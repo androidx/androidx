@@ -55,7 +55,7 @@ dependencies {
 
 android {
     namespace = "androidx.a2ui.compose.ui.testing"
-    compileSdk { version = release(37) { minorApiLevel = 1 } }
+    compileSdk { version = release(37) }
 }
 
 androidx {

@@ -42,7 +42,7 @@ dependencies {
 
 android {
     namespace = "androidx.photopicker.integration.testapp"
-    compileSdk { version = release(37) { minorApiLevel = 1 } }
+    compileSdk { version = release(37) }
     defaultConfig {
         applicationId = "androidx.photopicker.integration.testapp"
         minSdk { version = release(34) }
