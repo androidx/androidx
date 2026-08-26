@@ -38,7 +38,15 @@ import okio.BufferedSource
 @Retention(AnnotationRetention.RUNTIME)
 public annotation class PersistToDataStore
 
-/** Preferences map for [AppState] backed by [DataStore]. */
+/**
+ * Preferences map for [AppState] backed by [DataStore].
+ *
+ * This is the type required for using [DataStore] with [AppState].
+ *
+ * [AppStateSerializer] serializes this preferences map by converting its internal map of
+ * [AppStateKey] names to JSON-encoded values into a single JSON string, and writing it to a UTF-8
+ * file via Okio.
+ */
 public abstract class AppStatePreferences internal constructor() {
     /**
      * Returns an immutable map of the preferences.
