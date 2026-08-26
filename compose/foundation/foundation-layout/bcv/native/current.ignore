@@ -1,2 +1,3 @@
 // Baseline format: 1.0
 [linuxX64]: Removed declaration androidx.compose.foundation.layout/ExperimentalFlexBoxApi from androidx.compose.foundation:foundation-layout
+[linuxX64]: Removed declaration androidx.compose.foundation.layout/ExperimentalGridApi from androidx.compose.foundation:foundation-layout

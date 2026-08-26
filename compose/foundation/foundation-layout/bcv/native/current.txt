@@ -6,10 +6,6 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.compose.foundation:foundation-layout>
-open annotation class androidx.compose.foundation.layout/ExperimentalGridApi : kotlin/Annotation { // androidx.compose.foundation.layout/ExperimentalGridApi|null[0]
-    constructor <init>() // androidx.compose.foundation.layout/ExperimentalGridApi.<init>|<init>(){}[0]
-}
-
 open annotation class androidx.compose.foundation.layout/ExperimentalLayoutApi : kotlin/Annotation { // androidx.compose.foundation.layout/ExperimentalLayoutApi|null[0]
     constructor <init>() // androidx.compose.foundation.layout/ExperimentalLayoutApi.<init>|<init>(){}[0]
 }
