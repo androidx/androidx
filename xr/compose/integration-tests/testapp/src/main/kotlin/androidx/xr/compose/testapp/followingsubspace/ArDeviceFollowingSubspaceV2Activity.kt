@@ -133,7 +133,7 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
             }
 
         Subspace(
-            follow = FollowTarget.View(mode = FollowMode.snap()),
+            follow = FollowTarget.view(mode = FollowMode.snap()),
             modifier = SubspaceModifier.offset(z = (-200).dp),
         ) {
             SpatialPanel(SubspaceModifier.height(400.dp).width(600.dp)) {
@@ -160,7 +160,7 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
             }
         }
 
-        Subspace(follow = FollowTarget.View(mode = selectedMode)) {
+        Subspace(follow = FollowTarget.view(mode = selectedMode)) {
             SpatialPanel(SubspaceModifier.height(200.dp).width(450.dp).offset(y = (-50).dp)) {
                 Box(Modifier.fillMaxSize().background(Color.Cyan)) {
                     Row(modifier = Modifier.fillMaxWidth()) {
@@ -226,7 +226,7 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
         }
         Subspace(
             follow =
-                FollowTarget.View(
+                FollowTarget.view(
                     mode =
                         FollowMode.soft(
                             durationMs = softFollowDuration,

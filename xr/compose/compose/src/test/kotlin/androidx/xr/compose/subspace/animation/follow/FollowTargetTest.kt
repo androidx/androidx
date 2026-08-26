@@ -74,30 +74,30 @@ class FollowTargetTest {
 
     @Test
     fun viewTarget_equals_sameInstance_returnsTrue() {
-        val target = FollowTarget.View(FollowMode.soft())
+        val target = FollowTarget.view(FollowMode.soft())
 
         assertThat(target).isEqualTo(target)
     }
 
     @Test
     fun viewTarget_equals_sameMode_returnsTrue() {
-        val target1 = FollowTarget.View(FollowMode.soft())
-        val target2 = FollowTarget.View(FollowMode.soft())
+        val target1 = FollowTarget.view(FollowMode.soft())
+        val target2 = FollowTarget.view(FollowMode.soft())
 
         assertThat(target1).isEqualTo(target2)
     }
 
     @Test
     fun viewTarget_equals_differentMode_returnsFalse() {
-        val target1 = FollowTarget.View(FollowMode.soft())
-        val target2 = FollowTarget.View(FollowMode.tight())
+        val target1 = FollowTarget.view(FollowMode.soft())
+        val target2 = FollowTarget.view(FollowMode.tight())
 
         assertThat(target1).isNotEqualTo(target2)
     }
 
     @Test
     fun viewTarget_equals_nullOrDifferentType_returnsFalse() {
-        val target = FollowTarget.View(FollowMode.soft())
+        val target = FollowTarget.view(FollowMode.soft())
 
         assertFalse(target.equals(null))
         assertFalse(target.equals("Dummy String"))
@@ -105,16 +105,16 @@ class FollowTargetTest {
 
     @Test
     fun viewTarget_hashCode_sameMode_matches() {
-        val target1 = FollowTarget.View(FollowMode.soft())
-        val target2 = FollowTarget.View(FollowMode.soft())
+        val target1 = FollowTarget.view(FollowMode.soft())
+        val target2 = FollowTarget.view(FollowMode.soft())
 
         assertThat(target1.hashCode()).isEqualTo(target2.hashCode())
     }
 
     @Test
     fun viewTarget_hashCode_differentMode_differs() {
-        val target1 = FollowTarget.View(FollowMode.soft())
-        val target2 = FollowTarget.View(FollowMode.tight())
+        val target1 = FollowTarget.view(FollowMode.soft())
+        val target2 = FollowTarget.view(FollowMode.tight())
 
         assertThat(target1.hashCode()).isNotEqualTo(target2.hashCode())
     }
@@ -123,7 +123,7 @@ class FollowTargetTest {
     fun anchorTarget_equals_sameInstance_returnsTrue() =
         runTest(testDispatcher) {
             val anchor = createAnchor()
-            val target = FollowTarget.Anchor(anchor, FollowMode.tight())
+            val target = FollowTarget.anchor(anchor, FollowMode.tight())
 
             assertThat(target).isEqualTo(target)
         }
@@ -132,8 +132,8 @@ class FollowTargetTest {
     fun anchorTarget_equals_sameAnchorAndMode_returnsTrue() =
         runTest(testDispatcher) {
             val anchor = createAnchor()
-            val target1 = FollowTarget.Anchor(anchor, FollowMode.tight())
-            val target2 = FollowTarget.Anchor(anchor, FollowMode.tight())
+            val target1 = FollowTarget.anchor(anchor, FollowMode.tight())
+            val target2 = FollowTarget.anchor(anchor, FollowMode.tight())
 
             assertThat(target1).isEqualTo(target2)
         }
@@ -143,8 +143,8 @@ class FollowTargetTest {
         runTest(testDispatcher) {
             val anchor1 = createAnchor()
             val anchor2 = createAnchor()
-            val target1 = FollowTarget.Anchor(anchor1, FollowMode.tight())
-            val target2 = FollowTarget.Anchor(anchor2, FollowMode.tight())
+            val target1 = FollowTarget.anchor(anchor1, FollowMode.tight())
+            val target2 = FollowTarget.anchor(anchor2, FollowMode.tight())
 
             assertThat(target1).isNotEqualTo(target2)
         }
@@ -153,8 +153,8 @@ class FollowTargetTest {
     fun anchorTarget_equals_differentMode_returnsFalse() =
         runTest(testDispatcher) {
             val anchor = createAnchor()
-            val target1 = FollowTarget.Anchor(anchor, FollowMode.tight())
-            val target2 = FollowTarget.Anchor(anchor, FollowMode.soft())
+            val target1 = FollowTarget.anchor(anchor, FollowMode.tight())
+            val target2 = FollowTarget.anchor(anchor, FollowMode.soft())
 
             assertThat(target1).isNotEqualTo(target2)
         }
@@ -163,7 +163,7 @@ class FollowTargetTest {
     fun anchorTarget_equals_nullOrDifferentType_returnsFalse() =
         runTest(testDispatcher) {
             val anchor = createAnchor()
-            val target = FollowTarget.Anchor(anchor, FollowMode.tight())
+            val target = FollowTarget.anchor(anchor, FollowMode.tight())
 
             assertFalse(target.equals(null))
             assertFalse(target.equals("Dummy String"))
@@ -173,8 +173,8 @@ class FollowTargetTest {
     fun anchorTarget_hashCode_sameAnchorAndMode_matches() =
         runTest(testDispatcher) {
             val anchor = createAnchor()
-            val target1 = FollowTarget.Anchor(anchor, FollowMode.tight())
-            val target2 = FollowTarget.Anchor(anchor, FollowMode.tight())
+            val target1 = FollowTarget.anchor(anchor, FollowMode.tight())
+            val target2 = FollowTarget.anchor(anchor, FollowMode.tight())
 
             assertThat(target1.hashCode()).isEqualTo(target2.hashCode())
         }
@@ -184,9 +184,9 @@ class FollowTargetTest {
         runTest(testDispatcher) {
             val anchor1 = createAnchor()
             val anchor2 = createAnchor()
-            val target1 = FollowTarget.Anchor(anchor1, FollowMode.tight())
-            val target2 = FollowTarget.Anchor(anchor2, FollowMode.tight())
-            val target3 = FollowTarget.Anchor(anchor1, FollowMode.soft())
+            val target1 = FollowTarget.anchor(anchor1, FollowMode.tight())
+            val target2 = FollowTarget.anchor(anchor2, FollowMode.tight())
+            val target3 = FollowTarget.anchor(anchor1, FollowMode.soft())
 
             assertThat(target1.hashCode()).isNotEqualTo(target2.hashCode())
             assertThat(target1.hashCode()).isNotEqualTo(target3.hashCode())
