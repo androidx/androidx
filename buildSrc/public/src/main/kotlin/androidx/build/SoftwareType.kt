@@ -349,9 +349,6 @@ sealed class SoftwareType(
     }
 }
 
-fun SoftwareType.requiresDependencyVerification(): Boolean =
-    this !in listOf(BENCHMARK, SAMPLES, TEST_APPLICATION, UNSET)
-
 enum class CompilationTarget {
     /** This library is meant to run on the host machine (like an annotation processor). */
     HOST,

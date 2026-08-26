@@ -16,6 +16,8 @@
 
 package androidx.build
 
+import androidx.build.pinneddependencies.TIP_OF_TREE_EXEMPTIONS_FILE_NAME
+import androidx.build.pinneddependencies.TipOfTreeExemption
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.gradle.api.Project
@@ -35,12 +37,12 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            V1 = "1.2.3"
-            [groups]
-            G1 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
-            G2 = { group = "g.g2"}
-        """
+                [versions]
+                V1 = "1.2.3"
+                [groups]
+                G1 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
+                G2 = { group = "g.g2"}
+                """
                     .trimIndent()
             )
         assertThat(service.libraryGroups["G1"])
@@ -54,12 +56,12 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            V1 = "1.2.3"
-            [groups]
-            G1 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
-            G1 = { group = "g.g1"}
-        """
+                [versions]
+                V1 = "1.2.3"
+                [groups]
+                G1 = { group = "g.g1", atomicGroupVersion = "versions.V1" }
+                G1 = { group = "g.g1"}
+                """
                     .trimIndent()
             )
         assertThrows<Exception> { service.libraryGroups["G1"] }
@@ -74,11 +76,11 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            V1 = "1.2.3"
-            [groups]
-            G1 = { group = "g.g1", atomicGroupVersion = "versions.doesNotExist" }
-        """
+                [versions]
+                V1 = "1.2.3"
+                [groups]
+                G1 = { group = "g.g1", atomicGroupVersion = "versions.doesNotExist" }
+                """
                     .trimIndent()
             )
         val result = runCatching { service.libraryGroups["G1"] }
@@ -92,11 +94,11 @@ class LibraryVersionsServiceTest {
         val service =
             createLibraryVersionsService(
                 """
-            [versions]
-            V1 = "1.2.3"
-            [groups]
-            G1 = { group = "g.g1", atomicGroupVersion = "v1" }
-        """
+                [versions]
+                V1 = "1.2.3"
+                [groups]
+                G1 = { group = "g.g1", atomicGroupVersion = "v1" }
+                """
                     .trimIndent()
             )
         val result = runCatching { service.libraryGroups["G1"] }
@@ -158,18 +160,59 @@ class LibraryVersionsServiceTest {
             .contains("Multiple atomic groups defined with the same Maven group ID: g.g1")
     }
 
+    @Test
+    fun tipOfTreeExemptions_absentFileIsEmpty() {
+        val service = createLibraryVersionsService("[versions]\n[groups]\n", exemptions = null)
+        assertThat(service.tipOfTreeExemptions).isEmpty()
+    }
+
+    @Test
+    fun tipOfTreeExemptions_emptyListIsEmpty() {
+        val service = createLibraryVersionsService("[versions]\n[groups]\n")
+        assertThat(service.tipOfTreeExemptions).isEmpty()
+    }
+
+    @Test
+    fun tipOfTreeExemptions_parsesEntries() {
+        val service =
+            createLibraryVersionsService(
+                "[versions]\n[groups]\n",
+                exemptions =
+                    """
+                    [[tipOfTreeExemptions]]
+                    library = ":fragment:fragment"
+                    dependsOn = ":tracing:tracing"
+                    validThroughLibraryVersion = "1.9.0-rc01"
+                    reason = "b/12345 - needs an unreleased API"
+                    """
+                        .trimIndent(),
+            )
+        assertThat(service.tipOfTreeExemptions)
+            .containsExactly(
+                TipOfTreeExemption(
+                    library = ":fragment:fragment",
+                    dependsOn = ":tracing:tracing",
+                    validThroughLibraryVersion = "1.9.0-rc01",
+                    reason = "b/12345 - needs an unreleased API",
+                )
+            )
+    }
+
     private fun createLibraryVersionsService(
         tomlFileContents: String,
         tomlFileName: String = "libraryversions.toml",
-        project: Project = ProjectBuilder.builder().withProjectDir(tempDir.newFolder()).build()
+        exemptions: String? = "tipOfTreeExemptions = []",
+        project: Project = ProjectBuilder.builder().withProjectDir(tempDir.newFolder()).build(),
     ): LibraryVersionsService {
         val serviceProvider =
             project.gradle.sharedServices.registerIfAbsent(
                 "libraryVersionsService",
-                LibraryVersionsService::class.java
+                LibraryVersionsService::class.java,
             ) { spec ->
-                spec.parameters.tomlFileContents = project.provider { tomlFileContents }
-                spec.parameters.tomlFileName = tomlFileName
+                spec.parameters.tomlFileContents.set(tomlFileContents)
+                spec.parameters.tomlFileName.set(tomlFileName)
+                spec.parameters.tipOfTreeExemptionsFileName.set(TIP_OF_TREE_EXEMPTIONS_FILE_NAME)
+                spec.parameters.tipOfTreeExemptionsFileContents.set(exemptions)
             }
         return serviceProvider.get()
     }

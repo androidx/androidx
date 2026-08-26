@@ -218,6 +218,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             it.configureWithAndroidXExtension(androidXExtension)
         }
         project.configureConstraintsWithinGroup(androidXExtension)
+        project.configureDependencyVerification(androidXExtension)
         project.validateProjectParser(androidXExtension)
         project.validateAllArchiveInputsRecognized()
         project.afterEvaluate {
@@ -750,12 +751,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         }
 
         project.configureVersionFileWriter(project.multiplatformExtension!!, androidXExtension)
-
-        project.configureDependencyVerification(androidXExtension) { taskProvider ->
-            kotlinMultiplatformAndroidTarget.compilations.configureEach {
-                taskProvider.configure { task -> task.dependsOn(it.compileTaskProvider) }
-            }
-        }
         project.afterEvaluate {
             project.addToBuildOnServer("assembleAndroidMain")
             project.addToBuildOnServer("lint")
@@ -908,9 +903,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                     rJavaSource,
                 )
                 project.configurePublicResourcesStub(variant)
-                project.configureDependencyVerification(androidXExtension) { taskProvider ->
-                    taskProvider.configure { task -> task.dependsOn("compileReleaseJavaWithJavac") }
-                }
             }
             project.configureVerifyELFRegionAlignment(variant)
             variant.aarMetadata.configureMinAgpVersion()
@@ -954,17 +946,6 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         }
 
         project.configureJavaCompilationWarnings(androidXExtension)
-
-        if (
-            project.multiplatformExtension == null ||
-                project.multiplatformExtension!!.hasJavaEnabled()
-        ) {
-            project.configureDependencyVerification(androidXExtension) { taskProvider ->
-                taskProvider.configure { task ->
-                    task.dependsOn(project.tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME))
-                }
-            }
-        }
 
         val apiTaskConfig =
             if (project.multiplatformExtension != null) {
@@ -1256,17 +1237,15 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         project.addAppApkToFtlRunner()
     }
 
-    private fun Project.configureDependencyVerification(
-        androidXExtension: AndroidXExtension,
-        taskConfigurator: (TaskProvider<VerifyDependencyVersionsTask>) -> Unit,
-    ) {
-        if (buildFeatures.isIsolatedProjectsEnabled()) return
+    private fun Project.configureDependencyVerification(androidXExtension: AndroidXExtension) =
         afterEvaluate {
-            if (androidXExtension.type.get().requiresDependencyVerification()) {
-                taskConfigurator(project.createVerifyDependencyVersionsTask())
+            if (
+                androidXExtension.shouldPublish.get() &&
+                    androidXExtension.type.get() != SoftwareType.SAMPLES
+            ) {
+                project.createVerifyDependencyVersionsTask()
             }
         }
-    }
 
     // If this project wants other project in the same group to have the same version,
     // this function configures those constraints.
