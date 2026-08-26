@@ -35,6 +35,7 @@ import androidx.test.uiautomator.Until
 import androidx.testutils.CpuFrequencyChangeMetric
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -98,7 +99,8 @@ class PokedexTransitionBenchmark(
                 defaultComposeScrollingMetrics() +
                     FrameTimingGfxInfoMetric() +
                     transitionDurationMetrics +
-                    CpuFrequencyChangeMetric(),
+                    CpuFrequencyChangeMetric() +
+                    defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = iterations,
             setupBlock = {

@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -41,7 +42,7 @@ class TooltipBenchmark {
     fun animationTest() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric()),
+            metrics = listOf(FrameTimingMetric()) + defaultMemoryMetrics(),
             compilationMode = CompilationMode.Full(),
             iterations = 10,
             startupMode = StartupMode.WARM,

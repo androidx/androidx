@@ -26,6 +26,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,7 +50,7 @@ class RecyclerViewListScrollBenchmark(private val compilationMode: CompilationMo
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = defaultComposeScrollingMetrics(),
+            metrics = defaultComposeScrollingMetrics() + defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = 10,
             setupBlock = {

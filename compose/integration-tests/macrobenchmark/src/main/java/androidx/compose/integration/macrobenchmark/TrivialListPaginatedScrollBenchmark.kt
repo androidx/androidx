@@ -28,6 +28,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -51,7 +52,7 @@ class TrivialListPaginatedScrollBenchmark(private val compilationMode: Compilati
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric()),
+            metrics = listOf(FrameTimingMetric()) + defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = 5,
             startupMode = StartupMode.WARM,

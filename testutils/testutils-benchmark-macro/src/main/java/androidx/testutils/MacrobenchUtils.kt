@@ -68,6 +68,21 @@ val COMPILATION_MODES =
  */
 val STARTUP_MODES = listOf(StartupMode.WARM, StartupMode.COLD)
 
+@OptIn(ExperimentalMetricApi::class)
+fun defaultMemoryMetrics(): List<Metric> =
+    listOf(
+        MemoryUsageMetric(
+            mode = MemoryUsageMetric.Mode.Last,
+            subMetrics =
+                listOf(MemoryUsageMetric.SubMetric.HeapSize, MemoryUsageMetric.SubMetric.RssAnon),
+        ),
+        MemoryUsageMetric(
+            mode = MemoryUsageMetric.Mode.Max,
+            subMetrics =
+                listOf(MemoryUsageMetric.SubMetric.HeapSize, MemoryUsageMetric.SubMetric.RssAnon),
+        ),
+    )
+
 /** Temporary, while transitioning to new metrics */
 @OptIn(ExperimentalMetricApi::class)
 fun getStartupMetrics() =
@@ -75,8 +90,7 @@ fun getStartupMetrics() =
         StartupTimingMetric(),
         ArtMetric(),
         TraceSectionMetric("StartupTracingInitializer", TraceSectionMetric.Mode.First),
-        MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
-    )
+    ) + defaultMemoryMetrics()
 
 @OptIn(ExperimentalBenchmarkConfigApi::class, ExperimentalPerfettoCaptureApi::class)
 fun MacrobenchmarkRule.measureStartup(
@@ -257,8 +271,6 @@ fun defaultComposeScrollingMetrics(): List<Metric> =
             label = "composeDraw",
             mode = TraceSectionMetric.Mode.Sum,
         ),
-        MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
-        MemoryUsageMetric(MemoryUsageMetric.Mode.Max),
         // Measures the time to process accessibility updates. This covers sections in
         // AndroidComposeViewAccessibilityDelegateCompat that create and update semantic nodes, or
         // dispatch accessibility events. The relevant slices are prefixed with "Compose:semantics"

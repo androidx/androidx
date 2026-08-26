@@ -25,6 +25,7 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.createCompilationParams
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,7 +60,8 @@ class FrameExperimentBenchmark {
     private fun benchmark(mode: FrameMode) {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric(), FrameTimingGfxInfoMetric()),
+            metrics =
+                listOf(FrameTimingMetric(), FrameTimingGfxInfoMetric()) + defaultMemoryMetrics(),
             compilationMode = CompilationMode.DEFAULT,
             iterations = 1,
             setupBlock = {

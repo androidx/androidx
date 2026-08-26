@@ -31,6 +31,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -77,7 +78,7 @@ class TextListScrollBenchmark(private val styled: Boolean, private val prefetch:
                         label = "precompose",
                         mode = TraceSectionMetric.Mode.Sum,
                     ),
-                ),
+                ) + defaultMemoryMetrics(),
             compilationMode = CompilationMode.Full(),
             iterations = 3,
             setupBlock = {

@@ -30,6 +30,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.UiDevice
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -71,7 +72,7 @@ class FormFillingBenchmark(private var talkbackEnabled: Boolean, private val typ
                         sectionName = COMPOSE_APPLY_CHANGES,
                         mode = TraceSectionMetric.Mode.Sum,
                     ),
-                ),
+                ) + defaultMemoryMetrics(),
             iterations = 10,
             setupBlock = {
                 if (iteration == 0) {
@@ -114,7 +115,7 @@ class FormFillingBenchmark(private var talkbackEnabled: Boolean, private val typ
                         sectionName = COMPOSE_APPLY_CHANGES,
                         mode = TraceSectionMetric.Mode.Sum,
                     ),
-                ),
+                ) + defaultMemoryMetrics(),
             iterations = 10,
             setupBlock = {
                 if (iteration == 0) {

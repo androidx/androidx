@@ -22,12 +22,13 @@ import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
-import androidx.benchmark.macro.MemoryUsageMetric
+import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
@@ -43,11 +44,9 @@ class RemoteComposeScrollBenchmark(val compilationMode: CompilationMode) {
     @Test
     fun scrollRemoteCompose() {
         val metrics =
-            mutableListOf(
-                    FrameTimingGfxInfoMetric(),
-                    MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
-                )
-                .also { it.addAll(decodingTraces.map { TraceSectionMetric(it) }) }
+            listOf<Metric>(FrameTimingGfxInfoMetric()) +
+                decodingTraces.map { TraceSectionMetric(it) } +
+                defaultMemoryMetrics()
 
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
@@ -76,11 +75,7 @@ class RemoteComposeScrollBenchmark(val compilationMode: CompilationMode) {
 
     @Test
     fun scrollLiveCompose() {
-        val metrics =
-            mutableListOf(
-                FrameTimingGfxInfoMetric(),
-                MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
-            )
+        val metrics = listOf(FrameTimingGfxInfoMetric()) + defaultMemoryMetrics()
 
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
@@ -109,11 +104,7 @@ class RemoteComposeScrollBenchmark(val compilationMode: CompilationMode) {
 
     @Test
     fun scrollWebView() {
-        val metrics =
-            mutableListOf(
-                FrameTimingGfxInfoMetric(),
-                MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
-            )
+        val metrics = listOf(FrameTimingGfxInfoMetric()) + defaultMemoryMetrics()
 
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
@@ -142,11 +133,7 @@ class RemoteComposeScrollBenchmark(val compilationMode: CompilationMode) {
 
     @Test
     fun scrollRemoteViews() {
-        val metrics =
-            mutableListOf(
-                FrameTimingGfxInfoMetric(),
-                MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
-            )
+        val metrics = listOf(FrameTimingGfxInfoMetric()) + defaultMemoryMetrics()
 
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,

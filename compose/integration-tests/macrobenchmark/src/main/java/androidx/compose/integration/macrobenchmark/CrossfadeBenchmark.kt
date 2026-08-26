@@ -23,6 +23,7 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,7 +38,7 @@ class CrossfadeBenchmark(private val compilationMode: CompilationMode) {
     fun crossfadeBenchmarkInitialComposition() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics = listOf(FrameTimingMetric()),
+            metrics = listOf(FrameTimingMetric()) + defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = 10,
             setupBlock = {
@@ -56,7 +57,7 @@ class CrossfadeBenchmark(private val compilationMode: CompilationMode) {
     fun crossfadeBenchmarkTargetStateChange() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics = listOf(FrameTimingMetric()),
+            metrics = listOf(FrameTimingMetric()) + defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = 10,
             setupBlock = {
