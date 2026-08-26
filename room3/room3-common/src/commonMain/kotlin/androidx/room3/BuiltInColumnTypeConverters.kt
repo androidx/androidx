@@ -36,8 +36,8 @@ public annotation class BuiltInColumnTypeConverters(
     val enums: State = State.INHERITED,
 
     /**
-     * Controls whether Room generates a [ColumnTypeConverter] for `java.util.UUID` using a
-     * [ByteArray].
+     * Controls whether Room generates a [ColumnTypeConverter] for `java.util.UUID` and
+     * `kotlin.uuid.Uuid` using a [ByteArray].
      *
      * Defaults to [State.INHERITED].
      */
