@@ -57,7 +57,7 @@ androidXMultiplatform {
         androidMain.dependencies {
             api(project(":compose:remote:remote-core"))
             api(project(":compose:remote:remote-creation-core"))
-            implementation("androidx.graphics:graphics-path:1.1.0-rc01")
+            implementation("androidx.graphics:graphics-path:1.1.0")
         }
 
         jvmTest.dependencies {
@@ -80,7 +80,7 @@ androidXMultiplatform {
             implementation(libs.espressoCore)
             implementation(project(":compose:remote:remote-core-testutils"))
             implementation(project(":compose:remote:remote-player-view"))
-            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation("androidx.compose.ui:ui-test-junit4:1.12.0")
         }
     }
 }
