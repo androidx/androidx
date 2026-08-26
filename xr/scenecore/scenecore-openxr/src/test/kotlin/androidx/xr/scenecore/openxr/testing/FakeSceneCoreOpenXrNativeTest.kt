@@ -47,6 +47,22 @@ class FakeSceneCoreOpenXrNativeTest {
     }
 
     @Test
+    fun init_withAllowInvalidSessionHandle_succeeds() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.allowInvalidSessionHandle = true
+        assertThat(fake.init(100L, INVALID_HANDLE, 300L)).isTrue()
+        assertThat(fake.isInitialized.get()).isTrue()
+    }
+
+    @Test
+    fun init_withSimulateInitFailure_returnsFalse() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.simulateInitFailure = true
+        assertThat(fake.init(100L, 200L, 300L)).isFalse()
+        assertThat(fake.isInitialized.get()).isFalse()
+    }
+
+    @Test
     fun operationsBeforeInit_throwIllegalStateException() {
         val fake = FakeSceneCoreOpenXrNative()
         assertThrows(IllegalStateException::class.java) { fake.createSpatialContainer() }
@@ -67,6 +83,16 @@ class FakeSceneCoreOpenXrNativeTest {
         assertThat(fake.getSpatialContainerHandle()).isEqualTo(fake.fakeSpatialContainerHandle)
         assertThat(fake.getRootSpaceHandle()).isEqualTo(fake.fakeRootSpaceHandle)
         assertThat(fake.getRootEntityHandle()).isEqualTo(fake.fakeRootEntityHandle)
+    }
+
+    @Test
+    fun createSpatialContainer_withSimulateCreateSpatialContainerFailure_returnsFalse() {
+        val fake = FakeSceneCoreOpenXrNative()
+        fake.init(100L, 200L, 300L)
+        fake.simulateCreateSpatialContainerFailure = true
+
+        assertThat(fake.createSpatialContainer()).isFalse()
+        assertThat(fake.isSpatialContainerCreated.get()).isFalse()
     }
 
     @Test

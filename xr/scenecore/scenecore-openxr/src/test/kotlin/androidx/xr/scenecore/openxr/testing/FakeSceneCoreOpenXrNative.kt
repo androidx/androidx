@@ -32,6 +32,9 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     var fakeRootSpaceHandle: Long = 3000L
 
     var simulateTransactionUnavailable: Boolean = false
+    var simulateInitFailure: Boolean = false
+    var simulateCreateSpatialContainerFailure: Boolean = false
+    var allowInvalidSessionHandle: Boolean = false
 
     private var nextEntityHandle: Long = 1001L
     private var nextTransactionHandle: Long = 5001L
@@ -57,9 +60,12 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
 
     override fun init(xrInstanceHandle: Long, xrSessionHandle: Long, gipaHandle: Long): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
+        if (simulateInitFailure) {
+            return false
+        }
         if (
             xrInstanceHandle == INVALID_HANDLE ||
-                xrSessionHandle == INVALID_HANDLE ||
+                (!allowInvalidSessionHandle && xrSessionHandle == INVALID_HANDLE) ||
                 gipaHandle == INVALID_HANDLE
         ) {
             return false
@@ -71,6 +77,9 @@ internal class FakeSceneCoreOpenXrNative : SceneCoreOpenXrNative(loadLibrary = f
     override fun createSpatialContainer(): Boolean {
         check(!isDestroyed.get()) { "SceneCoreOpenXrNative has been destroyed." }
         check(isInitialized.get()) { "SceneCoreOpenXrNative has not been initialized." }
+        if (simulateCreateSpatialContainerFailure) {
+            return false
+        }
         isSpatialContainerCreated.set(true)
         return true
     }
