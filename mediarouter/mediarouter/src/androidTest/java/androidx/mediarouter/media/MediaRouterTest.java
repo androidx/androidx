@@ -33,6 +33,7 @@ import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
+import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.testing.MediaRouterTestHelper;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -40,11 +41,15 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
+import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -59,6 +64,11 @@ public class MediaRouterTest {
 
     private static final String TEST_KEY = "test_key";
     private static final String TEST_VALUE = "test_value";
+
+    private static final String TEST_CATEGORY = "mediarouter_test_category";
+
+    private static final MediaRouteSelector TEST_ROUTE_SELECTOR =
+            new MediaRouteSelector.Builder().addControlCategory(TEST_CATEGORY).build();
 
     private final Object mWaitLock = new Object();
 
@@ -279,23 +289,21 @@ public class MediaRouterTest {
         MediaRouter.Callback callback =
                 new MediaRouter.Callback() {
                     @Override
-                    public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo route) {
+                    public void onRouteAdded(MediaRouter router, RouteInfo route) {
                         if (testRouteName.equals(route.getName())) {
                             addedLatch.countDown();
                         }
                     }
 
                     @Override
-                    public void onRouteSelected(
-                            MediaRouter router, MediaRouter.RouteInfo route, int reason) {
+                    public void onRouteSelected(MediaRouter router, RouteInfo route, int reason) {
                         if (testRouteName.equals(route.getName())) {
                             selectedLatch.countDown();
                         }
                     }
 
                     @Override
-                    public void onRouteUnselected(
-                            MediaRouter router, MediaRouter.RouteInfo route, int reason) {
+                    public void onRouteUnselected(MediaRouter router, RouteInfo route, int reason) {
                         if (testRouteName.equals(route.getName())) {
                             unselectReason[0] = reason;
                             unselectedLatch.countDown();
@@ -320,7 +328,7 @@ public class MediaRouterTest {
         getInstrumentation()
                 .runOnMainSync(
                         () -> {
-                            for (MediaRouter.RouteInfo route : mRouter.getRoutes()) {
+                            for (RouteInfo route : mRouter.getRoutes()) {
                                 if (testRouteName.equals(route.getName())) {
                                     mRouter.selectRoute(route);
                                     break;
@@ -394,6 +402,150 @@ public class MediaRouterTest {
         assertTrue(mr2Provider.getDiscoveryRequest().isActiveScan());
     }
 
+    @Test
+    @SmallTest
+    public void selectionSource_appTriggered() throws Exception {
+        String routeId = "test_route_id";
+        TestCallback callback = new TestCallback(routeId);
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            mRouter.addProvider(mProvider);
+                            mRouter.addCallback(TEST_ROUTE_SELECTOR, callback);
+                        });
+        publishTestRoutes(Collections.singletonList(routeId));
+        assertTrue(callback.mAddedLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+
+        RouteInfo selectedRouteInfo = selectRouteWithId(routeId);
+
+        assertNotNull(selectedRouteInfo);
+        assertTrue(callback.mSelectionLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(selectedRouteInfo, callback.mSelectedRoute);
+        assertNotNull(callback.mSelectionInfo);
+        assertEquals(
+                SelectionInfo.SELECTION_SOURCE_APP, callback.mSelectionInfo.getSelectionSource());
+        assertEquals(
+                MediaRouter.UNSELECT_REASON_ROUTE_CHANGED,
+                callback.mSelectionInfo.getUnselectReason());
+    }
+
+    @Test
+    @SmallTest
+    public void selectionSource_providerTriggered() throws Exception {
+        String routeId = "test_route_id";
+        TestCallback callback = new TestCallback(routeId);
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            mRouter.addProvider(mProvider);
+                            mRouter.addCallback(TEST_ROUTE_SELECTOR, callback);
+                        });
+        publishTestRoutes(Collections.singletonList(routeId));
+        assertTrue(callback.mAddedLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        RouteInfo selectedRouteInfo = selectRouteWithId(routeId);
+        assertNotNull(selectedRouteInfo);
+        assertTrue(callback.mSelectionLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        TestCallback fallbackCallback = new TestCallback(routeId);
+        MediaRouteSelector fallbackSelector =
+                new MediaRouteSelector.Builder()
+                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)
+                        .build();
+        getInstrumentation()
+                .runOnMainSync(() -> mRouter.addCallback(fallbackSelector, fallbackCallback));
+
+        // Unpublish the selected route.
+        publishTestRoutes(Collections.emptyList());
+
+        assertTrue(fallbackCallback.mSelectionLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertNotNull(fallbackCallback.mSelectionInfo);
+        assertEquals(
+                SelectionInfo.SELECTION_SOURCE_PROVIDER,
+                fallbackCallback.mSelectionInfo.getSelectionSource());
+        assertEquals(
+                MediaRouter.UNSELECT_REASON_DISCONNECTED,
+                fallbackCallback.mSelectionInfo.getUnselectReason());
+    }
+
+    @Test
+    @SmallTest
+    public void selectionSource_systemTriggered() throws Exception {
+        String routeId = "test_route_id";
+        TestCallback callback = new TestCallback(routeId);
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            mRouter.addProvider(mProvider);
+                            mRouter.addCallback(TEST_ROUTE_SELECTOR, callback);
+                        });
+        publishTestRoutes(Collections.singletonList(routeId));
+        assertTrue(callback.mAddedLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        RouteInfo selectedRouteInfo = selectRouteWithId(routeId);
+        assertNotNull(selectedRouteInfo);
+        assertTrue(callback.mSelectionLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        TestCallback systemCallback = new TestCallback(/* targetRouteId= */ null);
+        MediaRouteSelector systemSelector =
+                new MediaRouteSelector.Builder()
+                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)
+                        .build();
+        getInstrumentation()
+                .runOnMainSync(() -> mRouter.addCallback(systemSelector, systemCallback));
+        String[] defaultRouteId = new String[1];
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> defaultRouteId[0] = mRouter.getDefaultRoute().getDescriptorId());
+
+        getInstrumentation()
+                .runOnMainSync(
+                        () ->
+                                MediaRouter.getGlobalRouter()
+                                        .onPlatformRouteSelectedByDescriptorId(defaultRouteId[0]));
+
+        assertTrue(systemCallback.mSelectionLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(
+                SelectionInfo.SELECTION_SOURCE_SYSTEM,
+                systemCallback.mSelectionInfo.getSelectionSource());
+        assertEquals(
+                MediaRouter.UNSELECT_REASON_ROUTE_CHANGED,
+                systemCallback.mSelectionInfo.getUnselectReason());
+    }
+
+    /** Selects the route with the given id, and returns the selected {@link RouteInfo}. */
+    private RouteInfo selectRouteWithId(String routeId) {
+        RouteInfo[] routeInfoHolder = new RouteInfo[1];
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            for (RouteInfo route : mRouter.getRoutes()) {
+                                if (routeId.equals(route.getDescriptorId())) {
+                                    routeInfoHolder[0] = route;
+                                    mRouter.selectRoute(route);
+                                    break;
+                                }
+                            }
+                        });
+        return routeInfoHolder[0];
+    }
+
+    /** Publishes one fake route per given route id (possibly none) using mProvider. */
+    private void publishTestRoutes(List<String> routeIds) {
+        List<MediaRouteDescriptor> routes = new ArrayList<>();
+        for (String routeId : routeIds) {
+            String routeName = "test_route_name";
+            IntentFilter filter = new IntentFilter();
+            filter.addCategory(TEST_CATEGORY);
+            MediaRouteDescriptor routeDescriptor =
+                    new MediaRouteDescriptor.Builder(routeId, routeName)
+                            .addControlFilter(filter)
+                            .build();
+            routes.add(routeDescriptor);
+        }
+        MediaRouteProviderDescriptor.Builder builder = new MediaRouteProviderDescriptor.Builder();
+        for (MediaRouteDescriptor route : routes) {
+            builder.addRoute(route);
+        }
+        getInstrumentation().runOnMainSync(() -> mProvider.setDescriptor(builder.build()));
+    }
+
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
         private boolean mOnPlayCalled;
         private boolean mOnPauseCalled;
@@ -447,4 +599,36 @@ public class MediaRouterTest {
     }
 
     private static class MediaRouterCallbackImpl extends MediaRouter.Callback {}
+
+    private static class TestCallback extends MediaRouter.Callback {
+        public RouteInfo mSelectedRoute;
+        public RouteInfo mRequestedRoute;
+        public SelectionInfo mSelectionInfo;
+        public final CountDownLatch mSelectionLatch = new CountDownLatch(1);
+        public final CountDownLatch mAddedLatch = new CountDownLatch(1);
+        private final String mTargetRouteId;
+
+        TestCallback(String targetRouteId) {
+            mTargetRouteId = targetRouteId;
+        }
+
+        @Override
+        public void onRouteAdded(MediaRouter router, RouteInfo route) {
+            if (mTargetRouteId.equals(route.getDescriptorId())) {
+                mAddedLatch.countDown();
+            }
+        }
+
+        @Override
+        public void onRouteSelected(
+                @NonNull MediaRouter router,
+                @NonNull RouteInfo selectedRoute,
+                @NonNull RouteInfo requestedRoute,
+                @NonNull SelectionInfo selectionInfo) {
+            mSelectedRoute = selectedRoute;
+            mRequestedRoute = requestedRoute;
+            mSelectionInfo = selectionInfo;
+            mSelectionLatch.countDown();
+        }
+    }
 }

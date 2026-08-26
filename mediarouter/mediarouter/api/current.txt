@@ -446,6 +446,7 @@ package androidx.mediarouter.media {
     method public void onRoutePresentationDisplayChanged(androidx.mediarouter.media.MediaRouter, androidx.mediarouter.media.MediaRouter.RouteInfo);
     method public void onRouteRemoved(androidx.mediarouter.media.MediaRouter, androidx.mediarouter.media.MediaRouter.RouteInfo);
     method @Deprecated public void onRouteSelected(androidx.mediarouter.media.MediaRouter, androidx.mediarouter.media.MediaRouter.RouteInfo);
+    method public void onRouteSelected(androidx.mediarouter.media.MediaRouter, androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.MediaRouter.RouteInfo, androidx.mediarouter.media.SelectionInfo);
     method public void onRouteSelected(androidx.mediarouter.media.MediaRouter, androidx.mediarouter.media.MediaRouter.RouteInfo, int);
     method public void onRouteSelected(androidx.mediarouter.media.MediaRouter, androidx.mediarouter.media.MediaRouter.RouteInfo, int, androidx.mediarouter.media.MediaRouter.RouteInfo);
     method @Deprecated public void onRouteUnselected(androidx.mediarouter.media.MediaRouter, androidx.mediarouter.media.MediaRouter.RouteInfo);
@@ -714,6 +715,22 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.RouteListingPreference.Item.Builder setFlags(int);
     method public androidx.mediarouter.media.RouteListingPreference.Item.Builder setSelectionBehavior(int);
     method public androidx.mediarouter.media.RouteListingPreference.Item.Builder setSubText(int);
+  }
+
+  public final class SelectionInfo {
+    method public int getSelectionSource();
+    method public int getUnselectReason();
+    field public static final int SELECTION_SOURCE_APP = 1; // 0x1
+    field public static final int SELECTION_SOURCE_PROVIDER = 3; // 0x3
+    field public static final int SELECTION_SOURCE_SYSTEM = 2; // 0x2
+    field public static final int SELECTION_SOURCE_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class SelectionInfo.Builder {
+    ctor public SelectionInfo.Builder();
+    method public androidx.mediarouter.media.SelectionInfo build();
+    method public androidx.mediarouter.media.SelectionInfo.Builder setSelectionSource(int);
+    method public androidx.mediarouter.media.SelectionInfo.Builder setUnselectReason(int);
   }
 
   public final class SuggestedDeviceInfo {
