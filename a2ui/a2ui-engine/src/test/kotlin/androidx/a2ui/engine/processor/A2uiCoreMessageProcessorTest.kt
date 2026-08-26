@@ -19,6 +19,7 @@ package androidx.a2ui.engine.processor
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinition
 import androidx.a2ui.engine.catalog.A2uiCoreComponentDefinitionCollection
+import androidx.a2ui.engine.catalog.toInlineCatalog
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
 import androidx.a2ui.model.catalog.A2uiFunctionCollection
@@ -69,6 +70,24 @@ class A2uiCoreMessageProcessorTest {
         assertThat(capabilities.supportedCatalogIds)
             .containsExactly(CATALOG_ID, CATALOG_ID_2)
             .inOrder()
+    }
+
+    @Test
+    fun clientCapabilities_withInlineCatalogs_includesSerializedSchemasCorrectly() {
+        val inlineTestCatalog = TestCatalog(CATALOG_ID_2, isInline = true)
+        val catalogsWithInline =
+            listOf(TestCatalog(CATALOG_ID, isInline = false), inlineTestCatalog)
+        val processor =
+            A2uiCoreMessageProcessor(
+                catalogs = catalogsWithInline,
+                dataModelFactory = { TestDataModel() },
+                componentRegistryFactory = { TestComponentRegistry() },
+            )
+
+        val capabilities = processor.clientCapabilities
+
+        assertThat(capabilities.supportedCatalogIds).containsExactly(CATALOG_ID)
+        assertThat(capabilities.inlineCatalogs).containsExactly(inlineTestCatalog.toInlineCatalog())
     }
 
     @Test
@@ -445,7 +464,8 @@ class A2uiCoreMessageProcessorTest {
         )
     }
 
-    private class TestCatalog(override val id: String) : A2uiCoreCatalog {
+    private class TestCatalog(override val id: String, override val isInline: Boolean = false) :
+        A2uiCoreCatalog {
         override val componentDefinitions =
             A2uiCoreComponentDefinitionCollection(
                 listOf(
@@ -458,6 +478,14 @@ class A2uiCoreMessageProcessorTest {
             )
         override val functions = A2uiFunctionCollection()
         override val themeSchema: A2uiSchema? = null
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is TestCatalog) return false
+            return id == other.id && isInline == other.isInline
+        }
+
+        override fun hashCode(): Int = id.hashCode()
     }
 
     private class TestDataModel : A2uiCoreDataModel {
