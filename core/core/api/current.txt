@@ -2472,6 +2472,11 @@ package androidx.core.os {
   public final class BundleKt {
     method public static android.os.Bundle bundleOf();
     method @Deprecated public static android.os.Bundle bundleOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
+    method @KotlinOnly public static inline <reified T extends android.os.Parcelable> android.os.Parcelable[]? getParcelableArrayCompat(android.os.Bundle, String key);
+    method @KotlinOnly public static inline <reified T extends android.os.Parcelable> java.util.ArrayList<T>? getParcelableArrayListCompat(android.os.Bundle, String key);
+    method @KotlinOnly public static inline <reified T extends android.os.Parcelable> T? getParcelableCompat(android.os.Bundle, String key);
+    method @KotlinOnly public static inline <reified T extends java.io.Serializable> T? getSerializableCompat(android.os.Bundle, String key);
+    method @KotlinOnly public static inline <reified T extends android.os.Parcelable> android.util.SparseArray<T>? getSparseParcelableArrayCompat(android.os.Bundle, String key);
   }
 
   @Deprecated public final class CancellationSignal {
