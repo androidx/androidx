@@ -27,13 +27,13 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import androidx.annotation.RestrictTo
-import androidx.camera.camera2.pipe.Metadata as PipeMetadata
 import androidx.camera.camera2.pipe.compat.Api33Compat
 import androidx.camera.camera2.pipe.compat.Api34Compat
 import androidx.camera.camera2.pipe.compat.Api35Compat
 import androidx.camera.camera2.pipe.compat.Camera2ColorSpaceProfiles
 import androidx.camera.camera2.pipe.compat.Camera2MultiResolutionStreamConfigurationMap
 import androidx.camera.camera2.pipe.compat.Camera2StreamConfigurationMap
+import androidx.camera.common.Metadata
 import androidx.camera.common.UnsafeWrapper
 
 /**
@@ -46,7 +46,7 @@ import androidx.camera.common.UnsafeWrapper
  * makes behavior that depends on [CameraMetadata] easier to test and reason about.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface CameraMetadata : PipeMetadata, UnsafeWrapper {
+public interface CameraMetadata : Metadata, UnsafeWrapper {
     public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
 
     public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
@@ -83,8 +83,8 @@ public interface CameraMetadata : PipeMetadata, UnsafeWrapper {
          * Associated android key name is `android.scalar.streamConfigurationMap`
          */
         @JvmStatic
-        public val CAMERA_STREAM_CONFIGURATION_MAP: PipeMetadata.Key<CameraStreamConfigurationMap> =
-            PipeMetadata.Key.create("androidx.camera.camera2.pipe.scalar.streamConfigurationMap")
+        public val CAMERA_STREAM_CONFIGURATION_MAP: Metadata.Key<CameraStreamConfigurationMap> =
+            Metadata.Key("androidx.camera.camera2.pipe.scalar.streamConfigurationMap")
 
         /**
          * Replacement for [CameraCharacteristics.SCALER_MULTI_RESOLUTION_STREAM_CONFIGURATION_MAP]
@@ -96,8 +96,8 @@ public interface CameraMetadata : PipeMetadata, UnsafeWrapper {
          */
         @JvmStatic
         public val CAMERA_MULTI_RESOLUTION_STREAM_CONFIGURATION_MAP:
-            PipeMetadata.Key<CameraMultiResolutionStreamConfigurationMap> =
-            PipeMetadata.Key.create(
+            Metadata.Key<CameraMultiResolutionStreamConfigurationMap> =
+            Metadata.Key(
                 "androidx.camera.camera2.pipe.scalar.multiResolutionStreamConfigurationMap"
             )
 
@@ -108,11 +108,8 @@ public interface CameraMetadata : PipeMetadata, UnsafeWrapper {
          * Associated android key name is `android.request.availableColorSpaceProfilesMap`
          */
         @JvmStatic
-        public val CAMERA_AVAILABLE_COLOR_SPACE_PROFILES:
-            PipeMetadata.Key<CameraColorSpaceProfiles> =
-            PipeMetadata.Key.create(
-                "androidx.camera.camera2.pipe.request.availableColorSpaceProfilesMap"
-            )
+        public val CAMERA_AVAILABLE_COLOR_SPACE_PROFILES: Metadata.Key<CameraColorSpaceProfiles> =
+            Metadata.Key("androidx.camera.camera2.pipe.request.availableColorSpaceProfilesMap")
 
         /**
          * Extension properties for querying the available capabilities of a camera device across

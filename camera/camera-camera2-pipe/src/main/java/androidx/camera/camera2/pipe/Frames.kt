@@ -20,7 +20,6 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.camera.camera2.pipe.Metadata as PipeMetadata
 import androidx.camera.camera2.pipe.graph.LatestFrameMetadataImpl
 import androidx.camera.common.Metadata
 import androidx.camera.common.UnsafeWrapper
@@ -54,7 +53,7 @@ public interface FrameInfo : UnsafeWrapper {
 
 /** [FrameMetadata] is a wrapper around [CaptureResult]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface FrameMetadata : PipeMetadata, UnsafeWrapper {
+public interface FrameMetadata : Metadata, UnsafeWrapper {
 
     public val camera: CameraId
     public val frameNumber: FrameNumber

@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.testing.FakeCameraProperties
+import androidx.camera.common.Metadata
 import com.google.common.truth.Truth
 import java.lang.Class
 import java.nio.BufferUnderflowException
@@ -120,6 +121,11 @@ class FlashAvailabilityCheckerTest(
         override fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata {
             TODO("b/299356087 - Add support for fake extension metadata")
         }
+
+        override fun <T : Any> get(key: Metadata.Key<T>): T? = null
+
+        override val metadataKeys: Set<Metadata.Key<*>>
+            get() = emptySet()
 
         override fun <T : Any> unwrapAs(type: Class<T>): T? {
             TODO("Not yet implemented")
