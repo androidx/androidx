@@ -17,13 +17,13 @@
 package androidx.compose.animation.macrobenchmark
 
 import androidx.benchmark.macro.ExperimentalMetricApi
-import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiObject2
 import androidx.testutils.AnimationSystemSettingsTestRule
+import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
@@ -49,7 +49,7 @@ class SeekableTransitionInterruptMacrobenchmark {
         lateinit var button: UiObject2
         benchmarkRule.measureRepeated(
             packageName = "androidx.compose.animation.benchmark.target",
-            metrics = listOf(FrameTimingMetric()) + defaultMemoryMetrics(),
+            metrics = defaultComposeScrollingMetrics() + defaultMemoryMetrics(),
             iterations = 10,
             // Warm startup simulates a user interacting with an app that's already warmed up
             startupMode = StartupMode.WARM,

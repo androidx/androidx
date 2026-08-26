@@ -20,11 +20,11 @@ import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
-import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.createCompilationParams
+import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
@@ -61,7 +61,9 @@ class FrameExperimentBenchmark {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics =
-                listOf(FrameTimingMetric(), FrameTimingGfxInfoMetric()) + defaultMemoryMetrics(),
+                defaultComposeScrollingMetrics() +
+                    FrameTimingGfxInfoMetric() +
+                    defaultMemoryMetrics(),
             compilationMode = CompilationMode.DEFAULT,
             iterations = 1,
             setupBlock = {

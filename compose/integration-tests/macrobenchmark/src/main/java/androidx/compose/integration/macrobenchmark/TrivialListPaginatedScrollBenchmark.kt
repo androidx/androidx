@@ -19,7 +19,6 @@ package androidx.compose.integration.macrobenchmark
 import android.content.Intent
 import android.graphics.Point
 import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
@@ -28,6 +27,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
+import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
 import org.junit.Before
 import org.junit.Rule
@@ -52,7 +52,7 @@ class TrivialListPaginatedScrollBenchmark(private val compilationMode: Compilati
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric()) + defaultMemoryMetrics(),
+            metrics = defaultComposeScrollingMetrics() + defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = 5,
             startupMode = StartupMode.WARM,

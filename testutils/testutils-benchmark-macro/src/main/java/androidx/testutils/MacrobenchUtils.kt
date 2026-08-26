@@ -183,10 +183,10 @@ fun createCompilationParams(
         }
     }
 
+/** Metrics for all of Compose's important trace markers. */
 @OptIn(ExperimentalMetricApi::class)
-fun defaultComposeScrollingMetrics(): List<Metric> =
-    listOfNotNull(
-        FrameTimingMetric(),
+fun composeSectionMetrics(): List<Metric> =
+    listOf(
         TraceSectionMetric(
             sectionName = "ContentCapture:changeChecker",
             mode = TraceSectionMetric.Mode.Sum,
@@ -280,6 +280,10 @@ fun defaultComposeScrollingMetrics(): List<Metric> =
             mode = TraceSectionMetric.Mode.Sum,
         ),
     )
+
+@OptIn(ExperimentalMetricApi::class)
+fun defaultComposeScrollingMetrics(): List<Metric> =
+    listOf(FrameTimingMetric()) + composeSectionMetrics()
 
 /**
  * Wait for the [condition] to become true for [timeoutMillis] ms or throw an exception and dump the

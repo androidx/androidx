@@ -22,7 +22,7 @@ import android.content.Intent
 import android.os.Build.VERSION_CODES.N
 import android.provider.Settings.Secure
 import androidx.benchmark.macro.ExperimentalMetricApi
-import androidx.benchmark.macro.FrameTimingMetric
+import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
@@ -30,6 +30,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.UiDevice
+import androidx.testutils.defaultComposeScrollingMetrics
 import androidx.testutils.defaultMemoryMetrics
 import org.junit.After
 import org.junit.Before
@@ -99,23 +100,15 @@ class FormFillingBenchmark(private var talkbackEnabled: Boolean, private val typ
         )
     }
 
+    @OptIn(ExperimentalMetricApi::class)
     @Test
     fun frameInfo() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE,
             metrics =
-                @OptIn(ExperimentalMetricApi::class)
-                listOf(
-                    FrameTimingMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ) + defaultMemoryMetrics(),
+                defaultComposeScrollingMetrics() +
+                    FrameTimingGfxInfoMetric() +
+                    defaultMemoryMetrics(),
             iterations = 10,
             setupBlock = {
                 if (iteration == 0) {
