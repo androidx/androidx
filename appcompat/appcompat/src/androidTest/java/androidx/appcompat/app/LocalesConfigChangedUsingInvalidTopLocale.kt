@@ -52,7 +52,7 @@ class LocalesConfigChangedUsingInvalidTopLocale() {
     fun testInvalidLocaleDoesNotRecreateActivityInLoop() {
         val initialActivity = activityRule.launchActivity(null)
         // initial locales of a new activity will be the same as system locales.
-        var systemLocales =
+        val systemLocales =
             LocalesUpdateActivity.getConfigLocales(initialActivity.resources.configuration)
 
         LocalesUtils.setLocalesAndWaitForRecreate(
@@ -77,7 +77,7 @@ class LocalesConfigChangedUsingInvalidTopLocale() {
         // the most suitable locale. Hence, in the new expected locales the invalid locale that
         // was at the first position in the input locales should be moved to a later position.
         // In this case "XX,hi,es" is rearranged to "hi,XX,es"
-        var expectedConfigLocalesAfterRearrangement =
+        val expectedConfigLocalesAfterRearrangement =
             LocalesUpdateActivity.overlayCustomAndSystemLocales(
                 CUSTOM_LOCALES_AFTER_REARRANGEMENT,
                 systemLocales,
