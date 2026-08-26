@@ -51,9 +51,8 @@ internal class AndroidPlatformBuilder(
 
     override fun compile(target: NativeTarget, parameters: ClangCompileParameters) {
         val additionalArgs = buildList {
+            addAll(DEFAULT_COMPILE_FLAGS)
             addAll(parameters.freeArgs.get())
-            add("-fPIC") // Always compile Android with 'Position Independent Code'
-            add("-DNDEBUG") // Always compile with NDEBUG since only release is built
             add("--compile")
             parameters.includes.files.forEach { includeDirectory ->
                 check(includeDirectory.isDirectory) {
@@ -107,14 +106,12 @@ internal class AndroidPlatformBuilder(
 
         val isCxx = parameters.sources.files.any { it.extension in CXX_EXTENSIONS }
         val linkerFlags = buildList {
+            addAll(DEFAULT_LINKER_FLAGS)
             addAll(parameters.linkerArgs.get())
             // Statically include standard library when compiling c++
             if (isCxx) {
                 add("-static-libstdc++")
             }
-            // Specify max-page-size to align ELF regions to 16kb
-            // https://developer.android.com/guide/practices/page-sizes
-            addAll(listOf("-z", "max-page-size=16384", "-z", "common-page-size=16384"))
         }
 
         val objectFiles = parameters.objectFiles.regularFilePaths()
@@ -143,6 +140,49 @@ internal class AndroidPlatformBuilder(
             execSpec.args(args)
         }
     }
+
+    companion object {
+        /** Default compiler flags matching Android NDK / CMake release configuration. */
+        private val DEFAULT_COMPILE_FLAGS =
+            listOf(
+                // Target platform definition
+                "-DANDROID",
+                // Always compile Android with 'Position Independent Code'
+                "-fPIC",
+                // Always compile with NDEBUG since only release is built
+                "-DNDEBUG",
+                // Security / buffer overflow protection (b/547643929)
+                "-fstack-protector-strong",
+                "-D_FORTIFY_SOURCE=2",
+                "-Wformat",
+                "-Werror=format-security",
+                // Reproducibility: prevent resolving compiler binary symlinks
+                "-no-canonical-prefixes",
+                // Dead code elimination: place functions and data in separate sections
+                "-ffunction-sections",
+                "-fdata-sections",
+                // Stack unwinding tables for backtraces and crash reporting
+                "-funwind-tables",
+            )
+
+        /** Default linker flags matching Android NDK / CMake release configuration. */
+        private val DEFAULT_LINKER_FLAGS =
+            listOf(
+                // Generate ELF build-id note for crash dump symbolication (required by Google Play)
+                "-Wl,--build-id=sha1",
+                // Discard unused sections from -ffunction-sections and -fdata-sections
+                "-Wl,--gc-sections",
+                // Catch missing symbols and linker issues at build time
+                "-Wl,--no-undefined",
+                "-Wl,--fatal-warnings",
+                // Specify max-page-size to align ELF regions to 16kb (Android 15+)
+                // https://developer.android.com/guide/practices/page-sizes
+                "-z",
+                "max-page-size=16384",
+                "-z",
+                "common-page-size=16384",
+            )
+    }
 }
 
 /** The implementation of the clang builder using the Konan prebuilts. */
@@ -152,8 +192,8 @@ internal class KonanPlatformBuilder(
 ) : ClangPlatformBuilder {
     override fun compile(target: NativeTarget, parameters: ClangCompileParameters) {
         val additionalArgs = buildList {
+            addAll(DEFAULT_COMPILE_FLAGS)
             addAll(parameters.freeArgs.get())
-            add("-DNDEBUG") // Always compile with NDEBUG since only release is built
             add("--compile")
             parameters.includes.files.forEach { includeDirectory ->
                 check(includeDirectory.isDirectory) {
@@ -240,6 +280,20 @@ internal class KonanPlatformBuilder(
         val platform = platformManager.platform(konanTarget)
         platform.downloadDependencies()
         return platform
+    }
+
+    companion object {
+        /** Default compiler flags for Konan targets (macOS, iOS, Linux desktop, Windows). */
+        private val DEFAULT_COMPILE_FLAGS =
+            listOf(
+                // Always compile with NDEBUG since only release is built
+                "-DNDEBUG",
+                // Security: prevent format-string vulnerabilities (b/547643929)
+                "-Wformat",
+                "-Werror=format-security",
+                // Reproducibility: prevent resolving compiler binary symlinks
+                "-no-canonical-prefixes",
+            )
     }
 }
 
