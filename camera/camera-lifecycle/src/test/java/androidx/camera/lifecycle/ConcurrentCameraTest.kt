@@ -18,6 +18,7 @@ package androidx.camera.lifecycle
 
 import android.content.Context
 import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
@@ -28,6 +29,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
 import androidx.camera.core.impl.CameraFactory
+import androidx.camera.core.impl.ForwardingCameraInfo
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
@@ -48,6 +50,7 @@ import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -256,6 +259,118 @@ class ConcurrentCameraTest {
         assertThat(provider.isBound(useCase0)).isTrue()
         assertThat(provider.isBound(useCase1)).isTrue()
         assertThat(provider.isConcurrentCameraModeOn).isFalse()
+    }
+
+    @Test
+    fun bindSinglePhysicalCamera_setsPhysicalCameraIdOnUseCases(): Unit = runBlocking {
+        ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
+
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val useCase = Preview.Builder().build()
+        val physicalCameraId = "2"
+        val physicalSelector =
+            CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                .setPhysicalCameraId(physicalCameraId)
+                .build()
+
+        provider.bindToLifecycle(lifecycleOwner0, physicalSelector, useCase)
+
+        assertThat(useCase.physicalCameraId).isEqualTo(physicalCameraId)
+    }
+
+    // Verifies that an explicit physical camera ID previously set on a UseCase (e.g. via
+    // Camera2Interop or prior configuration) is not overwritten by CameraSelector's physical ID.
+    @Test
+    fun bindSinglePhysicalCamera_doesNotOverwriteExistingPhysicalCameraIdOnUseCase(): Unit =
+        runBlocking {
+            ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
+
+            provider = ProcessCameraProvider.getInstance(context).await()
+            val useCase = Preview.Builder().build()
+            useCase.setPhysicalCameraId("3")
+            val physicalSelector =
+                CameraSelector.Builder()
+                    .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                    .setPhysicalCameraId("2")
+                    .build()
+
+            provider.bindToLifecycle(lifecycleOwner0, physicalSelector, useCase)
+
+            assertThat(useCase.physicalCameraId).isEqualTo("3")
+        }
+
+    @Test
+    fun bindDualSelfiePhysicalCamera_doesNotOverwriteExistingPhysicalCameraIdOnUseCase(): Unit =
+        runBlocking {
+            ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
+
+            provider = ProcessCameraProvider.getInstance(context).await()
+            val useCase0 = Preview.Builder().build()
+            useCase0.setPhysicalCameraId("3")
+            val useCase1 = Preview.Builder().build()
+
+            val singleCameraConfig0 =
+                SingleCameraConfig(
+                    CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                        .setPhysicalCameraId("1")
+                        .build(),
+                    UseCaseGroup.Builder().addUseCase(useCase0).build(),
+                    lifecycleOwner0,
+                )
+            val singleCameraConfig1 =
+                SingleCameraConfig(
+                    CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                        .setPhysicalCameraId("2")
+                        .build(),
+                    UseCaseGroup.Builder().addUseCase(useCase1).build(),
+                    lifecycleOwner0,
+                )
+
+            provider.bindToLifecycle(listOf(singleCameraConfig0, singleCameraConfig1))
+
+            assertThat(useCase0.physicalCameraId).isEqualTo("3")
+            assertThat(useCase1.physicalCameraId).isEqualTo("2")
+        }
+
+    @Test
+    fun bindConcurrentCamera_assignsPhysicalCameraIdToCorrespondingUseCases(): Unit = runBlocking {
+        shadowOf(context.packageManager).setSystemFeature(FEATURE_CAMERA_CONCURRENT, true)
+        ProcessCameraProvider.configureInstance(createConcurrentCameraAppConfig())
+
+        provider = ProcessCameraProvider.getInstance(context).await()
+        val useCase0 = Preview.Builder().build()
+        val useCase1 = Preview.Builder().build()
+
+        val primarySelector =
+            CameraSelector.Builder()
+                .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+                .setPhysicalCameraId("2")
+                .build()
+        val secondarySelector =
+            CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
+
+        val singleCameraConfig0 =
+            SingleCameraConfig(
+                primarySelector,
+                UseCaseGroup.Builder().addUseCase(useCase0).build(),
+                lifecycleOwner0,
+            )
+        val singleCameraConfig1 =
+            SingleCameraConfig(
+                secondarySelector,
+                UseCaseGroup.Builder().addUseCase(useCase1).build(),
+                lifecycleOwner1,
+            )
+
+        provider.bindToLifecycle(listOf(singleCameraConfig0, singleCameraConfig1))
+
+        // useCase0 gets primarySelector's physicalCameraId, useCase1 is not contaminated by
+        // useCase0
+        assertThat(useCase0.physicalCameraId).isEqualTo("2")
+        assertThat(useCase1.physicalCameraId).isNull()
     }
 
     @Test
@@ -587,10 +702,52 @@ class ConcurrentCameraTest {
                     FakeCamera("0", null, FakeCameraInfoInternal("0", 0, LENS_FACING_BACK))
                 }
                 cameraFactory.insertCamera(LENS_FACING_FRONT, "1") {
-                    FakeCamera("1", null, FakeCameraInfoInternal("1", 0, LENS_FACING_FRONT))
+                    val cameraInfo =
+                        FakePhysicalCameraInfo(
+                            "1",
+                            0,
+                            LENS_FACING_FRONT,
+                            physicalCameraInfos =
+                                setOf(
+                                    FakePhysicalCameraInfo(
+                                        "1",
+                                        0,
+                                        LENS_FACING_FRONT,
+                                        physicalCameraId = "1",
+                                    ),
+                                    FakePhysicalCameraInfo(
+                                        "2",
+                                        0,
+                                        LENS_FACING_FRONT,
+                                        physicalCameraId = "2",
+                                    ),
+                                ),
+                        )
+                    FakeCamera("1", null, cameraInfo)
                 }
                 cameraFactory.insertCamera(LENS_FACING_FRONT, "2") {
-                    FakeCamera("2", null, FakeCameraInfoInternal("2", 0, LENS_FACING_FRONT))
+                    val cameraInfo =
+                        FakePhysicalCameraInfo(
+                            "2",
+                            0,
+                            LENS_FACING_FRONT,
+                            physicalCameraInfos =
+                                setOf(
+                                    FakePhysicalCameraInfo(
+                                        "1",
+                                        0,
+                                        LENS_FACING_FRONT,
+                                        physicalCameraId = "1",
+                                    ),
+                                    FakePhysicalCameraInfo(
+                                        "2",
+                                        0,
+                                        LENS_FACING_FRONT,
+                                        physicalCameraId = "2",
+                                    ),
+                                ),
+                        )
+                    FakeCamera("2", null, cameraInfo)
                 }
                 cameraFactory.insertCamera(LENS_FACING_BACK, "3") {
                     FakeCamera("3", null, FakeCameraInfoInternal("3", 0, LENS_FACING_BACK))
@@ -605,5 +762,27 @@ class ConcurrentCameraTest {
                 .setUseCaseConfigFactoryProvider { _, _ -> FakeUseCaseConfigFactory() }
 
         return appConfigBuilder.build()
+    }
+
+    private class FakePhysicalCameraInfo(
+        cameraId: String,
+        sensorRotationDegrees: Int = 0,
+        lensFacing: Int = CameraSelector.LENS_FACING_FRONT,
+        private val physicalCameraId: String? = null,
+        private val physicalCameraInfos: Set<CameraInfo> = emptySet(),
+    ) : ForwardingCameraInfo(FakeCameraInfoInternal(cameraId, sensorRotationDegrees, lensFacing)) {
+
+        override fun getCameraSelector(): CameraSelector {
+            val base = super.getCameraSelector()
+            return if (physicalCameraId != null) {
+                CameraSelector.Builder.fromSelector(base)
+                    .setPhysicalCameraId(physicalCameraId)
+                    .build()
+            } else {
+                base
+            }
+        }
+
+        override fun getPhysicalCameraInfos(): Set<CameraInfo> = physicalCameraInfos
     }
 }

@@ -16,7 +16,6 @@
 package androidx.camera.core
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.core.impl.Identifier
 import androidx.core.util.Preconditions
@@ -88,23 +87,40 @@ private constructor(
      * The ordered list of camera IDs that this identifier represents.
      *
      * The meaning of this list depends on the context:
-     * 1. **For a single camera**, this list will contain exactly one ID from the CameraManager.
-     *    This is the most common case and applies to both individual physical cameras and single
-     *    logical cameras that are being selected.
-     * 2. **For concurrent camera mode**, this list contains the IDs of two or more top-level
-     *    cameras (which must all be present in CameraManager's list) that will be opened and used
-     *    simultaneously.
+     * 1. **For a single camera**, this list will contain exactly one [CompositeCameraId]. This is
+     *    the most common case and applies to both individual physical cameras and single logical
+     *    cameras that are being selected.
+     * 2. **For concurrent camera mode**, this list contains two or more [CompositeCameraId]s that
+     *    will be opened and used simultaneously.
      *
-     * This list does **not** represent a single logical camera and its constituent physical
+     * This list does **not** represent a single logical camera and all its constituent physical
      * sensors. Selecting a single logical camera is done using a list with its single ID.
      */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val cameraIds: List<String>,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val cameraIds: List<CompositeCameraId>,
 
     /** The compatibility identifier, if one exists. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val compatibilityId: Identifier?,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val compatibilityId: Identifier? = null,
 ) {
     init {
         Preconditions.checkArgument(cameraIds.isNotEmpty(), "Camera ID set cannot be empty.")
+    }
+
+    /**
+     * Represents the identity of a single camera, consisting of its logical [cameraId] and an
+     * optional [physicalCameraId] if a specific physical sub-camera is selected.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public data class CompositeCameraId(
+        public val cameraId: String,
+        public val physicalCameraId: String? = null,
+    ) {
+        override fun toString(): String {
+            return if (physicalCameraId != null) {
+                "$cameraId(physical=$physicalCameraId)"
+            } else {
+                cameraId
+            }
+        }
     }
 
     /**
@@ -121,7 +137,7 @@ private constructor(
                 cameraIds.size == 1,
                 "getInternalId() is only available for single-camera identifiers.",
             )
-            return cameraIds.first()
+            return cameraIds.first().cameraId
         }
 
     /**
@@ -187,18 +203,17 @@ private constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public object Factory {
         /**
-         * Creates a new [CameraIdentifier] from an ordered list of camera IDs and an optional
-         * compatibility ID.
+         * Creates a new [CameraIdentifier] from an ordered list of [CompositeCameraId]s and an
+         * optional compatibility ID.
          *
-         * @param cameraIds An ordered list of one or more camera ID strings.
+         * @param cameraIds An ordered list of one or more [CompositeCameraId] instances.
          * @param compatibilityId An optional identifier for special configurations. Defaults to
          *   null.
          */
-        @VisibleForTesting
         @JvmOverloads
         @JvmStatic
         public fun create(
-            cameraIds: List<String>,
+            cameraIds: List<CompositeCameraId>,
             compatibilityId: Identifier? = null,
         ): CameraIdentifier {
             return CameraIdentifier(cameraIds, compatibilityId)
@@ -222,8 +237,8 @@ private constructor(
             secondaryCameraId: String? = null,
             compatibilityId: Identifier? = null,
         ): CameraIdentifier {
-            val cameraIds = mutableListOf(primaryCameraId)
-            secondaryCameraId?.let { cameraIds.add(it) }
+            val cameraIds = mutableListOf(CompositeCameraId(primaryCameraId))
+            secondaryCameraId?.let { cameraIds.add(CompositeCameraId(it)) }
             return create(cameraIds, compatibilityId)
         }
 
@@ -245,9 +260,12 @@ private constructor(
             primaryInfo: AdapterCameraInfo,
             secondaryInfo: AdapterCameraInfo?,
         ): CameraIdentifier {
-            val secondaryId = secondaryInfo?.cameraId
+            val cameraIds = buildList {
+                add(CompositeCameraId(primaryInfo.cameraId, primaryInfo.physicalCameraId))
+                secondaryInfo?.let { add(CompositeCameraId(it.cameraId, it.physicalCameraId)) }
+            }
             val compatId = primaryInfo.cameraConfig.compatibilityId
-            return create(primaryInfo.cameraId, secondaryId, compatId)
+            return create(cameraIds, compatId)
         }
     }
 }

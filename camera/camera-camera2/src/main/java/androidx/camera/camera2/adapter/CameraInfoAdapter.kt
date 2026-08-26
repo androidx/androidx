@@ -139,7 +139,11 @@ constructor(
                 } else {
                     val cameraProperties =
                         CameraPipeCameraProperties(CameraConfig(physicalCameraId), physicalMetadata)
-                    PhysicalCameraInfoAdapter(cameraProperties, intrinsicZoomCalculator)
+                    PhysicalCameraInfoAdapter(
+                        cameraProperties,
+                        intrinsicZoomCalculator,
+                        parentCameraInfo = this,
+                    )
                 }
             }
             .toSet()

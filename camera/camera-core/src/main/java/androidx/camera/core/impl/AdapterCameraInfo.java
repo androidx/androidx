@@ -23,6 +23,10 @@ import android.util.Range;
 import android.util.Rational;
 
 import androidx.annotation.IntDef;
+import androidx.camera.common.UnsafeWrapper;
+import androidx.camera.core.CameraIdentifier;
+import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.TorchState;
@@ -32,6 +36,7 @@ import androidx.camera.core.impl.utils.LiveDataUtil;
 import androidx.camera.core.impl.utils.SessionProcessorUtil;
 import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.core.math.MathUtils;
+import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -40,6 +45,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -47,7 +53,7 @@ import java.util.Set;
  * A {@link CameraInfoInternal} that returns disabled state if the corresponding operation in the
  * given {@link AdapterCameraControl} is disabled.
  */
-public class AdapterCameraInfo extends ForwardingCameraInfo {
+public class AdapterCameraInfo extends ForwardingCameraInfo implements UnsafeWrapper {
     /**
      * Defines the list of supported camera operations.
      */
@@ -74,17 +80,119 @@ public class AdapterCameraInfo extends ForwardingCameraInfo {
     private boolean mIsPostviewSupported = false;
     private boolean mIsCaptureProcessProgressSupported = false;
     private final @NonNull CameraConfig mCameraConfig;
+    private final @Nullable String mPhysicalCameraId;
+    private final @Nullable CameraInfo mPhysicalCameraInfo;
     private @Nullable LiveData<ZoomState> mExtensionZoomStateLiveData = null;
 
     public AdapterCameraInfo(@NonNull CameraInfoInternal cameraInfo,
+            @NonNull CameraConfig cameraConfig) {
+        this(cameraInfo, null, cameraConfig);
+    }
+
+    public AdapterCameraInfo(@NonNull CameraInfoInternal cameraInfo,
+            @Nullable String physicalCameraId,
             @NonNull CameraConfig cameraConfig) {
         super(cameraInfo);
         mCameraInfo = cameraInfo;
         mCameraConfig = cameraConfig;
         mSessionProcessor = cameraConfig.getSessionProcessor(null);
+        mPhysicalCameraId = physicalCameraId;
+        if (physicalCameraId != null) {
+            CameraInfo physicalCameraInfo = findPhysicalCameraInfo(cameraInfo, physicalCameraId);
+            Preconditions.checkArgument(
+                    physicalCameraInfo != null,
+                    "Physical camera id " + physicalCameraId + " not found in logical camera "
+                            + cameraInfo.getCameraId());
+            mPhysicalCameraInfo = physicalCameraInfo;
+        } else {
+            mPhysicalCameraInfo = null;
+        }
 
         setPostviewSupported(cameraConfig.isPostviewSupported());
         setCaptureProcessProgressSupported(cameraConfig.isCaptureProcessProgressSupported());
+    }
+
+    private static @Nullable CameraInfo findPhysicalCameraInfo(
+            @NonNull CameraInfoInternal cameraInfo, @NonNull String physicalCameraId) {
+        for (CameraInfo physicalInfo : cameraInfo.getPhysicalCameraInfos()) {
+            CameraSelector selector = physicalInfo.getCameraSelector();
+            if (physicalCameraId.equals(selector.getPhysicalCameraId())) {
+                return physicalInfo;
+            }
+        }
+        return null;
+    }
+
+    public @Nullable String getPhysicalCameraId() {
+        return mPhysicalCameraId;
+    }
+
+    @Override
+    public float getIntrinsicZoomRatio() {
+        if (mPhysicalCameraInfo != null) {
+            return mPhysicalCameraInfo.getIntrinsicZoomRatio();
+        }
+        return super.getIntrinsicZoomRatio();
+    }
+
+    @Override
+    public int getSensorRotationDegrees(int relativeRotation) {
+        if (mPhysicalCameraInfo != null) {
+            return mPhysicalCameraInfo.getSensorRotationDegrees(relativeRotation);
+        }
+        return super.getSensorRotationDegrees(relativeRotation);
+    }
+
+    @Override
+    public int getSensorRotationDegrees() {
+        if (mPhysicalCameraInfo != null) {
+            return mPhysicalCameraInfo.getSensorRotationDegrees();
+        }
+        return super.getSensorRotationDegrees();
+    }
+
+    @Override
+    public int getLensFacing() {
+        if (mPhysicalCameraInfo != null) {
+            return mPhysicalCameraInfo.getLensFacing();
+        }
+        return super.getLensFacing();
+    }
+
+    @Override
+    public @NonNull CameraSelector getCameraSelector() {
+        if (mPhysicalCameraInfo != null) {
+            return mPhysicalCameraInfo.getCameraSelector();
+        }
+        return super.getCameraSelector();
+    }
+
+    @Override
+    public @NonNull Set<CameraInfo> getPhysicalCameraInfos() {
+        if (mPhysicalCameraInfo != null) {
+            return Collections.emptySet();
+        }
+        return super.getPhysicalCameraInfos();
+    }
+
+    @Override
+    public boolean isLogicalMultiCameraSupported() {
+        if (mPhysicalCameraInfo != null) {
+            return false;
+        }
+        return super.isLogicalMultiCameraSupported();
+    }
+
+    @Override
+    public @NonNull CameraIdentifier getCameraIdentifier() {
+        if (mPhysicalCameraId != null) {
+            return CameraIdentifier.Factory.create(
+                    Collections.singletonList(
+                            new CameraIdentifier.CompositeCameraId(
+                                    mCameraInfo.getCameraId(), mPhysicalCameraId)),
+                    null);
+        }
+        return super.getCameraIdentifier();
     }
 
     public @NonNull CameraConfig getCameraConfig() {
@@ -318,5 +426,19 @@ public class AdapterCameraInfo extends ForwardingCameraInfo {
     public @Nullable CameraExtensionCapabilities getCameraExtensionCapabilities(
             int extensionMode) {
         return mCameraInfo.getCameraExtensionCapabilities(extensionMode);
+    }
+
+    @Override
+    public <T> @Nullable T unwrapAs(@NonNull Class<T> type) {
+        if (mPhysicalCameraInfo != null) {
+            if (mPhysicalCameraInfo instanceof UnsafeWrapper) {
+                return ((UnsafeWrapper) mPhysicalCameraInfo).unwrapAs(type);
+            }
+            return null;
+        }
+        if (mCameraInfo instanceof UnsafeWrapper) {
+            return ((UnsafeWrapper) mCameraInfo).unwrapAs(type);
+        }
+        return null;
     }
 }
