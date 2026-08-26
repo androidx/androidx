@@ -244,6 +244,32 @@ class ColorSchemeTest {
         assertThat(darkDynamicScheme.primary).isNotEqualTo(Color.Black)
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    fun dynamicColorSchemes_unthemedContext_resolveCorrectly() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val unthemedContext =
+            object : android.content.ContextWrapper(targetContext) {
+                override fun getTheme(): android.content.res.Resources.Theme? = null
+            }
+        val lightDynamicScheme = dynamicLightColorScheme(unthemedContext)
+        val darkDynamicScheme = dynamicDarkColorScheme(unthemedContext)
+        val tonalPalette = dynamicTonalPalette(unthemedContext)
+
+        val expectedLight = dynamicLightColorScheme(targetContext)
+        val expectedDark = dynamicDarkColorScheme(targetContext)
+        val expectedPalette = dynamicTonalPalette(targetContext)
+
+        assertThat(lightDynamicScheme).isNotNull()
+        assertThat(darkDynamicScheme).isNotNull()
+        assertThat(tonalPalette).isNotNull()
+
+        // Verify they load identical colors as a themed context
+        assertThat(lightDynamicScheme.contentEquals(expectedLight)).isTrue()
+        assertThat(darkDynamicScheme.contentEquals(expectedDark)).isTrue()
+        assertThat(tonalPalette.contentEquals(expectedPalette)).isTrue()
+    }
+
     @Composable
     private fun Button(onReadColorScheme: (ColorScheme) -> Unit) {
         val colorScheme = MaterialTheme.colorScheme
@@ -307,4 +333,94 @@ private fun ColorScheme.contentEquals(other: ColorScheme): Boolean {
     if (onTertiaryFixed != other.onTertiaryFixed) return false
     if (onTertiaryFixedVariant != other.onTertiaryFixedVariant) return false
     return true
+}
+
+private fun TonalPalette.contentEquals(other: TonalPalette): Boolean {
+    return primary100 == other.primary100 &&
+        primary99 == other.primary99 &&
+        primary95 == other.primary95 &&
+        primary90 == other.primary90 &&
+        primary80 == other.primary80 &&
+        primary70 == other.primary70 &&
+        primary60 == other.primary60 &&
+        primary50 == other.primary50 &&
+        primary40 == other.primary40 &&
+        primary30 == other.primary30 &&
+        primary20 == other.primary20 &&
+        primary10 == other.primary10 &&
+        primary0 == other.primary0 &&
+        secondary100 == other.secondary100 &&
+        secondary99 == other.secondary99 &&
+        secondary95 == other.secondary95 &&
+        secondary90 == other.secondary90 &&
+        secondary80 == other.secondary80 &&
+        secondary70 == other.secondary70 &&
+        secondary60 == other.secondary60 &&
+        secondary50 == other.secondary50 &&
+        secondary40 == other.secondary40 &&
+        secondary30 == other.secondary30 &&
+        secondary20 == other.secondary20 &&
+        secondary10 == other.secondary10 &&
+        secondary0 == other.secondary0 &&
+        tertiary100 == other.tertiary100 &&
+        tertiary99 == other.tertiary99 &&
+        tertiary95 == other.tertiary95 &&
+        tertiary90 == other.tertiary90 &&
+        tertiary80 == other.tertiary80 &&
+        tertiary70 == other.tertiary70 &&
+        tertiary60 == other.tertiary60 &&
+        tertiary50 == other.tertiary50 &&
+        tertiary40 == other.tertiary40 &&
+        tertiary30 == other.tertiary30 &&
+        tertiary20 == other.tertiary20 &&
+        tertiary10 == other.tertiary10 &&
+        tertiary0 == other.tertiary0 &&
+        neutral100 == other.neutral100 &&
+        neutral99 == other.neutral99 &&
+        neutral98 == other.neutral98 &&
+        neutral96 == other.neutral96 &&
+        neutral95 == other.neutral95 &&
+        neutral94 == other.neutral94 &&
+        neutral92 == other.neutral92 &&
+        neutral90 == other.neutral90 &&
+        neutral87 == other.neutral87 &&
+        neutral80 == other.neutral80 &&
+        neutral70 == other.neutral70 &&
+        neutral60 == other.neutral60 &&
+        neutral50 == other.neutral50 &&
+        neutral40 == other.neutral40 &&
+        neutral30 == other.neutral30 &&
+        neutral24 == other.neutral24 &&
+        neutral22 == other.neutral22 &&
+        neutral20 == other.neutral20 &&
+        neutral17 == other.neutral17 &&
+        neutral12 == other.neutral12 &&
+        neutral10 == other.neutral10 &&
+        neutral6 == other.neutral6 &&
+        neutral4 == other.neutral4 &&
+        neutral0 == other.neutral0 &&
+        neutralVariant100 == other.neutralVariant100 &&
+        neutralVariant99 == other.neutralVariant99 &&
+        neutralVariant98 == other.neutralVariant98 &&
+        neutralVariant96 == other.neutralVariant96 &&
+        neutralVariant95 == other.neutralVariant95 &&
+        neutralVariant94 == other.neutralVariant94 &&
+        neutralVariant92 == other.neutralVariant92 &&
+        neutralVariant90 == other.neutralVariant90 &&
+        neutralVariant87 == other.neutralVariant87 &&
+        neutralVariant80 == other.neutralVariant80 &&
+        neutralVariant70 == other.neutralVariant70 &&
+        neutralVariant60 == other.neutralVariant60 &&
+        neutralVariant50 == other.neutralVariant50 &&
+        neutralVariant40 == other.neutralVariant40 &&
+        neutralVariant30 == other.neutralVariant30 &&
+        neutralVariant24 == other.neutralVariant24 &&
+        neutralVariant22 == other.neutralVariant22 &&
+        neutralVariant20 == other.neutralVariant20 &&
+        neutralVariant17 == other.neutralVariant17 &&
+        neutralVariant12 == other.neutralVariant12 &&
+        neutralVariant10 == other.neutralVariant10 &&
+        neutralVariant6 == other.neutralVariant6 &&
+        neutralVariant4 == other.neutralVariant4 &&
+        neutralVariant0 == other.neutralVariant0
 }
