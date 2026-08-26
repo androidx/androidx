@@ -21,6 +21,7 @@ import android.content.Context;
 import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
+import androidx.mediarouter.media.SelectionInfo;
 
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRoutesSourceItem;
@@ -53,8 +54,8 @@ public final class AndroidXMediaRouterSystemRoutesSource extends SystemRoutesSou
                 public void onRouteSelected(
                         @NonNull MediaRouter router,
                         MediaRouter.@NonNull RouteInfo selectedRoute,
-                        int reason,
-                        MediaRouter.@NonNull RouteInfo requestedRoute) {
+                        MediaRouter.@NonNull RouteInfo requestedRoute,
+                        @NonNull SelectionInfo selectionInfo) {
                     mOnRoutesChangedListener.run();
                 }
 
