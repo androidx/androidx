@@ -27,9 +27,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="androidx.xr.projected.testapp.permissions.PermissionsActivity"
+            android:name="androidx.xr.projected.testapp.permissions.PermissionsHostActivity"
             android:exported="true"
-            android:label="Permission Activity"
+            android:label="Permission Activity">
+        </activity>
+        <activity
+            android:name="androidx.xr.projected.testapp.permissions.PermissionsProjectedActivity"
+            android:exported="true"
+            android:label="Permission Projected Activity"
+            android:launchMode="singleTop"
             android:requiredDisplayCategory="xr_projected">
         </activity>
         <activity
