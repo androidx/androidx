@@ -65,6 +65,7 @@ import androidx.mediarouter.media.MediaRouter.ProviderInfo;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.MediaRouterParams;
 import androidx.mediarouter.media.RouteListingPreference;
+import androidx.mediarouter.media.SelectionInfo;
 
 import com.example.androidx.mediarouting.MyMediaRouteControllerDialog;
 import com.example.androidx.mediarouting.R;
@@ -571,6 +572,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private static String getSelectionSourceString(int selectionSource) {
+        switch (selectionSource) {
+            case SelectionInfo.SELECTION_SOURCE_UNKNOWN:
+                return "UNKNOWN";
+            case SelectionInfo.SELECTION_SOURCE_APP:
+                return "APP";
+            case SelectionInfo.SELECTION_SOURCE_SYSTEM:
+                return "SYSTEM";
+            case SelectionInfo.SELECTION_SOURCE_PROVIDER:
+                return "PROVIDER";
+            default:
+                throw new IllegalArgumentException(
+                        "unexpected selection source: " + selectionSource);
+        }
+    }
+
     /** Media route discovery fragment. */
     public static final class DiscoveryFragment extends MediaRouteDiscoveryFragment {
         private MediaRouter.Callback mCallback;
@@ -667,10 +684,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onRouteSelected(@NonNull MediaRouter router,
-                @NonNull RouteInfo selectedRoute, int reason, @NonNull RouteInfo requestedRoute) {
-            Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
-                    + ", route=" + selectedRoute + ", reason=" + reason);
+        public void onRouteSelected(
+                @NonNull MediaRouter router,
+                @NonNull RouteInfo selectedRoute,
+                @NonNull RouteInfo requestedRoute,
+                @NonNull SelectionInfo selectionInfo) {
+            Log.d(
+                    TAG,
+                    "onRouteSelected: requestedRoute="
+                            + requestedRoute
+                            + ", route="
+                            + selectedRoute
+                            + ", reason="
+                            + selectionInfo.getUnselectReason()
+                            + ", source="
+                            + getSelectionSourceString(selectionInfo.getSelectionSource()));
 
             boolean needToRecreatePlayer =
                     !selectedRoute.isSystemRoute() || mPlayer.isRemotePlayback();
@@ -681,7 +709,7 @@ public class MainActivity extends AppCompatActivity {
                 if (currentItem != null
                         && currentItem.getState() != MediaItemStatus.PLAYBACK_STATE_PENDING) {
                     // We haven't received a prepare transfer call for this. We set that up now.
-                    if (reason == MediaRouter.UNSELECT_REASON_STOPPED) {
+                    if (selectionInfo.getUnselectReason() == MediaRouter.UNSELECT_REASON_STOPPED) {
                         mSessionManager.pause();
                     }
                     mSessionManager.suspend(currentItem.getPosition());

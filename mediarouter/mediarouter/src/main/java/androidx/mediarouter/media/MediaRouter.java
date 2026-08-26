@@ -534,6 +534,7 @@ public final class MediaRouter {
             globalRouter.selectRoute(
                     route,
                     MediaRouter.UNSELECT_REASON_ROUTE_CHANGED,
+                    SelectionInfo.SELECTION_SOURCE_APP,
                     /* syncMediaRoute1Provider= */ true);
         }
         return route;
@@ -580,7 +581,11 @@ public final class MediaRouter {
         GlobalMediaRouter globalRouter = getGlobalRouter();
         RouteInfo fallbackRoute = globalRouter.chooseFallbackRoute();
         if (globalRouter.getSelectedRoute() != fallbackRoute) {
-            globalRouter.selectRoute(fallbackRoute, reason, /* syncMediaRoute1Provider= */ true);
+            globalRouter.selectRoute(
+                    fallbackRoute,
+                    reason,
+                    SelectionInfo.SELECTION_SOURCE_APP,
+                    /* syncMediaRoute1Provider= */ true);
         }
     }
 
@@ -2151,6 +2156,7 @@ public final class MediaRouter {
                     .selectRoute(
                             this,
                             MediaRouter.UNSELECT_REASON_ROUTE_CHANGED,
+                            SelectionInfo.SELECTION_SOURCE_APP,
                             syncMediaRoute1Provider);
         }
 
@@ -2885,6 +2891,7 @@ public final class MediaRouter {
          * @param router The media router reporting the event.
          * @param route The route that has been selected.
          * @param reason The reason for unselecting the previous route.
+         * @see #onRouteSelected(MediaRouter, RouteInfo, RouteInfo, SelectionInfo)
          */
         public void onRouteSelected(
                 @NonNull MediaRouter router, @NonNull RouteInfo route, @UnselectReason int reason) {
@@ -2905,6 +2912,7 @@ public final class MediaRouter {
          * @param selectedRoute The route that has been selected.
          * @param reason The reason for unselecting the previous route.
          * @param requestedRoute The route that was requested to be selected.
+         * @see #onRouteSelected(MediaRouter, RouteInfo, RouteInfo, SelectionInfo)
          */
         public void onRouteSelected(
                 @NonNull MediaRouter router,
@@ -2912,6 +2920,35 @@ public final class MediaRouter {
                 @UnselectReason int reason,
                 @NonNull RouteInfo requestedRoute) {
             onRouteSelected(router, selectedRoute, reason);
+        }
+
+        /**
+         * Called when the selected route changes.
+         *
+         * <p>The {@code selectedRoute} and the {@code requestedRoute} may be different. For
+         * example, when dynamic group route controlling is enabled (see {@link
+         * MediaRouteProviderDescriptor#supportsDynamicGroupRoute()}). The requested route is the
+         * {@link RouteInfo} passed to {@link #selectRoute}. The selected route, on the other hand,
+         * represents the created dynamic group, whose composing routes are available via {@link
+         * GroupRouteInfo#getRoutesInGroup()}. This enables the client to add other routes (beyond
+         * the requested route) to the selected route group.
+         *
+         * <p>The selected route matches the requested route when dynamic groups are not {@link
+         * MediaRouteProviderDescriptor#supportsDynamicGroupRoute() enabled}.
+         *
+         * @param router The media router reporting the event.
+         * @param selectedRoute The selected route, which may differ from the requested route.
+         * @param requestedRoute The route that was requested to be selected (for example, using
+         *     {@link MediaRouter#selectRoute}).
+         * @param selectionInfo Information about the route selection.
+         */
+        public void onRouteSelected(
+                @NonNull MediaRouter router,
+                @NonNull RouteInfo selectedRoute,
+                @NonNull RouteInfo requestedRoute,
+                @NonNull SelectionInfo selectionInfo) {
+            onRouteSelected(
+                    router, selectedRoute, selectionInfo.getUnselectReason(), requestedRoute);
         }
 
         /**
@@ -3192,6 +3229,7 @@ public final class MediaRouter {
 
         final RouteController mToRouteController;
         final @UnselectReason int mReason;
+        final @SelectionInfo.SelectionSource int mSelectionSource;
         private final boolean mSyncMediaRoute1Provider;
         private final RouteInfo mFromRoute;
         final RouteInfo mToRoute;
@@ -3208,6 +3246,7 @@ public final class MediaRouter {
                 RouteInfo route,
                 @Nullable RouteController routeController,
                 @UnselectReason int reason,
+                @SelectionInfo.SelectionSource int selectionSource,
                 boolean syncMediaRoute1Provider,
                 @Nullable RouteInfo requestedRoute,
                 @Nullable Collection<DynamicRouteDescriptor> memberRoutes) {
@@ -3216,6 +3255,7 @@ public final class MediaRouter {
             mToRoute = route;
             mToRouteController = routeController;
             mReason = reason;
+            mSelectionSource = selectionSource;
             mSyncMediaRoute1Provider = syncMediaRoute1Provider;
             mFromRoute = router.mSelectedRoute;
             mRequestedRoute = requestedRoute;
@@ -3311,12 +3351,17 @@ public final class MediaRouter {
             router.mSelectedRoute = mToRoute;
             router.mSelectedRouteController = mToRouteController;
 
+            SelectionInfo selectionInfo =
+                    new SelectionInfo.Builder()
+                            .setUnselectReason(mReason)
+                            .setSelectionSource(mSelectionSource)
+                            .build();
             if (mRequestedRoute == null) {
                 router.mCallbackHandler.postRouteSelectedMessage(
-                        mFromRoute, mToRoute, mReason, mSyncMediaRoute1Provider);
+                        mFromRoute, mToRoute, selectionInfo, mSyncMediaRoute1Provider);
             } else {
                 router.mCallbackHandler.postAnotherRouteSelectedMessage(
-                        mRequestedRoute, mToRoute, mReason, mSyncMediaRoute1Provider);
+                        mRequestedRoute, mToRoute, selectionInfo, mSyncMediaRoute1Provider);
             }
 
             router.mRouteControllerMap.clear();
