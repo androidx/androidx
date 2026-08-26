@@ -45,6 +45,7 @@ fun SurfaceSampleUsage() {
                 Text("This is a disabled surface")
             }
         }
+        item { CustomFocusedColorSurfaceSample() }
     }
 }
 
@@ -96,7 +97,7 @@ fun CustomFocusedColorSurfaceSample() {
     val interactionSource = remember { MutableInteractionSource() }
     Box(
         Modifier.surface(
-                focusedColor = SurfaceDefaults.focusedColor(Color(0xFF245740)),
+                focusedColor = SurfaceDefaults.focusedColor(Color(0xFF34E0A1)),
                 interactionSource = interactionSource,
             )
             .focusable(interactionSource = interactionSource)

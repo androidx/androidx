@@ -17,11 +17,18 @@
 package androidx.xr.glimmer.internal.color
 
 import androidx.annotation.ColorInt
+import androidx.compose.ui.util.packFloats
+import androidx.compose.ui.util.unpackFloat1
+import androidx.compose.ui.util.unpackFloat2
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
+import kotlin.math.cbrt
+import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.round
 import kotlin.math.sign
+import kotlin.math.sqrt
 
 /**
  * Color science and mathematical utilities for the HCT color system.
@@ -41,16 +48,6 @@ internal object HctUtils {
     @ColorInt
     fun argbFromRgb(red: Int, green: Int, blue: Int): Int =
         (255 shl 24) or ((red and 255) shl 16) or ((green and 255) shl 8) or (blue and 255)
-
-    /**
-     * Converts a color from linear RGB components to ARGB format.
-     *
-     * @param linrgb the linear RGB components
-     * @return the ARGB representation of the color
-     */
-    @ColorInt
-    fun argbFromLinrgb(linrgb: DoubleArray): Int =
-        argbFromRgb(delinearized(linrgb[0]), delinearized(linrgb[1]), delinearized(linrgb[2]))
 
     /**
      * Converts an L* value to an ARGB representation.
@@ -133,61 +130,29 @@ internal object HctUtils {
     }
 
     /**
-     * Multiplies a 1x3 row vector with a 3x3 matrix.
-     *
-     * @param row the row vector
-     * @param matrix the matrix
-     * @param dest destination array to store the result, avoiding allocation on every call
-     * @return the resulting row vector
-     */
-    fun matrixMultiply(
-        row: DoubleArray,
-        matrix: Array<DoubleArray>,
-        dest: DoubleArray = DoubleArray(3),
-    ): DoubleArray {
-        val a = row[0] * matrix[0][0] + row[1] * matrix[0][1] + row[2] * matrix[0][2]
-        val b = row[0] * matrix[1][0] + row[1] * matrix[1][1] + row[2] * matrix[1][2]
-        val c = row[0] * matrix[2][0] + row[1] * matrix[2][1] + row[2] * matrix[2][2]
-        dest[0] = a
-        dest[1] = b
-        dest[2] = c
-        return dest
-    }
-
-    /**
-     * Multiplies 3 vector components with a 3x3 matrix.
-     *
-     * @param r the first component of the row vector
-     * @param g the second component of the row vector
-     * @param b the third component of the row vector
-     * @param matrix the matrix
-     * @param dest destination array to store the result, avoiding allocation on every call
-     * @return the resulting row vector
-     */
-    fun matrixMultiply(
-        r: Double,
-        g: Double,
-        b: Double,
-        matrix: Array<DoubleArray>,
-        dest: DoubleArray = DoubleArray(3),
-    ): DoubleArray {
-        val a = r * matrix[0][0] + g * matrix[0][1] + b * matrix[0][2]
-        val bVal = r * matrix[1][0] + g * matrix[1][1] + b * matrix[1][2]
-        val c = r * matrix[2][0] + g * matrix[2][1] + b * matrix[2][2]
-        dest[0] = a
-        dest[1] = bVal
-        dest[2] = c
-        return dest
-    }
-
-    /**
-     * Translates an ARGB integer directly into CAM16 Hue using highly optimized calculations that
-     * completely skip unused parameters (q, m, s, jstar, etc.).
+     * Translates an ARGB integer directly into L* (tone) in HCT color space.
      *
      * @param argb ARGB representation of a color.
-     * @return the CAM16 Hue.
+     * @return the L* (tone) value.
      */
-    fun argbToHue(@ColorInt argb: Int): Double {
+    fun argbToTone(@ColorInt argb: Int): Double {
+        val red = argb and 0x00ff0000 shr 16
+        val green = argb and 0x0000ff00 shr 8
+        val blue = argb and 0x000000ff
+        val redL = linearized(red)
+        val greenL = linearized(green)
+        val blueL = linearized(blue)
+        val y = 0.2126 * redL + 0.7152 * greenL + 0.0722 * blueL
+        return lstarFromY(y)
+    }
+
+    /**
+     * Translates an ARGB integer into CAM16 Hue and Chroma.
+     *
+     * @param argb ARGB representation of a color
+     * @return [HueAndChroma] containing the color's CAM16 hue and chroma
+     */
+    fun argbToHueAndChroma(@ColorInt argb: Int): HueAndChroma {
         // Transform ARGB int to XYZ
         val red = argb and 0x00ff0000 shr 16
         val green = argb and 0x0000ff00 shr 8
@@ -224,26 +189,26 @@ internal object HctUtils {
         // yellowness-blueness
         val b = (rA + gA - 2.0 * bA) / 9.0
 
+        // Calculate intermediate CAM16 color response terms (u and p2)
+        val u = (20.0 * rA + 20.0 * gA + 21.0 * bA) / 20.0
+        val p2 = (40.0 * rA + 20.0 * gA + bA) / 20.0
+
         val atan2 = atan2(b, a)
         val atanDegrees = Math.toDegrees(atan2)
-        return sanitizeDegrees(atanDegrees)
-    }
+        val hue = sanitizeDegrees(atanDegrees)
 
-    /**
-     * Translates an ARGB integer directly into L* (tone) in HCT color space.
-     *
-     * @param argb ARGB representation of a color.
-     * @return the L* (tone) value.
-     */
-    fun argbToTone(@ColorInt argb: Int): Double {
-        val red = argb and 0x00ff0000 shr 16
-        val green = argb and 0x0000ff00 shr 8
-        val blue = argb and 0x000000ff
-        val redL = linearized(red)
-        val greenL = linearized(green)
-        val blueL = linearized(blue)
-        val y = 0.2126 * redL + 0.7152 * greenL + 0.0722 * blueL
-        return lstarFromY(y)
+        // Calculate CAM16 lightness (j) component
+        val ac = p2 * vc.nbb
+        val j = 100.0 * (ac / vc.aw).pow(vc.c * vc.z)
+
+        // Calculate CAM16 chroma from a*, b*, and lightness (j) components
+        val huePrime = if (hue < 20.14) hue + 360.0 else hue
+        val eHue = 0.25 * (cos(huePrime * PI / 180.0 + 2.0) + 3.8)
+        val p1 = 50000.0 / 13.0 * eHue * vc.nc * vc.ncb
+        val t = p1 * sqrt(a * a + b * b) / (u + 0.305)
+        val alpha = t.pow(0.9) * (1.64 - 0.29.pow(vc.n)).pow(0.73)
+        val chroma = alpha * sqrt(j / 100.0)
+        return HueAndChroma.create(hue, chroma)
     }
 
     /**
@@ -257,7 +222,7 @@ internal object HctUtils {
         return if (yNormalized <= Epsilon) {
             Kappa * yNormalized
         } else {
-            Math.cbrt(yNormalized) * 116.0 - 16.0
+            cbrt(yNormalized) * 116.0 - 16.0
         }
     }
 }
@@ -267,3 +232,21 @@ private const val Epsilon = 216.0 / 24389.0
 
 /** Slope constant for perceptual lightness near zero luminance. */
 private const val Kappa = 24389.0 / 27.0
+
+/**
+ * Value class packing CAM16 [hue] and [chroma] into a single 64-bit primitive `Long` with zero
+ * object allocation.
+ */
+@JvmInline
+internal value class HueAndChroma private constructor(val packed: Long) {
+    val hue: Double
+        get() = unpackFloat1(packed).toDouble()
+
+    val chroma: Double
+        get() = unpackFloat2(packed).toDouble()
+
+    companion object {
+        fun create(hue: Double, chroma: Double): HueAndChroma =
+            HueAndChroma(packFloats(hue.toFloat(), chroma.toFloat()))
+    }
+}
