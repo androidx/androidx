@@ -97,7 +97,7 @@ dependencies {
     androidTestImplementation(project(":compose:remote:remote-testing"))
     androidTestImplementation(project(":compose:remote:remote-player-compose"))
     androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.12.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":compose:remote:remote-creation-compose-samples"))
     androidTestImplementation("org.jetbrains.kotlin:kotlin-reflect")

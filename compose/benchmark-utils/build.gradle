@@ -33,14 +33,10 @@ dependencies {
     api(project(":compose:test-utils"))
     api(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
 
-    implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:ui:ui"))
-    implementation(project(":tracing:tracing-ktx"))
+    implementation("androidx.compose.runtime:runtime:1.12.0")
+    implementation("androidx.compose.ui:ui:1.12.0")
+    implementation("androidx.tracing:tracing-ktx:2.0.0")
     implementation(libs.testRules)
-
-    // This has stub APIs for access to legacy Android APIs, so we don't want
-    // any dependency on this module.
-    compileOnly(project(":compose:ui:ui-android-stubs"))
 }
 
 tasks.withType(KotlinCompile).configureEach { task ->
