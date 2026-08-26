@@ -228,7 +228,7 @@ public class GridLayoutManagerSnappingTest(
     }
 
     private suspend fun fling(velocityX: Int, velocityY: Int): Boolean {
-        var didStart: Boolean
+        val didStart: Boolean
         withContext(Dispatchers.Main.immediate) {
             didStart = mRecyclerView.fling(velocityX, velocityY)
         }
