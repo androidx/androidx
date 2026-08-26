@@ -21,8 +21,8 @@ import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Quaternion
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
@@ -31,8 +31,13 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class ExponentialDecayFollowMode(
-    private val dimensions: TrackedDimensions = TrackedDimensions.All
+    private val dimensions: TrackedDimensions = TrackedDimensions.All,
+    private val halfLifeMs: Long = DEFAULT_HALF_LIFE_MS,
+    private val startDelay: Long = DEFAULT_START_DELAY,
+    private val startThresholds: FollowThresholds = DEFAULT_START_THRESHOLDS,
+    private val settleThresholds: FollowThresholds = DEFAULT_SETTLE_THRESHOLDS,
 ) : FollowMode() {
+
     override suspend fun start(
         session: Session,
         trailingEntity: CoreGroupEntity,
@@ -64,11 +69,10 @@ internal class ExponentialDecayFollowMode(
                     )
 
                 if (
-                    !hasSignificantPoseChange(
+                    !hasExceededThresholds(
                         pose1 = trailingEntity.poseInMeters,
                         pose2 = currentTargetPoseMeter,
-                        translationThreshold = TRANSLATION_THRESHOLD,
-                        rotationThreshold = ROTATION_THRESHOLD,
+                        thresholds = startThresholds,
                     )
                 ) {
                     return@collect
@@ -99,9 +103,10 @@ internal class ExponentialDecayFollowMode(
     private suspend fun animate(trailingEntity: CoreGroupEntity, targetPoseProvider: () -> Pose) {
         // The baseline starts uninitialized.
         var lastFrameTimeNanos: Long = 0L
+        var totalElapsedSeconds: Float = 0.0f
+        val startDelaySeconds: Float = startDelay / 1000.0f
 
         while (true) {
-            // Suspend exactly ONCE per frame
             val currentFrameTimeNanos: Long = withFrameNanos { it }
 
             // On the first frame, sync the baseline to the Compose frame clock.
@@ -111,6 +116,11 @@ internal class ExponentialDecayFollowMode(
 
             val dtSeconds = calculateDtSeconds(lastFrameTimeNanos, currentFrameTimeNanos)
             lastFrameTimeNanos = currentFrameTimeNanos
+            totalElapsedSeconds += dtSeconds
+
+            if (totalElapsedSeconds < startDelaySeconds) {
+                continue
+            }
 
             val decayFactor = calculateDecayFactor(dtSeconds)
 
@@ -121,14 +131,7 @@ internal class ExponentialDecayFollowMode(
             trailingEntity.poseInMeters = nextPose
 
             // If the gap to the target is significant, keep the animation going.
-            if (
-                hasSignificantPoseChange(
-                    pose1 = nextPose,
-                    pose2 = targetPose,
-                    translationThreshold = SETTLE_TRANSLATION_THRESHOLD,
-                    rotationThreshold = SETTLE_ROTATION_THRESHOLD,
-                )
-            ) {
+            if (hasExceededThresholds(nextPose, targetPose, settleThresholds)) {
                 continue
             }
 
@@ -144,53 +147,87 @@ internal class ExponentialDecayFollowMode(
     private fun calculateDtSeconds(lastFrameTimeNanos: Long, currentFrameTimeNanos: Long): Float {
         val dtNanos: Long =
             (currentFrameTimeNanos - lastFrameTimeNanos).coerceIn(1_000_000L, 100_000_000L)
-
         return dtNanos / 1_000_000_000f
     }
 
     /**
-     * Calculates the frame-rate independent interpolation factor using exponential decay.
+     * Calculates the frame-rate independent interpolation factor using exponential decay half-life.
      *
-     * The general formula for exponential decay interpolation is: 1 - base^dtSeconds
-     *
-     * where "base" is a constant that corresponds to the level of friction in the system. Here, we
-     * use (1 / LERP_DIVISOR) as our decay base, giving: decayFactor = 1 - (1 /
-     * LERP_DIVISOR)^dtSeconds
-     *
-     * The decay factor will start at zero, quickly approach 1 and level off.
+     * Over each [halfLifeMs] interval, exactly 50% of the remaining distance to the target is
+     * covered: decayFactor = 1 - 0.5^(dtSeconds / halfLifeSeconds)
      */
     private fun calculateDecayFactor(dtSeconds: Float): Float {
-        return 1.0f - (1.0f / LERP_DIVISOR).pow(dtSeconds)
+        val halfLifeSeconds = halfLifeMs / 1000f
+        if (halfLifeSeconds <= 0.001f) return 1.0f
+        return (1.0f - 0.5f.pow(dtSeconds / halfLifeSeconds)).coerceIn(0.0f, 1.0f)
     }
 
-    private fun hasSignificantPoseChange(
+    private fun hasExceededThresholds(
         pose1: Pose,
         pose2: Pose,
-        translationThreshold: Float,
-        rotationThreshold: Float,
+        thresholds: FollowThresholds,
     ): Boolean {
         val translationDelta: Float = (pose1.translation - pose2.translation).length
-        val rotationDelta: Float = Quaternion.angle(pose1.rotation, pose2.rotation)
+        if (translationDelta > thresholds.translationMeters) {
+            return true
+        }
 
-        return translationDelta > translationThreshold || rotationDelta > rotationThreshold
+        val euler1 = pose1.rotation.eulerAngles
+        val euler2 = pose2.rotation.eulerAngles
+        val deltaPitch = angleDeltaDegrees(euler1.x, euler2.x)
+        val deltaYaw = angleDeltaDegrees(euler1.y, euler2.y)
+        val deltaRoll = angleDeltaDegrees(euler1.z, euler2.z)
+
+        if (deltaPitch > thresholds.pitchDegrees) return true
+        if (deltaYaw > thresholds.yawDegrees) return true
+        if (deltaRoll > thresholds.rollDegrees) return true
+        return false
+    }
+
+    private fun angleDeltaDegrees(a: Float, b: Float): Float {
+        var diff = abs(a - b) % 360.0f
+        if (diff > 180.0f) {
+            diff = 360.0f - diff
+        }
+        return diff
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ExponentialDecayFollowMode) return false
 
-        return dimensions == other.dimensions
+        return halfLifeMs == other.halfLifeMs &&
+            startDelay == other.startDelay &&
+            startThresholds == other.startThresholds &&
+            settleThresholds == other.settleThresholds &&
+            dimensions == other.dimensions
     }
 
     override fun hashCode(): Int {
-        return dimensions.hashCode()
+        var result = halfLifeMs.hashCode()
+        result = 31 * result + startDelay.hashCode()
+        result = 31 * result + startThresholds.hashCode()
+        result = 31 * result + settleThresholds.hashCode()
+        result = 31 * result + dimensions.hashCode()
+        return result
     }
 
-    private companion object {
-        private val LERP_DIVISOR = 18000f
-        private val SETTLE_TRANSLATION_THRESHOLD: Float = 0.01f
-        private val SETTLE_ROTATION_THRESHOLD: Float = 0.01f
-        private val TRANSLATION_THRESHOLD: Float = 0.1f
-        private val ROTATION_THRESHOLD: Float = 3f
+    internal companion object {
+        internal const val DEFAULT_HALF_LIFE_MS: Long = 80L
+        internal val DEFAULT_START_DELAY: Long = 0L
+        internal val DEFAULT_START_THRESHOLDS: FollowThresholds =
+            FollowThresholds(
+                translationMeters = 0.1f,
+                pitchDegrees = 3f,
+                yawDegrees = 3f,
+                rollDegrees = 3f,
+            )
+        internal val DEFAULT_SETTLE_THRESHOLDS: FollowThresholds =
+            FollowThresholds(
+                translationMeters = 0.01f,
+                pitchDegrees = 0.01f,
+                yawDegrees = 0.01f,
+                rollDegrees = 0.01f,
+            )
     }
 }
