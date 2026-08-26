@@ -28,6 +28,7 @@ import androidx.room3.compiler.processing.util.XTestInvocation
 import androidx.room3.compiler.processing.util.runKspTest
 import androidx.room3.compiler.processing.util.runProcessorTest
 import androidx.room3.ext.CommonTypeNames
+import androidx.room3.ext.KotlinTypeNames
 import androidx.room3.ext.RoomTypeNames.STRING_UTIL
 import androidx.room3.ext.implementsEqualsAndHashcode
 import androidx.room3.parser.SQLTypeAffinity
@@ -365,6 +366,27 @@ class TypeAdapterStoreTest {
             val adapter =
                 store.findColumnTypeAdapter(
                     out = uuid,
+                    affinity = null,
+                    skipDefaultConverter = false,
+                )
+
+            assertThat(adapter).isNotNull()
+            assertThat(adapter).isInstanceOf<UuidColumnTypeAdapter>()
+        }
+    }
+
+    @Test
+    fun testKotlinUuidCompilesWithoutError() {
+        runProcessorTest { invocation ->
+            val store =
+                TypeAdapterStore.create(
+                    Context(invocation.processingEnv),
+                    BuiltInConverterFlags.DEFAULT,
+                )
+            val uuidKt = invocation.processingEnv.requireType(KotlinTypeNames.UUID)
+            val adapter =
+                store.findColumnTypeAdapter(
+                    out = uuidKt,
                     affinity = null,
                     skipDefaultConverter = false,
                 )

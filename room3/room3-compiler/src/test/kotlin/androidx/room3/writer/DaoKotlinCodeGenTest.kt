@@ -972,14 +972,17 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
             Source.kotlin(
                 "MyDao.kt",
                 """
+                @file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
+
                 import androidx.room3.*
                 import java.util.UUID
+                import kotlin.uuid.Uuid
 
                 @Dao
                 interface MyDao {
                   @Query("SELECT * FROM MyEntity")
                   fun getEntity(): MyEntity
-                  
+
                   @Insert
                   fun addEntity(item: MyEntity)
                 }
@@ -990,12 +993,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     val pk: Int,
                     val uuid: UUID,
                     val nullableUuid: UUID?,
+                    val uuidKt: Uuid,
+                    val nullableUuidKt: Uuid?,
                 )
-
-                enum class Fruit {
-                    APPLE,
-                    BANANA
-                }
                 """
                     .trimIndent(),
             )

@@ -50,6 +50,9 @@ fun XType.isByteBuffer() = asTypeName().equalsIgnoreNullability(CommonTypeNames.
 /** Returns `true` if this represents a `UUID` type. */
 fun XType.isUUID() = asTypeName().equalsIgnoreNullability(CommonTypeNames.UUID)
 
+/** Returns `true` if this represents a `Uuid` type in Kotlin. */
+fun XType.isUuidKt() = asTypeName().equalsIgnoreNullability(KotlinTypeNames.UUID)
+
 /**
  * Checks if the class of the provided type has the equals() and hashCode() functions declared.
  *

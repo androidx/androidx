@@ -20,12 +20,17 @@ import androidx.room3.compiler.codegen.XCodeBlock
 import androidx.room3.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room3.compiler.processing.XNullability
 import androidx.room3.compiler.processing.XType
+import androidx.room3.ext.KotlinTypeNames
 import androidx.room3.ext.RoomTypeNames
+import androidx.room3.ext.isUuidKt
 import androidx.room3.parser.SQLTypeAffinity
 import androidx.room3.solver.CodeGenScope
 
 class UuidColumnTypeAdapter(out: XType) :
     ColumnTypeAdapter(out = out, typeAffinity = SQLTypeAffinity.BLOB) {
+
+    private val isKotlinUuid = out.isUuidKt()
+
     override fun bindToStmt(
         stmtName: String,
         indexVarName: String,
@@ -34,13 +39,22 @@ class UuidColumnTypeAdapter(out: XType) :
     ) {
         scope.builder.apply {
             fun XCodeBlock.Builder.addBindBlobStatement() {
-                addStatement(
-                    "%L.bindBlob(%L, %M(%L))",
-                    stmtName,
-                    indexVarName,
-                    RoomTypeNames.UUID_UTIL.packageMember("convertUUIDToByte"),
-                    valueVarName,
-                )
+                if (isKotlinUuid) {
+                    addStatement(
+                        "%L.bindBlob(%L, %L.toByteArray())",
+                        stmtName,
+                        indexVarName,
+                        valueVarName,
+                    )
+                } else {
+                    addStatement(
+                        "%L.bindBlob(%L, %M(%L))",
+                        stmtName,
+                        indexVarName,
+                        RoomTypeNames.UUID_UTIL.packageMember("convertUUIDToByte"),
+                        valueVarName,
+                    )
+                }
             }
             if (out.nullability == XNullability.NONNULL) {
                 addBindBlobStatement()
@@ -62,13 +76,23 @@ class UuidColumnTypeAdapter(out: XType) :
     ) {
         scope.builder.apply {
             fun XCodeBlock.Builder.addGetBlobStatement() {
-                addStatement(
-                    "%L = %M(%L.getBlob(%L))",
-                    outVarName,
-                    RoomTypeNames.UUID_UTIL.packageMember("convertByteToUUID"),
-                    stmtVarName,
-                    indexVarName,
-                )
+                if (isKotlinUuid) {
+                    addStatement(
+                        "%L = %T.fromByteArray(%L.getBlob(%L))",
+                        outVarName,
+                        KotlinTypeNames.UUID,
+                        stmtVarName,
+                        indexVarName,
+                    )
+                } else {
+                    addStatement(
+                        "%L = %M(%L.getBlob(%L))",
+                        outVarName,
+                        RoomTypeNames.UUID_UTIL.packageMember("convertByteToUUID"),
+                        stmtVarName,
+                        indexVarName,
+                    )
+                }
             }
             if (out.nullability == XNullability.NONNULL) {
                 addGetBlobStatement()
