@@ -355,7 +355,6 @@ private val nonPublicMarkers =
         "androidx.compose.foundation.gestures.ExperimentalTapGestureDetectorBehaviorApi",
         "androidx.compose.foundation.ExperimentalFoundationApi",
         "androidx.compose.foundation.InternalFoundationApi",
-        "androidx.compose.foundation.layout.ExperimentalGridApi",
         "androidx.compose.foundation.layout.ExperimentalFlexBoxApi",
         "androidx.compose.foundation.layout.ExperimentalLayoutApi",
         "androidx.compose.foundation.style.ExperimentalFoundationStyleApi",

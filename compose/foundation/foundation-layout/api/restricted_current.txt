@@ -223,9 +223,6 @@ package androidx.compose.foundation.layout {
     property @Deprecated public abstract androidx.compose.ui.unit.Dp maxWidthInLine;
   }
 
-  @Deprecated @SuppressCompatibility @kotlin.RequiresOptIn(message="This foundation layout API is experimental and is likely to change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGridApi {
-  }
-
   @SuppressCompatibility @kotlin.RequiresOptIn(message="The API of this layout is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalLayoutApi {
   }
 
