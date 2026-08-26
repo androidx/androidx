@@ -56,7 +56,17 @@ private class AndroidShadowContext :
         var layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         var density: Float = 1f,
         var shadow: Shadow? = null,
-    )
+    ) {
+        override fun hashCode(): Int {
+            var result = shape.hashCode()
+            result = 31 * result + size.width.hashCode()
+            result = 31 * result + size.height.hashCode()
+            result = 31 * result + layoutDirection.hashCode()
+            result = 31 * result + density.hashCode()
+            result = 31 * result + (shadow?.hashCode() ?: 0)
+            return result
+        }
+    }
 
     override fun obtainDropShadowRenderer(
         shape: Shape,
