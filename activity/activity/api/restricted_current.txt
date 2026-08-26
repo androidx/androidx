@@ -8,6 +8,7 @@ package androidx.activity {
   }
 
   public final class ActivityViewModelLazyKt {
+    method @KotlinOnly @MainThread public static inline <reified T extends androidx.lifecycle.ViewModel> kotlin.Lazy<T> viewModels(androidx.activity.ComponentActivity, String key, optional kotlin.jvm.functions.Function0<androidx.lifecycle.viewmodel.CreationExtras>? extrasProducer, optional kotlin.jvm.functions.Function0<androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
     method @KotlinOnly @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> viewModels(androidx.activity.ComponentActivity, optional kotlin.jvm.functions.Function0<androidx.lifecycle.viewmodel.CreationExtras>? extrasProducer, optional kotlin.jvm.functions.Function0<androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
   }
 

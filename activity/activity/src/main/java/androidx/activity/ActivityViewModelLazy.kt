@@ -80,3 +80,35 @@ public inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
         { extrasProducer?.invoke() ?: this.defaultViewModelCreationExtras },
     )
 }
+
+/**
+ * Returns a [Lazy] delegate for this [ComponentActivity]'s [ViewModel] identified by [key].
+ *
+ * Delegates with the same [key] and [ViewModel] type share the same instance. Different keys allow
+ * multiple instances of the same [ViewModel] type in this activity.
+ *
+ * ```
+ * class MyComponentActivity : ComponentActivity() {
+ *     val primaryViewModel: MyViewModel by viewModels(key = "primary")
+ *     val secondaryViewModel: MyViewModel by viewModels(key = "secondary")
+ * }
+ * ```
+ *
+ * This property can be accessed only after the Activity is attached to the Application. Access
+ * before that results in an [IllegalArgumentException].
+ *
+ * @param key identifier used to store and retrieve the [ViewModel]
+ * @param extrasProducer producer of the [CreationExtras] used to create the [ViewModel]
+ * @param factoryProducer producer of the [Factory] used to create the [ViewModel]
+ */
+@MainThread
+public inline fun <reified T : ViewModel> ComponentActivity.viewModels(
+    key: String,
+    noinline extrasProducer: (() -> CreationExtras)? = null,
+    noinline factoryProducer: (() -> Factory)? = null,
+): Lazy<T> =
+    lazy(LazyThreadSafetyMode.NONE) {
+        val factory = factoryProducer?.invoke() ?: defaultViewModelProviderFactory
+        val extras = extrasProducer?.invoke() ?: defaultViewModelCreationExtras
+        ViewModelProvider(viewModelStore, factory, extras)[key, T::class.java]
+    }
