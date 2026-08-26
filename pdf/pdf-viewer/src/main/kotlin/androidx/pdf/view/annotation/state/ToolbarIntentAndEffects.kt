@@ -16,6 +16,7 @@
 
 package androidx.pdf.view.annotation.state
 
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.view.annotation.AnnotationToolbarView
 import androidx.pdf.view.annotation.colorpalette.model.PaletteItem
 import androidx.pdf.view.annotation.tool.AnnotationToolInfo
@@ -85,6 +86,7 @@ internal sealed interface ToolbarIntent {
  * Represents side effects that the AnnotationToolbar needs to communicate to external listeners.
  * These are "fire-and-forget" events that do not directly alter the toolbar's own state.
  */
+@OptIn(ExperimentalPdfApi::class)
 internal sealed interface ToolbarEffect {
     /** Announce that the selected tool or its attributes have been updated. */
     data class ToolUpdated(val toolInfo: AnnotationToolInfo) : ToolbarEffect

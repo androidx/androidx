@@ -234,3 +234,94 @@ package androidx.pdf.view {
 
 }
 
+package androidx.pdf.view.annotation {
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class AnnotationToolbarView extends android.view.ViewGroup {
+    ctor public AnnotationToolbarView(android.content.Context context);
+    ctor public AnnotationToolbarView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public AnnotationToolbarView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyle);
+    ctor @BytecodeOnly public AnnotationToolbarView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void addOnDockChangedListener(androidx.pdf.view.annotation.AnnotationToolbarView.OnDockStateChangedListener listener);
+    method @InaccessibleFromKotlin public boolean canRedo();
+    method @InaccessibleFromKotlin public boolean canUndo();
+    method public void clearToolSelection();
+    method public void collapseToolbar();
+    method public void dismissPopups();
+    method public void expandToolbar();
+    method @InaccessibleFromKotlin public int getDockState();
+    method @InaccessibleFromKotlin public boolean isConfigPopupVisible();
+    method public void removeOnDockChangedListener(androidx.pdf.view.annotation.AnnotationToolbarView.OnDockStateChangedListener listener);
+    method public void reset();
+    method public void setAnnotationToolbarListener(androidx.pdf.view.annotation.AnnotationToolbarView.AnnotationToolbarListener? listener);
+    method @InaccessibleFromKotlin public void setCanRedo(boolean);
+    method @InaccessibleFromKotlin public void setCanUndo(boolean);
+    method @InaccessibleFromKotlin public void setDockState(int);
+    property public boolean canRedo;
+    property public boolean canUndo;
+    property public int dockState;
+    property public boolean isConfigPopupVisible;
+    field public static final androidx.pdf.view.annotation.AnnotationToolbarView.Companion Companion;
+    field public static final int DOCK_STATE_BOTTOM = 1; // 0x1
+    field public static final int DOCK_STATE_END = 2; // 0x2
+    field public static final int DOCK_STATE_START = 0; // 0x0
+  }
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static interface AnnotationToolbarView.AnnotationToolbarListener {
+    method public void onAnnotationVisibilityChanged(boolean isVisible);
+    method public void onRedo();
+    method public void onToolChanged(androidx.pdf.view.annotation.tool.AnnotationToolInfo toolInfo);
+    method public void onUndo();
+  }
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final class AnnotationToolbarView.Companion {
+    property public static int DOCK_STATE_BOTTOM;
+    property public static int DOCK_STATE_END;
+    property public static int DOCK_STATE_START;
+  }
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static fun interface AnnotationToolbarView.OnDockStateChangedListener {
+    method public void onDockStateChanged(int dockState);
+  }
+
+}
+
+package @SuppressCompatibility androidx.pdf.view.annotation.draganddrop {
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class AnnotationToolbarCoordinatorView extends android.view.ViewGroup {
+    ctor public AnnotationToolbarCoordinatorView(android.content.Context context);
+    ctor public AnnotationToolbarCoordinatorView(android.content.Context context, optional android.util.AttributeSet? attrs);
+    ctor public AnnotationToolbarCoordinatorView(android.content.Context context, optional android.util.AttributeSet? attrs, optional int defStyleAttr);
+    ctor @BytecodeOnly public AnnotationToolbarCoordinatorView(android.content.Context!, android.util.AttributeSet!, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    field public static final androidx.pdf.view.annotation.draganddrop.AnnotationToolbarCoordinatorView.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public static final class AnnotationToolbarCoordinatorView.Companion {
+  }
+
+}
+
+package androidx.pdf.view.annotation.tool {
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public sealed exhaustive interface AnnotationToolInfo {
+  }
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class Eraser implements androidx.pdf.view.annotation.tool.AnnotationToolInfo {
+    field public static final androidx.pdf.view.annotation.tool.Eraser INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class Highlighter implements androidx.pdf.view.annotation.tool.AnnotationToolInfo {
+    method @InaccessibleFromKotlin public float getBrushSize();
+    method @InaccessibleFromKotlin @ColorInt public int getColor();
+    property public float brushSize;
+    property @ColorInt public int color;
+  }
+
+  @SuppressCompatibility @androidx.pdf.ExperimentalPdfApi public final class Pen implements androidx.pdf.view.annotation.tool.AnnotationToolInfo {
+    method @InaccessibleFromKotlin public float getBrushSize();
+    method @InaccessibleFromKotlin @ColorInt public int getColor();
+    property public float brushSize;
+    property @ColorInt public int color;
+  }
+
+}
+

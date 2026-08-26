@@ -408,6 +408,7 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
         }
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     internal fun setCurrentToolInfo(toolInfo: AnnotationToolInfo) {
         val pdfDocument = editablePdfDocument
         when (toolInfo) {
@@ -416,7 +417,7 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
                     AnnotationDrawingMode.PenMode(toolInfo.brushSize, toolInfo.color)
             is Highlighter -> {
                 val color = toolInfo.color
-                if (color != null && pdfDocument != null) {
+                if (pdfDocument != null) {
                     val colorWithHighlighterAlpha =
                         ColorUtils.setAlphaComponent(color, InkDefaults.HIGHLIGHTER_ALPHA)
 

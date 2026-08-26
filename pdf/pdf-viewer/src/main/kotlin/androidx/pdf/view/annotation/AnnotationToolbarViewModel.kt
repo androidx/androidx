@@ -16,9 +16,9 @@
 
 package androidx.pdf.view.annotation
 
+import androidx.pdf.ExperimentalPdfApi
 import androidx.pdf.view.annotation.brush.model.BrushSizes
 import androidx.pdf.view.annotation.colorpalette.model.Color
-import androidx.pdf.view.annotation.colorpalette.model.Emoji
 import androidx.pdf.view.annotation.state.AnnotationToolbarState
 import androidx.pdf.view.annotation.state.ToolbarEffect
 import androidx.pdf.view.annotation.state.ToolbarIntent
@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
  *
  * @param initialState The initial state of the toolbar.
  */
+@OptIn(ExperimentalPdfApi::class)
 internal class AnnotationToolbarViewModel(initialState: AnnotationToolbarState) {
 
     private val _state = MutableStateFlow(initialState)
@@ -236,16 +237,17 @@ internal class AnnotationToolbarViewModel(initialState: AnnotationToolbarState) 
             when (state.selectedTool) {
                 AnnotationToolsKey.PEN -> {
                     val brushSize = BrushSizes.penBrushSizes[state.penState.selectedBrushSizeIndex]
-                    val color = (state.penState.paletteItem as? Color)?.color ?: 0x000000
+                    val paletteItem = state.penState.paletteItem
+                    val color = if (paletteItem is Color) paletteItem.color else DEFAULT_COLOR
                     ToolbarEffect.ToolUpdated(Pen(brushSize.toFloat(), color))
                 }
                 AnnotationToolsKey.HIGHLIGHTER -> {
                     val brushSize =
                         BrushSizes.highlightBrushSizes[
                                 state.highlighterState.selectedBrushSizeIndex]
-                    val color = (state.highlighterState.paletteItem as? Color)?.color
-                    val emoji = (state.highlighterState.paletteItem as? Emoji)?.emoji
-                    ToolbarEffect.ToolUpdated(Highlighter(brushSize.toFloat(), color, emoji))
+                    val paletteItem = state.highlighterState.paletteItem
+                    val color = if (paletteItem is Color) paletteItem.color else DEFAULT_COLOR
+                    ToolbarEffect.ToolUpdated(Highlighter(brushSize.toFloat(), color))
                 }
                 AnnotationToolsKey.ERASER -> {
                     ToolbarEffect.ToolUpdated(Eraser)
@@ -272,5 +274,9 @@ internal class AnnotationToolbarViewModel(initialState: AnnotationToolbarState) 
 
     private fun dispatchAnnotationVisibility(state: AnnotationToolbarState) {
         _effects.trySend(ToolbarEffect.AnnotationVisibilityChanged(state.isAnnotationVisible))
+    }
+
+    private companion object {
+        private const val DEFAULT_COLOR = 0x000000
     }
 }

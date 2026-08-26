@@ -25,7 +25,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -37,17 +36,17 @@ import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_E
 import androidx.pdf.view.annotation.AnnotationToolbarView.Companion.DOCK_STATE_START
 
 /**
- * A [ViewGroup] layout that manages the dragging, dropping, and docking of an
- * [androidx.pdf.view.annotation.AnnotationToolbarView].
+ * A [ViewGroup] layout manager that coordinates the dragging, dropping, and edge docking of an
+ * [AnnotationToolbarView].
  *
- * This coordinator is responsible for providing visible anchor points for docking, listening for
- * drag gestures initiated on the attached toolbar, moving the toolbar in response to the user's
- * drag input and finally snapping it to the closest anchor when the drag ends.
+ * This coordinator provides visual anchor points during drag operations, tracks touch motion,
+ * animates the toolbar with overshoot physics, and applies constraint parameters for edge docking.
  *
- * It also applies the correct layout parameters and orientation for toolbar's final docked state.
+ * [AnnotationToolbarCoordinatorView] enforces a single-child contract and only accepts a child of
+ * type [AnnotationToolbarView]. Adding any other [View] type (either in XML layout or
+ * programmatically via [addView]) throws an [IllegalArgumentException].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@OptIn(ExperimentalPdfApi::class)
+@ExperimentalPdfApi
 public class AnnotationToolbarCoordinatorView
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
@@ -133,7 +132,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 
         this.toolbar = child
         child.areAnimationsEnabled = areAnimationsEnabled
-        child.setOnDockStateChangedListener { dockState -> applyDockLayoutParams(dockState) }
+        child.addOnDockChangedListener { dockState -> applyDockLayoutParams(dockState) }
 
         container.addView(child, -1, params)
         initializeDragAndDrop()

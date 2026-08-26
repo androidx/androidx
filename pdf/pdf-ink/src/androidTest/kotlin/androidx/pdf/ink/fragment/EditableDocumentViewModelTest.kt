@@ -622,9 +622,10 @@ class EditableDocumentViewModelTest {
 
     // --- Tool Selection Tests ---
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun setCurrentToolInfo_updatesDrawingMode_whenPenSelected() = runTest {
-        val penTool = Pen(brushSize = 2.0f, color = Color.RED)
+        val penTool = Pen.createForTest(brushSize = 2.0f, color = Color.RED)
         annotationsViewModel.setCurrentToolInfo(penTool)
 
         val drawingMode = annotationsViewModel.drawingMode.first()
@@ -633,9 +634,10 @@ class EditableDocumentViewModelTest {
         assertThat(drawingMode.color).isEqualTo(Color.RED)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun setCurrentToolInfo_updatesDrawingMode_whenHighlighterSelected() = runTest {
-        val highlighterTool = Highlighter(brushSize = 10.0f, color = Color.YELLOW, emoji = null)
+        val highlighterTool = Highlighter.createForTest(brushSize = 10.0f, color = Color.YELLOW)
         annotationsViewModel.setCurrentToolInfo(highlighterTool)
 
         val drawingMode = annotationsViewModel.drawingMode.first()
@@ -646,6 +648,7 @@ class EditableDocumentViewModelTest {
         assertThat(drawingMode.color).isEqualTo(colorWithHighlighterAlpha)
     }
 
+    @OptIn(ExperimentalPdfApi::class)
     @Test
     fun setCurrentToolInfo_updatesDrawingMode_whenEraserSelected() = runTest {
         annotationsViewModel.setCurrentToolInfo(Eraser)
