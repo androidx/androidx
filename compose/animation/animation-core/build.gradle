@@ -47,7 +47,7 @@ androidXMultiplatform {
             implementation("androidx.compose.ui:ui-unit:1.10.0")
             implementation("androidx.compose.ui:ui-graphics:1.10.0")
             implementation("androidx.compose.ui:ui-util:1.10.0")
-            implementation("androidx.collection:collection:1.5.0")
+            implementation("androidx.collection:collection:1.6.0")
             api(libs.kotlinCoroutinesCore)
         }
 
