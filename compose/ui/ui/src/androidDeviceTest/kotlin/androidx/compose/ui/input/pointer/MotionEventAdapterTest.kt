@@ -1747,6 +1747,78 @@ class MotionEventAdapterTest {
         assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPanOngoing_resetOnPostGestureHoverMoveWithNoFingerDown() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        // Start mid-gesture with ACTION_MOVE (swipe)
+        val moveSwipe =
+            MotionEvent(
+                eventTime = 1,
+                action = ACTION_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(moveSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+
+        // Post-gesture hover move (classification NONE when no pointer is down) MUST reset
+        // isTrackpadPanOngoing back to false.
+        val postGestureHoverMove =
+            MotionEvent(
+                eventTime = 2,
+                action = ACTION_HOVER_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_NONE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(postGestureHoverMove)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun trackpadPanOngoing_resetOnPinch() {
+        assumeTrue(ComposeUiFlags.isTrackpadPanHoverFixEnabled)
+        val moveSwipe =
+            MotionEvent(
+                eventTime = 1,
+                action = ACTION_MOVE,
+                numPointers = 1,
+                actionIndex = 0,
+                pointerProperties = arrayOf(PointerProperties(1, TOOL_TYPE_FINGER)),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f)),
+                classification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE,
+            )
+        motionEventAdapter.convertToPointerInputEvent(moveSwipe)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isTrue()
+
+        // Pinch classification should reset isTrackpadPanOngoing
+        val pinchEvent =
+            MotionEvent(
+                eventTime = 2,
+                action = ACTION_MOVE,
+                numPointers = 2,
+                actionIndex = 0,
+                pointerProperties =
+                    arrayOf(
+                        PointerProperties(1, TOOL_TYPE_FINGER),
+                        PointerProperties(2, TOOL_TYPE_FINGER),
+                    ),
+                pointerCoords = arrayOf(PointerCoords(10f, 10f), PointerCoords(20f, 20f)),
+                classification = MotionEvent.CLASSIFICATION_PINCH,
+            )
+        motionEventAdapter.convertToPointerInputEvent(pinchEvent)
+        assertThat(motionEventAdapter.isTrackpadPanOngoing).isFalse()
+    }
+
     private fun MotionEventAdapter.convertToPointerInputEvent(motionEvent: MotionEvent) =
         convertToPointerInputEvent(motionEvent, positionCalculator)
 
