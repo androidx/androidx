@@ -466,7 +466,7 @@ abstract class AutoMigrationDb : RoomDatabase() {
         fromColumnName = "addedInV1",
         toColumnName = "renamedInV4",
     )
-    internal class SimpleAutoMigration2 : AutoMigrationSpec
+    internal object SimpleAutoMigration2 : AutoMigrationSpec
 
     companion object {
         const val LATEST_VERSION = 5
