@@ -30,8 +30,8 @@ internal class EmojiPickerPopupFlatDesign(
 ) : EmojiPickerPopupDesign() {
     init {
         template = arrayOf(variants.indices.map { it + 1 }.toIntArray())
-        var row = getNumberOfRows()
-        var column = getNumberOfColumns()
+        val row = getNumberOfRows()
+        val column = getNumberOfColumns()
         val overrideTemplate = Array(row) { IntArray(column) }
         var index = 0
         for (i in 0 until row) {
