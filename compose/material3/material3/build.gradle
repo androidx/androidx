@@ -97,6 +97,7 @@ androidXMultiplatform {
 dependencies {
     lintChecks(project(":compose:material3:material3-lint"))
     lintPublish(project(":compose:material3:material3-lint"))
+    lintChecks(project(":compose:material3:material3-lint:internal-lint-checks"))
 }
 
 androidx {
