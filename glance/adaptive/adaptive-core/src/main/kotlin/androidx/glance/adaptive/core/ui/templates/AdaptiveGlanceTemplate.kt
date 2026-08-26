@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.adaptive.core.templates
+package androidx.glance.adaptive.core.ui.templates
 
 import androidx.annotation.RestrictTo
 

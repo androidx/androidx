@@ -18,7 +18,7 @@ package androidx.glance.adaptive.core
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.glance.adaptive.core.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 
 /** Entry point for managing Glance Adaptive widgets. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
