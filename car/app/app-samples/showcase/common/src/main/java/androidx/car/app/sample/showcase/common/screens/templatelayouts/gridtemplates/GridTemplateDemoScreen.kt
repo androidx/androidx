@@ -34,7 +34,6 @@ import androidx.car.app.navigation.model.MapWithContentTemplate
 import androidx.car.app.sample.showcase.common.R
 import androidx.car.app.sample.showcase.common.utils.CarContextAware
 import androidx.car.app.sample.showcase.common.utils.createGridItem
-import androidx.car.app.versioning.CarAppApiLevels
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
@@ -68,14 +67,6 @@ class GridTemplateDemoScreen(carContext: CarContext) :
     private var fourthItemChecked = true
     private var fifthItemChecked = false
 
-    @Suppress("DEPRECATION")
-    private val smallImageType =
-        if (carContext.carAppApiLevel >= CarAppApiLevels.LEVEL_9) {
-            GridItem.IMAGE_TYPE_SMALL
-        } else {
-            GridItem.IMAGE_TYPE_ICON
-        }
-
     init {
         lifecycle.addObserver(this)
     }
@@ -105,14 +96,13 @@ class GridTemplateDemoScreen(carContext: CarContext) :
 
     /** Grid item 0: Non-actionable item with icon and title. */
     private fun buildFirstGridItem(): GridItem =
-        createGridItem(title = firstItemTitle, image = pageIcon, imageType = smallImageType)
+        createGridItem(title = firstItemTitle, image = pageIcon)
 
     /** Grid item 1: Actionable item with icon, title, and toast click listener. */
     private fun buildSecondGridItem(): GridItem =
         createGridItem(
             title = secondItemTitle,
             image = pageIcon,
-            imageType = smallImageType,
             clickListener = { makeToast(secondItemToastMessage).show() },
         )
 
@@ -121,7 +111,6 @@ class GridTemplateDemoScreen(carContext: CarContext) :
         createGridItem(
             title = thirdItemTitle,
             image = pageIcon,
-            imageType = GridItem.IMAGE_TYPE_LARGE,
             text = if (thirdItemChecked) checkedText else uncheckedText,
             clickListener = {
                 thirdItemChecked = !thirdItemChecked
@@ -140,7 +129,6 @@ class GridTemplateDemoScreen(carContext: CarContext) :
                 title = fourthItemTitle,
                 text = stateText,
                 image = pageImage,
-                imageType = GridItem.IMAGE_TYPE_LARGE,
                 clickListener = ::triggerFourthItemLoading,
             )
         }
@@ -171,7 +159,6 @@ class GridTemplateDemoScreen(carContext: CarContext) :
         createGridItem(
             title = fifthItemTitle,
             image = pageIcon,
-            imageType = GridItem.IMAGE_TYPE_LARGE,
             clickListener = {
                 fifthItemChecked = !fifthItemChecked
                 makeToast("$fifthItemToastMessage: $fifthItemChecked").show()
@@ -185,7 +172,6 @@ class GridTemplateDemoScreen(carContext: CarContext) :
             title = sixthItemTitle,
             text = sixthItemTitle,
             image = pageIcon,
-            imageType = smallImageType,
             clickListener = { makeToast(sixthItemToastMessage).show() },
         )
 
@@ -194,7 +180,6 @@ class GridTemplateDemoScreen(carContext: CarContext) :
         createGridItem(
             title = "${index + 1}th item",
             image = pageIcon,
-            imageType = smallImageType,
             clickListener = { makeToast("Clicked ${index + 1}th item").show() },
         )
 
