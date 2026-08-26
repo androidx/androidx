@@ -219,13 +219,8 @@ class SurfaceTest {
         // Advance past enter animation
         rule.mainClock.advanceTimeBy(1000)
 
-        // When focused (focusProgress == 1f), color is
-        // focusOverlayColor.compositeOver(focusedSurfaceColor)
-        val expectedFocusedColor =
-            Color(red = 1f, green = 1f, blue = 1f, alpha = 0.16f).compositeOver(focusedSurfaceColor)
-
         rule.onNodeWithTag("surface").captureToImage().toPixelMap().run {
-            assertColorsEqualWithTolerance(expectedFocusedColor, get(width / 2, height / 2))
+            assertColorsEqualWithTolerance(focusedSurfaceColor, get(width / 2, height / 2))
         }
     }
 

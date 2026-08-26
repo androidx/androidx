@@ -66,7 +66,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
-import androidx.xr.glimmer.internal.color.withToneAndChroma
+import androidx.xr.glimmer.internal.color.withTone
 import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -138,7 +138,7 @@ import org.intellij.lang.annotations.Language
 public fun Modifier.surface(
     enabled: Boolean = true,
     shape: Shape = GlimmerTheme.shapes.medium,
-    color: Color = SurfaceDefaults.color(),
+    color: Color = GlimmerTheme.colors.surface,
     focusedColor: Color = SurfaceDefaults.focusedColor(color),
     contentColor: Color = calculateContentColor(color),
     focusedContentColor: Color = calculateContentColor(focusedColor),
@@ -172,11 +172,7 @@ public object SurfaceDefaults {
      */
     @Composable
     public fun color(baseColor: Color = GlimmerTheme.colors.surface): Color =
-        if (baseColor == DefaultSurfaceColor) {
-            DefaultSurfaceColor
-        } else {
-            baseColor.withToneAndChroma(newTone = SurfaceColorTone, newChroma = SurfaceColorChroma)
-        }
+        baseColor.withTone(newTone = SurfaceColorTone)
 
     /**
      * Returns the focused background [Color] for a surface derived from the provided [baseColor].
@@ -189,11 +185,7 @@ public object SurfaceDefaults {
      */
     @Composable
     public fun focusedColor(baseColor: Color = GlimmerTheme.colors.surface): Color =
-        if (baseColor == DefaultSurfaceColor) {
-            DefaultSurfaceColor
-        } else {
-            baseColor.withToneAndChroma(newTone = FocusedColorTone, newChroma = FocusedColorChroma)
-        }
+        baseColor.withTone(newTone = FocusedSurfaceColorTone)
 }
 
 /**
@@ -382,26 +374,11 @@ private class SurfaceNode(
 
     private val focusedBorderColor0: Color = Color.White
 
-    private var focusedBorderColor1: Color =
-        if (focusedColor == DefaultSurfaceColor) {
-            DefaultBorderFocusedColor1
-        } else {
-            focusedColor.withToneAndChroma(newTone = 85f)
-        }
+    private var focusedBorderColor1: Color = focusedColor.withTone(newTone = 85f)
 
-    private var focusedBorderColor2: Color =
-        if (focusedColor == DefaultSurfaceColor) {
-            DefaultBorderFocusedColor2
-        } else {
-            focusedColor.withToneAndChroma(newTone = 69f)
-        }
+    private var focusedBorderColor2: Color = focusedColor.withTone(newTone = 69f)
 
-    private var focusedBorderColor3: Color =
-        if (focusedColor == DefaultSurfaceColor) {
-            DefaultBorderFocusedColor3
-        } else {
-            focusedColor.withToneAndChroma(newTone = 77f)
-        }
+    private var focusedBorderColor3: Color = focusedColor.withTone(newTone = 77f)
 
     fun update(
         enabled: Boolean,
@@ -568,20 +545,16 @@ private class SurfaceNode(
         focusProgress: Float,
         pressedProgress: Float,
     ) {
-        // Focused overlay transition: #FFFFFF with 16% opacity when fully focused
-        val focusOverlayColor =
-            Color(red = 1f, green = 1f, blue = 1f, alpha = 0.16f * focusProgress)
         val backgroundColor = lerp(color, focusedColor, focusProgress)
-        val baseBackground = focusOverlayColor.compositeOver(backgroundColor)
 
         // Pressed overlay transition: #FFFFFF with 16% opacity when pressed
         val compositeBackground =
             if (pressedProgress > 0f) {
                 val pressedOverlayColor =
                     PressedOverlayColor.copy(alpha = PressedOverlayAlpha * pressedProgress)
-                pressedOverlayColor.compositeOver(baseBackground)
+                pressedOverlayColor.compositeOver(backgroundColor)
             } else {
-                baseBackground
+                backgroundColor
             }
 
         drawOutline(outline, color = compositeBackground)
@@ -725,10 +698,8 @@ private class SurfaceNode(
         focusProgress: Float,
         ambientProgress: Float,
     ) {
-        val focusOverlayColor =
-            Color(red = 1f, green = 1f, blue = 1f, alpha = 0.16f * focusProgress)
         val backgroundColor = lerp(color, focusedColor, focusProgress)
-        drawOutline(outline, color = focusOverlayColor.compositeOver(backgroundColor))
+        drawOutline(outline, backgroundColor)
 
         borderShader =
             BorderShaderHelper.configureShader(
@@ -787,15 +758,9 @@ private class SurfaceNode(
     }
 
     private fun updateFocusedBorderColors(focusedColor: Color) {
-        if (focusedColor == DefaultSurfaceColor) {
-            focusedBorderColor1 = DefaultBorderFocusedColor1
-            focusedBorderColor2 = DefaultBorderFocusedColor2
-            focusedBorderColor3 = DefaultBorderFocusedColor3
-        } else {
-            focusedBorderColor1 = focusedColor.withToneAndChroma(newTone = 85f)
-            focusedBorderColor2 = focusedColor.withToneAndChroma(newTone = 69f)
-            focusedBorderColor3 = focusedColor.withToneAndChroma(newTone = 77f)
-        }
+        focusedBorderColor1 = focusedColor.withTone(newTone = 85f)
+        focusedBorderColor2 = focusedColor.withTone(newTone = 69f)
+        focusedBorderColor3 = focusedColor.withTone(newTone = 77f)
     }
 }
 
@@ -868,11 +833,8 @@ private const val UniformBorderFocusedColor1 = "uBorderFocusedColor1"
 private const val UniformBorderFocusedColor2 = "uBorderFocusedColor2"
 private const val UniformBorderFocusedColor3 = "uBorderFocusedColor3"
 
-private const val SurfaceColorTone = 33f
-private const val SurfaceColorChroma = 29f
-
-private const val FocusedColorTone = 33f
-private const val FocusedColorChroma = 29f
+private const val SurfaceColorTone = 20f
+private const val FocusedSurfaceColorTone = 34f
 
 /** Default border width for a [surface]. */
 private val DefaultSurfaceBorderWidth = 1.5.dp
@@ -893,10 +855,6 @@ private val AmbientBlurRadiusMaxStart = 5.3.dp
 private val AmbientBlurRadiusMaxEnd = 15.9.dp
 
 private val DefaultSolidBorderIdleColor = Color(0.25f, 0.25f, 0.25f, 0.5f)
-
-private val DefaultBorderFocusedColor1 = Color(0.671f, 0.671f, 0.671f, 0.8f)
-private val DefaultBorderFocusedColor2 = Color(0.405f, 0.405f, 0.405f, 0.6f)
-private val DefaultBorderFocusedColor3 = Color(0.530f, 0.530f, 0.530f, 0.7f)
 
 /** Enter animation for focus highlight and depth effect */
 private val FocusedEnterAnimationSpec: AnimationSpec<Float> =

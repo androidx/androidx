@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.testTag
@@ -139,10 +138,8 @@ class IconButtonTest {
     fun containerShapeAndColor() {
         val expectedShape = RoundedCornerShape(42.dp)
         val expectedColor = Color.Red
-        var expectedSurfaceColor: Color? = null
 
-        rule.setGlimmerThemeContent {
-            expectedSurfaceColor = SurfaceDefaults.color(expectedColor)
+        rule.setGlimmerThemeContent(addInitialFocusInterceptor = true) {
             IconButton(
                 onClick = {},
                 shape = expectedShape,
@@ -160,9 +157,37 @@ class IconButtonTest {
             backgroundColor = Color.Black,
         )
         val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
-        val expectedCompositeColor =
-            Color.White.copy(alpha = 0.16f).compositeOver(expectedSurfaceColor!!)
-        assertThat(centerColor).isEqualTo(expectedCompositeColor)
+        assertThat(centerColor).isEqualTo(expectedColor)
+    }
+
+    @Test
+    fun containerShapeAndColorWhenFocused() {
+        val expectedShape = RoundedCornerShape(42.dp)
+        val expectedColor = Color.Red
+        var expectedSurfaceColor: Color? = null
+
+        rule.setGlimmerThemeContent(addInitialFocusInterceptor = false) {
+            expectedSurfaceColor = SurfaceDefaults.focusedColor(expectedColor)
+            IconButton(
+                onClick = {},
+                shape = expectedShape,
+                color = expectedColor,
+                modifier = Modifier.testTag("icon_button"),
+            ) {
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.waitForIdle()
+
+        val image = rule.onNodeWithTag("icon_button").captureToImage()
+        image.assertGlimmerSurfaceShape(
+            density = rule.density,
+            shape = expectedShape,
+            backgroundColor = Color.Black,
+        )
+        val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
+        assertThat(centerColor).isEqualTo(expectedSurfaceColor)
     }
 
     @Test
