@@ -24,7 +24,9 @@ import android.os.IBinder
 import android.os.Parcelable
 import android.util.Size
 import android.util.SizeF
+import android.util.SparseArray
 import java.io.Serializable
+import java.util.ArrayList
 
 /**
  * Returns a new [Bundle] with the given key/value pairs as elements.
@@ -116,3 +118,100 @@ public fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle =
 
 /** Returns a new empty [Bundle]. */
 public fun bundleOf(): Bundle = Bundle(0)
+
+/**
+ * Returns the value associated with the given key or `null` if:
+ * - No mapping of the desired type exists for the given key.
+ * - A `null` value is explicitly associated with the key.
+ * - The object is not of type [T].
+ *
+ * **Note:** if the expected value is not a class provided by the Android platform, you must call
+ * [Bundle.setClassLoader] with the proper [ClassLoader] first. Otherwise, this method might throw
+ * an exception or return `null`.
+ *
+ * Compatibility behavior:
+ * - SDK 34 and above, this method matches platform behavior.
+ * - SDK 33 and below, the object type is checked after deserialization.
+ *
+ * @param key a String, or `null`
+ * @return a Parcelable value, or `null`
+ */
+public inline fun <reified T : Parcelable> Bundle.getParcelableCompat(key: String): T? =
+    BundleCompat.getParcelable(this, key, T::class.java)
+
+/**
+ * Returns the value associated with the given key or `null` if:
+ * - No mapping of the desired type exists for the given key.
+ * - A `null` value is explicitly associated with the key.
+ * - The object is not of type [T].
+ *
+ * **Note:** if the expected value is not a class provided by the Android platform, you must call
+ * [Bundle.setClassLoader] with the proper [ClassLoader] first. Otherwise, this method might throw
+ * an exception or return `null`.
+ *
+ * Compatibility behavior:
+ * - SDK 34 and above, this method matches platform behavior.
+ * - SDK 33 and below, this method will not check the array elements' types.
+ *
+ * @param key a String, or `null`
+ * @return an Array<Parcelable> value, or `null`
+ */
+@Suppress("NullableCollection")
+public inline fun <reified T : Parcelable> Bundle.getParcelableArrayCompat(
+    key: String
+): Array<out Parcelable>? = BundleCompat.getParcelableArray(this, key, T::class.java)
+
+/**
+ * Returns the value associated with the given key or `null` if:
+ * - No mapping of the desired type exists for the given key.
+ * - A `null` value is explicitly associated with the key.
+ * - The object is not of type [T].
+ *
+ * **Note:** if the expected value is not a class provided by the Android platform, you must call
+ * [Bundle.setClassLoader] with the proper [ClassLoader] first. Otherwise, this method might throw
+ * an exception or return `null`.
+ *
+ * Compatibility behavior:
+ * - SDK 34 and above, this method matches platform behavior.
+ * - SDK 33 and below, this method will not check the list elements' types.
+ *
+ * @param key a String, or `null`
+ * @return an ArrayList<T> value, or `null`
+ */
+@Suppress("ConcreteCollection", "NullableCollection")
+public inline fun <reified T : Parcelable> Bundle.getParcelableArrayListCompat(
+    key: String
+): ArrayList<T>? = BundleCompat.getParcelableArrayList(this, key, T::class.java)
+
+/**
+ * Returns the value associated with the given key or `null` if:
+ * - No mapping of the desired type exists for the given key.
+ * - A `null` value is explicitly associated with the key.
+ * - The object is not of type [T].
+ *
+ * Compatibility behavior:
+ * - SDK 34 and above, this method matches platform behavior.
+ * - SDK 33 and below, this method will not check the array elements' types.
+ *
+ * @param key a String, or `null`
+ * @return a SparseArray of T values, or `null`
+ */
+public inline fun <reified T : Parcelable> Bundle.getSparseParcelableArrayCompat(
+    key: String
+): SparseArray<T>? = BundleCompat.getSparseParcelableArray(this, key, T::class.java)
+
+/**
+ * Returns the value associated with the given key or `null` if:
+ * - No mapping of the desired type exists for the given key.
+ * - A `null` value is explicitly associated with the key.
+ * - The object is not of type [T].
+ *
+ * Compatibility behavior:
+ * - SDK 34 and above, this method matches platform behavior.
+ * - SDK 33 and below, the object type is checked after deserialization.
+ *
+ * @param key a String, or `null`
+ * @return a Serializable value, or `null`
+ */
+public inline fun <reified T : Serializable> Bundle.getSerializableCompat(key: String): T? =
+    BundleCompat.getSerializable(this, key, T::class.java)
