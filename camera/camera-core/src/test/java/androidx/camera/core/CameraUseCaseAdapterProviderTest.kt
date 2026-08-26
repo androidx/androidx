@@ -84,7 +84,8 @@ class CameraUseCaseAdapterProviderTest {
         val adapter = cameraUseCaseAdapterProvider.provide(cameraId)
 
         // Assert.
-        assertThat(adapter.adapterIdentifier.cameraIds).containsExactly(cameraId)
+        assertThat(adapter.adapterIdentifier.cameraIds)
+            .containsExactly(CameraIdentifier.CompositeCameraId(cameraId))
     }
 
     @Test

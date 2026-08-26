@@ -49,6 +49,7 @@ import androidx.camera.core.concurrent.CameraCoordinator.CameraOperatingMode
 import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraConfigs
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.UseCaseConfig
@@ -392,7 +393,9 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
                     // Connect physical camera id with use case.
                     for (useCase: UseCase in config!!.useCaseGroup.useCases) {
                         config.cameraSelector.physicalCameraId?.let {
-                            useCase.setPhysicalCameraId(it)
+                            if (useCase.physicalCameraId == null) {
+                                useCase.setPhysicalCameraId(it)
+                            }
                         }
                     }
                     useCases.addAll(config.useCaseGroup.useCases)
@@ -425,7 +428,12 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
                 val isCombinationSupported =
                     availableConcurrentCameraInfos.any { supportedCombination ->
                         supportedCombination.size == cameraInfosToBind.size &&
-                            supportedCombination.toSet() == cameraInfosToBind.toSet()
+                            supportedCombination
+                                .map { (it as CameraInfoInternal).cameraId }
+                                .toSet() ==
+                                cameraInfosToBind
+                                    .map { (it as CameraInfoInternal).cameraId }
+                                    .toSet()
                     }
 
                 if (!isCombinationSupported) {
@@ -628,6 +636,15 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
                     secondaryCameraSelector,
                 )
 
+            // Connect physical camera id with use cases if specified and unset for single camera
+            if (finalSecondaryCameraSelector == null) {
+                finalPrimaryCameraSelector.physicalCameraId?.let { physicalCameraId ->
+                    sessionConfig.useCases
+                        .filter { it.physicalCameraId == null }
+                        .forEach { it.setPhysicalCameraId(physicalCameraId) }
+                }
+            }
+
             // TODO(b/153096869): override UseCase's target rotation.
 
             // Get the LifecycleCamera if existed.
@@ -746,18 +763,23 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
             val cameraInfoInternal =
                 cameraSelector.select(cameraX!!.cameraRepository.cameras).cameraInfoInternal
             val cameraConfig = getCameraConfig(cameraSelector, cameraInfoInternal)
-
+            val physicalCameraId = cameraSelector.physicalCameraId
             val key =
                 CameraIdentifier.Factory.create(
-                    cameraInfoInternal.cameraId,
-                    null,
+                    listOf(
+                        CameraIdentifier.CompositeCameraId(
+                            cameraInfoInternal.cameraId,
+                            physicalCameraId,
+                        )
+                    ),
                     cameraConfig.compatibilityId,
                 )
             var adapterCameraInfo: AdapterCameraInfo?
             synchronized(lock) {
                 adapterCameraInfo = cameraInfoMap[key]
                 if (adapterCameraInfo == null) {
-                    adapterCameraInfo = AdapterCameraInfo(cameraInfoInternal, cameraConfig)
+                    adapterCameraInfo =
+                        AdapterCameraInfo(cameraInfoInternal, physicalCameraId, cameraConfig)
                     cameraInfoMap[key] = adapterCameraInfo
                 }
             }
