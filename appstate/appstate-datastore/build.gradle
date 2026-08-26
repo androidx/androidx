@@ -11,7 +11,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk { version = release(37) { minorApiLevel = 1 } }
+        compileSdk { version = release(37) }
         namespace = "androidx.appstate.datastore"
         compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
             it.returnDefaultValues = true

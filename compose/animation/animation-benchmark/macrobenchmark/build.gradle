@@ -21,7 +21,9 @@ plugins {
 
 android {
     namespace = "androidx.compose.animation.macrobenchmark"
-    compileSdk { version = release(37) { minorApiLevel = 1 } }
+    compileSdk {
+        version = release(37)
+    }
     defaultConfig {
         minSdk { version = release(24) }
     }

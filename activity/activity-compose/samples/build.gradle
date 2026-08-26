@@ -59,7 +59,7 @@ androidx {
 
 android {
     compileSdk {
-        version = release(37) { minorApiLevel = 1 }
+        version = release(37)
     }
     namespace = "androidx.activity.compose.samples"
 }
