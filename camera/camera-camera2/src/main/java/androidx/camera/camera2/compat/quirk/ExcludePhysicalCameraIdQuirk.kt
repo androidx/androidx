@@ -47,8 +47,8 @@ public class ExcludePhysicalCameraIdQuirk : Quirk {
         private val SAMSUNG_PROBLEM_MODELS =
             mapOf(
                 "SM-S938" to setOf("2", "5", "6", "7"), // Samsung S25 Ultra
-                "SM-S931" to setOf("2", "3", "4"), // Samsung S25
-                "SM-S936" to setOf("2", "3", "4"), // Samsung S25+
+                "SM-S931" to setOf("2", "5", "6"), // Samsung S25
+                "SM-S936" to setOf("2", "5", "6"), // Samsung S25+
                 "SM-F968" to setOf("2", "5", "6", "7"), // Samsung Z Fold 6 Ultra / Fold 7
                 "SM-F966" to setOf("2", "5", "6"), // Samsung Z Fold 6 (US)
                 "SM-F956" to setOf("2", "5", "6"), // Samsung Z Fold 6 (Global)
