@@ -121,7 +121,7 @@ abstract class BaseQueryTest {
 
     @Test
     fun queryFlow() = runTest {
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
         dao.insertItem(1)
 
         val channel = dao.getItemListFlow().produceIn(this)
@@ -144,7 +144,7 @@ abstract class BaseQueryTest {
     @Test
     fun insertAndDelete() = runTest {
         val sampleEntity = SampleEntity(1, 1)
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
 
         dao.insert(sampleEntity)
         assertThat(dao.getSingleItemWithColumn().pk).isEqualTo(1)
@@ -159,7 +159,7 @@ abstract class BaseQueryTest {
     fun insertAndUpdateAndDelete() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity(1, 2)
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
 
         dao.insert(sampleEntity1)
         assertThat(dao.getSingleItemWithColumn().data).isEqualTo(1)
@@ -177,7 +177,7 @@ abstract class BaseQueryTest {
     fun insertAndUpsertAndDelete() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity(1, 2)
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
 
         dao.insert(sampleEntity1)
         assertThat(dao.getSingleItemWithColumn().data).isEqualTo(1)
@@ -195,7 +195,7 @@ abstract class BaseQueryTest {
     fun insertMap() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity2(1, 2)
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
 
         dao.insert(sampleEntity1)
         dao.insert(sampleEntity2)
@@ -209,7 +209,7 @@ abstract class BaseQueryTest {
     fun insertListMap() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity2(1, 2)
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
 
         dao.insert(sampleEntity1)
         dao.insert(sampleEntity2)
@@ -223,7 +223,7 @@ abstract class BaseQueryTest {
     fun insertSetMap() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity2(1, 2)
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
 
         dao.insert(sampleEntity1)
         dao.insert(sampleEntity2)
@@ -237,7 +237,7 @@ abstract class BaseQueryTest {
     fun mapWithDupeColumns() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntityCopy(1, 2)
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
 
         dao.insert(sampleEntity1)
         dao.insert(sampleEntity2)
@@ -255,7 +255,7 @@ abstract class BaseQueryTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity2(1, 2)
         val sampleEntity3 = SampleEntity3(1, 2)
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
 
         dao.insert(sampleEntity1)
         dao.insert(sampleEntity2)
@@ -271,7 +271,7 @@ abstract class BaseQueryTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity2(1, 2)
         val sampleEntity3 = SampleEntity3(1, 2)
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
 
         dao.insert(sampleEntity1)
         dao.insert(sampleEntity2)
@@ -284,7 +284,6 @@ abstract class BaseQueryTest {
 
     @Test
     fun combineInsertAndManualWrite() = runTest {
-        val db = getRoomDatabase()
         db.useWriterConnection { connection ->
             db.dao().insertItem(1)
             connection.executeSQL("INSERT INTO SampleEntity (pk) VALUES (2)")
@@ -301,7 +300,6 @@ abstract class BaseQueryTest {
 
     @Test
     fun combineQueryAndManualRead() = runTest {
-        val db = getRoomDatabase()
         val entity = SampleEntity(1, 10)
         db.dao().insert(entity)
         db.useReaderConnection { connection ->
@@ -321,8 +319,6 @@ abstract class BaseQueryTest {
 
     @Test
     fun queryFlowFromManualWrite() = runTest {
-        val db = getRoomDatabase()
-
         val channel = db.dao().getItemListFlow().produceIn(this)
 
         assertThat(channel.receive()).isEmpty()
@@ -339,7 +335,6 @@ abstract class BaseQueryTest {
 
     @Test
     fun rollbackDaoQuery() = runTest {
-        val db = getRoomDatabase()
         db.dao().insertItem(1)
         db.useWriterConnection { transactor ->
             transactor.immediateTransaction {
@@ -359,7 +354,7 @@ abstract class BaseQueryTest {
     @Test
     fun insertAndDeleteArray() = runTest {
         val entityArray = arrayOf(SampleEntity(1, 1), SampleEntity(2, 2))
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
 
         dao.insertArray(entityArray)
 
@@ -376,7 +371,7 @@ abstract class BaseQueryTest {
     @Test
     fun insertAndReadArrays() = runTest {
         val expected = arrayOf(SampleEntity(1, 1), SampleEntity(2, 2))
-        val dao = getRoomDatabase().dao()
+        val dao = db.dao()
         dao.insertArray(expected)
 
         val resultArray = dao.queryOfArray()
