@@ -123,4 +123,14 @@ public object AndroidComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isDelayedWindowInsetsRulersEnabled: Boolean = true
+
+    /**
+     * This flag enables dispatching accessibility focus events (TYPE_VIEW_ACCESSIBILITY_FOCUSED)
+     * after keyboard scroll events for screen-reader synchronization.
+     */
+    // TODO: Remove this flag once TalkBack post-scroll sync is ubiquitous (b/447669491,
+    // b/543664588)
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isScrollAccessibilityFocusEventEnabled: Boolean = true
 }
