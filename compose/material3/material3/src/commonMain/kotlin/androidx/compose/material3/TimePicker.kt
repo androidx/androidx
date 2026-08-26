@@ -1452,7 +1452,7 @@ private val UncontainedTimeFieldHeight
 private val UncontainedToggleHeight
     get() = 140.dp
 private val VibrantPeriodToggleHorizontalHeight
-    get() = 48.dp
+    get() = 40.dp
 private val VibrantPeriodTogglePadding
     get() = 8.dp
 private val VibrantPeriodToggleLargePadding
@@ -1460,7 +1460,7 @@ private val VibrantPeriodToggleLargePadding
 private val VibrantHorizontalTimePickerGap
     get() = 52.dp
 private val VibrantVerticalTimePickerGap
-    get() = 36.dp
+    get() = 12.dp
 
 /**
  * A state object that can be hoisted to observe the time picker state. It holds the current values
@@ -1963,7 +1963,7 @@ internal fun VerticalTimePicker(
             colors = colors,
             autoSwitchToMinute = autoSwitchToMinute,
         )
-        Spacer(modifier = Modifier.height(ClockFaceBottomMargin))
+        Spacer(modifier = Modifier.height(shapes.orVibrant(ClockFaceBottomMargin, 0.dp)))
     }
 }
 
@@ -1987,7 +1987,8 @@ internal fun HorizontalTimePicker(
                 )
         )
         ClockFace(
-            modifier = Modifier.then(ClockFaceSizeModifier()),
+            if (shapes != null) Modifier.size(ClockDialContainerSize)
+            else Modifier.then(ClockFaceSizeModifier()),
             state,
             colors,
             autoSwitchToMinute,
