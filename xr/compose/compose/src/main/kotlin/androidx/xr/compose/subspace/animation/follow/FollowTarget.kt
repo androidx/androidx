@@ -42,7 +42,7 @@ public abstract class FollowTarget internal constructor(internal val mode: Follo
          * @param mode determines how the trailing element follows the target. It can be made to
          *   move faster and be more responsive. The default is [FollowMode.soft()].
          */
-        public fun View(mode: FollowMode = FollowMode.soft()): FollowTarget = ViewTarget(mode)
+        public fun view(mode: FollowMode = FollowMode.soft()): FollowTarget = ViewTarget(mode)
 
         /**
          * Targeting an anchor allows content to be positioned relative to that anchor's location.
@@ -52,7 +52,7 @@ public abstract class FollowTarget internal constructor(internal val mode: Follo
          * @param mode determines how the trailing element follows the target. It can be made to
          *   move faster and be more responsive. The default is [FollowMode.tight()].
          */
-        public fun Anchor(anchor: Anchor, mode: FollowMode = FollowMode.tight()): FollowTarget =
+        public fun anchor(anchor: Anchor, mode: FollowMode = FollowMode.tight()): FollowTarget =
             AnchorTarget(anchor, mode)
     }
 }
