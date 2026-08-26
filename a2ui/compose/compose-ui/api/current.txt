@@ -6,17 +6,22 @@ package androidx.a2ui.compose.ui {
     method @InaccessibleFromKotlin public androidx.a2ui.model.catalog.A2uiFunctionCollection getFunctions();
     method @InaccessibleFromKotlin public String getId();
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema? getThemeSchema();
+    method @InaccessibleFromKotlin public default boolean isInline();
     property public abstract androidx.a2ui.compose.ui.A2uiComponentCollection components;
     property public abstract androidx.a2ui.model.catalog.A2uiFunctionCollection functions;
     property public abstract String id;
+    property public default boolean isInline;
     property public abstract androidx.a2ui.model.schema.A2uiSchema? themeSchema;
   }
 
   public final class A2uiCatalogKt {
-    method public static androidx.a2ui.compose.ui.A2uiCatalog A2uiCatalog(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1 basicCatalog);
-    method public static androidx.a2ui.compose.ui.A2uiCatalog A2uiCatalog(String catalogId, java.util.List<? extends androidx.a2ui.compose.ui.A2uiComponent> components, optional java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions, optional androidx.a2ui.model.schema.A2uiSchema? themeSchema);
-    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! A2uiCatalog$default(String!, java.util.List!, java.util.List!, androidx.a2ui.model.schema.A2uiSchema!, int, Object!);
+    method public static androidx.a2ui.compose.ui.A2uiCatalog A2uiCatalog(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1 basicCatalog, optional boolean isInline);
+    method public static androidx.a2ui.compose.ui.A2uiCatalog A2uiCatalog(String catalogId, java.util.List<? extends androidx.a2ui.compose.ui.A2uiComponent> components, optional java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions, optional androidx.a2ui.model.schema.A2uiSchema? themeSchema, optional boolean isInline);
+    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! A2uiCatalog$default(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1!, boolean, int, Object!);
+    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! A2uiCatalog$default(String!, java.util.List!, java.util.List!, androidx.a2ui.model.schema.A2uiSchema!, boolean, int, Object!);
     method public static androidx.a2ui.compose.runtime.A2uiReadinessEvaluator asReadinessEvaluator(androidx.a2ui.compose.ui.A2uiCatalog);
+    method public static java.util.Map<java.lang.String,java.lang.Object?> toJsonSchemaMap(androidx.a2ui.compose.ui.A2uiCatalog);
+    method public static String toJsonSchemaString(androidx.a2ui.compose.ui.A2uiCatalog);
   }
 
   @androidx.compose.runtime.Stable public interface A2uiComponent {

@@ -28,90 +28,120 @@ import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.put
 
 /**
- * Serializes an [A2uiCoreCatalog] into a JSON Schema string conforming to the A2UI v0.9.1 catalog
- * specification.
+ * Serializes an [A2uiCoreCatalog] into JSON Schema representations.
+ *
+ * Traversal and JSON formatting are computed lazily and cached per serializer instance.
+ *
+ * @param catalog the catalog to serialize
  */
-internal fun serializeCatalogToJsonSchema(catalog: A2uiCoreCatalog): String =
-    buildJsonObject {
-            put("\$schema", "https://json-schema.org/draft/2020-12/schema")
-            put("\$id", catalog.id)
-            catalog.title?.let { put("title", it) }
-            catalog.description?.let { put("description", it) }
-            put("catalogId", catalog.id)
+public class A2uiCoreCatalogSerializer(public val catalog: A2uiCoreCatalog) {
+    internal val jsonObject: JsonObject by
+        lazy(LazyThreadSafetyMode.PUBLICATION) { catalog.toJsonObject() }
 
-            put(
-                "components",
-                buildJsonObject {
-                    for (component in catalog.componentDefinitions) {
-                        put(component.name, component.toSchema().toJsonElement())
-                    }
-                },
-            )
+    /** The serialized JSON Schema string representation of [catalog]. */
+    public val jsonSchemaString: String by
+        lazy(LazyThreadSafetyMode.PUBLICATION) { jsonObject.toString() }
 
-            put(
-                "functions",
-                buildJsonObject {
-                    for (function in catalog.functions) {
-                        put(
-                            function.definition.name,
-                            function.definition.toSchema().toJsonElement(),
-                        )
-                    }
-                },
-            )
-
-            put(
-                "\$defs",
-                buildJsonObject {
-                    for ((defName, defSchema) in collectLocalDefinitionsFromCatalog(catalog)) {
-                        put(defName, defSchema.toJsonElement())
-                    }
-
-                    catalog.themeSchema?.let { put("theme", it.toJsonElement()) }
-
-                    put(
-                        "anyComponent",
-                        buildJsonObject {
-                            put(
-                                "oneOf",
-                                JsonArray(
-                                    catalog.componentDefinitions.map { comp ->
-                                        buildJsonObject {
-                                            put("\$ref", "#/components/${comp.name}")
-                                        }
-                                    }
-                                ),
-                            )
-                            put(
-                                "discriminator",
-                                buildJsonObject { put("propertyName", "component") },
-                            )
-                        },
-                    )
-
-                    put(
-                        "anyFunction",
-                        buildJsonObject {
-                            put(
-                                "oneOf",
-                                JsonArray(
-                                    catalog.functions.map { func ->
-                                        buildJsonObject {
-                                            put("\$ref", "#/functions/${func.definition.name}")
-                                        }
-                                    }
-                                ),
-                            )
-                        },
-                    )
-                },
-            )
+    /** The serialized JSON Schema Map representation of [catalog]. */
+    public val jsonSchemaMap: Map<String, Any?> by
+        lazy(LazyThreadSafetyMode.PUBLICATION) {
+            @Suppress("UNCHECKED_CAST")
+            jsonObject.toMapValue() as Map<String, Any?>
         }
-        .toString()
+}
+
+internal fun JsonElement.toMapValue(): Any? =
+    when (this) {
+        is JsonNull -> null
+        is JsonPrimitive -> {
+            if (isString) {
+                content
+            } else {
+                booleanOrNull ?: longOrNull ?: doubleOrNull ?: content
+            }
+        }
+        is JsonArray -> map { it.toMapValue() }
+        is JsonObject -> mapValues { it.value.toMapValue() }
+    }
+
+internal fun A2uiCoreCatalog.toJsonObject(): JsonObject = buildJsonObject {
+    put("\$schema", "https://json-schema.org/draft/2020-12/schema")
+    put("\$id", id)
+    title?.let { put("title", it) }
+    description?.let { put("description", it) }
+    put("catalogId", id)
+
+    put(
+        "components",
+        buildJsonObject {
+            for (component in componentDefinitions) {
+                put(component.name, component.toSchema().toJsonElement())
+            }
+        },
+    )
+
+    put(
+        "functions",
+        buildJsonObject {
+            for (function in functions) {
+                put(function.definition.name, function.definition.toSchema().toJsonElement())
+            }
+        },
+    )
+
+    put(
+        "\$defs",
+        buildJsonObject {
+            for ((defName, defSchema) in collectLocalDefinitions()) {
+                put(defName, defSchema.toJsonElement())
+            }
+
+            themeSchema?.let { put("theme", it.toJsonElement()) }
+
+            put(
+                "anyComponent",
+                buildJsonObject {
+                    put(
+                        "oneOf",
+                        JsonArray(
+                            componentDefinitions.map { comp ->
+                                buildJsonObject { put("\$ref", "#/components/${comp.name}") }
+                            }
+                        ),
+                    )
+                    put("discriminator", buildJsonObject { put("propertyName", "component") })
+                },
+            )
+
+            put(
+                "anyFunction",
+                buildJsonObject {
+                    put(
+                        "oneOf",
+                        JsonArray(
+                            functions.map { func ->
+                                buildJsonObject {
+                                    put("\$ref", "#/functions/${func.definition.name}")
+                                }
+                            }
+                        ),
+                    )
+                },
+            )
+        },
+    )
+}
 
 /**
  * Traverses the catalog to collect all local schema definitions.
@@ -120,16 +150,16 @@ internal fun serializeCatalogToJsonSchema(catalog: A2uiCoreCatalog): String =
  * We extract the definitions of `A2uiCompositeSchema` that have no schemaId (and by that are
  * considered local), and collect them into this section of the schema.
  */
-private fun collectLocalDefinitionsFromCatalog(catalog: A2uiCoreCatalog): Map<String, A2uiSchema> {
+private fun A2uiCoreCatalog.collectLocalDefinitions(): Map<String, A2uiSchema> {
     val localDefs = mutableMapOf<String, A2uiSchema>()
     val visited = mutableSetOf<A2uiSchema>()
-    for (component in catalog.componentDefinitions) {
+    for (component in componentDefinitions) {
         collectLocalDefinitionsFromSchema(component.propertySchema, localDefs, visited)
     }
-    for (function in catalog.functions) {
+    for (function in functions) {
         collectLocalDefinitionsFromSchema(function.definition.argumentSchema, localDefs, visited)
     }
-    catalog.themeSchema?.let { collectLocalDefinitionsFromSchema(it, localDefs, visited) }
+    themeSchema?.let { collectLocalDefinitionsFromSchema(it, localDefs, visited) }
     return localDefs
 }
 

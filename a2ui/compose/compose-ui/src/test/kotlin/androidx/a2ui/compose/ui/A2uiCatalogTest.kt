@@ -22,6 +22,7 @@ import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.engine.catalog.toInlineCatalog
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.A2uiFunctionDefinition
 import androidx.a2ui.model.catalog.A2uiFunctionReturnType
@@ -55,12 +56,22 @@ class A2uiCatalogTest {
                 components = listOf(component1, component2),
                 functions = listOf(function1, function2),
                 themeSchema = themeSchema,
+                isInline = false,
             )
 
         assertThat(catalog.id).isEqualTo(TestCatalogId)
         assertThat(catalog.components).containsExactly(component1, component2)
         assertThat(catalog.functions).containsExactly(function1, function2)
         assertThat(catalog.themeSchema).isEqualTo(themeSchema)
+        assertThat(catalog.isInline).isFalse()
+    }
+
+    @Test
+    fun factory_isInlineTrue_createsInlineCatalog() {
+        val catalog =
+            A2uiCatalog(catalogId = "inline_catalog", components = emptyList(), isInline = true)
+
+        assertThat(catalog.isInline).isTrue()
     }
 
     @Test
@@ -76,6 +87,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components).isEmpty()
         assertThat(catalog.functions).isEmpty()
         assertThat(catalog.themeSchema).isNull()
+        assertThat(catalog.isInline).isFalse()
     }
 
     @Test
@@ -114,84 +126,97 @@ class A2uiCatalogTest {
 
     @Test
     fun factory_fromBasicCatalog_createsCatalogSuccessfully() {
-        val testText =
-            object : A2uiBasicCatalogV1.Text {
-                @Composable
-                override fun A2uiComponentScope.TypedContent(
-                    text: String,
-                    variant: A2uiBasicCatalogV1.Text.Variant,
-                    modifier: Modifier,
-                ) {}
-            }
-        val testCard =
-            object : A2uiBasicCatalogV1.Card {
-                @Composable
-                override fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier) {}
-            }
-        val testRow =
-            object : A2uiBasicCatalogV1.Row {
-                @Composable
-                override fun A2uiComponentScope.TypedContent(
-                    children: List<A2uiComponentReference>,
-                    justify: A2uiBasicCatalogV1.Row.Justify,
-                    align: A2uiBasicCatalogV1.Row.Align,
-                    modifier: Modifier,
-                ) {}
-            }
-        val testColumn =
-            object : A2uiBasicCatalogV1.Column {
-                @Composable
-                override fun A2uiComponentScope.TypedContent(
-                    children: List<A2uiComponentReference>,
-                    justify: A2uiBasicCatalogV1.Column.Justify,
-                    align: A2uiBasicCatalogV1.Column.Align,
-                    modifier: Modifier,
-                ) {}
-            }
-        val testButton =
-            object : A2uiBasicCatalogV1.Button {
-                @Composable
-                override fun A2uiComponentScope.TypedContent(
-                    childId: String,
-                    variant: A2uiBasicCatalogV1.Button.Variant,
-                    action: Map<String, Any?>,
-                    modifier: Modifier,
-                ) {}
-            }
-        val testImage =
-            object : A2uiBasicCatalogV1.Image {
-                @Composable
-                override fun A2uiComponentScope.TypedContent(
-                    url: String,
-                    description: String?,
-                    fit: A2uiBasicCatalogV1.Image.Fit,
-                    variant: A2uiBasicCatalogV1.Image.Variant,
-                    modifier: Modifier,
-                ) {}
-            }
         val testFunction = StubFunction("TestFunc")
-        val basicCatalog =
-            A2uiBasicCatalogV1(
-                text = testText,
-                image = testImage,
-                card = testCard,
-                row = testRow,
-                column = testColumn,
-                button = testButton,
-                functions = listOf(testFunction),
-            )
+        val basicCatalog = createTestBasicCatalog(functions = listOf(testFunction))
 
         val catalog = A2uiCatalog(basicCatalog)
 
         assertThat(catalog.id).isEqualTo(A2uiBasicCatalogV1.CatalogId)
         assertThat(catalog.themeSchema).isEqualTo(A2uiBasicCatalogV1.ThemeSchema)
-        assertThat(catalog.components["Text"]).isSameInstanceAs(testText)
-        assertThat(catalog.components["Image"]).isSameInstanceAs(testImage)
-        assertThat(catalog.components["Card"]).isSameInstanceAs(testCard)
-        assertThat(catalog.components["Row"]).isSameInstanceAs(testRow)
-        assertThat(catalog.components["Column"]).isSameInstanceAs(testColumn)
-        assertThat(catalog.components["Button"]).isSameInstanceAs(testButton)
+        assertThat(catalog.components["Text"]).isSameInstanceAs(basicCatalog.text)
+        assertThat(catalog.components["Image"]).isSameInstanceAs(basicCatalog.image)
+        assertThat(catalog.components["Card"]).isSameInstanceAs(basicCatalog.card)
+        assertThat(catalog.components["Row"]).isSameInstanceAs(basicCatalog.row)
+        assertThat(catalog.components["Column"]).isSameInstanceAs(basicCatalog.column)
+        assertThat(catalog.components["Button"]).isSameInstanceAs(basicCatalog.button)
         assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
+        assertThat(catalog.isInline).isFalse()
+    }
+
+    @Test
+    fun factory_fromBasicCatalog_withIsInlineTrue_createsInlineCatalog() {
+        val basicCatalog = createTestBasicCatalog()
+
+        val catalog = A2uiCatalog(basicCatalog, isInline = true)
+
+        assertThat(catalog.id).isEqualTo(A2uiBasicCatalogV1.CatalogId)
+        assertThat(catalog.isInline).isTrue()
+    }
+
+    @Test
+    fun toJsonSchemaString_returnsSerializedJsonSchemaString() {
+        val catalog =
+            A2uiCatalog(catalogId = TestCatalogId, components = listOf(StubComponent("Component1")))
+
+        val jsonString = catalog.toJsonSchemaString()
+
+        assertThat(jsonString).contains("\"catalogId\":\"$TestCatalogId\"")
+        assertThat(jsonString).contains("\"Component1\"")
+    }
+
+    @Test
+    fun toJsonSchemaMap_returnsSerializedJsonSchemaMap() {
+        val catalog =
+            A2uiCatalog(catalogId = TestCatalogId, components = listOf(StubComponent("Component1")))
+
+        val schemaMap = catalog.toJsonSchemaMap()
+
+        assertThat(schemaMap["catalogId"]).isEqualTo(TestCatalogId)
+        @Suppress("UNCHECKED_CAST") val components = schemaMap["components"] as Map<String, Any?>
+        assertThat(components).containsKey("Component1")
+    }
+
+    @Test
+    fun toInlineCatalog_sharesSameInstanceAndCache() {
+        val catalog =
+            A2uiCatalog(catalogId = "inline_catalog", components = emptyList(), isInline = true)
+        val coreCatalog = catalog as A2uiCoreCatalog
+
+        val inlineCatalog = coreCatalog.toInlineCatalog()
+
+        assertThat(inlineCatalog).isSameInstanceAs(catalog)
+        assertThat(inlineCatalog.toJsonSchemaMap()).isSameInstanceAs(catalog.toJsonSchemaMap())
+        assertThat(inlineCatalog.toJsonSchemaString())
+            .isSameInstanceAs(catalog.toJsonSchemaString())
+    }
+
+    @Test
+    fun toJsonSchema_caching_returnsSameInstancesOnSubsequentCalls() {
+        val prop = A2uiProperty.string("stringProp", required = true)
+        val testComponent =
+            object : A2uiComponent {
+                override val name = "TestComponent"
+                override val description = "Test description"
+                override val properties = listOf(prop)
+
+                @Composable
+                override fun A2uiComponentScope.Content(
+                    properties: A2uiComponentProperties,
+                    modifier: Modifier,
+                ) {}
+            }
+        val catalog = A2uiCatalog(catalogId = TestCatalogId, components = listOf(testComponent))
+
+        val map1 = catalog.toJsonSchemaMap()
+        val str1 = catalog.toJsonSchemaString()
+
+        val map2 = catalog.toJsonSchemaMap()
+        val str2 = catalog.toJsonSchemaString()
+
+        assertThat(map1).isSameInstanceAs(map2)
+        assertThat(str1).isSameInstanceAs(str2)
+        assertThat(map1["components"]).isNotNull()
+        assertThat(str1).contains("TestComponent")
     }
 
     @Test
@@ -295,6 +320,88 @@ class A2uiCatalogTest {
 
         override fun execute(args: Map<String, Any>, executionContext: A2uiExecutionContext): Any? =
             null
+    }
+
+    private companion object {
+        fun createTestBasicCatalog(
+            text: A2uiBasicCatalogV1.Text = createStubText(),
+            image: A2uiBasicCatalogV1.Image = createStubImage(),
+            card: A2uiBasicCatalogV1.Card = createStubCard(),
+            row: A2uiBasicCatalogV1.Row = createStubRow(),
+            column: A2uiBasicCatalogV1.Column = createStubColumn(),
+            button: A2uiBasicCatalogV1.Button = createStubButton(),
+            functions: List<A2uiFunction> = emptyList(),
+        ) =
+            A2uiBasicCatalogV1(
+                text = text,
+                image = image,
+                card = card,
+                row = row,
+                column = column,
+                button = button,
+                functions = functions,
+            )
+
+        fun createStubText() =
+            object : A2uiBasicCatalogV1.Text {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    text: String,
+                    variant: A2uiBasicCatalogV1.Text.Variant,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubImage() =
+            object : A2uiBasicCatalogV1.Image {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    url: String,
+                    description: String?,
+                    fit: A2uiBasicCatalogV1.Image.Fit,
+                    variant: A2uiBasicCatalogV1.Image.Variant,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubCard() =
+            object : A2uiBasicCatalogV1.Card {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier) {}
+            }
+
+        fun createStubRow() =
+            object : A2uiBasicCatalogV1.Row {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    children: List<A2uiComponentReference>,
+                    justify: A2uiBasicCatalogV1.Row.Justify,
+                    align: A2uiBasicCatalogV1.Row.Align,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubColumn() =
+            object : A2uiBasicCatalogV1.Column {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    children: List<A2uiComponentReference>,
+                    justify: A2uiBasicCatalogV1.Column.Justify,
+                    align: A2uiBasicCatalogV1.Column.Align,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubButton() =
+            object : A2uiBasicCatalogV1.Button {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    childId: String,
+                    variant: A2uiBasicCatalogV1.Button.Variant,
+                    action: Map<String, Any?>,
+                    modifier: Modifier,
+                ) {}
+            }
     }
 }
 
