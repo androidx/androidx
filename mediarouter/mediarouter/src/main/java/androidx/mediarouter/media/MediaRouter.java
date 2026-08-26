@@ -1075,10 +1075,15 @@ public final class MediaRouter {
     }
 
     /**
-     * Sets a list of {@link SuggestedDeviceInfo device suggestions}.
+     * Sets a list of suggested routes.
      *
      * <p>Use this method to advertise device suggestions for routing. UI elements in the system and
      * within the app may use these suggestions to show one-tap transfer affordances to the user.
+     *
+     * <p>This feature requires Android 11 (API level 30) or higher and that the app has {@link
+     * MediaTransferReceiver media transfer enabled} (either declared in the manifest or enabled via
+     * {@link MediaRouterParams.Builder#setMediaTransferReceiverEnabled(boolean)}). On earlier
+     * platform versions, this method is a no-op and all suggestions are dropped.
      *
      * <p>Suggestions may be expired automatically by the system, at which point you should call
      * this method again if the suggestion is still relevant and should still be surfaced.
@@ -1086,13 +1091,23 @@ public final class MediaRouter {
      * <p>Call this method with an empty list to explicitly recommend that no suggestions are
      * appropriate.
      *
-     * @param deviceSuggestions The {@link SuggestedDeviceInfo} the router suggests should be
-     *     provided to the user.
+     * <p>MediaRouter will drop unsupported suggestions, including:
+     *
+     * <ul>
+     *   <li>System routes (such as the built-in speaker or Bluetooth routes).
+     *   <li>Routes that are not accessible to the Android platform (via {@link
+     *       android.media.MediaRouter2}). For example, custom in-process routes added via {@link
+     *       #addProvider(MediaRouteProvider)} without an exported {@link MediaRouteProviderService}
+     *       are not accessible to the platform and will be dropped.
+     * </ul>
+     *
+     * @param routes The {@link RouteInfo} routes the router suggests should be provided to the
+     *     user.
      */
     @MainThread
-    public void setDeviceSuggestions(@NonNull List<SuggestedDeviceInfo> deviceSuggestions) {
+    public void setDeviceSuggestions(@NonNull List<RouteInfo> routes) {
         checkCallingThread();
-        getGlobalRouter().setDeviceSuggestions(deviceSuggestions);
+        getGlobalRouter().setDeviceSuggestions(routes);
     }
 
     /**

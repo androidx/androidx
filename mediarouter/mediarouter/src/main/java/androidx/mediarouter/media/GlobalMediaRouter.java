@@ -413,8 +413,26 @@ import java.util.concurrent.Executor;
         }
     }
 
-    /* package */ void setDeviceSuggestions(@NonNull List<SuggestedDeviceInfo> suggestedDevices) {
-        mDeviceSuggestionsImpl.setDeviceSuggestions(suggestedDevices);
+    /* package */ void setDeviceSuggestions(@NonNull List<MediaRouter.RouteInfo> routes) {
+        List<SuggestedDeviceInfo> validSuggestions = new ArrayList<>();
+        for (MediaRouter.RouteInfo route : routes) {
+            if (route.getProviderInstance() != mMr2Provider) {
+                Log.w(
+                        TAG,
+                        "Dropping suggestion for route "
+                                + route.getName()
+                                + " because it is not backed by MediaRouter2.");
+                continue;
+            }
+            SuggestedDeviceInfo.Builder builder =
+                    new SuggestedDeviceInfo.Builder(
+                            route.getName(), route.getId(), route.getDeviceType());
+            if (route.getExtras() != null) {
+                builder.setExtras(route.getExtras());
+            }
+            validSuggestions.add(builder.build());
+        }
+        mDeviceSuggestionsImpl.setDeviceSuggestions(validSuggestions);
     }
 
     /* package */ void clearDeviceSuggestions() {

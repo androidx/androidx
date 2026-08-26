@@ -22,9 +22,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
+import android.os.Build;
 
+import androidx.mediarouter.testing.MediaRouterTestHelper;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.platform.concurrent.DirectExecutor;
@@ -45,23 +48,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
 public class DeviceSuggestionsTest {
 
-    private static final String SUGGESTED_DEVICE_DISPLAY_NAME = "Suggested Device";
-    private static final String SUGGESTED_DEVICE_ID = "suggested_device_id";
-    private static final @MediaRouter.RouteInfo.DeviceType int SUGGESTED_DEVICE_TYPE =
-            MediaRouter.RouteInfo.DEVICE_TYPE_REMOTE_SPEAKER;
     private static final int TIMEOUT_SECONDS = 10;
 
     private Context mContext;
     private MediaRouter mMediaRouterUnderTest;
-
-    private final SuggestedDeviceInfo mSuggestedDeviceInfo =
-            new SuggestedDeviceInfo.Builder(
-                            SUGGESTED_DEVICE_DISPLAY_NAME,
-                            SUGGESTED_DEVICE_ID,
-                            SUGGESTED_DEVICE_TYPE)
-                    .build();
 
     private final MediaRouter.Callback mCallback = new MediaRouter.Callback() {};
 
@@ -80,18 +73,29 @@ public class DeviceSuggestionsTest {
             };
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         mContext = ApplicationProvider.getApplicationContext();
         MediaRouteSelector selector =
                 new MediaRouteSelector.Builder()
-                        .addControlCategory(StubMediaRouteProviderService.CATEGORY_TEST)
+                        .addControlCategory(StubMediaRoute2ProviderService.CATEGORY_TEST)
                         .build();
+        MediaRouter2TestActivity.startActivity(mContext);
+
         runOnMain(
                 () -> {
                     mMediaRouterUnderTest = MediaRouter.getInstance(mContext);
+                    MediaRouteSelector placeholderSelector =
+                            new MediaRouteSelector.Builder()
+                                    .addControlCategory("placeholder category")
+                                    .build();
                     mMediaRouterUnderTest.addCallback(
-                            selector, mCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
+                            placeholderSelector,
+                            mCallback,
+                            MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
                 });
+
+        setUpStubProviders();
+        waitForRoutes(mMediaRouterUnderTest, selector);
     }
 
     @After
@@ -100,7 +104,20 @@ public class DeviceSuggestionsTest {
                 () -> {
                     mMediaRouterUnderTest.clearDeviceSuggestions();
                     mMediaRouterUnderTest.removeCallback(mCallback);
+                    StubMediaRouteProviderService registeredService =
+                            StubMediaRouteProviderService.getInstance();
+                    if (registeredService != null
+                            && registeredService.getMediaRouteProvider() != null) {
+                        registeredService.getMediaRouteProvider().setDescriptor(null);
+                    }
+                    StubMediaRoute2ProviderService mr2Service =
+                            StubMediaRoute2ProviderService.getInstance();
+                    if (mr2Service != null && mr2Service.getMediaRouteProvider() != null) {
+                        mr2Service.getMediaRouteProvider().setDescriptor(null);
+                    }
+                    MediaRouterTestHelper.resetMediaRouter();
                 });
+        MediaRouter2TestActivity.finishActivity();
     }
 
     @Test
@@ -119,7 +136,8 @@ public class DeviceSuggestionsTest {
     public void getDeviceSuggestions_afterSettingDeviceSuggestions_returnsDeviceSuggestions() {
         runOnMain(
                 () -> {
-                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(mSuggestedDeviceInfo));
+                    MediaRouter.RouteInfo validRoute = getValidRoute(mMediaRouterUnderTest);
+                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(validRoute));
 
                     Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
                             mMediaRouterUnderTest.getDeviceSuggestions();
@@ -131,11 +149,9 @@ public class DeviceSuggestionsTest {
                     assertEquals(1, suggestedDevices.size());
                     SuggestedDeviceInfo suggestedDeviceFetched = suggestedDevices.get(0);
                     assertEquals(
-                            mSuggestedDeviceInfo.getDeviceDisplayName(),
-                            suggestedDeviceFetched.getDeviceDisplayName());
-                    assertEquals(
-                            mSuggestedDeviceInfo.getRouteId(), suggestedDeviceFetched.getRouteId());
-                    assertEquals(mSuggestedDeviceInfo.getType(), suggestedDeviceFetched.getType());
+                            validRoute.getName(), suggestedDeviceFetched.getDeviceDisplayName());
+                    assertEquals(validRoute.getId(), suggestedDeviceFetched.getRouteId());
+                    assertEquals(validRoute.getDeviceType(), suggestedDeviceFetched.getType());
                 });
     }
 
@@ -143,13 +159,33 @@ public class DeviceSuggestionsTest {
     public void getDeviceSuggestions_afterClearingDeviceSuggestions_returnsEmptyMap() {
         runOnMain(
                 () -> {
-                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(mSuggestedDeviceInfo));
+                    mMediaRouterUnderTest.setDeviceSuggestions(
+                            List.of(getValidRoute(mMediaRouterUnderTest)));
                     mMediaRouterUnderTest.clearDeviceSuggestions();
 
                     Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
                             mMediaRouterUnderTest.getDeviceSuggestions();
 
                     assertTrue(deviceSuggestionsMap.isEmpty());
+                });
+    }
+
+    @Test
+    public void setDeviceSuggestions_withSystemRoute_filtersOutSystemRoute() {
+        runOnMain(
+                () -> {
+                    MediaRouter.RouteInfo defaultRoute = mMediaRouterUnderTest.getDefaultRoute();
+                    assertTrue(defaultRoute.isSystemRoute());
+                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(defaultRoute));
+
+                    Map<String, List<SuggestedDeviceInfo>> deviceSuggestionsMap =
+                            mMediaRouterUnderTest.getDeviceSuggestions();
+
+                    assertTrue(deviceSuggestionsMap.containsKey(mContext.getPackageName()));
+                    List<SuggestedDeviceInfo> suggestedDevices =
+                            deviceSuggestionsMap.get(mContext.getPackageName());
+                    assertNotNull(suggestedDevices);
+                    assertTrue(suggestedDevices.isEmpty());
                 });
     }
 
@@ -167,6 +203,7 @@ public class DeviceSuggestionsTest {
             throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         final SuggestedDeviceInfo[] receivedSuggestion = new SuggestedDeviceInfo[1];
+        final MediaRouter.RouteInfo[] validRoute = new MediaRouter.RouteInfo[1];
         MediaRouter.DeviceSuggestionsUpdatesCallback callback =
                 new MediaRouter.DeviceSuggestionsUpdatesCallback() {
                     @Override
@@ -186,17 +223,16 @@ public class DeviceSuggestionsTest {
 
         runOnMain(
                 () -> {
+                    validRoute[0] = getValidRoute(mMediaRouterUnderTest);
                     mMediaRouterUnderTest.registerDeviceSuggestionsUpdatesCallback(
                             callback, DirectExecutor.INSTANCE);
-                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(mSuggestedDeviceInfo));
+                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(validRoute[0]));
                 });
 
         assertTrue(latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
-        assertEquals(
-                mSuggestedDeviceInfo.getDeviceDisplayName(),
-                receivedSuggestion[0].getDeviceDisplayName());
-        assertEquals(mSuggestedDeviceInfo.getRouteId(), receivedSuggestion[0].getRouteId());
-        assertEquals(mSuggestedDeviceInfo.getType(), receivedSuggestion[0].getType());
+        assertEquals(validRoute[0].getName(), receivedSuggestion[0].getDeviceDisplayName());
+        assertEquals(validRoute[0].getId(), receivedSuggestion[0].getRouteId());
+        assertEquals(validRoute[0].getDeviceType(), receivedSuggestion[0].getType());
         runOnMain(() -> mMediaRouterUnderTest.unregisterDeviceSuggestionsUpdatesCallback(callback));
     }
 
@@ -224,7 +260,8 @@ public class DeviceSuggestionsTest {
                 () -> {
                     mMediaRouterUnderTest.registerDeviceSuggestionsUpdatesCallback(
                             callback, DirectExecutor.INSTANCE);
-                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(mSuggestedDeviceInfo));
+                    mMediaRouterUnderTest.setDeviceSuggestions(
+                            List.of(getValidRoute(mMediaRouterUnderTest)));
                     mMediaRouterUnderTest.clearDeviceSuggestions();
                 });
 
@@ -268,7 +305,8 @@ public class DeviceSuggestionsTest {
                                 callback, initialExecutor);
                         mMediaRouterUnderTest.registerDeviceSuggestionsUpdatesCallback(
                                 callback, newExecutor);
-                        mMediaRouterUnderTest.setDeviceSuggestions(List.of(mSuggestedDeviceInfo));
+                        mMediaRouterUnderTest.setDeviceSuggestions(
+                                List.of(getValidRoute(mMediaRouterUnderTest)));
                     });
 
             assertTrue(latch.await(TIMEOUT_SECONDS, TimeUnit.SECONDS));
@@ -316,12 +354,103 @@ public class DeviceSuggestionsTest {
                     mMediaRouterUnderTest.registerDeviceSuggestionsUpdatesCallback(
                             callback, DirectExecutor.INSTANCE);
                     mMediaRouterUnderTest.unregisterDeviceSuggestionsUpdatesCallback(callback);
-                    mMediaRouterUnderTest.setDeviceSuggestions(List.of(mSuggestedDeviceInfo));
+                    mMediaRouterUnderTest.setDeviceSuggestions(
+                            List.of(getValidRoute(mMediaRouterUnderTest)));
                 });
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
-    private void runOnMain(Runnable runnable) {
+    /**
+     * Finds an MR2-backed route (from StubMediaRoute2Provider for example). Must be called on main
+     * thread.
+     */
+    private static MediaRouter.@NonNull RouteInfo getValidRoute(@NonNull MediaRouter router) {
+        for (MediaRouter.RouteInfo route : router.getRoutes()) {
+            if (route.getProviderInstance() instanceof MediaRoute2Provider) {
+                return route;
+            }
+        }
+        throw new IllegalStateException("No MediaRoute2-backed route found.");
+    }
+
+    /** Blocks until an MR2 route has been discovered and added to the router. */
+    private static void waitForRoutes(
+            @NonNull MediaRouter router, @NonNull MediaRouteSelector selector) {
+        MediaRouter.Callback callback = new MediaRouter.Callback() {};
+        runOnMain(
+                () ->
+                        router.addCallback(
+                                selector,
+                                callback,
+                                MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY
+                                        | MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN));
+        try {
+            new PollingCheck(TIMEOUT_SECONDS * 1000) {
+                @Override
+                protected boolean check() {
+                    final boolean[] found = new boolean[1];
+                    runOnMain(
+                            () -> {
+                                for (MediaRouter.RouteInfo route : router.getRoutes()) {
+                                    if (route.getProviderInstance()
+                                            instanceof MediaRoute2Provider) {
+                                        found[0] = true;
+                                        break;
+                                    }
+                                }
+                            });
+                    return found[0];
+                }
+            }.run();
+        } finally {
+            runOnMain(() -> router.removeCallback(callback));
+        }
+    }
+
+    /**
+     * Polls for the stub provider services and initializes their routes. This ensures the framework
+     * is ready for testing.
+     */
+    private static void setUpStubProviders() {
+        new PollingCheck(TIMEOUT_SECONDS * 1000) {
+            @Override
+            protected boolean check() {
+                StubMediaRouteProviderService registeredProviderService =
+                        StubMediaRouteProviderService.getInstance();
+                StubMediaRoute2ProviderService mr2ProviderService =
+                        StubMediaRoute2ProviderService.getInstance();
+
+                if (registeredProviderService != null) {
+                    MediaRouteProviderService.MediaRouteProviderServiceImplApi30 serviceImpl =
+                            (MediaRouteProviderService.MediaRouteProviderServiceImplApi30)
+                                    registeredProviderService.mImpl;
+                    if (serviceImpl.mMR2ProviderServiceAdapter == null) {
+                        return false;
+                    }
+                }
+
+                return registeredProviderService != null
+                        && registeredProviderService.getMediaRouteProvider() != null
+                        && mr2ProviderService != null
+                        && mr2ProviderService.getMediaRouteProvider() != null;
+            }
+        }.run();
+
+        runOnMain(
+                () -> {
+                    StubMediaRouteProviderService.StubMediaRouteProvider registeredProvider =
+                            StubMediaRouteProviderService.getInstance().getMediaRouteProvider();
+                    StubMediaRoute2ProviderService.StubMediaRoute2Provider mr2Provider =
+                            StubMediaRoute2ProviderService.getInstance().getMediaRouteProvider();
+
+                    registeredProvider.initializeRoutes();
+                    registeredProvider.publishRoutes();
+                    mr2Provider.initializeRoutes();
+                    mr2Provider.publishRoutes();
+                });
+    }
+
+    private static void runOnMain(Runnable runnable) {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(runnable);
     }
 }

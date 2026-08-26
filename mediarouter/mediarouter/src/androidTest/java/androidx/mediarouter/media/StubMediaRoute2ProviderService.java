@@ -94,7 +94,12 @@ public class StubMediaRoute2ProviderService extends MediaRouteProviderService {
         return new StubMediaRoute2Provider(this);
     }
 
-    static class StubMediaRoute2Provider extends MediaRouteProvider {
+    @Override
+    public @Nullable StubMediaRoute2Provider getMediaRouteProvider() {
+        return (StubMediaRoute2Provider) super.getMediaRouteProvider();
+    }
+
+    public static class StubMediaRoute2Provider extends MediaRouteProvider {
         private final Object mLock = new Object();
 
         @GuardedBy("mLock")

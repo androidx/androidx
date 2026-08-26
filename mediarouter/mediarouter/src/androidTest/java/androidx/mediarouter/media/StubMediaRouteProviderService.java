@@ -82,7 +82,12 @@ public class StubMediaRouteProviderService extends MediaRouteProviderService {
         return new StubMediaRouteProvider(this);
     }
 
-    static class StubMediaRouteProvider extends MediaRouteProvider {
+    @Override
+    public @Nullable StubMediaRouteProvider getMediaRouteProvider() {
+        return (StubMediaRouteProvider) super.getMediaRouteProvider();
+    }
+
+    public static class StubMediaRouteProvider extends MediaRouteProvider {
         Map<String, MediaRouteDescriptor> mRoutes = new ArrayMap<>();
         Map<String, StubRouteController> mControllers = new ArrayMap<>();
         boolean mSupportsDynamicGroup = false;
