@@ -44,7 +44,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.layout.ContentScale
@@ -123,14 +122,13 @@ class CardTest {
     @Test
     fun shapeAndColorFromThemeIsUsed() {
         lateinit var expectedShape: Shape
-        var expectedSurfaceColor: Color? = null
         val surfaceColor = Color.Blue
         val backgroundColor = Color.Red
         rule.setGlimmerThemeContent(
-            colors = Colors(surface = surfaceColor, background = backgroundColor)
+            addInitialFocusInterceptor = true,
+            colors = Colors(surface = surfaceColor, background = backgroundColor),
         ) {
             expectedShape = GlimmerTheme.shapes.medium
-            expectedSurfaceColor = SurfaceDefaults.color(surfaceColor)
             Card(modifier = Modifier.testTag("card")) { Box(Modifier.size(100.dp, 100.dp)) }
         }
 
@@ -141,9 +139,34 @@ class CardTest {
             backgroundColor = backgroundColor,
         )
         val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
-        val expectedCompositeColor =
-            Color.White.copy(alpha = 0.16f).compositeOver(expectedSurfaceColor!!)
-        assertThat(centerColor).isEqualTo(expectedCompositeColor)
+        assertThat(centerColor).isEqualTo(surfaceColor)
+    }
+
+    @Test
+    fun shapeAndColorFromThemeIsUsedWhenFocused() {
+        lateinit var expectedShape: Shape
+        var expectedFocusedSurfaceColor: Color? = null
+        val surfaceColor = Color.Blue
+        val backgroundColor = Color.Red
+        rule.setGlimmerThemeContent(
+            addInitialFocusInterceptor = false,
+            colors = Colors(surface = surfaceColor, background = backgroundColor),
+        ) {
+            expectedShape = GlimmerTheme.shapes.medium
+            expectedFocusedSurfaceColor = SurfaceDefaults.focusedColor(surfaceColor)
+            Card(modifier = Modifier.testTag("card")) { Box(Modifier.size(100.dp, 100.dp)) }
+        }
+
+        rule.waitForIdle()
+
+        val image = rule.onNodeWithTag("card").captureToImage()
+        image.assertGlimmerSurfaceShape(
+            density = rule.density,
+            shape = expectedShape,
+            backgroundColor = backgroundColor,
+        )
+        val centerColor = image.toPixelMap().run { get(width / 2, height / 2) }
+        assertThat(centerColor).isEqualTo(expectedFocusedSurfaceColor)
     }
 
     @Test

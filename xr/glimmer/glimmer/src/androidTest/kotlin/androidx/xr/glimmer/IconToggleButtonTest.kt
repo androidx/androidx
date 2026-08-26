@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.xr.glimmer.internal.color.withToneAndChroma
+import androidx.xr.glimmer.internal.color.withTone
 import androidx.xr.glimmer.testutils.assertGlimmerSurfaceShape
 import androidx.xr.glimmer.testutils.captureToImage
 import com.google.common.truth.Truth.assertThat
@@ -65,8 +65,7 @@ class IconToggleButtonTest {
     fun iconToggleButton_defaultColors() {
         rule.setGlimmerThemeContent {
             val colors = IconToggleButtonDefaults.colors()
-            val expectedCheckedBackgroundColor =
-                GlimmerTheme.colors.primary.withToneAndChroma(newTone = 70f, newChroma = 50f)
+            val expectedCheckedBackgroundColor = GlimmerTheme.colors.primary.withTone(newTone = 70f)
             assertThat(colors.backgroundColor).isEqualTo(GlimmerTheme.colors.surface)
             assertThat(colors.checkedBackgroundColor).isEqualTo(expectedCheckedBackgroundColor)
             assertThat(IconToggleButtonDefaults.checkedBackgroundColor())
@@ -298,7 +297,7 @@ class IconToggleButtonTest {
             }
         }
 
-        val expectedRed = Color.Red.withToneAndChroma(newTone = 70f, newChroma = 50f)
+        val expectedRed = Color.Red.withTone(newTone = 70f)
         rule.onNodeWithTag("icon_toggle_button").captureToImage().toPixelMap().run {
             assertThat(get(width / 8, height / 2)).isEqualTo(expectedRed)
         }
@@ -306,7 +305,7 @@ class IconToggleButtonTest {
         themeColors = Colors(primary = Color.Blue)
         rule.waitForIdle()
 
-        val expectedBlue = Color.Blue.withToneAndChroma(newTone = 70f, newChroma = 50f)
+        val expectedBlue = Color.Blue.withTone(newTone = 70f)
         rule.onNodeWithTag("icon_toggle_button").captureToImage().toPixelMap().run {
             assertThat(get(width / 8, height / 2)).isEqualTo(expectedBlue)
         }
