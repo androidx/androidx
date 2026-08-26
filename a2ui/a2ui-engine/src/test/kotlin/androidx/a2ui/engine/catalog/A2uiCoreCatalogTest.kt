@@ -36,6 +36,25 @@ import org.junit.Test
 class A2uiCoreCatalogTest {
 
     @Test
+    fun isInline_defaultImplementation_returnsFalse() {
+        val catalog = createCatalog(id = TEST_CATALOG_ID_1)
+        assertThat(catalog.isInline).isFalse()
+    }
+
+    @Test
+    fun obtainSerializer_returnsNewSerializerConfiguredForCatalog() {
+        val catalog = createCatalog(id = TEST_CATALOG_ID_1)
+        val serializer1 = catalog.obtainSerializer()
+        val serializer2 = catalog.obtainSerializer()
+
+        assertThat(serializer1).isNotNull()
+        assertThat(serializer2).isNotNull()
+        assertThat(serializer1).isNotSameInstanceAs(serializer2)
+        assertThat(serializer1.catalog).isSameInstanceAs(catalog)
+        assertThat(serializer2.catalog).isSameInstanceAs(catalog)
+    }
+
+    @Test
     fun toJsonSchema_withFullMetadata_serializesAllMetadataFields() {
         val catalog =
             createCatalog(title = TEST_CATALOG_TITLE, description = TEST_CATALOG_DESCRIPTION)
@@ -410,6 +429,7 @@ class A2uiCoreCatalogTest {
         components: List<A2uiCoreComponentDefinition> = emptyList(),
         functions: List<A2uiFunction> = emptyList(),
         themeSchema: A2uiSchema? = null,
+        isInline: Boolean = false,
     ): A2uiCoreCatalog =
         object : A2uiCoreCatalog {
             override val id: String = id
@@ -419,6 +439,7 @@ class A2uiCoreCatalogTest {
                 A2uiCoreComponentDefinitionCollection(components)
             override val functions: A2uiFunctionCollection = A2uiFunctionCollection(functions)
             override val themeSchema: A2uiSchema? = themeSchema
+            override val isInline: Boolean = isInline
         }
 
     private fun createTestComponent(
@@ -452,7 +473,7 @@ class A2uiCoreCatalogTest {
         }
 
     private fun parseCatalogJsonSchema(catalog: A2uiCoreCatalog): JsonObject =
-        Json.parseToJsonElement(catalog.toJsonSchema()) as JsonObject
+        Json.parseToJsonElement(catalog.obtainSerializer().jsonSchemaString) as JsonObject
 
     companion object {
         private const val KEY_SCHEMA = "\$schema"

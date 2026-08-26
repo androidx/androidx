@@ -20,6 +20,7 @@
 package androidx.a2ui.engine.processor
 
 import androidx.a2ui.engine.catalog.A2uiCoreCatalog
+import androidx.a2ui.engine.catalog.toInlineCatalog
 import androidx.a2ui.engine.model.A2uiCoreSurfaceGroupModel
 import androidx.a2ui.engine.platform.A2uiCoreComponentRegistry
 import androidx.a2ui.engine.platform.A2uiCoreDataModel
@@ -29,6 +30,7 @@ import androidx.a2ui.model.processor.A2uiSurfaceModel
 import androidx.a2ui.model.protocol.A2uiClientCapabilities
 import androidx.a2ui.model.protocol.A2uiClientErrorMessage
 import androidx.a2ui.model.protocol.A2uiClientToServerMessage
+import androidx.a2ui.model.protocol.A2uiInlineCatalog
 import androidx.a2ui.model.protocol.A2uiServerToClientMessage
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CoroutineScope
@@ -92,9 +94,21 @@ public class A2uiCoreMessageProcessor(
      * the agent.
      */
     // TODO(b/536820249): Consider combining the catalogs before advertising the capabilities
-    // TODO(b/537714970): Add inline catalog support
-    public val clientCapabilities: A2uiClientCapabilities =
-        A2uiClientCapabilities(supportedCatalogIds = catalogs.map { it.id })
+    public val clientCapabilities: A2uiClientCapabilities = run {
+        val supportedCatalogIds = mutableListOf<String>()
+        val inlineCatalogs = mutableListOf<A2uiInlineCatalog>()
+        for (catalog in catalogs) {
+            if (catalog.isInline) {
+                inlineCatalogs.add(catalog.toInlineCatalog())
+            } else {
+                supportedCatalogIds.add(catalog.id)
+            }
+        }
+        A2uiClientCapabilities(
+            supportedCatalogIds = supportedCatalogIds,
+            inlineCatalogs = inlineCatalogs,
+        )
+    }
 
     /** A flow of user actions and error payloads to be transmitted to the server. */
     override val outboundEvents: Flow<A2uiClientToServerMessage> = _outboundEvents.asSharedFlow()

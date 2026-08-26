@@ -19,13 +19,25 @@ package androidx.a2ui.model.protocol
 /**
  * Represents the client capabilities advertisement sent to the agent during system initialization.
  *
- * @property supportedCatalogIds Ids of component/function catalogs supported by this client
- *   renderer.
+ * @property supportedCatalogIds identifiers of external or pre-shared catalogs supported by
+ *   reference. This list must not include IDs of catalogs provided in [inlineCatalogs].
+ * @property inlineCatalogs full JSON Schema definitions of catalogs advertised inline
  */
-public class A2uiClientCapabilities(public val supportedCatalogIds: List<String>) {
+public class A2uiClientCapabilities
+@JvmOverloads
+constructor(
+    public val supportedCatalogIds: List<String>,
+    public val inlineCatalogs: List<A2uiInlineCatalog> = emptyList(),
+) {
     /** Converts this capability object to the A2UI JSON-compatible Map structure. */
     public fun toPayloadMap(): Map<String, Map<String, Any?>> {
-        val versionPayload = mapOf<String, Any?>("supportedCatalogIds" to supportedCatalogIds)
+        val versionPayload =
+            buildMap<String, Any?> {
+                put("supportedCatalogIds", supportedCatalogIds)
+                if (inlineCatalogs.isNotEmpty()) {
+                    put("inlineCatalogs", inlineCatalogs.map { it.toJsonSchemaMap() })
+                }
+            }
         return mapOf(
             "a2uiClientCapabilities" to
                 mapOf(A2uiProtocolConstants.PROTOCOL_VERSION to versionPayload)
@@ -35,14 +47,17 @@ public class A2uiClientCapabilities(public val supportedCatalogIds: List<String>
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is A2uiClientCapabilities) return false
-        return supportedCatalogIds == other.supportedCatalogIds
+        return supportedCatalogIds == other.supportedCatalogIds &&
+            inlineCatalogs == other.inlineCatalogs
     }
 
     override fun hashCode(): Int {
-        return supportedCatalogIds.hashCode()
+        var result = supportedCatalogIds.hashCode()
+        result = 31 * result + inlineCatalogs.hashCode()
+        return result
     }
 
     override fun toString(): String {
-        return "A2uiClientCapabilities(supportedCatalogIds=$supportedCatalogIds)"
+        return "A2uiClientCapabilities(supportedCatalogIds=$supportedCatalogIds, inlineCatalogs=$inlineCatalogs)"
     }
 }
