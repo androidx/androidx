@@ -16,20 +16,30 @@
 
 package androidx.pdf.view.annotation.tool
 
-import androidx.annotation.DrawableRes
+import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
+import androidx.pdf.ExperimentalPdfApi
 
-/** Represents the configuration and state of a selected annotation tool. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public sealed interface AnnotationToolInfo
+/**
+ * Represents the configuration and state of a selected annotation tool.
+ *
+ * Subclasses encapsulate tool-specific drawing properties such as brush stroke width, color.
+ */
+@ExperimentalPdfApi public sealed interface AnnotationToolInfo
 
 /**
  * Represents the Pen tool with its specific brush size and color.
  *
- * @property brushSize The stroke width of the pen in pixels.
- * @property color The integer value of the selected color.
+ * @property brushSize The stroke width of the pen in pixels. This value will always be positive.
+ * @property color The color integer value of the selected pen stroke.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Pen(public val brushSize: Float, public val color: Int) : AnnotationToolInfo {
+@ExperimentalPdfApi
+public class Pen
+internal constructor(
+    public val brushSize: Float,
+    @get:ColorInt @param:ColorInt public val color: Int,
+) : AnnotationToolInfo {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -50,51 +60,58 @@ public class Pen(public val brushSize: Float, public val color: Int) : Annotatio
     override fun toString(): String {
         return String.format("Pen(brushSize = %f, color = %d)", brushSize, color)
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public companion object {
+        /** Creates a [Pen] instance for testing purposes. */
+        @VisibleForTesting
+        public fun createForTest(brushSize: Float, @ColorInt color: Int): Pen =
+            Pen(brushSize, color)
+    }
 }
 
 /**
- * Represents the Highlighter tool with its brush size and selected color or emoji.
+ * Represents the Highlighter tool with its brush size and selected color.
  *
- * A highlighter can be configured with either a translucent color or an emoji drawable.
- *
- * @property brushSize The stroke width of the highlighter in pixels.
- * @property color The integer value of the selected translucent color, or null if an emoji is
- *   selected.
- * @property emoji The resource ID of the selected emoji drawable, or null if a color is selected.
+ * @property brushSize The stroke width of the highlighter in pixels. This value will always be
+ *   positive.
+ * @property color The color integer value of the selected translucent highlight.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Highlighter(
+@ExperimentalPdfApi
+public class Highlighter
+internal constructor(
     public val brushSize: Float,
-    public val color: Int?,
-    @param:DrawableRes public val emoji: Int?,
+    @get:ColorInt @param:ColorInt public val color: Int,
 ) : AnnotationToolInfo {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Highlighter) return false
 
         if (brushSize != other.brushSize) return false
         if (color != other.color) return false
-        if (emoji != other.emoji) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = brushSize.hashCode()
-        result = 31 * result + (color ?: 0)
-        result = 31 * result + (emoji ?: 0)
+        result = 31 * result + color
         return result
     }
 
     override fun toString(): String {
-        return String.format(
-            "Highlighter(brushSize = %f, color = %d, emoji = %d)",
-            brushSize,
-            color,
-            emoji,
-        )
+        return String.format("Highlighter(brushSize = %f, color = %d)", brushSize, color)
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public companion object {
+        /** Creates a [Highlighter] instance for testing purposes. */
+        @VisibleForTesting
+        public fun createForTest(brushSize: Float, @ColorInt color: Int): Highlighter =
+            Highlighter(brushSize, color)
     }
 }
 
-/** Represents the Eraser tool, which currently has no configurable properties. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public object Eraser : AnnotationToolInfo
+/** Represents the Eraser tool. */
+@ExperimentalPdfApi public object Eraser : AnnotationToolInfo
