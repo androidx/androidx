@@ -314,7 +314,7 @@ testUiautomator = { module = "androidx.test.uiautomator:uiautomator", version = 
 tink = { module = "com.google.crypto.tink:tink", version.ref = "tink" }
 tinkAndroid = { module = "com.google.crypto.tink:tink-android", version.ref = "tink" }
 truth = { module = "com.google.truth:truth", version = "1.0.1" }
-toml = { module = "org.tomlj:tomlj", version = "1.0.0" }
+toml = { module = "tools.jackson.dataformat:jackson-dataformat-toml", version = "3.2.2" }
 uast = { module = "com.android.tools.external.org-jetbrains:uast", version.ref = "androidLint" }
 viewBinding = { module = "androidx.databinding:viewbinding", version = "4.1.2" }
 wireGradlePluginz = { module = "com.squareup.wire:wire-gradle-plugin", version.ref = "wire" }

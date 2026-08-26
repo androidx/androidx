@@ -239,4 +239,77 @@ class PinnedDependenciesTest {
             .hasMessageThat()
             .contains("contains unexpected table/key(s)")
     }
+
+    @Test
+    fun parseTipOfTreeExemptions_validEntries() {
+        val toml =
+            """
+            [[tipOfTreeExemptions]]
+            library = ":fragment:fragment"
+            dependsOn = ":tracing:tracing"
+            validThroughLibraryVersion = "1.9.0-rc01"
+            reason = "b/12345"
+
+            [[tipOfTreeExemptions]]
+            library = ":activity:activity"
+            dependsOn = ":core:core"
+            validThroughLibraryVersion = "1.10.0-alpha01"
+            reason = "b/67890"
+            """
+                .trimIndent()
+        val exemptions = parseTipOfTreeExemptions(toml)
+        assertThat(exemptions)
+            .containsExactly(
+                TipOfTreeExemption(
+                    library = ":fragment:fragment",
+                    dependsOn = ":tracing:tracing",
+                    validThroughLibraryVersion = "1.9.0-rc01",
+                    reason = "b/12345",
+                ),
+                TipOfTreeExemption(
+                    library = ":activity:activity",
+                    dependsOn = ":core:core",
+                    validThroughLibraryVersion = "1.10.0-alpha01",
+                    reason = "b/67890",
+                ),
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun parseTipOfTreeExemptions_invalidSyntaxThrows() {
+        val toml =
+            """
+            [[tipOfTreeExemptions
+            library = ":fragment:fragment"
+            """
+                .trimIndent()
+        assertThrows<GradleException> { parseTipOfTreeExemptions(toml) }
+            .hasMessageThat()
+            .contains("tip-of-tree-dependency-exemptions.toml has issues.")
+    }
+
+    @Test
+    fun parseTipOfTreeExemptions_notAnArrayThrows() {
+        val toml =
+            """
+            tipOfTreeExemptions = "not an array"
+            """
+                .trimIndent()
+        assertThrows<GradleException> { parseTipOfTreeExemptions(toml) }
+            .hasMessageThat()
+            .contains("tipOfTreeExemptions is not an array")
+    }
+
+    @Test
+    fun parseTipOfTreeExemptions_entryNotATableThrows() {
+        val toml =
+            """
+            tipOfTreeExemptions = ["not a table"]
+            """
+                .trimIndent()
+        assertThrows<GradleException> { parseTipOfTreeExemptions(toml) }
+            .hasMessageThat()
+            .contains("tipOfTreeExemptions[0] is not a table")
+    }
 }
