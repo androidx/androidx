@@ -227,6 +227,16 @@ public object EnqueueRunnable {
                                 idAndState.state == WorkInfo.State.ENQUEUED ||
                                     idAndState.state == WorkInfo.State.RUNNING
                             ) {
+                                Logger.get()
+                                    .debug(
+                                        TAG,
+                                        "WorkSpec ${idAndState.id} with unique name \"$name\" " +
+                                            "is already in state ${idAndState.state}. " +
+                                            "Ignoring enqueue with ExistingWorkPolicy.KEEP for: " +
+                                            workList.joinToString(prefix = "[", postfix = "]") {
+                                                it.stringId
+                                            },
+                                    )
                                 return false
                             }
                         }
