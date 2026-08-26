@@ -167,6 +167,35 @@ class ClangBuildServiceTest : BaseClangTest() {
     }
 
     @Test
+    fun runLinkerAndroid() {
+        val compileParameters =
+            createCompileParameters("code.c", C_HELLO_WORLD, target = NativeTarget.ANDROID_ARM64)
+        buildService.compile(compileParameters)
+        val sharedLibraryParameters = project.objects.newInstance(ClangLinkerParameters::class.java)
+        sharedLibraryParameters.target.set(compileParameters.target)
+        sharedLibraryParameters.objectFiles.from(compileParameters.output)
+        sharedLibraryParameters.linkerOutputKind.set(LinkerOutputKind.DYNAMIC_LIBRARY)
+        val outputFile = tmpFolder.newFile("libcode.so")
+        sharedLibraryParameters.outputFile.set(outputFile)
+        buildService.runLinker(sharedLibraryParameters)
+
+        val strings = extractStrings(outputFile)
+        assertThat(strings).contains("Hello, World!!")
+        // should link with libc
+        assertThat(strings).contains("libc")
+
+        val alignment =
+            ProcessBuilder("objdump", "-p", outputFile.path)
+                .start()
+                .inputStream
+                .bufferedReader()
+                .useLines { lines ->
+                    lines.filter { it.contains("LOAD") }.map { it.split(" ").last() }.firstOrNull()
+                }
+        assertThat(alignment).isEqualTo("2**14")
+    }
+
+    @Test
     fun archive() {
         val compileParams = createCompileParameters("code.c", C_HELLO_WORLD)
         buildService.compile(compileParams)
