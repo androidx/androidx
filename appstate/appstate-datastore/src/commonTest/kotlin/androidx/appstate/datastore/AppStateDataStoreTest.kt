@@ -62,9 +62,7 @@ class AppStateDataStoreTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val defaultValue = "default"
         val appState = AppState()
-        val job = launch {
-            appState.addAppStateToDataStoreListener(testFile.toString(), backgroundScope)
-        }
+        val job = launch { appState.syncToDataStore(testFile.toString(), backgroundScope) }
 
         val state = appState.getState(StringKey, defaultValue)
         assertThat(state.value).isEqualTo(defaultValue)
@@ -100,7 +98,7 @@ class AppStateDataStoreTest {
         val updatedValue = "new value"
         val appState = AppState()
         appState.getState(StringKey, defaultValue)
-        val job = launch { appState.addAppStateToDataStoreListener(dataStore) }
+        val job = launch { appState.syncToDataStore(dataStore) }
 
         // Update AppState key value
         appState.setState(StringKey, updatedValue)
@@ -140,7 +138,7 @@ class AppStateDataStoreTest {
 
         val appState = AppState()
         appState.getState(IntKey, defaultValue)
-        val job = launch { appState.addAppStateToDataStoreListener(dataStore) }
+        val job = launch { appState.syncToDataStore(dataStore) }
 
         // Set initial AppState value
         appState.setState(IntKey, initialValue)
@@ -177,7 +175,7 @@ class AppStateDataStoreTest {
         val updatedValue = "new value"
         val appState = AppState()
         appState.getState(NonPersistedStringKey, defaultValue)
-        val job = launch { appState.addAppStateToDataStoreListener(dataStore) }
+        val job = launch { appState.syncToDataStore(dataStore) }
 
         // Update AppState key value
         appState.setState(NonPersistedStringKey, updatedValue)
@@ -223,7 +221,7 @@ class AppStateDataStoreTest {
         assertThat(state.value).isEqualTo(defaultValue)
 
         // Register the listener, which should trigger a datastore read and update appstate
-        val job = launch { appState.addAppStateToDataStoreListener(dataStore) }
+        val job = launch { appState.syncToDataStore(dataStore) }
 
         sendApplyNotifications()
         advanceUntilIdle()
@@ -258,7 +256,7 @@ class AppStateDataStoreTest {
         appState.getState(StringKey, defaultValue)
 
         // Register the listener and capture the job so we can cancel for cleanup
-        val job = launch { appState.addAppStateToDataStoreListener(dataStore) }
+        val job = launch { appState.syncToDataStore(dataStore) }
 
         // Update AppState key value
         appState.setState(StringKey, firstValue)

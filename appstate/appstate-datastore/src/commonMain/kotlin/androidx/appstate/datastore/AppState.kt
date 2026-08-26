@@ -42,39 +42,34 @@ import okio.FileSystem
 import okio.Path.Companion.toPath
 
 /**
- * Listens to [AppState] changes and persists annotated keys to a [DataStore] backed by a file.
+ * Tracks changes to [AppState] and persists annotated keys to a [DataStore] backed by a file.
  *
  * Keys must be annotated with [PersistToDataStore] to be saved.
  *
- * @sample androidx.appstate.datastore.samples.AppStateDataStoreListenerPathSample
+ * @sample androidx.appstate.datastore.samples.SyncAppStateDataStorePathSample
  * @param path the file path to save and restore state from
  * @param coroutineScope the [CoroutineScope] used for the [DataStore]
  */
 @Suppress("PairedRegistration")
-public suspend fun AppState.addAppStateToDataStoreListener(
-    path: String,
-    coroutineScope: CoroutineScope,
-) {
+public suspend fun AppState.syncToDataStore(path: String, coroutineScope: CoroutineScope) {
     val dataStore =
         DataStoreFactory.create(
             storage = OkioStorage(FileSystem.SYSTEM, AppStateSerializer) { path.toPath() },
             scope = coroutineScope,
         )
-    addAppStateToDataStoreListener(dataStore)
+    syncToDataStore(dataStore)
 }
 
 /**
- * Listens to [AppState] changes and persists annotated keys to [DataStore].
+ * Tracks changes to [AppState] and syncs annotated keys to [DataStore].
  *
  * Keys must be annotated with [PersistToDataStore] to be saved.
  *
- * @sample androidx.appstate.datastore.samples.AppStateDataStoreListenerSample
+ * @sample androidx.appstate.datastore.samples.SyncAppStateDataStoreSample
  * @param dataStore the [DataStore] used to save and restore state
  */
 @Suppress("PairedRegistration")
-public suspend fun AppState.addAppStateToDataStoreListener(
-    dataStore: DataStore<AppStatePreferences>
-) {
+public suspend fun AppState.syncToDataStore(dataStore: DataStore<AppStatePreferences>) {
     listener {
         val activeKeys = keys
         for (key in activeKeys) {
@@ -97,10 +92,7 @@ public suspend fun AppState.addAppStateToDataStoreListener(
                             val serializer = serializer(valueType)
                             val decoded = Json.decodeFromString(serializer, valueJson)
                             @Suppress("UNCHECKED_CAST")
-                            this@addAppStateToDataStoreListener.setState(
-                                key as AppStateKey<Any>,
-                                decoded as Any,
-                            )
+                            this@syncToDataStore.setState(key as AppStateKey<Any>, decoded as Any)
                             restoredValue.value = decoded
                         } catch (e: SerializationException) {
                             throw CorruptionException("Unable to deserialize JSON from String.", e)
