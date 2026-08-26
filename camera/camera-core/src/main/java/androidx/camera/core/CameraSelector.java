@@ -360,6 +360,10 @@ public final class CameraSelector {
         public static @NonNull Builder fromSelector(@NonNull CameraSelector cameraSelector) {
             CameraSelector.Builder builder = new CameraSelector.Builder(
                     cameraSelector.getCameraFilterSet());
+            String physicalCameraId = cameraSelector.getPhysicalCameraId();
+            if (physicalCameraId != null) {
+                builder.setPhysicalCameraId(physicalCameraId);
+            }
             return builder;
         }
 
