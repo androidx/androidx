@@ -58,7 +58,7 @@ dependencies {
 
 android {
     namespace = "androidx.xr.glimmer"
-    compileSdk { version = release(37) { minorApiLevel = 1 } }
+    compileSdk { version = release(37) }
     defaultConfig {
         testInstrumentationRunner "androidx.xr.glimmer.GlimmerTestRunner"
     }
