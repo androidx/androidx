@@ -555,19 +555,20 @@ public fun FollowingSubspace(
  * system's recommended content box, similar to [Subspace].
  *
  * When the `follow` parameter is specified to be
- * [androidx.xr.compose.subspace.animation.follow.FollowTarget.View], the content will be positioned
+ * [androidx.xr.compose.subspace.animation.follow.FollowTarget.view], the content will be positioned
  * relative the view of the AR device. This is sometimes referred to as head-locked content. For
  * this API, it is required for device tracking to not be disabled in the session configuration. If
  * it is disabled, this API will not return anything. The session configuration should resemble
  * `session.configure( config =
  * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )` The
- * [androidx.xr.compose.subspace.animation.follow.FollowTarget.View] is not compatible with
+ * [androidx.xr.compose.subspace.animation.follow.FollowTarget.view] is not compatible with
  * [androidx.xr.compose.subspace.animation.follow.FollowMode.tight]. Combining these together will
  * cause this composable to not be displayed. For a near tight experience, use
  * [androidx.xr.compose.subspace.animation.follow.FollowMode.soft] with a low duration value such as
  * `FollowMode.soft([androidx.xr.compose.subspace.animation.follow.FollowMode.Companion.MIN_SOFT_DURATION_MS])`
  *
- * When the `follow` parameter is specified to be [FollowTarget.Anchor], the content will be
+ * When the `follow` parameter is specified to be
+ * [androidx.xr.compose.subspace.animation.follow.FollowTarget.anchor], the content will be
  * positioned around an anchor. This is useful for placing UI elements on real-world surfaces or at
  * specific spatial locations. The visual stability of the anchored content depends on the
  * underlying system's ability to track the [androidx.xr.scenecore.AnchorSpace]. For Creating,
