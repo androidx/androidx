@@ -25,6 +25,7 @@ import androidx.appfunctions.AppFunctionActivityState
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
 import androidx.appfunctions.metadata.AppFunctionMetadata
 
@@ -71,6 +72,7 @@ public interface AppFunctionManagerApi {
 
     /** Registers multiple callback-based runtime implementations of app functions. */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @OptIn(ExperimentalAppFunctionsApi::class)
     public fun registerAppFunctions(
         requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration

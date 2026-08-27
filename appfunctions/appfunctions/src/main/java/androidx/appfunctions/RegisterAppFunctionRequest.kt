@@ -16,16 +16,16 @@
 
 package androidx.appfunctions
 
-import androidx.annotation.RestrictTo
 import java.util.concurrent.Executor
 
 /**
  * A request to register a [CallbackAppFunction] implementation, provided to
  * [AppFunctionManager.registerAppFunctions].
  *
- * This encapsulates the information needed to register a single app function.
+ * This encapsulates the information needed to register a single app function, equivalent to the
+ * arguments to [AppFunctionManager.registerAppFunction].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalAppFunctionsApi
 public class RegisterAppFunctionRequest(
     /** The unique identifier of the app function. */
     public val functionIdentifier: String,

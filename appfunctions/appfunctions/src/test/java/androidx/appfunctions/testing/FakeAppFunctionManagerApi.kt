@@ -19,10 +19,12 @@ package androidx.appfunctions.testing
 import android.app.appfunctions.AppFunctionRegistration
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
 import androidx.appfunctions.internal.AppFunctionManagerApi
 import androidx.appfunctions.metadata.AppFunctionMetadata
 
+@OptIn(ExperimentalAppFunctionsApi::class)
 class FakeAppFunctionManagerApi : AppFunctionManagerApi {
     var executeAppFunctionResponse: ExecuteAppFunctionResponse? = null
 

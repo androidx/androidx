@@ -27,17 +27,19 @@ import androidx.appfunctions.AppFunctionFunctionNotFoundException
 import androidx.appfunctions.CallbackAppFunction
 import androidx.appfunctions.ExecuteAppFunctionRequest.Companion.toCompatExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
 import java.util.concurrent.Executor
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 /** Extension functions to adapt platform AppFunction types. */
-@OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
+@OptIn(DelicateCoroutinesApi::class, ExperimentalAppFunctionsApi::class)
 @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
 internal fun CallbackAppFunction.toPlatformAppFunction(
     appFunctionReader: AppFunctionReader,
@@ -83,7 +85,7 @@ internal fun CallbackAppFunction.toPlatformAppFunction(
                                 )
                         val compatRequest =
                             request.toCompatExecuteAppFunctionRequest(functionMetadata)
-                        execute(compatRequest, delegateSignal) { response ->
+                        onExecuteAppFunction(compatRequest, delegateSignal) { response ->
                             when (response) {
                                 is ExecuteAppFunctionResponse.Success -> {
                                     callback.onResult(
@@ -116,6 +118,7 @@ internal fun CallbackAppFunction.toPlatformAppFunction(
 }
 
 @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+@OptIn(ExperimentalAppFunctionsApi::class)
 internal fun RegisterAppFunctionRequest.toPlatformRegisterAppFunctionRequest(
     appFunctionReader: AppFunctionReader
 ): android.app.appfunctions.RegisterAppFunctionRequest {
