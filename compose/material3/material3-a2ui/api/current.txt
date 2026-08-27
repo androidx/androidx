@@ -42,18 +42,6 @@ package androidx.compose.material3.a2ui {
     field public static final androidx.compose.material3.a2ui.MaterialDividerComponent INSTANCE;
   }
 
-  public final class MaterialListComponent implements androidx.a2ui.compose.ui.A2uiComponent {
-    method @KotlinOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
-    method @InaccessibleFromKotlin public String getDescription();
-    method @InaccessibleFromKotlin public String getName();
-    method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
-    property public String description;
-    property public String name;
-    property public java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties;
-    field public static final androidx.compose.material3.a2ui.MaterialListComponent INSTANCE;
-  }
-
   public final class MaterialSliderComponent implements androidx.a2ui.compose.ui.A2uiComponent {
     method @KotlinOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable public void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
@@ -109,6 +97,7 @@ package androidx.compose.material3.a2ui.catalog {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column getColumn();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput getDateTimeInput();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon getIcon();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List getList();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row getRow();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text getText();
     method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image(androidx.compose.material3.a2ui.catalog.A2uiImageRenderer imageRenderer);
@@ -117,14 +106,15 @@ package androidx.compose.material3.a2ui.catalog {
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon icon;
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List list;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text;
     field public static final androidx.compose.material3.a2ui.catalog.MaterialA2uiBasicCatalogV1Defaults INSTANCE;
   }
 
   public final class MaterialA2uiBasicCatalogV1Kt {
-    method public static androidx.a2ui.compose.ui.A2uiCatalog materialA2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image, androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon icon, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput);
-    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! materialA2uiBasicCatalogV1$default(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image!, androidx.a2ui.model.catalog.functions.A2uiUrlOpener!, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput!, int, Object!);
+    method public static androidx.a2ui.compose.ui.A2uiCatalog materialA2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image, androidx.a2ui.model.catalog.functions.A2uiUrlOpener urlOpener, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter messageFormatter, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider localeProvider, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon icon, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List list, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button, optional androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput);
+    method @BytecodeOnly public static androidx.a2ui.compose.ui.A2uiCatalog! materialA2uiBasicCatalogV1$default(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image!, androidx.a2ui.model.catalog.functions.A2uiUrlOpener!, androidx.a2ui.model.catalog.functions.A2uiMessageFormatter!, androidx.a2ui.model.catalog.functions.A2uiLocaleProvider!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button!, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput!, int, Object!);
   }
 
 }
