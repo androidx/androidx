@@ -42,7 +42,7 @@ class BrushBehaviorTest {
             targetModifierRangeEnd = 1.7f,
             input =
                 DampingNode(
-                    dampingSource = ProgressDomain.TIME_IN_SECONDS,
+                    dampOver = ProgressDomain.TIME_IN_SECONDS,
                     strength = 0.001f,
                     input =
                         ResponseNode(
@@ -113,7 +113,7 @@ class BrushBehaviorTest {
                     targetModifierRangeEnd = 1.75f,
                     input =
                         DampingNode(
-                            dampingSource = ProgressDomain.TIME_IN_SECONDS,
+                            dampOver = ProgressDomain.TIME_IN_SECONDS,
                             strength = 0.001f,
                             input =
                                 ResponseNode(
@@ -142,7 +142,7 @@ class BrushBehaviorTest {
                     targetModifierRangeEnd = 1.75f,
                     input =
                         DampingNode(
-                            dampingSource = ProgressDomain.TIME_IN_SECONDS,
+                            dampOver = ProgressDomain.TIME_IN_SECONDS,
                             strength = 0.001f,
                             input =
                                 ResponseNode(

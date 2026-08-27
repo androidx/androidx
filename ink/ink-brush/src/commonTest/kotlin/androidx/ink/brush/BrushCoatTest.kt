@@ -28,6 +28,7 @@ import androidx.ink.brush.behavior.SourceNode.Source
 import androidx.ink.brush.behavior.TargetNode
 import androidx.ink.brush.behavior.TargetNode.Target
 import androidx.ink.brush.behavior.ToolTypeFilterNode
+import androidx.ink.brush.samples.createParallelogramBrushTip
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
 import androidx.kruth.assertThat
@@ -41,7 +42,7 @@ class BrushCoatTest {
         awaitNativePointerCleanupAfter {
             val unused =
                 BrushCoat(
-                    tip = BrushTip(),
+                    tip = createParallelogramBrushTip(),
                     paintPreferences =
                         listOf(BrushPaint(), BrushPaint(selfOverlap = SelfOverlap.DISCARD)),
                 )
@@ -50,7 +51,7 @@ class BrushCoatTest {
 
     @Test
     fun constructor_usesPassedInTip() {
-        val tip = BrushTip()
+        val tip = createParallelogramBrushTip()
         val brushCoat = BrushCoat(tip = tip)
         assertThat(brushCoat.tip).isSameInstanceAs(tip)
     }
@@ -149,7 +150,7 @@ class BrushCoatTest {
                 targetModifierRangeEnd = 1.7f,
                 input =
                     DampingNode(
-                        dampingSource = ProgressDomain.TIME_IN_SECONDS,
+                        dampOver = ProgressDomain.TIME_IN_SECONDS,
                         strength = 0.001f,
                         input =
                             ResponseNode(

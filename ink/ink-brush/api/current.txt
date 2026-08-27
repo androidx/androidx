@@ -600,11 +600,11 @@ package androidx.ink.brush.behavior {
   }
 
   public final class DampingNode extends androidx.ink.brush.behavior.ValueNode {
-    ctor public DampingNode(androidx.ink.brush.behavior.ProgressDomain dampingSource, float strength, androidx.ink.brush.behavior.ValueNode input);
-    method @InaccessibleFromKotlin public androidx.ink.brush.behavior.ProgressDomain getDampingSource();
+    ctor public DampingNode(androidx.ink.brush.behavior.ProgressDomain dampOver, float strength, androidx.ink.brush.behavior.ValueNode input);
+    method @InaccessibleFromKotlin public androidx.ink.brush.behavior.ProgressDomain getDampOver();
     method @InaccessibleFromKotlin public androidx.ink.brush.behavior.ValueNode getInput();
     method @InaccessibleFromKotlin public float getStrength();
-    property public androidx.ink.brush.behavior.ProgressDomain dampingSource;
+    property public androidx.ink.brush.behavior.ProgressDomain dampOver;
     property public androidx.ink.brush.behavior.ValueNode input;
     property public float strength;
   }

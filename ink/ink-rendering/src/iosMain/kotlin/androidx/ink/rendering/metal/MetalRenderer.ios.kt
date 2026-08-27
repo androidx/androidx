@@ -18,6 +18,7 @@ package androidx.ink.rendering.metal
 
 import androidx.annotation.RestrictTo
 import androidx.ink.brush.ExperimentalInkCrossPlatformRenderingApi
+import androidx.ink.brush.TextureImageStore
 import androidx.ink.geometry.AffineTransform
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.NativePointer
@@ -28,10 +29,16 @@ import androidx.ink.nativeloader.cinterop.MetalRendererNative_free
 import androidx.ink.nativeloader.throwForNonOkStatusCallback
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
+import kotlinx.cinterop.ByteVar
+import kotlinx.cinterop.CFunction
 import kotlinx.cinterop.COpaque
+import kotlinx.cinterop.CPointed
+import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.interpretCPointer
 import kotlinx.cinterop.objcPtr
+import kotlinx.cinterop.staticCFunction
+import kotlinx.cinterop.toKString
 import platform.Metal.MTLDeviceProtocol
 import platform.Metal.MTLPixelFormat
 import platform.Metal.MTLRenderCommandEncoderProtocol
@@ -54,20 +61,44 @@ public class MetalRenderer(
     colorPixelFormat: MTLPixelFormat,
     stencilPixelFormat: MTLPixelFormat,
     sampleCount: Int? = null,
+    private val textureImageStore: TextureImageStore? = null,
 ) {
+
     private val nativePointer: Long by
         NativePointer(
             {
                 MetalRendererNative_create(
-                    interpretCPointer<COpaque>(device.objcPtr()),
-                    colorPixelFormat,
-                    stencilPixelFormat,
-                    sampleCount ?: -1,
-                    throwForNonOkStatusCallback,
-                )
+                        interpretCPointer<COpaque>(device.objcPtr()),
+                        colorPixelFormat,
+                        stencilPixelFormat,
+                        sampleCount ?: -1,
+                        if (textureImageStore != null) textureForIdCallback else null,
+                        throwForNonOkStatusCallback,
+                    )
+                    .also { ptr ->
+                        if (ptr != 0L && textureImageStore != null) {
+                            textureImageStoresByPtr[ptr] = textureImageStore
+                        }
+                    }
             },
-            ::MetalRendererNative_free,
+            { ptr ->
+                MetalRendererNative_free(ptr)
+                textureImageStoresByPtr.remove(ptr)
+            },
         )
+
+    private companion object {
+        val textureImageStoresByPtr = mutableMapOf<Long, TextureImageStore>()
+
+        @OptIn(ExperimentalForeignApi::class)
+        private val textureForIdCallback:
+            CPointer<CFunction<(Long, CPointer<ByteVar>?) -> CPointer<out CPointed>?>> =
+            staticCFunction({ metalRendererNativePtr, textureIdPtr ->
+                val store = textureImageStoresByPtr[metalRendererNativePtr]
+                val textureId = textureIdPtr?.toKString()
+                textureId?.let { store?.get(it) }
+            })
+    }
 
     /**
      * Draws an in-progress stroke using the given render encoder.

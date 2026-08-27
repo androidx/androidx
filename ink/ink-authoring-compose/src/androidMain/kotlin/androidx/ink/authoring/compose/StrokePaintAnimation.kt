@@ -23,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
@@ -57,6 +58,7 @@ public fun strokePaintAnimatorClockStateMillisAsState(
     val animationState = remember { StrokePaintAnimationStateImpl() }
     LaunchedEffect(isPaused, speedMultiplier) {
         if (isPaused || speedMultiplier == 0.0f) {
+            animationState.pause()
             return@LaunchedEffect
         }
         animationState.animate(speedMultiplier)
@@ -67,19 +69,27 @@ public fun strokePaintAnimatorClockStateMillisAsState(
 private class StrokePaintAnimationStateImpl() : State<Long> {
     private val mutex = MutatorMutex()
 
+    private var wasPaused: Boolean by mutableStateOf(true)
     private var prevFrameTimeNanos: Long by mutableLongStateOf(0L)
     private var clockStateNanos: Long by mutableLongStateOf(0L)
 
     override val value: Long
         get() = clockStateNanos / NANOS_PER_MILLI
 
+    internal fun pause() {
+        wasPaused = true
+    }
+
     internal suspend fun animate(speedMultiplier: Float) {
         mutex.mutate {
             withContext(Dispatchers.Main.immediate) {
-                // withFrameNanos suspends until the next frame is being prepared, providing the
-                // timestamp
-                // of that frame.
-                prevFrameTimeNanos = withFrameNanos { it }
+                if (wasPaused) {
+                    // withFrameNanos suspends until the next frame is being prepared, providing the
+                    // timestamp
+                    // of that frame.
+                    prevFrameTimeNanos = withFrameNanos { it }
+                    wasPaused = false
+                }
                 while (true) {
                     val nextFrameTimeNanos = withFrameNanos { it }
                     val nanosSinceLastUpdate = nextFrameTimeNanos - prevFrameTimeNanos

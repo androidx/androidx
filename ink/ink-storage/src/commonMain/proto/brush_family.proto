@@ -1279,16 +1279,15 @@ message BrushBehavior {
   // null, the output value is null until the first non-null input.
   //
   // To be valid:
-  //   * `damping_source` must be a valid `ProgressDomain` enumerator.
+  //   * `damp_over` must be a valid `ProgressDomain` enumerator.
   //   * `strength` must be finite and non-negative.
   message DampingNode {
     option (ink.proto.message_min_version) = 0;
 
     // The domain units over which damping is applied.
-    optional ProgressDomain damping_source = 1
-        [(ink.proto.field_min_version) = 0];
+    optional ProgressDomain damp_over = 1 [(ink.proto.field_min_version) = 0];
 
-    // A scaling factor, in `damping_source` units, for the damping. A smaller
+    // A scaling factor, in `damp_over` units, for the damping. A smaller
     // strength value results in less damping, so the output follows the input
     // more closely.
     optional float strength = 2 [(ink.proto.field_min_version) = 0];

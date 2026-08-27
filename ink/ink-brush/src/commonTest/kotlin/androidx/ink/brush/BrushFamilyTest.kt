@@ -23,17 +23,15 @@ import androidx.ink.brush.BrushPaint.TilingTexture
 import androidx.ink.brush.behavior.BinaryOpNode
 import androidx.ink.brush.behavior.BinaryOpNode.BinaryOp
 import androidx.ink.brush.behavior.ConstantNode
-import androidx.ink.brush.behavior.DampingNode
-import androidx.ink.brush.behavior.EasingFunction
 import androidx.ink.brush.behavior.IntegralNode
 import androidx.ink.brush.behavior.OutOfRange
 import androidx.ink.brush.behavior.ProgressDomain
-import androidx.ink.brush.behavior.ResponseNode
 import androidx.ink.brush.behavior.SourceNode
 import androidx.ink.brush.behavior.SourceNode.Source
 import androidx.ink.brush.behavior.TargetNode
 import androidx.ink.brush.behavior.TargetNode.Target
-import androidx.ink.brush.behavior.ToolTypeFilterNode
+import androidx.ink.brush.samples.createBrushCoatWithPaintFallback
+import androidx.ink.brush.samples.createPressureToSizeBehavior
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
 import androidx.kruth.assertThat
@@ -59,7 +57,7 @@ class BrushFamilyTest {
 
     @Test
     fun constructor_usesPassedInCoats() {
-        val coat = BrushCoat(BrushTip(), BrushPaint())
+        val coat = createBrushCoatWithPaintFallback()
         val coats = listOf(coat)
         val family = BrushFamily(coats = coats)
         assertThat(family.coats).hasSize(1)
@@ -71,10 +69,7 @@ class BrushFamilyTest {
         val inputModel =
             InputModel.SlidingWindowModel(windowDurationMillis = 250, upsamplingFrequencyHz = 1)
         val family =
-            BrushFamily(
-                coats = listOf(BrushCoat(BrushTip(), BrushPaint())),
-                inputModel = inputModel,
-            )
+            BrushFamily(coats = listOf(createBrushCoatWithPaintFallback()), inputModel = inputModel)
         assertThat(family.inputModel).isSameInstanceAs(inputModel)
     }
 
@@ -394,37 +389,9 @@ class BrushFamilyTest {
 
     private val customBrushFamilyId = "inkpen"
 
-    /** Brush behavior with every field different from default values. */
-    private val customBehavior =
-        BrushBehavior(
-            TargetNode(
-                target = Target.HEIGHT_MULTIPLIER,
-                targetModifierRangeStart = 1.1f,
-                targetModifierRangeEnd = 1.7f,
-                input =
-                    DampingNode(
-                        dampingSource = ProgressDomain.TIME_IN_SECONDS,
-                        strength = 0.001f,
-                        input =
-                            ResponseNode(
-                                responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                                input =
-                                    ToolTypeFilterNode(
-                                        enabledToolTypes = setOf(InputToolType.STYLUS),
-                                        input =
-                                            SourceNode(
-                                                source = Source.TILT_IN_RADIANS,
-                                                sourceValueRangeStart = 0.2f,
-                                                sourceValueRangeEnd = .8f,
-                                                sourceOutOfRangeBehavior = OutOfRange.MIRROR,
-                                            ),
-                                    ),
-                            ),
-                    ),
-            )
-        )
+    private val customBehavior = createPressureToSizeBehavior()
 
-    /** Brush tip with every field different from default values and non-empty behaviors. */
+    /** Brush tip with every field different from default values, and non-empty behaviors. */
     private val customTip =
         BrushTip(
             scaleX = 0.1f,
@@ -438,10 +405,7 @@ class BrushFamilyTest {
             behaviors = listOf(customBehavior),
         )
 
-    /**
-     * Brush Paint with every field different from default values, including non-empty texture
-     * layers.
-     */
+    /** Brush paint with non-empty texture layers. */
     private val customPaint =
         BrushPaint(
             listOf(

@@ -37,7 +37,6 @@ internal open class InkInProgressShapeRenderer(
 
     override fun draw(canvas: Canvas, shape: InkInProgressShape, strokeToScreenTransform: Matrix) {
         check(!shape.isCanceled()) { "Internal error: Tried to draw canceled stroke shape" }
-        val textureAnimationDurationMillis = shape.textureAnimationDurationMillis
         canvasStrokeRenderer.draw(
             canvas = canvas,
             inProgressStroke = shape.inProgressStroke,
