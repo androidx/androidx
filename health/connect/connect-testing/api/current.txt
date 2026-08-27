@@ -10,8 +10,11 @@ package androidx.health.connect.client.testing {
 
   public final class FakeHealthConnectClient implements androidx.health.connect.client.HealthConnectClient {
     ctor public FakeHealthConnectClient();
+    ctor public FakeHealthConnectClient(optional String packageName);
+    ctor public FakeHealthConnectClient(optional String packageName, optional java.time.Clock clock);
     ctor public FakeHealthConnectClient(optional String packageName, optional java.time.Clock clock, optional androidx.health.connect.client.PermissionController permissionController);
-    ctor @BytecodeOnly public FakeHealthConnectClient(String!, java.time.Clock!, androidx.health.connect.client.PermissionController!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeHealthConnectClient(optional String packageName, optional java.time.Clock clock, optional androidx.health.connect.client.PermissionController permissionController, optional androidx.health.connect.client.HealthConnectFeatures features);
+    ctor @BytecodeOnly public FakeHealthConnectClient(String!, java.time.Clock!, androidx.health.connect.client.PermissionController!, androidx.health.connect.client.HealthConnectFeatures!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public suspend Object? aggregate(androidx.health.connect.client.request.AggregateRequest request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.aggregate.AggregationResult>);
     method public suspend Object? aggregateGroupByDuration(androidx.health.connect.client.request.AggregateGroupByDurationRequest request, kotlin.coroutines.Continuation<? super java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>);
     method public suspend Object? aggregateGroupByPeriod(androidx.health.connect.client.request.AggregateGroupByPeriodRequest request, kotlin.coroutines.Continuation<? super java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>);
@@ -76,6 +79,25 @@ package androidx.health.connect.client.testing {
     property public androidx.health.connect.client.testing.stubs.Stub<java.lang.String,androidx.health.connect.client.response.ReadRecordResponse<? extends java.lang.Object?>>? readRecord;
     property public androidx.health.connect.client.testing.stubs.Stub<androidx.health.connect.client.request.ReadRecordsRequest<? extends java.lang.Object?>,androidx.health.connect.client.response.ReadRecordsResponse<? extends java.lang.Object?>>? readRecords;
     property public androidx.health.connect.client.testing.stubs.Stub<java.lang.Object,java.lang.Void>? updateRecords;
+  }
+
+  public final class FakeHealthConnectFeatures implements androidx.health.connect.client.HealthConnectFeatures {
+    ctor public FakeHealthConnectFeatures();
+    ctor public FakeHealthConnectFeatures(optional int defaultStatus);
+    ctor @BytecodeOnly public FakeHealthConnectFeatures(int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public int getFeatureStatus(int feature);
+    method @InaccessibleFromKotlin public androidx.health.connect.client.testing.FakeHealthConnectFeaturesOverrides getOverrides();
+    method public void setFeatureStatus(int feature, int status);
+    property public androidx.health.connect.client.testing.FakeHealthConnectFeaturesOverrides overrides;
+  }
+
+  public final class FakeHealthConnectFeaturesOverrides {
+    ctor public FakeHealthConnectFeaturesOverrides();
+    ctor @BytecodeOnly public FakeHealthConnectFeaturesOverrides(androidx.health.connect.client.testing.stubs.Stub!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public FakeHealthConnectFeaturesOverrides(optional androidx.health.connect.client.testing.stubs.Stub<? super java.lang.Integer,java.lang.Integer>? getFeatureStatus);
+    method @InaccessibleFromKotlin public androidx.health.connect.client.testing.stubs.Stub<java.lang.Integer,java.lang.Integer>? getGetFeatureStatus();
+    method @InaccessibleFromKotlin public void setGetFeatureStatus(androidx.health.connect.client.testing.stubs.Stub<? super java.lang.Integer,java.lang.Integer>?);
+    property public androidx.health.connect.client.testing.stubs.Stub<java.lang.Integer,java.lang.Integer>? getFeatureStatus;
   }
 
   public final class FakePermissionController implements androidx.health.connect.client.PermissionController {
