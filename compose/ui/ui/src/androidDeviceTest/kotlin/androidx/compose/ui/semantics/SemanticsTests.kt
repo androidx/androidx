@@ -51,6 +51,7 @@ import androidx.compose.ui.autofill.FillableData
 import androidx.compose.ui.autofill.createFromText
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.interactionBarrier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -1897,6 +1898,44 @@ class SemanticsTests {
         }
     }
 
+    @Test
+    fun uncoveredSemanticsNodes_occludedByInteractionBarrier_pruned() {
+        lateinit var semanticsOwner: SemanticsOwner
+        rule.setContent {
+            semanticsOwner = (LocalView.current as RootForTest).semanticsOwner
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                Box(Modifier.size(200.dp)) {
+                    // Background node (under barrier, should be pruned)
+                    Box(Modifier.size(100.dp).importantWithTestTag("background"))
+
+                    // Barrier node (covers background)
+                    Box(Modifier.size(200.dp).interactionBarrier())
+
+                    // Child node (inside barrier, should NOT be pruned)
+                    Box(Modifier.size(200.dp).interactionBarrier()) {
+                        Box(Modifier.size(50.dp).importantWithTestTag("child"))
+                    }
+                }
+            }
+        }
+
+        val nodes = semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap(0) { false }
+        var backgroundNode: AdjustedSemanticsNode? = null
+        var childNode: AdjustedSemanticsNode? = null
+
+        rule.runOnIdle {
+            nodes.forEachValue {
+                if (it.semanticsNode.isTestTag("background")) backgroundNode = it
+                if (it.semanticsNode.isTestTag("child")) childNode = it
+            }
+            // Background is covered by barrier, should be pruned
+            assertThat(backgroundNode).isNull()
+            // Child is inside barrier branch, should not be pruned
+            assertThat(childNode).isNotNull()
+        }
+    }
+
+    @Suppress("DEPRECATION")
     @Test
     fun hintText_mergePolicy_prefersParentValue() {
         val merged =
