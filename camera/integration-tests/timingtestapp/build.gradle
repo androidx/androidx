@@ -72,11 +72,11 @@ dependencies {
     implementation(libs.guavaAndroid)
 
     // Transitive dependencies
-    implementation 'androidx.activity:activity:1.5.1'
-    implementation 'androidx.lifecycle:lifecycle-common:2.8.4'
-    implementation 'androidx.lifecycle:lifecycle-livedata-core:2.8.4'
-    implementation 'androidx.lifecycle:lifecycle-runtime:2.8.4'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.4'
+    implementation "androidx.activity:activity:1.5.1"
+    implementation "androidx.lifecycle:lifecycle-common:2.8.4"
+    implementation "androidx.lifecycle:lifecycle-livedata-core:2.8.4"
+    implementation "androidx.lifecycle:lifecycle-runtime:2.8.4"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:2.8.4"
     implementation libs.androidx.annotation
     implementation libs.androidx.core
     implementation libs.kotlinCoroutinesCore

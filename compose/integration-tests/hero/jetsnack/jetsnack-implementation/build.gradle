@@ -26,13 +26,13 @@ android {
 
     lint {
         // These projects should use the external lint checks to simulate real world development
-        disable += ['PrimitiveInCollection', 'AsCollectionCall']
+        disable += ["PrimitiveInCollection", "AsCollectionCall"]
     }
 
     buildTypes {
         release {
             minifyEnabled = false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
 

@@ -24,10 +24,10 @@ apply from: "../testapp-common.gradle"
 android {
     sourceSets {
         main {
-            manifest.srcFile '../app/src/main/AndroidManifest.xml'
-            res.srcDirs = ['../app/src/main/res']
-            assets.srcDirs = ['../app/src/main/assets']
-            kotlin.srcDirs = ['../app/src/main/kotlin', 'src/main/kotlin']
+            manifest.srcFile "../app/src/main/AndroidManifest.xml"
+            res.srcDirs = ["../app/src/main/res"]
+            assets.srcDirs = ["../app/src/main/assets"]
+            kotlin.srcDirs = ["../app/src/main/kotlin", "src/main/kotlin"]
         }
     }
 }

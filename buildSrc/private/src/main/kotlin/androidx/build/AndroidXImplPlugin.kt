@@ -1568,6 +1568,11 @@ fun Project.validateProjectParser(androidXExtension: AndroidXExtension) {
     project.gradle.taskGraph.whenReady {
         val parsed = project.parse()
         val errorPrefix = "ProjectParser error parsing ${project.path}."
+        check(parsed.singleQuoteViolations.isEmpty()) {
+            "$errorPrefix Single quote (') found in ${project.buildFile}. " +
+                "AndroidX requires double quotes (\") instead:\n" +
+                parsed.singleQuoteViolations.joinToString("\n") { "  $it" }
+        }
         check(androidXExtension.type.get() == parsed.softwareType) {
             "$errorPrefix Incorrectly computed libraryType = ${parsed.softwareType} " +
                 "instead of ${androidXExtension.type.get()}"

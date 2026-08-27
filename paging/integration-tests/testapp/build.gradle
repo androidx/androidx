@@ -63,5 +63,5 @@ tasks.withType(JavaCompile) {
 }
 
 ksp {
-    arg('room.generateKotlin', 'false')
+    arg("room.generateKotlin", "false")
 }

@@ -25,9 +25,9 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
-import org.tomlj.Toml
-import org.tomlj.TomlParseResult
-import org.tomlj.TomlTable
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.JsonNode
+import tools.jackson.dataformat.toml.TomlMapper
 
 /** Loads Library groups and versions from a specified TOML file. */
 abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Parameters> {
@@ -38,17 +38,24 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         val tipOfTreeExemptionsFileContents: Property<String>
     }
 
-    private val parsedTomlFile: TomlParseResult by lazy {
+    private val parsedTomlFile: JsonNode by lazy {
         val fileName = parameters.tomlFileName.get()
-        val result = Toml.parse(parameters.tomlFileContents.get())
-        if (result.hasErrors()) {
-            val issues =
-                result.errors().joinToString(separator = "\n") {
-                    "$fileName:${it.position()}: ${it.message}"
+        try {
+            TomlMapper().readTree(parameters.tomlFileContents.get())
+        } catch (e: JacksonException) {
+            val location = e.location
+            val locationDesc =
+                if (location != null && location.lineNr != -1) {
+                    "line ${location.lineNr}, column ${location.columnNr}: "
+                } else {
+                    ""
                 }
-            throw GradleException("$fileName file has issues.\n$issues")
+            throw Exception(
+                "$fileName file has issues.\n" +
+                    "$fileName:$locationDesc${e.originalMessage ?: e.message}",
+                e,
+            )
         }
-        result
     }
 
     /**
@@ -65,16 +72,19 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         )
     }
 
-    private fun getTable(key: String): TomlTable {
-        return parsedTomlFile.getTable(key)
-            ?: throw GradleException("Library versions toml file is missing [$key] table")
+    private fun getTable(key: String): JsonNode {
+        val table = parsedTomlFile.get(key)
+        if (table == null || !table.isObject) {
+            throw GradleException("Library versions toml file is missing [$key] table")
+        }
+        return table
     }
 
     // map from name of constant to Version
     val libraryVersions: Map<String, Version> by lazy {
         val versions = getTable("versions")
-        versions.keySet().associateWith { versionName ->
-            val versionValue = versions.getString(versionName)!!
+        versions.propertyNames().associateWith { versionName ->
+            val versionValue = versions.get(versionName)!!.asString()
             Version.parseOrNull(versionValue)
                 ?: throw GradleException(
                     "$versionName does not match expected format - $versionValue"
@@ -137,8 +147,8 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     private val libraryGroupAssociations: List<LibraryGroupAssociation> by lazy {
         val groups = getTable("groups")
 
-        fun readGroupVersion(groupDefinition: TomlTable, groupName: String, key: String): Version? {
-            val versionRef = groupDefinition.getString(key) ?: return null
+        fun readGroupVersion(groupDefinition: JsonNode, groupName: String, key: String): Version? {
+            val versionRef = groupDefinition.get(key)?.asString() ?: return null
             if (!versionRef.startsWith(VersionReferencePrefix)) {
                 throw GradleException(
                     "Group entry $key is expected to start with $VersionReferencePrefix"
@@ -152,10 +162,12 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                         "doesn't exist"
                 )
         }
-        groups.keySet().sorted().map { name ->
+        groups.propertyNames().sorted().map { name ->
             // get group name
-            val groupDefinition = groups.getTable(name)!!
-            val groupName = groupDefinition.getString("group")!!
+            val groupDefinition = groups.get(name)!!
+            val groupName =
+                groupDefinition.get("group")?.asString()
+                    ?: throw GradleException("Group entry $name is missing 'group' field")
 
             // get group version, if any
             val atomicGroupVersion =
@@ -165,9 +177,8 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                     key = AtomicGroupVersion,
                 )
             val overrideApplyToProjects =
-                (groupDefinition.getArray("overrideInclude")?.toList() ?: listOf()).map {
-                    it as String
-                }
+                groupDefinition.get("overrideInclude")?.values()?.map { it.asString() }
+                    ?: emptyList()
 
             val group = LibraryGroup(groupName, atomicGroupVersion)
             LibraryGroupAssociation(name, group, overrideApplyToProjects)

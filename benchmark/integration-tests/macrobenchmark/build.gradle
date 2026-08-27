@@ -43,7 +43,7 @@ android {
 // This is needed because we benchmark the release build type only.
 android.buildTypes { release {} }
 androidComponents {
-    beforeVariants(selector().all()) { enabled = buildType == 'release' }
+    beforeVariants(selector().all()) { enabled = buildType == "release" }
     def testDataPath = new File(
             AndroidXConfig.getPrebuiltsRoot(project),
             "androidx/traceprocessor/testdata").absolutePath

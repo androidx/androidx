@@ -22,8 +22,8 @@
  */
 import androidx.build.SoftwareType
 
-apply plugin: 'AndroidXPlugin'
-apply plugin: 'com.android.library'
+apply plugin: "AndroidXPlugin"
+apply plugin: "com.android.library"
 
 ext {
     yuvSourceDir = "${project.rootDir.absolutePath}/../../external/libyuv"

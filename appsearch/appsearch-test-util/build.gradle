@@ -38,10 +38,10 @@ dependencies {
 }
 
 androidx {
-    name = 'AppSearch Test Util'
+    name = "AppSearch Test Util"
     type = SoftwareType.INTERNAL_TEST_LIBRARY
-    inceptionYear = '2021'
-    description = 'Test Utilities to be used by any test module for AppSearch'
+    inceptionYear = "2021"
+    description = "Test Utilities to be used by any test module for AppSearch"
 }
 
 android {

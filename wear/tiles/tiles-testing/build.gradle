@@ -30,7 +30,7 @@ plugins {
 dependencies {
     api(libs.guavaAndroid)
     api(libs.guavaListenableFuture)
-    api(project(':wear:protolayout:protolayout'))
+    api(project(":wear:protolayout:protolayout"))
     api(project(":wear:tiles:tiles-renderer"))
 
     implementation(libs.kotlinCoroutinesCore)

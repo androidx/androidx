@@ -72,7 +72,7 @@ configurations {
         attributes {
             attribute(
                     LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-                    objects.named(LibraryElements, 'appfunction-integrationTests-apkAssets')
+                    objects.named(LibraryElements, "appfunction-integrationTests-apkAssets")
             )
         }
     }
@@ -82,7 +82,7 @@ configurations {
         attributes {
             attribute(
                     LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-                    objects.named(LibraryElements, 'appfunction-integrationTests-apkAssets')
+                    objects.named(LibraryElements, "appfunction-integrationTests-apkAssets")
             )
         }
     }
@@ -92,7 +92,7 @@ configurations {
         attributes {
             attribute(
                     LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE,
-                    objects.named(LibraryElements, 'appfunction-integrationTests-apkAssets')
+                    objects.named(LibraryElements, "appfunction-integrationTests-apkAssets")
             )
         }
     }
@@ -137,7 +137,7 @@ dependencies {
     implementation(project(":appfunctions:integration-tests:shared-schema"))
     implementation("androidx.appsearch:appsearch:1.1.0")
     implementation("androidx.appsearch:appsearch-platform-storage:1.1.0")
-    implementation('androidx.concurrent:concurrent-futures-ktx:1.1.0')
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     ksp(project(":appfunctions:appfunctions-compiler"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)

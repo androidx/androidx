@@ -67,7 +67,7 @@ class LibraryVersionsServiceTest {
         assertThrows<Exception> { service.libraryGroups["G1"] }
             .hasMessageThat()
             .contains(
-                "libraryversions.toml:line 5, column 1: G1 previously defined at line 4, column 1"
+                "libraryversions.toml:line 5, column 23: Duplicate key"
             )
     }
 
@@ -158,6 +158,160 @@ class LibraryVersionsServiceTest {
         assertThrows<Exception> { service.libraryGroupsByGroupId["g.g1"] }
             .hasMessageThat()
             .contains("Multiple atomic groups defined with the same Maven group ID: g.g1")
+    }
+
+    @Test
+    fun libraryVersionsDirectAccess() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            V1 = "1.2.3"
+            V2 = "2.0.0-alpha01"
+            [groups]
+            """
+                    .trimIndent()
+            )
+        assertThat(service.libraryVersions["V1"]).isEqualTo(Version("1.2.3"))
+        assertThat(service.libraryVersions["V2"]).isEqualTo(Version("2.0.0-alpha01"))
+    }
+
+    @Test
+    fun malformedVersionFormat() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            V1 = "not_a_valid_semver"
+            [groups]
+            """
+                    .trimIndent()
+            )
+        assertThrows<Exception> { service.libraryVersions["V1"] }
+            .hasMessageThat()
+            .contains("V1 does not match expected format - not_a_valid_semver")
+    }
+
+    @Test
+    fun missingVersionsTable() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [groups]
+            G1 = { group = "g.g1" }
+            """
+                    .trimIndent()
+            )
+        assertThrows<Exception> { service.libraryVersions }
+            .hasMessageThat()
+            .contains("Library versions toml file is missing [versions] table")
+    }
+
+    @Test
+    fun missingGroupsTable() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            V1 = "1.2.3"
+            """
+                    .trimIndent()
+            )
+        assertThrows<Exception> { service.libraryGroups }
+            .hasMessageThat()
+            .contains("Library versions toml file is missing [groups] table")
+    }
+
+    @Test
+    fun missingGroupFieldInGroupDefinition() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            V1 = "1.2.3"
+            [groups]
+            G1 = { atomicGroupVersion = "versions.V1" }
+            """
+                    .trimIndent()
+            )
+        assertThrows<Exception> { service.libraryGroups["G1"] }
+            .hasMessageThat()
+            .contains("Group entry G1 is missing 'group' field")
+    }
+
+    @Test
+    fun duplicateNonAtomicGroupIdsWithoutOverrideInclude() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            [groups]
+            G1 = { group = "g.g1" }
+            G2 = { group = "g.g1" }
+            """
+                    .trimIndent()
+            )
+        assertThrows<Exception> { service.libraryGroupsByGroupId["g.g1"] }
+            .hasMessageThat()
+            .contains(
+                "Duplicate library group g.g1 defined in G2 does not set overrideInclude. " +
+                    "Declarations beyond the first can only have an effect if they set overrideInclude"
+            )
+    }
+
+    @Test
+    fun duplicateNonAtomicGroupIdsWithOverrideInclude() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            [groups]
+            G1 = { group = "g.g1" }
+            G2 = { group = "g.g1", overrideInclude = [":other:project"] }
+            """
+                    .trimIndent()
+            )
+        assertThat(service.libraryGroupsByGroupId["g.g1"]?.group).isEqualTo("g.g1")
+        assertThat(service.overrideLibraryGroupsByProjectPath[":other:project"]?.group)
+            .isEqualTo("g.g1")
+    }
+
+    @Test
+    fun allowedAtomicGroupExceptionWithOverrideInclude() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions]
+            V1 = "1.0.0"
+            V2 = "1.1.0"
+            [groups]
+            CAM1 = { group = "androidx.camera", atomicGroupVersion = "versions.V1" }
+            CAM2 = { group = "androidx.camera", atomicGroupVersion = "versions.V2", overrideInclude = [":camera:camera-extensions"] }
+            """
+                    .trimIndent()
+            )
+        assertThat(service.libraryGroupsByGroupId["androidx.camera"]?.atomicGroupVersion)
+            .isEqualTo(Version("1.0.0"))
+        assertThat(
+                service.overrideLibraryGroupsByProjectPath[":camera:camera-extensions"]
+                    ?.atomicGroupVersion
+            )
+            .isEqualTo(Version("1.1.0"))
+    }
+
+    @Test
+    fun invalidTomlSyntax() {
+        val service =
+            createLibraryVersionsService(
+                """
+            [versions
+            V1 = "1.2.3"
+            """
+                    .trimIndent()
+            )
+        assertThrows<Exception> { service.libraryVersions }
+            .hasMessageThat()
+            .contains("libraryversions.toml file has issues.")
     }
 
     @Test

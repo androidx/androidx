@@ -65,6 +65,6 @@ dependencies {
 androidx {
     name = "AppSearch"
     type = SoftwareType.PUBLISHED_LIBRARY
-    inceptionYear = '2019'
-    description = 'AndroidX AppSearch - App Indexing'
+    inceptionYear = "2019"
+    description = "AndroidX AppSearch - App Indexing"
 }
