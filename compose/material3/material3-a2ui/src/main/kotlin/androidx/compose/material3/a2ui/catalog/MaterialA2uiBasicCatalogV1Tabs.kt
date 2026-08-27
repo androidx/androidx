@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
-import androidx.a2ui.compose.runtime.A2uiComponentProperties
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.compose.runtime.A2uiComponentState
-import androidx.a2ui.compose.runtime.A2uiProperty
 import androidx.a2ui.compose.ui.A2uiComponent
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,8 +30,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.a2ui.MaterialA2uiDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -44,58 +43,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 
-/**
- * A Jetpack Compose Material 3 implementation of the A2UI `"Tabs"` component schema.
- *
- * Displays a horizontal set of selectable tabs using [PrimaryTabRow] and [Tab], rendering the
- * selected tab's child component below with animated transitions.
- *
- * **Schema Properties:**
- * * `tabs` (NestedList, required): An array of tab objects, where each object defines a `title`
- *   (Dynamic String) and a `child` (ComponentId) component ID.
- */
-public object MaterialTabsComponent : A2uiComponent {
-
-    private val titleProp =
-        A2uiProperty.dynamicString(key = "title", required = true, description = "The tab title.")
-    private val childProp =
-        A2uiProperty.componentId(
-            key = "child",
-            required = true,
-            description = "The ID of the child component.",
-        )
-
-    private val tabsProp =
-        A2uiProperty.nestedList(
-            key = "tabs",
-            properties = listOf(titleProp, childProp),
-            required = true,
-            description =
-                "An array of objects, where each object defines a tab with a title and a child component.",
-        )
-
-    override val name: String = "Tabs"
-    override val description: String =
-        "A set of tabs, each with a title and a corresponding child component."
-    override val properties: List<A2uiProperty<*>> = listOf(tabsProp)
+/** A Jetpack Compose Material 3 implementation of the A2UI Basic Catalog `"Tabs"` component. */
+internal object MaterialA2uiBasicCatalogV1Tabs : A2uiBasicCatalogV1.Tabs {
 
     @Composable
-    override fun A2uiComponentScope.Content(
-        properties: A2uiComponentProperties,
+    override fun A2uiComponentScope.TypedContent(
+        tabs: List<A2uiBasicCatalogV1.Tabs.Tab>,
         modifier: Modifier,
     ) {
-        val tabsList =
-            checkNotNull(properties[tabsProp]) { "The ${tabsProp.key} property is required." }
-        if (tabsList.isEmpty()) return
+        if (tabs.isEmpty()) return
 
         var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
-        val coercedSelectedTabIndex = selectedTabIndex.coerceIn(0, tabsList.size - 1)
+        val coercedSelectedTabIndex = selectedTabIndex.coerceIn(0, tabs.size - 1)
 
         // Ensure the selected index stays valid if the agent dynamically removes tabs
-        SideEffect(tabsList.size) {
-            if (selectedTabIndex >= tabsList.size) {
-                selectedTabIndex = tabsList.size - 1
-            }
+        if (selectedTabIndex >= tabs.size) {
+            selectedTabIndex = tabs.size - 1
         }
 
         Column(modifier = modifier) {
@@ -103,18 +66,13 @@ public object MaterialTabsComponent : A2uiComponent {
                 containerColor = Color.Transparent,
                 selectedTabIndex = coercedSelectedTabIndex,
             ) {
-                tabsList.fastForEachIndexed { index, tabProps ->
-                    val title =
-                        checkNotNull(tabProps.bind(titleProp)) {
-                            "The ${titleProp.key} property is required."
-                        }
-
+                tabs.fastForEachIndexed { index, tab ->
                     Tab(
                         selected = coercedSelectedTabIndex == index,
                         onClick = { selectedTabIndex = index },
                         text = {
                             Text(
-                                text = title,
+                                text = tab.title,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.titleSmall,
@@ -125,12 +83,8 @@ public object MaterialTabsComponent : A2uiComponent {
                 }
             }
 
-            val activeTabProps = tabsList[coercedSelectedTabIndex]
-            val childId =
-                checkNotNull(activeTabProps[childProp]) {
-                    "The ${childProp.key} property is required."
-                }
-
+            val activeTab = tabs[coercedSelectedTabIndex]
+            val childId = activeTab.childId
             val childState = observeA2uiComponentState(id = childId)
 
             // Wrap the child resolving state in a progressive loading animation
