@@ -35,7 +35,6 @@ dependencies {
     implementation project(":activity:activity-compose")
     implementation project(":datastore:datastore")
     implementation project(":compose:runtime:runtime")
-    implementation project(":compose:runtime:runtime-tracing")
     implementation project(":compose:ui:ui")
     implementation project(":compose:ui:ui-graphics")
     implementation project(":compose:ui:ui-tooling")
