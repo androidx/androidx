@@ -55,7 +55,6 @@ class ArCoreTestAppActivityLeakTest(activityClass: Class<out Activity>) :
                 "android.permission.INTERNET",
                 "android.permission.ACCESS_COARSE_LOCATION",
                 "android.permission.ACCESS_FINE_LOCATION",
-                "android.permission.XR_EXPERIMENTAL_FEATURES",
             )
         )
 
