@@ -360,6 +360,9 @@ public interface IcingOptionsConfig {
                 .setRemoveSchemaStoreMoveAssignment(Flags.removeSchemaStoreMoveAssignment())
                 .setEnableFineGrainedIndexRebuild(Flags.enableFineGrainedIndexRebuild())
                 .setEnableReadDuringAnnMaintenance(Flags.enableReadDuringAnnMaintenance())
+                .setEnableOptimizeResultStates(Flags.enableOptimizeResultStates())
+                .setEnableIndexRestorationCriticalErrorHandlingFix(
+                        Flags.enableIndexRestorationCriticalErrorHandlingFix())
                 .build();
     }
 }
