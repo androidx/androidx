@@ -82,5 +82,6 @@ class DispatchersTest(driver: UseDriver) : TestDatabaseTest(driver) {
             val useConnectionDispatcher = currentCoroutineContext()[ContinuationInterceptor]
             assertThat(useConnectionDispatcher).isSameInstanceAs(Dispatchers.IO)
         }
+        database.close()
     }
 }

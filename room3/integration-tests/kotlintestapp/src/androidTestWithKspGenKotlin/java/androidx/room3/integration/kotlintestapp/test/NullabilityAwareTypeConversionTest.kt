@@ -34,6 +34,7 @@ import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,17 +42,23 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class NullabilityAwareTypeConversionTest {
-    lateinit var dao: UserDao
+    private lateinit var database: NullAwareConverterDatabase
+    private lateinit var dao: UserDao
     private val nullableConvertors = NullableTypeConverters()
 
     @Before
     fun init() {
-        dao =
+        database =
             Room.inMemoryDatabaseBuilder<NullAwareConverterDatabase>()
                 .setDriver(AndroidSQLiteDriver())
                 .addColumnTypeConverter(nullableConvertors)
                 .build()
-                .userDao
+        dao = database.userDao
+    }
+
+    @After
+    fun tearDown() {
+        database.close()
     }
 
     private fun assertNullableConverterIsNotUsed() {
