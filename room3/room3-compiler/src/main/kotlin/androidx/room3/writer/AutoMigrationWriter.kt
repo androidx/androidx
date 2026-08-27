@@ -61,10 +61,12 @@ class AutoMigrationWriter(
                     typeName = RoomTypeNames.AUTO_MIGRATION_SPEC,
                     visibility = VisibilityModifier.PRIVATE,
                     initExpr =
-                        if (!autoMigration.isSpecProvided) {
-                            XCodeBlock.ofNewInstance(autoMigration.specClassName)
-                        } else {
+                        if (autoMigration.isSpecProvided) {
                             null
+                        } else if (autoMigration.specElement?.isKotlinObject() == true) {
+                            XCodeBlock.of("%T", autoMigration.specClassName)
+                        } else {
+                            XCodeBlock.ofNewInstance(autoMigration.specClassName)
                         },
                 )
             }
