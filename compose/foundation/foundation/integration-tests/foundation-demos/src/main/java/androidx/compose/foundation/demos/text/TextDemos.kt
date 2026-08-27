@@ -103,6 +103,7 @@ val TextDemos =
                     ),
                     ComposableDemo("IncludeFontPadding & Clip") { TextFontPaddingDemo() },
                     ComposableDemo("Line Height Behavior") { TextLineHeightDemo() },
+                    ComposableDemo("Line Height PerLine") { TextLineHeightPerLineDemo() },
                     ComposableDemo("Layout Reuse") { TextReuseLayoutDemo() },
                     ComposableDemo("Multi paragraph") { MultiParagraphDemo() },
                     ComposableDemo("Auto Size") { AutoSizeTextDemo() },
