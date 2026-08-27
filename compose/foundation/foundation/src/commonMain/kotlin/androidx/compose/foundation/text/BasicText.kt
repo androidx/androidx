@@ -27,7 +27,6 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.SelectionRegistrar
 import androidx.compose.foundation.text.selection.hasSelection
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -494,8 +493,9 @@ private class TextMeasurePolicy(
         // inline content
         val inlineContentMeasurables =
             measurables.fastFilter { it.parentData !is TextRangeLayoutModifier }
+        val currentPlacements = placements()
         val inlineContentToPlace =
-            placements()?.fastMapIndexedNotNull { index, rect ->
+            currentPlacements?.fastMapIndexedNotNull { index, rect ->
                 // PlaceholderRect will be null if it's ellipsized. In that case, the corresponding
                 // inline children won't be measured or placed.
                 rect?.let {
@@ -506,7 +506,7 @@ private class TextMeasurePolicy(
                                 maxHeight = floor(it.height).toInt(),
                             )
                         ),
-                        IntOffset(it.left.fastRoundToInt(), it.top.fastRoundToInt()),
+                        rect,
                     )
                 }
             }
@@ -521,7 +521,17 @@ private class TextMeasurePolicy(
 
         return layout(constraints.maxWidth, constraints.maxHeight) {
             // inline content
-            inlineContentToPlace?.fastForEach { (placeable, position) -> placeable.place(position) }
+            val latestPlacements = placements()
+            if (inlineContentToPlace != null) {
+                for (index in inlineContentToPlace.indices) {
+                    val (placeable, originalRect) = inlineContentToPlace[index]
+                    val targetRect = latestPlacements?.getOrNull(index) ?: originalRect
+                    placeable.place(
+                        targetRect.left.fastRoundToInt(),
+                        targetRect.top.fastRoundToInt(),
+                    )
+                }
+            }
             // links
             linksToPlace?.fastForEach { (placeable, measureResult) ->
                 placeable.place(measureResult?.invoke() ?: IntOffset.Zero)
@@ -674,12 +684,15 @@ private fun LayoutWithLinksAndInlineContent(
 
     val measuredPlaceholderPositions =
         if (hasInlineContent) {
-            remember<MutableState<List<Rect?>?>> { mutableStateOf(null) }
+            remember { ArrayList<Rect?>() }
         } else null
 
     val onPlaceholderLayout: ((List<Rect?>) -> Unit)? =
         if (hasInlineContent) {
-            { measuredPlaceholderPositions?.value = it }
+            { rects ->
+                measuredPlaceholderPositions?.clear()
+                measuredPlaceholderPositions?.addAll(rects)
+            }
         } else null
 
     BackgroundTextMeasurement(
@@ -723,7 +736,7 @@ private fun LayoutWithLinksAndInlineContent(
             } else {
                 TextMeasurePolicy(
                     shouldMeasureLinks = { textScope?.let { it.shouldMeasureLinks() } ?: false },
-                    placements = { measuredPlaceholderPositions?.value },
+                    placements = { measuredPlaceholderPositions },
                 )
             },
     )
