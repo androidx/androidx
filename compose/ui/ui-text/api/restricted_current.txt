@@ -1574,24 +1574,24 @@ package androidx.compose.ui.text.input {
     property public int amount;
   }
 
-  public interface OffsetMapping {
-    method public int originalToTransformed(int offset);
-    method public int transformedToOriginal(int offset);
-    field public static final androidx.compose.ui.text.input.OffsetMapping.Companion Companion;
+  @Deprecated public interface OffsetMapping {
+    method @Deprecated public int originalToTransformed(int offset);
+    method @Deprecated public int transformedToOriginal(int offset);
+    field @Deprecated public static final androidx.compose.ui.text.input.OffsetMapping.Companion Companion;
   }
 
-  public static final class OffsetMapping.Companion {
-    method @InaccessibleFromKotlin public androidx.compose.ui.text.input.OffsetMapping getIdentity();
-    property public androidx.compose.ui.text.input.OffsetMapping Identity;
+  @Deprecated public static final class OffsetMapping.Companion {
+    method @InaccessibleFromKotlin @Deprecated public androidx.compose.ui.text.input.OffsetMapping getIdentity();
+    property @Deprecated public androidx.compose.ui.text.input.OffsetMapping Identity;
   }
 
-  public final class PasswordVisualTransformation implements androidx.compose.ui.text.input.VisualTransformation {
-    ctor public PasswordVisualTransformation();
-    ctor public PasswordVisualTransformation(optional char mask);
-    ctor @BytecodeOnly public PasswordVisualTransformation(char, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public androidx.compose.ui.text.input.TransformedText filter(androidx.compose.ui.text.AnnotatedString text);
-    method @InaccessibleFromKotlin public char getMask();
-    property public char mask;
+  @Deprecated public final class PasswordVisualTransformation implements androidx.compose.ui.text.input.VisualTransformation {
+    ctor @Deprecated public PasswordVisualTransformation();
+    ctor @Deprecated public PasswordVisualTransformation(optional char mask);
+    ctor @BytecodeOnly @Deprecated public PasswordVisualTransformation(char, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @Deprecated public androidx.compose.ui.text.input.TransformedText filter(androidx.compose.ui.text.AnnotatedString text);
+    method @InaccessibleFromKotlin @Deprecated public char getMask();
+    property @Deprecated public char mask;
   }
 
   @androidx.compose.runtime.Immutable public final class PlatformImeOptions {
@@ -1698,22 +1698,22 @@ package androidx.compose.ui.text.input {
     property @Deprecated public boolean isOpen;
   }
 
-  public final class TransformedText {
-    ctor public TransformedText(androidx.compose.ui.text.AnnotatedString text, androidx.compose.ui.text.input.OffsetMapping offsetMapping);
-    method @InaccessibleFromKotlin public androidx.compose.ui.text.input.OffsetMapping getOffsetMapping();
-    method @InaccessibleFromKotlin public androidx.compose.ui.text.AnnotatedString getText();
-    property public androidx.compose.ui.text.input.OffsetMapping offsetMapping;
-    property public androidx.compose.ui.text.AnnotatedString text;
+  @Deprecated public final class TransformedText {
+    ctor @Deprecated public TransformedText(androidx.compose.ui.text.AnnotatedString text, androidx.compose.ui.text.input.OffsetMapping offsetMapping);
+    method @InaccessibleFromKotlin @Deprecated public androidx.compose.ui.text.input.OffsetMapping getOffsetMapping();
+    method @InaccessibleFromKotlin @Deprecated public androidx.compose.ui.text.AnnotatedString getText();
+    property @Deprecated public androidx.compose.ui.text.input.OffsetMapping offsetMapping;
+    property @Deprecated public androidx.compose.ui.text.AnnotatedString text;
   }
 
-  @androidx.compose.runtime.Immutable public fun interface VisualTransformation {
-    method public androidx.compose.ui.text.input.TransformedText filter(androidx.compose.ui.text.AnnotatedString text);
-    field public static final androidx.compose.ui.text.input.VisualTransformation.Companion Companion;
+  @Deprecated @androidx.compose.runtime.Immutable public fun interface VisualTransformation {
+    method @Deprecated public androidx.compose.ui.text.input.TransformedText filter(androidx.compose.ui.text.AnnotatedString text);
+    field @Deprecated public static final androidx.compose.ui.text.input.VisualTransformation.Companion Companion;
   }
 
-  public static final class VisualTransformation.Companion {
-    method @InaccessibleFromKotlin public androidx.compose.ui.text.input.VisualTransformation getNone();
-    property @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.VisualTransformation None;
+  @Deprecated public static final class VisualTransformation.Companion {
+    method @InaccessibleFromKotlin @Deprecated public androidx.compose.ui.text.input.VisualTransformation getNone();
+    property @Deprecated @androidx.compose.runtime.Stable public androidx.compose.ui.text.input.VisualTransformation None;
   }
 
 }
