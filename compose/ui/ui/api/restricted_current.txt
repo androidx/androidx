@@ -235,6 +235,10 @@ package androidx.compose.ui {
     method @BytecodeOnly public static androidx.compose.ui.Modifier preferredFrameRate-kI47g10(androidx.compose.ui.Modifier, float);
   }
 
+  public final class InteractionBarrierKt {
+    method public static androidx.compose.ui.Modifier interactionBarrier(androidx.compose.ui.Modifier);
+  }
+
   public final class KeepScreenOnKt {
     method public static androidx.compose.ui.Modifier keepScreenOn(androidx.compose.ui.Modifier);
   }
