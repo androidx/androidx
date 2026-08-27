@@ -197,7 +197,7 @@ dependencies {
         // showing due to a behavior change in NestedScrollSource. This constraint ensures that
         // a version of foundation compatible with the new NestedScrollSource is used.
         commonMainImplementation("androidx.compose.foundation:foundation:1.7.0") {
-            because 'prevents a regression in Overscroll'
+            because "prevents a regression in Overscroll"
         }
     }
 }

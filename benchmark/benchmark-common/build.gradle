@@ -40,13 +40,13 @@ android {
         minSdk { version = release(24) }
         externalNativeBuild {
             cmake {
-                cppFlags ''
+                cppFlags ""
             }
         }
     }
     externalNativeBuild {
         cmake {
-            path file('src/main/cpp/CMakeLists.txt')
+            path file("src/main/cpp/CMakeLists.txt")
             version = libs.versions.cmake.get()
         }
     }
@@ -84,11 +84,11 @@ wire {
     kotlin {}
 
     // prune unused config components which have deprecated fields
-    prune 'perfetto.protos.TraceConfig.IncidentReportConfig'
-    prune 'perfetto.protos.ProcessStatsConfig.Quirks'
+    prune "perfetto.protos.TraceConfig.IncidentReportConfig"
+    prune "perfetto.protos.ProcessStatsConfig.Quirks"
 
     sourcePath {
-        srcDir 'src/main/proto'
+        srcDir "src/main/proto"
     }
 }
 

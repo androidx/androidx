@@ -32,9 +32,8 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
-import org.tomlj.Toml
-import org.tomlj.TomlParseResult
-import org.tomlj.TomlTable
+import tools.jackson.databind.JsonNode
+import tools.jackson.dataformat.toml.TomlMapper
 
 @DisableCachingByDefault(because = "Interactive task, must run every time")
 abstract class ProjectCreatorTask : DefaultTask() {
@@ -346,10 +345,10 @@ internal class VersionCatalogEditor(val tomlFile: File, val spec: ProjectSpec) {
      * = "WORK" } Example of a non-atomic library group: WEAR = { group = "androidx.wear" }
      */
     fun isGroupIdAtomic(): Boolean {
-        val tomlParseResult: TomlParseResult = Toml.parse(tomlFile.toPath())
-        val groupsTable = tomlParseResult.getTable("groups") ?: return false
-        val groupEntry = groupsTable.getTable(getGroupIdVersionMacro(spec.groupId))
-        return groupEntry?.contains("atomicGroupVersion") == true
+        val rootNode: JsonNode = TomlMapper().readTree(tomlFile)
+        val groupsTable = rootNode.get("groups") ?: return false
+        val groupEntry = groupsTable.get(getGroupIdVersionMacro(spec.groupId))
+        return groupEntry?.has("atomicGroupVersion") == true
     }
 
     fun updateLibraryVersionsToml() {
@@ -357,25 +356,25 @@ internal class VersionCatalogEditor(val tomlFile: File, val spec: ProjectSpec) {
             return
         }
         val tomlLines = tomlFile.readLines().toMutableList()
-        val tomlParseResult: TomlParseResult = Toml.parse(tomlFile.toPath())
+        val rootNode: JsonNode = TomlMapper().readTree(tomlFile)
 
-        registerVersion(tomlLines, tomlParseResult, spec.groupId)
-        registerGroup(tomlLines, tomlParseResult, spec.groupIdWithPrefix)
+        registerVersion(tomlLines, rootNode, spec.groupId)
+        registerGroup(tomlLines, rootNode, spec.groupIdWithPrefix)
 
         tomlFile.writeText(tomlLines.joinToString("\n", postfix = "\n"))
     }
 
     private fun registerVersion(
         tomlLines: MutableList<String>,
-        parseResult: TomlParseResult,
+        rootNode: JsonNode,
         groupId: String,
     ) {
         // Update [versions] section
 
         val groupIdVersionMacro = getGroupIdVersionMacro(groupId)
 
-        val versionsTable: TomlTable? = parseResult.getTable("versions")
-        val versionExists = versionsTable?.contains(groupIdVersionMacro) == true
+        val versionsTable = rootNode.get("versions")
+        val versionExists = versionsTable?.has(groupIdVersionMacro) == true
 
         if (!versionExists) {
             val versionsBlockStart = tomlLines.indexOf("[versions]")
@@ -402,11 +401,7 @@ internal class VersionCatalogEditor(val tomlFile: File, val spec: ProjectSpec) {
         }
     }
 
-    private fun registerGroup(
-        tomlLines: MutableList<String>,
-        parseResult: TomlParseResult,
-        groupId: String,
-    ) {
+    private fun registerGroup(tomlLines: MutableList<String>, rootNode: JsonNode, groupId: String) {
         // update [groups] section
 
         val groupIdVersionMacro = getGroupIdVersionMacro(groupId)
@@ -414,12 +409,11 @@ internal class VersionCatalogEditor(val tomlFile: File, val spec: ProjectSpec) {
         // Re-find groupsBlockStart as tomlLines might have been modified
         val newGroupsBlockStart = tomlLines.indexOf("[groups]")
 
-        val groupsTable: TomlTable? = parseResult.getTable("groups")
+        val groupsTable = rootNode.get("groups")
         // Check if any key within [groups] has a sub-table with 'group = "$groupId"'
         val groupExists =
-            groupsTable?.keySet()?.any { key ->
-                val groupSpec = groupsTable.getTable(key)
-                groupSpec?.getString("group") == groupId
+            groupsTable?.values()?.any { groupSpec ->
+                groupSpec.get("group")?.asString() == groupId
             } == true
 
         if (!groupExists) {

@@ -81,13 +81,13 @@ tasks.named("iosSimulatorArm64Test") {
     def injected = project.objects.newInstance(InjectedExecOps)
     doFirst {
         injected.execOps.exec {
-            commandLine 'xcrun', 'simctl', 'boot', device.get()
+            commandLine "xcrun", "simctl", "boot", device.get()
             ignoreExitValue = true
         }
     }
     doLast {
         injected.execOps.exec {
-            commandLine 'xcrun', 'simctl', 'shutdown', device.get()
+            commandLine "xcrun", "simctl", "shutdown", device.get()
             ignoreExitValue = true
         }
     }

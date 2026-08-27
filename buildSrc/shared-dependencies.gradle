@@ -65,6 +65,7 @@ dependencies {
 
     // Plugin for analyzing dependencies
     implementation(libs.dependency.analysis.gradle.plugin)
+    implementation(libs.gradleScriptGrammar)
 
     implementation("com.google.cloud:google-cloud-secretmanager:2.67.0")
 

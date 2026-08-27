@@ -67,25 +67,25 @@ tasks.named("multiplatformSourceJar").configure {
 wire {
     kotlin {}
     sourcePath {
-        srcDir AndroidXConfig.getPrebuiltsRoot(project).absolutePath + '/androidx/traceprocessor'
+        srcDir AndroidXConfig.getPrebuiltsRoot(project).absolutePath + "/androidx/traceprocessor"
 
         // currently, all protos are at same tree depth
         // can add further includes if this stops working
-        include 'protos/perfetto/*/*.proto'
+        include "protos/perfetto/*/*.proto"
     }
 
     // Only compile the protos used directly by traceprocessor (which are a subset of those defined
     // by the necessary files). As new messages from within the above protos are needed, this list
     // must be expanded. Note that there's no dynamic usage of protos outside the library, since we
     // can't expose these protos as API.
-    root 'perfetto.protos.AndroidStartupMetric'
-    root 'perfetto.protos.AppendTraceDataResult'
-    root 'perfetto.protos.ComputeMetricArgs'
-    root 'perfetto.protos.ComputeMetricResult'
-    root 'perfetto.protos.QueryArgs'
-    root 'perfetto.protos.QueryResult'
-    root 'perfetto.protos.StatusResult'
-    root 'perfetto.protos.TraceMetrics'
+    root "perfetto.protos.AndroidStartupMetric"
+    root "perfetto.protos.AppendTraceDataResult"
+    root "perfetto.protos.ComputeMetricArgs"
+    root "perfetto.protos.ComputeMetricResult"
+    root "perfetto.protos.QueryArgs"
+    root "perfetto.protos.QueryResult"
+    root "perfetto.protos.StatusResult"
+    root "perfetto.protos.TraceMetrics"
 }
 
 androidx {

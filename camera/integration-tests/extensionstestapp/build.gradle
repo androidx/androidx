@@ -40,7 +40,7 @@ android {
             optimization {
                 enable = true
             }
-            testProguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
     namespace = "androidx.camera.integration.extensions"
@@ -86,15 +86,15 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"))
 
     // Transitive dependencies
-    implementation 'androidx.core:core-ktx:1.1.0'
-    implementation 'androidx.fragment:fragment:1.1.0'
-    implementation 'androidx.lifecycle:lifecycle-common:2.3.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-core:2.3.1'
-    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation "androidx.core:core-ktx:1.1.0"
+    implementation "androidx.fragment:fragment:1.1.0"
+    implementation "androidx.lifecycle:lifecycle-common:2.3.1"
+    implementation "androidx.lifecycle:lifecycle-livedata-core:2.3.1"
+    implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation libs.androidx.annotation
     implementation libs.androidx.core
     implementation libs.kotlinCoroutinesCore
-    implementation project(':camera:camera-core')
+    implementation project(":camera:camera-core")
     androidTestImplementation libs.hamcrestCore
     androidTestImplementation libs.junit
     androidTestImplementation libs.testMonitor

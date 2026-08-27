@@ -42,7 +42,7 @@ dependencies {
     testImplementation(project(":compose:remote:remote-core"))
     testImplementation(project(":compose:remote:remote-creation"))
 
-    implementation('androidx.core:core-ktx:1.7.0')
+    implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("androidx.datastore:datastore-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")

@@ -34,14 +34,14 @@ android {
  * classpath.
  */
 def jetbrainsComposeExcludeGroups = [
-        'org.jetbrains.androidx.lifecycle',
-        'org.jetbrains.compose.animation',
-        'org.jetbrains.compose.annotation-internal',
-        'org.jetbrains.compose.collection-internal',
-        'org.jetbrains.compose.foundation',
-        'org.jetbrains.compose.runtime',
-        'org.jetbrains.compose.ui',
-        'org.jetbrains.skiko'
+        "org.jetbrains.androidx.lifecycle",
+        "org.jetbrains.compose.animation",
+        "org.jetbrains.compose.annotation-internal",
+        "org.jetbrains.compose.collection-internal",
+        "org.jetbrains.compose.foundation",
+        "org.jetbrains.compose.runtime",
+        "org.jetbrains.compose.ui",
+        "org.jetbrains.skiko"
 ]
 
 dependencies {
