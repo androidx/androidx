@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import android.os.Build
 import androidx.a2ui.compose.ui.A2uiCatalog
@@ -36,17 +36,22 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+@MediumTest
 @RunWith(Parameterized::class)
-class MaterialIconComponentParameterizedTest(private val iconName: String) {
+class MaterialA2uiBasicCatalogV1IconParameterizedTest(private val iconName: String) {
 
     private val testCatalog =
-        A2uiCatalog(catalogId = "test_catalog", components = listOf(MaterialIconComponent))
+        A2uiCatalog(
+            catalogId = "test_catalog",
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.icon),
+        )
 
     companion object {
         @JvmStatic
@@ -101,7 +106,7 @@ class MaterialIconComponentParameterizedTest(private val iconName: String) {
         assertWithMessage("Icon height doesn't match")
             .that(actualBitmap.height)
             .isEqualTo(expectedBitmap.height)
-        assertWithMessage("Rendered icon does not match expected icon for token: $iconName}")
+        assertWithMessage("Rendered icon does not match expected icon for token: $iconName")
             .that(actualBitmap.sameAs(expectedBitmap))
             .isTrue()
     }
