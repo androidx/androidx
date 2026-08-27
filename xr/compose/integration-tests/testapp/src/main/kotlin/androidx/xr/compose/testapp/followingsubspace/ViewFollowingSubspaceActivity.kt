@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.xr.compose.testapp.followingsubspace
 
 import android.annotation.SuppressLint
@@ -80,14 +81,14 @@ import androidx.xr.runtime.DeviceTrackingMode
 import java.time.LocalDate
 import java.time.format.TextStyle
 
-private enum class UiModeSelectionV2 {
+private enum class UiBehaviorSelection {
     SOFT,
     EXPONENTIAL_DECAY,
 }
 
-data class TodoItemV2(val description: String, val isCompleted: Boolean)
+data class TodoItem(val description: String, val isCompleted: Boolean)
 
-class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
+class ViewFollowingSubspaceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -105,16 +106,16 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
 
         val todoItems = remember {
             mutableStateListOf(
-                TodoItemV2("Buy groceries", true),
-                TodoItemV2("Finish report", false),
-                TodoItemV2("Review PRs", false),
+                TodoItem("Buy groceries", true),
+                TodoItem("Finish report", false),
+                TodoItem("Review PRs", false),
             )
         }
         // State for the soft follow duration slider
         var softFollowDuration by remember { mutableIntStateOf(1000) }
-        var uiModeSelection by remember { mutableStateOf(UiModeSelectionV2.SOFT) }
+        var uiBehaviorSelection by remember { mutableStateOf(UiBehaviorSelection.SOFT) }
         val selectedMode =
-            remember(uiModeSelection, softFollowDuration) {
+            remember(uiBehaviorSelection, softFollowDuration) {
                 val dimensions =
                     TrackedDimensions(
                         isXTracked = true,
@@ -124,16 +125,16 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
                         isYawTracked = true,
                         isRollTracked = false,
                     )
-                when (uiModeSelection) {
-                    UiModeSelectionV2.SOFT ->
+                when (uiBehaviorSelection) {
+                    UiBehaviorSelection.SOFT ->
                         FollowMode.soft(durationMs = softFollowDuration, dimensions = dimensions)
-                    UiModeSelectionV2.EXPONENTIAL_DECAY ->
+                    UiBehaviorSelection.EXPONENTIAL_DECAY ->
                         FollowMode.exponentialDecay(dimensions = dimensions)
                 }
             }
 
         Subspace(
-            follow = FollowTarget.view(mode = FollowMode.snap()),
+            follow = FollowTarget.view(FollowMode.snap()),
             modifier = SubspaceModifier.offset(z = (-200).dp),
         ) {
             SpatialPanel(SubspaceModifier.height(400.dp).width(600.dp)) {
@@ -160,14 +161,14 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
             }
         }
 
-        Subspace(follow = FollowTarget.view(mode = selectedMode)) {
+        Subspace(follow = FollowTarget.view(selectedMode)) {
             SpatialPanel(SubspaceModifier.height(200.dp).width(450.dp).offset(y = (-50).dp)) {
                 Box(Modifier.fillMaxSize().background(Color.Cyan)) {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         TopBarWithBackArrow(
                             scrollBehavior = null,
                             title = "",
-                            onClick = { this@ArDeviceFollowingSubspaceV2Activity.finish() },
+                            onClick = { this@ViewFollowingSubspaceActivity.finish() },
                         )
                     }
                     Column(
@@ -183,11 +184,13 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier =
-                                    Modifier.clickable { uiModeSelection = UiModeSelectionV2.SOFT },
+                                    Modifier.clickable {
+                                        uiBehaviorSelection = UiBehaviorSelection.SOFT
+                                    },
                             ) {
                                 RadioButton(
-                                    selected = (uiModeSelection == UiModeSelectionV2.SOFT),
-                                    onClick = { uiModeSelection = UiModeSelectionV2.SOFT },
+                                    selected = (uiBehaviorSelection == UiBehaviorSelection.SOFT),
+                                    onClick = { uiBehaviorSelection = UiBehaviorSelection.SOFT },
                                 )
                                 Text("Soft", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             }
@@ -196,14 +199,15 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier =
                                     Modifier.clickable {
-                                        uiModeSelection = UiModeSelectionV2.EXPONENTIAL_DECAY
+                                        uiBehaviorSelection = UiBehaviorSelection.EXPONENTIAL_DECAY
                                     },
                             ) {
                                 RadioButton(
                                     selected =
-                                        (uiModeSelection == UiModeSelectionV2.EXPONENTIAL_DECAY),
+                                        (uiBehaviorSelection ==
+                                            UiBehaviorSelection.EXPONENTIAL_DECAY),
                                     onClick = {
-                                        uiModeSelection = UiModeSelectionV2.EXPONENTIAL_DECAY
+                                        uiBehaviorSelection = UiBehaviorSelection.EXPONENTIAL_DECAY
                                     },
                                 )
                                 Text(
@@ -214,7 +218,7 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
                             }
                         }
 
-                        if (uiModeSelection == UiModeSelectionV2.SOFT) {
+                        if (uiBehaviorSelection == UiBehaviorSelection.SOFT) {
                             SoftFollowSlider(
                                 duration = softFollowDuration,
                                 onDurationChange = { softFollowDuration = it.toInt() },
@@ -227,16 +231,15 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
         Subspace(
             follow =
                 FollowTarget.view(
-                    mode =
-                        FollowMode.soft(
-                            durationMs = softFollowDuration,
-                            dimensions =
-                                TrackedDimensions(
-                                    isXTracked = true,
-                                    isYTracked = true,
-                                    isZTracked = true,
-                                ),
-                        )
+                    FollowMode.soft(
+                        durationMs = softFollowDuration,
+                        dimensions =
+                            TrackedDimensions(
+                                isXTracked = true,
+                                isYTracked = true,
+                                isZTracked = true,
+                            ),
+                    )
                 )
         ) {
             SpatialCurvedRow(SubspaceModifier.width(1000.dp).height(300.dp), curveRadius = 500.dp) {
@@ -286,7 +289,7 @@ class ArDeviceFollowingSubspaceV2Activity : ComponentActivity() {
     }
 
     @Composable
-    private fun TodoListCard(todoItems: List<TodoItemV2>, onItemClick: (TodoItemV2) -> Unit) {
+    private fun TodoListCard(todoItems: List<TodoItem>, onItemClick: (TodoItem) -> Unit) {
         SpatialPanel {
             Card(
                 modifier = Modifier.fillMaxSize(),

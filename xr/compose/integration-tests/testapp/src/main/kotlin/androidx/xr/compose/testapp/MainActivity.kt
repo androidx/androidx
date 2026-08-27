@@ -80,8 +80,7 @@ import androidx.xr.compose.testapp.depthstacking.DepthStacking
 import androidx.xr.compose.testapp.focuschange.FSMFocusChangeActivity
 import androidx.xr.compose.testapp.focuschange.HSMFocusChangeActivity
 import androidx.xr.compose.testapp.followingsubspace.AnchorFollowingSubspaceActivity
-import androidx.xr.compose.testapp.followingsubspace.ArDeviceFollowingSubspaceV2Activity
-import androidx.xr.compose.testapp.followingsubspace.FollowingSubspaceActivity
+import androidx.xr.compose.testapp.followingsubspace.ViewFollowingSubspaceActivity
 import androidx.xr.compose.testapp.fragments.FragmentCompatibilityActivity
 import androidx.xr.compose.testapp.gravityaligned.GravityAlignedActivity
 import androidx.xr.compose.testapp.lifecycle.LifecycleDataStore
@@ -304,17 +303,14 @@ class MainActivity : ComponentActivity() {
                             TestCase(getString(R.string.anchor_subspace_app_test)) {
                                 startTest<AnchorFollowingSubspaceActivity>()
                             },
-                            TestCase(getString(R.string.ardevice_subspace_test_case)) {
-                                startTest<FollowingSubspaceActivity>()
+                            TestCase(getString(R.string.view_subspace_test_case)) {
+                                startTest<ViewFollowingSubspaceActivity>()
                             },
                             TestCase(getString(R.string.rotatetolookatuser_test_case)) {
                                 startTest<RotateToLookAtUserActivity>()
                             },
                             TestCase(getString(R.string.anchorable_test_case)) {
                                 startTest<AnchorableActivity>()
-                            },
-                            TestCase(getString(R.string.ardevice_subspace_v2_test_case)) {
-                                startTest<ArDeviceFollowingSubspaceV2Activity>()
                             },
                         ),
                     "Layout" to

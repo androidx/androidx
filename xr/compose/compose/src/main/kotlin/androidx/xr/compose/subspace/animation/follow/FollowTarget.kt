@@ -16,9 +16,9 @@
 
 package androidx.xr.compose.subspace.animation.follow
 
-import androidx.annotation.RestrictTo
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.ArDevice
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /** A FollowTarget can be used to have an element follow a target such as an anchor or view. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@ExperimentalFollowingSubspaceApi
 public abstract class FollowTarget internal constructor(internal val mode: FollowMode) {
     internal suspend fun start(session: Session, trailingEntity: CoreGroupEntity) {
         mode.start(session = session, trailingEntity = trailingEntity, target = this)
@@ -62,7 +62,7 @@ internal interface FollowTargetFlow {
 }
 
 /** A concrete [FollowTarget] that wraps the head pose updates from [ArDevice]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class ViewTarget(mode: FollowMode = FollowMode.soft()) :
     FollowTarget(mode), FollowTargetFlow {
     // Distance to stay away from the target when following it.
@@ -95,7 +95,7 @@ internal class ViewTarget(mode: FollowMode = FollowMode.soft()) :
  * A Trackable Anchor element that wraps an [Anchor] from ARCore for Jetpack XR to provide a stream
  * of pose updates.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class AnchorTarget(val anchor: Anchor, mode: FollowMode = FollowMode.tight()) :
     FollowTarget(mode), FollowTargetFlow {
 
