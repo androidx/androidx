@@ -24,8 +24,8 @@ androidXMultiplatform {
         commonMain.dependencies {
             api(project(":appstate:appstate"))
             api(project(":appstate:appstate-transform"))
-            api("androidx.datastore:datastore-core:1.3.0-alpha10")
-            api("androidx.datastore:datastore-preferences-core:1.3.0-alpha10")
+            api(project(":datastore:datastore-core"))
+            api(project(":datastore:datastore-preferences-core"))
             api(libs.kotlinSerializationJson)
             api(libs.kotlinCoroutinesCore)
             api(libs.kotlinReflect)
