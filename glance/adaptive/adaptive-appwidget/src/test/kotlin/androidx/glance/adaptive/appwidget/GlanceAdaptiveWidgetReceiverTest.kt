@@ -21,6 +21,7 @@ import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
@@ -43,6 +44,9 @@ class GlanceAdaptiveWidgetReceiverTest {
     @Before
     fun setUp() {
         ShadowLog.stream = PrintStream(ByteArrayOutputStream())
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        context.applicationInfo.flags =
+            context.applicationInfo.flags or ApplicationInfo.FLAG_DEBUGGABLE
     }
 
     private class TestReceiver : GlanceAdaptiveWidgetReceiver() {
@@ -124,6 +128,54 @@ class GlanceAdaptiveWidgetReceiverTest {
 
         val intent =
             Intent(Intent.ACTION_LOCALE_CHANGED).apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
+            }
+
+        receiver.onReceive(context, intent)
+
+        val called = receiver.onUpdateCalled.await()
+        assertThat(called).isTrue()
+    }
+
+    @Test
+    fun onReceive_invokesSuspendOnUpdateWhenDebugUpdateReceived() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        setupBoundWidget(context, 102, TestReceiver::class.java.name)
+        val receiver = TestReceiver()
+
+        val intent = Intent(GlanceAdaptiveWidgetReceiver.ACTION_DEBUG_UPDATE)
+
+        receiver.onReceive(context, intent)
+
+        val called = receiver.onUpdateCalled.await()
+        assertThat(called).isTrue()
+    }
+
+    @Test
+    fun onReceive_whenDebugUpdateReceivedAndNotDebuggable_doesNotInvokeOnUpdate() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        // Temporarily clear FLAG_DEBUGGABLE for this test; setUp() resets it to true for subsequent
+        // tests.
+        context.applicationInfo.flags =
+            context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE.inv()
+        setupBoundWidget(context, 102, TestReceiver::class.java.name)
+        val receiver = TestReceiver()
+
+        val intent = Intent(GlanceAdaptiveWidgetReceiver.ACTION_DEBUG_UPDATE)
+
+        receiver.onReceive(context, intent)
+
+        assertThat(receiver.onUpdateCalled.isCompleted).isFalse()
+    }
+
+    @Test
+    fun onReceive_invokesSuspendOnUpdateWhenDebugUpdateWithAppWidgetIdsExtraReceived() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val receiver = TestReceiver()
+        val appWidgetIds = intArrayOf(1, 2, 3)
+
+        val intent =
+            Intent(GlanceAdaptiveWidgetReceiver.ACTION_DEBUG_UPDATE).apply {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds)
             }
 
