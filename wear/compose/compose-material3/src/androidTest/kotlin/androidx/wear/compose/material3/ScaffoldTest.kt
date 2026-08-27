@@ -30,8 +30,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Alignment
@@ -53,6 +55,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
@@ -1053,6 +1056,67 @@ class ScaffoldTest {
         rule.runOnIdle {
             assertThat(scaffoldState?.screenContent?.currentShowStatusBar?.value).isTrue()
         }
+    }
+
+    @Test
+    fun screenStack_statusBar_screenIsActive_togglesPrecedence() {
+        var scaffoldState: ScaffoldState? = null
+        var screenIsActive by mutableStateOf(true)
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    scaffoldState = LocalScaffoldState.current
+                    CompositionLocalProvider(LocalScreenIsActive provides screenIsActive) {
+                        ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {}
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            // When screen is active, its Disabled mode takes precedence
+            assertThat(scaffoldState?.screenContent?.currentShowStatusBar?.value).isFalse()
+        }
+
+        rule.runOnUiThread { screenIsActive = false }
+        rule.runOnIdle {
+            // When screen is inactive, it leaves the stack and falls back to AppScaffold (true)
+            assertThat(scaffoldState?.screenContent?.currentShowStatusBar?.value).isTrue()
+        }
+
+        rule.runOnUiThread { screenIsActive = true }
+        rule.runOnIdle {
+            // When reactivated, it re-joins the top of stack and its Disabled mode takes precedence
+            assertThat(scaffoldState?.screenContent?.currentShowStatusBar?.value).isFalse()
+        }
+    }
+
+    @Test
+    fun screenStack_timeText_screenIsActive_togglesPrecedence() {
+        var screenIsActive by mutableStateOf(true)
+
+        rule.setContentWithTheme {
+            AppScaffold(timeText = { Text("App Time") }) {
+                CompositionLocalProvider(LocalScreenIsActive provides screenIsActive) {
+                    ScreenScaffold(timeText = { Text("Screen Time") }) {}
+                }
+            }
+        }
+
+        // When screen is active, its timeText is displayed
+        rule.onNodeWithText("Screen Time").assertExists()
+        rule.onNodeWithText("App Time").assertDoesNotExist()
+
+        // When screen is deactivated, it drops off stack and AppScaffold timeText is displayed
+        rule.runOnUiThread { screenIsActive = false }
+        rule.onNodeWithText("App Time").assertExists()
+        rule.onNodeWithText("Screen Time").assertDoesNotExist()
+
+        // When screen is reactivated, ScreenScaffold timeText is displayed again
+        rule.runOnUiThread { screenIsActive = true }
+        rule.onNodeWithText("Screen Time").assertExists()
+        rule.onNodeWithText("App Time").assertDoesNotExist()
     }
 
     @Test
