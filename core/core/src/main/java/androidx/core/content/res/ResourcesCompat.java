@@ -240,6 +240,7 @@ public final class ResourcesCompat {
                 final ColorStateListCacheEntry entry = entries.get(resId);
                 if (entry != null) {
                     if (entry.mConfiguration.equals(key.mResources.getConfiguration())
+                            && entry.mUiMode == key.mResources.getConfiguration().uiMode
                             && ((key.mTheme == null && entry.mThemeHash == 0)
                             || (key.mTheme != null && entry.mThemeHash == key.mTheme.hashCode()))) {
                         // If the current configuration matches the entry's, we can use it
@@ -313,6 +314,7 @@ public final class ResourcesCompat {
         final ColorStateList mValue;
         final Configuration mConfiguration;
         final int mThemeHash;
+        final int mUiMode;
 
         ColorStateListCacheEntry(@NonNull ColorStateList value,
                 @NonNull Configuration configuration,
@@ -320,6 +322,7 @@ public final class ResourcesCompat {
             mValue = value;
             mConfiguration = configuration;
             mThemeHash = theme == null ? 0 : theme.hashCode();
+            mUiMode = configuration.uiMode;
         }
     }
 
