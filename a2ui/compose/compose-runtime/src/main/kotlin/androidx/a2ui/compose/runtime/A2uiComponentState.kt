@@ -22,7 +22,9 @@ import androidx.a2ui.model.protocol.A2uiDataPath
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 
 /**
  * Represents the state of an A2UI component instance.
@@ -108,8 +110,18 @@ internal fun observeA2uiComponentState(
             )
     val record = registry.get(id)
 
+    // Capture the current local action interceptor
+    val localActionInterceptor = rememberUpdatedState(LocalA2uiActionInterceptor.current)
+
     val scope =
-        remember(id, baseDataPath, surface) { A2uiComponentScopeImpl(id, baseDataPath, surface) }
+        remember(id, baseDataPath, surface) {
+            A2uiComponentScopeImpl(
+                id = id,
+                baseDataPath = baseDataPath,
+                surface = surface,
+                actionInterceptorProducer = { localActionInterceptor.value },
+            )
+        }
 
     val state =
         remember(record, surface, scope) {
