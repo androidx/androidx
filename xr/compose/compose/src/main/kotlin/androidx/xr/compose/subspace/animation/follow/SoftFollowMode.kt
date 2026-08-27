@@ -16,10 +16,10 @@
 
 package androidx.xr.compose.subspace.animation.follow
 
-import androidx.annotation.RestrictTo
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.tween
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
@@ -41,7 +41,7 @@ import kotlinx.coroutines.withContext
  * @param dimensions A set of boolean flags which determine the dimensions of movement that are
  *   tracked. By default, all dimensions are tracked.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class SoftFollowMode(
     private val durationMs: Int = DEFAULT_SOFT_DURATION_MS,
     private val dimensions: TrackedDimensions = TrackedDimensions.All,

@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.testing.ArCoreTestRule
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.PlaneTrackingMode
 import androidx.xr.runtime.Session
@@ -42,7 +43,7 @@ import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalFollowingSubspaceApi::class)
 class FollowTargetTest {
 
     @get:Rule val arCoreTestRule = ArCoreTestRule()

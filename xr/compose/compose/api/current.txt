@@ -521,10 +521,12 @@ package androidx.xr.compose.spatial {
   }
 
   public final class SubspaceKt {
-    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static void FollowingSubspace(androidx.xr.compose.subspace.FollowTarget target, androidx.xr.compose.subspace.FollowBehavior behavior, optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, optional androidx.xr.compose.subspace.TrackedDimensions dimensions, kotlin.jvm.functions.Function1<androidx.xr.compose.subspace.SpatialBoxScope,kotlin.Unit> content);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static void FollowingSubspace(androidx.xr.compose.subspace.FollowTarget, androidx.xr.compose.subspace.FollowBehavior, androidx.xr.compose.subspace.layout.SubspaceModifier?, androidx.xr.compose.subspace.TrackedDimensions?, kotlin.jvm.functions.Function3<? super androidx.xr.compose.subspace.SpatialBoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @Deprecated @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static void FollowingSubspace(androidx.xr.compose.subspace.FollowTarget target, androidx.xr.compose.subspace.FollowBehavior behavior, optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, optional androidx.xr.compose.subspace.TrackedDimensions dimensions, kotlin.jvm.functions.Function1<androidx.xr.compose.subspace.SpatialBoxScope,kotlin.Unit> content);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static void FollowingSubspace(androidx.xr.compose.subspace.FollowTarget, androidx.xr.compose.subspace.FollowBehavior, androidx.xr.compose.subspace.layout.SubspaceModifier?, androidx.xr.compose.subspace.TrackedDimensions?, kotlin.jvm.functions.Function3<? super androidx.xr.compose.subspace.SpatialBoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static void PlanarEmbeddedSubspace(optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, kotlin.jvm.functions.Function1<androidx.xr.compose.subspace.SpatialBoxScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.ui.UiComposable public static void PlanarEmbeddedSubspace(androidx.xr.compose.subspace.layout.SubspaceModifier?, kotlin.jvm.functions.Function3<? super androidx.xr.compose.subspace.SpatialBoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static void Subspace(androidx.xr.compose.subspace.animation.follow.FollowTarget follow, optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, kotlin.jvm.functions.Function1<androidx.xr.compose.subspace.SpatialBoxScope,kotlin.Unit> content);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static void Subspace(androidx.xr.compose.subspace.animation.follow.FollowTarget, androidx.xr.compose.subspace.layout.SubspaceModifier?, kotlin.jvm.functions.Function3<? super androidx.xr.compose.subspace.SpatialBoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Subspace(optional androidx.xr.compose.subspace.layout.SubspaceModifier modifier, kotlin.jvm.functions.Function1<androidx.xr.compose.subspace.SpatialBoxScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableOpenTarget(index=0xffffffff) public static void Subspace(androidx.xr.compose.subspace.layout.SubspaceModifier?, kotlin.jvm.functions.Function3<? super androidx.xr.compose.subspace.SpatialBoxScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
   }
@@ -536,30 +538,30 @@ package androidx.xr.compose.subspace {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSpatialGltfModelApi {
   }
 
-  @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public abstract sealed nonexhaustive class FollowBehavior {
-    field public static final androidx.xr.compose.subspace.FollowBehavior.Companion Companion;
-    field public static final int DEFAULT_SOFT_DURATION_MS = 1500; // 0x5dc
-    field public static final int MIN_SOFT_DURATION_MS = 100; // 0x64
+  @Deprecated @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public abstract sealed nonexhaustive class FollowBehavior {
+    field @Deprecated public static final androidx.xr.compose.subspace.FollowBehavior.Companion Companion;
+    field @Deprecated public static final int DEFAULT_SOFT_DURATION_MS = 1500; // 0x5dc
+    field @Deprecated public static final int MIN_SOFT_DURATION_MS = 100; // 0x64
   }
 
-  @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static final class FollowBehavior.Companion {
-    method public androidx.xr.compose.subspace.FollowBehavior Soft(optional @IntRange(from=androidx.xr.compose.subspace.FollowBehavior.MIN_SOFT_DURATION_MS.toLong()) int durationMs);
-    method @BytecodeOnly public static androidx.xr.compose.subspace.FollowBehavior! Soft$default(androidx.xr.compose.subspace.FollowBehavior.Companion!, int, int, Object!);
-    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.FollowBehavior getStatic();
-    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.FollowBehavior getTight();
-    property public static int DEFAULT_SOFT_DURATION_MS;
-    property public static int MIN_SOFT_DURATION_MS;
-    property public androidx.xr.compose.subspace.FollowBehavior Static;
-    property public androidx.xr.compose.subspace.FollowBehavior Tight;
+  @Deprecated @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static final class FollowBehavior.Companion {
+    method @Deprecated public androidx.xr.compose.subspace.FollowBehavior Soft(optional @IntRange(from=androidx.xr.compose.subspace.FollowBehavior.MIN_SOFT_DURATION_MS.toLong()) int durationMs);
+    method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.FollowBehavior! Soft$default(androidx.xr.compose.subspace.FollowBehavior.Companion!, int, int, Object!);
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.subspace.FollowBehavior getStatic();
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.subspace.FollowBehavior getTight();
+    property @Deprecated public static int DEFAULT_SOFT_DURATION_MS;
+    property @Deprecated public static int MIN_SOFT_DURATION_MS;
+    property @Deprecated public androidx.xr.compose.subspace.FollowBehavior Static;
+    property @Deprecated public androidx.xr.compose.subspace.FollowBehavior Tight;
   }
 
-  @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public sealed nonexhaustive interface FollowTarget {
-    field public static final androidx.xr.compose.subspace.FollowTarget.Companion Companion;
+  @Deprecated @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public sealed nonexhaustive interface FollowTarget {
+    field @Deprecated public static final androidx.xr.compose.subspace.FollowTarget.Companion Companion;
   }
 
-  @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static final class FollowTarget.Companion {
-    method public androidx.xr.compose.subspace.FollowTarget Anchor(androidx.xr.scenecore.AnchorSpace anchorSpace);
-    method public androidx.xr.compose.subspace.FollowTarget ArDevice(androidx.xr.runtime.Session session);
+  @Deprecated @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static final class FollowTarget.Companion {
+    method @Deprecated public androidx.xr.compose.subspace.FollowTarget Anchor(androidx.xr.scenecore.AnchorSpace anchorSpace);
+    method @Deprecated public androidx.xr.compose.subspace.FollowTarget ArDevice(androidx.xr.runtime.Session session);
   }
 
   public final class SceneCoreEntityKt {
@@ -761,30 +763,88 @@ package androidx.xr.compose.subspace {
     property public androidx.xr.compose.subspace.SuperSamplingPattern Pentagon;
   }
 
+  @Deprecated @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public final class TrackedDimensions {
+    ctor @Deprecated public TrackedDimensions();
+    ctor @Deprecated public TrackedDimensions(optional boolean isTranslationXTracked, optional boolean isTranslationYTracked, optional boolean isTranslationZTracked, optional boolean isRotationXTracked, optional boolean isRotationYTracked, optional boolean isRotationZTracked);
+    ctor @BytecodeOnly @Deprecated public TrackedDimensions(boolean, boolean, boolean, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @Deprecated public androidx.xr.compose.subspace.TrackedDimensions copy(optional boolean isTranslationXTracked, optional boolean isTranslationYTracked, optional boolean isTranslationZTracked, optional boolean isRotationXTracked, optional boolean isRotationYTracked, optional boolean isRotationZTracked);
+    method @BytecodeOnly @Deprecated public static androidx.xr.compose.subspace.TrackedDimensions! copy$default(androidx.xr.compose.subspace.TrackedDimensions!, boolean, boolean, boolean, boolean, boolean, boolean, int, Object!);
+    method @InaccessibleFromKotlin @Deprecated public boolean isRotationXTracked();
+    method @InaccessibleFromKotlin @Deprecated public boolean isRotationYTracked();
+    method @InaccessibleFromKotlin @Deprecated public boolean isRotationZTracked();
+    method @InaccessibleFromKotlin @Deprecated public boolean isTranslationXTracked();
+    method @InaccessibleFromKotlin @Deprecated public boolean isTranslationYTracked();
+    method @InaccessibleFromKotlin @Deprecated public boolean isTranslationZTracked();
+    property @Deprecated public boolean isRotationXTracked;
+    property @Deprecated public boolean isRotationYTracked;
+    property @Deprecated public boolean isRotationZTracked;
+    property @Deprecated public boolean isTranslationXTracked;
+    property @Deprecated public boolean isTranslationYTracked;
+    property @Deprecated public boolean isTranslationZTracked;
+    field @Deprecated public static final androidx.xr.compose.subspace.TrackedDimensions.Companion Companion;
+  }
+
+  @Deprecated @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static final class TrackedDimensions.Companion {
+    method @InaccessibleFromKotlin @Deprecated public androidx.xr.compose.subspace.TrackedDimensions getAll();
+    property @Deprecated public androidx.xr.compose.subspace.TrackedDimensions All;
+  }
+
+}
+
+package @SuppressCompatibility androidx.xr.compose.subspace.animation.follow {
+
+  @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public abstract class FollowMode {
+    method @InaccessibleFromKotlin protected final kotlinx.coroutines.CoroutineDispatcher getDispatcherOverride();
+    property protected final kotlinx.coroutines.CoroutineDispatcher dispatcherOverride;
+    field public static final androidx.xr.compose.subspace.animation.follow.FollowMode.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static final class FollowMode.Companion {
+    method public androidx.xr.compose.subspace.animation.follow.FollowMode snap(optional androidx.xr.compose.subspace.animation.follow.TrackedDimensions dimensions);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowMode! snap$default(androidx.xr.compose.subspace.animation.follow.FollowMode.Companion!, androidx.xr.compose.subspace.animation.follow.TrackedDimensions!, int, Object!);
+    method public androidx.xr.compose.subspace.animation.follow.FollowMode soft(optional @IntRange(from=100L) int durationMs, optional androidx.xr.compose.subspace.animation.follow.TrackedDimensions dimensions);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowMode! soft$default(androidx.xr.compose.subspace.animation.follow.FollowMode.Companion!, int, androidx.xr.compose.subspace.animation.follow.TrackedDimensions!, int, Object!);
+    method public androidx.xr.compose.subspace.animation.follow.FollowMode tight(optional androidx.xr.compose.subspace.animation.follow.TrackedDimensions dimensions);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowMode! tight$default(androidx.xr.compose.subspace.animation.follow.FollowMode.Companion!, androidx.xr.compose.subspace.animation.follow.TrackedDimensions!, int, Object!);
+  }
+
+  @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public abstract class FollowTarget {
+    field public static final androidx.xr.compose.subspace.animation.follow.FollowTarget.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static final class FollowTarget.Companion {
+    method public androidx.xr.compose.subspace.animation.follow.FollowTarget anchor(androidx.xr.arcore.Anchor anchor, optional androidx.xr.compose.subspace.animation.follow.FollowMode mode);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowTarget! anchor$default(androidx.xr.compose.subspace.animation.follow.FollowTarget.Companion!, androidx.xr.arcore.Anchor!, androidx.xr.compose.subspace.animation.follow.FollowMode!, int, Object!);
+    method public androidx.xr.compose.subspace.animation.follow.FollowTarget view(optional androidx.xr.compose.subspace.animation.follow.FollowMode mode);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.FollowTarget! view$default(androidx.xr.compose.subspace.animation.follow.FollowTarget.Companion!, androidx.xr.compose.subspace.animation.follow.FollowMode!, int, Object!);
+  }
+
   @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public final class TrackedDimensions {
     ctor public TrackedDimensions();
-    ctor public TrackedDimensions(optional boolean isTranslationXTracked, optional boolean isTranslationYTracked, optional boolean isTranslationZTracked, optional boolean isRotationXTracked, optional boolean isRotationYTracked, optional boolean isRotationZTracked);
+    ctor public TrackedDimensions(optional boolean isXTracked, optional boolean isYTracked, optional boolean isZTracked, optional boolean isPitchTracked, optional boolean isYawTracked, optional boolean isRollTracked);
     ctor @BytecodeOnly public TrackedDimensions(boolean, boolean, boolean, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method public androidx.xr.compose.subspace.TrackedDimensions copy(optional boolean isTranslationXTracked, optional boolean isTranslationYTracked, optional boolean isTranslationZTracked, optional boolean isRotationXTracked, optional boolean isRotationYTracked, optional boolean isRotationZTracked);
-    method @BytecodeOnly public static androidx.xr.compose.subspace.TrackedDimensions! copy$default(androidx.xr.compose.subspace.TrackedDimensions!, boolean, boolean, boolean, boolean, boolean, boolean, int, Object!);
-    method @InaccessibleFromKotlin public boolean isRotationXTracked();
-    method @InaccessibleFromKotlin public boolean isRotationYTracked();
-    method @InaccessibleFromKotlin public boolean isRotationZTracked();
-    method @InaccessibleFromKotlin public boolean isTranslationXTracked();
-    method @InaccessibleFromKotlin public boolean isTranslationYTracked();
-    method @InaccessibleFromKotlin public boolean isTranslationZTracked();
-    property public boolean isRotationXTracked;
-    property public boolean isRotationYTracked;
-    property public boolean isRotationZTracked;
-    property public boolean isTranslationXTracked;
-    property public boolean isTranslationYTracked;
-    property public boolean isTranslationZTracked;
-    field public static final androidx.xr.compose.subspace.TrackedDimensions.Companion Companion;
+    method public androidx.xr.compose.subspace.animation.follow.TrackedDimensions copy(optional boolean isXTracked, optional boolean isYTracked, optional boolean isZTracked, optional boolean isPitchTracked, optional boolean isYawTracked, optional boolean isRollTracked);
+    method @BytecodeOnly public static androidx.xr.compose.subspace.animation.follow.TrackedDimensions! copy$default(androidx.xr.compose.subspace.animation.follow.TrackedDimensions!, boolean, boolean, boolean, boolean, boolean, boolean, int, Object!);
+    method @InaccessibleFromKotlin public boolean isPitchTracked();
+    method @InaccessibleFromKotlin public boolean isRollTracked();
+    method @InaccessibleFromKotlin public boolean isXTracked();
+    method @InaccessibleFromKotlin public boolean isYTracked();
+    method @InaccessibleFromKotlin public boolean isYawTracked();
+    method @InaccessibleFromKotlin public boolean isZTracked();
+    property public boolean isPitchTracked;
+    property public boolean isRollTracked;
+    property public boolean isXTracked;
+    property public boolean isYTracked;
+    property public boolean isYawTracked;
+    property public boolean isZTracked;
+    field public static final androidx.xr.compose.subspace.animation.follow.TrackedDimensions.Companion Companion;
   }
 
   @SuppressCompatibility @androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi public static final class TrackedDimensions.Companion {
-    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.TrackedDimensions getAll();
-    property public androidx.xr.compose.subspace.TrackedDimensions All;
+    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.animation.follow.TrackedDimensions getAll();
+    method @InaccessibleFromKotlin public androidx.xr.compose.subspace.animation.follow.TrackedDimensions getRotationOnly();
+    property public androidx.xr.compose.subspace.animation.follow.TrackedDimensions All;
+    property public androidx.xr.compose.subspace.animation.follow.TrackedDimensions RotationOnly;
   }
 
 }

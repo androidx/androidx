@@ -19,6 +19,7 @@ package androidx.xr.compose.subspace.animation.follow
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.runtime.Session
 import kotlinx.coroutines.CoroutineDispatcher
@@ -29,7 +30,7 @@ import kotlinx.coroutines.Dispatchers
  * options include "soft", which gradually catches up to the target and "snap", which does not
  * continuously follow the target.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@ExperimentalFollowingSubspaceApi
 public abstract class FollowMode internal constructor() {
     internal abstract suspend fun start(
         session: Session,
@@ -45,7 +46,7 @@ public abstract class FollowMode internal constructor() {
         internal val DEFAULT_SOFT_DURATION_MS: Int = 1500
 
         /** The minimum allowable duration in milliseconds for a soft follow animation. */
-        public val MIN_SOFT_DURATION_MS: Int = 100
+        internal val MIN_SOFT_DURATION_MS: Int = 100
 
         /**
          * Places content once based on the target's initial pose and does not follow subsequent
@@ -81,9 +82,7 @@ public abstract class FollowMode internal constructor() {
          * the motion can be configured via [durationMs].
          *
          * @param durationMs Amount of milliseconds it takes for the content to catch up to the
-         *   user. Default is [DEFAULT_SOFT_DURATION_MS] milliseconds. A value less than
-         *   [MIN_SOFT_DURATION_MS] will be rounded up to [MIN_SOFT_DURATION_MS] to allow enough
-         *   time to complete the content movement.
+         *   user.
          * @param dimensions A set of boolean flags which determine the dimensions of movement that
          *   are tracked. By default, all dimensions are tracked.
          * @return A [FollowMode] instance configured for soft following.

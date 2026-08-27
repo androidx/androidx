@@ -4,7 +4,7 @@
     <string name="title_activity_media_player">Video in Spatial Panel Test Case</string>
     <string name="title_activity_rotation">Panel/Layout rotation Test Case</string>
     <string name="mode_change_test">Compose Mode Change Test Case</string>
-    <string name="anchor_subspace_app_test">Anchor FollowingSubspace Test Case</string>
+    <string name="anchor_subspace_app_test">Anchor Following Subspace Test Case</string>
     <string name="panel_rotation_test">Panel/Layout rotation Test Case</string>
     <string name="media_player_panel_test">CUJ: Media Player Panel Test</string>
     <string name="enable_permission_dialog_test">Dialog Permissions Test Case</string>
@@ -27,8 +27,7 @@
     <string name="fragment_compatibility_test">Fragment Compatibility Test Case</string>
     <string name="depthstacking_modifier_order_test_case">DepthStacking and ModifierOrder Layout Test Case</string>
     <string name="panel_embedded_subspace_test_case">Panel Embedded Subspace Layout Test Case</string>
-    <string name="ardevice_subspace_test_case">AR Device FollowingSubspace Layout Test Case</string>
-    <string name="ardevice_subspace_v2_test_case">(WIP) AR Device FollowingSubspaceV2 Test Case</string>
+    <string name="view_subspace_test_case">View Following Subspace Layout Test Case</string>
     <string name="panel_volume_test_case">Panel Volume Layout Test Case</string>
     <string name="resizable_panel_test_case">Resizable Panel Test Case</string>
     <string name="spatial_alignment_usage_test_case">Spatial Alignment Usage Test Case</string>

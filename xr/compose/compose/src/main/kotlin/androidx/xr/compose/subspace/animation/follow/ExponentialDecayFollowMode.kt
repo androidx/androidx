@@ -16,8 +16,8 @@
 
 package androidx.xr.compose.subspace.animation.follow
 
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.withFrameNanos
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 internal class ExponentialDecayFollowMode(
     private val dimensions: TrackedDimensions = TrackedDimensions.All
 ) : FollowMode() {
