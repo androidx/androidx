@@ -21,9 +21,9 @@ package androidx.compose.material3
 import android.content.Context
 import android.content.res.TypedArray
 import android.os.Build
-import androidx.annotation.ColorRes
 import androidx.annotation.FloatRange
 import androidx.annotation.RequiresApi
+import androidx.annotation.StyleRes
 import androidx.annotation.StyleableRes
 import androidx.compose.material3.internal.colorUtil.Cam
 import androidx.compose.material3.internal.colorUtil.CamUtils
@@ -33,10 +33,9 @@ import androidx.compose.ui.graphics.toArgb
 /** Dynamic colors in Material. */
 @RequiresApi(31)
 internal fun dynamicTonalPalette(context: Context): TonalPalette {
-    val typedArray = context.obtainStyledAttributes(R.style.mc3_palette, R.styleable.mc3_palette)
-
-    try {
-        return TonalPalette(
+    return context.obtainStyledAttributesSafe(R.style.mc3_palette, R.styleable.mc3_palette) {
+        typedArray ->
+        TonalPalette(
             // The primary tonal range from the generated dynamic color palette
             primary100 = typedArray.getColor(R.styleable.mc3_palette_mc3_primary_100),
             primary99 = typedArray.getColor(R.styleable.mc3_palette_mc3_primary_99),
@@ -177,8 +176,6 @@ internal fun dynamicTonalPalette(context: Context): TonalPalette {
                     .setLuminance(4f),
             neutralVariant0 = typedArray.getColor(R.styleable.mc3_palette_mc3_neutral_variant_0),
         )
-    } finally {
-        typedArray.recycle()
     }
 }
 
@@ -223,13 +220,6 @@ public fun dynamicDarkColorScheme(context: Context): ColorScheme {
         // variant which provides chroma8 for less grey tones.
         val tonalPalette = dynamicTonalPalette(context)
         dynamicDarkColorScheme31(tonalPalette)
-    }
-}
-
-@RequiresApi(23)
-private object ColorResourceHelper {
-    fun getColor(context: Context, @ColorRes id: Int): Color {
-        return Color(context.resources.getColor(id, context.theme))
     }
 }
 
@@ -301,10 +291,9 @@ internal fun dynamicLightColorScheme31(tonalPalette: TonalPalette) =
 
 @RequiresApi(34)
 internal fun dynamicLightColorScheme34(context: Context): ColorScheme {
-    val typedArray =
-        context.obtainStyledAttributes(R.style.mc3_light_scheme, R.styleable.mc3_scheme)
-    try {
-        return lightColorScheme(
+    return context.obtainStyledAttributesSafe(R.style.mc3_light_scheme, R.styleable.mc3_scheme) {
+        typedArray ->
+        lightColorScheme(
             primary = typedArray.getColor(R.styleable.mc3_scheme_mc3_primary),
             onPrimary = typedArray.getColor(R.styleable.mc3_scheme_mc3_on_primary),
             primaryContainer = typedArray.getColor(R.styleable.mc3_scheme_mc3_primary_container),
@@ -360,8 +349,6 @@ internal fun dynamicLightColorScheme34(context: Context): ColorScheme {
             onTertiaryFixedVariant =
                 typedArray.getColor(R.styleable.mc3_scheme_mc3_on_tertiary_fixed_variant),
         )
-    } finally {
-        typedArray.recycle()
     }
 }
 
@@ -416,9 +403,9 @@ internal fun dynamicDarkColorScheme31(tonalPalette: TonalPalette) =
 
 @RequiresApi(34)
 internal fun dynamicDarkColorScheme34(context: Context): ColorScheme {
-    val typedArray = context.obtainStyledAttributes(R.style.mc3_dark_scheme, R.styleable.mc3_scheme)
-    try {
-        return darkColorScheme(
+    return context.obtainStyledAttributesSafe(R.style.mc3_dark_scheme, R.styleable.mc3_scheme) {
+        typedArray ->
+        darkColorScheme(
             primary = typedArray.getColor(R.styleable.mc3_scheme_mc3_primary),
             onPrimary = typedArray.getColor(R.styleable.mc3_scheme_mc3_on_primary),
             primaryContainer = typedArray.getColor(R.styleable.mc3_scheme_mc3_primary_container),
@@ -474,6 +461,18 @@ internal fun dynamicDarkColorScheme34(context: Context): ColorScheme {
             onTertiaryFixedVariant =
                 typedArray.getColor(R.styleable.mc3_scheme_mc3_on_tertiary_fixed_variant),
         )
+    }
+}
+
+private inline fun <R> Context.obtainStyledAttributesSafe(
+    @StyleRes resId: Int,
+    @StyleableRes attrs: IntArray,
+    block: (TypedArray) -> R,
+): R {
+    val safeTheme = theme ?: resources.newTheme()
+    val typedArray = safeTheme.obtainStyledAttributes(resId, attrs)
+    return try {
+        block(typedArray)
     } finally {
         typedArray.recycle()
     }
