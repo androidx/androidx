@@ -16,6 +16,9 @@
 
 package androidx.compose.animation
 
+import androidx.collection.MutableObjectList
+import androidx.collection.ObjectList
+import androidx.collection.mutableObjectListOf
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
@@ -31,7 +34,6 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
-import androidx.compose.ui.util.fastForEach
 import kotlinx.coroutines.launch
 
 internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl) {
@@ -50,15 +52,16 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
      * becoming visible, then we consider this an error case for the lack of target, and
      * consequently animate none of them.
      */
-    private var _allEntries by mutableStateOf<List<SharedElementEntry>>(emptyList())
-    private var _enabledEntries by mutableStateOf<List<SharedElementEntry>>(emptyList())
+    private val _allEntries: MutableObjectList<SharedElementEntry> = mutableObjectListOf()
+    // Note: This list needs to be observable, in order to properly invalidate overlay drawing.
+    private var _enabledEntries: List<SharedElementEntry> by mutableStateOf(emptyList())
 
     // Read-only entries
     val enabledEntries: List<SharedElementEntry>
         get() = _enabledEntries
 
     // Read-only entries
-    val allEntries: List<SharedElementEntry>
+    val allEntries: ObjectList<SharedElementEntry>
         get() = _allEntries
 
     fun isAnimating(): Boolean = enabledEntries.fastAny { it.boundsAnimation.isRunning }
@@ -70,10 +73,9 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
 
     internal fun updateMatch() {
         @Suppress("VisibleForTests") scope.testBlockToRun?.invoke()
-        val allEntries = _allEntries
         val newEnabledEntries = mutableListOf<SharedElementEntry>()
         var hasVisibleContent = false
-        allEntries.fastForEach {
+        _allEntries.forEach {
             if (it.isEnabled) {
                 newEnabledEntries.add(it)
                 if (it.boundsAnimation.target) hasVisibleContent = true
@@ -81,6 +83,7 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
         }
         _enabledEntries = newEnabledEntries
         stateMachine.checkForAndDeferStateUpdates(hasVisibleContent)
+        _allEntries.forEach { it.updateTransitionActiveness() }
     }
 
     private var animationSpecFinalized = false
@@ -179,18 +182,13 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl)
         }
     }
 
-    internal val observingVisibilityChange: () -> Unit = {
-        allEntries.fastAny { it.target && it.isEnabled }
-    }
-
-    fun addEntry(sharedElementState: SharedElementEntry) {
-        _allEntries += sharedElementState
+    fun addEntry(sharedElementEntry: SharedElementEntry) {
+        _allEntries.add(sharedElementEntry)
         updateMatch()
     }
 
-    fun removeEntry(sharedElementState: SharedElementEntry) {
-        _allEntries -= sharedElementState
-        _enabledEntries -= sharedElementState
+    fun removeEntry(sharedElementEntry: SharedElementEntry) {
+        _allEntries.remove(sharedElementEntry)
         updateMatch()
     }
 }

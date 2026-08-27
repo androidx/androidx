@@ -5850,6 +5850,223 @@ class SharedTransitionTest {
             rule.mainClock.advanceTimeByFrame()
         }
     }
+
+    @Test
+    fun testIsTransitionActive_lifecycle_multipleEntries() {
+        var transitionScope: SharedTransitionScope? = null
+        var isExpanded by mutableStateOf(false)
+
+        rule.setContent {
+            SharedTransitionLayout {
+                transitionScope = this
+                AnimatedVisibility(
+                    visible = !isExpanded,
+                    enter = fadeIn(tween(300, easing = LinearEasing)),
+                    exit = fadeOut(tween(300, easing = LinearEasing)),
+                ) {
+                    Column {
+                        Box(
+                            Modifier.sharedElement(
+                                    rememberSharedContentState(key = "first"),
+                                    this@AnimatedVisibility,
+                                    boundsTransform = { _, _ -> tween(300, easing = LinearEasing) },
+                                )
+                                .requiredSize(40.dp)
+                        )
+                        Box(
+                            Modifier.sharedElement(
+                                    rememberSharedContentState(key = "second"),
+                                    this@AnimatedVisibility,
+                                    boundsTransform = { _, _ -> tween(300, easing = LinearEasing) },
+                                )
+                                .requiredSize(40.dp)
+                        )
+                    }
+                }
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = fadeIn(tween(300, easing = LinearEasing)),
+                    exit = fadeOut(tween(300, easing = LinearEasing)),
+                ) {
+                    Column {
+                        Box(
+                            Modifier.sharedElement(
+                                    rememberSharedContentState(key = "first"),
+                                    this@AnimatedVisibility,
+                                    boundsTransform = { _, _ -> tween(300, easing = LinearEasing) },
+                                )
+                                .requiredSize(100.dp)
+                        )
+                        Box(
+                            Modifier.sharedElement(
+                                    rememberSharedContentState(key = "second"),
+                                    this@AnimatedVisibility,
+                                    boundsTransform = { _, _ -> tween(300, easing = LinearEasing) },
+                                )
+                                .requiredSize(100.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertFalse(transitionScope!!.isTransitionActive)
+
+        rule.mainClock.autoAdvance = false
+        isExpanded = true
+
+        rule.waitForIdle()
+        // Advance clock into the active transition
+        rule.mainClock.advanceTimeBy(100)
+        rule.waitForIdle()
+        assertTrue(transitionScope!!.isTransitionActive)
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertFalse(transitionScope!!.isTransitionActive)
+    }
+
+    @Test
+    fun testIsTransitionActive_modifierRemovedMidTransition() {
+        var transitionScope: SharedTransitionScope? = null
+        var isExpanded by mutableStateOf(false)
+        var hasSharedElement by mutableStateOf(true)
+
+        rule.setContent {
+            SharedTransitionLayout {
+                transitionScope = this
+                AnimatedVisibility(
+                    visible = !isExpanded,
+                    enter = fadeIn(tween(500, easing = LinearEasing)),
+                    exit = fadeOut(tween(500, easing = LinearEasing)),
+                ) {
+                    if (hasSharedElement) {
+                        Box(
+                            Modifier.sharedElement(
+                                    rememberSharedContentState(key = "box"),
+                                    this@AnimatedVisibility,
+                                    boundsTransform = { _, _ -> tween(500, easing = LinearEasing) },
+                                )
+                                .requiredSize(40.dp)
+                        )
+                    }
+                }
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = fadeIn(tween(500, easing = LinearEasing)),
+                    exit = fadeOut(tween(500, easing = LinearEasing)),
+                ) {
+                    if (hasSharedElement) {
+                        Box(
+                            Modifier.sharedElement(
+                                    rememberSharedContentState(key = "box"),
+                                    this@AnimatedVisibility,
+                                    boundsTransform = { _, _ -> tween(500, easing = LinearEasing) },
+                                )
+                                .requiredSize(100.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertFalse(transitionScope!!.isTransitionActive)
+
+        rule.mainClock.autoAdvance = false
+        isExpanded = true
+
+        // Advance mid-transition
+        rule.mainClock.advanceTimeBy(150)
+        rule.waitForIdle()
+        assertTrue(transitionScope!!.isTransitionActive)
+
+        // Remove the shared element from composition mid-transition
+        hasSharedElement = false
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle()
+        // Because all shared element entries are removed, isTransitionActive switches false
+        assertFalse(transitionScope!!.isTransitionActive)
+    }
+
+    @Test
+    fun testIsTransitionActive_configDisabledEntry() {
+        var transitionScope: SharedTransitionScope? = null
+        var isExpanded by mutableStateOf(false)
+        var isEntryEnabled by mutableStateOf(false)
+
+        rule.setContent {
+            SharedTransitionLayout {
+                transitionScope = this
+                AnimatedVisibility(
+                    visible = !isExpanded,
+                    enter = fadeIn(tween(500, easing = LinearEasing)),
+                    exit = fadeOut(tween(500, easing = LinearEasing)),
+                ) {
+                    Box(
+                        Modifier.sharedElement(
+                                rememberSharedContentState(
+                                    key = "box",
+                                    config = remember { SharedContentConfig { isEntryEnabled } },
+                                ),
+                                this@AnimatedVisibility,
+                                boundsTransform = { _, _ -> tween(500, easing = LinearEasing) },
+                            )
+                            .requiredSize(40.dp)
+                    )
+                }
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = fadeIn(tween(500, easing = LinearEasing)),
+                    exit = fadeOut(tween(500, easing = LinearEasing)),
+                ) {
+                    Box(
+                        Modifier.sharedElement(
+                                rememberSharedContentState(key = "box"),
+                                this@AnimatedVisibility,
+                                boundsTransform = { _, _ -> tween(500, easing = LinearEasing) },
+                            )
+                            .requiredSize(100.dp)
+                    )
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        assertFalse(transitionScope!!.isTransitionActive)
+
+        rule.mainClock.autoAdvance = false
+        isExpanded = true
+
+        // Advance mid-transition when isEntryEnabled is false
+        rule.mainClock.advanceTimeBy(150)
+        rule.waitForIdle()
+        // Because one entry has isEnabled = false, there is no match and transition is not active
+        assertFalse(transitionScope!!.isTransitionActive)
+
+        // Complete the transition
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertFalse(transitionScope!!.isTransitionActive)
+
+        // Now enable the entry and toggle again
+        isEntryEnabled = true
+        rule.waitForIdle()
+
+        rule.mainClock.autoAdvance = false
+        isExpanded = false
+
+        // Advance mid-transition when isEntryEnabled is true
+        rule.mainClock.advanceTimeBy(150)
+        rule.waitForIdle()
+        // Because both entries are enabled, match is found and transition is active
+        assertTrue(transitionScope!!.isTransitionActive)
+
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+        assertFalse(transitionScope!!.isTransitionActive)
+    }
 }
 
 private fun assertEquals(a: IntSize, b: IntSize, delta: IntSize) {
