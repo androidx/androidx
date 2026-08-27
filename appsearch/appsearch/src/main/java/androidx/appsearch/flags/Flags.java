@@ -290,6 +290,14 @@ public final class Flags {
     public static final String FLAG_ENABLE_READ_DURING_ANN_MAINTENANCE =
             FLAG_PREFIX + "enable_read_during_ann_maintenance";
 
+    /** Whether to enable result states optimization. */
+    public static final String FLAG_ENABLE_OPTIMIZE_RESULT_STATES =
+            FLAG_PREFIX + "enable_optimize_result_states";
+
+    /** Whether to enable the fix for index restoration critical error handling. */
+    public static final String FLAG_ENABLE_INDEX_RESTORATION_CRITICAL_ERROR_HANDLING_FIX =
+            FLAG_PREFIX + "enable_index_restoration_critical_error_handling_fix";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -634,5 +642,17 @@ public final class Flags {
      */
     public static boolean enableReadDuringAnnMaintenance() {
         return true;
+    }
+
+    /** Whether to enable result states optimization. */
+    public static boolean enableOptimizeResultStates() {
+        // TODO(b/446719537): Enable this once the feature is rolled out to Nextfood in platform.
+        return false;
+    }
+
+    /** Whether to enable the fix for index restoration critical error handling. */
+    public static boolean enableIndexRestorationCriticalErrorHandlingFix() {
+        // TODO(b/494334634): Enable this once the feature is rolled out to Nextfood in platform.
+        return false;
     }
 }
