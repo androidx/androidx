@@ -60,6 +60,7 @@ import java.util.TimeZone
  * @property card The [Card] component implementation.
  * @property row The [Row] component implementation.
  * @property column The [Column] component implementation.
+ * @property list The [List] component implementation.
  * @property button The [Button] component implementation.
  * @property dateTimeInput The [DateTimeInput] component implementation.
  * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
@@ -73,10 +74,11 @@ public class A2uiBasicCatalogV1(
     public val card: Card,
     public val row: Row,
     public val column: Column,
+    public val list: List,
     public val button: Button,
     public val dateTimeInput: DateTimeInput,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
-    public val functions: List<A2uiFunction>,
+    public val functions: kotlin.collections.List<A2uiFunction>,
 ) {
 
     /** The unique identifier for this catalog. */
@@ -86,7 +88,7 @@ public class A2uiBasicCatalogV1(
     public val themeSchema: A2uiSchema = ThemeSchema
 
     /** The list of [A2uiComponent]s supported by this catalog. */
-    public val components: List<A2uiComponent> =
+    public val components: kotlin.collections.List<A2uiComponent> =
         listOf(
             text,
             image,
@@ -94,6 +96,7 @@ public class A2uiBasicCatalogV1(
             card,
             row,
             column,
+            list,
             button,
             dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -212,11 +215,11 @@ public class A2uiBasicCatalogV1(
                     convertFromString = Variant::fromValue,
                     description = "A hint for the base text style.",
                 )
-            internal val componentProperties: List<A2uiProperty<*>> =
+            internal val componentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(textProperty, variantProperty)
         }
 
-        override val properties: List<A2uiProperty<*>>
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
             get() = componentProperties
 
         @Composable
@@ -336,11 +339,11 @@ public class A2uiBasicCatalogV1(
                     description = "A hint for the image size and style.",
                 )
 
-            internal val ComponentProperties: List<A2uiProperty<*>> =
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(UrlProperty, DescriptionProperty, FitProperty, VariantProperty)
         }
 
-        override val properties: List<A2uiProperty<*>>
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
             get() = ComponentProperties
 
         @Composable
@@ -564,11 +567,11 @@ public class A2uiBasicCatalogV1(
                     },
                 )
 
-            internal val ComponentProperties: List<A2uiProperty<*>> =
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(NameProperty, AccessibilityProperty)
         }
 
-        override val properties: List<A2uiProperty<*>>
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
             get() = ComponentProperties
 
         @Composable
@@ -630,10 +633,11 @@ public class A2uiBasicCatalogV1(
                             "(like Column or Row) and pass that container's ID here. Do NOT pass " +
                             "multiple IDs or a non-existent ID.",
                 )
-            internal val ComponentProperties: List<A2uiProperty<*>> = listOf(ChildProperty)
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(ChildProperty)
         }
 
-        override val properties: List<A2uiProperty<*>>
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
             get() = ComponentProperties
 
         @Composable
@@ -746,11 +750,11 @@ public class A2uiBasicCatalogV1(
                             "camelCase values (e.g., 'start').",
                 )
 
-            internal val ComponentProperties: List<A2uiProperty<*>> =
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(ChildrenProperty, JustifyProperty, AlignProperty)
         }
 
-        override val properties: List<A2uiProperty<*>>
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
             get() = ComponentProperties
 
         @Composable
@@ -783,7 +787,7 @@ public class A2uiBasicCatalogV1(
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
-            children: List<A2uiComponentReference>,
+            children: kotlin.collections.List<A2uiComponentReference>,
             justify: Justify,
             align: Align,
             modifier: Modifier,
@@ -884,11 +888,11 @@ public class A2uiBasicCatalogV1(
                             "This is similar to the CSS 'align-items' property.",
                 )
 
-            internal val ComponentProperties: List<A2uiProperty<*>> =
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(ChildrenProperty, JustifyProperty, AlignProperty)
         }
 
-        override val properties: List<A2uiProperty<*>>
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
             get() = ComponentProperties
 
         @Composable
@@ -921,8 +925,140 @@ public class A2uiBasicCatalogV1(
          */
         @Composable
         public fun A2uiComponentScope.TypedContent(
-            children: List<A2uiComponentReference>,
+            children: kotlin.collections.List<A2uiComponentReference>,
             justify: Justify,
+            align: Align,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"List"` component for displaying a scrollable list of components.
+     *
+     * **Schema Properties:**
+     * * `children` (ChildList, required): Defines the children. Use an array of strings for a fixed
+     *   set of children, or a template object to generate children from a data list.
+     * * `direction` (String Enum, optional): The direction in which the list items are laid out.
+     *   Valid options: `"vertical"`, `"horizontal"`. Defaults to `"vertical"`.
+     * * `align` (String Enum, optional): Defines the alignment of children along the cross axis.
+     *   Valid options: `"start"`, `"center"`, `"end"`, `"stretch"`. Defaults to `"stretch"`.
+     */
+    public interface List : A2uiComponent {
+        override val name: String
+            get() = "List"
+
+        override val description: String
+            get() = "A scrollable list of components laid out vertically or horizontally."
+
+        /** The direction in which the list items are laid out. */
+        public enum class Direction(public val value: String) {
+            Vertical("vertical"),
+            Horizontal("horizontal");
+
+            public companion object {
+                /** The default [Direction] value. */
+                public val Default: Direction = Vertical
+
+                /** Returns the [Direction] matching [value], or [Default] if unknown. */
+                public fun fromValue(value: String): Direction =
+                    entries.fastFirstOrNull { it.value == value } ?: Default
+            }
+        }
+
+        /** Defines the alignment of children along the cross axis. */
+        public enum class Align(public val value: String) {
+            Start("start"),
+            Center("center"),
+            End("end"),
+            Stretch("stretch");
+
+            public companion object {
+                /** The default [Align] value. */
+                public val Default: Align = Stretch
+
+                /** Returns the [Align] matching [value], or [Default] if unknown. */
+                public fun fromValue(value: String): Align =
+                    entries.fastFirstOrNull { it.value == value } ?: Default
+            }
+        }
+
+        public companion object {
+            /** The [A2uiProperty] for the `"children"` property of a [List]. */
+            public val ChildrenProperty: ChildListA2uiProperty =
+                A2uiProperty.childList(
+                    key = "children",
+                    required = true,
+                    description =
+                        "Defines the children. Use an array of strings for a fixed set of " +
+                            "children, or a template object to generate children from a data list.",
+                )
+
+            /** The [A2uiProperty] for the `"direction"` property of a [List]. */
+            public val DirectionProperty: StaticA2uiProperty<Direction> =
+                A2uiProperty.enum(
+                    key = "direction",
+                    enumValues = Direction.entries,
+                    mapToString = { it.value },
+                    convertFromString = Direction::fromValue,
+                    defaultValue = Direction.Default,
+                    description = "The direction in which the list items are laid out.",
+                )
+
+            /** The [A2uiProperty] for the `"align"` property of a [List]. */
+            public val AlignProperty: StaticA2uiProperty<Align> =
+                A2uiProperty.enum(
+                    key = "align",
+                    enumValues = Align.entries,
+                    mapToString = { it.value },
+                    convertFromString = Align::fromValue,
+                    defaultValue = Align.Default,
+                    description = "Defines the alignment of children along the cross axis.",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(ChildrenProperty, DirectionProperty, AlignProperty)
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bindChildReferences(ChildrenProperty) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val children =
+                checkNotNull(properties.bindChildReferences(ChildrenProperty)) {
+                    "Required property '${ChildrenProperty.key}' is missing or could not be " +
+                        "resolved."
+                }
+            val direction = properties[DirectionProperty] ?: Direction.Default
+            val align = properties[AlignProperty] ?: Align.Default
+
+            TypedContent(
+                children = children,
+                direction = direction,
+                align = align,
+                modifier = modifier,
+            )
+        }
+
+        /**
+         * Renders the [List] with its resolved [children], [direction], and [align] properties.
+         *
+         * @param children list of child [A2uiComponentReference]s to render in this list
+         * @param direction [Direction] layout direction of the list items
+         * @param align [Align] alignment of children along the cross axis
+         * @param modifier [Modifier] to apply to the layout
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            children: kotlin.collections.List<A2uiComponentReference>,
+            direction: Direction,
             align: Align,
             modifier: Modifier,
         )
@@ -991,11 +1127,11 @@ public class A2uiBasicCatalogV1(
             public val ActionProperty: StaticA2uiProperty<Map<String, Any?>> =
                 A2uiProperty.action(key = "action", required = true)
 
-            internal val ComponentProperties: List<A2uiProperty<*>> =
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(ChildProperty, VariantProperty, ActionProperty)
         }
 
-        override val properties: List<A2uiProperty<*>>
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
             get() = ComponentProperties
 
         @Composable
@@ -1132,7 +1268,7 @@ public class A2uiBasicCatalogV1(
                     description = "The text label for the component.",
                 )
 
-            internal val ComponentProperties: List<A2uiProperty<*>> =
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(
                     ValueProperty,
                     EnableDateProperty,
@@ -1143,7 +1279,7 @@ public class A2uiBasicCatalogV1(
                 )
         }
 
-        override val properties: List<A2uiProperty<*>>
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
             get() = ComponentProperties
 
         @Composable
