@@ -20,12 +20,14 @@ import android.Manifest
 import android.os.Build
 import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ADD_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_DISABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.CREATE_NOTE_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DEPRECATED_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.DISABLED_BY_DEFAULT_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ENABLED_BY_DEFAULT_FUNCTION_ID
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.GLOBAL_SCOPE_DYNAMIC_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.SENTINEL_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.TARGET_APP_PACKAGE
 import androidx.appfunctions.integration.test.agent.AppSearchMetadataHelper.isDynamicIndexerAvailable
@@ -35,6 +37,8 @@ import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAcc
 import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAccess
 import androidx.appfunctions.integration.test.agent.TestUtil.setAppFunctionStateRemoteAsync
 import androidx.appfunctions.metadata.AppFunctionMetadata
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -67,6 +71,8 @@ class SearchAppFunctionsIntegrationTest {
             SENTINEL_FUNCTION_ID,
             DISABLED_BY_DEFAULT_FUNCTION_ID,
             ENABLED_BY_DEFAULT_FUNCTION_ID,
+            ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID,
+            GLOBAL_SCOPE_DYNAMIC_FUNCTION_ID,
         )
 
     @Before
@@ -153,11 +159,52 @@ class SearchAppFunctionsIntegrationTest {
             .isEqualTo(AppFunctionMetadataHelper.FunctionMetadata.CREATE_NOTE_LEGACY_INDEXER)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test
+    fun searchAppFunctions_byActivityScope_returnsCorrectMetadata() = doBlocking {
+        val searchFunctionSpec =
+            AppFunctionSearchSpec(
+                packageNames = setOf(TARGET_APP_PACKAGE),
+                scopes = setOf(SCOPE_ACTIVITY),
+            )
+
+        val appFunctions: List<AppFunctionMetadata> =
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
+
+        assertThat(appFunctions.size).isEqualTo(1)
+
+        val metadata = appFunctions.single { it.id == ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID }
+        assertThat(metadata)
+            .isEqualTo(AppFunctionMetadataHelper.FunctionMetadata.ACTIVITY_SCOPE_DYNAMIC_FUNCTION)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test
+    fun searchAppFunctions_byGlobalScope_returnsCorrectMetadata() = doBlocking {
+        val searchFunctionSpec =
+            AppFunctionSearchSpec(
+                packageNames = setOf(TARGET_APP_PACKAGE),
+                scopes = setOf(SCOPE_GLOBAL),
+            )
+
+        val appFunctions: List<AppFunctionMetadata> =
+            appFunctionManager.searchAppFunctions(searchFunctionSpec)
+
+        // Expect to return all functions excluding one activity-scoped functions.
+        val expectedTotalFunctions = getTotalFunctionCountInPackage() - 1
+
+        assertThat(appFunctions.size).isEqualTo(expectedTotalFunctions)
+
+        val metadata = appFunctions.single { it.id == GLOBAL_SCOPE_DYNAMIC_FUNCTION_ID }
+        assertThat(metadata)
+            .isEqualTo(AppFunctionMetadataHelper.FunctionMetadata.GLOBAL_SCOPE_DYNAMIC_FUNCTION)
+    }
+
     private suspend fun getTotalFunctionCountInPackage(): Int {
         return if (isDynamicIndexerAvailable(targetContext)) {
             val baseFunctionCount = 21
             val multiServiceFunctionCount = 6
-            val dynamicFunctionsCount = 5
+            val dynamicFunctionsCount = 6
             if (Build.VERSION.SDK_INT >= 37) {
                 baseFunctionCount + multiServiceFunctionCount + dynamicFunctionsCount
             } else {

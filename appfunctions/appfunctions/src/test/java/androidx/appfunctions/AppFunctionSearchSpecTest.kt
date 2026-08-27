@@ -16,6 +16,7 @@
 
 package androidx.appfunctions
 
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
 import androidx.appfunctions.metadata.AppFunctionName
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
@@ -76,5 +77,29 @@ class AppFunctionSearchSpecTest {
             )
         assertThat(spec.functionNames)
             .containsExactly(AppFunctionName("com.example.app", "functionName"))
+    }
+
+    @Test
+    fun constructor_scopesNotEmpty_doesNotThrow() {
+        val spec = AppFunctionSearchSpec(scopes = setOf(SCOPE_GLOBAL))
+        assertThat(spec.scopes).containsExactly(SCOPE_GLOBAL)
+    }
+
+    @Test
+    fun constructor_scopesEmpty_throws() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                AppFunctionSearchSpec(scopes = emptySet())
+            }
+        assertThat(exception).hasMessageThat().isEqualTo("Cannot filter by empty set of scopes.")
+    }
+
+    @Test
+    fun constructor_invalidScope_throws() {
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                AppFunctionSearchSpec(scopes = setOf(100))
+            }
+        assertThat(exception).hasMessageThat().isEqualTo("Unknown AppFunctionScope type(s): 100")
     }
 }

@@ -258,6 +258,7 @@ class ExecuteAppFunctionRequestTest {
                         packageName = "pkg",
                         components = AppFunctionComponentsMetadata(),
                     ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
     }
 }

@@ -243,14 +243,16 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         components = sharedComponents,
                     ),
                 description = "",
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
 
-        val DYNAMIC_REGISTRATION_RETURN_SUCCESS_2 =
+        val ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS =
             AppFunctionMetadata(
                 name =
                     AppFunctionName(
                         packageName = TEST_PACKAGE_NAME,
-                        functionIdentifier = FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS_2,
+                        functionIdentifier =
+                            FunctionIds.ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS,
                     ),
                 schema = null,
                 parameters = emptyList<AppFunctionParameterMetadata>(),
@@ -264,6 +266,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         components = sharedComponents,
                     ),
                 description = "",
+                scope = AppFunctionMetadata.SCOPE_ACTIVITY,
             )
 
         val NO_SCHEMA_ENABLED_BY_DEFAULT =
@@ -294,6 +297,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         components = sharedComponents,
                     ),
                 description = "Test function without schema, enabled by default.",
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
 
         val MEDIA_SCHEMA2_PRINT =
@@ -314,6 +318,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
 
         val MEDIA_SCHEMA_PRINT =
@@ -334,6 +339,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
 
         val NOTES_SCHEMA_PRINT =
@@ -354,6 +360,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = TEST_PACKAGE_NAME,
                         components = sharedComponents,
                     ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
 
         val ADDITIONAL_LEGACY_CREATE_NOTE =
@@ -375,6 +382,7 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         packageName = "com.google.android.app.notes",
                         components = sharedComponents,
                     ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
     }
 

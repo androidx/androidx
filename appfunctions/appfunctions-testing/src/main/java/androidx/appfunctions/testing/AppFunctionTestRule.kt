@@ -154,7 +154,9 @@ public class AppFunctionTestRule(private val context: Context) : TestRule {
     // TODO: b/426219836 - Dynamic registration and changing app function enabled state API(s).
     // TODO: b/425327400 - Move to use Robolectric shadows
 
-    private val appFunctionReader = FakeAppFunctionReader(context)
+    // TODO(b/426219836): appFunctionReader is internal to set dynamic AppFunctionMetadata manually
+    //  in tests. Make it private once dynamic app functions are supported in test rule API.
+    internal val appFunctionReader = FakeAppFunctionReader(context)
     private val appFunctionManagerApi = FakeAppFunctionManagerApi(context, appFunctionReader)
 
     override fun apply(base: Statement?, description: Description?): Statement =

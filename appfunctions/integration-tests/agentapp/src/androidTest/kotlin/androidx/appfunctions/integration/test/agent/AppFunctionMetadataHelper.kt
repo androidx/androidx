@@ -62,6 +62,10 @@ internal object AppFunctionMetadataHelper {
             "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#additionalFunction"
         const val COMPONENT_CHANGED_FUNCTION_ID =
             "$TARGET_APP_PACKAGE.BaseTestAppFunctionService#componentChangeFunction"
+        const val ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.DynamicActivityScopeSignature#processVoid"
+        const val GLOBAL_SCOPE_DYNAMIC_FUNCTION_ID =
+            "$TARGET_APP_PACKAGE.DynamicVoidReturnSignature#processVoid"
     }
 
     object Components {
@@ -1578,6 +1582,7 @@ internal object AppFunctionMetadataHelper {
                     ),
                 description = "Returns the sum of the given two numbers.",
                 deprecation = null,
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
 
         val CREATE_NOTE =
@@ -1627,6 +1632,7 @@ internal object AppFunctionMetadataHelper {
                     ),
                 description = "Create a note.",
                 deprecation = null,
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
 
         val CREATE_NOTE_LEGACY_INDEXER =
@@ -1671,6 +1677,69 @@ internal object AppFunctionMetadataHelper {
                         components = Components.SHARED_COMPONENTS,
                     ),
                 deprecation = null,
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
+            )
+
+        val ACTIVITY_SCOPE_DYNAMIC_FUNCTION =
+            AppFunctionMetadata(
+                name =
+                    AppFunctionName(
+                        TARGET_APP_PACKAGE,
+                        FunctionIds.ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID,
+                    ),
+                schema = null,
+                parameters =
+                    listOf(
+                        AppFunctionParameterMetadata(
+                            name = "message",
+                            isRequired = true,
+                            dataType = AppFunctionStringTypeMetadata(isNullable = false),
+                        )
+                    ),
+                response =
+                    AppFunctionResponseMetadata(
+                        valueType =
+                            androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata(
+                                isNullable = false
+                            )
+                    ),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = TARGET_APP_PACKAGE,
+                        components = Components.SHARED_COMPONENTS,
+                    ),
+                scope = AppFunctionMetadata.SCOPE_ACTIVITY,
+            )
+
+        val GLOBAL_SCOPE_DYNAMIC_FUNCTION =
+            AppFunctionMetadata(
+                name =
+                    AppFunctionName(
+                        TARGET_APP_PACKAGE,
+                        FunctionIds.GLOBAL_SCOPE_DYNAMIC_FUNCTION_ID,
+                    ),
+                schema = null,
+                parameters =
+                    listOf(
+                        AppFunctionParameterMetadata(
+                            name = "message",
+                            isRequired = true,
+                            dataType = AppFunctionStringTypeMetadata(isNullable = false),
+                        )
+                    ),
+                response =
+                    AppFunctionResponseMetadata(
+                        valueType =
+                            androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata(
+                                isNullable = false
+                            )
+                    ),
+                packageMetadata =
+                    AppFunctionPackageMetadata(
+                        packageName = TARGET_APP_PACKAGE,
+                        components = Components.SHARED_COMPONENTS,
+                    ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
     }
 
@@ -1690,6 +1759,7 @@ internal object AppFunctionMetadataHelper {
                         packageName = TARGET_APP_PACKAGE,
                         components = SHARED_COMPONENTS,
                     ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
 
         val ADDITIONAL_COMPONENT_FUNCTION_V2 =
@@ -1738,6 +1808,7 @@ internal object AppFunctionMetadataHelper {
                                         )
                             ),
                     ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
     }
 
@@ -1792,6 +1863,7 @@ internal object AppFunctionMetadataHelper {
                                         )
                             ),
                     ),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
     }
 }

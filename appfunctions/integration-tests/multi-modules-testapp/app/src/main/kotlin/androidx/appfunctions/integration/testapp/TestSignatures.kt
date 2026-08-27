@@ -73,6 +73,14 @@ fun interface DynamicVoidReturnSignature {
 }
 
 @AppFunctionSignature(
+    scope = AppFunctionMetadata.SCOPE_ACTIVITY,
+    appFunctionXmlFileName = "dynamic_signature_definitions",
+)
+fun interface DynamicActivityScopeSignature {
+    suspend fun processVoid(message: String)
+}
+
+@AppFunctionSignature(
     scope = AppFunctionMetadata.SCOPE_GLOBAL,
     appFunctionXmlFileName = "dynamic_signature_definitions",
 )
