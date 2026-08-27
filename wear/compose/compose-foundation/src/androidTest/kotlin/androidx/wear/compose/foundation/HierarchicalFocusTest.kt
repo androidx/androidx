@@ -60,7 +60,7 @@ class HierarchicalFocusTest {
     @Test fun basic_OnFocusChange_works_4_of_4() = basic_OnFocusChange_works(3, 4)
 
     private fun basic_OnFocusChange_works(selected: Int, numItems: Int) {
-        var focused = BooleanArray(numItems)
+        val focused = BooleanArray(numItems)
 
         rule.setContent {
             repeat(numItems) { ix ->
@@ -80,7 +80,7 @@ class HierarchicalFocusTest {
     @Test fun basic_UpdateFocus_works_2_to_0_of_5() = basic_UpdateFocus_works(2, 0, 5)
 
     private fun basic_UpdateFocus_works(initiallySelected: Int, selected: Int, numItems: Int) {
-        var focused = BooleanArray(numItems)
+        val focused = BooleanArray(numItems)
 
         var currentlySelected by mutableStateOf(initiallySelected)
 
@@ -104,7 +104,7 @@ class HierarchicalFocusTest {
     @Test fun basic_selection_works_4_of_4() = basic_selection_works(3, 4)
 
     private fun basic_selection_works(selected: Int, numItems: Int) {
-        var focused = BooleanArray(numItems)
+        val focused = BooleanArray(numItems)
 
         rule.setContent {
             Box {
@@ -164,7 +164,7 @@ class HierarchicalFocusTest {
         act: (MutableIntState, Array<MutableIntState>) -> Unit,
     ) {
         val numItems = 3
-        var focused = BooleanArray(numItems * numItems)
+        val focused = BooleanArray(numItems * numItems)
         val topSelected = mutableIntStateOf(0)
         val bottomSelected = Array(numItems) { mutableIntStateOf(0) }
 

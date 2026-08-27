@@ -1021,7 +1021,7 @@ fun SwipeToRevealCustomDragDemo() {
                 // Perform the fling. The resulting snap position is determined entirely by the
                 // velocity provided here.
                 with(flingBehavior) {
-                    val unused = scrollScope.performFling(velocity)
+                    @Suppress("UNUSED_VARIABLE") val unused = scrollScope.performFling(velocity)
                 }
             }
         }

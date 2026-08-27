@@ -387,8 +387,8 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
 
         var canScrollForward = true
         var canScrollBackward = true
-        var anchorItem: TransformingLazyColumnMeasuredItem
-        var actuallyVisibleItems: List<TransformingLazyColumnMeasuredItem>
+        val anchorItem: TransformingLazyColumnMeasuredItem
+        val actuallyVisibleItems: List<TransformingLazyColumnMeasuredItem>
         // It triggers a remeasure on state change: once at the start of a scroll
         // (`shouldAnimate` = false), and once at the end to cache the final item state for
         // subsequent animations (`shouldAnimate` = true).

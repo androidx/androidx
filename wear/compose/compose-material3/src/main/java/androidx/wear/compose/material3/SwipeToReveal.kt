@@ -288,14 +288,6 @@ public fun SwipeToReveal(
 
     val hapticFeedback = LocalHapticFeedback.current
 
-    @SuppressLint("PrimitiveInCollection")
-    val anchors: Set<RevealValue> =
-        if (revealDirection == Bidirectional) {
-            BidirectionalAnchors
-        } else {
-            UnidirectionAnchors
-        }
-
     val coroutineScope = rememberCoroutineScope()
     val swipeToRevealScope =
         remember(

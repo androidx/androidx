@@ -59,7 +59,7 @@ class PickerGroupTest {
     @Test
     fun state_returns_initially_selected_index_at_start() {
         val initiallySelectedColumn = 1
-        var selectedIndex = initiallySelectedColumn
+        val selectedIndex = initiallySelectedColumn
         rule.setContentWithTheme {
             PickerGroup { addPickerColumns(count = 2, selectedColumn = selectedIndex) }
         }

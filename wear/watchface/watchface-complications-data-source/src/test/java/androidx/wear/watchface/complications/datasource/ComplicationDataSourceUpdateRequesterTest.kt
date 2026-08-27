@@ -122,7 +122,7 @@ class ComplicationDataSourceUpdateRequesterImplTest {
         assertThat(broadcastReceiver?.latestIntent).isNotNull()
         assertThat(broadcastReceiver?.latestIntent?.action)
             .isEqualTo(ComplicationDataSourceUpdateRequester.ACTION_REQUEST_UPDATE)
-        var componentName =
+        val componentName =
             broadcastReceiver
                 ?.latestIntent
                 ?.getParcelableExtra(

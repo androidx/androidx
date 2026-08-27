@@ -202,7 +202,7 @@ open class OngoingActivityPartTest {
     @Test
     fun testTimerOngoingActivityStatusChronometerPaused() {
         val t0 = 123456L
-        var timerStatus = Status.StopwatchPart(/* timeZeroMillis= */ t0, /* pausedAt= */ t0 + 1999)
+        val timerStatus = Status.StopwatchPart(/* timeZeroMillis= */ t0, /* pausedAt= */ t0 + 1999)
 
         // The Timer is paused.
         assertTrue(timerStatus.isPaused())
@@ -223,7 +223,7 @@ open class OngoingActivityPartTest {
     @Test
     fun testTimerOngoingActivityStatusTimerPaused() {
         val t0 = 123456L
-        var timerStatus = Status.TimerPart(/* timeZeroMillis= */ t0, /* pausedAt= */ t0 + 1999)
+        val timerStatus = Status.TimerPart(/* timeZeroMillis= */ t0, /* pausedAt= */ t0 + 1999)
 
         // The Timer is paused.
         assertTrue(timerStatus.isPaused())

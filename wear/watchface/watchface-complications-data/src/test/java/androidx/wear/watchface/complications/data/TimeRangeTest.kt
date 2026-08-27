@@ -59,7 +59,7 @@ public class TimeRangeTest {
 
     @Test
     public fun always() {
-        var range = TimeRange.ALWAYS
+        val range = TimeRange.ALWAYS
         assertThat(range.contains(Instant.EPOCH)).isTrue()
         assertThat(range.contains(Instant.ofEpochMilli(100))).isTrue()
         assertThat(range.contains(Instant.ofEpochMilli(999))).isTrue()

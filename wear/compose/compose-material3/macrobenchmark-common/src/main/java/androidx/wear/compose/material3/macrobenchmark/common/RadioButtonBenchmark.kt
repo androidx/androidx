@@ -29,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import androidx.test.uiautomator.waitForStable
@@ -89,8 +88,6 @@ object SplitRadioButtonBenchmark : MacrobenchmarkScreen {
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                val context1 = LocalContext.current
-                val context2 = LocalContext.current
                 SplitRadioButton(
                     modifier = Modifier.fillMaxWidth(),
                     selected = selectedRadioIndex == 0,
