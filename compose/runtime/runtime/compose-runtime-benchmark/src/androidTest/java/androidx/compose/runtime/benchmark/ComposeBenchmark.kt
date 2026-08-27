@@ -230,6 +230,11 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     fun benchmark_g_group_eliding_focused_1000() = runBlockingTestWithFrameClock {
         measureCompose { repeat(1000) { MyLayout { SimpleText("Value: $it") } } }
     }
+
+    @Test
+    fun benchmark_e_recursive_calls_1000() = runBlockingTestWithFrameClock {
+        measureCompose { RecursiveParamBenchmark(depth = 200, 0, 1, 2, 3, 4, 5, 6, 7, 8) }
+    }
 }
 
 @Composable
@@ -295,5 +300,36 @@ fun HundredRects(model: ColorModel, narrow: Boolean = false) {
                 Rect(model.color)
             }
         else Rect()
+    }
+}
+
+@Composable
+fun RecursiveParamBenchmark(
+    depth: Int,
+    p0: Int,
+    p1: Int,
+    p2: Int,
+    p3: Int,
+    p4: Int,
+    p5: Int,
+    p6: Int,
+    p7: Int,
+    p8: Int,
+) {
+    if (depth > 0) {
+        // Changing arguments at each frame forces $composer.changed(...)
+        // to evaluate and execute the branchless bitwise dirty calculation
+        RecursiveParamBenchmark(
+            depth = depth - 1,
+            p0 = p0 + 1,
+            p1 = p1 xor 1,
+            p2 = p2 + 2,
+            p3 = p3 xor 3,
+            p4 = p4 + 4,
+            p5 = p5 xor 5,
+            p6 = p6 + 6,
+            p7 = p7 xor 7,
+            p8 = p8 + 8,
+        )
     }
 }
