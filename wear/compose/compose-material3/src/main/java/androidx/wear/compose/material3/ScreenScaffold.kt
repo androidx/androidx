@@ -1052,12 +1052,10 @@ public fun ScreenScaffold(
         view = currentView,
     )
 
-    DisposableEffect(key) { onDispose { scaffoldState.screenContent.removeScreen(key) } }
-
     scaffoldState.screenContent.UpdateIdlingDetectorIfNeeded()
 
     val screenIsActive = LocalScreenIsActive.current
-    LaunchedEffect(screenIsActive, scaffoldState) {
+    DisposableEffect(screenIsActive, scaffoldState) {
         if (screenIsActive) {
             scaffoldState.screenContent.addScreen(
                 key = key,
@@ -1066,9 +1064,8 @@ public fun ScreenScaffold(
                 statusBarMode = statusBarMode,
                 view = currentView,
             )
-        } else {
-            scaffoldState.screenContent.removeScreen(key)
         }
+        onDispose { scaffoldState.screenContent.removeScreen(key) }
     }
 
     val resolvedShowStatusBar = scaffoldState.screenContent.currentShowStatusBar.value
