@@ -3814,7 +3814,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                         StrictMode.setVmPolicy(origPolicy)
                     }
                 }
-                synchronized(composeViews) { composeViews += composeView }
+                synchronized(composeViews) {
+                    if (composeView !in composeViews) {
+                        composeViews += composeView
+                    }
+                }
             }
         }
 
