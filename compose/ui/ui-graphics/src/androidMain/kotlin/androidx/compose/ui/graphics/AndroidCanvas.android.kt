@@ -27,6 +27,7 @@ import java.util.WeakHashMap
 @Deprecated(
     message = "Use android.graphics.Canvas directly instead",
     replaceWith = ReplaceWith("android.graphics.Canvas"),
+    level = DeprecationLevel.ERROR,
 )
 public actual typealias NativeCanvas = android.graphics.Canvas
 
