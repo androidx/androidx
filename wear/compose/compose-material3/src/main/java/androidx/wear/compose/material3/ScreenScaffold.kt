@@ -29,6 +29,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.MutableWindowInsets
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -62,6 +63,7 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -1036,12 +1038,19 @@ public fun ScreenScaffold(
     statusBarMode: StatusBarMode = StatusBarMode.Inherit,
     content: @Composable BoxScope.(PaddingValues) -> Unit,
 ): Unit {
+    val currentView = LocalView.current
     val scaffoldState = LocalScaffoldState.current
     val key = remember { Any() }
 
     // Update the timeText & scrollInfoProvider if there is a change and the screen is already
     // present
-    scaffoldState.screenContent.updateIfNeeded(key, timeText, scrollInfoProvider, statusBarMode)
+    scaffoldState.screenContent.updateIfNeeded(
+        key = key,
+        timeText = timeText,
+        scrollInfoProvider = scrollInfoProvider,
+        statusBarMode = statusBarMode,
+        view = currentView,
+    )
 
     DisposableEffect(key) { onDispose { scaffoldState.screenContent.removeScreen(key) } }
 
@@ -1050,15 +1059,19 @@ public fun ScreenScaffold(
     val screenIsActive = LocalScreenIsActive.current
     LaunchedEffect(screenIsActive, scaffoldState) {
         if (screenIsActive) {
-            scaffoldState.screenContent.addScreen(key, timeText, scrollInfoProvider, statusBarMode)
+            scaffoldState.screenContent.addScreen(
+                key = key,
+                timeText = timeText,
+                scrollInfoProvider = scrollInfoProvider,
+                statusBarMode = statusBarMode,
+                view = currentView,
+            )
         } else {
             scaffoldState.screenContent.removeScreen(key)
         }
     }
 
     val resolvedShowStatusBar = scaffoldState.screenContent.currentShowStatusBar.value
-    var externalConsumption by remember { mutableStateOf(WindowInsets()) }
-
     // Resolve the system status bar top inset boundaries.
     // - When showStatusBar is true (and supported on hardware):
     //   We use WindowInsets.statusBarsIgnoringVisibility to reserve space for the system overlay.
@@ -1075,24 +1088,17 @@ public fun ScreenScaffold(
             WindowInsets(0.dp)
         }
 
-    // Exclude insets already consumed by parent layouts to prevent double-padding when nesting
-    // scaffolds.
-    val actualPadding = baseInsets.exclude(externalConsumption)
+    val safeInsets = remember(baseInsets) { MutableWindowInsets(baseInsets) }
     val localDensity = LocalDensity.current
 
-    // Convert insets to pixel offsets and extract the top padding.
-    val computedStatusBarTopPadding =
-        actualPadding.asPaddingValues(localDensity).calculateTopPadding()
-
-    // Select the maximum between system-resolved top padding and developer-assigned contentPadding.
-    // On round screens, the 10% curve clearance often dictates layout offsets, this max calculation
-    // ensures the larger constraint wins.
-    val finalTopPadding = maxOf(computedStatusBarTopPadding, contentPadding.calculateTopPadding())
-
     val finalContentPadding =
-        remember(contentPadding, finalTopPadding) {
+        remember(contentPadding, safeInsets, localDensity) {
             object : PaddingValues by contentPadding {
-                override fun calculateTopPadding() = finalTopPadding
+                override fun calculateTopPadding(): Dp {
+                    val computedStatusBarTopPadding =
+                        safeInsets.asPaddingValues(localDensity).calculateTopPadding()
+                    return maxOf(computedStatusBarTopPadding, contentPadding.calculateTopPadding())
+                }
             }
         }
 
@@ -1102,14 +1108,7 @@ public fun ScreenScaffold(
                 modifier =
                     Modifier.overscroll(overscrollEffect).onConsumedWindowInsetsChanged { consumed
                         ->
-                        // Only update and trigger recomposition if the consumed top inset
-                        // actually changed.
-                        if (
-                            consumed.getTop(localDensity) !=
-                                externalConsumption.getTop(localDensity)
-                        ) {
-                            externalConsumption = consumed
-                        }
+                        safeInsets.insets = baseInsets.exclude(consumed)
                     }
             ) {
                 content(finalContentPadding)

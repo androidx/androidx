@@ -31,7 +31,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -369,7 +371,7 @@ class StatusBarTest {
         orchestrator.hide()
         Assert.assertEquals(1, testView.testController.hideCount)
 
-        orchestrator.restore()
+        orchestrator.restoreInitialStatusBarState()
         Assert.assertEquals(1, testView.testController.showCount)
     }
 
@@ -388,7 +390,7 @@ class StatusBarTest {
         orchestrator.hide()
         Assert.assertEquals(1, testView.testController.hideCount)
 
-        orchestrator.restore()
+        orchestrator.restoreInitialStatusBarState()
         Assert.assertEquals(1, testView.testController.showCount)
     }
 
@@ -410,10 +412,10 @@ class StatusBarTest {
         Assert.assertEquals("hide() count should be 1", 1, testView.testController.hideCount)
         Assert.assertEquals("show() count should be 0", 0, testView.testController.showCount)
 
-        // restore() should restore the initially captured visible state
-        orchestrator.restore()
+        // restoreInitialStatusBarState() should restore the initially captured visible state
+        orchestrator.restoreInitialStatusBarState()
         Assert.assertEquals(
-            "restore() should invoke show() to restore initial state",
+            "restoreInitialStatusBarState() should invoke show() to restore initial state",
             1,
             testView.testController.showCount,
         )
@@ -472,6 +474,95 @@ class StatusBarTest {
     }
 
     @Test
+    fun statusBarOrchestrator_whenUnattached_cleansUpBothListenersOnReadinessViaLayout() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView = TestView(context)
+        Assert.assertNull(testView.rootWindowInsets)
+
+        // Initialize orchestrator while unattached and without insets
+        val orchestrator = StatusBarOrchestrator(testView)
+        Assert.assertEquals(1, testView.attachListenerCount)
+        Assert.assertEquals(1, testView.layoutListenerCount)
+
+        // Attach view when insets are not yet available
+        testView.simulateAttach()
+        Assert.assertEquals(1, testView.attachListenerCount)
+        Assert.assertEquals(1, testView.layoutListenerCount)
+
+        // Insets arrive during layout pass: both listeners must be cleaned up
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        testView.mockRootWindowInsets = mockInsets
+        testView.simulateLayout()
+
+        Assert.assertEquals(
+            "Attach listener should be cleaned up when layout pass achieves readiness",
+            0,
+            testView.attachListenerCount,
+        )
+        Assert.assertEquals(
+            "Layout listener should be cleaned up when layout pass achieves readiness",
+            0,
+            testView.layoutListenerCount,
+        )
+    }
+
+    @Test
+    fun statusBarOrchestrator_whenUnattached_cleansUpBothListenersOnReadinessViaAttach() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView = TestView(context)
+        Assert.assertNull(testView.rootWindowInsets)
+
+        // Initialize orchestrator while unattached and without insets
+        val orchestrator = StatusBarOrchestrator(testView)
+        Assert.assertEquals(1, testView.attachListenerCount)
+        Assert.assertEquals(1, testView.layoutListenerCount)
+
+        // Insets available upon attachment: both listeners must be cleaned up
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        testView.mockRootWindowInsets = mockInsets
+        testView.simulateAttach()
+
+        Assert.assertEquals(
+            "Attach listener should be cleaned up when attach achieves readiness",
+            0,
+            testView.attachListenerCount,
+        )
+        Assert.assertEquals(
+            "Layout listener should be cleaned up when attach achieves readiness",
+            0,
+            testView.layoutListenerCount,
+        )
+    }
+
+    @Test
+    fun statusBarOrchestrator_whenUnattached_cleansUpBothListenersOnRestore() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView = TestView(context)
+        Assert.assertNull(testView.rootWindowInsets)
+
+        // Initialize orchestrator while unattached and without insets
+        val orchestrator = StatusBarOrchestrator(testView)
+        Assert.assertEquals(1, testView.attachListenerCount)
+        Assert.assertEquals(1, testView.layoutListenerCount)
+
+        // Disposing / restoring before attachment must unregister both listeners
+        orchestrator.restoreInitialStatusBarState()
+
+        Assert.assertEquals(
+            "Attach listener should be cleaned up on restoreInitialStatusBarState",
+            0,
+            testView.attachListenerCount,
+        )
+        Assert.assertEquals(
+            "Layout listener should be cleaned up on restoreInitialStatusBarState",
+            0,
+            testView.layoutListenerCount,
+        )
+    }
+
+    @Test
     fun screenScaffold_doesNotRecompose_onInitialFrame() {
         var compositionCount = 0
         composeTestRule.setContent {
@@ -521,6 +612,497 @@ class StatusBarTest {
         )
     }
 
+    @Test
+    fun orchestrator_dispose_cleansUpListenersWithoutMutatingInsets() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView = TestView(targetContext)
+
+        val orchestrator = StatusBarOrchestrator(testView)
+        // Request show to establish listeners and desired state
+        orchestrator.show()
+        Assert.assertTrue(
+            "Listener should be attached if view is not yet attached to window",
+            testView.attachListenerCount > 0,
+        )
+
+        // Dispose orchestrator
+        orchestrator.dispose()
+        Assert.assertEquals(
+            "Dispose should remove attach listeners",
+            0,
+            testView.attachListenerCount,
+        )
+        Assert.assertEquals(
+            "Dispose should not invoke show() on controller",
+            0,
+            testView.testController.showCount,
+        )
+        Assert.assertEquals(
+            "Dispose should not invoke hide() on controller",
+            0,
+            testView.testController.hideCount,
+        )
+    }
+
+    @Test
+    fun multiWindow_screensInSameWindow_shareOrchestratorAndRefCount() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hostWindow = TestView(targetContext)
+        val otherWindow = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        hostWindow.mockRootWindowInsets = mockInsets
+        otherWindow.mockRootWindowInsets = mockInsets
+
+        val view1 =
+            TestView(targetContext).apply {
+                mockRootView = otherWindow
+                mockRootWindowInsets = mockInsets
+                controllerProvider = { otherWindow.testController }
+            }
+        val view2 =
+            TestView(targetContext).apply {
+                mockRootView = otherWindow
+                mockRootWindowInsets = mockInsets
+                controllerProvider = { otherWindow.testController }
+            }
+
+        val screenContent =
+            ScreenContent(
+                appShowStatusBar = mutableStateOf(true),
+                isStatusBarSupported = mutableStateOf(true),
+                appTimeText = mutableStateOf({}),
+            )
+        screenContent.setAppWindowView(hostWindow)
+
+        val key1 = Any()
+        val key2 = Any()
+
+        // Add first screen
+        screenContent.addScreen(key1, timeText = null, view = view1)
+        val orchestrator1 = screenContent.currentActiveOrchestrator.value
+
+        // Add second screen sharing the same window
+        screenContent.addScreen(key2, timeText = null, view = view2)
+        val orchestrator2 = screenContent.currentActiveOrchestrator.value
+
+        // Both screens should resolve to the exact same orchestrator instance
+        Assert.assertSame(
+            "Screens sharing same rootView should share the exact same orchestrator",
+            orchestrator1,
+            orchestrator2,
+        )
+
+        // Mutate status bar (hide)
+        orchestrator2.hide()
+        Assert.assertEquals(1, otherWindow.testController.hideCount)
+
+        // Remove first screen: window is still in use by screen 2, so restore() should NOT be
+        // called yet
+        screenContent.removeScreen(key1)
+        Assert.assertEquals(
+            "Removing first screen should not restore window when second screen is still active",
+            0,
+            otherWindow.testController.showCount,
+        )
+
+        // Remove second screen: window is no longer in use, orchestrator is disposed without insets
+        // mutation
+        screenContent.removeScreen(key2)
+        Assert.assertEquals(
+            "Removing last screen in window must dispose orchestrator without mutating window insets",
+            0,
+            otherWindow.testController.showCount,
+        )
+    }
+
+    @Test
+    fun multiWindow_dialogWindow_drivesDialogOrchestratorAndDisposesWithoutRestoringOnDismiss() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val appWindowView = TestView(targetContext)
+        val dialogView = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        appWindowView.mockRootWindowInsets = mockInsets
+        dialogView.mockRootWindowInsets = mockInsets
+
+        var showDialog by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides appWindowView,
+            ) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+
+                    if (showDialog) {
+                        // Provide dialog's LocalView inside dialog content
+                        CompositionLocalProvider(LocalView provides dialogView) {
+                            ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                                Box(modifier = Modifier.fillMaxSize())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        // App window should be active initially
+        Assert.assertTrue(
+            "Initial app window should receive show()",
+            appWindowView.testController.showCount > 0,
+        )
+        Assert.assertEquals(
+            "Dialog window should not be touched yet",
+            0,
+            dialogView.testController.showCount,
+        )
+
+        // Open Dialog
+        composeTestRule.runOnUiThread { showDialog = true }
+        composeTestRule.waitForIdle()
+
+        // Dialog window should now receive show()
+        Assert.assertTrue(
+            "Dialog window should receive show() when dialog screen is top-of-stack",
+            dialogView.testController.showCount > 0,
+        )
+
+        // Reset dialog controller counts before closing
+        dialogView.testController.showCount = 0
+        dialogView.testController.hideCount = 0
+
+        // Close Dialog
+        composeTestRule.runOnUiThread { showDialog = false }
+        composeTestRule.waitForIdle()
+
+        // Dismissing dialog screen should dispose the dialog window without mutating dialog insets
+        Assert.assertEquals(
+            "Dismissing dialog screen should not mutate dialog window insets (lets WindowManager transition naturally)",
+            0,
+            dialogView.testController.showCount,
+        )
+        Assert.assertEquals(
+            "Dismissing dialog screen should not mutate dialog window insets",
+            0,
+            dialogView.testController.hideCount,
+        )
+    }
+
+    @Test
+    fun appScaffold_appWindow_heldByAppScaffoldAndRestoredOnUnmount() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val appWindowView = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        appWindowView.mockRootWindowInsets = mockInsets
+
+        var mountAppScaffold by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            if (mountAppScaffold) {
+                CompositionLocalProvider(
+                    LocalStatusBarEnabledForTest provides true,
+                    LocalView provides appWindowView,
+                ) {
+                    AppScaffold(isStatusBarEnabled = true) {
+                        ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                            Box(modifier = Modifier.fillMaxSize())
+                        }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(
+            "App window should receive show()",
+            appWindowView.testController.showCount > 0,
+        )
+        appWindowView.testController.showCount = 0
+
+        // Unmount AppScaffold -> app window should be restored
+        composeTestRule.runOnUiThread { mountAppScaffold = false }
+        composeTestRule.waitForIdle()
+
+        Assert.assertTrue(
+            "Unmounting AppScaffold should restore app window",
+            appWindowView.testController.showCount > 0,
+        )
+    }
+
+    @Test
+    fun appScaffold_appWindowView_disposedWhenAppWindowViewChanges() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val appWindowViewA = TestView(targetContext)
+        val appWindowViewB = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        appWindowViewA.mockRootWindowInsets = mockInsets
+        appWindowViewB.mockRootWindowInsets = mockInsets
+
+        var currentAppWindowView by mutableStateOf(appWindowViewA)
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides currentAppWindowView,
+            ) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        Assert.assertTrue(
+            "Initial app window should receive show()",
+            appWindowViewA.testController.showCount > 0,
+        )
+        Assert.assertEquals(
+            "Second app window should not be touched yet",
+            0,
+            appWindowViewB.testController.showCount,
+        )
+
+        // Reset show count on view A before switching
+        appWindowViewA.testController.showCount = 0
+
+        // Switch app window view to appWindowViewB
+        composeTestRule.runOnUiThread { currentAppWindowView = appWindowViewB }
+        composeTestRule.waitForIdle()
+
+        // appWindowViewA should be disposed without mutating insets
+        Assert.assertEquals(
+            "Switching app window view should dispose previous app window without insets mutation",
+            0,
+            appWindowViewA.testController.showCount,
+        )
+        // appWindowViewB should now be active
+        Assert.assertTrue(
+            "New app window should receive show()",
+            appWindowViewB.testController.showCount > 0,
+        )
+    }
+
+    @Test
+    fun multiWindow_updateIfNeeded_switchesWindowsCleanly() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hostWindow = TestView(targetContext)
+        val windowA = TestView(targetContext)
+        val windowB = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        hostWindow.mockRootWindowInsets = mockInsets
+        windowA.mockRootWindowInsets = mockInsets
+        windowB.mockRootWindowInsets = mockInsets
+
+        val screenContent =
+            ScreenContent(
+                appShowStatusBar = mutableStateOf(true),
+                isStatusBarSupported = mutableStateOf(true),
+                appTimeText = mutableStateOf({}),
+            )
+        screenContent.setAppWindowView(hostWindow)
+
+        val key = Any()
+        screenContent.addScreen(key, timeText = null, view = windowA)
+        screenContent.currentActiveOrchestrator.value.hide()
+        Assert.assertEquals(1, windowA.testController.hideCount)
+
+        // Update screen to windowB: windowA should be disposed as it's no longer in use
+        screenContent.updateIfNeeded(key, timeText = null, view = windowB)
+        Assert.assertEquals(
+            "Switching window via updateIfNeeded should dispose old window without insets mutation",
+            0,
+            windowA.testController.showCount,
+        )
+
+        // WindowB is now active
+        val activeOrchestrator = screenContent.currentActiveOrchestrator.value
+        activeOrchestrator.hide()
+        Assert.assertEquals(1, windowB.testController.hideCount)
+
+        // Removing screen disposes windowB without insets mutation
+        screenContent.removeScreen(key)
+        Assert.assertEquals(
+            "Removing screen should dispose new window without insets mutation",
+            0,
+            windowB.testController.showCount,
+        )
+    }
+
+    @Test
+    fun multiWindow_screenSharingHostWindow_doesNotRestoreHostWindowWhenRemoved() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hostWindow = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        hostWindow.mockRootWindowInsets = mockInsets
+
+        val screenContent =
+            ScreenContent(
+                appShowStatusBar = mutableStateOf(true),
+                isStatusBarSupported = mutableStateOf(true),
+                appTimeText = mutableStateOf({}),
+            )
+        screenContent.setAppWindowView(hostWindow)
+
+        val key = Any()
+        screenContent.addScreen(key, timeText = null, view = hostWindow)
+        screenContent.currentActiveOrchestrator.value.hide()
+        Assert.assertEquals(1, hostWindow.testController.hideCount)
+
+        // Removing screen that shares hostWindow should NOT restore hostWindow because hostWindow
+        // is still in use
+        screenContent.removeScreen(key)
+        Assert.assertEquals(
+            "Host window should not be restored while still used by appWindowView",
+            0,
+            hostWindow.testController.showCount,
+        )
+    }
+
+    @Test
+    fun multiWindow_multipleScreensSharingSameWindow_disposesOnlyWhenAllScreensRemoved() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hostWindow = TestView(targetContext)
+        val dialogWindow = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        hostWindow.mockRootWindowInsets = mockInsets
+        dialogWindow.mockRootWindowInsets = mockInsets
+
+        val screenContent =
+            ScreenContent(
+                appShowStatusBar = mutableStateOf(true),
+                isStatusBarSupported = mutableStateOf(true),
+                appTimeText = mutableStateOf({}),
+            )
+        screenContent.setAppWindowView(hostWindow)
+
+        val key1 = Any()
+        val key2 = Any()
+        screenContent.addScreen(key1, timeText = null, view = dialogWindow)
+        screenContent.addScreen(key2, timeText = null, view = dialogWindow)
+
+        screenContent.currentActiveOrchestrator.value.hide()
+        Assert.assertEquals(1, dialogWindow.testController.hideCount)
+
+        // Removing key2 leaves key1 still using dialogWindow -> dialogWindow should NOT be disposed
+        // yet
+        screenContent.removeScreen(key2)
+        Assert.assertEquals(
+            "Dialog window should not be disposed while key1 is still using it",
+            0,
+            dialogWindow.testController.showCount,
+        )
+
+        // Removing key1 leaves no screens using dialogWindow -> dialogWindow is disposed without
+        // mutating insets
+        screenContent.removeScreen(key1)
+        Assert.assertEquals(
+            "Dialog window should be disposed without mutating insets once all screens using it are removed",
+            0,
+            dialogWindow.testController.showCount,
+        )
+    }
+
+    @Test
+    fun multiWindow_cleanupAllOrchestrators_restoresAllActiveWindows() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val windowA = TestView(targetContext)
+        val windowB = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        windowA.mockRootWindowInsets = mockInsets
+        windowB.mockRootWindowInsets = mockInsets
+
+        val screenContent =
+            ScreenContent(
+                appShowStatusBar = mutableStateOf(true),
+                isStatusBarSupported = mutableStateOf(true),
+                appTimeText = mutableStateOf({}),
+            )
+        screenContent.setAppWindowView(windowA)
+
+        val keyA = Any()
+        val keyB = Any()
+        screenContent.addScreen(keyA, timeText = null, view = windowA)
+        screenContent.currentActiveOrchestrator.value.hide()
+        screenContent.addScreen(keyB, timeText = null, view = windowB)
+        screenContent.currentActiveOrchestrator.value.hide()
+
+        screenContent.cleanupAllOrchestrators()
+        Assert.assertEquals(
+            "cleanupAllOrchestrators should restore windowA",
+            1,
+            windowA.testController.showCount,
+        )
+        Assert.assertEquals(
+            "cleanupAllOrchestrators should restore windowB",
+            1,
+            windowB.testController.showCount,
+        )
+    }
+
+    @Test
+    fun multiWindow_setAndClearAppWindowView_registersAndCleansUpDirectly() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val windowA = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        windowA.mockRootWindowInsets = mockInsets
+
+        val screenContent =
+            ScreenContent(
+                appShowStatusBar = mutableStateOf(true),
+                isStatusBarSupported = mutableStateOf(true),
+                appTimeText = mutableStateOf({}),
+            )
+
+        // Setting appWindowView makes it active fallback and hides status bar
+        screenContent.setAppWindowView(windowA)
+        screenContent.currentActiveOrchestrator.value.hide()
+        Assert.assertEquals(1, windowA.testController.hideCount)
+
+        // Clearing appWindowView disposes windowA
+        screenContent.clearAppWindowView(windowA)
+        Assert.assertEquals(
+            "Clearing app window view should dispose orchestrator without insets mutation",
+            0,
+            windowA.testController.showCount,
+        )
+    }
+
+    @Test
+    fun multiWindow_orchestratorIsForWindow_handlesAttachmentLifecycle() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val decorView = TestView(targetContext)
+        val view1 = TestView(targetContext)
+        val view2 = TestView(targetContext)
+
+        val orchestrator = StatusBarOrchestrator(view1)
+
+        // When unattached, isForWindow matches view1 by identity
+        Assert.assertTrue(orchestrator.isForWindow(view1))
+        Assert.assertFalse(orchestrator.isForWindow(view2))
+
+        // When both attach to the same DecorView root window
+        view1.mockRootView = decorView
+        view2.mockRootView = decorView
+
+        // Now isForWindow matches view2 because both share the same rootView (DecorView)
+        Assert.assertTrue(orchestrator.isForWindow(view2))
+    }
+
     private class TestWindowInsetsController : WindowInsetsController {
         var showCount = 0
         var hideCount = 0
@@ -565,9 +1147,22 @@ class StatusBarTest {
     private class TestView(context: Context) : View(context) {
         val testController = TestWindowInsetsController()
         var mockRootWindowInsets: WindowInsets? = null
+        var mockRootView: View? = null
         var controllerProvider: (() -> WindowInsetsController?)? = null
         private val attachListeners = mutableListOf<OnAttachStateChangeListener>()
         private val layoutListeners = mutableListOf<OnLayoutChangeListener>()
+
+        var mockIsAttachedToWindow: Boolean = false
+        val attachListenerCount: Int
+            get() = attachListeners.size
+
+        val layoutListenerCount: Int
+            get() = layoutListeners.size
+
+        override fun isAttachedToWindow(): Boolean =
+            mockIsAttachedToWindow || super.isAttachedToWindow()
+
+        override fun getRootView(): View = mockRootView ?: this
 
         override fun getWindowInsetsController(): WindowInsetsController? =
             if (controllerProvider != null) controllerProvider?.invoke() else testController
