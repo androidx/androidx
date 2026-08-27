@@ -16,13 +16,17 @@
 
 package androidx.compose.foundation.style
 
+import androidx.collection.MutableObjectIntMap
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.collection.ScatterSet
 import androidx.collection.emptyScatterSet
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.unit.Density
@@ -32,7 +36,14 @@ import kotlin.contracts.contract
 @OptIn(ExperimentalFoundationStyleApi::class)
 private typealias SpecMap = MutableScatterMap<StyleProperty<*>, AnimationSpec<Float>>
 
-private val UnspecifiedAnimationSpec = spring<Float>()
+// A private object used as a tracking instance for when a spec is not specified.
+private object UnspecifiedAnimationSpec : FiniteAnimationSpec<Float> {
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<Float, V>
+    ): VectorizedFiniteAnimationSpec<V> {
+        error("Not implemented")
+    }
+}
 
 @ExperimentalFoundationStyleApi
 internal class StylePropertyCollector : CommonStyleScope {
@@ -40,6 +51,7 @@ internal class StylePropertyCollector : CommonStyleScope {
     private var _density: Float = 1f
     private var _fontScale: Float = 1f
     private var properties: StyleProperties? = null
+    private var layers: MutableObjectIntMap<StyleProperty<*>>? = null
     private var previous: StyleProperties? = null
     private var animatingProperties: MutableScatterSet<StyleProperty<*>>? = null
     private var previousAnimatingProperties: MutableScatterSet<StyleProperty<*>>? = null
@@ -53,6 +65,7 @@ internal class StylePropertyCollector : CommonStyleScope {
     private var nestedStyleKeys: MutableScatterSet<NestedStyleKey>? = null
     private var defaultToSpec: AnimationSpec<Float>? = UnspecifiedAnimationSpec
     private var defaultFromSpec: AnimationSpec<Float>? = UnspecifiedAnimationSpec
+    private var layer: Int = 0
 
     override val density: Float
         get() = _density
@@ -67,9 +80,21 @@ internal class StylePropertyCollector : CommonStyleScope {
         get() = node!!.currentValueOf(this)
 
     override fun <T> ProvidableStyleProperty<T>.provide(value: T) {
-        if (nestedStyleKey != null) return
-        recordWrite(this, defaultToSpec, defaultFromSpec)
-        properties!![this] = value
+        if (nestedStyleKeys != null) return
+        val layers = layers
+        val effectiveLayer = layers?.getOrElse(this) { 0 } ?: 0
+        if (layer >= effectiveLayer) {
+            recordWrite(this, defaultToSpec, defaultFromSpec)
+            properties!![this] = value
+            if (layer > effectiveLayer) {
+                val newLayers =
+                    layers
+                        ?: MutableObjectIntMap<StyleProperty<*>>().also {
+                            this@StylePropertyCollector.layers = it
+                        }
+                newLayers[this] = layer
+            }
+        }
     }
 
     override fun <T> state(
@@ -77,7 +102,16 @@ internal class StylePropertyCollector : CommonStyleScope {
         block: () -> Unit,
         active: (key: StyleStateKey<T>, state: StyleState) -> Boolean,
     ) {
-        if (active(key, state)) block()
+        if (active(key, state)) styleLayer(block)
+    }
+
+    override fun styleLayer(block: () -> Unit) {
+        layer++
+        try {
+            block()
+        } finally {
+            layer--
+        }
     }
 
     override fun animate(
@@ -200,15 +234,19 @@ internal class StylePropertyCollector : CommonStyleScope {
         this.properties = newProperties
         previous = properties
         previousFromSpecs = fromSpecs
+        defaultToSpec = UnspecifiedAnimationSpec
+        defaultFromSpec = UnspecifiedAnimationSpec
         fromSpecs = null
         toSpecs = null
         previousAnimatingProperties = animatingProperties
         animatingProperties = null
+        layers?.clear()
     }
 
     internal fun doneCollect() {
         val node = node!!
         this.node = null
+        layers?.clear()
         val resolver = node.styleResolverField
         resolver.updateProperties(properties!!, nestedStyleKeys)
         val animations = resolver.animations

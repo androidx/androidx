@@ -224,6 +224,10 @@ internal fun simpleScope() =
         override fun provideNestedStyle(key: NestedStyleKey, style: CommonStyle) {}
 
         override fun applyNestedStyle(key: NestedStyleKey) {}
+
+        override fun styleLayer(block: () -> Unit) {
+            error("Layer not supported in a simple scope")
+        }
     }
 
 private fun Shape.toTestOutline(): Outline {
