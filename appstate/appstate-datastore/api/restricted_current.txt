@@ -1,23 +1,23 @@
 // Signature format: 4.0
 package androidx.appstate.datastore {
 
-  public final class AppStateKt {
-    method public static suspend Object? syncToDataStore(androidx.appstate.AppState, androidx.datastore.core.DataStore<androidx.appstate.datastore.AppStatePreferences> dataStore, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public static suspend Object? syncToDataStore(androidx.appstate.AppState, String path, kotlinx.coroutines.CoroutineScope coroutineScope, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-  }
-
-  public abstract class AppStatePreferences {
-  }
-
-  public final class AppStateSerializer implements androidx.datastore.core.okio.OkioSerializer<androidx.appstate.datastore.AppStatePreferences> {
-    method @InaccessibleFromKotlin public androidx.appstate.datastore.AppStatePreferences getDefaultValue();
-    method public suspend Object? readFrom(okio.BufferedSource source, kotlin.coroutines.Continuation<? super androidx.appstate.datastore.AppStatePreferences>);
-    method public suspend Object? writeTo(androidx.appstate.datastore.AppStatePreferences t, okio.BufferedSink sink, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public androidx.appstate.datastore.AppStatePreferences defaultValue;
-    field public static final androidx.appstate.datastore.AppStateSerializer INSTANCE;
-  }
-
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface PersistToDataStore {
+  }
+
+  public final class StateStoreKt {
+    method public static suspend Object? syncToDataStore(androidx.appstate.StateStore, androidx.datastore.core.DataStore<androidx.appstate.datastore.StateStorePreferences> dataStore, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend Object? syncToDataStore(androidx.appstate.StateStore, String path, kotlinx.coroutines.CoroutineScope coroutineScope, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  public abstract class StateStorePreferences {
+  }
+
+  public final class StateStoreSerializer implements androidx.datastore.core.okio.OkioSerializer<androidx.appstate.datastore.StateStorePreferences> {
+    method @InaccessibleFromKotlin public androidx.appstate.datastore.StateStorePreferences getDefaultValue();
+    method public suspend Object? readFrom(okio.BufferedSource source, kotlin.coroutines.Continuation<? super androidx.appstate.datastore.StateStorePreferences>);
+    method public suspend Object? writeTo(androidx.appstate.datastore.StateStorePreferences t, okio.BufferedSink sink, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public androidx.appstate.datastore.StateStorePreferences defaultValue;
+    field public static final androidx.appstate.datastore.StateStoreSerializer INSTANCE;
   }
 
 }

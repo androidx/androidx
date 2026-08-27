@@ -16,8 +16,8 @@
 
 package androidx.appstate.datastore
 
-import androidx.appstate.AppState
-import androidx.appstate.AppStateKey
+import androidx.appstate.StateStore
+import androidx.appstate.StateStoreKey
 import androidx.appstate.transform.listener
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -35,41 +35,40 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import okio.FileSystem
 import okio.Path.Companion.toPath
 
 /**
- * Tracks changes to [AppState] and persists annotated keys to a [DataStore] backed by a file.
+ * Tracks changes to [StateStore] and persists annotated keys to a [DataStore] backed by a file.
  *
  * Keys must be annotated with [PersistToDataStore] to be saved.
  *
- * @sample androidx.appstate.datastore.samples.SyncAppStateDataStorePathSample
+ * @sample androidx.appstate.datastore.samples.SyncStateStoreDataStorePathSample
  * @param path the file path to save and restore state from
  * @param coroutineScope the [CoroutineScope] used for the [DataStore]
  */
 @Suppress("PairedRegistration")
-public suspend fun AppState.syncToDataStore(path: String, coroutineScope: CoroutineScope) {
+public suspend fun StateStore.syncToDataStore(path: String, coroutineScope: CoroutineScope) {
     val dataStore =
         DataStoreFactory.create(
-            storage = OkioStorage(FileSystem.SYSTEM, AppStateSerializer) { path.toPath() },
+            storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { path.toPath() },
             scope = coroutineScope,
         )
     syncToDataStore(dataStore)
 }
 
 /**
- * Tracks changes to [AppState] and syncs annotated keys to [DataStore].
+ * Tracks changes to [StateStore] and syncs annotated keys to [DataStore].
  *
  * Keys must be annotated with [PersistToDataStore] to be saved.
  *
- * @sample androidx.appstate.datastore.samples.SyncAppStateDataStoreSample
+ * @sample androidx.appstate.datastore.samples.SyncStateStoreDataStoreSample
  * @param dataStore the [DataStore] used to save and restore state
  */
 @Suppress("PairedRegistration")
-public suspend fun AppState.syncToDataStore(dataStore: DataStore<AppStatePreferences>) {
+public suspend fun StateStore.syncToDataStore(dataStore: DataStore<StateStorePreferences>) {
     listener {
         val activeKeys = keys
         for (key in activeKeys) {
@@ -92,7 +91,7 @@ public suspend fun AppState.syncToDataStore(dataStore: DataStore<AppStatePrefere
                             val serializer = serializer(valueType)
                             val decoded = Json.decodeFromString(serializer, valueJson)
                             @Suppress("UNCHECKED_CAST")
-                            this@syncToDataStore.setState(key as AppStateKey<Any>, decoded as Any)
+                            this@syncToDataStore.setState(key as StateStoreKey<Any>, decoded as Any)
                             restoredValue.value = decoded
                         } catch (e: SerializationException) {
                             throw CorruptionException("Unable to deserialize JSON from String.", e)
@@ -142,11 +141,11 @@ public suspend fun AppState.syncToDataStore(dataStore: DataStore<AppStatePrefere
     }
 }
 
-private fun AppStateKey<*>.getValueType(): KType {
-    val appStateKeySupertype =
-        this::class.allSupertypes.firstOrNull { it.classifier == AppStateKey::class }
-    return appStateKeySupertype?.arguments?.firstOrNull()?.type
-        ?: error("Could not find AppStateKey supertype for ${this::class}")
+private fun StateStoreKey<*>.getValueType(): KType {
+    val stateStoreKeySupertype =
+        this::class.allSupertypes.firstOrNull { it.classifier == StateStoreKey::class }
+    return stateStoreKeySupertype?.arguments?.firstOrNull()?.type
+        ?: error("Could not find StateStoreKey supertype for ${this::class}")
 }
 
 private inline fun <reified T : Annotation> KClass<*>.hasAnnotation(): Boolean {
@@ -157,6 +156,6 @@ private inline fun <reified T : Annotation> KClass<*>.hasAnnotation(): Boolean {
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T> AppState.getUntypedState(key: AppStateKey<*>, defaultValue: T?): State<T?> {
-    return this.getState(key as AppStateKey<T?>, defaultValue)
+private fun <T> StateStore.getUntypedState(key: StateStoreKey<*>, defaultValue: T?): State<T?> {
+    return this.getState(key as StateStoreKey<T?>, defaultValue)
 }

@@ -33,28 +33,28 @@ import org.junit.runner.RunWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
-class AppStateDeviceTest {
-    @Serializable object StringKey : AppStateKey<String>()
+class StateStoreDeviceTest {
+    @Serializable object StringKey : StateStoreKey<String>()
 
-    @Serializable object AutoClearKey : AppStateKey<String>(autoClearKey = StringKey)
+    @Serializable object AutoClearKey : StateStoreKey<String>(autoClearKey = StringKey)
 
     @Serializable
     object StringKeyWithPredicate :
-        AppStateKey<String>(
+        StateStoreKey<String>(
             autoClearKey = StringKey,
-            shouldClearState = { appState -> appState.getState(StringKey, "").value == "clear" },
+            shouldClearState = { stateStore -> stateStore.getState(StringKey, "").value == "clear" },
         )
 
     @Test
-    fun testListenerReceivesAppStateUpdates() = runTest {
-        val appState = AppState()
+    fun testListenerReceivesStateStoreUpdates() = runTest {
+        val stateStore = StateStore()
         var receivedValue: String? = null
 
-        appState.setState(StringKey, "initial")
+        stateStore.setState(StringKey, "initial")
         val job =
             backgroundScope.launch {
                 listener(testDispatcher) {
-                    receivedValue = appState.getState(StringKey, "default").value
+                    receivedValue = stateStore.getState(StringKey, "default").value
                 }
             }
 
@@ -63,7 +63,7 @@ class AppStateDeviceTest {
         assertThat(receivedValue).isEqualTo("initial")
 
         // Update state and verify listener is called again
-        appState.setState(StringKey, "updated")
+        stateStore.setState(StringKey, "updated")
         runRecomposition()
         assertThat(receivedValue).isEqualTo("updated")
 
@@ -71,48 +71,48 @@ class AppStateDeviceTest {
         job.cancel()
 
         // Update state again and verify listener is NOT called
-        appState.setState(StringKey, "ignored")
+        stateStore.setState(StringKey, "ignored")
         runRecomposition()
         assertThat(receivedValue).isEqualTo("updated")
     }
 
     @Test
     fun testAutoClear() = runTest {
-        val appState = AppState()
+        val stateStore = StateStore()
 
-        appState.setState(AutoClearKey, "targetValue")
-        assertThat(appState.keys).contains(AutoClearKey)
+        stateStore.setState(AutoClearKey, "targetValue")
+        assertThat(stateStore.keys).contains(AutoClearKey)
 
         // Set key to trigger clear
-        appState.setState(StringKey, "triggerValue")
+        stateStore.setState(StringKey, "triggerValue")
 
         // Run recomposition to let the listener and LaunchedEffect run
         runRecomposition()
 
-        // this clears because the default for AppStateKey is to autoclear.
-        assertThat(appState.keys).doesNotContain(AutoClearKey)
+        // this clears because the default for StateStoreKey is to autoclear.
+        assertThat(stateStore.keys).doesNotContain(AutoClearKey)
     }
 
     @Test
     fun testAutoClearWithPredicate() = runTest {
-        val appState = AppState()
+        val stateStore = StateStore()
 
-        appState.setState(StringKeyWithPredicate, "targetValue")
-        assertThat(appState.keys).contains(StringKeyWithPredicate)
+        stateStore.setState(StringKeyWithPredicate, "targetValue")
+        assertThat(stateStore.keys).contains(StringKeyWithPredicate)
 
         // Set trigger key to something that does NOT satisfy predicate
-        appState.setState(StringKey, "dont-clear")
+        stateStore.setState(StringKey, "dont-clear")
         runRecomposition()
 
         // Verify TargetKeyWithPredicate is NOT cleared
-        assertThat(appState.keys).contains(StringKeyWithPredicate)
+        assertThat(stateStore.keys).contains(StringKeyWithPredicate)
 
         // Set trigger key to "clear" which satisfies predicate
-        appState.setState(StringKey, "clear")
+        stateStore.setState(StringKey, "clear")
         runRecomposition()
 
         // Verify TargetKeyWithPredicate IS cleared
-        assertThat(appState.keys).doesNotContain(StringKeyWithPredicate)
+        assertThat(stateStore.keys).doesNotContain(StringKeyWithPredicate)
     }
 
     private fun TestScope.runRecomposition() {

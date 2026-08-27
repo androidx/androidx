@@ -16,8 +16,8 @@
 
 package androidx.appstate.datastore
 
-import androidx.appstate.AppState
-import androidx.appstate.AppStateKey
+import androidx.appstate.StateStore
+import androidx.appstate.StateStoreKey
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.okio.OkioSerializer
@@ -30,7 +30,7 @@ import okio.BufferedSink
 import okio.BufferedSource
 
 /**
- * Marks an [AppStateKey] to be persisted to [DataStore].
+ * Marks an [StateStoreKey] to be persisted to [DataStore].
  *
  * Keys annotated with this will have their state automatically saved and restored.
  */
@@ -39,15 +39,15 @@ import okio.BufferedSource
 public annotation class PersistToDataStore
 
 /**
- * Preferences map for [AppState] backed by [DataStore].
+ * Preferences map for [StateStore] backed by [DataStore].
  *
- * This is the type required for using [DataStore] with [AppState].
+ * This is the type required for using [DataStore] with [StateStore].
  *
- * [AppStateSerializer] serializes this preferences map by converting its internal map of
- * [AppStateKey] names to JSON-encoded values into a single JSON string, and writing it to a UTF-8
+ * [StateStoreSerializer] serializes this preferences map by converting its internal map of
+ * [StateStoreKey] names to JSON-encoded values into a single JSON string, and writing it to a UTF-8
  * file via Okio.
  */
-public abstract class AppStatePreferences internal constructor() {
+public abstract class StateStorePreferences internal constructor() {
     /**
      * Returns an immutable map of the preferences.
      *
@@ -56,13 +56,13 @@ public abstract class AppStatePreferences internal constructor() {
     internal abstract fun asMap(): Map<String, String>
 
     /**
-     * Gets a typed value for the given [AppStateKey].
+     * Gets a typed value for the given [StateStoreKey].
      *
-     * @param key the [AppStateKey] to retrieve
+     * @param key the [StateStoreKey] to retrieve
      * @return the deserialized value, or null if the key is not set.
      * @throws CorruptionException if the key cannot be deserialized.
      */
-    internal inline operator fun <reified T : Any> get(key: AppStateKey<T>): T? {
+    internal inline operator fun <reified T : Any> get(key: StateStoreKey<T>): T? {
         val keyName = key::class.qualifiedName ?: return null
         val valueJson = asMap()[keyName] ?: return null
         return try {
@@ -80,29 +80,29 @@ public abstract class AppStatePreferences internal constructor() {
      *
      * @return mutable preferences
      */
-    internal fun toMutablePreferences(): MutableAppStatePreferences {
-        return MutableAppStatePreferences(asMap().toMutableMap())
+    internal fun toMutablePreferences(): MutableStateStorePreferences {
+        return MutableStateStorePreferences(asMap().toMutableMap())
     }
 }
 
-/** Mutable version of [AppStatePreferences]. */
-internal class MutableAppStatePreferences
+/** Mutable version of [StateStorePreferences]. */
+internal class MutableStateStorePreferences
 internal constructor(
     @PublishedApi internal val preferencesMap: MutableMap<String, String> = mutableMapOf()
-) : AppStatePreferences() {
+) : StateStorePreferences() {
 
     override fun asMap(): Map<String, String> {
         return preferencesMap.toMap()
     }
 
     /**
-     * Sets a typed value for the given [AppStateKey].
+     * Sets a typed value for the given [StateStoreKey].
      *
-     * @param key the [AppStateKey] to set
+     * @param key the [StateStoreKey] to set
      * @param value the value to set for the key
      * @throws CorruptionException if the key cannot be serialized.
      */
-    internal inline operator fun <reified T : Any> set(key: AppStateKey<T>, value: T) {
+    internal inline operator fun <reified T : Any> set(key: StateStoreKey<T>, value: T) {
         val keyName = key::class.qualifiedName ?: return
         try {
             val serializer = serializer(typeOf<T>())
@@ -116,33 +116,33 @@ internal constructor(
 }
 
 /**
- * Edits the [AppStatePreferences] in [DataStore] transactionally.
+ * Edits the [StateStorePreferences] in [DataStore] transactionally.
  *
- * @param transform block to mutate the [MutableAppStatePreferences]
- * @return the updated [AppStatePreferences]
+ * @param transform block to mutate the [MutableStateStorePreferences]
+ * @return the updated [StateStorePreferences]
  */
-internal suspend fun DataStore<AppStatePreferences>.edit(
-    transform: suspend (MutableAppStatePreferences) -> Unit
-): AppStatePreferences {
+internal suspend fun DataStore<StateStorePreferences>.edit(
+    transform: suspend (MutableStateStorePreferences) -> Unit
+): StateStorePreferences {
     return this.updateData { current -> current.toMutablePreferences().apply { transform(this) } }
 }
 
 /**
- * Serializer for [AppStatePreferences] using [DataStore] and Okio.
+ * Serializer for [StateStorePreferences] using [DataStore] and Okio.
  *
  * Serializes the preferences to a JSON string backed by a UTF-8 file.
  */
-public object AppStateSerializer : OkioSerializer<AppStatePreferences> {
-    override val defaultValue: AppStatePreferences = MutableAppStatePreferences()
+public object StateStoreSerializer : OkioSerializer<StateStorePreferences> {
+    override val defaultValue: StateStorePreferences = MutableStateStorePreferences()
 
-    override suspend fun readFrom(source: BufferedSource): AppStatePreferences {
+    override suspend fun readFrom(source: BufferedSource): StateStorePreferences {
         try {
             val string = source.readUtf8()
             if (string.isEmpty()) {
                 return defaultValue
             }
             val map = Json.decodeFromString<Map<String, String>>(string)
-            return MutableAppStatePreferences(map.toMutableMap())
+            return MutableStateStorePreferences(map.toMutableMap())
         } catch (e: SerializationException) {
             throw CorruptionException("Unable to deserialize JSON from String.", e)
         } catch (e: Exception) {
@@ -150,7 +150,7 @@ public object AppStateSerializer : OkioSerializer<AppStatePreferences> {
         }
     }
 
-    override suspend fun writeTo(t: AppStatePreferences, sink: BufferedSink) {
+    override suspend fun writeTo(t: StateStorePreferences, sink: BufferedSink) {
         try {
             val string = Json.encodeToString<Map<String, String>>(t.asMap())
             sink.writeUtf8(string)
