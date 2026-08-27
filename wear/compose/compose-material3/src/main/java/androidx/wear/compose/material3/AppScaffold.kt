@@ -79,6 +79,8 @@ public fun AppScaffold(
     val isStatusBarSupportedState = rememberUpdatedState(LocalStatusBarEnabled.current)
     val timeTextState = rememberUpdatedState(timeText)
     val showStatusBarState = rememberUpdatedState(isStatusBarEnabled)
+    val appWindowView = LocalView.current
+
     val scaffoldState = remember {
         ScaffoldState(
             appTimeText = timeTextState,
@@ -87,6 +89,10 @@ public fun AppScaffold(
         )
     }
 
+    // Status bar orchestration must run whenever the device platform supports status bars,
+    // regardless of whether AppScaffold has isStatusBarEnabled set to true or false. This allows
+    // the orchestrator to actively hide the system bar when disabled and honor per-screen
+    // overrides.
     if (isStatusBarSupportedState.value) {
         val showStatusBarOverlay by remember {
             derivedStateOf {
@@ -103,16 +109,26 @@ public fun AppScaffold(
             }
         }
 
-        val view = LocalView.current
-        val orchestrator = remember(view) { StatusBarOrchestrator(view) }
+        // Registers the app window view for status bar control and cleans it up when changed or
+        // removed.
+        DisposableEffect(appWindowView) {
+            scaffoldState.screenContent.setAppWindowView(appWindowView)
+            onDispose { scaffoldState.screenContent.clearAppWindowView(appWindowView) }
+        }
 
-        // Restores the initial status bar state when AppScaffold leaves composition
-        // or when the underlying LocalView changes.
-        DisposableEffect(orchestrator) { onDispose { orchestrator.restore() } }
+        // Restores all status bar states when AppScaffold leaves composition.
+        DisposableEffect(scaffoldState) {
+            onDispose { scaffoldState.screenContent.cleanupAllOrchestrators() }
+        }
 
-        LaunchedEffect(orchestrator) {
-            snapshotFlow { showStatusBarOverlay }
-                .collect { show -> if (show) orchestrator.show() else orchestrator.hide() }
+        LaunchedEffect(scaffoldState) {
+            snapshotFlow {
+                    scaffoldState.screenContent.currentActiveOrchestrator.value to
+                        showStatusBarOverlay
+                }
+                .collect { (orchestrator, show) ->
+                    if (show) orchestrator.show() else orchestrator.hide()
+                }
         }
     }
 
