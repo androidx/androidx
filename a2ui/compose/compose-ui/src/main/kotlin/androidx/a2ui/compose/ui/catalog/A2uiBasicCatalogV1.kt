@@ -39,6 +39,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastMap
 import java.text.ParseException
@@ -61,6 +62,7 @@ import java.util.TimeZone
  * @property row The [Row] component implementation.
  * @property column The [Column] component implementation.
  * @property list The [List] component implementation.
+ * @property tabs The [Tabs] component implementation.
  * @property button The [Button] component implementation.
  * @property dateTimeInput The [DateTimeInput] component implementation.
  * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
@@ -75,6 +77,7 @@ public class A2uiBasicCatalogV1(
     public val row: Row,
     public val column: Column,
     public val list: List,
+    public val tabs: Tabs,
     public val button: Button,
     public val dateTimeInput: DateTimeInput,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -97,6 +100,7 @@ public class A2uiBasicCatalogV1(
             row,
             column,
             list,
+            tabs,
             button,
             dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -1060,6 +1064,129 @@ public class A2uiBasicCatalogV1(
             children: kotlin.collections.List<A2uiComponentReference>,
             direction: Direction,
             align: Align,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"Tabs"` component for displaying a set of tabs.
+     *
+     * **Schema Properties:**
+     * * `tabs` (NestedList, required): An array of objects, where each object defines a tab with a
+     *   `title` (Dynamic String) and a `child` (ComponentId) component ID.
+     */
+    public interface Tabs : A2uiComponent {
+        override val name: String
+            get() = "Tabs"
+
+        override val description: String
+            get() = "A set of tabs, each with a title and a corresponding child component."
+
+        /** Represents a resolved tab with its evaluated title and child component ID. */
+        @Immutable
+        public class Tab(public val title: String, public val childId: String) {
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is Tab) return false
+                if (title != other.title) return false
+                if (childId != other.childId) return false
+                return true
+            }
+
+            override fun hashCode(): Int {
+                var result = title.hashCode()
+                result = 31 * result + childId.hashCode()
+                return result
+            }
+
+            override fun toString(): String {
+                return "Tab(title='$title', childId='$childId')"
+            }
+        }
+
+        public companion object {
+            /** The [A2uiProperty] for the `"title"` property of a Tab in [Tabs]. */
+            public val TitleProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "title",
+                    required = true,
+                    description = "The tab title.",
+                )
+
+            /** The [A2uiProperty] for the `"child"` property of a Tab in [Tabs]. */
+            public val ChildProperty: StaticA2uiProperty<String> =
+                A2uiProperty.componentId(
+                    key = "child",
+                    required = true,
+                    description = "The ID of the child component.",
+                )
+
+            /** The [A2uiProperty] for the `"tabs"` property of [Tabs]. */
+            public val TabsProperty:
+                StaticA2uiProperty<kotlin.collections.List<A2uiComponentProperties>> =
+                A2uiProperty.nestedList(
+                    key = "tabs",
+                    properties = listOf(TitleProperty, ChildProperty),
+                    required = true,
+                    description =
+                        "An array of objects, where each object defines a tab with a title and a " +
+                            "child component.",
+                    minItems = 1,
+                    isAdditionalPropertiesAllowed = false,
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(TabsProperty)
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean {
+            val tabsList =
+                checkNotNull(properties[TabsProperty]) {
+                    "Required property '${TabsProperty.key}' is missing."
+                }
+            return tabsList.fastAll { tabProps -> tabProps.bind(TitleProperty) != null }
+        }
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val tabsList =
+                checkNotNull(properties[TabsProperty]) {
+                    "Required property '${TabsProperty.key}' is missing."
+                }
+
+            val resolvedTabs = ArrayList<Tab>(tabsList.size)
+            for (i in tabsList.indices) {
+                val tabProps = tabsList[i]
+                val title =
+                    checkNotNull(tabProps.bind(TitleProperty)) {
+                        "Required property '${TitleProperty.key}' is missing."
+                    }
+                val childId =
+                    checkNotNull(tabProps[ChildProperty]) {
+                        "Required property '${ChildProperty.key}' is missing."
+                    }
+                resolvedTabs.add(Tab(title, childId))
+            }
+
+            TypedContent(tabs = resolvedTabs, modifier = modifier)
+        }
+
+        /**
+         * Renders the [Tabs] with its resolved [tabs].
+         *
+         * @param tabs list of [Tab] objects to render
+         * @param modifier [Modifier] to apply to the layout
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            tabs: kotlin.collections.List<Tab>,
             modifier: Modifier,
         )
     }
