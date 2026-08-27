@@ -28,7 +28,7 @@ import androidx.xr.compose.testapp.focuschange.FSMFocusChangeActivity
 import androidx.xr.compose.testapp.focuschange.FocusStealerActivity
 import androidx.xr.compose.testapp.focuschange.HSMFocusChangeActivity
 import androidx.xr.compose.testapp.followingsubspace.AnchorFollowingSubspaceActivity
-import androidx.xr.compose.testapp.followingsubspace.FollowingSubspaceActivity
+import androidx.xr.compose.testapp.followingsubspace.ViewFollowingSubspaceActivity
 import androidx.xr.compose.testapp.fragments.FragmentCompatibilityActivity
 import androidx.xr.compose.testapp.gravityaligned.GravityAlignedActivity
 import androidx.xr.compose.testapp.lifecycle.OpenCloseActivity
@@ -95,7 +95,7 @@ class ComposeTestAppActivityLeakTest(activityClass: Class<out Activity>) :
                 arrayOf(AnchorFollowingSubspaceActivity::class.java),
                 arrayOf(AnotherActivity::class.java),
                 arrayOf(FocusStealerActivity::class.java),
-                arrayOf(FollowingSubspaceActivity::class.java),
+                arrayOf(ViewFollowingSubspaceActivity::class.java),
                 arrayOf(FSMFocusChangeActivity::class.java),
                 arrayOf(HSMFocusChangeActivity::class.java),
                 arrayOf(MovableActivity::class.java),

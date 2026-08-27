@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("DEPRECATION")
+@file:OptIn(ExperimentalFollowingSubspaceApi::class)
 
 package androidx.xr.compose.spatial
 

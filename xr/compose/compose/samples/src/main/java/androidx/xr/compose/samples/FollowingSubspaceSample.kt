@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.xr.compose.samples
 
 import android.util.Log
@@ -32,12 +31,11 @@ import androidx.xr.arcore.Anchor
 import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
-import androidx.xr.compose.spatial.FollowingSubspace
-import androidx.xr.compose.subspace.FollowBehavior
-import androidx.xr.compose.subspace.FollowTarget
+import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
+import androidx.xr.compose.subspace.animation.follow.FollowTarget
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.rotate
@@ -46,7 +44,6 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
-import androidx.xr.scenecore.AnchorSpace
 
 @Sampled
 @OptIn(ExperimentalFollowingSubspaceApi::class)
@@ -66,10 +63,7 @@ public fun FollowingSubspaceSample() {
         session.configure(
             Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
         )
-        FollowingSubspace(
-            target = FollowTarget.ArDevice(session),
-            behavior = FollowBehavior.Soft(durationMs = 500),
-        ) {
+        Subspace(follow = FollowTarget.view()) {
             SpatialPanel(SubspaceModifier.height(100.dp).width(200.dp)) {
                 Text(
                     modifier =
@@ -85,7 +79,7 @@ public fun FollowingSubspaceSample() {
         val anchor =
             remember(session) {
                 when (val anchorResult = Anchor.create(session, Pose.Identity)) {
-                    is AnchorCreateSuccess -> AnchorSpace.create(session, anchorResult.anchor)
+                    is AnchorCreateSuccess -> anchorResult.anchor
                     else -> {
                         Log.e(TAG, "Failed to create anchor: ${anchorResult::class.simpleName}")
                         null
@@ -93,9 +87,8 @@ public fun FollowingSubspaceSample() {
                 }
             }
         if (anchor != null) {
-            FollowingSubspace(
-                target = FollowTarget.Anchor(anchorSpace = anchor),
-                behavior = FollowBehavior.Tight,
+            Subspace(
+                follow = FollowTarget.anchor(anchor),
                 modifier = SubspaceModifier.rotate(pitch = -90f, yaw = 0f, roll = 0f),
             ) {
                 SpatialRow {

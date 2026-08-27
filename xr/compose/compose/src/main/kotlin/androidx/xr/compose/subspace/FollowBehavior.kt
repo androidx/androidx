@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
 
 package androidx.xr.compose.subspace
 
@@ -52,7 +53,15 @@ import org.jetbrains.annotations.TestOnly
  * A FollowBehavior controls the motion of content as it is following another target, such as a
  * user's head. Currently the options include "soft", which gradually catches up to the target and
  * "static", which does not continuously follow the target.
+ *
+ * @deprecated FollowingSubspace has been deprecated. Use [androidx.xr.compose.spatial.Subspace]
+ *   with [androidx.xr.compose.subspace.animation.follow.FollowMode] instead.
  */
+@Deprecated(
+    message =
+        "FollowingSubspace has been deprecated. Migrate to Subspace using " +
+            "androidx.xr.compose.subspace.animation.follow.FollowMode instead."
+)
 @ExperimentalFollowingSubspaceApi
 public sealed class FollowBehavior protected constructor() {
     internal abstract suspend fun configure(
@@ -63,17 +72,49 @@ public sealed class FollowBehavior protected constructor() {
     )
 
     public companion object {
-        /** The default duration, in milliseconds, for a soft follow animation. */
+        /**
+         * The default duration, in milliseconds, for a soft follow animation.
+         *
+         * @deprecated FollowingSubspace has been deprecated.
+         */
+        @Deprecated(message = "FollowingSubspace has been deprecated.")
         public const val DEFAULT_SOFT_DURATION_MS: Int = 1500
-        /** The minimum allowable duration in milliseconds for a soft follow animation. */
+
+        /**
+         * The minimum allowable duration in milliseconds for a soft follow animation.
+         *
+         * @deprecated FollowingSubspace has been deprecated.
+         */
+        @Deprecated(message = "FollowingSubspace has been deprecated.")
         public const val MIN_SOFT_DURATION_MS: Int = 100
 
         /**
          * The content is placed once based on the target's initial pose and does not follow
          * subsequent movements.
+         *
+         * @deprecated FollowingSubspace has been deprecated. Use
+         *   [androidx.xr.compose.spatial.Subspace] with
+         *   [androidx.xr.compose.subspace.animation.follow.FollowMode.snap] instead.
          */
+        @Deprecated(
+            message =
+                "FollowingSubspace has been deprecated. Migrate to Subspace using " +
+                    "androidx.xr.compose.subspace.animation.follow.FollowMode.snap instead."
+        )
         public val Static: FollowBehavior = StaticFollowBehavior
-        /** The content follows the target as closely as possible. */
+
+        /**
+         * The content follows the target as closely as possible.
+         *
+         * @deprecated FollowingSubspace has been deprecated. Use
+         *   [androidx.xr.compose.spatial.Subspace] with
+         *   [androidx.xr.compose.subspace.animation.follow.FollowMode.tight] instead.
+         */
+        @Deprecated(
+            message =
+                "FollowingSubspace has been deprecated. Migrate to Subspace using " +
+                    "androidx.xr.compose.subspace.animation.follow.FollowMode.tight instead."
+        )
         public val Tight: FollowBehavior = TightFollowBehavior
 
         /**
@@ -92,7 +133,15 @@ public sealed class FollowBehavior protected constructor() {
          *   [MIN_SOFT_DURATION_MS] will be rounded up to [MIN_SOFT_DURATION_MS] to allow enough
          *   time to complete the content movement.
          * @return A [FollowBehavior] instance configured for soft following.
+         * @deprecated FollowingSubspace has been deprecated. Use
+         *   [androidx.xr.compose.spatial.Subspace] with
+         *   [androidx.xr.compose.subspace.animation.follow.FollowMode.soft] instead.
          */
+        @Deprecated(
+            message =
+                "FollowingSubspace has been deprecated. Migrate to Subspace using " +
+                    "androidx.xr.compose.subspace.animation.follow.FollowMode.soft instead."
+        )
         public fun Soft(
             @IntRange(from = MIN_SOFT_DURATION_MS.toLong())
             durationMs: Int = DEFAULT_SOFT_DURATION_MS
@@ -106,7 +155,15 @@ public sealed class FollowBehavior protected constructor() {
          * native HeadFollower implementation.
          *
          * @return A [FollowBehavior] instance configured for exponential decay.
+         * @deprecated FollowingSubspace has been deprecated. Use
+         *   [androidx.xr.compose.spatial.Subspace] with
+         *   [androidx.xr.compose.subspace.animation.follow.FollowMode.exponentialDecay] instead.
          */
+        @Deprecated(
+            message =
+                "FollowingSubspace has been deprecated. Migrate to Subspace using " +
+                    "androidx.xr.compose.subspace.animation.follow.FollowMode.exponentialDecay instead."
+        )
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         public fun ExponentialDecay(): FollowBehavior = ExponentialDecayFollowBehavior()
 
@@ -536,7 +593,15 @@ internal object TightFollowBehavior : FollowBehavior() {
  * a user's position in a room, they might want to track only translationX and translationZ.
  * Possible values are: isTranslationXTracked, isTranslationYTracked, isTranslationZTracked,
  * isRotationXTracked, isRotationYTracked, isRotationZTracked or [TrackedDimensions.All].
+ *
+ * @deprecated FollowingSubspace has been deprecated. Use [androidx.xr.compose.spatial.Subspace]
+ *   with [androidx.xr.compose.subspace.animation.follow.TrackedDimensions] instead.
  */
+@Deprecated(
+    message =
+        "FollowingSubspace has been deprecated. Migrate to Subspace using " +
+            "androidx.xr.compose.subspace.animation.follow.TrackedDimensions instead."
+)
 @ExperimentalFollowingSubspaceApi
 public class TrackedDimensions(
     public val isTranslationXTracked: Boolean = false,
@@ -611,7 +676,16 @@ public class TrackedDimensions(
         /**
          * TrackedDimensions.ALL is provided as a convenient way to specify all 6 dimensions of a
          * pose.
+         *
+         * @deprecated FollowingSubspace has been deprecated. Use
+         *   [androidx.xr.compose.subspace.animation.follow.TrackedDimensions.Companion.All]
+         *   instead.
          */
+        @Deprecated(
+            message =
+                "FollowingSubspace has been deprecated. Use " +
+                    "androidx.xr.compose.subspace.animation.follow.TrackedDimensions.All instead."
+        )
         public val All: TrackedDimensions =
             TrackedDimensions(
                 isTranslationXTracked = true,
@@ -627,7 +701,15 @@ public class TrackedDimensions(
 /**
  * A FollowTarget can be used with [androidx.xr.compose.spatial.FollowingSubspace] to have a set of
  * content follow a target such as an anchor or AR device.
+ *
+ * @deprecated FollowingSubspace has been deprecated. Use [androidx.xr.compose.spatial.Subspace]
+ *   with [androidx.xr.compose.subspace.animation.follow.FollowTarget] instead.
  */
+@Deprecated(
+    message =
+        "FollowingSubspace has been deprecated. Migrate to Subspace using " +
+            "androidx.xr.compose.subspace.animation.follow.FollowTarget instead."
+)
 @ExperimentalFollowingSubspaceApi
 public sealed interface FollowTarget {
     public companion object {
@@ -640,7 +722,15 @@ public sealed interface FollowTarget {
          *
          * @param session The current [Session] instance used to track the device and transform
          *   poses.
+         * @deprecated FollowingSubspace has been deprecated. Use
+         *   [androidx.xr.compose.spatial.Subspace] with
+         *   [androidx.xr.compose.subspace.animation.follow.FollowTarget.view] instead.
          */
+        @Deprecated(
+            message =
+                "FollowingSubspace has been deprecated. Migrate to Subspace using " +
+                    "androidx.xr.compose.subspace.animation.follow.FollowTarget.view instead."
+        )
         public fun ArDevice(session: Session): FollowTarget = ArDeviceTarget(session)
 
         /**
@@ -649,7 +739,15 @@ public sealed interface FollowTarget {
          * @param anchorSpace represents the anchor which this
          *   [androidx.xr.compose.spatial.FollowingSubspace] will be tethered to. As the anchor
          *   moves, so will the [androidx.xr.compose.spatial.FollowingSubspace]
+         * @deprecated FollowingSubspace has been deprecated. Use
+         *   [androidx.xr.compose.spatial.Subspace] with
+         *   [androidx.xr.compose.subspace.animation.follow.FollowTarget.anchor] instead.
          */
+        @Deprecated(
+            message =
+                "FollowingSubspace has been deprecated. Migrate to Subspace using " +
+                    "androidx.xr.compose.subspace.animation.follow.FollowTarget.anchor instead."
+        )
         public fun Anchor(anchorSpace: AnchorSpace): FollowTarget = AnchorTarget(anchorSpace)
     }
 }

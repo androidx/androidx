@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.xr.compose.testapp.followingsubspace
 
 import android.annotation.SuppressLint
@@ -52,12 +53,11 @@ import androidx.xr.arcore.AnchorCreateResourcesExhausted
 import androidx.xr.arcore.AnchorCreateSuccess
 import androidx.xr.arcore.Plane
 import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
-import androidx.xr.compose.spatial.FollowingSubspace
 import androidx.xr.compose.spatial.Subspace
-import androidx.xr.compose.subspace.FollowBehavior
-import androidx.xr.compose.subspace.FollowTarget
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
+import androidx.xr.compose.subspace.animation.follow.FollowMode
+import androidx.xr.compose.subspace.animation.follow.FollowTarget
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.rotate
@@ -70,7 +70,6 @@ import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.AnchorSpace
 import kotlinx.coroutines.delay
 
 /** Represents the different states of the AnchorFollowingSubspaceActivity. */
@@ -198,20 +197,18 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
 
     @Composable
     fun SingleAnchorButtonWithPoseListener(text: String, position: Pose, onClick: () -> Unit) {
-        var rootAnchor by remember { mutableStateOf<AnchorSpace?>(null) }
+        var rootAnchor by remember { mutableStateOf<Anchor?>(null) }
         DisposableEffect(Unit) {
-            val anchorSpace = createAnchorSpace(session, position)
-            val anchor = anchorSpace?.anchor
-            rootAnchor = anchorSpace
+            val anchor = createAnchor(session, position)
+            rootAnchor = anchor
 
             onDispose { anchor?.detach() }
         }
 
         val currentAnchor = rootAnchor
         if (currentAnchor != null) {
-            FollowingSubspace(
-                target = FollowTarget.Anchor(currentAnchor),
-                behavior = FollowBehavior.Tight,
+            Subspace(
+                follow = FollowTarget.anchor(currentAnchor, FollowMode.tight()),
                 modifier = SubspaceModifier.rotate(pitch = -90f, 0f, 0f),
             ) {
                 SpatialPanel(modifier = SubspaceModifier.width(400.dp).height(300.dp)) {
@@ -247,24 +244,21 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
     @Composable
     @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/481422057
     private fun FollowingSubspaceContent(session: Session, anchorPose: Pose) {
-        var rootAnchor by remember { mutableStateOf<AnchorSpace?>(null) }
-        var alternateAnchor by remember { mutableStateOf<AnchorSpace?>(null) }
+        var rootAnchor by remember { mutableStateOf<Anchor?>(null) }
+        var alternateAnchor by remember { mutableStateOf<Anchor?>(null) }
         var showAlternate by remember { mutableStateOf(false) }
         var isAnimating by remember { mutableStateOf(false) }
 
         DisposableEffect(anchorPose) {
-            val localRoot = createAnchorSpace(session, anchorPose)
+            val localRoot = createAnchor(session, anchorPose)
             val alternatePose = Pose(anchorPose.translation + ANIMATION_DELTA, anchorPose.rotation)
-            val localAlternative = createAnchorSpace(session, alternatePose)
+            val localAlternative = createAnchor(session, alternatePose)
             rootAnchor = localRoot
             alternateAnchor = localAlternative
 
-            val rootAnchorObj = localRoot?.anchor
-            val alternativeAnchorObj = localAlternative?.anchor
-
             onDispose {
-                rootAnchorObj?.detach()
-                alternativeAnchorObj?.detach()
+                localRoot?.detach()
+                localAlternative?.detach()
             }
         }
 
@@ -281,9 +275,8 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
         currentAnchor?.let { activeAnchor ->
             val buttonText = if (isAnimating) "Stop anchor animation" else "Start anchor animation"
 
-            FollowingSubspace(
-                target = FollowTarget.Anchor(activeAnchor),
-                behavior = FollowBehavior.Soft(),
+            Subspace(
+                follow = FollowTarget.anchor(activeAnchor, FollowMode.soft()),
                 modifier = SubspaceModifier.rotate(pitch = -90f, 0f, 0f),
             ) {
                 SpatialRow {
@@ -299,10 +292,10 @@ class AnchorFollowingSubspaceActivity : ComponentActivity() {
         }
     }
 
-    private fun createAnchorSpace(session: Session, anchorPose: Pose): AnchorSpace? {
+    private fun createAnchor(session: Session, anchorPose: Pose): Anchor? {
         when (val anchorResult = Anchor.create(session, anchorPose)) {
             is AnchorCreateSuccess -> {
-                return AnchorSpace.create(session, anchor = anchorResult.anchor)
+                return anchorResult.anchor
             }
             is AnchorCreateResourcesExhausted -> {
                 Log.e(TAG, "Failed to create anchor: anchor resources exhausted.")

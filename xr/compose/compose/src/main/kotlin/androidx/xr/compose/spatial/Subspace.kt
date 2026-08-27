@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.xr.compose.spatial
 
 import android.view.View
-import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -53,19 +53,15 @@ import androidx.xr.compose.platform.SpatialComposeScene
 import androidx.xr.compose.platform.disposableValueOf
 import androidx.xr.compose.platform.findNearestParentEntity
 import androidx.xr.compose.platform.getValue
-import androidx.xr.compose.subspace.AnchorTarget
 import androidx.xr.compose.subspace.ArDeviceTarget
-import androidx.xr.compose.subspace.FollowBehavior
-import androidx.xr.compose.subspace.FollowTarget
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialBoxScope
 import androidx.xr.compose.subspace.SubspaceComposable
-import androidx.xr.compose.subspace.TrackedDimensions
-import androidx.xr.compose.subspace.animation.follow.AnchorTarget as AnchorTargetV2
+import androidx.xr.compose.subspace.animation.follow.AnchorTarget
 import androidx.xr.compose.subspace.animation.follow.FollowMode
-import androidx.xr.compose.subspace.animation.follow.FollowTarget as FollowTargetV2
+import androidx.xr.compose.subspace.animation.follow.FollowTarget
 import androidx.xr.compose.subspace.animation.follow.TightFollowMode
-import androidx.xr.compose.subspace.animation.follow.TrackedDimensions as TrackedDimensionsV2
+import androidx.xr.compose.subspace.animation.follow.TrackedDimensions
 import androidx.xr.compose.subspace.animation.follow.ViewTarget
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.SubspaceLayout
@@ -409,23 +405,23 @@ public annotation class ExperimentalFollowingSubspaceApi
  * solely by its `target` parameter. By default, this Subspace is automatically bounded by the
  * system's recommended content box, similar to [Subspace].
  *
- * When the target parameter is specified to be [FollowTarget.ArDevice], the content will be
- * positioned relative the view of the AR device. This is sometimes referred to as head-locked
- * content. For this API, it is required for device tracking to not be disabled in the session
- * configuration. If it is disabled, this API will not return anything. The session configuration
- * should resemble `session.configure( config =
- * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )` The
- * [FollowTarget.ArDevice] is not compatible with [FollowBehavior.Tight]. Combining these together
- * will cause this composable to not be displayed. For a near tight experience, use
- * [FollowBehavior.Soft] with a low duration value such as
- * `FollowBehavior.Soft([FollowBehavior.Companion.MIN_SOFT_DURATION_MS])`
+ * When the target parameter is specified to be
+ * [androidx.xr.compose.subspace.FollowTarget.ArDevice], the content will be positioned relative the
+ * view of the AR device. This is sometimes referred to as head-locked content. For this API, it is
+ * required for device tracking to not be disabled in the session configuration. If it is disabled,
+ * this API will not return anything. The session configuration should resemble `session.configure(
+ * config = Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )`
+ * The [androidx.xr.compose.subspace.FollowTarget.ArDevice] is not compatible with
+ * [androidx.xr.compose.subspace.FollowBehavior.Tight]. Combining these together will cause this
+ * composable to not be displayed. For a near tight experience, use
+ * [androidx.xr.compose.subspace.FollowBehavior.Soft] with a low duration value.
  *
- * When the target parameter is specified to be [FollowTarget.Anchor], the content will be
- * positioned around an anchor. This is useful for placing UI elements on real-world surfaces or at
- * specific spatial locations. The visual stability of the anchored content depends on the
- * underlying system's ability to track the [androidx.xr.scenecore.AnchorSpace]. For Creating,
- * loading, and persisting anchors, please check [androidx.xr.scenecore.AnchorSpace] for more
- * information
+ * When the target parameter is specified to be [androidx.xr.compose.subspace.FollowTarget.Anchor],
+ * the content will be positioned around an anchor. This is useful for placing UI elements on
+ * real-world surfaces or at specific spatial locations. The visual stability of the anchored
+ * content depends on the underlying system's ability to track the
+ * [androidx.xr.scenecore.AnchorSpace]. For Creating, loading, and persisting anchors, please check
+ * [androidx.xr.scenecore.AnchorSpace] for more information
  *
  * This composable is a no-op in non-XR environments (i.e., Phone and Tablet).
  *
@@ -450,7 +446,6 @@ public annotation class ExperimentalFollowingSubspaceApi
  *    XR doesn't guarantee predictable interaction behaviors between UI elements in separate,
  *    overlapping Subspaces.
  *
- * @sample androidx.xr.compose.samples.FollowingSubspaceSample
  * @param target Specifies an area which the Subspace will move towards.
  * @param behavior determines how the FollowingSubspace follows the target. It can be made to move
  *   faster and be more responsive. The default is FollowBehavior.Soft().
@@ -461,17 +456,22 @@ public annotation class ExperimentalFollowingSubspaceApi
  *   will not be tracked. For example if translationY is not listed, this means the content will not
  *   move as the user moves vertically up and down.
  * @param content The 3D content to render within this Subspace.
+ * @deprecated Use [Subspace] with the follow parameter instead.
  */
 // TODO(b/446871230): Add unit tests for FollowingSubspace.
+@Deprecated(
+    message = "FollowingSubspace is deprecated. Use Subspace with the follow parameter instead."
+)
 @Composable
 @ComposableOpenTarget(index = -1)
-@Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
+@Suppress("COMPOSE_APPLIER_CALL_MISMATCH", "DEPRECATION")
 @ExperimentalFollowingSubspaceApi
 public fun FollowingSubspace(
-    target: FollowTarget,
-    behavior: FollowBehavior,
+    target: androidx.xr.compose.subspace.FollowTarget,
+    behavior: androidx.xr.compose.subspace.FollowBehavior,
     modifier: SubspaceModifier = SubspaceModifier,
-    dimensions: TrackedDimensions = TrackedDimensions.All,
+    dimensions: androidx.xr.compose.subspace.TrackedDimensions =
+        androidx.xr.compose.subspace.TrackedDimensions.All,
     content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
 ) {
     // If not in XR, do nothing
@@ -483,7 +483,10 @@ public fun FollowingSubspace(
 
     // If we're following an anchor and want the content to follow it as tightly as possible,
     // it's best to link them together in the scene graph rather than implement custom logic.
-    if (target is AnchorTarget && behavior == FollowBehavior.Tight) {
+    if (
+        target is androidx.xr.compose.subspace.AnchorTarget &&
+            behavior == androidx.xr.compose.subspace.FollowBehavior.Tight
+    ) {
         Subspace(modifier = modifier, subspaceRootNode = target.anchorSpace, content = content)
         return
     }
@@ -554,21 +557,17 @@ public fun FollowingSubspace(
  * solely by its `follow` parameter. By default, this Subspace is automatically bounded by the
  * system's recommended content box, similar to [Subspace].
  *
- * When the `follow` parameter is specified to be
- * [androidx.xr.compose.subspace.animation.follow.FollowTarget.view], the content will be positioned
- * relative the view of the AR device. This is sometimes referred to as head-locked content. For
- * this API, it is required for device tracking to not be disabled in the session configuration. If
- * it is disabled, this API will not return anything. The session configuration should resemble
- * `session.configure( config =
+ * When the `follow` parameter is specified to be [FollowTarget.view], the content will be
+ * positioned relative the view of the AR device. This is sometimes referred to as head-locked
+ * content. For this API, it is required for device tracking to not be disabled in the session
+ * configuration. If it is disabled, this API will not return anything. The session configuration
+ * should resemble `session.configure( config =
  * Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build() )` The
- * [androidx.xr.compose.subspace.animation.follow.FollowTarget.view] is not compatible with
- * [androidx.xr.compose.subspace.animation.follow.FollowMode.tight]. Combining these together will
- * cause this composable to not be displayed. For a near tight experience, use
- * [androidx.xr.compose.subspace.animation.follow.FollowMode.soft] with a low duration value such as
- * `FollowMode.soft([androidx.xr.compose.subspace.animation.follow.FollowMode.Companion.MIN_SOFT_DURATION_MS])`
+ * [FollowTarget.view] is not compatible with [FollowMode.tight]. Combining these together will
+ * cause this composable to not be displayed. For a near tight experience, use [FollowMode.soft]
+ * with a low duration value.
  *
- * When the `follow` parameter is specified to be
- * [androidx.xr.compose.subspace.animation.follow.FollowTarget.anchor], the content will be
+ * When the `follow` parameter is specified to be [FollowTarget.anchor], the content will be
  * positioned around an anchor. This is useful for placing UI elements on real-world surfaces or at
  * specific spatial locations. The visual stability of the anchored content depends on the
  * underlying system's ability to track the [androidx.xr.scenecore.AnchorSpace]. For Creating,
@@ -598,6 +597,7 @@ public fun FollowingSubspace(
  *    XR doesn't guarantee predictable interaction behaviors between UI elements in separate,
  *    overlapping Subspaces.
  *
+ * @sample androidx.xr.compose.samples.FollowingSubspaceSample
  * @param follow Specifies an entity which the Subspace will move towards.
  * @param modifier The [SubspaceModifier] to be applied to the content of this Subspace.
  * @param content The 3D content to render within this Subspace.
@@ -605,9 +605,9 @@ public fun FollowingSubspace(
 @Composable
 @ComposableOpenTarget(index = -1)
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@ExperimentalFollowingSubspaceApi
 public fun Subspace(
-    follow: FollowTargetV2,
+    follow: FollowTarget,
     modifier: SubspaceModifier = SubspaceModifier,
     content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
 ) {
@@ -622,8 +622,8 @@ public fun Subspace(
     // all dimensions, it's best to link them together in the scene graph rather than implement
     // custom logic.
     if (
-        follow is AnchorTargetV2 &&
-            follow.mode == FollowMode.tight(dimensions = TrackedDimensionsV2.All)
+        follow is AnchorTarget &&
+            follow.mode == FollowMode.tight(dimensions = TrackedDimensions.All)
     ) {
         val anchorSpace = remember(follow.anchor) { AnchorSpace.create(session, follow.anchor) }
         Subspace(modifier = modifier, subspaceRootNode = anchorSpace, content = content)
@@ -683,15 +683,17 @@ public fun Subspace(
 }
 
 @OptIn(ExperimentalFollowingSubspaceApi::class)
-private fun getInitialSubspaceOffset(target: FollowTarget): Pose {
+@Suppress("DEPRECATION")
+private fun getInitialSubspaceOffset(target: androidx.xr.compose.subspace.FollowTarget): Pose {
     return if (target is ArDeviceTarget) target.offset else Pose.Identity
 }
 
 @Composable
 @OptIn(ExperimentalFollowingSubspaceApi::class)
+@Suppress("DEPRECATION")
 private fun rememberRecenterSignal(
     session: Session,
-    target: FollowTarget,
+    target: androidx.xr.compose.subspace.FollowTarget,
     subspaceTrailingEntity: CoreGroupEntity,
     subspaceRootNode: Entity,
 ): Boolean {
@@ -701,7 +703,7 @@ private fun rememberRecenterSignal(
         val listener = Runnable {
             recenterSignal = !recenterSignal
             val targetValue = currentTargetState.value
-            if (targetValue is AnchorTarget) {
+            if (targetValue is androidx.xr.compose.subspace.AnchorTarget) {
                 // Anchors live outside the ActivitySpace, so if the ActivitySpace moves, the
                 // relative position to the anchor must be manually updated.
                 subspaceTrailingEntity.poseInMeters =
@@ -726,9 +728,10 @@ private fun rememberRecenterSignal(
 
 /** Validates the configuration for [FollowingSubspace]. */
 @OptIn(ExperimentalFollowingSubspaceApi::class)
+@Suppress("DEPRECATION")
 private fun validateFollowingSubspaceConfiguration(
-    target: FollowTarget,
-    behavior: FollowBehavior,
+    target: androidx.xr.compose.subspace.FollowTarget,
+    behavior: androidx.xr.compose.subspace.FollowBehavior,
     config: Config,
 ): Boolean {
     // Following an AR device requires device tracking to be enabled.
@@ -737,21 +740,23 @@ private fun validateFollowingSubspaceConfiguration(
     }
 
     // Tight follow for AR devices was not performant enough to be supported at this time.
-    if (target is ArDeviceTarget && behavior == FollowBehavior.Tight) {
+    if (target is ArDeviceTarget && behavior == androidx.xr.compose.subspace.FollowBehavior.Tight) {
         return false
     }
 
     return true
 }
 
-private fun getInitialSubspaceOffset(follow: FollowTargetV2): Pose {
+@OptIn(ExperimentalFollowingSubspaceApi::class)
+private fun getInitialSubspaceOffset(follow: FollowTarget): Pose {
     return if (follow is ViewTarget) follow.offset else Pose.Identity
 }
 
 @Composable
+@OptIn(ExperimentalFollowingSubspaceApi::class)
 private fun rememberRecenterSignal(
     session: Session,
-    follow: FollowTargetV2,
+    follow: FollowTarget,
     subspaceTrailingEntity: CoreGroupEntity,
     subspaceRootNode: Entity,
 ): Boolean {
@@ -761,7 +766,7 @@ private fun rememberRecenterSignal(
         val listener = Runnable {
             recenterSignal = !recenterSignal
             val targetValue = currentTargetState.value
-            if (targetValue is AnchorTargetV2) {
+            if (targetValue is AnchorTarget) {
                 // Anchors live outside the ActivitySpace, so if the ActivitySpace moves, the
                 // relative position to the anchor must be manually updated.
                 subspaceTrailingEntity.poseInMeters =
@@ -787,11 +792,9 @@ private fun rememberRecenterSignal(
     return recenterSignal
 }
 
-/** Validates the configuration for Subspace with [FollowTargetV2]. */
-private fun validateFollowingSubspaceConfiguration(
-    follow: FollowTargetV2,
-    config: Config,
-): Boolean {
+/** Validates the configuration for Subspace with [FollowTarget]. */
+@OptIn(ExperimentalFollowingSubspaceApi::class)
+private fun validateFollowingSubspaceConfiguration(follow: FollowTarget, config: Config): Boolean {
     // Following an AR device requires device tracking to be enabled.
     if (follow is ViewTarget && config.deviceTracking == DeviceTrackingMode.DISABLED) {
         return false

@@ -16,7 +16,7 @@
 
 package androidx.xr.compose.subspace.animation.follow
 
-import androidx.annotation.RestrictTo
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
@@ -39,7 +39,7 @@ import androidx.xr.runtime.math.Vector3
  * @param isRollTracked Whether to track roll rotation.
  */
 // TODO(b/550528756): Add unit tests for TrackedDimensions
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@ExperimentalFollowingSubspaceApi
 public class TrackedDimensions(
     public val isXTracked: Boolean = false,
     public val isYTracked: Boolean = false,
