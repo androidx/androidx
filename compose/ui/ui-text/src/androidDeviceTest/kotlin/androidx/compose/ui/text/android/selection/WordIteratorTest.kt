@@ -620,6 +620,72 @@ class WordIteratorTest {
         verifyIsWord(wordIterator, 10, 14)
     }
 
+    @Test
+    fun testCJKWords_chinese() {
+        // "你好世界" = "你好" (Hello, 0..2) + "世界" (World, 2..4)
+        val text = "你好世界"
+        val wordIterator = WordIterator(text, 0, text.length, Locale.SIMPLIFIED_CHINESE)
+        // First word "你好" (0..2)
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(0)).isEqualTo(0)
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(0)).isEqualTo(2)
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(1)).isEqualTo(0)
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(1)).isEqualTo(2)
+
+        // Boundary between "你好" and "世界" (offset 2)
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(2)).isEqualTo(0)
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(2)).isEqualTo(4)
+
+        // Second word "世界" (2..4)
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(3)).isEqualTo(2)
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(3)).isEqualTo(4)
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(4)).isEqualTo(2)
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(4)).isEqualTo(4)
+    }
+
+    @Test
+    fun testCJKWords_japaneseKanji() {
+        // "東京都" = "東京" (Tokyo, 0..2) + "都" (Metropolis, 2..3)
+        val text = "東京都"
+        val wordIterator = WordIterator(text, 0, text.length, Locale.JAPANESE)
+        // First word "東京" (0..2)
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(0)).isEqualTo(0)
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(0)).isEqualTo(2)
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(1)).isEqualTo(0)
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(1)).isEqualTo(2)
+
+        // Boundary between "東京" and "都" (offset 2)
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(2)).isEqualTo(0)
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(2)).isEqualTo(3)
+
+        // Second word "都" (2..3)
+        assertThat(wordIterator.getPrevWordBeginningOnTwoWordsBoundary(3)).isEqualTo(2)
+        assertThat(wordIterator.getNextWordEndOnTwoWordBoundary(3)).isEqualTo(3)
+    }
+
+    @Test(timeout = 5000)
+    fun testCJKWords_withEmojiInsideWord() {
+        assertThat(EmojiCompat.isConfigured()).isTrue()
+        while (EmojiCompat.get().loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {}
+
+        // "你👍好" = "你" + 👍 + "好" (treated as single contiguous word 0..4)
+        val text = "你\uD83D\uDC4D好"
+        val wordIterator = WordIterator(text, 0, text.length, Locale.SIMPLIFIED_CHINESE)
+        verifyIsWordWithSurrogate(wordIterator, 0, 4, 2)
+    }
+
+    @Test(timeout = 5000)
+    fun testCJKWords_emojiBetweenWords() {
+        assertThat(EmojiCompat.isConfigured()).isTrue()
+        while (EmojiCompat.get().loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {}
+
+        // "你好 👍 世界" = "你好" (0..2), 👍 (3..5), "世界" (6..8)
+        val text = "你好 \uD83D\uDC4D 世界"
+        val wordIterator = WordIterator(text, 0, text.length, Locale.SIMPLIFIED_CHINESE)
+        verifyIsWord(wordIterator, 0, 2)
+        verifyIsWordWithSurrogate(wordIterator, 3, 5, 4)
+        verifyIsWord(wordIterator, 6, 8)
+    }
+
     private fun verifyIsWordWithSurrogate(
         wordIterator: WordIterator,
         beginning: Int,
