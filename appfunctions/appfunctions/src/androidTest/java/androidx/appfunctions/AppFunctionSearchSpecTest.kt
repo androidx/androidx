@@ -17,6 +17,8 @@
 package androidx.appfunctions
 
 import android.app.appfunctions.AppFunctionName as PlatformAppFunctionName
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -34,6 +36,7 @@ class AppFunctionSearchSpecTest {
                 schemaName = "name",
                 minSchemaVersion = 2,
                 functionNames = setOf(AppFunctionName("com.pkg", "func")),
+                scopes = setOf(SCOPE_GLOBAL, SCOPE_ACTIVITY),
             )
 
         val platformSpec = jetpackSpec.toPlatformSearchSpec()
@@ -44,5 +47,6 @@ class AppFunctionSearchSpecTest {
         assertThat(platformSpec.minSchemaVersion).isEqualTo(2L)
         assertThat(platformSpec.functionNames)
             .containsExactly(PlatformAppFunctionName("com.pkg", "func"))
+        assertThat(platformSpec.scopes).containsExactly(SCOPE_GLOBAL, SCOPE_ACTIVITY)
     }
 }

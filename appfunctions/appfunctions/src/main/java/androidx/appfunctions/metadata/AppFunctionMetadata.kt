@@ -15,6 +15,8 @@
  */
 package androidx.appfunctions.metadata
 
+import android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_ACTIVITY
+import android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_GLOBAL
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -23,6 +25,10 @@ import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appfunctions.internal.GenericDocumentUtils
 import androidx.appfunctions.internal.GenericDocumentUtils.safeCastToDocumentClass
 import androidx.appfunctions.internal.SchemaAppFunctionInventory
+import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.scopeToScopeXmlValue
 import androidx.appsearch.annotation.Document
 import java.util.Objects
 
@@ -75,6 +81,16 @@ constructor(
     /** The [AppFunctionPackageMetadata] of the enclosing package. */
     public val packageMetadata: AppFunctionPackageMetadata =
         AppFunctionPackageMetadata(packageName = packageName, components = components),
+    /**
+     * The scope of the app function.
+     *
+     * The scope determines the function's lifecycle and uniqueness rules. Depending on the scope,
+     * there could be at most one or multiple functions registered in the system with the same
+     * [AppFunctionName].
+     *
+     * See [SCOPE_GLOBAL] and [SCOPE_ACTIVITY] for more details on each scope.
+     */
+    @get:AppFunctionScope public val scope: Int = SCOPE_GLOBAL,
 ) {
     @JvmOverloads
     public constructor(
@@ -95,6 +111,16 @@ constructor(
          * `null` if the function is not deprecated.
          */
         deprecation: AppFunctionDeprecationMetadata? = null,
+        /**
+         * The scope of the app function.
+         *
+         * The scope determines the function's lifecycle and uniqueness rules. Depending on the
+         * scope, there could be at most one or multiple functions registered in the system with the
+         * same [AppFunctionName].
+         *
+         * See [SCOPE_GLOBAL] and [SCOPE_ACTIVITY] for more details on each scope.
+         */
+        @AppFunctionScope scope: Int = SCOPE_GLOBAL,
     ) : this(
         id = name.functionIdentifier,
         packageName = name.packageName,
@@ -110,6 +136,7 @@ constructor(
         deprecation = deprecation,
         packageMetadata = packageMetadata,
         name = name,
+        scope = scope,
     )
 
     override fun equals(other: Any?): Boolean {
@@ -129,6 +156,7 @@ constructor(
         if (deprecation != other.deprecation) return false
         if (name != other.name) return false
         if (packageMetadata != other.packageMetadata) return false
+        if (scope != other.scope) return false
 
         return true
     }
@@ -146,6 +174,7 @@ constructor(
             deprecation,
             name,
             packageMetadata,
+            scope,
         )
     }
 
@@ -162,6 +191,7 @@ constructor(
         append("deprecation=$deprecation, ")
         append("packageMetadata=$packageMetadata, ")
         append("name=$name")
+        append("scope=$scope")
         append(")")
     }
 
@@ -177,6 +207,7 @@ constructor(
         deprecation: AppFunctionDeprecationMetadata? = this.deprecation,
         name: AppFunctionName = this.name,
         packageMetadata: AppFunctionPackageMetadata = this.packageMetadata,
+        scope: Int = this.scope,
     ): AppFunctionMetadata {
         return AppFunctionMetadata(
             id = id,
@@ -190,6 +221,7 @@ constructor(
             deprecation = deprecation,
             name = name,
             packageMetadata = packageMetadata,
+            scope = scope,
         )
     }
 
@@ -361,6 +393,7 @@ constructor(
                 packageMetadata = packageMetadata,
                 description = staticMetadataDocument.description ?: "",
                 deprecation = deprecationMetadata,
+                scope = scopeXmlValueToScope(staticMetadataDocument.scope),
             )
         }
 
@@ -410,6 +443,24 @@ constructor(
         ): Boolean {
             return document.response != null
         }
+
+        @AppFunctionScope
+        private fun scopeXmlValueToScope(xmlValue: String?): Int {
+            return when (xmlValue) {
+                PROPERTY_VALUE_SCOPE_GLOBAL,
+                null -> SCOPE_GLOBAL
+                PROPERTY_VALUE_SCOPE_ACTIVITY -> SCOPE_ACTIVITY
+                else -> throw IllegalStateException("Unexpected value: $xmlValue")
+            }
+        }
+
+        internal fun scopeToScopeXmlValue(@AppFunctionScope scope: Int): String? {
+            return when (scope) {
+                SCOPE_GLOBAL -> PROPERTY_VALUE_SCOPE_GLOBAL
+                SCOPE_ACTIVITY -> PROPERTY_VALUE_SCOPE_ACTIVITY
+                else -> throw IllegalStateException("Unexpected value: $scope")
+            }
+        }
     }
 }
 
@@ -453,6 +504,14 @@ public data class CompileTimeAppFunctionMetadata(
      * if the function is not deprecated.
      */
     public val deprecation: AppFunctionDeprecationMetadata? = null,
+    /**
+     * The scope of the app function.
+     *
+     * The scope determines the function's lifecycle and uniqueness rules. Depending on the scope,
+     * there could be at most one or multiple functions registered in the system with the same
+     * [AppFunctionName].
+     */
+    @get:AppFunctionScope public val scope: Int = SCOPE_GLOBAL,
 ) {
 
     internal fun copy(
@@ -464,6 +523,7 @@ public data class CompileTimeAppFunctionMetadata(
         components: AppFunctionComponentsMetadata? = null,
         description: String? = null,
         deprecation: AppFunctionDeprecationMetadata? = null,
+        @AppFunctionScope scope: Int? = SCOPE_GLOBAL,
     ): CompileTimeAppFunctionMetadata {
         return CompileTimeAppFunctionMetadata(
             id = id ?: this.id,
@@ -474,6 +534,7 @@ public data class CompileTimeAppFunctionMetadata(
             components = components ?: this.components,
             description = description ?: this.description,
             deprecation = deprecation ?: this.deprecation,
+            scope = scope ?: this.scope,
         )
     }
 
@@ -493,6 +554,7 @@ public data class CompileTimeAppFunctionMetadata(
             response = response.toAppFunctionResponseMetadataDocument(),
             description = description,
             deprecation = deprecation?.toAppFunctionDeprecationMetadataDocument(),
+            scope = scopeToScopeXmlValue(scope),
         )
     }
 }

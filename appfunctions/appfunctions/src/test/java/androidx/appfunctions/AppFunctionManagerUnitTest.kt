@@ -94,6 +94,7 @@ class AppFunctionManagerUnitTest {
                 parameters = emptyList(),
                 response =
                     AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(isNullable = false)),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
         )
         fakeTranslateSelector.setTranslator(fakeTranslator)
@@ -128,6 +129,7 @@ class AppFunctionManagerUnitTest {
                 parameters = emptyList(),
                 response =
                     AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(isNullable = false)),
+                scope = AppFunctionMetadata.SCOPE_GLOBAL,
             )
         )
         fakeTranslateSelector.setTranslator(fakeTranslator)
