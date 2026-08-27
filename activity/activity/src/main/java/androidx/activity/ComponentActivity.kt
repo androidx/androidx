@@ -583,7 +583,13 @@ public open class ComponentActivity() :
      */
     public open val defaultViewModelArgs: Bundle?
         @Suppress("NullableCollection") /* align with Intent.extras */
-        get() = if (USE_DEFAULT_VIEW_MODEL_ARGS && isExported) null else intent?.extras
+        get() =
+            if (
+                @OptIn(ExperimentalActivityApi::class) @Suppress("DEPRECATION")
+                !ActivityFlags.isUntrustedActivityDefaultViewModelArgsEnabled && isExported
+            )
+                null
+            else intent?.extras
 
     override val defaultViewModelProviderFactory: ViewModelProvider.Factory by lazy {
         SavedStateViewModelFactory(application, this, defaultViewModelArgs)
@@ -1191,30 +1197,7 @@ public open class ComponentActivity() :
         }
     }
 
-    public companion object {
+    private companion object {
         private const val ACTIVITY_RESULT_TAG = "android:support:activity-result"
-
-        @get:JvmSynthetic internal var USE_DEFAULT_VIEW_MODEL_ARGS: Boolean = true
-
-        /**
-         * Control whether [ComponentActivity] uses the new defaultViewModelArgs solution that
-         * prevents untrusted intent extras from populating ViewModel saved state in exported
-         * activities.
-         *
-         * This should be set before ViewModels are created or [defaultViewModelArgs] is accessed
-         * (e.g., in your [android.app.Application] class or prior to `super.onCreate()` in your
-         * activity).
-         *
-         * @param enabled Whether the new defaultViewModelArgs solution should be enabled.
-         */
-        @ExportedActivityDefaultArgControl
-        @Deprecated(
-            "To pass default arguments to the exported Activity override " +
-                "[defaultViewModelArgs]."
-        )
-        @JvmStatic
-        public fun enableExportedActivityDefaultArgs(enabled: Boolean) {
-            USE_DEFAULT_VIEW_MODEL_ARGS = enabled
-        }
     }
 }

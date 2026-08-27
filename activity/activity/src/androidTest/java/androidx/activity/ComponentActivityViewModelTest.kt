@@ -141,10 +141,10 @@ class ComponentActivityViewModelTest {
     }
 
     @Suppress("DEPRECATION")
-    @OptIn(ExportedActivityDefaultArgControl::class)
+    @OptIn(ExperimentalActivityApi::class)
     @Test
     fun testExportedActivityDefaultViewModelArgsDisabled() {
-        ComponentActivity.enableExportedActivityDefaultArgs(false)
+        ActivityFlags.isUntrustedActivityDefaultViewModelArgsEnabled = true
         try {
             val intent =
                 Intent(ApplicationProvider.getApplicationContext(), ViewModelActivity::class.java)
@@ -155,7 +155,7 @@ class ComponentActivityViewModelTest {
                     .isEqualTo("extra_value")
             }
         } finally {
-            ComponentActivity.enableExportedActivityDefaultArgs(true)
+            ActivityFlags.isUntrustedActivityDefaultViewModelArgsEnabled = false
         }
     }
 }
