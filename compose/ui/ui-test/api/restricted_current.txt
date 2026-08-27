@@ -296,8 +296,7 @@ package androidx.compose.ui.test {
   }
 
   public final class FailureContext {
-    ctor @BytecodeOnly public FailureContext(Throwable!, java.util.List!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public FailureContext(Throwable error, optional java.util.List<androidx.compose.ui.test.FailureArtifact> artifacts);
+    ctor public FailureContext(Throwable error, java.util.List<androidx.compose.ui.test.FailureArtifact> artifacts);
     method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.test.FailureArtifact> getArtifacts();
     method @InaccessibleFromKotlin public Throwable getError();
     property public java.util.List<androidx.compose.ui.test.FailureArtifact> artifacts;

@@ -275,7 +275,7 @@ final class androidx.compose.ui.test/FailureArtifact { // androidx.compose.ui.te
 }
 
 final class androidx.compose.ui.test/FailureContext { // androidx.compose.ui.test/FailureContext|null[0]
-    constructor <init>(kotlin/Throwable, kotlin.collections/List<androidx.compose.ui.test/FailureArtifact> = ...) // androidx.compose.ui.test/FailureContext.<init>|<init>(kotlin.Throwable;kotlin.collections.List<androidx.compose.ui.test.FailureArtifact>){}[0]
+    constructor <init>(kotlin/Throwable, kotlin.collections/List<androidx.compose.ui.test/FailureArtifact>) // androidx.compose.ui.test/FailureContext.<init>|<init>(kotlin.Throwable;kotlin.collections.List<androidx.compose.ui.test.FailureArtifact>){}[0]
 
     final val artifacts // androidx.compose.ui.test/FailureContext.artifacts|{}artifacts[0]
         final fun <get-artifacts>(): kotlin.collections/List<androidx.compose.ui.test/FailureArtifact> // androidx.compose.ui.test/FailureContext.artifacts.<get-artifacts>|<get-artifacts>(){}[0]
