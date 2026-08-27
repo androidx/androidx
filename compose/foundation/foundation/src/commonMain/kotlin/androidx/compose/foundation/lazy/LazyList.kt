@@ -112,7 +112,7 @@ internal fun LazyList(
                         ) {
                             LazyListCacheWindowStrategy(cacheWindow)
                         } else {
-                            LazyListPrefetchStrategy()
+                            @Suppress("DEPRECATION") LazyListPrefetchStrategy()
                         }
                     is LazyLayoutCacheWindow -> LazyListCacheWindowStrategy(cacheWindow)
                 }
@@ -241,7 +241,7 @@ private fun rememberLazyListMeasurePolicy(
     /** Prefetch state used in our layout */
     prefetchState: LazyLayoutPrefetchState?,
     /** Prefetch strategy used in our layout */
-    prefetchStrategy: LazyListPrefetchStrategy?,
+    @Suppress("DEPRECATION") prefetchStrategy: LazyListPrefetchStrategy?,
 ) =
     remember(
         state,
