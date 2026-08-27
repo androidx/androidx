@@ -139,6 +139,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components["Row"]).isSameInstanceAs(basicCatalog.row)
         assertThat(catalog.components["Column"]).isSameInstanceAs(basicCatalog.column)
         assertThat(catalog.components["Button"]).isSameInstanceAs(basicCatalog.button)
+        assertThat(catalog.components["DateTimeInput"]).isSameInstanceAs(basicCatalog.dateTimeInput)
         assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
         assertThat(catalog.isInline).isFalse()
     }
@@ -330,6 +331,7 @@ class A2uiCatalogTest {
             row: A2uiBasicCatalogV1.Row = createStubRow(),
             column: A2uiBasicCatalogV1.Column = createStubColumn(),
             button: A2uiBasicCatalogV1.Button = createStubButton(),
+            dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = createStubDateTimeInput(),
             functions: List<A2uiFunction> = emptyList(),
         ) =
             A2uiBasicCatalogV1(
@@ -339,6 +341,7 @@ class A2uiCatalogTest {
                 row = row,
                 column = column,
                 button = button,
+                dateTimeInput = dateTimeInput,
                 functions = functions,
             )
 
@@ -399,6 +402,21 @@ class A2uiCatalogTest {
                     childId: String,
                     variant: A2uiBasicCatalogV1.Button.Variant,
                     action: Map<String, Any?>,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubDateTimeInput() =
+            object : A2uiBasicCatalogV1.DateTimeInput {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    value: Long?,
+                    onValueChange: ((Long?) -> Unit)?,
+                    enableDate: Boolean,
+                    enableTime: Boolean,
+                    min: Long?,
+                    max: Long?,
+                    label: String?,
                     modifier: Modifier,
                 ) {}
             }
