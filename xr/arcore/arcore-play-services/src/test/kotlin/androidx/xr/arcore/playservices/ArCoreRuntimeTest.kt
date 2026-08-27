@@ -17,6 +17,8 @@
 package androidx.xr.arcore.playservices
 
 import android.app.Activity
+import android.hardware.Sensor
+import android.hardware.SensorManager
 import android.util.Range
 import androidx.kruth.assertThrows
 import androidx.test.core.app.ApplicationProvider
@@ -68,6 +70,7 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadows.SensorBuilder
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
@@ -483,14 +486,10 @@ class ArCoreRuntimeTest {
     fun resume_withInertialTracking_registersSensorListener() {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         val sensorManager =
-            context.getSystemService(android.content.Context.SENSOR_SERVICE)
-                as android.hardware.SensorManager
+            context.getSystemService(android.content.Context.SENSOR_SERVICE) as SensorManager
         val shadowSensorManager = shadowOf(sensorManager)
         shadowSensorManager.addSensor(
-            @Suppress("DEPRECATION") // b/536940019
-            org.robolectric.shadows.ShadowSensor.newInstance(
-                android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR
-            )
+            SensorBuilder.newBuilder().setType(Sensor.TYPE_GAME_ROTATION_VECTOR).build()
         )
         val perceptionManager = ArCorePerceptionManager(timeSource)
         val runtime = ArCoreRuntime(context, perceptionManager, timeSource, mockArCoreApk)
@@ -509,14 +508,10 @@ class ArCoreRuntimeTest {
     fun pauseAndDestroy_withInertialTracking_unregistersSensorListener() {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         val sensorManager =
-            context.getSystemService(android.content.Context.SENSOR_SERVICE)
-                as android.hardware.SensorManager
+            context.getSystemService(android.content.Context.SENSOR_SERVICE) as SensorManager
         val shadowSensorManager = shadowOf(sensorManager)
         shadowSensorManager.addSensor(
-            @Suppress("DEPRECATION") // b/536940019
-            org.robolectric.shadows.ShadowSensor.newInstance(
-                android.hardware.Sensor.TYPE_GAME_ROTATION_VECTOR
-            )
+            SensorBuilder.newBuilder().setType(Sensor.TYPE_GAME_ROTATION_VECTOR).build()
         )
         val perceptionManager = ArCorePerceptionManager(timeSource)
         val runtime = ArCoreRuntime(context, perceptionManager, timeSource, mockArCoreApk)
