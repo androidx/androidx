@@ -116,7 +116,7 @@ androidXMultiplatform {
 
         androidMain {
             dependencies {
-                api(project(":tracing:tracing"))
+                 api("androidx.tracing:tracing:2.0.1")
             }
         }
 
@@ -158,7 +158,7 @@ androidXMultiplatform {
                 implementation(libs.testCore)
                 implementation("androidx.lifecycle:lifecycle-service:2.6.1")
                 implementation(libs.testExtJunit)
-                api(project(":tracing:tracing-wire"))
+                api("androidx.tracing:tracing-wire:2.0.1")
 
                 // Workaround bug in 1.8.0, was supposed be fixed in RC2/final, but apparently not.
                 implementation(libs.kotlinTestJunit)
