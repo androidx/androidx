@@ -107,10 +107,10 @@ package androidx.core.uwb {
     property public androidx.core.uwb.RangingMeasurement? elevation;
   }
 
-  public abstract sealed exhaustive class RangingResult {
-    method @InaccessibleFromKotlin public abstract androidx.core.uwb.UwbDevice getDevice();
+  public abstract sealed exhaustive class RangingResult implements androidx.core.uwb.SensorFusionResult {
     property public abstract androidx.core.uwb.UwbDevice device;
     field public static final androidx.core.uwb.RangingResult.Companion Companion;
+    field public static final int RANGING_FAILURE_REASON_ARCORE_APK_INSTALL_NEEDED = 7; // 0x7
     field public static final int RANGING_FAILURE_REASON_BAD_PARAMETERS = 1; // 0x1
     field public static final int RANGING_FAILURE_REASON_FAILED_TO_START = 2; // 0x2
     field public static final int RANGING_FAILURE_REASON_MAX_RR_RETRY_REACHED = 6; // 0x6
@@ -121,6 +121,7 @@ package androidx.core.uwb {
   }
 
   public static final class RangingResult.Companion {
+    property public static int RANGING_FAILURE_REASON_ARCORE_APK_INSTALL_NEEDED;
     property public static int RANGING_FAILURE_REASON_BAD_PARAMETERS;
     property public static int RANGING_FAILURE_REASON_FAILED_TO_START;
     property public static int RANGING_FAILURE_REASON_MAX_RR_RETRY_REACHED;
@@ -160,6 +161,129 @@ package androidx.core.uwb {
     property public androidx.core.uwb.RangingPosition position;
   }
 
+  public final class SensorFusionParameters {
+    ctor public SensorFusionParameters(androidx.core.uwb.RangingParameters rangingParameters);
+    ctor public SensorFusionParameters(androidx.core.uwb.RangingParameters rangingParameters, optional long dataStalenessThresholdMillis);
+    ctor @BytecodeOnly public SensorFusionParameters(androidx.core.uwb.RangingParameters!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public long getDataStalenessThresholdMillis();
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingParameters getRangingParameters();
+    property public long dataStalenessThresholdMillis;
+    property public androidx.core.uwb.RangingParameters rangingParameters;
+  }
+
+  public sealed exhaustive interface SensorFusionResult {
+    method @InaccessibleFromKotlin public androidx.core.uwb.UwbDevice getDevice();
+    property public abstract androidx.core.uwb.UwbDevice device;
+    field public static final androidx.core.uwb.SensorFusionResult.Companion Companion;
+    field public static final int ESTIMATE_FAILURE_REASON_BAD_STATE = 8; // 0x8
+    field public static final int ESTIMATE_FAILURE_REASON_CAMERA_UNAVAILABLE = 5; // 0x5
+    field public static final int ESTIMATE_FAILURE_REASON_EXCESSIVE_MOTION = 3; // 0x3
+    field public static final int ESTIMATE_FAILURE_REASON_INCONCLUSIVE_RESULT = 7; // 0x7
+    field public static final int ESTIMATE_FAILURE_REASON_INSUFFICIENT_FEATURES = 4; // 0x4
+    field public static final int ESTIMATE_FAILURE_REASON_INSUFFICIENT_LIGHT = 2; // 0x2
+    field public static final int ESTIMATE_FAILURE_REASON_NOT_AVAILABLE = 1; // 0x1
+    field public static final int ESTIMATE_FAILURE_REASON_PEER_MOVING = 6; // 0x6
+    field public static final int FALLBACK_REASON_ARCORE_CAMERA_NOT_AVAILABLE = 2; // 0x2
+    field public static final int FALLBACK_REASON_ARCORE_DEVICE_NOT_COMPATIBLE = 4; // 0x4
+    field public static final int FALLBACK_REASON_ARCORE_MISSING_GL_CONTEXT = 5; // 0x5
+    field public static final int FALLBACK_REASON_ARCORE_SDK_TOO_OLD = 3; // 0x3
+    field public static final int FALLBACK_REASON_HARDWARE_AOA_PRECEDENCE = 1; // 0x1
+    field public static final int FALLBACK_REASON_NOT_AVAILABLE = 0; // 0x0
+  }
+
+  public static final class SensorFusionResult.Companion {
+    property public static int ESTIMATE_FAILURE_REASON_BAD_STATE;
+    property public static int ESTIMATE_FAILURE_REASON_CAMERA_UNAVAILABLE;
+    property public static int ESTIMATE_FAILURE_REASON_EXCESSIVE_MOTION;
+    property public static int ESTIMATE_FAILURE_REASON_INCONCLUSIVE_RESULT;
+    property public static int ESTIMATE_FAILURE_REASON_INSUFFICIENT_FEATURES;
+    property public static int ESTIMATE_FAILURE_REASON_INSUFFICIENT_LIGHT;
+    property public static int ESTIMATE_FAILURE_REASON_NOT_AVAILABLE;
+    property public static int ESTIMATE_FAILURE_REASON_PEER_MOVING;
+    property public static int FALLBACK_REASON_ARCORE_CAMERA_NOT_AVAILABLE;
+    property public static int FALLBACK_REASON_ARCORE_DEVICE_NOT_COMPATIBLE;
+    property public static int FALLBACK_REASON_ARCORE_MISSING_GL_CONTEXT;
+    property public static int FALLBACK_REASON_ARCORE_SDK_TOO_OLD;
+    property public static int FALLBACK_REASON_HARDWARE_AOA_PRECEDENCE;
+    property public static int FALLBACK_REASON_NOT_AVAILABLE;
+    field public static final int ESTIMATE_FAILURE_REASON_BAD_STATE = 8; // 0x8
+    field public static final int ESTIMATE_FAILURE_REASON_CAMERA_UNAVAILABLE = 5; // 0x5
+    field public static final int ESTIMATE_FAILURE_REASON_EXCESSIVE_MOTION = 3; // 0x3
+    field public static final int ESTIMATE_FAILURE_REASON_INCONCLUSIVE_RESULT = 7; // 0x7
+    field public static final int ESTIMATE_FAILURE_REASON_INSUFFICIENT_FEATURES = 4; // 0x4
+    field public static final int ESTIMATE_FAILURE_REASON_INSUFFICIENT_LIGHT = 2; // 0x2
+    field public static final int ESTIMATE_FAILURE_REASON_NOT_AVAILABLE = 1; // 0x1
+    field public static final int ESTIMATE_FAILURE_REASON_PEER_MOVING = 6; // 0x6
+    field public static final int FALLBACK_REASON_ARCORE_CAMERA_NOT_AVAILABLE = 2; // 0x2
+    field public static final int FALLBACK_REASON_ARCORE_DEVICE_NOT_COMPATIBLE = 4; // 0x4
+    field public static final int FALLBACK_REASON_ARCORE_MISSING_GL_CONTEXT = 5; // 0x5
+    field public static final int FALLBACK_REASON_ARCORE_SDK_TOO_OLD = 3; // 0x3
+    field public static final int FALLBACK_REASON_HARDWARE_AOA_PRECEDENCE = 1; // 0x1
+    field public static final int FALLBACK_REASON_NOT_AVAILABLE = 0; // 0x0
+  }
+
+  public static final class SensorFusionResult.DriftingEstimate implements androidx.core.uwb.SensorFusionResult.Estimate {
+    ctor public SensorFusionResult.DriftingEstimate(androidx.core.uwb.UwbDevice device, androidx.core.uwb.RangingMeasurement distance, androidx.core.uwb.RangingMeasurement azimuth, androidx.core.uwb.RangingMeasurement? elevation, long elapsedRealtimeNanos);
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingMeasurement getAzimuth();
+    method @InaccessibleFromKotlin public androidx.core.uwb.UwbDevice getDevice();
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingMeasurement getDistance();
+    method @InaccessibleFromKotlin public long getElapsedRealtimeNanos();
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingMeasurement? getElevation();
+    property public androidx.core.uwb.RangingMeasurement azimuth;
+    property public androidx.core.uwb.UwbDevice device;
+    property public androidx.core.uwb.RangingMeasurement distance;
+    property public long elapsedRealtimeNanos;
+    property public androidx.core.uwb.RangingMeasurement? elevation;
+  }
+
+  public static sealed exhaustive interface SensorFusionResult.Estimate extends androidx.core.uwb.SensorFusionResult {
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingMeasurement? getAzimuth();
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingMeasurement getDistance();
+    method @InaccessibleFromKotlin public long getElapsedRealtimeNanos();
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingMeasurement? getElevation();
+    property public abstract androidx.core.uwb.RangingMeasurement? azimuth;
+    property public abstract androidx.core.uwb.UwbDevice device;
+    property public abstract androidx.core.uwb.RangingMeasurement distance;
+    property public abstract long elapsedRealtimeNanos;
+    property public abstract androidx.core.uwb.RangingMeasurement? elevation;
+  }
+
+  public static final class SensorFusionResult.ImpreciseEstimate implements androidx.core.uwb.SensorFusionResult.Estimate {
+    ctor public SensorFusionResult.ImpreciseEstimate(androidx.core.uwb.UwbDevice device, androidx.core.uwb.RangingMeasurement distance, long elapsedRealtimeNanos, int reason);
+    method @BytecodeOnly @Deprecated public androidx.core.uwb.RangingMeasurement! getAzimuth();
+    method @InaccessibleFromKotlin public androidx.core.uwb.UwbDevice getDevice();
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingMeasurement getDistance();
+    method @InaccessibleFromKotlin public long getElapsedRealtimeNanos();
+    method @BytecodeOnly @Deprecated public androidx.core.uwb.RangingMeasurement! getElevation();
+    method @InaccessibleFromKotlin public int getReason();
+    property public androidx.core.uwb.UwbDevice device;
+    property public androidx.core.uwb.RangingMeasurement distance;
+    property public long elapsedRealtimeNanos;
+    property public int reason;
+  }
+
+  public static final class SensorFusionResult.PreciseEstimate implements androidx.core.uwb.SensorFusionResult.Estimate {
+    ctor public SensorFusionResult.PreciseEstimate(androidx.core.uwb.UwbDevice device, androidx.core.uwb.RangingMeasurement distance, androidx.core.uwb.RangingMeasurement azimuth, androidx.core.uwb.RangingMeasurement? elevation, long elapsedRealtimeNanos);
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingMeasurement getAzimuth();
+    method @InaccessibleFromKotlin public androidx.core.uwb.UwbDevice getDevice();
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingMeasurement getDistance();
+    method @InaccessibleFromKotlin public long getElapsedRealtimeNanos();
+    method @InaccessibleFromKotlin public androidx.core.uwb.RangingMeasurement? getElevation();
+    property public androidx.core.uwb.RangingMeasurement azimuth;
+    property public androidx.core.uwb.UwbDevice device;
+    property public androidx.core.uwb.RangingMeasurement distance;
+    property public long elapsedRealtimeNanos;
+    property public androidx.core.uwb.RangingMeasurement? elevation;
+  }
+
+  public static final class SensorFusionResult.SensorFusionFallback implements androidx.core.uwb.SensorFusionResult {
+    ctor public SensorFusionResult.SensorFusionFallback(androidx.core.uwb.UwbDevice device, int reason);
+    method @InaccessibleFromKotlin public androidx.core.uwb.UwbDevice getDevice();
+    method @InaccessibleFromKotlin public int getReason();
+    property public androidx.core.uwb.UwbDevice device;
+    property public int reason;
+  }
+
   public final class UwbAddress {
     ctor public UwbAddress(byte[] address);
     ctor public UwbAddress(String address);
@@ -192,6 +316,7 @@ package androidx.core.uwb {
     method @InaccessibleFromKotlin public androidx.core.uwb.UwbAddress getLocalAddress();
     method @InaccessibleFromKotlin public androidx.core.uwb.RangingCapabilities getRangingCapabilities();
     method public kotlinx.coroutines.flow.Flow<androidx.core.uwb.RangingResult> prepareSession(androidx.core.uwb.RangingParameters parameters);
+    method public default kotlinx.coroutines.flow.Flow<androidx.core.uwb.SensorFusionResult> prepareSession(androidx.core.uwb.SensorFusionParameters parameters);
     method public suspend Object? reconfigureRangeDataNtf(int configType, int proximityNear, int proximityFar, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract androidx.core.uwb.UwbAddress localAddress;
     property public abstract androidx.core.uwb.RangingCapabilities rangingCapabilities;

@@ -19,6 +19,8 @@ package androidx.core.uwb.rxjava3.mock
 import androidx.core.uwb.RangingCapabilities
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
+import androidx.core.uwb.SensorFusionParameters
+import androidx.core.uwb.SensorFusionResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbControleeSessionScope
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +34,10 @@ class TestUwbControleeSessionScope(
         TestUwbClientSessionScope(uwbClient, rangingCapabilities, localAddress)
 
     override fun prepareSession(parameters: RangingParameters): Flow<RangingResult> {
+        return uwbClientSessionScope.prepareSession(parameters)
+    }
+
+    override fun prepareSession(parameters: SensorFusionParameters): Flow<SensorFusionResult> {
         return uwbClientSessionScope.prepareSession(parameters)
     }
 

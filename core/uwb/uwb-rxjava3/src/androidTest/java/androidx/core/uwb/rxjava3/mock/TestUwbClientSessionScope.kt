@@ -31,6 +31,7 @@ import com.google.android.gms.nearby.uwb.RangingSessionCallback.RangingSuspended
 import com.google.android.gms.nearby.uwb.UwbDevice
 import com.google.common.collect.ImmutableList
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
 /** A default implementation of [UwbClientSessionScope] used for testing. */
@@ -65,7 +66,7 @@ class TestUwbClientSessionScope(
             false,
         )
 
-    override fun prepareSession(parameters: RangingParameters) = callbackFlow {
+    override fun prepareSession(parameters: RangingParameters): Flow<RangingResult> = callbackFlow {
         if (sessionStarted) {
             throw IllegalStateException(
                 "Ranging has already started. To initiate " +
