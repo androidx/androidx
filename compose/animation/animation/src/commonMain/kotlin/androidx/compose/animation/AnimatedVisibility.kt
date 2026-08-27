@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalDeferredTransitionApi::class)
-
 package androidx.compose.animation
 
 import androidx.compose.animation.EnterExitState.PostExit
@@ -23,7 +21,6 @@ import androidx.compose.animation.EnterExitState.PreEnter
 import androidx.compose.animation.EnterExitState.Visible
 import androidx.compose.animation.core.DeferredTransition
 import androidx.compose.animation.core.DeferredTransitionState
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
@@ -650,7 +647,6 @@ public fun <T> Transition<T>.AnimatedVisibility(
  * @see shrinkOut
  * @see AnimatedVisibilityScope
  */
-@ExperimentalDeferredTransitionApi
 @Composable
 public fun <T> DeferredTransition<T>.DeferredAnimatedVisibility(
     visible: (T) -> Boolean,

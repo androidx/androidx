@@ -26,7 +26,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.MutableContentTransform
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.DeferredTransitionState
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberDeferredTransition
@@ -357,7 +356,6 @@ fun AnimatedContentVeil() {
     }
 }
 
-@OptIn(ExperimentalDeferredTransitionApi::class)
 @Sampled
 @Composable
 fun DeferredAnimatedContentSample() {

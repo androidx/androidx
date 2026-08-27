@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalDeferredTransitionApi::class)
-
 package androidx.compose.animation
 
 import androidx.annotation.VisibleForTesting
@@ -24,7 +22,6 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.DeferredTransition
 import androidx.compose.animation.core.DeferredTransitionState
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -74,7 +71,6 @@ import kotlinx.coroutines.launch
  * @param block A lambda that applies transformations to the provided [TransformScope]. This block
  *   executes dynamically to reflect state changes.
  */
-@ExperimentalDeferredTransitionApi
 public class MutableTransform(
     internal var veilMatchParentSize: Boolean = false,
     internal var offsetVelocityProvider: (() -> Offset)? = null,
@@ -102,7 +98,6 @@ public class MutableTransform(
  * Scope for manually manipulating the visual transformation of content during the deferred phase of
  * a [DeferredTransition].
  */
-@ExperimentalDeferredTransitionApi
 public interface TransformScope {
 
     /** Manually controls the alpha value during the deferred phase. */

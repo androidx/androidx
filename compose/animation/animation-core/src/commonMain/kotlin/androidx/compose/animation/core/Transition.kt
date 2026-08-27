@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:OptIn(InternalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
+@file:OptIn(InternalAnimationApi::class)
 
 package androidx.compose.animation.core
 
@@ -113,7 +113,6 @@ public fun <T> updateTransition(targetState: T, label: String? = null): Transiti
  * @param initialState The initial state of the transition.
  * @sample androidx.compose.animation.core.samples.DeferredTransitionSample
  */
-@ExperimentalDeferredTransitionApi
 public class DeferredTransitionState<S>(initialState: S) : TransitionState<S>() {
     override var currentState: S by mutableStateOf(initialState)
 
@@ -180,7 +179,6 @@ public class DeferredTransitionState<S>(initialState: S) : TransitionState<S>() 
  * coordinating multi-stage animations like predictive back gestures.
  */
 @Stable
-@ExperimentalDeferredTransitionApi
 public class DeferredTransition<S>
 internal constructor(transitionState: DeferredTransitionState<S>, label: String? = null) :
     Transition<S>(transitionState, null, label)
@@ -203,7 +201,6 @@ internal constructor(transitionState: DeferredTransitionState<S>, label: String?
  * @return A [DeferredTransition] that will update whenever [transitionState] changes.
  * @sample androidx.compose.animation.core.samples.DeferredTransitionSample
  */
-@ExperimentalDeferredTransitionApi
 @Composable
 public fun <T> rememberDeferredTransition(
     transitionState: DeferredTransitionState<T>,
@@ -1053,7 +1050,6 @@ protected constructor(
      * Pending target state of the transition. This is the state that the transition is waiting to
      * animate to. It is non-null only when a deferred update is in progress.
      */
-    @ExperimentalDeferredTransitionApi
     public var pendingTargetState: S? by mutableStateOf(null)
         private set
 
@@ -1923,7 +1919,6 @@ protected constructor(
 }
 
 @PublishedApi
-@ExperimentalDeferredTransitionApi
 internal class TransitionInstance<S>(
     transitionState: TransitionState<S>,
     parentTransition: Transition<*>?,
@@ -2019,7 +2014,6 @@ public inline fun <S, T> Transition<S>.createChildTransition(
 }
 
 @PublishedApi
-@ExperimentalDeferredTransitionApi
 @Composable
 internal fun <S, T> Transition<S>.createChildTransitionInternal(
     initialState: T,

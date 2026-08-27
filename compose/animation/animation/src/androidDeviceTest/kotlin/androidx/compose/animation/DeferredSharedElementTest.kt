@@ -17,7 +17,6 @@
 package androidx.compose.animation
 
 import androidx.compose.animation.core.DeferredTransitionState
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.spring
@@ -54,7 +53,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@OptIn(ExperimentalDeferredTransitionApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class)
 class DeferredSharedElementTest {
     @get:Rule val rule = createComposeRule()
 

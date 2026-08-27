@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalDeferredTransitionApi::class)
-
 package androidx.compose.animation
 
 import androidx.annotation.VisibleForTesting
@@ -30,7 +28,6 @@ import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.Rem
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
 import androidx.compose.animation.SharedTransitionScope.SharedContentState
 import androidx.compose.animation.core.DeferredTransition
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring.StiffnessMediumLow
@@ -969,7 +966,6 @@ public interface SharedTransitionScope : LookaheadScope {
          *
          * @sample androidx.compose.animation.samples.SharedContentConfigDeferredTransitionSample
          */
-        @ExperimentalDeferredTransitionApi
         @get:Suppress("GetterSetterNames")
         public val permitTransformDuringDeferredTransition: Boolean
             get() = true
@@ -1030,7 +1026,6 @@ public interface SharedTransitionScope : LookaheadScope {
      * @sample androidx.compose.animation.samples.SharedContentConfigDeferredTransitionSample
      * @see SharedContentConfig
      */
-    @ExperimentalDeferredTransitionApi
     public fun SharedContentConfig(
         permitTransformDuringDeferredTransition: Boolean
     ): SharedContentConfig {
