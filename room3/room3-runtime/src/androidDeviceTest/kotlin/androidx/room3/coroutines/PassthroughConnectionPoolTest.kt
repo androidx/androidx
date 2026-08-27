@@ -76,6 +76,7 @@ class PassthroughConnectionPoolTest {
             }
         val connectionTwo = db.useReaderConnection { it }
         assertThat(connectionOne).isNotSameInstanceAs(connectionTwo)
+        db.close()
     }
 
     private class TestOpenDelegate : RoomOpenDelegate(1, "", "") {
