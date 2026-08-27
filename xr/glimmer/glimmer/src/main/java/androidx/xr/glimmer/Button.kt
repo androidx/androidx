@@ -101,12 +101,6 @@ public fun Button(
     val iconSpacing = ButtonDefaults.iconSpacing
     val minHeight = ButtonDefaults.minimumHeight(buttonSize)
 
-    val depth =
-        SurfaceDepthEffect(
-            depthEffect = null,
-            focusedDepthEffect = GlimmerTheme.depthEffectLevels.level1,
-        )
-
     val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
     CompositionLocalProvider(LocalTextStyle provides GlimmerTheme.typography.bodySmall) {
@@ -118,7 +112,7 @@ public fun Button(
                     shape = shape,
                     color = color,
                     contentColor = contentColor,
-                    depthEffect = depth,
+                    depthEffect = null,
                     interactionSource = internalInteractionSource,
                 )
                 .clickable(
