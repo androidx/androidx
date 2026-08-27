@@ -168,7 +168,7 @@ open class OngoingActivityTest {
             notificationManager.notify(NotificationId + i, builder.build())
         }
 
-        var statuses = mutableSetOf<String>()
+        val statuses = mutableSetOf<String>()
         // Update them.
         for (i in 1..n) {
             val status = "New Status $i"

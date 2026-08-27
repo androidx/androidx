@@ -739,7 +739,7 @@ class SwipeToRevealTest {
     @Test
     fun onPartialSwipe_lastStateRevealing_resetsLastState() {
         verifyStateMultipleSwipeToReveal(
-            actions = { revealStateOne, revealStateTwo, density ->
+            actions = { _, _, density ->
                 // swipe the first S2R to Revealing state
                 rule.onNodeWithTag(SWIPE_TO_REVEAL_TAG).performTouchInput {
                     swipeLeftToRevealing(density)
@@ -760,7 +760,7 @@ class SwipeToRevealTest {
     @Test
     fun onPartialSwipe_whenLastStateRevealed_doesNotReset() {
         verifyStateMultipleSwipeToReveal(
-            actions = { revealStateOne, revealStateTwo, density ->
+            actions = { _, _, density ->
                 // swipe the first S2R to Revealed (full screen swipe)
                 rule.onNodeWithTag(SWIPE_TO_REVEAL_TAG).performTouchInput { swipeLeft() }
 
@@ -780,7 +780,7 @@ class SwipeToRevealTest {
     @Test
     fun onPartialSwipeRight_lastStateRevealing_resetsLastState() {
         verifyStateMultipleSwipeToReveal(
-            actions = { revealStateOne, revealStateTwo, density ->
+            actions = { _, _, density ->
                 // swipe the first S2R to Revealing state
                 rule.onNodeWithTag(SWIPE_TO_REVEAL_TAG).performTouchInput {
                     swipeRightToRevealing(density)
@@ -802,7 +802,7 @@ class SwipeToRevealTest {
     @Test
     fun onPartialSwipeRight_whenLastStateRevealed_doesNotReset() {
         verifyStateMultipleSwipeToReveal(
-            actions = { revealStateOne, revealStateTwo, density ->
+            actions = { _, _, density ->
                 // swipe the first S2R to Revealed (full screen swipe)
                 rule.onNodeWithTag(SWIPE_TO_REVEAL_TAG).performTouchInput { swipeRight() }
 
@@ -823,7 +823,7 @@ class SwipeToRevealTest {
     @Test
     fun onPartialSwipeRightAndLeft_differentComponents_lastOneGetsReset() {
         verifyStateMultipleSwipeToReveal(
-            actions = { revealStateOne, revealStateTwo, density ->
+            actions = { _, _, density ->
                 // swipe the first S2R to Revealing state
                 rule.onNodeWithTag(SWIPE_TO_REVEAL_TAG).performTouchInput {
                     swipeRightToRevealing(density)
@@ -845,7 +845,7 @@ class SwipeToRevealTest {
     @Test
     fun onPartialSwipeLeftAndRight_differentComponents_lastOneGetsReset() {
         verifyStateMultipleSwipeToReveal(
-            actions = { revealStateOne, revealStateTwo, density ->
+            actions = { _, _, density ->
                 // swipe the first S2R to Revealing state
                 rule.onNodeWithTag(SWIPE_TO_REVEAL_TAG).performTouchInput {
                     swipeLeftToRevealing(density)
@@ -867,7 +867,7 @@ class SwipeToRevealTest {
     @Test
     fun onMultiSnap_differentComponents_lastOneGetsReset() {
         verifyStateMultipleSwipeToReveal(
-            actionsSuspended = { revealStateOne, revealStateTwo, density ->
+            actionsSuspended = { revealStateOne, revealStateTwo, _ ->
                 // First change
                 revealStateOne.snapTo(RightRevealing)
                 // Second change, in a different component
@@ -884,11 +884,11 @@ class SwipeToRevealTest {
     fun onMultiSnap_sameComponents_doesNotReset() {
         val lastValue = RightRevealed
         verifyStateMultipleSwipeToReveal(
-            actionsSuspended = { revealStateOne, revealStateTwo, density ->
+            actionsSuspended = { revealStateOne, _, _ ->
                 revealStateOne.snapTo(RightRevealing) // First change
                 revealStateOne.snapTo(lastValue) // Second change, same component
             },
-            assertions = { revealStateOne, revealStateTwo ->
+            assertions = { revealStateOne, _ ->
                 assertEquals(lastValue, revealStateOne.currentValue)
             },
         )
@@ -897,7 +897,7 @@ class SwipeToRevealTest {
     @Test
     fun onMultiSnapRight_differentComponents_lastOneGetsReset() {
         verifyStateMultipleSwipeToReveal(
-            actionsSuspended = { revealStateOne, revealStateTwo, density ->
+            actionsSuspended = { revealStateOne, revealStateTwo, _ ->
                 // First change
                 revealStateOne.snapTo(LeftRevealing)
                 // Second change, in a different component
@@ -915,12 +915,12 @@ class SwipeToRevealTest {
     fun onMultiSnapRight_sameComponents_doesNotReset() {
         val lastValue = LeftRevealed
         verifyStateMultipleSwipeToReveal(
-            actionsSuspended = { revealStateOne, revealStateTwo, density ->
+            actionsSuspended = { revealStateOne, _, _ ->
                 revealStateOne.snapTo(LeftRevealing) // First change
                 revealStateOne.snapTo(lastValue) // Second change, same component
             },
             revealDirection = Bidirectional,
-            assertions = { revealStateOne, revealStateTwo ->
+            assertions = { revealStateOne, _ ->
                 assertEquals(lastValue, revealStateOne.currentValue)
             },
         )
@@ -929,7 +929,7 @@ class SwipeToRevealTest {
     @Test
     fun onMultiSnapRightAndLeft_differentComponents_lastOneGetsReset() {
         verifyStateMultipleSwipeToReveal(
-            actionsSuspended = { revealStateOne, revealStateTwo, density ->
+            actionsSuspended = { revealStateOne, revealStateTwo, _ ->
                 // First change
                 revealStateOne.snapTo(RightRevealing)
                 // Second change, in a different component
@@ -946,7 +946,7 @@ class SwipeToRevealTest {
     @Test
     fun onMultiSnapLeftAndRight_differentComponents_lastOneGetsReset() {
         verifyStateMultipleSwipeToReveal(
-            actionsSuspended = { revealStateOne, revealStateTwo, density ->
+            actionsSuspended = { revealStateOne, revealStateTwo, _ ->
                 // First change
                 revealStateOne.snapTo(LeftRevealing)
                 // Second change, in a different component
@@ -1351,7 +1351,7 @@ class SwipeToRevealTest {
                     scrollScope.scrollBy(scrollDistance)
                     // Let the provided behavior run the physics!
                     with(flingBehavior) {
-                        val unused = scrollScope.performFling(velocity)
+                        @Suppress("UNUSED_VARIABLE") val unused = scrollScope.performFling(velocity)
                     }
                 }
             }
@@ -1404,7 +1404,7 @@ class SwipeToRevealTest {
                     scrollScope.scrollBy(scrollDistance)
                     // Let the provided behavior run the physics!
                     with(flingBehavior) {
-                        val unused = scrollScope.performFling(velocity)
+                        @Suppress("UNUSED_VARIABLE") val unused = scrollScope.performFling(velocity)
                     }
                 }
             }

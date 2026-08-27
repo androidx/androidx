@@ -370,7 +370,7 @@ fun CurvedWorldDemo() {
         listOf("A", "B", "C").forEach {
             curvedComposable {
                 Text(
-                    text = "$it",
+                    text = it,
                     color = Color.Black,
                     fontSize = 30.sp,
                     modifier = Modifier.background(Color.White).padding(horizontal = 10.dp),

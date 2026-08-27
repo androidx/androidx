@@ -714,11 +714,10 @@ class RemoteTextTest {
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         composable: @Composable @RemoteComposable () -> Unit,
     ) {
-        val mockContext =
-            createMockContextWithFont(
-                baseContext = context,
-                fontInputStream = context.resources.openRawResource(R.font.inconsolata_regular),
-            )
+        createMockContextWithFont(
+            baseContext = context,
+            fontInputStream = context.resources.openRawResource(R.font.inconsolata_regular),
+        )
         val current = FallbackCreateTypefaceResolver()
         val remappingResolver =
             RemappingTypefaceResolver(current).apply {

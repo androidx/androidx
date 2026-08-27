@@ -107,7 +107,7 @@ internal class CurvedColumnChild(
             node.radialPosition(outerRadius, actualThickness)
             outerRadius -= actualThickness
         }
-        var maxSweep = childrenInLayoutOrder.fastMaxOfOrNull { it.sweepRadians } ?: 0f
+        val maxSweep = childrenInLayoutOrder.fastMaxOfOrNull { it.sweepRadians } ?: 0f
 
         return PartialLayoutInfo(
             maxSweep,

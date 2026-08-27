@@ -52,7 +52,7 @@ class CurvedLayoutTest {
         var coords: LayoutCoordinates? = null
         var anchorTypeState by mutableStateOf(initialAnchorType)
 
-        var capturedInfo = CapturedInfo()
+        val capturedInfo = CapturedInfo()
 
         rule.setContent {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
@@ -254,8 +254,8 @@ class CurvedLayoutTest {
         var rowCoords: LayoutCoordinates? = null
         var smallBoxCoords: LayoutCoordinates? = null
         var bigBoxCoords: LayoutCoordinates? = null
-        var smallSpy = CapturedInfo()
-        var bigSpy = CapturedInfo()
+        val smallSpy = CapturedInfo()
+        val bigSpy = CapturedInfo()
         // We have a big box and a small box with the specified alignment
         rule.setContent {
             CurvedLayout(modifier = Modifier.onGloballyPositioned { rowCoords = it }) {

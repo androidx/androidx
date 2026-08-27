@@ -428,8 +428,6 @@ internal class CurvedTextDelegate {
             lastParentSweepRadians = parentSweepRadians
 
             with(layoutInfo) {
-                val clockwiseFactor = if (clockwise) 1f else -1f
-
                 val sweepDegree =
                     min(sweepRadians, parentSweepRadians).toDegrees().coerceAtMost(360f)
 
