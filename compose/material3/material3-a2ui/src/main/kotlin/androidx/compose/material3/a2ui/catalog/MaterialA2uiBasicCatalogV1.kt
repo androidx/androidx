@@ -47,6 +47,8 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  *   [MaterialA2uiBasicCatalogV1Defaults.column]
  * @param button [A2uiBasicCatalogV1.Button] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.button]
+ * @param dateTimeInput [A2uiBasicCatalogV1.DateTimeInput] component implementation, defaults to
+ *   [MaterialA2uiBasicCatalogV1Defaults.dateTimeInput]
  * @return an [A2uiCatalog] configured with Material 3 basic components and functions
  */
 public fun materialA2uiBasicCatalogV1(
@@ -59,6 +61,8 @@ public fun materialA2uiBasicCatalogV1(
     row: A2uiBasicCatalogV1.Row = MaterialA2uiBasicCatalogV1Defaults.row,
     column: A2uiBasicCatalogV1.Column = MaterialA2uiBasicCatalogV1Defaults.column,
     button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Defaults.button,
+    dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
+        MaterialA2uiBasicCatalogV1Defaults.dateTimeInput,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
 ): A2uiCatalog =
     A2uiCatalog(
@@ -69,6 +73,7 @@ public fun materialA2uiBasicCatalogV1(
             row = row,
             column = column,
             button = button,
+            dateTimeInput = dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
             functions = createBasicCatalogFunctions(urlOpener, messageFormatter, localeProvider),
         )
@@ -99,6 +104,10 @@ public object MaterialA2uiBasicCatalogV1Defaults {
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Button] component. */
     public val button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Button
+
+    /** Default Material 3 implementation of the [A2uiBasicCatalogV1.DateTimeInput] component. */
+    public val dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
+        MaterialA2uiBasicCatalogV1DateTimeInput
 
     // TODO(b/547851648): Add the rest of the basic catalog component types.
 }

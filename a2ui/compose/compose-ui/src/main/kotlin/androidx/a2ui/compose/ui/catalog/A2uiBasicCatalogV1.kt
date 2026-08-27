@@ -25,12 +25,23 @@ import androidx.a2ui.compose.runtime.DynamicA2uiProperty
 import androidx.a2ui.compose.runtime.StaticA2uiProperty
 import androidx.a2ui.compose.ui.A2uiComponent
 import androidx.a2ui.model.catalog.A2uiFunction
+import androidx.a2ui.model.protocol.A2uiException
+import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
+import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
+import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastFirstOrNull
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 /**
  * Defines the API contract and schemas for the A2UI Basic Catalog V1 following the specification in
@@ -45,6 +56,7 @@ import androidx.compose.ui.util.fastFirstOrNull
  * @property row The [Row] component implementation.
  * @property column The [Column] component implementation.
  * @property button The [Button] component implementation.
+ * @property dateTimeInput The [DateTimeInput] component implementation.
  * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
  *   to create the function list using
  *   [androidx.a2ui.model.catalog.basiccatalog.createBasicCatalogFunctions]
@@ -56,6 +68,7 @@ public class A2uiBasicCatalogV1(
     public val row: Row,
     public val column: Column,
     public val button: Button,
+    public val dateTimeInput: DateTimeInput,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
     public val functions: List<A2uiFunction>,
 ) {
@@ -75,6 +88,7 @@ public class A2uiBasicCatalogV1(
             row,
             column,
             button,
+            dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
         )
 
@@ -774,6 +788,207 @@ public class A2uiBasicCatalogV1(
         )
     }
 
+    /**
+     * The A2UI `"DateTimeInput"` component for selecting date and/or time.
+     *
+     * **Schema Properties:**
+     * * `value` (Dynamic String, required): The selected date and/or time value in ISO 8601 format.
+     *   If not yet set, initialize with an empty string.
+     * * `enableDate` (Boolean, optional): If true, allows the user to select a date. Defaults to
+     *   `false`.
+     * * `enableTime` (Boolean, optional): If true, allows the user to select a time. Defaults to
+     *   `false`.
+     * * `min` (Dynamic String, optional): The minimum allowed date/time in ISO 8601 format.
+     * * `max` (Dynamic String, optional): The maximum allowed date/time in ISO 8601 format.
+     * * `label` (Dynamic String, optional): The text label for the component.
+     */
+    public interface DateTimeInput : A2uiComponent {
+        override val name: String
+            get() = "DateTimeInput"
+
+        override val description: String
+            get() = "Allows the user to select a date and/or time."
+
+        public companion object {
+            /** The [A2uiProperty] for the `"value"` property of a [DateTimeInput]. */
+            public val ValueProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "value",
+                    required = true,
+                    description =
+                        "The selected date and/or time value in ISO 8601 format. " +
+                            "If not yet set, initialize with an empty string.",
+                )
+
+            /** The [A2uiProperty] for the `"enableDate"` property of a [DateTimeInput]. */
+            public val EnableDateProperty: StaticA2uiProperty<Boolean> =
+                A2uiProperty.booleanWithDefault(
+                    key = "enableDate",
+                    defaultValue = false,
+                    description = "If true, allows the user to select a date.",
+                )
+
+            /** The [A2uiProperty] for the `"enableTime"` property of a [DateTimeInput]. */
+            public val EnableTimeProperty: StaticA2uiProperty<Boolean> =
+                A2uiProperty.booleanWithDefault(
+                    key = "enableTime",
+                    defaultValue = false,
+                    description = "If true, allows the user to select a time.",
+                )
+
+            /** The [A2uiProperty] for the `"min"` property of a [DateTimeInput]. */
+            public val MinProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicCustom(
+                    key = "min",
+                    schema =
+                        A2uiAnySchema(
+                            description = "The minimum allowed date/time in ISO 8601 format.",
+                            keywords =
+                                listOf(
+                                    A2uiSchemaKeyword.AllOf(
+                                        // TODO(b/553193771): Support the `format` schema values
+                                        //  once supported in the schema API.
+                                        listOf(A2uiDynamicStringSchema.DEFAULT_INSTANCE)
+                                    )
+                                ),
+                        ),
+                    safeCast = { it as? String },
+                    required = false,
+                )
+
+            /** The [A2uiProperty] for the `"max"` property of a [DateTimeInput]. */
+            public val MaxProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicCustom(
+                    key = "max",
+                    schema =
+                        A2uiAnySchema(
+                            description = "The maximum allowed date/time in ISO 8601 format.",
+                            keywords =
+                                listOf(
+                                    A2uiSchemaKeyword.AllOf(
+                                        // TODO(b/553193771): Support the `format` schema values
+                                        //  once supported in the schema API.
+                                        listOf(A2uiDynamicStringSchema.DEFAULT_INSTANCE)
+                                    )
+                                ),
+                        ),
+                    safeCast = { it as? String },
+                    required = false,
+                )
+
+            /** The [A2uiProperty] for the `"label"` property of a [DateTimeInput]. */
+            public val LabelProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "label",
+                    required = false,
+                    description = "The text label for the component.",
+                )
+
+            internal val ComponentProperties: List<A2uiProperty<*>> =
+                listOf(
+                    ValueProperty,
+                    EnableDateProperty,
+                    EnableTimeProperty,
+                    MinProperty,
+                    MaxProperty,
+                    LabelProperty,
+                )
+        }
+
+        override val properties: List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean {
+            val value = properties.bind(ValueProperty) ?: return false
+            if (value.isEmpty()) return true
+            val valueMillis = parseIsoDateTimeToUtcMillis(value)
+            if (valueMillis == null) {
+                SideEffect(value) {
+                    reportError(
+                        A2uiException.A2uiRuntimeException("Invalid date-time format: $value")
+                    )
+                }
+                return false
+            }
+            return true
+        }
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val value =
+                checkNotNull(properties.bind(ValueProperty)) {
+                    "Required property '${ValueProperty.key}' is missing."
+                }
+            val valueMillis =
+                if (value.isNotEmpty()) {
+                    checkNotNull(remember(value) { parseIsoDateTimeToUtcMillis(value) }) {
+                        "Required property '${ValueProperty.key}' could not be parsed: '$value'."
+                    }
+                } else {
+                    null
+                }
+
+            val onValueChange = properties.bindUpdater(ValueProperty)
+            val enableDate = properties[EnableDateProperty] ?: false
+            val enableTime = properties[EnableTimeProperty] ?: false
+            val min = properties.bind(MinProperty)
+            val max = properties.bind(MaxProperty)
+            val label = properties.bind(LabelProperty)
+
+            val minMillis = remember(min) { parseIsoDateTimeToUtcMillis(min) }
+            val maxMillis = remember(max) { parseIsoDateTimeToUtcMillis(max) }
+
+            val onValueChangeMillis: ((Long?) -> Unit)? =
+                if (onValueChange != null) {
+                    { newMillis ->
+                        val formatted = formatUtcMillisToIso(newMillis, enableDate, enableTime)
+                        onValueChange(formatted)
+                    }
+                } else null
+
+            TypedContent(
+                value = valueMillis,
+                onValueChange = onValueChangeMillis,
+                enableDate = enableDate,
+                enableTime = enableTime,
+                min = minMillis,
+                max = maxMillis,
+                label = label,
+                modifier = modifier,
+            )
+        }
+
+        /**
+         * Renders the [DateTimeInput] component with resolved property values.
+         *
+         * @param value selected date and/or time in UTC epoch milliseconds, or `null` if not yet
+         *   set
+         * @param onValueChange callback invoked when the user selects a date or time in UTC epoch
+         *   milliseconds, or `null` if the input is read-only
+         * @param enableDate whether date selection is enabled
+         * @param enableTime whether time selection is enabled
+         * @param min minimum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
+         * @param max maximum allowed date/time in UTC epoch milliseconds, or `null` if unbounded
+         * @param label text label describing the input, or `null` if none
+         * @param modifier [Modifier] applied to the component layout
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            @Suppress("AutoBoxing") value: Long?,
+            onValueChange: ((Long?) -> Unit)?,
+            enableDate: Boolean,
+            enableTime: Boolean,
+            @Suppress("AutoBoxing") min: Long?,
+            @Suppress("AutoBoxing") max: Long?,
+            label: String?,
+            modifier: Modifier,
+        )
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is A2uiBasicCatalogV1) return false
@@ -799,4 +1014,58 @@ public class A2uiBasicCatalogV1(
             "themeSchema=$themeSchema" +
             ")"
     }
+}
+
+private val dateTimePatterns =
+    arrayOf(
+        "yyyy-MM-dd'T'HH:mm:ss.SSSX",
+        "yyyy-MM-dd'T'HH:mm:ss.SSS",
+        "yyyy-MM-dd'T'HH:mm:ssX",
+        "yyyy-MM-dd'T'HH:mm:ss",
+        "yyyy-MM-dd'T'HH:mm",
+        "yyyy-MM-dd",
+        "HH:mm:ss.SSSX",
+        "HH:mm:ss.SSS",
+        "HH:mm:ssX",
+        "HH:mm:ss",
+        "HH:mm",
+    )
+
+internal fun parseIsoDateTimeToUtcMillis(value: String?): Long? {
+    if (value.isNullOrBlank()) return null
+    val trimmed = value.trim()
+    val utcZone = TimeZone.getTimeZone("UTC")
+
+    for (pattern in dateTimePatterns) {
+        try {
+            val parser =
+                SimpleDateFormat(pattern, Locale.US).apply {
+                    timeZone = utcZone
+                    isLenient = false
+                }
+            val date = parser.parse(trimmed) ?: continue
+            return date.time
+        } catch (_: ParseException) {
+            // Ignore and try the next pattern
+        }
+    }
+    return null
+}
+
+internal fun formatUtcMillisToIso(
+    millis: Long?,
+    enableDate: Boolean,
+    enableTime: Boolean,
+): String? {
+    if (millis == null) return null
+    val utcZone = TimeZone.getTimeZone("UTC")
+    val date = Date(millis)
+    val pattern =
+        when {
+            enableDate && !enableTime -> "yyyy-MM-dd"
+            !enableDate && enableTime -> "HH:mm:ss"
+            else -> "yyyy-MM-dd'T'HH:mm:ss'Z'"
+        }
+    val formatter = SimpleDateFormat(pattern, Locale.US).apply { timeZone = utcZone }
+    return formatter.format(date)
 }
