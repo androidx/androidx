@@ -31,6 +31,7 @@ import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_ENA
 import androidx.appfunctions.AppFunctionSystemUnknownException
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
 import androidx.appfunctions.internal.AppFunctionManagerApi.Companion.applyMissingRuntimeMetadataExceptionFix
 import androidx.appfunctions.metadata.AppFunctionMetadata
@@ -173,6 +174,7 @@ internal class ExtensionAppFunctionManagerApi(private val context: Context) :
     }
 
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @OptIn(ExperimentalAppFunctionsApi::class)
     override fun registerAppFunctions(
         requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration {

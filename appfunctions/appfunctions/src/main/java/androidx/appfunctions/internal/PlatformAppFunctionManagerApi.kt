@@ -33,6 +33,7 @@ import androidx.appfunctions.AppFunctionManager.Companion.APP_FUNCTION_STATE_ENA
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExecuteAppFunctionResponse.Success.Companion.toCompatExecuteAppFunctionResponse
+import androidx.appfunctions.ExperimentalAppFunctionsApi
 import androidx.appfunctions.RegisterAppFunctionRequest
 import androidx.appfunctions.internal.AppFunctionManagerApi.Companion.applyMissingRuntimeMetadataExceptionFix
 import androidx.appfunctions.metadata.AppFunctionMetadata
@@ -190,6 +191,7 @@ internal class PlatformAppFunctionManagerApi(
     }
 
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @OptIn(ExperimentalAppFunctionsApi::class)
     override fun registerAppFunctions(
         requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration {
