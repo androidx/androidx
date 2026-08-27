@@ -317,7 +317,7 @@ internal fun StyleableTriStateCheckbox(
             theme = localTheme,
             mediaQueryInfo = mediaQueryInfo(),
             state =
-                ComponentState.disabled(!enabled)
+                ComponentState.enabled(enabled)
                     .checked(state == ToggleableState.On)
                     .indeterminate(state == ToggleableState.Indeterminate),
         )
