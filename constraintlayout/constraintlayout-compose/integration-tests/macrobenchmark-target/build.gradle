@@ -54,7 +54,6 @@ dependencies {
     implementation(project(":compose:material:material"))
     implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation(project(":compose:runtime:runtime"))
-    implementation(project(":compose:runtime:runtime-tracing"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-tooling"))
     implementation(project(":profileinstaller:profileinstaller"))
