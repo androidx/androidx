@@ -17,14 +17,13 @@
 package androidx.appfunctions
 
 import android.os.CancellationSignal
-import androidx.annotation.RestrictTo
 import java.util.function.Consumer
 
 /**
  * An interface for implementing the logic of an app function registered at runtime using
  * [AppFunctionManager.registerAppFunction].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalAppFunctionsApi // TODO(b/551918009): Rename to AppFunction once the name is vacant.
 public fun interface CallbackAppFunction {
     /**
      * Called when the app function is invoked using [AppFunctionManager.executeAppFunction].
@@ -38,7 +37,7 @@ public fun interface CallbackAppFunction {
      *   [ExecuteAppFunctionResponse.Success] or [ExecuteAppFunctionResponse.Error] in case of an
      *   error.
      */
-    public fun execute(
+    public fun onExecuteAppFunction(
         request: ExecuteAppFunctionRequest,
         cancellationSignal: CancellationSignal,
         callback: Consumer<ExecuteAppFunctionResponse>,

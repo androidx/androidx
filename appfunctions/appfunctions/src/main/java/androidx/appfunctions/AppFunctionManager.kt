@@ -381,9 +381,9 @@ public constructor(
      * [executeAppFunction].
      *
      * [executeAppFunction] targeting an app function provided by this method will trigger the
-     * [CallbackAppFunction.execute] method of the provided implementation, as long as the process
-     * registering it is not frozen, and the [android.content.Context] registering it is not
-     * destroyed (at which point the registration will be removed).
+     * [CallbackAppFunction.onExecuteAppFunction] method of the provided implementation, as long as
+     * the process registering it is not frozen, and the [android.content.Context] registering it is
+     * not destroyed (at which point the registration will be removed).
      *
      * You must declare the app function in your `AndroidManifest.xml` using an application-level
      * `<property>` named `android.app.appfunctions`. See
@@ -406,10 +406,11 @@ public constructor(
      * consider [androidx.appfunctions.metadata.AppFunctionMetadata.SCOPE_ACTIVITY] for your
      * function definition.
      *
-     * The `functionId` must correspond to an app function declared in your app's application-level
-     * XML assets. If the identifier is not found, this method will throw an
-     * [IllegalArgumentException]. Attempting to register a duplicate function for the same scope
-     * will throw an [IllegalStateException].
+     * The `functionIdentifier` must correspond to an app function declared in your app's
+     * application-level XML assets. If the identifier is not found, this method will throw an
+     * [IllegalArgumentException]. Attempting to register a duplicate function based on the rules of
+     * [androidx.appfunctions.metadata.AppFunctionMetadata.scope] will throw an
+     * [IllegalStateException].
      *
      * To register multiple functions at once, consider using [registerAppFunctions] as a more
      * efficient alternative.
@@ -420,29 +421,30 @@ public constructor(
      * [AppFunctionRegistration.unregister] when the function is no longer relevant (e.g., in
      * [android.app.Activity.onStop] or before [android.app.Service.stopForeground]).
      *
-     * @param functionId The unique identifier for the function, which must match an entry in the
-     *   app's XML resource declarations.
+     * @param functionIdentifier The unique identifier for the function, which must match an entry
+     *   in the app's XML resource declarations.
      * @param executor The [Executor] on which the function will be invoked and the incoming
      *   [ExecuteAppFunctionRequest] will be validated (verifying that the incoming platform request
      *   aligns with the declared [androidx.appfunctions.metadata.AppFunctionMetadata]).
      * @param appFunction The [CallbackAppFunction] implementation to be executed when the function
      *   is triggered.
      * @return A [AppFunctionRegistration] object that can be used to unregister the function.
-     * @throws IllegalStateException if a duplicate function is already registered for the same
-     *   scope, or if not called from [android.app.Activity] or [android.app.Service] contexts.
-     * @throws IllegalArgumentException if the provided [functionId] is not declared in the app's
-     *   application-level XML resources or if an activity-scoped function is registered from a
-     *   non-Activity context.
+     * @throws IllegalStateException if a duplicate function is already registered (see
+     *   [androidx.appfunctions.metadata.AppFunctionMetadata.scope]) for the same scope, or if not
+     *   called from [android.app.Activity] or [android.app.Service] contexts.
+     * @throws IllegalArgumentException if the provided [functionIdentifier] is not declared in the
+     *   app's application-level XML resources or if an activity-scoped function is registered from
+     *   a non-Activity context.
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalAppFunctionsApi
     public fun registerAppFunction(
-        functionId: String,
+        functionIdentifier: String,
         executor: Executor,
         appFunction: CallbackAppFunction,
     ): AppFunctionRegistration {
         return registerAppFunctions(
-            listOf(RegisterAppFunctionRequest(functionId, executor, appFunction))
+            listOf(RegisterAppFunctionRequest(functionIdentifier, executor, appFunction))
         )
     }
 
@@ -477,7 +479,7 @@ public constructor(
      *   not declared in the app's application-level XML assets or the `requests` list is empty.
      */
     @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalAppFunctionsApi
     public fun registerAppFunctions(
         requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration {
