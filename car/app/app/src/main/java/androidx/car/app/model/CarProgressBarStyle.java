@@ -49,30 +49,8 @@ import java.util.Objects;
 @RequiresCarApi(9)
 @ExperimentalCarApi
 public final class CarProgressBarStyle {
-    /**
-     * Styles to use for line endings.
-     */
-    @RestrictTo(LIBRARY)
-    @IntDef(value = {STROKE_CAP_DEFAULT, STROKE_CAP_ROUND, STROKE_CAP_SQUARE})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface StrokeCap {
-    }
-
-    /**
-     * The default stroke cap style defined by the system.
-     */
-    public static final int STROKE_CAP_DEFAULT = 0;
-    /**
-     * Begin and end contours with a semicircle extension.
-     */
-    public static final int STROKE_CAP_ROUND = 1;
-    /**
-     * Begin and end contours with a half square extension.
-     */
-    public static final int STROKE_CAP_SQUARE = 2;
-
     private final @Nullable CarColor mColor;
-    @StrokeCap
+    @StrokeCap.StrokeCapType
     private final int mStrokeCap;
 
     /** Returns the color of the progress bar, or {@code null} if not set. */
@@ -80,8 +58,8 @@ public final class CarProgressBarStyle {
         return mColor;
     }
 
-    /** Returns the stroke cap of the progress bar. */
-    @StrokeCap
+    /** Returns the stroke cap of the progress bar, or {@link StrokeCap#DEFAULT} if not set. */
+    @StrokeCap.StrokeCapType
     public int getStrokeCap() {
         return mStrokeCap;
     }
@@ -123,14 +101,14 @@ public final class CarProgressBarStyle {
     /** Constructs an empty instance, used by serialization code. */
     private CarProgressBarStyle() {
         mColor = null;
-        mStrokeCap = STROKE_CAP_DEFAULT;
+        mStrokeCap = StrokeCap.DEFAULT;
     }
 
     /** A builder of {@link CarProgressBarStyle}. */
     public static final class Builder {
         private @Nullable CarColor mColor;
-        @StrokeCap
-        private int mStrokeCap = CarProgressBarStyle.STROKE_CAP_DEFAULT;
+        @StrokeCap.StrokeCapType
+        private int mStrokeCap = StrokeCap.DEFAULT;
 
         /**
          * Sets the color of the progress bar.
@@ -149,10 +127,9 @@ public final class CarProgressBarStyle {
         /**
          * Sets the stroke cap of the progress bar.
          *
-         * <p>If a default stroke cap is set, the host will use a default shape defined by the
-         * system.
+         * <p>If unset, the host will use a default shape defined by the system.
          */
-        public @NonNull Builder setStrokeCap(@StrokeCap int strokeCap) {
+        public @NonNull Builder setStrokeCap(@StrokeCap.StrokeCapType int strokeCap) {
             mStrokeCap = strokeCap;
             return this;
         }
