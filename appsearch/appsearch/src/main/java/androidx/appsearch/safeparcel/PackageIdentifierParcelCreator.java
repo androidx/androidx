@@ -21,10 +21,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.RestrictTo;
-import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -39,6 +40,7 @@ import java.util.Objects;
 public class PackageIdentifierParcelCreator implements Parcelable.Creator<PackageIdentifierParcel> {
     private static final String PACKAGE_NAME_FIELD = "packageName";
     private static final String SHA256_CERTIFICATE_FIELD = "sha256Certificate";
+    private static final String SHA256_CERTIFICATES_FIELD = "sha256Certificates";
 
     public PackageIdentifierParcelCreator() {
     }
@@ -50,9 +52,22 @@ public class PackageIdentifierParcelCreator implements Parcelable.Creator<Packag
             @NonNull Bundle packageIdentifierBundle) {
         Objects.requireNonNull(packageIdentifierBundle);
         String packageName =
-                Preconditions.checkNotNull(packageIdentifierBundle.getString(PACKAGE_NAME_FIELD));
+                Objects.requireNonNull(packageIdentifierBundle.getString(PACKAGE_NAME_FIELD));
+        @SuppressWarnings("deprecation")
+        List<Bundle> certBundles =
+                packageIdentifierBundle.getParcelableArrayList(SHA256_CERTIFICATES_FIELD);
+        if (certBundles != null && !certBundles.isEmpty()) {
+            byte[][] sha256Certificates = new byte[certBundles.size()][];
+            for (int i = 0; i < certBundles.size(); i++) {
+                Bundle certBundle = certBundles.get(i);
+                if (certBundle != null) {
+                    sha256Certificates[i] = certBundle.getByteArray(SHA256_CERTIFICATE_FIELD);
+                }
+            }
+            return new PackageIdentifierParcel(packageName, sha256Certificates);
+        }
         byte[] sha256Certificate =
-                Preconditions.checkNotNull(
+                Objects.requireNonNull(
                         packageIdentifierBundle.getByteArray(SHA256_CERTIFICATE_FIELD));
 
         return new PackageIdentifierParcel(packageName, sha256Certificate);
@@ -68,12 +83,25 @@ public class PackageIdentifierParcelCreator implements Parcelable.Creator<Packag
         packageIdentifierBundle.putByteArray(SHA256_CERTIFICATE_FIELD,
                 packageIdentifierParcel.getSha256Certificate());
 
+        byte[][] multiSignerSha256Certificates =
+                packageIdentifierParcel.getMultiSignerSha256Certificates();
+        if (multiSignerSha256Certificates != null) {
+            ArrayList<Bundle> bundles = new ArrayList<>(multiSignerSha256Certificates.length);
+            for (int i = 0; i < multiSignerSha256Certificates.length; i++) {
+                Bundle byteArray = new Bundle();
+                byteArray.putByteArray(
+                        SHA256_CERTIFICATE_FIELD, multiSignerSha256Certificates[i]);
+                bundles.add(byteArray);
+            }
+            packageIdentifierBundle.putParcelableArrayList(SHA256_CERTIFICATES_FIELD, bundles);
+        }
+
         return packageIdentifierBundle;
     }
 
     @Override
     public @NonNull PackageIdentifierParcel createFromParcel(Parcel parcel) {
-        Bundle bundle = Preconditions.checkNotNull(parcel.readBundle(getClass().getClassLoader()));
+        Bundle bundle = Objects.requireNonNull(parcel.readBundle(getClass().getClassLoader()));
         return createPackageIdentifierFromBundle(bundle);
     }
 

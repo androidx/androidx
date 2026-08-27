@@ -296,4 +296,10 @@ public class FlagsTest {
                         "com.android.appsearch.flags"
                                 + ".enable_index_restoration_critical_error_handling_fix");
     }
+
+    @Test
+    public void testFlagValue_enablePackageIdentifierMultiCert() {
+        assertThat(Flags.FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT)
+                .isEqualTo("com.android.appsearch.flags.enable_package_identifier_multi_cert");
+    }
 }
