@@ -18,6 +18,7 @@ task. For the repo-wide build/test/commit/upload workflow, start from the root
 | [`find-my-flags`](skills/find-my-flags/SKILL.md) | Finding Compose feature flags introduced by an author and mapping them to a library version. |
 | [`remove-feature-flag`](skills/remove-feature-flag/SKILL.md) | Removing an obsolete feature flag and its dead code without behavior changes. |
 | [`health-connect`](skills/health-connect/SKILL.md) | Adding or modifying any Health Connect APIs (under `health/connect/`). |
+| [`webkit-api-development`](skills/webkit-api-development/SKILL.md) | Adding or modifying WebKit APIs, feature flags, boundary interface plumbing, and testing in `webkit/`. |
 
 ## Module-scoped skills
 
