@@ -150,7 +150,7 @@ public class SearchAction extends TakenAction {
          * {@code actionTimestampMillis}.
          *
          * <p>The {@link TakenAction.ActionType} for the Document returned from
-         * {@link TakenAction#getActionType()} will be {@link ActionConstants#ACTION_TYPE_SEARCH}.
+         * {@link TakenAction#getActionType()} will be {@link TakenAction#ACTION_TYPE_SEARCH}.
          *
          * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
          * @param id                    Unique identifier for the Document. See {@link Document.Id}.
@@ -159,7 +159,7 @@ public class SearchAction extends TakenAction {
          */
         public BuilderBase(@NonNull String namespace, @NonNull String id,
                 long actionTimestampMillis) {
-            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_SEARCH);
+            this(namespace, id, actionTimestampMillis, TakenAction.ACTION_TYPE_SEARCH);
         }
 
         /**
