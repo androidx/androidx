@@ -60,4 +60,6 @@ sealed class Screen(val route: String) {
 
     object RemoteVerticalPageIndicator10DemoScreen :
         Screen("remoteVerticalPageIndicator10DemoScreen")
+
+    object RemoteCheckboxButtonDemosScreen : Screen("remoteCheckboxButtonDemosScreen")
 }
