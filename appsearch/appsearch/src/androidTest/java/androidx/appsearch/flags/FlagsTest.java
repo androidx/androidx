@@ -282,4 +282,18 @@ public class FlagsTest {
                         "com.android.appsearch.flags"
                                 + ".enable_read_during_ann_maintenance");
     }
+
+    @Test
+    public void testFlagValue_enableOptimizeResultStates() {
+        assertThat(Flags.FLAG_ENABLE_OPTIMIZE_RESULT_STATES)
+                .isEqualTo("com.android.appsearch.flags.enable_optimize_result_states");
+    }
+
+    @Test
+    public void testFlagValue_enableIndexRestorationCriticalErrorHandlingFix() {
+        assertThat(Flags.FLAG_ENABLE_INDEX_RESTORATION_CRITICAL_ERROR_HANDLING_FIX)
+                .isEqualTo(
+                        "com.android.appsearch.flags"
+                                + ".enable_index_restoration_critical_error_handling_fix");
+    }
 }
