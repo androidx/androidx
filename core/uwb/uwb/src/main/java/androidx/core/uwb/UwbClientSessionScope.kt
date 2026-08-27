@@ -17,6 +17,8 @@
 package androidx.core.uwb
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 
 /** Interface for client session that is established between nearby UWB devices. */
 public interface UwbClientSessionScope {
@@ -29,7 +31,7 @@ public interface UwbClientSessionScope {
      *   already initiated.
      * @throws [androidx.core.uwb.exceptions.UwbSystemCallbackException] if the backend UWB system
      *   has resulted in an error.
-     * @throws [SecurityException] if ranging does not have the android.permission.UWB_RANGING
+     * @throws [SecurityException] if ranging does not have the `android.permission.UWB_RANGING`
      *   permission. Apps must have requested and been granted this permission before calling this
      *   method.
      * @throws [IllegalArgumentException] if the client starts a ranging session without setting
@@ -38,6 +40,39 @@ public interface UwbClientSessionScope {
      *   id or ranging update type.
      */
     public fun prepareSession(parameters: RangingParameters): Flow<RangingResult>
+
+    /**
+     * Prepare a sensor fusion session, which performs software AoA estimation and adjusts range for
+     * local device motion at a high resolution.
+     *
+     * Sensor fusion relies on ARCore to estimate local device odometry. Before calling this method,
+     * you must follow ARCore documentation to
+     * [enable AR in your app](https://developers.google.com/ar/develop/java/enable-arcore).
+     *
+     * This method has 2 possible failure modes:
+     * - "Hard failures" that indicate lack of accountability from the caller. When one of these
+     *   occurs, the returned flow will produce a [RangingResult.RangingResultFailure] and stop.
+     * - "Soft failures" that arise from conditions that the caller may not have direct control
+     *   over. When one of these occurs, the returned flow will produce a
+     *   [SensorFusionResult.SensorFusionFallback] and the session will fall back to standard UWB
+     *   ranging. That is, all subsequent results will be instances of [RangingResult].
+     *
+     * Throws the same exceptions as [prepareSession(RangingParameters)], in addition to:
+     *
+     * @throws [SecurityException] if the app does not have the [android.Manifest.permission.CAMERA]
+     *   permission. Apps must have requested and been granted this permission before calling this
+     *   method.
+     */
+    public fun prepareSession(parameters: SensorFusionParameters): Flow<SensorFusionResult> = flow {
+        emit(
+            SensorFusionResult.SensorFusionFallback(
+                parameters.rangingParameters.peerDevices.single(),
+                SensorFusionResult.FALLBACK_REASON_NOT_AVAILABLE,
+            )
+        )
+
+        emitAll(prepareSession(parameters.rangingParameters))
+    }
 
     /** Returns the [RangingCapabilities] which the device supports. */
     public val rangingCapabilities: RangingCapabilities

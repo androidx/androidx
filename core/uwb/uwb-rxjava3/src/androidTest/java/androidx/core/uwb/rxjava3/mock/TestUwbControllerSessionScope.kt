@@ -20,6 +20,8 @@ import androidx.core.uwb.RangingCapabilities
 import androidx.core.uwb.RangingControleeParameters
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
+import androidx.core.uwb.SensorFusionParameters
+import androidx.core.uwb.SensorFusionResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbComplexChannel
 import androidx.core.uwb.UwbControllerSessionScope
@@ -45,6 +47,10 @@ class TestUwbControllerSessionScope(
     }
 
     override fun prepareSession(parameters: RangingParameters): Flow<RangingResult> {
+        return uwbClientSessionScope.prepareSession(parameters)
+    }
+
+    override fun prepareSession(parameters: SensorFusionParameters): Flow<SensorFusionResult> {
         return uwbClientSessionScope.prepareSession(parameters)
     }
 

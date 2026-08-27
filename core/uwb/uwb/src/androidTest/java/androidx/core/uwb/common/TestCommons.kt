@@ -18,10 +18,9 @@ package androidx.core.uwb.common
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.uwb.RangingCapabilities
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.UwbDevice
-import com.google.android.gms.internal.nearby.zzpt
-import com.google.android.gms.nearby.uwb.RangingCapabilities
 import com.google.android.gms.nearby.uwb.UwbAddress
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
 
@@ -32,17 +31,17 @@ internal class TestCommons {
         val LOCAL_ADDRESS = UwbAddress(byteArrayOf(0xB0.toByte()))
         val RANGING_CAPABILITIES =
             RangingCapabilities(
-                true,
-                false,
-                false,
-                false,
-                200,
-                zzpt.zzl(9),
-                zzpt.zzl(1),
-                zzpt.zzn(1, 2, 3),
-                zzpt.zzl(2),
-                zzpt.zzl(1),
-                false,
+                isDistanceSupported = true,
+                isAzimuthalAngleSupported = false,
+                isElevationAngleSupported = false,
+                minRangingInterval = 200,
+                supportedChannels = setOf(9),
+                supportedNtfConfigs = setOf(1),
+                supportedConfigIds = setOf(1, 2, 3),
+                supportedSlotDurations = setOf(2),
+                supportedRangingUpdateRates = setOf(1),
+                isRangingIntervalReconfigureSupported = false,
+                isBackgroundRangingSupported = false,
             )
         val NEIGHBOR_1 = byteArrayOf(0xA1.toByte())
         val NEIGHBOR_2 = byteArrayOf(0xA5.toByte())

@@ -20,8 +20,8 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
 /** Class for UWB ranging result update. */
-public sealed class RangingResult {
-    public abstract val device: UwbDevice
+public sealed class RangingResult : SensorFusionResult {
+    public abstract override val device: UwbDevice
 
     /**
      * A ranging result with the device position update.
@@ -73,6 +73,7 @@ public sealed class RangingResult {
         RANGING_FAILURE_REASON_STOPPED_BY_LOCAL,
         RANGING_FAILURE_REASON_SYSTEM_POLICY,
         RANGING_FAILURE_REASON_MAX_RR_RETRY_REACHED,
+        RANGING_FAILURE_REASON_ARCORE_APK_INSTALL_NEEDED,
     )
     public annotation class RangingFailureReason
 
@@ -98,6 +99,16 @@ public sealed class RangingResult {
         /** Ranging stopped because the maximum number of ranging round retries was reached. */
         public const val RANGING_FAILURE_REASON_MAX_RR_RETRY_REACHED: Int = 6
 
+        /**
+         * Ranging stopped because the ARCore APK is either outdated or not installed. This will
+         * only happen for sensor fusion sessions.
+         *
+         * To use sensor fusion, you must first verify that ARCore is installed and up to date.
+         * Please follow documentation to
+         * [enable AR in your Android app](https://developers.google.com/ar/develop/java/enable-arcore).
+         */
+        public const val RANGING_FAILURE_REASON_ARCORE_APK_INSTALL_NEEDED: Int = 7
+
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @RangingFailureReason
         internal fun fromId(id: Int): Int {
@@ -109,6 +120,7 @@ public sealed class RangingResult {
                 4 -> RANGING_FAILURE_REASON_STOPPED_BY_LOCAL
                 5 -> RANGING_FAILURE_REASON_SYSTEM_POLICY
                 6 -> RANGING_FAILURE_REASON_MAX_RR_RETRY_REACHED
+                7 -> RANGING_FAILURE_REASON_ARCORE_APK_INSTALL_NEEDED
                 else -> RANGING_FAILURE_REASON_UNKNOWN
             }
         }

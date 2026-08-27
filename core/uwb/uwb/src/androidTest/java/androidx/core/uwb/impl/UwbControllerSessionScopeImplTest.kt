@@ -40,47 +40,17 @@ import org.junit.Test
 
 class UwbControllerSessionScopeImplTest {
     private val uwbClient =
-        TestUwbClient(
-            COMPLEX_CHANNEL,
-            LOCAL_ADDRESS,
-            RANGING_CAPABILITIES,
-            isAvailable = true,
-            isController = true,
-        )
+        TestUwbClient(COMPLEX_CHANNEL, LOCAL_ADDRESS, isAvailable = true, isController = true)
     private val uwbClientSession =
         UwbClientSessionScopeImpl(
             uwbClient,
-            androidx.core.uwb.RangingCapabilities(
-                RANGING_CAPABILITIES.supportsDistance(),
-                RANGING_CAPABILITIES.supportsAzimuthalAngle(),
-                RANGING_CAPABILITIES.supportsElevationAngle(),
-                RANGING_CAPABILITIES.minRangingInterval,
-                RANGING_CAPABILITIES.supportedChannels.toSet(),
-                RANGING_CAPABILITIES.supportedNtfConfigs.toSet(),
-                RANGING_CAPABILITIES.supportedConfigIds.toSet(),
-                RANGING_CAPABILITIES.supportedSlotDurations.toSet(),
-                RANGING_CAPABILITIES.supportedRangingUpdateRates.toSet(),
-                RANGING_CAPABILITIES.supportsRangingIntervalReconfigure(),
-                RANGING_CAPABILITIES.hasBackgroundRangingSupport(),
-            ),
+            RANGING_CAPABILITIES,
             UwbAddress(LOCAL_ADDRESS.address),
         )
     private val uwbControllerSession =
         UwbControllerSessionScopeImpl(
             uwbClient,
-            androidx.core.uwb.RangingCapabilities(
-                RANGING_CAPABILITIES.supportsDistance(),
-                RANGING_CAPABILITIES.supportsAzimuthalAngle(),
-                RANGING_CAPABILITIES.supportsElevationAngle(),
-                RANGING_CAPABILITIES.minRangingInterval,
-                RANGING_CAPABILITIES.supportedChannels.toSet(),
-                RANGING_CAPABILITIES.supportedNtfConfigs.toSet(),
-                RANGING_CAPABILITIES.supportedConfigIds.toSet(),
-                RANGING_CAPABILITIES.supportedSlotDurations.toSet(),
-                RANGING_CAPABILITIES.supportedRangingUpdateRates.toSet(),
-                RANGING_CAPABILITIES.supportsRangingIntervalReconfigure(),
-                RANGING_CAPABILITIES.hasBackgroundRangingSupport(),
-            ),
+            RANGING_CAPABILITIES,
             UwbAddress(LOCAL_ADDRESS.address),
             androidx.core.uwb.UwbComplexChannel(
                 COMPLEX_CHANNEL.channel,

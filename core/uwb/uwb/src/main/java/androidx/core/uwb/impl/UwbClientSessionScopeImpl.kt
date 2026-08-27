@@ -23,11 +23,18 @@ import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
 import androidx.core.uwb.RangingResult.RangingResultFailure
 import androidx.core.uwb.RangingResult.RangingResultInitialized
-import androidx.core.uwb.RangingResult.RangingResultPosition
+import androidx.core.uwb.SensorFusionParameters
+import androidx.core.uwb.SensorFusionResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.helper.getFailureReasonFromApiException
+import androidx.core.uwb.helper.getFallbackReasonFromApiException
+import androidx.core.uwb.helper.gmsDeviceToJetpack
+import androidx.core.uwb.helper.gmsEstimateFailureReasonToJetpack
+import androidx.core.uwb.helper.gmsRangingPositionToJetpack
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.nearby.uwb.PreciseEstimateInfo.EstimateKind
+import com.google.android.gms.nearby.uwb.PrecisionFindingConfig
 import com.google.android.gms.nearby.uwb.RangingPosition
 import com.google.android.gms.nearby.uwb.RangingSessionCallback
 import com.google.android.gms.nearby.uwb.RangingSessionCallback.RangingSuspendedReason
@@ -38,8 +45,10 @@ import com.google.android.gms.nearby.uwb.UwbRangeDataNtfConfig
 import com.google.android.gms.nearby.uwb.UwbStatusCodes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -62,6 +71,149 @@ internal open class UwbClientSessionScopeImpl(
                     "a new ranging session, create a new client session scope."
             )
         }
+
+        val gmsParameters = convertParameters(parameters)
+        val callback = RangingSessionCallbackImpl(this)
+
+        try {
+            uwbClient.startRanging(gmsParameters.build(), callback).await()
+            sessionStarted = true
+        } catch (e: ApiException) {
+            trySend(
+                RangingResultFailure(
+                    androidx.core.uwb.UwbDevice(localAddress),
+                    getFailureReasonFromApiException(e),
+                )
+            )
+        }
+
+        awaitClose {
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                try {
+                    uwbClient.stopRanging(callback).await()
+                    sessionStarted = false
+                } catch (e: ApiException) {
+                    trySend(
+                        RangingResultFailure(
+                            androidx.core.uwb.UwbDevice(localAddress),
+                            getFailureReasonFromApiException(e),
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    override fun prepareSession(parameters: SensorFusionParameters): Flow<SensorFusionResult> =
+        callbackFlow {
+            if (sessionStarted) {
+                throw IllegalStateException(
+                    "Ranging has already started. To initiate " +
+                        "a new ranging session, create a new client session scope."
+                )
+            }
+
+            val gmsParameters =
+                convertParameters(parameters.rangingParameters)
+                    .setPrecisionFindingConfig(
+                        PrecisionFindingConfig.Builder()
+                            .setDataStalenessThresholdMillis(
+                                parameters.dataStalenessThresholdMillis
+                            )
+                            .build()
+                    )
+
+            val callback =
+                object : RangingSessionCallbackImpl(this) {
+                    override fun onRangingResult(device: UwbDevice, position: RangingPosition) {
+                        if (position.preciseEstimateInfo == null) {
+                            super.onRangingResult(device, position)
+                        } else {
+                            val kind = position.preciseEstimateInfo?.estimateKind
+                            trySend(
+                                    when (kind) {
+                                        EstimateKind.PRECISE ->
+                                            SensorFusionResult.PreciseEstimate(
+                                                gmsDeviceToJetpack(device),
+                                                RangingMeasurement(position.distance.value),
+                                                RangingMeasurement(position.azimuth!!.value),
+                                                RangingMeasurement(position.elevation!!.value),
+                                                position.elapsedRealtimeNanos,
+                                            )
+                                        EstimateKind.DRIFTING ->
+                                            SensorFusionResult.DriftingEstimate(
+                                                gmsDeviceToJetpack(device),
+                                                RangingMeasurement(position.distance.value),
+                                                RangingMeasurement(position.azimuth!!.value),
+                                                RangingMeasurement(position.elevation!!.value),
+                                                position.elapsedRealtimeNanos,
+                                            )
+                                        EstimateKind.IMPRECISE ->
+                                            SensorFusionResult.ImpreciseEstimate(
+                                                gmsDeviceToJetpack(device),
+                                                RangingMeasurement(position.distance.value),
+                                                position.elapsedRealtimeNanos,
+                                                gmsEstimateFailureReasonToJetpack(
+                                                    position.preciseEstimateInfo!!
+                                                        .estimateFailureReason
+                                                ),
+                                            )
+                                        else -> {
+                                            Log.w(
+                                                TAG,
+                                                "Received PreciseEstimateInfo with unknown EstimateKind: $kind",
+                                            )
+                                            gmsRangingPositionToJetpack(device, position)
+                                        }
+                                    }
+                                )
+                                .onFailure { throwable ->
+                                    Log.w(TAG, "Failed to send SensorFusionResult", throwable)
+                                }
+                        }
+                    }
+                }
+
+            try {
+                uwbClient.startRanging(gmsParameters.build(), callback).await()
+                sessionStarted = true
+            } catch (e: ApiException) {
+                trySend(
+                    when (val fallbackReason = getFallbackReasonFromApiException(e)) {
+                        null ->
+                            RangingResultFailure(
+                                androidx.core.uwb.UwbDevice(localAddress),
+                                getFailureReasonFromApiException(e),
+                            )
+                        else ->
+                            SensorFusionResult.SensorFusionFallback(
+                                androidx.core.uwb.UwbDevice(localAddress),
+                                fallbackReason,
+                            )
+                    }
+                )
+            }
+
+            awaitClose {
+                CoroutineScope(Dispatchers.Main.immediate).launch {
+                    try {
+                        uwbClient.stopRanging(callback).await()
+                        sessionStarted = false
+                    } catch (e: ApiException) {
+                        trySend(
+                            RangingResultFailure(
+                                androidx.core.uwb.UwbDevice(localAddress),
+                                getFailureReasonFromApiException(e),
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+    private fun convertParameters(
+        parameters: RangingParameters
+    ): com.google.android.gms.nearby.uwb.RangingParameters.Builder {
 
         val configId =
             when (parameters.uwbConfigType) {
@@ -140,83 +292,10 @@ internal open class UwbClientSessionScopeImpl(
         for (peer in parameters.peerDevices) {
             parametersBuilder.addPeerDevice(UwbDevice.createForAddress(peer.address.address))
         }
-        val callback =
-            object : RangingSessionCallback {
-                override fun onRangingInitialized(device: UwbDevice) {
-                    trySend(
-                            RangingResultInitialized(
-                                androidx.core.uwb.UwbDevice(UwbAddress(device.address.address))
-                            )
-                        )
-                        .onFailure { throwable ->
-                            Log.w(TAG, "Failed to send RangingResultPosition", throwable)
-                        }
-                }
-
-                override fun onRangingResult(device: UwbDevice, position: RangingPosition) {
-                    trySend(
-                            RangingResultPosition(
-                                androidx.core.uwb.UwbDevice(UwbAddress(device.address.address)),
-                                androidx.core.uwb.RangingPosition(
-                                    RangingMeasurement(position.distance.value),
-                                    position.azimuth?.let { RangingMeasurement(it.value) },
-                                    position.elevation?.let { RangingMeasurement(it.value) },
-                                    position.elapsedRealtimeNanos,
-                                ),
-                            )
-                        )
-                        .onFailure { throwable ->
-                            Log.w(TAG, "Failed to send RangingResultPosition", throwable)
-                        }
-                }
-
-                override fun onRangingSuspended(
-                    device: UwbDevice,
-                    @RangingSuspendedReason reason: Int,
-                ) {
-                    val jetpackReason = mapGmsReasonToJetpackReason(reason)
-                    trySend(
-                            RangingResultFailure(
-                                androidx.core.uwb.UwbDevice(UwbAddress(device.address.address)),
-                                jetpackReason,
-                            )
-                        )
-                        .onFailure { throwable ->
-                            Log.w(TAG, "Failed to send RangingResultFailure", throwable)
-                        }
-                }
-            }
-
-        try {
-            uwbClient.startRanging(parametersBuilder.build(), callback).await()
-            sessionStarted = true
-        } catch (e: ApiException) {
-            trySend(
-                RangingResultFailure(
-                    androidx.core.uwb.UwbDevice(localAddress),
-                    getFailureReasonFromApiException(e),
-                )
-            )
-        }
-
-        awaitClose {
-            CoroutineScope(Dispatchers.Main.immediate).launch {
-                try {
-                    uwbClient.stopRanging(callback).await()
-                    sessionStarted = false
-                } catch (e: ApiException) {
-                    trySend(
-                        RangingResultFailure(
-                            androidx.core.uwb.UwbDevice(localAddress),
-                            getFailureReasonFromApiException(e),
-                        )
-                    )
-                }
-            }
-        }
+        return parametersBuilder
     }
 
-    private fun mapGmsReasonToJetpackReason(@RangingSuspendedReason gmsReason: Int): Int {
+    private fun gmsSuspendedReasonToJetpack(@RangingSuspendedReason gmsReason: Int): Int {
         return when (gmsReason) {
             RangingSuspendedReason.WRONG_PARAMETERS ->
                 RangingResult.RANGING_FAILURE_REASON_BAD_PARAMETERS
@@ -245,6 +324,31 @@ internal open class UwbClientSessionScopeImpl(
             if (e.statusCode == UwbStatusCodes.INVALID_API_CALL) {
                 throw IllegalStateException("Please check that the ranging is active.")
             }
+        }
+    }
+
+    open inner class RangingSessionCallbackImpl(private val scope: ProducerScope<RangingResult>) :
+        RangingSessionCallback {
+        override fun onRangingInitialized(device: UwbDevice) {
+            scope.trySend(RangingResultInitialized(gmsDeviceToJetpack(device))).onFailure {
+                throwable ->
+                Log.w(TAG, "Failed to send RangingResultInitialized", throwable)
+            }
+        }
+
+        override fun onRangingResult(device: UwbDevice, position: RangingPosition) {
+            scope.trySend(gmsRangingPositionToJetpack(device, position)).onFailure { throwable ->
+                Log.w(TAG, "Failed to send RangingResultPosition", throwable)
+            }
+        }
+
+        override fun onRangingSuspended(device: UwbDevice, @RangingSuspendedReason reason: Int) {
+            val jetpackReason = gmsSuspendedReasonToJetpack(reason)
+            scope
+                .trySend(RangingResultFailure(gmsDeviceToJetpack(device), jetpackReason))
+                .onFailure { throwable ->
+                    Log.w(TAG, "Failed to send RangingResultFailure", throwable)
+                }
         }
     }
 }
