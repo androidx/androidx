@@ -561,6 +561,8 @@ private constructor(
                 LocalLifecycleOwner provides lifecycleOwner,
                 LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
                 LocalInspectionTables provides inspectionTable,
+                LocalContext provides owner.context,
+                LocalConfiguration provides owner.configuration,
                 LocalSaveableStateRegistry providesComputed { owner.savedStateRegistry },
                 LocalProvidableScrollCaptureInProgress providesComputed
                     {
@@ -572,6 +574,7 @@ private constructor(
             }
         } else {
             CompositionLocalProvider(
+                LocalAndroidComposeView provides owner,
                 LocalLifecycleOwner provides lifecycleOwner,
                 LocalSavedStateRegistryOwner provides savedStateRegistryOwner,
                 LocalImageVectorCache provides imageVectorCache,
