@@ -50,6 +50,7 @@ import androidx.annotation.RestrictTo
  *   [IllegalStateException]. It requires [qrCodeTracking] to be different from
  *   [QrCodeTrackingMode.DISABLED]
  */
+@OptIn(ExperimentalSpatialAnnotationsApi::class)
 public class Config
 private constructor(
     public val planeTracking: PlaneTrackingMode,
@@ -67,6 +68,7 @@ private constructor(
     public val qrCodeTracking: QrCodeTrackingMode,
     public val qrCodeSizeMeters: Float = 0f,
     private val sceneSignalTypes: Set<SceneSignalType>,
+    private val spatialAnnotationTracking: SpatialAnnotationTrackingMode,
 ) {
     // TODO(b/513553206) - Remove this constructor when 1P apps are migrated to use Config.Builder.
     @JvmOverloads
@@ -99,6 +101,7 @@ private constructor(
         qrCodeTracking,
         qrCodeSizeMeters,
         sceneSignalTypes = setOf(),
+        SpatialAnnotationTrackingMode.DISABLED,
     )
 
     override fun equals(other: Any?): Boolean {
@@ -119,6 +122,7 @@ private constructor(
         if (qrCodeTracking != other.qrCodeTracking) return false
         if (qrCodeSizeMeters != other.qrCodeSizeMeters) return false
         if (sceneSignalTypes != other.getSceneSignalTypes()) return false
+        if (spatialAnnotationTracking != other.spatialAnnotationTracking) return false
 
         return true
     }
@@ -138,6 +142,7 @@ private constructor(
         result = 31 * result + qrCodeTracking.hashCode()
         result = 31 * result + qrCodeSizeMeters.hashCode()
         result = 31 * result + sceneSignalTypes.hashCode()
+        result = 31 * result + spatialAnnotationTracking.hashCode()
         return result
     }
 
@@ -151,10 +156,16 @@ private constructor(
             "depthEstimation=$depthEstimation, anchorPersistence=$anchorPersistence, faceTracking=$faceTracking, " +
             "geospatial=$geospatial, augmentedObjectCategories=$augmentedObjectCategories, eyeTracking=$eyeTracking, " +
             "cameraFacingDirection=$cameraFacingDirection, augmentedImageDatabase=$augmentedImageDatabase, " +
-            "qrCodeTracking=$qrCodeTracking, qrCodeSizeMeters=$qrCodeSizeMeters)"
+            "qrCodeTracking=$qrCodeTracking, qrCodeSizeMeters=$qrCodeSizeMeters, " +
+            "spatialAnnotationTracking=$spatialAnnotationTracking" +
+            ")"
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getSceneSignalTypes(): Set<SceneSignalType> = sceneSignalTypes
+
+    @ExperimentalSpatialAnnotationsApi
+    public fun getSpatialAnnotationTracking(): SpatialAnnotationTrackingMode =
+        spatialAnnotationTracking
 
     // TODO(b/513553206) - Remove this function when 1P apps are migrated to use Config.Builder.
     @JvmOverloads
@@ -191,6 +202,7 @@ private constructor(
                 qrCodeTracking = qrCodeTracking,
                 qrCodeSizeMeters = qrCodeSizeMeters,
                 sceneSignalTypes = sceneSignalTypes,
+                spatialAnnotationTracking = this.spatialAnnotationTracking,
             )
         return newConfig
     }
@@ -204,6 +216,7 @@ private constructor(
      * setter methods can be chained. [Builder.build] can be used to create a [Config] with the
      * configuration specified in the builder.
      */
+    @OptIn(ExperimentalSpatialAnnotationsApi::class)
     public class Builder
     internal constructor(
         private var planeTracking: PlaneTrackingMode,
@@ -220,6 +233,7 @@ private constructor(
         private var qrCodeTracking: QrCodeTrackingMode,
         private var qrCodeSizeMeters: Float,
         private var sceneSignalTypes: Set<SceneSignalType>,
+        private var spatialAnnotationTracking: SpatialAnnotationTrackingMode,
     ) {
 
         /** Creates a [Builder] instance for a [Config] with default values. */
@@ -239,6 +253,7 @@ private constructor(
                 qrCodeTracking = QrCodeTrackingMode.DISABLED,
                 qrCodeSizeMeters = 0f,
                 sceneSignalTypes = emptySet(),
+                spatialAnnotationTracking = SpatialAnnotationTrackingMode.DISABLED,
             )
 
         /**
@@ -264,6 +279,7 @@ private constructor(
             config.qrCodeTracking,
             config.qrCodeSizeMeters,
             config.sceneSignalTypes,
+            config.spatialAnnotationTracking,
         )
 
         /**
@@ -442,6 +458,25 @@ private constructor(
             return this
         }
 
+        /**
+         * Sets the [SpatialAnnotationTrackingMode] this [Builder] instance will use to build a
+         * [Config].
+         *
+         * The default value is [SpatialAnnotationTrackingMode.DISABLED].
+         *
+         * @param spatialAnnotationTracking [SpatialAnnotationTrackingMode] value to configure the
+         *   [Session]
+         * @return a [Builder] that builds a [Config] with the supplied spatial annotation tracking
+         *   mode
+         */
+        @ExperimentalSpatialAnnotationsApi
+        public fun setSpatialAnnotationTracking(
+            spatialAnnotationTracking: SpatialAnnotationTrackingMode
+        ): Builder {
+            this.spatialAnnotationTracking = spatialAnnotationTracking
+            return this
+        }
+
         /** Creates a new instance of [Config] with the configuration specified in this instance. */
         public fun build(): Config {
             return Config(
@@ -459,6 +494,7 @@ private constructor(
                 qrCodeTracking,
                 qrCodeSizeMeters,
                 sceneSignalTypes,
+                spatialAnnotationTracking,
             )
         }
     }

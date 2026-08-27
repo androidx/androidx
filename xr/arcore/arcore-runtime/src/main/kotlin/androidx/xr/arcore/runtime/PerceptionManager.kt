@@ -17,8 +17,12 @@
 package androidx.xr.arcore.runtime
 
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
+import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.math.Quad
 import androidx.xr.runtime.math.Ray
+import java.nio.ByteBuffer
 import java.util.UUID
 
 /**
@@ -93,8 +97,48 @@ public interface PerceptionManager {
      * @throws [UnsupportedOperationException] if the current runtime does not support display
      *   rotation
      */
-    public fun setDisplayRotation(rotation: Int, width: Int, height: Int): Unit =
+    public fun setDisplayRotation(rotation: Int, width: Int, height: Int) {
         throw UnsupportedOperationException()
+    }
+
+    /**
+     * Starts tracking a [SpatialAnnotation]
+     *
+     * @param imageBuffer the [ByteBuffer] containing the input image data
+     * @param imageSize the [IntSize2d] of the input image
+     * @param rowStride the row stride of the input image in bytes
+     * @param format the format of the input image
+     * @param alignment the requested tracking alignment
+     * @param quads a map of SpatialAnnotationIds to bounding quads
+     * @param timestampNanos the system timestamp of the input image in nanoseconds, according to
+     *   [android.os.SystemClock.uptimeMillis] (typically provided via [System.nanoTime])
+     * @throws [UnsupportedOperationException] if the current runtime does not support spatial
+     *   annotation tracking
+     * @throws [IllegalArgumentException] if any of the provided [quads] violate the geometric
+     *   constraints of the specified [alignment]
+     */
+    @OptIn(ExperimentalSpatialAnnotationsApi::class)
+    public fun startSpatialAnnotationTracking(
+        imageBuffer: ByteBuffer,
+        imageSize: IntSize2d,
+        rowStride: Int,
+        format: SpatialAnnotationImageFormat,
+        alignment: SpatialAnnotationQuadAlignment,
+        quads: Map<SpatialAnnotationId, Quad>,
+        timestampNanos: Long,
+    ) {
+        throw UnsupportedOperationException()
+    }
+
+    /**
+     * Tells the engine to stop tracking specific SpatialAnnotations by ID. If no IDs are provided,
+     * all SpatialAnnotations will be stopped.
+     *
+     * @param ids The list of unique SpatialAnnotationIds to stop tracking.
+     */
+    public fun stopSpatialAnnotationTracking(ids: List<SpatialAnnotationId>) {
+        throw UnsupportedOperationException()
+    }
 
     /**
      * Returns the maximum number of images that can be added to an

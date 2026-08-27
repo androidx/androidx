@@ -81,6 +81,7 @@ package androidx.xr.runtime {
     method @InaccessibleFromKotlin public androidx.xr.runtime.PlaneTrackingMode getPlaneTracking();
     method @InaccessibleFromKotlin public float getQrCodeSizeMeters();
     method @InaccessibleFromKotlin public androidx.xr.runtime.QrCodeTrackingMode getQrCodeTracking();
+    method @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public androidx.xr.runtime.SpatialAnnotationTrackingMode getSpatialAnnotationTracking();
     property public androidx.xr.runtime.AnchorPersistenceMode anchorPersistence;
     property public androidx.xr.runtime.AugmentedImageDatabase? augmentedImageDatabase;
     property public java.util.Set<androidx.xr.runtime.AugmentedObjectCategory> augmentedObjectCategories;
@@ -111,6 +112,7 @@ package androidx.xr.runtime {
     method public androidx.xr.runtime.Config.Builder setPlaneTracking(androidx.xr.runtime.PlaneTrackingMode planeTracking);
     method public androidx.xr.runtime.Config.Builder setQrCodeSizeMeters(float qrCodeSizeMeters);
     method public androidx.xr.runtime.Config.Builder setQrCodeTracking(androidx.xr.runtime.QrCodeTrackingMode qrCodeTracking);
+    method @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public androidx.xr.runtime.Config.Builder setSpatialAnnotationTracking(androidx.xr.runtime.SpatialAnnotationTrackingMode spatialAnnotationTracking);
   }
 
   public final class CoreState {
@@ -165,6 +167,9 @@ package androidx.xr.runtime {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD}) public @interface ExperimentalInertialTrackingApi {
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API for Spatial Annotations. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD}) public @interface ExperimentalSpatialAnnotationsApi {
   }
 
   public final class EyeTrackingMode {
@@ -357,6 +362,19 @@ package androidx.xr.runtime {
 
   public final class SessionCreateUnsupportedDevice extends androidx.xr.runtime.SessionCreateResult {
     ctor public SessionCreateUnsupportedDevice();
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public final class SpatialAnnotationTrackingMode {
+    method @InaccessibleFromKotlin public int getMode();
+    property public int mode;
+    field public static final androidx.xr.runtime.SpatialAnnotationTrackingMode.Companion Companion;
+    field public static final androidx.xr.runtime.SpatialAnnotationTrackingMode DISABLED;
+    field public static final androidx.xr.runtime.SpatialAnnotationTrackingMode QUAD;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotationTrackingMode.Companion {
+    property public androidx.xr.runtime.SpatialAnnotationTrackingMode DISABLED;
+    property public androidx.xr.runtime.SpatialAnnotationTrackingMode QUAD;
   }
 
   public final class SpatialApiVersionHelper {
@@ -644,6 +662,25 @@ package androidx.xr.runtime.math {
     method @BytecodeOnly public static androidx.xr.runtime.math.Pose! fromLookAt$default(androidx.xr.runtime.math.Pose.Companion!, androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, androidx.xr.runtime.math.Vector3!, int, Object!);
     method public androidx.xr.runtime.math.Pose lerp(androidx.xr.runtime.math.Pose start, androidx.xr.runtime.math.Pose end, float ratio);
     property public androidx.xr.runtime.math.Pose Identity;
+  }
+
+  public final class Quad {
+    method public static androidx.xr.runtime.math.Quad createAxisAligned(androidx.xr.runtime.math.Vector2 min, androidx.xr.runtime.math.Vector2 max);
+    method public static androidx.xr.runtime.math.Quad createFromCorners(androidx.xr.runtime.math.Vector2 upperLeft, androidx.xr.runtime.math.Vector2 upperRight, androidx.xr.runtime.math.Vector2 lowerRight, androidx.xr.runtime.math.Vector2 lowerLeft);
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector2 getLowerLeft();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector2 getLowerRight();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector2 getUpperLeft();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector2 getUpperRight();
+    property public androidx.xr.runtime.math.Vector2 lowerLeft;
+    property public androidx.xr.runtime.math.Vector2 lowerRight;
+    property public androidx.xr.runtime.math.Vector2 upperLeft;
+    property public androidx.xr.runtime.math.Vector2 upperRight;
+    field public static final androidx.xr.runtime.math.Quad.Companion Companion;
+  }
+
+  public static final class Quad.Companion {
+    method public androidx.xr.runtime.math.Quad createAxisAligned(androidx.xr.runtime.math.Vector2 min, androidx.xr.runtime.math.Vector2 max);
+    method public androidx.xr.runtime.math.Quad createFromCorners(androidx.xr.runtime.math.Vector2 upperLeft, androidx.xr.runtime.math.Vector2 upperRight, androidx.xr.runtime.math.Vector2 lowerRight, androidx.xr.runtime.math.Vector2 lowerLeft);
   }
 
   public final class Quaternion {
