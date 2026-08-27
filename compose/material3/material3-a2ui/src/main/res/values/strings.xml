@@ -16,5 +16,9 @@
   -->
 
 <resources>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_ok">OK</string>
     <string name="error">Error</string>
+    <string name="select_date">Select date</string>
+    <string name="select_time">Select time</string>
 </resources>

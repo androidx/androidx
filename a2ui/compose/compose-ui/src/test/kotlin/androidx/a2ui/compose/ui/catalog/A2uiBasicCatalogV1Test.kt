@@ -60,6 +60,7 @@ class A2uiBasicCatalogV1Test {
         val row = TestRowComponent()
         val column = TestColumnComponent()
         val button = TestButtonComponent()
+        val dateTimeInput = TestDateTimeInputComponent()
         val catalog =
             createTestBasicCatalog(
                 text = text,
@@ -68,6 +69,7 @@ class A2uiBasicCatalogV1Test {
                 row = row,
                 column = column,
                 button = button,
+                dateTimeInput = dateTimeInput,
                 functions = listOf(A2uiFormatStringFunction.INSTANCE),
             )
 
@@ -77,7 +79,9 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.row).isSameInstanceAs(row)
         assertThat(catalog.column).isSameInstanceAs(column)
         assertThat(catalog.button).isSameInstanceAs(button)
-        assertThat(catalog.components).containsExactly(text, image, card, row, column, button)
+        assertThat(catalog.dateTimeInput).isSameInstanceAs(dateTimeInput)
+        assertThat(catalog.components)
+            .containsExactly(text, image, card, row, column, button, dateTimeInput)
         assertThat(catalog.functions).containsExactly(A2uiFormatStringFunction.INSTANCE)
     }
 
@@ -89,6 +93,7 @@ class A2uiBasicCatalogV1Test {
         val row = TestRowComponent()
         val column = TestColumnComponent()
         val button = TestButtonComponent()
+        val dateTimeInput = TestDateTimeInputComponent()
         val catalog1 =
             createTestBasicCatalog(
                 text = text,
@@ -97,6 +102,7 @@ class A2uiBasicCatalogV1Test {
                 row = row,
                 column = column,
                 button = button,
+                dateTimeInput = dateTimeInput,
             )
         val catalog2 =
             createTestBasicCatalog(
@@ -106,6 +112,7 @@ class A2uiBasicCatalogV1Test {
                 row = row,
                 column = column,
                 button = button,
+                dateTimeInput = dateTimeInput,
             )
 
         assertThat(catalog1).isEqualTo(catalog2)
@@ -121,6 +128,7 @@ class A2uiBasicCatalogV1Test {
         val sharedRow = TestRowComponent()
         val sharedColumn = TestColumnComponent()
         val sharedButton = TestButtonComponent()
+        val sharedDateTimeInput = TestDateTimeInputComponent()
         val catalog1 =
             createTestBasicCatalog(
                 text = text1,
@@ -129,6 +137,7 @@ class A2uiBasicCatalogV1Test {
                 row = sharedRow,
                 column = sharedColumn,
                 button = sharedButton,
+                dateTimeInput = sharedDateTimeInput,
             )
         val catalog2 =
             createTestBasicCatalog(
@@ -138,6 +147,7 @@ class A2uiBasicCatalogV1Test {
                 row = sharedRow,
                 column = sharedColumn,
                 button = sharedButton,
+                dateTimeInput = sharedDateTimeInput,
             )
 
         assertThat(catalog1).isNotEqualTo(catalog2)
@@ -151,7 +161,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.toString()).contains("catalogId=${A2uiBasicCatalogV1.CatalogId}")
         assertThat(catalog.toString()).contains("themeSchema=${A2uiBasicCatalogV1.ThemeSchema}")
         assertThat(catalog.toString())
-            .containsMatch("components=.*Text.*Image.*Card.*Row.*Column.*Button")
+            .containsMatch("components=.*Text.*Image.*Card.*Row.*Column.*Button.*DateTimeInput")
         assertThat(catalog.toString()).contains("functions=[]")
     }
 
@@ -162,6 +172,7 @@ class A2uiBasicCatalogV1Test {
         row: A2uiBasicCatalogV1.Row = TestRowComponent(),
         column: A2uiBasicCatalogV1.Column = TestColumnComponent(),
         button: A2uiBasicCatalogV1.Button = TestButtonComponent(),
+        dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = TestDateTimeInputComponent(),
         functions: List<A2uiFunction> = emptyList(),
     ) =
         A2uiBasicCatalogV1(
@@ -171,6 +182,7 @@ class A2uiBasicCatalogV1Test {
             row = row,
             column = column,
             button = button,
+            dateTimeInput = dateTimeInput,
             functions = functions,
         )
 
@@ -225,6 +237,20 @@ class A2uiBasicCatalogV1Test {
             childId: String,
             variant: A2uiBasicCatalogV1.Button.Variant,
             action: Map<String, Any?>,
+            modifier: Modifier,
+        ) {}
+    }
+
+    private class TestDateTimeInputComponent : A2uiBasicCatalogV1.DateTimeInput {
+        @Composable
+        override fun A2uiComponentScope.TypedContent(
+            value: Long?,
+            onValueChange: ((Long?) -> Unit)?,
+            enableDate: Boolean,
+            enableTime: Boolean,
+            min: Long?,
+            max: Long?,
+            label: String?,
             modifier: Modifier,
         ) {}
     }
