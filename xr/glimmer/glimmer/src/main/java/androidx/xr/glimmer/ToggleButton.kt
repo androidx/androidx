@@ -123,12 +123,6 @@ public fun ToggleButton(
     val iconSpacing = ButtonDefaults.iconSpacing
     val minHeight = ButtonDefaults.minimumHeight(buttonSize)
 
-    val depth =
-        SurfaceDepthEffect(
-            depthEffect = null,
-            focusedDepthEffect = GlimmerTheme.depthEffectLevels.level1,
-        )
-
     val internalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
     val color = colors.resolveBackgroundColor(checked)
@@ -144,7 +138,7 @@ public fun ToggleButton(
                     focusedColor = color,
                     contentColor = contentColor,
                     focusedContentColor = contentColor,
-                    depthEffect = depth,
+                    depthEffect = null,
                     interactionSource = internalInteractionSource,
                 )
                 .toggleable(
