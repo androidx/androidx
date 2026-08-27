@@ -15,6 +15,7 @@
  */
 package androidx.appfunctions.metadata
 
+import android.app.appfunctions.AppFunctionMetadata.PROPERTY_VALUE_SCOPE_GLOBAL
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -112,6 +113,7 @@ class AppFunctionMetadataTest {
                 description = description,
                 deprecation = deprecation,
                 packageMetadata = packageMetadata,
+                scope = AppFunctionMetadata.SCOPE_ACTIVITY,
             )
         val metadata2 =
             AppFunctionMetadata(
@@ -122,6 +124,7 @@ class AppFunctionMetadataTest {
                 description = description,
                 deprecation = deprecation,
                 packageMetadata = packageMetadata,
+                scope = AppFunctionMetadata.SCOPE_ACTIVITY,
             )
         val metadata3 =
             AppFunctionMetadata(
@@ -132,6 +135,7 @@ class AppFunctionMetadataTest {
                 description = "different description",
                 deprecation = deprecation,
                 packageMetadata = packageMetadata,
+                scope = AppFunctionMetadata.SCOPE_ACTIVITY,
             )
 
         assertThat(metadata1).isEqualTo(metadata2)
@@ -198,6 +202,7 @@ class AppFunctionMetadataTest {
                 response = response.toAppFunctionResponseMetadataDocument(),
                 description = description,
                 deprecation = deprecation.toAppFunctionDeprecationMetadataDocument(),
+                scope = PROPERTY_VALUE_SCOPE_GLOBAL,
             )
         assertThat(actualAppFunctionMetadataDocument).isEqualTo(expectedAppFunctionMetadataDocument)
     }

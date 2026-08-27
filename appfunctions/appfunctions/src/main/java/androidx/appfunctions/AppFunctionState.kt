@@ -58,8 +58,8 @@ constructor(
     /**
      * The [android.app.appfunctions.AppFunctionActivityId]s this app function is associated with.
      *
-     * This will only be non-null when [android.app.appfunctions.AppFunctionMetadata.scope] equals
-     * to [androidx.appfunctions.metadata.AppFunctionMetadata.SCOPE_ACTIVITY]. See
+     * This will only be non-null when [androidx.appfunctions.metadata.AppFunctionMetadata.scope]
+     * equals to [androidx.appfunctions.metadata.AppFunctionMetadata.SCOPE_ACTIVITY]. See
      * [androidx.appfunctions.metadata.AppFunctionMetadata.SCOPE_ACTIVITY] for more details.
      */
     @get:Suppress(

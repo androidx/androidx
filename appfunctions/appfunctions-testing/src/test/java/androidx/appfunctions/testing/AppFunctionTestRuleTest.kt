@@ -25,8 +25,15 @@ import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_ACTIVITY
+import androidx.appfunctions.metadata.AppFunctionMetadata.Companion.SCOPE_GLOBAL
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
+import androidx.appfunctions.metadata.AppFunctionResponseMetadata
+import androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata
+import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
+import androidx.appfunctions.testing.internal.AppFunctionRuntimeMetadata
+import androidx.appfunctions.testing.internal.AppFunctionStaticAndRuntimeMetadata
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
@@ -36,7 +43,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.timeout
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -145,6 +151,62 @@ class AppFunctionTestRuleTest {
 
             assertThat(results.map { it.id })
                 .containsExactly("androidx.appfunctions.testing.NotesFunctions#createNote")
+        }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_searchAppFunctions_filterByGlobalScope_success() =
+        runBlocking<Unit> {
+            val results =
+                appFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(scopes = setOf(SCOPE_GLOBAL))
+                )
+
+            assertThat(results.map { it.id })
+                .contains("androidx.appfunctions.testing.NotesFunctions#createNote")
+        }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    @Test(timeout = 5000)
+    fun returnedAppFunctionManagerCompat_searchAppFunctions_filterByActivityScope_success() =
+        runBlocking<Unit> {
+            val activityScopeFunctionId =
+                "androidx.appfunctions.testing.ActivityScopeFunction#activityScopeFunction"
+            // TODO(b/426219836): Manually setting metadata with activity scope because reading
+            //  dynamic app functions is not yet supported in test rule. Test using API once
+            //  supported.
+            appFunctionTestRule.appFunctionReader.setAppFunctionStaticAndRuntimeMetadata(
+                context.packageName,
+                AppFunctionStaticAndRuntimeMetadata(
+                    staticMetadata =
+                        CompileTimeAppFunctionMetadata(
+                            id = activityScopeFunctionId,
+                            isEnabledByDefault = true,
+                            schema = null,
+                            parameters = emptyList(),
+                            response =
+                                AppFunctionResponseMetadata(
+                                    valueType = AppFunctionUnitTypeMetadata(isNullable = false)
+                                ),
+                            components = AppFunctionComponentsMetadata(),
+                            description = "",
+                            deprecation = null,
+                            scope = SCOPE_ACTIVITY,
+                        ),
+                    runtimeMetadata =
+                        AppFunctionRuntimeMetadata(
+                            enabled = AppFunctionManager.APP_FUNCTION_STATE_DEFAULT
+                        ),
+                ),
+            )
+            val results =
+                appFunctionManager.searchAppFunctions(
+                    AppFunctionSearchSpec(scopes = setOf(SCOPE_ACTIVITY))
+                )
+
+            assertThat(results.map { it.id }).contains(activityScopeFunctionId)
+            assertThat(results.map { it.id })
+                .doesNotContain("androidx.appfunctions.testing.NotesFunctions#createNote")
         }
 
     @Test(timeout = 5000)
