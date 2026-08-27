@@ -97,7 +97,7 @@ class CardTest {
     @Test
     fun cardColors_customValues() {
         rule.setContent() {
-            var colorScheme =
+            val colorScheme =
                 MaterialTheme.colorScheme.copy(
                     surface = Color.Green,
                     onSurface = Color.Blue,
@@ -119,7 +119,7 @@ class CardTest {
     @Test
     fun elevatedCardColors_customValues() {
         rule.setContent() {
-            var colorScheme =
+            val colorScheme =
                 MaterialTheme.colorScheme.copy(
                     surface = Color.Green,
                     onSurface = Color.Blue,
@@ -141,7 +141,7 @@ class CardTest {
     @Test
     fun outlinedCardColors_customValues() {
         rule.setContent() {
-            var colorScheme =
+            val colorScheme =
                 MaterialTheme.colorScheme.copy(
                     surface = Color.Green,
                     onSurface = Color.Blue,

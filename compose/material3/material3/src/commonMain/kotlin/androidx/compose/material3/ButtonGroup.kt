@@ -470,7 +470,7 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
         if (measurables.size > 1) {
             for (index in measurables.indices) {
                 if (animatables[index].value == 0f) continue
-                var actualGrowth: Int
+                val actualGrowth: Int
 
                 if (index in 1 until measurables.lastIndex) {
                     // We constrain the growth by the paddings of the neighbors
@@ -611,6 +611,7 @@ private class ButtonGroupMeasurePolicy(
         var weightedSpace = 0
         if (weightChildrenCount == 0) {
             // fixedSpace contains an extra spacing after the last non-weight child.
+            @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
             fixedSpace -= spaceAfterLastNoWeight
         } else {
             // obtain the constraints of the rest according to their weights.
@@ -719,7 +720,7 @@ private class ButtonGroupMeasurePolicy(
             // The expand and compress logic of button groups.
             for (index in 0 until lastItem) {
                 if (animatables[index].value == 0f) continue
-                var actualGrowth: Int
+                val actualGrowth: Int
 
                 if (index in 1 until lastItem - 1) {
                     val targetGrowth =

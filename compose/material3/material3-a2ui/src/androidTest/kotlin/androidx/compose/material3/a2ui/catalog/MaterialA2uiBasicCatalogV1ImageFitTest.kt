@@ -37,11 +37,10 @@ class MaterialA2uiBasicCatalogV1ImageFitTest(private val fitTestParam: FitTestPa
     var capturedUrl: String? = null
     var capturedContentScale: ContentScale? = null
 
-    private val fakeImageRenderer =
-        A2uiImageRenderer { url, contentDescription, contentScale, modifier, onError ->
-            capturedUrl = url
-            capturedContentScale = contentScale
-        }
+    private val fakeImageRenderer = A2uiImageRenderer { url, _, contentScale, _, _ ->
+        capturedUrl = url
+        capturedContentScale = contentScale
+    }
 
     private val testCatalog =
         A2uiCatalog(

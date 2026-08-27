@@ -1426,7 +1426,7 @@ private fun SliderImpl(
         val sliderHeight: Int
         val trackOffsetX: Int
         val trackOffsetY: Int
-        var thumbOffsetX: Int
+        val thumbOffsetX: Int
         var thumbOffsetY: Int
         val valueAsFraction = state.coercedValueAsFraction
         val isOnFirstOrLastStep =

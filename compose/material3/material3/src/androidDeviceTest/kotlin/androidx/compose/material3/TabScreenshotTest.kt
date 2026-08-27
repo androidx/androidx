@@ -217,13 +217,6 @@ class TabScreenshotTest {
             MaterialTheme(darkColorScheme()) { DefaultSecondaryTabs(interactionSource) }
         }
 
-        val goldenIdentifier =
-            if (SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                "tabs_darkTheme_secondary_pressed_post_api_34"
-            } else {
-                "tabs_darkTheme_secondary_pressed"
-            }
-
         assertTabsMatch(
             scope = scope!!,
             interactionSource = interactionSource,

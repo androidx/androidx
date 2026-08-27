@@ -343,7 +343,7 @@ class FloatingToolbarScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 contentAlignment = Alignment.Center,
             ) {
                 val labels = listOf("S", "M", "T", "SA", "W", "All")
-                var selectedIndex = 2
+                val selectedIndex = 2
                 HorizontalFloatingToolbar(expanded = false) {
                     labels.forEachIndexed { index, labelString ->
                         if (selectedIndex == index) {
@@ -593,7 +593,7 @@ class FloatingToolbarScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 contentAlignment = Alignment.Center,
             ) {
                 val labels = listOf("S", "M", "T", "SA", "W", "All")
-                var selectedIndex = 2
+                val selectedIndex = 2
                 VerticalFloatingToolbar(expanded = false) {
                     labels.forEachIndexed { index, labelString ->
                         if (selectedIndex == index) {
