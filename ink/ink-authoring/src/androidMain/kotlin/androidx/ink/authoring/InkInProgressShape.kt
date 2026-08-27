@@ -54,9 +54,8 @@ public constructor(private val animationClock: StrokePaintAnimationClock) :
      */
     @get:JvmName("shouldPreserveNoiseSeed") public var shouldPreserveNoiseSeed: Boolean = false
 
-    private var shapeChangesWithTime = false
-    internal var textureAnimationDurationMillis: Long = Long.MIN_VALUE
-        private set
+    private var hasBrushPaintAnimation = false
+    private var hasBrushTipAnimation = false
 
     private var canceled = false
 
@@ -64,8 +63,6 @@ public constructor(private val animationClock: StrokePaintAnimationClock) :
 
     private var updateSinceResetUpdatedRegion = false
     private var cancelSinceResetUpdatedRegion = false
-
-    private var startSystemElapsedTimeMillis = Long.MIN_VALUE
 
     /** Used by [getUpdatedRegion]. */
     private val scratchUpdatedRegion = BoxAccumulator()
@@ -85,19 +82,19 @@ public constructor(private val animationClock: StrokePaintAnimationClock) :
         if (!shouldPreserveNoiseSeed) {
             this.noiseSeed = Random.Default.nextInt()
         }
+        val paintAnimationLoopDurationMillis = shapeSpec.family.textureAnimationLoopDurationMillis
         val baseAnimationPhase =
             StrokePaintAnimationClock.calculateBasePhaseForNewStroke(
                 clockStateMillis = animationClock.getClockStateMillis(),
-                animationLoopDurationMillis = shapeSpec.family.textureAnimationLoopDurationMillis,
+                animationLoopDurationMillis = paintAnimationLoopDurationMillis,
             )
         inProgressStroke.start(
             brush = shapeSpec,
             noiseSeed = noiseSeed,
             baseAnimationPhase = baseAnimationPhase,
         )
-        startSystemElapsedTimeMillis = systemElapsedTimeMillis
-        shapeChangesWithTime = inProgressStroke.changesWithTime()
-        textureAnimationDurationMillis = shapeSpec.family.textureAnimationLoopDurationMillis
+        hasBrushPaintAnimation = paintAnimationLoopDurationMillis > 0L
+        hasBrushTipAnimation = inProgressStroke.changesWithTime()
     }
 
     override fun enqueueInputs(realInputs: StrokeInputBatch, predictedInputs: StrokeInputBatch) {
@@ -109,13 +106,12 @@ public constructor(private val animationClock: StrokePaintAnimationClock) :
         }
     }
 
-    override fun changesWithTime(): Boolean =
-        shapeChangesWithTime || textureAnimationDurationMillis > 0
+    override fun changesWithTime(): Boolean = hasBrushTipAnimation || hasBrushPaintAnimation
 
     override fun update(shapeDurationMillis: Long) {
         // Update these values even if the underlying [InProgressStroke] doesn't need updating, so
         // that
-        // texture animations can be properly rendered.
+        // brush paint animations can be properly rendered.
         updateSinceResetUpdatedRegion = true
         runCatching { inProgressStroke.updateShape(shapeDurationMillis) }
             .exceptionOrNull()
@@ -143,15 +139,14 @@ public constructor(private val animationClock: StrokePaintAnimationClock) :
         }
         if (updateSinceResetUpdatedRegion) {
             scratchUpdatedRegion.add(inProgressStroke.populateUpdatedRegion(scratchBoxAccumulator))
-            // When a stroke has texture animation, assume it needs to fully re-render with each
-            // timestamp
-            // change. This means the updated region is mostly equivalent to the stroke's bounding
-            // box,
-            // but also include the stroke's updated region in case there's an update that lies
-            // outside
-            // the current bounding box - for example, an overshot prediction being erased or the
-            // disappearing end of a laser pointer style stroke.
-            if (textureAnimationDurationMillis > 0) {
+            // When a stroke has brush paint animation, assume it needs to fully re-render with each
+            // timestamp change. This means the updated region is mostly equivalent to the stroke's
+            // bounding box, but also include the stroke's updated region in case there's an update
+            // that
+            // lies outside the current bounding box - for example, an overshot prediction being
+            // erased or
+            // the disappearing end of a laser pointer style stroke.
+            if (hasBrushPaintAnimation) {
                 scratchUpdatedRegion.add(getBoundingBox())
             }
         }
@@ -190,12 +185,11 @@ public constructor(private val animationClock: StrokePaintAnimationClock) :
         }
 
     override fun prepareToRecycle() {
-        startSystemElapsedTimeMillis = Long.MIN_VALUE
         updateSinceResetUpdatedRegion = false
         cancelSinceResetUpdatedRegion = false
         canceled = false
-        textureAnimationDurationMillis = Long.MIN_VALUE
-        shapeChangesWithTime = false
+        hasBrushPaintAnimation = false
+        hasBrushTipAnimation = false
         inProgressStroke.clear()
     }
 }

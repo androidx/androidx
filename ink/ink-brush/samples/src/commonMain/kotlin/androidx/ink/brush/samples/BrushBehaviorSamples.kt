@@ -49,7 +49,7 @@ public fun createPressureToSizeBehavior(): BrushBehavior =
                     // `TargetNode` will fade towards the current value of the `SourceNode` over a
                     // distance of
                     // approximately 75% of the base brush diameter.
-                    dampingSource = ProgressDomain.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE,
+                    dampOver = ProgressDomain.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE,
                     strength = 0.75f,
                     input =
                         SourceNode(

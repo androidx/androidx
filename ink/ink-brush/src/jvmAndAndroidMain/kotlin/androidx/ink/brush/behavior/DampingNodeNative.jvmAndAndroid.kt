@@ -27,9 +27,9 @@ actual internal object DampingNodeNative {
         NativeLoader.load()
     }
 
-    @UsedByNative actual external fun create(dampingSource: Int, strength: Float): Long
+    @UsedByNative actual external fun create(dampOver: Int, strength: Float): Long
 
-    @UsedByNative actual external fun getDampingSourceInt(nativePointer: Long): Int
+    @UsedByNative actual external fun getDampOverInt(nativePointer: Long): Int
 
     @UsedByNative actual external fun getStrength(nativePointer: Long): Float
 }
