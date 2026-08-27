@@ -31,12 +31,16 @@ import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
+import androidx.a2ui.model.schema.commontypes.A2uiDataBindingSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastMap
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -52,6 +56,7 @@ import java.util.TimeZone
  *
  * @property text The [Text] component implementation.
  * @property image The [Image] component implementation.
+ * @property icon The [Icon] component implementation.
  * @property card The [Card] component implementation.
  * @property row The [Row] component implementation.
  * @property column The [Column] component implementation.
@@ -64,6 +69,7 @@ import java.util.TimeZone
 public class A2uiBasicCatalogV1(
     public val text: Text,
     public val image: Image,
+    public val icon: Icon,
     public val card: Card,
     public val row: Row,
     public val column: Column,
@@ -84,6 +90,7 @@ public class A2uiBasicCatalogV1(
         listOf(
             text,
             image,
+            icon,
             card,
             row,
             column,
@@ -125,6 +132,32 @@ public class A2uiBasicCatalogV1(
                             ),
                     )
             )
+    }
+
+    /** Accessibility attributes for an element in the A2UI Basic Catalog V1. */
+    @Immutable
+    public class AccessibilityAttributes(
+        public val label: String? = null,
+        public val description: String? = null,
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is AccessibilityAttributes) return false
+
+            if (label != other.label) return false
+            if (description != other.description) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = label.hashCode()
+            result = 31 * result + description.hashCode()
+            return result
+        }
+
+        override fun toString(): String =
+            "AccessibilityAttributes(label=$label, description=$description)"
     }
 
     /**
@@ -352,6 +385,221 @@ public class A2uiBasicCatalogV1(
             description: String?,
             fit: Fit,
             variant: Variant,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"Icon"` component for displaying an icon.
+     *
+     * **Schema Properties:**
+     * * `name` (Dynamic Custom, required): The name of the icon to display. Accepts either a static
+     *   string literal from the predefined list, an object with an `svgPath` string, or a dynamic
+     *   data binding.
+     * * `accessibility` (Dynamic Custom, optional): Accessibility attributes for the icon.
+     */
+    public interface Icon : A2uiComponent {
+        override val name: String
+            get() = "Icon"
+
+        override val description: String
+            get() = "Displays an icon from a predefined set of icons or an SVG path."
+
+        /** The visual source for the [Icon]. */
+        public sealed interface Source
+
+        /** Indicates an icon should be drawn from a bespoke client-provided SVG path. */
+        @Immutable
+        public class SvgPath(public val svgPath: String) : Source {
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is SvgPath) return false
+                return svgPath == other.svgPath
+            }
+
+            override fun hashCode(): Int = svgPath.hashCode()
+
+            override fun toString(): String = "SvgPath(svgPath='$svgPath')"
+        }
+
+        /** Supported built-in icon tokens in the A2UI basic catalog schema. */
+        public enum class BuiltIn(public val value: String) : Source {
+            AccountCircle("accountCircle"),
+            Add("add"),
+            ArrowBack("arrowBack"),
+            ArrowForward("arrowForward"),
+            AttachFile("attachFile"),
+            CalendarToday("calendarToday"),
+            Call("call"),
+            Camera("camera"),
+            Check("check"),
+            Close("close"),
+            Delete("delete"),
+            Download("download"),
+            Edit("edit"),
+            Error("error"),
+            Event("event"),
+            FastForward("fastForward"),
+            Favorite("favorite"),
+            FavoriteOff("favoriteOff"),
+            Folder("folder"),
+            Help("help"),
+            Home("home"),
+            Info("info"),
+            LocationOn("locationOn"),
+            Lock("lock"),
+            LockOpen("lockOpen"),
+            Mail("mail"),
+            Menu("menu"),
+            MoreHoriz("moreHoriz"),
+            MoreVert("moreVert"),
+            Notifications("notifications"),
+            NotificationsOff("notificationsOff"),
+            Pause("pause"),
+            Payment("payment"),
+            Person("person"),
+            Phone("phone"),
+            Photo("photo"),
+            Play("play"),
+            Print("print"),
+            Refresh("refresh"),
+            Rewind("rewind"),
+            Search("search"),
+            Send("send"),
+            Settings("settings"),
+            Share("share"),
+            ShoppingCart("shoppingCart"),
+            SkipNext("skipNext"),
+            SkipPrevious("skipPrevious"),
+            Star("star"),
+            StarHalf("starHalf"),
+            StarOff("starOff"),
+            Stop("stop"),
+            Upload("upload"),
+            Visibility("visibility"),
+            VisibilityOff("visibilityOff"),
+            VolumeDown("volumeDown"),
+            VolumeMute("volumeMute"),
+            VolumeOff("volumeOff"),
+            VolumeUp("volumeUp"),
+            Warning("warning");
+
+            public companion object {
+                /** Returns the [BuiltIn] matching [value], or null if unknown. */
+                public fun fromValue(value: String): BuiltIn? =
+                    entries.fastFirstOrNull { it.value == value }
+            }
+        }
+
+        /**
+         * Indicates an icon specified by an unrecognized name string that does not match any
+         * predefined [BuiltIn] token.
+         */
+        @Immutable
+        public class Unrecognized(public val name: String) : Source {
+            override fun equals(other: Any?): Boolean {
+                if (this === other) return true
+                if (other !is Unrecognized) return false
+                return name == other.name
+            }
+
+            override fun hashCode(): Int = name.hashCode()
+
+            override fun toString(): String = "Unrecognized(name='$name')"
+        }
+
+        public companion object {
+            /** The [A2uiProperty] for the `"accessibility"` property of an [Icon]. */
+            public val AccessibilityProperty: DynamicA2uiProperty<AccessibilityAttributes> =
+                A2uiProperty.dynamicCustom(
+                    key = "accessibility",
+                    schema = A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE,
+                    safeCast = { value ->
+                        val map = value as? Map<*, *> ?: return@dynamicCustom null
+                        AccessibilityAttributes(
+                            label = map["label"]?.toString(),
+                            description = map["description"]?.toString(),
+                        )
+                    },
+                )
+
+            private val nameSchema: A2uiSchema =
+                A2uiAnySchema(
+                    description = "The name of the icon to display.",
+                    keywords =
+                        listOf(
+                            A2uiSchemaKeyword.OneOf(
+                                listOf(
+                                    A2uiStringSchema(
+                                        keywords =
+                                            listOf(
+                                                A2uiSchemaKeyword.Enum(
+                                                    BuiltIn.entries.fastMap { it.value }
+                                                )
+                                            )
+                                    ),
+                                    A2uiObjectSchema(
+                                        properties = mapOf("svgPath" to A2uiStringSchema.INSTANCE),
+                                        required = setOf("svgPath"),
+                                        isAdditionalPropertiesAllowed = false,
+                                    ),
+                                    A2uiDataBindingSchema.DEFAULT_INSTANCE,
+                                )
+                            )
+                        ),
+                )
+
+            /** The [A2uiProperty] for the `"name"` property of an [Icon]. */
+            public val NameProperty: DynamicA2uiProperty<Source> =
+                A2uiProperty.dynamicCustom(
+                    key = "name",
+                    required = true,
+                    schema = nameSchema,
+                    safeCast = { value ->
+                        when (value) {
+                            is String -> BuiltIn.fromValue(value) ?: Unrecognized(value)
+                            is Map<*, *> -> (value["svgPath"] as? String)?.let { SvgPath(it) }
+                            else -> null
+                        }
+                    },
+                )
+
+            internal val ComponentProperties: List<A2uiProperty<*>> =
+                listOf(NameProperty, AccessibilityProperty)
+        }
+
+        override val properties: List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bind(NameProperty) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val nameValue =
+                checkNotNull(properties.bind(NameProperty)) {
+                    "Required property '${NameProperty.key}' is missing."
+                }
+            val accessibility = properties.bind(AccessibilityProperty)
+            TypedContent(source = nameValue, accessibility = accessibility, modifier = modifier)
+        }
+
+        /**
+         * Renders the [Icon] with its resolved [source] built-in name or SVG path and optional
+         * [accessibility] attributes.
+         *
+         * @param source The resolved [Source] identifying the visual to draw.
+         * @param accessibility Accessibility attributes for the icon.
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            source: Source,
+            accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
     }

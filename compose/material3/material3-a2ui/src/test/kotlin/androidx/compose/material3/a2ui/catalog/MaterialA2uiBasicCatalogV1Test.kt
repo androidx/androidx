@@ -56,6 +56,8 @@ class MaterialA2uiBasicCatalogV1Test {
         assertThat(catalog.components["Text"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.text)
         assertThat(catalog.components["Image"]).isSameInstanceAs(image)
+        assertThat(catalog.components["Icon"])
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.icon)
         assertThat(catalog.components["Card"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.card)
         assertThat(catalog.components["Row"])
@@ -96,6 +98,32 @@ class MaterialA2uiBasicCatalogV1Test {
         assertThat(catalog.components["Text"]).isSameInstanceAs(customText)
         assertThat(catalog.components["Text"])
             .isNotSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.text)
+    }
+
+    @Test
+    fun factory_withCustomIconComponent_overridesDefaultMaterialIcon() {
+        val customIcon =
+            object : A2uiBasicCatalogV1.Icon {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    source: A2uiBasicCatalogV1.Icon.Source,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        val catalog =
+            materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
+                urlOpener = fakeUrlOpener,
+                messageFormatter = fakeMessageFormatter,
+                localeProvider = fakeLocaleProvider,
+                icon = customIcon,
+            )
+
+        assertThat(catalog.components["Icon"]).isSameInstanceAs(customIcon)
+        assertThat(catalog.components["Icon"])
+            .isNotSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.icon)
     }
 
     @Test
@@ -265,6 +293,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Text)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer))
             .isInstanceOf(MaterialA2uiBasicCatalogV1Image::class.java)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.icon)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Icon)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.card)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Card)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.row)

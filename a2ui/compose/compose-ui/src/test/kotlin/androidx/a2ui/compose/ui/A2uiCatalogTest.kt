@@ -135,6 +135,7 @@ class A2uiCatalogTest {
         assertThat(catalog.themeSchema).isEqualTo(A2uiBasicCatalogV1.ThemeSchema)
         assertThat(catalog.components["Text"]).isSameInstanceAs(basicCatalog.text)
         assertThat(catalog.components["Image"]).isSameInstanceAs(basicCatalog.image)
+        assertThat(catalog.components["Icon"]).isSameInstanceAs(basicCatalog.icon)
         assertThat(catalog.components["Card"]).isSameInstanceAs(basicCatalog.card)
         assertThat(catalog.components["Row"]).isSameInstanceAs(basicCatalog.row)
         assertThat(catalog.components["Column"]).isSameInstanceAs(basicCatalog.column)
@@ -327,6 +328,7 @@ class A2uiCatalogTest {
         fun createTestBasicCatalog(
             text: A2uiBasicCatalogV1.Text = createStubText(),
             image: A2uiBasicCatalogV1.Image = createStubImage(),
+            icon: A2uiBasicCatalogV1.Icon = createStubIcon(),
             card: A2uiBasicCatalogV1.Card = createStubCard(),
             row: A2uiBasicCatalogV1.Row = createStubRow(),
             column: A2uiBasicCatalogV1.Column = createStubColumn(),
@@ -337,6 +339,7 @@ class A2uiCatalogTest {
             A2uiBasicCatalogV1(
                 text = text,
                 image = image,
+                icon = icon,
                 card = card,
                 row = row,
                 column = column,
@@ -363,6 +366,16 @@ class A2uiCatalogTest {
                     description: String?,
                     fit: A2uiBasicCatalogV1.Image.Fit,
                     variant: A2uiBasicCatalogV1.Image.Variant,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubIcon() =
+            object : A2uiBasicCatalogV1.Icon {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    source: A2uiBasicCatalogV1.Icon.Source,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
