@@ -17,38 +17,38 @@
 package androidx.appstate.datastore.samples
 
 import androidx.annotation.Sampled
-import androidx.appstate.AppState
-import androidx.appstate.AppStateKey
-import androidx.appstate.datastore.AppStatePreferences
+import androidx.appstate.StateStore
+import androidx.appstate.StateStoreKey
 import androidx.appstate.datastore.PersistToDataStore
+import androidx.appstate.datastore.StateStorePreferences
 import androidx.appstate.datastore.syncToDataStore
 import androidx.datastore.core.DataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 
-@Serializable @PersistToDataStore private object SampleKey : AppStateKey<String>()
+@Serializable @PersistToDataStore private object SampleKey : StateStoreKey<String>()
 
 @Sampled
-suspend fun SyncAppStateDataStoreSample(dataStore: DataStore<AppStatePreferences>) {
-    val appState = AppState()
+suspend fun SyncStateStoreDataStoreSample(dataStore: DataStore<StateStorePreferences>) {
+    val stateStore = StateStore()
 
     // Register the key by getting the state
-    val state = appState.getState(SampleKey, "default")
+    val state = stateStore.getState(SampleKey, "default")
 
-    appState.syncToDataStore(dataStore)
+    stateStore.syncToDataStore(dataStore)
 }
 
 @Sampled
-suspend fun SyncAppStateDataStorePathSample() {
-    val appState = AppState()
+suspend fun SyncStateStoreDataStorePathSample() {
+    val stateStore = StateStore()
 
     // Register the key by getting the state
-    val state = appState.getState(SampleKey, "default")
+    val state = stateStore.getState(SampleKey, "default")
 
     // The path must include the directory, for example, on Android:
-    // val path = context.filesDir.resolve("appstate.preferences_pb").absolutePath
-    val path = "/path/to/directory/appstate.preferences_pb"
+    // val path = context.filesDir.resolve("stateStore.preferences_pb").absolutePath
+    val path = "/path/to/directory/stateStore.preferences_pb"
 
-    appState.syncToDataStore(path, CoroutineScope(Dispatchers.IO))
+    stateStore.syncToDataStore(path, CoroutineScope(Dispatchers.IO))
 }

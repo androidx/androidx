@@ -16,7 +16,7 @@
 
 package androidx.appstate.datastore
 
-import androidx.appstate.AppStateKey
+import androidx.appstate.StateStoreKey
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.okio.OkioStorage
 import androidx.kruth.assertThat
@@ -32,7 +32,7 @@ import kotlinx.serialization.Serializable
 import okio.FileSystem
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AppStatePreferencesTest {
+class StateStorePreferencesTest {
 
     private val testFile =
         FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "test_datastore_${Random.nextInt()}.json"
@@ -42,16 +42,16 @@ class AppStatePreferencesTest {
         Dispatchers.resetMain()
     }
 
-    @Serializable @PersistToDataStore object StringKey : AppStateKey<String>()
+    @Serializable @PersistToDataStore object StringKey : StateStoreKey<String>()
 
-    @Serializable @PersistToDataStore object IntKey : AppStateKey<Int>()
+    @Serializable @PersistToDataStore object IntKey : StateStoreKey<Int>()
 
     @Test
     fun testGetStateReturnsDefaultValue() = runTest {
         val dataStore =
             DataStoreFactory.create(
                 storage =
-                    OkioStorage<AppStatePreferences>(FileSystem.SYSTEM, AppStateSerializer) {
+                    OkioStorage<StateStorePreferences>(FileSystem.SYSTEM, StateStoreSerializer) {
                         testFile
                     },
                 scope = backgroundScope,
@@ -66,7 +66,7 @@ class AppStatePreferencesTest {
         val dataStore =
             DataStoreFactory.create(
                 storage =
-                    OkioStorage<AppStatePreferences>(FileSystem.SYSTEM, AppStateSerializer) {
+                    OkioStorage<StateStorePreferences>(FileSystem.SYSTEM, StateStoreSerializer) {
                         testFile
                     },
                 scope = backgroundScope,
@@ -84,7 +84,7 @@ class AppStatePreferencesTest {
         val dataStore =
             DataStoreFactory.create(
                 storage =
-                    OkioStorage<AppStatePreferences>(FileSystem.SYSTEM, AppStateSerializer) {
+                    OkioStorage<StateStorePreferences>(FileSystem.SYSTEM, StateStoreSerializer) {
                         testFile
                     },
                 scope = backgroundScope,
