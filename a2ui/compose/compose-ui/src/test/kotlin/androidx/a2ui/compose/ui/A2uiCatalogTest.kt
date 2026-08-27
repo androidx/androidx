@@ -139,6 +139,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components["Card"]).isSameInstanceAs(basicCatalog.card)
         assertThat(catalog.components["Row"]).isSameInstanceAs(basicCatalog.row)
         assertThat(catalog.components["Column"]).isSameInstanceAs(basicCatalog.column)
+        assertThat(catalog.components["List"]).isSameInstanceAs(basicCatalog.list)
         assertThat(catalog.components["Button"]).isSameInstanceAs(basicCatalog.button)
         assertThat(catalog.components["DateTimeInput"]).isSameInstanceAs(basicCatalog.dateTimeInput)
         assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
@@ -332,6 +333,7 @@ class A2uiCatalogTest {
             card: A2uiBasicCatalogV1.Card = createStubCard(),
             row: A2uiBasicCatalogV1.Row = createStubRow(),
             column: A2uiBasicCatalogV1.Column = createStubColumn(),
+            list: A2uiBasicCatalogV1.List = createStubList(),
             button: A2uiBasicCatalogV1.Button = createStubButton(),
             dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = createStubDateTimeInput(),
             functions: List<A2uiFunction> = emptyList(),
@@ -343,6 +345,7 @@ class A2uiCatalogTest {
                 card = card,
                 row = row,
                 column = column,
+                list = list,
                 button = button,
                 dateTimeInput = dateTimeInput,
                 functions = functions,
@@ -404,6 +407,17 @@ class A2uiCatalogTest {
                     children: List<A2uiComponentReference>,
                     justify: A2uiBasicCatalogV1.Column.Justify,
                     align: A2uiBasicCatalogV1.Column.Align,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubList() =
+            object : A2uiBasicCatalogV1.List {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    children: List<A2uiComponentReference>,
+                    direction: A2uiBasicCatalogV1.List.Direction,
+                    align: A2uiBasicCatalogV1.List.Align,
                     modifier: Modifier,
                 ) {}
             }

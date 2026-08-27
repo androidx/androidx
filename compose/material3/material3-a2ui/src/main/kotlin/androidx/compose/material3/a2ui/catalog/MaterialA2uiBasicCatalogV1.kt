@@ -47,6 +47,8 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  *   [MaterialA2uiBasicCatalogV1Defaults.row]
  * @param column [A2uiBasicCatalogV1.Column] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.column]
+ * @param list [A2uiBasicCatalogV1.List] component implementation, defaults to
+ *   [MaterialA2uiBasicCatalogV1Defaults.list]
  * @param button [A2uiBasicCatalogV1.Button] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.button]
  * @param dateTimeInput [A2uiBasicCatalogV1.DateTimeInput] component implementation, defaults to
@@ -63,6 +65,7 @@ public fun materialA2uiBasicCatalogV1(
     card: A2uiBasicCatalogV1.Card = MaterialA2uiBasicCatalogV1Defaults.card,
     row: A2uiBasicCatalogV1.Row = MaterialA2uiBasicCatalogV1Defaults.row,
     column: A2uiBasicCatalogV1.Column = MaterialA2uiBasicCatalogV1Defaults.column,
+    list: A2uiBasicCatalogV1.List = MaterialA2uiBasicCatalogV1Defaults.list,
     button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Defaults.button,
     dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
         MaterialA2uiBasicCatalogV1Defaults.dateTimeInput,
@@ -76,6 +79,7 @@ public fun materialA2uiBasicCatalogV1(
             card = card,
             row = row,
             column = column,
+            list = list,
             button = button,
             dateTimeInput = dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -108,6 +112,9 @@ public object MaterialA2uiBasicCatalogV1Defaults {
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Column] component. */
     public val column: A2uiBasicCatalogV1.Column = MaterialA2uiBasicCatalogV1Column
+
+    /** Default Material 3 implementation of the [A2uiBasicCatalogV1.List] component. */
+    public val list: A2uiBasicCatalogV1.List = MaterialA2uiBasicCatalogV1List
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Button] component. */
     public val button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Button

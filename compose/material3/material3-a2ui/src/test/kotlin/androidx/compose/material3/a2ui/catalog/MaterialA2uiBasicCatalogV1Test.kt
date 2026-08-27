@@ -64,6 +64,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.row)
         assertThat(catalog.components["Column"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.column)
+        assertThat(catalog.components["List"])
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.list)
         assertThat(catalog.components["Button"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.button)
         assertThat(catalog.components["DateTimeInput"])
@@ -230,6 +232,33 @@ class MaterialA2uiBasicCatalogV1Test {
     }
 
     @Test
+    fun factory_withCustomListComponent_overridesDefaultMaterialList() {
+        val customList =
+            object : A2uiBasicCatalogV1.List {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    children: List<A2uiComponentReference>,
+                    direction: A2uiBasicCatalogV1.List.Direction,
+                    align: A2uiBasicCatalogV1.List.Align,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        val catalog =
+            materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
+                urlOpener = fakeUrlOpener,
+                messageFormatter = fakeMessageFormatter,
+                localeProvider = fakeLocaleProvider,
+                list = customList,
+            )
+
+        assertThat(catalog.components["List"]).isSameInstanceAs(customList)
+        assertThat(catalog.components["List"])
+            .isNotSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.list)
+    }
+
+    @Test
     fun factory_withCustomButtonComponent_overridesDefaultMaterialButton() {
         val customButton =
             object : A2uiBasicCatalogV1.Button {
@@ -301,6 +330,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Row)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.column)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Column)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.list)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1List)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.button)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Button)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)
