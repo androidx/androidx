@@ -27,16 +27,16 @@ import androidx.room3.integration.autovaluetestapp.dao.PersonDao;
 import androidx.room3.integration.autovaluetestapp.dao.PetDao;
 import androidx.test.core.app.ApplicationProvider;
 
+import kotlinx.coroutines.ExecutorsKt;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
-
-import kotlinx.coroutines.ExecutorsKt;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class TestDatabaseTest {
 
-    @Rule
-    public CountingTaskExecutorRule mExecutorRule = new CountingTaskExecutorRule();
+    @Rule public CountingTaskExecutorRule mExecutorRule = new CountingTaskExecutorRule();
 
     protected TestDatabase mDatabase;
     protected PersonDao mPersonDao;
@@ -46,11 +46,18 @@ public abstract class TestDatabaseTest {
     @Before
     public void createDb() {
         Context context = ApplicationProvider.getApplicationContext();
-        mDatabase = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
-                .setQueryCoroutineContext(ExecutorsKt.from(ArchTaskExecutor.getIOThreadExecutor()))
-                .build();
+        mDatabase =
+                Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
+                        .setQueryCoroutineContext(
+                                ExecutorsKt.from(ArchTaskExecutor.getIOThreadExecutor()))
+                        .build();
         mPersonDao = mDatabase.getPersonDao();
         mPetDao = mDatabase.getPetDao();
         mParcelableEntityDao = mDatabase.getParcelableEntityDao();
+    }
+
+    @After
+    public void closeDb() {
+        mDatabase.close();
     }
 }

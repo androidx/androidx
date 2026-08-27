@@ -106,7 +106,7 @@ class LimitOffsetPagingSourceTest {
     @Test
     fun load_usesQueryExecutor() = runTest {
         val testExecutor = TestExecutor()
-        database =
+        val customDatabase =
             Room.inMemoryDatabaseBuilder<LimitOffsetTestDb>(
                     ApplicationProvider.getApplicationContext<Context>()
                 )
@@ -119,7 +119,7 @@ class LimitOffsetPagingSourceTest {
 
         val job = Job()
         launch(job) {
-            LimitOffsetPagingSourceImpl(database)
+            LimitOffsetPagingSourceImpl(customDatabase)
                 .load(
                     PagingSource.LoadParams.Refresh(
                         key = null,
@@ -136,6 +136,7 @@ class LimitOffsetPagingSourceTest {
         assertThat(testExecutor.executeAll()).isTrue()
 
         job.cancel()
+        customDatabase.close()
     }
 
     @Test

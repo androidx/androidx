@@ -777,6 +777,8 @@ class SuspendingQueryTest(driver: UseDriver) : TestDatabaseTest(driver) {
 
         executor.shutdown()
         assertThat(executor.awaitTermination(1, TimeUnit.SECONDS)).isTrue()
+
+        localDatabase.close()
     }
 
     @Test
