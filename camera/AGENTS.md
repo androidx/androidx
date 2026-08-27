@@ -407,50 +407,47 @@ CameraX involves complex hardware interactions, making robust testing essential.
   - If using `FakeCamera` directly, call `camera.detachUseCases(listOf(useCase))` before unbinding the use case.
   - Ensure the main looper is idled after cleanup: `shadowOf(getMainLooper()).idle()`.
 
-#### 5. Troubleshooting Device-Specific Failures
+#### 5. Troubleshooting Device-Specific Failures & Daily Test Triaging
 
 > [!IMPORTANT]
 > Many issues in CameraX are device-specific due to variations in camera
 > hardware and HAL implementations. Always consider whether a failure is
-> device-specific or general, and do not assume it will behave the same way on
-> all devices or test environments.
+> device-specific, an SoC family limitation, or a general framework issue, and do
+> not assume it will behave the same way on all devices or test environments.
 
 - **Symptom**: A failure (test failure, crash, or unexpected behavior) occurs
-  only on specific device models, while working correctly on others.
-- **Investigation Steps**:
-  1. **Acquire Logs**: Extract the logcat, test output, or system logs associated with the failure.
-     - For public AOSP developers, obtain the logs from your test runner output
-       or device logcat.
-     - For Google-internal developers, follow the instructions in
-       `AGENTS_INTERNAL.md` to use internal CLI tools to download and read
-       test artifacts from the test results repository.
-  2. **Analyze Failure Point**: Identify the exact line of failure and the
-     preceding events in the log (e.g., check for timeouts, crashes, or
-     specific error codes).
-  3. **Compare Logs**: Compare the failing log with a passing log from a
-     different device to identify differences in HAL behavior or timing.
-  4. **Check Related Devices & Test Exclusions**:
-     - Identify if similar devices (e.g., same manufacturer, chipset, or model
-       family like Fold/Flip series) might share the same HAL characteristics
-       and exhibit the same issue.
-     - Search the codebase (especially integration tests and existing quirks) to
-       see if other devices have similar manual workarounds, skips, or size
-       exclusions (e.g., check if a test is skipped for a device using
-       `assumeFalse(Build.DEVICE.equals(...))`).
-     - Search the issue tracker for similar failures on other models.
-     - *Fallback Strategy*: If the target device (or related devices) is not
-       available in the lab or experiences persistent allocation
-       timeouts/failures:
-       a. Search the lab device list for a similar alternative (same brand,
-          Android OS level, or camera capabilities) to run verification.
-       b. If no suitable alternative is available to verify the device-specific
-          behavior, proceed with static analysis and code verification (unit
-          tests), and explicitly inform the user that device-level verification
-          was not possible due to resource constraints.
+  on specific device models, while working correctly on others, or appears in
+  daily automated CI runs.
+- **Investigation Steps & Blast-Radius Analysis**:
+  1. **Identify Test & Check Daily Suite Status**:
+     - Query historical test runs across the physical device fleet over the past
+       14 days to determine the issue scope:
+       - `[SINGLE_DEVICE]`: Isolated failure on one model (likely vendor HAL or
+         tight timeout).
+       - `[MULTI_DEVICE_SUBSET]`: Failures across specific SoC or OEM families
+         (e.g., Samsung Snapdragon, MediaTek, Exynos, Pixel).
+       - `[FLEET_WIDE_ALL_DEVICES]`: Generic regression affecting the entire
+         device fleet (>80% failure rate).
+     - In Google-internal environments, use `run_camerax_g3_tests.sh --query_daily_results`
+       (see `AGENTS_INTERNAL.md`) to extract blast radius, AI diagnostic
+       insights, and Android Build API culprit CLs.
+  2. **Analyze Failure Point & AI Diagnostic Insights**:
+     - Identify the exact failure line and preceding events in the logs.
+     - Inspect pre-triaged AI diagnostic verdicts stored in Sponge custom
+       properties (which are retained longer than raw logs) or inspect raw logcat
+       traces and bugreports.
+  3. **Compare Logs Across Hardware**: Compare the failing log with a passing log
+     from a healthy device to identify differences in HAL behavior or timing.
+  4. **Determine Temporal Trend & Flakiness**:
+     - Classify as `[NEW_REGRESSION]` (previously passing, recently failing),
+       `[FLAKY_INTERMITTENT]` (intermittent passes and fails), or
+       `[CONSISTENT_FAILURE]`.
+     - For flaky tests, run multiple repetitions (5x–10x) across affected models
+       to establish statistical confidence before declaring a fix.
   5. **Determine Component Level**: Check if it's a test infrastructure issue
      (e.g., too tight timeout) or a real library/HAL issue (e.g.,
      `Connection timed out` from `libcameraservice` suggesting HAL freeze).
-- **Resolution Strategy**:
+- **Resolution & Verification Strategy**:
   1. **Test-Level Issues**: If the issue is due to timing or environment,
      increase timeouts or improve test robustness (e.g., add retry or polling).
   2. **Library/HAL Issues**:
@@ -458,7 +455,7 @@ CameraX involves complex hardware interactions, making robust testing essential.
        lenses not supporting reprocessing).
      - Explore if a generic workaround is possible without session
        reconfiguration.
-      - **Format/Size Quirks**: If the failure is format-specific (e.g., RAW capture crashing):
+     - **Format/Size Quirks**: If the failure is format-specific (e.g., RAW capture crashing):
        a. Check if it's a resolution-specific mismatch (which might be corrected
           by excluding the buggy size via `ExcludedSupportedSizesQuirk`).
        b. If the format is fundamentally broken for all sizes (e.g., HAL advertised
@@ -466,16 +463,17 @@ CameraX involves complex hardware interactions, making robust testing essential.
           disable the format entirely via `UnsupportedFormatsQuirk`.
      - **Quirk as Last Resort**: If it is a HAL bug and no generic workaround
        is possible, add the device model to the corresponding Quirk class
-       (e.g., `ZslDisablerQuirk`).
-       *   *Note*: When adding a device to a Quirk, check if other related
-           devices identified in step 4 (and available in the lab) also
-           exhibit the issue and should be included. Verify the fix (ZSL
-           disabled/fallback working) on all of them.
-  3. **Verification on Target Device**: If the issue was reported on a specific
-     device model, you **MUST** prioritize verifying the fix on that specific
-     device (and using the specific test that failed, if available) before
-     finalizing the fix. Use the lab infrastructure (see `AGENTS_INTERNAL.md`
-     for instructions) to run the tests on the target device.
+       (e.g., `ZslDisablerQuirk`). Ensure all affected devices are included.
+  3. **Multi-Device Lab Verification**:
+     - When a fix is implemented, **always run the verification test across ALL
+       affected device models** identified in the blast-radius analysis (not just
+       the single reported device) using the multi-device lab test runner
+       (see `AGENTS_INTERNAL.md`).
+  4. **Fleet-Wide Baseline Regression Check**:
+     - Before submitting changes that touch shared pipeline paths, query the daily
+       testing baseline matrix across all 230+ lab devices to ensure clean pass
+       rates and prevent regressions.
+
 #### 6. Decision Framework: Core Fix vs. Device Quirk vs. Test Cleanup
 When encountering hardware failures, test errors, or pipeline bugs, apply this
 long-term decision rubric:
@@ -570,6 +568,7 @@ Route documentation updates according to repository scope:
   protocols.
 
 ---
+
 
 ## Git Commit Messages
 
