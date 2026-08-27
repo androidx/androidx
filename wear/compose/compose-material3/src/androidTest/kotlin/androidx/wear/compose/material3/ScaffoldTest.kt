@@ -271,6 +271,41 @@ class ScaffoldTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun updateIdlingDetector_resetsStageToNew_whenScrollInfoProviderChanges() {
+        var scaffoldState: ScaffoldState? = null
+        val providerState = mutableStateOf<ScrollInfoProvider?>(null)
+
+        rule.setContentWithTheme {
+            AppScaffold {
+                scaffoldState = LocalScaffoldState.current
+                val currentProvider = providerState.value
+                if (currentProvider != null) {
+                    ScreenScaffold(scrollInfoProvider = currentProvider) {}
+                } else {
+                    ScreenScaffold {}
+                }
+            }
+        }
+
+        rule.runOnIdle { scaffoldState?.screenContent?.screenStage?.value = ScreenStage.Scrolling }
+
+        providerState.value =
+            object : ScrollInfoProvider {
+                override val isScrollAwayValid = true
+                override val isScrollable = true
+                override val isScrollInProgress = false
+                override val anchorItemOffset = 0f
+                override val lastItemOffset = 0f
+            }
+        rule.waitForIdle()
+
+        rule.runOnIdle {
+            assertThat(scaffoldState?.screenContent?.screenStage?.value).isEqualTo(ScreenStage.New)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun displays_scroll_indicator_initially_when_scrollable_tlc() {
         val scrollIndicatorColor = Color.Red
 
