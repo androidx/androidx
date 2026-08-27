@@ -63,15 +63,7 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
     fun nextBoundary(offset: Int): Int {
         checkOffsetIsValid(offset)
         val following = iterator.following(offset)
-        // We should iterate through if the boundary is between a letter/digit and emoji
-        // These should not be considered boundaries
-        if (
-            isOnLetterOrDigitOrEmoji(following - 1) &&
-                isOnLetterOrDigitOrEmoji(following) &&
-                // Extra logic for Japanese to detect boundary between Hiragana and Katakana
-                // characters
-                !isHiraganaKatakanaBoundary(following)
-        ) {
+        if (following != BreakIterator.DONE && shouldBridgeEmojiBoundary(following)) {
             return nextBoundary(following)
         }
         return following
@@ -87,17 +79,10 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
     fun prevBoundary(offset: Int): Int {
         checkOffsetIsValid(offset)
         val preceding = iterator.preceding(offset)
-        // We should iterate through if the boundary is between a letter/digit and emoji
-        // These should not be considered boundaries
-        return if (
-            isOnLetterOrDigitOrEmoji(preceding) &&
-                isAfterLetterOrDigitOrEmoji(preceding) &&
-                // Extra logic for Japanese to detect boundary between Hiragana and Katakana
-                // characters
-                !isHiraganaKatakanaBoundary(preceding)
-        ) {
-            prevBoundary(preceding)
-        } else preceding
+        if (preceding != BreakIterator.DONE && shouldBridgeEmojiBoundary(preceding)) {
+            return prevBoundary(preceding)
+        }
+        return preceding
     }
 
     /**
@@ -270,9 +255,54 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
         return !isOnPunctuation(offset) && isAfterPunctuation(offset)
     }
 
+    private fun getEmojiCompatIfLoaded(): EmojiCompat? {
+        if (!EmojiCompat.isConfigured()) return null
+        val emojiCompat = EmojiCompat.get()
+        return if (emojiCompat.loadState == EmojiCompat.LOAD_STATE_SUCCEEDED) emojiCompat else null
+    }
+
+    private fun getCodePointStart(offset: Int): Int {
+        return if (
+            Character.isLowSurrogate(charSequence[offset]) &&
+                offset > start &&
+                Character.isHighSurrogate(charSequence[offset - 1])
+        ) {
+            offset - 1
+        } else {
+            offset
+        }
+    }
+
+    private fun isEmojiAt(offset: Int): Boolean {
+        if (offset !in start until end) return false
+        val emojiCompat = getEmojiCompatIfLoaded() ?: return false
+        return emojiCompat.getEmojiStart(charSequence, offset) != -1
+    }
+
+    private fun isLetterOrDigitAt(offset: Int): Boolean {
+        if (offset !in start until end) return false
+        val codePoint = Character.codePointAt(charSequence, getCodePointStart(offset))
+        return Character.isLetterOrDigit(codePoint)
+    }
+
+    /** Returns true only if a boundary transition involves an Emoji and should be bridged. */
+    private fun shouldBridgeEmojiBoundary(offset: Int): Boolean {
+        if (offset <= start || offset >= end) return false
+        val emojiCompat = getEmojiCompatIfLoaded() ?: return false
+
+        val leftIsEmoji = emojiCompat.getEmojiStart(charSequence, offset - 1) != -1
+        val rightIsEmoji = emojiCompat.getEmojiStart(charSequence, offset) != -1
+
+        if (!leftIsEmoji && !rightIsEmoji) return false
+
+        val leftValid = leftIsEmoji || isLetterOrDigitAt(offset - 1)
+        val rightValid = rightIsEmoji || isLetterOrDigitAt(offset)
+        return leftValid && rightValid
+    }
+
     /**
-     * Check if offset before current offset points to letter or digit. Emoji and surrogate
-     * codepoints are treated as letters or digits.
+     * Check if offset before current offset points to letter or digit. Emoji codepoints from
+     * EmojiCompat are treated as letters or digits.
      *
      * Note: if EmojiCompat is not initialized, emojis are not treated like letters/digits
      */
@@ -280,40 +310,21 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
         if (offset in (start + 1)..end) {
             val codePoint = Character.codePointBefore(charSequence, offset)
             if (Character.isLetterOrDigit(codePoint)) return true
-            if (Character.isSurrogate(charSequence[offset - 1])) return true
-
-            if (EmojiCompat.isConfigured()) {
-                val emojiCompat = EmojiCompat.get()
-                if (emojiCompat.loadState == EmojiCompat.LOAD_STATE_SUCCEEDED) {
-                    val emojiStart = emojiCompat.getEmojiStart(charSequence, offset - 1)
-                    // If given offset points to emoji return true
-                    if (emojiStart != -1) return true
-                }
-            }
+            if (isEmojiAt(offset - 1)) return true
         }
         return false
     }
 
     /**
-     * Check if current offset points to letter or digit. Emoji and surrogate codepoints are treated
-     * as letters or digits.
+     * Check if current offset points to letter or digit. Emoji codepoints from EmojiCompat are
+     * treated as letters or digits.
      *
      * Note: if EmojiCompat is not initialized, emojis are not treated like letters/digits
      */
     private fun isOnLetterOrDigitOrEmoji(offset: Int): Boolean {
         if (offset in start until end) {
-            val codePoint = Character.codePointAt(charSequence, offset)
-            if (Character.isLetterOrDigit(codePoint)) return true
-            if (Character.isSurrogate(charSequence[offset])) return true
-
-            if (EmojiCompat.isConfigured()) {
-                val emojiCompat = EmojiCompat.get()
-                if (emojiCompat.loadState == EmojiCompat.LOAD_STATE_SUCCEEDED) {
-                    val emojiStart = emojiCompat.getEmojiStart(charSequence, offset)
-                    // If given offset points to emoji return true
-                    if (emojiStart != -1) return true
-                }
-            }
+            if (isLetterOrDigitAt(offset)) return true
+            if (isEmojiAt(offset)) return true
         }
         return false
     }
@@ -326,32 +337,12 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
     }
 
     /**
-     * Modified implementation of `iterator.isBoundary` that additionally checks boundary between
-     * letters/digits and emojis as these should not be treated as boundaries.
+     * Checks if [offset] is a word boundary, accounting for emoji bridging when EmojiCompat is
+     * loaded.
      */
     private fun isBoundary(offset: Int): Boolean {
         checkOffsetIsValid(offset)
-        return iterator.isBoundary(offset) &&
-            // check offset and two characters before and after to see if all three characters
-            // are letters/digits/emojis
-            !(isOnLetterOrDigitOrEmoji(offset) &&
-                isOnLetterOrDigitOrEmoji(offset - 1) &&
-                isOnLetterOrDigitOrEmoji(offset + 1)) &&
-            // check if there is boundary between hiragana and katakana characters
-            // indexes 0 and charSequence.length - 1 should always be considered boundaries
-            !(offset > 0 &&
-                offset < charSequence.length - 1 &&
-                (isHiraganaKatakanaBoundary(offset) || isHiraganaKatakanaBoundary(offset + 1)))
-    }
-
-    /** Checks if characters before and at `offset` are either hiragana or katakana */
-    private fun isHiraganaKatakanaBoundary(offset: Int): Boolean {
-        return ((Character.UnicodeBlock.of(charSequence[offset - 1]) ==
-            Character.UnicodeBlock.HIRAGANA &&
-            Character.UnicodeBlock.of(charSequence[offset]) == Character.UnicodeBlock.KATAKANA) ||
-            (Character.UnicodeBlock.of(charSequence[offset]) == Character.UnicodeBlock.HIRAGANA &&
-                Character.UnicodeBlock.of(charSequence[offset - 1]) ==
-                    Character.UnicodeBlock.KATAKANA))
+        return iterator.isBoundary(offset) && !shouldBridgeEmojiBoundary(offset)
     }
 
     companion object {
