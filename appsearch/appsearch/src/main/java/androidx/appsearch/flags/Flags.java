@@ -167,6 +167,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_SEARCH_RESULT_PARENT_TYPES =
             FLAG_PREFIX + "enable_search_result_parent_types";
 
+    /** Enable multi-certificate support in PackageIdentifier for PWAs and key rotation. */
+    public static final String FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT =
+            FLAG_PREFIX + "enable_package_identifier_multi_cert";
+
     /** Enables AppSearch to manage blob files. */
     public static final String FLAG_ENABLE_APP_SEARCH_MANAGE_BLOB_FILES =
             FLAG_PREFIX + "enable_app_search_manage_blob_files";
@@ -643,7 +647,6 @@ public final class Flags {
     public static boolean enableReadDuringAnnMaintenance() {
         return true;
     }
-
     /** Whether to enable result states optimization. */
     public static boolean enableOptimizeResultStates() {
         // TODO(b/446719537): Enable this once the feature is rolled out to Nextfood in platform.
@@ -654,5 +657,10 @@ public final class Flags {
     public static boolean enableIndexRestorationCriticalErrorHandlingFix() {
         // TODO(b/494334634): Enable this once the feature is rolled out to Nextfood in platform.
         return false;
+    }
+
+    /** Whether multi-certificate support in PackageIdentifier should be enabled. */
+    public static boolean enablePackageIdentifierMultiCert() {
+        return true;
     }
 }
