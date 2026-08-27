@@ -1032,9 +1032,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 }
             }
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Api24Impl.addSetProgressAction(info, semanticsNode)
-        }
+        addSetProgressAction(info, semanticsNode)
 
         setCollectionInfo(semanticsNode, info)
         setCollectionItemInfo(semanticsNode, info)
@@ -3416,19 +3414,15 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    private object Api24Impl {
-        @JvmStatic
-        fun addSetProgressAction(info: AccessibilityNodeInfoCompat, semanticsNode: SemanticsNode) {
-            if (semanticsNode.enabled()) {
-                semanticsNode.unmergedConfig.getOrNull(SemanticsActions.SetProgress)?.let {
-                    info.addAction(
-                        AccessibilityActionCompat(
-                            android.R.id.accessibilityActionSetProgress,
-                            it.label,
-                        )
-                    )
-                }
+    private fun addSetProgressAction(
+        info: AccessibilityNodeInfoCompat,
+        semanticsNode: SemanticsNode,
+    ) {
+        if (semanticsNode.enabled()) {
+            semanticsNode.unmergedConfig.getOrNull(SemanticsActions.SetProgress)?.let {
+                info.addAction(
+                    AccessibilityActionCompat(android.R.id.accessibilityActionSetProgress, it.label)
+                )
             }
         }
     }
