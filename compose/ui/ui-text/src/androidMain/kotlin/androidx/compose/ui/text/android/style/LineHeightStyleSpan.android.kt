@@ -87,10 +87,13 @@ internal class LineHeightStyleSpan(
         lineHeight: Int,
         fontMetricsInt: FontMetricsInt,
     ) {
+        if (mode == LineHeightStyle.Mode.PerLine) {
+            chooseHeightPerLine(start, end, fontMetricsInt)
+            return
+        }
         val currentHeight = fontMetricsInt.lineHeight()
         // If current height is not positive, do nothing.
         if (currentHeight <= 0) return
-
         val isFirstLine = (start == startIndex)
         val isLastLine = (end == endIndex)
 
@@ -176,6 +179,91 @@ internal class LineHeightStyleSpan(
             firstAscentDiff = 0
             lastDescentDiff = 0
         }
+    }
+
+    /**
+     * Calculates and applies line height independently for each line.
+     *
+     * This method is called for each line. It calculates the difference between the target line
+     * height and the natural height of the line. If the natural height is larger than the target
+     * (e.g. because of tall script or large font size), it falls back to the natural height.
+     *
+     * Space distribution (alignment) and boundary trimming are applied to each line independently
+     * based on its own metrics, rather than caching the first line's metrics.
+     */
+    private fun chooseHeightPerLine(start: Int, end: Int, fontMetricsInt: FontMetricsInt) {
+        // WARNING: AOSP StaticLayout reuses and propagates mutated FontMetricsInt values across
+        // line boundaries within the same style run. As a result, the input `fontMetricsInt`
+        // parameter (which we read as `naturalAscent` and `naturalDescent` below) will contain
+        // the modified values from the previous line rather than clean natural metrics, unless
+        // a style run boundary (e.g., size change span) reset the layout metrics cache.
+        //
+        // Our algorithm remains safe against compounding height accumulation because we perform
+        // absolute height mapping and exit early via the `diff <= 0` guard if the inherited
+        // metrics are already at or above target height.
+        val naturalAscent = fontMetricsInt.ascent
+        val naturalDescent = fontMetricsInt.descent
+
+        val currentHeight = naturalDescent - naturalAscent
+        // If current height is not positive, do nothing.
+        if (currentHeight <= 0) return
+
+        val isFirstLine = (start == startIndex)
+        val isLastLine = (end == endIndex)
+
+        // If it's a single line and we are trimming both top and bottom, the net height changes
+        // would conflict or result in no-op, so we skip applying specified line height.
+        if (isFirstLine && isLastLine && trimFirstLineTop && trimLastLineBottom) return
+
+        val ceiledLineHeight = ceil(this.lineHeight).toInt()
+        val diff = ceiledLineHeight - currentHeight
+
+        // Fallback: If natural height is larger than specified line height, keep natural metrics.
+        if (diff <= 0) {
+            if (isFirstLine) {
+                firstAscentDiff = 0
+            }
+            if (isLastLine) {
+                lastDescentDiff = 0
+            }
+            return
+        }
+
+        // Calculate distribution ratio between top and bottom.
+        // topRatio == -1f means proportional alignment based on ascent/descent.
+        val ascentRatio =
+            if (topRatio == -1f) {
+                abs(naturalAscent.toFloat()) / currentHeight
+            } else {
+                topRatio
+            }
+
+        // Calculate how much space to add to descent.
+        val descentDiff = ceil(diff * (1f - ascentRatio)).toInt()
+
+        // Calculate target metrics based on the diff and ratio.
+        val targetDescent = naturalDescent + descentDiff
+        val targetAscent = targetDescent - ceiledLineHeight
+
+        // Apply boundary trimming with safe fallback clamp against natural bounds.
+        val finalAscent =
+            if (isFirstLine && trimFirstLineTop) naturalAscent
+            else minOf(naturalAscent, targetAscent)
+        val finalDescent =
+            if (isLastLine && trimLastLineBottom) naturalDescent
+            else maxOf(naturalDescent, targetDescent)
+
+        // Calculate layout padding diffs (used for paragraph bounding box calculations).
+        if (isFirstLine) {
+            firstAscentDiff = naturalAscent - finalAscent
+        }
+        if (isLastLine) {
+            lastDescentDiff = finalDescent - naturalDescent
+        }
+
+        // Modify metrics in-place.
+        fontMetricsInt.ascent = finalAscent
+        fontMetricsInt.descent = finalDescent
     }
 
     internal fun copy(

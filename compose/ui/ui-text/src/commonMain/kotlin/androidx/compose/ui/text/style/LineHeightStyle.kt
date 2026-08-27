@@ -320,11 +320,15 @@ public class LineHeightStyle(
     }
 
     /**
-     * Controls whether to enforce the specified line height.
+     * Determines how line height is calculated across lines in a paragraph.
      *
-     * Font metrics determine the default line height. When the specified line height is too tight
-     * for the font, use [Mode.Minimum] to fall back to system-provided heights. This prevents
-     * clipping in languages with tall glyphs (e.g., Arabic, Burmese).
+     * [Fixed], [Minimum], and [Tight] measure font metrics on the **first line only** and apply
+     * that single calculated height to every line in the paragraph. If subsequent lines are taller
+     * than the first line (such as lines with larger font sizes or taller scripts), they will still
+     * use the first line's height and may clip.
+     *
+     * Text with mixed font sizes or mixed scripts should use [PerLine], which measures each line
+     * independently.
      */
     @JvmInline
     public value class Mode internal constructor(internal val value: Int) {
@@ -334,38 +338,83 @@ public class LineHeightStyle(
                 Fixed -> "LineHeightStyle.Mode.Fixed"
                 Minimum -> "LineHeightStyle.Mode.Minimum"
                 Tight -> "LineHeightStyle.Mode.Tight"
+                PerLine -> "LineHeightStyle.Mode.PerLine"
                 else -> "Invalid"
             }
         }
 
         public companion object {
             /**
-             * Always use the specified line height on every line but add the necessary paddings on
-             * text layout's top and bottom when the system preferred line height is larger. This
-             * guarantees that taller glyphs won't be trimmed at the boundaries. On the other hand,
-             * middle lines respect the specified line height at all times and tall glyphs can
-             * overflow to upper or lower lines.
+             * Sets the same line height for each line, calculated from the font metrics of the
+             * **first line only**.
+             *
+             * If the requested line height is smaller than the first line's font metrics, adds
+             * padding outside the first line top and last line bottom to prevent clipping at the
+             * paragraph boundaries. Middle lines are not padded and will clip if they overflow.
+             *
+             * If later lines are taller than the first line, they do not expand and may clip.
+             *
+             * This is the default mode in [LineHeightStyle.Default].
              */
             public val Fixed: Mode
                 get() = Mode(0)
 
             /**
-             * By specifying [Mode.Minimum], when the specified line height is smaller than the
-             * system preferred value, the system preferred one is used instead on all lines. Top
-             * and bottom paddings are also added. This prevents the overflow of tall glyphs in
-             * middle lines.
+             * Sets the same line height for each line, calculated from the font metrics of the
+             * **first line only**.
+             *
+             * If the requested line height is smaller than the first line's font metrics, uses the
+             * first line's natural height for all lines instead of shrinking them. If the requested
+             * line height is larger, behaves the same as [Fixed].
+             *
+             * If later lines are taller than the first line, they do not expand and may clip.
              */
             public val Minimum: Mode
                 get() = Mode(1)
 
             /**
-             * Be able to use the specified line height at *all* lines, including the first and
-             * last. This configuration basically gets rid of the safety rails that are added by
-             * [Mode.Fixed]. Tall glyphs might get trimmed at top, bottom, or both when used in
-             * conjunction with the corresponding [Trim] value.
+             * Sets the requested line height on every line based on the **first line only**,
+             * without adding top or bottom padding.
+             *
+             * If the requested line height is smaller than the font metrics of any line, that line
+             * will clip.
              */
             public val Tight: Mode
                 get() = Mode(2)
+
+            /**
+             * Calculates line height independently for each line.
+             *
+             * Unlike [Fixed], [Minimum], and [Tight] (which only measure the first line), [PerLine]
+             * measures every line. If a line's natural font height exceeds the requested line
+             * height, that line expands to its natural height.
+             *
+             * Use [PerLine] when text contains mixed font sizes or mixed scripts so that tall lines
+             * do not clip and short lines do not leave extra gaps:
+             * ```
+             * Mode.Fixed / Mode.Minimum (Only measures Line 1; Line 2 may clip):
+             * +----------------------------------------------+
+             * | Line 1 (Small font, measures line height)    |
+             * +----------------------------------------------+
+             * | Line 2 (TALL SCRIPT - clips or overlaps!)    |
+             * +----------------------------------------------+
+             * | Line 3 (Small font)                          |
+             * +----------------------------------------------+
+             *
+             * Mode.PerLine (Measures each line independently):
+             * +----------------------------------------------+
+             * | Line 1 (Small font, compact line height)     |
+             * +----------------------------------------------+
+             * | Line 2 (TALL SCRIPT - expands to fit)        |
+             * +----------------------------------------------+
+             * | Line 3 (Small font, compact line height)     |
+             * +----------------------------------------------+
+             * ```
+             *
+             * @sample androidx.compose.ui.text.samples.LineHeightStylePerLineSample
+             */
+            public val PerLine: Mode
+                get() = Mode(3)
         }
     }
 }
