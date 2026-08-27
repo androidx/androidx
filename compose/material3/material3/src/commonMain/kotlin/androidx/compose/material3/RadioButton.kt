@@ -109,7 +109,7 @@ internal fun StyleableRadioButton(
     val scope =
         RadioButtonStyleScope(
             theme = localTheme,
-            state = ComponentState.disabled(!enabled).checked(selected),
+            state = ComponentState.enabled(enabled).selected(selected),
         )
     with(style ?: localTheme.componentProperties.radioButtonProperties.style) { scope.applyStyle() }
 

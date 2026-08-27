@@ -16,6 +16,11 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.tokens.CheckboxTokens
 import androidx.compose.material3.tokens.ColorToken
 import androidx.compose.material3.tokens.RadioButtonTokens
@@ -45,24 +50,34 @@ internal value class ComponentState(val mask: Int = 0) {
 
     fun set(flag: Int, with: Boolean): ComponentState = if (with) with(flag) else without(flag)
 
-    fun disabled(disabled: Boolean) = set(DISABLED, disabled)
+    fun enabled(enabled: Boolean) = set(ENABLED, enabled)
 
     fun checked(checked: Boolean) = set(CHECKED, checked)
 
     fun selected(selected: Boolean) = set(CHECKED, selected)
 
-    fun focused(focused: Boolean) = set(FOCUSED, focused)
-
     fun indeterminate(indeterminate: Boolean) = set(INDETERMINATE, indeterminate)
+
+    @Composable
+    fun interactionState(interactionSource: MutableInteractionSource): ComponentState {
+        return set(PRESSED, interactionSource.collectIsPressedAsState().value)
+            .set(FOCUSED, interactionSource.collectIsFocusedAsState().value)
+            .set(HOVERED, interactionSource.collectIsHoveredAsState().value)
+            .set(DRAGGED, interactionSource.collectIsDraggedAsState().value)
+    }
 
     companion object {
         const val NONE = 0
-        const val DISABLED = 1 shl 0 // 0b001 = 1
-        const val CHECKED = 1 shl 1 // 0b010 = 2
-        const val FOCUSED = 1 shl 2 // 0b100 = 4
-        const val INDETERMINATE = 1 shl 3 // 0b1000 = 8
+        const val ENABLED = 1 shl 0
+        const val CHECKED = 1 shl 1
+        const val SELECTED = 1 shl 2
+        const val INDETERMINATE = 1 shl 3
+        const val PRESSED = 1 shl 4
+        const val FOCUSED = 1 shl 5
+        const val HOVERED = 1 shl 6
+        const val DRAGGED = 1 shl 7
 
-        val Default = ComponentState()
+        val Default = ComponentState(ENABLED)
 
         fun of(vararg states: Int): ComponentState {
             var combined = 0
@@ -70,15 +85,17 @@ internal value class ComponentState(val mask: Int = 0) {
             return ComponentState(combined)
         }
 
-        fun disabled(disabled: Boolean) = Default.disabled(disabled)
+        fun enabled(enabled: Boolean) = Default.enabled(enabled)
 
         fun checked(checked: Boolean) = Default.checked(checked)
 
         fun selected(selected: Boolean) = Default.selected(selected)
 
-        fun focused(focused: Boolean) = Default.focused(focused)
-
         fun indeterminate(indeterminate: Boolean) = Default.indeterminate(indeterminate)
+
+        @Composable
+        fun interactionState(interactionSource: MutableInteractionSource) =
+            Default.interactionState(interactionSource)
     }
 }
 
@@ -140,10 +157,12 @@ internal interface CheckedState<T : StatefulStyleScope<T>> : StatefulStyleScope<
     fun checked(style: T.() -> Unit) = setState(ComponentState.CHECKED, style)
 
     fun unchecked(style: T.() -> Unit) = setNotState(ComponentState.CHECKED, style)
+}
 
-    fun selected(style: T.() -> Unit) = checked(style)
+internal interface SelectedState<T : StatefulStyleScope<T>> : StatefulStyleScope<T> {
+    fun selected(style: T.() -> Unit) = setState(ComponentState.SELECTED, style)
 
-    fun unselected(style: T.() -> Unit) = unchecked(style)
+    fun unselected(style: T.() -> Unit) = setNotState(ComponentState.SELECTED, style)
 }
 
 internal interface IndeterminateState<T : StatefulStyleScope<T>> : StatefulStyleScope<T> {
@@ -151,9 +170,27 @@ internal interface IndeterminateState<T : StatefulStyleScope<T>> : StatefulStyle
 }
 
 internal interface DisabledState<T : StatefulStyleScope<T>> : StatefulStyleScope<T> {
-    fun enabled(style: T.() -> Unit) = setNotState(ComponentState.DISABLED, style)
+    fun enabled(style: T.() -> Unit) = setState(ComponentState.ENABLED, style)
 
-    fun disabled(style: T.() -> Unit) = setState(ComponentState.DISABLED, style)
+    fun disabled(style: T.() -> Unit) = setNotState(ComponentState.ENABLED, style)
+}
+
+internal interface InteractionState<T : StatefulStyleScope<T>> : StatefulStyleScope<T> {
+    fun pressed(style: T.() -> Unit) = setState(ComponentState.PRESSED, style)
+
+    fun unpressed(style: T.() -> Unit) = setNotState(ComponentState.PRESSED, style)
+
+    fun focused(style: T.() -> Unit) = setState(ComponentState.FOCUSED, style)
+
+    fun unfocused(style: T.() -> Unit) = setNotState(ComponentState.FOCUSED, style)
+
+    fun hovered(style: T.() -> Unit) = setState(ComponentState.HOVERED, style)
+
+    fun unhovered(style: T.() -> Unit) = setNotState(ComponentState.HOVERED, style)
+
+    fun dragged(style: T.() -> Unit) = setState(ComponentState.DRAGGED, style)
+
+    fun undragged(style: T.() -> Unit) = setNotState(ComponentState.DRAGGED, style)
 }
 
 // Component style definitions start from here.
@@ -345,7 +382,7 @@ internal class RadioButtonStyleScope(
     override val theme: MaterialTheme.Values,
     override val state: ComponentState = ComponentState.Default,
 ) :
-    CheckedState<RadioButtonStyleScope>,
+    SelectedState<RadioButtonStyleScope>,
     DisabledState<RadioButtonStyleScope>,
     MaterialThemeAccessorScope {
     var radioColor: Color = Color.Unspecified
