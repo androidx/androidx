@@ -18,13 +18,12 @@ package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
-import androidx.camera.camera2.pipe.Metadata as PipeMetadata
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.common.Metadata as CommonMetadata
+import androidx.camera.common.Metadata
 import java.lang.Class
 import kotlinx.atomicfu.atomic
 
@@ -36,38 +35,22 @@ internal fun nextFakeRequestNumber(): RequestNumber =
 /** Utility class for interacting with objects require specific [CaptureRequest] metadata. */
 public class FakeRequestMetadata(
     private val requestParameters: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
-    metadata: Map<*, Any?> = emptyMap<Any, Any?>(),
+    metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val template: RequestTemplate = RequestTemplate(0),
     override val streams: Map<StreamId, Surface> = mapOf(),
     override val repeating: Boolean = false,
     override val request: Request = Request(listOf()),
     override val requestNumber: RequestNumber = nextFakeRequestNumber(),
-) :
-    FakeMetadata(
-        request.extras.plus(
-            metadata.entries
-                .mapNotNull { (k, v) ->
-                    val key =
-                        when (k) {
-                            is CommonMetadata.Key<*> -> k
-                            is PipeMetadata.Key<*> -> k.commonKey
-                            else -> null
-                        }
-                    key?.let { it to v }
-                }
-                .toMap()
-        )
-    ),
-    RequestMetadata {
+) : FakeMetadata(request.extras.plus(metadata)), RequestMetadata {
 
-    override val metadataKeys: Set<CommonMetadata.Key<*>>
+    override val metadataKeys: Set<Metadata.Key<*>>
         get() = super<FakeMetadata>.metadataKeys
 
-    override fun <T : Any> get(key: CommonMetadata.Key<T>): T? {
+    override fun <T : Any> get(key: Metadata.Key<T>): T? {
         return super<FakeMetadata>.get(key)
     }
 
-    override fun <T : Any> getOrDefault(key: CommonMetadata.Key<T>, default: T): T {
+    override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T {
         return super<FakeMetadata>.getOrDefault(key, default)
     }
 

@@ -24,7 +24,6 @@ import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.annotation.RestrictTo
-import androidx.camera.camera2.pipe.Metadata as PipeMetadata
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.ImageWrapper
@@ -379,7 +378,7 @@ public data class InputRequest(val image: ImageWrapper, val frameInfo: FrameInfo
  * different) from the request that was used to create the Camera2 [CaptureRequest].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface RequestMetadata : PipeMetadata, UnsafeWrapper {
+public interface RequestMetadata : Metadata, UnsafeWrapper {
 
     /** The actual Camera2 template that was used when creating this [CaptureRequest] */
     public val template: RequestTemplate

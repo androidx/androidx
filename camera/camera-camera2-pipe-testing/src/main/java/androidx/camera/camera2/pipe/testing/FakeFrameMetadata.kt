@@ -22,9 +22,8 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
-import androidx.camera.camera2.pipe.Metadata as PipeMetadata
 import androidx.camera.camera2.pipe.RequestMetadata
-import androidx.camera.common.Metadata as CommonMetadata
+import androidx.camera.common.Metadata
 import java.lang.Class
 import kotlinx.atomicfu.atomic
 
@@ -35,26 +34,23 @@ internal fun nextFakeFrameNumber(): FrameNumber = FrameNumber(fakeFrameNumbers.i
 /** Utility class for interacting with objects require specific [CaptureResult] metadata */
 public class FakeFrameMetadata(
     private val resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
-    extraResultMetadata: Map<*, Any?> = emptyMap<Any, Any?>(),
+    extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val camera: CameraId = FakeCameraIds.default,
     override val frameNumber: FrameNumber = nextFakeFrameNumber(),
     override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
 ) : FakeMetadata(extraResultMetadata), FrameMetadata {
 
-    override val metadataKeys: Set<CommonMetadata.Key<*>>
+    override val metadataKeys: Set<Metadata.Key<*>>
         get() = buildSet {
             addAll(super<FakeMetadata>.metadataKeys)
-            extraMetadata.keys.forEach {
-                if (it is CommonMetadata.Key<*>) add(it)
-                if (it is PipeMetadata.Key<*>) add(it.commonKey)
-            }
+            extraMetadata.keys.forEach { if (it is Metadata.Key<*>) add(it) }
         }
 
-    override fun <T : Any> get(key: CommonMetadata.Key<T>): T? {
+    override fun <T : Any> get(key: Metadata.Key<T>): T? {
         return super<FakeMetadata>.get(key)
     }
 
-    override fun <T : Any> getOrDefault(key: CommonMetadata.Key<T>, default: T): T {
+    override fun <T : Any> getOrDefault(key: Metadata.Key<T>, default: T): T {
         return super<FakeMetadata>.getOrDefault(key, default)
     }
 
