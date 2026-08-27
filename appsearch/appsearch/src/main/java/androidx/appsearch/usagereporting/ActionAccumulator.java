@@ -186,8 +186,8 @@ public class ActionAccumulator {
         Preconditions.checkNotNull(takenAction);
         ResolvableFuture<AppSearchBatchResult<String, Void>> future = ResolvableFuture.create();
 
-        boolean search = takenAction.getActionType() == ActionConstants.ACTION_TYPE_SEARCH;
-        boolean click = takenAction.getActionType() == ActionConstants.ACTION_TYPE_CLICK;
+        boolean search = takenAction.getActionType() == TakenAction.ACTION_TYPE_SEARCH;
+        boolean click = takenAction.getActionType() == TakenAction.ACTION_TYPE_CLICK;
 
         if (!search && !click) {
             // TODO(b/395157195): Handle additional action types if necessary
@@ -296,7 +296,7 @@ public class ActionAccumulator {
         Preconditions.checkNotNull(searchAction);
         for (int i = mCache.size() - 1; i >= 0; i--) {
             TakenAction action = mCache.get(i);
-            if (action.getActionType() == ActionConstants.ACTION_TYPE_SEARCH) {
+            if (action.getActionType() == TakenAction.ACTION_TYPE_SEARCH) {
                 SearchAction searchCast = (SearchAction) action;
                 if (searchCast.getQuery().equals(searchAction.getQuery())) {
                     // Same query, and recent. Update fetched result count for the prior search
@@ -318,7 +318,7 @@ public class ActionAccumulator {
         Preconditions.checkNotNull(takenAction);
         if (!mCache.isEmpty()) {
             TakenAction action = mCache.get(mCache.size() - 1);
-            if (action.getActionType() == ActionConstants.ACTION_TYPE_CLICK) {
+            if (action.getActionType() == TakenAction.ACTION_TYPE_CLICK) {
                 // We found a click. If timeStayOnResult hasn't been set, it should be now
                 // because we have gone back to the app and have done another search
                 ClickAction clickCast = (ClickAction) action;

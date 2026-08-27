@@ -20,7 +20,6 @@ package androidx.appsearch.cts.usagereporting;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.usagereporting.ActionConstants;
 import androidx.appsearch.usagereporting.ImpressionAction;
 import androidx.appsearch.usagereporting.TakenAction;
 
@@ -43,7 +42,7 @@ public class ImpressionActionCtsTest {
         assertThat(impressionAction.getActionTimestampMillis()).isEqualTo(123);
         assertThat(impressionAction.getDocumentTtlMillis()).isEqualTo(456);
         assertThat(impressionAction.getActionType())
-                .isEqualTo(ActionConstants.ACTION_TYPE_IMPRESSION);
+                .isEqualTo(TakenAction.ACTION_TYPE_IMPRESSION);
         assertThat(impressionAction.getQuery()).isEqualTo("query");
         assertThat(impressionAction.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
         assertThat(impressionAction.getResultRankInBlock()).isEqualTo(1);
@@ -62,7 +61,7 @@ public class ImpressionActionCtsTest {
         assertThat(impressionAction.getDocumentTtlMillis())
                 .isEqualTo(TakenAction.DEFAULT_DOCUMENT_TTL_MILLIS);
         assertThat(impressionAction.getActionType())
-                .isEqualTo(ActionConstants.ACTION_TYPE_IMPRESSION);
+                .isEqualTo(TakenAction.ACTION_TYPE_IMPRESSION);
         assertThat(impressionAction.getQuery()).isNull();
         assertThat(impressionAction.getReferencedQualifiedId()).isNull();
         assertThat(impressionAction.getResultRankInBlock()).isEqualTo(-1);
@@ -89,7 +88,7 @@ public class ImpressionActionCtsTest {
         assertThat(impressionAction2.getActionTimestampMillis()).isEqualTo(123);
         assertThat(impressionAction2.getDocumentTtlMillis()).isEqualTo(456);
         assertThat(impressionAction2.getActionType())
-                .isEqualTo(ActionConstants.ACTION_TYPE_IMPRESSION);
+                .isEqualTo(TakenAction.ACTION_TYPE_IMPRESSION);
         assertThat(impressionAction2.getQuery()).isEqualTo("query");
         assertThat(impressionAction2.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
         assertThat(impressionAction2.getResultRankInBlock()).isEqualTo(1);
@@ -113,7 +112,7 @@ public class ImpressionActionCtsTest {
         assertThat(document.getCreationTimestampMillis()).isEqualTo(123);
         assertThat(document.getTtlMillis()).isEqualTo(456);
         assertThat(document.getPropertyLong("actionType"))
-                .isEqualTo(ActionConstants.ACTION_TYPE_IMPRESSION);
+                .isEqualTo(TakenAction.ACTION_TYPE_IMPRESSION);
         assertThat(document.getPropertyString("query")).isEqualTo("query");
         assertThat(document.getPropertyString("referencedQualifiedId"))
                 .isEqualTo("pkg$db/ns#refId");
