@@ -39,6 +39,7 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
+import androidx.work.WorkInfo.State.CANCELLED
 import androidx.work.WorkInfo.State.ENQUEUED
 import androidx.work.WorkInfo.State.RUNNING
 import androidx.work.WorkerParameters
@@ -104,6 +105,25 @@ class WorkerWrapperTestKt {
     }
 
     @Test
+    fun testInterruption_cancelledDoesNotReschedule() = runBlocking {
+        // GIVEN a running worker
+        val workRequest = OneTimeWorkRequest.from(DoWorkAwareWorker::class.java)
+        testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
+        val workerWrapper = WorkerWrapper(workRequest.workSpec)
+        val future = workerWrapper.launch()
+        val worker = factory.await(workRequest.id) as DoWorkAwareWorker
+        worker.doWorkEvent.await()
+
+        // WHEN the work is cancelled and interrupted
+        testEnv.db.workSpecDao().setCancelledState(workRequest.stringId)
+        workerWrapper.interrupt(WorkInfo.STOP_REASON_CANCELLED_BY_APP)
+
+        // THEN it is not rescheduled and remains cancelled
+        assertThat(future.await()).isFalse()
+        assertThat(testEnv.db.workSpecDao().getState(workRequest.stringId)).isEqualTo(CANCELLED)
+    }
+
+    @Test
     @OptIn(ExperimentalWorkRequestBuilderApi::class)
     fun testInterruption_withBackOff(): Unit = runBlocking {
         val workRequest =
@@ -125,6 +145,29 @@ class WorkerWrapperTestKt {
         val workSpec = testEnv.db.workSpecDao().getWorkSpec(workRequest.stringId)!!
         val nextEnqueueTime = workSpec.lastEnqueueTime
         assertThat(nextEnqueueTime > lastEnqueueTime)
+    }
+
+    @Test
+    @OptIn(ExperimentalWorkRequestBuilderApi::class)
+    fun testInterruption_withBackOff_cancelledDoesNotReschedule(): Unit = runBlocking {
+        // GIVEN a running worker configured with backoff for system interruptions
+        val workRequest =
+            OneTimeWorkRequestBuilder<DoWorkAwareWorker>()
+                .setBackoffForSystemInterruptions()
+                .build()
+        testEnv.db.workSpecDao().insertWorkSpec(workRequest.workSpec)
+        val workerWrapper = WorkerWrapper(workRequest.workSpec)
+        val future = workerWrapper.launch()
+        val worker = factory.await(workRequest.id) as DoWorkAwareWorker
+        worker.doWorkEvent.await()
+
+        // WHEN the work is cancelled and interrupted
+        testEnv.db.workSpecDao().setCancelledState(workRequest.stringId)
+        workerWrapper.interrupt(WorkInfo.STOP_REASON_CANCELLED_BY_APP)
+
+        // THEN it is not rescheduled and remains cancelled
+        assertThat(future.await()).isFalse()
+        assertThat(testEnv.db.workSpecDao().getState(workRequest.stringId)).isEqualTo(CANCELLED)
     }
 
     @Test
