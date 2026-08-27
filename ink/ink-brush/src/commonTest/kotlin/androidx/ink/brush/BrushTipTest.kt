@@ -16,16 +16,12 @@
 
 package androidx.ink.brush
 
-import androidx.ink.brush.behavior.DampingNode
-import androidx.ink.brush.behavior.EasingFunction
 import androidx.ink.brush.behavior.OutOfRange
-import androidx.ink.brush.behavior.ProgressDomain
-import androidx.ink.brush.behavior.ResponseNode
 import androidx.ink.brush.behavior.SourceNode
 import androidx.ink.brush.behavior.SourceNode.Source
 import androidx.ink.brush.behavior.TargetNode
 import androidx.ink.brush.behavior.TargetNode.Target
-import androidx.ink.brush.behavior.ToolTypeFilterNode
+import androidx.ink.brush.samples.createPressureToSizeBehavior
 import androidx.ink.geometry.Angle
 import androidx.ink.nativeloader.InkInternalOnlyApi
 import androidx.ink.nativeloader.testing.awaitNativePointerCleanupAfter
@@ -35,34 +31,7 @@ import kotlin.test.assertFailsWith
 
 @OptIn(InkInternalOnlyApi::class)
 class BrushTipTest {
-    private val customBehavior =
-        BrushBehavior(
-            TargetNode(
-                target = Target.HEIGHT_MULTIPLIER,
-                targetModifierRangeStart = 1.1f,
-                targetModifierRangeEnd = 1.7f,
-                input =
-                    DampingNode(
-                        dampingSource = ProgressDomain.TIME_IN_SECONDS,
-                        strength = 0.001f,
-                        input =
-                            ResponseNode(
-                                responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                                input =
-                                    ToolTypeFilterNode(
-                                        enabledToolTypes = setOf(InputToolType.STYLUS),
-                                        input =
-                                            SourceNode(
-                                                source = Source.TILT_IN_RADIANS,
-                                                sourceValueRangeStart = 0.2f,
-                                                sourceValueRangeEnd = .8f,
-                                                sourceOutOfRangeBehavior = OutOfRange.MIRROR,
-                                            ),
-                                    ),
-                            ),
-                    ),
-            )
-        )
+    private val customBehavior = createPressureToSizeBehavior()
 
     @Test
     fun brushTipNativePointers_cleanedUpWhenOutOfScope() {

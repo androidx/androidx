@@ -90,7 +90,7 @@ class DampingNodeTest {
         val responseTimeMillisError =
             assertFailsWith<IllegalArgumentException> {
                 DampingNode(
-                    dampingSource = ProgressDomain.TIME_IN_SECONDS,
+                    dampOver = ProgressDomain.TIME_IN_SECONDS,
                     strength = -0.001f, // Less than 0.
                     input = ConstantNode(0f),
                 )
@@ -103,14 +103,14 @@ class DampingNodeTest {
     fun dampingNodeEquals_withDifferentValues_returnsFalse() {
         val original =
             DampingNode(
-                dampingSource = ProgressDomain.TIME_IN_SECONDS,
+                dampOver = ProgressDomain.TIME_IN_SECONDS,
                 strength = 0.001f,
                 input = ConstantNode(0f),
             )
         assertThat(
                 original.equals(
                     DampingNode(
-                        dampingSource = ProgressDomain.DISTANCE_IN_CENTIMETERS, // different
+                        dampOver = ProgressDomain.DISTANCE_IN_CENTIMETERS, // different
                         strength = 0.001f,
                         input = ConstantNode(0f),
                     )
@@ -120,7 +120,7 @@ class DampingNodeTest {
         assertThat(
                 original.equals(
                     DampingNode(
-                        dampingSource = ProgressDomain.TIME_IN_SECONDS,
+                        dampOver = ProgressDomain.TIME_IN_SECONDS,
                         strength = 0.035f, // different
                         input = ConstantNode(0f),
                     )
@@ -130,7 +130,7 @@ class DampingNodeTest {
         assertThat(
                 original.equals(
                     DampingNode(
-                        dampingSource = ProgressDomain.TIME_IN_SECONDS,
+                        dampOver = ProgressDomain.TIME_IN_SECONDS,
                         strength = 0.001f,
                         input = ConstantNode(1f), // different
                     )

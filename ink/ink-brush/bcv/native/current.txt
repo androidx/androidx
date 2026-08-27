@@ -166,8 +166,8 @@ final class androidx.ink.brush.behavior/ConstantNode : androidx.ink.brush.behavi
 final class androidx.ink.brush.behavior/DampingNode : androidx.ink.brush.behavior/ValueNode { // androidx.ink.brush.behavior/DampingNode|null[0]
     constructor <init>(androidx.ink.brush.behavior/ProgressDomain, kotlin/Float, androidx.ink.brush.behavior/ValueNode) // androidx.ink.brush.behavior/DampingNode.<init>|<init>(androidx.ink.brush.behavior.ProgressDomain;kotlin.Float;androidx.ink.brush.behavior.ValueNode){}[0]
 
-    final val dampingSource // androidx.ink.brush.behavior/DampingNode.dampingSource|{}dampingSource[0]
-        final fun <get-dampingSource>(): androidx.ink.brush.behavior/ProgressDomain // androidx.ink.brush.behavior/DampingNode.dampingSource.<get-dampingSource>|<get-dampingSource>(){}[0]
+    final val dampOver // androidx.ink.brush.behavior/DampingNode.dampOver|{}dampOver[0]
+        final fun <get-dampOver>(): androidx.ink.brush.behavior/ProgressDomain // androidx.ink.brush.behavior/DampingNode.dampOver.<get-dampOver>|<get-dampOver>(){}[0]
     final val input // androidx.ink.brush.behavior/DampingNode.input|{}input[0]
         final fun <get-input>(): androidx.ink.brush.behavior/ValueNode // androidx.ink.brush.behavior/DampingNode.input.<get-input>|<get-input>(){}[0]
     final val strength // androidx.ink.brush.behavior/DampingNode.strength|{}strength[0]
