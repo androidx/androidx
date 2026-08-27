@@ -63,8 +63,8 @@ class ExcludePhysicalCameraIdQuirkTest(
             listOf(
                 // Samsung Galaxy S25 / S25 Ultra
                 arrayOf("Samsung", "Samsung", "SM-S938B", setOf("2", "5", "6", "7")),
-                arrayOf("samsung", "samsung", "SM-S931U", setOf("2", "3", "4")),
-                arrayOf("Samsung", "Samsung", "SM-S936U", setOf("2", "3", "4")),
+                arrayOf("samsung", "samsung", "SM-S931U", setOf("2", "5", "6")),
+                arrayOf("Samsung", "Samsung", "SM-S936U", setOf("2", "5", "6")),
                 // Samsung Galaxy Z Fold 6 / Z Flip 6 / Fold 5 / Flip 5
                 arrayOf("Samsung", "Samsung", "SM-F968N", setOf("2", "5", "6", "7")),
                 arrayOf("Samsung", "Samsung", "SM-F966U", setOf("2", "5", "6")),
