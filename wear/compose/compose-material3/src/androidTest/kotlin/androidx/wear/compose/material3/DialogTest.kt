@@ -123,7 +123,7 @@ class DialogTest {
 
     @Test
     fun shrink_background_when_dialog_is_shown() {
-        var scaffoldState = ScaffoldState()
+        val scaffoldState = ScaffoldState()
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalScaffoldState provides scaffoldState) {
                 var visible by remember { mutableStateOf(false) }
@@ -146,7 +146,7 @@ class DialogTest {
 
     @Test
     fun expand_background_when_dialog_is_hidden() {
-        var scaffoldState = ScaffoldState()
+        val scaffoldState = ScaffoldState()
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalScaffoldState provides scaffoldState) {
                 var visible by remember { mutableStateOf(true) }
@@ -169,7 +169,7 @@ class DialogTest {
 
     @Test
     fun expand_background_when_dialog_is_removed() {
-        var scaffoldState = ScaffoldState()
+        val scaffoldState = ScaffoldState()
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalScaffoldState provides scaffoldState) {
                 var visible by remember { mutableStateOf(true) }

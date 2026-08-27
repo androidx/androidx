@@ -259,8 +259,8 @@ public fun DatePicker(
         }
     }
 
+    @Suppress("UnusedBoxWithConstraintsScope")
     BoxWithConstraints(modifier = modifier.fillMaxSize().alpha(fullyDrawn.value)) {
-        val boxConstraints = this
         val heading =
             selectedIndex?.let {
                 when (datePickerOptions.getOrNull(it)) {

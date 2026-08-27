@@ -46,7 +46,7 @@ class FadingExpandingLabelTest {
         var initialHeight = 0f
         var updatedHeight = 0f
         var finalHeight = 0f
-        var text = mutableStateOf("test")
+        val text = mutableStateOf("test")
 
         rule.mainClock.autoAdvance = false
         rule.setContentWithTheme(modifier = Modifier.size(SCREEN_SIZE_SMALL.dp)) {
@@ -82,7 +82,7 @@ class FadingExpandingLabelTest {
     fun fading_expanding_label_no_animation_on_initial_text() {
         var initialHeight = 0f
         var finalHeight = 0f
-        var text = mutableStateOf("test")
+        val text = mutableStateOf("test")
 
         rule.mainClock.autoAdvance = false
         rule.setContentWithTheme(modifier = Modifier.size(SCREEN_SIZE_SMALL.dp)) {

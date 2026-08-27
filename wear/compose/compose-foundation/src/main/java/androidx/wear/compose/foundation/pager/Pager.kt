@@ -118,7 +118,7 @@ public fun HorizontalPager(
     content: @Composable PagerScope.(page: Int) -> Unit,
 ) {
     var allowPaging by remember { mutableStateOf(true) }
-    var pagerCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val pagerCoordinates = remember { mutableStateOf<LayoutCoordinates?>(null) }
 
     val originalTouchSlop = LocalViewConfiguration.current.touchSlop
     val focusRequester = remember { FocusRequester() }

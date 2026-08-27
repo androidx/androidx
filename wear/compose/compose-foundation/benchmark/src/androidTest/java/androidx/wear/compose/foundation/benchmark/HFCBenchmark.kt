@@ -76,7 +76,7 @@ internal class caseFactory(val useHfc: Boolean) : LayeredComposeTestCase() {
         val numColumns = 5
 
         var selectedRow by remember { mutableStateOf(0) }
-        var selectedColumn = remember { Array(numRows) { mutableStateOf(0) } }
+        val selectedColumn = remember { Array(numRows) { mutableStateOf(0) } }
 
         val focusRequesters = remember { Array(numRows * numColumns) { FocusRequester() } }
 
