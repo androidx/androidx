@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.LocalReduceMotion
@@ -337,16 +338,18 @@ private fun PagerScaffoldImpl(
     pageIndicatorAlignment: Alignment,
     pageIndicatorAnimationSpec: AnimationSpec<Float>?,
 ) {
+    val currentView = LocalView.current
     val scaffoldState = LocalScaffoldState.current
     val key = remember { Any() }
 
     // Update the timeText & scrollInfoProvider if there is a change and the screen is already
     // present
     scaffoldState.screenContent.updateIfNeeded(
-        key,
+        key = key,
         timeText = null,
-        scrollInfoProvider,
+        scrollInfoProvider = scrollInfoProvider,
         statusBarMode = StatusBarMode.Inherit,
+        view = currentView,
     )
 
     DisposableEffect(key) { onDispose { scaffoldState.screenContent.removeScreen(key) } }
@@ -357,10 +360,11 @@ private fun PagerScaffoldImpl(
     LaunchedEffect(screenIsActive, scaffoldState) {
         if (screenIsActive) {
             scaffoldState.screenContent.addScreen(
-                key,
+                key = key,
                 timeText = null,
-                scrollInfoProvider,
+                scrollInfoProvider = scrollInfoProvider,
                 statusBarMode = StatusBarMode.Inherit,
+                view = currentView,
             )
         } else {
             scaffoldState.screenContent.removeScreen(key)
