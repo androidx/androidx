@@ -50,6 +50,8 @@ internal class SharedElementEntry(
 ) : LayerRenderer, RememberObserver {
 
     var isAttached: Boolean by mutableStateOf(false)
+    private var _isTransitionActive: Boolean = false
+
     private var _zIndex by mutableFloatStateOf(zIndex)
     override var zIndex: Float
         get() = _zIndex
@@ -276,6 +278,35 @@ internal class SharedElementEntry(
     }
 
     override fun onAbandoned() {}
+
+    val observationBlock: () -> Unit = {
+        // Here we are observing strictly the states that would affect match and transition
+        // activeness for the node. The match is the result of this observation, not the input.
+        target
+        isEnabled
+        boundsAnimation.isRunning
+        activeMutableTransformState?.isMutating
+    }
+
+    fun updateTransitionActiveness() {
+        val old = _isTransitionActive
+        _isTransitionActive =
+            isEnabled &&
+                sharedElement.foundMatch &&
+                (boundsAnimation.isRunning || activeMutableTransformState?.isMutating == true)
+
+        if (_isTransitionActive != old) {
+            sharedElement.scope.onNodeTransitionActivenessChanged(_isTransitionActive)
+        }
+    }
+
+    fun onEntryRemoved() {
+        val old = _isTransitionActive
+        _isTransitionActive = false
+        if (_isTransitionActive != old) {
+            sharedElement.scope.onNodeTransitionActivenessChanged(_isTransitionActive)
+        }
+    }
 }
 
 internal interface BoundsProvider {
