@@ -29,7 +29,7 @@ plugins {
 
 dependencies {
 
-    implementation project(':biometric:biometric')
+    implementation project(":biometric:biometric")
     implementation(project(":biometric:biometric-compose"))
     implementation(libs.kotlinCoroutinesCore)
     implementation("androidx.activity:activity:1.9.1")

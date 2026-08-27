@@ -18,7 +18,9 @@ package androidx.build.pinneddependencies
 import androidx.build.Version
 import java.io.Serializable
 import org.gradle.api.GradleException
-import org.tomlj.Toml
+import tools.jackson.core.JacksonException
+import tools.jackson.databind.JsonNode
+import tools.jackson.dataformat.toml.TomlMapper
 
 internal const val TIP_OF_TREE_EXEMPTIONS_FILE_NAME = "tip-of-tree-dependency-exemptions.toml"
 
@@ -56,29 +58,46 @@ internal fun parseTipOfTreeExemptions(
     fileName: String = TIP_OF_TREE_EXEMPTIONS_FILE_NAME,
 ): List<TipOfTreeExemption> {
     if (tomlContents.isNullOrBlank()) return emptyList()
-    val parsed = Toml.parse(tomlContents)
+    val parsed: JsonNode =
+        try {
+            TomlMapper().readTree(tomlContents)
+        } catch (e: JacksonException) {
+            val location = e.location
+            val locationDesc =
+                if (location != null && location.lineNr != -1) {
+                    "line ${location.lineNr}, column ${location.columnNr}: "
+                } else {
+                    ""
+                }
+            throw GradleException(
+                "$fileName has issues.\n$fileName:$locationDesc${e.originalMessage ?: e.message}",
+                e,
+            )
+        }
 
-    if (parsed.hasErrors()) {
-        val issues =
-            parsed.errors().joinToString("\n") { "$fileName:${it.position()}: ${it.message}" }
-        throw GradleException("$fileName has issues.\n$issues")
+    if (parsed.isNull || parsed.isMissingNode) return emptyList()
+    if (!parsed.isObject) {
+        throw GradleException("$fileName is not a valid TOML table")
     }
 
-    val unexpectedKeys = parsed.keySet() - "tipOfTreeExemptions"
+    val unexpectedKeys = parsed.propertyNames().toSet() - "tipOfTreeExemptions"
     if (unexpectedKeys.isNotEmpty()) {
         throw GradleException(
             "$fileName contains unexpected table/key(s): $unexpectedKeys. Expected '[[tipOfTreeExemptions]]'."
         )
     }
 
-    val entries = parsed.getArray("tipOfTreeExemptions") ?: return emptyList()
+    val entries = parsed.get("tipOfTreeExemptions") ?: return emptyList()
+    if (!entries.isArray) {
+        throw GradleException("$fileName: tipOfTreeExemptions is not an array")
+    }
 
-    return List(entries.size()) { index ->
-        val table =
-            entries.getTable(index)
-                ?: throw GradleException("$fileName: tipOfTreeExemptions[$index] is not a table")
+    return entries.mapIndexed { index, table ->
+        if (!table.isObject) {
+            throw GradleException("$fileName: tipOfTreeExemptions[$index] is not a table")
+        }
 
-        val extraKeys = table.keySet() - ALLOWED_EXEMPTION_KEYS
+        val extraKeys = table.propertyNames().toSet() - ALLOWED_EXEMPTION_KEYS
         if (extraKeys.isNotEmpty()) {
             throw GradleException(
                 "$fileName: tipOfTreeExemptions[$index] contains unrecognized key(s): $extraKeys"
@@ -86,7 +105,7 @@ internal fun parseTipOfTreeExemptions(
         }
 
         fun requireString(key: String): String =
-            table.getString(key)
+            table.get(key)?.asString()
                 ?: throw GradleException(
                     "$fileName: tipOfTreeExemptions[$index] is missing required key \"$key\""
                 )

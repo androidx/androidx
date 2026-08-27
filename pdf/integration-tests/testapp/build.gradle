@@ -47,7 +47,7 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(project(":pdf:pdf-viewer-fragment"))
     androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
-    androidTestImplementation('androidx.test.espresso:espresso-intents:3.6.1')
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.6.1")
 
     debugImplementation("androidx.fragment:fragment-testing-manifest:1.8.1")
     debugImplementation("androidx.fragment:fragment-testing:1.7.1")

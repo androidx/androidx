@@ -35,7 +35,7 @@ dependencies {
     api(libs.guavaListenableFuture)
     api(libs.jspecify)
     api(project(":wear:protolayout:protolayout"))
-    api(project(':wear:protolayout:protolayout-expression'))
+    api(project(":wear:protolayout:protolayout-expression"))
 
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")

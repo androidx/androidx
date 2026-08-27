@@ -38,7 +38,7 @@ android {
     }
 }
 
-androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
+androidComponents { beforeVariants(selector().all()) { enabled = buildType == "release" } }
 
 dependencies {
     implementation(libs.androidx.activity.compose)

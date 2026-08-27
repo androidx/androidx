@@ -206,6 +206,9 @@
             <trusting group="com.fasterxml.jackson.module"/>
             <trusting group="com.fasterxml.woodstox"/>
             <trusting group="org.codehaus.woodstox"/>
+            <trusting group="tools.jackson"/>
+            <trusting group="tools.jackson.core"/>
+            <trusting group="tools.jackson.dataformat"/>
          </trusted-key>
          <trusted-key id="29BEA2A645F2D6CED7FB12E02B172E3E156466E8">
             <trusting group="org.apache.maven"/>
@@ -416,7 +419,6 @@
          <trusted-key id="7FAA0F2206DE228F0DB01AD741321490758AAD6F" group="org.codehaus.groovy"/>
          <trusted-key id="7FE5E98DF3A5C0DC34663AB7C1ADD37CA0069309" group="org.spdx" name="spdx-gradle-plugin"/>
          <trusted-key id="808D78B17A5A2D7C3668E31FBFFC9B54721244AD" group="org.apache.commons"/>
-         <trusted-key id="80F6D6B0D90C6747753344CAB5A9E81B565E89E0" group="org.tomlj"/>
          <trusted-key id="8247F88933C2D56F830AF73436AB7ACFFF2027B1" group="it.krzeminski"/>
          <trusted-key id="8254180BFC943B816E0B5E2E5E2F2B3D474EFE6B" group="it.unimi.dsi"/>
          <trusted-key id="82C9EC0E52C47A936A849E0113D979595E6D01E1" group="org.apache.maven.shared" name="maven-shared-utils"/>

@@ -39,14 +39,14 @@ apply from: "../buildSrc/kotlin-dsl-dependency.gradle"
 
 sourceSets {
     main.kotlin.srcDirs += [
-            '../buildSrc/public/src/main/kotlin',
-            '../buildSrc/private/src/main/kotlin',
-            '../buildSrc/jetpad-integration/src/main/java'
+            "../buildSrc/public/src/main/kotlin",
+            "../buildSrc/private/src/main/kotlin",
+            "../buildSrc/jetpad-integration/src/main/java"
     ]
     main.java.srcDirs += [
-            '../buildSrc/jetpad-integration/src/main/java',
+            "../buildSrc/jetpad-integration/src/main/java",
     ]
-    main.resources.srcDirs += ['../buildSrc/private/src/main/resources']
+    main.resources.srcDirs += ["../buildSrc/private/src/main/resources"]
 }
 
 apply from: "${buildscript.sourceFile.parentFile.parent}/buildSrc/shared-dependencies.gradle"

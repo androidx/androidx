@@ -45,11 +45,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
 
     // Transitive dependencies
-    implementation 'androidx.fragment:fragment:1.5.4'
-    implementation 'androidx.lifecycle:lifecycle-common:2.8.7'
-    implementation 'androidx.lifecycle:lifecycle-livedata-core:2.8.7'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.7'
+    implementation "androidx.fragment:fragment:1.5.4"
+    implementation "androidx.lifecycle:lifecycle-common:2.8.7"
+    implementation "androidx.lifecycle:lifecycle-livedata-core:2.8.7"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:2.8.7"
     implementation libs.androidx.core
     implementation libs.kotlinCoroutinesCore
-    implementation project(':camera:viewfinder:viewfinder-core')
+    implementation project(":camera:viewfinder:viewfinder-core")
 }
