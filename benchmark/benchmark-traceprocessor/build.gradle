@@ -58,12 +58,6 @@ tasks.withType(KotlinCompile).configureEach { task ->
     }
 }
 
-// Workarounds for Wire's plugin not setting code generation directory as task output correctly
-// See https://github.com/square/wire/issues/3199
-tasks.named("multiplatformSourceJar").configure {
-    dependsOn(tasks.named("generateCommonMainProtos"))
-}
-
 wire {
     kotlin {}
     sourcePath {
