@@ -25,13 +25,9 @@
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-  <uses-permission android:name="android.permission.XR_EXPERIMENTAL_FEATURES" />
   <application
       android:label="JXR ARCore Tests"
       android:taskAffinity="">
-    <meta-data android:name="com.android.extensions.xr.uses_experimental_openxr_feature"
-        android:value="true"
-        tools:ignore="MetadataTagInsideApplicationTag" />
     <activity
         android:name=".MainActivity"
         android:exported="true"

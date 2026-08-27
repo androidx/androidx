@@ -55,7 +55,6 @@ class ArCoreTestAppSmokeTest(activityClass: Class<out Activity>) : TestAppSmokeT
                 "android.permission.INTERNET",
                 "android.permission.ACCESS_COARSE_LOCATION",
                 "android.permission.ACCESS_FINE_LOCATION",
-                "android.permission.XR_EXPERIMENTAL_FEATURES",
             )
         )
 
