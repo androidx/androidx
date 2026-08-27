@@ -682,6 +682,7 @@
             <trusting group="org.junit.jupiter"/>
             <trusting group="org.junit.platform"/>
             <trusting group="org.opentest4j"/>
+            <trusting group="org.apiguardian"/>
          </trusted-key>
          <trusted-key id="FFFD810FFFDE203D5FA27263BEABCFBEE059E4E5" group="com.github.siom79.japicmp"/>
       </trusted-keys>
