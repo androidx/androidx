@@ -48,9 +48,6 @@ dependencies {
     implementation(project(":wear:compose:compose-material"))
     implementation(project(":wear:compose:compose-material3"))
     implementation(project(":wear:compose:compose-navigation"))
-    implementation(project(":compose:runtime:runtime-tracing"))
-    implementation(project(":tracing:tracing-perfetto"))
-    implementation(project(":tracing:tracing-perfetto-binary"))
 }
 
 androidx {
