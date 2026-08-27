@@ -382,8 +382,8 @@ internal class OverflowMeasurePolicy(
                 )
             }
 
-        var width: Int
-        var height: Int
+        val width: Int
+        val height: Int
         return if (isVertical) {
             width = constraints.constrainWidth(childrenMaxSpace)
             height = constraints.constrainHeight(currentSpace)

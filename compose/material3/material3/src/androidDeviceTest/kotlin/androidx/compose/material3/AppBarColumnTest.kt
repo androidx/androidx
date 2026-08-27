@@ -126,8 +126,6 @@ class AppBarColumnTest {
     @Test
     fun appbarColumn_overflowMenu_opensAndCloses() {
         rule.setContent {
-            var menuState by remember { mutableStateOf(false) }
-
             AppBarColumn(
                 overflowIndicator = {
                     IconButton(

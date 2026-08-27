@@ -77,7 +77,7 @@ public fun Label(
         if (isPersistent) remember { LabelStateImpl() }
         else rememberBasicTooltipState(mutatorMutex = MutatorMutex())
 
-    var anchorBounds: MutableState<LayoutCoordinates?> = remember { mutableStateOf(null) }
+    val anchorBounds: MutableState<LayoutCoordinates?> = remember { mutableStateOf(null) }
     val scope = remember { TooltipScopeImpl({ anchorBounds.value }, positionProvider) }
 
     val wrappedContent: @Composable () -> Unit = {
