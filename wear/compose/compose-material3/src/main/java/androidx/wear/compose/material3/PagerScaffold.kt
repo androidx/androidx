@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -352,12 +351,10 @@ private fun PagerScaffoldImpl(
         view = currentView,
     )
 
-    DisposableEffect(key) { onDispose { scaffoldState.screenContent.removeScreen(key) } }
-
     scaffoldState.screenContent.UpdateIdlingDetectorIfNeeded()
 
     val screenIsActive = LocalScreenIsActive.current
-    LaunchedEffect(screenIsActive, scaffoldState) {
+    DisposableEffect(screenIsActive, scaffoldState) {
         if (screenIsActive) {
             scaffoldState.screenContent.addScreen(
                 key = key,
@@ -366,9 +363,8 @@ private fun PagerScaffoldImpl(
                 statusBarMode = StatusBarMode.Inherit,
                 view = currentView,
             )
-        } else {
-            scaffoldState.screenContent.removeScreen(key)
         }
+        onDispose { scaffoldState.screenContent.removeScreen(key) }
     }
 
     Box(modifier) {
