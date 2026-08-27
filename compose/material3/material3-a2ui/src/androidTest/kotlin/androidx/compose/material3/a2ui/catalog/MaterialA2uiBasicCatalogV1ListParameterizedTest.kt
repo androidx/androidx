@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -23,28 +23,31 @@ import androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction
 import androidx.a2ui.model.protocol.A2uiComponentPayload
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.a2ui.catalog.MaterialA2uiBasicCatalogV1Defaults
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalTestApi::class)
+@MediumTest
 @RunWith(Parameterized::class)
-class MaterialListComponentParameterizedTest(private val alignToken: String) {
+class MaterialA2uiBasicCatalogV1ListParameterizedTest(private val alignToken: String) {
 
     private val testCatalog =
         A2uiCatalog(
             catalogId = "test_catalog",
-            components = listOf(MaterialListComponent, MaterialA2uiBasicCatalogV1Defaults.text),
+            components =
+                listOf(
+                    MaterialA2uiBasicCatalogV1Defaults.list,
+                    MaterialA2uiBasicCatalogV1Defaults.text,
+                ),
             functions = listOf(A2uiFormatStringFunction.INSTANCE),
         )
 
