@@ -289,6 +289,19 @@ package androidx.wear.compose.remote.material3 {
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteIcon(androidx.compose.remote.creation.compose.capture.RemoteImageVector, androidx.compose.remote.creation.compose.state.RemoteString?, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteColor?, androidx.compose.runtime.Composer?, int, int);
   }
 
+  public final class RemoteLinearProgressIndicatorDefaults {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getStrokeWidthLarge();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getStrokeWidthSmall();
+    property public androidx.compose.remote.creation.compose.state.RemoteDp StrokeWidthLarge;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp StrokeWidthSmall;
+    field public static final androidx.wear.compose.remote.material3.RemoteLinearProgressIndicatorDefaults INSTANCE;
+  }
+
+  public final class RemoteLinearProgressIndicatorKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteLinearProgressIndicator(androidx.compose.remote.creation.compose.state.RemoteFloat progress, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.wear.compose.remote.material3.RemoteProgressIndicatorColors colors, optional androidx.compose.remote.creation.compose.state.RemoteDp strokeWidth, optional androidx.compose.remote.creation.compose.state.RemoteBoolean enabled);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteLinearProgressIndicator(androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.wear.compose.remote.material3.RemoteProgressIndicatorColors?, androidx.compose.remote.creation.compose.state.RemoteDp?, androidx.compose.remote.creation.compose.state.RemoteBoolean?, androidx.compose.runtime.Composer?, int, int);
+  }
+
   public final class RemoteMaterialTheme {
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.wear.compose.remote.material3.RemoteColorScheme getColorScheme(androidx.compose.runtime.Composer?, int);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public androidx.wear.compose.remote.material3.RemoteShapes getShapes(androidx.compose.runtime.Composer?, int);
