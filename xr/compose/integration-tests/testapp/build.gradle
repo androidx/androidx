@@ -105,7 +105,7 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-util"))
     androidTestImplementation(project(":compose:ui:ui"))
 
-    androidTestImplementation(project(":tracing:tracing"))
+    androidTestImplementation("androidx.tracing:tracing:2.0.1")
 
     androidTestUtil(libs.testOrchestrator)
 }
