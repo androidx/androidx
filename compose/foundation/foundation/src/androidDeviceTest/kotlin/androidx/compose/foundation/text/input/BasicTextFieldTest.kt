@@ -1745,6 +1745,7 @@ internal class BasicTextFieldTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun whenCursorOutOfView_bringCursorIntoView_withCoreTextField() {
         val tag = "textField"
         val scrollState = ScrollState(0)

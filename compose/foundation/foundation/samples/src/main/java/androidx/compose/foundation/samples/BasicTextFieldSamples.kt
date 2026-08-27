@@ -15,7 +15,13 @@
  */
 
 @file:OptIn(ExperimentalFoundationApi::class)
-@file:Suppress("UNUSED_PARAMETER", "unused", "LocalVariableName", "RedundantSuspendModifier")
+@file:Suppress(
+    "UNUSED_PARAMETER",
+    "unused",
+    "LocalVariableName",
+    "RedundantSuspendModifier",
+    "DEPRECATION", // b/552879150
+)
 
 package androidx.compose.foundation.samples
 

@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION") // b/552879150
+
 package androidx.compose.foundation.text
 
 import android.graphics.Bitmap

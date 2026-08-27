@@ -633,6 +633,7 @@ class HardwareKeyboardTest {
         inputMethodInterceptor.setContent {
             clipboard = LocalClipboard.current
             context = LocalContext.current
+            @Suppress("DEPRECATION") // b/552879150
             BasicTextField(
                 value = value.value,
                 textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 10.sp),

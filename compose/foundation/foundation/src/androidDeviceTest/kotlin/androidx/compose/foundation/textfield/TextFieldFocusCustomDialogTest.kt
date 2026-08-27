@@ -105,6 +105,7 @@ class TextFieldFocusCustomDialogTest {
                     focusRequester.requestFocus()
                 }
 
+                @Suppress("DEPRECATION") // b/552879150
                 BasicTextField(
                     value = "",
                     onValueChange = {},

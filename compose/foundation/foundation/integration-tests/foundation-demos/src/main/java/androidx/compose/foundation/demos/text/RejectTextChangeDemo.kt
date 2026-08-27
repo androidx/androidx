@@ -46,6 +46,7 @@ fun RejectTextChangeDemo() {
 @Composable
 private fun RejectNonDigits() {
     val state = rememberSaveable { mutableStateOf("") }
+    @Suppress("DEPRECATION") // b/552879150
     BasicTextField(
         modifier = demoTextFieldModifiers,
         value = state.value,
@@ -62,6 +63,7 @@ private fun RejectNonDigits() {
 @Composable
 private fun RejectComposition() {
     val state = rememberSaveable { mutableStateOf(({ "" })()) }
+    @Suppress("DEPRECATION") // b/552879150
     BasicTextField(
         modifier = demoTextFieldModifiers,
         value = state.value,

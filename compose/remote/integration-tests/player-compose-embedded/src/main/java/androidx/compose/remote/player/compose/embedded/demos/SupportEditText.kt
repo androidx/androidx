@@ -131,6 +131,7 @@ public object SupportEditTextPlugin : CustomComposablePlugin<SupportEditTextData
     }
 
     @Composable
+    @Suppress("DEPRECATION") // b/552879150
     override fun Content(
         data: SupportEditTextData,
         component: RcCustomComponent,

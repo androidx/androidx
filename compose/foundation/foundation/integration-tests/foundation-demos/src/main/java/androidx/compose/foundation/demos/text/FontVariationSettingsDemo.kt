@@ -17,7 +17,6 @@
 package androidx.compose.foundation.demos.text
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.DeviceFontFamilyName
 import androidx.compose.ui.text.font.Font
@@ -53,9 +51,9 @@ val DEMO_CASES =
         FontVariation.Settings(FontVariation.Setting("ROND", 100f)),
     )
 
-@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 fun FontVariationSettingsDemo() {
     if (Build.VERSION.SDK_INT < 26) {
         Text("Variable fonts are only supported on API 26+")
@@ -91,7 +89,6 @@ fun FontVariationSettingsDemo() {
     }
 }
 
-@OptIn(ExperimentalTextApi::class)
 @Composable
 fun DeviceNamedFontFamilyFont(familyName: String, axes: FontVariation.Settings) {
     Column(Modifier.fillMaxWidth()) {

@@ -602,6 +602,7 @@ class WindowInsetsControllerTest {
         rule.setContent {
             imeBottom = WindowInsets.ime.getBottom(LocalDensity.current)
             Column(Modifier.background(Color.White).wrapContentSize().imePadding()) {
+                @Suppress("DEPRECATION") // b/552879150
                 BasicTextField(
                     "Hello World",
                     {},

@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 @Sampled
+@Suppress("DEPRECATION") // b/552879150
 fun stateListSample() {
     @Composable
     fun Names() {

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/552879150
+
 package androidx.compose.ui.text.input
 
 import android.view.inputmethod.CursorAnchorInfo
@@ -29,7 +31,7 @@ import androidx.compose.ui.text.TextLayoutResult
 )
 internal class CursorAnchorInfoController(
     private val rootPositionCalculator: MatrixPositionCalculator,
-    @Suppress("DEPRECATION") private val inputMethodManager: InputMethodManager,
+    private val inputMethodManager: InputMethodManager,
 ) {
     private val lock = Any()
 

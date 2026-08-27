@@ -80,6 +80,7 @@ internal fun EditLine(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val state = rememberSaveable { mutableStateOf(text) }
+    @Suppress("DEPRECATION") // b/552879150
     BasicTextField(
         modifier = demoTextFieldModifiers,
         value = state.value,

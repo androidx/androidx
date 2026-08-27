@@ -276,6 +276,7 @@ class TextFieldSizeModifierTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // b/552879150
     fun btf1_maxLinesOne_softWrapTrue_doesNotForceInfiniteWidth() {
         var lineCount = 0
 
@@ -295,6 +296,7 @@ class TextFieldSizeModifierTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Suppress("DEPRECATION")
     fun btf1_maxLinesOne_selectionAtEnd_scrollsToEndOnFirstMeasure() {
         val longRedText = "a ".repeat(50)
         val greenText = "b"

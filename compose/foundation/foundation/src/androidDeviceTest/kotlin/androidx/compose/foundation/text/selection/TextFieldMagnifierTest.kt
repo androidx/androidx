@@ -57,6 +57,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
         onTextLayout: (TextLayoutResult) -> Unit,
         maxLines: Int,
     ) {
+        @Suppress("DEPRECATION") // b/552879150
         BasicTextField(
             text,
             onValueChange = {},

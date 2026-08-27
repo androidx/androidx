@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 fun SoftwareKeyboardControllerDemo() {
     Column(Modifier.padding(16.dp)) {
         var isHidden by remember { mutableStateOf(true) }

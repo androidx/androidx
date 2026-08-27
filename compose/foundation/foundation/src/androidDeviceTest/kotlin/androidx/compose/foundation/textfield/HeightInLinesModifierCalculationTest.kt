@@ -88,6 +88,7 @@ class HeightInLinesModifierCalculationTest(private val config: TestConfig) {
             Layout(
                 content = {
                     var text by remember { mutableStateOf(config.text) }
+                    @Suppress("DEPRECATION") // b/552879150
                     BasicTextField(
                         value = text,
                         onValueChange = { text = it },

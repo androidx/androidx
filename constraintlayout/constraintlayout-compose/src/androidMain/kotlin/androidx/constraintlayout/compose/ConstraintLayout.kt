@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -2168,8 +2169,7 @@ internal open class Measurer(
                         val text = element.params["text"] ?: "text"
                         BasicTextField(
                             modifier = Modifier.layoutId(id),
-                            value = text,
-                            onValueChange = {},
+                            state = rememberTextFieldState(text),
                         )
                     }
                     "image" -> {

@@ -49,7 +49,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -85,6 +84,7 @@ fun SimpleDecorationWithLabel() {
 }
 
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 fun OutlinedBasicTextField() {
     val state = remember { TextFieldState() }
     val cursorColor by TextFieldDefaults.outlinedTextFieldColors().cursorColor(isError = false)
@@ -97,7 +97,7 @@ fun OutlinedBasicTextField() {
         decorator = {
             TextFieldDefaults.OutlinedTextFieldDecorationBox(
                 value = state.text.toString(),
-                visualTransformation = VisualTransformation.None,
+                visualTransformation = androidx.compose.ui.text.input.VisualTransformation.None,
                 innerTextField = it,
                 placeholder = null,
                 label = null,
