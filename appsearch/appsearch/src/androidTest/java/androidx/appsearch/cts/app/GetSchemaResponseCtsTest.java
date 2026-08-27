@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class GetSchemaResponseCtsTest {
@@ -667,5 +668,28 @@ public class GetSchemaResponseCtsTest {
         // Verify the returned schemas
         assertThat(response.getSchemasWipeoutAccountPropertyPaths()).containsExactly(
                 "Message", ImmutableSet.of(propertyPath1, propertyPath2));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT)
+    public void testRebuild_multiCert() {
+        byte[] cert1 = new byte[32];
+        byte[] cert2 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        Arrays.fill(cert2, (byte) 2);
+
+        PackageIdentifier multiCertPkg =
+                new PackageIdentifier("com.package.foo", List.of(cert1, cert2));
+
+        GetSchemaResponse response =
+                new GetSchemaResponse.Builder()
+                        .addSchema(new AppSearchSchema.Builder("type1").build())
+                        .setPubliclyVisibleSchema("type1", multiCertPkg)
+                        .setSchemaTypeVisibleToPackages("type1", ImmutableSet.of(multiCertPkg))
+                        .build();
+
+        assertThat(response.getPubliclyVisibleSchemas()).containsExactly("type1", multiCertPkg);
+        assertThat(response.getSchemaTypesVisibleToPackages())
+                .containsExactly("type1", ImmutableSet.of(multiCertPkg));
     }
 }

@@ -573,6 +573,8 @@ package androidx.appsearch.app {
 
   public class PackageIdentifier {
     ctor public PackageIdentifier(String, byte[]);
+    ctor public PackageIdentifier(String, java.util.List<byte[]!>);
+    method public java.util.List<byte[]!> getMultiSignerSha256Certificates();
     method public String getPackageName();
     method public byte[] getSha256Certificate();
   }

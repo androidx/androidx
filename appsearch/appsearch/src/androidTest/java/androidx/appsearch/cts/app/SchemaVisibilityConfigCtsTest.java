@@ -20,14 +20,22 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.testutil.AppSearchTestUtils;
+import androidx.appsearch.testutil.flags.RequiresFlagsEnabled;
 
 import com.google.common.collect.ImmutableSet;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class SchemaVisibilityConfigCtsTest {
+    @Rule
+    public final RuleChain mRuleChain = AppSearchTestUtils.createCommonTestRules();
 
     @Test
     public void testBuildVisibilityConfig() {
@@ -100,5 +108,36 @@ public class SchemaVisibilityConfigCtsTest {
         assertThat(rebuild.getAllowedPackages()).isEmpty();
         assertThat(rebuild.getPubliclyVisibleTargetPackage()).isNull();
         assertThat(rebuild.getRequiredPermissions()).isEmpty();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_PACKAGE_IDENTIFIER_MULTI_CERT)
+    public void testBuildVisibilityConfig_multiCert() {
+        byte[] cert1 = new byte[32];
+        byte[] cert2 = new byte[32];
+        Arrays.fill(cert1, (byte) 1);
+        Arrays.fill(cert2, (byte) 2);
+
+        PackageIdentifier multiCertPkg = new PackageIdentifier("pkg1", List.of(cert1, cert2));
+
+        SchemaVisibilityConfig schemaVisibilityConfig =
+                new SchemaVisibilityConfig.Builder()
+                        .addAllowedPackage(multiCertPkg)
+                        .setPubliclyVisibleTargetPackage(multiCertPkg)
+                        .addRequiredPermissions(ImmutableSet.of(1, 2))
+                        .build();
+
+        assertThat(schemaVisibilityConfig.getRequiredPermissions())
+                .containsExactly(ImmutableSet.of(1, 2));
+        assertThat(schemaVisibilityConfig.getAllowedPackages()).containsExactly(multiCertPkg);
+        assertThat(schemaVisibilityConfig.getPubliclyVisibleTargetPackage())
+                .isEqualTo(multiCertPkg);
+        List<byte[]> certs =
+                schemaVisibilityConfig
+                        .getPubliclyVisibleTargetPackage()
+                        .getMultiSignerSha256Certificates();
+        assertThat(certs).hasSize(2);
+        assertThat(certs.get(0)).isEqualTo(cert1);
+        assertThat(certs.get(1)).isEqualTo(cert2);
     }
 }
