@@ -20,7 +20,6 @@ package androidx.appsearch.cts.usagereporting;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.usagereporting.ActionConstants;
 import androidx.appsearch.usagereporting.ClickAction;
 import androidx.appsearch.usagereporting.TakenAction;
 
@@ -43,7 +42,7 @@ public class ClickActionCtsTest {
         assertThat(clickAction.getId()).isEqualTo("id");
         assertThat(clickAction.getActionTimestampMillis()).isEqualTo(123);
         assertThat(clickAction.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(clickAction.getActionType()).isEqualTo(ActionConstants.ACTION_TYPE_CLICK);
+        assertThat(clickAction.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_CLICK);
         assertThat(clickAction.getQuery()).isEqualTo("query");
         assertThat(clickAction.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
         assertThat(clickAction.getResultRankInBlock()).isEqualTo(1);
@@ -62,7 +61,7 @@ public class ClickActionCtsTest {
         assertThat(clickAction.getActionTimestampMillis()).isEqualTo(123);
         assertThat(clickAction.getDocumentTtlMillis())
                 .isEqualTo(TakenAction.DEFAULT_DOCUMENT_TTL_MILLIS);
-        assertThat(clickAction.getActionType()).isEqualTo(ActionConstants.ACTION_TYPE_CLICK);
+        assertThat(clickAction.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_CLICK);
         assertThat(clickAction.getQuery()).isNull();
         assertThat(clickAction.getReferencedQualifiedId()).isNull();
         assertThat(clickAction.getResultRankInBlock()).isEqualTo(-1);
@@ -89,7 +88,7 @@ public class ClickActionCtsTest {
         assertThat(clickAction2.getId()).isEqualTo("id");
         assertThat(clickAction2.getActionTimestampMillis()).isEqualTo(123);
         assertThat(clickAction2.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(clickAction2.getActionType()).isEqualTo(ActionConstants.ACTION_TYPE_CLICK);
+        assertThat(clickAction2.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_CLICK);
         assertThat(clickAction2.getQuery()).isEqualTo("query");
         assertThat(clickAction2.getReferencedQualifiedId()).isEqualTo("pkg$db/ns#refId");
         assertThat(clickAction2.getResultRankInBlock()).isEqualTo(1);
@@ -115,7 +114,7 @@ public class ClickActionCtsTest {
         assertThat(document.getCreationTimestampMillis()).isEqualTo(123);
         assertThat(document.getTtlMillis()).isEqualTo(456);
         assertThat(document.getPropertyLong("actionType"))
-                .isEqualTo(ActionConstants.ACTION_TYPE_CLICK);
+                .isEqualTo(TakenAction.ACTION_TYPE_CLICK);
         assertThat(document.getPropertyString("query")).isEqualTo("query");
         assertThat(document.getPropertyString("referencedQualifiedId"))
                 .isEqualTo("pkg$db/ns#refId");

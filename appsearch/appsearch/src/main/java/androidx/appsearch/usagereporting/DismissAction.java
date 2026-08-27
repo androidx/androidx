@@ -228,7 +228,7 @@ public class DismissAction extends TakenAction {
          * and {@code actionTimestampMillis}.
          *
          * <p>The {@link TakenAction.ActionType} for the Document returned from
-         * {@link TakenAction#getActionType()} will be {@link ActionConstants#ACTION_TYPE_DISMISS}.
+         * {@link TakenAction#getActionType()} will be {@link TakenAction#ACTION_TYPE_DISMISS}.
          *
          * @param namespace             Namespace for the Document. See {@link Document.Namespace}.
          * @param id                    Unique identifier for the Document. See {@link Document.Id}.
@@ -237,7 +237,7 @@ public class DismissAction extends TakenAction {
          */
         public BuilderBase(@NonNull String namespace, @NonNull String id,
                 long actionTimestampMillis) {
-            this(namespace, id, actionTimestampMillis, ActionConstants.ACTION_TYPE_DISMISS);
+            this(namespace, id, actionTimestampMillis, TakenAction.ACTION_TYPE_DISMISS);
         }
 
         /**
