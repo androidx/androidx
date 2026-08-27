@@ -20,38 +20,38 @@ import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlinx.serialization.Serializable
 
-class AppStateTest {
+class StateStoreTest {
 
-    @Serializable object StringKey : AppStateKey<String>()
+    @Serializable object StringKey : StateStoreKey<String>()
 
-    @Serializable object IntKey : AppStateKey<Int>()
+    @Serializable object IntKey : StateStoreKey<Int>()
 
     @Test
     fun testGetStateReturnsDefaultValue() {
-        val appState = AppState()
+        val stateStore = StateStore()
 
-        val state = appState.getState(StringKey, "default")
+        val state = stateStore.getState(StringKey, "default")
         assertThat(state.value).isEqualTo("default")
     }
 
     @Test
     fun testSetStateUpdatesValue() {
-        val appState = AppState()
+        val stateStore = StateStore()
 
-        appState.setState(StringKey, "new value")
+        stateStore.setState(StringKey, "new value")
 
-        val state = appState.getState(StringKey, "default")
+        val state = stateStore.getState(StringKey, "default")
         assertThat(state.value).isEqualTo("new value")
     }
 
     @Test
     fun testUpdateState() {
-        val appState = AppState()
+        val stateStore = StateStore()
 
-        appState.setState(IntKey, 5)
-        appState.updateState(IntKey, 0) { it + 5 }
+        stateStore.setState(IntKey, 5)
+        stateStore.updateState(IntKey, 0) { it + 5 }
 
-        val state = appState.getState(IntKey, 0)
+        val state = stateStore.getState(IntKey, 0)
         assertThat(state.value).isEqualTo(10)
     }
 }
