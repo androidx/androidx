@@ -250,7 +250,7 @@ internal class SharedTransitionStateMachine(val sharedElement: SharedElement) {
                 if (sharedElement.scope.isTransitionActive) {
                     enabledEntries.fastFirstOrNull { it.target }?.boundsProvider
                 } else {
-                    allEntries.fastFirstOrNull { it.target }?.boundsProvider
+                    allEntries.firstOrNull { it.target }?.boundsProvider
                 }
 
             if (newTargetBoundsProvider != targetBoundsProvider) {
@@ -322,7 +322,7 @@ private fun SharedElement.obtainBoundsFromLastTarget(
         lastTargetBoundsProvider != null &&
             // Search the last provider in all states, not just enabled states. This would allow
             // states that became disabled to still provide just-in-time initial bounds.
-            allEntries.fastAny { state -> state.boundsProvider == lastTargetBoundsProvider }
+            allEntries.any { state -> state.boundsProvider == lastTargetBoundsProvider }
     ) {
         lastTargetBoundsProvider.lastBoundsInSharedTransitionScope
     } else {
@@ -374,7 +374,7 @@ internal class ActiveMatchFoundConfigPending(
             val lastTarget =
                 targetBoundsProviderBeforeConfig
                     ?: sharedElement.allEntries
-                        .fastFirstOrNull { sharedElement.enabledEntries.contains(it) }
+                        .firstOrNull { sharedElement.enabledEntries.contains(it) }
                         ?.boundsProvider
             sharedElement.obtainBoundsFromLastTarget(lastTarget)?.let { currentBounds = it }
         }
@@ -397,7 +397,7 @@ internal class ActiveMatchFoundConfigPending(
                 ?: sharedElement.obtainBoundsFromLastTarget(
                     targetBoundsProviderBeforeConfig
                         ?: sharedElement.allEntries
-                            .fastFirstOrNull { sharedElement.enabledEntries.contains(it) }
+                            .firstOrNull { sharedElement.enabledEntries.contains(it) }
                             ?.boundsProvider
                 )
                 ?: Rect(topLeft, lookaheadSize)
