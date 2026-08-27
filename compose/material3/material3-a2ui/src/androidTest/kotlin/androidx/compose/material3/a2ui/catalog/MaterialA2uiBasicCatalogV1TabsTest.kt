@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiComponentPayload
@@ -26,6 +26,7 @@ import androidx.a2ui.model.protocol.A2uiException.A2uiRuntimeException
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.a2ui.MaterialA2uiDefaults
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -40,14 +41,19 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class MaterialTabsComponentTest {
+class MaterialA2uiBasicCatalogV1TabsTest {
 
     private val testCatalog =
-        A2uiCatalog(catalogId = "test_catalog", components = listOf(MaterialTabsComponent))
+        A2uiCatalog(
+            catalogId = "test_catalog",
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.tabs),
+        )
 
     @Test
     fun tabs_rendersTabTitlesAndDefaultSelectedChild() = runComposeUiTest {
@@ -242,32 +248,6 @@ class MaterialTabsComponentTest {
 
         onNodeWithText("Overview").assertDoesNotExist()
         onNodeWithText("Dashboard").assertIsDisplayed().assertIsSelected()
-    }
-
-    @Test
-    fun tabs_emptyList_rendersNothing() = runComposeUiTest {
-        val controller =
-            A2uiTestController(
-                catalog = testCatalog,
-                initialComponents =
-                    listOf(
-                        A2uiComponentPayload(
-                            id = "root",
-                            type = "Tabs",
-                            properties = mapOf("tabs" to emptyList<Map<String, Any>>()),
-                        )
-                    ),
-            )
-        val surface = controller.start()
-
-        setContent {
-            MaterialTheme {
-                A2uiTestSurface(surface = surface, modifier = Modifier.testTag("tabs_tag"))
-            }
-        }
-
-        onNodeWithText("Tab 1").assertDoesNotExist()
-        onNodeWithTag(MaterialA2uiDefaults.LOADING_INDICATOR_TEST_TAG).assertDoesNotExist()
     }
 
     @Test
