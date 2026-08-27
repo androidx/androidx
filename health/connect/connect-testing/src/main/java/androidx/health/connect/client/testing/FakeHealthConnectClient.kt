@@ -26,7 +26,6 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.changes.Change
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
-import androidx.health.connect.client.feature.HealthConnectFeaturesUnavailableImpl
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_TYPE_NAME_MAP
 import androidx.health.connect.client.impl.converters.records.toProto
 import androidx.health.connect.client.impl.converters.records.toRecord
@@ -56,19 +55,22 @@ import kotlin.reflect.KClass
  *   [FakeHealthConnectClientOverrides.aggregateGroupByPeriod].
  * * Stubs for every call, using the [overrides] property to set responses and exceptions.
  *
- * Note that this fake does not check for permissions.
+ * Note that this fake does not check for permissions or feature availability.
  *
  * @param packageName the name of the package to use to generate unique record IDs.
  * @param clock used to close open-ended [TimeRangeFilter]s and record update times.
  * @param permissionController grants and revokes permissions.
+ * @param features enables control of feature availability status in tests. By default all features
+ *   are unavailable.
  */
-public class FakeHealthConnectClient(
+public class FakeHealthConnectClient
+@JvmOverloads
+constructor(
     private var packageName: String = DEFAULT_PACKAGE_NAME,
     private val clock: Clock = Clock.systemDefaultZone(),
     override val permissionController: PermissionController = FakePermissionController(),
+    override val features: HealthConnectFeatures = FakeHealthConnectFeatures(),
 ) : HealthConnectClient {
-
-    override val features: HealthConnectFeatures = HealthConnectFeaturesUnavailableImpl
 
     private val idsToRecords: MutableMap<String, Record> = mutableMapOf()
     private val deletedIdsToRecords: MutableMap<String, Record> = mutableMapOf()
