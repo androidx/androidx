@@ -81,7 +81,6 @@ fun SwipeToDismissDemo() {
     LazyColumn {
         items(items) { item ->
             var unread by remember { mutableStateOf(false) }
-            val scope = rememberCoroutineScope()
 
             val dismissState =
                 rememberSwipeToDismissBoxState(

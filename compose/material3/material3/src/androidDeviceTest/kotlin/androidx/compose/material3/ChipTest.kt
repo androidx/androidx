@@ -673,7 +673,6 @@ class ChipTest {
     @Test
     fun correctDimensionsInScrollableRow_filterChip() {
         val labelWidth = 64.dp
-        val horizontalPadding = 16.dp
         rule.setMaterialContent(lightColorScheme()) {
             Row(Modifier.horizontalScroll(rememberScrollState())) {
                 FilterChip(

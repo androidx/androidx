@@ -247,7 +247,7 @@ internal fun BottomSheetImpl(
                         }
                     }
 
-                    var remainingVelocity = 0f
+                    val remainingVelocity: Float
                     try {
                         remainingVelocity =
                             with(anchoredDraggableFlingBehavior) { performFling(safeVelocity) }

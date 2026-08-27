@@ -84,7 +84,7 @@ class PaneExpansionStateTest {
 
     @Test
     fun preDrag_alterDeltaBeyondBounds_shouldBeBounded() {
-        val mockState = PaneExpansionState(PaneExpansionStateData()) { delta -> -1200f }
+        val mockState = PaneExpansionState(PaneExpansionStateData()) { _ -> -1200f }
         mockState.onMeasured(MockScaffoldWidth, MockDensity, LayoutDirection.Ltr)
         mockState.onExpansionOffsetMeasured(1000)
         mockState.draggableState.dispatchRawDelta(500f)
@@ -94,7 +94,7 @@ class PaneExpansionStateTest {
 
     @Test
     fun preDrag_consumeAllDelta_shouldKeepTheSameOffset() {
-        val mockState = PaneExpansionState(PaneExpansionStateData()) { delta -> 0f }
+        val mockState = PaneExpansionState(PaneExpansionStateData()) { _ -> 0f }
         mockState.onMeasured(MockScaffoldWidth, MockDensity, LayoutDirection.Ltr)
         mockState.onExpansionOffsetMeasured(1000)
         mockState.draggableState.dispatchRawDelta(500f)

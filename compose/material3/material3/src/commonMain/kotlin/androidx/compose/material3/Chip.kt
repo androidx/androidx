@@ -1454,7 +1454,7 @@ public fun InputChip(
         enabled = enabled,
         label = label,
         leadingIcon = leadingIcon,
-        avatar = avatar,
+        avatar = shapedAvatar,
         trailingIcon = trailingIcon,
         shape = shape,
         colors = colors,

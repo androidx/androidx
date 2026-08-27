@@ -78,7 +78,7 @@ class PullToRefreshIndicatorTest {
     @Test
     fun indicatorRespects_changingOffset() {
         val containerSize = 30.dp
-        var verticalOffsetDp = 200.dp
+        val verticalOffsetDp = 200.dp
         val state = PullToRefreshState()
         rule.setContent {
             Box(Modifier.fillMaxSize()) {

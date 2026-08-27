@@ -458,7 +458,6 @@ class OutlinedTextFieldTest {
     @Test
     fun testOutlinedTextField_labelPosition_whenFocused_inside() {
         val labelPosition = Ref<Offset>()
-        val labelSize = MinFocusedLabelLineHeight
 
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(

@@ -2269,7 +2269,7 @@ private fun TimeScrollImpl(
                 .copy(textAlign = TextAlign.Center, color = colors.timeSelectorContentColor(true))
 
         val a11yServicesEnabled by rememberAccessibilityServiceState()
-        val errorHandler = rememberTimeInputErrorHandler(a11yServicesEnabled)
+        rememberTimeInputErrorHandler(a11yServicesEnabled)
         val hourSelectionDescription = getString(Strings.TimePickerHourSelection)
         val minuteSelectionDescription = getString(Strings.TimePickerMinuteSelection)
         val hourSuffix =
@@ -2434,7 +2434,6 @@ private fun ClockDisplayNumbers(
     colors: TimePickerColors,
     shapes: TimePickerShapes? = null,
 ) {
-    val scope = rememberCoroutineScope()
     val isPortrait = defaultTimePickerLayoutType() == TimePickerLayoutType.Vertical
 
     val vibrantSelectorWidth =
@@ -2695,8 +2694,6 @@ private fun SideControlColumn(
                 .coerceAtLeast(tapTargetSize)
                 .coerceIn(constraints.minWidth, constraints.maxWidth)
         layout(columnWidth, constraints.maxHeight) {
-            val totalHeight = items.size * tapTargetSize
-            var y = (constraints.maxHeight - totalHeight) / 2
             if (items.size == 3) {
                 // AM, PM, Switch in 140dp (UncontainedToggleHeight).
                 // Start tracking at visualY = 0dp (AM visual top aligns with top of number fields).
@@ -3770,8 +3767,6 @@ private fun TimePickerTextField(
     vibrantHeight: Dp = VibrantTimeFieldHeight,
 ) {
     val focusRequester = remember { FocusRequester() }
-    val containerColor = MaterialTheme.colorScheme.errorContainer
-    val labelColor = MaterialTheme.colorScheme.onErrorContainer
     val textFieldColors = colors.timeTextFieldColors
     val selected = selection == state.selection
     val isValid =
@@ -4089,7 +4084,7 @@ internal class ClockFaceSizeModifier : LayoutModifier {
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult {
-        var max = constraints.maxHeight.toDp()
+        val max = constraints.maxHeight.toDp()
         val size =
             when {
                 max >= TimePickerMaxHeight -> ClockDialContainerSize
