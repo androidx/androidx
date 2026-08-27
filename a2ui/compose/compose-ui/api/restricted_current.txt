@@ -62,12 +62,13 @@ package androidx.a2ui.compose.ui {
 package androidx.a2ui.compose.ui.catalog {
 
   public final class A2uiBasicCatalogV1 {
-    ctor public A2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button, java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions);
+    ctor public A2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput, java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions);
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button getButton();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card getCard();
     method @InaccessibleFromKotlin public String getCatalogId();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column getColumn();
     method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.compose.ui.A2uiComponent> getComponents();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput getDateTimeInput();
     method @InaccessibleFromKotlin public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> getFunctions();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image getImage();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row getRow();
@@ -78,6 +79,7 @@ package androidx.a2ui.compose.ui.catalog {
     property public String catalogId;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column;
     property public java.util.List<androidx.a2ui.compose.ui.A2uiComponent> components;
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput;
     property public java.util.List<androidx.a2ui.model.catalog.A2uiFunction> functions;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row;
@@ -200,6 +202,35 @@ package androidx.a2ui.compose.ui.catalog {
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getThemeSchema();
     property public static String CatalogId;
     property public androidx.a2ui.model.schema.A2uiSchema ThemeSchema;
+  }
+
+  public static interface A2uiBasicCatalogV1.DateTimeInput extends androidx.a2ui.compose.ui.A2uiComponent {
+    method @KotlinOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, Long?, kotlin.jvm.functions.Function1<? super java.lang.Long!,kotlin.Unit!>?, boolean, boolean, Long?, Long?, String?, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, Long? value, kotlin.jvm.functions.Function1<java.lang.Long?,kotlin.Unit>? onValueChange, boolean enableDate, boolean enableTime, Long? min, Long? max, String? label, androidx.compose.ui.Modifier modifier);
+    method @InaccessibleFromKotlin public default String getDescription();
+    method @InaccessibleFromKotlin public default String getName();
+    method @InaccessibleFromKotlin public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
+    property public default String description;
+    property public default String name;
+    property public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties;
+    field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput.Companion Companion;
+  }
+
+  public static final class A2uiBasicCatalogV1.DateTimeInput.Companion {
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> getEnableDateProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> getEnableTimeProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getLabelProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getMaxProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getMinProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getValueProperty();
+    property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> EnableDateProperty;
+    property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Boolean> EnableTimeProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> LabelProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> MaxProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> MinProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> ValueProperty;
   }
 
   public static interface A2uiBasicCatalogV1.Image extends androidx.a2ui.compose.ui.A2uiComponent {

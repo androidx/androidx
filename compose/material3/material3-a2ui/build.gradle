@@ -51,6 +51,7 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":a2ui:compose:compose-ui-testing"))
+    androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)

@@ -64,6 +64,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.column)
         assertThat(catalog.components["Button"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.button)
+        assertThat(catalog.components["DateTimeInput"])
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)
 
         // Verifies standard basic functions are populated
         assertThat(catalog.functions["formatString"]).isNotNull()
@@ -227,6 +229,37 @@ class MaterialA2uiBasicCatalogV1Test {
     }
 
     @Test
+    fun factory_withCustomDateTimeInputComponent_overridesDefaultMaterialDateTimeInput() {
+        val customDateTimeInput =
+            object : A2uiBasicCatalogV1.DateTimeInput {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    value: Long?,
+                    onValueChange: ((Long?) -> Unit)?,
+                    enableDate: Boolean,
+                    enableTime: Boolean,
+                    min: Long?,
+                    max: Long?,
+                    label: String?,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        val catalog =
+            materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
+                urlOpener = fakeUrlOpener,
+                messageFormatter = fakeMessageFormatter,
+                localeProvider = fakeLocaleProvider,
+                dateTimeInput = customDateTimeInput,
+            )
+
+        assertThat(catalog.components["DateTimeInput"]).isSameInstanceAs(customDateTimeInput)
+        assertThat(catalog.components["DateTimeInput"])
+            .isNotSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)
+    }
+
+    @Test
     fun materialA2uiBasicCatalogV1Defaults_providesExpectedObjects() {
         assertThat(MaterialA2uiBasicCatalogV1Defaults.text)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Text)
@@ -240,5 +273,7 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Column)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.button)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Button)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1DateTimeInput)
     }
 }
