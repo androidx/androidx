@@ -601,6 +601,63 @@ public class QrCodeTrackingMode private constructor(public val mode: Int) {
         }
 }
 
+/** Type of physical object to be tracked by spatial annotations. */
+@ExperimentalSpatialAnnotationsApi
+public class SpatialAnnotationTrackingMode private constructor(public val mode: Int) {
+    public companion object {
+        /** Spatial annotations will not be tracked. */
+        @JvmField
+        public val DISABLED: SpatialAnnotationTrackingMode = SpatialAnnotationTrackingMode(0)
+
+        /**
+         * Unlocks basic 3D point tracking.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [SCENE_UNDERSTANDING_FINE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE]
+         */
+        private val POINT: SpatialAnnotationTrackingMode = SpatialAnnotationTrackingMode(1)
+
+        /**
+         * Unlocks 3D quadrilateral tracking, and inherently includes POINT capabilities.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [SCENE_UNDERSTANDING_FINE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE]
+         */
+        @JvmField public val QUAD: SpatialAnnotationTrackingMode = SpatialAnnotationTrackingMode(2)
+
+        /**
+         * Unlocks high-fidelity 2D segmentation masks, and inherently includes QUAD and POINT
+         * capabilities.
+         *
+         * Supported runtimes:
+         * - OpenXR
+         *
+         * Required permissions:
+         * - [SCENE_UNDERSTANDING_FINE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE]
+         */
+        private val MASK: SpatialAnnotationTrackingMode = SpatialAnnotationTrackingMode(3)
+    }
+
+    /**
+     * Returns a string representation of [SpatialAnnotationTrackingMode] for debugging. Note: Not
+     * intended for production use.
+     */
+    override fun toString(): String =
+        when (mode) {
+            0 -> "DISABLED"
+            1 -> "POINT"
+            2 -> "QUAD"
+            3 -> "MASK"
+            else -> "UNKNOWN($mode)"
+        }
+}
+
 /** A device capability that determines what type of rendering is capable on an [XrDevice]. */
 public class RenderingMode private constructor(private val value: Int) {
 
