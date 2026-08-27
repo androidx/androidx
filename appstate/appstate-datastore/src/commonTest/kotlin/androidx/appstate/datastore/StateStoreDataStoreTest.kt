@@ -16,8 +16,8 @@
 
 package androidx.appstate.datastore
 
-import androidx.appstate.AppState
-import androidx.appstate.AppStateKey
+import androidx.appstate.StateStore
+import androidx.appstate.StateStoreKey
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot.Companion.sendApplyNotifications
 import androidx.datastore.core.DataStoreFactory
@@ -39,7 +39,7 @@ import kotlinx.serialization.Serializable
 import okio.FileSystem
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AppStateDataStoreTest {
+class StateStoreDataStoreTest {
 
     private val testFile =
         FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "test_datastore_${Random.nextInt()}.json"
@@ -49,162 +49,150 @@ class AppStateDataStoreTest {
         Dispatchers.resetMain()
     }
 
-    @Serializable @PersistToDataStore object StringKey : AppStateKey<String>()
+    @Serializable @PersistToDataStore object StringKey : StateStoreKey<String>()
 
-    @Serializable @PersistToDataStore object IntKey : AppStateKey<Int>()
+    @Serializable @PersistToDataStore object IntKey : StateStoreKey<Int>()
 
-    @Serializable object NonPersistedStringKey : AppStateKey<String>()
+    @Serializable object NonPersistedStringKey : StateStoreKey<String>()
 
     @Test
-    fun testAppStateGetStateReturnsDefaultValue() = runTest {
+    fun testStateStoreGetStateReturnsDefaultValue() = runTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val defaultValue = "default"
-        val appState = AppState()
-        val job = launch { appState.syncToDataStore(testFile.toString(), backgroundScope) }
+        val stateStore = StateStore()
+        val job = launch { stateStore.syncToDataStore(testFile.toString(), backgroundScope) }
 
-        val state = appState.getState(StringKey, defaultValue)
+        val state = stateStore.getState(StringKey, defaultValue)
         assertThat(state.value).isEqualTo(defaultValue)
 
         val dataStore =
             DataStoreFactory.create(
-                storage =
-                    OkioStorage<AppStatePreferences>(FileSystem.SYSTEM, AppStateSerializer) {
-                        testFile
-                    },
+                storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { testFile },
                 scope = backgroundScope,
             )
-        val appStateDataStore = dataStore.data.first()
-        assertThat(appStateDataStore.asMap().isEmpty()).isTrue()
+        val stateStoreDataStore = dataStore.data.first()
+        assertThat(stateStoreDataStore.asMap().isEmpty()).isTrue()
 
         job.cancel()
     }
 
     @Test
-    fun testAppStateSetStateUpdatesDataStore() = runTest {
+    fun testStateStoreSetStateUpdatesDataStore() = runTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val dataStore =
             DataStoreFactory.create(
-                storage =
-                    OkioStorage<AppStatePreferences>(FileSystem.SYSTEM, AppStateSerializer) {
-                        testFile
-                    },
+                storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { testFile },
                 scope = backgroundScope,
             )
         val defaultValue = "default"
         val updatedValue = "new value"
-        val appState = AppState()
-        appState.getState(StringKey, defaultValue)
-        val job = launch { appState.syncToDataStore(dataStore) }
+        val stateStore = StateStore()
+        stateStore.getState(StringKey, defaultValue)
+        val job = launch { stateStore.syncToDataStore(dataStore) }
 
-        // Update AppState key value
-        appState.setState(StringKey, updatedValue)
+        // Update StateStore key value
+        stateStore.setState(StringKey, updatedValue)
 
         // Ensure compose snapshot effects are propagated
         sendApplyNotifications()
         advanceUntilIdle()
 
-        val state = appState.getState(StringKey, defaultValue)
+        val state = stateStore.getState(StringKey, defaultValue)
         assertThat(state.value).isEqualTo(updatedValue)
 
-        val appStateValue = appState.getState(StringKey, defaultValue).value
-        val appStateDataStore = dataStore.data.first { it[StringKey] == updatedValue }
+        val stateStoreValue = stateStore.getState(StringKey, defaultValue).value
+        val stateStoreDataStore = dataStore.data.first { it[StringKey] == updatedValue }
 
         // Confirm datastore reflects the updated app state
-        assertThat(appStateDataStore[StringKey]).isEqualTo(appStateValue)
+        assertThat(stateStoreDataStore[StringKey]).isEqualTo(stateStoreValue)
 
         job.cancel()
     }
 
     @Test
-    fun testAppStateUpdateStateUpdatesDataStore() = runTest {
+    fun testStateStoreUpdateStateUpdatesDataStore() = runTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val dataStore =
             DataStoreFactory.create(
-                storage =
-                    OkioStorage<AppStatePreferences>(FileSystem.SYSTEM, AppStateSerializer) {
-                        testFile
-                    },
+                storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { testFile },
                 scope = backgroundScope,
             )
         val initialValue = 5
         val defaultValue = 0
         val updatedValue = 10
 
-        val appState = AppState()
-        appState.getState(IntKey, defaultValue)
-        val job = launch { appState.syncToDataStore(dataStore) }
+        val stateStore = StateStore()
+        stateStore.getState(IntKey, defaultValue)
+        val job = launch { stateStore.syncToDataStore(dataStore) }
 
-        // Set initial AppState value
-        appState.setState(IntKey, initialValue)
-        // Update AppState key value
-        appState.updateState(IntKey, defaultValue) { it + 5 }
+        // Set initial StateStore value
+        stateStore.setState(IntKey, initialValue)
+        // Update StateStore key value
+        stateStore.updateState(IntKey, defaultValue) { it + 5 }
 
         // Ensure compose snapshot effects are propagated
         sendApplyNotifications()
         advanceUntilIdle()
 
-        val appStateValue = appState.getState(IntKey, defaultValue).value
-        val appStateDataStore = dataStore.data.first { it[IntKey] == updatedValue }
+        val stateStoreValue = stateStore.getState(IntKey, defaultValue).value
+        val stateStoreDataStore = dataStore.data.first { it[IntKey] == updatedValue }
 
         // Confirm datastore reflects the updated app state
-        assertThat(appStateDataStore[IntKey]).isEqualTo(appStateValue)
+        assertThat(stateStoreDataStore[IntKey]).isEqualTo(stateStoreValue)
 
         job.cancel()
     }
 
     @Test
-    fun testAppStateSetStateDoesNotUpdateDataStoreWhenNotAnnotated() = runTest {
+    fun testStateStoreSetStateDoesNotUpdateDataStoreWhenNotAnnotated() = runTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val dataStore =
             DataStoreFactory.create(
-                storage =
-                    OkioStorage<AppStatePreferences>(FileSystem.SYSTEM, AppStateSerializer) {
-                        testFile
-                    },
+                storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { testFile },
                 scope = backgroundScope,
             )
         val defaultValue = "default"
         val updatedValue = "new value"
-        val appState = AppState()
-        appState.getState(NonPersistedStringKey, defaultValue)
-        val job = launch { appState.syncToDataStore(dataStore) }
+        val stateStore = StateStore()
+        stateStore.getState(NonPersistedStringKey, defaultValue)
+        val job = launch { stateStore.syncToDataStore(dataStore) }
 
-        // Update AppState key value
-        appState.setState(NonPersistedStringKey, updatedValue)
+        // Update StateStore key value
+        stateStore.setState(NonPersistedStringKey, updatedValue)
 
         // Ensure compose snapshot effects are propagated
         sendApplyNotifications()
         advanceUntilIdle()
 
-        val state = appState.getState(NonPersistedStringKey, defaultValue)
+        val state = stateStore.getState(NonPersistedStringKey, defaultValue)
         assertThat(state.value).isEqualTo(updatedValue)
 
-        val appStateDataStore = dataStore.data.first()
+        val stateStoreDataStore = dataStore.data.first()
 
         // Confirm datastore does not reflect the updated app state
         val keyName = NonPersistedStringKey::class.qualifiedName
-        assertThat(appStateDataStore.asMap().containsKey(keyName)).isFalse()
+        assertThat(stateStoreDataStore.asMap().containsKey(keyName)).isFalse()
 
         job.cancel()
     }
 
     @Test
-    fun testDataStoreRestoresIntoAppStateOnListenerRegistration() = runTest {
+    fun testDataStoreRestoresIntoStateStoreOnListenerRegistration() = runTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val dataStore =
             DataStoreFactory.create(
                 storage =
-                    OkioStorage<AppStatePreferences>(FileSystem.SYSTEM, AppStateSerializer) {
+                    OkioStorage<StateStorePreferences>(FileSystem.SYSTEM, StateStoreSerializer) {
                         testFile
                     },
                 scope = backgroundScope,
@@ -215,35 +203,35 @@ class AppStateDataStoreTest {
         // Setup the datastore with an existing value first
         dataStore.edit { settings -> settings[StringKey] = storedValue }
 
-        val appState = AppState()
-        // Initialize AppState with default value
-        val state = appState.getState(StringKey, defaultValue)
+        val stateStore = StateStore()
+        // Initialize StateStore with default value
+        val state = stateStore.getState(StringKey, defaultValue)
         assertThat(state.value).isEqualTo(defaultValue)
 
-        // Register the listener, which should trigger a datastore read and update appstate
-        val job = launch { appState.syncToDataStore(dataStore) }
+        // Register the listener, which should trigger a datastore read and update stateStore
+        val job = launch { stateStore.syncToDataStore(dataStore) }
 
         sendApplyNotifications()
         advanceUntilIdle()
 
-        // Wait until AppState has been updated with the value from DataStore
+        // Wait until StateStore has been updated with the value from DataStore
         snapshotFlow { state.value }.first { it == storedValue }
 
-        // Verify that AppState has been updated with the value from DataStore
+        // Verify that StateStore has been updated with the value from DataStore
         assertThat(state.value).isEqualTo(storedValue)
 
         job.cancel()
     }
 
     @Test
-    fun testCancelAppStateToDataStoreListenerStopsWrites() = runTest {
+    fun testCancelStateStoreToDataStoreListenerStopsWrites() = runTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val dataStore =
             DataStoreFactory.create(
                 storage =
-                    OkioStorage<AppStatePreferences>(FileSystem.SYSTEM, AppStateSerializer) {
+                    OkioStorage<StateStorePreferences>(FileSystem.SYSTEM, StateStoreSerializer) {
                         testFile
                     },
                 scope = backgroundScope,
@@ -252,37 +240,37 @@ class AppStateDataStoreTest {
         val firstValue = "first value"
         val secondValue = "second value"
 
-        val appState = AppState()
-        appState.getState(StringKey, defaultValue)
+        val stateStore = StateStore()
+        stateStore.getState(StringKey, defaultValue)
 
         // Register the listener and capture the job so we can cancel for cleanup
-        val job = launch { appState.syncToDataStore(dataStore) }
+        val job = launch { stateStore.syncToDataStore(dataStore) }
 
-        // Update AppState key value
-        appState.setState(StringKey, firstValue)
+        // Update StateStore key value
+        stateStore.setState(StringKey, firstValue)
 
         sendApplyNotifications()
         advanceUntilIdle()
 
         // Confirm datastore reflects the first update
-        var appStateDataStore = dataStore.data.first { it[StringKey] == firstValue }
-        assertThat(appStateDataStore[StringKey]).isEqualTo(firstValue)
+        var stateStoreDataStore = dataStore.data.first { it[StringKey] == firstValue }
+        assertThat(stateStoreDataStore[StringKey]).isEqualTo(firstValue)
 
         // Cancel the listener
         job.cancel()
 
-        // Update AppState key value again
-        appState.setState(StringKey, secondValue)
+        // Update StateStore key value again
+        stateStore.setState(StringKey, secondValue)
 
         sendApplyNotifications()
         advanceUntilIdle()
 
-        // Confirm AppState was updated
-        val state = appState.getState(StringKey, defaultValue)
+        // Confirm StateStore was updated
+        val state = stateStore.getState(StringKey, defaultValue)
         assertThat(state.value).isEqualTo(secondValue)
 
         // Confirm datastore does NOT reflect the second update
-        appStateDataStore = dataStore.data.first()
-        assertThat(appStateDataStore[StringKey]).isEqualTo(firstValue)
+        stateStoreDataStore = dataStore.data.first()
+        assertThat(stateStoreDataStore[StringKey]).isEqualTo(firstValue)
     }
 }

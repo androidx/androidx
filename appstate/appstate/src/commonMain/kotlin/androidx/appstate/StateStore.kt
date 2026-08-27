@@ -39,27 +39,28 @@ import kotlinx.serialization.Transient
  * There is no limitation on where these instance should be instantiated as that is left up to the
  * developer.
  */
-public class AppState {
-    // The map of the compose state being stored inside the AppState
-    private val stateStore: SnapshotStateMap<AppStateKey<*>, MutableState<*>> = mutableStateMapOf()
+public class StateStore {
+    // The map of the compose state being stored inside the StateStore
+    private val stateStore: SnapshotStateMap<StateStoreKey<*>, MutableState<*>> =
+        mutableStateMapOf()
 
     /**
-     * The set of keys that are currently added to this AppState.
+     * The set of keys that are currently added to this StateStore.
      *
-     * This can be used in conjunction with the androidx.appstate.transform APIs to provide a
+     * This can be used in conjunction with the androidx.stateStore.transform APIs to provide a
      * mechanism for reacting to state changes.
      *
      * ```
      * val scope = CoroutineScope(context + SupervisorJob())
      * val job = scope.launch {
      *     listen {
-     *         val keys = appState.keys
+     *         val keys = stateStore.keys
      *         // Do some processing of the keys
      *     }
      * }
      * ```
      */
-    public val keys: Set<AppStateKey<*>> = stateStore.keys
+    public val keys: Set<StateStoreKey<*>> = stateStore.keys
 
     /**
      * Returns the state associated with the given key.
@@ -67,7 +68,7 @@ public class AppState {
      * @param stateKey the key of the state to retrieve
      * @param defaultValue the value to put if there is no value for the key
      */
-    public fun <T> getState(stateKey: AppStateKey<T>, defaultValue: T): State<T> {
+    public fun <T> getState(stateKey: StateStoreKey<T>, defaultValue: T): State<T> {
         @Suppress("UNCHECKED_CAST")
         return stateStore.getOrPut(stateKey) { mutableStateOf(defaultValue) } as MutableState<T>
     }
@@ -76,16 +77,16 @@ public class AppState {
      * Sets the state for the given key.
      *
      * If this is the first time the state is being set a listener is added to allow the given key
-     * to be automatically cleared from the map based on the [AppStateKey.autoClearKey] and
-     * [AppStateKey.shouldClearState]. For the automatic clearing, [AppStateKey.autoClearKey] must
-     * be non-null, the value associated with this key must be non-null, and the
-     * [AppStateKey.shouldClearState] condition must return true. AS long as all 3 of those
+     * to be automatically cleared from the map based on the [StateStoreKey.autoClearKey] and
+     * [StateStoreKey.shouldClearState]. For the automatic clearing, [StateStoreKey.autoClearKey]
+     * must be non-null, the value associated with this key must be non-null, and the
+     * [StateStoreKey.shouldClearState] condition must return true. AS long as all 3 of those
      * conditions are not met, the listener will not be removed.
      *
      * @param stateKey the key to set a value for
-     * @param value the value to set inside the AppState
+     * @param value the value to set inside the StateStore
      */
-    public fun <T> setState(stateKey: AppStateKey<T>, value: T) {
+    public fun <T> setState(stateKey: StateStoreKey<T>, value: T) {
         if (!stateStore.contains(stateKey) && stateKey.autoClearKey != null) {
             val key = stateKey.autoClearKey
             val initialTriggerValue = stateStore[key]?.value
@@ -96,7 +97,7 @@ public class AppState {
                     val currentValue = stateStore[key]?.value
                     if (
                         currentValue != initialTriggerValue &&
-                            stateKey.shouldClearState(this@AppState)
+                            stateKey.shouldClearState(this@StateStore)
                     ) {
                         LaunchedEffect(currentValue) {
                             stateStore.remove(stateKey)
@@ -117,7 +118,11 @@ public class AppState {
      * @param defaultValue the value to use if no state has been set for the key
      * @param update lambda used to update the state using the current state
      */
-    public inline fun <T> updateState(stateKey: AppStateKey<T>, defaultValue: T, update: (T) -> T) {
+    public inline fun <T> updateState(
+        stateKey: StateStoreKey<T>,
+        defaultValue: T,
+        update: (T) -> T,
+    ) {
         val currentState = getState(stateKey, defaultValue)
         setState(stateKey, update(currentState.value))
     }
@@ -125,17 +130,17 @@ public class AppState {
 
 /**
  * Open class that should be extended to define specific key-value types to be stored in the
- * AppState to ensure it is type safe.
+ * StateStore to ensure it is type safe.
  *
  * The class T should be the value of the type that that should be retrieved and should also
  * be @Serializable along with the extending class.
  *
  * @param autoClearKey set this if you would like the state associated with this key to be
- *   automatically cleared from the [AppState] when [shouldClearState] is `true`.
+ *   automatically cleared from the [StateStore] when [shouldClearState] is `true`.
  * @param shouldClearState the condition to determine whether the state should be cleared or not.
  */
 @Serializable
-public open class AppStateKey<T>(
-    @Transient public val autoClearKey: AppStateKey<T>? = null,
-    @Transient public val shouldClearState: (AppState) -> Boolean = { true },
+public open class StateStoreKey<T>(
+    @Transient public val autoClearKey: StateStoreKey<T>? = null,
+    @Transient public val shouldClearState: (StateStore) -> Boolean = { true },
 )
