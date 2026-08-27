@@ -315,6 +315,7 @@ internal fun StyleableTriStateCheckbox(
     val scope =
         CheckboxStyleScope(
             theme = localTheme,
+            mediaQueryInfo = mediaQueryInfo(),
             state =
                 ComponentState.disabled(!enabled)
                     .checked(state == ToggleableState.On)
@@ -331,7 +332,8 @@ internal fun StyleableTriStateCheckbox(
         rippleColor = scope.rippleColor,
         checkmarkStroke = scope.checkmarkStroke,
         outlineStroke = scope.borderStroke,
-        containerSize = CheckboxTokens.ContainerSize,
+        containerSize = scope.size,
+        cornerSize = scope.cornerSize,
         padding = Dp.Unspecified,
         onClick = onClick,
         interactionSource = interactionSource,
@@ -519,6 +521,7 @@ private fun CheckboxImpl(
             } else {
                 CheckboxSize
             },
+        cornerSize = RadiusSize,
         padding =
             if (isCheckboxStylingFixEnabled) {
                 Dp.Unspecified
@@ -543,6 +546,7 @@ private fun CheckboxImpl(
     checkmarkStroke: Stroke?,
     outlineStroke: Stroke?,
     containerSize: Dp,
+    cornerSize: Dp,
     padding: Dp,
     onClick: (() -> Unit)?,
     interactionSource: MutableInteractionSource?,
@@ -655,7 +659,7 @@ private fun CheckboxImpl(
         drawBox(
             boxColor = animatedBoxColor,
             borderColor = animatedBorderColor,
-            radius = RadiusSize.toPx(),
+            radius = cornerSize.toPx(),
             stroke = outlineStroke ?: Stroke(width = strokeWidthPx),
         )
         drawCheck(
