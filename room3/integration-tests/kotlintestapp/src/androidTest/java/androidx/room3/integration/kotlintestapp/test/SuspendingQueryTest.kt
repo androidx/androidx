@@ -28,6 +28,7 @@ import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import androidx.room3.integration.kotlintestapp.NewThreadDispatcher
 import androidx.room3.integration.kotlintestapp.TestDatabase
+import androidx.room3.integration.kotlintestapp.vo.Book
 import androidx.room3.integration.kotlintestapp.vo.Counter
 import androidx.room3.support.getSupportWrapper
 import androidx.room3.useReaderConnection
@@ -54,6 +55,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -652,6 +654,36 @@ class SuspendingQueryTest(driver: UseDriver) : TestDatabaseTest(driver) {
         }
 
         assertThat(booksDao.getBooksSuspend()).contains(addedBook)
+    }
+
+    // Validates b/543285472 and b/553140228
+    @Test
+    fun suspendTransactionFunction_withActiveFlow() = runTest {
+        val bookPublisher = TestUtil.PUBLISHER
+        val addedBook = TestUtil.BOOK_1.copy(bookPublisherId = bookPublisher.publisherId)
+        booksDao.addPublishers(bookPublisher)
+
+        val booksChannel = Channel<List<Book>>(Channel.UNLIMITED)
+        val flowJob =
+            launch(Dispatchers.IO) {
+                booksDao.getBooksFlow().collect { books -> booksChannel.send(books) }
+            }
+
+        // Wait for initial emission from flow
+        val initialBooks = booksChannel.receive()
+        assertThat(initialBooks).isEmpty()
+
+        // Execute a suspend transaction wrapper DAO function with a context switch inside,
+        // validating transaction wrapper is considered an external operation in terms of
+        // coroutines
+        booksDao.executeTransactionSuspending {
+            withContext(Dispatchers.Default) { booksDao.insertBookSuspend(addedBook) }
+        }
+
+        val updatedBooks = booksChannel.receive()
+        assertThat(updatedBooks).contains(addedBook)
+
+        flowJob.cancelAndJoin()
     }
 
     @Test

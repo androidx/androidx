@@ -17,10 +17,17 @@ package androidx.room3
 
 import androidx.kruth.assertThat
 import androidx.room3.ObservedTableStates.ObserveOp
+import androidx.room3.concurrent.AtomicInt
+import kotlin.concurrent.thread
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertNull
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 
 class ObservedTableStatesTest {
     private lateinit var tableStates: ObservedTableStates
@@ -112,6 +119,37 @@ class ObservedTableStatesTest {
                         )
                     )
                 )
+        }
+    }
+
+    // Validates internal locks are OK with resuming coroutine in different thread. b/553140228
+    @Test
+    fun syncSuspendingAction() = runTest {
+        tableStates.onObserverAdded(intArrayOf(1))
+        withContext(NewThreadDispatcher()) {
+            val beforeThread = Thread.currentThread()
+            tableStates.onSync { ops ->
+                yield()
+                val afterThread = Thread.currentThread()
+                assertThat(beforeThread).isNotEqualTo(afterThread)
+                assertThat(ops).isEqualTo(createSyncResult(mapOf(1 to ObserveOp.ADD)))
+            }
+        }
+    }
+
+    /** A CoroutineDispatcher that dispatches every block into a new thread */
+    private class NewThreadDispatcher : CoroutineDispatcher() {
+        private val idCounter = AtomicInt(0)
+
+        @OptIn(InternalCoroutinesApi::class)
+        override fun dispatchYield(context: CoroutineContext, block: Runnable) {
+            super.dispatchYield(context, block)
+        }
+
+        override fun isDispatchNeeded(context: CoroutineContext) = true
+
+        override fun dispatch(context: CoroutineContext, block: Runnable) {
+            thread(name = "NewThreadDispatcher-${idCounter.incrementAndGet()}") { block.run() }
         }
     }
 
