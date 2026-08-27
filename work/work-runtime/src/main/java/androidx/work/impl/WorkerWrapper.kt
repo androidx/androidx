@@ -421,16 +421,15 @@ public class WorkerWrapper internal constructor(builder: Builder) {
     }
 
     private fun resetWorkerStatus(stopReason: Int): Boolean {
-        return if (workSpec.backOffOnSystemInterruptions == true) {
-            logd(TAG) { "Worker ${workSpec.workerClassName} was interrupted. Backing off." }
-            // Treat it as a reschedule. This ensures that we update the last enqueued time
-            // which in turn ensures that we correctly calculate the next runtime for the
-            // given Worker.
-            reschedule(stopReason)
-            true
-        } else {
-            val state = workSpecDao.getState(workSpecId)
-            return if (state != null && !state.isFinished) {
+        val state = workSpecDao.getState(workSpecId)
+        return if (state != null && !state.isFinished) {
+            if (workSpec.backOffOnSystemInterruptions == true) {
+                logd(TAG) { "Worker ${workSpec.workerClassName} was interrupted. Backing off." }
+                // Treat it as a reschedule. This ensures that we update the last enqueued time
+                // which in turn ensures that we correctly calculate the next runtime for the
+                // given Worker.
+                reschedule(stopReason)
+            } else {
                 logd(TAG) {
                     "Status for $workSpecId is $state; not doing any work and " +
                         "rescheduling for later execution"
@@ -443,10 +442,10 @@ public class WorkerWrapper internal constructor(builder: Builder) {
                 workSpecDao.setStopReason(workSpecId, stopReason)
                 workSpecDao.markWorkSpecScheduled(workSpecId, WorkSpec.SCHEDULE_NOT_REQUESTED_YET)
                 true
-            } else {
-                logd(TAG) { "Status for $workSpecId is $state ; not doing any work" }
-                false
             }
+        } else {
+            logd(TAG) { "Status for $workSpecId is $state ; not doing any work" }
+            false
         }
     }
 
