@@ -316,6 +316,8 @@ internal fun ProvideCommonCompositionLocals(owner: Owner, content: @Composable (
         CompositionLocalProvider(
             LocalOwner provides owner,
             LocalRetainedValuesStore provides owner.retainedValuesStore,
+            LocalDensity provides owner.density,
+            LocalLayoutDirection provides owner.layoutDirection,
             content = content,
         )
     } else {

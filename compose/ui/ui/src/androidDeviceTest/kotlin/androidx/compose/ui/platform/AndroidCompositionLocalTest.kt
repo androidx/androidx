@@ -17,8 +17,10 @@
 package androidx.compose.ui.platform
 
 import android.app.Activity
+import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.view.View
 import android.view.Window
 import androidx.compose.runtime.CompositionLocalProvider
@@ -35,6 +37,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -183,5 +186,17 @@ class AndroidCompositionLocalTest {
             assertThat(dialogLocalWindow).isNotSameInstanceAs(activityLocalWindow)
             assertThat(popupLocalWindow).isSameInstanceAs(dialogLocalWindow)
         }
+    }
+
+    @Test
+    fun localResources_inDialog_withMockLocalContextInParent() {
+        val mockContext: Context = mock()
+        var resources: Resources? = null
+        rule.setContent {
+            CompositionLocalProvider(LocalContext provides mockContext) {
+                Dialog(onDismissRequest = {}) { resources = LocalResources.current }
+            }
+        }
+        rule.runOnIdle { assertThat(resources).isNotNull() }
     }
 }
