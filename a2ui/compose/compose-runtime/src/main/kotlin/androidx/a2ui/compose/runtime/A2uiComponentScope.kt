@@ -18,7 +18,10 @@ package androidx.a2ui.compose.runtime
 
 import androidx.a2ui.model.protocol.A2uiException
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 
 /**
  * The receiver scope provided to an A2UI component for rendering.
@@ -147,3 +150,56 @@ public sealed interface A2uiComponentScope {
 public fun A2uiComponentScope.observeA2uiComponentState(
     reference: A2uiComponentReference
 ): A2uiComponentState = observeA2uiComponentState(reference.id, reference.baseDataPath)
+
+/**
+ * Intercepts actions dispatched by descendant components within [content].
+ *
+ * Useful for container components (such as modals) that handle actions from child triggers (like
+ * buttons or cards) to update local UI state instead of dispatching to the surface.
+ *
+ * ### Interceptor Chaining
+ * Interceptors chain from the innermost (deepest child) to the outermost (ancestor) in the
+ * composition tree:
+ * - If [onIntercept] returns `true`, the action is consumed immediately; outer interceptors and the
+ *   underlying surface will not receive the action.
+ * - If [onIntercept] returns `false`, the action falls back to the parent interceptor.
+ * - If all chained interceptors return `false`, the action dispatches to the surface.
+ *
+ * @param onIntercept The callback invoked when a descendant dispatches an action. Return `true` to
+ *   consume the action, or `false` to pass it to parent interceptors or the surface.
+ * @param content The composable content to apply the interceptor to
+ */
+@Composable
+public fun A2uiComponentScope.ProvideActionInterceptor(
+    onIntercept: (actionPayload: Map<String, Any?>) -> Boolean,
+    content: @Composable () -> Unit,
+) {
+    val parentInterceptor = LocalA2uiActionInterceptor.current
+
+    val chainedInterceptor: A2uiLocalActionInterceptor =
+        remember(parentInterceptor, onIntercept) {
+            if (parentInterceptor == null) {
+                onIntercept
+            } else {
+                // Chain interceptors: try the new interceptor first, then fallback to the parent
+                { payload -> onIntercept(payload) || parentInterceptor(payload) }
+            }
+        }
+
+    CompositionLocalProvider(
+        LocalA2uiActionInterceptor provides chainedInterceptor,
+        content = content,
+    )
+}
+
+/**
+ * Intercepts an action dispatched within an A2UI component tree.
+ *
+ * Returns `true` if the action was consumed locally, or `false` to propagate it further.
+ */
+internal typealias A2uiLocalActionInterceptor = (actionPayload: Map<String, Any?>) -> Boolean
+
+/**
+ * CompositionLocal containing the active [A2uiLocalActionInterceptor] for the current hierarchy.
+ */
+internal val LocalA2uiActionInterceptor = compositionLocalOf<A2uiLocalActionInterceptor?> { null }
