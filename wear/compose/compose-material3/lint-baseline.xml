@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+<issues format="6" by="lint 9.5.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (9.5.0-alpha01)" variant="all" version="9.5.0-alpha01">
 
     <issue
         id="ComposableLambdaParameterNaming"
@@ -260,6 +260,15 @@
         errorLine2="                ~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/kotlin/androidx/wear/compose/material3/IconButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="FrequentlyChangingValue"
+        message="Reading a value annotated with @FrequentlyChangingValue inside composition"
+        errorLine1="            Text(text = &quot;${pickerState.selectedOptionIndex}&quot;)"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/kotlin/androidx/wear/compose/material3/PickerTest.kt"/>
     </issue>
 
     <issue
