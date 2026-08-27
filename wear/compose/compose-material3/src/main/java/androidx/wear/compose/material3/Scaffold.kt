@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
@@ -169,11 +170,11 @@ internal class ScreenContent(
     @Composable
     internal fun UpdateIdlingDetectorIfNeeded() {
         val scrollInfoProvider = currentScrollInfoProvider.value
-        LaunchedEffect(scrollInfoProvider) { screenStage.value = ScreenStage.New }
+        SideEffect(scrollInfoProvider) { screenStage.value = ScreenStage.New }
         if (scrollInfoProvider?.isScrollInProgress == true) {
             screenStage.value = ScreenStage.Scrolling
         } else {
-            LaunchedEffect(Unit) {
+            LaunchedEffect(scrollInfoProvider) {
                 // Entering the idle state will show the Time text (if it's hidden) AND hide the
                 // scroll indicator.
                 delay(IDLE_DELAY)
