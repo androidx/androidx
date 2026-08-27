@@ -21,6 +21,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -205,6 +206,7 @@ public fun ScrollField(
             )
         },
 ) {
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val scope = rememberCoroutineScope()
 
     VerticalPager(
@@ -212,6 +214,11 @@ public fun ScrollField(
         userScrollEnabled = enabled,
         modifier =
             modifier
+                .indication(
+                    interactionSource,
+                    @OptIn(ExperimentalMaterial3Api::class)
+                    ripple(focusRingShape = ScrollFieldDefaults.shape),
+                )
                 .background(
                     color = if (enabled) colors.containerColor else colors.disabledContainerColor,
                     shape = ScrollFieldDefaults.shape,
