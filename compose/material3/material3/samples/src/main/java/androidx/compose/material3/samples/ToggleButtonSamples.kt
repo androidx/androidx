@@ -77,7 +77,7 @@ fun OutlinedToggleButtonSample() {
 @Composable
 fun ToggleButtonWithIconSample() {
     var checked by rememberSaveable { mutableStateOf(false) }
-    ElevatedToggleButton(
+    ToggleButton(
         checked = checked,
         onCheckedChange = { checked = it },
         icon = {
