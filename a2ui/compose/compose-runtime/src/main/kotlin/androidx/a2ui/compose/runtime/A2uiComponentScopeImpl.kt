@@ -32,6 +32,7 @@ internal class A2uiComponentScopeImpl(
     private val id: String,
     private val baseDataPath: A2uiDataPath,
     private val surface: A2uiCoreSurfaceModel,
+    private val actionInterceptorProducer: () -> A2uiLocalActionInterceptor? = { null },
 ) : A2uiComponentScope {
 
     private val resolver = A2uiCoreValueResolver { path -> surface.dataModel[path] }
@@ -55,6 +56,11 @@ internal class A2uiComponentScopeImpl(
     }
 
     override fun dispatchAction(actionPayload: Map<String, Any?>) {
+        val interceptor = actionInterceptorProducer()
+        if (interceptor != null && interceptor(actionPayload)) {
+            // Do not dispatch the action, as it was intercepted.
+            return
+        }
         surface.dispatchAction(id, actionPayload)
     }
 

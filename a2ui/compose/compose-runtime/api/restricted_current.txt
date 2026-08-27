@@ -40,6 +40,8 @@ package androidx.a2ui.compose.runtime {
   }
 
   public final class A2uiComponentScopeKt {
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void ProvideActionInterceptor(androidx.a2ui.compose.runtime.A2uiComponentScope, kotlin.jvm.functions.Function1<? super java.util.Map<java.lang.String!,? extends java.lang.Object!>!,java.lang.Boolean!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void ProvideActionInterceptor(androidx.a2ui.compose.runtime.A2uiComponentScope, kotlin.jvm.functions.Function1<java.util.Map<java.lang.String,java.lang.Object?>,java.lang.Boolean> onIntercept, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.a2ui.compose.runtime.A2uiComponentState observeA2uiComponentState(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentReference reference);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.a2ui.compose.runtime.A2uiComponentState observeA2uiComponentState(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentReference, androidx.compose.runtime.Composer?, int);
   }
