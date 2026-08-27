@@ -92,7 +92,13 @@ internal interface StatusBarOrchestrator {
     /**
      * Restores the status bar visibility back to the initial state prior to scaffold modifications.
      */
-    fun restore()
+    fun restoreInitialStatusBarState()
+
+    /** Cleans up all active view listeners without mutating window insets. */
+    fun dispose()
+
+    /** Determines whether this orchestrator manages the window of [view]. */
+    fun isForWindow(view: View): Boolean
 }
 
 internal fun StatusBarOrchestrator(view: View): StatusBarOrchestrator =
@@ -102,12 +108,16 @@ internal fun StatusBarOrchestrator(view: View): StatusBarOrchestrator =
         NoOpStatusBarOrchestrator
     }
 
-private object NoOpStatusBarOrchestrator : StatusBarOrchestrator {
+internal object NoOpStatusBarOrchestrator : StatusBarOrchestrator {
     override fun show() {}
 
     override fun hide() {}
 
-    override fun restore() {}
+    override fun restoreInitialStatusBarState() {}
+
+    override fun dispose() {}
+
+    override fun isForWindow(view: View): Boolean = false
 }
 
 @androidx.annotation.RequiresApi(Build.VERSION_CODES.R)
@@ -117,7 +127,7 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
      *
      * Captured once from [View.getRootWindowInsets] as soon as root insets become available on the
      * host [view]. This value remains fixed once captured and serves as the baseline target
-     * restored during [restore] when the scaffold leaves composition.
+     * restored during [restoreInitialStatusBarState] when the scaffold leaves composition.
      */
     private var initialStatusBarVisibility: Boolean? = null
 
@@ -135,11 +145,11 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
      *   is `false`.
      * - When [View.OnAttachStateChangeListener.onViewAttachedToWindow] is invoked, it calls
      *   [attemptCaptureAndApply].
-     * - Automatically unregistered and set to `null` once
+     * - Automatically unregistered and set to `null` via [clearListeners] once
      *   [isStatusBarBaselineCapturedAndControllerReady] becomes `true` (meaning both initial
      *   baseline status bar visibility is captured and [View.getWindowInsetsController] is bound).
-     * - Also explicitly unregistered during [restore] if disposal occurs prior to window
-     *   attachment.
+     * - Also explicitly unregistered during [restoreInitialStatusBarState] if disposal occurs prior
+     *   to window attachment.
      */
     private var onAttachStateChangeListener: View.OnAttachStateChangeListener? = null
 
@@ -158,9 +168,9 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
      * - Retained across layout passes until [isStatusBarBaselineCapturedAndControllerReady]
      *   evaluates to `true`, ensuring that visibility requests are never lost if
      *   [View.getWindowInsetsController] is `null` on early layout passes.
-     * - Automatically unregistered and set to `null` once
+     * - Automatically unregistered and set to `null` via [clearListeners] once
      *   [isStatusBarBaselineCapturedAndControllerReady] becomes `true`, or explicitly unregistered
-     *   during [restore].
+     *   during [restoreInitialStatusBarState].
      */
     private var onLayoutChangeListener: View.OnLayoutChangeListener? = null
 
@@ -193,12 +203,6 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
                             // On window attachment, retry capturing status bar baseline and
                             // applying requested visibility.
                             attemptCaptureAndApply()
-                            // Unregister and cleanup listener once initial status bar baseline is
-                            // captured and controller is ready.
-                            if (isStatusBarBaselineCapturedAndControllerReady) {
-                                v.removeOnAttachStateChangeListener(this)
-                                onAttachStateChangeListener = null
-                            }
                         }
 
                         override fun onViewDetachedFromWindow(v: View) {}
@@ -227,17 +231,31 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
                         // On layout pass, retry capturing status bar baseline and applying
                         // requested visibility.
                         attemptCaptureAndApply()
-                        // Unregister and cleanup listener once initial status bar baseline is
-                        // captured and controller is ready.
-                        if (isStatusBarBaselineCapturedAndControllerReady) {
-                            v.removeOnLayoutChangeListener(this)
-                            onLayoutChangeListener = null
-                        }
                     }
                 }
             onLayoutChangeListener = windowLayoutListener
             view.addOnLayoutChangeListener(windowLayoutListener)
         }
+    }
+
+    private fun clearListeners() {
+        onAttachStateChangeListener?.let {
+            view.removeOnAttachStateChangeListener(it)
+            onAttachStateChangeListener = null
+        }
+        onLayoutChangeListener?.let {
+            view.removeOnLayoutChangeListener(it)
+            onLayoutChangeListener = null
+        }
+    }
+
+    /**
+     * Disposes this orchestrator by unregistering all active view listeners
+     * ([onAttachStateChangeListener] and [onLayoutChangeListener]) to prevent memory leaks, without
+     * mutating window insets.
+     */
+    override fun dispose() {
+        clearListeners()
     }
 
     override fun show() {
@@ -269,17 +287,10 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
      *    revert window state. Runtime exceptions thrown by framework or OEM controller
      *    implementations are safely caught and logged to prevent app crashes during disposal.
      */
-    override fun restore() {
+    override fun restoreInitialStatusBarState() {
         // Step 1: Immediately unregister and clear active view listeners to prevent memory leaks or
         // late execution after disposal.
-        onAttachStateChangeListener?.let {
-            view.removeOnAttachStateChangeListener(it)
-            onAttachStateChangeListener = null
-        }
-        onLayoutChangeListener?.let {
-            view.removeOnLayoutChangeListener(it)
-            onLayoutChangeListener = null
-        }
+        clearListeners()
 
         // Step 2: Read initial system status bar visibility baseline. If baseline was never
         // captured, exit safely without mutation.
@@ -301,12 +312,12 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
     }
 
     /**
-     * Safely attempts to secure the initial system baseline state, and only if successful, applies
-     * the current desired visibility state requested by Compose.
+     * Safely attempts to secure the initial system status bar visibility baseline state, and only
+     * if successful, applies the current desired visibility state requested by Compose.
      */
     private fun attemptCaptureAndApply() {
-        // Step 1: Secure initial system status bar baseline visibility before performing any window
-        // modifications.
+        // Step 1: Secure initial system status bar visibility baseline state before performing any
+        // window modifications.
         if (initialStatusBarVisibility == null) {
             val insets = view.rootWindowInsets
             if (insets != null) {
@@ -317,6 +328,10 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
         // Step 2: Only mutate status bar visibility if baseline is captured and
         // WindowInsetsController is available.
         if (initialStatusBarVisibility != null) {
+            if (isStatusBarBaselineCapturedAndControllerReady) {
+                clearListeners()
+            }
+
             val targetVisibility = desiredStatusBarVisibility ?: return
             val controller = view.windowInsetsController ?: return
 
@@ -333,5 +348,12 @@ private class StatusBarOrchestratorImpl(private val view: View) : StatusBarOrche
                 Log.w(TAG, "Failed to change status bar visibility", e)
             }
         }
+    }
+
+    override fun isForWindow(view: View): Boolean {
+        if (this.view === view) return true
+        val ourRoot = this.view.rootView
+        val targetRoot = view.rootView
+        return ourRoot != null && targetRoot != null && ourRoot === targetRoot
     }
 }
