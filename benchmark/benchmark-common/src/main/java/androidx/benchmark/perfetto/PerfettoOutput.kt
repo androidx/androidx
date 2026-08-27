@@ -16,10 +16,16 @@
 
 package androidx.benchmark.perfetto
 
+import android.os.Build
+import androidx.benchmark.FileMover.moveTo
 import androidx.benchmark.InMemoryTracing
 import androidx.benchmark.VirtualFile
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.OutputStream
 import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 
 /**
@@ -87,4 +93,43 @@ private fun requireOutputDirectory(directoryPath: String): File {
 // For additional context: b/421473521
 private fun String.capitalized(): String {
     return replaceFirstChar { char -> if (char.isLowerCase()) char.titlecaseChar() else char }
+}
+
+/**
+ * Appends or embeds trace content as an entry named [entryName] into an existing Perfetto ZIP trace
+ * container.
+ */
+internal fun appendToPerfettoTrace(
+    perfettoTrace: File,
+    entryName: String,
+    writeContent: (OutputStream) -> Unit,
+) {
+    val tempFile = File.createTempFile("perfetto_trace_merged", ".tmp", perfettoTrace.parentFile)
+    try {
+        ZipInputStream(FileInputStream(perfettoTrace)).use { zipIn ->
+            ZipOutputStream(FileOutputStream(tempFile)).use { zipOut ->
+                var entry = zipIn.nextEntry
+                while (entry != null) {
+                    zipOut.putNextEntry(ZipEntry(entry.name))
+                    zipIn.copyTo(zipOut)
+                    zipOut.closeEntry()
+                    zipIn.closeEntry()
+                    entry = zipIn.nextEntry
+                }
+                zipOut.putNextEntry(ZipEntry(entryName))
+                writeContent(zipOut)
+                zipOut.closeEntry()
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            tempFile.moveTo(perfettoTrace, overwrite = true)
+        } else {
+            tempFile.copyTo(perfettoTrace, overwrite = true)
+            tempFile.delete()
+        }
+    } finally {
+        if (tempFile.exists()) {
+            tempFile.delete()
+        }
+    }
 }
