@@ -17,8 +17,12 @@
 package androidx.compose.foundation.text.modifiers
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Typeface
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -27,6 +31,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -37,12 +42,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -56,9 +67,13 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import java.util.concurrent.atomic.AtomicInteger
@@ -233,6 +248,176 @@ class TextStringSimpleNodeTest {
             Truth.assertThat(replacedNode.config[SemanticsProperties.TextSubstitution].text)
                 .isEqualTo("T")
         }
+    }
+
+    @Test
+    fun measure_inLookaheadScope_avoidsTextReflowOnApproachFrames() {
+        val subject =
+            TextStringSimpleElement(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                TextStyle.Default.copy(fontSize = 20.sp),
+                createFontFamilyResolver(context),
+            )
+        var approachWidth by mutableStateOf(100)
+
+        rule.setContent {
+            LookaheadScope {
+                Box(
+                    modifier =
+                        subject.testTag("textTarget").layout { measurable, _ ->
+                            val placeable =
+                                if (isLookingAhead) {
+                                    // Wide lookahead target where text fits on 1 line
+                                    measurable.measure(
+                                        Constraints(maxWidth = 1000, maxHeight = 1000)
+                                    )
+                                } else {
+                                    // Narrow animated approach frame where text would wrap if
+                                    // reflowed
+                                    measurable.measure(Constraints.fixed(approachWidth, 100))
+                                }
+                            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                        }
+                )
+            }
+        }
+        rule.waitForIdle()
+
+        // 1. Initial frame: text is laid out with lookahead target size
+        val initialLayout = rule.onNodeWithTag("textTarget").fetchTextLayoutResult()
+        Truth.assertThat(initialLayout.size.width).isGreaterThan(200)
+
+        // 2. Animate approach width
+        approachWidth = 150
+        rule.waitForIdle()
+        val secondLayout = rule.onNodeWithTag("textTarget").fetchTextLayoutResult()
+        Truth.assertThat(secondLayout.size).isEqualTo(initialLayout.size)
+
+        approachWidth = 200
+        rule.waitForIdle()
+        val thirdLayout = rule.onNodeWithTag("textTarget").fetchTextLayoutResult()
+        Truth.assertThat(thirdLayout.size).isEqualTo(initialLayout.size)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun measure_inLookaheadScope_alignsTextCenterOnApproachFrames() {
+        runTestForAlignment(TextAlign.Center, LayoutDirection.Ltr, 80f, 120f)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun measure_inLookaheadScope_alignsTextRightOnApproachFrames() {
+        runTestForAlignment(TextAlign.Right, LayoutDirection.Ltr, 150f, 200f)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun measure_inLookaheadScope_alignsTextLeftOnApproachFrames() {
+        runTestForAlignment(TextAlign.Left, LayoutDirection.Ltr, 0f, 50f)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun measure_inLookaheadScope_alignsTextStartRtlOnApproachFrames() {
+        runTestForAlignment(TextAlign.Start, LayoutDirection.Rtl, 150f, 200f)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun measure_inLookaheadScope_alignsTextEndRtlOnApproachFrames() {
+        runTestForAlignment(TextAlign.End, LayoutDirection.Rtl, 0f, 50f)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun measure_inLookaheadScope_alignsTextUnspecifiedRtlOnApproachFrames() {
+        runTestForAlignment(null, LayoutDirection.Rtl, 150f, 200f)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun measure_inLookaheadScope_alignsTextUnspecifiedLtrOnApproachFrames() {
+        runTestForAlignment(null, LayoutDirection.Ltr, 0f, 50f)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun runTestForAlignment(
+        textAlign: TextAlign?,
+        layoutDirection: LayoutDirection,
+        expectedMin: Float,
+        expectedMax: Float,
+    ) {
+        val fontSize = 20.sp
+        val text = "I"
+        val subject =
+            TextStringSimpleElement(
+                text,
+                TextStyle.Default.copy(
+                    fontSize = fontSize,
+                    textAlign = textAlign ?: TextAlign.Unspecified,
+                    color = Color.Black,
+                ),
+                createFontFamilyResolver(context),
+            )
+
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                Box(Modifier.fillMaxSize().background(Color.White)) {
+                    LookaheadScope {
+                        Box(
+                            modifier =
+                                Modifier.layout { measurable, _ ->
+                                        if (isLookingAhead) {
+                                            // Wide lookahead target: 400px
+                                            val placeable =
+                                                measurable.measure(Constraints.fixed(400, 100))
+                                            layout(400, 100) { placeable.place(0, 0) }
+                                        } else {
+                                            // Constrained approach: 200px
+                                            val placeable =
+                                                measurable.measure(Constraints.fixed(200, 100))
+                                            layout(200, 100) { placeable.place(0, 0) }
+                                        }
+                                    }
+                                    .then(subject)
+                                    .testTag("textNode")
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        val bitmap = rule.onNodeWithTag("textNode").captureToImage().asAndroidBitmap()
+        val averageX = calculateAverageXOfBlackPixels(bitmap)
+
+        Truth.assertWithMessage(
+                "Alignment $textAlign in $layoutDirection failed. Average X was $averageX, expected >= $expectedMin"
+            )
+            .that(averageX)
+            .isAtLeast(expectedMin)
+        Truth.assertWithMessage(
+                "Alignment $textAlign in $layoutDirection failed. Average X was $averageX, expected <= $expectedMax"
+            )
+            .that(averageX)
+            .isAtMost(expectedMax)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun calculateAverageXOfBlackPixels(bitmap: Bitmap): Float {
+        var sumX = 0f
+        var count = 0
+        for (y in 0 until bitmap.height) {
+            for (x in 0 until bitmap.width) {
+                val pixel = bitmap.getPixel(x, y)
+                if (pixel != Color.White.toArgb()) {
+                    sumX += x
+                    count++
+                }
+            }
+        }
+        return if (count > 0) sumX / count else -1f
     }
 
     private fun makeAsyncFont(loadDeferred: Deferred<Unit>): Font {
