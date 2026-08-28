@@ -96,4 +96,5 @@ public class NavEntry<T : Any>(
     }
 }
 
-@PublishedApi internal fun defaultContentKey(key: Any): Any = Pair("$key", "${key::class}")
+// Copied to navigation-ui TestUtils.kt. Make sure to update implementation there as well.
+@PublishedApi internal fun defaultContentKey(key: Any): Any = "$key:${key::class}"
