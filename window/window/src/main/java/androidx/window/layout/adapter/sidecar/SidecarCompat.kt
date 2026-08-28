@@ -162,7 +162,7 @@ constructor(
 
             // DO NOT REMOVE SINCE THIS IS VALIDATING THE INTERFACE.
             // sidecar.getDeviceState()
-            @Suppress("VARIABLE_WITH_REDUNDANT_INITIALIZER")
+            @Suppress("VARIABLE_WITH_REDUNDANT_INITIALIZER", "VARIABLE_INITIALIZER_IS_REDUNDANT")
             var tmpDeviceState = sidecar?.deviceState
 
             // sidecar.onDeviceStateListenersChanged(boolean);

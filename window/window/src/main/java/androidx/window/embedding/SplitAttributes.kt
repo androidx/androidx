@@ -247,7 +247,7 @@ private constructor(
         }
 
         override fun hashCode(): Int {
-            var result = description.hashCode()
+            val result = description.hashCode()
             return 31 * result + value
         }
 
