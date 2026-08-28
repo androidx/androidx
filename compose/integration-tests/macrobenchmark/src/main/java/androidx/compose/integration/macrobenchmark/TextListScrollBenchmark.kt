@@ -23,7 +23,6 @@ import android.graphics.Canvas
 import android.util.Log
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
-import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
@@ -31,6 +30,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
+import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -55,29 +56,20 @@ class TextListScrollBenchmark(private val styled: Boolean, private val prefetch:
         benchmarkRule.measureRepeated(
             packageName = PackageName,
             metrics =
-                listOf(
-                    FrameTimingMetric(),
-                    TraceSectionMetric(
-                        sectionName = "TextStringSimpleNode::measure",
-                        label = "measureText",
-                        mode = TraceSectionMetric.Mode.Sum,
+                defaultComposeScrollingMetrics() +
+                    defaultMemoryMetrics() +
+                    listOf(
+                        TraceSectionMetric(
+                            sectionName = "TextStringSimpleNode::measure",
+                            label = "measureText",
+                            mode = TraceSectionMetric.Mode.Sum,
+                        ),
+                        TraceSectionMetric(
+                            sectionName = "BackgroundTextMeasurement",
+                            label = "bgMeasureText",
+                            mode = TraceSectionMetric.Mode.Sum,
+                        ),
                     ),
-                    TraceSectionMetric(
-                        sectionName = "BackgroundTextMeasurement",
-                        label = "bgMeasureText",
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = "compose:lazy:prefetch:measure",
-                        label = "premeasure",
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = "compose:lazy:prefetch:compose",
-                        label = "precompose",
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
             compilationMode = CompilationMode.Full(),
             iterations = 3,
             setupBlock = {

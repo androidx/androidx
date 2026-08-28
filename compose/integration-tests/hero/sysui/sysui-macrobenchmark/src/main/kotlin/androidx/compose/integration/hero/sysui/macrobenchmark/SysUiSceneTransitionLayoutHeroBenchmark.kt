@@ -22,6 +22,7 @@ import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.Direction
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -80,7 +81,10 @@ class SysUiSceneTransitionLayoutHeroBenchmark(private val compilationMode: Compi
     ) {
         benchmarkRule.measureRepeated(
             packageName = StlDemoConstants.PACKAGE,
-            metrics = defaultComposeScrollingMetrics() + AndroidBlockingCallsMetric(),
+            metrics =
+                defaultComposeScrollingMetrics() +
+                    AndroidBlockingCallsMetric() +
+                    defaultMemoryMetrics(),
             iterations = ITERATIONS,
             compilationMode = compilationMode,
             setupBlock = {
