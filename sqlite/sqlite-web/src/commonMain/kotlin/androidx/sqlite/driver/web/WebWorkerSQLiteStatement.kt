@@ -20,6 +20,8 @@ import androidx.sqlite.SQLITE_DATA_NULL
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.throwSQLiteException
 import androidx.sqlite.util.getStatementPrefix
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 internal class WebWorkerSQLiteStatement
 private constructor(
@@ -216,17 +218,22 @@ private constructor(
     override suspend fun step(): Boolean {
         throwIfClosed()
         if (rowIndex == -1) {
-            this.result = dbWorker.step(statementId, bindings)
-            // If this is a transaction statement, set the connection's inTransaction state.
             if (transactionOperation != null) {
-                checkNotNull(inTransactionSetter)
-                when (transactionOperation) {
-                    TransactionOperation.END,
-                    TransactionOperation.ROLLBACK -> inTransactionSetter.invoke(false)
-                    TransactionOperation.BEGIN_EXCLUSIVE,
-                    TransactionOperation.BEGIN_IMMEDIATE,
-                    TransactionOperation.BEGIN_DEFERRED -> inTransactionSetter.invoke(true)
+                // Do transaction operation in a non-cancellable for atomicity with transaction
+                // state flag.
+                withContext(NonCancellable) {
+                    result = dbWorker.step(statementId, bindings)
+                    checkNotNull(inTransactionSetter)
+                    when (transactionOperation) {
+                        TransactionOperation.END,
+                        TransactionOperation.ROLLBACK -> inTransactionSetter.invoke(false)
+                        TransactionOperation.BEGIN_EXCLUSIVE,
+                        TransactionOperation.BEGIN_IMMEDIATE,
+                        TransactionOperation.BEGIN_DEFERRED -> inTransactionSetter.invoke(true)
+                    }
                 }
+            } else {
+                result = dbWorker.step(statementId, bindings)
             }
         }
         rowIndex++
