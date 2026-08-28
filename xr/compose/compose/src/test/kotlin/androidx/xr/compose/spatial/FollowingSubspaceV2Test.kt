@@ -44,8 +44,10 @@ import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.TestPlane
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.animation.follow.ExponentialDecayFollowMode
 import androidx.xr.compose.subspace.animation.follow.FollowMode
 import androidx.xr.compose.subspace.animation.follow.FollowTarget
+import androidx.xr.compose.subspace.animation.follow.FollowThresholds
 import androidx.xr.compose.subspace.animation.follow.TrackedDimensions
 import androidx.xr.compose.subspace.animation.follow.ViewTarget
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -561,6 +563,264 @@ class FollowingSubspaceV2Test {
             assertThat(subspaceTranslation.x).isIn(Range.open(1f, 2f))
             assertThat(subspaceTranslation.y).isIn(Range.open(1f, 2f))
             assertThat(subspaceTranslation.z).isIn(Range.open(1f, 2f))
+        }
+
+    @Test
+    fun followingSubspaceV2_exponentialDecayWithStartDelay_delaysMotion() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val startDelay = 500L
+            val shortWait = 200L
+            val longWait = 2000L
+
+            composeTestRule.setContent {
+                Subspace(
+                    follow =
+                        FollowTarget.view(
+                            mode = ExponentialDecayFollowMode(startDelay = startDelay)
+                        ),
+                    modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
+                ) {}
+            }
+
+            val unitVector = Vector3(x = 1F, y = 1F, z = 1F)
+            translateDevice(fakeRuntime = fakeRuntime, offset = unitVector)
+
+            // The first device pose causes the subspace to instantly spawn at that location.
+            var subspaceTranslation =
+                assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").translation
+            assertThat(subspaceTranslation).isEqualTo(unitVector)
+
+            // Move the device again with a duration less than the startDelay
+            translateDevice(fakeRuntime = fakeRuntime, offset = unitVector, durationMs = shortWait)
+
+            // Before startDelay elapsed, subspace should remain stationary at unitVector
+            subspaceTranslation =
+                assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").translation
+            assertThat(subspaceTranslation).isEqualTo(unitVector)
+
+            // Advance time past the startDelay and allow motion to completely settle
+            advanceTimeBy(fakeRuntime, durationMs = longWait)
+
+            val expectedTranslation = Vector3(x = 2F, y = 2F, z = 2F)
+            subspaceTranslation =
+                assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").translation
+            assertThat(subspaceTranslation).isEqualTo(expectedTranslation)
+        }
+
+    @Test
+    fun followingSubspaceV2_exponentialDecayWithHalfLife_adjustsSpeed() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+
+            var followMode by
+                mutableStateOf(ExponentialDecayFollowMode(halfLifeMs = 100L, startDelay = 0L))
+
+            composeTestRule.setContent {
+                Subspace(
+                    follow = FollowTarget.view(mode = followMode),
+                    modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
+                ) {}
+            }
+
+            composeTestRule.waitForIdle()
+
+            // Move 1 unit vector with halfLife = 100ms
+            val unitVector = Vector3(x = 1F, y = 1F, z = 1F)
+            translateDevice(fakeRuntime = fakeRuntime, offset = unitVector)
+            advanceTimeBy(fakeRuntime, durationMs = 1000L)
+
+            // In 1 second (10 half-lives), 100ms halfLife settles completely at (1, 1, 1)
+            var subspaceTranslation =
+                assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").translation
+            assertThat(subspaceTranslation).isEqualTo(unitVector)
+
+            // Change halfLife to 400ms
+            followMode = ExponentialDecayFollowMode(halfLifeMs = 400L, startDelay = 0L)
+            composeTestRule.waitForIdle()
+
+            // Move 1 unit vector again
+            translateDevice(fakeRuntime = fakeRuntime, offset = unitVector)
+            advanceTimeBy(fakeRuntime, durationMs = 1000L)
+
+            // In 1 second (only 2.5 half-lives), 400ms halfLife has not reached (2, 2, 2)
+            subspaceTranslation =
+                assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").translation
+            assertThat(subspaceTranslation).isNotEqualTo(unitVector * 2F)
+
+            // Wait additional time for 400ms halfLife to settle completely
+            advanceTimeBy(fakeRuntime, durationMs = 2000L)
+
+            subspaceTranslation =
+                assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2").translation
+            assertThat(subspaceTranslation).isEqualTo(unitVector * 2F)
+        }
+
+    @Test
+    fun followingSubspaceV2_exponentialDecayWithTranslationThreshold_delaysMotionUntilExceeded() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+            val mode =
+                ExponentialDecayFollowMode(
+                    startThresholds = FollowThresholds(translationMeters = 1.0f)
+                )
+
+            composeTestRule.setContent {
+                Subspace(
+                    follow = FollowTarget.view(mode = mode),
+                    modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
+                ) {}
+            }
+
+            composeTestRule.waitForIdle()
+            translateDevice(fakeRuntime = fakeRuntime, offset = Vector3.Zero)
+
+            // Move short of the 1 meter threshold (0.5 meters)
+            translateDevice(fakeRuntime = fakeRuntime, offset = Vector3(x = 0.5f, y = 0f, z = 0f))
+            advanceTimeBy(fakeRuntime, durationMs = 1000L)
+
+            // Verify content has not moved
+            var subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            assertThat(subspacePose.translation).isEqualTo(Vector3.Zero)
+
+            // Move beyond the threshold (additional 1.0 meter, total 1.5 meters)
+            translateDevice(fakeRuntime = fakeRuntime, offset = Vector3(x = 1.0f, y = 0f, z = 0f))
+            advanceTimeBy(fakeRuntime, durationMs = 2000L)
+
+            // Verify content is at target location
+            subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            assertThat(subspacePose.translation).isEqualTo(fakeArDevice.devicePose.translation)
+        }
+
+    @Test
+    fun followingSubspaceV2_exponentialDecayWithPitchThreshold_delaysMotionUntilExceeded() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+            val mode =
+                ExponentialDecayFollowMode(startThresholds = FollowThresholds(pitchDegrees = 30f))
+
+            composeTestRule.setContent {
+                Subspace(
+                    follow = FollowTarget.view(mode = mode),
+                    modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
+                ) {}
+            }
+
+            composeTestRule.waitForIdle()
+            translateDevice(fakeRuntime = fakeRuntime, offset = Vector3.Zero)
+
+            // Rotate short of the 30 degree pitch threshold (15 degrees)
+            val shortRotation = Quaternion.fromEulerAngles(pitch = 15f, yaw = 0f, roll = 0f)
+            rotateDevice(fakeRuntime = fakeRuntime, offset = shortRotation)
+            advanceTimeBy(fakeRuntime, durationMs = 1000L)
+
+            // Verify content has not moved
+            var subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            assertThat(subspacePose.rotation).isEqualTo(Quaternion.Identity)
+
+            // Rotate beyond the threshold (additional 30 degrees, total 45 degrees)
+            val beyondRotation = Quaternion.fromEulerAngles(pitch = 30f, yaw = 0f, roll = 0f)
+            rotateDevice(fakeRuntime = fakeRuntime, offset = beyondRotation)
+            advanceTimeBy(fakeRuntime, durationMs = 3000L)
+
+            // Verify content is at target location
+            subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            val eulerAngles = subspacePose.rotation.eulerAngles
+            assertThat(eulerAngles.x).isWithin(0.01f).of(45f)
+            assertThat(eulerAngles.y).isWithin(0.01f).of(0f)
+            assertThat(eulerAngles.z).isWithin(0.01f).of(0f)
+        }
+
+    @Test
+    fun followingSubspaceV2_exponentialDecayWithYawThreshold_delaysMotionUntilExceeded() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val mode =
+                ExponentialDecayFollowMode(startThresholds = FollowThresholds(yawDegrees = 30f))
+
+            composeTestRule.setContent {
+                Subspace(
+                    follow = FollowTarget.view(mode = mode),
+                    modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
+                ) {}
+            }
+
+            composeTestRule.waitForIdle()
+            translateDevice(fakeRuntime = fakeRuntime, offset = Vector3.Zero)
+
+            // Rotate short of the 30 degree yaw threshold (15 degrees)
+            val shortRotation = Quaternion.fromEulerAngles(pitch = 0f, yaw = 15f, roll = 0f)
+            rotateDevice(fakeRuntime = fakeRuntime, offset = shortRotation)
+            advanceTimeBy(fakeRuntime, durationMs = 1000L)
+
+            // Verify content has not moved
+            var subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            assertThat(subspacePose.rotation).isEqualTo(Quaternion.Identity)
+
+            // Rotate beyond the threshold (additional 30 degrees, total 45 degrees)
+            val beyondRotation = Quaternion.fromEulerAngles(pitch = 0f, yaw = 30f, roll = 0f)
+            rotateDevice(fakeRuntime = fakeRuntime, offset = beyondRotation)
+            advanceTimeBy(fakeRuntime, durationMs = 3000L)
+
+            // Verify content is at target location
+            subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            val eulerAngles = subspacePose.rotation.eulerAngles
+            assertThat(eulerAngles.x).isWithin(0.01f).of(0f)
+            assertThat(eulerAngles.y).isWithin(0.01f).of(45f)
+            assertThat(eulerAngles.z).isWithin(0.01f).of(0f)
+        }
+
+    @Test
+    fun followingSubspaceV2_exponentialDecayWithRollThreshold_delaysMotionUntilExceeded() =
+        runTest(testDispatcher) {
+            composeTestRule.session = configureSessionWithDeviceTrackingMode()
+            val session = assertNotNull(composeTestRule.session)
+            val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
+            val mode =
+                ExponentialDecayFollowMode(startThresholds = FollowThresholds(rollDegrees = 30f))
+
+            composeTestRule.setContent {
+                Subspace(
+                    follow = FollowTarget.view(mode = mode),
+                    modifier = SubspaceModifier.testTag("FollowingSubspaceV2"),
+                ) {}
+            }
+
+            composeTestRule.waitForIdle()
+            translateDevice(fakeRuntime = fakeRuntime, offset = Vector3.Zero)
+
+            // Rotate short of the 30 degree roll threshold (15 degrees)
+            val shortRotation = Quaternion.fromEulerAngles(pitch = 0f, yaw = 0f, roll = 15f)
+            rotateDevice(fakeRuntime = fakeRuntime, offset = shortRotation)
+            advanceTimeBy(fakeRuntime, durationMs = 1000L)
+
+            // Verify content has not moved
+            var subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            assertThat(subspacePose.rotation).isEqualTo(Quaternion.Identity)
+
+            // Rotate beyond the threshold (additional 30 degrees, total 45 degrees)
+            val beyondRotation = Quaternion.fromEulerAngles(pitch = 0f, yaw = 0f, roll = 30f)
+            rotateDevice(fakeRuntime = fakeRuntime, offset = beyondRotation)
+            advanceTimeBy(fakeRuntime, durationMs = 3000L)
+
+            // Verify content is at target location
+            subspacePose = assertExistenceAndGetNodeWorldPose("FollowingSubspaceV2")
+            val eulerAngles = subspacePose.rotation.eulerAngles
+            assertThat(eulerAngles.x).isWithin(0.01f).of(0f)
+            assertThat(eulerAngles.y).isWithin(0.01f).of(0f)
+            assertThat(eulerAngles.z).isWithin(0.01f).of(45f)
         }
 
     @OptIn(ExperimentalFollowingSubspaceApi::class)
