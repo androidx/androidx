@@ -53,6 +53,8 @@ dependencies {
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:benchmark-utils"))
 
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-compose"))
+
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
