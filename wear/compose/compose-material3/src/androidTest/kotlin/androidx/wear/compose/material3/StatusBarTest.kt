@@ -272,6 +272,90 @@ class StatusBarTest {
     }
 
     @Test
+    fun appScaffold_orchestrator_whenScrollingAndOffsetIsNaN_hidesStatusBar() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val testView = TestView(targetContext)
+        val mockInsets =
+            WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
+        testView.mockRootWindowInsets = mockInsets
+        val scrollState = mutableStateOf(false)
+        val offsetState = mutableStateOf(Float.NaN)
+        val mockScrollInfo =
+            object : ScrollInfoProvider {
+                override val anchorItemOffset: Float
+                    get() = offsetState.value
+
+                override val isScrollAwayValid: Boolean
+                    get() = true
+
+                override val isScrollInProgress: Boolean
+                    get() = scrollState.value
+
+                override val isScrollable: Boolean
+                    get() = true
+
+                override val lastItemOffset: Float
+                    get() = 0f
+            }
+
+        composeTestRule.setContent {
+            CompositionLocalProvider(
+                LocalStatusBarEnabledForTest provides true,
+                LocalView provides testView,
+            ) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    ScreenScaffold(
+                        scrollInfoProvider = mockScrollInfo,
+                        statusBarMode = StatusBarMode.Inherit,
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        // 1. Initial State (Stationary) -> show() should be called
+        Assert.assertTrue(
+            "Initially stationary: show() should be called",
+            testView.testController.showCount > 0,
+        )
+
+        // Reset counters for the action phase
+        testView.testController.showCount = 0
+        testView.testController.hideCount = 0
+
+        // 2. Start scrolling when anchorItemOffset is NaN -> hide() must be called
+        composeTestRule.runOnUiThread {
+            scrollState.value = true
+            offsetState.value = Float.NaN
+        }
+        composeTestRule.waitForIdle()
+
+        Assert.assertTrue(
+            "Scrolling with NaN offset: hide() must be called",
+            testView.testController.hideCount > 0,
+        )
+        Assert.assertEquals(
+            "Scrolling with NaN offset: show() count must be 0",
+            0,
+            testView.testController.showCount,
+        )
+
+        // 3. While scrolling, scroll back to top (offset <= 0f) -> show() should be called
+        testView.testController.showCount = 0
+        testView.testController.hideCount = 0
+        composeTestRule.runOnUiThread { offsetState.value = 0f }
+        composeTestRule.waitForIdle()
+
+        Assert.assertTrue(
+            "Scrolling at top (offset <= 0): show() must be called",
+            testView.testController.showCount > 0,
+        )
+    }
+
+    @Test
     fun appScaffold_orchestrator_showStatusBarFalse_hidesSystemStatusBar() {
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         val testView = TestView(targetContext)
