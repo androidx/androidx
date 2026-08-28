@@ -1068,7 +1068,10 @@ public fun ScreenScaffold(
         onDispose { scaffoldState.screenContent.removeScreen(key) }
     }
 
-    val resolvedShowStatusBar = scaffoldState.screenContent.currentShowStatusBar.value
+    val resolvedShowStatusBar =
+        scaffoldState.screenContent.resolveShowStatusBarForScreen(key, statusBarMode)
+    var externalConsumption by remember { mutableStateOf(WindowInsets()) }
+
     // Resolve the system status bar top inset boundaries.
     // - When showStatusBar is true (and supported on hardware):
     //   We use WindowInsets.statusBarsIgnoringVisibility to reserve space for the system overlay.

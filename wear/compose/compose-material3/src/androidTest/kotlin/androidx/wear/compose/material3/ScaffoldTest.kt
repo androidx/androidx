@@ -1059,6 +1059,130 @@ class ScaffoldTest {
     }
 
     @Test
+    fun resolveShowStatusBarForScreen_explicitModes_returnDirectly() {
+        var screenContent: ScreenContent? = null
+        val dummyKey = Any()
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    screenContent = LocalScaffoldState.current.screenContent
+                    // Even with a disabled screen registered on the stack
+                    ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {}
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(
+                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Enabled)
+                )
+                .isTrue()
+            assertThat(
+                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Disabled)
+                )
+                .isFalse()
+        }
+    }
+
+    @Test
+    fun resolveShowStatusBarForScreen_inheritMode_scansDownwardFromCallingScreen() {
+        var screenContent: ScreenContent? = null
+        val key1 = Any()
+        val key2 = Any()
+        val key3 = Any()
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    screenContent = LocalScaffoldState.current.screenContent
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            val content = screenContent!!
+            // Screen 1: Disabled
+            content.addScreen(key1, null, null, StatusBarMode.Disabled, null)
+            // Screen 2: Inherit
+            content.addScreen(key2, null, null, StatusBarMode.Inherit, null)
+            // Screen 3: Enabled
+            content.addScreen(key3, null, null, StatusBarMode.Enabled, null)
+
+            // Screen 3 is Enabled -> true
+            assertThat(content.resolveShowStatusBarForScreen(key3, StatusBarMode.Enabled)).isTrue()
+
+            // Screen 2 has Inherit mode; scanning downward from Screen 2 finds Screen 1 (Disabled)
+            // -> false. Note that it must NOT see Screen 3 above it.
+            assertThat(content.resolveShowStatusBarForScreen(key2, StatusBarMode.Inherit)).isFalse()
+
+            // Screen 1 is Disabled -> false
+            assertThat(content.resolveShowStatusBarForScreen(key1, StatusBarMode.Disabled))
+                .isFalse()
+        }
+    }
+
+    @Test
+    fun resolveShowStatusBarForScreen_inheritMode_whenNoAncestors_fallsBackToAppScaffold() {
+        var screenContent: ScreenContent? = null
+        val dummyKey = Any()
+        var appShowStatusBar by mutableStateOf(true)
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                AppScaffold(isStatusBarEnabled = appShowStatusBar) {
+                    screenContent = LocalScaffoldState.current.screenContent
+                    ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {}
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(
+                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Inherit)
+                )
+                .isTrue()
+        }
+
+        rule.runOnUiThread { appShowStatusBar = false }
+        rule.runOnIdle {
+            assertThat(
+                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Inherit)
+                )
+                .isFalse()
+        }
+    }
+
+    @Test
+    fun resolveShowStatusBarForScreen_whenHardwareUnsupported_alwaysReturnsFalse() {
+        var screenContent: ScreenContent? = null
+        val dummyKey = Any()
+
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
+                AppScaffold(isStatusBarEnabled = true) {
+                    screenContent = LocalScaffoldState.current.screenContent
+                    ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {}
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(
+                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Enabled)
+                )
+                .isFalse()
+            assertThat(
+                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Disabled)
+                )
+                .isFalse()
+            assertThat(
+                    screenContent?.resolveShowStatusBarForScreen(dummyKey, StatusBarMode.Inherit)
+                )
+                .isFalse()
+        }
+    }
+
+    @Test
     fun screenStack_statusBar_screenIsActive_togglesPrecedence() {
         var scaffoldState: ScaffoldState? = null
         var screenIsActive by mutableStateOf(true)

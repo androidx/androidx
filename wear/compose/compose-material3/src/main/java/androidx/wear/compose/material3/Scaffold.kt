@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
@@ -147,6 +148,44 @@ internal class ScreenContent(
             }
         }
         appShowStatusBar.value
+    }
+
+    /**
+     * Resolves status bar visibility for a specific screen in the stack to determine its local
+     * layout padding.
+     *
+     * Note on why [statusBarMode] is passed directly: [ScreenScaffold] calculates its layout insets
+     * during the **Composition Phase**, whereas screen registration in [contentItems] commits
+     * during the post-composition **Effect Phase** ([DisposableEffect]). Passing [statusBarMode]
+     * directly ensures that on Frame 1, the screen's intended mode is known immediately during
+     * initial composition without waiting for [addScreen] to commit, preventing a 1-frame layout
+     * shift.
+     *
+     * If the screen specifies [StatusBarMode.Inherit], this function locates the screen by [key]
+     * and scans downward through ancestor screens in [contentItems] (e.g. an enclosing Dialog
+     * container) to inherit from the nearest parent, falling back to [appShowStatusBar].
+     *
+     * @param key The unique key identifying the screen in [contentItems].
+     * @param statusBarMode The [StatusBarMode] configured on the screen.
+     * @return `true` if the status bar should be visible and space reserved for insets on this
+     *   screen; `false` otherwise.
+     */
+    fun resolveShowStatusBarForScreen(key: Any, statusBarMode: StatusBarMode): Boolean {
+        if (!isStatusBarSupported.value) return false
+
+        if (statusBarMode == StatusBarMode.Enabled) return true
+        if (statusBarMode == StatusBarMode.Disabled) return false
+
+        val index = contentItems.indexOfFirst { it.key === key }
+        val startIndex = if (index != -1) index - 1 else contentItems.lastIndex
+        for (i in startIndex downTo 0) {
+            when (contentItems[i].statusBarMode.value) {
+                StatusBarMode.Enabled -> return true
+                StatusBarMode.Disabled -> return false
+                StatusBarMode.Inherit -> {}
+            }
+        }
+        return appShowStatusBar.value
     }
 
     /**
