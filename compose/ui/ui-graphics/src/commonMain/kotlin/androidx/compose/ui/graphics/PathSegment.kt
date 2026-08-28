@@ -30,7 +30,9 @@ package androidx.compose.ui.graphics
  *
  * @property type The type that identifies this segment and defines the number of points.
  * @property points An array of points (2 floats per point) describing this segment, whose size
- *   depends on [type].
+ *   depends on [type]. Points are stored as pairs of float values in the order x, y. For example, a
+ *   line segment with two points (x1, y1) and (x2, y2), the array stores the points as (x1, y1, x2,
+ *   y2).
  * @property weight Conic weight, only valid if [type] is [Type.Conic]. See [Type.Conic] for more
  *   information.
  */
