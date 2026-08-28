@@ -17,6 +17,7 @@
 package androidx.appfunctions
 
 import android.Manifest
+import android.app.AppInteractionAttribution
 import android.app.UiAutomation
 import android.content.Context
 import android.content.Intent
@@ -129,7 +130,7 @@ class AppFunctionRuntimeRegistrationTest {
     }
 
     @Test
-    fun getAppFunctionActivityStates_succeeds() {
+    fun getAppFunctionActivityStates_thenExecuteAppFunction_shouldSucceed() {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.ACTIVITY_DYNAMIC_REGISTRATION_RETURN_SUCCESS
         val functionName =
@@ -158,6 +159,30 @@ class AppFunctionRuntimeRegistrationTest {
                 val activityState = activityStates.first()
                 assertThat(activityState.activityId).isEqualTo(activityId)
                 assertThat(activityState.functionNames).contains(functionName)
+
+                val request =
+                    ExecuteAppFunctionRequest(
+                        targetPackageName = context.packageName,
+                        functionIdentifier = functionId,
+                        functionParameters = AppFunctionData.EMPTY,
+                        attribution =
+                            AppInteractionAttribution.Builder(
+                                    AppInteractionAttribution.INTERACTION_TYPE_USER_QUERY
+                                )
+                                .build(),
+                        activityId = activityId,
+                    )
+
+                val response = appFunctionManager.executeAppFunction(request)
+
+                assertThat(response).isInstanceOf(ExecuteAppFunctionResponse.Success::class.java)
+                val successResponse = response as ExecuteAppFunctionResponse.Success
+                assertThat(
+                        successResponse.returnValue.getString(
+                            ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE
+                        )
+                    )
+                    .isEqualTo("result")
             } finally {
                 registration.unregister()
             }

@@ -17,7 +17,9 @@
 package androidx.appfunctions.integration.test.agent
 
 import android.Manifest
+import android.app.AppInteractionAttribution
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.appfunctions.AppFunctionAppUnknownException
 import androidx.appfunctions.AppFunctionData
@@ -27,6 +29,7 @@ import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 import androidx.appfunctions.ExperimentalAppFunctionsApi
+import androidx.appfunctions.integration.test.agent.AppFunctionMetadataHelper.FunctionIds.ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID
 import androidx.appfunctions.integration.test.agent.TestUtil.assertAppFunctionEnabledState
 import androidx.appfunctions.integration.test.agent.TestUtil.doBlocking
 import androidx.appfunctions.integration.test.agent.TestUtil.grantAppFunctionAccess
@@ -109,6 +112,61 @@ class DynamicRegistrationIntegrationTest {
                     )
                 )
                 .isEqualTo("callback_result_42_hello")
+        }
+    }
+
+    @Test
+    fun executeAppFunction_activityScopedRegistration_success() = doBlocking {
+        // Start the activity which will register the app function
+        val intent =
+            Intent(ACTION_REGISTER_ACTIVITY_SCOPED).apply {
+                setPackage(TARGET_APP_PACKAGE)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        val activity = InstrumentationRegistry.getInstrumentation().startActivitySync(intent)
+
+        try {
+            // Wait for the app function to be indexed and enabled
+            retryAssert {
+                appFunctionManager.assertAppFunctionEnabledState(
+                    AppFunctionName(TARGET_APP_PACKAGE, ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID),
+                    true,
+                )
+            }
+
+            val state =
+                appFunctionManager
+                    .getAppFunctionStates(
+                        listOf(
+                            AppFunctionName(TARGET_APP_PACKAGE, ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID)
+                        )
+                    )
+                    .single()
+            val activityId = state.activityIds!!.first()
+
+            val metadata = findAppFunctionMetadata(ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID)
+            val dynamicResponse =
+                appFunctionManager.executeAppFunction(
+                    request =
+                        ExecuteAppFunctionRequest(
+                            TARGET_APP_PACKAGE,
+                            ACTIVITY_SCOPE_DYNAMIC_FUNCTION_ID,
+                            AppFunctionData.Builder(metadata.parameters, metadata.components)
+                                .setString("message", "hello")
+                                .build(),
+                            attribution =
+                                AppInteractionAttribution.Builder(
+                                        AppInteractionAttribution.INTERACTION_TYPE_USER_QUERY
+                                    )
+                                    .build(),
+                            activityId = activityId,
+                        )
+                )
+
+            assertIs<ExecuteAppFunctionResponse.Success>(dynamicResponse)
+        } finally {
+            // Cleanup: Stop the activity
+            activity.finish()
         }
     }
 
@@ -489,6 +547,9 @@ class DynamicRegistrationIntegrationTest {
             "androidx.appfunctions.integration.testapp.DynamicRegistrationService"
         const val GLOBAL_SIGNATURE_FORMAT_MESSAGE =
             "androidx.appfunctions.integration.testapp.FormatMessageSignature#formatMessage"
+
+        const val ACTION_REGISTER_ACTIVITY_SCOPED =
+            "androidx.appfunctions.integration.action.REGISTER_ACTIVITY_SCOPED"
 
         const val ACTION_REGISTER_CALLBACK =
             "androidx.appfunctions.integration.action.REGISTER_CALLBACK"
