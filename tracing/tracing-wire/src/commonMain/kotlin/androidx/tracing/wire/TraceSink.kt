@@ -26,8 +26,9 @@ import com.squareup.wire.ProtoWriter
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.createCoroutine
 import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
-import kotlin.coroutines.intrinsics.createCoroutineUnintercepted
+import kotlin.coroutines.intrinsics.intercepted
 import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 import kotlin.coroutines.resume
 import kotlinx.coroutines.Dispatchers
@@ -111,7 +112,7 @@ public class TraceSink(
     // is effectively single threaded. So reads don't have to be guarded.
     @GuardedBy("drainLock") private var bufferedSink: BufferedSink? = null
     @GuardedBy("drainLock") private var protoWriter: ProtoWriter? = null
-    @GuardedBy("drainLock") private var drainRequested = false
+    @GuardedBy("drainLock") @Volatile private var drainRequested = false
 
     // Once the sink is marked as closed. No more enqueue()'s are allowed. This way we can never
     // race between a new drainRequest() after the last request for flush() happened. This
@@ -128,18 +129,25 @@ public class TraceSink(
             suspend {
                     coroutineContext[Job]?.invokeOnCompletion { makeDrainRequest() }
                     while (true) {
-                        drainQueue()
-                        // Set drainRequested to false on completion
                         suspendCoroutineUninterceptedOrReturn { continuation ->
                             synchronized(drainLock) {
-                                drainRequested = false
-                                resumeDrain = continuation
+                                drainQueue()
+                                if (queue.isNotEmpty()) {
+                                    // If the queue is not empty, don't suspend yet.
+                                    Unit
+                                } else {
+                                    // Mark completion.
+                                    drainRequested = false
+                                    // Use the intercepted() continuation here, to make sure
+                                    // we dispatch on the correct dispatcher.
+                                    resumeDrain = continuation.intercepted()
+                                    COROUTINE_SUSPENDED // Suspend
+                                }
                             }
-                            COROUTINE_SUSPENDED // Suspend
                         }
                     }
                 }
-                .createCoroutineUnintercepted(Continuation(context = coroutineContext) {})
+                .createCoroutine(Continuation(context = coroutineContext) {})
 
         // Kick things off and suspend
         makeDrainRequest()
@@ -160,14 +168,33 @@ public class TraceSink(
     }
 
     override fun flush() {
-        makeDrainRequest()
-        while (protoWriter != null && queue.isNotEmpty()) {
-            // Await completion of the drain.
+        // Ideally we do something like:
+
+        // makeDrainRequest()
+        // while(protoWriter != null && queue.isNotEmpty()) {
+        //   // Await completion
+        // }
+        // bufferedSink?.flush()
+
+        // However, flush can never assume that we have a _free_ background worker thread.
+        // When we don't have a dedicated thread to drain the queue, we never end up being able to
+        // drain the queue (because of the busy wait on queue.isNotEmpty()).
+
+        // Therefore, we simply drain the queue directly by holding the drain lock.
+        // We acquire a lock because we don't want *2* writer threads writing packets at the same
+        // time. If we have a free background worker, it simply yields and marks the end of the
+        // trace packet stream after the continuation resumes.
+        synchronized(drainLock) {
+            drainQueue()
+            bufferedSink?.flush()
         }
-        bufferedSink?.flush()
     }
 
     private fun makeDrainRequest() {
+        // Fast path
+        // `drainRequested` is volatile, and is safe to read without a lock.
+        if (drainRequested && protoWriter != null) return
+
         // Only make a request if one is not already ongoing
         synchronized(drainLock) {
             if (protoWriter == null) {
@@ -190,6 +217,10 @@ public class TraceSink(
     }
 
     @Suppress("NOTHING_TO_INLINE")
+    @GuardedBy("drainLock")
+    // Always guard calls to drainQueue with `drainLock`. Otherwise, we might end up violating the
+    // 1-writer rule given drainQueue() might be called by flush() or the dispatches to a background
+    // worker.
     private inline fun drainQueue() {
         val protoWriter = protoWriter ?: return
         while (queue.isNotEmpty()) {

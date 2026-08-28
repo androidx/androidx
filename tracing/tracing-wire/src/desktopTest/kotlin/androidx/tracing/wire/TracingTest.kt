@@ -43,6 +43,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -669,5 +670,26 @@ class TracingTest {
         assertEquals(1, sink.packets.size)
         // We should not find any track event packets.
         assertFails { sink.firstStartStopWithName("name") }
+    }
+
+    @org.junit.Test(timeout = 5000)
+    internal fun testSingleThreadedDispatcherDeadlock() {
+        val executor = java.util.concurrent.Executors.newSingleThreadExecutor()
+        val dispatcher = executor.asCoroutineDispatcher()
+        try {
+            runBlocking(dispatcher) {
+                val output = ByteArrayOutputStream()
+                val testSink =
+                    TraceSink(
+                        sequenceId = 1,
+                        sinkProvider = { output.sink().buffer() },
+                        coroutineContext = dispatcher,
+                    )
+                val driver = TraceDriver(sink = testSink, isGloballyEnabled = true)
+                driver.use { driver.tracer.trace(category = "category", name = "name") {} }
+            }
+        } finally {
+            executor.shutdown()
+        }
     }
 }
