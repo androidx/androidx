@@ -73,7 +73,13 @@ internal fun RemoteViews.translateEmittableImage(
         setImageViewImageAlpha(viewDef.mainViewId, /* alpha= */ convertedAlpha)
     }
 
-    applyModifiers(translationContext, this, element.modifier, viewDef)
+    applyModifiers(
+        translationContext,
+        this,
+        element.modifier,
+        viewDef,
+        shouldOptimizeVisibility = true,
+    )
 
     // If the content scale is Fit, the developer has expressed that they want the image to
     // maintain its aspect ratio. AdjustViewBounds on ImageView tells the view to rescale to

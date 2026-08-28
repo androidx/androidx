@@ -64,5 +64,11 @@ internal fun RemoteViews.translateEmittableCircularProgressIndicator(
                 Log.w(GlanceAppWidgetTag, "Unexpected progress indicator color: $indicatorColor")
         }
     }
-    applyModifiers(translationContext, this, element.modifier, viewDef)
+    applyModifiers(
+        translationContext,
+        this,
+        element.modifier,
+        viewDef,
+        shouldOptimizeVisibility = true,
+    )
 }
