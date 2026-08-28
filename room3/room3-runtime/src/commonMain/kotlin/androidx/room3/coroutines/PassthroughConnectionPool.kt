@@ -36,6 +36,7 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
@@ -182,13 +183,15 @@ private class PassthroughConnection(
         type: Transactor.SQLiteTransactionType,
         block: suspend TransactionScope<R>.() -> R,
     ): R {
-        when (type) {
-            Transactor.SQLiteTransactionType.DEFERRED ->
-                delegate.executeSQL("BEGIN DEFERRED TRANSACTION")
-            Transactor.SQLiteTransactionType.IMMEDIATE ->
-                delegate.executeSQL("BEGIN IMMEDIATE TRANSACTION")
-            Transactor.SQLiteTransactionType.EXCLUSIVE ->
-                delegate.executeSQL("BEGIN EXCLUSIVE TRANSACTION")
+        withContext(NonCancellable) {
+            when (type) {
+                Transactor.SQLiteTransactionType.DEFERRED ->
+                    delegate.executeSQL("BEGIN DEFERRED TRANSACTION")
+                Transactor.SQLiteTransactionType.IMMEDIATE ->
+                    delegate.executeSQL("BEGIN IMMEDIATE TRANSACTION")
+                Transactor.SQLiteTransactionType.EXCLUSIVE ->
+                    delegate.executeSQL("BEGIN EXCLUSIVE TRANSACTION")
+            }
         }
         if (nestedTransactionCount.incrementAndGet() > 0) {
             currentTransactionType = type
@@ -207,17 +210,19 @@ private class PassthroughConnection(
                 throw ex
             }
         } finally {
-            try {
-                if (nestedTransactionCount.decrementAndGet() == 0) {
-                    currentTransactionType = null
+            withContext(NonCancellable) {
+                try {
+                    if (nestedTransactionCount.decrementAndGet() == 0) {
+                        currentTransactionType = null
+                    }
+                    if (success) {
+                        delegate.executeSQL("END TRANSACTION")
+                    } else {
+                        delegate.executeSQL("ROLLBACK TRANSACTION")
+                    }
+                } catch (ex: SQLiteException) {
+                    exception?.addSuppressed(ex) ?: throw ex
                 }
-                if (success) {
-                    delegate.executeSQL("END TRANSACTION")
-                } else {
-                    delegate.executeSQL("ROLLBACK TRANSACTION")
-                }
-            } catch (ex: SQLiteException) {
-                exception?.addSuppressed(ex) ?: throw ex
             }
         }
     }
