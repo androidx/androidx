@@ -57,6 +57,7 @@ CORE_TELECOM = "1.1.0-beta01"
 CORE_UWB = "1.1.0-alpha01"
 CORE_VIEWTREE = "1.1.0-alpha01"
 CREDENTIALS = "1.7.0-alpha03"
+CREDENTIALS_AGESIGNALS = "1.0.0-alpha01"
 CREDENTIALS_FIDO_QUARANTINE = "1.0.0-alpha02"
 CREDENTIALS_PROVIDEREVENTS = "1.0.0-alpha06"
 CREDENTIALS_REGISTRY = "1.0.0-alpha05"
@@ -237,6 +238,7 @@ CORE_HAPTICS = { group = "androidx.core.haptics", atomicGroupVersion = "versions
 CORE_LOCATIONBUTTON = { group = "androidx.core.locationbutton", atomicGroupVersion = "versions.CORE_LOCATIONBUTTON" }
 CORE_UWB = { group = "androidx.core.uwb", atomicGroupVersion = "versions.CORE_UWB" }
 CREDENTIALS = { group = "androidx.credentials", atomicGroupVersion = "versions.CREDENTIALS" }
+CREDENTIALS_AGESIGNALS = { group = "androidx.credentials.agesignals", atomicGroupVersion = "versions.CREDENTIALS_AGESIGNALS" }
 CREDENTIALS_PROVIDEREVENTS = { group = "androidx.credentials.providerevents", atomicGroupVersion = "versions.CREDENTIALS_PROVIDEREVENTS" }
 CREDENTIALS_REGISTRY = { group = "androidx.credentials.registry", atomicGroupVersion = "versions.CREDENTIALS_REGISTRY" }
 CURSORADAPTER = { group = "androidx.cursoradapter", atomicGroupVersion = "versions.CURSORADAPTER" }

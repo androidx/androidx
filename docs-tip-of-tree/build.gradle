@@ -163,6 +163,8 @@ dependencies {
     docs(project(":credentials:registry:registry-digitalcredentials-sdjwtvc"))
     docs(project(":credentials:registry:registry-provider"))
     docs(project(":credentials:registry:registry-provider-play-services"))
+    docs(project(":credentials:agesignals:agesignals"))
+    docs(project(":credentials:agesignals:agesignals-provider-play-services"))
     docs(project(":customview:customview"))
     docs(project(":customview:customview-poolingcontainer"))
     kmpDocs(project(":datastore:datastore"))

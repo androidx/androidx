@@ -818,6 +818,8 @@ includeProject(":credentials:registry:registry-digitalcredentials-openid", [Buil
 includeProject(":credentials:registry:registry-digitalcredentials-sdjwtvc", [BuildType.MAIN])
 includeProject(":credentials:registry:registry-provider", [BuildType.MAIN])
 includeProject(":credentials:registry:registry-provider-play-services", [BuildType.MAIN])
+includeProject(":credentials:agesignals:agesignals", [BuildType.MAIN])
+includeProject(":credentials:agesignals:agesignals-provider-play-services", [BuildType.MAIN])
 includeProject(":customview:customview", [BuildType.MAIN])
 includeProject(":customview:customview-poolingcontainer", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":datastore:datastore", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
