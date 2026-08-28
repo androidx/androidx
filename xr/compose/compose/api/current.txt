@@ -981,18 +981,31 @@ package androidx.xr.compose.subspace.layout {
     method public void adjustParams(androidx.xr.compose.subspace.layout.ParentLayoutParamsAdjustable params);
   }
 
-  @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public final class PitchLimits {
-    ctor public PitchLimits(@FloatRange(from=-90.0, to=90.0) float minimumPitch, @FloatRange(from=-90.0, to=90.0) float maximumPitch);
-    method @InaccessibleFromKotlin @FloatRange(from=-90.0, to=90.0) public float getMaximumPitch();
-    method @InaccessibleFromKotlin @FloatRange(from=-90.0, to=90.0) public float getMinimumPitch();
+  @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi @kotlin.jvm.JvmInline public final value class PitchLimits {
+    method @BytecodeOnly public static androidx.xr.compose.subspace.layout.PitchLimits! box-impl(long);
+    method @KotlinOnly public inline operator float component1();
+    method @BytecodeOnly public static float component1-impl(long);
+    method @KotlinOnly public inline operator float component2();
+    method @BytecodeOnly public static float component2-impl(long);
+    method @KotlinOnly public androidx.xr.compose.subspace.layout.PitchLimits copy(optional @FloatRange(from=-90.0, to=90.0) float minimumPitch, optional @FloatRange(from=-90.0, to=90.0) float maximumPitch);
+    method @BytecodeOnly public static long copy-hVHO324(long, @FloatRange(from=-90.0, to=90.0) float, @FloatRange(from=-90.0, to=90.0) float);
+    method @BytecodeOnly public static long copy-hVHO324$default(long, float, float, int, Object!);
+    method @BytecodeOnly @FloatRange(from=-90.0, to=90.0) public static float getMaximumPitch-impl(long);
+    method @BytecodeOnly @FloatRange(from=-90.0, to=90.0) public static float getMinimumPitch-impl(long);
+    method @BytecodeOnly public long unbox-impl();
     property @FloatRange(from=-90.0, to=90.0) public float maximumPitch;
     property @FloatRange(from=-90.0, to=90.0) public float minimumPitch;
     field public static final androidx.xr.compose.subspace.layout.PitchLimits.Companion Companion;
-    field public static final androidx.xr.compose.subspace.layout.PitchLimits FullRange;
   }
 
   @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static final class PitchLimits.Companion {
+    method @BytecodeOnly public long getFullRange-6XtuzpA();
     property public androidx.xr.compose.subspace.layout.PitchLimits FullRange;
+  }
+
+  @SuppressCompatibility public final class PitchLimitsKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.PitchLimits PitchLimits(@FloatRange(from=-90.0, to=90.0) float minimumPitch, @FloatRange(from=-90.0, to=90.0) float maximumPitch);
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static long PitchLimits(@FloatRange(from=-90.0, to=90.0) float, @FloatRange(from=-90.0, to=90.0) float);
   }
 
   @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalMoveAnchorPolicy @kotlin.jvm.JvmInline public final value class PlaneOrientation {
@@ -1059,8 +1072,9 @@ package androidx.xr.compose.subspace.layout {
   }
 
   @SuppressCompatibility public final class RotateToLookAtUserKt {
-    method @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.SubspaceModifier rotateToLookAtUser(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean isYawUpdateEnabled, optional boolean isPitchUpdateEnabled, optional androidx.xr.compose.subspace.layout.PitchLimits pitchLimits);
-    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.SubspaceModifier! rotateToLookAtUser$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, boolean, androidx.xr.compose.subspace.layout.PitchLimits!, int, Object!);
+    method @KotlinOnly @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.SubspaceModifier rotateToLookAtUser(androidx.xr.compose.subspace.layout.SubspaceModifier, optional boolean isYawUpdateEnabled, optional boolean isPitchUpdateEnabled, optional androidx.xr.compose.subspace.layout.PitchLimits pitchLimits);
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.SubspaceModifier rotateToLookAtUser-lrs8xbY(androidx.xr.compose.subspace.layout.SubspaceModifier, boolean, boolean, long);
+    method @BytecodeOnly @SuppressCompatibility @androidx.xr.compose.subspace.layout.ExperimentalRotateToLookAtUserApi public static androidx.xr.compose.subspace.layout.SubspaceModifier! rotateToLookAtUser-lrs8xbY$default(androidx.xr.compose.subspace.layout.SubspaceModifier!, boolean, boolean, long, int, Object!);
   }
 
   public final class SizeKt {

@@ -15,7 +15,6 @@
  */
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.FloatRange
 import androidx.xr.arcore.ArDevice
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.LocalSubspaceRootNode
@@ -306,55 +305,5 @@ internal class RotateToLookAtUserNode(
 
     private companion object {
         private const val MIN_LENGTH_SQUARED = 1e-6f
-    }
-}
-
-/**
- * Represents the limits for pitch angles in degrees.
- *
- * @property minimumPitch The minimum allowed pitch angle in degrees. Must be in the range
- *   [-90.0, 90.0].
- * @property maximumPitch The maximum allowed pitch angle in degrees. Must be in the range
- *   [-90.0, 90.0].
- */
-@ExperimentalRotateToLookAtUserApi
-public class PitchLimits(
-    @get:FloatRange(from = -90.0, to = 90.0)
-    @param:FloatRange(from = -90.0, to = 90.0)
-    public val minimumPitch: Float,
-    @get:FloatRange(from = -90.0, to = 90.0)
-    @param:FloatRange(from = -90.0, to = 90.0)
-    public val maximumPitch: Float,
-) {
-    init {
-        require(minimumPitch in -90f..90f) {
-            "minimumPitch ($minimumPitch) must be in the range [-90.0, 90.0]"
-        }
-        require(maximumPitch in -90f..90f) {
-            "maximumPitch ($maximumPitch) must be in the range [-90.0, 90.0]"
-        }
-        require(minimumPitch <= maximumPitch) {
-            "minimumPitch ($minimumPitch) cannot be greater than maximumPitch ($maximumPitch)"
-        }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is PitchLimits) return false
-        return minimumPitch == other.minimumPitch && maximumPitch == other.maximumPitch
-    }
-
-    override fun hashCode(): Int {
-        var result = minimumPitch.hashCode()
-        result = 31 * result + maximumPitch.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "PitchLimits(minimumPitch=$minimumPitch, maximumPitch=$maximumPitch)"
-    }
-
-    public companion object {
-        @JvmField public val FullRange: PitchLimits = PitchLimits(-90f, 90f)
     }
 }

@@ -48,7 +48,6 @@ import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.Space
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -664,59 +663,6 @@ class RotateToLookAtUserTest {
                 .onSubspaceNodeWithTag("TheWatcher")
                 .assertRotationInRootIsEqualTo(expectedRotation)
         }
-
-    @Test
-    fun pitchLimits_validRange_createsSuccessfully() {
-        val limits = PitchLimits(minimumPitch = -30f, maximumPitch = 45f)
-        assertThat(limits.minimumPitch).isEqualTo(-30f)
-        assertThat(limits.maximumPitch).isEqualTo(45f)
-    }
-
-    @Test
-    fun pitchLimits_fullRange_hasFullRange() {
-        val limits = PitchLimits.FullRange
-        assertThat(limits.minimumPitch).isEqualTo(-90f)
-        assertThat(limits.maximumPitch).isEqualTo(90f)
-    }
-
-    @Test
-    fun pitchLimits_minimumPitchBelowLimit_throwsIllegalArgumentException() {
-        assertFailsWith<IllegalArgumentException> {
-            PitchLimits(minimumPitch = -90.1f, maximumPitch = 0f)
-        }
-    }
-
-    @Test
-    fun pitchLimits_maximumPitchAboveLimit_throwsIllegalArgumentException() {
-        assertFailsWith<IllegalArgumentException> {
-            PitchLimits(minimumPitch = 0f, maximumPitch = 90.1f)
-        }
-    }
-
-    @Test
-    fun pitchLimits_minimumGreaterThanMaximum_throwsIllegalArgumentException() {
-        assertFailsWith<IllegalArgumentException> {
-            PitchLimits(minimumPitch = 10f, maximumPitch = -10f)
-        }
-    }
-
-    @Test
-    fun pitchLimits_equalsAndHashCode_workCorrectly() {
-        val limits1 = PitchLimits(-15f, 15f)
-        val limits2 = PitchLimits(-15f, 15f)
-        val limits3 = PitchLimits(-10f, 15f)
-
-        assertThat(limits1).isEqualTo(limits2)
-        assertThat(limits1.hashCode()).isEqualTo(limits2.hashCode())
-        assertThat(limits1).isNotEqualTo(limits3)
-    }
-
-    @Test
-    fun pitchLimits_toString_returnsExpectedFormat() {
-        val limits = PitchLimits(-10f, 20f)
-        assertThat(limits.toString())
-            .isEqualTo("PitchLimits(minimumPitch=-10.0, maximumPitch=20.0)")
-    }
 
     private fun createSession() {
         val sessionCreateResult = runBlocking {
