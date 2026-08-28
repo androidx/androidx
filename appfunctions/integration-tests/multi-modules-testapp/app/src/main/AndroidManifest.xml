@@ -81,6 +81,15 @@
             android:name=".DynamicRegistrationService"
             android:exported="true"
             tools:targetApi="37" />
+        <activity
+            android:name=".DynamicRegistrationActivity"
+            android:exported="true"
+            tools:targetApi="37">
+            <intent-filter>
+                <action android:name="androidx.appfunctions.integration.action.REGISTER_ACTIVITY_SCOPED" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <receiver
             android:name=".AppFunctionStateReceiver"
             android:exported="true">
