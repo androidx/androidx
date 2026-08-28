@@ -163,6 +163,8 @@ package androidx.wear.compose.remote.material3 {
   }
 
   public final class RemoteCircularProgressIndicatorKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteCircularProgressIndicator(optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.wear.compose.remote.material3.RemoteProgressIndicatorColors colors, optional androidx.compose.remote.creation.compose.state.RemoteDp strokeWidth, optional androidx.compose.remote.creation.compose.state.RemoteDp gapSize);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteCircularProgressIndicator(androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.wear.compose.remote.material3.RemoteProgressIndicatorColors?, androidx.compose.remote.creation.compose.state.RemoteDp?, androidx.compose.remote.creation.compose.state.RemoteDp?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteCircularProgressIndicator(androidx.compose.remote.creation.compose.state.RemoteFloat progress, optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.state.RemoteBoolean enabled, optional androidx.compose.remote.creation.compose.state.RemoteFloat startAngle, optional androidx.compose.remote.creation.compose.state.RemoteFloat endAngle, optional androidx.wear.compose.remote.material3.RemoteProgressIndicatorColors colors, optional androidx.compose.remote.creation.compose.state.RemoteDp strokeWidth, optional androidx.compose.remote.creation.compose.state.RemoteDp gapSize);
     method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteCircularProgressIndicator(androidx.compose.remote.creation.compose.state.RemoteFloat, androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.state.RemoteBoolean?, androidx.compose.remote.creation.compose.state.RemoteFloat?, androidx.compose.remote.creation.compose.state.RemoteFloat?, androidx.wear.compose.remote.material3.RemoteProgressIndicatorColors?, androidx.compose.remote.creation.compose.state.RemoteDp?, androidx.compose.remote.creation.compose.state.RemoteDp?, androidx.compose.runtime.Composer?, int, int);
   }
@@ -380,6 +382,7 @@ package androidx.wear.compose.remote.material3 {
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getCurvedIndicatorStrokeWidth();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getCurvedIndicatorSweepAngle();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getDefaultStrokeWidth();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteDp getIndeterminateStrokeWidth();
     method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.state.RemoteFloat getStartAngle();
     method public androidx.compose.remote.creation.compose.state.RemoteDp largeStrokeWidth(androidx.compose.remote.creation.compose.state.RemoteDp screenSize);
     method public androidx.compose.remote.creation.compose.state.RemoteDp smallStrokeWidth(androidx.compose.remote.creation.compose.state.RemoteDp screenSize);
@@ -390,6 +393,7 @@ package androidx.wear.compose.remote.material3 {
     property public androidx.compose.remote.creation.compose.state.RemoteDp CurvedIndicatorStrokeWidth;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat CurvedIndicatorSweepAngle;
     property public androidx.compose.remote.creation.compose.state.RemoteDp DefaultStrokeWidth;
+    property public androidx.compose.remote.creation.compose.state.RemoteDp IndeterminateStrokeWidth;
     property public androidx.compose.remote.creation.compose.state.RemoteFloat StartAngle;
     field public static final androidx.wear.compose.remote.material3.RemoteProgressIndicatorDefaults INSTANCE;
   }
