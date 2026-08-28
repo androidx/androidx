@@ -182,6 +182,9 @@ package androidx.compose.foundation {
     property public boolean isSelectionAutoScrollEnabled;
     property public boolean isSmartSelectionEnabled;
     property public boolean isUsingCacheWindowInStaggeredGrids;
+    property public boolean isUsingDynamicDefaultCacheWindowInGrids;
+    property public boolean isUsingDynamicDefaultCacheWindowInLists;
+    property public boolean isUsingDynamicDefaultCacheWindowInStaggeredGrids;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
     field public static boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     field public static boolean isBasicTextFieldHeightInLinesOptimizationEnabled;
@@ -207,6 +210,9 @@ package androidx.compose.foundation {
     field public static boolean isSelectionAutoScrollEnabled;
     field public static boolean isSmartSelectionEnabled;
     field public static boolean isUsingCacheWindowInStaggeredGrids;
+    field public static boolean isUsingDynamicDefaultCacheWindowInGrids;
+    field public static boolean isUsingDynamicDefaultCacheWindowInLists;
+    field public static boolean isUsingDynamicDefaultCacheWindowInStaggeredGrids;
   }
 
   public final class DarkThemeKt {

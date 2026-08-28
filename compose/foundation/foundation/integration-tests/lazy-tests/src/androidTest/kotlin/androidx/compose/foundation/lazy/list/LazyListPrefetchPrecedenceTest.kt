@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
+@file:Suppress(
+    "INVISIBLE_MEMBER",
+    "INVISIBLE_REFERENCE",
+    "DEPRECATION",
+) // b/407927787 // b/420551535
 @file:OptIn(ExperimentalFoundationApi::class)
 
 package androidx.compose.foundation.lazy.list
@@ -22,12 +26,12 @@ import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.DefaultLazyListCacheWindow
 import androidx.compose.foundation.lazy.DefaultLazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListCacheWindowStrategy
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.layout.DefaultLazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
@@ -79,7 +83,8 @@ class LazyListPrefetchPrecedenceTest {
 
         val cacheWindowPrefetchStrategy =
             state.layoutInfoState.value.prefetchStrategy as? LazyListCacheWindowStrategy
-        assertThat(cacheWindowPrefetchStrategy?.cacheWindow).isEqualTo(DefaultLazyListCacheWindow)
+        assertThat(cacheWindowPrefetchStrategy?.cacheWindow)
+            .isInstanceOf(DefaultLazyLayoutCacheWindow::class.java)
     }
 
     @Test
