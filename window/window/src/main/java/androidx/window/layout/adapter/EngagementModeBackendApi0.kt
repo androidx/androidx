@@ -66,7 +66,7 @@ internal constructor(
             callback.accept(EngagementMode.TOUCH)
             return
         }
-        var callbackWrapper: DeduplicateConsumer<EngagementMode>
+        val callbackWrapper: DeduplicateConsumer<EngagementMode>
         var isFirstCallback = false
         lock.withLock {
             if (engagementChangeCallbacks.containsKey(callback)) {

@@ -203,7 +203,7 @@ internal constructor(
         // Override #hashCode to return consistent value every time.
         @Suppress("EqualsAndHashCode")
         override fun hashCode(): Int {
-            var result = description.hashCode()
+            val result = description.hashCode()
             return 31 * result + value
         }
 
