@@ -46,6 +46,7 @@ dependencies {
 
     implementation(libs.testCoreKtx)
     implementation(libs.robolectric)
+    implementation(libs.espressoCore)
     implementation(libs.mockitoKotlin4)
 
     testImplementation(libs.kotlinCoroutinesTest)

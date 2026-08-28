@@ -16,21 +16,18 @@
 
 package androidx.xr.compose.testing
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.xr.compose.R
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
 import kotlinx.coroutines.Dispatchers
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.stub
+import org.robolectric.Shadows.shadowOf
 
 /**
  * A specialized [ComponentActivity] designed to provide a Spatial environment for testing
  * [androidx.xr.compose.subspace.SubspaceComposable] content.
  *
- * By default, this activity mocks the system environment to simulate a device that supports
+ * By default, this activity configures the system environment to simulate a device that supports
  * [FEATURE_XR_API_SPATIAL], allowing spatial UI hierarchies to be evaluated in unit tests without
  * requiring a physical XR device or emulator.
  *
@@ -64,13 +61,11 @@ import org.mockito.kotlin.stub
  * ```
  */
 public class SubspaceTestingActivity : ComponentActivity() {
-    private val _packageManager: PackageManager =
-        mock<PackageManager>().stub {
-            on { hasSystemFeature(FEATURE_XR_API_SPATIAL) } doReturn true
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        shadowOf(packageManager).setSystemFeature(FEATURE_XR_API_SPATIAL, true)
 
         // TODO: b/517544830 - Investigate why tests hang indefinitely when using Dispatchers.Main
         // directly for session factory dispatcher. For now, we override the dispatcher to utilize
@@ -81,8 +76,6 @@ public class SubspaceTestingActivity : ComponentActivity() {
         )
     }
 
-    override fun getPackageManager() = _packageManager
-
     /**
      * Disables the spatial capabilities for this activity by simulating a device that lacks
      * [FEATURE_XR_API_SPATIAL] support.
@@ -91,11 +84,11 @@ public class SubspaceTestingActivity : ComponentActivity() {
      * degrades or behaves when spatial APIs are unavailable.
      *
      * **Edge Cases and State:**
-     * - This method modifies the underlying mock [PackageManager] state.
+     * - This method modifies the underlying [PackageManager] state.
      * - Call this method before building your spatial composition to ensure the correct XR feature
      *   availability is read upon initialization.
      */
     public fun disableXr() {
-        _packageManager.stub { on { hasSystemFeature(FEATURE_XR_API_SPATIAL) } doReturn false }
+        shadowOf(packageManager).setSystemFeature(FEATURE_XR_API_SPATIAL, false)
     }
 }

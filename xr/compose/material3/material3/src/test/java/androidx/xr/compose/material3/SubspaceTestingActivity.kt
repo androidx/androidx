@@ -16,22 +16,18 @@
 
 package androidx.xr.compose.material3
 
-import android.content.pm.PackageManager
+import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import org.robolectric.Shadows.shadowOf
 
 /**
  * Custom test class that should be used for testing
  * [androidx.xr.compose.subspace.SubspaceComposable] content.
  */
 class SubspaceTestingActivity : ComponentActivity() {
-    private val _packageManager: PackageManager = mock<PackageManager>()
-
-    init {
-        whenever(_packageManager.hasSystemFeature(FEATURE_XR_API_SPATIAL)).thenReturn(true)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        shadowOf(packageManager).setSystemFeature(FEATURE_XR_API_SPATIAL, true)
     }
-
-    override fun getPackageManager() = _packageManager
 }
