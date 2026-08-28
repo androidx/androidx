@@ -31,10 +31,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-internal class OpenXrDeviceCapabilityProvider(
-    override val context: Context,
-    private val nativeManager: Long,
-) : XrDeviceCapabilityProvider {
+internal class OpenXrDeviceCapabilityProvider(context: Context, private val nativeManager: Long) :
+    XrDeviceCapabilityProvider {
+
+    // OpenXR native handles live for the process lifetime. Using applicationContext ensures
+    // that the OpenXR native runtime does not hold a reference to an Activity context.
+    override val context: Context = context.applicationContext ?: context
 
     // See b/496257589: Use a stub class to avoid dependency on lifecycle-process.
     override val lifecycle: Lifecycle = StubProcessLifecycleOwner.lifecycle
