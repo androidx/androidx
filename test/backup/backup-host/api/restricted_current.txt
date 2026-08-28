@@ -90,6 +90,13 @@ package androidx.test.backup.host {
     property public java.util.List<java.lang.String> DEFAULT_INSTALL_OPTIONS;
   }
 
+  public final class BackupRestoreExtension implements org.junit.jupiter.api.extension.ParameterResolver {
+    ctor public BackupRestoreExtension();
+    ctor public BackupRestoreExtension(com.android.adblib.AdbSession adbSession);
+    method public Object resolveParameter(org.junit.jupiter.api.extension.ParameterContext? parameterContext, org.junit.jupiter.api.extension.ExtensionContext? extensionContext);
+    method public boolean supportsParameter(org.junit.jupiter.api.extension.ParameterContext? parameterContext, org.junit.jupiter.api.extension.ExtensionContext? extensionContext);
+  }
+
   public final class BackupTransportMode {
     field public static final androidx.test.backup.host.BackupTransportMode CLOUD_ENCRYPTED;
     field public static final androidx.test.backup.host.BackupTransportMode CLOUD_UNENCRYPTED;
