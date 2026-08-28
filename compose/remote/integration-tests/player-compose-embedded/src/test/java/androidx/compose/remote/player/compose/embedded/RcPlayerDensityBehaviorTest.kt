@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
@@ -27,6 +28,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.contentDescription
 import androidx.compose.remote.creation.compose.modifier.heightIn
+import androidx.compose.remote.creation.compose.modifier.offset
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.size
@@ -388,10 +390,7 @@ class RcPlayerDensityBehaviorTest {
                     RemoteBox(
                         modifier =
                             RemoteModifier.size(100.rdp)
-                                .clip(
-                                    androidx.compose.remote.creation.compose.shapes
-                                        .RemoteRoundedCornerShape(cornerRadiusDp.rdp)
-                                )
+                                .clip(RemoteRoundedCornerShape(cornerRadiusDp.rdp))
                                 .semantics { contentDescription = "box".rs }
                     )
                 },
@@ -411,5 +410,246 @@ class RcPlayerDensityBehaviorTest {
         rule.waitForIdle()
         val bounds = rule.onNodeWithContentDescription("box").getUnclippedBoundsInRoot()
         assert(abs((bounds.right.value - bounds.left.value) - 100f) < 1f)
+    }
+
+    private fun testRemoteDpPadding(densityBehavior: RemoteDensityBehavior) {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val document = runBlocking {
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo =
+                    RemoteCreationDisplayInfo(
+                        width = 300,
+                        height = 300,
+                        densityDpi = 320,
+                        fontScale = 1f,
+                        densityBehavior = densityBehavior,
+                    ),
+                content = {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(100.rdp)
+                                .semantics { contentDescription = "outer".rs }
+                                .padding(16.rdp)
+                    ) {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(20.rdp).semantics {
+                                    contentDescription = "inner".rs
+                                }
+                        )
+                    }
+                },
+            )
+        }
+        val inset = paddingInsetDp(document)
+        assert(abs(inset - 16f) < 1f) {
+            "Behavior $densityBehavior with 16.rdp padding should inset by 16dp, got ${inset}dp"
+        }
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_padding_dp() {
+        testRemoteDpPadding(RemoteDensityBehavior.Dp)
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_padding_pixels() {
+        testRemoteDpPadding(RemoteDensityBehavior.Pixels)
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_padding_legacy() {
+        testRemoteDpPadding(RemoteDensityBehavior.Legacy)
+    }
+
+    private fun testRemoteDpSpacing(densityBehavior: RemoteDensityBehavior) {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val document = runBlocking {
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo =
+                    RemoteCreationDisplayInfo(
+                        width = 300,
+                        height = 300,
+                        densityDpi = 320,
+                        fontScale = 1f,
+                        densityBehavior = densityBehavior,
+                    ),
+                content = {
+                    RemoteColumn(verticalArrangement = RemoteArrangement.spacedBy(16.rdp)) {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(20.rdp).semantics {
+                                    contentDescription = "a".rs
+                                }
+                        )
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(20.rdp).semantics {
+                                    contentDescription = "b".rs
+                                }
+                        )
+                    }
+                },
+            )
+        }
+        val gap = spacingGapDp(document)
+        assert(abs(gap - 16f) < 1f) {
+            "Behavior $densityBehavior with 16.rdp spacedBy should space by 16dp, got ${gap}dp"
+        }
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_spacing_dp() {
+        testRemoteDpSpacing(RemoteDensityBehavior.Dp)
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_spacing_pixels() {
+        testRemoteDpSpacing(RemoteDensityBehavior.Pixels)
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_spacing_legacy() {
+        testRemoteDpSpacing(RemoteDensityBehavior.Legacy)
+    }
+
+    private fun testRemoteDpWidthIn(densityBehavior: RemoteDensityBehavior) {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val document = runBlocking {
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo =
+                    RemoteCreationDisplayInfo(
+                        width = 300,
+                        height = 300,
+                        densityDpi = 320,
+                        fontScale = 1f,
+                        densityBehavior = densityBehavior,
+                    ),
+                content = {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.widthIn(min = 20.rdp, max = 80.rdp).semantics {
+                                contentDescription = "box".rs
+                            }
+                    )
+                },
+            )
+        }
+        val width = widthInDp(document)
+        assert(abs(width - 20f) < 1f) {
+            "Behavior $densityBehavior with 20.rdp min widthIn should be 20dp, got ${width}dp"
+        }
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_widthIn_dp() {
+        testRemoteDpWidthIn(RemoteDensityBehavior.Dp)
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_widthIn_pixels() {
+        testRemoteDpWidthIn(RemoteDensityBehavior.Pixels)
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_widthIn_legacy() {
+        testRemoteDpWidthIn(RemoteDensityBehavior.Legacy)
+    }
+
+    private fun testRemoteDpHeightIn(densityBehavior: RemoteDensityBehavior) {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val document = runBlocking {
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo =
+                    RemoteCreationDisplayInfo(
+                        width = 300,
+                        height = 300,
+                        densityDpi = 320,
+                        fontScale = 1f,
+                        densityBehavior = densityBehavior,
+                    ),
+                content = {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.heightIn(min = 20.rdp, max = 80.rdp).semantics {
+                                contentDescription = "box".rs
+                            }
+                    )
+                },
+            )
+        }
+        val height = heightInDp(document)
+        assert(abs(height - 20f) < 1f) {
+            "Behavior $densityBehavior with 20.rdp min heightIn should be 20dp, got ${height}dp"
+        }
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_heightIn_dp() {
+        testRemoteDpHeightIn(RemoteDensityBehavior.Dp)
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_heightIn_pixels() {
+        testRemoteDpHeightIn(RemoteDensityBehavior.Pixels)
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_heightIn_legacy() {
+        testRemoteDpHeightIn(RemoteDensityBehavior.Legacy)
+    }
+
+    private fun testRemoteDpOffset(densityBehavior: RemoteDensityBehavior) {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val document = runBlocking {
+            captureRule.captureDocument(
+                context = context,
+                creationDisplayInfo =
+                    RemoteCreationDisplayInfo(
+                        width = 300,
+                        height = 300,
+                        densityDpi = 320,
+                        fontScale = 1f,
+                        densityBehavior = densityBehavior,
+                    ),
+                content = {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.size(20.rdp).offset(x = 16.rdp, y = 16.rdp).semantics {
+                                contentDescription = "box".rs
+                            }
+                    )
+                },
+            )
+        }
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(renderDensity, 1f)) {
+                Box(modifier = Modifier) { RcPlayer(document = document) }
+            }
+        }
+        rule.waitForIdle()
+        val left = rule.onNodeWithContentDescription("box").getUnclippedBoundsInRoot().left.value
+        assert(abs(left - 16f) < 1f) {
+            "Behavior $densityBehavior with 16.rdp offset should be 16dp, got ${left}dp"
+        }
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_offset_dp() {
+        testRemoteDpOffset(RemoteDensityBehavior.Dp)
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_offset_pixels() {
+        testRemoteDpOffset(RemoteDensityBehavior.Pixels)
+    }
+
+    @Test
+    fun authoringWithRemoteDpProducesConsistentResult_offset_legacy() {
+        testRemoteDpOffset(RemoteDensityBehavior.Legacy)
     }
 }

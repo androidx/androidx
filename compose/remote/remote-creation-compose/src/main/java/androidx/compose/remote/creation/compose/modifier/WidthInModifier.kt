@@ -17,25 +17,26 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.remote.creation.modifiers.WidthInModifier as CreationWidthInModifier
 
 internal class WidthInModifier(val min: RemoteDp? = null, val max: RemoteDp? = null) :
     RemoteModifier.Element {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
+        val isPixels = densityBehavior == RemoteDensityBehavior.Pixels
         var minValue = 0f
         var maxValue = Float.MAX_VALUE
         if (min != null) {
-            // specified in Dp values
-            minValue = min.value.floatId
+            minValue = if (isPixels) min.toPx().floatId else min.value.floatId
         }
         if (max != null) {
-            // specified in Dp values
-            maxValue = max.value.floatId
+            maxValue = if (isPixels) max.toPx().floatId else max.value.floatId
         }
-        return androidx.compose.remote.creation.modifiers.WidthInModifier(minValue, maxValue)
+        return CreationWidthInModifier(minValue, maxValue)
     }
 }
 

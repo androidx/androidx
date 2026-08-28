@@ -17,12 +17,14 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.shapes.toDimension
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.min
 import androidx.compose.remote.creation.modifiers.ClipModifier as CoreClipModifier
@@ -41,7 +43,12 @@ public class ClipModifier(public val shape: RemoteShape = RemoteRectangleShape) 
                 RemoteCircleShape -> {
                     val context = RemoteFloatContext(this)
                     val remoteSize = RemoteSize(context.componentWidth(), context.componentHeight())
-                    val radius = min(remoteSize.width, remoteSize.height).div(2f)
+                    val radius =
+                        if (densityBehavior == RemoteDensityBehavior.Dp) {
+                            min(remoteSize.width, remoteSize.height) / remoteDensity.density / 2f
+                        } else {
+                            min(remoteSize.width, remoteSize.height) / 2f
+                        }
                     CoreRoundedRectShape(
                         radius.floatId,
                         radius.floatId,
@@ -55,16 +62,16 @@ public class ClipModifier(public val shape: RemoteShape = RemoteRectangleShape) 
                     val isRtl = layoutDirection == LayoutDirection.Rtl
                     CoreRoundedRectShape(
                         (if (isRtl) shape.topEnd else shape.topStart)
-                            .toPx(remoteSize, remoteDensity)
+                            .toDimension(remoteSize, remoteDensity, densityBehavior)
                             .floatId,
                         (if (isRtl) shape.topStart else shape.topEnd)
-                            .toPx(remoteSize, remoteDensity)
+                            .toDimension(remoteSize, remoteDensity, densityBehavior)
                             .floatId,
                         (if (isRtl) shape.bottomEnd else shape.bottomStart)
-                            .toPx(remoteSize, remoteDensity)
+                            .toDimension(remoteSize, remoteDensity, densityBehavior)
                             .floatId,
                         (if (isRtl) shape.bottomStart else shape.bottomEnd)
-                            .toPx(remoteSize, remoteDensity)
+                            .toDimension(remoteSize, remoteDensity, densityBehavior)
                             .floatId,
                     )
                 }
