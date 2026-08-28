@@ -91,3 +91,19 @@ fun RemoteEdgeButtonFilledTonalSample(modifier: RemoteModifier = RemoteModifier)
         RemoteText("Filled Tonal".rs)
     }
 }
+
+@Sampled
+@Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+fun RemoteEdgeButtonMultiLineSample(modifier: RemoteModifier = RemoteModifier) {
+    val tapCount = rememberMutableRemoteInt(0)
+
+    RemoteEdgeButton(
+        onClick = valueChange(tapCount, tapCount + 1),
+        modifier = modifier,
+        buttonSize = RemoteEdgeButtonSize.Large,
+    ) {
+        RemoteText("Longer multi-line\nShort label".rs)
+    }
+}
