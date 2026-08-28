@@ -110,7 +110,7 @@ class PdfViewerFragmentExternalInputTest {
 
         // Enable find in file and verify PdfSearchView is visible
         scenario.onFragment { it.isTextSearchActive = true }
-        onView(withId(PdfR.id.pdfSearchView)).check { view, _ -> matches(isDisplayed()) }
+        onView(withId(PdfR.id.pdfSearchView)).check { _, _ -> matches(isDisplayed()) }
 
         // Perform a Esc key press on any view in the PdfSearchView.
         onView(withId(androidx.pdf.R.id.searchQueryBox))

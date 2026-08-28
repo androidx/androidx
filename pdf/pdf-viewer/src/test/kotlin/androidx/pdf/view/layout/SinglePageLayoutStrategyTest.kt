@@ -178,7 +178,6 @@ class SinglePageLayoutStrategyTest {
         singlePageLayoutStrategy.setPagePositions(0, pageSize)
         singlePageLayoutStrategy.setPagePositions(1, pageSize)
         singlePageLayoutStrategy.setPagePositions(2, pageSize)
-        val contentBottom = 200 * 3 + 10 * 5
 
         val visiblePages =
             singlePageLayoutStrategy.getVisiblePages(RectF(0f, 660f, 100f, 750f), true)

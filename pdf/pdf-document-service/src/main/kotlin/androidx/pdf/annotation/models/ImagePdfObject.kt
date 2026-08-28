@@ -66,7 +66,7 @@ internal class ImagePdfObject(val bitmap: Bitmap, val bounds: RectF) : PdfObject
         val CREATOR: Parcelable.Creator<ImagePdfObject> =
             object : Parcelable.Creator<ImagePdfObject> {
                 override fun createFromParcel(parcel: Parcel): ImagePdfObject {
-                    val type = parcel.readInt()
+                    parcel.readInt()
                     return ImagePdfObject(parcel)
                 }
 

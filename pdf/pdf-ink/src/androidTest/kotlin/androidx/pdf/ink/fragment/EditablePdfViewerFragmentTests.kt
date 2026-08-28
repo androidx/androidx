@@ -385,7 +385,7 @@ class EditablePdfViewerFragmentTests {
         loadDocumentAndSetupFragment()
         enterEditMode()
 
-        var firstVisiblePage: Int
+        val firstVisiblePage: Int
         var pdfView: PdfView? = null
 
         // Enable search on fragment

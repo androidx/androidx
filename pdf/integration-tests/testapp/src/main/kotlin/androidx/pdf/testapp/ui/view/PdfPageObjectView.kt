@@ -80,7 +80,7 @@ public class PdfPageObjectView(context: Context?, attrs: AttributeSet?) : View(c
                 canvasPath.moveTo(xPos, yPos)
                 canvasPathList.add(canvasPath)
 
-                var pdfPath = Path()
+                val pdfPath = Path()
                 val xcontentFactor = mBitmap!!.width / width.toFloat()
                 val ycontentFactor =
                     mBitmap!!.height / (height - paddingTop - paddingBottom).toFloat()

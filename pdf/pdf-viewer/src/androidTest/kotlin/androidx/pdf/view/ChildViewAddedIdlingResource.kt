@@ -33,7 +33,7 @@ class ChildViewAddedIdlingResource(
     private var resourceCallback: IdlingResource.ResourceCallback? = null
     private val isIdle = AtomicBoolean(false)
 
-    override fun getName(): String = "${ChildViewAddedIdlingResource::class.java.simpleName}"
+    override fun getName(): String = ChildViewAddedIdlingResource::class.java.simpleName
 
     override fun isIdleNow(): Boolean {
         if (isIdle.get()) return true

@@ -88,7 +88,7 @@ class PdfDocumentAnnotationsRepositoryTest {
 
         val result1 = repository.getAnnotationsForPage(0)
         val result2 = repository.getAnnotationsForPage(0)
-        val result3 = repository.getAnnotationsForPage(0)
+        repository.getAnnotationsForPage(0)
 
         assertThat(result1).isEqualTo(page0Annotations)
         assertThat(result2).isEqualTo(page0Annotations)
