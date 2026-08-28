@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.vector.RemotePathNode
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.AddArc
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.ArcTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.Close
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.ConicTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.CurveTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.HorizontalTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.LineTo
@@ -42,6 +43,7 @@ import androidx.compose.remote.creation.compose.vector.RemotePathNode.QuadTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.ReflectiveCurveTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.ReflectiveQuadTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeArcTo
+import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeConicTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeCurveTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeHorizontalTo
 import androidx.compose.remote.creation.compose.vector.RemotePathNode.RelativeLineTo
@@ -271,6 +273,22 @@ internal fun List<RemotePathNode>.toRemotePath(
                     ctrlY = reflectiveCtrlY
                     currentX = node.x
                     currentY = node.y
+                }
+
+                is RelativeConicTo -> {
+                    target.rConicTo(node.dx1, node.dy1, node.dx2, node.dy2, node.weight)
+                    ctrlX = currentX + node.dx1
+                    ctrlY = currentY + node.dy1
+                    currentX += node.dx2
+                    currentY += node.dy2
+                }
+
+                is ConicTo -> {
+                    target.conicTo(node.x1, node.y1, node.x2, node.y2, node.weight)
+                    ctrlX = node.x1
+                    ctrlY = node.y1
+                    currentX = node.x2
+                    currentY = node.y2
                 }
 
                 is RelativeArcTo -> {
