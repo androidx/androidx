@@ -64,6 +64,7 @@ class A2uiBasicCatalogV1Test {
         val tabs = TestTabsComponent()
         val divider = TestDividerComponent()
         val button = TestButtonComponent()
+        val checkBox = TestCheckBoxComponent()
         val dateTimeInput = TestDateTimeInputComponent()
         val catalog =
             createTestBasicCatalog(
@@ -77,6 +78,7 @@ class A2uiBasicCatalogV1Test {
                 tabs = tabs,
                 divider = divider,
                 button = button,
+                checkBox = checkBox,
                 dateTimeInput = dateTimeInput,
                 functions = listOf(A2uiFormatStringFunction.INSTANCE),
             )
@@ -91,6 +93,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.tabs).isSameInstanceAs(tabs)
         assertThat(catalog.divider).isSameInstanceAs(divider)
         assertThat(catalog.button).isSameInstanceAs(button)
+        assertThat(catalog.checkBox).isSameInstanceAs(checkBox)
         assertThat(catalog.dateTimeInput).isSameInstanceAs(dateTimeInput)
         assertThat(catalog.components)
             .containsExactly(
@@ -104,6 +107,7 @@ class A2uiBasicCatalogV1Test {
                 tabs,
                 divider,
                 button,
+                checkBox,
                 dateTimeInput,
             )
         assertThat(catalog.functions).containsExactly(A2uiFormatStringFunction.INSTANCE)
@@ -121,6 +125,7 @@ class A2uiBasicCatalogV1Test {
         val tabs = TestTabsComponent()
         val divider = TestDividerComponent()
         val button = TestButtonComponent()
+        val checkBox = TestCheckBoxComponent()
         val dateTimeInput = TestDateTimeInputComponent()
         val catalog1 =
             createTestBasicCatalog(
@@ -134,6 +139,7 @@ class A2uiBasicCatalogV1Test {
                 tabs = tabs,
                 divider = divider,
                 button = button,
+                checkBox = checkBox,
                 dateTimeInput = dateTimeInput,
             )
         val catalog2 =
@@ -148,6 +154,7 @@ class A2uiBasicCatalogV1Test {
                 tabs = tabs,
                 divider = divider,
                 button = button,
+                checkBox = checkBox,
                 dateTimeInput = dateTimeInput,
             )
 
@@ -168,6 +175,7 @@ class A2uiBasicCatalogV1Test {
         val sharedTabs = TestTabsComponent()
         val sharedDivider = TestDividerComponent()
         val sharedButton = TestButtonComponent()
+        val sharedCheckBox = TestCheckBoxComponent()
         val sharedDateTimeInput = TestDateTimeInputComponent()
         val catalog1 =
             createTestBasicCatalog(
@@ -181,6 +189,7 @@ class A2uiBasicCatalogV1Test {
                 tabs = sharedTabs,
                 divider = sharedDivider,
                 button = sharedButton,
+                checkBox = sharedCheckBox,
                 dateTimeInput = sharedDateTimeInput,
             )
         val catalog2 =
@@ -195,6 +204,7 @@ class A2uiBasicCatalogV1Test {
                 tabs = sharedTabs,
                 divider = sharedDivider,
                 button = sharedButton,
+                checkBox = sharedCheckBox,
                 dateTimeInput = sharedDateTimeInput,
             )
 
@@ -210,7 +220,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.toString()).contains("themeSchema=${A2uiBasicCatalogV1.ThemeSchema}")
         assertThat(catalog.toString())
             .containsMatch(
-                "components=.*Text.*Image.*Icon.*Card.*Row.*Column.*List.*Tabs.*Divider.*Button.*DateTimeInput"
+                "components=.*Text.*Image.*Icon.*Card.*Row.*Column.*List.*Tabs.*Divider.*Button.*CheckBox.*DateTimeInput"
             )
         assertThat(catalog.toString()).contains("functions=[]")
     }
@@ -226,6 +236,7 @@ class A2uiBasicCatalogV1Test {
         tabs: A2uiBasicCatalogV1.Tabs = TestTabsComponent(),
         divider: A2uiBasicCatalogV1.Divider = TestDividerComponent(),
         button: A2uiBasicCatalogV1.Button = TestButtonComponent(),
+        checkBox: A2uiBasicCatalogV1.CheckBox = TestCheckBoxComponent(),
         dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = TestDateTimeInputComponent(),
         functions: List<A2uiFunction> = emptyList(),
     ) =
@@ -241,6 +252,7 @@ class A2uiBasicCatalogV1Test {
             divider = divider,
             button = button,
             dateTimeInput = dateTimeInput,
+            checkBox = checkBox,
             functions = functions,
         )
 
@@ -330,6 +342,17 @@ class A2uiBasicCatalogV1Test {
             childId: String,
             variant: A2uiBasicCatalogV1.Button.Variant,
             action: Map<String, Any?>,
+            modifier: Modifier,
+        ) {}
+    }
+
+    private class TestCheckBoxComponent : A2uiBasicCatalogV1.CheckBox {
+        @Composable
+        override fun A2uiComponentScope.TypedContent(
+            label: String,
+            value: Boolean,
+            onValueChange: (Boolean) -> Unit,
+            enabled: Boolean,
             modifier: Modifier,
         ) {}
     }
