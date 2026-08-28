@@ -60,6 +60,11 @@ package androidx.compose.remote.creation.compose.capture {
     property public androidx.collection.IntObjectMap<android.app.PendingIntent> pendingIntents;
   }
 
+  public final class ProfileKt {
+    method public static androidx.compose.remote.creation.profile.Profile createProfile(optional int docApiLevel, optional int profileFlags, optional androidx.collection.IntSet? supportedOperations);
+    method @BytecodeOnly public static androidx.compose.remote.creation.profile.Profile! createProfile$default(int, int, androidx.collection.IntSet!, int, Object!);
+  }
+
   public final class RemoteCreationDisplayInfo {
     ctor @BytecodeOnly public RemoteCreationDisplayInfo(long, androidx.compose.ui.unit.Density!, boolean, androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();

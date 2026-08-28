@@ -90,7 +90,7 @@ class CaptureRemoteDocumentTest {
                 add(Operations.DRAW_TEXT_ON_CIRCLE)
             }
             val customProfile =
-                createCustomProfile(
+                createProfile(
                     profileFlags = RcProfiles.PROFILE_ANDROID_NATIVE,
                     supportedOperations = customOps,
                 )
