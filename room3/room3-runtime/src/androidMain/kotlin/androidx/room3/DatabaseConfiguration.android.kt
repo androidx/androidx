@@ -19,10 +19,12 @@ import android.content.Context
 import android.content.Intent
 import androidx.annotation.RestrictTo
 import androidx.room3.autoclose.AutoCloserConfig
+import androidx.room3.coroutines.DEFAULT_CONNECTION_POOL_TIMEOUT
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.prepackage.PrePackagedCopyConfig
 import androidx.sqlite.SQLiteDriver
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
 
 /** Configuration class for a [RoomDatabase]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -104,6 +106,9 @@ constructor(
      * If 0 then cache is to be unused.
      */
     internal var preparedStatementCacheSize = 25
+
+    /* The connection pool timeout. */
+    internal actual var connectionPoolTimeout: Duration = DEFAULT_CONNECTION_POOL_TIMEOUT
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun copy(

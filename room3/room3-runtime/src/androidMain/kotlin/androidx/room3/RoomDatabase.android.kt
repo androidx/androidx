@@ -31,6 +31,7 @@ import androidx.room3.autoclose.AutoCloser
 import androidx.room3.autoclose.AutoCloserConfig
 import androidx.room3.autoclose.AutoClosingSQLiteDriver
 import androidx.room3.concurrent.CloseBarrier
+import androidx.room3.coroutines.DEFAULT_CONNECTION_POOL_TIMEOUT
 import androidx.room3.coroutines.TransactionElement
 import androidx.room3.coroutines.withTransactionContext
 import androidx.room3.migration.AutoMigrationSpec
@@ -54,6 +55,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.reflect.KClass
+import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -572,6 +574,7 @@ public actual abstract class RoomDatabase actual constructor() {
         private var driver: SQLiteDriver? = null
         private var queryCoroutineContext: CoroutineContext? = null
         private var connectionPoolConfiguration: ConnectionPoolConfiguration? = null
+        private var connectionPoolTimeout: Duration = DEFAULT_CONNECTION_POOL_TIMEOUT
 
         private var inMemoryTrackingTableMode = true
 
@@ -1163,6 +1166,24 @@ public actual abstract class RoomDatabase actual constructor() {
         }
 
         /**
+         * Sets the timeout [Duration] to wait when acquiring a connection from the
+         * [androidx.room3.coroutines.ConnectionPool] before timing out and throwing an
+         * [androidx.sqlite.SQLiteException].
+         *
+         * Defaults to `30.seconds`.
+         *
+         * @param timeout The maximum duration to wait for a connection. Must be positive.
+         * @return This builder instance.
+         * @throws IllegalArgumentException if [timeout] is not positive.
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        @JvmName("setConnectionPoolTimeout")
+        public actual fun setConnectionPoolTimeout(timeout: Duration): Builder<T> = apply {
+            require(timeout.isPositive()) { "Timeout must be positive" }
+            this.connectionPoolTimeout = timeout
+        }
+
+        /**
          * Creates the databases and initializes it.
          *
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
@@ -1252,6 +1273,7 @@ public actual abstract class RoomDatabase actual constructor() {
                         this.useTempTrackingTable = inMemoryTrackingTableMode
                         this.copyFromConfig = copyFromConfig
                         this.autoCloseConfig = autoCloseConfig
+                        this.connectionPoolTimeout = this@Builder.connectionPoolTimeout
                     }
             val db = factory?.invoke() ?: findAndInstantiateDatabaseImpl(klass.java)
             db.init(configuration)
