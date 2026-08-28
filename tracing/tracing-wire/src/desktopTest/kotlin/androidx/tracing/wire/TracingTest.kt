@@ -472,8 +472,14 @@ class TracingTest {
 
     @Test
     internal fun validateDroppedPackets() {
+        val dispatcher = StandardTestDispatcher()
         val output = ByteArrayOutputStream()
-        val sink = TraceSink(sequenceId = 1, sinkProvider = { output.sink().buffer() })
+        val sink =
+            TraceSink(
+                sequenceId = 1,
+                sinkProvider = { output.sink().buffer() },
+                coroutineContext = dispatcher,
+            )
         val driver = TraceDriver(sink = sink, isGloballyEnabled = true)
         // Create the Tracer
         val tracer = driver.tracer

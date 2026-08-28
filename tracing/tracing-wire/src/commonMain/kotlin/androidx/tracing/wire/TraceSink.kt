@@ -26,10 +26,10 @@ import com.squareup.wire.ProtoWriter
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.createCoroutine
 import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
+import kotlin.coroutines.intrinsics.createCoroutineUnintercepted
+import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -130,7 +130,7 @@ public class TraceSink(
                     while (true) {
                         drainQueue()
                         // Set drainRequested to false on completion
-                        suspendCoroutine { continuation ->
+                        suspendCoroutineUninterceptedOrReturn { continuation ->
                             synchronized(drainLock) {
                                 drainRequested = false
                                 resumeDrain = continuation
@@ -139,9 +139,7 @@ public class TraceSink(
                         }
                     }
                 }
-                // Use an intercepted coroutine so we actually always do work on the
-                // designated dispatcher.
-                .createCoroutine(Continuation(context = coroutineContext) {})
+                .createCoroutineUnintercepted(Continuation(context = coroutineContext) {})
 
         // Kick things off and suspend
         makeDrainRequest()
