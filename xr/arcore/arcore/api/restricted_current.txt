@@ -697,6 +697,98 @@ package androidx.xr.arcore {
     property public androidx.xr.runtime.math.Pose pose;
   }
 
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public final class SpatialAnnotation implements androidx.xr.arcore.Trackable<androidx.xr.arcore.SpatialAnnotation.State> {
+    method @InaccessibleFromKotlin public androidx.xr.arcore.SpatialAnnotationId getId();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.SpatialAnnotationQuadAlignment? getQuadAlignment();
+    method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.SpatialAnnotation.State> getState();
+    method public static void startTracking(androidx.xr.runtime.Session session, androidx.xr.arcore.SpatialAnnotationTrackingOptions options);
+    method public static void stopTracking(androidx.xr.runtime.Session session, java.util.List<androidx.xr.arcore.SpatialAnnotationId> ids);
+    method public static void stopTrackingAllAnnotations(androidx.xr.runtime.Session session);
+    method public static kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.xr.arcore.SpatialAnnotation>> subscribe(androidx.xr.runtime.Session session);
+    property public androidx.xr.arcore.SpatialAnnotationId id;
+    property public androidx.xr.arcore.SpatialAnnotationQuadAlignment? quadAlignment;
+    property public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.SpatialAnnotation.State> state;
+    field public static final androidx.xr.arcore.SpatialAnnotation.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotation.Companion {
+    method public void startTracking(androidx.xr.runtime.Session session, androidx.xr.arcore.SpatialAnnotationTrackingOptions options);
+    method public void stopTracking(androidx.xr.runtime.Session session, java.util.List<androidx.xr.arcore.SpatialAnnotationId> ids);
+    method public void stopTrackingAllAnnotations(androidx.xr.runtime.Session session);
+    method public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.xr.arcore.SpatialAnnotation>> subscribe(androidx.xr.runtime.Session session);
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotation.State implements androidx.xr.arcore.Trackable.State {
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getCenterPose();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.SpatialAnnotation getOwner();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.Quad? getQuad();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.TrackingState getTrackingState();
+    property public androidx.xr.runtime.math.Pose centerPose;
+    property public androidx.xr.arcore.SpatialAnnotation owner;
+    property public androidx.xr.runtime.math.Quad? quad;
+    property public androidx.xr.arcore.TrackingState trackingState;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public final class SpatialAnnotationId {
+    method public static androidx.xr.arcore.SpatialAnnotationId fromString(String value);
+    field public static final androidx.xr.arcore.SpatialAnnotationId.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotationId.Companion {
+    method public androidx.xr.arcore.SpatialAnnotationId fromString(String value);
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public final class SpatialAnnotationImageFormat {
+    field public static final androidx.xr.arcore.SpatialAnnotationImageFormat.Companion Companion;
+    field public static final androidx.xr.arcore.SpatialAnnotationImageFormat GRAYSCALE;
+    field public static final androidx.xr.arcore.SpatialAnnotationImageFormat RGBA;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotationImageFormat.Companion {
+    property public androidx.xr.arcore.SpatialAnnotationImageFormat GRAYSCALE;
+    property public androidx.xr.arcore.SpatialAnnotationImageFormat RGBA;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public final class SpatialAnnotationQuadAlignment {
+    field public static final androidx.xr.arcore.SpatialAnnotationQuadAlignment.Companion Companion;
+    field public static final androidx.xr.arcore.SpatialAnnotationQuadAlignment OBJECT;
+    field public static final androidx.xr.arcore.SpatialAnnotationQuadAlignment SCREEN;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotationQuadAlignment.Companion {
+    property public androidx.xr.arcore.SpatialAnnotationQuadAlignment OBJECT;
+    property public androidx.xr.arcore.SpatialAnnotationQuadAlignment SCREEN;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public final class SpatialAnnotationTrackingOptions {
+    method @InaccessibleFromKotlin public androidx.xr.arcore.SpatialAnnotationQuadAlignment getAlignment();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.SpatialAnnotationImageFormat getFormat();
+    method @InaccessibleFromKotlin public java.nio.ByteBuffer getImageBuffer();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.IntSize2d getImageSize();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.xr.arcore.SpatialAnnotationId,androidx.xr.runtime.math.Quad> getQuads();
+    method @InaccessibleFromKotlin public int getRowStride();
+    method @InaccessibleFromKotlin public long getTimestampNanos();
+    property public androidx.xr.arcore.SpatialAnnotationQuadAlignment alignment;
+    property public androidx.xr.arcore.SpatialAnnotationImageFormat format;
+    property public java.nio.ByteBuffer imageBuffer;
+    property public androidx.xr.runtime.math.IntSize2d imageSize;
+    property public java.util.Map<androidx.xr.arcore.SpatialAnnotationId,androidx.xr.runtime.math.Quad> quads;
+    property public int rowStride;
+    property public long timestampNanos;
+  }
+
+  @SuppressCompatibility @androidx.xr.runtime.ExperimentalSpatialAnnotationsApi public static final class SpatialAnnotationTrackingOptions.Builder {
+    ctor public SpatialAnnotationTrackingOptions.Builder(java.nio.ByteBuffer imageBuffer, androidx.xr.runtime.math.IntSize2d imageSize, long timestampNanos);
+    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions build();
+    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setAlignment(androidx.xr.arcore.SpatialAnnotationQuadAlignment alignment);
+    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setFormat(androidx.xr.arcore.SpatialAnnotationImageFormat format);
+    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setImageBuffer(java.nio.ByteBuffer imageBuffer);
+    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setImageSize(androidx.xr.runtime.math.IntSize2d imageSize);
+    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setQuads(java.util.Map<androidx.xr.arcore.SpatialAnnotationId,androidx.xr.runtime.math.Quad> quads);
+    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setRowStride(int rowStride);
+    method public androidx.xr.arcore.SpatialAnnotationTrackingOptions.Builder setTimestampNanos(long timestampNanos);
+  }
+
   @SuppressCompatibility @androidx.xr.arcore.ExperimentalGesturesApi public final class Tilt {
     field public static final androidx.xr.arcore.Tilt.Companion Companion;
     field public static final androidx.xr.arcore.Tilt DOWN;

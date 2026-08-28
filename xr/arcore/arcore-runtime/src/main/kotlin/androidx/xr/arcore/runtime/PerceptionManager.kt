@@ -110,8 +110,8 @@ public interface PerceptionManager {
      * @param format the format of the input image
      * @param alignment the requested tracking alignment
      * @param quads a map of SpatialAnnotationIds to bounding quads
-     * @param timestampNanos the system timestamp of the input image in nanoseconds, according to
-     *   [android.os.SystemClock.uptimeMillis] (typically provided via [System.nanoTime])
+     * @param timestampNanos the system timestamp of the input image in nanoseconds (typically
+     *   provided via [System.nanoTime])
      * @throws [UnsupportedOperationException] if the current runtime does not support spatial
      *   annotation tracking
      * @throws [IllegalArgumentException] if any of the provided [quads] violate the geometric
@@ -134,7 +134,7 @@ public interface PerceptionManager {
      * Tells the engine to stop tracking specific SpatialAnnotations by ID. If no IDs are provided,
      * all SpatialAnnotations will be stopped.
      *
-     * @param ids The list of unique SpatialAnnotationIds to stop tracking.
+     * @param ids the list of unique SpatialAnnotationIds to stop tracking
      */
     public fun stopSpatialAnnotationTracking(ids: List<SpatialAnnotationId>) {
         throw UnsupportedOperationException()

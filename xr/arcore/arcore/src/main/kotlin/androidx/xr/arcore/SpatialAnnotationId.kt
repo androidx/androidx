@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.xr.arcore.runtime
+package androidx.xr.arcore
 
-import androidx.annotation.RestrictTo
+import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 
-/**
- * A unique identifier for a spatial annotation.
- *
- * @param value the string value of the spatial annotation id
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+/** A strongly-typed identifier mapped to a requested [SpatialAnnotation]. */
+@ExperimentalSpatialAnnotationsApi
 public class SpatialAnnotationId private constructor(private val value: String) {
-
-    init {
-        require(value.isNotEmpty()) { "SpatialAnnotationId value must not be empty." }
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -42,13 +34,15 @@ public class SpatialAnnotationId private constructor(private val value: String) 
 
     public companion object {
         /**
-         * Creates a [SpatialAnnotationId] from the provided string.
+         * Creates a [SpatialAnnotationId] from a string.
          *
-         * @param value the string value of the spatial annotation id
-         * @return a new [SpatialAnnotationId] instance wrapping the value
+         * @param value the string value of the [SpatialAnnotationId]
+         * @return a [SpatialAnnotationId] with the given value
+         * @throws IllegalArgumentException if the value is empty
          */
         @JvmStatic
         public fun fromString(value: String): SpatialAnnotationId {
+            require(value.isNotEmpty()) { "SpatialAnnotationId value must not be empty." }
             return SpatialAnnotationId(value)
         }
     }
