@@ -237,13 +237,13 @@ class TopicsManagerTest {
             // Set up the response that TopicsManager will return when the compat code calls it.
             val topic1 = Topic(1, 1, 1)
             val topic2 = Topic(2, 2, 2)
-            var encryptedTopic1 =
+            val encryptedTopic1 =
                 EncryptedTopic(
                     "encryptedTopic1".toByteArray(),
                     "publicKey1",
                     "encapsulatedKey1".toByteArray(),
                 )
-            var encryptedTopic2 =
+            val encryptedTopic2 =
                 EncryptedTopic(
                     "encryptedTopic2".toByteArray(),
                     "publicKey2",

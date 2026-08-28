@@ -65,7 +65,7 @@ class FetchAndJoinCustomAudienceRequestTest {
                 expirationTime,
                 userBiddingSignals,
             )
-        var fetchAndJoinCustomAudienceRequest2 =
+        val fetchAndJoinCustomAudienceRequest2 =
             FetchAndJoinCustomAudienceRequest(
                 Uri.parse("abc.com"),
                 "abc",

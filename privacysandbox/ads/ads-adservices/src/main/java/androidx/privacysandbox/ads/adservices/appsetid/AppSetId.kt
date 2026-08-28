@@ -47,7 +47,7 @@ public class AppSetId public constructor(public val id: String, public val scope
     }
 
     override fun toString(): String {
-        var scopeStr = if (scope == 1) "SCOPE_APP" else "SCOPE_DEVELOPER"
+        val scopeStr = if (scope == 1) "SCOPE_APP" else "SCOPE_DEVELOPER"
         return "AppSetId: id=$id, scope=$scopeStr"
     }
 

@@ -32,7 +32,7 @@ class EncryptedTopicTest {
         val result =
             "EncryptedTopic { EncryptedTopic=encryptedTopic1, KeyIdentifier=publicKey1," +
                 " EncapsulatedKey=encapsulatedKey1 }"
-        var encryptedTopic =
+        val encryptedTopic =
             EncryptedTopic(
                 "encryptedTopic1".toByteArray(),
                 "publicKey1",
@@ -43,13 +43,13 @@ class EncryptedTopicTest {
 
     @Test
     fun testEquals() {
-        var encryptedTopic1 =
+        val encryptedTopic1 =
             EncryptedTopic(
                 "encryptedTopic".toByteArray(),
                 "publicKey",
                 "encapsulatedKey".toByteArray(),
             )
-        var encryptedTopic2 =
+        val encryptedTopic2 =
             EncryptedTopic(
                 "encryptedTopic".toByteArray(),
                 "publicKey",
