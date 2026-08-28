@@ -73,13 +73,34 @@ public abstract class FollowMode internal constructor() {
         /**
          * Creates a mode where the content smoothly animates to follow the target's movements.
          *
-         * This mode is driven by a critically damped spring physics model, which uses exponential
-         * decay to smoothly decelerate the trailing entity as it approaches the target. The entity
-         * will accelerate to catch up and then decelerate without overshoot, simulating real-world
-         * physical inertia.
+         * This mode is driven by a first-order exponential decay model, which smoothly decelerates
+         * the trailing entity as it approaches the target.
          *
-         * The use of this spring/exponential decay model is not optional, but the total duration of
-         * the motion can be configured via [durationMs].
+         * @param dimensions A set of boolean flags which determine the dimensions of movement that
+         *   are tracked. Defaults to [TrackedDimensions.All].
+         * @param halfLifeMs Time in milliseconds it takes for the content to cover half the
+         *   distance to the target. Defaults to [SoftFollowMode.DEFAULT_HALF_LIFE_MS].
+         * @param startDelay Time in milliseconds to wait before starting the follow movement.
+         *   Defaults to [SoftFollowMode.DEFAULT_START_DELAY].
+         * @param startThresholds A set of thresholds that must be exceeded before movement starts.
+         *   Defaults to [SoftFollowMode.DEFAULT_START_THRESHOLDS].
+         * @return A [FollowMode] instance configured for soft following.
+         */
+        public fun soft(
+            dimensions: TrackedDimensions = TrackedDimensions.All,
+            @IntRange(from = 1) halfLifeMs: Long = SoftFollowMode.DEFAULT_HALF_LIFE_MS,
+            @IntRange(from = 0) startDelay: Long = SoftFollowMode.DEFAULT_START_DELAY,
+            startThresholds: FollowThresholds = SoftFollowMode.DEFAULT_START_THRESHOLDS,
+        ): FollowMode =
+            SoftFollowMode(
+                dimensions = dimensions,
+                halfLifeMs = halfLifeMs,
+                startDelay = startDelay,
+                startThresholds = startThresholds,
+            )
+
+        /**
+         * Creates a mode where the content smoothly animates to follow the target's movements.
          *
          * @param durationMs Amount of milliseconds it takes for the content to catch up to the
          *   user.
@@ -87,10 +108,16 @@ public abstract class FollowMode internal constructor() {
          *   are tracked. By default, all dimensions are tracked.
          * @return A [FollowMode] instance configured for soft following.
          */
+        @Deprecated(
+            message =
+                "durationMs is deprecated as follow motion is now based on exponential decay. " +
+                    "Use halfLifeMs instead.",
+            replaceWith = ReplaceWith("FollowMode.soft(dimensions = dimensions)"),
+        )
         public fun soft(
-            @IntRange(from = 100) durationMs: Int = DEFAULT_SOFT_DURATION_MS,
+            @IntRange(from = 100) durationMs: Int,
             dimensions: TrackedDimensions = TrackedDimensions.All,
-        ): FollowMode = SoftFollowMode(durationMs = durationMs, dimensions = dimensions)
+        ): FollowMode = soft(dimensions = dimensions)
 
         /**
          * Creates a mode where the content animates to follow the target's movements using an
