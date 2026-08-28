@@ -66,4 +66,6 @@ sealed class Screen(val route: String) {
     object RemoteSplitCheckboxButtonDemosScreen : Screen("remoteSplitCheckboxButtonDemosScreen")
 
     object RemoteSplitRadioButtonDemosScreen : Screen("remoteSplitRadioButtonDemosScreen")
+
+    object RemoteSplitSwitchButtonDemosScreen : Screen("remoteSplitSwitchButtonDemosScreen")
 }

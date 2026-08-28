@@ -160,6 +160,14 @@ fun MainScreen(
                 }
                 item {
                     MenuButton(
+                        "RemoteSplitSwitchButton",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteSplitSwitchButtonDemosScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
                         "RemoteIcon",
                         onClick = { navigateToRoute(Screen.RemoteIconDemosScreen.route) },
                     )
