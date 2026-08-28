@@ -55,8 +55,7 @@ androidXMultiplatform {
             implementation(project(":compose:ui:ui-util"))
 
             // TODO: Pin androidx.collection when SieveCache is available
-            // implementation("androidx.collection:collection:1.4.2")
-            implementation("androidx.collection:collection:1.5.0")
+            implementation("androidx.collection:collection:1.6.0")
         }
 
         androidMain.dependencies {

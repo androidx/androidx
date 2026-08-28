@@ -40,7 +40,7 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("androidx.collection:collection:1.4.3")
+            implementation("androidx.collection:collection:1.6.0")
             implementation(project(":compose:runtime:runtime"))
         }
 

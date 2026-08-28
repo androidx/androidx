@@ -44,7 +44,7 @@ androidXMultiplatform {
             api(project(":compose:ui:ui"))
             implementation(project(":compose:runtime:runtime"))
             implementation("androidx.compose.ui:ui-util:1.10.0")
-            implementation("androidx.collection:collection:1.5.0")
+            implementation("androidx.collection:collection:1.6.0")
             implementation("androidx.compose.ui:ui-unit:1.10.0")
         }
 
