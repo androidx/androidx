@@ -14,20 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.xr.compose.material3
+package androidx.xr.scenecore.spatial.core
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
-import org.robolectric.Shadows.shadowOf
+import android.view.SurfaceControlViewHost
+import android.view.View
+import org.robolectric.annotation.Implementation
+import org.robolectric.annotation.Implements
 
-/**
- * Custom test class that should be used for testing
- * [androidx.xr.compose.subspace.SubspaceComposable] content.
- */
-class SubspaceTestingActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        shadowOf(packageManager).setSystemFeature(FEATURE_XR_API_SPATIAL, true)
+@Implements(SurfaceControlViewHost::class)
+class ShadowSurfaceControlViewHost {
+    private var _view: View? = null
+
+    @Implementation
+    fun setView(view: View, width: Int, height: Int) {
+        _view = view
+    }
+
+    @Implementation fun getView(): View? = _view
+
+    @Implementation fun relayout(width: Int, height: Int) {}
+
+    @Implementation
+    fun release() {
+        _view = null
     }
 }
