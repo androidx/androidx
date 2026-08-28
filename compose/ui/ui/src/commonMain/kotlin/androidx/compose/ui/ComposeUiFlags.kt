@@ -183,4 +183,10 @@ public object ComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isVectorDrawCacheSharingEnabled: Boolean = true
+
+    /** Guard for Hardware Navigation system default behavior in Compose. */
+    // TODO(b/520209822): Cleanup once proven stable.
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isHardwareNavigationHandlingEnabled: Boolean = false
 }
