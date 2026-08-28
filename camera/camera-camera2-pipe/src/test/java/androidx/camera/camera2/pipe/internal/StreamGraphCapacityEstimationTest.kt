@@ -126,17 +126,36 @@ class StreamGraphCapacityEstimationTest {
 
     @Test
     fun streamGraphCapacityReflectsMemoryConstraints() = testScope.runTest {
-        // Create a custom estimator with memory exactly for 3 large images
-        val tightEstimator = MemoryEstimator.create(largeImageSize * 3)
+        // The trimmer requires a baseline margin of 5 frames (3 for repeating margin, 2 for
+        // pipeline depth).
+        // To ensure the memory estimator is the constraint, we set the ImageSource capacity to 10
+        // and the MemoryEstimator capacity to exactly 5 frames.
+        val streamConfigTight =
+            CameraStream.Config.create(
+                Size(1280, 720),
+                StreamFormat.YUV_420_888,
+                imageSourceConfig = ImageSourceConfig(capacity = 10),
+            )
+        val customGraphConfig =
+            CameraGraph.Config(
+                camera = metadata.camera,
+                streams = listOf(streamConfigTight),
+            )
+
+        val tightEstimator = MemoryEstimator.create(largeImageSize * 5)
         val tightSimulator = createSimulator(tightEstimator)
-        val tightGraph = createAndStartFrameGraph(tightSimulator)
-        val streamId = tightGraph.streams[streamConfigLarge]!!.id
+        val tightGraph = tightSimulator.createFrameGraph(FrameGraph.Config(customGraphConfig))
+        tightGraph.start()
+        tightGraph.initializeSurfaces()
+        tightGraph.simulateCameraStarted()
+        advanceUntilIdle()
 
-        // Even though the ImageSource config requests a capacity of 5, the memory limits it to
-        // 3
-        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(3)
+        val streamId = tightGraph.streams[streamConfigTight]!!.id
 
-        val frameBuffer = tightGraph.captureWith(setOf(streamId), capacity = 5)
+        // Even though the ImageSource config requests a capacity of 10, the memory limits it to 5
+        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
+
+        val frameBuffer = tightGraph.captureWith(setOf(streamId), capacity = 10)
         advanceUntilIdle()
 
         val frame = tightGraph.simulateNextFrame()
@@ -145,15 +164,16 @@ class StreamGraphCapacityEstimationTest {
         advanceUntilIdle()
 
         // The frame is held internally in the buffer, meaning it is still evictable.
-        // Availability remains 3.
-        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(3)
+        // Availability remains 5.
+        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
 
         // Acquire externally
         val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
         advanceUntilIdle()
+        assertThat(acquiredFrame).isNotNull() // Sanity check
 
-        // Memory is no longer evictable, availability drops to 2
-        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(2)
+        // Memory is no longer evictable, availability drops to 4
+        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(4)
 
         acquiredFrame?.close()
         frameBuffer.close()

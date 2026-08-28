@@ -32,6 +32,8 @@ import kotlinx.coroutines.flow.update
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface MemoryEstimator {
+    /** Maximum capacity in bytes. This is the value that the estimator is initialized with. */
+    public val maxCapacity: Long
     /** Flow of the total memory usage. */
     public val memoryUsage: StateFlow<Long>
 
@@ -80,17 +82,17 @@ public interface MemoryEstimator {
     }
 }
 
-internal class MemoryEstimatorImpl(private val initialCapacity: Long) : MemoryEstimator {
+internal class MemoryEstimatorImpl(override val maxCapacity: Long) : MemoryEstimator {
     private val _usage = MutableStateFlow(0L)
     override val memoryUsage: StateFlow<Long> = _usage.asStateFlow()
 
-    override val capacityFlow: Flow<Long> = _usage.map { usage -> initialCapacity - usage }
+    override val capacityFlow: Flow<Long> = _usage.map { usage -> maxCapacity - usage }
 
     private val _evictable = MutableStateFlow(0L)
     override val evictableMemory: StateFlow<Long> = _evictable.asStateFlow()
 
     override val availableMemory: Long
-        get() = initialCapacity - _usage.value + _evictable.value
+        get() = maxCapacity - _usage.value + _evictable.value
 
     override fun incrementUsage(size: Long) {
         _usage.update { current -> current + size }
@@ -109,6 +111,6 @@ internal class MemoryEstimatorImpl(private val initialCapacity: Long) : MemoryEs
     }
 
     override fun canAllocateNow(size: Long): Boolean {
-        return (initialCapacity - _usage.value) >= size
+        return (maxCapacity - _usage.value) >= size
     }
 }
