@@ -16,6 +16,7 @@
 package androidx.xr.runtime.internal
 
 import android.content.Context
+import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.xr.runtime.NativeInstanceData
@@ -26,30 +27,10 @@ import androidx.xr.runtime.selectProvider
 
 /** Manages the loading and provision of native instance data at the runtime layer. */
 internal object XrInstanceManager {
-    @Volatile private var initContext: Context? = null
+    private val lock = Any()
     @Volatile private var extraExtensions: List<String> = emptyList()
     @Volatile private var initialized: Boolean = false
-
-    private val provider: XrNativeInstanceProvider? by lazy {
-        val context = checkNotNull(initContext) { "Context must be set before initialization" }
-        val providers =
-            loadProviders(
-                XrNativeInstanceProvider::class.java,
-                listOf(
-                    "androidx.xr.runtime.openxr.OpenXrInstanceManager",
-                    "androidx.xr.runtime.testing.internal.FakeXrNativeInstanceProvider",
-                ),
-            )
-        // TODO(b/501089518): Throw an IllegalStateException if provider is not loaded once a
-        // provider is returned for all runtimes.
-        val newProvider = selectProvider(providers, getDeviceContextFeatures(context))
-        check(extraExtensions.isEmpty() || newProvider != null) {
-            "The XrDevice is not backed by an OpenXR instance."
-        }
-        newProvider?.apply { initialize(context, extraExtensions) }
-        initialized = true
-        newProvider
-    }
+    @Volatile private var provider: XrNativeInstanceProvider? = null
 
     /** Returns the extra OpenXR extensions list for testing. */
     @VisibleForTesting
@@ -60,21 +41,52 @@ internal object XrInstanceManager {
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     internal fun resetInitForTesting() {
-        initialized = false
+        synchronized(lock) {
+            provider = null
+            initialized = false
+            extraExtensions = emptyList()
+        }
     }
 
     /** Returns the XrNativeInstanceProvider after initializing it. */
     internal fun getProvider(context: Context): XrNativeInstanceProvider? {
-        if (initContext == null) {
-            initContext = context
+        if (!initialized) {
+            synchronized(lock) {
+                if (!initialized) {
+                    provider = loadAndInitProvider(context)
+                    initialized = true
+                }
+            }
         }
         return provider
     }
 
+    @GuardedBy("lock")
+    private fun loadAndInitProvider(context: Context): XrNativeInstanceProvider? {
+        val providers =
+            loadProviders(
+                XrNativeInstanceProvider::class.java,
+                listOf(
+                    "androidx.xr.runtime.openxr.OpenXrInstanceManager",
+                    "androidx.xr.runtime.testing.internal.FakeXrNativeInstanceProvider",
+                ),
+            )
+        // TODO(b/501089518): Throw an IllegalStateException if provider is not loaded once
+        // a provider is returned for all runtimes.
+        val newProvider = selectProvider(providers, getDeviceContextFeatures(context))
+        check(extraExtensions.isEmpty() || newProvider != null) {
+            "The XrDevice is not backed by an OpenXR instance."
+        }
+        newProvider?.apply { initialize(context, extraExtensions) }
+        return newProvider
+    }
+
     /** Injects extra OpenXR extensions to be enabled when the OpenXR instance is created. */
     internal fun addExtraExtensions(context: Context, extensions: List<String>) {
-        check(!initialized) { "XrInstanceManager has already been initialized." }
-        extraExtensions = extensions
+        synchronized(lock) {
+            check(!initialized) { "XrInstanceManager has already been initialized." }
+            extraExtensions = extensions
+        }
     }
 
     /** Helper for NativeDataExt to get pointers without direct provider access. */
