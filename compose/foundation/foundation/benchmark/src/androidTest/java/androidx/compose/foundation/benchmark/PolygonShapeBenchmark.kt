@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.benchmark
 
+import androidx.compose.foundation.shape.MorphPolygonShape
 import androidx.compose.foundation.shape.PolygonShape
 import androidx.compose.foundation.shape.PolygonShapeGeometry
 import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
@@ -41,6 +42,18 @@ class PolygonShapeBenchmark {
 
     private val size = Size(200f, 200f)
     private val density = Density(1f)
+
+    @Test
+    fun foundationMorphFrame() {
+        var progress = 0.01f
+        val shape =
+            MorphPolygonShape(FoundationShapes.softBurst, FoundationShapes.star9) { progress }
+        benchmarkRule.measureRepeated {
+            progress += 0.049f
+            if (progress >= 0.99f) progress = 0.01f
+            shape.createOutline(size, LayoutDirection.Ltr, density)
+        }
+    }
 
     @Test
     fun foundationStaticShapeOutline() {

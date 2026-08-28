@@ -17,14 +17,22 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.MorphPolygonShape
 import androidx.compose.foundation.shape.PolygonShape
 import androidx.compose.foundation.shape.PolygonShapeGeometry
 import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.toPolygonShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -157,4 +165,53 @@ fun PillStarPolygonShapeSample() {
         )
     }
     Box(Modifier.size(width = 140.dp, height = 64.dp).clip(pillStar).background(Color(0xFFE91E63)))
+}
+
+@Sampled
+@Composable
+fun MorphPolygonShapeSample() {
+    // A badge that morphs between a rounded hexagon and a star as it is toggled. No remember
+    // keys are needed: the endpoints are constant and the current progress is read through the
+    // lambda each time the outline is resolved.
+    var selected by remember { mutableStateOf(false) }
+    val progress by animateFloatAsState(if (selected) 1f else 0f)
+    val shape = remember {
+        MorphPolygonShape(
+            start =
+                PolygonShape { polygon(numVertices = 6, rounding = CornerRounding(percent = 20)) },
+            end =
+                PolygonShape.star(
+                    numPoints = 6,
+                    innerRadiusRatio = 0.6f,
+                    outerRounding = CornerRounding(percent = 20),
+                ),
+            progress = { progress },
+        )
+    }
+    Box(
+        Modifier.size(96.dp).clip(shape).background(Color(0xFF4CAF50)).clickable {
+            selected = !selected
+        }
+    )
+}
+
+@Sampled
+@Composable
+fun RoundedCornerShapeToPolygonShapeSample() {
+    // Converting a corner-based shape to a PolygonShape lets it morph with any other polygon
+    // shape; here a rounded rectangle relaxes into a circle.
+    var expanded by remember { mutableStateOf(false) }
+    val progress by animateFloatAsState(if (expanded) 1f else 0f)
+    val shape = remember {
+        MorphPolygonShape(
+            start = RoundedCornerShape(12.dp).toPolygonShape(),
+            end = PolygonShape.circle(),
+            progress = { progress },
+        )
+    }
+    Box(
+        Modifier.size(96.dp).clip(shape).background(Color(0xFF03A9F4)).clickable {
+            expanded = !expanded
+        }
+    )
 }
