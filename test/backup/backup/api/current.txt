@@ -1,0 +1,32 @@
+// Signature format: 4.0
+package androidx.test.backup {
+
+  public enum ActionPhase {
+    enum_constant public static final androidx.test.backup.ActionPhase POPULATE;
+    enum_constant public static final androidx.test.backup.ActionPhase VERIFY;
+  }
+
+  public interface BackupDeviceAction {
+    method public androidx.test.backup.BackupDeviceActionResult execute(android.content.Context context, androidx.test.backup.BackupDeviceActionArgs args);
+    method @InaccessibleFromKotlin public androidx.test.backup.ActionPhase getPhase();
+    property public abstract androidx.test.backup.ActionPhase phase;
+  }
+
+  public final class BackupDeviceActionArgs {
+    ctor public BackupDeviceActionArgs();
+    ctor @BytecodeOnly public BackupDeviceActionArgs(java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public BackupDeviceActionArgs(optional java.util.Map<java.lang.String,java.lang.String> payload);
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.String> getPayload();
+    property public java.util.Map<java.lang.String,java.lang.String> payload;
+  }
+
+  public final class BackupDeviceActionResult {
+    ctor public BackupDeviceActionResult();
+    ctor @BytecodeOnly public BackupDeviceActionResult(java.util.Map!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public BackupDeviceActionResult(optional java.util.Map<java.lang.String,java.lang.String> payload);
+    method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.String> getPayload();
+    property public java.util.Map<java.lang.String,java.lang.String> payload;
+  }
+
+}
+
