@@ -94,7 +94,7 @@ class ExecuteAppFunctionRequestTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 37)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
     fun toPlatformExecuteAppFunctionRequestWithAttribution_success() {
         val request = ExecuteAppFunctionRequest("pkg", "method", TEST_APP_FUNCTION_DATA)
         val platformRequest = request.toPlatformExecuteAppFunctionRequest()
@@ -105,13 +105,22 @@ class ExecuteAppFunctionRequestTest {
         assertThat(platformRequest.extras.getBundle(EXTRA_PARAMETERS)?.isEmpty()).isTrue()
         assertThat(platformRequest.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA)).isTrue()
         assertThat(platformRequest.attribution).isNull()
+        assertThat(platformRequest.activityId).isNull()
 
         // Test with attribution set
         val attribution =
             AppInteractionAttribution.Builder(AppInteractionAttribution.INTERACTION_TYPE_USER_QUERY)
                 .build()
+        val binder = android.os.Binder()
+        val activityId = Api37Impl.createAppFunctionActivityId(binder)
         val requestWithAttribution =
-            ExecuteAppFunctionRequest("pkg2", "method2", TEST_APP_FUNCTION_DATA, attribution)
+            ExecuteAppFunctionRequest(
+                "pkg2",
+                "method2",
+                TEST_APP_FUNCTION_DATA,
+                attribution,
+                activityId,
+            )
         val platformRequestWithAttribution =
             requestWithAttribution.toPlatformExecuteAppFunctionRequest()
 
@@ -124,6 +133,7 @@ class ExecuteAppFunctionRequestTest {
         assertThat(platformRequestWithAttribution.extras.getBoolean(EXTRA_USE_JETPACK_SCHEMA))
             .isTrue()
         assertThat(platformRequestWithAttribution.attribution).isEqualTo(attribution)
+        assertThat(platformRequestWithAttribution.activityId).isEqualTo(activityId)
     }
 
     @Test
@@ -168,15 +178,18 @@ class ExecuteAppFunctionRequestTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 37)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
     fun toCompatExecuteAppFunctionRequestWithAttribution_success() {
         val attribution =
             AppInteractionAttribution.Builder(AppInteractionAttribution.INTERACTION_TYPE_USER_QUERY)
                 .build()
+        val binder = android.os.Binder()
+        val activityId = Api37Impl.createAppFunctionActivityId(binder)
         val platformRequest =
             android.app.appfunctions.ExecuteAppFunctionRequest.Builder("pkg", "method")
                 .setParameters(TEST_APP_FUNCTION_DATA.genericDocument)
                 .setAttribution(attribution)
+                .setActivityId(activityId)
                 .build()
 
         val request = platformRequest.toCompatExecuteAppFunctionRequest(TEST_APP_FUNCTION_METADATA)
@@ -188,6 +201,7 @@ class ExecuteAppFunctionRequestTest {
         assertThat(request.functionParameters.extras.isEmpty).isTrue()
         assertThat(request.useJetpackSchema).isFalse()
         assertThat(request.attribution).isEqualTo(attribution)
+        assertThat(request.activityId).isEqualTo(activityId)
     }
 
     @Test
@@ -229,6 +243,24 @@ class ExecuteAppFunctionRequestTest {
             return
         } catch (e: ClassNotFoundException) {
             throw AssumptionViolatedException("Unable to find AppFunction extension library", e)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.CINNAMON_BUN)
+    private object Api37Impl {
+        fun createAppFunctionActivityId(
+            binder: android.os.IBinder
+        ): android.app.appfunctions.AppFunctionActivityId {
+            val parcel = android.os.Parcel.obtain()
+            try {
+                parcel.writeStrongBinder(binder)
+                parcel.setDataPosition(0)
+                return android.app.appfunctions.AppFunctionActivityId.CREATOR.createFromParcel(
+                    parcel
+                )
+            } finally {
+                parcel.recycle()
+            }
         }
     }
 
