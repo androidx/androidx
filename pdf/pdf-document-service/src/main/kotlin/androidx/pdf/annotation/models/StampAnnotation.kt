@@ -91,7 +91,7 @@ internal class StampAnnotation(pageNum: Int, val bounds: RectF, val pdfObjects: 
                  * Parcel
                  */
                 override fun createFromParcel(source: Parcel): StampAnnotation {
-                    val type = source.readInt()
+                    source.readInt()
                     return StampAnnotation(source)
                 }
 

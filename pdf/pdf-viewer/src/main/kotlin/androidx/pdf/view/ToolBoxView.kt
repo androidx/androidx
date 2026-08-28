@@ -157,7 +157,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
 
-        var child = getChildAt(0) ?: return // Return if there's no child
+        val child = getChildAt(0) ?: return // Return if there's no child
         if (child.visibility == GONE) return // Return if the child is not visible
         child.layout(
             paddingLeft,
