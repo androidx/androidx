@@ -58,7 +58,7 @@ public constructor(public val registrationUri: Uri, public val debugKeyAllowed: 
         internal fun convertWebTriggerParams(
             request: List<WebTriggerParams>
         ): List<android.adservices.measurement.WebTriggerParams> {
-            var result = mutableListOf<android.adservices.measurement.WebTriggerParams>()
+            val result = mutableListOf<android.adservices.measurement.WebTriggerParams>()
             for (param in request) {
                 result.add(
                     android.adservices.measurement.WebTriggerParams.Builder(param.registrationUri)

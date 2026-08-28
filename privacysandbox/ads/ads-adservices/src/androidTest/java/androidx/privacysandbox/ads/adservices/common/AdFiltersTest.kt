@@ -52,7 +52,7 @@ class AdFiltersTest {
     @Test
     fun testEquals() {
         val adFilters1 = AdFilters(frequencyCapFilters)
-        var adFilters2 =
+        val adFilters2 =
             AdFilters(
                 FrequencyCapFilters(
                     listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),

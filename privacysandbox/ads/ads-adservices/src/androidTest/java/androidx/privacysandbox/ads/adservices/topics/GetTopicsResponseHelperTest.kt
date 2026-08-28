@@ -49,11 +49,11 @@ class GetTopicsResponseHelperTest {
             mValidAdServicesSdkExt4Version || mValidAdExtServicesSdkExt9Version,
         )
 
-        var topic1 = Topic(3, 7, 10023)
-        var topic2 = Topic(3, 7, 10024)
+        val topic1 = Topic(3, 7, 10023)
+        val topic2 = Topic(3, 7, 10024)
 
-        var response = GetTopicsResponse.Builder(listOf(topic1, topic2)).build()
-        var convertedResponse = GetTopicsResponseHelper.convertResponse(response)
+        val response = GetTopicsResponse.Builder(listOf(topic1, topic2)).build()
+        val convertedResponse = GetTopicsResponseHelper.convertResponse(response)
 
         assertEquals(2, convertedResponse.topics.size)
         assertContains(
@@ -69,18 +69,18 @@ class GetTopicsResponseHelperTest {
             mValidAdServicesSdkExt11Version || mValidAdExtServicesSdkExt11Version,
         )
 
-        var topic1 = Topic(3, 7, 10023)
-        var topic2 = Topic(3, 7, 10024)
-        var encryptedTopic1 =
+        val topic1 = Topic(3, 7, 10023)
+        val topic2 = Topic(3, 7, 10024)
+        val encryptedTopic1 =
             EncryptedTopic(
                 "encryptedTopic".toByteArray(),
                 "publicKey",
                 "encapsulatedKey".toByteArray(),
             )
 
-        var response =
+        val response =
             GetTopicsResponse.Builder(listOf(topic1, topic2), listOf(encryptedTopic1)).build()
-        var convertedResponse = GetTopicsResponseHelper.convertResponseWithEncryptedTopics(response)
+        val convertedResponse = GetTopicsResponseHelper.convertResponseWithEncryptedTopics(response)
 
         assertEquals(2, convertedResponse.topics.size)
         assertEquals(1, convertedResponse.encryptedTopics.size)

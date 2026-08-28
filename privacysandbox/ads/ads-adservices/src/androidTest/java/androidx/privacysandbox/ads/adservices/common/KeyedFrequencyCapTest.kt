@@ -45,7 +45,7 @@ class KeyedFrequencyCapTest {
     @Test
     fun testEquals() {
         val keyedFrequencyCap1 = KeyedFrequencyCap(adCounterKey, maxCount, interval)
-        var keyedFrequencyCap2 = KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))
+        val keyedFrequencyCap2 = KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))
         Truth.assertThat(keyedFrequencyCap1 == keyedFrequencyCap2).isTrue()
     }
 }

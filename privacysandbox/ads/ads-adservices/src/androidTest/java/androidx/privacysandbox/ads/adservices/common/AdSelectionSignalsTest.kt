@@ -37,7 +37,7 @@ class AdSelectionSignalsTest {
     @Test
     fun testEquals() {
         val id1 = AdSelectionSignals(signals)
-        var id2 = AdSelectionSignals("signals")
+        val id2 = AdSelectionSignals("signals")
         Truth.assertThat(id1 == id2).isTrue()
     }
 }

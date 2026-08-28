@@ -47,7 +47,7 @@ class UpdateAdCounterHistogramRequestTest {
     fun testEquals() {
         val updateAdCounterHistogramRequest1 =
             UpdateAdCounterHistogramRequest(adSelectionId, adEventType, callerAdTech)
-        var updateAdCounterHistogramRequest2 =
+        val updateAdCounterHistogramRequest2 =
             UpdateAdCounterHistogramRequest(
                 1234L,
                 FrequencyCapFilters.AD_EVENT_TYPE_CLICK,
@@ -56,7 +56,7 @@ class UpdateAdCounterHistogramRequestTest {
         Truth.assertThat(updateAdCounterHistogramRequest1 == updateAdCounterHistogramRequest2)
             .isTrue()
 
-        var updateAdCounterHistogramRequest3 =
+        val updateAdCounterHistogramRequest3 =
             UpdateAdCounterHistogramRequest(
                 1234L,
                 FrequencyCapFilters.AD_EVENT_TYPE_VIEW,
