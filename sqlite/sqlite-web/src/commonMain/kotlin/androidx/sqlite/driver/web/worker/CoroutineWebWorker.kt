@@ -29,18 +29,7 @@ internal abstract class CoroutineWebWorker(worker: Worker) : WebWorkerWrapper(wo
     private val pendingMessages = mutableMapOf<Int, CompletableDeferred<WebWorkerMessage>>()
 
     override fun onMessage(message: WebWorkerMessage) {
-        val pendingCompletable = pendingMessages[message.id]
-        if (pendingCompletable != null) {
-            val completed = pendingCompletable.complete(message)
-            if (!completed) {
-                error(
-                    "Error processing result, message with id ${message.id} was already delivered."
-                )
-            }
-        } else {
-            message.error?.let { onError(it) }
-                ?: error("Error processing result, message with id ${message.id} was not expected.")
-        }
+        pendingMessages.remove(message.id)?.complete(message)
     }
 
     override fun onError(errorMsg: String) {
@@ -62,10 +51,15 @@ internal abstract class CoroutineWebWorker(worker: Worker) : WebWorkerWrapper(wo
         resultFactory: (WebWorkerMessage) -> Result,
     ): Result {
         val requestMsg = createWebWorkerMessage(nextMessageId++, request)
-        pendingMessages[requestMsg.id] = CompletableDeferred()
+        val completable = CompletableDeferred<WebWorkerMessage>()
+        pendingMessages[requestMsg.id] = completable
         postMessage(requestMsg)
-        val resultMsg = pendingMessages.getValue(requestMsg.id).await()
-        pendingMessages.remove(requestMsg.id)
+        val resultMsg =
+            try {
+                completable.await()
+            } finally {
+                pendingMessages.remove(requestMsg.id)
+            }
         check(requestMsg.id == resultMsg.id) {
             "Error processing result, message id mismatch: request id: " +
                 "${requestMsg.id}, result id: ${resultMsg.id}"

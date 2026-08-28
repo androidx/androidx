@@ -635,6 +635,45 @@ abstract class BaseConnectionPoolTest {
     }
 
     @Test
+    fun cancelCoroutineDuringTransaction() = runTest {
+        val multiThreadContext = newFixedThreadPoolContext(2, "Test-Threads")
+        val driver = setupDriver()
+        val pool =
+            newConnectionPool(
+                driver = driver,
+                fileName = fileName,
+                maxNumOfReaders = 1,
+                maxNumOfWriters = 1,
+            )
+        pool.useWriterConnection { connection -> connection.executeSQL("CREATE TABLE t (id INT)") }
+        val insideTransaction = CompletableDeferred<Unit>()
+        val holdTransaction = CompletableDeferred<Unit>()
+        val job =
+            launch(multiThreadContext) {
+                pool.useWriterConnection { connection ->
+                    connection.withTransaction(Transactor.SQLiteTransactionType.DEFERRED) {
+                        executeSQL("INSERT INTO t VALUES (1)")
+                        insideTransaction.complete(Unit)
+                        holdTransaction.await()
+                    }
+                }
+            }
+        insideTransaction.await()
+        job.cancelAndJoin()
+
+        // Verify that after cancelling an in-flight transaction the connection can immediately be
+        // acquired again and the previous transaction was rolled back
+        pool.useWriterConnection { connection ->
+            connection.usePrepared("SELECT COUNT(*) FROM t") { stmt ->
+                assertThat(stmt.step()).isTrue()
+                assertThat(stmt.getLong(0)).isEqualTo(0)
+            }
+        }
+        pool.close()
+        multiThreadContext.close()
+    }
+
+    @Test
     fun stressCancelCoroutineAcquiringConnection() = runTest {
         val multiThreadContext = newFixedThreadPoolContext(3, "Test-Threads")
         val driver = setupDriver()
