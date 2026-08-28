@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:kotlin.OptIn(androidx.xr.scenecore.ExperimentalGltfAnimationApi::class)
-
 package androidx.xr.scenecore
 
 import android.os.Build
