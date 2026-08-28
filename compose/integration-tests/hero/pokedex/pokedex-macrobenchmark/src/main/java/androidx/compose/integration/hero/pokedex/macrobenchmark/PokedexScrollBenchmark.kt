@@ -34,6 +34,7 @@ import androidx.test.uiautomator.Until
 import androidx.testutils.CpuFrequencyChangeMetric
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import androidx.tracing.Trace
 import kotlin.math.roundToInt
 import org.junit.Test
@@ -98,7 +99,8 @@ class PokedexScrollBenchmark(
             metrics =
                 defaultComposeScrollingMetrics() +
                     FrameTimingGfxInfoMetric() +
-                    CpuFrequencyChangeMetric(),
+                    CpuFrequencyChangeMetric() +
+                    defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             setupBlock = {

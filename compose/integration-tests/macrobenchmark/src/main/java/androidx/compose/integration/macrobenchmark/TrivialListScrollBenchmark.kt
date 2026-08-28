@@ -27,6 +27,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +51,7 @@ class TrivialListScrollBenchmark(private val compilationMode: CompilationMode) {
     fun start() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = defaultComposeScrollingMetrics(),
+            metrics = defaultComposeScrollingMetrics() + defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = 10,
             setupBlock = {

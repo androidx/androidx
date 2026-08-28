@@ -31,6 +31,7 @@ import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,7 +75,10 @@ class JetsnackScrollBenchmark(val compilationMode: CompilationMode) {
     private fun benchmarkScroll(action: String, measureBlock: MacrobenchmarkScope.() -> Unit) =
         benchmarkRule.measureRepeated(
             packageName = JETSNACK_TARGET_PACKAGE_NAME,
-            metrics = defaultComposeScrollingMetrics() + FrameTimingGfxInfoMetric(),
+            metrics =
+                defaultComposeScrollingMetrics() +
+                    FrameTimingGfxInfoMetric() +
+                    defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             measureBlock = {

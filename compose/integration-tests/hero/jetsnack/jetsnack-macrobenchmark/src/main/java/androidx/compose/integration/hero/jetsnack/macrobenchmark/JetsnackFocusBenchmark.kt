@@ -20,7 +20,6 @@ import android.content.Intent
 import android.view.KeyEvent.KEYCODE_TAB
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
-import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.TraceSectionMetric
@@ -30,6 +29,8 @@ import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
+import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,11 +83,7 @@ class JetsnackFocusBenchmark(private val compilationMode: CompilationMode) {
     ) =
         benchmarkRule.measureRepeated(
             packageName = JETSNACK_TARGET_PACKAGE_NAME,
-            metrics =
-                buildList {
-                    add(FrameTimingMetric())
-                    addAll(metrics)
-                },
+            metrics = defaultComposeScrollingMetrics() + defaultMemoryMetrics() + metrics,
             compilationMode = compilationMode,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
             setupBlock = {

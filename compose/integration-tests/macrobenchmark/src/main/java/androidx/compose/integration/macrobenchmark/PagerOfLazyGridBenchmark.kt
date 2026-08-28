@@ -27,6 +27,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
 import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +51,7 @@ class PagerOfLazyGridBenchmark(private val compilationMode: CompilationMode) {
     fun scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics = defaultComposeScrollingMetrics(),
+            metrics = defaultComposeScrollingMetrics() + defaultMemoryMetrics(),
             compilationMode = compilationMode,
             startupMode = StartupMode.WARM,
             iterations = 10,
