@@ -71,6 +71,10 @@ import androidx.wear.compose.material3.TextConfiguration
  * Example of a [RemoteEdgeButton] with filled tonal colors:
  *
  * @sample androidx.wear.compose.remote.material3.samples.RemoteEdgeButtonFilledTonalSample
+ *
+ * Example of a [RemoteEdgeButton] with multi-line text:
+ *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteEdgeButtonMultiLineSample
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param buttonSize The size of the button, defaults to [RemoteEdgeButtonSize.Small].
@@ -124,13 +128,15 @@ public fun RemoteEdgeButton(
         RemoteRow(
             verticalAlignment = RemoteAlignment.CenterVertically,
             horizontalArrangement = RemoteArrangement.Center,
-            modifier = RemoteModifier.padding(contentPadding),
+            modifier = RemoteModifier.fillMaxWidth().padding(contentPadding),
             content =
                 provideScopeContent(
                     contentColor = colors.contentColor(enabled = enabled),
                     textStyle = RemoteMaterialTheme.typography.labelMedium,
                     textConfiguration =
                         TextConfiguration(
+                            // TODO: Center alignment for multi-line text is fixed in a follow-up
+                            // CL in remote-player-core.
                             textAlign = TextAlign.Center,
                             overflow = TextOverflow.Ellipsis,
                             maxLines = buttonSize.maxLines(),

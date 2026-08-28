@@ -79,4 +79,14 @@ class RemoteEdgeButtonSampleTest {
             ComponentContainer { RemoteEdgeButtonFilledTonalSample() }
         }
     }
+
+    @Test
+    fun remoteEdgeButtonMultiLineSampleTest() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteEdgeButtonMultiLineSample() }
+        }
+    }
 }
