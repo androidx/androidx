@@ -45,6 +45,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.lerp
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -212,5 +213,34 @@ internal fun RemoteCheckboxControl(
             start = RemoteOffset(9.9f.rdp.toPx(), 15.5f.rdp.toPx()),
             end = RemoteOffset(16.5f.rdp.toPx(), 9.1f.rdp.toPx()),
         )
+    }
+}
+
+@Composable
+@RemoteComposable
+internal fun RemoteRadioControl(
+    selected: RemoteBoolean,
+    controlColor: RemoteColor,
+    modifier: RemoteModifier = RemoteModifier,
+    progress: RemoteFloat = selected.select(1f.rf, 0f.rf),
+) {
+    RemoteCanvas(modifier = modifier.size(24.rdp)) {
+        val centerOffset = RemoteOffset(12.rdp.toPx(), 12.rdp.toPx())
+        val outerRadiusPx = 9.rdp.toPx()
+        val strokeWidthPx = 2.rdp.toPx()
+        val innerRadiusPx = lerp(0f.rf, 5.rdp.toPx(), progress)
+
+        val ringPaint = RemotePaint {
+            style = PaintingStyle.Stroke
+            strokeWidth = strokeWidthPx
+            color = controlColor
+        }
+        drawCircle(paint = ringPaint, radius = outerRadiusPx, center = centerOffset)
+
+        val dotPaint = RemotePaint {
+            style = PaintingStyle.Fill
+            color = tween(Color.Transparent.rc, controlColor, progress)
+        }
+        drawCircle(paint = dotPaint, radius = innerRadiusPx, center = centerOffset)
     }
 }
