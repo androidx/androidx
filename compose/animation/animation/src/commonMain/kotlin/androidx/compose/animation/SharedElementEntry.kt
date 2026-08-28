@@ -17,7 +17,6 @@
 package androidx.compose.animation
 
 import androidx.compose.animation.core.DeferredTransition
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.Transition
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
@@ -37,7 +36,6 @@ import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastFirstOrNull
 
-@OptIn(ExperimentalDeferredTransitionApi::class)
 internal class SharedElementEntry(
     sharedElement: SharedElement,
     boundsAnimation: BoundsAnimation,
@@ -152,7 +150,6 @@ internal class SharedElementEntry(
 
     internal var clipPathInOverlay: Path? = null
 
-    @OptIn(ExperimentalDeferredTransitionApi::class)
     override fun drawInOverlay(drawScope: DrawScope, graphicsContext: GraphicsContext) {
         sharedTransitionDebug {
             "Rendering in overlay for key ${sharedElement.key}, becoming visible? $target"

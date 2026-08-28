@@ -17,7 +17,6 @@
 package androidx.compose.animation
 
 import androidx.compose.animation.core.AnimationVector4D
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
@@ -87,10 +86,7 @@ internal data class SharedBoundsNodeElement(val sharedElementEntry: SharedElemen
  * visible. Once the target bounds are calculated, the bounds animation will happen during the
  * approach pass.
  */
-@OptIn(
-    ExperimentalLookaheadAnimationVisualDebugApi::class,
-    ExperimentalDeferredTransitionApi::class,
-)
+@OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
 internal class SharedBoundsNode(entry: SharedElementEntry) :
     ApproachLayoutModifierNode,
     Modifier.Node(),

@@ -29,7 +29,6 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.scaleToBounds
 import androidx.compose.animation.SharedTransitionScope.SharedContentState
 import androidx.compose.animation.core.DeferredTransitionState
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.tween
@@ -733,7 +732,6 @@ fun SharedContentConfigSample() {
 
 @Sampled
 @Composable
-@OptIn(ExperimentalDeferredTransitionApi::class)
 fun SharedContentConfigDeferredTransitionSample() {
     // In this example, we show how to use permitTransformDuringDeferredTransition to
     // control whether a shared element transforms (scales/slides) with its parent container

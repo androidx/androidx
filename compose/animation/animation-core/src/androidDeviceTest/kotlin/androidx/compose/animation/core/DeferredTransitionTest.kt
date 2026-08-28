@@ -34,7 +34,7 @@ import org.junit.Test
 import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTransitionApi::class, ExperimentalDeferredTransitionApi::class)
+@OptIn(ExperimentalTransitionApi::class)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class DeferredTransitionTest {

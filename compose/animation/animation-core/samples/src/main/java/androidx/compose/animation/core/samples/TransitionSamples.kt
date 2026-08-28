@@ -20,7 +20,6 @@ import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.DeferredTransitionState
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.SeekableTransitionState
@@ -598,7 +597,6 @@ fun SnapToSample() {
     // use the transition
 }
 
-@OptIn(ExperimentalDeferredTransitionApi::class)
 @Sampled
 @Composable
 fun DeferredTransitionSample() {

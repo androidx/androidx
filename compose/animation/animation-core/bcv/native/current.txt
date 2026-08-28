@@ -10,10 +10,6 @@ open annotation class androidx.compose.animation.core/ExperimentalAnimationSpecA
     constructor <init>() // androidx.compose.animation.core/ExperimentalAnimationSpecApi.<init>|<init>(){}[0]
 }
 
-open annotation class androidx.compose.animation.core/ExperimentalDeferredTransitionApi : kotlin/Annotation { // androidx.compose.animation.core/ExperimentalDeferredTransitionApi|null[0]
-    constructor <init>() // androidx.compose.animation.core/ExperimentalDeferredTransitionApi.<init>|<init>(){}[0]
-}
-
 open annotation class androidx.compose.animation.core/ExperimentalTransitionApi : kotlin/Annotation { // androidx.compose.animation.core/ExperimentalTransitionApi|null[0]
     constructor <init>() // androidx.compose.animation.core/ExperimentalTransitionApi.<init>|<init>(){}[0]
 }

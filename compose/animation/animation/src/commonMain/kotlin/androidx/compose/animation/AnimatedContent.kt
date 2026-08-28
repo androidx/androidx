@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:OptIn(InternalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
+@file:OptIn(InternalAnimationApi::class)
 
 package androidx.compose.animation
 
@@ -27,7 +27,6 @@ import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection.
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.DeferredTransition
 import androidx.compose.animation.core.DeferredTransitionState
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.Spring
@@ -814,7 +813,6 @@ private const val MaxInterruptionRetention = 3
  *
  * @see MutableTransform
  */
-@ExperimentalDeferredTransitionApi
 public class MutableContentTransform
 @PublishedApi
 internal constructor(
@@ -861,7 +859,6 @@ internal constructor(
  *   [TransformScope.offset] changes during the deferred phase.
  * @param block A configuration block to set up the transformations for initial and target content.
  */
-@ExperimentalDeferredTransitionApi
 public inline fun MutableContentTransform(
     initialVeilMatchParentSize: Boolean = false,
     targetVeilMatchParentSize: Boolean = false,
@@ -1026,7 +1023,6 @@ public fun <S> Transition<S>.AnimatedContent(
  * @see ContentTransform
  * @see AnimatedContentScope
  */
-@ExperimentalDeferredTransitionApi
 @Composable
 public fun <S> DeferredTransition<S>.DeferredAnimatedContent(
     modifier: Modifier = Modifier,

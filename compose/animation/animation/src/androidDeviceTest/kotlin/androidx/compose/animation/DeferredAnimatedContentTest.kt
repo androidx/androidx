@@ -17,7 +17,6 @@
 package androidx.compose.animation
 
 import androidx.compose.animation.core.DeferredTransitionState
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
@@ -57,7 +56,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-@OptIn(ExperimentalDeferredTransitionApi::class, ExperimentalTransitionApi::class)
+@OptIn(ExperimentalTransitionApi::class)
 class DeferredAnimatedContentTest {
     @get:Rule val rule = createComposeRule()
 
