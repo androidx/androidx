@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -51,6 +48,8 @@ import androidx.compose.ui.text.font.FontVariation
  * @param modifier The [RemoteModifier] to be applied to the `RemoteTimeText`.
  * @param time The text to display as the time. Defaults to a formatted time string from the remote
  *   context.
+ * @param fontSize The size of glyphs to use when painting the text.
+ * @param fontFamily The font family to be used when rendering the text.
  * @param leadingText Text to be displayed before the time, or null if not present.
  * @param trailingText Text to be displayed after the time, or null if not present.
  * @param separator The separator to be used between the leading/trailing text and the time.
