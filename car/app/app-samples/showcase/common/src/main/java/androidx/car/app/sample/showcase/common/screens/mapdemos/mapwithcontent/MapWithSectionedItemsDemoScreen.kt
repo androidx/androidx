@@ -28,7 +28,6 @@ import androidx.car.app.model.CarProgressBar
 import androidx.car.app.model.ChipSection
 import androidx.car.app.model.CondensedItem
 import androidx.car.app.model.CondensedSection
-import androidx.car.app.model.GridItem
 import androidx.car.app.model.GridSection
 import androidx.car.app.model.Header
 import androidx.car.app.model.RowSection
@@ -140,12 +139,6 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
                         title = "Simple Icon",
                         text = "inst. of Image",
                         image = icNavigate,
-                        imageType =
-                            if (carContext.carAppApiLevel >= CarAppApiLevels.LEVEL_9) {
-                                GridItem.IMAGE_TYPE_SMALL
-                            } else {
-                                @Suppress("DEPRECATION") GridItem.IMAGE_TYPE_ICON
-                            },
                         clickListener = {},
                     ),
                     createGridItem(

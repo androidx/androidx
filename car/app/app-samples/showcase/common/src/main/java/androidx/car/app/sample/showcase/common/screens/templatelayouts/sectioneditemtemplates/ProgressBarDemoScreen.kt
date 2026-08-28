@@ -135,7 +135,7 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
         builder.addItem(
             GridItem.Builder()
                 .setTitle("Progress 0.3")
-                .setImage(largeTestImage, GridItem.IMAGE_TYPE_LARGE)
+                .setImage(largeTestImage)
                 .setProgressBar(CarProgressBar.Builder(0.3f).build())
                 .build()
         )
@@ -144,7 +144,7 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
         builder.addItem(
             GridItem.Builder()
                 .setTitle("Progress 0.6")
-                .setImage(largeTestImage, GridItem.IMAGE_TYPE_LARGE)
+                .setImage(largeTestImage)
                 .setProgressBar(CarProgressBar.Builder(0.6f).build())
                 .build()
         )
@@ -153,7 +153,7 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
         builder.addItem(
             GridItem.Builder()
                 .setTitle("Progress 0.9")
-                .setImage(largeTestImage, GridItem.IMAGE_TYPE_LARGE)
+                .setImage(largeTestImage)
                 .setProgressBar(CarProgressBar.Builder(0.9f).build())
                 .build()
         )
@@ -163,7 +163,7 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
             GridItem.Builder()
                 .setTitle("Primary")
                 .setText("Subtitle")
-                .setImage(largeTestImage, GridItem.IMAGE_TYPE_LARGE)
+                .setImage(largeTestImage)
                 .build()
         )
 
@@ -171,7 +171,7 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
         builder.addItem(
             GridItem.Builder()
                 .setTitle("Colored 0.5")
-                .setImage(largeTestImage, GridItem.IMAGE_TYPE_LARGE)
+                .setImage(largeTestImage)
                 .setProgressBar(
                     CarProgressBar.Builder(0.5f)
                         .setStyle(CarProgressBarStyle.Builder().setColor(CarColor.GREEN).build())
@@ -183,7 +183,7 @@ class ProgressBarDemoScreen(carContext: CarContext) : Screen(carContext) {
         // 6. Just Progress Bar, Small Icon
         builder.addItem(
             GridItem.Builder()
-                .setImage(largeTestImage, GridItem.IMAGE_TYPE_LARGE)
+                .setImage(largeTestImage)
                 .setProgressBar(
                     CarProgressBar.Builder(0.5f)
                         .setStyle(CarProgressBarStyle.Builder().setColor(CarColor.YELLOW).build())

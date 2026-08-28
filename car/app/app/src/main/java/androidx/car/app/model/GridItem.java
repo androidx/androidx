@@ -50,12 +50,16 @@ import java.util.Objects;
 public final class GridItem implements Item {
     /**
      * The type of images supported within grid items.
+     *
+     * @deprecated Use {@link Builder#setImage(CarIcon)} instead. Tint is controlled directly by
+     *     {@link CarIcon}, and image size is controlled by the parent template or section (e.g.
+     *     {@link GridSection.Builder#setItemSize(int)}).
      */
+    @Deprecated
     @RestrictTo(LIBRARY)
-    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE, IMAGE_TYPE_SMALL})
+    @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface GridItemImageType {
-    }
+    public @interface GridItemImageType {}
 
     /**
      * Represents an icon to be displayed in the grid item.
@@ -64,12 +68,13 @@ public final class GridItem implements Item {
      * icons targeting a 128 x 128 dp bounding box. If necessary, the icon will be scaled down while
      * preserving its aspect ratio.
      *
-     * <p>A tint color is expected to be provided via {@link CarIconStyle.Builder#setTint}
-     * provided to the icon with {@link CarIcon.Builder#setStyle}.
-     * Otherwise, a default tint color as determined by the host will be applied.
+     * <p>A tint color is expected to be provided via {@link CarIconStyle.Builder#setTint} provided
+     * to the icon with {@link CarIcon.Builder#setStyle}. Otherwise, a default tint color as
+     * determined by the host will be applied.
      *
-     * @deprecated Use {@link #IMAGE_TYPE_SMALL} instead. In API 9 and above, hosts treat
-     * it as {@link #IMAGE_TYPE_SMALL} without applying automatic host tinting.
+     * @deprecated Use {@link Builder#setImage(CarIcon)} instead. Tint is controlled directly by
+     *     {@link CarIcon}, and image size is controlled by the parent template or section (e.g.
+     *     {@link GridSection.Builder#setItemSize(int)}).
      */
     @Deprecated
     public static final int IMAGE_TYPE_ICON = (1 << 0);
@@ -80,19 +85,13 @@ public final class GridItem implements Item {
      * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
      * images targeting a 128 x 128 dp bounding box. If necessary, the image will be scaled down
      * while preserving its aspect ratio.
-     */
-    public static final int IMAGE_TYPE_LARGE = (1 << 1);
-
-    /**
-     * Represents a small icon-sized image to be displayed in the grid item.
      *
-     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
-     * images targeting a 128 x 128 dp bounding box. If necessary, the image will be scaled down
-     * while preserving its aspect ratio.
+     * @deprecated Use {@link Builder#setImage(CarIcon)} instead. Image size is controlled by the
+     *     parent template or section (e.g. {@link GridSection.Builder#setItemSize(int)}), and tint
+     *     is controlled directly by {@link CarIcon}.
      */
-    @RequiresCarApi(9)
-    @ExperimentalCarApi
-    public static final int IMAGE_TYPE_SMALL = (1 << 2);
+    @Deprecated
+    public static final int IMAGE_TYPE_LARGE = (1 << 1);
 
     private final boolean mIsLoading;
     private final @Nullable CarText mTitle;
@@ -403,19 +402,22 @@ public final class GridItem implements Item {
         }
 
         /**
-         * Sets an image to show in the grid item with the given {@code imageType} and given
-         * {@link Badge} to be displayed over the image.
+         * Sets an image to show in the grid item with the given {@code imageType} and given {@link
+         * Badge} to be displayed over the image.
          *
-         * <p>A dot badge denotes a call to action or notification and is
-         * displayed in the upper right corner of the image. An icon badge gives additional
-         * context about the image and is displayed in the lower right corner.
+         * <p>A dot badge denotes a call to action or notification and is displayed in the upper
+         * right corner of the image. An icon badge gives additional context about the image and is
+         * displayed in the lower right corner.
          *
          * @throws NullPointerException if {@code image} or {@code badge} is {@code null}
-         * @see #setImage(CarIcon, int)
+         * @deprecated Use {@link #setImage(CarIcon, Badge)} instead. Tint is controlled directly by
+         *     {@link CarIcon}, and image size is controlled by the parent template or section (e.g.
+         *     {@link GridSection.Builder#setItemSize(int)}).
          */
+        @Deprecated
         @RequiresCarApi(8)
-        public @NonNull Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType,
-                @NonNull Badge badge) {
+        public @NonNull Builder setImage(
+                @NonNull CarIcon image, @GridItemImageType int imageType, @NonNull Badge badge) {
             requireNonNull(badge);
             mBadge = badge;
             return setImage(requireNonNull(image), imageType);
@@ -425,23 +427,27 @@ public final class GridItem implements Item {
          * Sets an image to show in the grid item with the given {@code imageType}.
          *
          * <p>For a custom {@link CarIcon}, its {@link androidx.core.graphics.drawable.IconCompat}
-         * instance can be of {@link androidx.core.graphics.drawable.IconCompat#TYPE_BITMAP},
-         * {@link androidx.core.graphics.drawable.IconCompat#TYPE_RESOURCE}, or
-         * {@link androidx.core.graphics.drawable.IconCompat#TYPE_URI}.
+         * instance can be of {@link androidx.core.graphics.drawable.IconCompat#TYPE_BITMAP}, {@link
+         * androidx.core.graphics.drawable.IconCompat#TYPE_RESOURCE}, or {@link
+         * androidx.core.graphics.drawable.IconCompat#TYPE_URI}.
          *
          * <h4>Image Sizing Guidance</h4>
          *
          * <p>If the input image's size exceeds the sizing requirements for the given image type in
-         * either one of the dimensions, it will be scaled down to be centered inside the
-         * bounding box while preserving its aspect ratio.
+         * either one of the dimensions, it will be scaled down to be centered inside the bounding
+         * box while preserving its aspect ratio.
          *
          * <p>See {@link CarIcon} for more details related to providing icon and image resources
          * that work with different car screen pixel densities.
          *
-         * @param image     the {@link CarIcon} to display
+         * @param image the {@link CarIcon} to display
          * @param imageType one of {@link #IMAGE_TYPE_ICON} or {@link #IMAGE_TYPE_LARGE}
          * @throws NullPointerException if {@code image} is {@code null}
+         * @deprecated Use {@link #setImage(CarIcon)} instead. Tint is controlled directly by
+         *     {@link CarIcon}, and image size is controlled by the parent template or section (e.g.
+         *     {@link GridSection.Builder#setItemSize(int)}).
          */
+        @Deprecated
         public @NonNull Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType) {
             CarIconConstraints.UNCONSTRAINED.validateOrThrow(requireNonNull(image));
             mImage = image;
