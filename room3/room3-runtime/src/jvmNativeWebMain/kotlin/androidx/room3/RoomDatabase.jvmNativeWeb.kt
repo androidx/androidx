@@ -21,6 +21,7 @@ package androidx.room3
 
 import androidx.annotation.RestrictTo
 import androidx.room3.concurrent.CloseBarrier
+import androidx.room3.coroutines.DEFAULT_CONNECTION_POOL_TIMEOUT
 import androidx.room3.migration.AutoMigrationSpec
 import androidx.room3.migration.Migration
 import androidx.room3.util.PlatformType
@@ -36,6 +37,7 @@ import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
+import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -360,6 +362,7 @@ public actual abstract class RoomDatabase actual constructor() {
         private var journalMode: JournalMode = JournalMode.WRITE_AHEAD_LOGGING
         private var queryCoroutineContext: CoroutineContext? = null
         private var connectionPoolConfiguration: ConnectionPoolConfiguration? = null
+        private var connectionPoolTimeout: Duration = DEFAULT_CONNECTION_POOL_TIMEOUT
 
         /** Migrations, mapped by from-to pairs. */
         private val migrationContainer: MigrationContainer = MigrationContainer()
@@ -639,6 +642,24 @@ public actual abstract class RoomDatabase actual constructor() {
         }
 
         /**
+         * Sets the timeout [Duration] to wait when acquiring a connection from the
+         * [androidx.room3.coroutines.ConnectionPool] before timing out and throwing an
+         * [androidx.sqlite.SQLiteException].
+         *
+         * Defaults to `30.seconds`.
+         *
+         * @param timeout The maximum duration to wait for a connection. Must be positive.
+         * @return This builder instance.
+         * @throws IllegalArgumentException if [timeout] is not positive.
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        @JvmName("setConnectionPoolTimeout")
+        public actual fun setConnectionPoolTimeout(timeout: Duration): Builder<T> = apply {
+            require(timeout.isPositive()) { "Timeout must be positive" }
+            this.connectionPoolTimeout = timeout
+        }
+
+        /**
          * Creates the database and initializes it.
          *
          * @return A new database instance.
@@ -670,21 +691,23 @@ public actual abstract class RoomDatabase actual constructor() {
 
             val configuration =
                 DatabaseConfiguration(
-                    name = name,
-                    migrationContainer = migrationContainer,
-                    callbacks = callbacks,
-                    journalMode = journalMode,
-                    isMigrationRequired = requireMigration,
-                    allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
-                    migrationNotRequiredFrom = migrationsNotRequiredFrom,
-                    columnTypeConverters = columnTypeConverters,
-                    daoReturnTypeConverters = daoReturnTypeConverters,
-                    autoMigrationSpecs = autoMigrationSpecs,
-                    allowDestructiveMigrationForAllTables = allowDestructiveMigrationForAllTables,
-                    sqliteDriver = driver,
-                    queryCoroutineContext = queryCoroutineContext ?: defaultQueryDispatcher,
-                    connectionPoolConfiguration = poolConfig,
-                )
+                        name = name,
+                        migrationContainer = migrationContainer,
+                        callbacks = callbacks,
+                        journalMode = journalMode,
+                        isMigrationRequired = requireMigration,
+                        allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
+                        migrationNotRequiredFrom = migrationsNotRequiredFrom,
+                        columnTypeConverters = columnTypeConverters,
+                        daoReturnTypeConverters = daoReturnTypeConverters,
+                        autoMigrationSpecs = autoMigrationSpecs,
+                        allowDestructiveMigrationForAllTables =
+                            allowDestructiveMigrationForAllTables,
+                        sqliteDriver = driver,
+                        queryCoroutineContext = queryCoroutineContext ?: defaultQueryDispatcher,
+                        connectionPoolConfiguration = poolConfig,
+                    )
+                    .apply { this.connectionPoolTimeout = this@Builder.connectionPoolTimeout }
             val db = factory.invoke()
             db.init(configuration)
             return db

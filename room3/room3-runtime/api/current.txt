@@ -63,6 +63,8 @@ package androidx.room3 {
     method public androidx.room3.RoomDatabase.Builder<T> fallbackToDestructiveMigrationOnDowngrade(optional boolean dropAllTables);
     method @BytecodeOnly public static androidx.room3.RoomDatabase.Builder! fallbackToDestructiveMigrationOnDowngrade$default(androidx.room3.RoomDatabase.Builder!, boolean, int, Object!);
     method @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public androidx.room3.RoomDatabase.Builder<T> setAutoCloseTimeout(@IntRange(from=0L) long autoCloseTimeout, java.util.concurrent.TimeUnit autoCloseTimeUnit);
+    method @KotlinOnly public androidx.room3.RoomDatabase.Builder<T> setConnectionPoolTimeout(kotlin.time.Duration timeout);
+    method @InaccessibleFromKotlin public androidx.room3.RoomDatabase.Builder<T> setConnectionPoolTimeout(long timeout);
     method public androidx.room3.RoomDatabase.Builder<T> setDriver(androidx.sqlite.SQLiteDriver driver);
     method @SuppressCompatibility @androidx.room3.ExperimentalRoomApi public androidx.room3.RoomDatabase.Builder<T> setInMemoryTrackingMode(boolean inMemory);
     method public androidx.room3.RoomDatabase.Builder<T> setJournalMode(androidx.room3.RoomDatabase.JournalMode journalMode);

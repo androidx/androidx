@@ -19,6 +19,10 @@ package androidx.room3.coroutines
 import androidx.room3.Transactor
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+
+internal val DEFAULT_CONNECTION_POOL_TIMEOUT: Duration = 30.seconds
 
 /**
  * A container that manages [SQLiteConnection]s.
@@ -74,13 +78,15 @@ internal interface ConnectionPool : AutoCloseable {
  *
  * @param connectionFactory The factory function from which to request the connection to be opened.
  * @param statementCacheSize The maximum number of prepared statements to be cached.
+ * @param timeout The maximum duration to wait for a connection before timing out.
  * @return The newly created connection pool
  * @see newConnectionPool
  */
 internal fun newSingleConnectionPool(
     connectionFactory: ConnectionFactory,
     statementCacheSize: Int = 25,
-): ConnectionPool = ConnectionPoolImpl(connectionFactory, statementCacheSize)
+    timeout: Duration = DEFAULT_CONNECTION_POOL_TIMEOUT,
+): ConnectionPool = ConnectionPoolImpl(connectionFactory, statementCacheSize, timeout)
 
 /**
  * Creates a new [ConnectionPool] with multiple connections separated by readers and writers.
@@ -93,6 +99,7 @@ internal fun newSingleConnectionPool(
  * @param maxNumOfReaders The maximum number of connections to be opened and used as readers.
  * @param maxNumOfWriters The maximum number of connections to be opened and used as writers.
  * @param statementCacheSize The maximum number of prepared statements to be cached.
+ * @param timeout The maximum duration to wait for a connection before timing out.
  * @return The newly created connection pool
  * @see newSingleConnectionPool
  */
@@ -101,8 +108,15 @@ internal fun newConnectionPool(
     maxNumOfReaders: Int,
     maxNumOfWriters: Int,
     statementCacheSize: Int = 25,
+    timeout: Duration = DEFAULT_CONNECTION_POOL_TIMEOUT,
 ): ConnectionPool =
-    ConnectionPoolImpl(connectionFactory, maxNumOfReaders, maxNumOfWriters, statementCacheSize)
+    ConnectionPoolImpl(
+        connectionFactory,
+        maxNumOfReaders,
+        maxNumOfWriters,
+        statementCacheSize,
+        timeout,
+    )
 
 /** Defines an object that provides 'raw' access to a connection. */
 internal interface RawConnectionAccessor {

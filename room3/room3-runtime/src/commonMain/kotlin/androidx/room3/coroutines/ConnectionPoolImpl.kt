@@ -38,7 +38,6 @@ import kotlin.collections.removeLast as removeLastKt
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.sync.Mutex
@@ -62,15 +61,14 @@ internal class ConnectionPoolImpl : ConnectionPool {
 
     @Volatile private var isClosed: Boolean = false
 
-    // Amount of time to wait to acquire a connection before logging, Android uses 30 seconds in
-    // its pool, so we do too here, but IDK if that is a good number. This timeout is unrelated
-    // to the busy handler.
-    // TODO(b/404380974): Allow public configuration
-    internal var timeout = 30.seconds
+    // Amount of time to wait to acquire a connection before logging, This timeout is unrelated to
+    // the busy handler.
+    internal var timeout = DEFAULT_CONNECTION_POOL_TIMEOUT
     internal var onTimeout = LOG_TIMEOUT_EXCEPTION
 
-    constructor(connectionFactory: ConnectionFactory, statementCacheSize: Int) {
+    constructor(connectionFactory: ConnectionFactory, statementCacheSize: Int, timeout: Duration) {
         this.connectionFactory = connectionFactory
+        this.timeout = timeout
         this.readers =
             Pool(
                 capacity = 1,
@@ -85,10 +83,12 @@ internal class ConnectionPoolImpl : ConnectionPool {
         maxNumOfReaders: Int,
         maxNumOfWriters: Int,
         statementCacheSize: Int,
+        timeout: Duration,
     ) {
         require(maxNumOfReaders > 0) { "Maximum number of readers must be greater than 0" }
         require(maxNumOfWriters > 0) { "Maximum number of writers must be greater than 0" }
         this.connectionFactory = connectionFactory
+        this.timeout = timeout
         this.readers =
             Pool(
                 capacity = maxNumOfReaders,

@@ -32,6 +32,7 @@ import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
+import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withContext
@@ -475,6 +476,21 @@ public expect abstract class RoomDatabase() {
          * @see setSingleConnectionPool
          */
         public fun setMultipleConnectionPool(maxNumOfReaders: Int, maxNumOfWriters: Int): Builder<T>
+
+        /**
+         * Sets the timeout [Duration] to wait when acquiring a connection from the
+         * [androidx.room3.coroutines.ConnectionPool] before timing out and throwing an
+         * [androidx.sqlite.SQLiteException].
+         *
+         * Defaults to `30.seconds`.
+         *
+         * @param timeout The maximum duration to wait for a connection. Must be positive.
+         * @return This builder instance.
+         * @throws IllegalArgumentException if [timeout] is not positive.
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        @JvmName("setConnectionPoolTimeout")
+        public fun setConnectionPoolTimeout(timeout: Duration): Builder<T>
 
         /**
          * Creates the database and initializes it.

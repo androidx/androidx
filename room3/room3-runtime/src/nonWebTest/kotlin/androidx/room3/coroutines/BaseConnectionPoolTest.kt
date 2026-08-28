@@ -37,6 +37,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.fail
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
@@ -723,10 +724,10 @@ abstract class BaseConnectionPoolTest {
                 fileName = fileName,
                 maxNumOfReaders = 1,
                 maxNumOfWriters = 1,
+                timeout = 100.milliseconds,
             )
         check(pool is ConnectionPoolImpl)
         pool.onTimeout = THROW_TIMEOUT_EXCEPTION
-        pool.timeout = 100.milliseconds
 
         val firstBarrier = CompletableDeferred<Unit>()
         val secondBarrier = CompletableDeferred<Unit>()
@@ -772,10 +773,10 @@ abstract class BaseConnectionPoolTest {
                 fileName = fileName,
                 maxNumOfReaders = 1,
                 maxNumOfWriters = 1,
+                timeout = 100.milliseconds,
             )
         check(pool is ConnectionPoolImpl)
         pool.onTimeout = 0 // do nothing
-        pool.timeout = 100.milliseconds
 
         val items = mutableListOf<String>()
         coroutineScope {
@@ -1495,11 +1496,13 @@ abstract class BaseConnectionPoolTest {
         fileName: String,
         maxNumOfReaders: Int,
         maxNumOfWriters: Int,
+        timeout: Duration = DEFAULT_CONNECTION_POOL_TIMEOUT,
     ): ConnectionPool =
         newConnectionPool(
             connectionFactory = { driver.open(fileName) },
             maxNumOfReaders,
             maxNumOfWriters,
+            timeout = timeout,
         )
 
     private class TestingRollbackException : Throwable()
