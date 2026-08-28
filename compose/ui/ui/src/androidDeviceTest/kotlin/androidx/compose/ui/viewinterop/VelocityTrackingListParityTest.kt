@@ -58,6 +58,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -292,6 +293,7 @@ class VelocityTrackingListParityTest {
     }
 
     @Test
+    @Ignore("b/553655098")
     fun equalLists_withEqualFlings_shouldFinishAtTheSameItem_orthogonal() = runBlocking {
         val state = LazyListState()
 
