@@ -264,12 +264,36 @@ public fun SearchBar(
     tonalElevation: Dp = SearchBarDefaults.TonalElevation,
     shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
 ) {
+    SearchBarImpl(
+        state = state,
+        inputField = inputField,
+        modifier = modifier,
+        shape = shape,
+        containerColor = colors.containerColor,
+        contentColor = contentColorFor(colors.containerColor),
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+    )
+}
+
+@Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
+@Composable
+private fun SearchBarImpl(
+    state: SearchBarState,
+    inputField: @Composable () -> Unit,
+    modifier: Modifier,
+    shape: Shape,
+    containerColor: Color,
+    contentColor: Color,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+) {
     DisableSoftKeyboard {
         Surface(
             modifier = modifier.onGloballyPositioned { state.collapsedCoords = it },
             shape = shape,
-            color = colors.containerColor,
-            contentColor = contentColorFor(colors.containerColor),
+            color = containerColor,
+            contentColor = contentColor,
             tonalElevation = tonalElevation,
             shadowElevation = shadowElevation,
             content = inputField,
@@ -412,20 +436,76 @@ public fun AppBarWithSearch(
     windowInsets: WindowInsets = SearchBarDefaults.windowInsets,
     scrollBehavior: SearchBarScrollBehavior? = null,
 ) {
+    AppBarWithSearchImpl(
+        state = state,
+        inputField = inputField,
+        modifier = modifier,
+        navigationIcon = navigationIcon,
+        actions = actions,
+        shape = shape,
+        searchBarContainerColor = colors.searchBarColors.containerColor,
+        scrolledSearchBarContainerColor = colors.scrolledSearchBarContainerColor,
+        appBarContainerColor = colors.appBarContainerColor,
+        scrolledAppBarContainerColor = colors.scrolledAppBarContainerColor,
+        appBarNavigationIconColor = colors.appBarNavigationIconColor,
+        appBarActionIconColor = colors.appBarActionIconColor,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        contentPadding = contentPadding,
+        windowInsets = windowInsets,
+        scrollBehavior = scrollBehavior,
+    )
+}
+
+@Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
+@Composable
+private fun AppBarWithSearchImpl(
+    state: SearchBarState,
+    inputField: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable (() -> Unit)?,
+    actions: @Composable (RowScope.() -> Unit)?,
+    shape: Shape,
+    searchBarContainerColor: Color,
+    scrolledSearchBarContainerColor: Color,
+    appBarContainerColor: Color,
+    scrolledAppBarContainerColor: Color,
+    appBarNavigationIconColor: Color,
+    appBarActionIconColor: Color,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+    contentPadding: PaddingValues,
+    windowInsets: WindowInsets,
+    scrollBehavior: SearchBarScrollBehavior?,
+) {
     // TODO Load the motionScheme tokens from the component tokens file
     val animationSpec = MotionSchemeKeyTokens.DefaultEffects
 
     val isContainerTransparent =
-        remember(colors) { colors.appBarContainerColor == Color.Transparent }
+        remember(appBarContainerColor) { appBarContainerColor == Color.Transparent }
 
     val (targetAppBarContainerColor, targetSearchBarContainerColor) =
-        remember(colors, scrollBehavior) {
+        remember(
+                appBarContainerColor,
+                scrolledAppBarContainerColor,
+                searchBarContainerColor,
+                scrolledSearchBarContainerColor,
+                scrollBehavior,
+            ) {
                 derivedStateOf {
                     val overlappingFraction = scrollBehavior?.overlappedFraction() ?: 0f
                     val colorTransitionFraction = if (overlappingFraction > 0.01f) 1f else 0f
                     Pair(
-                        colors.appBarContainerColor(colorTransitionFraction),
-                        colors.searchBarContainerColor(colorTransitionFraction),
+                        getAppBarContainerColor(
+                            colorTransitionFraction,
+                            appBarContainerColor,
+                            scrolledAppBarContainerColor,
+                        ),
+                        getSearchBarContainerColor(
+                            colorTransitionFraction,
+                            searchBarContainerColor,
+                            scrolledSearchBarContainerColor,
+                        ),
                     )
                 }
             }
@@ -434,12 +514,8 @@ public fun AppBarWithSearch(
     val appBarContainerColor by
         animateColorAsState(targetAppBarContainerColor, animationSpec = animationSpec.value())
 
-    val searchBarColors by
-        remember(targetSearchBarContainerColor) {
-            mutableStateOf(
-                colors.searchBarColors.copy(containerColor = targetSearchBarContainerColor)
-            )
-        }
+    val searchBarContainerColor by
+        remember(targetSearchBarContainerColor) { mutableStateOf(targetSearchBarContainerColor) }
 
     Surface(
         backgroundColor = { appBarContainerColor },
@@ -459,7 +535,7 @@ public fun AppBarWithSearch(
             navigationIcon?.let {
                 Box(Modifier.padding(start = AppBarWithSearchHorizontalPadding)) {
                     CompositionLocalProvider(
-                        LocalContentColor provides colors.appBarNavigationIconColor,
+                        LocalContentColor provides appBarNavigationIconColor,
                         content = it,
                     )
                 }
@@ -469,7 +545,7 @@ public fun AppBarWithSearch(
                     !state.isExpanded ||
                     state.targetValue == SearchBarValue.Expanded // prevent flickering
             Box(modifier = Modifier.weight(1f).alpha(if (isVisible) 1f else 0f)) {
-                SearchBar(
+                SearchBarImpl(
                     state = state,
                     inputField = inputField,
                     modifier =
@@ -480,7 +556,8 @@ public fun AppBarWithSearch(
                             .widthIn(min = SearchBarMinWidth, max = SearchBarMaxWidth)
                             .align(Alignment.Center),
                     shape = shape,
-                    colors = searchBarColors,
+                    containerColor = searchBarContainerColor,
+                    contentColor = contentColorFor(searchBarContainerColor),
                     tonalElevation = if (isContainerTransparent) tonalElevation else 0.dp,
                     shadowElevation = if (isContainerTransparent) shadowElevation else 0.dp,
                 )
@@ -497,7 +574,7 @@ public fun AppBarWithSearch(
                     }
                 Box(Modifier.padding(end = AppBarWithSearchHorizontalPadding)) {
                     CompositionLocalProvider(
-                        LocalContentColor provides colors.appBarActionIconColor,
+                        LocalContentColor provides appBarActionIconColor,
                         content = actionsRow,
                     )
                 }
@@ -534,7 +611,6 @@ public fun AppBarWithSearch(
  *   ignored.
  * @param content the content of this search bar to display search results below the [inputField].
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun ExpandedFullScreenContainedSearchBar(
     state: SearchBarState,
@@ -566,7 +642,8 @@ public fun ExpandedFullScreenContainedSearchBar(
             inputFieldPadding = PaddingValues(horizontal = FullScreenExpandedHorizontalPadding),
             modifier = modifier,
             collapsedShape = collapsedShape,
-            colors = colors,
+            containerColor = colors.containerColor,
+            contentColor = contentColorFor(colors.containerColor),
             tonalElevation = tonalElevation,
             shadowElevation = shadowElevation,
             windowInsets = windowInsets(),
@@ -634,7 +711,8 @@ public fun ExpandedFullScreenSearchBar(
             inputFieldPadding = PaddingValues(),
             modifier = modifier,
             collapsedShape = collapsedShape,
-            colors = colors,
+            containerColor = colors.containerColor,
+            contentColor = contentColorFor(colors.containerColor),
             tonalElevation = tonalElevation,
             shadowElevation = shadowElevation,
             windowInsets = windowInsets(),
@@ -647,7 +725,6 @@ public fun ExpandedFullScreenSearchBar(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ExpandedFullScreenSearchBarImpl(
     state: SearchBarState,
@@ -712,7 +789,6 @@ private fun ExpandedFullScreenSearchBarImpl(
  *   ignored.
  * @param content the content of this search bar to display search results below the [inputField].
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun ExpandedDockedSearchBarWithGap(
     state: SearchBarState,
@@ -747,7 +823,8 @@ public fun ExpandedDockedSearchBarWithGap(
             searchBarShape = shape,
             dropdownShape = dropdownShape,
             dropdownGapSize = dropdownGapSize,
-            colors = colors,
+            containerColor = colors.containerColor,
+            dividerColor = colors.dividerColor,
             tonalElevation = tonalElevation,
             shadowElevation = shadowElevation,
             content = content,
@@ -810,14 +887,14 @@ public fun ExpandedDockedSearchBar(
             searchBarShape = shape,
             dropdownShape = null,
             dropdownGapSize = null,
-            colors = colors,
+            containerColor = colors.containerColor,
+            dividerColor = colors.dividerColor,
             tonalElevation = tonalElevation,
             shadowElevation = shadowElevation,
             content = content,
         )
     }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ExpandedDockedSearchBarImpl(
     state: SearchBarState,
@@ -2804,6 +2881,21 @@ internal fun AppBarWithSearchColors.searchBarContainerColor(colorTransitionFract
     )
 }
 
+private fun getSearchBarContainerColor(
+    colorTransitionFraction: Float,
+    searchBarContainerColor: Color,
+    scrolledSearchBarContainerColor: Color,
+): Color {
+    if (scrolledSearchBarContainerColor == Color.Unspecified) {
+        return searchBarContainerColor
+    }
+    return androidx.compose.ui.graphics.lerp(
+        searchBarContainerColor,
+        scrolledSearchBarContainerColor,
+        FastOutLinearInEasing.transform(colorTransitionFraction),
+    )
+}
+
 /**
  * Represents the container color used for the app bar.
  *
@@ -2815,6 +2907,21 @@ internal fun AppBarWithSearchColors.searchBarContainerColor(colorTransitionFract
 @OptIn(ExperimentalMaterial3Api::class)
 @Stable
 internal fun AppBarWithSearchColors.appBarContainerColor(colorTransitionFraction: Float): Color {
+    if (scrolledAppBarContainerColor == Color.Unspecified) {
+        return appBarContainerColor
+    }
+    return androidx.compose.ui.graphics.lerp(
+        appBarContainerColor,
+        scrolledAppBarContainerColor,
+        FastOutLinearInEasing.transform(colorTransitionFraction),
+    )
+}
+
+private fun getAppBarContainerColor(
+    colorTransitionFraction: Float,
+    appBarContainerColor: Color,
+    scrolledAppBarContainerColor: Color,
+): Color {
     if (scrolledAppBarContainerColor == Color.Unspecified) {
         return appBarContainerColor
     }
@@ -3256,7 +3363,8 @@ private fun DockedSearchBarLayout(
     searchBarShape: Shape,
     dropdownShape: Shape?,
     dropdownGapSize: Dp?,
-    colors: SearchBarColors,
+    containerColor: Color,
+    dividerColor: Color,
     tonalElevation: Dp,
     shadowElevation: Dp,
     content: @Composable ColumnScope.() -> Unit,
@@ -3268,7 +3376,7 @@ private fun DockedSearchBarLayout(
             if (dropdownShape != null) {
                 Box(
                     modifier =
-                        Modifier.background(color = colors.containerColor, shape = searchBarShape)
+                        Modifier.background(color = containerColor, shape = searchBarShape)
                             .clip(searchBarShape)
                 ) {
                     inputField()
@@ -3278,8 +3386,7 @@ private fun DockedSearchBarLayout(
             }
         },
         modifier = modifier,
-        colors =
-            if (dropdownShape != null) colors.copy(containerColor = Color.Transparent) else colors,
+        containerColor = if (dropdownShape != null) Color.Transparent else containerColor,
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         hasGap = dropdownGapSize != null,
@@ -3297,7 +3404,7 @@ private fun DockedSearchBarLayout(
                 AnimatedVisibility(
                     modifier =
                         Modifier.padding(top = dropdownGapSize ?: 0.dp)
-                            .background(color = colors.containerColor, shape = dropdownShape)
+                            .background(color = containerColor, shape = dropdownShape)
                             .clip(dropdownShape)
                             .alpha(state.contentProgress),
                     visible = hasSufficientProgress && state.targetValue == SearchBarValue.Expanded,
@@ -3316,7 +3423,7 @@ private fun DockedSearchBarLayout(
                 }
             } else {
                 Column {
-                    HorizontalDivider(color = colors.dividerColor)
+                    HorizontalDivider(color = dividerColor)
                     content()
                 }
             }
@@ -3330,7 +3437,7 @@ private fun DockedSearchBarLayoutImpl(
     state: SearchBarState,
     inputField: @Composable () -> Unit,
     modifier: Modifier,
-    colors: SearchBarColors,
+    containerColor: Color,
     tonalElevation: Dp,
     shadowElevation: Dp,
     hasGap: Boolean,
@@ -3341,8 +3448,8 @@ private fun DockedSearchBarLayoutImpl(
 
     Surface(
         shape = shape,
-        color = colors.containerColor,
-        contentColor = contentColorFor(colors.containerColor),
+        color = containerColor,
+        contentColor = contentColorFor(containerColor),
         tonalElevation = tonalElevation,
         shadowElevation = shadowElevation,
         modifier = modifier.imePadding(),
@@ -3406,7 +3513,8 @@ private fun FullScreenSearchBarLayout(
     inputFieldPadding: PaddingValues,
     modifier: Modifier,
     collapsedShape: Shape,
-    colors: SearchBarColors,
+    containerColor: Color,
+    contentColor: Color,
     tonalElevation: Dp,
     shadowElevation: Dp,
     windowInsets: WindowInsets,
@@ -3485,8 +3593,8 @@ private fun FullScreenSearchBarLayout(
             Surface(
                 modifier = Modifier.layoutId(LayoutIdSurface),
                 shape = animatedShape,
-                color = colors.containerColor,
-                contentColor = contentColorFor(colors.containerColor),
+                color = containerColor,
+                contentColor = contentColor,
                 tonalElevation = tonalElevation,
                 shadowElevation = shadowElevation,
                 content = {},
