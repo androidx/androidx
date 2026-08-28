@@ -20,9 +20,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import kotlin.collections.ArrayList
 
-/**
- * [RemotePathScope] provides a DSL to create a list of [RemotePathNode], used to describe a path.
- */
+/** Provides a DSL to describe a vector path. */
 // NotCloseable - because close here is a path operation, not resource closing
 @Suppress("NotCloseable")
 public class RemotePathScope constructor() {
@@ -34,13 +32,13 @@ public class RemotePathScope constructor() {
     internal val nodes: List<RemotePathNode>
         get() = _nodes
 
-    /** Closes the current contour by adding a [RemotePathNode.Close] to [nodes]. */
+    /** Closes the current contour. */
     public fun close() {
         _nodes.add(RemotePathNode.Close)
     }
 
     /**
-     * Start a new contour at position ([x], [y]) by adding a [RemotePathNode.MoveTo] to [nodes].
+     * Starts a new contour at position ([x], [y]).
      *
      * @param x The x coordinate of the start of the new contour
      * @param y The y coordinate of the start of the new contour
@@ -50,8 +48,7 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Start a new contour at the offset ([dx], [dy]) relative to the last path position by adding a
-     * [RemotePathNode.RelativeMoveTo] to [nodes].
+     * Starts a new contour at the offset ([dx], [dy]) relative to the last path position.
      *
      * @param dx The x offset of the start of the new contour, relative to the last path position
      * @param dy The y offset of the start of the new contour, relative to the last path position
@@ -61,9 +58,8 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a line from the last point to the position ([x], [y]) by adding a [RemotePathNode.LineTo]
-     * to [nodes]. If no contour has been created by calling [moveTo] first, the origin of the line
-     * is set to (0, 0).
+     * Adds a line from the last point to the position ([x], [y]). If no contour has been created by
+     * calling [moveTo] first, the origin of the line is set to (0, 0).
      *
      * @param x The x coordinate of the end of the line
      * @param y The y coordinate of the end of the line
@@ -73,9 +69,8 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a line from the last point to the offset ([dx], [dy]) relative to the last point by
-     * adding a [RemotePathNode.RelativeLineTo] to [nodes]. If no contour has been created by
-     * calling [moveTo] first, the origin of the line is set to (0, 0).
+     * Adds a line from the last point to the offset ([dx], [dy]) relative to the last point. If no
+     * contour has been created by calling [moveTo] first, the origin of the line is set to (0, 0).
      *
      * @param dx The x offset of the end of the line, relative to the last path position
      * @param dy The y offset of the end of the line, relative to the last path position
@@ -85,9 +80,9 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a line from the last point to the position ([x], `oy`), where `oy` is the y coordinate of
-     * the last point, by adding a [RemotePathNode.HorizontalTo] to [nodes]. If no contour has been
-     * created by calling [moveTo] first, the origin of the line is set to (0, 0).
+     * Adds a horizontal line from the last point to the position ([x], `oy`), where `oy` is the y
+     * coordinate of the last point. If no contour has been created by calling [moveTo] first, the
+     * origin of the line is set to (0, 0).
      *
      * @param x The x coordinate of the end of the line
      */
@@ -96,10 +91,9 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a line from the last point to the position ([dx] `+ ox`, `oy`), where `ox` and `oy` are
-     * the x and y coordinates of the last point, by adding a [RemotePathNode.RelativeHorizontalTo]
-     * to [nodes]. If no contour has been created by calling [moveTo] first, the origin of the line
-     * is set to (0, 0).
+     * Adds a horizontal line from the last point to the position ([dx] `+ ox`, `oy`), where `ox`
+     * and `oy` are the x and y coordinates of the last point. If no contour has been created by
+     * calling [moveTo] first, the origin of the line is set to (0, 0).
      *
      * @param dx The x offset of the end of the line, relative to the last path position
      */
@@ -108,9 +102,9 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a line from the last point to the position (`ox`, [y]), where `ox` is the x coordinate of
-     * the last point, by adding a [RemotePathNode.VerticalTo] to [nodes]. If no contour has been
-     * created by calling [moveTo] first, the origin of the line is set to (0, 0).
+     * Adds a vertical line from the last point to the position (`ox`, [y]), where `ox` is the x
+     * coordinate of the last point. If no contour has been created by calling [moveTo] first, the
+     * origin of the line is set to (0, 0).
      *
      * @param y The y coordinate of the end of the line
      */
@@ -119,10 +113,9 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a line from the last point to the position (`ox`, [dy] `+ oy`), where `ox` and `oy` are
-     * the x and y coordinates of the last point, by adding a [RemotePathNode.RelativeVerticalTo] to
-     * [nodes]. If no contour has been created by calling [moveTo] first, the origin of the line is
-     * set to (0, 0).
+     * Adds a vertical line from the last point to the position (`ox`, [dy] `+ oy`), where `ox` and
+     * `oy` are the x and y coordinates of the last point. If no contour has been created by calling
+     * [moveTo] first, the origin of the line is set to (0, 0).
      *
      * @param dy The y offset of the end of the line, relative to the last path position
      */
@@ -131,9 +124,9 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a cubic Bézier from the last point to the position ([x3], [y3]), approaching the control
-     * points ([x1], [y1]) and ([x2], [y2]), by adding a [RemotePathNode.CurveTo] to [nodes]. If no
-     * contour has been created by calling [moveTo] first, the origin of the curve is set to (0, 0).
+     * Adds a cubic Bézier from the last point to the position ([x3], [y3]), approaching the control
+     * points ([x1], [y1]) and ([x2], [y2]). If no contour has been created by calling [moveTo]
+     * first, the origin of the curve is set to (0, 0).
      *
      * @param x1 The x coordinate of the first control point of the cubic curve
      * @param y1 The y coordinate of the first control point of the cubic curve
@@ -154,9 +147,9 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a cubic Bézier by adding a [RemotePathNode.CurveTo] to [nodes]. If no contour has been
-     * created by calling [moveTo] first, the origin of the curve is set to (0, 0). The cubic Bézier
-     * control and end points are defined by offsets relative to the last point.
+     * Adds a cubic Bézier where the control and end points are defined by offsets relative to the
+     * last point. If no contour has been created by calling [moveTo] first, the origin of the curve
+     * is set to (0, 0).
      *
      * @param dx1 The x offset of the first control point of the cubic curve, relative to the last
      *   path position
@@ -183,12 +176,11 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a cubic Bézier from the last point to the position ([x2], [y2]). The first control point
+     * Adds a cubic Bézier from the last point to the position ([x2], [y2]). The first control point
      * is the reflection of the second control point of the previous command. If there is no
      * previous command or the previous command is not a cubic Bézier, the first control point is
-     * set to the last path position. The second control point is defined by ([x1], [y1]). Calling
-     * this method adds a [RemotePathNode.ReflectiveCurveTo] to [nodes]. If no contour has been
-     * created by calling [moveTo] first, the origin of the curve is set to (0, 0).
+     * set to the last path position. The second control point is defined by ([x1], [y1]). If no
+     * contour has been created by calling [moveTo] first, the origin of the curve is set to (0, 0).
      *
      * @param x1 The x coordinate of the second control point of the cubic curve
      * @param y1 The y coordinate of the second control point of the cubic curve
@@ -205,10 +197,10 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a cubic Bézier by adding a [RemotePathNode.RelativeReflectiveCurveTo] to [nodes]. If no
-     * contour has been created by calling [moveTo] first, the origin of the curve is set to (0, 0).
-     * The cubic Bézier second control point and end points are defined by offsets relative to the
-     * last point. The reflective nature of the curve is described in [reflectiveCurveTo].
+     * Adds a cubic Bézier where the second control point and end points are defined by offsets
+     * relative to the last point. If no contour has been created by calling [moveTo] first, the
+     * origin of the curve is set to (0, 0). The reflective nature of the curve is described in
+     * [reflectiveCurveTo].
      *
      * @param dx1 The x offset of the second control point of the cubic curve, relative to the last
      *   path position
@@ -229,9 +221,9 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a quadratic Bézier from the last point to the position ([x2], [y2]), approaching the
-     * control point ([x1], [y1]), by adding a [RemotePathNode.QuadTo] to [nodes]. If no contour has
-     * been created by calling [moveTo] first, the origin of the curve is set to (0, 0).
+     * Adds a quadratic Bézier from the last point to the position ([x2], [y2]), approaching the
+     * control point ([x1], [y1]). If no contour has been created by calling [moveTo] first, the
+     * origin of the curve is set to (0, 0).
      *
      * @param x1 The x coordinate of the control point of the quadratic curve
      * @param y1 The y coordinate of the control point of the quadratic curve
@@ -243,9 +235,9 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a quadratic Bézier by adding a [RemotePathNode.RelativeQuadTo] to [nodes]. If no contour
-     * has been created by calling [moveTo] first, the origin of the curve is set to (0, 0). The
-     * control point and end point of the curve are defined by offsets relative to the last point.
+     * Adds a quadratic Bézier where the control point and end point of the curve are defined by
+     * offsets relative to the last point. If no contour has been created by calling [moveTo] first,
+     * the origin of the curve is set to (0, 0).
      *
      * @param dx1 The x offset of the control point of the quadratic curve, relative to the last
      *   path position
@@ -266,11 +258,11 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a quadratic Bézier from the last point to the position ([x1], [y1]). The control point is
-     * the reflection of the control point of the previous command. If there is no previous command
-     * or the previous command is not a quadratic Bézier, the control point is set to the last path
-     * position. Calling this method adds a [RemotePathNode.ReflectiveQuadTo] to [nodes]. If no
-     * contour has been created by calling [moveTo] first, the origin of the curve is set to (0, 0).
+     * Adds a quadratic Bézier from the last point to the position ([x1], [y1]). The control point
+     * is the reflection of the control point of the previous command. If there is no previous
+     * command or the previous command is not a quadratic Bézier, the control point is set to the
+     * last path position. If no contour has been created by calling [moveTo] first, the origin of
+     * the curve is set to (0, 0).
      *
      * @param x1 The x coordinate of the end point of the quadratic curve
      * @param y1 The y coordinate of the end point of the quadratic curve
@@ -280,10 +272,9 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add a quadratic Bézier by adding a [RemotePathNode.RelativeReflectiveQuadTo] to [nodes]. If
-     * no contour has been created by calling [moveTo] first, the origin of the curve is set to (0,
-     * 0). The quadratic Bézier end point is defined by an offset relative to the last point. The
-     * reflective nature of the curve is described in [reflectiveQuadTo].
+     * Adds a quadratic Bézier where the end point is defined by an offset relative to the last
+     * point. If no contour has been created by calling [moveTo] first, the origin of the curve is
+     * set to (0, 0). The reflective nature of the curve is described in [reflectiveQuadTo].
      *
      * @param dx1 The x offset of the end point of the quadratic curve, relative to the last path
      *   position
@@ -295,9 +286,54 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add an elliptical arc from the last point to the position ([x1], [y1]) by adding
-     * [RemotePathNode.ArcTo] to [nodes]. If no contour has been created by calling [moveTo] first,
-     * the origin of the arc is set to (0, 0).
+     * Adds a conic Bézier from the last point to the position ([x2], [y2]), approaching the control
+     * point ([x1], [y1]), with the given [weight]. If no contour has been created by calling
+     * [moveTo] first, the origin of the curve is set to (0, 0).
+     *
+     * @param x1 The x coordinate of the control point of the conic curve
+     * @param y1 The y coordinate of the control point of the conic curve
+     * @param x2 The x coordinate of the end point of the conic curve
+     * @param y2 The y coordinate of the end point of the conic curve
+     * @param weight The weight of the conic curve
+     */
+    public fun conicTo(
+        x1: RemoteFloat,
+        y1: RemoteFloat,
+        x2: RemoteFloat,
+        y2: RemoteFloat,
+        weight: RemoteFloat,
+    ) {
+        _nodes.add(RemotePathNode.ConicTo(x1, y1, x2, y2, weight))
+    }
+
+    /**
+     * Adds a conic Bézier with the given [weight] where the control point and end point of the
+     * curve are defined by offsets relative to the last point. If no contour has been created by
+     * calling [moveTo] first, the origin of the curve is set to (0, 0).
+     *
+     * @param dx1 The x offset of the control point of the conic curve, relative to the last path
+     *   position
+     * @param dy1 The y offset of the control point of the conic curve, relative to the last path
+     *   position
+     * @param dx2 The x offset of the end point of the conic curve, relative to the last path
+     *   position
+     * @param dy2 The y offset of the end point of the conic curve, relative to the last path
+     *   position
+     * @param weight The weight of the conic curve
+     */
+    public fun conicToRelative(
+        dx1: RemoteFloat,
+        dy1: RemoteFloat,
+        dx2: RemoteFloat,
+        dy2: RemoteFloat,
+        weight: RemoteFloat,
+    ) {
+        _nodes.add(RemotePathNode.RelativeConicTo(dx1, dy1, dx2, dy2, weight))
+    }
+
+    /**
+     * Adds an elliptical arc from the last point to the position ([x1], [y1]). If no contour has
+     * been created by calling [moveTo] first, the origin of the arc is set to (0, 0).
      *
      * The ellipse is defined by 3 parameters:
      * - [horizontalEllipseRadius] and [verticalEllipseRadius] to define the size of the ellipse
@@ -344,9 +380,9 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add an elliptical arc by adding [RemotePathNode.RelativeArcTo] to [nodes]. If no contour has
-     * been created by calling [moveTo] first, the origin of the arc is set to (0, 0). The arc
-     * Bézier end point is defined by an offset relative to the last point.
+     * Adds an elliptical arc where the end point is defined by an offset relative to the last
+     * point. If no contour has been created by calling [moveTo] first, the origin of the arc is set
+     * to (0, 0).
      *
      * The ellipse is defined by 3 parameters:
      * - [a] and [b] to define the size of the ellipse
@@ -385,7 +421,7 @@ public class RemotePathScope constructor() {
     }
 
     /**
-     * Add an elliptical arc to the path.
+     * Adds an elliptical arc to the path.
      *
      * @param left The left bound of the oval defining the shape of the arc
      * @param top The top bound of the oval defining the shape of the arc

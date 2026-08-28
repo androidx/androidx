@@ -274,6 +274,44 @@ public sealed class RemotePathNode(
         RemotePathNode(isQuad = true)
 
     /**
+     * Draws a conic curve from the current point to a new point using relative coordinates.
+     *
+     * @param dx1 The relative x-offset of the control point.
+     * @param dy1 The relative y-offset of the control point.
+     * @param dx2 The relative x-offset of the curve's end point.
+     * @param dy2 The relative y-offset of the curve's end point.
+     * @param weight The weight of the conic curve.
+     */
+    @Immutable
+    @Suppress("DataClassDefinition")
+    public data class RelativeConicTo(
+        val dx1: RemoteFloat,
+        val dy1: RemoteFloat,
+        val dx2: RemoteFloat,
+        val dy2: RemoteFloat,
+        val weight: RemoteFloat,
+    ) : RemotePathNode()
+
+    /**
+     * Draws a conic curve from the current point to a new point using absolute coordinates.
+     *
+     * @param x1 The absolute x-coordinate of the control point.
+     * @param y1 The absolute y-coordinate of the control point.
+     * @param x2 The absolute x-coordinate of the curve's end point.
+     * @param y2 The absolute y-coordinate of the curve's end point.
+     * @param weight The weight of the conic curve.
+     */
+    @Immutable
+    @Suppress("DataClassDefinition")
+    public data class ConicTo(
+        val x1: RemoteFloat,
+        val y1: RemoteFloat,
+        val x2: RemoteFloat,
+        val y2: RemoteFloat,
+        val weight: RemoteFloat,
+    ) : RemotePathNode()
+
+    /**
      * Draws an elliptical arc from the current point to a new point using relative coordinates.
      * Corresponds to the `a` path data command.
      *

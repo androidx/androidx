@@ -25,6 +25,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.remotePath
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.vector.RemotePathScope
 import androidx.compose.ui.unit.LayoutDirection
 
 /**
@@ -179,9 +180,23 @@ public sealed class RemoteOutline {
 
     /** An area defined as a path. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public class Generic(public val path: RemotePath) : RemoteOutline() {
+    public class Generic : RemoteOutline {
+        public val path: RemotePath?
+        private val block: (RemotePathScope.() -> Unit)?
+
+        public constructor(path: RemotePath) : super() {
+            this.path = path
+            this.block = null
+        }
+
+        public constructor(block: RemotePathScope.() -> Unit) : super() {
+            this.path = null
+            this.block = block
+        }
+
         override fun RemoteDrawScope.drawOutline(paint: RemotePaint) {
-            drawPath(path, paint)
+            val p = path ?: remotePath(block!!)
+            drawPath(p, paint)
         }
     }
 
