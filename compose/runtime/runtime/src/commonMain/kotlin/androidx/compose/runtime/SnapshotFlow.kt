@@ -59,7 +59,11 @@ import kotlinx.coroutines.withContext
 public fun <T> StateFlow<T>.collectAsState(
     context: CoroutineContext = EmptyCoroutineContext,
     mutationPolicy: SnapshotMutationPolicy<T> = structuralEqualityPolicy(),
-): State<T> = collectAsState(value, context, mutationPolicy)
+): State<T> {
+    val state = remember { mutableStateOf(value, mutationPolicy) }
+    collectInto(state, context)
+    return state
+}
 
 /**
  * Collects values from this [Flow] and represents its latest value via [State]. Every time there
@@ -82,19 +86,24 @@ public fun <T : R, R> Flow<T>.collectAsState(
     initial: R,
     context: CoroutineContext = EmptyCoroutineContext,
     mutationPolicy: SnapshotMutationPolicy<R> = structuralEqualityPolicy(),
-): State<R> =
-    @Suppress("UNCHECKED_CAST")
-    produceState(
-        initialValue = initial,
-        key1 = this,
-        key2 = context,
-        mutationPolicy = mutationPolicy,
-        producer = {
-            if (context == EmptyCoroutineContext) {
-                collect { value = it }
-            } else withContext(context) { collect { value = it } }
-        },
-    )
+): State<R> {
+    val state = remember { mutableStateOf(initial, mutationPolicy) }
+    collectInto(state, context)
+    return state
+}
+
+@Suppress("ComposableNaming")
+@Composable
+@NonRestartableComposable
+private fun <T : R, R> Flow<T>.collectInto(state: MutableState<R>, context: CoroutineContext) {
+    LaunchedEffect(this, context) {
+        if (context == EmptyCoroutineContext) {
+            collect { state.value = it }
+        } else {
+            withContext(context) { collect { state.value = it } }
+        }
+    }
+}
 
 /**
  * Collects values from this [StateFlow] and represents its latest value via [State]. The
