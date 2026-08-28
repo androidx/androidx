@@ -17,10 +17,8 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.ceilToIntPx
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
 
 /** Find the constraints to pass to Paragraph based on all the parameters. */
 internal fun finalConstraints(
@@ -93,32 +91,3 @@ internal val TextOverflow.isEllipsis: Boolean
             this == TextOverflow.StartEllipsis ||
             this == TextOverflow.MiddleEllipsis
     }
-
-internal fun calculateAlignmentOffset(
-    textAlign: TextAlign?,
-    layoutDirection: LayoutDirection,
-    nodeWidth: Int,
-    paragraphWidth: Int,
-): Float {
-    val resolvedAlign =
-        when (textAlign) {
-            TextAlign.Left -> TextAlign.Left
-            TextAlign.Right -> TextAlign.Right
-            TextAlign.Center -> TextAlign.Center
-            TextAlign.Start,
-            TextAlign.Justify,
-            TextAlign.Unspecified,
-            null -> {
-                if (layoutDirection == LayoutDirection.Ltr) TextAlign.Left else TextAlign.Right
-            }
-            TextAlign.End ->
-                if (layoutDirection == LayoutDirection.Ltr) TextAlign.Right else TextAlign.Left
-            else -> if (layoutDirection == LayoutDirection.Ltr) TextAlign.Left else TextAlign.Right
-        }
-
-    return when (resolvedAlign) {
-        TextAlign.Center -> (nodeWidth - paragraphWidth) / 2f
-        TextAlign.Right -> (nodeWidth - paragraphWidth).toFloat()
-        else -> 0f
-    }
-}

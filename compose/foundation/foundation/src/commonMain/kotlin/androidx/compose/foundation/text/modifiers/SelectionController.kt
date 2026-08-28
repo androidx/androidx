@@ -46,7 +46,6 @@ internal open class StaticTextSelectionParams(
     val layoutCoordinates: LayoutCoordinates?,
     val textLayoutResult: TextLayoutResult?,
     val pinnableContainer: PinnableContainer?,
-    val inLookaheadTransition: Boolean = false,
 ) {
     companion object {
         val Empty = StaticTextSelectionParams(null, null, null)
@@ -67,14 +66,8 @@ internal open class StaticTextSelectionParams(
         layoutCoordinates: LayoutCoordinates? = this.layoutCoordinates,
         textLayoutResult: TextLayoutResult? = this.textLayoutResult,
         pinnableContainer: PinnableContainer? = this.pinnableContainer,
-        inLookaheadTransition: Boolean = this.inLookaheadTransition,
     ): StaticTextSelectionParams {
-        return StaticTextSelectionParams(
-            layoutCoordinates,
-            textLayoutResult,
-            pinnableContainer,
-            inLookaheadTransition,
-        )
+        return StaticTextSelectionParams(layoutCoordinates, textLayoutResult, pinnableContainer)
     }
 }
 
@@ -96,9 +89,7 @@ internal class SelectionController(
         selectionRegistrar
             .makeSelectionModifier(
                 selectableId = selectableId,
-                layoutCoordinatesProvider = {
-                    if (params.inLookaheadTransition) null else params.layoutCoordinates
-                },
+                layoutCoordinatesProvider = { params.layoutCoordinates },
             )
             .bringIntoViewRequester(bringIntoViewRequester)
             .pointerHoverIcon(PointerIcon.Text)
@@ -108,9 +99,7 @@ internal class SelectionController(
             selectionRegistrar.subscribe(
                 MultiWidgetSelectionDelegate(
                     selectableId = selectableId,
-                    coordinatesCallback = {
-                        if (params.inLookaheadTransition) null else params.layoutCoordinates
-                    },
+                    coordinatesCallback = { params.layoutCoordinates },
                     layoutResultCallback = { params.textLayoutResult },
                     pinnableContainerCallback = { params.pinnableContainer },
                     bringIntoViewRequester = bringIntoViewRequester,
@@ -148,18 +137,6 @@ internal class SelectionController(
 
     fun updatePinnableContainer(pinnableContainer: PinnableContainer?) {
         params = params.copy(pinnableContainer = pinnableContainer)
-    }
-
-    fun updateInLookaheadTransition(inTransition: Boolean) {
-        val wasInTransition = params.inLookaheadTransition
-        if (wasInTransition != inTransition) {
-            params = params.copy(inLookaheadTransition = inTransition)
-            if (!wasInTransition && inTransition) {
-                selectionRegistrar.notifySelectableChange(selectableId)
-            } else if (wasInTransition && !inTransition) {
-                selectionRegistrar.notifyPositionChange(selectableId)
-            }
-        }
     }
 
     fun draw(drawScope: DrawScope) {
