@@ -18,7 +18,6 @@
 
 package androidx.compose.foundation.benchmark
 
-import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,12 +35,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.style.CommonStyle
 import androidx.compose.foundation.style.ExperimentalFoundationStyleApi
 import androidx.compose.foundation.style.MutableStyleState
 import androidx.compose.foundation.style.Style
+import androidx.compose.foundation.style.StyleResolver
 import androidx.compose.foundation.style.StyleScope
 import androidx.compose.foundation.style.animate
 import androidx.compose.foundation.style.border
+import androidx.compose.foundation.style.contentColor
 import androidx.compose.foundation.style.contentPadding
 import androidx.compose.foundation.style.disabled
 import androidx.compose.foundation.style.externalPadding
@@ -49,8 +51,10 @@ import androidx.compose.foundation.style.focused
 import androidx.compose.foundation.style.hovered
 import androidx.compose.foundation.style.pressed
 import androidx.compose.foundation.style.size
+import androidx.compose.foundation.style.styleResolver
 import androidx.compose.foundation.style.styleable
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.LocalContentColor
@@ -76,14 +80,18 @@ import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -106,56 +114,41 @@ class StyleBenchmark(val isStyle: Boolean) {
 
     @Test
     fun basic_box_border_change() {
-        textFlag(isStyle) {
-            benchmarkRule.toggleStateBenchmarkComposeMeasureLayoutDraw(
-                { BasicBoxTestCase(isStyle) },
-                assertOneRecomposition = false,
-                requireRecomposition = false,
-            )
-        }
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayoutDraw(
+            { BasicBoxTestCase(isStyle) },
+            assertOneRecomposition = false,
+            requireRecomposition = false,
+        )
     }
 
     @Test
     fun basic_box() {
-        textFlag(isStyle) { benchmarkRule.benchmarkToFirstPixel { BasicBoxTestCase(isStyle) } }
+        benchmarkRule.benchmarkToFirstPixel { BasicBoxTestCase(isStyle) }
     }
 
     @Test
     fun input_state_basic_box() {
-        textFlag(isStyle) { benchmarkRule.benchmarkToFirstPixel { InputStateTestCase(isStyle) } }
+        benchmarkRule.benchmarkToFirstPixel { InputStateTestCase(isStyle) }
     }
 
     @Test
     fun basic_text() {
-        textFlag(isStyle) { benchmarkRule.benchmarkToFirstPixel { BasicTextTestCase(isStyle) } }
+        benchmarkRule.benchmarkToFirstPixel { BasicTextTestCase(isStyle) }
     }
 
     @Test
     fun basic_text_provided_color() {
-        textFlag(isStyle) {
-            benchmarkRule.benchmarkToFirstPixel { BasicTextProvidedColorTestCase(isStyle) }
-        }
+        benchmarkRule.benchmarkToFirstPixel { BasicTextProvidedColorTestCase(isStyle) }
     }
 
     @Test
     fun button() {
-        textFlag(isStyle) { benchmarkRule.benchmarkToFirstPixel { ButtonTestCase(isStyle) } }
+        benchmarkRule.benchmarkToFirstPixel { ButtonTestCase(isStyle) }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-private inline fun textFlag(isStyle: Boolean, block: () -> Unit) {
-    val previous = ComposeFoundationFlags.isInheritedTextStyleEnabled
-    ComposeFoundationFlags.isInheritedTextStyleEnabled = isStyle
-    try {
-        block()
-    } finally {
-        ComposeFoundationFlags.isInheritedTextStyleEnabled = previous
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-class BasicTextTestCase(val isStyle: Boolean) : LayeredComposeTestCase() {
+class BasicTextTestCase(@Suppress("unused") val isStyle: Boolean) : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
         BasicText("Hello World")
@@ -178,7 +171,7 @@ class BasicTextProvidedColorTestCase(val isStyle: Boolean) : LayeredComposeTestC
 
     @Composable
     fun StyleVersion() {
-        Box(Modifier.styleable(null) { contentColor(Color.Blue) }) { BasicText("Hello World") }
+        Box(Modifier.styleable(null) { contentColor(Color.Blue) }) { StyleText("Hello World") }
     }
 
     @Composable
@@ -206,7 +199,7 @@ class ButtonTestCase(val isStyle: Boolean) : LayeredComposeTestCase() {
 
     @Composable
     fun StyleVersion() {
-        BasicText("Hello World")
+        StyleText("Hello World")
     }
 
     @Composable
@@ -466,3 +459,38 @@ val Typography =
 val LocalColorScheme = staticCompositionLocalOf { LightColorScheme }
 val LocalTypography = staticCompositionLocalOf { Typography }
 val LocalShapes = staticCompositionLocalOf { Shapes() }
+
+@Composable
+fun StyleText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: CommonStyle = CommonStyle,
+    textStyle: TextStyle = TextStyle.Default,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    color: ColorProducer? = null,
+    autoSize: TextAutoSize? = null,
+) {
+    val styleResolver = remember(style) { StyleResolver(style) }
+    BasicText(
+        text = text,
+        modifier = modifier.styleResolver(styleResolver),
+        style = textStyle,
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        color = { color.ifUnspecified { styleResolver.resolve { contentColor } } },
+        autoSize = autoSize,
+    )
+}
+
+private inline fun ColorProducer?.ifUnspecified(crossinline block: () -> Color): Color =
+    if (this != null) {
+        val result = block()
+        if (result.isSpecified) result else block()
+    } else Color.Unspecified

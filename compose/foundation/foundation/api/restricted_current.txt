@@ -2328,6 +2328,36 @@ package androidx.compose.foundation.style {
     method public void animate(androidx.compose.animation.core.AnimationSpec<java.lang.Float> toSpec, androidx.compose.animation.core.AnimationSpec<java.lang.Float> fromSpec, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
+  @SuppressCompatibility public final class AppearanceKt {
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier appearance(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.style.AppearanceScope,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier styleAppearance(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleResolver styleResolver);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public final class AppearanceScope {
+    ctor public AppearanceScope();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.Fill getBackground();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.Fill getBorder();
+    method @BytecodeOnly public float getBorderWidth-D9Ej5fM();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.Shadows getDropShadow();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.Fill getForeground();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.Shadows getInnerShadow();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Shape getShape();
+    method @InaccessibleFromKotlin public void setBackground(androidx.compose.foundation.style.Fill);
+    method @InaccessibleFromKotlin public void setBorder(androidx.compose.foundation.style.Fill);
+    method @BytecodeOnly public void setBorderWidth-0680j_4(float);
+    method @InaccessibleFromKotlin public void setDropShadow(androidx.compose.foundation.style.Shadows);
+    method @InaccessibleFromKotlin public void setForeground(androidx.compose.foundation.style.Fill);
+    method @InaccessibleFromKotlin public void setInnerShadow(androidx.compose.foundation.style.Shadows);
+    method @InaccessibleFromKotlin public void setShape(androidx.compose.ui.graphics.Shape);
+    property public androidx.compose.foundation.style.Fill background;
+    property public androidx.compose.foundation.style.Fill border;
+    property public androidx.compose.ui.unit.Dp borderWidth;
+    property public androidx.compose.foundation.style.Shadows dropShadow;
+    property public androidx.compose.foundation.style.Fill foreground;
+    property public androidx.compose.foundation.style.Shadows innerShadow;
+    property public androidx.compose.ui.graphics.Shape shape;
+  }
+
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface BackgroundScope {
     method public void background(androidx.compose.ui.graphics.Brush value);
     method @KotlinOnly public void background(androidx.compose.ui.graphics.Color color);
@@ -2347,6 +2377,32 @@ package androidx.compose.foundation.style {
     method @BytecodeOnly public void borderWidth-0680j_4(float);
   }
 
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Immutable public abstract sealed exhaustive class Breadth implements androidx.compose.ui.graphics.Interpolatable {
+    method public Object? lerp(Object? other, float t);
+    field public static final androidx.compose.foundation.style.Breadth.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Breadth.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.Breadth getNone();
+    property public androidx.compose.foundation.style.Breadth None;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Breadth.Distance extends androidx.compose.foundation.style.Breadth {
+    ctor @KotlinOnly public Breadth.Distance(androidx.compose.ui.unit.Dp value);
+    ctor @BytecodeOnly public Breadth.Distance(float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public float getValue-D9Ej5fM();
+    property public androidx.compose.ui.unit.Dp value;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Breadth.Fraction extends androidx.compose.foundation.style.Breadth {
+    ctor public Breadth.Fraction(float value);
+    method @InaccessibleFromKotlin public float getValue();
+    property public float value;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Breadth.None extends androidx.compose.foundation.style.Breadth {
+  }
+
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ClipScope {
     method public void clip(optional boolean value);
     method @BytecodeOnly public static void clip$default(androidx.compose.foundation.style.ClipScope!, boolean, int, Object!);
@@ -2354,6 +2410,23 @@ package androidx.compose.foundation.style {
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ColorFilterScope {
     method public void colorFilter(androidx.compose.ui.graphics.ColorFilter? value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public fun interface CommonStyle extends androidx.compose.foundation.style.CustomStyle<androidx.compose.foundation.style.CommonStyleScope> {
+    field public static final androidx.compose.foundation.style.CommonStyle.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class CommonStyle.Companion implements androidx.compose.foundation.style.CommonStyle {
+    method public void applyStyle(androidx.compose.foundation.style.CommonStyleScope);
+  }
+
+  @SuppressCompatibility public final class CommonStyleKt {
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.CommonStyle CommonStyle(androidx.compose.foundation.style.CommonStyle style1, androidx.compose.foundation.style.CommonStyle style2);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.CommonStyle CommonStyle(androidx.compose.foundation.style.CommonStyle style1, androidx.compose.foundation.style.CommonStyle style2, androidx.compose.foundation.style.CommonStyle... styles);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static infix androidx.compose.foundation.style.CommonStyle then(androidx.compose.foundation.style.CommonStyle, androidx.compose.foundation.style.CommonStyle other);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface CommonStyleScope extends androidx.compose.foundation.style.CustomStyleScope androidx.compose.foundation.style.AnimateStyleScope androidx.compose.foundation.style.StyleStateScope {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ContentColorScope {
@@ -2377,7 +2450,7 @@ package androidx.compose.foundation.style {
     method public void applyStyle(ScopeT);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface CustomStyleScope extends androidx.compose.ui.unit.Density androidx.compose.runtime.CompositionLocalAccessorScope {
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface CustomStyleScope extends androidx.compose.ui.unit.Density androidx.compose.runtime.CompositionLocalAccessorScope androidx.compose.foundation.style.StylePropertyProviderScope {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface DrawStyleScope extends androidx.compose.foundation.style.BorderScope androidx.compose.foundation.style.BackgroundScope androidx.compose.foundation.style.ForegroundScope androidx.compose.foundation.style.ShadowScope androidx.compose.foundation.style.ShapeScope {
@@ -2395,6 +2468,44 @@ package androidx.compose.foundation.style {
     method @BytecodeOnly public void externalPaddingStart-0680j_4(float);
     method @KotlinOnly public void externalPaddingTop(androidx.compose.ui.unit.Dp value);
     method @BytecodeOnly public void externalPaddingTop-0680j_4(float);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class Fill implements androidx.compose.ui.graphics.Interpolatable {
+    method public abstract androidx.compose.ui.graphics.Brush? asBrush();
+    method @KotlinOnly public abstract androidx.compose.ui.graphics.Color asColor();
+    method @BytecodeOnly public abstract long asColor-0d7_KjU();
+    method public Object? lerp(Object? other, float t);
+    field public static final androidx.compose.foundation.style.Fill.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Fill.Brush extends androidx.compose.foundation.style.Fill {
+    ctor public Fill.Brush(androidx.compose.ui.graphics.Brush brush);
+    method public androidx.compose.ui.graphics.Brush asBrush();
+    method @KotlinOnly public androidx.compose.ui.graphics.Color asColor();
+    method @BytecodeOnly public long asColor-0d7_KjU();
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.Brush getBrush();
+    property public androidx.compose.ui.graphics.Brush brush;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Fill.Color extends androidx.compose.foundation.style.Fill {
+    ctor @KotlinOnly public Fill.Color(androidx.compose.ui.graphics.Color color);
+    ctor @BytecodeOnly public Fill.Color(long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public androidx.compose.ui.graphics.Brush asBrush();
+    method @KotlinOnly public androidx.compose.ui.graphics.Color asColor();
+    method @BytecodeOnly public long asColor-0d7_KjU();
+    method @BytecodeOnly public long getColor-0d7_KjU();
+    property public androidx.compose.ui.graphics.Color color;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Fill.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.Fill getNone();
+    property public androidx.compose.foundation.style.Fill None;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Fill.None extends androidx.compose.foundation.style.Fill {
+    method public androidx.compose.ui.graphics.Brush? asBrush();
+    method @KotlinOnly public androidx.compose.ui.graphics.Color asColor();
+    method @BytecodeOnly public long asColor-0d7_KjU();
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface FontFamilyScope {
@@ -2494,6 +2605,45 @@ package androidx.compose.foundation.style {
     property public androidx.compose.ui.state.ToggleableState triStateToggle;
   }
 
+  @SuppressCompatibility public final class PlacementKt {
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier placement(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.style.PlacementModifierScope,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier stylePlacement(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleResolver styleResolver);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public final class PlacementModifierScope {
+    ctor public PlacementModifierScope();
+    method @BytecodeOnly public float getBottom-D9Ej5fM();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.Breadth getHeight();
+    method @BytecodeOnly public float getLeft-D9Ej5fM();
+    method @BytecodeOnly public float getMaxHeight-D9Ej5fM();
+    method @BytecodeOnly public float getMaxWidth-D9Ej5fM();
+    method @BytecodeOnly public float getMinHeight-D9Ej5fM();
+    method @BytecodeOnly public float getMinWidth-D9Ej5fM();
+    method @BytecodeOnly public float getRight-D9Ej5fM();
+    method @BytecodeOnly public float getTop-D9Ej5fM();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.Breadth getWidth();
+    method @BytecodeOnly public void setBottom-0680j_4(float);
+    method @InaccessibleFromKotlin public void setHeight(androidx.compose.foundation.style.Breadth);
+    method @BytecodeOnly public void setLeft-0680j_4(float);
+    method @BytecodeOnly public void setMaxHeight-0680j_4(float);
+    method @BytecodeOnly public void setMaxWidth-0680j_4(float);
+    method @BytecodeOnly public void setMinHeight-0680j_4(float);
+    method @BytecodeOnly public void setMinWidth-0680j_4(float);
+    method @BytecodeOnly public void setRight-0680j_4(float);
+    method @BytecodeOnly public void setTop-0680j_4(float);
+    method @InaccessibleFromKotlin public void setWidth(androidx.compose.foundation.style.Breadth);
+    property public androidx.compose.ui.unit.Dp bottom;
+    property public androidx.compose.foundation.style.Breadth height;
+    property public androidx.compose.ui.unit.Dp left;
+    property public androidx.compose.ui.unit.Dp maxHeight;
+    property public androidx.compose.ui.unit.Dp maxWidth;
+    property public androidx.compose.ui.unit.Dp minHeight;
+    property public androidx.compose.ui.unit.Dp minWidth;
+    property public androidx.compose.ui.unit.Dp right;
+    property public androidx.compose.ui.unit.Dp top;
+    property public androidx.compose.foundation.style.Breadth width;
+  }
+
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface PositionScope {
     method @KotlinOnly public void bottom(androidx.compose.ui.unit.Dp value);
     method @BytecodeOnly public void bottom-0680j_4(float);
@@ -2503,6 +2653,10 @@ package androidx.compose.foundation.style {
     method @BytecodeOnly public void right-0680j_4(float);
     method @KotlinOnly public void top(androidx.compose.ui.unit.Dp value);
     method @BytecodeOnly public void top-0680j_4(float);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public class ProvidableStyleProperty<T> extends androidx.compose.foundation.style.StyleProperty<T> {
+    ctor public ProvidableStyleProperty(String name, boolean local, kotlin.jvm.functions.Function0<? extends T> defaultValue);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface RotationScope {
@@ -2521,6 +2675,28 @@ package androidx.compose.foundation.style {
     method public void dropShadow(androidx.compose.ui.graphics.shadow.Shadow... value);
     method public void innerShadow(androidx.compose.ui.graphics.shadow.Shadow value);
     method public void innerShadow(androidx.compose.ui.graphics.shadow.Shadow... value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class Shadows implements androidx.compose.ui.graphics.Interpolatable {
+    method public Object? lerp(Object? other, float t);
+    field public static final androidx.compose.foundation.style.Shadows.Companion Companion;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Shadows.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.foundation.style.Shadows getNone();
+    property public androidx.compose.foundation.style.Shadows None;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Shadows.Compound extends androidx.compose.foundation.style.Shadows {
+    ctor public Shadows.Compound(androidx.compose.ui.graphics.shadow.Shadow[] shadows);
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.shadow.Shadow[] getShadows();
+    property public androidx.compose.ui.graphics.shadow.Shadow[] shadows;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static final class Shadows.Simple extends androidx.compose.foundation.style.Shadows {
+    ctor public Shadows.Simple(androidx.compose.ui.graphics.shadow.Shadow shadow);
+    method @InaccessibleFromKotlin public androidx.compose.ui.graphics.shadow.Shadow getShadow();
+    property public androidx.compose.ui.graphics.shadow.Shadow shadow;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ShapeScope {
@@ -2544,18 +2720,112 @@ package androidx.compose.foundation.style {
     method public void applyStyle(androidx.compose.foundation.style.StyleScope);
   }
 
+  @SuppressCompatibility public final class StyleGraphicsLayerModifierKt {
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier graphicsLayer(androidx.compose.ui.Modifier, optional kotlin.jvm.functions.Function0<java.lang.Boolean>? layerRequired, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit> block);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier! graphicsLayer$default(androidx.compose.ui.Modifier!, kotlin.jvm.functions.Function0!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier styleGraphicsLayer(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleResolver styleResolver);
+  }
+
   @SuppressCompatibility public final class StyleKt {
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.Style Style(androidx.compose.foundation.style.Style style1, androidx.compose.foundation.style.Style style2);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.Style Style(androidx.compose.foundation.style.Style style1, androidx.compose.foundation.style.Style style2, androidx.compose.foundation.style.Style style3);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.Style Style(androidx.compose.foundation.style.Style... styles);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static infix androidx.compose.foundation.style.Style then(androidx.compose.foundation.style.Style, androidx.compose.foundation.style.Style other);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.CommonStyle toCommonStyle(androidx.compose.foundation.style.Style);
   }
 
-  @SuppressCompatibility public final class StyleModifierKt {
+  public final class StyleModifierKt {
+    method public static androidx.compose.ui.Modifier styleable(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleResolver styleResolver);
     method @Deprecated @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier styleable(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleState? styleState);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier styleable(androidx.compose.ui.Modifier, optional androidx.compose.foundation.style.StyleState? styleState, androidx.compose.foundation.style.Style style);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier styleable(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleState? styleState, androidx.compose.foundation.style.Style... styles);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier! styleable$default(androidx.compose.ui.Modifier!, androidx.compose.foundation.style.StyleState!, androidx.compose.foundation.style.Style!, int, Object!);
+  }
+
+  @SuppressCompatibility public final class StylePaddingKt {
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier styleBorderPadding(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleResolver styleResolver);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier styleContentPadding(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleResolver styleResolver);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier styleExternalPadding(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleResolver styleResolver);
+  }
+
+  @SuppressCompatibility public final class StylePropertiesKt {
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.graphics.Brush? getContentBrush(androidx.compose.foundation.style.StylePropertyAccessorScope);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static long getContentColor(androidx.compose.foundation.style.StylePropertyAccessorScope);
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.Fill getContentFill(androidx.compose.foundation.style.StylePropertyAccessorScope);
+    property @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.graphics.Brush? androidx.compose.foundation.style.StylePropertyAccessorScope.contentBrush;
+    property @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.graphics.Color androidx.compose.foundation.style.StylePropertyAccessorScope.contentColor;
+    property @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.Fill androidx.compose.foundation.style.StylePropertyAccessorScope.contentFill;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public class StyleProperty<T> {
+    ctor public StyleProperty(String name, boolean isLocal, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method @InaccessibleFromKotlin public final kotlin.jvm.functions.Function0<T> getDefaultValue();
+    method @InaccessibleFromKotlin public final String getName();
+    method @InaccessibleFromKotlin public final boolean isLocal();
+    method public T lerp(T a, T b, float t);
+    property public final kotlin.jvm.functions.Function0<T> defaultValue;
+    property public final boolean isLocal;
+    property public final String name;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface StylePropertyAccessorScope {
+    method public boolean anySet(java.util.Set<? extends androidx.compose.foundation.style.StyleProperty<? extends java.lang.Object?>> properties);
+    method public <T> T? getOrNull(androidx.compose.foundation.style.StyleProperty<T> property);
+    method @InaccessibleFromKotlin public <T> T getValue(androidx.compose.foundation.style.StyleProperty<T>);
+    method @InaccessibleFromKotlin public boolean isSet(androidx.compose.foundation.style.StyleProperty<? extends java.lang.Object?>);
+    property public abstract boolean androidx.compose.foundation.style.StyleProperty<? extends java.lang.Object?>.isSet;
+    property public abstract <T> T androidx.compose.foundation.style.StyleProperty<T>.value;
+  }
+
+  public final class StylePropertyKt {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.Breadth Breadth(androidx.compose.ui.unit.Dp value);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.Breadth Breadth(float value);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.Breadth Breadth-0680j_4(float);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.style.Fill Fill(androidx.compose.ui.graphics.Brush brush);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.style.Fill Fill(androidx.compose.ui.graphics.Color color);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.style.Fill? Fill(Object? value);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.style.Fill Fill-8_81llA(long);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.style.Shadows Shadows(androidx.compose.ui.graphics.shadow.Shadow shadow);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.style.Shadows Shadows(androidx.compose.ui.graphics.shadow.Shadow... shadows);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.style.Shadows? Shadows(Object? value);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static inline <T> T getOrElse(androidx.compose.foundation.style.StylePropertyAccessorScope, androidx.compose.foundation.style.StyleProperty<T> property, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static inline <T> void ifSet(androidx.compose.foundation.style.StylePropertyAccessorScope, androidx.compose.foundation.style.StyleProperty<T> property, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static inline <reified R extends T, T> void ifSetAs(androidx.compose.foundation.style.StylePropertyAccessorScope, androidx.compose.foundation.style.StyleProperty<T> property, kotlin.jvm.functions.Function1<R,kotlin.Unit> block);
+    method @KotlinOnly public static androidx.compose.ui.unit.Dp lerp(androidx.compose.ui.unit.Dp a, androidx.compose.ui.unit.Dp b, float t);
+    method @KotlinOnly public static androidx.compose.ui.unit.TextUnit lerp(androidx.compose.ui.unit.TextUnit a, androidx.compose.ui.unit.TextUnit b, float t);
+    method @BytecodeOnly public static long lerp-C3pnCVY(long, long, float);
+    method @BytecodeOnly public static float lerp-Md-fbLM(float, float, float);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static <T> androidx.compose.foundation.style.ProvidableStyleProperty<T> styleLocalOf(String name, optional kotlin.jvm.functions.Function3<? super T,? super T,? super java.lang.Float,? extends T> interpolate, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.ProvidableStyleProperty! styleLocalOf$default(String!, kotlin.jvm.functions.Function3!, kotlin.jvm.functions.Function0!, int, Object!);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static <T> androidx.compose.foundation.style.ProvidableStyleProperty<T> stylePropertyOf(String name, optional kotlin.jvm.functions.Function3<? super T,? super T,? super java.lang.Float,? extends T> interpolate, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.ProvidableStyleProperty! stylePropertyOf$default(String!, kotlin.jvm.functions.Function3!, kotlin.jvm.functions.Function0!, int, Object!);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface StylePropertyProviderScope {
+    method public <T> void provide(androidx.compose.foundation.style.ProvidableStyleProperty<T>, T value);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public abstract sealed nonexhaustive class StyleResolver implements androidx.compose.runtime.RememberObserver {
+    method @InaccessibleFromKotlin @kotlin.PublishedApi internal abstract androidx.compose.foundation.style.StyleResolverScope getAccessorScope();
+    method public void onAbandoned();
+    method public void onForgotten();
+    method public void onRemembered();
+    method public final inline <R> R resolve(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.style.StyleResolverScope,? extends R> block);
+    property @kotlin.PublishedApi internal abstract androidx.compose.foundation.style.StyleResolverScope accessorScope;
+  }
+
+  @SuppressCompatibility public final class StyleResolverKt {
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.StyleResolver ProxyStyleResolver(androidx.compose.foundation.style.Style style, optional androidx.compose.foundation.style.StyleState? styleState);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.StyleResolver! ProxyStyleResolver$default(androidx.compose.foundation.style.Style!, androidx.compose.foundation.style.StyleState!, int, Object!);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.StyleResolver StyleResolver(androidx.compose.foundation.style.CommonStyle style, optional androidx.compose.foundation.style.StyleState styleState);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.foundation.style.StyleResolver! StyleResolver$default(androidx.compose.foundation.style.CommonStyle!, androidx.compose.foundation.style.StyleState!, int, Object!);
+  }
+
+  @SuppressCompatibility public final class StyleResolverNodeKt {
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static androidx.compose.ui.Modifier styleResolver(androidx.compose.ui.Modifier, androidx.compose.foundation.style.StyleResolver styleResolver);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface StyleResolverScope extends androidx.compose.foundation.style.StylePropertyAccessorScope androidx.compose.runtime.CompositionLocalAccessorScope androidx.compose.ui.unit.Density {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface StyleScope extends androidx.compose.foundation.style.CustomStyleScope androidx.compose.foundation.style.AnimateStyleScope androidx.compose.foundation.style.DrawStyleScope androidx.compose.foundation.style.LayerStyleScope androidx.compose.foundation.style.LayoutStyleScope androidx.compose.foundation.style.StyleStateScope androidx.compose.foundation.style.TextStyleStyleScope {
@@ -2564,7 +2834,7 @@ package androidx.compose.foundation.style {
   @SuppressCompatibility public final class StyleScopeKt {
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void animate(androidx.compose.foundation.style.AnimateStyleScope, androidx.compose.animation.core.AnimationSpec<java.lang.Float> spec, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void animate(androidx.compose.foundation.style.AnimateStyleScope, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static <ScopeT extends androidx.compose.foundation.style.CustomStyleScope, StyleT extends androidx.compose.foundation.style.CustomStyle<ScopeT>> void apply(ScopeT, StyleT style);
+    method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static inline <ScopeT extends androidx.compose.foundation.style.CustomStyleScope, StyleT extends androidx.compose.foundation.style.CustomStyle<? super ScopeT>> void apply(ScopeT, StyleT style);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void border(androidx.compose.foundation.style.BorderScope, androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.Brush brush);
     method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void border(androidx.compose.foundation.style.BorderScope, androidx.compose.ui.unit.Dp width, androidx.compose.ui.graphics.Color color);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void border-H2RKhps(androidx.compose.foundation.style.BorderScope, float, long);
