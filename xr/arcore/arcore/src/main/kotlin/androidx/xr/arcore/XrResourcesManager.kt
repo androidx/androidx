@@ -29,7 +29,9 @@ import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.arcore.runtime.Plane as RuntimePlane
 import androidx.xr.arcore.runtime.QrCode as RuntimeQrCode
 import androidx.xr.arcore.runtime.RenderViewpoint as RuntimeRenderViewpoint
+import androidx.xr.arcore.runtime.SpatialAnnotation as RuntimeSpatialAnnotation
 import androidx.xr.arcore.runtime.Trackable as RuntimeTrackable
+import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 import java.util.Queue
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CopyOnWriteArrayList
@@ -193,6 +195,7 @@ internal class XrResourcesManager {
         _trackablesMap.clear()
     }
 
+    @OptIn(ExperimentalSpatialAnnotationsApi::class)
     private fun createTrackable(runtimeTrackable: RuntimeTrackable): Trackable<Trackable.State> {
         if (_trackablesMap.containsKey(runtimeTrackable)) {
             return _trackablesMap[runtimeTrackable]!!
@@ -207,6 +210,7 @@ internal class XrResourcesManager {
                 is RuntimeFace -> Face(runtimeTrackable, this)
                 is RuntimeEye -> Eye(runtimeTrackable)
                 is RuntimeHand -> Hand(runtimeTrackable)
+                is RuntimeSpatialAnnotation -> SpatialAnnotation(runtimeTrackable)
                 else ->
                     throw IllegalArgumentException(
                         "Unsupported trackable type: ${runtimeTrackable.javaClass}"
