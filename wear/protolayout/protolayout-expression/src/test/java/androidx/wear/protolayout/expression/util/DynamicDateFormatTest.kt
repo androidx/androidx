@@ -155,6 +155,13 @@ class DynamicDateFormatTest {
             instant = MIDNIGHT.plus(Duration.ofMinutes(15)),
             expectedEnglish = "15",
         ),
+        // AM/PM narrow patterns.
+        AM_PM_NARROW_MIDNIGHT(pattern = "aaaaa", instant = MIDNIGHT, expectedEnglish = "a"),
+        AM_PM_NARROW_NOON(
+            pattern = "aaaaa",
+            instant = MIDNIGHT.plus(Duration.ofHours(12)),
+            expectedEnglish = "p",
+        ),
     }
 
     @Test
@@ -202,6 +209,34 @@ class DynamicDateFormatTest {
                 instant = MIDNIGHT,
                 locale = locale,
             )
+        }
+    }
+
+    /**
+     * Tests that AM/PM marker patterns with various lengths ("a", "aa", "aaa", "aaaa", "aaaaa")
+     * match [SimpleDateFormat] in all available locales for both AM and PM.
+     */
+    @Test
+    fun amPmMarker_matchesSimpleDateFormatWithVariousLengths() {
+        val amInstant = MIDNIGHT
+        val pmInstant = MIDNIGHT.plus(Duration.ofHours(12))
+        val patterns = listOf("a", "aa", "aaa", "aaaa", "aaaaa")
+
+        for (pattern in patterns) {
+            for (locale in Locale.getAvailableLocales()) {
+                expectMatchesSimpleDateFormat(
+                    message = "${pattern}_AM_$locale",
+                    pattern = pattern,
+                    instant = amInstant,
+                    locale = locale,
+                )
+                expectMatchesSimpleDateFormat(
+                    message = "${pattern}_PM_$locale",
+                    pattern = pattern,
+                    instant = pmInstant,
+                    locale = locale,
+                )
+            }
         }
     }
 

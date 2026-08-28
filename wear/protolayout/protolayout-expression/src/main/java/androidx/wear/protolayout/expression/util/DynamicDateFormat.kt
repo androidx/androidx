@@ -243,12 +243,13 @@ internal constructor(
         private fun buildMinuteInHour(instant: DynamicInstant): DynamicString =
             instant.getMinute(timeZone).format(intFormatter)
 
-        // NOTE: This dynamic part ignores length.
         @RequiresSchemaVersion(major = 1, minor = 300)
         private fun buildAmPmMarker(instant: DynamicInstant): DynamicString {
             // Using SimpleDateFormat to determine what AM/PM formats to in the given locale.
             val simpleDateFormat =
-                SimpleDateFormat("a", _locale).also { it.timeZone = TimeZone.getTimeZone("UTC") }
+                SimpleDateFormat("a".repeat(length), _locale).also {
+                    it.timeZone = TimeZone.getTimeZone("UTC")
+                }
             // Epoch is AM in UTC.
             val am = simpleDateFormat.format(Date.from(Instant.EPOCH))
             // Epoch + 12h is PM in UTC.

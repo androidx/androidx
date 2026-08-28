@@ -61,6 +61,22 @@ class ComplicationTextFormattingTest {
     }
 
     @Test
+    fun time12HourUsesOverrideForBulgarian() {
+        Truth.assertThat(
+                ComplicationTextFormatting(Locale("bg"), FakeDateFormat()).shortTextTimeFormat12Hour
+            )
+            .isEqualTo("h:mm")
+    }
+
+    @Test
+    fun time12HourUsesOverrideForNorwegian() {
+        Truth.assertThat(
+                ComplicationTextFormatting(Locale("no"), FakeDateFormat()).shortTextTimeFormat12Hour
+            )
+            .isEqualTo("h.mma")
+    }
+
+    @Test
     fun time12HourStripsAmPmIfTooLong() {
         // Czech am/pm is "odp./dop." which are too long to fit after the time.
         Truth.assertThat(
@@ -318,6 +334,34 @@ class ComplicationTextFormattingTest {
         val formattedTime = complicationTextFormatting.getFormattedDayOfWeekForShortText(time, gmt)
 
         Truth.assertThat(formattedTime).isEqualTo("Sat")
+    }
+
+    @Test
+    fun getFormattedTimeForShortText_nullTimeZoneUsesDefault() {
+        val time = 1648867260000L
+        val complicationTextFormatting =
+            ComplicationTextFormatting(Locale("en", "US"), FakeDateFormat())
+
+        val formattedTime =
+            complicationTextFormatting.getFormattedTimeForShortText(
+                time,
+                timeZone = null,
+                use24Hour = false,
+            )
+
+        Truth.assertThat(formattedTime).isNotNull()
+    }
+
+    @Test
+    fun getFormattedDayOfWeekForShortText_nullTimeZoneUsesDefault() {
+        val time = 1648867260000L
+        val complicationTextFormatting =
+            ComplicationTextFormatting(Locale("en", "US"), FakeDateFormat())
+
+        val formattedTime =
+            complicationTextFormatting.getFormattedDayOfWeekForShortText(time, timeZone = null)
+
+        Truth.assertThat(formattedTime).isNotNull()
     }
 
     private class FakeDateFormat : WrappedDateFormat() {

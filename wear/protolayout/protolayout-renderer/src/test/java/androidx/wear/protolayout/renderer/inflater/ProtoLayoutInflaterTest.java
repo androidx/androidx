@@ -6033,11 +6033,8 @@ public class ProtoLayoutInflaterTest {
                                         .build()));
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation).get();
 
-        // First content transition animation Idle for running code for starting animations.
-        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(500));
-        ShadowLooper.runUiThreadTasksIncludingDelayedTasks();
-        // Idle for calling the onStart listener so that animation has started status.
-        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(100));
+        // Idle to 600ms so animation 1 starts and animation 2 attempts to run but is quota-capped.
+        shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(600));
 
         // Since we've run delayed tasks, second animation also got a chance to be run, but quota
         // prevented it.

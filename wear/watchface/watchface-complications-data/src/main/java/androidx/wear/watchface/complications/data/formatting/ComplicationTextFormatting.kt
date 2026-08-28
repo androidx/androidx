@@ -91,18 +91,7 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
      */
     public fun getBestShortTextDateFormat(skeletons: Array<String>, fallback: String?): String? {
         for (skeleton in skeletons) {
-            var pattern: String? = null
-            // Check for hardcoded overrides for known problematic locales.
-            for (mapping in FORMAT_MAPPINGS) {
-                if (mLocale.language == mapping.mLanguage && skeleton == mapping.mSkeleton) {
-                    pattern = mapping.mPattern
-                    break
-                }
-            }
-            // If no override exists, get the best system-provided pattern for the skeleton.
-            if (pattern == null) {
-                pattern = mDateFormat.getBestDateTimePattern(mLocale, skeleton)
-            }
+            val pattern = getPatternForSkeleton(skeleton)
             // Validate that the chosen pattern is short enough across various time samples.
             if (
                 isShortEnough(mLocale, pattern, timeStepForSkeleton(skeleton), stripChars = false)
@@ -133,8 +122,7 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
 
         val timeStep = TimeUnit.MINUTES.toMillis(97) // A prime step to test various times.
         val pattern: String =
-            mDateFormat
-                .getBestDateTimePattern(mLocale, "hmm")
+            getPatternForSkeleton("hmm")
                 .replace("\\s".toRegex(), "")
                 .replace(NARROW_NO_BREAK_SPACE, "")
         if (isShortEnough(mLocale, pattern, timeStep, allowAmPmShortening)) {
@@ -142,7 +130,7 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
         }
 
         // Second attempt: remove the AM/PM marker entirely if it makes the string fit.
-        val patternWithoutAmPm = pattern.replace("a", "").trim { it <= ' ' }
+        val patternWithoutAmPm = pattern.replace("a", "").trim()
         if (
             pattern != patternWithoutAmPm &&
                 isShortEnough(mLocale, patternWithoutAmPm, timeStep, allowAmPmShortening)
@@ -153,6 +141,14 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
         // Last resort fallback.
         return "h:mm"
     }
+
+    /**
+     * Returns the overridden pattern for the skeleton if present, or the best system-provided
+     * pattern.
+     */
+    private fun getPatternForSkeleton(skeleton: String): String =
+        FORMAT_OVERRIDES[mLocale.language to skeleton]
+            ?: mDateFormat.getBestDateTimePattern(mLocale, skeleton)
 
     /**
      * Returns a date format pattern for a short day-and-month representation (e.g., "Dec 25").
@@ -205,7 +201,9 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
     ): String? {
         val pattern = getShortTextTimeFormat(use24Hour)
         val format = SimpleDateFormat(pattern, mLocale)
-        format.timeZone = timeZone
+        if (timeZone != null) {
+            format.timeZone = timeZone
+        }
         return formatTime(format, timeInMillis, stripChars = true)
     }
 
@@ -219,7 +217,9 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
     public fun getFormattedDayOfWeekForShortText(timeInMillis: Long, timeZone: TimeZone?): String? {
         val pattern = shortTextDayOfWeekFormat
         val format = SimpleDateFormat(pattern, mLocale)
-        format.timeZone = timeZone
+        if (timeZone != null) {
+            format.timeZone = timeZone
+        }
         return formatTime(format, timeInMillis, stripChars = false)
     }
 
@@ -234,13 +234,6 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
     private fun getShortTextTimeFormat(use24Hour: Boolean) =
         getShortTextTimeFormat(use24Hour, allowAmPmShortening = true)
 
-    /** A data class for hardcoded skeleton-to-pattern mappings for specific languages. */
-    private class FormatMapping(
-        val mLanguage: String?,
-        val mSkeleton: String?,
-        val mPattern: String?,
-    )
-
     /** Maps date/time symbols to a time duration for intelligent test-step selection. */
     private class TimeUnitMapping(val mTimeUnit: Long, vararg symbols: String) {
         val mStrings: Array<out String> = symbols
@@ -252,7 +245,7 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
          * used to shorten AM/PM markers, for example, converting "a.m." to "am".
          */
         private val REGEX_STRIP_CHARS: Pattern =
-            Pattern.compile("(([^\\d.])([ \\u00A0.]+))|(([ \\u00A0.]+)([^\\d.]))")
+            Pattern.compile("(([^\\d.])([ \\u00A0\\u202f.]+))|(([ \\u00A0\\u202f.]+)([^\\d.]))")
         private const val REGEX_REPLACEMENT = "$2$6"
         private const val NARROW_NO_BREAK_SPACE = "\u202f"
 
@@ -279,21 +272,22 @@ internal constructor(private val mLocale: Locale, private val mDateFormat: Wrapp
          * Empirically determined overrides where standard ICU patterns are too long. For example,
          * in Finnish ("fi"), day numbers require a trailing period.
          */
-        private val FORMAT_MAPPINGS =
-            arrayOf<FormatMapping>(
-                FormatMapping("fi", "d", "d."),
-                FormatMapping("fi", "dd", "dd."),
-                FormatMapping("de", "d", "d."),
-                FormatMapping("de", "dd", "dd."),
-                FormatMapping("de", "MMM", "MMM"),
-                FormatMapping("no", "MMM", "MMM"),
-                FormatMapping("nb", "MMM", "MMM"),
-                FormatMapping("no", "HHmm", "HH.mm"),
-                FormatMapping("no", "hmm", "h.mma"),
-                FormatMapping("nb", "HHmm", "HH.mm"),
-                FormatMapping("nb", "hmm", "h.mma"),
-                FormatMapping("ja", "EEE", "EEEE"),
-                FormatMapping("de", "MMd", "dd.MM."),
+        private val FORMAT_OVERRIDES: Map<Pair<String, String>, String> =
+            mapOf(
+                ("fi" to "d") to "d.",
+                ("fi" to "dd") to "dd.",
+                ("de" to "d") to "d.",
+                ("de" to "dd") to "dd.",
+                ("de" to "MMM") to "MMM",
+                ("no" to "MMM") to "MMM",
+                ("nb" to "MMM") to "MMM",
+                ("no" to "HHmm") to "HH.mm",
+                ("no" to "hmm") to "h.mma",
+                ("nb" to "HHmm") to "HH.mm",
+                ("nb" to "hmm") to "h.mma",
+                ("ja" to "EEE") to "EEEE",
+                ("de" to "MMd") to "dd.MM.",
+                ("bg" to "hmm") to "h:mm",
             )
 
         /**
