@@ -727,3 +727,6 @@ w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ This 'var' property is not written t
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Redundant string template\.
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Parameter '.*' is never used, consider renaming it to '_'\.
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Variable is never read\.
+# Deprecation of ComponentActivity.enableEdgeToEdge (b/462798144)
+w: file://(\$SUPPORT|\$CHECKOUT)/.+:[0-9]+:[0-9]+ '(fun ComponentActivity\.enableEdgeToEdge.*|class SystemBarStyle.*)' is deprecated\..*
+^(To adjust|(or )?background protection|(in your )?view hierarchy|hierarchy\.|\{@link (WindowCompat#(getInsetsController|enableEdgeToEdge)|WindowInsetsControllerCompat|ProtectionLayout)).*

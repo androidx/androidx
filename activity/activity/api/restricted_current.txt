@@ -120,11 +120,11 @@ package androidx.activity {
   }
 
   public final class EdgeToEdge {
-    method @InaccessibleFromKotlin public static void enable(androidx.activity.ComponentActivity);
-    method @InaccessibleFromKotlin public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle);
-    method @InaccessibleFromKotlin public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
-    method @BytecodeOnly public static void enable$default(androidx.activity.ComponentActivity!, androidx.activity.SystemBarStyle!, androidx.activity.SystemBarStyle!, int, Object!);
-    method @KotlinOnly public static void enableEdgeToEdge(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
+    method @InaccessibleFromKotlin @Deprecated public static void enable(androidx.activity.ComponentActivity);
+    method @InaccessibleFromKotlin @Deprecated public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle);
+    method @InaccessibleFromKotlin @Deprecated public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
+    method @BytecodeOnly @Deprecated public static void enable$default(androidx.activity.ComponentActivity!, androidx.activity.SystemBarStyle!, androidx.activity.SystemBarStyle!, int, Object!);
+    method @KotlinOnly @Deprecated public static void enableEdgeToEdge(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and may change or be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalActivityApi {
@@ -203,20 +203,20 @@ package androidx.activity {
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static suspend Object? trackPipAnimationHintView(android.app.Activity, android.view.View view, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
-  public final class SystemBarStyle {
-    method public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
-    method public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim, optional kotlin.jvm.functions.Function1<? super android.content.res.Resources,java.lang.Boolean> detectDarkMode);
-    method public static androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
-    method public static androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
-    field public static final androidx.activity.SystemBarStyle.Companion Companion;
+  @Deprecated public final class SystemBarStyle {
+    method @Deprecated public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method @Deprecated public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim, optional kotlin.jvm.functions.Function1<? super android.content.res.Resources,java.lang.Boolean> detectDarkMode);
+    method @Deprecated public static androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
+    method @Deprecated public static androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
+    field @Deprecated public static final androidx.activity.SystemBarStyle.Companion Companion;
   }
 
-  public static final class SystemBarStyle.Companion {
-    method public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
-    method public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim, optional kotlin.jvm.functions.Function1<? super android.content.res.Resources,java.lang.Boolean> detectDarkMode);
-    method @BytecodeOnly public static androidx.activity.SystemBarStyle! auto$default(androidx.activity.SystemBarStyle.Companion!, int, int, kotlin.jvm.functions.Function1!, int, Object!);
-    method public androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
-    method public androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
+  @Deprecated public static final class SystemBarStyle.Companion {
+    method @Deprecated public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method @Deprecated public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim, optional kotlin.jvm.functions.Function1<? super android.content.res.Resources,java.lang.Boolean> detectDarkMode);
+    method @BytecodeOnly @Deprecated public static androidx.activity.SystemBarStyle! auto$default(androidx.activity.SystemBarStyle.Companion!, int, int, kotlin.jvm.functions.Function1!, int, Object!);
+    method @Deprecated public androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
+    method @Deprecated public androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
   }
 
   public final class ViewTreeFullyDrawnReporterOwner {

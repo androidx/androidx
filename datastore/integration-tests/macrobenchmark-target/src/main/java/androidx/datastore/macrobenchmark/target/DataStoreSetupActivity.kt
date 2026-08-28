@@ -19,7 +19,6 @@ package androidx.datastore.macrobenchmark.target
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import androidx.datastore.macrobenchmark.target.ui.theme.AndroidxTheme
 import java.io.File
 import java.io.FileOutputStream
@@ -38,7 +38,7 @@ class DataStoreSetupActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        WindowCompat.enableEdgeToEdge(window)
         when (intent.getStringExtra(DELETE_DATASTORE_FILE)) {
             PREFERENCES -> delete(filename = "settings-preferences.preferences_pb")
             PROTO -> delete(filename = "settings-proto.pb")
