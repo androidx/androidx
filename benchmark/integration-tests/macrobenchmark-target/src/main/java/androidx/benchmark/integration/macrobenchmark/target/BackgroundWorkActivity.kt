@@ -39,10 +39,10 @@ class BackgroundWorkActivity : AppCompatActivity() {
 
     private fun startWork(context: Context) {
         val count = 20
-        var countDownLatch = CountDownLatch(count)
+        val countDownLatch = CountDownLatch(count)
 
         for (i in 0 until count) {
-            var workRequest =
+            val workRequest =
                 OneTimeWorkRequestBuilder<NoOpWorker>()
                     .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                     .build()

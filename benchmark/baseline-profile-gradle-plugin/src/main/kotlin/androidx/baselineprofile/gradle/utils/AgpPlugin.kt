@@ -55,7 +55,7 @@ internal abstract class AgpPlugin(
             ->
             val parts = str.split(".").map { it.toInt() }
             return@lazy AndroidPluginVersion(parts[0], parts[1], parts[2])
-        } ?: return@lazy null
+        }
     }
 
     val suppressWarnings: Boolean by lazy {
