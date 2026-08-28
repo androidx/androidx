@@ -104,8 +104,7 @@ public fun AppScaffold(
                 isEnabled &&
                     (stage != ScreenStage.Scrolling ||
                         provider?.isScrollAwayValid != true ||
-                        offset.isNaN() ||
-                        offset <= 0f)
+                        (!offset.isNaN() && offset <= 0f))
             }
         }
 
