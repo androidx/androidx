@@ -33,6 +33,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.IntegrationTestsApp">
         <activity
+            android:name=".EmptyActivity"
+            android:exported="true" />
+        <activity
             android:name=".handtracking.HandTrackingTest"
             android:exported="true" />
         <activity
