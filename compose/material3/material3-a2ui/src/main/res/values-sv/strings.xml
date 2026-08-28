@@ -17,5 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- no translation found for button_cancel (5182872944385772172) -->
+    <skip />
+    <!-- no translation found for button_ok (6817595491491320691) -->
+    <skip />
     <string name="error" msgid="6647806155663918015">"Fel"</string>
+    <!-- no translation found for select_date (3625754389149364766) -->
+    <skip />
+    <!-- no translation found for select_time (3530281639148646682) -->
+    <skip />
 </resources>
