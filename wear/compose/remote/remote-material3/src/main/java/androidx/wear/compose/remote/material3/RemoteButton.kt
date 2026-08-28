@@ -62,6 +62,7 @@ import androidx.compose.remote.creation.compose.text.RemoteTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.layout.ContentScale
@@ -635,6 +636,101 @@ public object RemoteButtonDefaults {
     }
 
     /**
+     * Creates a [RemoteButtonColors] with a muted background and contrasting content color, the
+     * defaults for medium emphasis buttons.
+     */
+    @Composable
+    public fun filledTonalButtonColors(): RemoteButtonColors =
+        RemoteMaterialTheme.colorScheme.defaultFilledTonalButtonColors
+
+    /**
+     * Creates a [RemoteButtonColors] with a muted background and contrasting content color, the
+     * defaults for medium emphasis buttons.
+     */
+    @Composable
+    public fun filledTonalButtonColors(
+        containerColor: RemoteColor? = null,
+        contentColor: RemoteColor? = null,
+        secondaryContentColor: RemoteColor? = null,
+        iconColor: RemoteColor? = null,
+        disabledContainerColor: RemoteColor? = null,
+        disabledContentColor: RemoteColor? = null,
+        disabledSecondaryContentColor: RemoteColor? = null,
+        disabledIconColor: RemoteColor? = null,
+    ): RemoteButtonColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultFilledTonalButtonColors
+        return default.copy(
+            containerColor = containerColor ?: default.containerColor,
+            contentColor = contentColor ?: default.contentColor,
+            secondaryContentColor = secondaryContentColor ?: default.secondaryContentColor,
+            iconColor = iconColor ?: default.iconColor,
+            disabledContainerColor = disabledContainerColor ?: default.disabledContainerColor,
+            disabledContentColor = disabledContentColor ?: default.disabledContentColor,
+            disabledSecondaryContentColor =
+                disabledSecondaryContentColor ?: default.disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor ?: default.disabledIconColor,
+        )
+    }
+
+    /** Creates a [RemoteButtonColors] with higher chroma container colors. */
+    @Composable
+    public fun filledVariantButtonColors(): RemoteButtonColors =
+        RemoteMaterialTheme.colorScheme.defaultFilledVariantButtonColors
+
+    /** Creates a [RemoteButtonColors] with higher chroma container colors. */
+    @Composable
+    public fun filledVariantButtonColors(
+        containerColor: RemoteColor? = null,
+        contentColor: RemoteColor? = null,
+        secondaryContentColor: RemoteColor? = null,
+        iconColor: RemoteColor? = null,
+        disabledContainerColor: RemoteColor? = null,
+        disabledContentColor: RemoteColor? = null,
+        disabledSecondaryContentColor: RemoteColor? = null,
+        disabledIconColor: RemoteColor? = null,
+    ): RemoteButtonColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultFilledVariantButtonColors
+        return default.copy(
+            containerColor = containerColor ?: default.containerColor,
+            contentColor = contentColor ?: default.contentColor,
+            secondaryContentColor = secondaryContentColor ?: default.secondaryContentColor,
+            iconColor = iconColor ?: default.iconColor,
+            disabledContainerColor = disabledContainerColor ?: default.disabledContainerColor,
+            disabledContentColor = disabledContentColor ?: default.disabledContentColor,
+            disabledSecondaryContentColor =
+                disabledSecondaryContentColor ?: default.disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor ?: default.disabledIconColor,
+        )
+    }
+
+    /** Creates a [RemoteButtonColors] with a transparent background for outlined buttons. */
+    @Composable
+    public fun outlinedButtonColors(): RemoteButtonColors =
+        RemoteMaterialTheme.colorScheme.defaultOutlinedButtonColors
+
+    /** Creates a [RemoteButtonColors] with a transparent background for outlined buttons. */
+    @Composable
+    public fun outlinedButtonColors(
+        contentColor: RemoteColor? = null,
+        secondaryContentColor: RemoteColor? = null,
+        iconColor: RemoteColor? = null,
+        disabledContentColor: RemoteColor? = null,
+        disabledSecondaryContentColor: RemoteColor? = null,
+        disabledIconColor: RemoteColor? = null,
+    ): RemoteButtonColors {
+        val default = RemoteMaterialTheme.colorScheme.defaultOutlinedButtonColors
+        return default.copy(
+            contentColor = contentColor ?: default.contentColor,
+            secondaryContentColor = secondaryContentColor ?: default.secondaryContentColor,
+            iconColor = iconColor ?: default.iconColor,
+            disabledContentColor = disabledContentColor ?: default.disabledContentColor,
+            disabledSecondaryContentColor =
+                disabledSecondaryContentColor ?: default.disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor ?: default.disabledIconColor,
+        )
+    }
+
+    /**
      * Creates a [RemoteButtonColors] for the content in a [RemoteButton] with an image container
      * painter.
      */
@@ -757,6 +853,51 @@ public object RemoteButtonDefaults {
                 secondaryContentColor = onBackground.copy(alpha = 0.8f.rf),
                 iconColor = onBackground,
                 disabledContainerColor = onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
+                disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+                disabledSecondaryContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+                disabledIconColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+            )
+        }
+
+    private val RemoteColorScheme.defaultFilledTonalButtonColors: RemoteButtonColors
+        @Composable
+        get() {
+            return RemoteButtonColors(
+                containerColor = surfaceContainer,
+                contentColor = onSurface,
+                secondaryContentColor = onSurfaceVariant,
+                iconColor = onSurface,
+                disabledContainerColor = onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
+                disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+                disabledSecondaryContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+                disabledIconColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+            )
+        }
+
+    private val RemoteColorScheme.defaultFilledVariantButtonColors: RemoteButtonColors
+        @Composable
+        get() {
+            return RemoteButtonColors(
+                containerColor = primaryContainer,
+                contentColor = onPrimaryContainer,
+                secondaryContentColor = onPrimaryContainer.copy(alpha = 0.8f.rf),
+                iconColor = onPrimaryContainer,
+                disabledContainerColor = onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
+                disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+                disabledSecondaryContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+                disabledIconColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
+            )
+        }
+
+    private val RemoteColorScheme.defaultOutlinedButtonColors: RemoteButtonColors
+        @Composable
+        get() {
+            return RemoteButtonColors(
+                containerColor = Color.Transparent.rc,
+                contentColor = onSurface,
+                secondaryContentColor = onSurfaceVariant,
+                iconColor = onSurface,
+                disabledContainerColor = Color.Transparent.rc,
                 disabledContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
                 disabledSecondaryContentColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
                 disabledIconColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
@@ -925,15 +1066,26 @@ private fun RemoteDrawScope.drawBorder(
 ) {
     val strokeWidthPx = borderStrokeWidth.toPx()
     val outline =
-        if (shape is RemoteCornerBasedShape) {
-            shape.createOutline(
-                size = RemoteSize(width, height),
-                density = remoteDensity,
-                layoutDirection = layoutDirection,
-                strokeWidth = strokeWidthPx,
-            )
-        } else {
-            shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection)
+        when (shape) {
+            is RemoteCornerBasedShape -> {
+                shape.createOutline(
+                    size = RemoteSize(width, height),
+                    density = remoteDensity,
+                    layoutDirection = layoutDirection,
+                    strokeWidth = strokeWidthPx,
+                )
+            }
+            is RemoteEdgeButtonShape -> {
+                shape.createOutline(
+                    size = RemoteSize(width, height),
+                    density = remoteDensity,
+                    layoutDirection = layoutDirection,
+                    strokeWidth = strokeWidthPx,
+                )
+            }
+            else -> {
+                shape.createOutline(RemoteSize(width, height), remoteDensity, layoutDirection)
+            }
         }
     with(outline) {
         drawOutline(
