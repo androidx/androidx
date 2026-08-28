@@ -40,6 +40,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
@@ -485,25 +487,31 @@ internal class TriggerBasedInvalidationTracker(
  */
 internal class ObservedTableStates(size: Int) {
 
-    // General lock to protect state.
+    /** General lock to protect state. */
     private val lock = ReentrantLock()
 
-    // The number of observers per table
+    /** The number of observers per table */
     @GuardedBy("lock") private val tableObserversCount = LongArray(size)
 
-    // The observation state of each table, i.e. true or false if table at ith index should be
-    // observed. These states are only valid if `needsSync` is false.
+    /**
+     * The observation state of each table, i.e. true or false if table at ith index should be
+     * observed. These states are only valid if `needsSync` is false.
+     */
     @GuardedBy("lock") private val tableObservedState = BooleanArray(size)
 
-    // Flag indicating that [tableObservedState] needs to be updated based on [tableObserversCount].
+    /**
+     * Flag indicating that [tableObservedState] needs to be updated based on [tableObserversCount].
+     */
     @Volatile @GuardedBy("lock") private var needsSync = false
 
-    // Lock to serialize [onSync] calls. Should never be acquired within a [lock] region, the order
-    // must always be `[onSyncLock]? -> [lock]` to avoid deadlocks.
-    private val onSyncLock = ReentrantLock()
+    /**
+     * Mutex to serialize [onSync] calls. Should never be acquired within a [lock] region, the order
+     * must always be `[onSyncMutex]? -> [lock]` to avoid deadlocks.
+     */
+    private val onSyncMutex = Mutex()
 
-    // Flag indicating that an [onSync] is in progress and [onSyncLock] is being held.
-    @Volatile @GuardedBy("onSyncLock") private var inProgressSync = false
+    /** Flag indicating that an [onSync] is in progress and [onSyncMutex] is being held. */
+    @Volatile private var inProgressSync = false
 
     /**
      * Indicates that a sync of the tables states will be performed, i.e. start or stop tracking.
@@ -514,8 +522,10 @@ internal class ObservedTableStates(size: Int) {
      * or REMOVE. If the internal state indicates that a sync is not required or that no operations
      * are to be performed, then the [action] will not be invoked.
      */
-    internal inline fun onSync(action: (Array<ObserveOp>) -> Unit): Unit =
-        onSyncLock.withLock {
+    internal suspend inline fun onSync(
+        crossinline action: suspend (Array<ObserveOp>) -> Unit
+    ): Unit =
+        onSyncMutex.withLock {
             inProgressSync = true
             val ops =
                 lock.withLock {
