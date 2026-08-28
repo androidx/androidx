@@ -54,9 +54,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.material3.TextConfiguration
 
 @Composable
@@ -242,5 +244,87 @@ internal fun RemoteRadioControl(
             color = tween(Color.Transparent.rc, controlColor, progress)
         }
         drawCircle(paint = dotPaint, radius = innerRadiusPx, center = centerOffset)
+    }
+}
+
+@Composable
+@RemoteComposable
+internal fun RemoteSwitchControl(
+    checked: RemoteBoolean,
+    trackColor: RemoteColor,
+    trackBorderColor: RemoteColor,
+    thumbColor: RemoteColor,
+    thumbIconColor: RemoteColor,
+    modifier: RemoteModifier = RemoteModifier,
+    progress: RemoteFloat = checked.select(1f.rf, 0f.rf),
+) {
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+
+    RemoteCanvas(modifier = modifier.size(32.rdp, 24.rdp)) {
+        val trackWidthPx = 32.rdp.toPx()
+        val trackHeightPx = 22.rdp.toPx()
+        val trackRadiusPx = trackHeightPx / 2f.rf
+        val trackTopPx = 1.rdp.toPx()
+        val strokeWidthPx = 2.rdp.toPx()
+
+        // Track fill
+        val trackPaint = RemotePaint {
+            style = PaintingStyle.Fill
+            color = trackColor
+        }
+        drawRoundRect(
+            paint = trackPaint,
+            topLeft = RemoteOffset(0f.rf, trackTopPx),
+            size = RemoteSize(trackWidthPx, trackHeightPx),
+            cornerRadius = RemoteOffset(trackRadiusPx, trackRadiusPx),
+        )
+
+        // Track border
+        val borderPaint = RemotePaint {
+            style = PaintingStyle.Stroke
+            strokeWidth = strokeWidthPx
+            color = trackBorderColor
+        }
+        val insetPx = strokeWidthPx / 2f.rf
+        drawRoundRect(
+            paint = borderPaint,
+            topLeft = RemoteOffset(insetPx, trackTopPx + insetPx),
+            size = RemoteSize(trackWidthPx - strokeWidthPx, trackHeightPx - strokeWidthPx),
+            cornerRadius = RemoteOffset(trackRadiusPx - insetPx, trackRadiusPx - insetPx),
+        )
+
+        // Thumb
+        val thumbRadiusPx = lerp(6.rdp.toPx(), 9.rdp.toPx(), progress)
+        val startThumbXPx = (if (isRtl) 21.rdp else 11.rdp).toPx()
+        val endThumbXPx = (if (isRtl) 11.rdp else 21.rdp).toPx()
+        val thumbCenterXPx = lerp(startThumbXPx, endThumbXPx, progress)
+        val thumbCenterYPx = 12.rdp.toPx()
+        val thumbCenter = RemoteOffset(thumbCenterXPx, thumbCenterYPx)
+
+        val thumbPaint = RemotePaint {
+            style = PaintingStyle.Fill
+            color = thumbColor
+        }
+        drawCircle(paint = thumbPaint, radius = thumbRadiusPx, center = thumbCenter)
+
+        // Thumb tick icon
+        val tickPaint = RemotePaint {
+            style = PaintingStyle.Stroke
+            strokeWidth = strokeWidthPx
+            strokeCap = StrokeCap.Round
+            color = thumbIconColor
+        }
+        drawLine(
+            paint = tickPaint,
+            start =
+                RemoteOffset(thumbCenterXPx - 4.6f.rdp.toPx(), thumbCenterYPx + 1.0f.rdp.toPx()),
+            end = RemoteOffset(thumbCenterXPx - 2.0f.rdp.toPx(), thumbCenterYPx + 3.5f.rdp.toPx()),
+        )
+        drawLine(
+            paint = tickPaint,
+            start =
+                RemoteOffset(thumbCenterXPx - 2.0f.rdp.toPx(), thumbCenterYPx + 3.5f.rdp.toPx()),
+            end = RemoteOffset(thumbCenterXPx + 4.5f.rdp.toPx(), thumbCenterYPx - 2.9f.rdp.toPx()),
+        )
     }
 }
