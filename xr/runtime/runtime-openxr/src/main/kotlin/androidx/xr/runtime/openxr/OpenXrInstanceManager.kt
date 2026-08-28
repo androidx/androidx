@@ -38,6 +38,9 @@ internal class OpenXrInstanceManager : XrNativeInstanceProvider {
         private set
 
     override fun initialize(context: Context, extraExtensions: List<String>) {
+        // OpenXR native handles live for the process lifetime. Using applicationContext ensures
+        // that the OpenXR native runtime does not hold a reference to an Activity context.
+        val appContext = context.applicationContext ?: context
         // Attempt to load the test library instead if it was added based on the Gradle AndroidTest
         // variant. Else this is a non-test environment.
         try {
@@ -47,11 +50,11 @@ internal class OpenXrInstanceManager : XrNativeInstanceProvider {
         }
         nativeManager = nativeCreateOpenXrInstanceManager(extraExtensions.toTypedArray())
 
-        xrInstanceHandle = nativeGetOpenXrInstanceHandle(context, nativeManager)
+        xrInstanceHandle = nativeGetOpenXrInstanceHandle(appContext, nativeManager)
         xrInstanceProcAddr = nativeGetGetInstanceProcAddr(nativeManager)
         xrSessionHandle =
             try {
-                nativeGetOpenXrSessionHandle(context, nativeManager)
+                nativeGetOpenXrSessionHandle(appContext, nativeManager)
             } catch (e: UnsatisfiedLinkError) {
                 INVALID_HANDLE
             }
