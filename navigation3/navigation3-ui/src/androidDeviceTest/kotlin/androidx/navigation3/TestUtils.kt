@@ -64,4 +64,4 @@ const val third = "third"
 const val fourth = "fourth"
 
 // copied from nav3-runtime `NavEntry.kt`
-fun Any.defaultContentKey(): Pair<String, String> = Pair("$this", "${this::class}")
+fun Any.defaultContentKey(): String = "$this:${this::class}"
