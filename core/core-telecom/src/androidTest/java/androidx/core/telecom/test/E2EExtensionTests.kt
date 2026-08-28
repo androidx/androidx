@@ -904,14 +904,13 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
             val voipAppControl = bindToVoipAppWithExtensions()
             val callback = TestCallCallbackListener(this)
             voipAppControl.setCallback(callback)
-            val voipCallId =
-                createAndVerifyVoipCall(
-                    voipAppControl,
-                    callback,
-                    listOf(getLocalSilenceCapability(setOf())),
-                    parameters.direction,
-                    true, /* start the local call silence as silenced / muted */
-                )
+            createAndVerifyVoipCall(
+                voipAppControl,
+                callback,
+                listOf(getLocalSilenceCapability(setOf())),
+                parameters.direction,
+                true, /* start the local call silence as silenced / muted */
+            )
             val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)!!
             var hasConnected = false
 

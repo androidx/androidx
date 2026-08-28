@@ -277,8 +277,8 @@ constructor(
         val contentBlockWidth = defaultLeadingSpace + contentWidth + defaultTrailingSpace
 
         val m3InternalPadding = (tokens.leadingSpaceDp * density).toInt()
-        var finalLeadingSpace: Int
-        var finalTrailingSpace: Int
+        val finalLeadingSpace: Int
+        val finalTrailingSpace: Int
         val requiredGravity: Int
 
         if (referenceWidthDp <= MIN_HEIGHT_DP) {
@@ -288,7 +288,6 @@ constructor(
         } else {
             val defaultLeadingSpace = m3InternalPadding + strokeWidth
             val defaultTrailingSpace = (tokens.trailingSpaceDp * density).toInt() + strokeWidth
-            val contentBlockWidth = defaultLeadingSpace + contentWidth + defaultTrailingSpace
 
             if (widthMode == MeasureSpec.EXACTLY) {
                 finalLeadingSpace =
