@@ -124,13 +124,11 @@ constructor(
         return "HapticCompositionProfile(" +
             ", isPrimitiveDurationReported=$isPrimitiveDurationReported" +
             ", supportedPrimitiveTypes=" +
-            "${
-                supportedPrimitiveTypes.joinToString(
-                    prefix = "[",
-                    postfix = "]",
-                    transform = { PrimitiveAtom.typeToString(it) },
-                )
-            }" +
+            supportedPrimitiveTypes.joinToString(
+                prefix = "[",
+                postfix = "]",
+                transform = { PrimitiveAtom.typeToString(it) },
+            ) +
             ", primitiveDurations=" +
             "${
                 _primitiveDurationMillisMap?.entries?.joinToString(

@@ -482,7 +482,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
         val audioDeviceListener = AudioDeviceListener(mContext, actionChannel, id)
         // register a bluetooth listener to surface connected bluetooth devices instead of just
         // the active bluetooth device
-        var bluetoothProfileListener =
+        val bluetoothProfileListener =
             if (hasBluetoothPermissions(mContext)) {
                 BluetoothProfileListener(mContext, actionChannel, id)
             } else {
@@ -526,7 +526,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                 androidx.core.telecom.CallException.ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME
             )
         }
-        var closableCallSession: AutoCloseable? = null
+        var closableCallSession: AutoCloseable?
         // This variable controls the addCall execution in the calling activity. AddCall will block
         // for the duration of the session.  When the session is terminated via a disconnect or
         // exception, addCall will unblock.
@@ -692,7 +692,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
         blockingSessionExecution: CompletableDeferred<Unit>? = null,
         request: JetpackConnectionService.PendingConnectionRequest? = null,
     ): AddCallResult {
-        var result: AddCallResult
+        val result: AddCallResult
         try {
             withTimeout(ADD_CALL_TIMEOUT) {
                 // This log will print once a request is sent to the platform to add a new call.
