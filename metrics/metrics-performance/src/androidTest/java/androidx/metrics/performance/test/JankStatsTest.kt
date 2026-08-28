@@ -455,7 +455,7 @@ class JankStatsTest {
         // handled inside DelayedView. //-Comments above each item indicate what the resulting
         // state should be in that frame, which is checked in the asserts below
         // TODO: make immutable, copy to mutable list for delayedView
-        var perFrameStateData =
+        val perFrameStateData =
             mutableListOf(
                 // 0: A:0
                 JankStatsTest.FrameStateInputData(addStates = listOf("stateNameA" to "0")),
