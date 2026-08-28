@@ -33,7 +33,6 @@ import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.sample.showcase.common.R;
-import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
 import org.jspecify.annotations.NonNull;
@@ -91,14 +90,10 @@ public class MapWithGridTemplateDemoScreen extends Screen {
     }
 
     @OptIn(markerClass = ExperimentalCarApi.class)
-    @SuppressWarnings("deprecation")
     private GridItem createGridItem() {
-        int imageType = getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_9
-                ? GridItem.IMAGE_TYPE_SMALL
-                : GridItem.IMAGE_TYPE_ICON;
         return new GridItem.Builder()
                 .setImage(new CarIcon.Builder(IconCompat.createWithResource(getCarContext(),
-                        R.drawable.ic_fastfood_white_48dp)).build(), imageType)
+                        R.drawable.ic_fastfood_white_48dp)).build())
                 .setTitle("Primary")
                 .setText("Secondary")
                 .setOnClickListener(() -> CarToast.makeText(

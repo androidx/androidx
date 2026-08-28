@@ -24,7 +24,6 @@ import androidx.car.app.model.CarIcon
 import androidx.car.app.model.CarProgressBar
 import androidx.car.app.model.CarText
 import androidx.car.app.model.GridItem
-import androidx.car.app.model.GridItem.IMAGE_TYPE_LARGE
 import androidx.car.app.model.GridSection
 import androidx.car.app.model.OnClickListener
 
@@ -36,7 +35,6 @@ fun createGridItem(
     title: CharSequence? = null,
     titleCarText: CarText? = null,
     image: CarIcon? = null,
-    @GridItem.GridItemImageType imageType: Int = IMAGE_TYPE_LARGE,
     text: CharSequence? = null,
     textCarText: CarText? = null,
     clickListener: OnClickListener? = null,
@@ -53,9 +51,9 @@ fun createGridItem(
     // Image & Badge handling
     image?.let {
         if (badge != null) {
-            builder.setImage(it, imageType, badge)
+            builder.setImage(it, badge)
         } else {
-            builder.setImage(it, imageType)
+            builder.setImage(it)
         }
     }
 

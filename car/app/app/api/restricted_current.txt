@@ -1668,8 +1668,7 @@ package androidx.car.app.model {
     method @androidx.car.app.annotations.RequiresCarApi(8) public boolean isIndexable();
     method public boolean isLoading();
     field @Deprecated public static final int IMAGE_TYPE_ICON = 1; // 0x1
-    field public static final int IMAGE_TYPE_LARGE = 2; // 0x2
-    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public static final int IMAGE_TYPE_SMALL = 4; // 0x4
+    field @Deprecated public static final int IMAGE_TYPE_LARGE = 2; // 0x2
   }
 
   public static final class GridItem.Builder {
@@ -1677,8 +1676,8 @@ package androidx.car.app.model {
     method public androidx.car.app.model.GridItem build();
     method public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon);
     method @androidx.car.app.annotations.RequiresCarApi(8) public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, androidx.car.app.model.Badge);
-    method public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int);
-    method @androidx.car.app.annotations.RequiresCarApi(8) public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int, androidx.car.app.model.Badge);
+    method @Deprecated public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(8) public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int, androidx.car.app.model.Badge);
     method @androidx.car.app.annotations.RequiresCarApi(8) public androidx.car.app.model.GridItem.Builder setIndexable(boolean);
     method public androidx.car.app.model.GridItem.Builder setLoading(boolean);
     method public androidx.car.app.model.GridItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener);

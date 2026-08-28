@@ -214,12 +214,6 @@ class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
     }
 
     private fun buildGridItemForTemplate(title: CharSequence?): GridItem {
-        val imageType =
-            if (carContext.carAppApiLevel >= CarAppApiLevels.LEVEL_9) {
-                GridItem.IMAGE_TYPE_SMALL
-            } else {
-                @Suppress("DEPRECATION") GridItem.IMAGE_TYPE_ICON
-            }
         return GridItem.Builder()
             .setImage(
                 CarIcon.Builder(
@@ -228,8 +222,7 @@ class TabTemplateDemoScreen(carContext: CarContext) : Screen(carContext) {
                             R.drawable.ic_emoji_food_beverage_white_48dp,
                         )
                     )
-                    .build(),
-                imageType,
+                    .build()
             )
             .setTitle(title)
             .build()
