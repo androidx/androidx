@@ -21,8 +21,8 @@ import androidx.compose.animation.core.Spring.StiffnessMediumLow
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -96,8 +96,25 @@ class StyleUxTaskTests {
     }
 
     @Test
+    fun task1_n() = interactiveTask {
+        val boxStyle = Style {
+            border(3.dp, Color.Magenta)
+            contentPadding(10.dp)
+        }
+        val styleResolver = remember { StyleResolver(boxStyle.toCommonStyle()) }
+        Box(modifier = Modifier.styleable(styleResolver)) { Text_n("Box with style") }
+    }
+
+    @Test
     fun task2() = task {
         Box(modifier = Modifier.styleable { background(Color.Red) }) { Text("Red box") }
+    }
+
+    @Test
+    fun task2_n() = task {
+        val boxStyle = Style { background(Color.Red) }
+        val styleResolver = remember { StyleResolver(boxStyle.toCommonStyle()) }
+        Box(modifier = Modifier.styleable(styleResolver)) { Text_n("Red box") }
     }
 
     @Test
@@ -114,6 +131,16 @@ class StyleUxTaskTests {
     }
 
     @Test
+    fun task3_n() = task {
+        val boxStyle = Style {
+            contentPadding(20.dp)
+            size(100.dp)
+        }
+        val styleResolver = remember { StyleResolver(boxStyle.toCommonStyle()) }
+        Box(modifier = Modifier.styleable(styleResolver)) { Text("Padded box") }
+    }
+
+    @Test
     fun task4() = task {
         Box(
             modifier =
@@ -124,6 +151,18 @@ class StyleUxTaskTests {
                     size(100.dp)
                 }
         )
+    }
+
+    @Test
+    fun task4_n() = task {
+        val boxStyle = Style {
+            shape(CircleShape)
+            border(2.dp, Color.Blue)
+            background(Color.LightGray)
+            size(100.dp)
+        }
+        val styleResolver = remember { StyleResolver(boxStyle.toCommonStyle()) }
+        Box(modifier = Modifier.styleable(styleResolver))
     }
 
     @Test
@@ -138,6 +177,20 @@ class StyleUxTaskTests {
                     size(150.dp)
                 }
         )
+    }
+
+    @Test
+    fun task5_n() = task {
+        val style = Style {
+            contentPadding(12.dp)
+            shape(RoundedCornerShape(10.dp))
+            background(Color.Magenta)
+            border(1.dp, Color.Black)
+            size(150.dp)
+        }
+        val styleResolver = remember { StyleResolver(style.toCommonStyle()) }
+
+        Box(modifier = Modifier.styleable(styleResolver))
     }
 
     @Test
@@ -156,6 +209,22 @@ class StyleUxTaskTests {
     }
 
     @Test
+    fun task6_n() = interactiveTask {
+        val style = Style {
+            background(Color.Gray)
+            contentPadding(16.dp)
+        }
+        val styleResolver = remember { StyleResolver(style.toCommonStyle()) }
+        Column(
+            modifier = Modifier.height(200.dp).styleable(styleResolver),
+            verticalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            Text_n("Top")
+            Text_n("Bottom")
+        }
+    }
+
+    @Test
     fun task7() = interactiveTask {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -167,6 +236,23 @@ class StyleUxTaskTests {
         ) {
             Text("Left", style = { contentColor(Color.White) })
             Text("Right", style = { contentColor(Color.White) })
+        }
+    }
+
+    @Test
+    fun task7_n() = interactiveTask {
+        val style = Style {
+            background(Color.Blue)
+            contentPadding(16.dp)
+            contentColor(Color.White)
+        }
+        val styleResolver = remember { StyleResolver(style.toCommonStyle()) }
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.width(200.dp).styleable(styleResolver),
+        ) {
+            Text_n("Left")
+            Text_n("Right")
         }
     }
 
@@ -206,6 +292,28 @@ class StyleUxTaskTests {
     }
 
     @Test
+    fun task8_n() = interactiveTask {
+        val mis = remember { MutableInteractionSource() }
+        val styleState = rememberUpdatedStyleState(mis)
+        val style = Style {
+            background(Color.LightGray)
+            size(100.dp)
+            shape(CircleShape)
+            pressed {
+                background(Color.Blue)
+                contentColor(Color.White)
+            }
+        }
+        val styleResolver = remember { StyleResolver(style.toCommonStyle(), styleState) }
+        Box(
+            modifier = Modifier.clickableStyleable(styleResolver) {},
+            contentAlignment = Alignment.Center,
+        ) {
+            Text_n("Click Me")
+        }
+    }
+
+    @Test
     fun task9() = interactiveTask {
         val mis = remember { MutableInteractionSource() }
         val styleState = remember(mis) { MutableStyleState(mis) }
@@ -232,6 +340,33 @@ class StyleUxTaskTests {
     }
 
     @Test
+    fun task9_n() = interactiveTask {
+        val mis = remember { MutableInteractionSource() }
+        val styleState = remember(mis) { MutableStyleState(mis) }
+        val style = Style {
+            background(Color.White)
+            border(2.dp, Color.Black)
+            size(100.dp)
+            focused {
+                borderColor(Color.Red)
+                background(Color.Yellow)
+            }
+        }
+        val styleResolver = remember { StyleResolver(style.toCommonStyle(), styleState) }
+        val focusRequester = remember { FocusRequester() }
+        LaunchedEffect(Unit) {
+            delay(500)
+            focusRequester.requestFocus()
+        }
+        Box(
+            modifier =
+                Modifier.focusable(interactionSource = mis)
+                    .focusRequester(focusRequester)
+                    .clickableStyleable(styleResolver) {}
+        )
+    }
+
+    @Test
     fun task10() = interactiveTask {
         val mis = remember { MutableInteractionSource() }
         val styleState = remember(mis) { MutableStyleState(mis) }
@@ -253,6 +388,35 @@ class StyleUxTaskTests {
     }
 
     @Test
+    fun task10_n() = interactiveTask {
+        val mis = remember { MutableInteractionSource() }
+        val styleState = remember(mis) { MutableStyleState(mis) }
+        val style = Style {
+            background(Color.White)
+            border(2.dp, Color.Transparent)
+            size(100.dp)
+            pressed {
+                animate(tween(1000)) {
+                    background(Color.Blue)
+                    border(2.dp, Color.Black)
+                    scale(0.5f)
+                }
+            }
+            hovered { background(Color.Green) }
+            focused { border(2.dp, Color.Red) }
+            focused { hovered { border(6.dp, Color.Red) } }
+        }
+        val styleResolver = remember { StyleResolver(style.toCommonStyle(), styleState) }
+        val focusRequester = remember { FocusRequester() }
+        Box(
+            modifier =
+                Modifier.focusable(interactionSource = mis)
+                    .focusRequester(focusRequester)
+                    .clickableStyleable(styleResolver) {}
+        )
+    }
+
+    @Test
     fun task11() = interactiveTask {
         val mis = remember { MutableInteractionSource() }
         val styleState = remember(mis) { MutableStyleState(mis) }
@@ -265,6 +429,19 @@ class StyleUxTaskTests {
                         pressed { animate { background(Color.Blue) } }
                     }
         )
+    }
+
+    @Test
+    fun task11_n() = interactiveTask {
+        val mis = remember { MutableInteractionSource() }
+        val styleState = remember(mis) { MutableStyleState(mis) }
+        val style = Style {
+            background(Color.LightGray)
+            size(100.dp)
+            pressed { animate { background(Color.Blue) } }
+        }
+        val styleResolver = remember { StyleResolver(style.toCommonStyle(), styleState) }
+        Box(modifier = Modifier.clickableStyleable(styleResolver) {})
     }
 
     @Test
@@ -294,9 +471,51 @@ class StyleUxTaskTests {
     }
 
     @Test
+    fun task12_n() = interactiveTask {
+        val mis = remember { MutableInteractionSource() }
+        val styleState = remember(mis) { MutableStyleState(mis) }
+        val style = Style {
+            background(Color.LightGray)
+            size(100.dp)
+            scaleX(1.0f)
+            scaleY(1.0f)
+            pressed {
+                animate(spec = spring(stiffness = StiffnessMediumLow)) {
+                    background(Color.Cyan)
+                    scaleX(0.9f)
+                    scaleY(0.9f)
+                }
+            }
+        }
+        val styleResolver = remember { StyleResolver(style.toCommonStyle(), styleState) }
+        Box(
+            modifier = Modifier.clickableStyleable(styleResolver) {},
+            contentAlignment = Alignment.Center,
+        ) {
+            Text("Click Me")
+        }
+    }
+
+    @Test
     fun task15() = interactiveTask {
         val focusRequester = remember { FocusRequester() }
         StyledButton(
+            onClick = {},
+            modifier = Modifier.focusRequester(focusRequester),
+            style = {
+                background(Color.Green)
+                contentColor(Color.Black)
+            },
+        ) {
+            Text("Green Button")
+        }
+        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+    }
+
+    @Test
+    fun task15_n() = interactiveTask {
+        val focusRequester = remember { FocusRequester() }
+        StyledButton_n(
             onClick = {},
             modifier = Modifier.focusRequester(focusRequester),
             style = {
@@ -317,6 +536,13 @@ class StyleUxTaskTests {
     }
 
     @Test
+    fun task16_n() = interactiveTask {
+        StyledButton_n(onClick = {}, style = { pressed { background(Color.Red) } }) {
+            Text("I turn red when pressed (and 0.8 alpha)", color = { Color.White })
+        }
+    }
+
+    @Test
     fun task17() {
         val sizeStyle = Style {
             size(100.dp)
@@ -330,7 +556,27 @@ class StyleUxTaskTests {
 
         val mergedStyle = Style(sizeStyle, colorStyle)
 
-        task { Box(modifier = Modifier.styleable(null, mergedStyle)) }
+        interactiveTask { Box(modifier = Modifier.styleable(null, mergedStyle)) }
+    }
+
+    @Test
+    fun task17_n() {
+        val sizeStyle = Style {
+            size(100.dp)
+            contentPadding(10.dp)
+        }
+
+        val colorStyle = Style {
+            background(Color.Yellow)
+            contentPadding(20.dp) // Should override the padding in sizeStyle
+        }
+
+        val mergedStyle = Style(sizeStyle, colorStyle)
+
+        interactiveTask {
+            val styleResolver = remember { StyleResolver(mergedStyle.toCommonStyle()) }
+            Box(modifier = Modifier.styleable(styleResolver))
+        }
     }
 
     @Test
@@ -343,6 +589,26 @@ class StyleUxTaskTests {
                     Text("Toggle: $checked")
                 }
                 StyledButton(onClick = { enabled = !enabled }) { Text("Toggle enabled") }
+            }
+        }
+    }
+
+    @Test
+    fun task21_n() {
+        var checked by mutableStateOf(true)
+        var enabled by mutableStateOf(true)
+        interactiveTask {
+            Column {
+                StyledSwitch_n(
+                    checked = checked,
+                    enabled = enabled,
+                    valueChange = { checked = it },
+                ) {
+                    Text("Toggle: $checked")
+                }
+                StyledButton_n(onClick = { enabled = !enabled }) {
+                    Text("Toggle enabled", color = { Color.White })
+                }
             }
         }
     }
@@ -631,7 +897,7 @@ class StyleUxTaskTests {
                 }
             val typography =
                 object {
-                    val labelLarge = androidx.compose.ui.text.TextStyle(fontSize = 16.sp)
+                    val labelLarge = TextStyle(fontSize = 16.sp)
                 }
             fun StyleScope.buttonFocusedStyle() {
                 focused { animate(tween(1000)) { border(4.dp, colors.brand) } }
@@ -867,34 +1133,55 @@ class StyleUxTaskTests {
     @OptIn(ExperimentalFoundationApi::class)
     private fun interactiveTask(isDone: Boolean = true, content: @Composable () -> Unit) {
         var done = isDone
-        val previous = ComposeFoundationFlags.isInheritedTextStyleEnabled
-        ComposeFoundationFlags.isInheritedTextStyleEnabled = true
-        try {
-            rule.setContent {
-                Column(modifier = Modifier.padding(bottom = 10.dp)) {
-                    Box(modifier = Modifier.border(1.dp, Color.Black).padding(20.dp)) { content() }
-                    if (!done) {
-                        Box(
-                            modifier =
-                                Modifier.border(
-                                        10.dp,
-                                        color = Color.LightGray,
-                                        RoundedCornerShape(15.dp),
-                                    )
-                                    .background(Color.Cyan, RoundedCornerShape(15.dp))
-                                    .padding(20.dp)
-                                    .clickable { done = true }
-                        ) {
-                            Text("Done")
-                        }
+        rule.setContent {
+            Column(modifier = Modifier.padding(bottom = 10.dp)) {
+                Box(modifier = Modifier.border(1.dp, Color.Black).padding(20.dp)) { content() }
+                if (!done) {
+                    Box(
+                        modifier =
+                            Modifier.border(
+                                    10.dp,
+                                    color = Color.LightGray,
+                                    RoundedCornerShape(15.dp),
+                                )
+                                .background(Color.Cyan, RoundedCornerShape(15.dp))
+                                .padding(20.dp)
+                                .clickable { done = true }
+                    ) {
+                        Text("Done")
                     }
                 }
             }
-            rule.waitUntil(1000 * 60 * 2) { done }
-        } finally {
-            ComposeFoundationFlags.isInheritedTextStyleEnabled = previous
         }
+        rule.waitUntil(1000 * 60 * 2) { done }
     }
+}
+
+@ExperimentalFoundationStyleApi
+@Composable
+private fun Text_n(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: Style = Style,
+    onTextLayout: ((TextLayoutResult) -> Unit)? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    softWrap: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
+    minLines: Int = 1,
+    autoSize: TextAutoSize? = null,
+) {
+    val styleResolver = remember { StyleResolver(style.toCommonStyle()) }
+    BasicText(
+        text = text,
+        modifier = modifier.styleResolver(styleResolver),
+        onTextLayout = onTextLayout,
+        overflow = overflow,
+        softWrap = softWrap,
+        maxLines = maxLines,
+        minLines = minLines,
+        color = { styleResolver.resolve { contentFillLocal.value.asColor() } },
+        autoSize = autoSize,
+    )
 }
 
 @ExperimentalFoundationStyleApi
@@ -1005,6 +1292,95 @@ private fun StyledSwitch(
         content = content,
     )
 }
+
+@ExperimentalFoundationStyleApi
+@Composable
+private fun StyledButton_n(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    style: Style = Style,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val styleState = rememberUpdatedStyleState(interactionSource) { it.isEnabled = enabled }
+    val mergedStyle = baseButtonStyle then style
+    val styleResolver =
+        remember(mergedStyle, styleState) { StyleResolver(mergedStyle.toCommonStyle(), styleState) }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier =
+            modifier.clickableStyleable(
+                styleResolver = styleResolver,
+                enabled = enabled,
+                onClick = onClick,
+            ),
+        content = content,
+    )
+}
+
+@ExperimentalFoundationStyleApi
+@Composable
+private fun StyledSwitch_n(
+    checked: Boolean,
+    enabled: Boolean,
+    valueChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    style: Style = Style,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val styleState =
+        rememberUpdatedStyleState(interactionSource) {
+            it.isEnabled = enabled
+            it.isChecked = checked
+        }
+    val mergedStyle = styledSwitchBaseStyle then style
+    val styleResolver =
+        remember(mergedStyle, styleState) { StyleResolver(mergedStyle.toCommonStyle(), styleState) }
+    Row(
+        modifier =
+            modifier
+                .toggleable(
+                    value = checked,
+                    enabled = enabled,
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onValueChange = valueChange,
+                )
+                .focusable(enabled, interactionSource)
+                .styleable(styleResolver),
+        content = content,
+    )
+}
+
+@ExperimentalFoundationStyleApi
+private fun Modifier.clickableStyleable(
+    styleResolver: StyleResolver,
+    enabled: Boolean = true,
+    onClickLabel: String? = null,
+    role: Role? = null,
+    indication: Indication? = null,
+    onClick: () -> Unit,
+): Modifier =
+    styleResolver(styleResolver)
+        .styleExternalPadding(styleResolver)
+        .styleGraphicsLayer(styleResolver)
+        .stylePlacement(styleResolver)
+        .styleAppearance(styleResolver)
+        .clickable(
+            indication = indication,
+            interactionSource =
+                styleResolver.actual().styleState.interactionSource as? MutableInteractionSource,
+            enabled = enabled,
+            onClickLabel = onClickLabel,
+            role = role,
+            onClick = onClick,
+        )
+        .styleBorderPadding(styleResolver)
+        .styleContentPadding(styleResolver)
 
 private enum class SampleLoadingState {
     Loaded,
