@@ -63,7 +63,7 @@ import com.intellij.psi.util.PsiTypesUtil
 import com.intellij.psi.util.PsiUtil
 import com.intellij.psi.util.childrenOfType
 import com.intellij.psi.util.findParentInFile
-import org.jetbrains.kotlin.analysis.utils.printer.parentOfType
+import com.intellij.psi.util.parentOfType
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtClassBody
