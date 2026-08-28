@@ -66,7 +66,13 @@ internal fun RemoteViews.translateEmittableText(
         element.style,
         maxLines = element.maxLines,
     )
-    applyModifiers(translationContext, this, element.modifier, viewDef)
+    applyModifiers(
+        translationContext,
+        this,
+        element.modifier,
+        viewDef,
+        shouldOptimizeVisibility = true,
+    )
 }
 
 internal fun RemoteViews.setText(

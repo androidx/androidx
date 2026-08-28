@@ -83,5 +83,6 @@ internal fun RemoteViews.translateEmittableCheckBox(
         this,
         element.modifier,
         viewDef,
+        shouldOptimizeVisibility = false,
     )
 }
