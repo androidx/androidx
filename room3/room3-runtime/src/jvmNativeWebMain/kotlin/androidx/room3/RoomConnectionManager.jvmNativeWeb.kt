@@ -57,7 +57,8 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
                                 createConnectionFactory(
                                     configuration.sqliteDriver,
                                     configuration.name,
-                                )
+                                ),
+                            timeout = configuration.connectionPoolTimeout,
                         )
                     is MultipleConnection ->
                         newConnectionPool(
@@ -68,6 +69,7 @@ internal actual class RoomConnectionManager : BaseRoomConnectionManager {
                                 ),
                             maxNumOfReaders = poolConfig.numOfReaders,
                             maxNumOfWriters = poolConfig.numOfWriters,
+                            timeout = configuration.connectionPoolTimeout,
                         )
                 }
             }
