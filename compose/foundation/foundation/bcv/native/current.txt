@@ -733,6 +733,18 @@ sealed interface androidx.compose.foundation.relocation/BringIntoViewRequester {
     abstract suspend fun bringIntoView(androidx.compose.ui.geometry/Rect? = ...) // androidx.compose.foundation.relocation/BringIntoViewRequester.bringIntoView|bringIntoView(androidx.compose.ui.geometry.Rect?){}[0]
 }
 
+sealed interface androidx.compose.foundation.shape/PolygonShapeScope : androidx.compose.ui.unit/Density { // androidx.compose.foundation.shape/PolygonShapeScope|null[0]
+    abstract val layoutDirection // androidx.compose.foundation.shape/PolygonShapeScope.layoutDirection|{}layoutDirection[0]
+        abstract fun <get-layoutDirection>(): androidx.compose.ui.unit/LayoutDirection // androidx.compose.foundation.shape/PolygonShapeScope.layoutDirection.<get-layoutDirection>|<get-layoutDirection>(){}[0]
+    abstract val size // androidx.compose.foundation.shape/PolygonShapeScope.size|{}size[0]
+        abstract fun <get-size>(): androidx.compose.ui.geometry/Size // androidx.compose.foundation.shape/PolygonShapeScope.size.<get-size>|<get-size>(){}[0]
+
+    abstract fun polygon(kotlin.collections/List<androidx.compose.ui.geometry/Offset>, androidx.compose.ui.geometry/Offset = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ...): androidx.compose.foundation.shape/PolygonShapeGeometry // androidx.compose.foundation.shape/PolygonShapeScope.polygon|polygon(kotlin.collections.List<androidx.compose.ui.geometry.Offset>;androidx.compose.ui.geometry.Offset;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding){}[0]
+    abstract fun polygon(kotlin.collections/List<androidx.compose.ui.geometry/Offset>, kotlin.collections/List<androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding>, androidx.compose.ui.geometry/Offset = ...): androidx.compose.foundation.shape/PolygonShapeGeometry // androidx.compose.foundation.shape/PolygonShapeScope.polygon|polygon(kotlin.collections.List<androidx.compose.ui.geometry.Offset>;kotlin.collections.List<androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding>;androidx.compose.ui.geometry.Offset){}[0]
+    abstract fun polygon(kotlin/Int, kotlin.collections/List<androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding>, kotlin/Float = ..., androidx.compose.ui.geometry/Offset = ...): androidx.compose.foundation.shape/PolygonShapeGeometry // androidx.compose.foundation.shape/PolygonShapeScope.polygon|polygon(kotlin.Int;kotlin.collections.List<androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding>;kotlin.Float;androidx.compose.ui.geometry.Offset){}[0]
+    abstract fun polygon(kotlin/Int, kotlin/Float = ..., androidx.compose.ui.geometry/Offset = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ...): androidx.compose.foundation.shape/PolygonShapeGeometry // androidx.compose.foundation.shape/PolygonShapeScope.polygon|polygon(kotlin.Int;kotlin.Float;androidx.compose.ui.geometry.Offset;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding){}[0]
+}
+
 sealed interface androidx.compose.foundation.text.input/TextFieldLineLimits { // androidx.compose.foundation.text.input/TextFieldLineLimits|null[0]
     final class MultiLine : androidx.compose.foundation.text.input/TextFieldLineLimits { // androidx.compose.foundation.text.input/TextFieldLineLimits.MultiLine|null[0]
         constructor <init>(kotlin/Int = ..., kotlin/Int = ...) // androidx.compose.foundation.text.input/TextFieldLineLimits.MultiLine.<init>|<init>(kotlin.Int;kotlin.Int){}[0]
@@ -1140,6 +1152,41 @@ final class androidx.compose.foundation.shape/GenericShape : androidx.compose.ui
     final fun hashCode(): kotlin/Int // androidx.compose.foundation.shape/GenericShape.hashCode|hashCode(){}[0]
 }
 
+final class androidx.compose.foundation.shape/PolygonShapeGeometry { // androidx.compose.foundation.shape/PolygonShapeGeometry|null[0]
+    constructor <init>(kotlin.collections/List<androidx.compose.ui.geometry/Offset>, androidx.compose.ui.geometry/Offset = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ...) // androidx.compose.foundation.shape/PolygonShapeGeometry.<init>|<init>(kotlin.collections.List<androidx.compose.ui.geometry.Offset>;androidx.compose.ui.geometry.Offset;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding){}[0]
+    constructor <init>(kotlin.collections/List<androidx.compose.ui.geometry/Offset>, kotlin.collections/List<androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding>, androidx.compose.ui.geometry/Offset = ...) // androidx.compose.foundation.shape/PolygonShapeGeometry.<init>|<init>(kotlin.collections.List<androidx.compose.ui.geometry.Offset>;kotlin.collections.List<androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding>;androidx.compose.ui.geometry.Offset){}[0]
+
+    final val center // androidx.compose.foundation.shape/PolygonShapeGeometry.center|{}center[0]
+        final fun <get-center>(): androidx.compose.ui.geometry/Offset // androidx.compose.foundation.shape/PolygonShapeGeometry.center.<get-center>|<get-center>(){}[0]
+    final val perVertexRounding // androidx.compose.foundation.shape/PolygonShapeGeometry.perVertexRounding|{}perVertexRounding[0]
+        final fun <get-perVertexRounding>(): kotlin.collections/List<androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding>? // androidx.compose.foundation.shape/PolygonShapeGeometry.perVertexRounding.<get-perVertexRounding>|<get-perVertexRounding>(){}[0]
+    final val rounding // androidx.compose.foundation.shape/PolygonShapeGeometry.rounding|{}rounding[0]
+        final fun <get-rounding>(): androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding // androidx.compose.foundation.shape/PolygonShapeGeometry.rounding.<get-rounding>|<get-rounding>(){}[0]
+    final val vertices // androidx.compose.foundation.shape/PolygonShapeGeometry.vertices|{}vertices[0]
+        final fun <get-vertices>(): kotlin.collections/List<androidx.compose.ui.geometry/Offset> // androidx.compose.foundation.shape/PolygonShapeGeometry.vertices.<get-vertices>|<get-vertices>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.shape/PolygonShapeGeometry.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.foundation.shape/PolygonShapeGeometry.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.foundation.shape/PolygonShapeGeometry.toString|toString(){}[0]
+
+    final class CornerRounding { // androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding|null[0]
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding.toString|toString(){}[0]
+
+        final object Companion { // androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding.Companion|null[0]
+            final val Unrounded // androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding.Companion.Unrounded|{}Unrounded[0]
+                final fun <get-Unrounded>(): androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding // androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding.Companion.Unrounded.<get-Unrounded>|<get-Unrounded>(){}[0]
+        }
+    }
+
+    final object Companion { // androidx.compose.foundation.shape/PolygonShapeGeometry.Companion|null[0]
+        final fun CornerRounding(androidx.compose.ui.unit/Dp, kotlin/Float = ...): androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding // androidx.compose.foundation.shape/PolygonShapeGeometry.Companion.CornerRounding|CornerRounding(androidx.compose.ui.unit.Dp;kotlin.Float){}[0]
+        final fun CornerRounding(kotlin/Float, kotlin/Float = ...): androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding // androidx.compose.foundation.shape/PolygonShapeGeometry.Companion.CornerRounding|CornerRounding(kotlin.Float;kotlin.Float){}[0]
+        final fun CornerRounding(kotlin/Int, kotlin/Float = ...): androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding // androidx.compose.foundation.shape/PolygonShapeGeometry.Companion.CornerRounding|CornerRounding(kotlin.Int;kotlin.Float){}[0]
+    }
+}
+
 final class androidx.compose.foundation.shape/RoundedCornerShape : androidx.compose.foundation.shape/CornerBasedShape { // androidx.compose.foundation.shape/RoundedCornerShape|null[0]
     constructor <init>(androidx.compose.foundation.shape/CornerSize, androidx.compose.foundation.shape/CornerSize, androidx.compose.foundation.shape/CornerSize, androidx.compose.foundation.shape/CornerSize) // androidx.compose.foundation.shape/RoundedCornerShape.<init>|<init>(androidx.compose.foundation.shape.CornerSize;androidx.compose.foundation.shape.CornerSize;androidx.compose.foundation.shape.CornerSize;androidx.compose.foundation.shape.CornerSize){}[0]
 
@@ -1483,6 +1530,19 @@ final value class androidx.compose.foundation/MarqueeAnimationMode { // androidx
     }
 }
 
+sealed class androidx.compose.foundation.shape/PolygonShape : androidx.compose.ui.graphics/Shape { // androidx.compose.foundation.shape/PolygonShape|null[0]
+    final object Companion { // androidx.compose.foundation.shape/PolygonShape.Companion|null[0]
+        final fun absoluteRectangle(androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ...): androidx.compose.foundation.shape/PolygonShape // androidx.compose.foundation.shape/PolygonShape.Companion.absoluteRectangle|absoluteRectangle(androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding){}[0]
+        final fun circle(kotlin/Int = ...): androidx.compose.foundation.shape/PolygonShape // androidx.compose.foundation.shape/PolygonShape.Companion.circle|circle(kotlin.Int){}[0]
+        final fun pill(kotlin/Float = ...): androidx.compose.foundation.shape/PolygonShape // androidx.compose.foundation.shape/PolygonShape.Companion.pill|pill(kotlin.Float){}[0]
+        final fun pillStar(kotlin/Int, kotlin/Float = ..., kotlin/Float = ..., kotlin/Float = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ...): androidx.compose.foundation.shape/PolygonShape // androidx.compose.foundation.shape/PolygonShape.Companion.pillStar|pillStar(kotlin.Int;kotlin.Float;kotlin.Float;kotlin.Float;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding){}[0]
+        final fun rectangle(androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ...): androidx.compose.foundation.shape/PolygonShape // androidx.compose.foundation.shape/PolygonShape.Companion.rectangle|rectangle(androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding){}[0]
+        final fun rectangle(androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding): androidx.compose.foundation.shape/PolygonShape // androidx.compose.foundation.shape/PolygonShape.Companion.rectangle|rectangle(androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding){}[0]
+        final fun regularPolygon(kotlin/Int, androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ...): androidx.compose.foundation.shape/PolygonShape // androidx.compose.foundation.shape/PolygonShape.Companion.regularPolygon|regularPolygon(kotlin.Int;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding){}[0]
+        final fun star(kotlin/Int, kotlin/Float = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ..., androidx.compose.foundation.shape/PolygonShapeGeometry.CornerRounding = ...): androidx.compose.foundation.shape/PolygonShape // androidx.compose.foundation.shape/PolygonShape.Companion.star|star(kotlin.Int;kotlin.Float;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding;androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding){}[0]
+    }
+}
+
 final object androidx.compose.foundation.gestures/AnchoredDraggableDefaults { // androidx.compose.foundation.gestures/AnchoredDraggableDefaults|null[0]
     final val DecayAnimationSpec // androidx.compose.foundation.gestures/AnchoredDraggableDefaults.DecayAnimationSpec|{}DecayAnimationSpec[0]
         final fun <get-DecayAnimationSpec>(): androidx.compose.animation.core/DecayAnimationSpec<kotlin/Float> // androidx.compose.foundation.gestures/AnchoredDraggableDefaults.DecayAnimationSpec.<get-DecayAnimationSpec>|<get-DecayAnimationSpec>(){}[0]
@@ -1616,6 +1676,9 @@ final val androidx.compose.foundation.shape/androidx_compose_foundation_shape_Ab
 final val androidx.compose.foundation.shape/androidx_compose_foundation_shape_CornerBasedShape$stableprop // androidx.compose.foundation.shape/androidx_compose_foundation_shape_CornerBasedShape$stableprop|#static{}androidx_compose_foundation_shape_CornerBasedShape$stableprop[0]
 final val androidx.compose.foundation.shape/androidx_compose_foundation_shape_CutCornerShape$stableprop // androidx.compose.foundation.shape/androidx_compose_foundation_shape_CutCornerShape$stableprop|#static{}androidx_compose_foundation_shape_CutCornerShape$stableprop[0]
 final val androidx.compose.foundation.shape/androidx_compose_foundation_shape_GenericShape$stableprop // androidx.compose.foundation.shape/androidx_compose_foundation_shape_GenericShape$stableprop|#static{}androidx_compose_foundation_shape_GenericShape$stableprop[0]
+final val androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShape$stableprop // androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShape$stableprop|#static{}androidx_compose_foundation_shape_PolygonShape$stableprop[0]
+final val androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShapeGeometry$stableprop // androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShapeGeometry$stableprop|#static{}androidx_compose_foundation_shape_PolygonShapeGeometry$stableprop[0]
+final val androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShapeGeometry_CornerRounding$stableprop // androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShapeGeometry_CornerRounding$stableprop|#static{}androidx_compose_foundation_shape_PolygonShapeGeometry_CornerRounding$stableprop[0]
 final val androidx.compose.foundation.shape/androidx_compose_foundation_shape_RoundedCornerShape$stableprop // androidx.compose.foundation.shape/androidx_compose_foundation_shape_RoundedCornerShape$stableprop|#static{}androidx_compose_foundation_shape_RoundedCornerShape$stableprop[0]
 final val androidx.compose.foundation.style/androidx_compose_foundation_style_MutableStyleState$stableprop // androidx.compose.foundation.style/androidx_compose_foundation_style_MutableStyleState$stableprop|#static{}androidx_compose_foundation_style_MutableStyleState$stableprop[0]
 final val androidx.compose.foundation.style/androidx_compose_foundation_style_StyleState$stableprop // androidx.compose.foundation.style/androidx_compose_foundation_style_StyleState$stableprop|#static{}androidx_compose_foundation_style_StyleState$stableprop[0]
@@ -1902,6 +1965,8 @@ final fun androidx.compose.foundation.shape/CutCornerShape(kotlin/Float = ..., k
 final fun androidx.compose.foundation.shape/CutCornerShape(kotlin/Float): androidx.compose.foundation.shape/CutCornerShape // androidx.compose.foundation.shape/CutCornerShape|CutCornerShape(kotlin.Float){}[0]
 final fun androidx.compose.foundation.shape/CutCornerShape(kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ...): androidx.compose.foundation.shape/CutCornerShape // androidx.compose.foundation.shape/CutCornerShape|CutCornerShape(kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Int){}[0]
 final fun androidx.compose.foundation.shape/CutCornerShape(kotlin/Int): androidx.compose.foundation.shape/CutCornerShape // androidx.compose.foundation.shape/CutCornerShape|CutCornerShape(kotlin.Int){}[0]
+final fun androidx.compose.foundation.shape/PolygonShape(androidx.compose.foundation.shape/PolygonShapeGeometry): androidx.compose.foundation.shape/PolygonShape // androidx.compose.foundation.shape/PolygonShape|PolygonShape(androidx.compose.foundation.shape.PolygonShapeGeometry){}[0]
+final fun androidx.compose.foundation.shape/PolygonShape(kotlin/Function1<androidx.compose.foundation.shape/PolygonShapeScope, androidx.compose.foundation.shape/PolygonShapeGeometry>): androidx.compose.foundation.shape/PolygonShape // androidx.compose.foundation.shape/PolygonShape|PolygonShape(kotlin.Function1<androidx.compose.foundation.shape.PolygonShapeScope,androidx.compose.foundation.shape.PolygonShapeGeometry>){}[0]
 final fun androidx.compose.foundation.shape/RoundedCornerShape(androidx.compose.foundation.shape/CornerSize): androidx.compose.foundation.shape/RoundedCornerShape // androidx.compose.foundation.shape/RoundedCornerShape|RoundedCornerShape(androidx.compose.foundation.shape.CornerSize){}[0]
 final fun androidx.compose.foundation.shape/RoundedCornerShape(androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.foundation.shape/RoundedCornerShape // androidx.compose.foundation.shape/RoundedCornerShape|RoundedCornerShape(androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp;androidx.compose.ui.unit.Dp){}[0]
 final fun androidx.compose.foundation.shape/RoundedCornerShape(androidx.compose.ui.unit/Dp): androidx.compose.foundation.shape/RoundedCornerShape // androidx.compose.foundation.shape/RoundedCornerShape|RoundedCornerShape(androidx.compose.ui.unit.Dp){}[0]
@@ -1914,6 +1979,9 @@ final fun androidx.compose.foundation.shape/androidx_compose_foundation_shape_Ab
 final fun androidx.compose.foundation.shape/androidx_compose_foundation_shape_CornerBasedShape$stableprop_getter(): kotlin/Int // androidx.compose.foundation.shape/androidx_compose_foundation_shape_CornerBasedShape$stableprop_getter|androidx_compose_foundation_shape_CornerBasedShape$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.shape/androidx_compose_foundation_shape_CutCornerShape$stableprop_getter(): kotlin/Int // androidx.compose.foundation.shape/androidx_compose_foundation_shape_CutCornerShape$stableprop_getter|androidx_compose_foundation_shape_CutCornerShape$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.shape/androidx_compose_foundation_shape_GenericShape$stableprop_getter(): kotlin/Int // androidx.compose.foundation.shape/androidx_compose_foundation_shape_GenericShape$stableprop_getter|androidx_compose_foundation_shape_GenericShape$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShape$stableprop_getter(): kotlin/Int // androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShape$stableprop_getter|androidx_compose_foundation_shape_PolygonShape$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShapeGeometry$stableprop_getter(): kotlin/Int // androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShapeGeometry$stableprop_getter|androidx_compose_foundation_shape_PolygonShapeGeometry$stableprop_getter(){}[0]
+final fun androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShapeGeometry_CornerRounding$stableprop_getter(): kotlin/Int // androidx.compose.foundation.shape/androidx_compose_foundation_shape_PolygonShapeGeometry_CornerRounding$stableprop_getter|androidx_compose_foundation_shape_PolygonShapeGeometry_CornerRounding$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.shape/androidx_compose_foundation_shape_RoundedCornerShape$stableprop_getter(): kotlin/Int // androidx.compose.foundation.shape/androidx_compose_foundation_shape_RoundedCornerShape$stableprop_getter|androidx_compose_foundation_shape_RoundedCornerShape$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.style/androidx_compose_foundation_style_MutableStyleState$stableprop_getter(): kotlin/Int // androidx.compose.foundation.style/androidx_compose_foundation_style_MutableStyleState$stableprop_getter|androidx_compose_foundation_style_MutableStyleState$stableprop_getter(){}[0]
 final fun androidx.compose.foundation.style/androidx_compose_foundation_style_StyleState$stableprop_getter(): kotlin/Int // androidx.compose.foundation.style/androidx_compose_foundation_style_StyleState$stableprop_getter|androidx_compose_foundation_style_StyleState$stableprop_getter(){}[0]
