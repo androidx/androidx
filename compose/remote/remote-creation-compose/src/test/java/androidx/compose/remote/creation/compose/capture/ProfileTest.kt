@@ -35,8 +35,8 @@ class ProfileTest {
     private val displayInfo = CreationDisplayInfo(100, 100, 160)
 
     @Test
-    fun createCustomProfile_defaultValues() {
-        val profile = createCustomProfile()
+    fun createProfile_defaultValues() {
+        val profile = createProfile()
 
         assertThat(profile.apiLevel).isEqualTo(CoreDocument.DOCUMENT_API_LEVEL)
         assertThat(profile.operationsProfiles).isEqualTo(RcProfiles.PROFILE_ANDROIDX)
@@ -47,11 +47,11 @@ class ProfileTest {
     }
 
     @Test
-    fun createCustomProfile_customParameters() {
+    fun createProfile_customParameters() {
         val customOps = intSetOf(Operations.HEADER, Operations.DRAW_RECT, Operations.DRAW_LINE)
         val profile =
-            createCustomProfile(
-                apiLevel = 7,
+            createProfile(
+                docApiLevel = 7,
                 profileFlags = RcProfiles.PROFILE_WEAR_WIDGETS,
                 supportedOperations = customOps,
             )
