@@ -98,7 +98,6 @@ val FoundationDemos =
             ComposableDemo("Vertical scroll") { VerticalScrollExample() },
             ComposableDemo("Controlled Scrollable Row") { ControlledScrollableRowSample() },
             ComposableDemo("Draw Modifiers") { DrawModifiersDemo() },
-            ComposableDemo("Text Lookahead Optimization") { TextLookaheadOptDemo() },
             ComposableDemo("External Surfaces") { AndroidExternalSurfaceDemo() },
             DemoCategory("Lazy lists", LazyListDemos),
             DemoCategory("Lazy Layouts", LazyLayoutDemos),
