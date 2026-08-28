@@ -60,7 +60,7 @@ public fun hostAction(name: RemoteString, value: RemoteString): Action = HostAct
 /** Run the named host action when invoked. */
 internal class HostAction(
     public val name: RemoteString,
-    public val type: Type = Type.INT,
+    public val type: Type = Type.NONE,
     public val id: Int = 0,
     public val value: RemoteState<*>? = null,
 ) : RemoteAction() {
@@ -95,7 +95,7 @@ internal class HostAction(
             return CreationHostAction(id, valueId)
         }
         return if (constantValue != null) {
-            CreationHostAction(constantValue, type.ordinal, valueId)
+            CreationHostAction(constantValue, type.value, valueId)
         } else {
             CreationHostAction(name.id, valueId)
         }
