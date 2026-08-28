@@ -26,7 +26,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.MutableTransform
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.DeferredTransitionState
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
@@ -755,7 +754,6 @@ fun ScaledEnterExit() {
     }
 }
 
-@OptIn(ExperimentalDeferredTransitionApi::class)
 @Sampled
 @Composable
 fun DeferredAnimatedVisibilitySample() {

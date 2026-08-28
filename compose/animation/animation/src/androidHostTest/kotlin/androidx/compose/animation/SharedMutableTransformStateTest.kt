@@ -16,7 +16,6 @@
 
 package androidx.compose.animation
 
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.ui.unit.IntOffset
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -26,7 +25,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalDeferredTransitionApi::class)
 @RunWith(JUnit4::class)
 class SharedMutableTransformStateTest {
 

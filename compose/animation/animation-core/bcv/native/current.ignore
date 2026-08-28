@@ -1,2 +1,3 @@
 // Baseline format: 1.0
+[linuxX64]: Removed declaration androidx.compose.animation.core/ExperimentalDeferredTransitionApi from androidx.compose.animation:animation-core
 [linuxX64]: Removed declaration <A : kotlin/Any?>androidx.compose.animation.core/rememberTransition(androidx.compose.animation.core/DeferredTransitionState<#A>, kotlin/String?, androidx.compose.runtime/Composer?, kotlin/Int, kotlin/Int) from androidx.compose.animation:animation-core

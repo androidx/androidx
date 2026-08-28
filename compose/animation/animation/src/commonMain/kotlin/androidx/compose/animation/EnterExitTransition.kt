@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalAnimationApi::class, ExperimentalDeferredTransitionApi::class)
+@file:OptIn(ExperimentalAnimationApi::class)
 
 package androidx.compose.animation
 
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.AnimationVector4D
-import androidx.compose.animation.core.ExperimentalDeferredTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
