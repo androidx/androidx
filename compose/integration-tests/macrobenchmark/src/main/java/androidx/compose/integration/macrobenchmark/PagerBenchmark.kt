@@ -22,17 +22,15 @@ import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
-import androidx.benchmark.macro.FrameTimingMetric
-import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
-import androidx.compose.integration.macrobenchmark.FormFillingBenchmark.Companion.COMPOSE_APPLY_CHANGES
-import androidx.compose.integration.macrobenchmark.FormFillingBenchmark.Companion.CONTENT_CAPTURE_CHANGE_CHECKER
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,6 +44,11 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
 
     private lateinit var device: UiDevice
 
+    private val defaultMetrics =
+        @OptIn(ExperimentalMetricApi::class) defaultComposeScrollingMetrics() +
+            FrameTimingGfxInfoMetric() +
+            defaultMemoryMetrics()
+
     @Before
     fun setUp() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -56,18 +59,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun pager_of_grids_gesture_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
@@ -92,18 +84,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun pager_of_grids_animated_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
@@ -126,18 +107,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun pager_of_lists_gesture_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
@@ -162,18 +132,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun pager_of_lists_animated_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
@@ -196,18 +155,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun pager_of_webviews_gesture_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
@@ -232,18 +180,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun pager_of_webviews_animated_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
@@ -266,18 +203,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun pager_of_images_full_page_gesture_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
@@ -302,18 +228,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun pager_of_images_full_page_animated_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
@@ -336,19 +251,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun pager_of_images_fixed_size_page_gesture_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingMetric(),
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
@@ -373,18 +276,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun pager_of_images_fixed_size_page_animated_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
@@ -407,18 +299,7 @@ class PagerBenchmark(private val compilationMode: CompilationMode) {
     fun list_of_pagers_gesture_scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics =
-                listOf(
-                    FrameTimingGfxInfoMetric(),
-                    TraceSectionMetric(
-                        sectionName = CONTENT_CAPTURE_CHANGE_CHECKER,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                    TraceSectionMetric(
-                        sectionName = COMPOSE_APPLY_CHANGES,
-                        mode = TraceSectionMetric.Mode.Sum,
-                    ),
-                ),
+            metrics = defaultMetrics,
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {

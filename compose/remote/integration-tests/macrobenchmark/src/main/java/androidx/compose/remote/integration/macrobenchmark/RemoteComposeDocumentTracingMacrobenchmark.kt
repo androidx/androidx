@@ -20,7 +20,6 @@ import android.content.Intent
 import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
-import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.TraceSectionMetric
@@ -28,6 +27,7 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,9 +43,7 @@ class RemoteComposeDocumentTracingMacrobenchmark(val compilationMode: Compilatio
     fun documentGenerationOnly() =
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics =
-                recordingTraces.map { TraceSectionMetric(it) } +
-                    MemoryUsageMetric(MemoryUsageMetric.Mode.Max),
+            metrics = recordingTraces.map { TraceSectionMetric(it) } + defaultMemoryMetrics(),
             iterations = 5,
             compilationMode = compilationMode,
             startupMode = StartupMode.WARM,
@@ -65,7 +63,7 @@ class RemoteComposeDocumentTracingMacrobenchmark(val compilationMode: Compilatio
             metrics =
                 listOf(StartupTimingMetric()) +
                     decodingTraces.map { TraceSectionMetric(it) } +
-                    MemoryUsageMetric(MemoryUsageMetric.Mode.Max),
+                    defaultMemoryMetrics(),
             iterations = 5,
             compilationMode = compilationMode,
             startupMode = StartupMode.WARM,
@@ -93,7 +91,7 @@ class RemoteComposeDocumentTracingMacrobenchmark(val compilationMode: Compilatio
             metrics =
                 listOf(StartupTimingMetric()) +
                     allTraces.map { TraceSectionMetric(it) } +
-                    MemoryUsageMetric(MemoryUsageMetric.Mode.Max),
+                    defaultMemoryMetrics(),
             iterations = 5,
             compilationMode = compilationMode,
             startupMode = StartupMode.WARM,
@@ -110,7 +108,7 @@ class RemoteComposeDocumentTracingMacrobenchmark(val compilationMode: Compilatio
     fun startupLocal() {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(StartupTimingMetric()),
+            metrics = listOf(StartupTimingMetric()) + defaultMemoryMetrics(),
             iterations = 5,
             compilationMode = compilationMode,
             startupMode = StartupMode.WARM,

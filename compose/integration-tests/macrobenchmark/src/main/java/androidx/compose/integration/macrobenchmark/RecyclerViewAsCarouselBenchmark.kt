@@ -18,12 +18,13 @@ package androidx.compose.integration.macrobenchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.testutils.createCompilationParams
+import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +39,7 @@ class RecyclerViewAsCarouselBenchmark(private val compilationMode: CompilationMo
     fun scroll() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics = listOf(FrameTimingMetric()),
+            metrics = defaultComposeScrollingMetrics() + defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = 10,
             setupBlock = {

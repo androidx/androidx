@@ -22,6 +22,7 @@ import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.compose.integration.hero.sysui.macrobenchmark.SysUiSceneTransitionLayoutHeroBenchmark.Companion.ITERATIONS
 import androidx.testutils.createStartupCompilationParams
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,7 +39,7 @@ class SysUiSceneTransitionLayoutStartupHeroBenchmark(
     fun shadeStartup() {
         benchmarkRule.measureRepeated(
             packageName = StlDemoConstants.PACKAGE,
-            metrics = listOf(StartupTimingMetric()),
+            metrics = listOf(StartupTimingMetric()) + defaultMemoryMetrics(),
             iterations = ITERATIONS,
             startupMode = startupMode,
             compilationMode = compilationMode,

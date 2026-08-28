@@ -25,6 +25,7 @@ import androidx.benchmark.macro.StartupTimingMetric
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +42,7 @@ class RemoteComposeFirstFrameBenchmark(val compilationMode: CompilationMode) {
         val metrics =
             mutableListOf<Metric>(StartupTimingMetric()).also {
                 it.addAll(decodingTraces.map { TraceSectionMetric(it) })
-            }
+            } + defaultMemoryMetrics()
 
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
@@ -60,7 +61,7 @@ class RemoteComposeFirstFrameBenchmark(val compilationMode: CompilationMode) {
 
     @Test
     fun firstFrameLiveCompose() {
-        val metrics = listOf<Metric>(StartupTimingMetric())
+        val metrics = listOf<Metric>(StartupTimingMetric()) + defaultMemoryMetrics()
 
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
@@ -79,7 +80,7 @@ class RemoteComposeFirstFrameBenchmark(val compilationMode: CompilationMode) {
 
     @Test
     fun firstFrameWebView() {
-        val metrics = listOf<Metric>(StartupTimingMetric())
+        val metrics = listOf<Metric>(StartupTimingMetric()) + defaultMemoryMetrics()
 
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
@@ -98,7 +99,7 @@ class RemoteComposeFirstFrameBenchmark(val compilationMode: CompilationMode) {
 
     @Test
     fun firstFrameRemoteViews() {
-        val metrics = listOf<Metric>(StartupTimingMetric())
+        val metrics = listOf<Metric>(StartupTimingMetric()) + defaultMemoryMetrics()
 
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,

@@ -19,12 +19,12 @@ package androidx.compose.integration.macrobenchmark
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
-import androidx.benchmark.macro.FrameTimingMetric
-import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
+import androidx.testutils.defaultComposeScrollingMetrics
+import androidx.testutils.defaultMemoryMetrics
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +40,7 @@ class ProgressiveBlurBenchmark(private val compilationMode: CompilationMode) {
     fun progressiveBlurAnimation() {
         benchmarkRule.measureRepeated(
             packageName = PackageName,
-            metrics = listOf(FrameTimingMetric(), MemoryUsageMetric(MemoryUsageMetric.Mode.Max)),
+            metrics = defaultComposeScrollingMetrics() + defaultMemoryMetrics(),
             compilationMode = compilationMode,
             iterations = 5,
             setupBlock = {
