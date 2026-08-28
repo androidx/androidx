@@ -17,87 +17,102 @@
 package androidx.xr.projected.testapp.battery
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.xr.projected.BatteryState
-import androidx.xr.projected.ProjectedDeviceController
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
-/** Shows information about the battery state. */
+/** Activity that displays battery info for the connected projected device. */
 @OptIn(ExperimentalProjectedApi::class)
 class BatteryActivity : ComponentActivity() {
 
-    private var projectedDeviceController: ProjectedDeviceController? = null
-    private var batteryState by mutableStateOf<BatteryState?>(null)
+    private val viewModel: BatteryViewModel by viewModels()
+    private lateinit var controller: BatteryController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        controller = BatteryController(this, viewModel, lifecycleScope)
 
-        lifecycleScope.launch {
-            try {
-                val controller = ProjectedDeviceController.create(this@BatteryActivity)
-                projectedDeviceController = controller
-                if (lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
-                    controller.addBatteryStateChangedListener(
-                        Dispatchers.Default,
-                        batteryStateListener,
-                    )
+        setContent {
+            MaterialTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    BatteryScreen(viewModel)
                 }
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to create ProjectedDeviceController", e)
             }
         }
-
-        setContent { BatteryScreen(batteryState) }
     }
 
-    override fun onResume() {
-        super.onResume()
-        projectedDeviceController?.addBatteryStateChangedListener(
-            Dispatchers.Main,
-            batteryStateListener,
-        )
+    override fun onDestroy() {
+        controller.close()
+        super.onDestroy()
     }
-
-    override fun onPause() {
-        super.onPause()
-        projectedDeviceController?.removeBatteryStateChangedListener(batteryStateListener)
-    }
-
-    private val batteryStateListener: (BatteryState) -> Unit = { state -> batteryState = state }
 
     @Composable
-    private fun BatteryScreen(state: BatteryState?) {
+    private fun BatteryScreen(viewModel: BatteryViewModel) {
+        val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
+        val batteryLevel by viewModel.batteryLevel.collectAsStateWithLifecycle()
+        val isCharging by viewModel.isCharging.collectAsStateWithLifecycle()
+        val statusMessage by viewModel.statusMessage.collectAsStateWithLifecycle()
+
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().statusBarsPadding().padding(24.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (state == null) {
-                Text("Waiting for battery state...", fontSize = 20.sp)
-            } else {
-                Text("Battery Level: ${state.batteryLevel}%", fontSize = 30.sp)
-                Text("Charging: ${if (state.isCharging) "Yes" else "No"}", fontSize = 30.sp)
-            }
+            Text(
+                text = "Battery Status",
+                fontSize = 24.sp,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Connection: ${if (isConnected) "Connected" else "Not Connected"}",
+                fontSize = 18.sp,
+                color =
+                    if (isConnected) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.error,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text =
+                    "Battery Level: ${batteryLevel?.let { "$it%" } ?: "Waiting for battery state..."}",
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Charging: ${isCharging?.let { if (it) "Yes" else "No" } ?: "Unknown"}",
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Status: $statusMessage",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
-    }
-
-    companion object {
-        private const val TAG = "BatteryActivity"
     }
 }
