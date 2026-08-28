@@ -62,7 +62,7 @@ private fun RemoteEdgeButtonExtraSmallPreview(
 @RemoteComposable
 fun RemoteEdgeButtonSmall() {
     RemoteEdgeButton(onClick = testAction, buttonSize = RemoteEdgeButtonSize.Small) {
-        RemoteText("Small Edge Button".rs)
+        RemoteText("Small".rs)
     }
 }
 
@@ -76,7 +76,7 @@ private fun RemoteEdgeButtonSmallPreview(
 @RemoteComposable
 fun RemoteEdgeButtonMedium() {
     RemoteEdgeButton(onClick = testAction, buttonSize = RemoteEdgeButtonSize.Medium) {
-        RemoteText("Medium Edge Button".rs)
+        RemoteText("Medium".rs)
     }
 }
 
@@ -90,7 +90,7 @@ private fun RemoteEdgeButtonMediumPreview(
 @RemoteComposable
 fun RemoteEdgeButtonLarge() {
     RemoteEdgeButton(onClick = testAction, buttonSize = RemoteEdgeButtonSize.Large) {
-        RemoteText("Large Edge Button\nwith multi-line\nlabel text".rs)
+        RemoteText("Longer multi-line\nshort text".rs)
     }
 }
 
