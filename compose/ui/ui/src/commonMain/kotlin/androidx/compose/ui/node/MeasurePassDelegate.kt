@@ -179,23 +179,27 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
         forEachChildAlignmentLinesOwner { it.alignmentLines.usedDuringParentLayout = false }
 
         var childrenPlacingForAlignment: MutableObjectList<LayoutNode>? = null
-        layoutNode.children.fastForEach {
-            val isPlacingForAlignment = it.outerCoordinator.isPlacingForAlignment
-            if (isPlacingForAlignment) {
-                // This is an edge case that might only happen during recursive alignment
-                // calculations, so we allocate the list here to preserve correctness instead of
-                // reserving a field for this.
-                childrenPlacingForAlignment = childrenPlacingForAlignment ?: MutableObjectList()
-                childrenPlacingForAlignment.add(it)
+        if (innerCoordinator.isPlacingForAlignment) {
+            layoutNode.children.fastForEach {
+                val isPlacingForAlignment = it.outerCoordinator.isPlacingForAlignment
+                if (isPlacingForAlignment) {
+                    // This is an edge case that might only happen during recursive alignment
+                    // calculations, so we allocate the list here to preserve correctness instead of
+                    // reserving a field for this.
+                    childrenPlacingForAlignment = childrenPlacingForAlignment ?: MutableObjectList()
+                    childrenPlacingForAlignment.add(it)
+                }
+                it.outerCoordinator.isPlacingForAlignment = innerCoordinator.isPlacingForAlignment
             }
-            it.outerCoordinator.isPlacingForAlignment = innerCoordinator.isPlacingForAlignment
         }
 
         innerCoordinator.measureResult.placeChildren()
 
-        layoutNode.children.fastForEach {
-            val wasPlacingForAlignment = childrenPlacingForAlignment?.contains(it) == true
-            it.outerCoordinator.isPlacingForAlignment = wasPlacingForAlignment
+        if (innerCoordinator.isPlacingForAlignment) {
+            layoutNode.children.fastForEach {
+                val wasPlacingForAlignment = childrenPlacingForAlignment?.contains(it) == true
+                it.outerCoordinator.isPlacingForAlignment = wasPlacingForAlignment
+            }
         }
 
         checkChildrenPlaceOrderForUpdates()
