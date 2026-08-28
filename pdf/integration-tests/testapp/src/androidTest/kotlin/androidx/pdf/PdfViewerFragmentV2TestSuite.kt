@@ -251,7 +251,7 @@ class PdfViewerFragmentV2TestSuite {
 
     @Test
     fun testPdfViewerFragment_isTextSearchActive_toggleMenu() {
-        val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         scenarioLoadDocument(
             scenario = scenario,
             filename = TEST_DOCUMENT_FILE,

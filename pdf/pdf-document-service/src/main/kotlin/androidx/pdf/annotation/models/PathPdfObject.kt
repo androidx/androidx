@@ -78,7 +78,7 @@ internal class PathPdfObject(
         val CREATOR: Parcelable.Creator<PathPdfObject> =
             object : Parcelable.Creator<PathPdfObject> {
                 override fun createFromParcel(parcel: Parcel): PathPdfObject {
-                    val type = parcel.readInt()
+                    parcel.readInt()
                     return PathPdfObject(parcel)
                 }
 

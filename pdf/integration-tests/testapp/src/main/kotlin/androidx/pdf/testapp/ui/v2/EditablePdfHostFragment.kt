@@ -168,7 +168,7 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
     }
 
     private fun onImageSelected(imageSelection: ImageSelection) {
-        val context = context ?: return
+        context ?: return
         val callback =
             ImageSelectionActionModeCallback(
                 requireContext(),
@@ -240,10 +240,10 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
         MaterialAlertDialogBuilder(context)
             .setTitle(getString(PdfR.string.discard_changes_dialog_title))
             .setMessage(getString(PdfR.string.discard_changes_dialog_message))
-            .setNegativeButton(getString(PdfR.string.keep_editing_button)) { dialog, _ ->
+            .setNegativeButton(getString(PdfR.string.keep_editing_button)) { _, _ ->
                 viewModel.showDiscardDialog(false)
             }
-            .setPositiveButton(getString(PdfR.string.discard_button)) { dialog, _ ->
+            .setPositiveButton(getString(PdfR.string.discard_button)) { _, _ ->
                 viewModel.showDiscardDialog(false)
                 isEditModeEnabled = false
             }

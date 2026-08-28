@@ -69,7 +69,7 @@ internal class HighlightAnnotation(pageNum: Int, val bounds: List<RectF>, val co
         val CREATOR: Parcelable.Creator<HighlightAnnotation> =
             object : Parcelable.Creator<HighlightAnnotation> {
                 override fun createFromParcel(source: Parcel): HighlightAnnotation {
-                    val type = source.readInt()
+                    source.readInt()
                     return HighlightAnnotation(source)
                 }
 

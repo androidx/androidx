@@ -38,7 +38,7 @@ internal object TestUtils {
 
     fun selectUiObjectByText(viewText: String): UiObject2? {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        var selectedView: UiObject2?
+        val selectedView: UiObject2?
 
         // device.wait returns null if the timeout expires
         try {

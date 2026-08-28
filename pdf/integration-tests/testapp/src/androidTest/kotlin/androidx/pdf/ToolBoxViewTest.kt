@@ -149,7 +149,7 @@ class ToolBoxViewTest {
         val pageNum = 3
         scenario.onFragment { fragment ->
             fragment.view?.let {
-                var toolBoxView: ToolBoxView? =
+                val toolBoxView: ToolBoxView? =
                     it.findViewById(androidx.pdf.viewer.fragment.R.id.toolBoxView) as ToolBoxView
                 toolBoxView?.setOnCurrentPageRequested { pageNum }
             }

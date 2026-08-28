@@ -81,7 +81,7 @@ public interface PdfDocumentRenderer : AutoCloseable {
 
     public fun <T> withPage(pageNum: Int, block: (PdfPage) -> T): T? {
         var page: PdfPage? = null
-        var results: T?
+        val results: T?
 
         try {
             page = this.openPage(pageNum, useCache = false)
