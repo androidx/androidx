@@ -2198,6 +2198,90 @@ package androidx.compose.foundation.shape {
     method @BytecodeOnly public androidx.compose.ui.graphics.Outline createOutline-Pq9zytI(long, androidx.compose.ui.unit.LayoutDirection, androidx.compose.ui.unit.Density);
   }
 
+  public abstract sealed nonexhaustive class PolygonShape implements androidx.compose.ui.graphics.Shape {
+    field public static final androidx.compose.foundation.shape.PolygonShape.Companion Companion;
+  }
+
+  public static final class PolygonShape.Companion {
+    method public androidx.compose.foundation.shape.PolygonShape absoluteRectangle(optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding topLeftRounding, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding topRightRounding, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding bottomRightRounding, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding bottomLeftRounding);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShape! absoluteRectangle$default(androidx.compose.foundation.shape.PolygonShape.Companion!, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, int, Object!);
+    method public androidx.compose.foundation.shape.PolygonShape circle(optional @IntRange(from=3L) int numVertices);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShape! circle$default(androidx.compose.foundation.shape.PolygonShape.Companion!, int, int, Object!);
+    method public androidx.compose.foundation.shape.PolygonShape pill(optional @FloatRange(from=0.0, to=1.0) float smoothing);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShape! pill$default(androidx.compose.foundation.shape.PolygonShape.Companion!, float, int, Object!);
+    method public androidx.compose.foundation.shape.PolygonShape pillStar(@IntRange(from=2L) int numPoints, optional float innerRadiusRatio, optional float vertexSpacing, optional float startLocation, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding outerRounding, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding innerRounding);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShape! pillStar$default(androidx.compose.foundation.shape.PolygonShape.Companion!, int, float, float, float, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, int, Object!);
+    method public androidx.compose.foundation.shape.PolygonShape rectangle(androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding rounding);
+    method public androidx.compose.foundation.shape.PolygonShape rectangle(optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding topStartRounding, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding topEndRounding, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding bottomEndRounding, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding bottomStartRounding);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShape! rectangle$default(androidx.compose.foundation.shape.PolygonShape.Companion!, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, int, Object!);
+    method public androidx.compose.foundation.shape.PolygonShape regularPolygon(@IntRange(from=3L) int numVertices, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding rounding);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShape! regularPolygon$default(androidx.compose.foundation.shape.PolygonShape.Companion!, int, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, int, Object!);
+    method public androidx.compose.foundation.shape.PolygonShape star(@IntRange(from=2L) int numPoints, optional float innerRadiusRatio, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding outerRounding, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding innerRounding);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShape! star$default(androidx.compose.foundation.shape.PolygonShape.Companion!, int, float, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, int, Object!);
+  }
+
+  @androidx.compose.runtime.Immutable public final class PolygonShapeGeometry {
+    ctor @BytecodeOnly public PolygonShapeGeometry(java.util.List!, java.util.List!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public PolygonShapeGeometry(java.util.List!, java.util.List!, long, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public PolygonShapeGeometry(java.util.List!, long, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public PolygonShapeGeometry(java.util.List!, long, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, java.util.List!, androidx.compose.ui.geometry.Size!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public PolygonShapeGeometry(java.util.List!, long, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public PolygonShapeGeometry(java.util.List<androidx.compose.ui.geometry.Offset> vertices, optional androidx.compose.ui.geometry.Offset center, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding rounding);
+    ctor @KotlinOnly public PolygonShapeGeometry(java.util.List<androidx.compose.ui.geometry.Offset> vertices, java.util.List<androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding> perVertexRounding, optional androidx.compose.ui.geometry.Offset center);
+    method @BytecodeOnly public long getCenter-F1C5BW0();
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding>? getPerVertexRounding();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding getRounding();
+    method @InaccessibleFromKotlin public java.util.List<androidx.compose.ui.geometry.Offset> getVertices();
+    property public androidx.compose.ui.geometry.Offset center;
+    property public java.util.List<androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding>? perVertexRounding;
+    property public androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding rounding;
+    property public java.util.List<androidx.compose.ui.geometry.Offset> vertices;
+    field public static final androidx.compose.foundation.shape.PolygonShapeGeometry.Companion Companion;
+  }
+
+  public static final class PolygonShapeGeometry.Companion {
+    method @KotlinOnly public androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding CornerRounding(androidx.compose.ui.unit.Dp radius, optional float smoothing);
+    method public androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding CornerRounding(float radius, optional float smoothing);
+    method public androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding CornerRounding(@IntRange(from=0L, to=100L) int percent, optional float smoothing);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding! CornerRounding$default(androidx.compose.foundation.shape.PolygonShapeGeometry.Companion!, float, float, int, Object!);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding! CornerRounding$default(androidx.compose.foundation.shape.PolygonShapeGeometry.Companion!, int, float, int, Object!);
+    method @BytecodeOnly public androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding CornerRounding-D5KLDUw(float, float);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding! CornerRounding-D5KLDUw$default(androidx.compose.foundation.shape.PolygonShapeGeometry.Companion!, float, float, int, Object!);
+  }
+
+  @androidx.compose.runtime.Immutable public static final class PolygonShapeGeometry.CornerRounding {
+    field public static final androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding.Companion Companion;
+  }
+
+  public static final class PolygonShapeGeometry.CornerRounding.Companion {
+    method @InaccessibleFromKotlin public androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding getUnrounded();
+    property public androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding Unrounded;
+  }
+
+  public final class PolygonShapeKt {
+    method @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.foundation.shape.PolygonShape PolygonShape(androidx.compose.foundation.shape.PolygonShapeGeometry geometry);
+    method @androidx.compose.runtime.annotation.RememberInComposition public static androidx.compose.foundation.shape.PolygonShape PolygonShape(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.shape.PolygonShapeScope,androidx.compose.foundation.shape.PolygonShapeGeometry> builder);
+  }
+
+  public sealed nonexhaustive interface PolygonShapeScope extends androidx.compose.ui.unit.Density {
+    method @InaccessibleFromKotlin public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
+    method @BytecodeOnly public long getSize-NH-jbRc();
+    method @KotlinOnly public androidx.compose.foundation.shape.PolygonShapeGeometry polygon(int numVertices, optional float radius, optional androidx.compose.ui.geometry.Offset center, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding rounding);
+    method @KotlinOnly public androidx.compose.foundation.shape.PolygonShapeGeometry polygon(int numVertices, java.util.List<androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding> perVertexRounding, optional float radius, optional androidx.compose.ui.geometry.Offset center);
+    method @KotlinOnly public androidx.compose.foundation.shape.PolygonShapeGeometry polygon(java.util.List<androidx.compose.ui.geometry.Offset> vertices, optional androidx.compose.ui.geometry.Offset center, optional androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding rounding);
+    method @KotlinOnly public androidx.compose.foundation.shape.PolygonShapeGeometry polygon(java.util.List<androidx.compose.ui.geometry.Offset> vertices, java.util.List<androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding> perVertexRounding, optional androidx.compose.ui.geometry.Offset center);
+    method @BytecodeOnly public androidx.compose.foundation.shape.PolygonShapeGeometry polygon-0AR0LA0(java.util.List<androidx.compose.ui.geometry.Offset!>, java.util.List<androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!>, long);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShapeGeometry! polygon-0AR0LA0$default(androidx.compose.foundation.shape.PolygonShapeScope!, java.util.List!, java.util.List!, long, int, Object!);
+    method @BytecodeOnly public androidx.compose.foundation.shape.PolygonShapeGeometry polygon-Rg1IO4c(int, float, long, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShapeGeometry! polygon-Rg1IO4c$default(androidx.compose.foundation.shape.PolygonShapeScope!, int, float, long, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, int, Object!);
+    method @BytecodeOnly public androidx.compose.foundation.shape.PolygonShapeGeometry polygon-d-4ec7I(java.util.List<androidx.compose.ui.geometry.Offset!>, long, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShapeGeometry! polygon-d-4ec7I$default(androidx.compose.foundation.shape.PolygonShapeScope!, java.util.List!, long, androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!, int, Object!);
+    method @BytecodeOnly public androidx.compose.foundation.shape.PolygonShapeGeometry polygon-moWRBKg(int, java.util.List<androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding!>, float, long);
+    method @BytecodeOnly public static androidx.compose.foundation.shape.PolygonShapeGeometry! polygon-moWRBKg$default(androidx.compose.foundation.shape.PolygonShapeScope!, int, java.util.List!, float, long, int, Object!);
+    property public abstract androidx.compose.ui.unit.LayoutDirection layoutDirection;
+    property public abstract androidx.compose.ui.geometry.Size size;
+  }
+
   public final class RoundedCornerShape extends androidx.compose.foundation.shape.CornerBasedShape {
     ctor public RoundedCornerShape(androidx.compose.foundation.shape.CornerSize topStart, androidx.compose.foundation.shape.CornerSize topEnd, androidx.compose.foundation.shape.CornerSize bottomEnd, androidx.compose.foundation.shape.CornerSize bottomStart);
     method public androidx.compose.foundation.shape.RoundedCornerShape copy(optional androidx.compose.foundation.shape.CornerSize topStart, optional androidx.compose.foundation.shape.CornerSize topEnd, optional androidx.compose.foundation.shape.CornerSize bottomEnd, optional androidx.compose.foundation.shape.CornerSize bottomStart);
