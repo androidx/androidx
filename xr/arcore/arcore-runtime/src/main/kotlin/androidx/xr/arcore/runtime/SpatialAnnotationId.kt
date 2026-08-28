@@ -24,4 +24,32 @@ import androidx.annotation.RestrictTo
  * @param value the string value of the spatial annotation id
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class SpatialAnnotationId public constructor(public val value: String) {}
+public class SpatialAnnotationId private constructor(private val value: String) {
+
+    init {
+        require(value.isNotEmpty()) { "SpatialAnnotationId value must not be empty." }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SpatialAnnotationId) return false
+        return value == other.value
+    }
+
+    override fun hashCode(): Int = value.hashCode()
+
+    override fun toString(): String = value
+
+    public companion object {
+        /**
+         * Creates a [SpatialAnnotationId] from the provided string.
+         *
+         * @param value the string value of the spatial annotation id
+         * @return a new [SpatialAnnotationId] instance wrapping the value
+         */
+        @JvmStatic
+        public fun fromString(value: String): SpatialAnnotationId {
+            return SpatialAnnotationId(value)
+        }
+    }
+}
