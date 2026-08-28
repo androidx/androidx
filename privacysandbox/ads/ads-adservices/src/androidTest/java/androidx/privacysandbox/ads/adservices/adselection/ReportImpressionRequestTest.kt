@@ -60,7 +60,7 @@ class ReportImpressionRequestTest {
     @Test
     fun testEquals() {
         val reportImpressionRequest = ReportImpressionRequest(adSelectionId, adSelectionConfig)
-        var adSelectionConfig2 =
+        val adSelectionConfig2 =
             AdSelectionConfig(
                 AdTechIdentifier("1234"),
                 Uri.parse("www.abc.com"),
@@ -70,7 +70,7 @@ class ReportImpressionRequestTest {
                 perBuyerSignals,
                 trustedScoringSignalsUri,
             )
-        var reportImpressionRequest2 = ReportImpressionRequest(adSelectionId, adSelectionConfig2)
+        val reportImpressionRequest2 = ReportImpressionRequest(adSelectionId, adSelectionConfig2)
         Truth.assertThat(reportImpressionRequest == reportImpressionRequest2).isTrue()
     }
 }

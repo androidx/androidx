@@ -35,7 +35,7 @@ class GetTopicsResponseTest {
         val result = "GetTopicsResponse: Topics=[$topicsString], EncryptedTopics=[]"
 
         val topic1 = Topic(1, 10, 100)
-        var topic2 = Topic(2, 20, 200)
+        val topic2 = Topic(2, 20, 200)
         val response1 = GetTopicsResponse(listOf(topic1, topic2))
         Truth.assertThat(response1.toString()).isEqualTo(result)
     }
@@ -55,14 +55,14 @@ class GetTopicsResponseTest {
             "GetTopicsResponse: Topics=[$topicsString], EncryptedTopics=[$encryptedTopicsString]"
 
         val topic1 = Topic(1, 10, 100)
-        var topic2 = Topic(2, 20, 200)
-        var encryptedTopic1 =
+        val topic2 = Topic(2, 20, 200)
+        val encryptedTopic1 =
             EncryptedTopic(
                 "encryptedTopic1".toByteArray(),
                 "publicKey1",
                 "encapsulatedKey1".toByteArray(),
             )
-        var encryptedTopic2 =
+        val encryptedTopic2 =
             EncryptedTopic(
                 "encryptedTopic2".toByteArray(),
                 "publicKey2",
@@ -77,7 +77,7 @@ class GetTopicsResponseTest {
     @Test
     fun testEquals_onlyPlaintextTopics() {
         val topic1 = Topic(1, 10, 100)
-        var topic2 = Topic(2, 20, 200)
+        val topic2 = Topic(2, 20, 200)
         val response1 = GetTopicsResponse(listOf(topic1, topic2))
         val response2 = GetTopicsResponse(listOf(topic2, topic1))
         Truth.assertThat(response1 == response2).isTrue()
@@ -86,14 +86,14 @@ class GetTopicsResponseTest {
     @Test
     fun testEquals_plaintextAndEncryptedTopics() {
         val topic1 = Topic(1, 10, 100)
-        var topic2 = Topic(2, 20, 200)
-        var encryptedTopic1 =
+        val topic2 = Topic(2, 20, 200)
+        val encryptedTopic1 =
             EncryptedTopic(
                 "encryptedTopic1".toByteArray(),
                 "publicKey1",
                 "encapsulatedKey1".toByteArray(),
             )
-        var encryptedTopic2 =
+        val encryptedTopic2 =
             EncryptedTopic(
                 "encryptedTopic2".toByteArray(),
                 "publicKey2",

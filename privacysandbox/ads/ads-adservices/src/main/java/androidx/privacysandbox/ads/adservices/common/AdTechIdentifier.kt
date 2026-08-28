@@ -58,7 +58,7 @@ public class AdTechIdentifier public constructor(public val identifier: String) 
 
     /** @return The identifier in String form. */
     override fun toString(): String {
-        return "$identifier"
+        return identifier
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)

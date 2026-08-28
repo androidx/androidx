@@ -69,7 +69,7 @@ class AdSelectionConfigTest {
                 perBuyerSignals,
                 trustedScoringSignalsUri,
             )
-        var adSelectionConfig2 =
+        val adSelectionConfig2 =
             AdSelectionConfig(
                 AdTechIdentifier("1234"),
                 Uri.parse("www.abc.com"),

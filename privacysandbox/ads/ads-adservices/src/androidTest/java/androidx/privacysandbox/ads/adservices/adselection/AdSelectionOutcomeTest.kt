@@ -41,7 +41,7 @@ class AdSelectionOutcomeTest {
     @Test
     fun testEquals() {
         val adSelectionOutcome = AdSelectionOutcome(adSelectionId, renderUri)
-        var adSelectionOutcome2 = AdSelectionOutcome(adSelectionId, Uri.parse("abc.com"))
+        val adSelectionOutcome2 = AdSelectionOutcome(adSelectionId, Uri.parse("abc.com"))
         Truth.assertThat(adSelectionOutcome == adSelectionOutcome2).isTrue()
     }
 
