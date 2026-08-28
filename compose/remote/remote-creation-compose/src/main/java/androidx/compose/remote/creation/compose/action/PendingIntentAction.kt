@@ -60,7 +60,7 @@ public class PendingIntentAction(public val pendingIntent: () -> PendingIntent) 
             val valueId = document.addInteger(index)
             return CreationHostAction(
                 ACTION_NAME,
-                HostAction.Type.INT.ordinal,
+                HostAction.Type.INT.value,
                 Utils.idFromLong(valueId).toInt(),
             )
         } else {
