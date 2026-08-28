@@ -241,13 +241,16 @@ class TextFieldTest {
         // click to focus
         rule.onNodeWithTag(TextFieldTag).performClick()
 
+        // Use a tolerance that accounts for 1px rounding differences on low-density devices
+        // (where density < 2.0 and 1px > 0.5.dp default tolerance).
+        val tolerance = maxOf(0.5.dp, with(rule.density) { 1.toDp() })
         repeat(numTicks + 1) {
             if (tfHeight.value != null) {
                 rule
                     .onNodeWithTag(TextFieldTag)
                     .getBoundsInRoot()
                     .height
-                    .assertIsEqualTo(tfHeight.value!!)
+                    .assertIsEqualTo(tfHeight.value!!, tolerance = tolerance)
             }
 
             rule.mainClock.advanceTimeBy(tick)
