@@ -57,8 +57,7 @@
     <string name="close_button_description" msgid="7379823906921067675">"ਬੰਦ ਕਰੋ"</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="match_status_description" msgid="4996847358326345288">"<xliff:g id="TOTAL">%2$d</xliff:g> ਵਿੱਚੋਂ <xliff:g id="POSITION">%1$d</xliff:g>"</string>
-    <!-- no translation found for match_status_searching_description (5539812711678678797) -->
-    <skip />
+    <string name="match_status_searching_description" msgid="5539812711678678797">"<xliff:g id="TOTAL">%2$d</xliff:g> ਵਿੱਚੋਂ <xliff:g id="POSITION">%1$d</xliff:g>, ਖੋਜ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ"</string>
     <string name="message_no_match_status" msgid="5929387004361286433">"ਕੋਈ ਮੇਲ ਖਾਂਦਾ ਨਤੀਜਾ ਨਹੀਂ"</string>
     <string name="action_edit" msgid="5882082700509010966">"ਫ਼ਾਈਲ ਦਾ ਸੰਪਾਦਨ ਕਰੋ"</string>
     <string name="scrollbar_description" msgid="5720892205323882483">"ਸਕ੍ਰੋਲ ਬਾਰ"</string>
