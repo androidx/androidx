@@ -15,7 +15,6 @@
  */
 package androidx.wear.compose.remote.material3
 
-import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
@@ -103,7 +102,6 @@ public fun RemoteCircularProgressIndicator(
  */
 @RemoteComposable
 @Composable
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("RestrictedApiAndroidX") // cubicEasing, remote.time
 public fun RemoteCircularProgressIndicator(
     modifier: RemoteModifier = RemoteModifier,
@@ -224,7 +222,6 @@ public object RemoteProgressIndicatorDefaults {
 
     /** Default stroke width for indeterminate [RemoteCircularProgressIndicator]. */
     public val IndeterminateStrokeWidth: RemoteDp = 3.rdp
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
 
     /** Small screen breakpoint in Dp for circular progress indicator. */
     internal val SmallScreenBreakpoint: RemoteDp = 225.rdp
