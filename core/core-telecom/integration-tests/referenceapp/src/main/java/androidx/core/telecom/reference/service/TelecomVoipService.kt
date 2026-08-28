@@ -580,7 +580,7 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
         when (result) {
             is CallControlResult.Success -> {
                 Log.i(TAG, "[$callId] Control action success.")
-                var dataToNotify: CallData? = null
+                val dataToNotify: CallData?
                 if (successState != null) {
                     dataToNotify =
                         updateCallDataInternal(callId) {

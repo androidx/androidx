@@ -288,7 +288,7 @@ internal class ExtrasCallExtensionProcessor(
      * @param r The [CapabilityExchangeRepository] used to register the extension.
      */
     private fun initLocalSilenceExtension(r: CapabilityExchangeRepository) {
-        r.onCreateLocalCallSilenceExtension = { coroutineScope, version, _, binder ->
+        r.onCreateLocalCallSilenceExtension = { coroutineScope, _, _, binder ->
             mLocalCallSilenceFlow
                 .onEach { binder.updateIsLocallySilenced(it) }
                 .launchIn(coroutineScope)
