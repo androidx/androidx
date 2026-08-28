@@ -63,6 +63,7 @@ import java.util.TimeZone
  * @property column The [Column] component implementation.
  * @property list The [List] component implementation.
  * @property tabs The [Tabs] component implementation.
+ * @property divider The [Divider] component implementation.
  * @property button The [Button] component implementation.
  * @property dateTimeInput The [DateTimeInput] component implementation.
  * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
@@ -78,6 +79,7 @@ public class A2uiBasicCatalogV1(
     public val column: Column,
     public val list: List,
     public val tabs: Tabs,
+    public val divider: Divider,
     public val button: Button,
     public val dateTimeInput: DateTimeInput,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -101,6 +103,7 @@ public class A2uiBasicCatalogV1(
             column,
             list,
             tabs,
+            divider,
             button,
             dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -1189,6 +1192,75 @@ public class A2uiBasicCatalogV1(
             tabs: kotlin.collections.List<Tab>,
             modifier: Modifier,
         )
+    }
+
+    /**
+     * The A2UI `"Divider"` component for displaying a horizontal or vertical dividing line.
+     *
+     * **Schema Properties:**
+     * * `axis` (String Enum, optional): The orientation of the divider. Valid options:
+     *   `"horizontal"`, `"vertical"`. Defaults to `"horizontal"`.
+     */
+    public interface Divider : A2uiComponent {
+        override val name: String
+            get() = "Divider"
+
+        override val description: String
+            get() = "A horizontal or vertical dividing line."
+
+        /** The orientation of the divider. */
+        public enum class Axis(public val value: String) {
+            Horizontal("horizontal"),
+            Vertical("vertical");
+
+            public companion object {
+                /** The default [Axis] value. */
+                public val Default: Axis = Horizontal
+
+                /** Returns the [Axis] matching [value], or [Default] if unknown. */
+                public fun fromValue(value: String): Axis =
+                    entries.fastFirstOrNull { it.value == value } ?: Default
+            }
+        }
+
+        public companion object {
+            /** The [A2uiProperty] for the `"axis"` property of a [Divider]. */
+            public val AxisProperty: StaticA2uiProperty<Axis> =
+                A2uiProperty.enum(
+                    key = "axis",
+                    enumValues = Axis.entries,
+                    mapToString = { it.value },
+                    convertFromString = Axis::fromValue,
+                    defaultValue = Axis.Default,
+                    description = "The orientation of the divider.",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(AxisProperty)
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean = true
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val axis = properties[AxisProperty] ?: Axis.Default
+            TypedContent(axis = axis, modifier = modifier)
+        }
+
+        /**
+         * Renders the [Divider] with its resolved [axis] property.
+         *
+         * @param axis [Axis] orientation of the divider
+         * @param modifier [Modifier] to apply to the layout
+         */
+        @Composable public fun A2uiComponentScope.TypedContent(axis: Axis, modifier: Modifier)
     }
 
     /**
