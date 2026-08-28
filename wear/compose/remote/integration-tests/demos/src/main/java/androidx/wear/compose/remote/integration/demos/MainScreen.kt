@@ -154,6 +154,14 @@ fun MainScreen(
                 }
                 item {
                     MenuButton(
+                        "RemoteLinearProgressIndicator",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteLinearProgressIndicatorDemosScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
                         "RemoteAppCard",
                         onClick = { navigateToRoute(Screen.RemoteAppCardDemosScreen.route) },
                     )

@@ -62,7 +62,7 @@ import androidx.compose.ui.graphics.Color
  *   different states.
  * @param borderColor Optional [RemoteColor] that will be used to resolve the border color for this
  *   button in different states.
- * @param content The content displayed on the text button, expected to be text or image.
+ * @param content The content displayed on the icon button, expected to be icon or image.
  */
 @Composable
 @RemoteComposable
@@ -103,8 +103,8 @@ public object RemoteIconButtonDefaults {
     public val DisabledImageOpacity: RemoteFloat = DisabledContentAlpha.rf
 
     /**
-     * Returns a [iconButtonColors] for a text button - by default, a transparent background with
-     * contrasting content color. If the button is disabled then the colors default to
+     * Returns a [RemoteIconButtonColors] for an icon button - by default, a transparent background
+     * with contrasting content color. If the button is disabled then the colors default to
      * [RemoteColorScheme.onSurface] with suitable alpha values applied.
      */
     @Composable
@@ -112,14 +112,14 @@ public object RemoteIconButtonDefaults {
         RemoteMaterialTheme.colorScheme.defaultIconButtonColors
 
     /**
-     * Returns a [RemoteIconButtonColors] for a text button - by default, a transparent background
+     * Returns a [RemoteIconButtonColors] for an icon button - by default, a transparent background
      * with contrasting content color. If the button is disabled then the colors default to
      * [RemoteColorScheme.onSurface] with suitable alpha values applied.
      *
-     * @param containerColor the background color of this text button when enabled
-     * @param contentColor the content color of this text button when enabled
-     * @param disabledContainerColor the background color of this text button when not enabled
-     * @param disabledContentColor the content color of this text button when not enabled
+     * @param containerColor the background color of this icon button when enabled
+     * @param contentColor the content color of this icon button when enabled
+     * @param disabledContainerColor the background color of this icon button when not enabled
+     * @param disabledContentColor the content color of this icon button when not enabled
      */
     @Composable
     public fun iconButtonColors(
@@ -192,12 +192,15 @@ public object RemoteIconButtonDefaults {
 }
 
 /**
- * Represents the container and content colors used in a text button in different states.
+ * Represents the container and content colors used in an icon button in different states.
  *
- * @param containerColor the background color of this text button when enabled.
- * @param contentColor the content color of this text button when enabled.
- * @param disabledContainerColor the background color of this text button when not enabled.
- * @param disabledContentColor the content color of this text button when not enabled.
+ * See [RemoteIconButtonDefaults.iconButtonColors] for the default colors used in a
+ * [RemoteIconButton].
+ *
+ * @param containerColor the background color of this icon button when enabled.
+ * @param contentColor the content color of this icon button when enabled.
+ * @param disabledContainerColor the background color of this icon button when not enabled.
+ * @param disabledContentColor the content color of this icon button when not enabled.
  */
 @Immutable
 public class RemoteIconButtonColors(
