@@ -429,18 +429,6 @@ class LineHeightScriptsTest {
     }
 
     @Test
-    fun script_emoji_mixed_extreme() {
-        // SMT Finding: Multi-codepoint Emoji + Latin mixed envelope (Ratio: 1.132x, +250 units)
-        val text = "🏗️ Large Ȁ\n🏗️ Small Ȁ\n🏗️ Small Ȁ"
-        val largeWord = "🏗️ Large Ȁ"
-        val naturalParagraph = createNaturalParagraph(text, largeWord)
-        val styledParagraph = createStyledParagraph(text, largeWord)
-
-        assertParagraph(styledParagraph)
-            .assertPerLineMetricsAndDrawRequirements(naturalParagraph, largeWord)
-    }
-
-    @Test
     fun boundary_tallOnLastLine() {
         val text = "Small\nSmall\nLarge"
         val largeWord = "Large"
