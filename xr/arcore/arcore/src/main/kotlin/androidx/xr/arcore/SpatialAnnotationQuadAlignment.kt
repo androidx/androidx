@@ -16,6 +16,8 @@
 
 package androidx.xr.arcore
 
+import androidx.annotation.RestrictTo
+import androidx.xr.arcore.runtime.SpatialAnnotationQuadAlignment as RuntimeSpatialAnnotationQuadAlignment
 import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 
 /** Enumeration of supported 3D quad alignment modes. */
@@ -46,3 +48,23 @@ public class SpatialAnnotationQuadAlignment internal constructor(internal val va
             else -> "UNKNOWN($value)"
         }
 }
+
+@ExperimentalSpatialAnnotationsApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun SpatialAnnotationQuadAlignment.toRuntimeAlignment():
+    RuntimeSpatialAnnotationQuadAlignment =
+    when (this) {
+        SpatialAnnotationQuadAlignment.SCREEN -> RuntimeSpatialAnnotationQuadAlignment.SCREEN
+        SpatialAnnotationQuadAlignment.OBJECT -> RuntimeSpatialAnnotationQuadAlignment.OBJECT
+        else -> throw IllegalArgumentException("Unknown alignment!")
+    }
+
+@ExperimentalSpatialAnnotationsApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RuntimeSpatialAnnotationQuadAlignment.toSpatialAnnotationQuadAlignment():
+    SpatialAnnotationQuadAlignment =
+    when (this) {
+        RuntimeSpatialAnnotationQuadAlignment.SCREEN -> SpatialAnnotationQuadAlignment.SCREEN
+        RuntimeSpatialAnnotationQuadAlignment.OBJECT -> SpatialAnnotationQuadAlignment.OBJECT
+        else -> throw IllegalArgumentException("Unknown alignment!")
+    }
