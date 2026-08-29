@@ -13,98 +13,71 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <application android:label="JXR Projected Tests">
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-feature android:name="android.hardware.camera" />
+    <application
+        android:label="XR Projected Test App"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
         <activity
-            android:name="androidx.xr.projected.testapp.MainActivity"
-            android:exported="true"
-            android:label="Projected Test App">
+            android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name="androidx.xr.projected.testapp.permissions.PermissionsHostActivity"
-            android:exported="true"
-            android:label="Permission Activity">
-        </activity>
+            android:name=".battery.BatteryActivity"
+            android:exported="true" />
         <activity
-            android:name="androidx.xr.projected.testapp.permissions.PermissionsProjectedActivity"
+            android:name=".controller.DisplayControllerHostActivity"
+            android:exported="true" />
+        <activity
+            android:name=".controller.DisplayControllerProjectedActivity"
             android:exported="true"
-            android:label="Permission Projected Activity"
             android:launchMode="singleTop"
-            android:requiredDisplayCategory="xr_projected">
-        </activity>
+            android:requiredDisplayCategory="xr_projected" />
         <activity
-            android:name="androidx.xr.projected.testapp.projectedcontext.ProjectedContextActivity"
-            android:exported="true"
-            android:label="Projected Context Activity">
-        </activity>
+            android:name=".audio.AudioActivity"
+            android:exported="true" />
         <activity
-            android:name="androidx.xr.projected.testapp.projectedcontext.ProjectedActivity"
-            android:exported="true"
-            android:label="Projected Activity"
-            android:requiredDisplayCategory="xr_projected">
-        </activity>
+            android:name=".permissions.PermissionsHostActivity"
+            android:exported="true" />
         <activity
-            android:name="androidx.xr.projected.testapp.audio.AudioActivity"
+            android:name=".permissions.PermissionsProjectedActivity"
             android:exported="true"
-            android:label="Audio Activity">
-        </activity>
-        <activity
-            android:name="androidx.xr.projected.testapp.input.InputHostActivity"
-            android:exported="true"
-            android:label="Input Activity">
-        </activity>
-        <activity
-            android:name="androidx.xr.projected.testapp.input.ProjectedInputActivity"
-            android:exported="true"
-            android:label="Projected Input Activity"
             android:launchMode="singleTop"
-            android:requiredDisplayCategory="xr_projected">
-        </activity>
+            android:requiredDisplayCategory="xr_projected" />
         <activity
-            android:name="androidx.xr.projected.testapp.controller.DisplayControllerHostActivity"
-            android:exported="true"
-            android:label="Controller Activity">
-        </activity>
+            android:name=".input.InputHostActivity"
+            android:exported="true" />
         <activity
-            android:name="androidx.xr.projected.testapp.controller.DisplayControllerProjectedActivity"
+            android:name=".input.ProjectedInputActivity"
             android:exported="true"
-            android:label="Controller Projected Activity"
             android:launchMode="singleTop"
-            android:requiredDisplayCategory="xr_projected">
-        </activity>
+            android:requiredDisplayCategory="xr_projected" />
         <activity
-            android:name="androidx.xr.projected.testapp.camera.CameraActivity"
-            android:exported="true"
-            android:label="Camera Activity">
-        </activity>
+            android:name=".inputorchestration.InputOrchestrationActivity"
+            android:exported="true" />
         <activity
-            android:name="androidx.xr.projected.testapp.battery.BatteryActivity"
-            android:exported="true"
-            android:label="Battery Activity">
-        </activity>
-        <activity
-            android:name="androidx.xr.projected.testapp.inputorchestration.InputOrchestrationActivity"
-            android:exported="true"
-            android:label="Input Orchestration Activity">
-        </activity>
-        <activity
-            android:name="androidx.xr.projected.testapp.inputorchestration.InputOrchestrationProjectedActivity"
+            android:name=".inputorchestration.InputOrchestrationProjectedActivity"
             android:exported="false"
-            android:label="Input Orchestration Projected Activity"
             android:launchMode="singleInstance"
-            android:requiredDisplayCategory="xr_projected">
-        </activity>
+            android:requiredDisplayCategory="xr_projected" />
+        <activity
+            android:name=".camera.CameraActivity"
+            android:exported="true" />
+        <activity
+            android:name=".projectedcontext.ProjectedContextHostActivity"
+            android:exported="true" />
+        <activity
+            android:name=".projectedcontext.ProjectedActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity="androidx.xr.projected.testapp.projected"
+            android:requiredDisplayCategory="xr_projected" />
     </application>
-
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
 </manifest>
