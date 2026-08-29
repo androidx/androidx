@@ -55,7 +55,7 @@
             android:requiredDisplayCategory="xr_projected">
         </activity>
         <activity
-            android:name="androidx.xr.projected.testapp.controller.DisplayControllerActivity"
+            android:name="androidx.xr.projected.testapp.controller.DisplayControllerHostActivity"
             android:exported="true"
             android:label="Controller Activity">
         </activity>
