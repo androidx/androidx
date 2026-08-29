@@ -42,7 +42,7 @@ import androidx.xr.projected.experimental.ExperimentalProjectedApi
 import androidx.xr.projected.testapp.audio.AudioActivity
 import androidx.xr.projected.testapp.battery.BatteryActivity
 import androidx.xr.projected.testapp.camera.CameraActivity
-import androidx.xr.projected.testapp.controller.DisplayControllerActivity
+import androidx.xr.projected.testapp.controller.DisplayControllerHostActivity
 import androidx.xr.projected.testapp.input.ProjectedInputActivity
 import androidx.xr.projected.testapp.inputorchestration.InputOrchestrationActivity
 import androidx.xr.projected.testapp.permissions.PermissionsActivity
@@ -132,7 +132,7 @@ class MainActivity : ComponentActivity() {
             mapOf(
                 "Projected Context" to ProjectedContextActivity::class.java,
                 "Audio" to AudioActivity::class.java,
-                "Display Controller" to DisplayControllerActivity::class.java,
+                "Display Controller" to DisplayControllerHostActivity::class.java,
                 "Camera" to CameraActivity::class.java,
                 "Battery" to BatteryActivity::class.java,
                 "Input Orchestration" to InputOrchestrationActivity::class.java,
