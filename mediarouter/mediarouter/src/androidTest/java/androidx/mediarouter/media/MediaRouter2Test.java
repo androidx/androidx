@@ -105,9 +105,7 @@ public class MediaRouter2Test {
                         || mMr2ProviderService.getMediaRouteProvider() == null) {
                     return false;
                 }
-                mMr2Provider =
-                        (StubMediaRoute2ProviderService.StubMediaRoute2Provider)
-                                mMr2ProviderService.getMediaRouteProvider();
+                mMr2Provider = mMr2ProviderService.getMediaRouteProvider();
                 return mMr2Provider != null;
             }
         }.run();
