@@ -406,7 +406,7 @@ package androidx.mediarouter.media {
     method @MainThread public void removeProvider(androidx.mediarouter.media.MediaRouteProvider);
     method @Deprecated @MainThread public void removeRemoteControlClient(Object);
     method @MainThread public void selectRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
-    method @MainThread public void setDeviceSuggestions(java.util.List<androidx.mediarouter.media.SuggestedDeviceInfo!>);
+    method @MainThread public void setDeviceSuggestions(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!>);
     method @MainThread public void setMediaSession(Object?);
     method @MainThread public void setMediaSessionCompat(android.support.v4.media.session.MediaSessionCompat?);
     method @MainThread public void setOnPrepareTransferListener(androidx.mediarouter.media.MediaRouter.OnPrepareTransferListener?);
