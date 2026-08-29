@@ -62,23 +62,16 @@ class DeviceSuggestionsViewModel(application: Application) : AndroidViewModel(ap
     }
 
     fun onChangeSuggestedDevice() {
-        val routes = mediaRouter.routes
+        val routes = mediaRouter.routes.filter { !it.isSystemRoute }
         // The selector for getting routes is already set in MainActivity.
         if (routes.isEmpty()) {
-            Log.e(TAG, "Routes should not be empty!")
+            Log.e(TAG, "No remote routes available to suggest!")
             return
         }
         var suggestedRouteIndex = routes.indexOfFirst { suggestedRouteId == it.id }
         suggestedRouteIndex = (suggestedRouteIndex + 1) % routes.size
         val nextSuggestedRoute = routes[suggestedRouteIndex]
-        val deviceInfo =
-            SuggestedDeviceInfo.Builder(
-                    nextSuggestedRoute.name,
-                    nextSuggestedRoute.id,
-                    nextSuggestedRoute.deviceType,
-                )
-                .build()
-        mediaRouter.setDeviceSuggestions(listOf(deviceInfo))
+        mediaRouter.setDeviceSuggestions(listOf(nextSuggestedRoute))
     }
 
     fun onClearSuggestedDevice() {
