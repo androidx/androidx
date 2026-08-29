@@ -77,5 +77,11 @@ internal fun RemoteViews.translateEmittableRadioButton(
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
     setBoolean(viewDef.mainViewId, "setEnabled", element.enabled)
-    applyModifiers(translationContext, this, element.modifier, viewDef)
+    applyModifiers(
+        translationContext,
+        this,
+        element.modifier,
+        viewDef,
+        shouldOptimizeVisibility = false,
+    )
 }

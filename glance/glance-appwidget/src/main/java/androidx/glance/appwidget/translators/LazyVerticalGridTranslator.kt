@@ -118,7 +118,13 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
             unit = android.util.TypedValue.COMPLEX_UNIT_DIP,
         )
     }
-    applyModifiers(translationContext, this, element.modifier, viewDef)
+    applyModifiers(
+        translationContext,
+        this,
+        element.modifier,
+        viewDef,
+        shouldOptimizeVisibility = true,
+    )
 }
 
 /**

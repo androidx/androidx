@@ -93,5 +93,11 @@ internal fun RemoteViews.translateEmittableLinearProgressIndicator(
                 )
         }
     }
-    applyModifiers(translationContext, this, element.modifier, viewDef)
+    applyModifiers(
+        translationContext,
+        this,
+        element.modifier,
+        viewDef,
+        shouldOptimizeVisibility = true,
+    )
 }
