@@ -1171,6 +1171,12 @@ package androidx.compose.foundation.lazy {
     method @BytecodeOnly public static androidx.compose.ui.Modifier! fillParentMaxWidth$default(androidx.compose.foundation.lazy.LazyItemScope!, androidx.compose.ui.Modifier!, float, int, Object!);
   }
 
+  public final class LazyListDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow cacheWindow(androidx.compose.foundation.lazy.LazyListState state);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow cacheWindow(androidx.compose.foundation.lazy.LazyListState, androidx.compose.runtime.Composer?, int);
+    field public static final androidx.compose.foundation.lazy.LazyListDefaults INSTANCE;
+  }
+
   public interface LazyListItemInfo {
     method @InaccessibleFromKotlin public default Object? getContentType();
     method @InaccessibleFromKotlin public int getIndex();
@@ -1334,6 +1340,12 @@ package androidx.compose.foundation.lazy.grid {
     method @BytecodeOnly public static int getCurrentLineSpan-impl(long);
     method @BytecodeOnly public long unbox-impl();
     property public int currentLineSpan;
+  }
+
+  public final class LazyGridDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow cacheWindow(androidx.compose.foundation.lazy.grid.LazyGridState state);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow cacheWindow(androidx.compose.foundation.lazy.grid.LazyGridState, androidx.compose.runtime.Composer?, int);
+    field public static final androidx.compose.foundation.lazy.grid.LazyGridDefaults INSTANCE;
   }
 
   public final class LazyGridDslKt {
@@ -1742,6 +1754,12 @@ package androidx.compose.foundation.lazy.layout {
 }
 
 package androidx.compose.foundation.lazy.staggeredgrid {
+
+  public final class LazyStaggeredGridDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow cacheWindow(androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState state);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow cacheWindow(androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState, androidx.compose.runtime.Composer?, int);
+    field public static final androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridDefaults INSTANCE;
+  }
 
   public final class LazyStaggeredGridDslKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void LazyHorizontalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells rows, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.unit.Dp horizontalItemSpacing, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.compose.foundation.OverscrollEffect? overscrollEffect, optional androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow cacheWindow, kotlin.jvm.functions.Function1<androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope,kotlin.Unit> content);
