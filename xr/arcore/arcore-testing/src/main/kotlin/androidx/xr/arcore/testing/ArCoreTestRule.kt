@@ -31,6 +31,7 @@ import androidx.xr.arcore.testing.internal.FakeRuntimeRenderViewpoint
 import androidx.xr.arcore.testing.internal.PendingTrackablesProvider
 import androidx.xr.runtime.AnchorPersistenceMode
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 import androidx.xr.runtime.math.Pose
 import java.util.UUID
 import org.junit.rules.ExternalResource
@@ -47,6 +48,8 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
     private val _images: MutableList<TestAugmentedImage> = mutableListOf()
     private val _qrCodes: MutableList<TestQrCode> = mutableListOf()
     private val _faceMeshes: MutableList<TestFace> = mutableListOf()
+    @OptIn(ExperimentalSpatialAnnotationsApi::class)
+    private val _spatialAnnotations: MutableList<TestSpatialAnnotation> = mutableListOf()
 
     internal lateinit var runtime: FakePerceptionRuntime
         private set
@@ -105,6 +108,14 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     public val faces: List<TestFace>
         get() = _faceMeshes.toList()
+
+    /**
+     * A list of all [TestSpatialAnnotation] objects in the environment. Tracking must be configured
+     * via [androidx.xr.runtime.Session.configure] in order for an added object to be ingested by
+     * the runtime.
+     */
+    @ExperimentalSpatialAnnotationsApi
+    public fun getSpatialAnnotations(): List<TestSpatialAnnotation> = _spatialAnnotations.toList()
 
     /** A Map of [UUID] to `Anchor` [Poses][Pose] stored outside the session. */
     public val persistedAnchorPoses: Map<UUID, Pose>
@@ -296,6 +307,7 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
      *
      * @param trackables [TestTrackable] objects to add
      */
+    @OptIn(ExperimentalSpatialAnnotationsApi::class)
     public fun addTrackables(vararg trackables: TestTrackable) {
         trackables.forEach {
             if (it.isAddedToTestRule) return@forEach
@@ -315,6 +327,9 @@ public class ArCoreTestRule : ExternalResource(), PendingTrackablesProvider {
                 }
                 is TestQrCode -> {
                     _qrCodes.add(it)
+                }
+                is TestSpatialAnnotation -> {
+                    _spatialAnnotations.add(it)
                 }
             }
             pendingTrackables.add(it)

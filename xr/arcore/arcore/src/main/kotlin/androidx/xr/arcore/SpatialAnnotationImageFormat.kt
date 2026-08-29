@@ -16,6 +16,8 @@
 
 package androidx.xr.arcore
 
+import androidx.annotation.RestrictTo
+import androidx.xr.arcore.runtime.SpatialAnnotationImageFormat as RuntimeSpatialAnnotationImageFormat
 import androidx.xr.runtime.ExperimentalSpatialAnnotationsApi
 
 /**
@@ -48,3 +50,22 @@ public class SpatialAnnotationImageFormat internal constructor(internal val valu
             else -> "UNKNOWN($value)"
         }
 }
+
+@ExperimentalSpatialAnnotationsApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun SpatialAnnotationImageFormat.toRuntimeFormat(): RuntimeSpatialAnnotationImageFormat =
+    when (this) {
+        SpatialAnnotationImageFormat.RGBA -> RuntimeSpatialAnnotationImageFormat.RGBA
+        SpatialAnnotationImageFormat.GRAYSCALE -> RuntimeSpatialAnnotationImageFormat.GRAYSCALE
+        else -> throw IllegalArgumentException("Unknown format!")
+    }
+
+@ExperimentalSpatialAnnotationsApi
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RuntimeSpatialAnnotationImageFormat.toSpatialAnnotationImageFormat():
+    SpatialAnnotationImageFormat =
+    when (this) {
+        RuntimeSpatialAnnotationImageFormat.RGBA -> SpatialAnnotationImageFormat.RGBA
+        RuntimeSpatialAnnotationImageFormat.GRAYSCALE -> SpatialAnnotationImageFormat.GRAYSCALE
+        else -> throw IllegalArgumentException("Unknown SpatialAnnotationImageFormat!")
+    }
