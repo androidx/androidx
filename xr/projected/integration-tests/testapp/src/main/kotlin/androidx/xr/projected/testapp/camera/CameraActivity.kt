@@ -17,204 +17,164 @@
 package androidx.xr.projected.testapp.camera
 
 import android.Manifest
-import android.content.ContentValues
-import android.content.Context
 import android.content.pm.PackageManager
-import android.icu.text.SimpleDateFormat
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
-import android.util.Size
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.camera.core.CameraInfo
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.resolutionselector.ResolutionSelector
-import androidx.camera.core.resolutionselector.ResolutionStrategy
-import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.xr.projected.ProjectedContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
-import java.util.Locale
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
-/** The CameraActivity takes a picture on a projected device. */
+/** Activity testing camera hardware and capturing photos on phone. */
 @OptIn(ExperimentalProjectedApi::class)
 class CameraActivity : ComponentActivity() {
-    private lateinit var imageCapture: ImageCapture
-    private lateinit var connectedFlow: Flow<Boolean>
-    private var cameraInitialized = mutableStateOf(false)
-    private var statusMessage = mutableStateOf("Initializing")
-    private var takingPicture = mutableStateOf(false)
-    private var lastPictureName = ""
-    private var nextPictureName = ""
+
+    private val viewModel: CameraViewModel by viewModels()
+    private lateinit var controller: CameraController
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                controller.startCamera(this)
+            } else {
+                viewModel.setStatusMessage("Camera permission is required.")
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i(TAG, "Creating CameraActivity")
         super.onCreate(savedInstanceState)
-        updateConnectedStateAndInitializeCamera()
-        setContent { CreateCameraUi() }
+        controller = CameraController(this, viewModel, lifecycleScope)
+
+        if (
+            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) ==
+                PackageManager.PERMISSION_GRANTED
+        ) {
+            controller.startCamera(this)
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+
+        setContent {
+            MaterialTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    CameraScreen(viewModel, controller)
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        controller.close()
+        super.onDestroy()
     }
 
     @Composable
-    private fun CreateCameraUi() {
-        val displayCameraUi = remember { cameraInitialized }
-        val cameraStatus = remember { statusMessage }
-        val disableButton = remember { takingPicture }
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-            if (!displayCameraUi.value) {
-                Text(cameraStatus.value)
-                return
-            }
+    private fun CameraScreen(viewModel: CameraViewModel, controller: CameraController) {
+        val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
+        val cameraCount by viewModel.cameraCount.collectAsStateWithLifecycle()
+        val isCameraReady by viewModel.isCameraReady.collectAsStateWithLifecycle()
+        val isTakingPicture by viewModel.isTakingPicture.collectAsStateWithLifecycle()
+        val lastPictureName by viewModel.lastPictureName.collectAsStateWithLifecycle()
+        val capturedBitmap by viewModel.capturedBitmap.collectAsStateWithLifecycle()
+        val statusMessage by viewModel.statusMessage.collectAsStateWithLifecycle()
+
+        Column(
+            modifier = Modifier.fillMaxSize().statusBarsPadding().padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Camera Test",
+                fontSize = 24.sp,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Connection: ${if (isConnected) "Connected" else "Not Connected"}",
+                fontSize = 18.sp,
+                color =
+                    if (isConnected) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.error,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Available Cameras: $cameraCount",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             if (lastPictureName.isNotEmpty()) {
-                Text("Last Picture Name: $lastPictureName")
+                Text(
+                    text = "Last Picture Name: $lastPictureName",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
-            Button(onClick = { takePicture() }, enabled = !disableButton.value) {
-                Text("Take Picture")
+            capturedBitmap?.let { bitmap ->
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = "Captured Photo Preview",
+                    modifier =
+                        Modifier.fillMaxWidth().height(200.dp).clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Fit,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
             }
-        }
-    }
-
-    fun updateConnectedStateAndInitializeCamera() {
-        connectedFlow = ProjectedContext.isProjectedDeviceConnected(this, Dispatchers.Default)
-        CoroutineScope(Dispatchers.Default).launch {
-            connectedFlow.collect { connected ->
-                if (connected) {
-                    val projectedContext = createProjectedContext()
-                    projectedContext?.let {
-                        if (
-                            ActivityCompat.checkSelfPermission(it, Manifest.permission.CAMERA) !=
-                                PackageManager.PERMISSION_GRANTED
-                        ) {
-                            statusMessage.value = "Camera permission is required."
-                            return@collect
-                        }
-                        // Once we are connected initialize the camera
-                        initCamera(it)
+            Button(
+                onClick = {
+                    if (
+                        ContextCompat.checkSelfPermission(
+                            this@CameraActivity,
+                            Manifest.permission.CAMERA,
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        controller.takePicture()
+                    } else {
+                        requestPermissionLauncher.launch(Manifest.permission.CAMERA)
                     }
-                    Log.i(TAG, "Projected device is connected")
-                } else {
-                    statusMessage.value = "Projected device is not connected."
-                    Log.w(TAG, "Projected device is not connected")
-                    cameraInitialized.value = false
-                }
-            }
-        }
-    }
-
-    private fun createProjectedContext(): Context? {
-        try {
-            return ProjectedContext.createProjectedDeviceContext(this)
-        } catch (e: IllegalStateException) {
-            statusMessage.value = "Failed to create Projected Context."
-            Log.w(TAG, "Error creating projected context: $e")
-            return null
-        }
-    }
-
-    // Initialize the Camera.
-    private fun initCamera(context: Context) {
-        ProcessCameraProvider.getInstance(context).apply {
-            addListener(
-                {
-                    val cameraProvider = get()
-                    val availableCameras: List<CameraInfo> = cameraProvider.availableCameraInfos
-                    if (availableCameras.isEmpty()) {
-                        Log.w(TAG, "No Cameras are available on the projected context.")
-                        statusMessage.value = "No Cameras are available on the projected context."
-                        return@addListener
-                    }
-                    Log.i(TAG, "Available Camera count : ${availableCameras.size}")
-
-                    val virtualCamera: CameraInfo = availableCameras[0]
-
-                    // No previous image capture to reuse, so we bind a new one
-                    imageCapture =
-                        ImageCapture.Builder()
-                            .setResolutionSelector(
-                                ResolutionSelector.Builder()
-                                    .setResolutionStrategy(
-                                        ResolutionStrategy(
-                                            Size(PHOTO_RESOLUTION_WIDTH, PHOTO_RESOLUTION_HEIGHT),
-                                            ResolutionStrategy
-                                                .FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER,
-                                        )
-                                    )
-                                    .build()
-                            )
-                            .build()
-                    val cameraSelector = virtualCamera.getCameraSelector()
-
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner = this@CameraActivity,
-                        cameraSelector,
-                        imageCapture,
-                    )
-                    cameraInitialized.value = true
                 },
-                ContextCompat.getMainExecutor(this@CameraActivity),
+                enabled = isCameraReady && !isTakingPicture,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(if (isTakingPicture) "Capturing..." else "Take Picture")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Status: $statusMessage",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-    }
-
-    private fun takePicture() {
-        takingPicture.value = true
-        Log.i(TAG, "Taking a Picture")
-        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis())
-        val contentValues =
-            ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            }
-        nextPictureName = "$name.jpg"
-        val outputOptions =
-            ImageCapture.OutputFileOptions.Builder(
-                    contentResolver,
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    contentValues,
-                )
-                .build()
-
-        imageCapture.takePicture(
-            outputOptions,
-            PHOTO_EXECUTOR,
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onError(exc: ImageCaptureException) {
-                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
-                    takingPicture.value = false
-                }
-
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    Log.i(TAG, "Photo capture succeeded for: $lastPictureName")
-                    lastPictureName = nextPictureName
-                    takingPicture.value = false
-                }
-            },
-        )
-    }
-
-    private companion object {
-        const val TAG = "CameraActivity"
-        const val PHOTO_RESOLUTION_WIDTH = 720
-        const val PHOTO_RESOLUTION_HEIGHT = 1280
-        const val FILENAME_FORMAT = "YYYY-MM-dd,HH_mm_ss"
-        private val PHOTO_EXECUTOR: ExecutorService = Executors.newSingleThreadExecutor()
     }
 }
