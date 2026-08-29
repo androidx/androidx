@@ -17,308 +17,155 @@
 package androidx.xr.projected.testapp.audio
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.media.AudioAttributes
-import android.media.AudioFormat
-import android.media.AudioRecord
-import android.media.AudioTrack
-import android.media.MediaRecorder
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresPermission
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Lifecycle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.xr.projected.ProjectedContext
-import androidx.xr.projected.ProjectedDeviceController
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
-import java.io.File
-import java.io.FileInputStream
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 
-/** The AudioActivity records and plays back audio on a projected device. */
+/** Activity that tests audio input/output and displays connected audio devices. */
 @OptIn(ExperimentalProjectedApi::class)
 class AudioActivity : ComponentActivity() {
-    lateinit var audioRecord: AudioRecord
-    lateinit var audioTrack: AudioTrack
-    lateinit var audioBuffer: ByteArray
-    lateinit var connectedFlow: Flow<Boolean>
-    var projectedContext: Context? = null
-    private var projectedDeviceController: ProjectedDeviceController? = null
-    var errorMessage: String = ""
-    private val inputDevices = mutableStateListOf<String>()
-    private val outputDevices = mutableStateListOf<String>()
 
-    private enum class RecordState {
-        AWAITING_RECORDING,
-        RECORDING,
-        AWAITING_PLAYBACK,
-        PLAYBACK,
-    }
+    private val viewModel: AudioViewModel by viewModels()
+    private lateinit var controller: AudioController
 
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                controller.startRecording()
+            } else {
+                viewModel.setStatusMessage("RECORD_AUDIO permission was denied.")
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.i(TAG, "Creating AudioActivity")
         super.onCreate(savedInstanceState)
-        connectedFlow = ProjectedContext.isProjectedDeviceConnected(this, Dispatchers.Default)
-        setContent { CreateAudioUi() }
+        controller = AudioController(this, viewModel, lifecycleScope)
+
+        setContent {
+            MaterialTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background,
+                ) {
+                    AudioScreen(viewModel, controller)
+                }
+            }
+        }
     }
 
     override fun onDestroy() {
+        controller.close()
         super.onDestroy()
-        projectedDeviceController?.close()
     }
 
     @Composable
-    private fun CreateAudioUi() {
-        val state = remember { mutableStateOf(RecordState.AWAITING_RECORDING) }
-        val connectedState = remember { mutableStateOf(false) }
-        val audioInitialized = remember { mutableStateOf(false) }
-        UpdateConnectedState(connectedState, audioInitialized)
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-            if (!connectedState.value || !audioInitialized.value) {
-                Text(errorMessage)
-                return
-            }
-            Text("Input Devices:")
-            inputDevices.forEach { Text("- $it") }
-            Text("")
-            Text("Output Devices:")
-            outputDevices.forEach { Text("- $it") }
-            Text("")
-            Text("State: ${state.value.name}")
+    private fun AudioScreen(viewModel: AudioViewModel, controller: AudioController) {
+        val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
+        val isRecording by viewModel.isRecording.collectAsStateWithLifecycle()
+        val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
+        val inputDevices by viewModel.inputDevices.collectAsStateWithLifecycle()
+        val outputDevices by viewModel.outputDevices.collectAsStateWithLifecycle()
+        val statusMessage by viewModel.statusMessage.collectAsStateWithLifecycle()
+
+        Column(
+            modifier = Modifier.fillMaxSize().statusBarsPadding().padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Audio Test",
+                fontSize = 24.sp,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Connection: ${if (isConnected) "Connected" else "Not Connected"}",
+                fontSize = 18.sp,
+                color =
+                    if (isConnected) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.error,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text =
+                    "Audio Input Devices: ${if (inputDevices.isEmpty()) "None" else inputDevices.joinToString()}",
+                fontSize = 15.sp,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text =
+                    "Audio Output Devices: ${if (outputDevices.isEmpty()) "None" else outputDevices.joinToString()}",
+                fontSize = 15.sp,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    when (state.value) {
-                        RecordState.AWAITING_RECORDING -> startRecording(state)
-                        RecordState.RECORDING -> stopRecording(state)
-                        RecordState.AWAITING_PLAYBACK -> startPlayback(state)
-                        else -> Log.e(TAG, "Button should be disabled during playback.")
+                    if (isRecording) {
+                        controller.stopRecording()
+                    } else {
+                        if (
+                            ContextCompat.checkSelfPermission(
+                                this@AudioActivity,
+                                Manifest.permission.RECORD_AUDIO,
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
+                            controller.startRecording()
+                        } else {
+                            requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        }
                     }
                 },
-                enabled = (state.value != RecordState.PLAYBACK),
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Text(getButtonText(state.value))
+                Text(if (isRecording) "Stop Recording" else "Record")
             }
-        }
-    }
-
-    @Composable
-    fun UpdateConnectedState(
-        connectedState: MutableState<Boolean>,
-        audioInitialized: MutableState<Boolean>,
-    ) {
-        LaunchedEffect(Unit) {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                connectedFlow.collect { connected ->
-                    connectedState.value = connected
-                    if (connected) {
-                        createProjectedContext()
-                        try {
-                            projectedDeviceController =
-                                ProjectedDeviceController.create(this@AudioActivity)
-                        } catch (e: Exception) {
-                            Log.w(TAG, "Error creating projected device controller: $e")
-                        }
-                        projectedContext?.let {
-                            if (
-                                ActivityCompat.checkSelfPermission(
-                                    it,
-                                    Manifest.permission.RECORD_AUDIO,
-                                ) != PackageManager.PERMISSION_GRANTED
-                            ) {
-                                errorMessage = "Record Audio permission is required."
-                                audioInitialized.value = false
-                                return@collect
-                            }
-                            audioInitialized.value = initAudio(it)
-                            updateAudioDevices()
-                        }
-                        Log.i(TAG, "Projected device is connected")
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = {
+                    if (isPlaying) {
+                        controller.stopPlayback()
                     } else {
-                        errorMessage = "Projected device is not connected."
-                        audioInitialized.value = false
-                        inputDevices.clear()
-                        outputDevices.clear()
-                        projectedDeviceController?.close()
-                        projectedDeviceController = null
-                        Log.w(TAG, "Projected device is not connected")
+                        controller.startPlayback()
                     }
-                }
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(if (isPlaying) "Stop Playback" else "Play")
             }
-        }
-    }
-
-    private fun createProjectedContext() {
-        try {
-            projectedContext = ProjectedContext.createProjectedDeviceContext(this)
-        } catch (e: IllegalStateException) {
-            errorMessage = "Failed to create Projected Context."
-            Log.w(TAG, "Error creating projected context: $e")
-        }
-    }
-
-    private fun getButtonText(state: RecordState): String =
-        when (state) {
-            RecordState.AWAITING_RECORDING -> "Record"
-            RecordState.RECORDING -> "Stop Recording"
-            RecordState.AWAITING_PLAYBACK -> "Play"
-            RecordState.PLAYBACK -> "Playback in Progress"
-        }
-
-    private fun updateAudioDevices() {
-        inputDevices.clear()
-        outputDevices.clear()
-        projectedDeviceController?.audioDevices?.forEach { device ->
-            if (device.isSource) {
-                inputDevices.add("${device.productName} (ID: ${device.id})")
-            }
-            if (device.isSink) {
-                outputDevices.add("${device.productName} (ID: ${device.id})")
-            }
-        }
-    }
-
-    // Initialize the AudioRecord and AudioTrack for recording and playing back audio.
-    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    private fun initAudio(context: Context): Boolean {
-        Log.i(TAG, "Initializing AudioRecord and AudioTrack")
-        val audioRecordFormat =
-            AudioFormat.Builder()
-                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
-                .setSampleRate(SAMPLE_RATE)
-                .build()
-        val audioRecordingBufferSize =
-            AudioRecord.getMinBufferSize(
-                SAMPLE_RATE,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Status: $statusMessage",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        audioBuffer = ByteArray(audioRecordingBufferSize)
-        try {
-            audioRecord =
-                AudioRecord.Builder()
-                    .setAudioSource(MediaRecorder.AudioSource.UNPROCESSED)
-                    .setAudioFormat(audioRecordFormat)
-                    .setBufferSizeInBytes(audioRecordingBufferSize)
-                    .setContext(context)
-                    .build()
-        } catch (e: UnsupportedOperationException) {
-            errorMessage = "Failed to create AudioRecord."
-            Log.e(TAG, "Error creating AudioRecord: $e")
-            return false
         }
-        val attributes =
-            AudioAttributes.Builder()
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .build()
-
-        val audioTrackFormat =
-            AudioFormat.Builder()
-                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                .setSampleRate(SAMPLE_RATE)
-                .build()
-
-        val audioTrackBufferSize =
-            AudioTrack.getMinBufferSize(
-                SAMPLE_RATE,
-                AudioFormat.CHANNEL_OUT_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-            )
-        try {
-            audioTrack =
-                AudioTrack.Builder()
-                    .setAudioAttributes(attributes)
-                    .setAudioFormat(audioTrackFormat)
-                    .setBufferSizeInBytes(audioTrackBufferSize)
-                    .setContext(context)
-                    .build()
-        } catch (e: UnsupportedOperationException) {
-            errorMessage = "Failed to create AudioTrack."
-            Log.e(TAG, "Error creating AudioTrack: $e")
-            return false
-        }
-        Log.i(TAG, "Successfully initialized AudioRecord and AudioTrack")
-        return true
-    }
-
-    private fun startRecording(state: MutableState<RecordState>) {
-        Log.i(TAG, "Starting Recording")
-        state.value = RecordState.RECORDING
-        audioRecord.startRecording()
-        val fileStream = this.openFileOutput(AUDIO_FILE_NAME, Context.MODE_PRIVATE)
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            while (state.value == RecordState.RECORDING) {
-                audioRecord.read(audioBuffer, /* offsetInBytes= */ 0, audioBuffer.size)
-                fileStream?.write(audioBuffer)
-            }
-            fileStream?.close()
-        }
-    }
-
-    private fun stopRecording(state: MutableState<RecordState>) {
-        Log.i(TAG, "Stopping Recording")
-        state.value = RecordState.AWAITING_PLAYBACK
-        audioRecord.stop()
-    }
-
-    private fun startPlayback(state: MutableState<RecordState>) {
-        Log.i(TAG, "Starting Playback")
-        state.value = RecordState.PLAYBACK
-        val audioFile = File(this.filesDir, AUDIO_FILE_NAME)
-        val fileStream = FileInputStream(audioFile)
-        val audioData = ByteArray(audioFile.length().toInt())
-        fileStream.read(audioData, /* off= */ 0, audioData.size)
-        fileStream.close()
-        // Add a callback to update the state when audio playback is complete.
-        audioTrack.setPlaybackPositionUpdateListener(
-            object : AudioTrack.OnPlaybackPositionUpdateListener {
-                override fun onMarkerReached(audioTrack: AudioTrack?) {
-                    stopPlayback(state)
-                }
-
-                override fun onPeriodicNotification(track: AudioTrack?) {}
-            }
-        )
-        audioTrack.notificationMarkerPosition = audioData.size / 2
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            audioTrack.play()
-            audioTrack.write(audioData, /* offsetInBytes= */ 0, audioData.size)
-        }
-    }
-
-    private fun stopPlayback(state: MutableState<RecordState>) {
-        Log.i(TAG, "Stopping Playback")
-        state.value = RecordState.AWAITING_RECORDING
-        audioTrack.stop()
-    }
-
-    private companion object {
-        const val SAMPLE_RATE = 16000
-        const val AUDIO_FILE_NAME: String = "audioRecording.wav"
-        const val TAG = "AudioActivity"
     }
 }
