@@ -43,9 +43,9 @@ import androidx.xr.projected.testapp.audio.AudioActivity
 import androidx.xr.projected.testapp.battery.BatteryActivity
 import androidx.xr.projected.testapp.camera.CameraActivity
 import androidx.xr.projected.testapp.controller.DisplayControllerHostActivity
-import androidx.xr.projected.testapp.input.ProjectedInputActivity
+import androidx.xr.projected.testapp.input.InputHostActivity
 import androidx.xr.projected.testapp.inputorchestration.InputOrchestrationActivity
-import androidx.xr.projected.testapp.permissions.PermissionsActivity
+import androidx.xr.projected.testapp.permissions.PermissionsHostActivity
 import androidx.xr.projected.testapp.projectedcontext.ProjectedContextActivity
 
 /** The MainActivity is used to launch the various projected test activities. */
@@ -136,13 +136,11 @@ class MainActivity : ComponentActivity() {
                 "Camera" to CameraActivity::class.java,
                 "Battery" to BatteryActivity::class.java,
                 "Input Orchestration" to InputOrchestrationActivity::class.java,
+                "Permission" to PermissionsHostActivity::class.java,
+                "Input" to InputHostActivity::class.java,
             )
 
         // A list of projected activities that are launchable from the main activity.
-        val PROJECTED_ACTIVITY_MAP: Map<String, Class<*>> =
-            mapOf(
-                "Permission" to PermissionsActivity::class.java,
-                "Input" to ProjectedInputActivity::class.java,
-            )
+        val PROJECTED_ACTIVITY_MAP: Map<String, Class<*>> = emptyMap()
     }
 }
