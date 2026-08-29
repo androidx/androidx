@@ -403,6 +403,39 @@ class LazyGridItemPlacementAnimationTest(private val config: Config) {
     }
 
     @Test
+    fun noAnimationWhenParentSizeChanges_reverseLayout_itemsStayInPlace() {
+        // Regression test for b/548989579: with reverseLayout the items are positioned relative
+        // to the end of the layout, so the layout resizing must not start placement animations
+        // for items which did not visually move.
+        var size by mutableStateOf(itemSizeDp * 5)
+        rule.setContent {
+            LazyGrid(
+                1,
+                arrangement = if (isVertical) Arrangement.Top else Arrangement.Start,
+                reverseLayout = true,
+                minSize = size,
+                maxSize = size,
+            ) {
+                items(listOf(0, 1), key = { it }) { Item(it) }
+            }
+        }
+
+        assertPositions(1 to AxisOffset(0f, 0f), 0 to AxisOffset(0f, itemSize), autoReverse = false)
+
+        rule.runOnUiThread { size = itemSizeDp * 3 }
+        rule.mainClock.advanceTimeByFrame()
+
+        onAnimationFrame { fraction ->
+            assertPositions(
+                1 to AxisOffset(0f, 0f),
+                0 to AxisOffset(0f, itemSize),
+                autoReverse = false,
+                fraction = fraction,
+            )
+        }
+    }
+
+    @Test
     fun moveItemToTheBottomOutsideOfBounds() {
         var list by mutableStateOf(listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11))
         val gridSize = itemSize * 3
@@ -1977,7 +2010,9 @@ class LazyGridItemPlacementAnimationTest(private val config: Config) {
         var item0Size by mutableStateOf(itemSizeDp)
         val animSpec = spring(visibilityThreshold = IntOffset.VisibilityThreshold)
         rule.setContent {
-            LazyGrid(cells = 1) {
+            // fixed size container so the second item visually moves when the first one is
+            // resized in reverse layout too (otherwise the layout shrinks with the item).
+            LazyGrid(cells = 1, minSize = containerSizeDp) {
                 items(2, key = { it }) {
                     Item(it, if (it == 0) item0Size else itemSizeDp, animSpec = animSpec)
                 }
@@ -2148,12 +2183,13 @@ class LazyGridItemPlacementAnimationTest(private val config: Config) {
     @Composable
     private fun LazyGrid(
         cells: Int,
-        arrangement: Arrangement.HorizontalOrVertical? = null,
+        arrangement: Any? = null,
         minSize: Dp = 0.dp,
         maxSize: Dp = containerSizeDp,
         startIndex: Int = 0,
         startPadding: Dp = 0.dp,
         endPadding: Dp = 0.dp,
+        reverseLayout: Boolean = this.reverseLayout,
         content: LazyGridScope.() -> Unit,
     ) {
         state = rememberLazyGridState(startIndex)
