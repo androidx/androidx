@@ -177,7 +177,7 @@ public class FailureArtifact(public val type: Type, public val fileName: String)
  */
 public class FailureContext(
     public val error: Throwable,
-    public val artifacts: List<FailureArtifact> = emptyList(),
+    public val artifacts: List<FailureArtifact>,
 )
 
 /**
