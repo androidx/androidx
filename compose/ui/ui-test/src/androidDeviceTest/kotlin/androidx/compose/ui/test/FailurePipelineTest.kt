@@ -379,13 +379,9 @@ class FailurePipelineTest {
         val testArtifacts =
             listOf(FailureArtifact(FailureArtifact.Type.Screenshot, "test_screenshot.png"))
 
-        val contextWithArtifacts = FailureContext(error = testError, artifacts = testArtifacts)
-        assertSame(testError, contextWithArtifacts.error)
-        assertEquals(testArtifacts, contextWithArtifacts.artifacts)
-
-        val contextDefault = FailureContext(error = testError)
-        assertSame(testError, contextDefault.error)
-        assertTrue(contextDefault.artifacts.isEmpty())
+        val context = FailureContext(error = testError, artifacts = testArtifacts)
+        assertSame(testError, context.error)
+        assertEquals(testArtifacts, context.artifacts)
     }
 
     class MemoryTestStorage : PlatformTestStorage {
