@@ -33,6 +33,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -75,6 +76,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlinx.coroutines.isActive
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -218,6 +220,45 @@ class AndroidExternalSurfaceTest {
         }
 
         rule.runOnIdle {
+            assertEquals(2, surfaceCreatedCount)
+            assertEquals(1, surfaceDestroyedCount)
+        }
+    }
+
+    @Test
+    fun testOnSurfaceReused() {
+        var surfaceCreatedCount = 0
+        var surfaceDestroyedCount = 0
+        var onInitCount = 0
+        var active by mutableStateOf(true)
+
+        // NOTE: SurfaceView only destroys the surface when SurfaceView is detached from
+        // the window, and only creates when it gets attached to the window
+        rule.setContent {
+            ReusableContentHost(active) {
+                AndroidExternalSurface(modifier = Modifier.size(size)) {
+                    onInitCount++
+                    onSurface { surface, _, _ ->
+                        assert(isActive)
+                        surfaceCreatedCount++
+                        surface.onDestroyed { surfaceDestroyedCount++ }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, onInitCount)
+            assertEquals(1, surfaceCreatedCount)
+            assertEquals(0, surfaceDestroyedCount)
+        }
+
+        // Deactivate and reactivate the content to simulate reuse in lazy layouts
+        rule.runOnIdle { active = false }
+        rule.runOnIdle { active = true }
+
+        rule.runOnIdle {
+            assertEquals(2, onInitCount)
             assertEquals(2, surfaceCreatedCount)
             assertEquals(1, surfaceDestroyedCount)
         }

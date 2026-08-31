@@ -282,14 +282,20 @@ public fun AndroidExternalSurface(
 
     AndroidView(
         factory = { context ->
-            SurfaceView(context).apply {
-                state.onInit()
-                holder.addCallback(state)
+            object : SurfaceView(context) {
+                var attachedState: AndroidExternalSurfaceState? = null
             }
         },
         modifier = modifier,
         onReset = {},
         update = { view ->
+            if (view.attachedState !== state) {
+                view.attachedState?.let { view.holder.removeCallback(it) }
+                state.onInit()
+                view.holder.addCallback(state)
+                view.attachedState = state
+            }
+
             if (surfaceSize != IntSize.Zero) {
                 view.holder.setFixedSize(surfaceSize.width, surfaceSize.height)
             } else {
