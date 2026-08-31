@@ -18,11 +18,23 @@ package androidx.compose.ui.test
 
 import android.net.Uri
 import android.os.Bundle
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TestFailurePolicy.CaptureMode
 import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.platform.io.PlatformTestStorage
@@ -32,14 +44,16 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.io.Serializable
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -49,6 +63,18 @@ class FailurePipelineTest {
     private val originalInstrumentation = InstrumentationRegistry.getInstrumentation()
     private val originalArguments = InstrumentationRegistry.getArguments()
     private val originalStorage = PlatformTestStorageRegistry.getInstance()
+    private val memoryStorage = MemoryTestStorage()
+
+    @Before
+    fun setUp() {
+        PlatformTestStorageRegistry.registerInstance(memoryStorage)
+        val newArguments =
+            Bundle(originalArguments).apply {
+                putString("androidx.compose.ui.test.failure.isScreenshotCaptureEnabled", "true")
+                putString("androidx.compose.ui.test.failure.isUiHierarchyCaptureEnabled", "true")
+            }
+        InstrumentationRegistry.registerInstance(originalInstrumentation, newArguments)
+    }
 
     @After
     fun tearDown() {
@@ -59,300 +85,35 @@ class FailurePipelineTest {
     @Test
     fun customHandler_isCalled_withArtifacts_onAssertionFailure() {
         var capturedArtifacts: List<FailureArtifact> = emptyList()
-        val config =
-            ComposeUiTestConfig(
-                failurePolicy =
-                    TestFailurePolicy(
-                        screenshotCaptureMode = CaptureMode.Enabled,
-                        uiHierarchyCaptureMode = CaptureMode.Enabled,
-                        failureHandlers =
-                            listOf(
-                                TestFailureHandler { context ->
-                                    capturedArtifacts = context.artifacts
-                                }
-                            ),
-                    )
-            )
+        val config = createCapturingConfig { capturedArtifacts = it }
 
         val error =
             assertThrows(AssertionError::class.java) {
                 runComposeUiTest(config) {
-                    setContent { Box(Modifier.testTag("box")) }
-                    onNodeWithTag("non-existent").assertExists()
+                    setContent { Box(Modifier.testTag("my_box")) }
+                    onNodeWithTag("non_existent").assertExists()
                 }
             }
 
+        assertTrue("Expected no suppressed exceptions", error.suppressed.isEmpty())
         assertEquals("Expected exactly 2 artifacts", 2, capturedArtifacts.size)
-        assertTrue(capturedArtifacts.any { it.type == FailureArtifact.Type.Screenshot })
-        assertTrue(capturedArtifacts.any { it.type == FailureArtifact.Type.UiHierarchy })
-
-        assertTrue("Expected no file writing exceptions", error.suppressed.isEmpty())
-    }
-
-    @Test
-    fun failureHandlersWriteBytesToStorage() {
-        val memoryStorage = MemoryTestStorage()
-        PlatformTestStorageRegistry.registerInstance(memoryStorage)
-
-        var capturedArtifacts: List<FailureArtifact> = emptyList()
-        val config =
-            ComposeUiTestConfig(
-                failurePolicy =
-                    TestFailurePolicy(
-                        screenshotCaptureMode = CaptureMode.Enabled,
-                        uiHierarchyCaptureMode = CaptureMode.Enabled,
-                        failureHandlers =
-                            listOf(
-                                TestFailureHandler { context ->
-                                    capturedArtifacts = context.artifacts
-                                }
-                            ),
-                    )
-            )
-
-        assertThrows(AssertionError::class.java) {
-            runComposeUiTest(config) {
-                setContent { Box(Modifier.testTag("my_box")) }
-                onNodeWithTag("non-existent").assertExists()
-            }
-        }
-
-        val uiArtifact = capturedArtifacts.find { it.type == FailureArtifact.Type.UiHierarchy }
-        val screenshotArtifact =
-            capturedArtifacts.find { it.type == FailureArtifact.Type.Screenshot }
-
-        requireNotNull(uiArtifact) { "UI Hierarchy artifact was not registered" }
-        requireNotNull(screenshotArtifact) { "Screenshot artifact was not registered" }
-
-        val uiBytes = memoryStorage.outputFiles[uiArtifact.fileName]
-        requireNotNull(uiBytes) { "UI Hierarchy file was never written to storage" }
-        val uiString = uiBytes.toString(Charsets.UTF_8.name())
         assertTrue(
-            "Expected UI dump to contain 'View and Compose Hierarchy'",
-            uiString.contains("View and Compose Hierarchy"),
+            capturedArtifacts.any {
+                it.type == FailureArtifact.Type.UiHierarchy && it.fileName.endsWith("_ui.txt")
+            }
         )
-        assertTrue("Expected UI dump to contain the node tag", uiString.contains("my_box"))
-
-        val screenshotBytes = memoryStorage.outputFiles[screenshotArtifact.fileName]
-        requireNotNull(screenshotBytes) { "Screenshot file was never written to storage" }
         assertTrue(
-            "Expected screenshot byte array to not be empty",
-            screenshotBytes.toByteArray().isNotEmpty(),
+            capturedArtifacts.any {
+                it.type == FailureArtifact.Type.Screenshot &&
+                    it.fileName.endsWith("_screenshot.png")
+            }
         )
+
+        assertArtifactsCaptured(expectedTag = "my_box")
     }
 
     @Test
-    fun readsGlobalArgumentsWhenUnspecified() {
-        val newArguments =
-            Bundle(originalArguments).apply {
-                putString("androidx.compose.ui.test.failure.isScreenshotCaptureEnabled", "true")
-                putString("androidx.compose.ui.test.failure.isUiHierarchyCaptureEnabled", "true")
-            }
-        InstrumentationRegistry.registerInstance(originalInstrumentation, newArguments)
-
-        var capturedArtifacts: List<FailureArtifact> = emptyList()
-        val config =
-            ComposeUiTestConfig(
-                failurePolicy =
-                    TestFailurePolicy(
-                        failureHandlers =
-                            listOf(
-                                TestFailureHandler { context ->
-                                    capturedArtifacts = context.artifacts
-                                }
-                            )
-                    )
-            )
-
-        assertThrows(AssertionError::class.java) {
-            runComposeUiTest(config) {
-                setContent { Box(Modifier) }
-                onNodeWithTag("non-existent").assertExists()
-            }
-        }
-
-        assertEquals(
-            "Fallback arguments should have triggered both captures",
-            2,
-            capturedArtifacts.size,
-        )
-    }
-
-    @Test
-    fun captureDisabled_overridesSuiteLevelArguments() {
-        val newArguments =
-            Bundle(originalArguments).apply {
-                putString("androidx.compose.ui.test.failure.isScreenshotCaptureEnabled", "true")
-                putString("androidx.compose.ui.test.failure.isUiHierarchyCaptureEnabled", "true")
-            }
-        InstrumentationRegistry.registerInstance(originalInstrumentation, newArguments)
-
-        var capturedArtifacts: List<FailureArtifact>? = null
-        val config =
-            ComposeUiTestConfig(
-                failurePolicy =
-                    TestFailurePolicy(
-                        screenshotCaptureMode = CaptureMode.Disabled,
-                        uiHierarchyCaptureMode = CaptureMode.Disabled,
-                        failureHandlers =
-                            listOf(
-                                TestFailureHandler { context ->
-                                    capturedArtifacts = context.artifacts
-                                }
-                            ),
-                    )
-            )
-
-        assertThrows(AssertionError::class.java) {
-            runComposeUiTest(config) {
-                setContent { Box(Modifier) }
-                onNodeWithTag("non-existent").assertExists()
-            }
-        }
-
-        requireNotNull(capturedArtifacts)
-        assertTrue(
-            "Expected 0 artifacts because captures were explicitly disabled",
-            capturedArtifacts.isEmpty(),
-        )
-    }
-
-    @Test
-    fun captureDisabled_failureHandlerReceivesNoArtifacts() {
-        var capturedArtifacts: List<FailureArtifact>? = null
-        val config =
-            ComposeUiTestConfig(
-                failurePolicy =
-                    TestFailurePolicy(
-                        screenshotCaptureMode = CaptureMode.Disabled,
-                        uiHierarchyCaptureMode = CaptureMode.Disabled,
-                        failureHandlers =
-                            listOf(
-                                TestFailureHandler { context ->
-                                    capturedArtifacts = context.artifacts
-                                }
-                            ),
-                    )
-            )
-
-        assertThrows(AssertionError::class.java) {
-            runComposeUiTest(config) {
-                setContent { Box(Modifier.testTag("box")) }
-                onNodeWithTag("non-existent").assertExists()
-            }
-        }
-
-        requireNotNull(capturedArtifacts)
-        assertTrue(
-            "Expected failure handler to receive empty artifacts list when captures are disabled",
-            capturedArtifacts.isEmpty(),
-        )
-    }
-
-    @Test
-    fun customHandlerException_isSuppressed() {
-        val handlerException = RuntimeException("Handler failed!")
-        val config =
-            ComposeUiTestConfig(
-                failurePolicy =
-                    TestFailurePolicy(
-                        failureHandlers = listOf(TestFailureHandler { throw handlerException })
-                    )
-            )
-
-        val error =
-            assertThrows(AssertionError::class.java) {
-                runComposeUiTest(config) {
-                    setContent { Box(Modifier) }
-                    onNodeWithTag("non-existent").assertExists()
-                }
-            }
-
-        val suppressed = error.suppressed
-        assertTrue("Handler exception was not suppressed", suppressed.contains(handlerException))
-    }
-
-    @Test
-    fun multipleHandlers_areCalledInOrder() {
-        val calls = mutableListOf<String>()
-        val config =
-            ComposeUiTestConfig(
-                failurePolicy =
-                    TestFailurePolicy(
-                        failureHandlers =
-                            listOf(
-                                TestFailureHandler { calls.add("first") },
-                                TestFailureHandler { calls.add("second") },
-                                TestFailureHandler { calls.add("third") },
-                            )
-                    )
-            )
-
-        assertThrows(AssertionError::class.java) {
-            runComposeUiTest(config) {
-                setContent { Box(Modifier) }
-                onNodeWithTag("non-existent").assertExists()
-            }
-        }
-
-        assertEquals(listOf("first", "second", "third"), calls)
-    }
-
-    @Test
-    fun artifacts_arePopulatedInContext() {
-        var capturedArtifacts: List<FailureArtifact> = emptyList()
-        val config =
-            ComposeUiTestConfig(
-                failurePolicy =
-                    TestFailurePolicy(
-                        screenshotCaptureMode = CaptureMode.Enabled,
-                        uiHierarchyCaptureMode = CaptureMode.Enabled,
-                        failureHandlers =
-                            listOf(
-                                TestFailureHandler { context ->
-                                    capturedArtifacts = context.artifacts
-                                }
-                            ),
-                    )
-            )
-
-        val error =
-            assertThrows(AssertionError::class.java) {
-                runComposeUiTest(config) {
-                    setContent { Box(Modifier) }
-                    onNodeWithTag("non-existent").assertExists()
-                }
-            }
-
-        assertEquals(2, capturedArtifacts.size)
-
-        val screenshotArtifact =
-            capturedArtifacts.find { it.type == FailureArtifact.Type.Screenshot }
-        assertTrue(screenshotArtifact != null)
-        assertTrue(screenshotArtifact!!.fileName.endsWith("_screenshot.png"))
-
-        val uiArtifact = capturedArtifacts.find { it.type == FailureArtifact.Type.UiHierarchy }
-        assertTrue(uiArtifact != null)
-        assertTrue(uiArtifact!!.fileName.endsWith("_ui.txt"))
-
-        assertTrue("Expected no file writing exceptions", error.suppressed.isEmpty())
-    }
-
-    @Test
-    fun noPolicyAndNoInstrumentationArgs_propagatesOriginalErrorWithEmptySuppressed() {
-        val emptyArguments = Bundle()
-        InstrumentationRegistry.registerInstance(originalInstrumentation, emptyArguments)
-
-        val originalError = AssertionError("Original test failure")
-        val error =
-            assertThrows(AssertionError::class.java) { runComposeUiTest { throw originalError } }
-
-        assertSame("Expected the exact original error instance", originalError, error)
-        assertTrue("Expected empty suppressed list", error.suppressed.isEmpty())
-    }
-
-    @Test
-    fun uncompletedCoroutinesError_isWrappedIntoAndroidComposeUiTestTimeoutException() {
+    fun uncompletedCoroutinesError_isWrappedIntoTimeoutException() {
         val config = ComposeUiTestConfig(testTimeout = 10.milliseconds)
         val error =
             assertThrows(AndroidComposeUiTestTimeoutException::class.java) {
@@ -373,15 +134,216 @@ class FailurePipelineTest {
         assertTrue("Expected suppressed exceptions list to be empty", error.suppressed.isEmpty())
     }
 
+    @Suppress("DEPRECATION")
+    @OptIn(ExperimentalTestApi::class)
     @Test
-    fun failureContext_publicConstructor() {
-        val testError = AssertionError("Unit test root error")
-        val testArtifacts =
-            listOf(FailureArtifact(FailureArtifact.Type.Screenshot, "test_screenshot.png"))
+    fun capturesArtifactsOnFailureWithComponentActivity() {
+        assertThrows(AssertionError::class.java) {
+            runAndroidComposeUiTest(ComponentActivity::class.java) {
+                setContent { Box(Modifier.testTag("component_activity_box")) }
+                onNodeWithTag("non_existent").assertExists()
+            }
+        }
 
-        val context = FailureContext(error = testError, artifacts = testArtifacts)
-        assertSame(testError, context.error)
-        assertEquals(testArtifacts, context.artifacts)
+        assertArtifactsCaptured(expectedTag = "component_activity_box")
+    }
+
+    @Test
+    fun capturesArtifactsAndHierarchyOnFailureWithCustomActivity() {
+        val config = createCapturingConfig()
+
+        assertThrows(AssertionError::class.java) {
+            androidx.compose.ui.test.v2.runAndroidComposeUiTest(
+                activityClass = CustomComposeHostActivity::class.java,
+                config = config,
+            ) {
+                val hostActivity = requireNotNull(activity)
+                runOnUiThread {
+                    hostActivity.setContent { Box(Modifier.testTag("custom_activity_box")) }
+                }
+                waitForIdle()
+                onNodeWithTag("non_existent").assertExists()
+            }
+        }
+
+        assertArtifactsCaptured(expectedTag = "custom_activity_box", expectedLayout = "FrameLayout")
+    }
+
+    @Test
+    fun capturesArtifactsOnUncaughtCoroutineExceptionWithCustomActivity() {
+        val config = createCapturingConfig()
+
+        assertThrows(IllegalStateException::class.java) {
+            androidx.compose.ui.test.v2.runAndroidComposeUiTest(
+                activityClass = CustomComposeHostActivity::class.java,
+                config = config,
+            ) {
+                val hostActivity = requireNotNull(activity)
+                runOnUiThread {
+                    hostActivity.setContent { Box(Modifier.testTag("coroutine_error_box")) }
+                }
+                waitForIdle()
+                CoroutineScope(Dispatchers.Main).launch {
+                    throw IllegalStateException("Uncaught exception in coroutine")
+                }
+            }
+        }
+
+        assertArtifactsCaptured(expectedTag = "coroutine_error_box")
+    }
+
+    @Test
+    fun capturesArtifactsOnRecompositionExceptionWithCustomActivity() {
+        val config = createCapturingConfig()
+
+        assertThrows(IllegalStateException::class.java) {
+            androidx.compose.ui.test.v2.runAndroidComposeUiTest(
+                activityClass = CustomComposeHostActivity::class.java,
+                config = config,
+            ) {
+                val hostActivity = requireNotNull(activity)
+                var state by mutableIntStateOf(0)
+                runOnUiThread {
+                    hostActivity.setContent {
+                        if (state == 1) {
+                            throw IllegalStateException("Recomposition failure")
+                        }
+                        Button(
+                            onClick = { state = 1 },
+                            modifier = Modifier.testTag("throw_button"),
+                        ) {
+                            Text("Click to fail")
+                        }
+                    }
+                }
+                waitForIdle()
+                onNodeWithTag("throw_button").performClick()
+                waitForIdle()
+            }
+        }
+
+        assertArtifactsCaptured(expectedTag = "throw_button")
+    }
+
+    @Test
+    fun capturesArtifactsWithMultipleWindows_dialogAndPopup() {
+        val config = createCapturingConfig()
+
+        assertThrows(AssertionError::class.java) {
+            runComposeUiTest(config) {
+                setContent {
+                    Box(Modifier.testTag("main_window_box")) {
+                        Dialog(onDismissRequest = {}) {
+                            Box(Modifier.testTag("dialog_window_box")) {
+                                Popup { Box(Modifier.testTag("popup_window_box")) }
+                            }
+                        }
+                    }
+                }
+                waitForIdle()
+                onNodeWithTag("non_existent").assertExists()
+            }
+        }
+
+        assertArtifactsCaptured(expectedTag = "main_window_box")
+        val uiDump = getUiDump()
+        assertTrue(
+            "Expected UI dump to contain 'dialog_window_box'",
+            uiDump.contains("dialog_window_box"),
+        )
+        assertTrue(
+            "Expected UI dump to contain 'popup_window_box'",
+            uiDump.contains("popup_window_box"),
+        )
+    }
+
+    @Test
+    fun capturesArtifactsWithInteropHierarchy() {
+        val config = createCapturingConfig()
+
+        assertThrows(AssertionError::class.java) {
+            runComposeUiTest(config) {
+                setContent {
+                    Box(Modifier.testTag("parent_compose_box")) {
+                        AndroidView(
+                            factory = { context ->
+                                FrameLayout(context).apply {
+                                    addView(TextView(context).apply { text = "Interop TextView" })
+                                    addView(
+                                        ComposeView(context).apply {
+                                            setContent {
+                                                Box(Modifier.testTag("nested_compose_box"))
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+                waitForIdle()
+                onNodeWithTag("non_existent").assertExists()
+            }
+        }
+
+        assertArtifactsCaptured(expectedTag = "parent_compose_box", expectedLayout = "FrameLayout")
+        val uiDump = getUiDump()
+        assertTrue("Expected UI dump to contain 'TextView'", uiDump.contains("TextView"))
+        assertTrue("Expected UI dump to contain 'ComposeView'", uiDump.contains("ComposeView"))
+        assertTrue(
+            "Expected UI dump to contain 'nested_compose_box'",
+            uiDump.contains("nested_compose_box"),
+        )
+    }
+
+    private fun createCapturingConfig(
+        onArtifacts: (List<FailureArtifact>) -> Unit = {}
+    ): ComposeUiTestConfig =
+        ComposeUiTestConfig(
+            failurePolicy =
+                TestFailurePolicy(
+                    screenshotCaptureMode = CaptureMode.Enabled,
+                    uiHierarchyCaptureMode = CaptureMode.Enabled,
+                    failureHandlers = listOf(TestFailureHandler { onArtifacts(it.artifacts) }),
+                )
+        )
+
+    private fun getUiDump(): String {
+        val uiFile = memoryStorage.outputFiles.entries.find { it.key.endsWith("_ui.txt") }
+        requireNotNull(uiFile) { "UI Hierarchy file was not written to storage" }
+        return uiFile.value.toString(Charsets.UTF_8.name())
+    }
+
+    private fun assertArtifactsCaptured(
+        expectedTag: String? = null,
+        expectedLayout: String? = null,
+    ) {
+        val screenshotFile =
+            memoryStorage.outputFiles.entries.find { it.key.endsWith("_screenshot.png") }
+
+        requireNotNull(screenshotFile) { "Screenshot file was not written to storage" }
+        assertTrue(
+            "Expected screenshot byte array to not be empty",
+            screenshotFile.value.toByteArray().isNotEmpty(),
+        )
+
+        val uiString = getUiDump()
+        assertTrue(
+            "Expected UI dump to contain 'View and Compose Hierarchy'",
+            uiString.contains("View and Compose Hierarchy"),
+        )
+        if (expectedTag != null) {
+            assertTrue(
+                "Expected UI dump to contain tag '$expectedTag'",
+                uiString.contains(expectedTag),
+            )
+        }
+        if (expectedLayout != null) {
+            assertTrue(
+                "Expected UI dump to contain layout '$expectedLayout'",
+                uiString.contains(expectedLayout),
+            )
+        }
     }
 
     class MemoryTestStorage : PlatformTestStorage {

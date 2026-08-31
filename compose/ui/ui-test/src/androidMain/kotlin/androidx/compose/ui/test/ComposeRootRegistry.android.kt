@@ -48,11 +48,23 @@ internal class ComposeRootRegistry {
     private val registryListeners = mutableSetOf<OnRegistrationChangedListener>()
 
     /**
-     * Returns the set of [ViewRootForTest]s that were registered right before [tearDownRegistry]
-     * was called.
+     * Set of [ViewRootForTest]s that were registered right before [tearDownRegistry] was called.
      */
-    internal var registeredComposeRootsBeforeTearDown: Set<ViewRootForTest> = emptySet()
-        private set
+    private var registeredComposeRootsBeforeTearDown: Set<ViewRootForTest> = emptySet()
+
+    /**
+     * Returns the set of [ViewRootForTest]s currently registered, or the snapshot captured before
+     * teardown if the registry is no longer set up.
+     */
+    internal fun getCurrentOrPreTearDownRoots(): Set<ViewRootForTest> {
+        return synchronized(lock) {
+            if (isSetUp) {
+                resumedRoots.toSet().ifEmpty { getCreatedComposeRoots() }
+            } else {
+                registeredComposeRootsBeforeTearDown
+            }
+        }
+    }
 
     /** Returns if the registry is setup to receive registrations from [ViewRootForTest]s */
     val isSetUp: Boolean
