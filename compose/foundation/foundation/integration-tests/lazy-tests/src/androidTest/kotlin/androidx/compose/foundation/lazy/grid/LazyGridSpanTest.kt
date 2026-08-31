@@ -798,4 +798,192 @@ class LazyGridSpanTest {
                 .containsExactlyEntriesIn(mapOf(0 to 5, 1 to 5, 2 to 5, 3 to 5))
         }
     }
+
+    /**
+     * Verifies that toggling a dynamic span state while scrolling through the grid does not cause a
+     * crash with an [IllegalStateException] from duplicate item placement.
+     */
+    @Test
+    fun dynamicSpanStateChangeDuringScroll_doesNotCrashWithPlacementException() {
+        var wideSpans by mutableStateOf(true)
+        lateinit var state: LazyGridState
+        val itemSize = with(rule.density) { 10.toDp() }
+        rule.setContent {
+            state = rememberLazyGridState()
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                state = state,
+                modifier = Modifier.requiredSize(itemSize * 2, itemSize * 4),
+            ) {
+                items(
+                    count = 51,
+                    span = { index ->
+                        if (wideSpans && index % 3 == 0) GridItemSpan(2) else GridItemSpan(1)
+                    },
+                ) {
+                    Box(Modifier.size(itemSize))
+                }
+            }
+        }
+
+        // Scroll forward, backward, and to an intermediate position to populate multiple buckets,
+        // lastLineIndex, and cachedBucket entries under the initial wide-span configuration.
+        rule.runOnIdle { runBlocking { state.scrollToItem(47, 1) } }
+        rule.runOnIdle { runBlocking { state.scrollToItem(1, 14) } }
+        rule.runOnIdle { runBlocking { state.scrollToItem(20, 8) } }
+
+        rule.runOnIdle { wideSpans = false }
+
+        rule.runOnIdle {
+            // While wideSpans = true, item 20 was in column 1 of row [19, 20], so scrollToItem(20)
+            // anchored at row start item 19. When wideSpans = false, item 19 is in column 1 of
+            // row [18, 19], so remeasuring anchors at row start item 18.
+            assertThat(state.firstVisibleItemIndex).isEqualTo(18)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(8)
+            assertThat(state.layoutInfo.visibleItemsInfo).isNotEmpty()
+            state.layoutInfo.visibleItemsInfo.forEach {
+                assertThat(it.row).isEqualTo(it.index / 2)
+                assertThat(it.column).isEqualTo(it.index % 2)
+                assertThat(it.span).isEqualTo(1)
+            }
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(20, 28) } }
+        rule.runOnIdle {
+            // With itemSize = 10px and 2 items per row, scrollOffset = 28px advances 2 full rows
+            // (4 items) past item 20 to item 24 with an 8px scroll offset.
+            assertThat(state.firstVisibleItemIndex).isEqualTo(24)
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(8)
+            assertThat(state.layoutInfo.visibleItemsInfo).isNotEmpty()
+            state.layoutInfo.visibleItemsInfo.forEach {
+                assertThat(it.row).isEqualTo(it.index / 2)
+                assertThat(it.column).isEqualTo(it.index % 2)
+                assertThat(it.span).isEqualTo(1)
+            }
+        }
+    }
+
+    /**
+     * Verifies that when dynamic spans are toggled after populating the line cache, remaining items
+     * correctly relayout and occupy the expected rows and columns based on the new span layout.
+     */
+    @Test
+    fun dynamicSpanStateChange_relayoutsRemainingItemsCorrectly() {
+        var wideSpans by mutableStateOf(true)
+        lateinit var state: LazyGridState
+        val itemSize = with(rule.density) { 10.toDp() }
+        rule.setContent {
+            state = rememberLazyGridState()
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                state = state,
+                modifier = Modifier.requiredSize(itemSize * 4, itemSize * 3),
+            ) {
+                items(
+                    count = 200,
+                    span = { index ->
+                        if (wideSpans && index % 10 == 0) GridItemSpan(4) else GridItemSpan(1)
+                    },
+                ) {
+                    Box(Modifier.size(itemSize))
+                }
+            }
+        }
+
+        // Scroll far enough (past initial nearestRange) that the line cache is populated with the
+        // wide layout.
+        rule.runOnIdle { runBlocking { state.scrollToItem(120) } }
+
+        rule.runOnIdle { wideSpans = false }
+
+        // Verify visible items at index 120 immediately relayout before any subsequent scroll.
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemIndex).isEqualTo(120)
+            assertThat(state.layoutInfo.visibleItemsInfo).isNotEmpty()
+            state.layoutInfo.visibleItemsInfo.forEach {
+                assertThat(it.row).isEqualTo(it.index / 4)
+                assertThat(it.column).isEqualTo(it.index % 4)
+                assertThat(it.span).isEqualTo(1)
+            }
+        }
+
+        // Every span is now 1, so with 4 columns item N has to live on row N / 4 across the grid.
+        for (targetItemIndex in intArrayOf(0, 40, 90, 150, 30, 199, 7)) {
+            rule.runOnIdle {
+                runBlocking { state.scrollToItem(targetItemIndex) }
+                assertThat(state.layoutInfo.visibleItemsInfo.map { it.index })
+                    .contains(targetItemIndex)
+                state.layoutInfo.visibleItemsInfo.forEach {
+                    assertThat(it.row).isEqualTo(it.index / 4)
+                    assertThat(it.column).isEqualTo(it.index % 4)
+                    assertThat(it.span).isEqualTo(1)
+                }
+            }
+        }
+    }
+
+    /**
+     * Verifies that changing a snapshot state read only by off-screen items (e.g. index < 50 while
+     * scrolled to item 200) invalidates the cached bucket bookmarks and triggers a remeasure of the
+     * visible items without requiring a manual scroll.
+     */
+    @Test
+    fun indexDependentOffscreenSpanChange_triggersRemeasureAndRelayoutsVisibleItems() {
+        var headerItemsWide by mutableStateOf(true)
+        lateinit var state: LazyGridState
+        val itemSize = with(rule.density) { 10.toDp() }
+        rule.setContent {
+            state = rememberLazyGridState()
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                state = state,
+                modifier = Modifier.requiredSize(itemSize * 3, itemSize * 4),
+            ) {
+                items(
+                    count = 300,
+                    span = { index ->
+                        if (index < 50) {
+                            GridItemSpan(if (headerItemsWide) 3 else 1)
+                        } else {
+                            GridItemSpan(1)
+                        }
+                    },
+                ) {
+                    Box(Modifier.size(itemSize))
+                }
+            }
+        }
+
+        // Scroll to item 200 (far past index 50).
+        // When headerItemsWide = true:
+        // - items 0..49 take 50 lines (1 per line)
+        // - items 50..199 (150 items) take 50 lines (3 per line)
+        // So item 200 is at column (200 - 50) % 3 = 0 on line 100.
+        rule.runOnIdle {
+            runBlocking { state.scrollToItem(200) }
+            val firstVisibleBefore = state.layoutInfo.visibleItemsInfo.first { it.index == 200 }
+            assertThat(firstVisibleBefore.row).isEqualTo(100)
+            assertThat(firstVisibleBefore.column).isEqualTo(0)
+        }
+
+        // Toggle state read only by off-screen items (index < 50).
+        // Now all items 0..200 have span 1, so item 200 belongs at column 200 % 3 = 2 on line 66.
+        rule.runOnIdle { headerItemsWide = false }
+
+        rule.runOnIdle {
+            val firstVisibleAfter = state.layoutInfo.visibleItemsInfo.first { it.index == 200 }
+            assertThat(firstVisibleAfter.row).isEqualTo(200 / 3)
+            assertThat(firstVisibleAfter.column).isEqualTo(200 % 3)
+        }
+
+        // Toggle off-screen state a second time (false -> true) to verify re-subscription after
+        // cache invalidation cleared observedStates.
+        rule.runOnIdle { headerItemsWide = true }
+
+        rule.runOnIdle {
+            val firstVisibleRestored = state.layoutInfo.visibleItemsInfo.first { it.index == 200 }
+            assertThat(firstVisibleRestored.row).isEqualTo(100)
+            assertThat(firstVisibleRestored.column).isEqualTo(0)
+        }
+    }
 }

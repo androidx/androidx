@@ -16,13 +16,77 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.annotation.VisibleForTesting
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.internal.requirePrecondition
+import androidx.compose.runtime.State
+import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import kotlin.math.min
 import kotlin.math.sqrt
 
 internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridIntervalContent) {
     class LineConfiguration(val firstItemIndex: Int, val spans: List<GridItemSpan>)
+
+    /**
+     * Maps each snapshot state object read during custom span queries to its value at the time the
+     * bucket cache was populated.
+     *
+     * Entries share the lifetime of [buckets] (and are cleared together in [invalidateCache])
+     * because any state read while walking items to populate [buckets] affects all subsequent
+     * cached bucket start indices.
+     */
+    private val observedStates = mutableScatterMapOf<Any, Any?>()
+
+    /**
+     * Records snapshot state reads during item span calculation walks.
+     *
+     * The read observer records every snapshot read inside the layout walk (including transitive
+     * dependencies read when evaluating a `DerivedState`). This is safe because [buckets],
+     * [totalSize], and [slotsPerLine] are plain properties, so only the user's span lambdas read
+     * snapshot state.
+     */
+    private val spanReadObserver: (Any) -> Unit = { state ->
+        if (state !in observedStates) {
+            observedStates[state] = Snapshot.withoutReadObservation { readStateValue(state) }
+        }
+    }
+
+    @get:VisibleForTesting
+    internal val hasObservedStates: Boolean
+        get() = observedStates.isNotEmpty()
+
+    /**
+     * Set by [getLineIndexOfItem] at the start of a measure pass (which runs inside
+     * [Snapshot.withoutReadObservation] in `LazyGrid`) so that the first [getLineConfiguration]
+     * call inside `measureLazyGrid` reads [observedStates] once under `SubcomposeLayout`'s
+     * `SnapshotStateObserver`, while subsequent [getLineConfiguration] calls in the same line loop
+     * skip it.
+     */
+    private var needsMeasureObservation = false
+
+    /**
+     * Stored line/item index arguments for [computeLineConfigurationBlock] and
+     * [computeLineIndexOfItemBlock].
+     *
+     * Passing these via fields avoids allocating a lambda on every query. This is safe because:
+     * 1. Reentrancy is impossible: [computeLineConfiguration] and [computeLineIndexOfItem] never
+     *    call back into [getLineConfiguration] or [getLineIndexOfItem].
+     * 2. Measure, layout, and prefetch run on the main UI thread (Android's `LazyLayoutPrefetcher`
+     *    is Choreographer-driven).
+     */
+    private var pendingLineIndex = 0
+    private val computeLineConfigurationBlock: () -> LineConfiguration = {
+        computeLineConfiguration(pendingLineIndex)
+    }
+
+    private var pendingItemIndex = 0
+    private val computeLineIndexOfItemBlock: () -> Int = {
+        computeLineIndexOfItem(pendingItemIndex)
+    }
 
     /** Caches the bucket info on lines 0, [bucketSize], 2 * [bucketSize], etc. */
     private val buckets = ArrayList<Bucket>().apply { add(Bucket(0)) }
@@ -79,6 +143,12 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
             }
         }
 
+    /**
+     * Returns the [LineConfiguration] for [lineIndex].
+     *
+     * If the grid has custom spans, the calculation is wrapped in [Snapshot.observe] to record any
+     * [State] read by the span lambdas into [observedStates].
+     */
     fun getLineConfiguration(lineIndex: Int): LineConfiguration {
         if (!gridContent.hasCustomSpans) {
             // Quick return when all spans are 1x1 - in this case we can easily calculate positions.
@@ -91,6 +161,18 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
             )
         }
 
+        if (needsMeasureObservation) {
+            needsMeasureObservation = false
+            verifyAndReadObservedStates()
+        }
+        pendingLineIndex = lineIndex
+        return Snapshot.observe(
+            readObserver = spanReadObserver,
+            block = computeLineConfigurationBlock,
+        )
+    }
+
+    private fun computeLineConfiguration(lineIndex: Int): LineConfiguration {
         val bucketIndex = min(lineIndex / bucketSize, buckets.size - 1)
         // We can calculate the items on the line from the closest cached bucket start item.
         var currentLine = bucketIndex * bucketSize
@@ -187,6 +269,16 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
             return itemIndex / slotsPerLine
         }
 
+        verifyAndReadObservedStates()
+        needsMeasureObservation = true
+        pendingItemIndex = itemIndex
+        return Snapshot.observe(
+            readObserver = spanReadObserver,
+            block = computeLineIndexOfItemBlock,
+        )
+    }
+
+    private fun computeLineIndexOfItem(itemIndex: Int): Int {
         val lowerBoundBucket =
             buckets
                 .binarySearch { it.firstItemIndex - itemIndex }
@@ -233,6 +325,36 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
             return span.currentLineSpan
         }
 
+    private fun readStateValue(state: Any): Any? =
+        when (state) {
+            is State<*> -> state.value
+            is SnapshotStateList<*> -> state.toList()
+            is SnapshotStateMap<*, *> -> state.toMap()
+            is SnapshotStateSet<*> -> state.toSet()
+            else -> state
+        }
+
+    /**
+     * Reads all accumulated [observedStates] via their public getters (so an enclosing measure
+     * `SnapshotStateObserver` retains subscriptions to states from cached buckets and
+     * [getLineIndexOfItem]) and invalidates the bucket cache if any observed state value changed.
+     */
+    private fun verifyAndReadObservedStates() {
+        if (observedStates.isEmpty()) return
+        var invalidated = false
+        // Read every entry without short-circuiting so that when called inside an active
+        // SnapshotStateObserver scope, all accumulated states are recorded by the observer.
+        observedStates.forEach { state, cachedValue ->
+            if (readStateValue(state) != cachedValue) {
+                invalidated = true
+            }
+        }
+        if (invalidated) {
+            invalidateCache()
+        }
+    }
+
+    /** Clears all cached line bookmarks, calculated intervals, and tracked states. */
     private fun invalidateCache() {
         buckets.clear()
         buckets.add(Bucket(0))
@@ -241,6 +363,8 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
         lastLineStartKnownSpan = 0
         cachedBucketIndex = -1
         cachedBucket.clear()
+        observedStates.clear()
+        needsMeasureObservation = false
     }
 
     private class Bucket(
