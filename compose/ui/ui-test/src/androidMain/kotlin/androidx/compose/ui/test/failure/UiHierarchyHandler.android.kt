@@ -20,6 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.printToString
+import androidx.compose.ui.test.runOnUiThreadWithTimeout
 import androidx.compose.ui.util.fastDistinctBy
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
@@ -49,40 +50,52 @@ internal class AndroidUiHierarchyHandler : UiHierarchyHandler {
 
         storage.openOutputFile(fileName).use { stream ->
             PrintWriter(OutputStreamWriter(stream, Charsets.UTF_8)).use { writer ->
-                val uniqueWindows = roots.map { getRootParent(it.view) }.fastDistinctBy { it }
+                try {
+                    // Traversing the hierarchy is safest on the UI thread to avoid concurrent
+                    // tree modifications. We execute with a timeout so that if the main thread
+                    // is unresponsive or deadlocked, we fall back to dumping on the caller thread
+                    // rather than hanging the test.
+                    runOnUiThreadWithTimeout { dumpHierarchy(writer, roots) }
+                } catch (_: Throwable) {
+                    dumpHierarchy(writer, roots)
+                }
+            }
+        }
+    }
 
-                if (uniqueWindows.isEmpty()) {
-                    writer.println("====================================================")
-                    writer.println("--- No UI hierarchy found ---")
-                    writer.println("====================================================")
+    private fun dumpHierarchy(writer: PrintWriter, roots: Set<ViewRootForTest>) {
+        val uniqueWindows = roots.map { getRootParent(it.view) }.fastDistinctBy { it }
+
+        if (uniqueWindows.isEmpty()) {
+            writer.println("====================================================")
+            writer.println("--- No UI hierarchy found ---")
+            writer.println("====================================================")
+            writer.println()
+        } else {
+            writer.println("====================================================")
+            writer.println("--- View and Compose Hierarchy ---")
+            writer.println("====================================================")
+            val rootsByView = roots.groupBy { it.view }
+            val visitedRoots = mutableSetOf<ViewRootForTest>()
+
+            uniqueWindows.fastForEachIndexed { index, window ->
+                writer.println("Window (index = $index)")
+                writer.println()
+                try {
+                    dumpViewHierarchy(writer, window, rootsByView, visitedRoots, depth = 0)
+                } catch (t: Throwable) {
+                    writer.println("Failed to dump UI hierarchy: ${t.message}")
+                }
+                writer.println()
+            }
+
+            val unvisited = roots - visitedRoots
+            if (unvisited.isNotEmpty()) {
+                writer.println("--- Unattached Compose Roots ---")
+                unvisited.forEachIndexed { index, root ->
+                    writer.println("--- Unattached Root $index ---")
+                    dumpComposeSemantics(writer, root, depth = 0)
                     writer.println()
-                } else {
-                    writer.println("====================================================")
-                    writer.println("--- View and Compose Hierarchy ---")
-                    writer.println("====================================================")
-                    val rootsByView = roots.groupBy { it.view }
-                    val visitedRoots = mutableSetOf<ViewRootForTest>()
-
-                    uniqueWindows.fastForEachIndexed { index, window ->
-                        writer.println("Window (index = $index)")
-                        writer.println()
-                        try {
-                            dumpViewHierarchy(writer, window, rootsByView, visitedRoots, depth = 0)
-                        } catch (t: Throwable) {
-                            writer.println("Failed to dump UI hierarchy: ${t.message}")
-                        }
-                        writer.println()
-                    }
-
-                    val unvisited = roots - visitedRoots
-                    if (unvisited.isNotEmpty()) {
-                        writer.println("--- Unattached Compose Roots ---")
-                        unvisited.forEachIndexed { index, root ->
-                            writer.println("--- Unattached Root $index ---")
-                            dumpComposeSemantics(writer, root, depth = 0)
-                            writer.println()
-                        }
-                    }
                 }
             }
         }
