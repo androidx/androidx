@@ -21,8 +21,8 @@ import androidx.test.shell.internal.ShellInstaller
 import androidx.test.shell.internal.uiAutomation
 import androidx.test.shell.internal.waitFor
 import java.net.ConnectException
+import java.net.ServerSocket
 import java.net.Socket
-import kotlin.random.Random
 
 /**
  * A [ShellServer] starts a new long running process on device that is capable of establishing and
@@ -48,18 +48,35 @@ private constructor(
     public companion object {
 
         private const val LOCALHOST = "localhost"
-        private const val PORT_START = 1025
-        private const val PORT_END = 65532
+
+        /**
+         * Finds available local ports by concurrently binding ephemeral sockets.
+         *
+         * Sockets are held open simultaneously during allocation to prevent the OS kernel from
+         * recycling and returning the same ephemeral port across sequential calls.
+         *
+         * @param count number of distinct free ports to find
+         * @return a list of distinct available port numbers
+         */
+        private fun findFreePorts(count: Int): List<Int> {
+            val sockets = mutableListOf<ServerSocket>()
+            try {
+                repeat(count) { sockets.add(ServerSocket(0)) }
+                return sockets.map { it.localPort }
+            } finally {
+                sockets.forEach { runCatching { it.close() } }
+            }
+        }
 
         /**
          * Starts a new [ShellServer] with the given configuration.
          *
-         * @param stdInSocketPort the port utilized for stdin. If not specified, this is chosen
-         *   randomly in the interval between [PORT_START] and [PORT_END].
-         * @param stdOutSocketPort the port utilized for stdout. If not specified, this is chosen
-         *   randomly in the interval between [PORT_START] and [PORT_END].
-         * @param stdErrSocketPort the port utilized for stderr. If not specified, this is chosen
-         *   randomly in the interval between [PORT_START] and [PORT_END].
+         * @param stdInSocketPort the port utilized for stdin. If not specified, an available port
+         *   is chosen.
+         * @param stdOutSocketPort the port utilized for stdout. If not specified, an available port
+         *   is chosen.
+         * @param stdErrSocketPort the port utilized for stderr. If not specified, an available port
+         *   is chosen.
          * @param nativeLogs controls whether the native shell server should print logs.
          * @param connectTimeoutMs a timeout in millis to connect to the local shell server.
          * @return a started [ShellServer]
@@ -67,20 +84,25 @@ private constructor(
         @JvmOverloads
         @JvmStatic
         public fun start(
-            stdInSocketPort: Int = Random.nextInt(from = PORT_START, until = PORT_END),
-            stdOutSocketPort: Int = Random.nextInt(from = PORT_START, until = PORT_END),
-            stdErrSocketPort: Int = Random.nextInt(from = PORT_START, until = PORT_END),
+            stdInSocketPort: Int = 0,
+            stdOutSocketPort: Int = 0,
+            stdErrSocketPort: Int = 0,
             nativeLogs: Boolean = false,
             connectTimeoutMs: Long = 1000L,
-        ): ShellServer =
-            ShellServer(
-                    stdInSocketPort = stdInSocketPort,
-                    stdOutSocketPort = stdOutSocketPort,
-                    stdErrSocketPort = stdErrSocketPort,
+        ): ShellServer {
+            val freePorts by lazy { findFreePorts(3) }
+            val inPort = if (stdInSocketPort != 0) stdInSocketPort else freePorts[0]
+            val outPort = if (stdOutSocketPort != 0) stdOutSocketPort else freePorts[1]
+            val errPort = if (stdErrSocketPort != 0) stdErrSocketPort else freePorts[2]
+            return ShellServer(
+                    stdInSocketPort = inPort,
+                    stdOutSocketPort = outPort,
+                    stdErrSocketPort = errPort,
                     nativeLogs = nativeLogs,
                     connectTimeoutMs = connectTimeoutMs,
                 )
                 .also { it.start() }
+        }
     }
 
     private fun start() {
