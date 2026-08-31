@@ -659,10 +659,13 @@ final class androidx.compose.ui.text.style/LineHeightStyle { // androidx.compose
     }
 
     final value class Trim { // androidx.compose.ui.text.style/LineHeightStyle.Trim|null[0]
+        final val trimsFirstLineTop // androidx.compose.ui.text.style/LineHeightStyle.Trim.trimsFirstLineTop|{}trimsFirstLineTop[0]
+            final fun <get-trimsFirstLineTop>(): kotlin/Boolean // androidx.compose.ui.text.style/LineHeightStyle.Trim.trimsFirstLineTop.<get-trimsFirstLineTop>|<get-trimsFirstLineTop>(){}[0]
+        final val trimsLastLineBottom // androidx.compose.ui.text.style/LineHeightStyle.Trim.trimsLastLineBottom|{}trimsLastLineBottom[0]
+            final fun <get-trimsLastLineBottom>(): kotlin/Boolean // androidx.compose.ui.text.style/LineHeightStyle.Trim.trimsLastLineBottom.<get-trimsLastLineBottom>|<get-trimsLastLineBottom>(){}[0]
+
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.text.style/LineHeightStyle.Trim.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.compose.ui.text.style/LineHeightStyle.Trim.hashCode|hashCode(){}[0]
-        final fun isTrimFirstLineTop(): kotlin/Boolean // androidx.compose.ui.text.style/LineHeightStyle.Trim.isTrimFirstLineTop|isTrimFirstLineTop(){}[0]
-        final fun isTrimLastLineBottom(): kotlin/Boolean // androidx.compose.ui.text.style/LineHeightStyle.Trim.isTrimLastLineBottom|isTrimLastLineBottom(){}[0]
         final fun toString(): kotlin/String // androidx.compose.ui.text.style/LineHeightStyle.Trim.toString|toString(){}[0]
 
         final object Companion { // androidx.compose.ui.text.style/LineHeightStyle.Trim.Companion|null[0]
