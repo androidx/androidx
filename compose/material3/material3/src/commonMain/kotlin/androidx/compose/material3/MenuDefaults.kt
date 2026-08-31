@@ -745,6 +745,8 @@ public object MenuDefaults {
         get() {
             return defaultMenuItemColorsCached
                 ?: MenuItemColors(
+                        containerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
                         textColor = fromToken(ListTokens.ItemLabelTextColor),
                         leadingIconColor = fromToken(ListTokens.ItemLeadingIconColor),
                         trailingIconColor = fromToken(ListTokens.ItemTrailingIconColor),
