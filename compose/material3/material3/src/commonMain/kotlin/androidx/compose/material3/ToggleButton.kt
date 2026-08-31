@@ -139,9 +139,9 @@ import kotlin.jvm.JvmInline
  * @param colors [ToggleButtonColors] that will be used to resolve the colors used for this toggle
  *   button in different states. See [ToggleButtonDefaults.colors].
  * @param elevation [ToggleButtonElevation] used to resolve the elevation for this button in
- *   different states. See [ToggleButtonElevation.shadowElevation]. Additionally, when the container
- *   color is [ColorScheme.surface], this controls the amount of primary color applied as an
- *   overlay.
+ *   different states. This controls the size of the shadow below the button. Additionally, when the
+ *   container color is [ColorScheme.surface], this controls the amount of primary color applied as
+ *   an overlay. See [ToggleButtonDefaults.elevation].
  * @param border the border to draw around the container of this toggle button.
  * @param contentPadding the spacing values to apply internally between the container and the
  *   content.
@@ -246,7 +246,6 @@ public fun ToggleButton(
  * button.
  *
  * @sample androidx.compose.material3.samples.ElevatedToggleButtonSample
- * @sample androidx.compose.material3.samples.ToggleButtonWithButtonSizeSample
  * @param checked whether the toggle button is toggled on or off.
  * @param onCheckedChange called when the toggle button is clicked.
  * @param modifier the [Modifier] to be applied to the toggle button.
@@ -334,7 +333,6 @@ public fun ElevatedToggleButton(
  * button.
  *
  * @sample androidx.compose.material3.samples.FilledTonalToggleButtonSample
- * @sample androidx.compose.material3.samples.ToggleButtonWithButtonSizeSample
  * @param checked whether the toggle button is toggled on or off.
  * @param onCheckedChange called when the toggle button is clicked.
  * @param modifier the [Modifier] to be applied to the toggle button.
@@ -421,7 +419,6 @@ public fun FilledTonalToggleButton(
  * button.
  *
  * @sample androidx.compose.material3.samples.OutlinedToggleButtonSample
- * @sample androidx.compose.material3.samples.ToggleButtonWithButtonSizeSample
  * @param checked whether the toggle button is toggled on or off.
  * @param onCheckedChange called when the toggle button is clicked.
  * @param modifier the [Modifier] to be applied to the toggle button.
@@ -512,14 +509,7 @@ public value class ToggleButtonSize internal constructor(public val height: Dp) 
     }
 }
 
-/**
- * Contains the default values and utility functions used by [ToggleButton].
- *
- * Resolving defaults with a [ToggleButtonSize] (such as with [shapesFor] or [contentPaddingFor])
- * configures default internal layout properties (such as corner shapes, icon spacing, and content
- * padding) while standard layout modifiers (such as [androidx.compose.foundation.layout.size]) can
- * still be applied to adjust overall container dimensions.
- */
+/** Contains the default values and utility functions used by [ToggleButton]. */
 public object ToggleButtonDefaults {
     /** The default [ToggleButtonSize] of a [ToggleButton]. */
     public val size: ToggleButtonSize = ToggleButtonSize.Small
