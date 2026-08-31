@@ -19,11 +19,10 @@ package androidx.xr.runtime
 import android.content.Context
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import androidx.xr.runtime.XrDevice.Companion.getCurrentDevice
 import androidx.xr.runtime.interfaces.DisplayBlendMode as InternalDisplayBlendMode
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProvider
 import androidx.xr.runtime.interfaces.XrDeviceCapabilityProviderFactory
@@ -31,6 +30,8 @@ import androidx.xr.runtime.internal.XrInstanceManager
 import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 
 /** Device hardware capabilities. */
@@ -103,7 +104,8 @@ private constructor(private val xrDeviceCapabilityProvider: XrDeviceCapabilityPr
                 )
             synchronized(deviceCache) { deviceCache[context] = device }
             if (context is LifecycleOwner) {
-                context.lifecycleScope.launch {
+                val mainDispatcher = MainExecutorDispatcher(ContextCompat.getMainExecutor(context))
+                CoroutineScope(mainDispatcher.immediate + NonCancellable).launch {
                     if (context.lifecycle.currentState == Lifecycle.State.DESTROYED) {
                         synchronized(deviceCache) { deviceCache.remove(context) }
                         return@launch
