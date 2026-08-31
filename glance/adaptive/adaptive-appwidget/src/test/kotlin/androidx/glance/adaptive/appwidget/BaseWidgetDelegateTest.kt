@@ -136,6 +136,43 @@ class BaseWidgetDelegateTest {
         verify(mockRenderer, never()).invoke(any())
     }
 
+    @Test
+    @Config(sdk = [35])
+    fun setPreview_sdk35_withMatchingReceiver_rendersAndCallsSetWidgetPreview() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        registerReceiverInManifest(context, TestReceiver::class.java.name)
+        val delegate = BaseWidgetDelegate(context)
+        val testData = TestTemplate()
+
+        delegate.setPreview(widgetName = "test_widget", previewData = testData)
+
+        verify(mockRenderer).invoke(testData)
+    }
+
+    @Test
+    @Config(sdk = [34])
+    fun setPreview_preSdk35_gracefullyNoOpsWithoutCallingSetWidgetPreview() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        registerReceiverInManifest(context, TestReceiver::class.java.name)
+        val delegate = BaseWidgetDelegate(context)
+        val testData = TestTemplate()
+
+        delegate.setPreview(widgetName = "test_widget", previewData = testData)
+
+        verify(mockRenderer, never()).invoke(any())
+    }
+
+    @Test
+    @Config(sdk = [35])
+    fun setPreview_withoutMatchingReceivers_doesNotRenderOrUpdate() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val delegate = BaseWidgetDelegate(context)
+
+        delegate.setPreview(widgetName = "unregistered_widget", previewData = TestTemplate())
+
+        verify(mockRenderer, never()).invoke(any())
+    }
+
     private fun setupBoundWidget(
         context: Context,
         appWidgetId: Int,
@@ -164,5 +201,10 @@ class BaseWidgetDelegateTest {
             componentName,
             IntentFilter(AppWidgetManager.ACTION_APPWIDGET_UPDATE),
         )
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val shadowManager = shadowOf(appWidgetManager)
+        val info = AppWidgetProviderInfo().apply { provider = componentName }
+        shadowManager.addInstalledProvider(info)
+        shadowManager.addInstalledProvidersForProfile(null, info)
     }
 }
