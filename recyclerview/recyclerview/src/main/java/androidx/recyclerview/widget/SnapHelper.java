@@ -85,7 +85,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      *                     {@code null} if you want to remove SnapHelper from the current
      *                     RecyclerView.
      *
-     * @throws IllegalArgumentException if there is already a {@link RecyclerView.OnFlingListener}
+     * @throws IllegalStateException if there is already a {@link RecyclerView.OnFlingListener}
      * attached to the provided {@link RecyclerView}.
      *
      */
