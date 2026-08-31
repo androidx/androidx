@@ -86,4 +86,19 @@ class FakeAudioSourceCallback : AudioSource.AudioSourceCallback {
             callTimes,
             onError,
         )
+
+    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
+    fun verifyOnAmplitudeValue(
+        callTimes: CallTimes,
+        timeoutMs: Long = NO_TIMEOUT,
+        inOder: Boolean = false,
+        onAmplitudeValue: ((List<Double>) -> Unit)? = null,
+    ) =
+        onAmplitudeCallbacks.verifyAcceptCallExt(
+            java.lang.Double::class.java,
+            inOder,
+            timeoutMs,
+            callTimes,
+            onAmplitudeValue,
+        )
 }
