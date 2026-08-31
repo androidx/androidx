@@ -76,6 +76,9 @@ class SceneCoreTestAppActivityLeakTest(activityClass: Class<out Activity>) :
             )
         )
 
+    @get:Rule
+    val uncaughtExceptionsRule: CatchUncaughtExceptionsRule = CatchUncaughtExceptionsRule()
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
