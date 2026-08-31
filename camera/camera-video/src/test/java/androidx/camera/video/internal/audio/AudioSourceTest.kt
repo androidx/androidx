@@ -30,7 +30,9 @@ import androidx.camera.video.internal.encoder.FakeInputBuffer
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.nio.ByteBuffer
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.NANOSECONDS
 import org.junit.After
 import org.junit.Test
@@ -275,6 +277,40 @@ class AudioSourceTest {
             assertThat(it[0]).isTrue()
             assertThat(it[1]).isFalse()
         }
+    }
+
+    @Test
+    fun failedToStartAudioStream_stopWillStopSilentAudioStream() {
+        // Arrange.
+        val error = AudioStream.AudioStreamException()
+        val audioStream = createAudioStream(exceptionOnStart = error)
+        val audioSourceCallback = createAudioSourceCallback()
+        val audioSource =
+            createAudioSource(
+                audioStreamFactory = { _, _ -> audioStream },
+                audioSourceCallback = audioSourceCallback,
+            )
+
+        // Act: Start AudioSource (which fails to start mAudioStream and falls back to
+        // mSilentAudioStream).
+        audioSource.start()
+
+        // Assert: Silence state is triggered (indicating SilentAudioStream was started).
+        audioSourceCallback.verifyOnSilenceStateChanged(CallTimes(1), COMMON_TIMEOUT_MS) {
+            assertThat(it.single()).isTrue()
+        }
+        assertThat(audioSource.mSilentAudioStream.isStarted).isTrue()
+
+        // Act: Stop AudioSource.
+        audioSource.stop()
+
+        // Wait for stop() to complete on AudioSource's sequential executor.
+        val latch = CountDownLatch(1)
+        audioSource.mExecutor.execute { latch.countDown() }
+        assertThat(latch.await(COMMON_TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
+
+        // Assert: SilentAudioStream is stopped.
+        assertThat(audioSource.mSilentAudioStream.isStarted).isFalse()
     }
 
     @Test
