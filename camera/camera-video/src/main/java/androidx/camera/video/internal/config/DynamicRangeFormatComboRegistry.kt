@@ -65,6 +65,10 @@ public object DynamicRangeFormatComboRegistry {
     private val MIMETYPE_AUDIO_OPUS_GATED = MIMETYPE_AUDIO_OPUS.takeIf(minSdk = 29)
     private val MIMETYPE_VIDEO_DOLBY_VISION_GATED = MIMETYPE_VIDEO_DOLBY_VISION.takeIf(minSdk = 33)
     private val MIMETYPE_VIDEO_AV1_GATED = MIMETYPE_VIDEO_AV1.takeIf(minSdk = 34)
+    // APV (Advanced Professional Video, ISO/IEC 23091-2) is an intra-frame professional video
+    // codec designed exclusively for 10-bit and 12-bit capture (b/553777957).
+    // Platform profile definitions (APVProfile422_10, etc.) only define 10/12-bit profiles:
+    // https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel#APVProfile422_10
     private val MIMETYPE_VIDEO_APV_GATED = MIMETYPE_VIDEO_APV.takeIf(minSdk = 36)
 
     private val registries: Map<DynamicRange, FormatComboRegistry> by lazy {
@@ -131,7 +135,8 @@ public object DynamicRangeFormatComboRegistry {
                                 MIMETYPE_VIDEO_H263,
                                 MIMETYPE_VIDEO_HEVC,
                                 MIMETYPE_VIDEO_AV1_GATED,
-                                MIMETYPE_VIDEO_APV_GATED,
+                                // APV is excluded from SDR as it only supports 10-bit and higher
+                                // capture (b/553777957).
                             ),
                         audioMimes = standardMp4Audios,
                     )
@@ -195,10 +200,15 @@ public object DynamicRangeFormatComboRegistry {
     private fun buildHdr10PlusRegistry(): FormatComboRegistry =
         FormatComboRegistry.Builder()
             .apply {
-                // HDR10+ are standardized for MP4 via HEVC/AV1.
+                // HDR10+ are standardized for MP4 via HEVC/AV1/APV.
                 container(OUTPUT_FORMAT_MPEG_4) {
                     support(
-                        videoMimes = listOfNotNull(MIMETYPE_VIDEO_HEVC, MIMETYPE_VIDEO_AV1_GATED),
+                        videoMimes =
+                            listOfNotNull(
+                                MIMETYPE_VIDEO_HEVC,
+                                MIMETYPE_VIDEO_AV1_GATED,
+                                MIMETYPE_VIDEO_APV_GATED,
+                            ),
                         audioMimes = standardMp4Audios,
                     )
                 }

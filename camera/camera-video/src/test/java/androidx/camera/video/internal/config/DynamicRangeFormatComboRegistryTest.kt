@@ -18,6 +18,7 @@ package androidx.camera.video.internal.config
 
 import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
 import android.media.MediaFormat.MIMETYPE_AUDIO_OPUS
+import android.media.MediaFormat.MIMETYPE_VIDEO_APV
 import android.media.MediaFormat.MIMETYPE_VIDEO_AV1
 import android.media.MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION
 import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
@@ -50,6 +51,7 @@ class DynamicRangeFormatComboRegistryTest {
         private const val VIDEO_VP9 = MIMETYPE_VIDEO_VP9
         private const val VIDEO_AV1 = MIMETYPE_VIDEO_AV1
         private const val VIDEO_DOLBY_VISION = MIMETYPE_VIDEO_DOLBY_VISION
+        private const val VIDEO_APV = MIMETYPE_VIDEO_APV
         private const val VIDEO_UNKNOWN = "video/unknown-codec"
         private const val AUDIO_AAC = MIMETYPE_AUDIO_AAC
         private const val AUDIO_OPUS = MIMETYPE_AUDIO_OPUS
@@ -130,6 +132,25 @@ class DynamicRangeFormatComboRegistryTest {
         val ranges = DynamicRangeFormatComboRegistry.getDynamicRangesForVideoMime(VIDEO_VP8)
 
         assertThat(ranges).containsExactly(SDR)
+    }
+
+    @Test
+    @Config(minSdk = 36)
+    fun getDynamicRangesForVideoMime_apv_returnsHdrOnly() {
+        // APV (SDK 36+) is an intra-frame 10-bit codec supported in HLG, HDR10, and HDR10+
+        // (excludes SDR)
+        val ranges = DynamicRangeFormatComboRegistry.getDynamicRangesForVideoMime(VIDEO_APV)
+
+        assertThat(ranges).containsExactly(HLG_10_BIT, HDR10_10_BIT, HDR10_PLUS_10_BIT)
+    }
+
+    @Test
+    @Config(maxSdk = 35)
+    fun getDynamicRangesForVideoMime_apv_onOldSdk_returnsEmpty() {
+        // APV is gated at SDK 36. On SDK 35 and below, no registry should claim to support it.
+        val ranges = DynamicRangeFormatComboRegistry.getDynamicRangesForVideoMime(VIDEO_APV)
+
+        assertThat(ranges).isEmpty()
     }
 
     @Test
