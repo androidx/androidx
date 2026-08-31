@@ -50,6 +50,8 @@ public open class ComponentActivity : Activity(), LifecycleOwner, KeyEventDispat
      */
     @Suppress("LeakingThis") private val lifecycleRegistry = LifecycleRegistry(this)
 
+    private var lastRequestedOrientation: Int = SCREEN_ORIENTATION_UNSET
+
     /**
      * Store an instance of [ExtraData] for later retrieval by class name via [getExtraData].
      *
@@ -110,6 +112,27 @@ public open class ComponentActivity : Activity(), LifecycleOwner, KeyEventDispat
         } else KeyEventDispatcher.dispatchKeyEvent(this, decor, this, event)
     }
 
+    override fun setRequestedOrientation(orientation: Int) {
+        // Sets this Activity's orientation, only if the orientation value has changed or if a
+        // value hasn't been previously set. This avoids unnecessary Binder calls, which
+        // can be expensive. This caching was added to Activity.java in API level 35.
+        if (Build.VERSION.SDK_INT >= 35) {
+            super.setRequestedOrientation(orientation)
+        } else if (orientation != lastRequestedOrientation) {
+            lastRequestedOrientation = orientation
+            super.setRequestedOrientation(orientation)
+        }
+    }
+
+    override fun getRequestedOrientation(): Int {
+        // See setRequestedOrientation() above.
+        if (Build.VERSION.SDK_INT >= 35 || lastRequestedOrientation == SCREEN_ORIENTATION_UNSET) {
+            return super.getRequestedOrientation()
+        } else {
+            return lastRequestedOrientation
+        }
+    }
+
     /**
      * Checks if the internal state should be dump, as some special args are handled by [Activity]
      * itself.
@@ -155,4 +178,11 @@ public open class ComponentActivity : Activity(), LifecycleOwner, KeyEventDispat
       {@link View#setTag(int, Object)} with the window's decor view."""
     )
     public open class ExtraData
+
+    private companion object {
+        /**
+         * Value copied from ActivityInfo.SCREEN_ORIENTATION_UNSET (internal field)
+         */
+        private const val SCREEN_ORIENTATION_UNSET = -2
+    }
 }
