@@ -326,9 +326,9 @@ public final class AudioSource {
                             // Fall-through
                         case CONFIGURED:
                             resetBufferProvider(null);
+                            stopSendingAudio();
                             mSilentAudioStream.release();
                             mAudioStream.release();
-                            stopSendingAudio();
                             setState(RELEASED);
                             break;
                         case RELEASED:
@@ -608,6 +608,7 @@ public final class AudioSource {
         mIsSendingAudio = false;
         Logger.d(TAG, "stopSendingAudio");
         mAudioStream.stop();
+        mSilentAudioStream.stop();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */

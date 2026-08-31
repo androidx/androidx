@@ -22,6 +22,7 @@ import static androidx.camera.video.internal.audio.AudioUtils.sizeToFrameCount;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 
 import org.jspecify.annotations.NonNull;
@@ -83,6 +84,11 @@ public class SilentAudioStream implements AudioStream {
     public void stop() {
         checkNotReleasedOrThrow();
         mIsStarted.set(false);
+    }
+
+    @VisibleForTesting
+    boolean isStarted() {
+        return mIsStarted.get();
     }
 
     @Override
