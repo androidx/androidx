@@ -117,6 +117,37 @@ class WidgetInstanceRepositoryTest {
         assertThat(result[componentName]?.toList()).containsExactly(401)
     }
 
+    @Test
+    fun findReceiverComponentsForWidgetName_withZeroBoundWidgets_returnsMatchingComponent() {
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+
+        val components = repository.findReceiverComponentsForWidgetName("matching_widget")
+
+        val expectedComponent =
+            ComponentName(context.packageName, MatchingReceiver::class.java.name)
+        assertThat(components).containsExactly(expectedComponent)
+    }
+
+    @Test
+    fun findReceiverComponentsForWidgetName_withManifestMetaData_matchesWidgetName() {
+        registerReceiverInManifestWithMetaData(MatchingReceiver::class.java.name, "matching_widget")
+
+        val components = repository.findReceiverComponentsForWidgetName("matching_widget")
+
+        val expectedComponent =
+            ComponentName(context.packageName, MatchingReceiver::class.java.name)
+        assertThat(components).containsExactly(expectedComponent)
+    }
+
+    @Test
+    fun findReceiverComponentsForWidgetName_withUnmatchedWidgetName_returnsEmpty() {
+        registerReceiverInManifest(MatchingReceiver::class.java.name)
+
+        val components = repository.findReceiverComponentsForWidgetName("unmatched_widget")
+
+        assertThat(components).isEmpty()
+    }
+
     private fun setupBoundWidget(appWidgetId: Int, receiverName: String, widgetId: String? = null) {
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val shadowManager = shadowOf(appWidgetManager)
