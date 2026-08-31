@@ -12,17 +12,19 @@ final class androidx.appstate/StateStore { // androidx.appstate/StateStore|null[
     final val keys // androidx.appstate/StateStore.keys|{}keys[0]
         final fun <get-keys>(): kotlin.collections/Set<androidx.appstate/StateStoreKey<*>> // androidx.appstate/StateStore.keys.<get-keys>|<get-keys>(){}[0]
 
-    final fun <#A1: kotlin/Any?> getState(androidx.appstate/StateStoreKey<#A1>, #A1): androidx.compose.runtime/State<#A1> // androidx.appstate/StateStore.getState|getState(androidx.appstate.StateStoreKey<0:0>;0:0){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> getState(androidx.appstate/StateStoreKey<#A1>, #A1 = ...): androidx.compose.runtime/State<#A1> // androidx.appstate/StateStore.getState|getState(androidx.appstate.StateStoreKey<0:0>;0:0){0§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> setState(androidx.appstate/StateStoreKey<#A1>, #A1) // androidx.appstate/StateStore.setState|setState(androidx.appstate.StateStoreKey<0:0>;0:0){0§<kotlin.Any?>}[0]
-    final inline fun <#A1: kotlin/Any?> updateState(androidx.appstate/StateStoreKey<#A1>, #A1, kotlin/Function1<#A1, #A1>) // androidx.appstate/StateStore.updateState|updateState(androidx.appstate.StateStoreKey<0:0>;0:0;kotlin.Function1<0:0,0:0>){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> updateState(androidx.appstate/StateStoreKey<#A1>, #A1 = ..., kotlin/Function1<#A1, #A1>) // androidx.appstate/StateStore.updateState|updateState(androidx.appstate.StateStoreKey<0:0>;0:0;kotlin.Function1<0:0,0:0>){0§<kotlin.Any?>}[0]
 }
 
 open class <#A: kotlin/Any?> androidx.appstate/StateStoreKey { // androidx.appstate/StateStoreKey|null[0]
-    constructor <init>(androidx.appstate/StateStoreKey<#A>? = ..., kotlin/Function1<androidx.appstate/StateStore, kotlin/Boolean> = ...) // androidx.appstate/StateStoreKey.<init>|<init>(androidx.appstate.StateStoreKey<1:0>?;kotlin.Function1<androidx.appstate.StateStore,kotlin.Boolean>){}[0]
-    constructor <init>(kotlin/Int, kotlinx.serialization.internal/SerializationConstructorMarker?) // androidx.appstate/StateStoreKey.<init>|<init>(kotlin.Int;kotlinx.serialization.internal.SerializationConstructorMarker?){}[0]
+    constructor <init>(#A, androidx.appstate/StateStoreKey<#A>? = ..., kotlin/Function1<androidx.appstate/StateStore, kotlin/Boolean> = ...) // androidx.appstate/StateStoreKey.<init>|<init>(1:0;androidx.appstate.StateStoreKey<1:0>?;kotlin.Function1<androidx.appstate.StateStore,kotlin.Boolean>){}[0]
+    constructor <init>(kotlin/Int, #A?, kotlinx.serialization.internal/SerializationConstructorMarker?) // androidx.appstate/StateStoreKey.<init>|<init>(kotlin.Int;1:0?;kotlinx.serialization.internal.SerializationConstructorMarker?){}[0]
 
     final val autoClearKey // androidx.appstate/StateStoreKey.autoClearKey|{}autoClearKey[0]
         final fun <get-autoClearKey>(): androidx.appstate/StateStoreKey<#A>? // androidx.appstate/StateStoreKey.autoClearKey.<get-autoClearKey>|<get-autoClearKey>(){}[0]
+    final val defaultValue // androidx.appstate/StateStoreKey.defaultValue|{}defaultValue[0]
+        final fun <get-defaultValue>(): #A // androidx.appstate/StateStoreKey.defaultValue.<get-defaultValue>|<get-defaultValue>(){}[0]
     final val shouldClearState // androidx.appstate/StateStoreKey.shouldClearState|{}shouldClearState[0]
         final fun <get-shouldClearState>(): kotlin/Function1<androidx.appstate/StateStore, kotlin/Boolean> // androidx.appstate/StateStoreKey.shouldClearState.<get-shouldClearState>|<get-shouldClearState>(){}[0]
 
