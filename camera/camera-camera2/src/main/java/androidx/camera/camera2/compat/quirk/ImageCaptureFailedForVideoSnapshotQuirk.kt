@@ -30,17 +30,17 @@ import kotlin.text.contains
  * - Bug Id: b/344704367, b/349542870, b/359062845
  * - Description: When taking pictures with [CameraDevice.TEMPLATE_VIDEO_SNAPSHOT], there is no
  *   response from camera HAL. On itel l6006, itel w6004, moto g(20), moto e13, moto e20, rmx3231,
- *   rmx3511, sm-a032f, sm-a035m, it happens when there are only two surfaces (JPEG + ANY) are
- *   configured to camera capture session. On tecno mobile bf6, it fails when there is no
+ *   rmx3263, rmx3511, sm-a032f, sm-a035m, it happens when there are only two surfaces (JPEG + ANY)
+ *   are configured to camera capture session. On tecno mobile bf6, it fails when there is no
  *   GraphicBufferSource (ex: when OpenGL pipeline is used, the Surface is from SurfaceTexture) no
  *   matter how many surfaces are configured to camera capture session. All the above devices adopt
  *   UniSoc chipset. The workaround is to use [CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE]
  *   instead of [CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_SNAPSHOT] on UniSoc chipset devices. On
- *   the Huawei P Smart (b/349542870) and Samsung sm-f946u1 (b/359062845), taking pictures
- *   consistently fails when using CONTROL_CAPTURE_INTENT_VIDEO_SNAPSHOT, regardless of the surface
- *   combinations or capture intent specified in repeated request.
- * - Device(s): itel l6006, itel w6004, moto g(20), moto e13, moto e20, rmx3231, rmx3511, sm-a032f,
- *   sm-a035m, sm-f946u1, tecno mobile bf6, Huawei P Smart.
+ *   the Huawei P Smart (b/349542870), Samsung sm-f936u1, and Samsung sm-f946u1 (b/359062845),
+ *   taking pictures consistently fails when using CONTROL_CAPTURE_INTENT_VIDEO_SNAPSHOT, regardless
+ *   of the surface combinations or capture intent specified in repeated request.
+ * - Device(s): itel l6006, itel w6004, moto g(20), moto e13, moto e20, rmx3231, rmx3263, rmx3511,
+ *   sm-a032f, sm-a035m, sm-f936u1, sm-f946u1, tecno mobile bf6, Huawei P Smart.
  */
 @SuppressLint("CameraXQuirksClassDetector")
 public class ImageCaptureFailedForVideoSnapshotQuirk : Quirk {
@@ -58,9 +58,11 @@ public class ImageCaptureFailedForVideoSnapshotQuirk : Quirk {
                 "moto e13",
                 "moto e20",
                 "rmx3231",
+                "rmx3263",
                 "rmx3511",
                 "sm-a032f",
                 "sm-a035m",
+                "sm-f936u1",
                 "sm-f946u1",
                 "tecno mobile bf6",
             )
