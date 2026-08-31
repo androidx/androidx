@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import androidx.activity.ComponentActivity
 import androidx.kruth.assertThrows
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -33,8 +34,10 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.assertFailsWith
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -42,6 +45,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -141,6 +145,188 @@ class SessionTest {
         assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
         assertThat((result as SessionCreateSuccess).session).isNotNull()
     }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun create_onWorkerThread_returnsSuccessResultWithNonNullSession() = runTest {
+        activityController.create()
+
+        val result =
+            withContext(StandardTestDispatcher(testScheduler)) {
+                Session.create(context = activity)
+            }
+
+        val session = (result as SessionCreateSuccess).session
+
+        assertThat(session).isNotNull()
+        assertThat(session.lifecycleOwner).isEqualTo(activity)
+    }
+
+    @Test
+    fun create_whenSessionExistsWithDifferentLifecycleOwner_throwsIllegalStateException() =
+        runTest {
+            activityController.create()
+            val sessionResult = Session.create(context = activity, lifecycleOwner = activity)
+            assertThat(sessionResult).isInstanceOf(SessionCreateSuccess::class.java)
+
+            val differentOwner =
+                object : LifecycleOwner {
+                    override val lifecycle: Lifecycle = activity.lifecycle
+                }
+
+            assertThrows<IllegalStateException> {
+                Session.create(context = activity, lifecycleOwner = differentOwner)
+            }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun create_success_registersLifecycleObserver() = runTest {
+        activityController.create()
+        val lifecycleRegistry = activity.lifecycle as LifecycleRegistry
+        val initialObserverCount = lifecycleRegistry.observerCount
+
+        val result = Session.create(context = activity)
+
+        assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+        assertThat(lifecycleRegistry.observerCount).isEqualTo(initialObserverCount + 1)
+    }
+
+    /**
+     * Tests in-flight cancellation during Session creation.
+     *
+     * In-flight cancellation occurs when the calling coroutine scope is cancelled (e.g. via
+     * timeout, parent scope cancellation, or sibling failure) while Session.create is actively
+     * executing.
+     *
+     * To deterministically simulate in-flight cancellation, we intercept the Lifecycle.addObserver
+     * call to cancel the calling coroutine's Job at the exact moment the observer is attached.
+     *
+     * Because observer registration executes under `MainExecutorDispatcher.immediate +
+     * NonCancellable`, the observer is added to the LifecycleRegistry. Upon exiting the
+     * NonCancellable block, `currentCoroutineContext().ensureActive()` detects the cancellation and
+     * throws a CancellationException.
+     *
+     * This test verifies that Session.create's try-catch block intercepts the
+     * CancellationException, deterministically calls `session.destroy()` to remove the observer
+     * from the LifecycleRegistry, and re-throws the CancellationException without leaking any
+     * observers.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun create_whenCancelledDuringCreation_doesNotLeakLifecycleObserver() = runTest {
+        activityController.create()
+
+        val job = Job()
+        val customLifecycleOwner =
+            object : LifecycleOwner {
+                val registry = LifecycleRegistry(this)
+                override val lifecycle =
+                    object : Lifecycle() {
+                        override val currentState: State
+                            get() = registry.currentState
+
+                        override fun addObserver(observer: LifecycleObserver) {
+                            registry.addObserver(observer)
+                            // Simulate in-flight cancellation occurring while Session.create is
+                            // actively attaching observers.
+                            job.cancel()
+                        }
+
+                        override fun removeObserver(observer: LifecycleObserver) {
+                            registry.removeObserver(observer)
+                        }
+                    }
+            }
+        customLifecycleOwner.registry.currentState = Lifecycle.State.CREATED
+
+        assertThrows<CancellationException> {
+            withContext(job) {
+                Session.create(context = activity, lifecycleOwner = customLifecycleOwner)
+            }
+        }
+
+        // Verify that the observer attached during NonCancellable execution was cleanly removed by
+        // session.destroy().
+        assertThat(customLifecycleOwner.registry.observerCount).isEqualTo(0)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun create_withDistinctLifecycleOwner_success_registersObserversOnBoth() = runTest {
+        activityController.create()
+        val activityLifecycle = activity.lifecycle as LifecycleRegistry
+        val customLifecycleOwner =
+            object : LifecycleOwner {
+                override val lifecycle = LifecycleRegistry(this)
+            }
+        customLifecycleOwner.lifecycle.currentState = Lifecycle.State.CREATED
+
+        val initialActivityObservers = activityLifecycle.observerCount
+        val initialCustomObservers = customLifecycleOwner.lifecycle.observerCount
+
+        val result = Session.create(context = activity, lifecycleOwner = customLifecycleOwner)
+
+        assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+        assertThat(customLifecycleOwner.lifecycle.observerCount)
+            .isEqualTo(initialCustomObservers + 1)
+        assertThat(activityLifecycle.observerCount).isEqualTo(initialActivityObservers + 1)
+    }
+
+    /**
+     * Tests in-flight cancellation when Session is created with a distinct LifecycleOwner.
+     *
+     * When context is an Activity (LifecycleOwner) and a distinct LifecycleOwner is provided,
+     * Session.create registers observers on BOTH the custom LifecycleOwner and the host Activity
+     * context.
+     *
+     * This test verifies that when in-flight cancellation occurs during creation:
+     * 1. Cancellation is detected immediately after Main dispatch.
+     * 2. `session.destroy()` is executed in the catch block.
+     * 3. Observers on BOTH the custom LifecycleOwner AND the host Activity context are cleanly
+     *    detached without leakage.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun create_withDistinctLifecycleOwner_whenCancelledDuringCreation_doesNotLeakObserversOnEither() =
+        runTest {
+            activityController.create()
+            val activityLifecycle = activity.lifecycle as LifecycleRegistry
+            val initialActivityObservers = activityLifecycle.observerCount
+
+            val job = Job()
+            val customLifecycleOwner =
+                object : LifecycleOwner {
+                    val registry = LifecycleRegistry(this)
+                    override val lifecycle =
+                        object : Lifecycle() {
+                            override val currentState: State
+                                get() = registry.currentState
+
+                            override fun addObserver(observer: LifecycleObserver) {
+                                registry.addObserver(observer)
+                                // Simulate in-flight cancellation occurring while Session.create is
+                                // actively attaching observers.
+                                job.cancel()
+                            }
+
+                            override fun removeObserver(observer: LifecycleObserver) {
+                                registry.removeObserver(observer)
+                            }
+                        }
+                }
+            customLifecycleOwner.registry.currentState = Lifecycle.State.CREATED
+
+            assertThrows<CancellationException> {
+                withContext(job) {
+                    Session.create(context = activity, lifecycleOwner = customLifecycleOwner)
+                }
+            }
+
+            // Verify neither the custom LifecycleOwner nor the host Activity leaked any observers.
+            assertThat(customLifecycleOwner.registry.observerCount).isEqualTo(0)
+            assertThat(activityLifecycle.observerCount).isEqualTo(initialActivityObservers)
+        }
 
     @Test
     fun create_withActivityAndLifecycleOwner_usesProvidedLifecycleOwner() {

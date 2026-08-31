@@ -27,7 +27,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.internal.ApkCheckAvailabilityErrorException
 import androidx.xr.runtime.internal.ApkCheckAvailabilityInProgressException
 import androidx.xr.runtime.internal.ApkNotInstalledException
@@ -47,8 +46,10 @@ import kotlin.time.ComparableTimeMark
 import kotlin.time.TimeSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -56,6 +57,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 /**
  * A session is the main entrypoint to features provided by ARCore for Jetpack XR. It manages the
@@ -117,14 +119,27 @@ public constructor(
         check(!contextSessionMap.containsKey(context)) {
             "Session already exists for context: $context"
         }
-        contextSessionMap[context] = this
+        check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+            "Cannot create a new session on a destroyed lifecycleOwner."
+        }
+        if (context is LifecycleOwner && context != lifecycleOwner) {
+            check(context.lifecycle.currentState != Lifecycle.State.DESTROYED) {
+                "Cannot create a new session on a destroyed context."
+            }
+        }
 
-        for (stateExtender in stateExtenders) {
-            stateExtender.initialize(runtimes)
+        try {
+            for (stateExtender in stateExtenders) {
+                stateExtender.initialize(runtimes)
+            }
+            for (sessionConnector in sessionConnectors) {
+                sessionConnector.initialize(runtimes)
+            }
+        } catch (e: Exception) {
+            destroy()
+            throw e
         }
-        for (sessionConnector in sessionConnectors) {
-            sessionConnector.initialize(runtimes)
-        }
+        contextSessionMap[context] = this
     }
 
     public companion object {
@@ -133,7 +148,8 @@ public constructor(
         internal val DEFAULT_CONFIG = Config.Builder().build()
 
         /**
-         * Creates a new [Session].
+         * Creates a new [Session]. If a session already exists for the given [context], that
+         * existing session is returned.
          * > **Thread Safety Warning:** This method performs significant disk I/O, including loading
          * > native libraries. If StrictMode is enabled, calling this on the **Main Thread** (UI
          * > Thread) will trigger a [android.os.StrictMode] `DiskReadViolation`.
@@ -158,6 +174,8 @@ public constructor(
          *   met
          * @throws [SecurityException] if the [Session] is backed by Google Play Services for AR and
          *   [android.Manifest.permission.CAMERA] has not been granted to the calling application
+         * @throws [IllegalStateException] if a session already exists for the given [context] but
+         *   was created with a different [lifecycleOwner].
          */
         @JvmOverloads
         @JvmStatic
@@ -198,7 +216,7 @@ public constructor(
             check(lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
                 "Cannot create a new session on a destroyed lifecycleOwner."
             }
-            if (context is LifecycleOwner) {
+            if (context is LifecycleOwner && context != lifecycleOwner) {
                 check(context.lifecycle.currentState != Lifecycle.State.DESTROYED) {
                     "Cannot create a new session on a destroyed context."
                 }
@@ -221,8 +239,11 @@ public constructor(
                 return it
             }
 
-            if (contextSessionMap.containsKey(context)) {
-                return SessionCreateSuccess(contextSessionMap[context]!!)
+            contextSessionMap[context]?.let { existingSession ->
+                check(existingSession.lifecycleOwner == lifecycleOwner) {
+                    "Cannot retrieve existing session with a different lifecycleOwner."
+                }
+                return SessionCreateSuccess(existingSession)
             }
 
             val features = getDeviceContextFeatures(context)
@@ -306,28 +327,48 @@ public constructor(
                     sessionResultProvider,
                 )
 
-            lifecycleOwner.lifecycleScope.launch {
-                if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
-                    session.destroy()
-                    return@launch
-                }
-                lifecycleOwner.lifecycle.addObserver(session.lifecycleObserver)
-
-                // Also scope the session to the context if it is a distinct LifecycleOwner.
-                if (context is LifecycleOwner && lifecycleOwner != context) {
-                    if (context.lifecycle.currentState == Lifecycle.State.DESTROYED) {
-                        session.destroy()
-                        return@launch
-                    }
-                    val observer = LifecycleEventObserver { _, event ->
-                        if (event == Lifecycle.Event.ON_DESTROY) session.destroy()
-                    }
-                    session.contextLifecycleObserver = observer
-                    context.lifecycle.addObserver(observer)
-                }
-            }
+            registerLifecycleObserversWithCancellationCleanup(session, context, lifecycleOwner)
 
             return SessionCreateSuccess(session)
+        }
+
+        private suspend fun registerLifecycleObserversWithCancellationCleanup(
+            session: Session,
+            context: Context,
+            lifecycleOwner: LifecycleOwner,
+        ) {
+            try {
+                withContext(session.mainDispatcher.immediate + NonCancellable) {
+                    if (lifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                        session.destroy()
+                        throw IllegalStateException(
+                            "LifecycleOwner was destroyed before Observer could be registered."
+                        )
+                    }
+                    lifecycleOwner.lifecycle.addObserver(session.lifecycleObserver)
+
+                    // Also scope the session to the context if it is a distinct LifecycleOwner.
+                    if (context is LifecycleOwner && lifecycleOwner != context) {
+                        if (context.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                            session.destroy()
+                            throw IllegalStateException(
+                                "Context was destroyed before Observer could be registered."
+                            )
+                        }
+                        val observer = LifecycleEventObserver { _, event ->
+                            if (event == Lifecycle.Event.ON_DESTROY) session.destroy()
+                        }
+                        session.contextLifecycleObserver = observer
+                        context.lifecycle.addObserver(observer)
+                    }
+                }
+                currentCoroutineContext().ensureActive()
+            } catch (t: Throwable) {
+                withContext(session.mainDispatcher.immediate + NonCancellable) {
+                    session.destroy()
+                }
+                throw t
+            }
         }
 
         private val RUNTIME_FACTORY_PROVIDERS =
@@ -379,7 +420,7 @@ public constructor(
     private var contextLifecycleObserver: LifecycleEventObserver? = null
 
     @Volatile private var updateJob: Job? = null
-    private val mainDispatcher = ContextCompat.getMainExecutor(context).asCoroutineDispatcher()
+    private val mainDispatcher = MainExecutorDispatcher(ContextCompat.getMainExecutor(context))
 
     private val configurationMutex = Mutex()
     private val lifecycleLock = Any()
