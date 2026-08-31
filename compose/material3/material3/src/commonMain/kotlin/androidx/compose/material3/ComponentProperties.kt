@@ -19,6 +19,9 @@ package androidx.compose.material3
 internal class ComponentProperties(
     val checkboxProperties: CheckboxProperties = CheckboxProperties.Default,
     val radioButtonProperties: RadioButtonProperties = RadioButtonProperties.Default,
+    val searchBarProperties: SearchBarProperties = SearchBarProperties.Default,
+    val appBarWithSearchBarProperties: AppBarWithSearchProperties =
+        AppBarWithSearchProperties.Default,
     // TODO(b/543061101): Add properties for components.
 ) {
     companion object {
@@ -35,5 +38,19 @@ internal class CheckboxProperties(val style: CheckboxStyle = CheckboxStyle.Defau
 internal class RadioButtonProperties(val style: RadioButtonStyle = RadioButtonStyle.Default) {
     companion object {
         val Default = RadioButtonProperties()
+    }
+}
+
+internal class SearchBarProperties(val style: SearchBarStyle = SearchBarStyle.Default) {
+    companion object {
+        val Default = SearchBarProperties()
+    }
+}
+
+internal class AppBarWithSearchProperties(
+    val style: AppBarWithSearchStyle = AppBarWithSearchStyle.Default
+) {
+    companion object {
+        val Default = AppBarWithSearchProperties()
     }
 }
