@@ -126,21 +126,21 @@ class LineHeightStyleTest {
 
     @Test
     fun isTrimFirstLineTop() {
-        assertThat(Trim.FirstLineTop.isTrimFirstLineTop()).isTrue()
-        assertThat(Trim.Both.isTrimFirstLineTop()).isTrue()
-        assertThat(Trim.LastLineBottom.isTrimFirstLineTop()).isFalse()
-        assertThat(Trim.None.isTrimFirstLineTop()).isFalse()
-        assertThat(Trim(0x01 or 0x80000000.toInt()).isTrimFirstLineTop()).isTrue()
-        assertThat(Trim(0x80000000.toInt()).isTrimFirstLineTop()).isFalse()
+        assertThat(Trim.FirstLineTop.trimsFirstLineTop).isTrue()
+        assertThat(Trim.Both.trimsFirstLineTop).isTrue()
+        assertThat(Trim.LastLineBottom.trimsFirstLineTop).isFalse()
+        assertThat(Trim.None.trimsFirstLineTop).isFalse()
+        assertThat(Trim(0x01 or 0x80000000.toInt()).trimsFirstLineTop).isTrue()
+        assertThat(Trim(0x80000000.toInt()).trimsFirstLineTop).isFalse()
     }
 
     @Test
     fun isTrimLastLineBottom() {
-        assertThat(Trim.LastLineBottom.isTrimLastLineBottom()).isTrue()
-        assertThat(Trim.Both.isTrimLastLineBottom()).isTrue()
-        assertThat(Trim.FirstLineTop.isTrimLastLineBottom()).isFalse()
-        assertThat(Trim.None.isTrimLastLineBottom()).isFalse()
-        assertThat(Trim(0x10 or 0x80000000.toInt()).isTrimLastLineBottom()).isTrue()
-        assertThat(Trim(0x80000000.toInt()).isTrimLastLineBottom()).isFalse()
+        assertThat(Trim.LastLineBottom.trimsLastLineBottom).isTrue()
+        assertThat(Trim.Both.trimsLastLineBottom).isTrue()
+        assertThat(Trim.FirstLineTop.trimsLastLineBottom).isFalse()
+        assertThat(Trim.None.trimsLastLineBottom).isFalse()
+        assertThat(Trim(0x10 or 0x80000000.toInt()).trimsLastLineBottom).isTrue()
+        assertThat(Trim(0x80000000.toInt()).trimsLastLineBottom).isFalse()
     }
 }
