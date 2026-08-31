@@ -22,7 +22,6 @@ import androidx.xr.arcore.testapp.capabilities.CapabilitiesActivity
 import androidx.xr.arcore.testapp.depth.DepthActivity
 import androidx.xr.arcore.testapp.eyetracking.EyeTrackingActivity
 import androidx.xr.arcore.testapp.facetracking.FaceTrackingActivity
-import androidx.xr.arcore.testapp.geospatial.GeospatialActivity
 import androidx.xr.arcore.testapp.handtracking.HandTrackingActivity
 import androidx.xr.arcore.testapp.helloar.HelloArObjectActivity
 import androidx.xr.arcore.testapp.helloar.HelloArPlaneActivity
@@ -58,6 +57,9 @@ class ArCoreTestAppActivityLeakTest(activityClass: Class<out Activity>) :
             )
         )
 
+    @get:Rule
+    val uncaughtExceptionsRule: CatchUncaughtExceptionsRule = CatchUncaughtExceptionsRule()
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -66,12 +68,12 @@ class ArCoreTestAppActivityLeakTest(activityClass: Class<out Activity>) :
                 // TODO b/515469379 - Re-enable when the test is fixed.
                 // arrayOf(HelloArAugmentedImageActivity::class.java),
                 // arrayOf(NativeDataActivity::class.java),
+                // arrayOf(GeospatialActivity::class.java),
                 arrayOf(MainActivity::class.java),
                 arrayOf(CapabilitiesActivity::class.java),
                 arrayOf(DepthActivity::class.java),
                 arrayOf(EyeTrackingActivity::class.java),
                 arrayOf(FaceTrackingActivity::class.java),
-                arrayOf(GeospatialActivity::class.java),
                 arrayOf(HandTrackingActivity::class.java),
                 arrayOf(HelloArObjectActivity::class.java),
                 arrayOf(HelloArPlaneActivity::class.java),

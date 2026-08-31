@@ -23,13 +23,48 @@ import android.content.ComponentName
 import android.graphics.Bitmap
 import androidx.test.platform.app.InstrumentationRegistry
 import java.lang.ref.WeakReference
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.getValue
 import kotlin.test.assertNotNull
 import kotlin.test.fail
+import org.junit.rules.TestRule
+import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 abstract class TestAppTest(val activityClass: Class<out Activity>) {
+    /**
+     * Catches uncaught exceptions on any thread (main or background) during a test and rethrows
+     * them on the test thread, failing the test case cleanly instead of crashing the
+     * AndroidJUnitRunner.
+     */
+    class CatchUncaughtExceptionsRule : TestRule {
+        val caughtExceptions = ConcurrentLinkedQueue<Throwable>()
+
+        override fun apply(base: Statement, description: Description): Statement {
+            return object : Statement() {
+                override fun evaluate() {
+                    val originalHandler = Thread.getDefaultUncaughtExceptionHandler()
+                    Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
+                        caughtExceptions.add(throwable)
+                    }
+                    try {
+                        base.evaluate()
+                        if (caughtExceptions.isNotEmpty()) {
+                            throw AssertionError(
+                                "Background thread threw uncaught exception during test",
+                                caughtExceptions.first(),
+                            )
+                        }
+                    } finally {
+                        Thread.setDefaultUncaughtExceptionHandler(originalHandler)
+                    }
+                }
+            }
+        }
+    }
+
     protected val instrumentation: Instrumentation by lazy {
         InstrumentationRegistry.getInstrumentation()
     }
