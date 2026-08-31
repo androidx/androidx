@@ -60,6 +60,7 @@ import androidx.xr.compose.testing.session
 import androidx.xr.compose.unit.DpVolumeOffset
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.runtime.PanelEntity as RtPanelEntity
+import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.scene
 import com.google.common.truth.Truth.assertThat
@@ -359,7 +360,9 @@ class OrbiterTest {
 
     @Test
     fun orbiter_inMainPanel_usesMainPanelSize() {
-        val testMainPanelEntity = mock<RtPanelEntity>()
+        // Initial 2D window size.
+        val testMainPanelEntity =
+            mock<RtPanelEntity> { on { sizeInPixels }.thenReturn(PixelDimensions(1080, 2400)) }
 
         composeTestRule.configureFakeSession(
             sceneRuntime = { runtime ->
@@ -384,8 +387,6 @@ class OrbiterTest {
             .onNodeWithTag("orbiterContentBox")
             .assertWidthIsEqualTo(200.dp)
             .assertHeightIsEqualTo(200.dp)
-        // Check `getMainWindowSize` is never called.
-        verify(testMainPanelEntity, never()).sizeInPixels
     }
 
     @Test

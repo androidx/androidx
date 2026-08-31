@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -54,6 +55,8 @@ import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.arcore.testing.FakePerceptionRuntime
 import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.arcore.testing.TestPlane
+import androidx.xr.compose.ExperimentalSpatialComposeApi
+import androidx.xr.compose.SpatialComposeFlags
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.SceneManager
 import androidx.xr.compose.subspace.AnchorTarget
@@ -61,6 +64,7 @@ import androidx.xr.compose.subspace.ArDeviceTarget
 import androidx.xr.compose.subspace.FollowBehavior
 import androidx.xr.compose.subspace.FollowTarget
 import androidx.xr.compose.subspace.SpatialBox
+import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.TrackedDimensions
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -75,6 +79,8 @@ import androidx.xr.compose.subspace.layout.requiredSizeIn
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.subspace.semantics.contentDescription
+import androidx.xr.compose.subspace.semantics.semantics
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceSemanticsNodeInteraction
 import androidx.xr.compose.testing.SubspaceTestingActivity
@@ -815,6 +821,207 @@ class SubspaceTest {
         composeTestRule.waitForIdle()
 
         assertThat(mainPanelEntity.isEnabled()).isTrue()
+    }
+
+    @Test
+    fun subspace_whenSubspaceWithSpatialMainPanelLeavesComposition_restoresMainPanelProperties() {
+        var showSubspace by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Box(Modifier.fillMaxSize())
+            if (showSubspace) {
+                Subspace {
+                    SpatialMainPanel(
+                        SubspaceModifier.size(500.dp)
+                            .offset(100.dp, 100.dp, 100.dp)
+                            .semantics { contentDescription = "Spatial Main Panel" }
+                            .testTag("mainPanel")
+                    )
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        showSubspace = true
+        composeTestRule.waitForIdle()
+
+        val session = assertNotNull(composeTestRule.session)
+        val mainPanelEntity = session.scene.mainPanelEntity
+        val subspaceSize = mainPanelEntity.sizeInPixels
+
+        assertThat(mainPanelEntity.isEnabled()).isTrue()
+        assertThat(mainPanelEntity.contentDescription).isEqualTo("Spatial Main Panel")
+        assertThat(mainPanelEntity.getPose()).isNotEqualTo(Pose.Identity)
+
+        showSubspace = false
+        composeTestRule.waitForIdle()
+
+        assertThat(mainPanelEntity.isEnabled()).isTrue()
+        assertThat(mainPanelEntity.getPose()).isEqualTo(Pose.Identity)
+        assertThat(mainPanelEntity.getScale()).isEqualTo(1.0f)
+        assertThat(mainPanelEntity.contentDescription).isEqualTo("")
+        assertThat(mainPanelEntity.sizeInPixels).isNotEqualTo(subspaceSize)
+    }
+
+    @Test
+    @OptIn(ExperimentalSpatialComposeApi::class)
+    fun subspace_whenMainPanelResetOnSubspaceDisposeDisabled_reEnablesMainPanelEntityWithoutReset() {
+        val originalFlag = SpatialComposeFlags.isMainPanelResetOnSubspaceDisposeEnabled
+        SpatialComposeFlags.isMainPanelResetOnSubspaceDisposeEnabled = false
+        try {
+            var showSubspace by mutableStateOf(false)
+
+            composeTestRule.setContent {
+                Box(Modifier.fillMaxSize())
+                if (showSubspace) {
+                    Subspace {
+                        SpatialMainPanel(
+                            SubspaceModifier.size(500.dp)
+                                .offset(10.dp, 20.dp, 30.dp)
+                                .testTag("mainPanel")
+                                .semantics { contentDescription = "Spatial Main Panel" }
+                        )
+                    }
+                }
+            }
+            composeTestRule.waitForIdle()
+
+            showSubspace = true
+            composeTestRule.waitForIdle()
+
+            val session = assertNotNull(composeTestRule.session)
+            val mainPanelEntity = session.scene.mainPanelEntity
+            val subspaceSize = mainPanelEntity.sizeInPixels
+
+            assertThat(mainPanelEntity.isEnabled()).isTrue()
+            assertThat(mainPanelEntity.contentDescription).isEqualTo("Spatial Main Panel")
+            assertThat(mainPanelEntity.getPose()).isNotEqualTo(Pose.Identity)
+
+            showSubspace = false
+            composeTestRule.waitForIdle()
+
+            // With flag disabled, mainPanel is re-enabled but pose/size are not reset
+            assertThat(mainPanelEntity.isEnabled()).isTrue()
+            assertThat(mainPanelEntity.getPose()).isNotEqualTo(Pose.Identity)
+            assertThat(mainPanelEntity.sizeInPixels).isEqualTo(subspaceSize)
+        } finally {
+            SpatialComposeFlags.isMainPanelResetOnSubspaceDisposeEnabled = originalFlag
+        }
+    }
+
+    @Test
+    fun subspace_whenReEnteringSubspaceWithSpatialMainPanel_updatesMainPanelSize() {
+        var showSubspace by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Box(Modifier.fillMaxSize())
+            if (showSubspace) {
+                Subspace { SpatialMainPanel(SubspaceModifier.size(500.dp).testTag("mainPanel")) }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        showSubspace = true
+        composeTestRule.waitForIdle()
+
+        val session = assertNotNull(composeTestRule.session)
+        val mainPanelEntity = session.scene.mainPanelEntity
+        val subspaceSize = mainPanelEntity.sizeInPixels
+
+        // Exit Subspace (returning to 2D)
+        showSubspace = false
+        composeTestRule.waitForIdle()
+
+        val restored2DSize = mainPanelEntity.sizeInPixels
+        assertThat(restored2DSize).isNotEqualTo(subspaceSize)
+
+        // Re-enter Subspace with the same 3D size
+        showSubspace = true
+        composeTestRule.waitForIdle()
+
+        // Verify the main panel size correctly updates back to the 3D size
+        assertThat(mainPanelEntity.sizeInPixels).isEqualTo(subspaceSize)
+    }
+
+    @Test
+    fun subspace_whenSubspaceWithoutSpatialMainPanelLeavesComposition_reEnablesMainPanelEntity() {
+        var showSubspace by mutableStateOf(true)
+
+        composeTestRule.setContent {
+            if (showSubspace) {
+                Subspace { SpatialPanel(SubspaceModifier.size(300.dp)) { Text("3D Panel Only") } }
+            }
+        }
+
+        val session = assertNotNull(composeTestRule.session)
+        val mainPanelEntity = session.scene.mainPanelEntity
+        val initialSize = mainPanelEntity.sizeInPixels
+
+        // When in 3D Subspace without SpatialMainPanel, mainPanelEntity is disabled
+        assertThat(mainPanelEntity.isEnabled()).isFalse()
+
+        showSubspace = false
+        composeTestRule.waitForIdle()
+
+        // When leaving Subspace, mainPanelEntity is re-enabled and its size was never modified
+        assertThat(mainPanelEntity.isEnabled()).isTrue()
+        assertThat(mainPanelEntity.sizeInPixels).isEqualTo(initialSize)
+    }
+
+    @Test
+    fun subspace_whenMultipleSubspacesWithSpatialMainPanelLeaveComposition_restoresPropertiesOnLastDisposal() {
+        var showFirstSubspace by mutableStateOf(false)
+        var showSecondSubspace by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Box(Modifier.fillMaxSize())
+            if (showFirstSubspace) {
+                Subspace {
+                    SpatialMainPanel(
+                        SubspaceModifier.size(500.dp).semantics {
+                            contentDescription = "First Subspace"
+                        }
+                    )
+                }
+            }
+
+            if (showSecondSubspace) {
+                Subspace {
+                    SpatialMainPanel(
+                        SubspaceModifier.size(800.dp).semantics {
+                            contentDescription = "Second Subspace"
+                        }
+                    )
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        showFirstSubspace = true
+        composeTestRule.waitForIdle()
+
+        val session = assertNotNull(composeTestRule.session)
+        val mainPanelEntity = session.scene.mainPanelEntity
+
+        assertThat(mainPanelEntity.isEnabled()).isTrue()
+
+        showSecondSubspace = true
+        composeTestRule.waitForIdle()
+
+        showFirstSubspace = false
+        composeTestRule.waitForIdle()
+
+        // Still in second Subspace
+        assertThat(mainPanelEntity.isEnabled()).isTrue()
+
+        showSecondSubspace = false
+        composeTestRule.waitForIdle()
+
+        // All subspaces disposed -> returns to 2D
+        assertThat(mainPanelEntity.isEnabled()).isTrue()
+        assertThat(mainPanelEntity.getPose()).isEqualTo(Pose.Identity)
+        assertThat(mainPanelEntity.getScale()).isEqualTo(1.0f)
+        assertThat(mainPanelEntity.contentDescription).isEqualTo("")
     }
 
     @Test

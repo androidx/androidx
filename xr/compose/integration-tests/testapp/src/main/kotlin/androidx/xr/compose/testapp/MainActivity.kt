@@ -90,6 +90,7 @@ import androidx.xr.compose.testapp.lifecycle.RuntimeSessionActivity
 import androidx.xr.compose.testapp.modechange.ModeChange
 import androidx.xr.compose.testapp.movable.MovableActivity
 import androidx.xr.compose.testapp.movablescalable.MovableScalable
+import androidx.xr.compose.testapp.navigation.SpatialNavigationActivity
 import androidx.xr.compose.testapp.panelembeddedsubspace.PanelEmbeddedSubspace
 import androidx.xr.compose.testapp.panelvolume.PanelVolume
 import androidx.xr.compose.testapp.performance.LayoutPerformance
@@ -341,6 +342,9 @@ class MainActivity : ComponentActivity() {
                             TestCase(getString(R.string.pose_test)) { startTest<Pose>() },
                             TestCase(getString(R.string.gravity_aligned_test_case)) {
                                 startTest<GravityAlignedActivity>()
+                            },
+                            TestCase(getString(R.string.spatial_navigation_test)) {
+                                startTest<SpatialNavigationActivity>()
                             },
                         ),
                     "Interaction" to
