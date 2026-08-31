@@ -154,6 +154,14 @@ When directed to an index page, directory list, or guide linking to sub-guides
 
 ## Development Workflow & Refactoring:
 
+- **AOSP Feature Branch Creation (`repo start` vs. `git branch`)**:
+  - Prefer using `repo start <branch_name> .` when creating a new feature branch in
+    the AOSP repository. `repo start` automatically establishes upstream tracking
+    against the manifest remote (`aosp/androidx-main`), ensuring seamless integration
+    with `repo upload`.
+  - If creating a branch via `git checkout -b <branch_name>`, always explicitly
+    configure upstream tracking immediately:
+    `git branch --set-upstream-to=aosp/androidx-main <branch_name>`.
 - **Mandatory Pre-Coding Guideline Reading & Recursive Traversal**: Before
   modifying or creating code, agents MUST use `view_file` to read the relevant
   local guideline files into active context. When encountering index pages,
@@ -503,6 +511,38 @@ long-term decision rubric:
      resolves the root problem.
    - **Action**: Create a dedicated cleanup CL removing the obsolete
      assumptions to re-enable continuous regression testing on physical devices.
+4. **Internal Implementation Correctness vs. Device Quirks (Investigation-First Rule)**:
+   - **Principle**: Always investigate whether CameraX's own implementation,
+     parameter configuration, or capability registry is the root cause before
+     concluding an issue is an OEM device hardware or HAL defect. **Never jump
+     directly to writing a `DeviceQuirk` without first auditing CameraX's own logic.**
+   - **When to Apply**: When a test failure, crash, timeout, or unexpected behavior
+     occurs across multiple device models, an entire OEM fleet, a specific Android
+     OS level, or on a newly introduced format/feature (e.g., video codecs, HDR
+     dynamic ranges, high-speed sessions, or stream sharing).
+   - **Investigation Checklist Before Considering a Quirk**:
+     a. **Capability & Registry Correctness**: Are CameraX's capability registries,
+        lookup tables, or default resolvers (e.g. `DynamicRangeFormatComboRegistry`,
+        `DynamicRangeUtil`, `EncoderProfilesResolver`) advertising invalid combinations
+        or omitting required profile/dataspace parameters?
+     b. **Specification Compliance**: Does the configuration adhere strictly to the
+        underlying Android platform and industry standards (e.g., Android `MediaCodec`
+        profiles, Camera2 stream constraints, ISO/IEC specifications)?
+        *(Case Study: APV codec `video/apv` is an intra-frame 10/12-bit format.
+        Erroneously registering it under `buildSdrRegistry()` caused 8-bit SDR surfaces
+        to feed a 10-bit encoder without profile keys, producing timeouts. The fix was
+        correcting the capability registry, not a quirk).*
+     c. **Pipeline & Surface Configuration**: Is CameraX creating the appropriate
+        surface format, color space, buffer queue depth, or repeating request parameters?
+     d. **State Machine & Lifecycle**: Are buffers, surfaces, or encoders being
+        prematurely closed, stalled, or failing to receive required warmup frames?
+   - **Decision Rubric**:
+     - If CameraX can fix the behavior by correctly configuring parameters,
+       aligning with standards, or avoiding invalid combinations, **fix the core
+       implementation**.
+     - Only implement a `DeviceQuirk` when CameraX's configuration is 100% compliant
+       with Android platform specifications, and the device failure is conclusively
+       proven to be an unrecoverable vendor driver/HAL defect.
 
 #### 7. Safety & Code Path Auditing Protocol
 Before finalizing changes to shared infrastructure (e.g. `UseCase`,
