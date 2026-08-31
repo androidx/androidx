@@ -297,6 +297,7 @@ private fun rememberLazyGridMeasurePolicy(
             val resolvedSlots = slots.invoke(density = this, constraints = contentConstraints)
             val slotsPerLine = resolvedSlots.sizes.size
             spanLayoutProvider.slotsPerLine = slotsPerLine
+            itemProvider.itemScope.crossAxisCellCount = slotsPerLine
 
             val spaceBetweenLinesDp =
                 if (isVertical) {

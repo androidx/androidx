@@ -599,6 +599,9 @@ sealed interface androidx.compose.foundation.lazy.grid/LazyGridItemInfo { // and
 }
 
 sealed interface androidx.compose.foundation.lazy.grid/LazyGridItemScope { // androidx.compose.foundation.lazy.grid/LazyGridItemScope|null[0]
+    abstract val crossAxisCellCount // androidx.compose.foundation.lazy.grid/LazyGridItemScope.crossAxisCellCount|{}crossAxisCellCount[0]
+        abstract fun <get-crossAxisCellCount>(): kotlin/Int // androidx.compose.foundation.lazy.grid/LazyGridItemScope.crossAxisCellCount.<get-crossAxisCellCount>|<get-crossAxisCellCount>(){}[0]
+
     abstract fun (androidx.compose.ui/Modifier).animateItem(androidx.compose.animation.core/FiniteAnimationSpec<kotlin/Float>? = ..., androidx.compose.animation.core/FiniteAnimationSpec<androidx.compose.ui.unit/IntOffset>? = ..., androidx.compose.animation.core/FiniteAnimationSpec<kotlin/Float>? = ...): androidx.compose.ui/Modifier // androidx.compose.foundation.lazy.grid/LazyGridItemScope.animateItem|animateItem@androidx.compose.ui.Modifier(androidx.compose.animation.core.FiniteAnimationSpec<kotlin.Float>?;androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>?;androidx.compose.animation.core.FiniteAnimationSpec<kotlin.Float>?){}[0]
 }
 
