@@ -143,7 +143,6 @@ androidXMultiplatform {
                 implementation(libs.protobufLite)
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
-                implementation(libs.robolectric)
                 implementation(libs.testExtJunit)
             }
         }
@@ -179,4 +178,5 @@ androidx {
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true
     kotlinTarget = KotlinTarget.KOTLIN_2_2
+    enableRobolectric()
 }

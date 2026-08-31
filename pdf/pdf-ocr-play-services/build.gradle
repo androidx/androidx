@@ -29,7 +29,6 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.testCore)
@@ -50,4 +49,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2026"
     description = "ML Kit implementation of OCR for PDF viewer."
+    enableRobolectric()
 }

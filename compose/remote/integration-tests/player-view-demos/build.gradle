@@ -31,6 +31,7 @@ androidx {
     name = "Remote Compose experiments"
     inceptionYear = "2025"
     description = "Demo app for the Remote Compose players and Frontend APIs."
+    enableRobolectric()
 }
 
 dependencies {
@@ -59,7 +60,6 @@ dependencies {
 
     testImplementation("org.json:json:20231013")
     testImplementation(libs.mockitoCore)
-    testImplementation(libs.robolectric)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)

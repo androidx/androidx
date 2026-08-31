@@ -50,7 +50,6 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-common"))
 
-    testImplementation(libs.robolectric)
     testImplementation(libs.junit)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testCore)
@@ -69,4 +68,5 @@ androidx {
     mavenVersion = LibraryVersions.LEANBACK_GRID
     inceptionYear = "2021"
     description = "This library adds grid view components to be used in TV"
+    enableRobolectric()
 }
