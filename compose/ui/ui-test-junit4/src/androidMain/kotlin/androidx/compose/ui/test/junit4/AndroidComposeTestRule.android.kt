@@ -428,20 +428,22 @@ private constructor(
                     try {
                         // Run the test
                         base.evaluate()
+                        // Surface any coroutine / recomposer errors before ActivityScenario closes
+                        environment.checkPendingExceptions()
                     } catch (t: Throwable) {
                         blockException = t
-                    } finally {
-                        try {
-                            // Allow the message queue to finish processing so any coroutines that
-                            // are currently waiting can be run before the test ends.
-                            InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-                        } catch (_: Throwable) {
-                            // We don't care about errors while waiting for idle.
-                        }
                     }
 
-                    // Throw the aggregate exception. May be from the test body or from the cleanup.
-                    blockException?.let { throw it }
+                    // Handle failure before closing Activity, skipping idle sync to avoid hangs
+                    blockException?.let { environment.handleTestFailureAndRethrow(it) }
+
+                    try {
+                        // Allow the message queue to finish processing so any coroutines that
+                        // are currently waiting can be run before the test ends.
+                        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+                    } catch (_: Throwable) {
+                        // We don't care about errors while waiting for idle.
+                    }
                 }
             }
 

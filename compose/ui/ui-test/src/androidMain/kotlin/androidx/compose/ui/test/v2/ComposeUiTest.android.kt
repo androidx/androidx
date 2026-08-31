@@ -466,12 +466,14 @@ private fun <A : ComponentActivity> runAndroidComposeUiTest(
             try {
                 // Run the test
                 block()
+                // Surface any coroutine / recomposer errors before ActivityScenario closes
+                environment.checkPendingExceptions()
             } catch (t: Throwable) {
                 blockException = t
             }
 
-            // Throw the aggregate exception. May be from the test body or from the cleanup.
-            blockException?.let { throw it }
+            // Handle test failure before ActivityScenario closes
+            blockException?.let { environment.handleTestFailureAndRethrow(it) }
         }
     } finally {
         // Close the scenario outside runTest to avoid getting stuck.
