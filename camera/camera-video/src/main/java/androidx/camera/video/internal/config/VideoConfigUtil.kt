@@ -15,6 +15,9 @@
  */
 package androidx.camera.video.internal.config
 
+import android.media.MediaCodecInfo.CodecProfileLevel.APVProfile422_10
+import android.media.MediaCodecInfo.CodecProfileLevel.APVProfile422_10HDR10
+import android.media.MediaCodecInfo.CodecProfileLevel.APVProfile422_10HDR10Plus
 import android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10
 import android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10
 import android.media.MediaCodecInfo.CodecProfileLevel.AV1ProfileMain10HDR10Plus
@@ -107,6 +110,12 @@ public object VideoConfigUtil {
                 // For Dolby Vision profile 9, we only support 9.2 (8-bit AVC SDR BT.709)
                 DolbyVisionProfileDvavSe to ENCODER_DATA_SPACE_BT709,
             )
+        val profApvMap =
+            mapOf<Int, VideoEncoderDataSpace>(
+                APVProfile422_10 to ENCODER_DATA_SPACE_BT2020_HLG,
+                APVProfile422_10HDR10 to ENCODER_DATA_SPACE_BT2020_PQ,
+                APVProfile422_10HDR10Plus to ENCODER_DATA_SPACE_BT2020_PQ,
+            )
         // Combine all mime type maps
         MIME_TO_DATA_SPACE_MAP =
             mutableMapOf(
@@ -114,6 +123,7 @@ public object VideoConfigUtil {
                 MediaFormat.MIMETYPE_VIDEO_AV1 to profAv1Map,
                 MediaFormat.MIMETYPE_VIDEO_VP9 to profVp9Map,
                 MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION to profDvMap,
+                MediaFormat.MIMETYPE_VIDEO_APV to profApvMap,
             )
         // --------------------------------------------------------------------------------------//
     }
