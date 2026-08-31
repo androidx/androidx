@@ -16,24 +16,21 @@
 
 package androidx.compose.foundation.style
 
-import androidx.collection.ScatterMap
-import androidx.collection.ScatterSet
+import androidx.collection.IntObjectMap
+import androidx.collection.MutableIntObjectMap
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.platform.SynchronizedObject
 import androidx.compose.foundation.platform.makeSynchronizedObject
 import androidx.compose.foundation.platform.synchronized
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-internal val DefaultSpringSpec = spring<Float>()
-
 /**
  * This is a class that is specifically made to handle animated transitions between [Style]
- * properties on a [StyleResolver] which are using the StyleScope::animate API.
+ * properties on a [StyleOuterNode] which are using the StyleScope::animate API.
  *
  * These animations are declarative in the sense that the developer is just specifying the styles
  * they want in specific states.The Style system is figuring out how to animate it from the current
@@ -52,7 +49,7 @@ internal class StyleAnimations {
         Removing,
     }
 
-    internal inner class Entry(var spec: AnimationSpec<Float>, var start: Any?, var end: Any?) {
+    private inner class Entry(var spec: AnimationSpec<Float>) {
         var animation = Animatable(0f)
         var state = EntryState.Inserted
         var job: Job? = null
@@ -84,25 +81,49 @@ internal class StyleAnimations {
         }
     }
 
-    internal var entries = SnapshotStateMap<StyleProperty<*>, Entry>()
+    private var entries: MutableIntObjectMap<Entry> = mutableIntObjectMapOf()
+
+    fun phaseFlags(): Int {
+        var primitivesSet = 0L
+        var objectsSet = 0
+        entries.forEach { it, _ ->
+            if (it < PrimitivePropertyCount) primitivesSet = primitivesSet.withId(it.toByte())
+            else objectsSet = objectsSet.withId(it)
+        }
+        return objectPhaseFlagsOf(objectsSet) or primitivePhaseFlagsOf(primitivesSet)
+    }
 
     fun isEmpty() = synchronized(lock) { entries.isEmpty() }
 
-    fun isNotEmpty() = synchronized(lock) { entries.isNotEmpty() }
+    @Suppress("NOTHING_TO_INLINE") inline fun timeOf(propertyId: Byte) = timeOf(propertyId.toInt())
 
-    inline fun <T> animatedValueOrElse(property: StyleProperty<T>, defaultValue: () -> T): T =
+    fun timeOf(propertyId: Int): Float =
         synchronized(lock) {
-            val entry = this.entries[property] ?: return defaultValue()
-            val t = if (entry.state == EntryState.Interrupted) 0f else entry.animation.value
-            @Suppress("UNCHECKED_CAST") property.lerp(entry.start as T, entry.end as T, t)
+            val entry = this.entries[propertyId] ?: return 0f
+            if (entry.state == EntryState.Interrupted) 0f else entry.animation.value
         }
 
-    fun animating(property: StyleProperty<*>) = property in entries
+    fun inFlight(): Long =
+        synchronized(lock) {
+            var inFlight = 0L
+
+            entries.forEach { id, entry ->
+                if (
+                    entry.state == EntryState.Interrupted ||
+                        entry.state == EntryState.Inserted ||
+                        entry.animation.isRunning
+                ) {
+                    inFlight = inFlight or (1L shl id)
+                }
+            }
+
+            inFlight
+        }
 
     /**
      * Record all animations.
      *
-     * @param animating the properties that have were defined to have an animation.
+     * @param animating the properties that have been were defined to have an animation.
      * @param changes the set of properties that have changed
      * @param toSpecs the map of properties to the to animation specs. If a property is in
      *   [animating] and not in this map then the spec is assumed to be [DefaultSpringSpec].
@@ -113,61 +134,52 @@ internal class StyleAnimations {
      */
     @Suppress("UNCHECKED_CAST")
     fun recordAnimations(
-        animating: ScatterSet<StyleProperty<*>>,
-        changes: ScatterSet<StyleProperty<*>>,
-        toSpecs: ScatterMap<StyleProperty<*>, AnimationSpec<Float>>?,
-        fromSpecs: ScatterMap<StyleProperty<*>, AnimationSpec<Float>>?,
-        previousFromSpecs: ScatterMap<StyleProperty<*>, AnimationSpec<Float>>?,
-        startValues: StyleProperties,
-        endValues: StyleProperties,
-        node: StyleResolverNode,
-    ) {
+        animating: Long,
+        changes: Long,
+        toSpecs: IntObjectMap<AnimationSpec<Float>>?,
+        fromSpecs: IntObjectMap<AnimationSpec<Float>>?,
+        previousFromSpecs: IntObjectMap<AnimationSpec<Float>>?,
+        node: StyleOuterNode,
+    ): Long {
+        var started = 0L
         synchronized(lock) {
             preRecordLocked()
-            if (animating.isNotEmpty()) {
+            if (animating != 0L) {
                 // For all the target properties, record an animation
-                animating.forEach { property ->
+                forEachBitOf(animating) { id ->
                     val spec =
-                        toSpecs?.get(property)
-                            ?: previousFromSpecs?.get(property)
-                            ?: fromSpecs?.get(property)
+                        toSpecs?.get(id)
+                            ?: previousFromSpecs?.get(id)
+                            ?: fromSpecs?.get(id)
                             ?: DefaultSpringSpec
-                    recordLocked(property, property in changes, spec, startValues, endValues)
+                    val changed = changes.hasAnimationId(id)
+                    if (recordLocked(id, changed, spec)) started = started.withId(id)
                 }
             }
             postRecordLocked(node)
         }
+        return started
     }
 
-    private fun recordLocked(
-        property: StyleProperty<*>,
-        changed: Boolean,
-        spec: AnimationSpec<Float>,
-        startValues: StyleProperties,
-        endValues: StyleProperties,
-    ): Boolean {
-        val entry = entries[property]
+    private fun recordLocked(id: Int, changed: Boolean, spec: AnimationSpec<Float>): Boolean {
+        val entry = entries[id]
         return if (entry != null) {
             if (changed || entry.spec != spec) {
                 entry.spec = spec
                 entry.state = EntryState.Changed
-                @Suppress("UNCHECKED_CAST")
-                entry.start =
-                    animatedValueOrElse(property as StyleProperty<Any?>) { startValues[property] }
-                entry.end = endValues[property]
                 true
             } else {
                 entry.state = EntryState.Unchanged
                 false
             }
         } else {
-            if (changed) entries[property] = Entry(spec, startValues[property], endValues[property])
+            if (changed) entries[id] = Entry(spec)
             true
         }
     }
 
     fun preRecordLocked() =
-        entries.values.forEach { entry ->
+        entries.forEach { _, entry ->
             when (entry.state) {
                 EntryState.Inserted,
                 EntryState.Unchanged,
@@ -176,8 +188,8 @@ internal class StyleAnimations {
             }
         }
 
-    fun postRecordLocked(node: StyleResolverNode) =
-        entries.values.forEach { entry ->
+    fun postRecordLocked(node: StyleOuterNode) =
+        entries.forEach { _, entry ->
             when (entry.state) {
                 EntryState.Inserted -> {
                     entry.animate(node.animationScope)
@@ -195,7 +207,7 @@ internal class StyleAnimations {
 
     fun close() {
         synchronized(lock) {
-            entries.values.forEach { entry -> entry.close() }
+            entries.forEach { _, entry -> entry.close() }
             entries.clear()
         }
     }
@@ -206,8 +218,35 @@ internal class StyleAnimations {
      */
     private fun cleanupAnimations() =
         synchronized(lock) {
-            entries.entries.removeAll { (_, entry) ->
+            entries.removeIf { _, entry ->
                 entry.state != EntryState.Interrupted && !entry.animation.isRunning
             }
         }
 }
+
+@ExperimentalFoundationStyleApi
+internal fun StyleAnimations?.isNullOrEmpty() = this == null || this.isEmpty()
+
+private inline fun forEachBitOf(flags: Long, block: (value: Int) -> Unit) {
+    var current = flags
+    while (current != 0L) {
+        val index = current.countTrailingZeroBits()
+        block(index)
+        current = current xor (1L shl index)
+    }
+}
+
+@Suppress("NOTHING_TO_INLINE")
+private inline fun Long.hasAnimationId(id: Int) = this and (1L shl id) != 0L
+
+@Suppress("NOTHING_TO_INLINE") private inline fun Long.withId(id: Int) = this or (1L shl id)
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun Long.toPrimitivesSet() = this and ((1L shl PrimitivePropertyCount + 1) - 1L)
+
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun Long.toObjectsSet() = (this shr PrimitivePropertyCount).toInt()
+
+@Suppress("NOTHING_TO_INLINE")
+internal fun propertySetsToAnimationSet(primitivesSet: Long, objectsSet: Int) =
+    primitivesSet or (objectsSet.toLong() shl FirstObjectProperty)
