@@ -45,9 +45,23 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
+
+/**
+ * An interface that is the base interface for all styles scopes.
+ *
+ * [CustomStyleScope] is a constraint on the [CustomStyle]'s `ScopeT` parameter which is the
+ * receiver scope of the style. At minimum all style scopes used as `ScopeT` must implement
+ * [CustomStyleScope] typically by delegation to a [StyleScope] received in a [Style] lambda.
+ *
+ * @sample androidx.compose.foundation.samples.StyleStateKeySample
+ * @see StyleScope
+ */
+@ExperimentalFoundationStyleApi
+public interface CustomStyleScope : Density, CompositionLocalAccessorScope
 
 /**
  * An interface that introduces the [state] property to a [Style] receiver scope.
@@ -2004,8 +2018,6 @@ public interface StyleScope :
  * @param style the style to apply.
  */
 @ExperimentalFoundationStyleApi
-public inline fun <ScopeT : CustomStyleScope, StyleT : CustomStyle<ScopeT>> ScopeT.apply(
-    style: StyleT
-) {
+public fun <ScopeT : CustomStyleScope, StyleT : CustomStyle<ScopeT>> ScopeT.apply(style: StyleT) {
     with(style) { this@apply.applyStyle() }
 }
