@@ -336,6 +336,11 @@ public abstract class Tracer {
             }
         // Not using .use here to avoid a layer of indirection in the implementation of
         // AutoCloseable.use on Android.
+
+        // We need to explicitly hold on to the actual AutoCloseable, given one can still
+        // interleave trace calls on the same thread. This is what we do for `trace(...).`
+        // Additional context in: b/555280389
+        val closeable: AutoCloseable = result.closeable
         try {
             // If the propagationToken needs to be installed then install it
             // before dispatching the call to block(). This does bloat the amount of code
@@ -357,7 +362,7 @@ public abstract class Tracer {
         } finally {
             // Only have the tokenContextElement be relevant for the execution of the suspending
             // `block` and not in this finally block.
-            result.closeable.close()
+            closeable.close()
         }
     }
 
