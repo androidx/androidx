@@ -89,7 +89,7 @@ internal class OpenXrSceneRuntime
  */
 @VisibleForTesting
 internal constructor(
-    private val activity: Activity,
+    private var activity: Activity?,
     private val unscaledGravityAlignedActivitySpace: Boolean = true,
     internal val nativeWrapper: SceneCoreOpenXrNative = SceneCoreOpenXrNative(),
     internal val sceneNodeRegistry: OpenXrSceneNodeRegistry = OpenXrSceneNodeRegistry(),
@@ -126,7 +126,7 @@ internal constructor(
         check(!isDestroyed) { "Cannot initialize OpenXrSceneRuntime after it has been destroyed." }
         if (isInitialized) return
         isInitialized = true
-        val nativeData = XrDevice.getCurrentDevice(activity).getNativeInstanceData(activity)
+        val nativeData = XrDevice.getCurrentDevice(activity!!).getNativeInstanceData(activity!!)
         if (nativeData.instancePointer != INVALID_HANDLE && nativeData.instancePointer != 0L) {
             if (
                 !nativeWrapper.init(
@@ -149,6 +149,7 @@ internal constructor(
 
     override fun destroy() {
         if (isDestroyed) return
+        activity = null
         isDestroyed = true
         (activitySpace as? OpenXrEntity)?.dispose()
         sceneNodeRegistry.getAllEntities().forEach(Entity::dispose)
