@@ -36,4 +36,12 @@ public interface GlanceAdaptiveWidgetDelegate {
         currentData: AdaptiveGlanceTemplate,
         widgetIds: Set<String>? = null,
     )
+
+    /**
+     * Sets or updates dynamic preview data rendered in host widget pickers for [widgetName].
+     *
+     * @param widgetName The developer-defined identifier of the widget definition.
+     * @param previewData The declarative template data payload to render as a preview.
+     */
+    public suspend fun setPreview(widgetName: String, previewData: AdaptiveGlanceTemplate)
 }

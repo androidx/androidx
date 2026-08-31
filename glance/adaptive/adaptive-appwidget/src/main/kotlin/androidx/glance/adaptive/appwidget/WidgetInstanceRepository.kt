@@ -36,6 +36,30 @@ internal class WidgetInstanceRepository(
     private val appWidgetManager: AppWidgetManager = AppWidgetManager.getInstance(context),
 ) {
     /**
+     * Finds all receiver [ComponentName]s matching [widgetName] declared in the current package.
+     */
+    fun findReceiverComponentsForWidgetName(widgetName: String): Set<ComponentName> {
+        val result = mutableSetOf<ComponentName>()
+        val packageManager = context.packageManager
+        val updateIntent =
+            Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
+                setPackage(context.packageName)
+            }
+        val widgetReceivers =
+            packageManager.queryBroadcastReceivers(updateIntent, PackageManager.GET_META_DATA)
+
+        for (idx in widgetReceivers.indices) {
+            val resolveInfo = widgetReceivers[idx]
+            val receiverInfo = resolveInfo.activityInfo ?: continue
+            val componentName = ComponentName(receiverInfo.packageName, receiverInfo.name)
+            if (isReceiverForWidgetName(receiverInfo, widgetName)) {
+                result.add(componentName)
+            }
+        }
+        return result
+    }
+
+    /**
      * Queries package broadcast receivers matching [AppWidgetManager.ACTION_APPWIDGET_UPDATE],
      * resolves receivers matching [widgetName], and collects active appWidgetIds per
      * [ComponentName].
@@ -48,23 +72,11 @@ internal class WidgetInstanceRepository(
             return emptyMap()
         }
 
+        val matchingComponents = findReceiverComponentsForWidgetName(widgetName)
+        if (matchingComponents.isEmpty()) return emptyMap()
+
         val componentToAppWidgetIds = mutableMapOf<ComponentName, MutableIntList>()
-        val packageManager = context.packageManager
-        val updateIntent =
-            Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
-                setPackage(context.packageName)
-            }
-        val widgetReceivers =
-            packageManager.queryBroadcastReceivers(updateIntent, PackageManager.GET_META_DATA)
-        val seenComponents = hashSetOf<ComponentName>()
-
-        for (idx in widgetReceivers.indices) {
-            val resolveInfo = widgetReceivers[idx]
-            val receiverInfo = resolveInfo.activityInfo ?: continue
-            val componentName = ComponentName(receiverInfo.packageName, receiverInfo.name)
-            if (!seenComponents.add(componentName)) continue
-            if (!isReceiverForWidgetName(receiverInfo, widgetName)) continue
-
+        for (componentName in matchingComponents) {
             val matchingIds = getMatchingAppWidgetIds(componentName, widgetIds)
             if (matchingIds.isNotEmpty()) {
                 componentToAppWidgetIds[componentName] = matchingIds
@@ -106,9 +118,9 @@ internal class WidgetInstanceRepository(
         return runCatching {
                 val receiverClass = context.classLoader.loadClass(receiverInfo.name)
                 if (GlanceAdaptiveWidgetReceiver::class.java.isAssignableFrom(receiverClass)) {
-                    val instance =
-                        receiverClass.getDeclaredConstructor().newInstance()
-                            as GlanceAdaptiveWidgetReceiver
+                    val constructor = receiverClass.getDeclaredConstructor()
+                    constructor.isAccessible = true
+                    val instance = constructor.newInstance() as GlanceAdaptiveWidgetReceiver
                     instance.widgetName == widgetName
                 } else {
                     false

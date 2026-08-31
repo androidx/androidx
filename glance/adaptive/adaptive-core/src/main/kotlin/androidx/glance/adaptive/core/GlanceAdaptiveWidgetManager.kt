@@ -83,4 +83,20 @@ public class GlanceAdaptiveWidgetManager(
             widgetIds = setOf(widgetId),
         )
     }
+
+    /**
+     * Sets dynamic preview data rendered in host widget pickers for the specified widget
+     * definition.
+     *
+     * On devices running Android 14 and earlier (pre-API 35), dynamic widget previews are not
+     * supported by the platform and this operation completes as a safe no-op.
+     *
+     * @param widgetName Developer widget definition String identifier matching
+     *   [androidx.glance.adaptive.appwidget.GlanceAdaptiveWidgetReceiver.widgetName].
+     * @param previewData Declarative template data payload implementing [AdaptiveGlanceTemplate] to
+     *   render as a preview.
+     */
+    public suspend fun setPreview(widgetName: String, previewData: AdaptiveGlanceTemplate) {
+        delegate.setPreview(widgetName = widgetName, previewData = previewData)
+    }
 }
