@@ -526,8 +526,17 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                         mutableListOf(
                             "-Xskip-metadata-version-check",
                             "-jvm-default=no-compatibility",
+                            // Allow explicit APIs for projects that don't require explicit API mode
+                            "-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled",
+                            "-Xwarning-level=REDUNDANT_RETURN_UNIT_TYPE:disabled",
+                            "-Xwarning-level=REDUNDANT_SETTER_PARAMETER_TYPE:disabled",
+                            "-Xwarning-level=REDUNDANT_MODALITY_MODIFIER:disabled",
+                            // This warning has frequent false positives
+                            // (https://youtrack.jetbrains.com/issue/KT-85719)
+                            "-Xwarning-level=CAN_BE_VAL_LATEINIT:disabled",
                         )
-                    if (androidXExtension.type.get().targetsKotlinConsumersOnly) {
+                    val softwareType = androidXExtension.type.get()
+                    if (softwareType.targetsKotlinConsumersOnly) {
                         // The Kotlin Compiler adds intrinsic assertions which are only relevant
                         // when the code is consumed by Java users. Therefore we can turn this off
                         // when code is being consumed by Kotlin users.
@@ -542,10 +551,31 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                                 "-Xno-receiver-assertions",
                             )
                     }
+                    if (
+                        softwareType == SoftwareType.SAMPLES ||
+                            softwareType == SoftwareType.BENCHMARK
+                    ) {
+                        // Allow unused variables in samples and benchmarks as this is a common
+                        // pattern.
+                        args +=
+                            listOf(
+                                "-Xwarning-level=UNUSED_VARIABLE:disabled",
+                                "-Xwarning-level=ASSIGNED_VALUE_IS_NEVER_READ:disabled",
+                                "-Xwarning-level=VARIABLE_NEVER_READ:disabled",
+                                "-Xwarning-level=UNUSED_EXPRESSION:disabled",
+                                "-Xwarning-level=UNUSED_ANONYMOUS_PARAMETER:disabled",
+                            )
+                    }
+                    // The `commonStubsMain` source sets use a pattern of throwing an exception for
+                    // all unimplemented APIs which is flagged as `UNREACHABLE_CODE`.
+                    if (task.name.endsWith("Stubs")) {
+                        args += listOf("-Xwarning-level=UNREACHABLE_CODE:disabled")
+                    }
 
                     args
                 }
             task.compilerOptions.freeCompilerArgs.addAll(kotlinCompilerArgs)
+            task.compilerOptions.extraWarnings.set(true)
         }
         if (plugin is KotlinMultiplatformPluginWrapper) {
             KonanPrebuiltsSetup.configureKonanDirectory(project)
