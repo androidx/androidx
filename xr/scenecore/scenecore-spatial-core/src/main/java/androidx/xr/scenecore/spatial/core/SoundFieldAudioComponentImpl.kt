@@ -34,7 +34,7 @@ internal class SoundFieldAudioComponentImpl(
 ) : SoundFieldAudioComponent {
 
     private val audioTrackAudioOutputProvider =
-        AudioTrackAudioOutputProvider.Builder(context)
+        AudioTrackAudioOutputProvider.Builder(context.applicationContext)
             .setAudioTrackBuilderModifier { audioTrackBuilder, config ->
                 val audioFormat =
                     AudioFormat.Builder()

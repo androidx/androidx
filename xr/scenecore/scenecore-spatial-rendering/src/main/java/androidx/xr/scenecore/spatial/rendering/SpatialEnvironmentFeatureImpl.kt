@@ -41,7 +41,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 internal class SpatialEnvironmentFeatureImpl(
-    private val activity: Activity,
+    private var activity: Activity?,
     impressApi: ImpressApi,
     splitEngineSubspaceManager: SplitEngineSubspaceManager,
     extensions: XrExtensions,
@@ -155,7 +155,7 @@ internal class SpatialEnvironmentFeatureImpl(
 
             if (newPreference == null) {
                 // Detaching the app environment to go back to the system environment.
-                extensions.detachSpatialEnvironment(activity, Runnable::run) {}
+                activity?.let { extensions.detachSpatialEnvironment(it, Runnable::run) {} }
             } else {
                 // TODO(b/408276187): Add unit test that verifies that the skybox mode is correctly
                 // set.
@@ -183,14 +183,16 @@ internal class SpatialEnvironmentFeatureImpl(
                     currentRootEnvironmentNode = rootEnvironmentNode
                 }
                 onBeforeNodeAttachedListener?.accept(currentRootEnvironmentNode)
-                extensions.attachSpatialEnvironment(
-                    activity,
-                    currentRootEnvironmentNode,
-                    skyboxMode,
-                    Runnable::run,
-                ) {
-                    // Update the root environment node to the current root node.
-                    rootEnvironmentNode = currentRootEnvironmentNode
+                activity?.let {
+                    extensions.attachSpatialEnvironment(
+                        it,
+                        currentRootEnvironmentNode,
+                        skyboxMode,
+                        Runnable::run,
+                    ) {
+                        // Update the root environment node to the current root node.
+                        rootEnvironmentNode = currentRootEnvironmentNode
+                    }
                 }
             }
 
@@ -226,7 +228,8 @@ internal class SpatialEnvironmentFeatureImpl(
         geometrySubspaceImpressNode = null
         _spatialEnvironmentPreference.set(null)
         // TODO: b/376934871 - Check async results.
-        extensions.detachSpatialEnvironment(activity, Runnable::run) {}
+        activity?.let { extensions.detachSpatialEnvironment(it, Runnable::run) {} }
+        activity = null
     }
 
     // This is a workaround with a low blast radius since it will only ever be used by restricted

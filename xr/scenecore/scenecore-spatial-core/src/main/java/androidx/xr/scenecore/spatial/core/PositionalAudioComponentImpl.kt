@@ -39,7 +39,7 @@ internal class PositionalAudioComponentImpl(
     private var attachedEntity: Entity? = null
 
     internal val audioTrackAudioOutputProvider =
-        AudioTrackAudioOutputProvider.Builder(context)
+        AudioTrackAudioOutputProvider.Builder(context.applicationContext)
             .setAudioTrackBuilderModifier { audioTrackBuilder, _ ->
                 audioTrackExtensions.setPointSourceParams(audioTrackBuilder, params, attachedEntity)
             }
