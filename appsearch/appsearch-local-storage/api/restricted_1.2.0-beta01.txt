@@ -1,0 +1,34 @@
+// Signature format: 4.0
+package androidx.appsearch.localstorage {
+
+  public class LocalStorage {
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GlobalSearchSession!> createGlobalSearchSessionAsync(androidx.appsearch.localstorage.LocalStorage.GlobalSearchContext);
+    method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSessionAsync(androidx.appsearch.localstorage.LocalStorage.SearchContext);
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public static androidx.appsearch.app.Features getFeatures();
+  }
+
+  public static final class LocalStorage.GlobalSearchContext {
+    method public android.content.Context getContext();
+    method public java.util.concurrent.Executor getWorkerExecutor();
+  }
+
+  public static final class LocalStorage.GlobalSearchContext.Builder {
+    ctor public LocalStorage.GlobalSearchContext.Builder(android.content.Context);
+    method public androidx.appsearch.localstorage.LocalStorage.GlobalSearchContext build();
+    method public androidx.appsearch.localstorage.LocalStorage.GlobalSearchContext.Builder setWorkerExecutor(java.util.concurrent.Executor);
+  }
+
+  public static final class LocalStorage.SearchContext {
+    method public android.content.Context getContext();
+    method public String getDatabaseName();
+    method public java.util.concurrent.Executor getWorkerExecutor();
+  }
+
+  public static final class LocalStorage.SearchContext.Builder {
+    ctor public LocalStorage.SearchContext.Builder(android.content.Context, String);
+    method public androidx.appsearch.localstorage.LocalStorage.SearchContext build();
+    method public androidx.appsearch.localstorage.LocalStorage.SearchContext.Builder setWorkerExecutor(java.util.concurrent.Executor);
+  }
+
+}
+
