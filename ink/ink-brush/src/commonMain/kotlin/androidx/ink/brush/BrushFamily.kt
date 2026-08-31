@@ -84,19 +84,19 @@ private constructor(
     public val developerComment: String = BrushFamilyNative.getDeveloperComment(nativePointer)
 
     /**
-     * Returns the duration of a complete texture animation loop for an entire stroke with this
-     * brush family (such that each animated texture in the brush goes through an integral number of
-     * complete loops and returns to its starting frame), or zero if this family contains no
-     * animated textures. If nonzero, this duration will be no greater than 2^24 milliseconds (about
-     * 4.66 hours).
+     * Returns the duration of a complete paint animation loop for an entire stroke with this brush
+     * family (such that each animated paint in the brush goes through an integral number of
+     * complete loops and returns to its starting point), or zero if this family contains no
+     * animated brush paints. If nonzero, this duration will be no greater than 2^24 milliseconds
+     * (about 4.66 hours).
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
     @ExperimentalInkAnimationApi
     @get:IntRange(from = 0, to = 1 shl 24)
     // Uses lazy to avoid the opt-in annotation not applying to Java callers (can't be applied to
     // getters, and just applies to the backing field if there is one).`
-    public val textureAnimationLoopDurationMillis: Long by lazy {
-        BrushFamilyNative.getTextureAnimationLoopDurationMillis(nativePointer)
+    public val paintAnimationLoopDurationMillis: Long by lazy {
+        BrushFamilyNative.getPaintAnimationLoopDurationMillis(nativePointer)
     }
 
     /**
@@ -582,7 +582,7 @@ expect internal object BrushFamilyNative {
 
     fun getDeveloperComment(nativePointer: Long): String
 
-    fun getTextureAnimationLoopDurationMillis(nativePointer: Long): Long
+    fun getPaintAnimationLoopDurationMillis(nativePointer: Long): Long
 
     fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 

@@ -182,7 +182,7 @@ internal class CanvasPathRenderer(textureStore: TextureBitmapStore = TextureBitm
         coatIndex: Int,
         paintPreferenceIndex: Int,
         strokeToScreenTransform: Matrix,
-        textureAnimationProgress: Float,
+        paintAnimationProgress: Float,
     ) {
         val inputCount = stroke.inputs.size
         if (noDrawingNeeded(inputCount, stroke.shape.computeBoundingBox())) return
@@ -225,7 +225,7 @@ internal class CanvasPathRenderer(textureStore: TextureBitmapStore = TextureBitm
         coatIndex: Int,
         paintPreferenceIndex: Int,
         strokeToScreenTransform: Matrix,
-        textureAnimationProgress: Float,
+        paintAnimationProgress: Float,
     ) {
         val inputCount = inProgressStroke.getInputCount()
         if (

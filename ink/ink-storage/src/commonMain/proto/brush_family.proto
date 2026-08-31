@@ -785,9 +785,9 @@ message BrushBehavior {
 
     // Time elapsed (in seconds) since the modeled stroke input. This continues
     // to increase even after all stroke inputs have completed, and can be used
-    // to drive wet-layer stroke animations. This source is only compatible with
-    // a `source_out_of_range_behavior` of `OUT_OF_RANGE_CLAMP`, to ensure that
-    // the animation will eventually end.
+    // to drive wet-layer brush tip animations. This source is only compatible
+    // with a `source_out_of_range_behavior` of `OUT_OF_RANGE_CLAMP`, to ensure
+    // that the animation will eventually end.
     SOURCE_TIME_SINCE_INPUT_IN_SECONDS = 19
         [(ink.proto.enum_value_min_version) = 0];
 
@@ -906,8 +906,8 @@ message BrushBehavior {
 
     // Time elapsed (in seconds) since the final input of the stroke, or zero if
     // the final input hasn't arrived yet. This can be used to drive wet-layer
-    // stroke animations that should occur after the final input. This source is
-    // only compatible with a `source_out_of_range_behavior` of
+    // brush tip animations that should occur after the final input. This source
+    // is only compatible with a `source_out_of_range_behavior` of
     // `OUT_OF_RANGE_CLAMP`, to ensure that the animation will eventually end.
     SOURCE_TIME_SINCE_STROKE_END_IN_SECONDS = 40
         [(ink.proto.enum_value_min_version) = 1];

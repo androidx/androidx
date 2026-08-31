@@ -132,6 +132,24 @@ public constructor(
     }
 
     /**
+     * Fills this [MutableAffineTransform] with a transformation that translates by the given [x]
+     * and [y] offset components.
+     *
+     * Returns the modified instance to allow chaining calls.
+     *
+     * @return `this`
+     */
+    public fun populateFromTranslation(x: Float, y: Float): MutableAffineTransform {
+        m00 = 1f
+        m10 = 0f
+        m20 = x
+        m01 = 0f
+        m11 = 1f
+        m21 = y
+        return this
+    }
+
+    /**
      * Fills this [MutableAffineTransform] with a transformation that translates by the given
      * [offset] vector.
      *
@@ -139,15 +157,8 @@ public constructor(
      *
      * @return `this`
      */
-    public fun populateFromTranslation(offset: Vec): MutableAffineTransform {
-        m00 = 1f
-        m10 = 0f
-        m20 = offset.x
-        m01 = 0f
-        m11 = 1f
-        m21 = offset.y
-        return this
-    }
+    public fun populateFromTranslation(offset: Vec): MutableAffineTransform =
+        populateFromTranslation(offset.x, offset.y)
 
     /**
      * Fills this [MutableAffineTransform] with a transformation that scales in both the x and y

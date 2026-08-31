@@ -154,6 +154,7 @@ package androidx.ink.geometry {
     method public static androidx.ink.geometry.ImmutableAffineTransform skewY(float sy);
     method public androidx.ink.geometry.ImmutableAffineTransform toImmutable();
     method public static androidx.ink.geometry.ImmutableAffineTransform translate(androidx.ink.geometry.Vec offset);
+    method public static androidx.ink.geometry.ImmutableAffineTransform translate(float x, float y);
     property public float m00;
     property public float m01;
     property public float m10;
@@ -172,6 +173,7 @@ package androidx.ink.geometry {
     method public androidx.ink.geometry.ImmutableAffineTransform skewX(float sx);
     method public androidx.ink.geometry.ImmutableAffineTransform skewY(float sy);
     method public androidx.ink.geometry.ImmutableAffineTransform translate(androidx.ink.geometry.Vec offset);
+    method public androidx.ink.geometry.ImmutableAffineTransform translate(float x, float y);
   }
 
   public final class ImmutableBox extends androidx.ink.geometry.Box {
@@ -320,6 +322,7 @@ package androidx.ink.geometry {
     method public androidx.ink.geometry.MutableAffineTransform populateFromSkewX(float sx);
     method public androidx.ink.geometry.MutableAffineTransform populateFromSkewY(float sy);
     method public androidx.ink.geometry.MutableAffineTransform populateFromTranslation(androidx.ink.geometry.Vec offset);
+    method public androidx.ink.geometry.MutableAffineTransform populateFromTranslation(float x, float y);
     method @InaccessibleFromKotlin public void setM00(float);
     method @InaccessibleFromKotlin public void setM01(float);
     method @InaccessibleFromKotlin public void setM10(float);

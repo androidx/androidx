@@ -230,7 +230,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(1, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -241,7 +241,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix().apply { setScale(3F, 4F) },
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(2, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -252,7 +252,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix().apply { setScale(3F, 4F) },
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(2, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -267,7 +267,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix().apply { setScale(3F, 4F) },
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(3, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -279,7 +279,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix().apply { setScale(3F, 4F) },
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(3, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -291,7 +291,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(4, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -306,7 +306,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(4, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -319,7 +319,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix().apply { setScale(3F, 4F) },
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(2, renderer.getRecentlyDrawnAndroidMeshesCount())
     }
@@ -340,7 +340,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(0, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -350,7 +350,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix().apply { setScale(3F, 4F) },
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(0, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -360,7 +360,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix().apply { setScale(3F, 4F) },
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(0, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -374,7 +374,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix().apply { setScale(3F, 4F) },
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(0, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -385,7 +385,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix().apply { setScale(3F, 4F) },
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(0, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -396,7 +396,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(0, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -407,7 +407,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix().apply { setScale(3F, 4F) },
-            textureAnimationProgress = 0F,
+            paintAnimationProgress = 0F,
         )
         assertEquals(0, renderer.getRecentlyDrawnAndroidMeshesCount())
     }
@@ -417,8 +417,8 @@ class CanvasMeshRendererTest {
         minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE,
         maxSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE,
     )
-    fun drawStroke_whenAndroidU_withTextureAnimation_shouldSaveRecentlyDrawnMesh() {
-        // Create a stroke with a texture animation.
+    fun drawStroke_whenAndroidU_withPaintAnimation_shouldSaveRecentlyDrawnMesh() {
+        // Create a stroke with brush paint animation.
         val texture =
             StampingTexture(
                 clientTextureId = "test",
@@ -448,7 +448,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0.1f,
+            paintAnimationProgress = 0.1f,
         )
         assertEquals(1, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -459,7 +459,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0.2f,
+            paintAnimationProgress = 0.2f,
         )
         assertEquals(2, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -470,7 +470,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0.2f,
+            paintAnimationProgress = 0.2f,
         )
         assertEquals(2, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -481,23 +481,23 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0.3f,
+            paintAnimationProgress = 0.3f,
         )
         assertEquals(3, renderer.getRecentlyDrawnAndroidMeshesCount())
     }
 
     /**
      * Same set of steps as
-     * [drawStroke_whenAndroidU_withTextureAnimation_shouldSaveRecentlyDrawnMesh], but without a
-     * texture animation, so changing animation progress should not cause a new mesh to be created.
+     * [drawStroke_whenAndroidU_withPaintAnimation_shouldSaveRecentlyDrawnMesh], but without a brush
+     * paint animation, so changing animation progress should not cause a new mesh to be created.
      */
     @Test
     @SdkSuppress(
         minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE,
         maxSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE,
     )
-    fun drawStroke_whenAndroidU_withoutTextureAnimation_shouldIgnoreTextureProgressForMeshReuse() {
-        // Create a stroke without a texture animation.
+    fun drawStroke_whenAndroidU_withoutPaintAnimation_shouldIgnoreTextureProgressForMeshReuse() {
+        // Create a stroke without a brush paint animation.
         val texture = TilingTexture(clientTextureId = "test", sizeX = 10f, sizeY = 10f)
         val family = BrushFamily(paint = BrushPaint(listOf(texture)))
         val brush = Brush(family = family, size = 10f, epsilon = 0.1f)
@@ -520,20 +520,19 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0.1f,
+            paintAnimationProgress = 0.1f,
         )
         assertEquals(1, renderer.getRecentlyDrawnAndroidMeshesCount())
 
-        // Draw again, this time at 20% progress. Since the stroke has no texture animation, the
-        // mesh
-        // should be reused.
+        // Draw again, this time at 20% progress. Since the stroke has no brush paint animation, the
+        // mesh should be reused.
         renderer.draw(
             canvas = canvas,
             stroke = stroke,
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0.2f,
+            paintAnimationProgress = 0.2f,
         )
         assertEquals(1, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -544,7 +543,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0.2f,
+            paintAnimationProgress = 0.2f,
         )
         assertEquals(1, renderer.getRecentlyDrawnAndroidMeshesCount())
 
@@ -555,7 +554,7 @@ class CanvasMeshRendererTest {
             coatIndex = 0,
             paintPreferenceIndex = 0,
             strokeToScreenTransform = Matrix(),
-            textureAnimationProgress = 0.3f,
+            paintAnimationProgress = 0.3f,
         )
         assertEquals(1, renderer.getRecentlyDrawnAndroidMeshesCount())
     }
