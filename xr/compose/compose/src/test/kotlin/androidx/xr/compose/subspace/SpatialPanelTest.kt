@@ -65,9 +65,12 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
+import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.subspace.semantics.contentDescription
+import androidx.xr.compose.subspace.semantics.semantics
 import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.XrExtensionsProvider
@@ -76,6 +79,7 @@ import androidx.xr.compose.testing.assertWidthIsEqualTo
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
 import androidx.xr.compose.testing.session
 import androidx.xr.compose.unit.metersToDp
+import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 import com.android.extensions.xr.ShadowXrExtensions
@@ -1039,6 +1043,53 @@ class SpatialPanelTest {
                     ?.isEnabled()
             )
             .isTrue()
+    }
+
+    @Test
+    fun mainPanel_whenSubspaceIsRemoved_restoresDefaultState() {
+        var isSubspaceShown by mutableStateOf(false)
+
+        composeTestRule.setContent {
+            Box(androidx.compose.ui.Modifier.fillMaxSize())
+            if (isSubspaceShown) {
+                Subspace {
+                    SpatialMainPanel(
+                        SubspaceModifier.size(500.dp)
+                            .offset(100.dp, 100.dp, 100.dp)
+                            .semantics { contentDescription = "Test Main Panel" }
+                            .testTag("mainPanel")
+                    )
+                }
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        isSubspaceShown = true
+        composeTestRule.waitForIdle()
+
+        val session = checkNotNull(composeTestRule.session) { "session must be initialized" }
+        val mainPanelEntity = session.scene.mainPanelEntity
+        val subspaceSize = mainPanelEntity.sizeInPixels
+
+        assertThat(
+                composeTestRule
+                    .onSubspaceNodeWithTag("mainPanel")
+                    .fetchSemanticsNode()
+                    .semanticsEntity
+            )
+            .isEqualTo(mainPanelEntity)
+        assertThat(mainPanelEntity.isEnabled()).isTrue()
+        assertThat(mainPanelEntity.contentDescription).isEqualTo("Test Main Panel")
+
+        isSubspaceShown = false
+        composeTestRule.waitForIdle()
+
+        assertThat(mainPanelEntity.isEnabled()).isTrue()
+        assertThat(mainPanelEntity.getPose()).isEqualTo(Pose.Identity)
+        assertThat(mainPanelEntity.getScale()).isEqualTo(1.0f)
+        assertThat(mainPanelEntity.contentDescription).isEqualTo("")
+        assertThat(mainPanelEntity.parent).isNotNull()
+        assertThat(mainPanelEntity.sizeInPixels).isNotEqualTo(subspaceSize)
     }
 
     private class SpatialPanelActivity : ComponentActivity() {}

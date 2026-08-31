@@ -376,8 +376,10 @@ public fun SpatialMainPanel(
     LaunchedEffect(shape, density) { mainPanel.setShape(shape, density) }
 
     SubspaceLayout(modifier = finalModifier, coreEntity = mainPanel) { _, constraints ->
-        val width = view.measuredWidth.coerceIn(constraints.minWidth, constraints.maxWidth)
-        val height = view.measuredHeight.coerceIn(constraints.minHeight, constraints.maxHeight)
+        val measuredWidth = view.measuredWidth
+        val measuredHeight = view.measuredHeight
+        val width = measuredWidth.coerceIn(constraints.minWidth, constraints.maxWidth)
+        val height = measuredHeight.coerceIn(constraints.minHeight, constraints.maxHeight)
         val depth = constraints.minDepth.coerceAtLeast(0)
         layout(width, height, depth) {}
     }

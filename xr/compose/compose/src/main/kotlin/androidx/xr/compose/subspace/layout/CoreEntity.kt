@@ -359,16 +359,48 @@ internal class CoreActivityPanelEntity(
  * Wrapper class for SceneCore's PanelEntity associated with the "main window" for the Activity.
  * This wrapper provides convenience methods for working with the main panel from SceneCore.
  */
-internal class CoreMainPanelEntity(session: Session) :
+internal class CoreMainPanelEntity(private val session: Session) :
     CoreBasePanelEntity(session.scene.virtualPixelDensity, session.scene.mainPanelEntity) {
 
-    override fun dispose() {
-        // [CoreMainPanelEntity] is backed by SceneCore “Main Panel Entity” which is never deleted
-        // even if [androidx.xr.compose.subspace.SpatialMainPanel] is disposed. Therefore we just
-        // disable the main panel entity to turn off it's visibility.
-        enabled = false
+    /**
+     * The original 2D window size captured before spatial layout modifiers alter the panel size.
+     * This will be null unless the main panel was rendered in a 3D layout.
+     */
+    private var defaultSizeInPixels: IntSize2d? = null
 
-        // Set the parent to null so the main panel is not disposed when its parent is disposed.
+    override var size: IntVolumeSize
+        get() = super.size
+        set(value) {
+            // Records the unconstrained 2D view dimensions as [defaultSizeInPixels] once valid
+            // (>1px) before spatial layout constraints alter the panel size. MainPanelEntityImpl
+            // fetches sizeInPixels from the WindowManager.
+            if (defaultSizeInPixels == null) {
+                val currentSize = session.scene.mainPanelEntity.sizeInPixels
+                if (currentSize.width > 1 && currentSize.height > 1) {
+                    defaultSizeInPixels = currentSize
+                }
+            }
+            super.size = value
+        }
+
+    /** Resets the main panel to its default 2D window state when returning to 2D. */
+    internal fun reset(density: Density, newParent: Entity?) {
+        val defaultSize = defaultSizeInPixels ?: return
+        session.scene.mainPanelEntity.parent = newParent
+        poseInMeters = Pose.Identity
+        alpha = 1f
+        size = IntVolumeSize(defaultSize.width, defaultSize.height, 0)
+        contentDescription = null
+        setShape(SpatialPanelDefaults.shape, density)
+        defaultSizeInPixels = null
+    }
+
+    override fun dispose() {
+        // [CoreMainPanelEntity] is backed by SceneCore's singleton "Main Panel Entity" which
+        // outlives individual composables and is never deleted. When [SpatialMainPanel] unmounts
+        // from a Subspace, we disable it and detach it from the scene graph. The full 2D window
+        // reset is handled by Subspace when all Subspaces exit (SceneCount == 0).
+        enabled = false
         parent = null
     }
 }

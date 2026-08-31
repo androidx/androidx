@@ -1,4 +1,17 @@
 // Signature format: 4.0
+package androidx.xr.compose {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSpatialComposeApi {
+  }
+
+  @SuppressCompatibility @androidx.xr.compose.ExperimentalSpatialComposeApi public final class SpatialComposeFlags {
+    property public boolean isMainPanelResetOnSubspaceDisposeEnabled;
+    field public static final androidx.xr.compose.SpatialComposeFlags INSTANCE;
+    field public static boolean isMainPanelResetOnSubspaceDisposeEnabled;
+  }
+
+}
+
 package androidx.xr.compose.platform {
 
   public final class ActivityExtKt {
