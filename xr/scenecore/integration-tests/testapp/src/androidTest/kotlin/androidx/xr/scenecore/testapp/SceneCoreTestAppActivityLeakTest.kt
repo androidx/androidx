@@ -31,6 +31,7 @@ import androidx.xr.scenecore.testapp.headlockedui.HeadLockedUiActivity
 import androidx.xr.scenecore.testapp.hittest.HitTestActivity
 import androidx.xr.scenecore.testapp.inputmoveresize.InputMoveResizeTestActivity
 import androidx.xr.scenecore.testapp.memoryleak.MemoryLeakActivity
+import androidx.xr.scenecore.testapp.meshentity.MeshEntityActivity
 import androidx.xr.scenecore.testapp.model.GltfModelAnimationActivity
 import androidx.xr.scenecore.testapp.model.GltfModelMaterialTextureActivity
 import androidx.xr.scenecore.testapp.movable.MovableActivity
@@ -45,6 +46,7 @@ import androidx.xr.scenecore.testapp.surfacecustommesh.SurfaceEntityCustomMeshAc
 import androidx.xr.scenecore.testapp.surfaceimage.SurfaceEntityImageActivity
 import androidx.xr.scenecore.testapp.surfaceinteraction.SurfaceEntityInteractionActivity
 import androidx.xr.scenecore.testapp.surfaceplayback.SurfaceEntityPlaybackActivity
+import androidx.xr.scenecore.testapp.transformation.TransformationActivity
 import androidx.xr.scenecore.testapp.visibility.VisibilityActivity
 import androidx.xr.testutils.TestAppActivityLeakTest
 import androidx.xr.testutils.XrDeviceTest
@@ -58,6 +60,9 @@ import org.junit.runners.Parameterized
 @XrDeviceTest
 class SceneCoreTestAppActivityLeakTest(activityClass: Class<out Activity>) :
     TestAppActivityLeakTest(activityClass) {
+
+    override val requiresSplitEngine: Boolean
+        get() = activityClass in SPLIT_ENGINE_ACTIVITIES
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -78,6 +83,27 @@ class SceneCoreTestAppActivityLeakTest(activityClass: Class<out Activity>) :
     val uncaughtExceptionsRule: CatchUncaughtExceptionsRule = CatchUncaughtExceptionsRule()
 
     companion object {
+        private val SPLIT_ENGINE_ACTIVITIES =
+            setOf<Class<out Activity>>(
+                AnchorSpaceActivity::class.java,
+                EnvironmentActivity::class.java,
+                GltfModelAnimationActivity::class.java,
+                GltfModelMaterialTextureActivity::class.java,
+                HitTestActivity::class.java,
+                MeshEntityActivity::class.java,
+                MovableActivity::class.java,
+                SceneViewerActivity::class.java,
+                SurfaceEntityCustomMeshActivity::class.java,
+                SurfaceEntityImageActivity::class.java,
+                SurfaceEntityInteractionActivity::class.java,
+                SurfaceEntityPlaybackActivity::class.java,
+                InputMoveResizeTestActivity::class.java,
+                PanelCoordinateActivity::class.java,
+                StandaloneActivity::class.java,
+                TransformationActivity::class.java,
+                VisibilityActivity::class.java,
+            )
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data(): Collection<Array<Any>> {
