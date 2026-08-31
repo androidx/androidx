@@ -466,12 +466,12 @@ public class FileProviderTest {
                 buildPath(Environment.getExternalStorageDirectory(), "Android", "obb", "foobar"));
         assertEquals("content://moocow/test_external/Android/obb/foobar", actual.toString());
 
-        File[] externalFilesDirs = ContextCompat.getExternalFilesDirs(mContext, null);
+        File[] externalFilesDirs = mContext.getExternalFilesDirs(null);
         actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
                 buildPath(externalFilesDirs[0], "foo", "bar"));
         assertEquals("content://moocow/test_external_files/foo/bar", actual.toString());
 
-        File[] externalCacheDirs = ContextCompat.getExternalCacheDirs(mContext);
+        File[] externalCacheDirs = mContext.getExternalCacheDirs();
         actual = FileProvider.getUriForFile(mContext, TEST_AUTHORITY,
                 buildPath(externalCacheDirs[0], "foo", "bar"));
         assertEquals("content://moocow/test_external_cache/foo/bar", actual.toString());

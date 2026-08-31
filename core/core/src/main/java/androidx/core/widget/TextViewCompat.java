@@ -56,6 +56,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.Px;
+import androidx.annotation.ReplaceWith;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
@@ -120,7 +121,7 @@ public final class TextViewCompat {
      * directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "textView.setCompoundDrawablesRelative(start, top, end, bottom)")
+    @ReplaceWith(expression = "textView.setCompoundDrawablesRelative(start, top, end, bottom)")
     public static void setCompoundDrawablesRelative(@NonNull TextView textView,
             @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
             @Nullable Drawable bottom) {
@@ -150,7 +151,7 @@ public final class TextViewCompat {
      * } directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom)")
+    @ReplaceWith(expression = "textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom)")
     public static void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
             @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
             @Nullable Drawable bottom) {
@@ -179,7 +180,7 @@ public final class TextViewCompat {
      * } directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom)")
+    @ReplaceWith(expression = "textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom)")
     public static void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
             @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
             @DrawableRes int bottom) {
@@ -192,7 +193,7 @@ public final class TextViewCompat {
      * @deprecated Call {@link TextView#getMaxLines()} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "textView.getMaxLines()")
+    @ReplaceWith(expression = "textView.getMaxLines()")
     public static int getMaxLines(@NonNull TextView textView) {
         return textView.getMaxLines();
     }
@@ -203,7 +204,7 @@ public final class TextViewCompat {
      * @deprecated Call {@link TextView#getMinLines()} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "textView.getMinLines()")
+    @ReplaceWith(expression = "textView.getMinLines()")
     public static int getMinLines(@NonNull TextView textView) {
         return textView.getMinLines();
     }
@@ -216,7 +217,10 @@ public final class TextViewCompat {
      *
      * @param textView The TextView against which to invoke the method.
      * @param resId    The resource identifier of the style to apply.
+     * @deprecated Call {@link TextView#setTextAppearance(int)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "textView.setTextAppearance(resId)")
     public static void setTextAppearance(@NonNull TextView textView, @StyleRes int resId) {
         textView.setTextAppearance(resId);
     }
@@ -226,7 +230,7 @@ public final class TextViewCompat {
      * @deprecated Call {@link TextView#getCompoundDrawablesRelative()} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "textView.getCompoundDrawablesRelative()")
+    @ReplaceWith(expression = "textView.getCompoundDrawablesRelative()")
     public static Drawable @NonNull [] getCompoundDrawablesRelative(@NonNull TextView textView) {
         return textView.getCompoundDrawablesRelative();
     }

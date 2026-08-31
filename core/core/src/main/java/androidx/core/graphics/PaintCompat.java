@@ -24,6 +24,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Build;
 
+import androidx.annotation.ReplaceWith;
 import androidx.annotation.RequiresApi;
 
 import org.jspecify.annotations.NonNull;
@@ -41,7 +42,10 @@ public final class PaintCompat {
      * @param paint the paint instance to check
      * @param string the string to test whether there is glyph support
      * @return true if the typeface set on the given paint has a glyph for the string
+     * @deprecated Call {@link Paint#hasGlyph(String)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "paint.hasGlyph(string)")
     public static boolean hasGlyph(@NonNull Paint paint, @NonNull String string) {
         return paint.hasGlyph(string);
     }

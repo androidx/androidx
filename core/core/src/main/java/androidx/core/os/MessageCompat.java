@@ -20,11 +20,16 @@ import android.os.Looper;
 import android.os.Message;
 import android.view.View;
 
+import androidx.annotation.ReplaceWith;
+
 import org.jspecify.annotations.NonNull;
 
 /**
  * Helper for accessing features in {@link Message}.
+ *
+ * @deprecated Use {@link Message} directly.
  */
+@Deprecated
 public final class MessageCompat {
     /**
      * Sets whether the message is asynchronous, meaning that it is not
@@ -49,10 +54,12 @@ public final class MessageCompat {
      *
      * @param message message for this to set the mode.
      * @param async True if the message is asynchronous.
-     *
-     * @see #isAsynchronous(Message)
+     * @see Message#isAsynchronous()
      * @see Message#setAsynchronous(boolean)
+     * @deprecated Call {@link Message#setAsynchronous(boolean)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "async.setAsynchronous()")
     public static void setAsynchronous(@NonNull Message message, boolean async) {
         message.setAsynchronous(async);
     }
@@ -62,10 +69,12 @@ public final class MessageCompat {
      * subject to {@link Looper} synchronization barriers.
      *
      * @return True if the message is asynchronous.
-     *
-     * @see #setAsynchronous(Message, boolean)
+     * @see Message#setAsynchronous(boolean)
      * @see Message#isAsynchronous()
+     * @deprecated Call {@link Message#isAsynchronous()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "message.isAsynchronous()")
     public static boolean isAsynchronous(@NonNull Message message) {
         return message.isAsynchronous();
     }

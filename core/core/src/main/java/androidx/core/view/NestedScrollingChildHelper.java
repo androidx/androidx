@@ -69,7 +69,7 @@ public class NestedScrollingChildHelper {
      */
     public void setNestedScrollingEnabled(boolean enabled) {
         if (mIsNestedScrollingEnabled) {
-            ViewCompat.stopNestedScroll(mView);
+            mView.stopNestedScroll();
         }
         mIsNestedScrollingEnabled = enabled;
     }
@@ -386,7 +386,7 @@ public class NestedScrollingChildHelper {
      * signature to implement the standard policy.</p>
      */
     public void onDetachedFromWindow() {
-        ViewCompat.stopNestedScroll(mView);
+        mView.stopNestedScroll();
     }
 
     /**
@@ -399,7 +399,7 @@ public class NestedScrollingChildHelper {
      * @param child Child view stopping its nested scroll. This may not be a direct child view.
      */
     public void onStopNestedScroll(@NonNull View child) {
-        ViewCompat.stopNestedScroll(mView);
+        mView.stopNestedScroll();
     }
 
     private ViewParent getNestedScrollingParentForType(@NestedScrollType int type) {

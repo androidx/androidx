@@ -39,7 +39,6 @@ import android.os.PersistableBundle;
 
 import androidx.core.app.Person;
 import androidx.core.app.TestActivity;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.test.R;
@@ -115,14 +114,14 @@ public class ShortcutInfoCompatTest {
         assertEquals(mAction, intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT));
         assertNull(intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE));
 
-        verifyBadgeBitmap(intent, ContextCompat.getColor(mContext, R.color.test_red),
-                ContextCompat.getColor(mContext, R.color.test_blue));
+        verifyBadgeBitmap(intent, mContext.getColor(R.color.test_red),
+                mContext.getColor(R.color.test_blue));
     }
 
     @Test
     public void testAddToIntent_badgeApplication() {
         ApplicationInfo appInfo = spy(mContext.getApplicationInfo());
-        doReturn(ContextCompat.getDrawable(mContext, R.drawable.test_drawable_green))
+        doReturn(mContext.getDrawable(R.drawable.test_drawable_green))
                 .when(appInfo).loadIcon(any(PackageManager.class));
         doReturn(appInfo).when(mContext).getApplicationInfo();
 
@@ -134,8 +133,8 @@ public class ShortcutInfoCompatTest {
         assertEquals(mAction, intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT));
         assertNull(intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE));
 
-        verifyBadgeBitmap(intent, ContextCompat.getColor(mContext, R.color.test_red),
-                ContextCompat.getColor(mContext, R.color.test_green));
+        verifyBadgeBitmap(intent, mContext.getColor(R.color.test_red),
+                mContext.getColor(R.color.test_green));
     }
 
     @Test

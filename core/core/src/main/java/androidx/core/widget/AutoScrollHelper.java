@@ -26,8 +26,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
 
-import androidx.core.view.ViewCompat;
-
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -511,7 +509,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
         mNeedsReset = true;
 
         if (!mAlreadyDelayed && mActivationDelay > 0) {
-            ViewCompat.postOnAnimationDelayed(mTarget, mRunnable, mActivationDelay);
+            mTarget.postOnAnimationDelayed(mRunnable, mActivationDelay);
         } else {
             mRunnable.run();
         }
@@ -716,7 +714,7 @@ public abstract class AutoScrollHelper implements View.OnTouchListener {
             scrollTargetBy(deltaX,  deltaY);
 
             // Keep going until the scroller has permanently stopped.
-            ViewCompat.postOnAnimation(mTarget, this);
+            mTarget.postOnAnimation(this);
         }
     }
 

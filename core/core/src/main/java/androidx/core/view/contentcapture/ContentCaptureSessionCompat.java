@@ -126,7 +126,9 @@ public class ContentCaptureSessionCompat {
      * @param virtualId id of the virtual child, relative to the parent.
      *
      * @return a new {@link ViewStructure} that can be used for Content Capture purposes.
+     * @deprecated
      */
+    @Deprecated
     public @Nullable ViewStructureCompat newVirtualViewStructure(
             @NonNull AutofillId parentId, long virtualId) {
         if (SDK_INT >= 29) {

@@ -19,11 +19,16 @@ package androidx.core.widget;
 import android.view.View;
 import android.widget.PopupWindow;
 
+import androidx.annotation.ReplaceWith;
+
 import org.jspecify.annotations.NonNull;
 
 /**
  * Helper for accessing features in {@link PopupWindow}.
+ *
+ * @deprecated Use {@link android.view.Window} directly.
  */
+@Deprecated
 public final class PopupWindowCompat {
 
     private PopupWindowCompat() {
@@ -48,7 +53,7 @@ public final class PopupWindowCompat {
      * @deprecated Call {@link PopupWindow#showAsDropDown(View, int, int, int)} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "popup.showAsDropDown(anchor, xoff, yoff, gravity)")
+    @ReplaceWith(expression = "popup.showAsDropDown(anchor, xoff, yoff, gravity)")
     public static void showAsDropDown(@NonNull PopupWindow popup, @NonNull View anchor,
             int xoff, int yoff, int gravity) {
         popup.showAsDropDown(anchor, xoff, yoff, gravity);
@@ -60,7 +65,10 @@ public final class PopupWindowCompat {
      *
      * @param popupWindow popup window for which to set the anchor.
      * @param overlapAnchor Whether the popup should overlap its anchor.
+     * @deprecated Call {@link PopupWindow#setOverlapAnchor(boolean)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "popupWindow.setOverlapAnchor(overlapAnchor)")
     public static void setOverlapAnchor(@NonNull PopupWindow popupWindow, boolean overlapAnchor) {
         popupWindow.setOverlapAnchor(overlapAnchor);
     }
@@ -70,7 +78,10 @@ public final class PopupWindowCompat {
      * displayed as a drop-down.
      *
      * @return Whether the popup should overlap its anchor.
+     * @deprecated Call {@link PopupWindow#getOverlapAnchor()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "popupWindow.getOverlapAnchor()")
     public static boolean getOverlapAnchor(@NonNull PopupWindow popupWindow) {
         return popupWindow.getOverlapAnchor();
     }
@@ -82,9 +93,11 @@ public final class PopupWindowCompat {
      *
      * @param popupWindow popup window for which to set the layout type.
      * @param layoutType Layout type for this window.
-     *
      * @see android.view.WindowManager.LayoutParams#type
+     * @deprecated Call {@link PopupWindow#setWindowLayoutType(int)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "popupWindow.setWindowLayoutType(layoutType)")
     public static void setWindowLayoutType(@NonNull PopupWindow popupWindow, int layoutType) {
         popupWindow.setWindowLayoutType(layoutType);
     }
@@ -92,8 +105,11 @@ public final class PopupWindowCompat {
     /**
      * Returns the layout type for this window.
      *
-     * @see #setWindowLayoutType(PopupWindow popupWindow, int)
+     * @see PopupWindow#setWindowLayoutType(int)
+     * @deprecated Call {@link PopupWindow#getWindowLayoutType()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "popupWindow.getWindowLayoutType()")
     public static int getWindowLayoutType(@NonNull PopupWindow popupWindow) {
         return popupWindow.getWindowLayoutType();
     }

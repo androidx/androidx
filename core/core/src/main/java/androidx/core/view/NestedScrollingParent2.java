@@ -44,7 +44,7 @@ public interface NestedScrollingParent2 extends NestedScrollingParent {
      * nested scroll operation if appropriate.
      *
      * <p>This method will be called in response to a descendant view invoking
-     * {@link ViewCompat#startNestedScroll(View, int)}. Each parent up the view hierarchy will be
+     * {@link View#startNestedScroll(int)}. Each parent up the view hierarchy will be
      * given an opportunity to respond and claim the nested scrolling operation by returning
      * <code>true</code>.</p>
      *

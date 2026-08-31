@@ -46,6 +46,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.DisplayContext;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.ReplaceWith;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityOptionsCompat;
@@ -92,19 +93,20 @@ public class ContextCompat {
     @Retention(RetentionPolicy.SOURCE)
     public @interface RegisterReceiverFlags {}
     /**
-     * Flag for {@link #registerReceiver}: The receiver can receive broadcasts from Instant Apps.
+     * Flag for {@link Context#registerReceiver}: The receiver can receive broadcasts from
+     * Instant Apps.
      */
     public static final int RECEIVER_VISIBLE_TO_INSTANT_APPS = 0x1;
 
     /**
-     * Flag for {@link #registerReceiver}: The receiver can receive broadcasts from other Apps.
-     * Has the same behavior as marking a statically registered receiver with "exported=true"
+     * Flag for {@link Context#registerReceiver}: The receiver can receive broadcasts from other
+     * Apps. Has the same behavior as marking a statically registered receiver with "exported=true"
      */
     public static final int RECEIVER_EXPORTED = 0x2;
 
     /**
-     * Flag for {@link #registerReceiver}: The receiver cannot receive broadcasts from other Apps.
-     * Has the same behavior as marking a statically registered receiver with "exported=false"
+     * Flag for {@link Context#registerReceiver}: The receiver cannot receive broadcasts from other
+     * Apps. Has the same behavior as marking a statically registered receiver with "exported=false"
      */
     public static final int RECEIVER_NOT_EXPORTED = 0x4;
 
@@ -132,7 +134,10 @@ public class ContextCompat {
      * @param intents Array of intents defining the activities that will be started. The element
      *                length-1 will correspond to the top activity on the resulting task stack.
      * @return true if the underlying API was available and the call was successful, false otherwise
+     * @deprecated Call {@link Context#startActivities(Intent[])} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "context.startActivities(intents)")
     public static boolean startActivities(@NonNull Context context, Intent @NonNull [] intents) {
         return startActivities(context, intents, null);
     }
@@ -163,7 +168,10 @@ public class ContextCompat {
      * @param options Additional options for how the Activity should be started.
      *                See {@link Context#startActivity(Intent, Bundle)}
      * @return true if the underlying API was available and the call was successful, false otherwise
+     * @deprecated Call {@link Context#startActivities(Intent[], Bundle)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "context.startActivities(intents, options)")
     public static boolean startActivities(@NonNull Context context, Intent @NonNull [] intents,
             @Nullable Bundle options) {
         context.startActivities(intents, options);
@@ -189,7 +197,7 @@ public class ContextCompat {
      * @deprecated Call {@link Context#startActivity(Intent, Bundle)} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "context.startActivity(intent, options)")
+    @ReplaceWith(expression = "context.startActivity(intent, options)")
     public static void startActivity(@NonNull Context context, @NonNull Intent intent,
             @Nullable Bundle options) {
         context.startActivity(intent, options);
@@ -264,7 +272,7 @@ public class ContextCompat {
      * @deprecated Call {@link Context#getObbDirs()} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "context.getObbDirs()")
+    @ReplaceWith(expression = "context.getObbDirs()")
     public static File @NonNull [] getObbDirs(@NonNull Context context) {
         return context.getObbDirs();
     }
@@ -312,10 +320,10 @@ public class ContextCompat {
      *
      * @see Context#getExternalFilesDir(String)
      * @see EnvironmentCompat#getStorageState(File)
-     * @deprecated Call {@link Context#getExternalFilesDir(String)} directly.
+     * @deprecated Call {@link Context#getExternalFilesDirs(String)} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "context.getExternalFilesDirs(type)")
+    @ReplaceWith(expression = "context.getExternalFilesDirs(type)")
     public static File @NonNull [] getExternalFilesDirs(@NonNull Context context,
             @Nullable String type) {
         return context.getExternalFilesDirs(type);
@@ -367,7 +375,7 @@ public class ContextCompat {
      * @deprecated Call {@link Context#getExternalCacheDirs()} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "context.getExternalCacheDirs()")
+    @ReplaceWith(expression = "context.getExternalCacheDirs()")
     public static File @NonNull [] getExternalCacheDirs(@NonNull Context context) {
         return context.getExternalCacheDirs();
     }
@@ -375,16 +383,17 @@ public class ContextCompat {
     /**
      * Returns a drawable object associated with a particular resource ID.
      * <p>
-     * Starting in {@link Build.VERSION_CODES#LOLLIPOP}, the
-     * returned drawable will be styled for the specified Context's theme.
+     * The returned drawable will be styled for the specified Context's theme.
      *
      * @param context context to use for getting the drawable.
      * @param id The desired resource identifier, as generated by the aapt tool.
      *           This integer encodes the package, type, and resource entry.
      *           The value 0 is an invalid identifier.
      * @return Drawable An object that can be used to draw this resource.
+     * @deprecated Call {@link Context#getDrawable(int)} directly.
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated
+    @ReplaceWith(expression = "context.getDrawable(id)")
     public static @Nullable Drawable getDrawable(@NonNull Context context, @DrawableRes int id) {
         return context.getDrawable(id);
     }
@@ -412,8 +421,7 @@ public class ContextCompat {
     /**
      * Returns a color associated with a particular resource ID
      * <p>
-     * Starting in {@link Build.VERSION_CODES#M}, the returned
-     * color will be styled for the specified Context's theme.
+     * The returned color will be styled for the specified Context's theme.
      *
      * @param context context to use for getting the color.
      * @param id The desired resource identifier, as generated by the aapt
@@ -422,8 +430,11 @@ public class ContextCompat {
      * @return A single color value in the form 0xAARRGGBB.
      * @throws android.content.res.Resources.NotFoundException if the given ID
      *         does not exist.
+     * @deprecated Call {@link Context#getColor(int)} directly.
      */
     @ColorInt
+    @Deprecated
+    @ReplaceWith(expression = "context.getColor(id)")
     public static int getColor(@NonNull Context context, @ColorRes int id) {
         return context.getColor(id);
     }
@@ -451,8 +462,7 @@ public class ContextCompat {
     /**
      * Returns the absolute path to the directory on the filesystem similar to
      * {@link Context#getFilesDir()}.  The difference is that files placed under this
-     * directory will be excluded from automatic backup to remote storage on
-     * devices running {@link Build.VERSION_CODES#LOLLIPOP} or later.
+     * directory will be excluded from automatic backup to remote storage.
      *
      * <p>No permissions are required to read or write to the returned path, since this
      * path is internal storage.
@@ -460,15 +470,17 @@ public class ContextCompat {
      * @return The path of the directory holding application files that will not be
      * automatically backed up to remote storage.
      * @see Context#getFilesDir()
+     * @deprecated Call {@link Context#getNoBackupFilesDir()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "context.getNoBackupFilesDir()")
     public static @Nullable File getNoBackupFilesDir(@NonNull Context context) {
         return context.getNoBackupFilesDir();
     }
 
     /**
      * Returns the absolute path to the application specific cache directory on
-     * the filesystem designed for storing cached code. On devices running
-     * {@link Build.VERSION_CODES#LOLLIPOP} or later, the system will delete
+     * the filesystem designed for storing cached code. The system will delete
      * any files stored in this location both when your specific application is
      * upgraded, and when the entire platform is upgraded.
      * <p>
@@ -479,7 +491,10 @@ public class ContextCompat {
      * since this path lives in their private storage.
      *
      * @return The path of the directory holding application code cache files.
+     * @deprecated Call {@link Context#getCodeCacheDir()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "context.getCodeCacheDir()")
     public static @NonNull File getCodeCacheDir(@NonNull Context context) {
         return context.getCodeCacheDir();
     }
@@ -598,7 +613,10 @@ public class ContextCompat {
      * @param serviceClass The class of the desired service.
      * @return The service or null if the class is not a supported system service.
      * @see Context#getSystemService(Class)
+     * @deprecated Call {@link Context#getSystemService(Class)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "context.getSystemService(serviceClass)")
     public static <T> @Nullable T getSystemService(@NonNull Context context,
             @NonNull Class<T> serviceClass) {
         return context.getSystemService(serviceClass);
@@ -618,7 +636,11 @@ public class ContextCompat {
      * or null if there are none.
      * @see Context#registerReceiver(BroadcastReceiver, IntentFilter, int)
      * @see https://developer.android.com/develop/background-work/background-tasks/broadcasts#context-registered-receivers
+     * @deprecated Call {@link Context#registerReceiver(BroadcastReceiver, IntentFilter, int)}
+     * directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "context.registerReceiver(receiver, filter, flags)")
     public static @Nullable Intent registerReceiver(@NonNull Context context,
             @Nullable BroadcastReceiver receiver, @NonNull IntentFilter filter,
             @RegisterReceiverFlags int flags) {
@@ -693,7 +715,10 @@ public class ContextCompat {
      * @param serviceClass The class of the desired service.
      * @return The service name or null if the class is not a supported system service.
      * @see Context#getSystemServiceName(Class)
+     * @deprecated Call {@link Context#getSystemServiceName(Class)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "context.getSystemServiceName(serviceClass)")
     public static @Nullable String getSystemServiceName(@NonNull Context context,
             @NonNull Class<?> serviceClass) {
         return context.getSystemServiceName(serviceClass);

@@ -54,7 +54,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.CustomVersionedParcelable;
@@ -623,7 +622,7 @@ public class IconCompat extends CustomVersionedParcelable {
                                 Intent.ShortcutIconResource.fromContext(context, mInt1));
                         return;
                     } else {
-                        Drawable dr = ContextCompat.getDrawable(context, mInt1);
+                        Drawable dr = context.getDrawable(mInt1);
                         if (dr.getIntrinsicWidth() <= 0 || dr.getIntrinsicHeight() <= 0) {
                             int size = ((ActivityManager) context.getSystemService(
                                     Context.ACTIVITY_SERVICE)).getLauncherLargeIconSize();

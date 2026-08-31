@@ -189,7 +189,7 @@ public final class ViewParentCompat {
      * nested scroll operation if appropriate.
      *
      * <p>This method will be called in response to a descendant view invoking
-     * {@link ViewCompat#startNestedScroll(View, int)}. Each parent up the view hierarchy will be
+     * {@link View#startNestedScroll(int)}. Each parent up the view hierarchy will be
      * given an opportunity to respond and claim the nested scrolling operation by returning
      * <code>true</code>.</p>
      *
@@ -358,7 +358,7 @@ public final class ViewParentCompat {
      * fully into view before the list itself begins scrolling.</p>
      *
      * <p><code>onNestedPreScroll</code> is called when a nested scrolling child invokes
-     * {@link ViewCompat#dispatchNestedPreScroll(View, int, int, int[], int[])}. The implementation
+     * {@link View#dispatchNestedPreScroll(int, int, int[], int[])}. The implementation
      * should report how any pixels of the scroll reported by dx, dy were consumed in the
      * <code>consumed</code> array. Index 0 corresponds to dx and index 1 corresponds to dy.
      * This parameter will never be null. Initial values for consumed[0] and consumed[1]

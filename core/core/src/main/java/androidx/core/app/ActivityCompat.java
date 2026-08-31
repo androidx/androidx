@@ -38,6 +38,7 @@ import android.view.View;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.IntRange;
+import androidx.annotation.ReplaceWith;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
@@ -218,6 +219,7 @@ public class ActivityCompat extends ContextCompat {
      * @deprecated Use {@link Activity#invalidateOptionsMenu()} directly.
      */
     @Deprecated
+    @ReplaceWith(expression = "activity.invalidateOptionsMenu()")
     public static boolean invalidateOptionsMenu(Activity activity) {
         activity.invalidateOptionsMenu();
         return true;
@@ -242,7 +244,10 @@ public class ActivityCompat extends ContextCompat {
      *                {@link ActivityOptionsCompat} for how to build the Bundle
      *                supplied here; there are no supported definitions for
      *                building it manually.
+     * @deprecated Call {@link Activity#startActivityForResult(Intent, int, Bundle)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "activity.startActivityForResult(intent, requestCode, options)")
     public static void startActivityForResult(@NonNull Activity activity, @NonNull Intent intent,
             int requestCode, @Nullable Bundle options) {
         activity.startActivityForResult(intent, requestCode, options);
@@ -273,7 +278,11 @@ public class ActivityCompat extends ContextCompat {
      *                {@link ActivityOptionsCompat} for how to build the Bundle
      *                supplied here; there are no supported definitions for
      *                building it manually.
+     * @deprecated Call {@link Activity#startIntentSenderForResult(IntentSender, int, Intent, int,
+     * int, int, Bundle)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "activity.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask, flagsValues, extraFlags, options)")
     public static void startIntentSenderForResult(@NonNull Activity activity,
             @NonNull IntentSender intent, int requestCode, @Nullable Intent fillInIntent,
             int flagsMask, int flagsValues, int extraFlags, @Nullable Bundle options)
@@ -288,7 +297,11 @@ public class ActivityCompat extends ContextCompat {
      *
      * <p>On Android 4.1+ calling this method will call through to the native version of this
      * method. For other platforms {@link Activity#finish()} will be called instead.</p>
+     *
+     * @deprecated Call {@link Activity#finishAffinity()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "activity.finishAffinity()")
     public static void finishAffinity(@NonNull Activity activity) {
         activity.finishAffinity();
     }
@@ -299,9 +312,10 @@ public class ActivityCompat extends ContextCompat {
      * {@link Activity#finish()} is called. If no entry Transition was used, finish() is called
      * immediately and the Activity exit Transition is run.
      *
-     * <p>On Android 4.4 or lower, this method only finishes the Activity with no
-     * special exit transition.</p>
+     * @deprecated Call {@link Activity#finishAfterTransition()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "activity.finishAfterTransition()")
     public static void finishAfterTransition(@NonNull Activity activity) {
         activity.finishAfterTransition();
     }
@@ -321,7 +335,11 @@ public class ActivityCompat extends ContextCompat {
      *
      * <p>Note that this is <em>not</em> a security feature -- you can not trust the
      * referrer information, applications can spoof it.</p>
+     *
+     * @deprecated Call {@link Activity#getReferrer()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "activity.getReferrer()")
     public static @Nullable Uri getReferrer(@NonNull Activity activity) {
         return activity.getReferrer();
     }
@@ -391,10 +409,20 @@ public class ActivityCompat extends ContextCompat {
         activity.setExitSharedElementCallback(frameworkCallback);
     }
 
+    /**
+     * @deprecated Call {@link Activity#postponeEnterTransition()} directly.
+     */
+    @Deprecated
+    @ReplaceWith(expression = "activity.postponeEnterTransition()")
     public static void postponeEnterTransition(@NonNull Activity activity) {
         activity.postponeEnterTransition();
     }
 
+    /**
+     * @deprecated Call {@link Activity#startPostponedEnterTransition()} directly.
+     */
+    @Deprecated
+    @ReplaceWith(expression = "activity.startPostponedEnterTransition()")
     public static void startPostponedEnterTransition(@NonNull Activity activity) {
         activity.startPostponedEnterTransition();
     }

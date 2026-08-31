@@ -18,6 +18,8 @@ package androidx.core.util;
 
 import android.util.SizeF;
 
+import androidx.annotation.ReplaceWith;
+
 import org.jspecify.annotations.NonNull;
 
 /**
@@ -25,12 +27,20 @@ import org.jspecify.annotations.NonNull;
  * height are finite values stored as a floating point representation.
  * <p>
  * This is a backward-compatible version of {@link SizeF}.
+ *
+ * @deprecated Use {@link SizeF} instead.
  */
+@Deprecated
 public final class SizeFCompat {
 
     private final float mWidth;
     private final float mHeight;
 
+    /**
+     * @deprecated Call {@link SizeF#SizeF(float, float) new SizeF(float, float)} directly.
+     */
+    @Deprecated
+    @ReplaceWith(expression = "new SizeF(width, height)", imports = "android.util.SizeF")
     public SizeFCompat(float width, float height) {
         mWidth = Preconditions.checkArgumentFinite(width, "width");
         mHeight = Preconditions.checkArgumentFinite(height, "height");
@@ -70,12 +80,22 @@ public final class SizeFCompat {
         return mWidth + "x" + mHeight;
     }
 
-    /** Converts this {@link SizeFCompat} into a {@link SizeF}. */
+    /**
+     * Converts this {@link SizeFCompat} into a {@link SizeF}.
+     *
+     * @deprecated This method is not needed anymore.
+     */
+    @Deprecated
     public @NonNull SizeF toSizeF() {
         return new SizeF(getWidth(), getHeight());
     }
 
-    /** Converts this {@link SizeF} into a {@link SizeFCompat}. */
+    /**
+     * Converts this {@link SizeF} into a {@link SizeFCompat}.
+     *
+     * @deprecated This method is not needed anymore.
+     */
+    @Deprecated
     public static @NonNull SizeFCompat toSizeFCompat(@NonNull SizeF size) {
         return new SizeFCompat(size.getWidth(), size.getHeight());
     }

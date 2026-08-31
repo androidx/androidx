@@ -25,7 +25,10 @@ import org.jspecify.annotations.NonNull;
  * <p>
  * Currently this helper class only has features for content capture usage. Other features for
  * Autofill are not available.
+ *
+ * @deprecated Use {@link ViewStructure} directly.
  */
+@Deprecated
 public class ViewStructureCompat {
 
     private final ViewStructure mWrappedObj;
@@ -35,7 +38,10 @@ public class ViewStructureCompat {
      *
      * @param contentCaptureSession platform class to wrap
      * @return wrapped class
+     *
+     * @deprecated This method is not needed anymore.
      */
+    @Deprecated
     public static @NonNull ViewStructureCompat toViewStructureCompat(
             @NonNull ViewStructure contentCaptureSession) {
         return new ViewStructureCompat(contentCaptureSession);
@@ -46,7 +52,10 @@ public class ViewStructureCompat {
      *
      * @return platform class object
      * @see ViewStructureCompat#toViewStructureCompat(ViewStructure)
+     *
+     * @deprecated This method is not needed anymore.
      */
+    @Deprecated
     public @NonNull ViewStructure toViewStructure() {
         return mWrappedObj;
     }
@@ -59,7 +68,10 @@ public class ViewStructureCompat {
      * Set the text that is associated with this view.  There is no selection
      * associated with the text.  The text may have style spans to supply additional
      * display and semantic information.
+     *
+     * @deprecated Call {@link ViewStructure#setText(CharSequence)} directly.
      */
+    @Deprecated
     public void setText(@NonNull CharSequence charSequence) {
         mWrappedObj.setText(charSequence);
     }
@@ -67,7 +79,10 @@ public class ViewStructureCompat {
     /**
      * Set the class name of the view, as per
      * {@link android.view.View#getAccessibilityClassName View.getAccessibilityClassName()}.
+     *
+     * @deprecated Call {@link ViewStructure#setClassName(String)} directly.
      */
+    @Deprecated
     public void setClassName(@NonNull String string) {
         mWrappedObj.setClassName(string);
     }
@@ -75,7 +90,10 @@ public class ViewStructureCompat {
     /**
      * Set the content description of the view, as per
      * {@link android.view.View#getContentDescription View.getContentDescription()}.
+     *
+     * @deprecated Call {@link ViewStructure#setContentDescription(CharSequence)} directly.
      */
+    @Deprecated
     public void setContentDescription(@NonNull CharSequence charSequence) {
         mWrappedObj.setContentDescription(charSequence);
     }
@@ -91,7 +109,10 @@ public class ViewStructureCompat {
      * not the total data width of a scrollable view.
      * @param height The view's visible height, in pixels.  This is the height visible on
      * screen, not the total data height of a scrollable view.
+     *
+     * @deprecated Call {@link ViewStructure#setDimens(int, int, int, int, int, int)} directly.
      */
+    @Deprecated
     public void setDimens(int left, int top, int scrollX, int scrollY, int width, int height) {
         mWrappedObj.setDimens(left, top, scrollX, scrollY, width, height);
     }

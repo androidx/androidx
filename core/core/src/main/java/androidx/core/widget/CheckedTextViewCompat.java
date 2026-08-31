@@ -21,14 +21,17 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.widget.CheckedTextView;
 
-import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.annotation.ReplaceWith;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Helper for accessing {@link CheckedTextView}.
+ *
+ * @deprecated Use {@link CheckedTextView} directly.
  */
+@Deprecated
 public final class CheckedTextViewCompat {
 
     private CheckedTextViewCompat() {
@@ -40,12 +43,15 @@ public final class CheckedTextViewCompat {
      * <p>
      * Subsequent calls to {@link CheckedTextView#setCheckMarkDrawable(Drawable)} should
      * automatically mutate the drawable and apply the specified tint and tint
-     * mode using {@link DrawableCompat#setTintList(Drawable, ColorStateList)}.
+     * mode using {@link Drawable#setTintList(ColorStateList)}.
      *
      * @param textView CheckedTextView for which to apply the tint.
      * @param tint the tint to apply, may be {@code null} to clear tint
-     * @see #setCheckMarkTintList(CheckedTextView, ColorStateList)
+     * @see CheckedTextView#setCheckMarkTintList(ColorStateList)
+     * @deprecated Call {@link CheckedTextView#setCheckMarkTintList(ColorStateList)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "textView.setCheckMarkTintList(tint)")
     public static void setCheckMarkTintList(@NonNull CheckedTextView textView,
             @Nullable ColorStateList tint) {
         textView.setCheckMarkTintList(tint);
@@ -54,23 +60,29 @@ public final class CheckedTextViewCompat {
     /**
      * Returns the tint applied to the check mark drawable
      *
-     * @see #setCheckMarkTintList(CheckedTextView, ColorStateList)
+     * @see CheckedTextView#setCheckMarkTintList(ColorStateList)
+     * @deprecated Call {@link CheckedTextView#getCheckMarkTintList()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "textView.getCheckMarkTintList()")
     public static @Nullable ColorStateList getCheckMarkTintList(@NonNull CheckedTextView textView) {
         return textView.getCheckMarkTintList();
     }
 
     /**
      * Specifies the blending mode used to apply the tint specified by
-     * {@link #setCheckMarkTintList(CheckedTextView, ColorStateList)}} to the check mark drawable.
+     * {@link CheckedTextView#setCheckMarkTintList(ColorStateList)}} to the check mark drawable.
      * The default mode is {@link PorterDuff.Mode#SRC_IN}.
      *
      * @param textView CheckedTextView for which to apply the tint mode.
      * @param tintMode the blending mode used to apply the tint, may be
      *                 {@code null} to clear tint
-     * @see #getCheckMarkTintMode(CheckedTextView)
-     * @see DrawableCompat#setTintMode(Drawable, PorterDuff.Mode)
+     * @see CheckedTextView#getCheckMarkTintMode()
+     * @see Drawable#setTintMode(PorterDuff.Mode)
+     * @deprecated Call {@link CheckedTextView#setCheckMarkTintMode(PorterDuff.Mode)} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "textView.setCheckMarkTintMode(tintMode)")
     public static void setCheckMarkTintMode(@NonNull CheckedTextView textView,
             PorterDuff.@Nullable Mode tintMode) {
         textView.setCheckMarkTintMode(tintMode);
@@ -79,8 +91,11 @@ public final class CheckedTextViewCompat {
     /**
      * @return the blending mode used to apply the tint to the check mark drawable
      * @attr name android:checkMarkTintMode
-     * @see #setCheckMarkTintMode(CheckedTextView, PorterDuff.Mode)
+     * @see CheckedTextView#setCheckMarkTintMode(PorterDuff.Mode)
+     * @deprecated Call {@link CheckedTextView#getCheckMarkTintMode()} directly.
      */
+    @Deprecated
+    @ReplaceWith(expression = "textView.getCheckMarkTintMode()")
     public static PorterDuff.@Nullable Mode getCheckMarkTintMode(
             @NonNull CheckedTextView textView) {
         return textView.getCheckMarkTintMode();
@@ -93,7 +108,7 @@ public final class CheckedTextViewCompat {
      * @deprecated Call {@link CheckedTextView#getCheckMarkDrawable()} directly.
      */
     @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "textView.getCheckMarkDrawable()")
+    @ReplaceWith(expression = "textView.getCheckMarkDrawable()")
     public static @Nullable Drawable getCheckMarkDrawable(@NonNull CheckedTextView textView) {
         return textView.getCheckMarkDrawable();
     }

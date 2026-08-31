@@ -37,7 +37,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 
-import androidx.core.content.ContextCompat;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -112,11 +111,11 @@ public class IconCompatTest {
         bitmap.eraseColor(Color.RED);
         Intent intent = new Intent();
 
-        Drawable badge = ContextCompat.getDrawable(context, R.drawable.test_drawable_blue);
+        Drawable badge = context.getDrawable(R.drawable.test_drawable_blue);
         IconCompat.createWithBitmap(bitmap).addToShortcutIntent(intent, badge, mContext);
         assertNotSame(bitmap, intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON));
 
-        verifyBadgeBitmap(intent, Color.RED, ContextCompat.getColor(context, R.color.test_blue));
+        verifyBadgeBitmap(intent, Color.RED, context.getColor(R.color.test_blue));
     }
 
     @Test
@@ -131,13 +130,13 @@ public class IconCompatTest {
         assertNull(intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON));
 
         intent = new Intent();
-        Drawable badge = ContextCompat.getDrawable(context, R.drawable.test_drawable_red);
+        Drawable badge = context.getDrawable(R.drawable.test_drawable_red);
         IconCompat.createWithResource(context, R.drawable.test_drawable_blue)
                 .addToShortcutIntent(intent, badge, mContext);
 
         assertNull(intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE));
-        verifyBadgeBitmap(intent, ContextCompat.getColor(context, R.color.test_blue),
-                ContextCompat.getColor(context, R.color.test_red));
+        verifyBadgeBitmap(intent, context.getColor(R.color.test_blue),
+                context.getColor(R.color.test_red));
     }
 
     @Test
@@ -402,8 +401,7 @@ public class IconCompatTest {
 
         assertNotNull(actualDrawable);
         Bitmap actualBitmap = drawDrawableToBitmap(actualDrawable);
-        Drawable expectedDrawable =
-                ContextCompat.getDrawable(mContext, R.drawable.test_drawable_green);
+        Drawable expectedDrawable = mContext.getDrawable(R.drawable.test_drawable_green);
         Bitmap expectedBitmap = drawDrawableToBitmap(expectedDrawable);
         assertTrue(actualBitmap.sameAs(expectedBitmap));
     }
