@@ -18,12 +18,14 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -64,6 +66,20 @@ class ScrollFieldScreenshotTest() {
     fun scrollField_darkTheme_disabled() {
         rule.setMaterialContent(darkColorScheme()) { TestContent(enabled = false) }
         assertScrollFieldAgainstGolden("scrollField_darkTheme_disabled")
+    }
+
+    @Test
+    fun scrollField_focused() {
+        rule.setMaterialContent(lightColorScheme()) {
+            CompositionLocalProvider(
+                LocalRippleThemeConfiguration provides
+                    RippleDefaults.InsetFocusRingThemeConfiguration
+            ) {
+                TestContent()
+            }
+        }
+        rule.onNodeWithTag(ScrollFieldTestTag).requestFocus()
+        assertScrollFieldAgainstGolden("scrollField_focused")
     }
 
     private fun assertScrollFieldAgainstGolden(goldenIdentifier: String) {
