@@ -282,7 +282,6 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
             localCallSilenceExt =
                 scope.addLocalCallSilenceExtension(
                     desiredInitialMuteState,
-                    canUserUpdateSilenceState,
                 ) { isSilenced ->
                     Log.i(
                         TAG,
@@ -626,7 +625,6 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
     override fun toggleLocalCallSilence(callId: String, isMuted: Boolean) {
         val callData = getCallDataById(callId)
         lifecycleScope.launch {
-            callData?.localCallSilenceExtension?.updateIsLocallySilenced(isMuted)
             updateCallDataInternal(callId) { it.copy(isLocallyMuted = isMuted) }
         }
     }
