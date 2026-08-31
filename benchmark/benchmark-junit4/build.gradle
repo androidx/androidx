@@ -31,7 +31,6 @@ plugins {
 
 android {
     defaultConfig {
-        minSdk { version = release(24) }
         testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
     }
     namespace = "androidx.benchmark.junit4"
