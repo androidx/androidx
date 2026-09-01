@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.allCaps
 import androidx.compose.foundation.text.input.delete
@@ -612,7 +611,6 @@ internal class BatchEditTest : ImeEditCommandTest() {
         assertThat(state.selection).isEqualTo(TextRange(3))
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun complexBatch_undoRedoSideEffects() {
         initialize("ABC", TextRange(3))
