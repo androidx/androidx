@@ -33,6 +33,7 @@ import androidx.glance.wear.WearWidgetBrush
 import androidx.glance.wear.WearWidgetData
 import androidx.glance.wear.WearWidgetDocument
 import androidx.glance.wear.color
+import androidx.glance.wear.core.RendererVersion
 import androidx.glance.wear.core.WearWidgetParams
 import kotlinx.coroutines.runBlocking
 
@@ -50,19 +51,36 @@ import kotlinx.coroutines.runBlocking
  * @param modifier The [Modifier] to be applied to the container box hosting the widget preview.
  *   Note that the preview's dimensions are enforced internally based on the provided [params].
  *   Applying layout-modifying modifiers here might conflict with these internal specifications.
+ * @param useSafeFallbackRendererVersion Whether to render using a safe fallback renderer version
+ *   (e.g., a conservative baseline version representing older hosts). This allows developers to
+ *   test widget compatibility against older versions of the Wear OS host. If false, the preview
+ *   renders using the latest renderer version. Defaults to false.
  */
 @Composable
 public fun WearWidgetPreview(
     widget: GlanceWearWidget,
     params: WearWidgetParams,
     modifier: Modifier = Modifier,
+    useSafeFallbackRendererVersion: Boolean = false,
 ) {
     val context = LocalContext.current
+    val activeRendererVersion =
+        if (useSafeFallbackRendererVersion) {
+            RendererVersion.SAFE_FALLBACK_VERSION
+        } else {
+            RendererVersion.MAX_RENDERER_VERSION
+        }
+    val updatedParams =
+        remember(params, useSafeFallbackRendererVersion) {
+            params.copy(rendererVersion = activeRendererVersion)
+        }
     val document =
-        remember(widget, params, context) {
+        remember(widget, updatedParams, context) {
             runBlocking {
-                val widgetData = widget.provideWidgetData(context, params)
-                widgetData.captureRawContent(context, params, isInspectionMode = true).rcDocument
+                val widgetData = widget.provideWidgetData(context, updatedParams)
+                widgetData
+                    .captureRawContent(context, updatedParams, isInspectionMode = true)
+                    .rcDocument
             }
         }
 
@@ -92,6 +110,8 @@ public fun WearWidgetPreview(
  * @param modifier The [Modifier] to be applied to the container box hosting the widget preview.
  * @param background The [WearWidgetBrush] to be used as the background of the widget. Defaults to a
  *   transparent solid color.
+ * @param useSafeFallbackRendererVersion Whether to render using the safe fallback renderer version
+ *   to test compatibility against older hosts, or the latest renderer version. Defaults to false.
  * @param content The [Composable] content of the widget to be previewed.
  */
 @Composable
@@ -99,6 +119,7 @@ public fun WearWidgetPreview(
     params: WearWidgetParams,
     modifier: Modifier = Modifier,
     background: WearWidgetBrush = WearWidgetBrush.color(Color.Transparent.rc),
+    useSafeFallbackRendererVersion: Boolean = false,
     content: @RemoteComposable @Composable () -> Unit,
 ) {
     val widget =
@@ -110,5 +131,24 @@ public fun WearWidgetPreview(
                 ): WearWidgetData = WearWidgetDocument(background, content)
             }
         }
-    WearWidgetPreview(widget, params, modifier)
+    WearWidgetPreview(
+        widget = widget,
+        params = params,
+        modifier = modifier,
+        useSafeFallbackRendererVersion = useSafeFallbackRendererVersion,
+    )
 }
+
+private fun WearWidgetParams.copy(
+    rendererVersion: RendererVersion = this.rendererVersion
+): WearWidgetParams =
+    WearWidgetParams(
+        instanceId = instanceId,
+        containerType = containerType,
+        widthDp = widthDp,
+        heightDp = heightDp,
+        horizontalPaddingDp = horizontalPaddingDp,
+        verticalPaddingDp = verticalPaddingDp,
+        cornerRadiusDp = cornerRadiusDp,
+        rendererVersion = rendererVersion,
+    )
