@@ -126,8 +126,11 @@ internal class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
         TODO("Not yet implemented")
     }
 
+    var isClosed: Boolean = false
+        private set
+
     override fun closePdfDocument() {
-        TODO("Not yet implemented")
+        isClosed = true
     }
 
     override fun getFormWidgetInfos(pageNum: Int): List<FormWidgetInfo?>? {

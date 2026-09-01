@@ -91,9 +91,10 @@ internal class PdfServiceConnectionImpl(override val context: Context) : PdfServ
             // automatically server-side. Attempting a release on a closed document will result in
             // an exception. To prevent such release calls, the connection is marked as disconnected
             // before closing the document.
+            val binder = documentBinder
             _eventStateFlow.update { Disconnected }
 
-            documentBinder?.closePdfDocument()
+            binder?.closePdfDocument()
             context.unbindService(this)
         }
     }
