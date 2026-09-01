@@ -54,6 +54,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -93,6 +94,33 @@ fun LazyListCacheWindowSample() {
     val itemsList = (0..100).toList()
 
     LazyColumn(cacheWindow = LazyLayoutCacheWindow(aheadFraction = 0.5f, behindFraction = 0.2f)) {
+        items(itemsList) { item -> Text("Item $item") }
+    }
+}
+
+@Sampled
+@Composable
+fun LazyListPrefetchStrategyMigrationSample() {
+    val itemsList = (0..100).toList()
+    val state = rememberLazyListState()
+
+    // Migrating from LazyListPrefetchStrategy (which scheduled prefetching for individual items):
+    // Use LazyLayoutCacheWindow to dynamically calculate the prefetch cache window in pixels based
+    // on average item size from LazyListState layoutInfo.
+    val customCacheWindow =
+        remember(state) {
+            object : LazyLayoutCacheWindow {
+                override fun Density.calculateAheadWindow(viewport: Int): Int {
+                    val visibleItems = state.layoutInfo.visibleItemsInfo
+                    if (visibleItems.isEmpty()) return 0
+                    val averageItemHeight = visibleItems.sumOf { it.size } / visibleItems.size
+                    // Prefetch 1 item ahead based on average item size
+                    return averageItemHeight
+                }
+            }
+        }
+
+    LazyColumn(state = state, cacheWindow = customCacheWindow) {
         items(itemsList) { item -> Text("Item $item") }
     }
 }

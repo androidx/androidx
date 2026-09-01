@@ -33,7 +33,14 @@ import androidx.compose.runtime.Stable
  * from the [onScroll] and [onVisibleItemsUpdated] callbacks. If any of the returned PrefetchHandles
  * no longer need to be prefetched, use [LazyLayoutPrefetchState.PrefetchHandle.cancel] to cancel
  * the request.
+ *
+ * @sample androidx.compose.foundation.samples.LazyListPrefetchStrategyMigrationSample
  */
+@Deprecated(
+    "LazyListPrefetchStrategy is deprecated in favor of LazyLayoutCacheWindow. " +
+        "LazyLayoutCacheWindow provides a declarative, viewport-based prefetching window passed " +
+        "directly to LazyColumn or LazyRow."
+)
 @ExperimentalFoundationApi
 public interface LazyListPrefetchStrategy {
 
@@ -89,6 +96,10 @@ public interface LazyListPrefetchStrategy {
 }
 
 /** Scope for callbacks in [LazyListPrefetchStrategy] which allows prefetches to be requested. */
+@Deprecated(
+    "LazyListPrefetchScope is deprecated alongside LazyListPrefetchStrategy. Prefetching " +
+        "behavior should be configured using LazyLayoutCacheWindow."
+)
 @ExperimentalFoundationApi
 public interface LazyListPrefetchScope {
 
@@ -124,6 +135,10 @@ public interface LazyListPrefetchScope {
  *   is enabled, this value will be used as the initial count and the strategy will adapt the count
  *   automatically.
  */
+@Deprecated(
+    "LazyListPrefetchStrategy is deprecated. Prefetching behavior should be configured using " +
+        "LazyLayoutCacheWindow on LazyColumn or LazyRow."
+)
 @ExperimentalFoundationApi
 public fun LazyListPrefetchStrategy(nestedPrefetchItemCount: Int = 2): LazyListPrefetchStrategy =
     DefaultLazyListPrefetchStrategy(nestedPrefetchItemCount)
@@ -259,6 +274,10 @@ internal class DefaultLazyListPrefetchStrategy(
  * A scope for [LazyListPrefetchScope.schedulePrefetch] callbacks. The scope provides additional
  * information about a prefetched item.
  */
+@Deprecated(
+    "LazyListPrefetchResultScope is deprecated alongside LazyListPrefetchStrategy. " +
+        "Prefetching behavior should be configured using LazyLayoutCacheWindow."
+)
 @ExperimentalFoundationApi
 public sealed interface LazyListPrefetchResultScope {
 
