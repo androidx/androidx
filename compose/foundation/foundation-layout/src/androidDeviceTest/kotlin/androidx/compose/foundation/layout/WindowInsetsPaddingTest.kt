@@ -868,7 +868,6 @@ class WindowInsetsPaddingTest {
             showAnim.sendImeProgress(view, 1.0f, maxBottom = 200)
             showAnim.sendImeEnd(view)
 
-            val width = view.width
             val height = view.height
             rule.runOnIdle {
                 assertThat(coordinates.boundsInRoot().bottom).isEqualTo((height - 200).toFloat())
@@ -939,7 +938,6 @@ class WindowInsetsPaddingTest {
             anim2.sendImeProgress(view, 1.0f, maxBottom = 20)
             anim2.sendImeEnd(view)
 
-            val width = view.width
             val height = view.height
             rule.runOnIdle {
                 // Expected to be at 20px bottom padding (height - 20)

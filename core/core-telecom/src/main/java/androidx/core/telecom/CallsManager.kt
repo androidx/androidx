@@ -526,7 +526,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                 androidx.core.telecom.CallException.ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME
             )
         }
-        var closableCallSession: AutoCloseable?
+        val closableCallSession: AutoCloseable?
         // This variable controls the addCall execution in the calling activity. AddCall will block
         // for the duration of the session.  When the session is terminated via a disconnect or
         // exception, addCall will unblock.

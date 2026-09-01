@@ -71,7 +71,7 @@ class RegisterExportRequestTest {
         val buffer = ByteBuffer.wrap(credentialBytes).order(ByteOrder.LITTLE_ENDIAN)
 
         // Read the sizes from the header.
-        val headerSize = buffer.int
+        buffer.int // header size
         val credsJsonSize = buffer.int
         val iconSizeArraySize = buffer.int
 
