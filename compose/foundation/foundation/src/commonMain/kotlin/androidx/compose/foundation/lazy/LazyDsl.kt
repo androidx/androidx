@@ -22,7 +22,6 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.layout.DEFAULT_LAZY_LAYOUT_CACHE_WINDOW_AHEAD_FRACTION
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
@@ -328,9 +327,10 @@ public inline fun <T> LazyListScope.itemsIndexed(
  *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
  *   need to use Modifier.overscroll separately.
  * @param cacheWindow [LazyLayoutCacheWindow] configuring the area ahead and behind the viewport to
- *   prefetch and retain items. Override this to tune scrolling performance, such as increasing the
- *   ahead window to reduce frame drops during scrolling or adding a behind window to retain
- *   recently visible items when scrolling back and forth.
+ *   prefetch and retain items. The default cache window does not cache items while the user is not
+ *   scrolling. Override this to tune scrolling performance, such as increasing the ahead window to
+ *   reduce frame drops during scrolling or adding a behind window to retain recently visible items
+ *   when scrolling back and forth.
  * @param content a block which describes the content. Inside this block you can use methods like
  *   [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
  */
@@ -346,7 +346,7 @@ public fun LazyRow(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    cacheWindow: LazyLayoutCacheWindow = DefaultLazyListCacheWindow,
+    cacheWindow: LazyLayoutCacheWindow = LazyListDefaults.cacheWindow(state),
     content: LazyListScope.() -> Unit,
 ) {
     LazyList(
@@ -420,7 +420,7 @@ public fun LazyRow(
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
-        cacheWindow = DefaultLazyListCacheWindow,
+        cacheWindow = LazyListDefaults.cacheWindow(state),
         content = content,
     )
 }
@@ -459,9 +459,10 @@ public fun LazyRow(
  *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
  *   need to use Modifier.overscroll separately.
  * @param cacheWindow [LazyLayoutCacheWindow] configuring the area ahead and behind the viewport to
- *   prefetch and retain items. Override this to tune scrolling performance, such as increasing the
- *   ahead window to reduce frame drops during scrolling or adding a behind window to retain
- *   recently visible items when scrolling back and forth.
+ *   prefetch and retain items. The default cache window does not cache items while the user is not
+ *   scrolling. Override this to tune scrolling performance, such as increasing the ahead window to
+ *   reduce frame drops during scrolling or adding a behind window to retain recently visible items
+ *   when scrolling back and forth.
  * @param content a block which describes the content. Inside this block you can use methods like
  *   [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
  */
@@ -477,7 +478,7 @@ public fun LazyColumn(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    cacheWindow: LazyLayoutCacheWindow = DefaultLazyListCacheWindow,
+    cacheWindow: LazyLayoutCacheWindow = LazyListDefaults.cacheWindow(state),
     content: LazyListScope.() -> Unit,
 ) {
     LazyList(
@@ -553,7 +554,7 @@ public fun LazyColumn(
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
-        cacheWindow = DefaultLazyListCacheWindow,
+        cacheWindow = LazyListDefaults.cacheWindow(state),
         content = content,
     )
 }
@@ -665,10 +666,3 @@ public fun LazyRow(
         content = content,
     )
 }
-
-internal object DefaultLazyListCacheWindow :
-    LazyLayoutCacheWindow by LazyLayoutCacheWindow(
-        aheadFraction = DEFAULT_LAZY_LAYOUT_CACHE_WINDOW_AHEAD_FRACTION,
-        behindFraction = 0f,
-        isNonScrollCachingEnabled = false,
-    )

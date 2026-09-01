@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.CacheWindowLogic
+import androidx.compose.foundation.lazy.layout.DefaultLazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasurePolicy
@@ -88,9 +89,10 @@ internal fun LazyList(
     horizontalArrangement: Arrangement.Horizontal? = null,
     /**
      * cacheWindow specifies the size of the ahead and behind window to be used as per
-     * [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow]
+     * [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow]. The default cache window
+     * does not cache items while the user is not scrolling.
      */
-    cacheWindow: LazyLayoutCacheWindow = DefaultLazyListCacheWindow,
+    cacheWindow: LazyLayoutCacheWindow = LazyListDefaults.cacheWindow(state),
     /** The content of the list */
     content: LazyListScope.() -> Unit,
 ) {
@@ -105,7 +107,7 @@ internal fun LazyList(
         remember(state, cacheWindow) {
             state.legacyPrefetchStrategy
                 ?: when (cacheWindow) {
-                    is DefaultLazyListCacheWindow ->
+                    is DefaultLazyLayoutCacheWindow ->
                         if (
                             ComposeFoundationFlags
                                 .isPreferDefaultCacheWindowOverPrefetchStrategyLazyList
@@ -460,7 +462,6 @@ private fun rememberLazyListMeasurePolicy(
         }
     }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun CacheWindowLogic.keepAroundItems(
     visibleItemsList: List<LazyListMeasuredItem>,
     measuredItemProvider: LazyListMeasuredItemProvider,
