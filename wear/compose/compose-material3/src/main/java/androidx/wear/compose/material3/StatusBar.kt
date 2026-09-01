@@ -69,7 +69,8 @@ private const val WEAR_CINNAMON_BUN_2 = "WEAR_CINNAMON_BUN_2"
 /** Checks if the global status bar is enabled for the given application [Context]. */
 internal fun isStatusBarEnabled(context: Context): Boolean =
     try {
-        WearApiVersionHelper.isApiVersionAtLeast(WEAR_CINNAMON_BUN_2) &&
+        context.applicationInfo.targetSdkVersion >= Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+            WearApiVersionHelper.isApiVersionAtLeast(WEAR_CINNAMON_BUN_2) &&
             WearSettings.isStatusBarEnabled(context)
     } catch (e: Throwable) {
         false
