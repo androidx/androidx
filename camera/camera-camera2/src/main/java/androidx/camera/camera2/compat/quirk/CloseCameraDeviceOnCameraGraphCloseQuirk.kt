@@ -30,7 +30,7 @@ import androidx.camera.core.impl.Quirk
  * the camera device.
  *
  * QuirkSummary
- * - Bug Id: 282871038, 369300443, 425588561, 426104225, 369291594
+ * - Bug Id: 282871038, 369300443, 425588561, 426104225, 369291594, 385881561
  * - Description: Instructs CameraPipe to close the camera device before creating a new capture
  *   session to avoid undesirable behaviors
  *
@@ -42,9 +42,7 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
     public fun shouldCloseCameraDevice(isExtensions: Boolean): Boolean =
         if (
             isXiaomiProblematicDevice ||
-                (isSamsungProblematicDevice &&
-                    !isSamsungExynos7570Device &&
-                    !isSamsungExynos7870Device)
+                (isSamsungProblematicDevice && !isSamsungUnconditionalDevice)
         ) {
             // Xiaomi 14 Ultra and Samsung API 31 ~ 34 devices need to apply the quirk only when
             // Extensions is enabled.
@@ -56,10 +54,10 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
     public companion object {
         @JvmStatic
         public fun isEnabled(): Boolean {
-            if (isSamsungExynos7570Device || isSamsungExynos7870Device) {
-                // On Exynos7570, Exynos7870 platforms, when their 3A pipeline times out, recreating
-                // a capture session has a high chance of triggering use-after-free crashes. Closing
-                // the camera device helps reduce the likelihood of this happening.
+            if (isSamsungUnconditionalDevice) {
+                // On Exynos7570, Exynos7870, and Snapdragon 845 Galaxy S9 platforms, recreating
+                // a capture session without closing the camera device can trigger native HAL
+                // crashes or pipeline stalls. Closing the camera device resolves this issue.
                 return true
             } else if (
                 Build.VERSION.SDK_INT in Build.VERSION_CODES.R..Build.VERSION_CODES.TIRAMISU &&
@@ -87,26 +85,60 @@ public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
             return false
         }
 
-        private val isSamsungExynos7570Device: Boolean = Build.HARDWARE == "samsungexynos7570"
-        private val isSamsungExynos7870Device: Boolean = Build.HARDWARE == "samsungexynos7870"
+        private val isSamsungUnconditionalDevice: Boolean
+            get() =
+                isSamsungExynos7570Device ||
+                    isSamsungExynos7870Device ||
+                    isSamsungGalaxyS9SnapdragonDevice
+
+        private val isSamsungExynos7570Device: Boolean
+            get() =
+                isSamsungDevice() &&
+                    (Build.HARDWARE.contains("7570", ignoreCase = true) ||
+                        Build.BOARD.contains("7570", ignoreCase = true))
+
+        private val isSamsungExynos7870Device: Boolean
+            get() =
+                isSamsungDevice() &&
+                    (Build.HARDWARE.contains("7870", ignoreCase = true) ||
+                        Build.BOARD.contains("7870", ignoreCase = true))
+
+        private val isSamsungGalaxyS9SnapdragonDevice: Boolean
+            get() =
+                isSamsungDevice() &&
+                    (listOf("starqlte", "star2qlte").any {
+                        Build.DEVICE.startsWith(it, ignoreCase = true)
+                    } ||
+                        listOf(
+                                "sm-g960u",
+                                "sm-g9600",
+                                "sm-g960w",
+                                "sm-g965u",
+                                "sm-g9650",
+                                "sm-g965w",
+                            )
+                            .any { Build.MODEL.startsWith(it, ignoreCase = true) })
 
         // Xiaomi 14 Ultra and Xiaomi 14 to apply the quirk when Extensions is enabled.
-        private val isXiaomiProblematicDevice: Boolean =
-            isXiaomiDevice() && arrayOf("aurora", "houji").contains(Build.DEVICE.lowercase())
+        private val isXiaomiProblematicDevice: Boolean
+            get() =
+                isXiaomiDevice() && arrayOf("aurora", "houji").contains(Build.DEVICE.lowercase())
 
-        private val isSonyProblematicDevice: Boolean =
-            isSonyDevice() &&
-                listOf(
-                        "XQ-DQ", // Sony Xperia 1 V (XQ-DQ72, XQ-DQ54 etc.), ref: b/445897456
-                        "SO", // Sony Xperia 1 V (SO-51D, SOG10), ref: b/445897456
-                        "A301SO", // Sony Xperia 1 V, ref: b/445897456
-                    )
-                    .any { Build.DEVICE.startsWith(it, ignoreCase = true) }
+        private val isSonyProblematicDevice: Boolean
+            get() =
+                isSonyDevice() &&
+                    listOf(
+                            "XQ-DQ", // Sony Xperia 1 V (XQ-DQ72, XQ-DQ54 etc.), ref: b/445897456
+                            "SO", // Sony Xperia 1 V (SO-51D, SOG10), ref: b/445897456
+                            "A301SO", // Sony Xperia 1 V, ref: b/445897456
+                        )
+                        .any { Build.DEVICE.startsWith(it, ignoreCase = true) }
 
         // Samsung API 31 ~ 34 devices to apply the quirk when Extensions is enabled.
-        private val isSamsungProblematicDevice: Boolean =
-            isSamsungDevice() &&
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                Build.VERSION.SDK_INT <= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+        private val isSamsungProblematicDevice: Boolean
+            get() =
+                isSamsungDevice() &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    Build.VERSION.SDK_INT <= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
     }
 }
