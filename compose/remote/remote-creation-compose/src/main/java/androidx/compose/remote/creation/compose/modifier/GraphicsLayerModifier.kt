@@ -23,6 +23,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.CircleShape
+import androidx.compose.remote.creation.modifiers.GraphicsLayerModifier as CreationGraphicsLayerModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.RectShape
 import androidx.compose.ui.graphics.RectangleShape
@@ -54,7 +55,7 @@ public class GraphicsLayerModifier(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        val layer = androidx.compose.remote.creation.modifiers.GraphicsLayerModifier()
+        val layer = CreationGraphicsLayerModifier()
         if (scaleX.floatId != 1f) {
             layer.setFloatAttribute(GraphicsLayerModifierOperation.SCALE_X, scaleX.floatId)
         }

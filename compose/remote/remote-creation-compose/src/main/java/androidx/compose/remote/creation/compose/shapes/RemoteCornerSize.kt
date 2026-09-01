@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.shapes
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -72,16 +73,26 @@ internal data class PxCornerSize(val size: RemoteFloat) : RemoteCornerSize {
 public fun RemoteCornerSize(@IntRange(from = 0, to = 100) percent: Int): RemoteCornerSize =
     RemotePercentCornerSize(percent)
 
-/**
- * Creates [RemoteCornerSize] with provided size.
- *
- * @param percent the corner size defined in float percents of the shape's smaller side. Can't be
- *   negative or larger than 100 percents.
- */
 internal data class RemotePercentCornerSize(val percent: Int) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = $percent%)"
 
     override fun toPx(shapeSize: RemoteSize, density: RemoteDensity): RemoteFloat {
         return shapeSize.minDimension * (percent / 100f)
+    }
+}
+
+internal fun RemoteCornerSize.toDimension(
+    shapeSize: RemoteSize,
+    density: RemoteDensity,
+    densityBehavior: RemoteDensityBehavior,
+): RemoteFloat {
+    return if (densityBehavior == RemoteDensityBehavior.Dp) {
+        if (this is RemoteDpCornerSize) {
+            size.value
+        } else {
+            toPx(shapeSize, density) / density.density
+        }
+    } else {
+        toPx(shapeSize, density)
     }
 }

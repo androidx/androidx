@@ -18,15 +18,16 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.ShapeType
+import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRectangleShape
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.shapes.RemoteShape
+import androidx.compose.remote.creation.compose.shapes.toDimension
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
-import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.BorderModifier as CreationBorderModifier
 import androidx.compose.remote.creation.modifiers.DynamicBorderModifier
@@ -34,7 +35,7 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.ui.graphics.toArgb
 
 internal class BorderModifier(
-    public val width: RemoteFloat,
+    public val width: RemoteDp,
     public val color: RemoteColor,
     public val shape: RemoteShape = RemoteRectangleShape,
 ) : RemoteModifier.Element {
@@ -52,14 +53,22 @@ internal class BorderModifier(
             shapeType = ShapeType.ROUNDED_RECTANGLE
 
             val remoteSize = RemoteSize(context.componentWidth(), context.componentHeight())
-            roundedCorner = shape.topStart.toPx(remoteSize, remoteDensity).floatId
+            roundedCorner =
+                shape.topStart.toDimension(remoteSize, remoteDensity, densityBehavior).floatId
         }
+
+        val resolvedWidth =
+            if (densityBehavior == RemoteDensityBehavior.Dp) {
+                width.value.floatId
+            } else {
+                width.toPx().floatId
+            }
 
         val constantColor = color.constantValueOrNull
         return if (constantColor != null) {
-            CreationBorderModifier(width.floatId, roundedCorner, constantColor.toArgb(), shapeType)
+            CreationBorderModifier(resolvedWidth, roundedCorner, constantColor.toArgb(), shapeType)
         } else {
-            DynamicBorderModifier(width.floatId, roundedCorner, color.id.toShort(), shapeType)
+            DynamicBorderModifier(resolvedWidth, roundedCorner, color.id.toShort(), shapeType)
         }
     }
 }
@@ -78,5 +87,5 @@ public fun RemoteModifier.border(
     color: RemoteColor,
     shape: RemoteShape = RemoteRectangleShape,
 ): RemoteModifier {
-    return then(BorderModifier(width.toPx(), color, shape))
+    return then(BorderModifier(width, color, shape))
 }

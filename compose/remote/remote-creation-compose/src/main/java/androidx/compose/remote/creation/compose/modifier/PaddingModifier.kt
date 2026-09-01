@@ -17,12 +17,14 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.capture.RemoteDensityBehavior
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.modifiers.PaddingModifier as CreationPaddingModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -45,12 +47,23 @@ internal class PaddingModifier(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
+        val resolvedStart =
+            if (densityBehavior == RemoteDensityBehavior.Dp) start / remoteDensity.density
+            else start
+        val resolvedTop =
+            if (densityBehavior == RemoteDensityBehavior.Dp) top / remoteDensity.density else top
+        val resolvedEnd =
+            if (densityBehavior == RemoteDensityBehavior.Dp) end / remoteDensity.density else end
+        val resolvedBottom =
+            if (densityBehavior == RemoteDensityBehavior.Dp) bottom / remoteDensity.density
+            else bottom
+
         val isLtr = layoutDirection == LayoutDirection.Ltr
-        return androidx.compose.remote.creation.modifiers.PaddingModifier(
-            (if (isLtr) start else end).floatId,
-            top.floatId,
-            (if (isLtr) end else start).floatId,
-            bottom.floatId,
+        return CreationPaddingModifier(
+            (if (isLtr) resolvedStart else resolvedEnd).floatId,
+            resolvedTop.floatId,
+            (if (isLtr) resolvedEnd else resolvedStart).floatId,
+            resolvedBottom.floatId,
         )
     }
 }
