@@ -1,0 +1,59 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.appstate.statestore:statestore>
+final class androidx.appstate.statestore/StateStore { // androidx.appstate.statestore/StateStore|null[0]
+    constructor <init>() // androidx.appstate.statestore/StateStore.<init>|<init>(){}[0]
+
+    final val keys // androidx.appstate.statestore/StateStore.keys|{}keys[0]
+        final fun <get-keys>(): kotlin.collections/Set<androidx.appstate.statestore/StateStoreKey<*>> // androidx.appstate.statestore/StateStore.keys.<get-keys>|<get-keys>(){}[0]
+
+    final fun <#A1: kotlin/Any?> getState(androidx.appstate.statestore/StateStoreKey<#A1>, #A1 = ...): androidx.compose.runtime/State<#A1> // androidx.appstate.statestore/StateStore.getState|getState(androidx.appstate.statestore.StateStoreKey<0:0>;0:0){0§<kotlin.Any?>}[0]
+    final fun <#A1: kotlin/Any?> setState(androidx.appstate.statestore/StateStoreKey<#A1>, #A1) // androidx.appstate.statestore/StateStore.setState|setState(androidx.appstate.statestore.StateStoreKey<0:0>;0:0){0§<kotlin.Any?>}[0]
+    final inline fun <#A1: kotlin/Any?> updateState(androidx.appstate.statestore/StateStoreKey<#A1>, #A1 = ..., kotlin/Function1<#A1, #A1>) // androidx.appstate.statestore/StateStore.updateState|updateState(androidx.appstate.statestore.StateStoreKey<0:0>;0:0;kotlin.Function1<0:0,0:0>){0§<kotlin.Any?>}[0]
+}
+
+open class <#A: kotlin/Any?> androidx.appstate.statestore/StateStoreKey { // androidx.appstate.statestore/StateStoreKey|null[0]
+    constructor <init>(#A, androidx.appstate.statestore/StateStoreKey<#A>? = ..., kotlin/Function1<androidx.appstate.statestore/StateStore, kotlin/Boolean> = ...) // androidx.appstate.statestore/StateStoreKey.<init>|<init>(1:0;androidx.appstate.statestore.StateStoreKey<1:0>?;kotlin.Function1<androidx.appstate.statestore.StateStore,kotlin.Boolean>){}[0]
+    constructor <init>(kotlin/Int, #A?, kotlinx.serialization.internal/SerializationConstructorMarker?) // androidx.appstate.statestore/StateStoreKey.<init>|<init>(kotlin.Int;1:0?;kotlinx.serialization.internal.SerializationConstructorMarker?){}[0]
+
+    final val autoClearKey // androidx.appstate.statestore/StateStoreKey.autoClearKey|{}autoClearKey[0]
+        final fun <get-autoClearKey>(): androidx.appstate.statestore/StateStoreKey<#A>? // androidx.appstate.statestore/StateStoreKey.autoClearKey.<get-autoClearKey>|<get-autoClearKey>(){}[0]
+    final val defaultValue // androidx.appstate.statestore/StateStoreKey.defaultValue|{}defaultValue[0]
+        final fun <get-defaultValue>(): #A // androidx.appstate.statestore/StateStoreKey.defaultValue.<get-defaultValue>|<get-defaultValue>(){}[0]
+    final val shouldClearState // androidx.appstate.statestore/StateStoreKey.shouldClearState|{}shouldClearState[0]
+        final fun <get-shouldClearState>(): kotlin/Function1<androidx.appstate.statestore/StateStore, kotlin/Boolean> // androidx.appstate.statestore/StateStoreKey.shouldClearState.<get-shouldClearState>|<get-shouldClearState>(){}[0]
+
+    final class <#A1: kotlin/Any?> $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.appstate.statestore/StateStoreKey<#A1>> { // androidx.appstate.statestore/StateStoreKey.$serializer|null[0]
+        constructor <init>(kotlinx.serialization/KSerializer<#A1>) // androidx.appstate.statestore/StateStoreKey.$serializer.<init>|<init>(kotlinx.serialization.KSerializer<1:0>){}[0]
+
+        final val descriptor // androidx.appstate.statestore/StateStoreKey.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.appstate.statestore/StateStoreKey.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+        final val typeSerial0 // androidx.appstate.statestore/StateStoreKey.$serializer.typeSerial0|{}typeSerial0[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.appstate.statestore/StateStoreKey.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.appstate.statestore/StateStoreKey<#A1> // androidx.appstate.statestore/StateStoreKey.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.appstate.statestore/StateStoreKey<#A1>) // androidx.appstate.statestore/StateStoreKey.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.appstate.statestore.StateStoreKey<1:0>){}[0]
+        final fun typeParametersSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.appstate.statestore/StateStoreKey.$serializer.typeParametersSerializers|typeParametersSerializers(){}[0]
+    }
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // androidx.appstate.statestore/StateStoreKey.Companion|null[0]
+        final val $cachedDescriptor // androidx.appstate.statestore/StateStoreKey.Companion.$cachedDescriptor|{}$cachedDescriptor[0]
+            final fun <get-$cachedDescriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.appstate.statestore/StateStoreKey.Companion.$cachedDescriptor.<get-$cachedDescriptor>|<get-$cachedDescriptor>(){}[0]
+
+        final fun <#A2: kotlin/Any?> serializer(kotlinx.serialization/KSerializer<#A2>): kotlinx.serialization/KSerializer<androidx.appstate.statestore/StateStoreKey<#A2>> // androidx.appstate.statestore/StateStoreKey.Companion.serializer|serializer(kotlinx.serialization.KSerializer<0:0>){0§<kotlin.Any?>}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // androidx.appstate.statestore/StateStoreKey.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
+}
+
+final val androidx.appstate.statestore/androidx_appstate_statestore_StateStore$stableprop // androidx.appstate.statestore/androidx_appstate_statestore_StateStore$stableprop|#static{}androidx_appstate_statestore_StateStore$stableprop[0]
+final val androidx.appstate.statestore/androidx_appstate_statestore_StateStoreKey$stableprop // androidx.appstate.statestore/androidx_appstate_statestore_StateStoreKey$stableprop|#static{}androidx_appstate_statestore_StateStoreKey$stableprop[0]
+final val androidx.appstate.statestore/androidx_appstate_statestore_StateStoreKey_$serializer$stableprop // androidx.appstate.statestore/androidx_appstate_statestore_StateStoreKey_$serializer$stableprop|#static{}androidx_appstate_statestore_StateStoreKey_$serializer$stableprop[0]
+
+final fun androidx.appstate.statestore/androidx_appstate_statestore_StateStore$stableprop_getter(): kotlin/Int // androidx.appstate.statestore/androidx_appstate_statestore_StateStore$stableprop_getter|androidx_appstate_statestore_StateStore$stableprop_getter(){}[0]
+final fun androidx.appstate.statestore/androidx_appstate_statestore_StateStoreKey$stableprop_getter(): kotlin/Int // androidx.appstate.statestore/androidx_appstate_statestore_StateStoreKey$stableprop_getter|androidx_appstate_statestore_StateStoreKey$stableprop_getter(){}[0]
+final fun androidx.appstate.statestore/androidx_appstate_statestore_StateStoreKey_$serializer$stableprop_getter(): kotlin/Int // androidx.appstate.statestore/androidx_appstate_statestore_StateStoreKey_$serializer$stableprop_getter|androidx_appstate_statestore_StateStoreKey_$serializer$stableprop_getter(){}[0]
