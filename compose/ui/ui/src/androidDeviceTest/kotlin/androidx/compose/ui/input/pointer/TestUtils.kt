@@ -155,6 +155,32 @@ fun createHoverMotionEvent(action: Int, x: Float, y: Float): MotionEvent {
     )
 }
 
+fun createPanMotionEvent(action: Int, x: Float, y: Float): MotionEvent {
+    val pointerProperties =
+        MotionEvent.PointerProperties().apply { toolType = MotionEvent.TOOL_TYPE_FINGER }
+    val pointerCoords =
+        MotionEvent.PointerCoords().also {
+            it.x = x
+            it.y = y
+        }
+    return MotionEvent.obtain(
+        0L /* downTime */,
+        0L /* eventTime */,
+        action,
+        1 /* pointerCount */,
+        arrayOf(pointerProperties),
+        arrayOf(pointerCoords),
+        0 /* metaState */,
+        0 /* buttonState */,
+        0f /* xPrecision */,
+        0f /* yPrecision */,
+        0 /* deviceId */,
+        0 /* edgeFlags */,
+        InputDevice.SOURCE_TOUCHSCREEN,
+        0, /* flags */
+    )
+}
+
 internal fun Modifier.spyGestureFilter(callback: (PointerEventPass) -> Unit): Modifier = composed {
     val modifier = remember { SpyGestureModifier() }
     modifier.callback = callback
