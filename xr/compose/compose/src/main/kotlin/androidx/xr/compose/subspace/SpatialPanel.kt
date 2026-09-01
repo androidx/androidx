@@ -17,7 +17,6 @@
 package androidx.xr.compose.subspace
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.view.MotionEvent
 import android.view.View
@@ -53,10 +52,8 @@ import androidx.xr.compose.R
 import androidx.xr.compose.platform.LocalComposeXrOwners
 import androidx.xr.compose.platform.LocalDialogManager
 import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.platform.disposableValueOf
 import androidx.xr.compose.platform.getActivity
 import androidx.xr.compose.platform.getValue
-import androidx.xr.compose.subspace.layout.CoreActivityPanelEntity
 import androidx.xr.compose.subspace.layout.CoreMainPanelEntity
 import androidx.xr.compose.subspace.layout.CorePanelEntity
 import androidx.xr.compose.subspace.layout.InteractionPolicy
@@ -76,10 +73,7 @@ import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetMeasur
 import androidx.xr.compose.subspace.node.ComposeSubspaceNode.Companion.SetModifier
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.FloatSize2d
-import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.ActivityPanelEntity
 import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
 
@@ -466,114 +460,6 @@ internal class MainPanelOwnerQueue(private val queue: ArrayDeque<() -> Unit> = A
 
     // Use the more efficient ArrayDeque version of `removeFirst`.
     fun removeFirst() = queue.removeFirst()
-}
-
-/**
- * Creates a [SpatialActivityPanel] and launches an Activity within it.
- *
- * The only supported use case for this SpatialPanel is to launch activities that are a part of the
- * same application.
- *
- * @param intent The intent of an Activity to launch within this panel.
- * @param modifier SubspaceModifiers to apply to the SpatialPanel. The depth field in size-based
- *   modifiers affects this panel's layout size, but will not affect how the panel is rendered. The
- *   rendered shape will be a flat rectangle that is positioned on the front face of the rectangular
- *   prism created by the layout size.
- * @param shape The shape of this Spatial Panel.
- * @param interactionPolicy An optional [InteractionPolicy] that can be set to detect 3D input
- *   events. Setting this will not intercept 2D input events and is intended to provide additional
- *   spatial input information.
- */
-@Composable
-@SubspaceComposable
-@Deprecated(
-    message =
-        "The `Intent` parameter has been replaced with a `SpatialActivityPanelController` to make" +
-            " launching additional activities more explicit. Additionally, `dragPolicy` and " +
-            "`resizePolicy` are now specified by modifiers. Use the overload of " +
-            "`SpatialActivityPanel` that accepts a `SpatialActivityPanelController`, and migrate " +
-            "your drag and resize policy to use the `SubspaceModifier.movable()` and " +
-            "`SubspaceModifier.resizable()` modifiers."
-)
-public fun SpatialActivityPanel(
-    intent: Intent,
-    modifier: SubspaceModifier = SubspaceModifier,
-    shape: SpatialShape = SpatialPanelDefaults.shape,
-    interactionPolicy: InteractionPolicy? = null,
-) {
-    val finalModifier =
-        buildSpatialPanelModifier(baseModifier = modifier, interactionPolicy = interactionPolicy)
-    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    val pixelDensity = session.scene.virtualPixelDensity
-    val dialogManager = LocalDialogManager.current
-    val density = LocalDensity.current
-
-    val pixelDimensions = IntSize2d(0, 0)
-
-    val activityPanelEntity = remember {
-        ActivityPanelEntity.create(
-            session,
-            pixelDimensions,
-            "ActivityPanel-${intent.action}",
-            parent = null,
-        )
-    }
-
-    val corePanelEntity: CoreActivityPanelEntity = remember {
-        CoreActivityPanelEntity(pixelDensity, activityPanelEntity).apply { enabled = false }
-    }
-
-    SideEffect { corePanelEntity.setShape(shape, density) }
-
-    LaunchedEffect(intent) { corePanelEntity.startActivity(intent) }
-
-    SpatialBox {
-        SubspaceLayout(modifier = finalModifier, coreEntity = corePanelEntity) { _, constraints ->
-            val width = DEFAULT_SIZE_PX.coerceIn(constraints.minWidth, constraints.maxWidth)
-            val height = DEFAULT_SIZE_PX.coerceIn(constraints.minHeight, constraints.maxHeight)
-            val depth = constraints.minDepth.coerceAtLeast(0)
-            layout(width, height, depth) {}
-        }
-
-        if (dialogManager.isSpatialDialogActive.value) {
-            val localContext = LocalContext.current
-            val scrimView =
-                remember(localContext) {
-                    View(localContext).apply { foreground = DEFAULT_SCRIM_ALPHA.toDrawable() }
-                }
-
-            val entityName = "ScrimPanel"
-            val scrimPanelEntity by
-                remember(scrimView) {
-                    disposableValueOf(
-                        CorePanelEntity(
-                                pixelDensity = pixelDensity,
-                                entity =
-                                    PanelEntity.create(
-                                        session = session,
-                                        view = scrimView,
-                                        pixelDimensions =
-                                            corePanelEntity.size.run { IntSize2d(width, height) },
-                                        name = entityName,
-                                        pose = Pose.Identity,
-                                        parent = activityPanelEntity,
-                                    ),
-                            )
-                            .apply {
-                                parent = corePanelEntity
-                                poseInMeters = Pose(translation = Vector3(0f, 0f, 0.01f))
-                            }
-                    ) {
-                        it.dispose()
-                    }
-                }
-
-            SideEffect {
-                scrimPanelEntity.size = corePanelEntity.mutableSize
-                scrimPanelEntity.setShape(shape, density)
-            }
-        }
-    }
 }
 
 private class SpatialViewPanelMeasurePolicy(private val view: View) : SubspaceMeasurePolicy {
