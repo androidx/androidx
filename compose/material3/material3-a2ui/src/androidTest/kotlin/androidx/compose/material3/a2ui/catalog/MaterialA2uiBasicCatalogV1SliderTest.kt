@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -41,16 +41,21 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class MaterialSliderComponentTest {
+class MaterialA2uiBasicCatalogV1SliderTest {
 
     private val testCatalog =
-        A2uiCatalog(catalogId = "test_catalog", components = listOf(MaterialSliderComponent))
+        A2uiCatalog(
+            catalogId = "test_catalog",
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.slider),
+        )
 
     @Test
     fun value_staticValue_rendersSliderWithValueAndLabel() = runComposeUiTest {
