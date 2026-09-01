@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal.undo
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.internal.selection.FakeClipboard
@@ -45,7 +44,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 internal class BasicTextFieldUndoTest {
