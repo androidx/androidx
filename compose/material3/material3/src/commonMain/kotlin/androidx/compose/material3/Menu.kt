@@ -910,11 +910,11 @@ public class MenuItemColors(
 ) {
 
     /** The container color of this menu item when enabled. */
-    public var containerColor: Color = Color.Unspecified
+    public var containerColor: Color = Color.Transparent
         internal set
 
     /** The container color of this menu item when not enabled. */
-    public var disabledContainerColor: Color = Color.Unspecified
+    public var disabledContainerColor: Color = Color.Transparent
         internal set
 
     /** The container color of this menu item when enabled and selected. */
