@@ -16,12 +16,16 @@
 
 package androidx.wear.compose.material3
 
+import android.view.Window
+import android.view.WindowManager
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasTestTag
@@ -30,6 +34,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -191,6 +197,76 @@ class DialogTest {
         rule.waitForIdle()
         Assert.assertEquals(scaffoldState.parentScale.floatValue, 1f, 0.01f)
     }
+
+    @Test
+    fun dialogProperties_whenStatusBarEnabled_forcesEdgeToEdgeAndPreservesProperties() {
+        var window: Window? = null
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
+                Dialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    properties =
+                        DialogProperties(
+                            windowTitle = "CustomTitle",
+                            decorFitsSystemWindows = true,
+                            usePlatformDefaultWidth = true,
+                        ),
+                ) {
+                    var parent = LocalView.current.parent
+                    while (parent != null && parent !is DialogWindowProvider) {
+                        parent = parent.parent
+                    }
+                    window = (parent as? DialogWindowProvider)?.window
+                }
+            }
+        }
+        rule.waitForIdle()
+        Assert.assertNotNull(window)
+        Assert.assertEquals("CustomTitle", window!!.attributes.title)
+        val flags = window!!.attributes.flags
+        Assert.assertTrue(
+            "Expected FLAG_LAYOUT_IN_SCREEN to be set when decorFitsSystemWindows is forced to false",
+            (flags and WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN) != 0,
+        )
+    }
+
+    @Test
+    fun dialogProperties_whenStatusBarDisabled_preservesPassedProperties() {
+        var window: Window? = null
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
+                Dialog(
+                    visible = true,
+                    onDismissRequest = {},
+                    properties =
+                        DialogProperties(
+                            windowTitle = "CustomTitle",
+                            decorFitsSystemWindows = true,
+                            usePlatformDefaultWidth = true,
+                        ),
+                ) {
+                    var parent = LocalView.current.parent
+                    while (parent != null && parent !is DialogWindowProvider) {
+                        parent = parent.parent
+                    }
+                    window = (parent as? DialogWindowProvider)?.window
+                }
+            }
+        }
+        rule.waitForIdle()
+        Assert.assertNotNull(window)
+        Assert.assertEquals("CustomTitle", window!!.attributes.title)
+        val flags = window!!.attributes.flags
+        Assert.assertTrue(
+            "Expected FLAG_LAYOUT_IN_SCREEN not to be set when decorFitsSystemWindows is true",
+            (flags and WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN) == 0,
+        )
+    }
 }
 
 private const val SHOW_BUTTON_TAG = "show-button"
+
+@Suppress("UNCHECKED_CAST")
+private val LocalStatusBarEnabledForTest: ProvidableCompositionLocal<Boolean>
+    get() = LocalStatusBarEnabled as ProvidableCompositionLocal<Boolean>

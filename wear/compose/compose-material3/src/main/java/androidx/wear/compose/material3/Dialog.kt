@@ -68,6 +68,9 @@ import kotlinx.coroutines.launch
  *   by setting [visible] to false.
  * @param modifier Modifier to be applied to the dialog content.
  * @param properties An optional [DialogProperties] object for configuring the dialog's behavior.
+ *   When the system status bar is enabled (see [LocalStatusBarEnabled]),
+ *   [DialogProperties.usePlatformDefaultWidth] and [DialogProperties.decorFitsSystemWindows] are
+ *   overridden to false to ensure edge-to-edge full width display.
  * @param content A composable function that defines the content of the dialog.
  */
 @Composable
@@ -125,9 +128,26 @@ public fun Dialog(
     }
 
     if (shouldShow) {
+        val isStatusBarEnabled = LocalStatusBarEnabled.current
+        val dialogProperties =
+            if (isStatusBarEnabled) {
+                // When GSB is enabled, force edge-to-edge and full width
+                // while preserving all other properties passed by the developer.
+                DialogProperties(
+                    dismissOnBackPress = properties.dismissOnBackPress,
+                    dismissOnClickOutside = properties.dismissOnClickOutside,
+                    securePolicy = properties.securePolicy,
+                    usePlatformDefaultWidth = false,
+                    decorFitsSystemWindows = false,
+                    windowTitle = properties.windowTitle,
+                )
+            } else {
+                properties
+            }
+
         androidx.compose.ui.window.Dialog(
             onDismissRequest = onDismissRequest,
-            properties = properties,
+            properties = dialogProperties,
         ) {
             // Disable System dialog animations
             val view = LocalView.current
