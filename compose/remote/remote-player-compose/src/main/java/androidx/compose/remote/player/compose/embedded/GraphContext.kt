@@ -28,7 +28,7 @@ import androidx.compose.remote.core.operations.FloatExpression
 import androidx.compose.remote.core.operations.ShaderData
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.utilities.ArrayAccess
-import androidx.compose.remote.player.core.platform.AndroidRemoteContext
+import androidx.compose.remote.player.core.platform.TypefaceResolver
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import java.util.concurrent.ConcurrentHashMap
@@ -53,10 +53,7 @@ import java.util.concurrent.ConcurrentHashMap
  * handled by save/restore.
  *
  * Conceptually this is a `RemoteReadContext` (a value view) that captures the one write an op makes
- * as its result. It still extends [AndroidRemoteContext] only because the op contract
- * (`apply`/`updateVariables`) takes the concrete `RemoteContext`; once that contract is split onto
- * the read/write interfaces (issue #12), this collapses to a lightweight `RemoteReadContext` +
- * capture sink with no platform subclass.
+ * as its result. It extends [StoreBackedRemoteContext] rather than `AndroidRemoteContext`.
  */
 internal class GraphContext(
     private val realState: SnapshotRemoteComposeState,
@@ -64,7 +61,13 @@ internal class GraphContext(
     private val timeMillis: State<Float>,
     clock: RemoteClock,
     internal var componentValues: Map<Int, State<Float>> = emptyMap(),
-) : AndroidRemoteContext(clock) {
+) : StoreBackedRemoteContext(clock) {
+
+    internal var typefaceResolver: TypefaceResolver? = null
+
+    fun setTypefaceResolver(resolver: TypefaceResolver?) {
+        this.typefaceResolver = resolver
+    }
 
     init {
         // Share the leaf store so collections/objects/paths and plain variables resolve against the
