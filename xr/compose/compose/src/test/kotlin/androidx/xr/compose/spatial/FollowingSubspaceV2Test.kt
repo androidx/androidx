@@ -268,7 +268,7 @@ class FollowingSubspaceV2Test {
     fun followingSubspaceV2_whenLoads_respectsDefaultOffset() =
         runTest(testDispatcher) {
             composeTestRule.session = configureSessionWithDeviceTrackingMode()
-            val session = assertNotNull(composeTestRule.session)
+            assertNotNull(composeTestRule.session)
 
             composeTestRule.setContent {
                 Subspace(follow = FollowTarget.view(mode = FollowMode.soft(durationMs = 1000))) {
@@ -319,7 +319,7 @@ class FollowingSubspaceV2Test {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspaceV2_withRequiredSizeModifier_overridesDefaultContentBox() {
-        val session = configureSessionWithDeviceTrackingMode()
+        configureSessionWithDeviceTrackingMode()
         val requiredSize = 50000.dp
 
         composeTestRule.setContent {
@@ -340,7 +340,7 @@ class FollowingSubspaceV2Test {
     @OptIn(ExperimentalFollowingSubspaceApi::class)
     @Test
     fun followingSubspaceV2_withRequiredSizeInModifier_overridesDefaultContentBox() {
-        val session = configureSessionWithDeviceTrackingMode()
+        configureSessionWithDeviceTrackingMode()
         val requiredMaxSize = 50000.dp
 
         composeTestRule.setContent {
@@ -705,7 +705,7 @@ class FollowingSubspaceV2Test {
             composeTestRule.session = configureSessionWithDeviceTrackingMode()
             val session = assertNotNull(composeTestRule.session)
             val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
-            val fakeArDevice = fakeRuntime.perceptionManager.arDevice
+            fakeRuntime.perceptionManager.arDevice
             val mode =
                 ExponentialDecayFollowMode(startThresholds = FollowThresholds(pitchDegrees = 30f))
 
@@ -1550,7 +1550,7 @@ class FollowingSubspaceV2Test {
     @Test
     fun followingSubspaceV2_whenRemovedFromComposition_isDisposed() {
         composeTestRule.session = configureSessionWithDeviceTrackingMode()
-        val session = assertNotNull(composeTestRule.session)
+        assertNotNull(composeTestRule.session)
         var showSubspace by mutableStateOf(true)
 
         composeTestRule.setContent {

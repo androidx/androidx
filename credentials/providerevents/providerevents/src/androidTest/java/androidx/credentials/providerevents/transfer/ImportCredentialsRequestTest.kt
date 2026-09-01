@@ -64,7 +64,7 @@ class ImportCredentialsRequestTest {
 
         try {
             // Act
-            val request = ImportCredentialsRequest(types, extensions)
+            ImportCredentialsRequest(types, extensions)
             Assert.fail()
         } catch (e: IllegalArgumentException) {}
     }

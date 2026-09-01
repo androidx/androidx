@@ -726,15 +726,3 @@ w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ This 'var' property is not written t
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Redundant string template\.
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Parameter '.*' is never used, consider renaming it to '_'\.
 w: .*\/compose\/remote\/.*.kt:[0-9]+:[0-9]+ Variable is never read\.
-# b/543522508
-w: .*\/compose\/foundation\/foundation-layout\/src\/androidDeviceTest\/kotlin\/androidx\/compose\/foundation\/layout\/WindowInsetsPaddingTest\.kt:[0-9]+:[0-9]+ Variable is unused\.
-w: .*\/camera\/camera-camera2-pipe\/src\/test\/java\/androidx\/camera\/camera2\/pipe\/MetadataTest\.kt:[0-9]+:[0-9]+ Variable is unused\.
-w: .*\/xr\/compose\/compose\/src\/test\/kotlin\/androidx\/xr\/compose\/spatial\/FollowingSubspaceV2Test\.kt:[0-9]+:[0-9]+ Variable is unused\.
-w: .*\/compose\/animation\/animation\/src\/androidDeviceTest\/kotlin\/androidx\/compose\/animation\/SharedTransitionTest\.kt:[0-9]+:[0-9]+ Variable is unused\.
-w: .*\/navigation3\/navigation3-runtime\/src\/androidDeviceTest\/kotlin\/androidx\/navigation3\/runtime\/DecoratedNavEntriesTest\.kt:[0-9]+:[0-9]+ Parameter 'entry: NavEntry<Any>' is never used, consider renaming it to '_'\.
-w: .*\/credentials\/providerevents\/providerevents\/src\/androidTest\/java\/androidx\/credentials\/providerevents\/transfer\/ImportCredentialsRequestTest\.kt:[0-9]+:[0-9]+ Variable is unused\.
-w: .*\/credentials\/providerevents\/providerevents\/src\/androidTest\/java\/androidx\/credentials\/providerevents\/transfer\/RegisterExportRequestTest\.kt:[0-9]+:[0-9]+ Variable is unused\.
-w: .*\/core\/core-telecom\/src\/main\/java\/androidx\/core\/telecom\/CallsManager\.kt:[0-9]+:[0-9]+ This 'var' property is not written to more than once, it can be declared as 'val'\.
-w: .*\/appfunctions\/integration-tests\/multi-modules-testapp\/app\/src\/main\/kotlin\/androidx\/appfunctions\/integration\/testapp\/DynamicRegistrationActivity\.kt:[0-9]+:[0-9]+ Parameter 'request: ExecuteAppFunctionRequest' is never used, consider renaming it to '_'\.
-w: .*\/wear\/compose\/compose-material3\/src\/androidTest\/kotlin\/androidx\/wear/compose\/material3\/StatusBarTest\.kt:[0-9]+:[0-9]+ Variable is unused\.
-w: .*\/wear\/compose\/compose-material3\/src\/main\/java\/androidx\/wear\/compose\/material3\/ScreenScaffold\.kt:[0-9]+:[0-9]+ Variable is unused\.
