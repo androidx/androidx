@@ -65,6 +65,7 @@ import java.util.TimeZone
  * @property tabs The [Tabs] component implementation.
  * @property divider The [Divider] component implementation.
  * @property button The [Button] component implementation.
+ * @property checkBox The [CheckBox] component implementation.
  * @property dateTimeInput The [DateTimeInput] component implementation.
  * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
  *   to create the function list using
@@ -81,6 +82,7 @@ public class A2uiBasicCatalogV1(
     public val tabs: Tabs,
     public val divider: Divider,
     public val button: Button,
+    public val checkBox: CheckBox,
     public val dateTimeInput: DateTimeInput,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
     public val functions: kotlin.collections.List<A2uiFunction>,
@@ -105,6 +107,7 @@ public class A2uiBasicCatalogV1(
             tabs,
             divider,
             button,
+            checkBox,
             dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
         )
@@ -1568,6 +1571,95 @@ public class A2uiBasicCatalogV1(
             @Suppress("AutoBoxing") min: Long?,
             @Suppress("AutoBoxing") max: Long?,
             label: String?,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"CheckBox"` component for displaying a checkable control with an associated label.
+     *
+     * **Schema Properties:**
+     * * `label` (Dynamic String, required): The text to display next to the checkbox.
+     * * `value` (Dynamic Boolean, required): The current state of the checkbox (true for checked,
+     *   false for unchecked).
+     */
+    public interface CheckBox : A2uiComponent {
+        override val name: String
+            get() = "CheckBox"
+
+        override val description: String
+            get() = "A checkbox with a label and a boolean value."
+
+        public companion object {
+            /** The [A2uiProperty] for the `"label"` property of a [CheckBox]. */
+            public val LabelProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "label",
+                    required = true,
+                    description = "The text to display next to the checkbox.",
+                )
+
+            /** The [A2uiProperty] for the `"value"` property of a [CheckBox]. */
+            public val ValueProperty: DynamicA2uiProperty<Boolean> =
+                A2uiProperty.dynamicBoolean(
+                    key = "value",
+                    required = true,
+                    description =
+                        "The current state of the checkbox (true for checked, false for unchecked).",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(LabelProperty, ValueProperty)
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bind(LabelProperty) != null && properties.bind(ValueProperty) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val label =
+                checkNotNull(properties.bind(LabelProperty)) {
+                    "Required property '${LabelProperty.key}' is missing."
+                }
+            val value =
+                checkNotNull(properties.bind(ValueProperty)) {
+                    "Required property '${ValueProperty.key}' is missing."
+                }
+            val onValueChange = properties.bindUpdater(ValueProperty)
+            val isEnabled = onValueChange != null
+
+            TypedContent(
+                label = label,
+                value = value,
+                onValueChange = { newValue -> onValueChange?.invoke(newValue) },
+                enabled = isEnabled,
+                modifier = modifier,
+            )
+        }
+
+        /**
+         * Renders the [CheckBox] with its resolved [label] and [value] properties.
+         *
+         * @param label The text to display next to the checkbox.
+         * @param value The current state of the checkbox.
+         * @param onValueChange callback invoked when the user toggles the checkbox.
+         * @param enabled controls the enabled state of the checkbox. When `false`, this component
+         *   will not respond to user input.
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            label: String,
+            value: Boolean,
+            onValueChange: (Boolean) -> Unit,
+            enabled: Boolean,
             modifier: Modifier,
         )
     }

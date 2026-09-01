@@ -143,6 +143,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components["Tabs"]).isSameInstanceAs(basicCatalog.tabs)
         assertThat(catalog.components["Divider"]).isSameInstanceAs(basicCatalog.divider)
         assertThat(catalog.components["Button"]).isSameInstanceAs(basicCatalog.button)
+        assertThat(catalog.components["CheckBox"]).isSameInstanceAs(basicCatalog.checkBox)
         assertThat(catalog.components["DateTimeInput"]).isSameInstanceAs(basicCatalog.dateTimeInput)
         assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
         assertThat(catalog.isInline).isFalse()
@@ -339,6 +340,7 @@ class A2uiCatalogTest {
             tabs: A2uiBasicCatalogV1.Tabs = createStubTabs(),
             divider: A2uiBasicCatalogV1.Divider = createStubDivider(),
             button: A2uiBasicCatalogV1.Button = createStubButton(),
+            checkBox: A2uiBasicCatalogV1.CheckBox = createStubCheckBox(),
             dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = createStubDateTimeInput(),
             functions: List<A2uiFunction> = emptyList(),
         ) =
@@ -353,6 +355,7 @@ class A2uiCatalogTest {
                 tabs = tabs,
                 divider = divider,
                 button = button,
+                checkBox = checkBox,
                 dateTimeInput = dateTimeInput,
                 functions = functions,
             )
@@ -453,6 +456,18 @@ class A2uiCatalogTest {
                     childId: String,
                     variant: A2uiBasicCatalogV1.Button.Variant,
                     action: Map<String, Any?>,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubCheckBox() =
+            object : A2uiBasicCatalogV1.CheckBox {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    label: String,
+                    value: Boolean,
+                    onValueChange: (Boolean) -> Unit,
+                    enabled: Boolean,
                     modifier: Modifier,
                 ) {}
             }
