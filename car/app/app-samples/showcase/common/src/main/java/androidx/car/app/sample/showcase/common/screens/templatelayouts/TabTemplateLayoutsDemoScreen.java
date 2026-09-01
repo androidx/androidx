@@ -29,6 +29,7 @@ import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtemplates.TabTemplateDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtemplates.TabTemplateLoadingDemoScreen;
 import androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtemplates.TabTemplateNoTabsDemoScreen;
+import androidx.car.app.sample.showcase.common.screens.templatelayouts.tabtemplates.TabTemplateStyleDemoScreen;
 
 import org.jspecify.annotations.NonNull;
 
@@ -48,6 +49,8 @@ public final class TabTemplateLayoutsDemoScreen extends Screen {
                 R.string.tab_template_loading_demo_title));
         listBuilder.addItem(buildRowForTemplate(new TabTemplateNoTabsDemoScreen(getCarContext()),
                 R.string.tab_template_no_tabs_demo_title));
+        listBuilder.addItem(buildRowForTemplate(new TabTemplateStyleDemoScreen(getCarContext()),
+                R.string.tab_template_style_demo_screen));
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
                 .setHeader(new Header.Builder()
