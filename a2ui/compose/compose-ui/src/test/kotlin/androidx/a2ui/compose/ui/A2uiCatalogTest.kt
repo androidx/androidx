@@ -141,6 +141,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components["Column"]).isSameInstanceAs(basicCatalog.column)
         assertThat(catalog.components["List"]).isSameInstanceAs(basicCatalog.list)
         assertThat(catalog.components["Tabs"]).isSameInstanceAs(basicCatalog.tabs)
+        assertThat(catalog.components["Divider"]).isSameInstanceAs(basicCatalog.divider)
         assertThat(catalog.components["Button"]).isSameInstanceAs(basicCatalog.button)
         assertThat(catalog.components["DateTimeInput"]).isSameInstanceAs(basicCatalog.dateTimeInput)
         assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
@@ -336,6 +337,7 @@ class A2uiCatalogTest {
             column: A2uiBasicCatalogV1.Column = createStubColumn(),
             list: A2uiBasicCatalogV1.List = createStubList(),
             tabs: A2uiBasicCatalogV1.Tabs = createStubTabs(),
+            divider: A2uiBasicCatalogV1.Divider = createStubDivider(),
             button: A2uiBasicCatalogV1.Button = createStubButton(),
             dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = createStubDateTimeInput(),
             functions: List<A2uiFunction> = emptyList(),
@@ -349,6 +351,7 @@ class A2uiCatalogTest {
                 column = column,
                 list = list,
                 tabs = tabs,
+                divider = divider,
                 button = button,
                 dateTimeInput = dateTimeInput,
                 functions = functions,
@@ -430,6 +433,15 @@ class A2uiCatalogTest {
                 @Composable
                 override fun A2uiComponentScope.TypedContent(
                     tabs: List<A2uiBasicCatalogV1.Tabs.Tab>,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubDivider() =
+            object : A2uiBasicCatalogV1.Divider {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    axis: A2uiBasicCatalogV1.Divider.Axis,
                     modifier: Modifier,
                 ) {}
             }
