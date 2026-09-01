@@ -54,14 +54,16 @@ import kotlinx.coroutines.runBlocking
  * @param useSafeFallbackRendererVersion Whether to render using a safe fallback renderer version
  *   (e.g., a conservative baseline version representing older hosts). This allows developers to
  *   test widget compatibility against older versions of the Wear OS host. If false, the preview
- *   renders using the latest renderer version. Defaults to false.
+ *   renders using the latest renderer version. Defaults to true.
  */
 @Composable
 public fun WearWidgetPreview(
     widget: GlanceWearWidget,
     params: WearWidgetParams,
     modifier: Modifier = Modifier,
-    useSafeFallbackRendererVersion: Boolean = false,
+    // TODO: b/553471238 - Set default value back to false once java player handles CORE_TEXT for
+    //    Wear Widgets
+    useSafeFallbackRendererVersion: Boolean = true,
 ) {
     val context = LocalContext.current
     val activeRendererVersion =
