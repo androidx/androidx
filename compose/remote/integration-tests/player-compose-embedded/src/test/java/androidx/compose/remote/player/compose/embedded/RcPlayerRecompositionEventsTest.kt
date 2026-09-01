@@ -45,7 +45,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.test.IdlingResource
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -62,18 +61,19 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
+import org.junit.rules.TestRule
+import org.junit.runner.Description
 import org.junit.runner.RunWith
+import org.junit.runners.model.Statement
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
@@ -84,12 +84,15 @@ import org.robolectric.shadows.ShadowTrace
 @Suppress("RestrictedApi")
 class RcPlayerRecompositionEventsTest {
 
-    @get:Rule val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+    val repeatRule = RepeatRule()
+    val enableEmbeddedPlayer = EnableEmbeddedPlayerRule()
+    val rule = createComposeRule()
 
-    @get:Rule val rule = createComposeRule()
+    @get:Rule
+    val ruleChain: RuleChain =
+        RuleChain.outerRule(repeatRule).around(enableEmbeddedPlayer).around(rule)
 
     private lateinit var context: Context
-    private val testScope = CoroutineScope(Dispatchers.Default)
 
     @Before
     fun setUp() {
@@ -100,15 +103,14 @@ class RcPlayerRecompositionEventsTest {
     @After
     fun tearDown() {
         RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled = false
-        testScope.coroutineContext.cancelChildren()
         testLambdaMap.clear()
         lambdaCounter = 0
         ShadowTrace.reset()
     }
 
-    @Ignore("b/540178536")
     @Test
-    fun testMutableStateOutputsTextAndIsUpdated() = runBlocking {
+    @Repeat(5)
+    fun testMutableStateOutputsTextAndIsUpdated(): Unit = runBlocking {
         val state = mutableStateOf("Initial")
 
         val flow =
@@ -124,39 +126,50 @@ class RcPlayerRecompositionEventsTest {
 
         rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
-        val idlingResource = RemoteComposeIdlingResource()
-        rule.registerIdlingResource(idlingResource)
+        val emissionCount = AtomicInteger(0)
+        val collectorJob = Job()
+        val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
 
-        idlingResource.increment()
-        val collectJob =
-            testScope.launch {
-                flow.collect { bytes ->
-                    val doc =
-                        CoreDocument(RemoteClock.SYSTEM).apply {
-                            ByteArrayInputStream(bytes).use {
-                                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                            }
+        collectorScope.launch {
+            flow.collect { bytes ->
+                val doc =
+                    CoreDocument(RemoteClock.SYSTEM).apply {
+                        ByteArrayInputStream(bytes).use {
+                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                         }
-                    withContext(Dispatchers.Main) {
-                        document = doc
-                        idlingResource.decrement()
                     }
-                }
+                document = doc
+                emissionCount.incrementAndGet()
+            }
+        }
+
+        try {
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 1
             }
 
-        rule.onNodeWithText("Initial", useUnmergedTree = true).assertExists()
+            rule.onNodeWithText("Initial", useUnmergedTree = true).assertExists()
 
-        idlingResource.increment()
-        rule.runOnUiThread { state.value = "Updated" }
+            rule.runOnUiThread {
+                state.value = "Updated"
+                Snapshot.sendApplyNotifications()
+            }
 
-        rule.onNodeWithText("Updated", useUnmergedTree = true).assertExists()
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 2
+            }
 
-        collectJob.cancel()
+            rule.onNodeWithText("Updated", useUnmergedTree = true).assertExists()
+        } finally {
+            collectorJob.cancel()
+        }
     }
 
-    @Ignore("b/547937928")
     @Test
-    fun testDerivedStateOfSeconds() = runBlocking {
+    @Repeat(5)
+    fun testDerivedStateOfSeconds(): Unit = runBlocking {
         val secondsState = mutableStateOf(0)
         val derivedText = derivedStateOf { "Seconds: ${secondsState.value}" }
 
@@ -173,44 +186,62 @@ class RcPlayerRecompositionEventsTest {
 
         rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
-        val idlingResource = RemoteComposeIdlingResource()
-        rule.registerIdlingResource(idlingResource)
+        val emissionCount = AtomicInteger(0)
+        val collectorJob = Job()
+        val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
 
-        idlingResource.increment()
-        val collectJob =
-            testScope.launch {
-                flow.collect { bytes ->
-                    val doc =
-                        CoreDocument(RemoteClock.SYSTEM).apply {
-                            ByteArrayInputStream(bytes).use {
-                                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                            }
+        collectorScope.launch {
+            flow.collect { bytes ->
+                val doc =
+                    CoreDocument(RemoteClock.SYSTEM).apply {
+                        ByteArrayInputStream(bytes).use {
+                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                         }
-                    withContext(Dispatchers.Main) {
-                        document = doc
-                        idlingResource.decrement()
                     }
-                }
+                document = doc
+                emissionCount.incrementAndGet()
+            }
+        }
+
+        try {
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 1
             }
 
-        rule.onNodeWithText("Seconds: 0", useUnmergedTree = true).assertExists()
+            rule.onNodeWithText("Seconds: 0", useUnmergedTree = true).assertExists()
 
-        idlingResource.increment()
-        rule.runOnUiThread { secondsState.value = 1 }
+            rule.runOnUiThread {
+                secondsState.value = 1
+                Snapshot.sendApplyNotifications()
+            }
 
-        rule.onNodeWithText("Seconds: 1", useUnmergedTree = true).assertExists()
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 2
+            }
 
-        idlingResource.increment()
-        rule.runOnUiThread { secondsState.value = 2 }
+            rule.onNodeWithText("Seconds: 1", useUnmergedTree = true).assertExists()
 
-        rule.onNodeWithText("Seconds: 2", useUnmergedTree = true).assertExists()
+            rule.runOnUiThread {
+                secondsState.value = 2
+                Snapshot.sendApplyNotifications()
+            }
 
-        collectJob.cancel()
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 3
+            }
+
+            rule.onNodeWithText("Seconds: 2", useUnmergedTree = true).assertExists()
+        } finally {
+            collectorJob.cancel()
+        }
     }
 
-    @Ignore("Disable for now")
     @Test
-    fun testLaunchedEffectTriggered() = runBlocking {
+    @Repeat(5)
+    fun testLaunchedEffectTriggered(): Unit = runBlocking {
         val triggerState = mutableStateOf(0)
 
         val flow =
@@ -234,44 +265,62 @@ class RcPlayerRecompositionEventsTest {
 
         rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
-        val idlingResource = RemoteComposeIdlingResource()
-        rule.registerIdlingResource(idlingResource)
+        val emissionCount = AtomicInteger(0)
+        val collectorJob = Job()
+        val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
 
-        idlingResource.increment()
-        val collectJob =
-            testScope.launch {
-                flow.collect { bytes ->
-                    val doc =
-                        CoreDocument(RemoteClock.SYSTEM).apply {
-                            ByteArrayInputStream(bytes).use {
-                                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                            }
+        collectorScope.launch {
+            flow.collect { bytes ->
+                val doc =
+                    CoreDocument(RemoteClock.SYSTEM).apply {
+                        ByteArrayInputStream(bytes).use {
+                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                         }
-                    withContext(Dispatchers.Main) {
-                        document = doc
-                        idlingResource.decrement()
                     }
-                }
+                document = doc
+                emissionCount.incrementAndGet()
+            }
+        }
+
+        try {
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 1
             }
 
-        rule.onNodeWithText("Initial", useUnmergedTree = true).assertExists()
+            rule.onNodeWithText("Initial", useUnmergedTree = true).assertExists()
 
-        idlingResource.increment()
-        rule.runOnUiThread { triggerState.value = 1 }
+            rule.runOnUiThread {
+                triggerState.value = 1
+                Snapshot.sendApplyNotifications()
+            }
 
-        rule.onNodeWithText("Updated: 1", useUnmergedTree = true).assertExists()
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 2
+            }
 
-        idlingResource.increment()
-        rule.runOnUiThread { triggerState.value = 2 }
+            rule.onNodeWithText("Updated: 1", useUnmergedTree = true).assertExists()
 
-        rule.onNodeWithText("Updated: 2", useUnmergedTree = true).assertExists()
+            rule.runOnUiThread {
+                triggerState.value = 2
+                Snapshot.sendApplyNotifications()
+            }
 
-        collectJob.cancel()
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 3
+            }
+
+            rule.onNodeWithText("Updated: 2", useUnmergedTree = true).assertExists()
+        } finally {
+            collectorJob.cancel()
+        }
     }
 
-    @Ignore("b/540178090")
     @Test
-    fun testCollectAsStateWithLifecycle() = runBlocking {
+    @Repeat(5)
+    fun testCollectAsStateWithLifecycle(): Unit = runBlocking {
         val stateFlow = MutableStateFlow("Initial")
         val lifecycleOwner = SimpleLifecycleOwner()
 
@@ -293,38 +342,51 @@ class RcPlayerRecompositionEventsTest {
 
         rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
-        val idlingResource = RemoteComposeIdlingResource()
-        rule.registerIdlingResource(idlingResource)
+        val emissionCount = AtomicInteger(0)
+        val collectorJob = Job()
+        val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
 
-        idlingResource.increment()
-        val collectJob =
-            testScope.launch {
-                flow.collect { bytes ->
-                    val doc =
-                        CoreDocument(RemoteClock.SYSTEM).apply {
-                            ByteArrayInputStream(bytes).use {
-                                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                            }
+        collectorScope.launch {
+            flow.collect { bytes ->
+                val doc =
+                    CoreDocument(RemoteClock.SYSTEM).apply {
+                        ByteArrayInputStream(bytes).use {
+                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                         }
-                    withContext(Dispatchers.Main) {
-                        document = doc
-                        idlingResource.decrement()
                     }
-                }
+                document = doc
+                emissionCount.incrementAndGet()
+            }
+        }
+
+        try {
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 1
             }
 
-        rule.onNodeWithText("Initial", useUnmergedTree = true).assertExists()
+            rule.onNodeWithText("Initial", useUnmergedTree = true).assertExists()
 
-        idlingResource.increment()
-        rule.runOnUiThread { stateFlow.value = "Updated" }
+            rule.runOnUiThread {
+                stateFlow.value = "Updated"
+                Snapshot.sendApplyNotifications()
+            }
 
-        rule.onNodeWithText("Updated", useUnmergedTree = true).assertExists()
+            rule.waitUntil(10000) {
+                Snapshot.sendApplyNotifications()
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 2
+            }
 
-        collectJob.cancel()
+            rule.onNodeWithText("Updated", useUnmergedTree = true).assertExists()
+        } finally {
+            collectorJob.cancel()
+        }
     }
 
     @Test
-    fun testLambdaActionOnClick() = runBlocking {
+    @Repeat(5)
+    fun testLambdaActionOnClick(): Unit = runBlocking {
         var lambdaClicked = false
 
         val flow =
@@ -355,38 +417,43 @@ class RcPlayerRecompositionEventsTest {
             }
         }
 
-        val idlingResource = RemoteComposeIdlingResource()
-        rule.registerIdlingResource(idlingResource)
+        val emissionCount = AtomicInteger(0)
+        val collectorJob = Job()
+        val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
 
-        idlingResource.increment()
-        val collectJob =
-            testScope.launch {
-                flow.collect { bytes ->
-                    val doc =
-                        CoreDocument(RemoteClock.SYSTEM).apply {
-                            ByteArrayInputStream(bytes).use {
-                                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                            }
+        collectorScope.launch {
+            flow.collect { bytes ->
+                val doc =
+                    CoreDocument(RemoteClock.SYSTEM).apply {
+                        ByteArrayInputStream(bytes).use {
+                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                         }
-                    withContext(Dispatchers.Main) {
-                        document = doc
-                        idlingResource.decrement()
                     }
-                }
+                document = doc
+                emissionCount.incrementAndGet()
             }
-
-        rule.onNode(hasClickAction()).performClick()
-
-        rule.waitUntil(5000) {
-            ShadowLooper.idleMainLooper()
-            lambdaClicked
         }
 
-        collectJob.cancel()
+        try {
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 1
+            }
+
+            rule.onNode(hasClickAction()).performClick()
+
+            rule.waitUntil(5000) {
+                ShadowLooper.idleMainLooper()
+                lambdaClicked
+            }
+        } finally {
+            collectorJob.cancel()
+        }
     }
 
     @Test
-    fun testBooleanDisplayBranchChange() = runBlocking {
+    @Repeat(5)
+    fun testBooleanDisplayBranchChange(): Unit = runBlocking {
         val displayState = mutableStateOf(true)
 
         val flow =
@@ -408,53 +475,54 @@ class RcPlayerRecompositionEventsTest {
 
         rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
-        var emissionCount = AtomicInteger(0)
+        val emissionCount = AtomicInteger(0)
         val collectorJob = Job()
         // Essential to run on Main thread to align with Compose state changes and avoid deadlocks
         // in Robolectric
         val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
 
-        val collectJob =
-            collectorScope.launch {
-                flow.collect { bytes ->
-                    val doc =
-                        CoreDocument(RemoteClock.SYSTEM).apply {
-                            ByteArrayInputStream(bytes).use {
-                                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                            }
+        collectorScope.launch {
+            flow.collect { bytes ->
+                val doc =
+                    CoreDocument(RemoteClock.SYSTEM).apply {
+                        ByteArrayInputStream(bytes).use {
+                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                         }
-                    withContext(Dispatchers.Main) {
-                        document = doc
-                        emissionCount.incrementAndGet()
                     }
-                }
+                document = doc
+                emissionCount.incrementAndGet()
+            }
+        }
+
+        try {
+            // Wait for 1st emission
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 1
             }
 
-        // Wait for 1st emission
-        rule.waitUntil(10000) {
-            ShadowLooper.idleMainLooper()
-            emissionCount.get() >= 1
+            rule.onNodeWithText("True Branch", useUnmergedTree = true).assertExists()
+
+            rule.runOnUiThread {
+                displayState.value = false
+                Snapshot.sendApplyNotifications()
+            }
+
+            // Wait for 2nd emission
+            rule.waitUntil(10000) {
+                Snapshot.sendApplyNotifications()
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 2
+            }
+
+            rule.onNodeWithText("False Branch", useUnmergedTree = true).assertExists()
+        } finally {
+            collectorJob.cancel()
         }
-
-        rule.onNodeWithText("True Branch", useUnmergedTree = true).assertExists()
-
-        rule.runOnUiThread {
-            displayState.value = false
-            Snapshot.sendApplyNotifications()
-        }
-
-        // Wait for 2nd emission
-        rule.waitUntil(10000) {
-            ShadowLooper.idleMainLooper()
-            emissionCount.get() >= 2
-        }
-
-        rule.onNodeWithText("False Branch", useUnmergedTree = true).assertExists()
-
-        collectorJob.cancel()
     }
 
     @Test
+    @Repeat(5)
     fun testBooleanDisplayBranchChange_StressTest(): Unit = runBlocking {
         val iterations = 50 // 100 state changes
         val displayState = mutableStateOf(true)
@@ -478,63 +546,63 @@ class RcPlayerRecompositionEventsTest {
 
         rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
-        var emissionCount = AtomicInteger(0)
+        val emissionCount = AtomicInteger(0)
 
         val collectorJob = Job()
         // Essential to run on Main thread to align with Compose state changes and avoid deadlocks
         // in Robolectric
         val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
 
-        val collectJob =
-            collectorScope.launch {
-                flow.collect { bytes ->
-                    val doc =
-                        CoreDocument(RemoteClock.SYSTEM).apply {
-                            ByteArrayInputStream(bytes).use {
-                                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                            }
+        collectorScope.launch {
+            flow.collect { bytes ->
+                val doc =
+                    CoreDocument(RemoteClock.SYSTEM).apply {
+                        ByteArrayInputStream(bytes).use {
+                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                         }
-                    withContext(Dispatchers.Main) {
-                        document = doc
-                        emissionCount.incrementAndGet()
                     }
-                }
+                document = doc
+                emissionCount.incrementAndGet()
             }
+        }
 
         // Total emissions expected = iterations * 2 (one for true, one for false per iteration)
         // Let's change the loop to be per state change to keep it simple.
         // We start at true.
 
-        repeat(iterations * 2) { i ->
-            val expectedState = i % 2 == 0 // 0 -> true, 1 -> false, 2 -> true...
-            val expectedText = if (expectedState) "True Branch" else "False Branch"
-            val targetEmission = i + 1 // Starts at 1
+        try {
+            repeat(iterations * 2) { i ->
+                val expectedState = i % 2 == 0 // 0 -> true, 1 -> false, 2 -> true...
+                val expectedText = if (expectedState) "True Branch" else "False Branch"
+                val targetEmission = i + 1 // Starts at 1
 
-            // Wait for emission
-            rule.waitUntil(10000) {
-                ShadowLooper.idleMainLooper()
-                val current = emissionCount.get()
-                current >= targetEmission
-            }
+                // Wait for emission
+                rule.waitUntil(10000) {
+                    ShadowLooper.idleMainLooper()
+                    val current = emissionCount.get()
+                    current >= targetEmission
+                }
 
-            // Assert text
-            rule.onNodeWithText(expectedText, useUnmergedTree = true).assertExists()
+                // Assert text
+                rule.onNodeWithText(expectedText, useUnmergedTree = true).assertExists()
 
-            // Toggle state
-            if (i < (iterations * 2) - 1) {
-                val nextState = !expectedState
-                rule.runOnUiThread {
-                    displayState.value = nextState
-                    Snapshot.sendApplyNotifications()
+                // Toggle state
+                if (i < (iterations * 2) - 1) {
+                    val nextState = !expectedState
+                    rule.runOnUiThread {
+                        displayState.value = nextState
+                        Snapshot.sendApplyNotifications()
+                    }
                 }
             }
+        } finally {
+            collectorJob.cancel()
         }
-
-        collectorJob.cancel()
     }
 
     @Test
-    fun testNoEmissionWhenStateChangesDoNotChangeLayout() = runBlocking {
+    @Repeat(5)
+    fun testNoEmissionWhenStateChangesDoNotChangeLayout(): Unit = runBlocking {
         val state = mutableStateOf("Initial")
 
         val flow =
@@ -542,6 +610,7 @@ class RcPlayerRecompositionEventsTest {
                 context = context,
                 creationDisplayInfo = RemoteCreationDisplayInfo(100, 100, 160, 1.0f),
                 writerEvents = WriterEvents(),
+                coroutineContext = Dispatchers.Main,
                 content = {
                     state.value
                     RemoteText("Same Content".rs)
@@ -549,27 +618,43 @@ class RcPlayerRecompositionEventsTest {
             )
 
         val documents = mutableListOf<ByteArray>()
-        val collectJob =
-            testScope.launch {
-                flow.collect { bytes -> synchronized(documents) { documents.add(bytes) } }
+        val emissionCount = AtomicInteger(0)
+        val collectorJob = Job()
+        val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
+
+        collectorScope.launch {
+            flow.collect { bytes ->
+                synchronized(documents) { documents.add(bytes) }
+                emissionCount.incrementAndGet()
+            }
+        }
+
+        try {
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 1
             }
 
-        rule.waitForIdle()
+            rule.runOnUiThread {
+                state.value = "Updated"
+                Snapshot.sendApplyNotifications()
+            }
 
-        rule.runOnUiThread { state.value = "Updated" }
+            ShadowLooper.idleMainLooper()
+            delay(200)
+            ShadowLooper.idleMainLooper()
 
-        rule.waitForIdle()
-        delay(200)
-
-        collectJob.cancel()
-
-        assertThat(documents).hasSize(1)
-        val doc = RemoteDocument(documents[0])
-        assertThat(doc.document.displayHierarchy()).contains("Same Content")
+            assertThat(documents).hasSize(1)
+            val doc = RemoteDocument(documents[0])
+            assertThat(doc.document.displayHierarchy()).contains("Same Content")
+        } finally {
+            collectorJob.cancel()
+        }
     }
 
     @Test
-    fun testCollectAsStateWithLifecycle_respectsLifecycleStateChanges() = runBlocking {
+    @Repeat(5)
+    fun testCollectAsStateWithLifecycle_respectsLifecycleStateChanges(): Unit = runBlocking {
         val stateFlow = MutableStateFlow("Initial")
         val lifecycleOwner = SimpleLifecycleOwner()
 
@@ -591,44 +676,62 @@ class RcPlayerRecompositionEventsTest {
 
         rule.setContent { document?.let { doc -> key(doc) { RcPlayer(document = doc) } } }
 
-        val idlingResource = RemoteComposeIdlingResource()
-        rule.registerIdlingResource(idlingResource)
+        val emissionCount = AtomicInteger(0)
+        val collectorJob = Job()
+        val collectorScope = CoroutineScope(Dispatchers.Main + collectorJob)
 
         val documents = mutableListOf<ByteArray>()
-        idlingResource.increment()
-        val collectJob =
-            testScope.launch {
-                flow.collect { bytes ->
-                    synchronized(documents) { documents.add(bytes) }
-                    val doc =
-                        CoreDocument(RemoteClock.SYSTEM).apply {
-                            ByteArrayInputStream(bytes).use {
-                                initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
-                            }
+        collectorScope.launch {
+            flow.collect { bytes ->
+                synchronized(documents) { documents.add(bytes) }
+                val doc =
+                    CoreDocument(RemoteClock.SYSTEM).apply {
+                        ByteArrayInputStream(bytes).use {
+                            initFromBuffer(RemoteComposeBuffer.fromInputStream(it))
                         }
-                    withContext(Dispatchers.Main) {
-                        document = doc
-                        idlingResource.decrement()
                     }
-                }
+                document = doc
+                emissionCount.incrementAndGet()
+            }
+        }
+
+        try {
+            rule.waitUntil(10000) {
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 1
             }
 
-        rule.onNodeWithText("Initial", useUnmergedTree = true).assertExists()
+            rule.onNodeWithText("Initial", useUnmergedTree = true).assertExists()
 
-        rule.runOnUiThread { lifecycleOwner.setCurrentState(Lifecycle.State.CREATED) }
-        rule.waitForIdle()
+            rule.runOnUiThread {
+                lifecycleOwner.setCurrentState(Lifecycle.State.CREATED)
+                Snapshot.sendApplyNotifications()
+            }
+            ShadowLooper.idleMainLooper()
 
-        rule.runOnUiThread { stateFlow.value = "Updated While Stopped" }
-        rule.waitForIdle()
+            rule.runOnUiThread {
+                stateFlow.value = "Updated While Stopped"
+                Snapshot.sendApplyNotifications()
+            }
+            ShadowLooper.idleMainLooper()
 
-        synchronized(documents) { assertThat(documents).hasSize(1) }
+            synchronized(documents) { assertThat(documents).hasSize(1) }
 
-        idlingResource.increment()
-        rule.runOnUiThread { lifecycleOwner.setCurrentState(Lifecycle.State.RESUMED) }
+            rule.runOnUiThread {
+                lifecycleOwner.setCurrentState(Lifecycle.State.RESUMED)
+                Snapshot.sendApplyNotifications()
+            }
 
-        rule.onNodeWithText("Updated While Stopped", useUnmergedTree = true).assertExists()
+            rule.waitUntil(10000) {
+                Snapshot.sendApplyNotifications()
+                ShadowLooper.idleMainLooper()
+                emissionCount.get() >= 2
+            }
 
-        collectJob.cancel()
+            rule.onNodeWithText("Updated While Stopped", useUnmergedTree = true).assertExists()
+        } finally {
+            collectorJob.cancel()
+        }
     }
 
     private class SimpleLifecycleOwner : LifecycleOwner {
@@ -643,27 +746,6 @@ class RcPlayerRecompositionEventsTest {
     }
 }
 
-// Note: In the future, this idling resource could be automatically integrated into the
-// captureRemoteDocument flow or wrapped in a custom test rule to handle synchronization.
-private class RemoteComposeIdlingResource : IdlingResource {
-    private val pendingUpdates = AtomicInteger(0)
-
-    override val isIdleNow: Boolean
-        get() = pendingUpdates.get() == 0
-
-    fun increment() {
-        pendingUpdates.incrementAndGet()
-    }
-
-    fun decrement() {
-        while (true) {
-            val current = pendingUpdates.get()
-            if (current <= 0) break
-            if (pendingUpdates.compareAndSet(current, current - 1)) break
-        }
-    }
-}
-
 private var lambdaCounter = 0
 private val testLambdaMap = HashMap<Int, () -> Unit>()
 
@@ -671,4 +753,28 @@ private fun RemoteModifier.testOnClick(action: () -> Unit): RemoteModifier {
     val actionId = 123000 + lambdaCounter++
     testLambdaMap[actionId] = action
     return clickable(hostAction("test_lambda".rs, actionId.ri))
+}
+
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Repeat(val times: Int = 1)
+
+class RepeatRule : TestRule {
+    override fun apply(base: Statement, description: Description): Statement {
+        val repeat =
+            description.getAnnotation(Repeat::class.java)
+                ?: description.testClass.getAnnotation(Repeat::class.java)
+        val times = repeat?.times ?: 1
+        return if (times > 1) {
+            object : Statement() {
+                override fun evaluate() {
+                    for (i in 0 until times) {
+                        base.evaluate()
+                    }
+                }
+            }
+        } else {
+            base
+        }
+    }
 }
