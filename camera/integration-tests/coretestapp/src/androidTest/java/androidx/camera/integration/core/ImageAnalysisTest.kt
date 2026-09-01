@@ -59,6 +59,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.LabTestUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
@@ -921,16 +922,25 @@ internal class ImageAnalysisTest(
                         ) {
                             val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                             bitmap.copyPixelsFromBuffer(java.nio.ByteBuffer.wrap(rgbaArray))
+                            if (currentFrame == framesToSkip + 1) {
+                                LabTestUtil.saveTestBitmap(
+                                    bitmap,
+                                    "ImageAnalysisTest_verifyHardwareBufferContentWithMLKit_lens${cameraSelector.lensFacing}_${width}x${height}_rot${image.imageInfo.rotationDegrees}_${System.currentTimeMillis()}",
+                                )
+                            }
 
                             val inputImage =
                                 InputImage.fromBitmap(bitmap, image.imageInfo.rotationDegrees)
-                            barcodeScanner.process(inputImage).addOnSuccessListener { barcodes ->
-                                barcodes.forEach { barcode ->
-                                    if ("Hi, CamX!" == barcode.displayValue) {
-                                        latchForBarcodeDetect.countDown()
+                            barcodeScanner
+                                .process(inputImage)
+                                .addOnSuccessListener { barcodes ->
+                                    barcodes.forEach { barcode ->
+                                        if ("Hi, CamX!" == barcode.displayValue) {
+                                            latchForBarcodeDetect.countDown()
+                                        }
                                     }
                                 }
-                            }
+                                .addOnCompleteListener { bitmap.recycle() }
                         }
                     }
                 }

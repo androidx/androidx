@@ -293,6 +293,29 @@ CameraX involves complex hardware interactions, making robust testing essential.
   (e.g., `@Config(minSdk = 21)`). Instead, use `@Config(sdk = [Config.TARGET_SDK])` for standard
   tests or `@Config(sdk = [Config.ALL_SDKS])` when logic needs verification across all supported
   SDK levels.
+- **Lab Test Rules & Physical Test Chart Boxes**: When writing device
+  integration tests requiring physical calibration targets (such as QR codes,
+  barcodes, or ISO charts), annotate the test method with
+  `@LabTestRule.LabTestFrontCamera` or `@LabTestRule.LabTestRearCamera` to match
+  the camera lens physically facing the test chart inside lab test boxes. Local
+  execution on DUT requires setting debug tags (`adb shell setprop
+  log.tag.frontCameraE2E DEBUG` or `rearCameraE2E DEBUG`).
+- **Storing & Actively Analyzing Test Output Images**: To inspect output frames,
+  debug 3A convergence (AF/AE/AWB), verify image analysis, or triage failures across
+  CameraX use cases (`Preview`, `ImageAnalysis`, `ImageCapture`, `VideoCapture`), save
+  bitmaps or output frames to `/sdcard/Pictures/test_output/<name>.png` (e.g. via
+  `LabTestUtil.saveTestBitmap`). In automated testing, test runners pull files from this
+  directory and attach them to the test result artifacts for visual inspection.
+  When investigating test failures, developers and AI agents must examine the test
+  code to understand its physical/visual preconditions and inspect captured images:
+  - **Physical Fixture / Lab Environment Issue**: Missing or misaligned test chart,
+    pitch black frame (box LED lights unpowered or failed), camera lens pointed at
+    enclosure wall/ceiling (device improperly mounted or wrong lens facing configured),
+    or lens occlusion—frequently causing **3A convergence timeouts** (passive AF/AE
+    hunting on blank/dark scenes) or barcode detection timeouts on physical DUTs.
+  - **CameraX Software / HAL Issue**: Test chart is centered and sharp but 3A convergence
+    or detector failed; or frame displays buffer corruption, chromatic shearing,
+    incorrect rotation/aspect ratio, or vendor HAL stream configuration failures.
 - **Internal Guidelines & Testing (Googlers Only)**: If you are in a
   Google-internal environment (e.g., you have access to Google-internal search
   or repositories), you MUST load `AGENTS_INTERNAL.md`. If your environment is
