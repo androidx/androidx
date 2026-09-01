@@ -20,6 +20,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.modifiers.MarqueeModifier as CreationMarqueeModifier
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 /**
@@ -52,7 +53,7 @@ public class MarqueeModifier(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
-        return androidx.compose.remote.creation.modifiers.MarqueeModifier(
+        return CreationMarqueeModifier(
             iterations,
             animationMode,
             repeatDelayMillis,

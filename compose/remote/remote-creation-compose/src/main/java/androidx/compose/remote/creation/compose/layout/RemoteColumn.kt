@@ -52,7 +52,7 @@ internal class RemoteColumnNode : RemoteComposeNode() {
         val scope = overriddenScope(creationState)
         val recordingModifier = scope.toRecordingModifier(modifier)
         (verticalArrangement as? RemoteSpaced)?.let {
-            recordingModifier.spacedBy(it.space.getFloatIdForCreationState(creationState))
+            recordingModifier.spacedBy(it.getSpacingFloatId(creationState))
         }
         creationState.document.startColumn(
             recordingModifier,

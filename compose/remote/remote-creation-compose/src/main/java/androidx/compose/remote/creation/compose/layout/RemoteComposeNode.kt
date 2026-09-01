@@ -112,7 +112,8 @@ internal fun shouldReverse(
         when (horizontalArrangement) {
             is HorizontalArrangement -> !horizontalArrangement.isAbsolute()
 
-            is RemoteSpacedAbsoluteHorizontalArrangement -> false
+            is RemoteSpacedAbsoluteHorizontalArrangement,
+            is RemoteFloatSpacedAbsoluteHorizontalArrangement -> false
 
             else -> true
         }
