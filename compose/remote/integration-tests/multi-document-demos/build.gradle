@@ -31,6 +31,7 @@ androidx {
     name = "Multi Document Demos"
     inceptionYear = "2026"
     description = "Multi Document Demo apps for the Remote Compose players and Frontend APIs."
+    enableRobolectric()
 }
 
 dependencies {
@@ -58,7 +59,6 @@ dependencies {
 
     testImplementation("org.json:json:20231013")
     testImplementation(libs.mockitoCore)
-    testImplementation(libs.robolectric)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)

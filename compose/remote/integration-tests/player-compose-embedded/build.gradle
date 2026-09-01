@@ -28,6 +28,7 @@ androidx {
     inceptionYear = "2026"
     description = "Integration tests and previews for the experimental Compose embedded player"
     addGoldenImageAssets()
+    enableRobolectric()
 }
 
 android {
@@ -104,7 +105,6 @@ dependencies {
     testImplementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
     testImplementation(project(":wear:compose:remote:remote-material3"))
     testImplementation(project(":wear:compose:remote:remote-material3-samples"))
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)

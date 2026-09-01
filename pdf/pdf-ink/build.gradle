@@ -54,7 +54,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCoreKtx)
     testImplementation(libs.testExtJunitKtx)
     testImplementation(libs.kotlinCoroutinesTest)
@@ -82,4 +81,5 @@ androidx {
     inceptionYear = "2025"
     description = "Provide annotations support for PDF document using ink library"
     addGoldenImageAssets()
+    enableRobolectric()
 }

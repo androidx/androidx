@@ -59,7 +59,6 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.testCoreKtx)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.robolectric)
     testImplementation(project(":test:screenshot:screenshot"))
 
     androidTestImplementation(libs.kotlinCoroutinesTest)

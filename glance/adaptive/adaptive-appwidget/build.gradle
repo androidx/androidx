@@ -43,7 +43,6 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin)
-    testImplementation(libs.robolectric)
 }
 
 android {
@@ -57,4 +56,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2026"
     description = "Enable adaptive glanceable widgets for Android AppWidgets"
+    enableRobolectric()
 }

@@ -26,6 +26,7 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "Library for shared code between Remote Compose players."
+    enableRobolectric()
 }
 
 android {
@@ -50,6 +51,5 @@ dependencies {
     androidTestImplementation(project(":compose:remote:remote-core-testutils"))
 
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
 }
