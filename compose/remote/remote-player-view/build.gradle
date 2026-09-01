@@ -27,6 +27,7 @@ androidx {
     inceptionYear = "2024"
     description = "Under Development"
     addGoldenImageAssets()
+    enableRobolectric()
 }
 
 android {
@@ -53,7 +54,6 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testRunner)
-    testImplementation(libs.robolectric)
 
     androidTestImplementation(project(":compose:remote:remote-creation"))
     androidTestImplementation(project(":compose:remote:remote-core-testutils"))
