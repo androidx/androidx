@@ -19,6 +19,8 @@
 package androidx.wear.compose.material3
 
 import android.content.Context
+import android.content.ContextWrapper
+import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.view.View
 import android.view.WindowInsets
@@ -63,6 +65,20 @@ class StatusBarTest {
         val result = isStatusBarEnabled(targetContext)
         // Verify invocation completes safely without throwing uncaught exceptions
         Assert.assertNotNull(result)
+    }
+
+    @Test
+    fun isStatusBarEnabled_whenTargetSdkBelow35_returnsFalse() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val appInfo =
+            ApplicationInfo(targetContext.applicationInfo).apply {
+                targetSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+            }
+        val wrapper =
+            object : ContextWrapper(targetContext) {
+                override fun getApplicationInfo(): ApplicationInfo = appInfo
+            }
+        Assert.assertFalse(isStatusBarEnabled(wrapper))
     }
 
     @Test
