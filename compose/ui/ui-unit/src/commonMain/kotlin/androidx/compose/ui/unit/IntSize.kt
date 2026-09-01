@@ -48,7 +48,7 @@ public inline fun IntSize(width: Int, height: Int): IntSize = IntSize(packInts(w
  */
 @Immutable
 @kotlin.jvm.JvmInline
-public value class IntSize @PublishedApi internal constructor(public val packedValue: Long) {
+public value class IntSize(public val packedValue: Long) {
     /** The horizontal aspect of the size in [Int] pixels. */
     @Stable
     public inline val width: Int

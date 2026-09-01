@@ -458,13 +458,13 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntSize {
-    ctor @KotlinOnly @kotlin.PublishedApi internal IntSize(long packedValue);
+    ctor @KotlinOnly public IntSize(long packedValue);
     method @BytecodeOnly public static androidx.compose.ui.unit.IntSize! box-impl(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public inline operator int component1();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static int component1-impl(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public inline operator int component2();
     method @BytecodeOnly @androidx.compose.runtime.Stable public static int component2-impl(long);
-    method @BytecodeOnly @kotlin.PublishedApi internal static long constructor-impl(long);
+    method @BytecodeOnly public static long constructor-impl(long);
     method @KotlinOnly @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntSize div(int other);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static long div-YEO4UFw(long, int);
     method @BytecodeOnly public static int getHeight-impl(long);
