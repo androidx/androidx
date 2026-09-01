@@ -49,7 +49,7 @@ import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.previews.utils.TestImageVectors
 
 // Individual-feature confirmation previews (tranche: P2 transforms/draw) for the embedded RcPlayer
-// vs the legacy player. Parameterized over PlayerImpl.
+// vs the View player. Parameterized over PlayerImpl.
 
 /** graphicsLayer rotate: a square rotated 30 degrees. */
 @Preview(showBackground = true, widthDp = 220, heightDp = 220)

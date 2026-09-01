@@ -68,7 +68,7 @@ public object RemoteComposePlayerFlags {
      * player in [RemoteDocumentPlayer].
      *
      * When false, [RcPlayer] fails immediately with an [IllegalStateException], and
-     * [RemoteDocumentPlayer] uses the legacy View-based player.
+     * [RemoteDocumentPlayer] uses the View-based player.
      */
     // TODO(b/543837906): Clean up after embedded player migration
     @field:Suppress("MutableBareField")

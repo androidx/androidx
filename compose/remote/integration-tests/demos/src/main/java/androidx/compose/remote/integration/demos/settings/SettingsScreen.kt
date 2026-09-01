@@ -49,11 +49,48 @@ internal fun SettingsScreen(modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
 
     val isRtl = layoutDirection == LAYOUT_DIRECTION_RTL
+
+    val playerType by
+        remember { context.dataStore.data.map { it[PLAYER_TYPE_PREF_KEY] ?: PLAYER_TYPE_JAVA } }
+            .collectAsState(initial = PLAYER_TYPE_JAVA)
+
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
+        Text(
+            "Player Implementation",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = playerType == PLAYER_TYPE_JAVA,
+                onClick = {
+                    coroutineScope.launch {
+                        context.dataStore.edit { preferences ->
+                            preferences[PLAYER_TYPE_PREF_KEY] = PLAYER_TYPE_JAVA
+                        }
+                    }
+                },
+            )
+            Text("Java (View Player)")
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = playerType == PLAYER_TYPE_COMPOSE,
+                onClick = {
+                    coroutineScope.launch {
+                        context.dataStore.edit { preferences ->
+                            preferences[PLAYER_TYPE_PREF_KEY] = PLAYER_TYPE_COMPOSE
+                        }
+                    }
+                },
+            )
+            Text("Compose (Embedded RcPlayer)")
+        }
+
         Text(
             "Layout Direction",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp),
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
         )
         Row(verticalAlignment = Alignment.CenterVertically) {
             RadioButton(

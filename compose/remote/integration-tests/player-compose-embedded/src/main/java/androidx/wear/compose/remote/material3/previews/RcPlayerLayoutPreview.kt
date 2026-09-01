@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.wear.compose.remote.material3.previews
 
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
+import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
+import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow
+import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.alpha
+import androidx.compose.remote.creation.compose.modifier.animationSpec
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
+import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.offset
@@ -35,6 +43,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rememberMutableRemoteBoolean
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.compose.state.rsp
@@ -50,7 +59,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 
 // Individual-feature confirmation previews (tranche: P0 layout/sizing/text + P1
 // border/offset/alpha)
-// for the embedded RcPlayer vs the legacy player. Each is parameterized over PlayerImpl, so it
+// for the embedded RcPlayer vs the View player. Each is parameterized over PlayerImpl, so it
 // renders once per player (Java / Compose) for direct diffing.
 
 private const val BLUE = 0xFF3F51B5
@@ -234,6 +243,123 @@ private fun RcAlphaPreview(
                 modifier =
                     RemoteModifier.size(120.rdp).alpha(0.4f.rf).background(Color(0xFF000000).rc)
             )
+        }
+    }
+
+/** StateLayout shared element preview with compact card state. */
+@Preview(showBackground = true, widthDp = 240, heightDp = 120)
+@Composable
+private fun RcStateLayoutSharedElementPreview(
+    @PreviewParameter(PlayerImplPreviewParameterProvider::class) playerImpl: PlayerImpl
+) =
+    ExperimentalRemoteContentPreview(playerImpl = playerImpl) {
+        val isExpanded = rememberMutableRemoteBoolean(false)
+        Frame {
+            RemoteBox(
+                modifier =
+                    RemoteModifier.clip(RemoteRoundedCornerShape(12.rdp))
+                        .background(Color(0xFF1E1E2C).rc)
+                        .clickable(action = valueChange(isExpanded, !isExpanded))
+                        .padding(12.rdp)
+            ) {
+                RemoteStateLayout(currentState = isExpanded) { expanded ->
+                    if (!expanded) {
+                        RemoteRow(
+                            verticalAlignment = RemoteAlignment.CenterVertically,
+                            horizontalArrangement = RemoteArrangement.spacedBy(10.rdp),
+                        ) {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.animationSpec(
+                                            animationId = 1,
+                                            motionDuration = 400f,
+                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
+                                            visibilityDuration = 400f,
+                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
+                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
+                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                        )
+                                        .size(36.rdp)
+                                        .clip(RemoteRoundedCornerShape(18.rdp))
+                                        .background(Color(0xFF6750A4).rc),
+                                contentAlignment = RemoteAlignment.Center,
+                            ) {
+                                RemoteText(text = "★".rs, fontSize = 16.rsp)
+                            }
+                            RemoteColumn(
+                                modifier =
+                                    RemoteModifier.animationSpec(
+                                        animationId = 2,
+                                        motionDuration = 400f,
+                                        motionEasingType = GeneralEasing.CUBIC_STANDARD,
+                                        visibilityDuration = 400f,
+                                        visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
+                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
+                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    )
+                            ) {
+                                RemoteText(
+                                    text = "Featured Card".rs,
+                                    color = Color.White.rc,
+                                    fontSize = 14.rsp,
+                                )
+                                RemoteText(
+                                    text = "Tap to expand".rs,
+                                    color = Color.Gray.rc,
+                                    fontSize = 11.rsp,
+                                )
+                            }
+                        }
+                    } else {
+                        RemoteColumn(
+                            modifier = RemoteModifier.size(180.rdp),
+                            verticalArrangement = RemoteArrangement.spacedBy(8.rdp),
+                        ) {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.animationSpec(
+                                            animationId = 1,
+                                            motionDuration = 400f,
+                                            motionEasingType = GeneralEasing.CUBIC_STANDARD,
+                                            visibilityDuration = 400f,
+                                            visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
+                                            enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
+                                            exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                        )
+                                        .size(width = 180.rdp, height = 70.rdp)
+                                        .clip(RemoteRoundedCornerShape(8.rdp))
+                                        .background(Color(0xFF6750A4).rc),
+                                contentAlignment = RemoteAlignment.Center,
+                            ) {
+                                RemoteText(text = "★ Hero View".rs, fontSize = 18.rsp)
+                            }
+                            RemoteColumn(
+                                modifier =
+                                    RemoteModifier.animationSpec(
+                                        animationId = 2,
+                                        motionDuration = 400f,
+                                        motionEasingType = GeneralEasing.CUBIC_STANDARD,
+                                        visibilityDuration = 400f,
+                                        visibilityEasingType = GeneralEasing.CUBIC_STANDARD,
+                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
+                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    )
+                            ) {
+                                RemoteText(
+                                    text = "Featured Card (Expanded)".rs,
+                                    color = Color.White.rc,
+                                    fontSize = 14.rsp,
+                                )
+                                RemoteText(
+                                    text = "Tap to collapse".rs,
+                                    color = Color.Gray.rc,
+                                    fontSize = 11.rsp,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

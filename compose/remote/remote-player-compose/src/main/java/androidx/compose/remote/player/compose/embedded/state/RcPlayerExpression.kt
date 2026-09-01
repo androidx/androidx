@@ -312,8 +312,7 @@ private fun needsImperativeEval(exp: FloatArray): Boolean =
  * register state they depend on), it builds the same pre-resolved buffer the core's
  * `FloatExpression.updateVariables` would and calls the core evaluator. Registers, the cubic-easing
  * cache, and the spline cache live on the held instance (matching the core's per-instance
- * lifetime); the RAND seed is the core's process-static `Random`, exactly as in the legacy View
- * player.
+ * lifetime); the RAND seed is the core's process-static `Random`, exactly as in the View player.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ImperativeRpnOp(

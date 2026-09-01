@@ -18,7 +18,7 @@ package androidx.compose.remote.player.compose.embedded.integration.previews.uti
 
 /** Selects which player implementation renders the captured document in the preview. */
 public enum class PlayerImpl {
-    /** The legacy player, RemoteDocumentPlayer wrapping the legacy View player. */
+    /** The View player, RemoteDocumentPlayer wrapping the View player. */
     JAVA,
     /** The new experimental Compose player, RcPlayer. */
     COMPOSE,
