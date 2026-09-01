@@ -45,9 +45,6 @@ dependencies {
 
 android {
     namespace = "androidx.savedstate.benchmark"
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
 }
 
 androidx {

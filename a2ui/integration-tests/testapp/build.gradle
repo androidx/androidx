@@ -27,7 +27,6 @@ dependencies {
 android {
     defaultConfig {
         applicationId = "androidx.a2ui.testapp"
-        minSdk { version = release(24) }
     }
     compileSdk { version = release(37) }
     namespace = "androidx.a2ui.testapp"

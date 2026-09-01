@@ -35,7 +35,6 @@ androidXMultiplatform {
     jvm()
     androidLibrary {
         namespace = "androidx.benchmark.traceprocessor"
-        minSdk { version = release(24) }
     }
 
     defaultPlatform(PlatformIdentifier.JVM)

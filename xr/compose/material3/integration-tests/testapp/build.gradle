@@ -54,9 +54,6 @@ dependencies {
 
 android {
     compileSdk { version = release(37) { minorApiLevel = 1 } }
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
     namespace = "androidx.xr.compose.material3.integration.testapp"
     buildTypes {
         release {

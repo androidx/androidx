@@ -22,9 +22,6 @@ plugins {
 android {
     namespace = "androidx.tv.integration.macrobenchmark"
 
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
 
     buildTypes {
         // Create a release build type and make sure it's the only one enabled.

@@ -31,9 +31,6 @@ dependencies {
 
 android {
     namespace = "androidx.benchmark.integration.dryrun.benchmark"
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
 }
 
 androidx {
