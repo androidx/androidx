@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.a2ui
+package androidx.compose.material3.a2ui.catalog
 
 import androidx.a2ui.compose.ui.A2uiCatalog
 import androidx.a2ui.compose.ui.testing.A2uiTestController
@@ -44,15 +44,20 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@MediumTest
 @RunWith(AndroidJUnit4::class)
-class MaterialCheckBoxComponentTest {
+class MaterialA2uiBasicCatalogV1CheckBoxTest {
 
     private val testCatalog =
-        A2uiCatalog(catalogId = "test_catalog", components = listOf(MaterialCheckBoxComponent))
+        A2uiCatalog(
+            catalogId = "test_catalog",
+            components = listOf(MaterialA2uiBasicCatalogV1Defaults.checkBox),
+        )
 
     @Test
     fun value_staticTrue_rendersCheckedCheckboxWithLabel() = runComposeUiTest {

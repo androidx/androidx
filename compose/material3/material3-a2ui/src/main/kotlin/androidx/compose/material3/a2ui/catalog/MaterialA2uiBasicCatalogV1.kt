@@ -55,6 +55,8 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  *   [MaterialA2uiBasicCatalogV1Defaults.divider]
  * @param button [A2uiBasicCatalogV1.Button] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.button]
+ * @param checkBox [A2uiBasicCatalogV1.CheckBox] component implementation, defaults to
+ *   [MaterialA2uiBasicCatalogV1Defaults.checkBox]
  * @param dateTimeInput [A2uiBasicCatalogV1.DateTimeInput] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.dateTimeInput]
  * @return an [A2uiCatalog] configured with Material 3 basic components and functions
@@ -73,6 +75,7 @@ public fun materialA2uiBasicCatalogV1(
     tabs: A2uiBasicCatalogV1.Tabs = MaterialA2uiBasicCatalogV1Defaults.tabs,
     divider: A2uiBasicCatalogV1.Divider = MaterialA2uiBasicCatalogV1Defaults.divider,
     button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Defaults.button,
+    checkBox: A2uiBasicCatalogV1.CheckBox = MaterialA2uiBasicCatalogV1Defaults.checkBox,
     dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
         MaterialA2uiBasicCatalogV1Defaults.dateTimeInput,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -89,6 +92,7 @@ public fun materialA2uiBasicCatalogV1(
             tabs = tabs,
             divider = divider,
             button = button,
+            checkBox = checkBox,
             dateTimeInput = dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
             functions = createBasicCatalogFunctions(urlOpener, messageFormatter, localeProvider),
@@ -132,6 +136,9 @@ public object MaterialA2uiBasicCatalogV1Defaults {
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Button] component. */
     public val button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Button
+
+    /** Default Material 3 implementation of the [A2uiBasicCatalogV1.CheckBox] component. */
+    public val checkBox: A2uiBasicCatalogV1.CheckBox = MaterialA2uiBasicCatalogV1CheckBox
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.DateTimeInput] component. */
     public val dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
