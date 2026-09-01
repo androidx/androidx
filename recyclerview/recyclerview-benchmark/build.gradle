@@ -35,9 +35,6 @@ dependencies {
 
 android {
     compileSdk { version = release(36) }
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
     namespace = "androidx.recyclerview.benchmark"
 }
 

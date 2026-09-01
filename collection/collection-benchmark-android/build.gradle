@@ -38,9 +38,6 @@ androidx {
 
 android {
     namespace = "androidx.collection.benchmark"
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
 }
 
 dependencies {

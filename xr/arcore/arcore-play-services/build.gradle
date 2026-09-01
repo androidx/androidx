@@ -52,9 +52,6 @@ dependencies {
 
 android {
     namespace = "androidx.xr.arcore.playservices"
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
 }
 
 androidx {
