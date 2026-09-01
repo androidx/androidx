@@ -16,7 +16,6 @@
 
 package androidx.camera.video.internal.audio
 
-import android.annotation.SuppressLint
 import android.media.AudioFormat
 import android.media.MediaRecorder
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.ioExecutor
@@ -68,8 +67,7 @@ class AudioSourceTest {
     @Test
     fun canStartAndStopAudioSource() {
         // Arrange.
-        val audioDataProvider = createAudioDataProvider(audioRecordingDelayMillis = 1)
-        val audioStream = createAudioStream(audioDataProvider = audioDataProvider)
+        val audioStream = createAudioStream()
         val bufferProvider = createBufferProvider()
         val audioSource =
             createAudioSource(
@@ -435,6 +433,8 @@ class AudioSourceTest {
 
         // Only 2 callbacks should be triggered (at 200ms and 400ms) due to 200ms throttling
         audioSourceCallback.verifyOnAmplitudeValue(CallTimes(2), COMMON_TIMEOUT_MS)
+
+        audioSource.stop()
     }
 
     @Test
@@ -473,25 +473,18 @@ class AudioSourceTest {
         audioDataProvider: (Int) -> FakeAudioStream.AudioData = createAudioDataProvider(),
         exceptionOnStart: AudioStream.AudioStreamException? = null,
         exceptionOnStartMaxTimes: Int = Int.MAX_VALUE,
+        readDelayMs: Long = 1,
     ) =
         FakeAudioStream(
             audioDataProvider,
             exceptionOnStart = exceptionOnStart,
             exceptionOnStartMaxTimes = exceptionOnStartMaxTimes,
+            readDelayMs = readDelayMs,
         )
 
-    @SuppressLint("BanThreadSleep") // Needed to simulate the audio recording delays.
-    private fun createAudioDataProvider(
-        audioRecordingDelayMillis: Long = 0
-    ): (Int) -> FakeAudioStream.AudioData = { index ->
+    private fun createAudioDataProvider(): (Int) -> FakeAudioStream.AudioData = { index ->
         val byteBuffer = ByteBuffer.allocate(BYTE_BUFFER_CAPACITY).put(0, index.toByte())
         val timestampNs = index.toLong()
-
-        // Simulate the audio recording delays.
-        if (audioRecordingDelayMillis > 0) {
-            Thread.sleep(audioRecordingDelayMillis)
-        }
-
         FakeAudioStream.AudioData(byteBuffer, timestampNs)
     }
 
