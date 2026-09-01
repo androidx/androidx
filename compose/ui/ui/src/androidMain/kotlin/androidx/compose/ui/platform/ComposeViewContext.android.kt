@@ -569,6 +569,8 @@ private constructor(
                         owner.scrollCaptureInProgress
                     },
                 LocalHostDefaultProvider providesComputed { owner.hostDefaultProvider },
+                LocalView provides owner.view,
+                LocalViewConfiguration provides owner.viewConfiguration,
             ) {
                 ProvideCommonCompositionLocals(owner = owner, content = content)
             }
