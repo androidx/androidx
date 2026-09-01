@@ -310,7 +310,7 @@ internal constructor(
             }
         }
         inputParams.forEach { inputParam ->
-            val argMatchResult = storedParam.paramRegex?.let { Regex(it).matchEntire(inputParam) }
+            val argMatchResult = storedParam.paramPattern?.matchEntire(inputParam)
             // check if this particular arg value matches the expected regex.
             // for example, if the query was list of Int like "...?intId=1&intId=2&intId=abc",
             // this would return false when matching "abc".
@@ -405,6 +405,7 @@ internal constructor(
     /** Used to maintain query parameters and the mArguments they match with. */
     private class ParamQuery {
         var paramRegex: String? = null
+        val paramPattern by lazy { paramRegex?.let { Regex(it) } }
         // list of arg names under the same queryParamName, i.e. "...?name={first}_{last}"
         // queryParamName = "name", arguments = ["first", "last"]
         val arguments = mutableListOf<String>()
@@ -441,7 +442,7 @@ internal constructor(
         }
 
         init {
-            val typeAndSubType = mimeType.split("/".toRegex()).dropLastWhile { it.isEmpty() }
+            val typeAndSubType = mimeType.split('/')
             type = typeAndSubType[0]
             subType = typeAndSubType[1]
         }
@@ -709,10 +710,11 @@ internal constructor(
         private val SCHEME_PATTERN = Regex("^[a-zA-Z]+[+\\w\\-.]*:")
         private val FILL_IN_PATTERN = Regex("\\{(.+?)\\}")
         private val SCHEME_REGEX = Regex("http[s]?://")
-        private val WILDCARD_REGEX = Regex(".*")
         // allows for empty path arguments i.e. empty strings ""
         private val PATH_REGEX = Regex("([^/]*?|)")
         private val QUERY_PATTERN = Regex("^[^?#]+\\?([^#]*).*")
+        private val URI_SPLIT_PATTERN = Regex("(\\?|#|$)")
+        private val MIME_TYPE_PATTERN = Regex("^[\\s\\S]+/[\\s\\S]+$")
 
         // TODO: Use [RegexOption.DOT_MATCHES_ALL] once available in common
         //  https://youtrack.jetbrains.com/issue/KT-67574
@@ -729,9 +731,8 @@ internal constructor(
         }
         // extract beginning of uriPattern until it hits either a query(?), a framgment(#), or
         // end of uriPattern
-        Regex("(\\?|#|$)").find(uriPattern)?.let {
+        URI_SPLIT_PATTERN.find(uriPattern)?.let {
             buildRegex(uriPattern.substring(0, it.range.first), pathArgs, uriRegex)
-            isExactDeepLink = !uriRegex.contains(WILDCARD_REGEX) && !uriRegex.contains(PATH_REGEX)
             // Match either the end of string if all params are optional or match the
             // question mark (or pound symbol) and 0 or more characters after it
             uriRegex.append("($|(\\?(.)*)|(#(.)*))")
@@ -739,6 +740,7 @@ internal constructor(
         // we need to specifically escape any .* instances to ensure
         // they are still treated as wildcards in our final regex
         pathRegex = uriRegex.toString().saveWildcardInRegex()
+        isExactDeepLink = !pathRegex!!.contains(".*") && !pathRegex!!.contains(PATH_REGEX.pattern)
     }
 
     private fun parseQuery(): MutableMap<String, ParamQuery> {
@@ -787,20 +789,19 @@ internal constructor(
     }
 
     private fun parseFragment(): Pair<MutableList<String>, String>? {
-        if (uriPattern == null || NavUriUtils.parse(uriPattern).getFragment() == null) return null
+        if (uriPattern == null) return null
+        val fragment = NavUriUtils.parse(uriPattern).getFragment() ?: return null
 
         val fragArgs = mutableListOf<String>()
-        val fragment = NavUriUtils.parse(uriPattern).getFragment()
         val fragRegex = StringBuilder()
-        buildRegex(fragment!!, fragArgs, fragRegex)
+        buildRegex(fragment, fragArgs, fragRegex)
         return fragArgs to fragRegex.toString()
     }
 
     private fun parseMime() {
         if (mimeType == null) return
 
-        val mimeTypePattern = Regex("^[\\s\\S]+/[\\s\\S]+$")
-        require(mimeTypePattern.matches(mimeType)) {
+        require(MIME_TYPE_PATTERN.matches(mimeType)) {
             "The given mimeType $mimeType does not match to required \"type/subtype\" format"
         }
 
