@@ -48,6 +48,7 @@ val Material3Demos =
             ComposableDemo("Swipe To Dismiss") { SwipeToDismissDemo() },
             ComposableDemo("Tooltip") { TooltipDemo() },
             ComposableDemo("Toggle Buttons") { ToggleButtonDemos() },
+            ComposableDemo("Transitions") { TransitionDemo() },
             DemoCategory(
                 "Sliders",
                 listOf(ComposableDemo("Volume Slider") { SysUiVolumeSliderDemo() }),
