@@ -67,8 +67,11 @@ import androidx.compose.ui.unit.dp
  * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
  *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
  *   need to use `Modifier.overscroll` separately.
- * @param cacheWindow specifies the size of the ahead and behind window to be used as per
- *   [LazyLayoutCacheWindow].
+ * @param cacheWindow [LazyLayoutCacheWindow] configuring the area ahead and behind the viewport to
+ *   prefetch and retain items. The default cache window does not cache items while the user is not
+ *   scrolling. Override this to tune scrolling performance, such as increasing the ahead window to
+ *   reduce frame drops during scrolling or adding a behind window to retain recently visible items
+ *   when scrolling back and forth.
  * @param content a lambda describing the staggered grid content. Inside this block you can use
  *   [LazyStaggeredGridScope.items] to present list of items or [LazyStaggeredGridScope.item] for a
  *   single one.
@@ -85,12 +88,7 @@ public fun LazyVerticalStaggeredGrid(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    cacheWindow: LazyLayoutCacheWindow =
-        LazyLayoutCacheWindow(
-            behindFraction = 0f,
-            aheadFraction = 0.5f,
-            isNonScrollCachingEnabled = false,
-        ),
+    cacheWindow: LazyLayoutCacheWindow = LazyStaggeredGridDefaults.cacheWindow(state),
     content: LazyStaggeredGridScope.() -> Unit,
 ) {
     LazyStaggeredGrid(
@@ -166,12 +164,7 @@ public fun LazyVerticalStaggeredGrid(
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
-        cacheWindow =
-            LazyLayoutCacheWindow(
-                behindFraction = 0f,
-                aheadFraction = 0.5f,
-                isNonScrollCachingEnabled = false,
-            ),
+        cacheWindow = LazyStaggeredGridDefaults.cacheWindow(state),
         content = content,
     )
 }
@@ -267,8 +260,11 @@ private fun rememberColumnSlots(
  * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
  *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
  *   need to use Modifier.overscroll separately.
- * @param cacheWindow specifies the size of the ahead and behind window to be used as per
- *   [LazyLayoutCacheWindow].
+ * @param cacheWindow [LazyLayoutCacheWindow] configuring the area ahead and behind the viewport to
+ *   prefetch and retain items. The default cache window does not cache items while the user is not
+ *   scrolling. Override this to tune scrolling performance, such as increasing the ahead window to
+ *   reduce frame drops during scrolling or adding a behind window to retain recently visible items
+ *   when scrolling back and forth.
  * @param content a lambda describing the staggered grid content. Inside this block you can use
  *   [LazyStaggeredGridScope.items] to present list of items or [LazyStaggeredGridScope.item] for a
  *   single one.
@@ -285,12 +281,7 @@ public fun LazyHorizontalStaggeredGrid(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    cacheWindow: LazyLayoutCacheWindow =
-        LazyLayoutCacheWindow(
-            behindFraction = 0f,
-            aheadFraction = 0.5f,
-            isNonScrollCachingEnabled = false,
-        ),
+    cacheWindow: LazyLayoutCacheWindow = LazyStaggeredGridDefaults.cacheWindow(state),
     content: LazyStaggeredGridScope.() -> Unit,
 ) {
     LazyStaggeredGrid(
@@ -367,12 +358,7 @@ public fun LazyHorizontalStaggeredGrid(
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
-        cacheWindow =
-            LazyLayoutCacheWindow(
-                behindFraction = 0f,
-                aheadFraction = 0.5f,
-                isNonScrollCachingEnabled = false,
-            ),
+        cacheWindow = LazyStaggeredGridDefaults.cacheWindow(state),
         content = content,
     )
 }

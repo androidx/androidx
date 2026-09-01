@@ -299,6 +299,47 @@ public object ComposeFoundationFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     public var isLazyListItemAnimatorVisibleBoundsFixEnabled: Boolean = true
+
+    /**
+     * Controls whether [androidx.compose.foundation.lazy.LazyColumn] and
+     * [androidx.compose.foundation.lazy.LazyRow] use a dynamic default cache window.
+     *
+     * When enabled, the ahead [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow] size
+     * dynamically adapts to the average size of visible items, bounded between 10% and 50% of the
+     * viewport, rather than using a static viewport fraction.
+     */
+    // TODO: b/553939434
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isUsingDynamicDefaultCacheWindowInLists: Boolean = true
+
+    /**
+     * Controls whether [androidx.compose.foundation.lazy.grid.LazyVerticalGrid] and
+     * [androidx.compose.foundation.lazy.grid.LazyHorizontalGrid] use a dynamic default cache
+     * window.
+     *
+     * When enabled, the ahead [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow] size
+     * dynamically adapts to the average main axis size of visible lines, bounded between 10% and
+     * 50% of the viewport, rather than using a static viewport fraction.
+     */
+    // TODO: b/553939434
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isUsingDynamicDefaultCacheWindowInGrids: Boolean = true
+
+    /**
+     * Controls whether [androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid]
+     * and [androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid] use a
+     * dynamic default cache window.
+     *
+     * When enabled, the ahead [androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow] size
+     * dynamically adapts to the average size of visible items, bounded between 10% and 50% of the
+     * viewport, rather than using a static viewport fraction.
+     */
+    // TODO: b/553939434
+    @field:Suppress("MutableBareField")
+    @JvmField
+    public var isUsingDynamicDefaultCacheWindowInStaggeredGrids: Boolean = true
 }
 
 /** The initial value of [ComposeFoundationFlags.isNewContextMenuEnabled] */
