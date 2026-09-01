@@ -144,6 +144,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components["Divider"]).isSameInstanceAs(basicCatalog.divider)
         assertThat(catalog.components["Button"]).isSameInstanceAs(basicCatalog.button)
         assertThat(catalog.components["CheckBox"]).isSameInstanceAs(basicCatalog.checkBox)
+        assertThat(catalog.components["Slider"]).isSameInstanceAs(basicCatalog.slider)
         assertThat(catalog.components["DateTimeInput"]).isSameInstanceAs(basicCatalog.dateTimeInput)
         assertThat(catalog.functions["TestFunc"]).isSameInstanceAs(testFunction)
         assertThat(catalog.isInline).isFalse()
@@ -341,6 +342,7 @@ class A2uiCatalogTest {
             divider: A2uiBasicCatalogV1.Divider = createStubDivider(),
             button: A2uiBasicCatalogV1.Button = createStubButton(),
             checkBox: A2uiBasicCatalogV1.CheckBox = createStubCheckBox(),
+            slider: A2uiBasicCatalogV1.Slider = createStubSlider(),
             dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = createStubDateTimeInput(),
             functions: List<A2uiFunction> = emptyList(),
         ) =
@@ -356,6 +358,7 @@ class A2uiCatalogTest {
                 divider = divider,
                 button = button,
                 checkBox = checkBox,
+                slider = slider,
                 dateTimeInput = dateTimeInput,
                 functions = functions,
             )
@@ -467,6 +470,20 @@ class A2uiCatalogTest {
                     label: String,
                     value: Boolean,
                     onValueChange: (Boolean) -> Unit,
+                    enabled: Boolean,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubSlider() =
+            object : A2uiBasicCatalogV1.Slider {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    label: String?,
+                    min: Float,
+                    max: Float,
+                    value: Float,
+                    onValueChange: (Float) -> Unit,
                     enabled: Boolean,
                     modifier: Modifier,
                 ) {}

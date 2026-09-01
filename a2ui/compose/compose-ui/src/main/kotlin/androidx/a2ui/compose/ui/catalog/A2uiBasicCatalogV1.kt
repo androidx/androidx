@@ -66,6 +66,7 @@ import java.util.TimeZone
  * @property divider The [Divider] component implementation.
  * @property button The [Button] component implementation.
  * @property checkBox The [CheckBox] component implementation.
+ * @property slider The [Slider] component implementation.
  * @property dateTimeInput The [DateTimeInput] component implementation.
  * @property functions The list of [A2uiFunction]s supported by this catalog, recommended default is
  *   to create the function list using
@@ -83,6 +84,7 @@ public class A2uiBasicCatalogV1(
     public val divider: Divider,
     public val button: Button,
     public val checkBox: CheckBox,
+    public val slider: Slider,
     public val dateTimeInput: DateTimeInput,
     // TODO(b/547851648): Add the rest of the basic catalog component types.
     public val functions: kotlin.collections.List<A2uiFunction>,
@@ -108,6 +110,7 @@ public class A2uiBasicCatalogV1(
             divider,
             button,
             checkBox,
+            slider,
             dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
         )
@@ -1370,6 +1373,119 @@ public class A2uiBasicCatalogV1(
             childId: String,
             variant: Variant,
             action: Map<String, Any?>,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"Slider"` component for selecting a numeric value within a range.
+     *
+     * **Schema Properties:**
+     * * `label` (Dynamic String, optional): The label for the slider.
+     * * `min` (Number, optional): The minimum value of the slider. Defaults to `0`.
+     * * `max` (Number, required): The maximum value of the slider.
+     * * `value` (Dynamic Number, required): The current value of the slider.
+     */
+    public interface Slider : A2uiComponent {
+        override val name: String
+            get() = "Slider"
+
+        override val description: String
+            get() = "A slider for selecting a numeric value within a range."
+
+        public companion object {
+            /** The [A2uiProperty] for the `"label"` property of a [Slider]. */
+            public val LabelProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "label",
+                    required = false,
+                    description = "The label for the slider.",
+                )
+
+            /** The [A2uiProperty] for the `"min"` property of a [Slider]. */
+            public val MinProperty: StaticA2uiProperty<Number> =
+                A2uiProperty.number(
+                    key = "min",
+                    defaultValue = 0,
+                    description = "The minimum value of the slider.",
+                )
+
+            /** The [A2uiProperty] for the `"max"` property of a [Slider]. */
+            public val MaxProperty: StaticA2uiProperty<Number> =
+                A2uiProperty.number(
+                    key = "max",
+                    required = true,
+                    description = "The maximum value of the slider.",
+                )
+
+            /** The [A2uiProperty] for the `"value"` property of a [Slider]. */
+            public val ValueProperty: DynamicA2uiProperty<Number> =
+                A2uiProperty.dynamicNumber(
+                    key = "value",
+                    required = true,
+                    description = "The current value of the slider.",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(LabelProperty, MinProperty, MaxProperty, ValueProperty)
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bind(ValueProperty) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val label = properties.bind(LabelProperty)
+            val min = properties[MinProperty]?.toFloat() ?: 0f
+            val max =
+                checkNotNull(properties[MaxProperty]?.toFloat()) {
+                    "Required property '${MaxProperty.key}' is missing."
+                }
+            val value =
+                checkNotNull(properties.bind(ValueProperty)?.toFloat()) {
+                    "Required property '${ValueProperty.key}' is missing."
+                }
+            val onValueChange = properties.bindUpdater(ValueProperty)
+            val isEnabled = onValueChange != null
+
+            TypedContent(
+                label = label,
+                min = min,
+                max = max,
+                value = value,
+                onValueChange = { newValue -> onValueChange?.invoke(newValue) },
+                enabled = isEnabled,
+                modifier = modifier,
+            )
+        }
+
+        /**
+         * Renders the [Slider] with its resolved properties.
+         *
+         * @param label The text label for the slider.
+         * @param min The minimum value of the slider.
+         * @param max The maximum value of the slider.
+         * @param value The current value of the slider.
+         * @param onValueChange callback invoked when the user interacts with the slider.
+         * @param enabled controls the enabled state of the slider. When `false`, this component
+         *   will not respond to user input.
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            label: String?,
+            min: Float,
+            max: Float,
+            value: Float,
+            onValueChange: (Float) -> Unit,
+            enabled: Boolean,
             modifier: Modifier,
         )
     }

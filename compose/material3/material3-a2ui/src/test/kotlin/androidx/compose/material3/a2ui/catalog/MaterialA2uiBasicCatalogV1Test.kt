@@ -74,6 +74,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.button)
         assertThat(catalog.components["CheckBox"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.checkBox)
+        assertThat(catalog.components["Slider"])
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.slider)
         assertThat(catalog.components["DateTimeInput"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)
 
@@ -370,6 +372,36 @@ class MaterialA2uiBasicCatalogV1Test {
     }
 
     @Test
+    fun factory_withCustomSliderComponent_overridesDefaultMaterialSlider() {
+        val customSlider =
+            object : A2uiBasicCatalogV1.Slider {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    label: String?,
+                    min: Float,
+                    max: Float,
+                    value: Float,
+                    onValueChange: (Float) -> Unit,
+                    enabled: Boolean,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        val catalog =
+            materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
+                urlOpener = fakeUrlOpener,
+                messageFormatter = fakeMessageFormatter,
+                localeProvider = fakeLocaleProvider,
+                slider = customSlider,
+            )
+
+        assertThat(catalog.components["Slider"]).isSameInstanceAs(customSlider)
+        assertThat(catalog.components["Slider"])
+            .isNotSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.slider)
+    }
+
+    @Test
     fun factory_withCustomDateTimeInputComponent_overridesDefaultMaterialDateTimeInput() {
         val customDateTimeInput =
             object : A2uiBasicCatalogV1.DateTimeInput {
@@ -424,6 +456,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Button)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.checkBox)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1CheckBox)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.slider)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Slider)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1DateTimeInput)
     }
