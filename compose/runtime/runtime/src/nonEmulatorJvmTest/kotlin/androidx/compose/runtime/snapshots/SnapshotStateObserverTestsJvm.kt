@@ -17,6 +17,7 @@
 package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -221,6 +222,37 @@ class SnapshotStateObserverTestsJvm {
         runSimpleTest { stateObserver, _ ->
             // record observation for a draw scope
             stateObserver.observeReads("draw", changeBlock) { derivedStates.forEach { it.value } }
+
+            Snapshot.sendApplyNotifications()
+
+            // flip the states to force re-recording value
+            states[0].value = false
+            states[1].value = false
+
+            Snapshot.sendApplyNotifications()
+        }
+        assertEquals(0, changes)
+    }
+
+    @Test
+    fun rereadingComputedState_whenDependenciesChanged() {
+        var changes = 0
+        val changeBlock: (Any) -> Unit = { changes++ }
+
+        val states = List(2) { mutableStateOf(true) }.sortedBy { System.identityHashCode(it) }
+
+        val computedStates =
+            List(10) {
+                computedStateOf {
+                    if (states[1].value) {
+                        states[0].value
+                    }
+                }
+            }
+
+        runSimpleTest { stateObserver, _ ->
+            // record observation for a draw scope
+            stateObserver.observeReads("draw", changeBlock) { computedStates.forEach { it.value } }
 
             Snapshot.sendApplyNotifications()
 

@@ -21,6 +21,7 @@ import androidx.benchmark.junit4.measureRepeatedOnMainThread
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.computedStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.snapshots.Snapshot
@@ -61,6 +62,28 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
     }
 
     @Test
+    fun readState_secondRead() {
+        val state = mutableIntStateOf(0)
+
+        benchmarkRead(before = { state.value }) { state.value }
+    }
+
+    @Test
+    fun readState_afterWrite() {
+        val stateA = mutableIntStateOf(0)
+
+        benchmarkRead(before = { stateA.value += 1 }) { stateA.value }
+    }
+
+    @Test
+    fun readState_preinitialized() {
+        val stateA = mutableIntStateOf(0)
+        val stateB = mutableIntStateOf(0)
+
+        benchmarkRead(before = { stateA.value }) { stateB.value }
+    }
+
+    @Test
     fun readDerivedState() {
         val stateA = mutableIntStateOf(0)
         val stateB = mutableIntStateOf(0)
@@ -69,6 +92,14 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
         derivedState.value // precompute result
 
         benchmarkRead { derivedState.value }
+    }
+
+    @Test
+    fun readDerivedState_singleDependency() {
+        val stateA = mutableIntStateOf(0)
+        val computedState = derivedStateOf { stateA.value > 0 }
+
+        benchmarkRead { computedState.value }
     }
 
     @Test
@@ -94,21 +125,6 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
     }
 
     @Test
-    fun readState_afterWrite() {
-        val stateA = mutableIntStateOf(0)
-
-        benchmarkRead(before = { stateA.value += 1 }) { stateA.value }
-    }
-
-    @Test
-    fun readState_preinitialized() {
-        val stateA = mutableIntStateOf(0)
-        val stateB = mutableIntStateOf(0)
-
-        benchmarkRead(before = { stateA.value }) { stateB.value }
-    }
-
-    @Test
     fun readDerivedState_preinitialized() {
         val stateA = mutableIntStateOf(0)
         val stateB = mutableIntStateOf(0)
@@ -117,6 +133,52 @@ class ComposeStateReadBenchmark(private val readContext: ReadContext) {
         val derivedStateB = derivedStateOf { stateB.value + stateA.value }
 
         benchmarkRead(before = { derivedStateA.value }) { derivedStateB.value }
+    }
+
+    @Test
+    fun readComputedState() {
+        val stateA = mutableIntStateOf(0)
+        val stateB = mutableIntStateOf(0)
+        val computedState = computedStateOf { stateA.value + stateB.value }
+
+        benchmarkRead { computedState.value }
+    }
+
+    @Test
+    fun readComputedState_singleDependency() {
+        val stateA = mutableIntStateOf(0)
+        val computedState = computedStateOf { stateA.value > 0 }
+
+        benchmarkRead { computedState.value }
+    }
+
+    @Test
+    fun readComputedState_secondRead() {
+        val stateA = mutableIntStateOf(0)
+        val stateB = mutableIntStateOf(0)
+        val computedState = computedStateOf { stateA.value + stateB.value }
+
+        benchmarkRead(before = { computedState.value }) { computedState.value }
+    }
+
+    @Test
+    fun readComputedState_afterWrite() {
+        val stateA = mutableIntStateOf(0)
+        val stateB = mutableIntStateOf(0)
+        val computedState = computedStateOf { stateA.value + stateB.value }
+
+        benchmarkRead(before = { stateA.value += 1 }) { computedState.value }
+    }
+
+    @Test
+    fun readComputedState_preinitialized() {
+        val stateA = mutableIntStateOf(0)
+        val stateB = mutableIntStateOf(0)
+
+        val computedStateA = computedStateOf { stateA.value + stateB.value }
+        val computedStateB = computedStateOf { stateB.value + stateA.value }
+
+        benchmarkRead(before = { computedStateA.value }) { computedStateB.value }
     }
 
     private fun benchmarkRead(
