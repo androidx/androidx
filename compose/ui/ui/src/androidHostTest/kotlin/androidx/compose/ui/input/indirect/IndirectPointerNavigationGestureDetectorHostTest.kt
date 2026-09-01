@@ -38,7 +38,8 @@ class IndirectPointerNavigationGestureDetectorHostTest {
     @Test
     fun dispose_clearsPendingMessagesInGestureDetector() {
         val activity = Robolectric.buildActivity(Activity::class.java).get()
-        val detector = IndirectPointerNavigationGestureDetector(activity) {}
+        val detector =
+            IndirectPointerNavigationGestureDetector(activity.window.decorView.rootView) {}
         detector.primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.X
 
         // Send a down event to trigger a scheduled message (e.g. SHOW_PRESS or LONG_PRESS)
