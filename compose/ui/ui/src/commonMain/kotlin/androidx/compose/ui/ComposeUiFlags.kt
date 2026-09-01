@@ -129,7 +129,7 @@ public object ComposeUiFlags {
     // TODO: Remove this flag once it has soaked (b/501080937)
     @field:Suppress("MutableBareField")
     @JvmField
-    public var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = false
+    public var isTriggerMoveEventsWhenLocationHasNotChangedEnabled: Boolean = true
 
     /** Fixes trackpad pan gestures (CLASSIFICATION_TWO_FINGER_SWIPE). */
     // TODO: b/535296682 - Cleanup feature flag
