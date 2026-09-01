@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.readText
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.BasicText
@@ -77,7 +76,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class BasicTextFieldSemanticsTest : FocusedWindowTest {
