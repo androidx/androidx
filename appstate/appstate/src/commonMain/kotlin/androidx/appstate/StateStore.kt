@@ -68,7 +68,10 @@ public class StateStore {
      * @param stateKey the key of the state to retrieve
      * @param defaultValue the value to put if there is no value for the key
      */
-    public fun <T> getState(stateKey: StateStoreKey<T>, defaultValue: T): State<T> {
+    public fun <T> getState(
+        stateKey: StateStoreKey<T>,
+        defaultValue: T = stateKey.defaultValue,
+    ): State<T> {
         @Suppress("UNCHECKED_CAST")
         return stateStore.getOrPut(stateKey) { mutableStateOf(defaultValue) } as MutableState<T>
     }
@@ -120,7 +123,7 @@ public class StateStore {
      */
     public inline fun <T> updateState(
         stateKey: StateStoreKey<T>,
-        defaultValue: T,
+        defaultValue: T = stateKey.defaultValue,
         update: (T) -> T,
     ) {
         val currentState = getState(stateKey, defaultValue)
@@ -135,12 +138,14 @@ public class StateStore {
  * The class T should be the value of the type that that should be retrieved and should also
  * be @Serializable along with the extending class.
  *
+ * @param defaultValue an instance of the type [T] that is associated with this key by default.
  * @param autoClearKey set this if you would like the state associated with this key to be
  *   automatically cleared from the [StateStore] when [shouldClearState] is `true`.
  * @param shouldClearState the condition to determine whether the state should be cleared or not.
  */
 @Serializable
 public open class StateStoreKey<T>(
+    public val defaultValue: T,
     @Transient public val autoClearKey: StateStoreKey<T>? = null,
     @Transient public val shouldClearState: (StateStore) -> Boolean = { true },
 )
