@@ -103,7 +103,9 @@ public class ComposeLocalPaint {
         // Reuse the context's configured TypefaceResolver (e.g. GmsFontTypefaceResolver) if
         // present, falling back to the embedded player's singleton system resolver.
         val resolver =
-            (context as? AndroidRemoteContext)?.typefaceResolver ?: EmbeddedPlayerTypefaceResolver
+            (context as? AndroidRemoteContext)?.typefaceResolver
+                ?: (context as? GraphContext)?.typefaceResolver
+                ?: EmbeddedPlayerTypefaceResolver
         val italic = fontStyle == FontStyle.Italic
 
         val fontInstance =
