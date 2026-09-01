@@ -54,11 +54,11 @@ constructor(
     public val id: String,
     /** The package name of the Android app called to execute the app function. */
     public val packageName: String,
-    // TODO(b/500667251): remove isEnabled property. AppFunctionMetadata should now contain
+    // TODO(b/501067320): remove isEnabled property. AppFunctionMetadata should now contain
     //  static info only, in line with platform class, hence using a default false value until
     //  we migrate.
     /** Indicates whether the function is enabled currently or not. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val isEnabled: Boolean,
+    private val isEnabled: Boolean,
     /** The identifying metadata for a pre-defined schema which this app function implements. */
     public val schema: AppFunctionSchemaMetadata?,
     /** The parameters of the app function. */
