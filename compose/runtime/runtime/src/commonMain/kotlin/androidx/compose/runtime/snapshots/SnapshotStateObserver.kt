@@ -19,8 +19,8 @@ package androidx.compose.runtime.snapshots
 import androidx.collection.MutableObjectIntMap
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
+import androidx.compose.runtime.ComputedState
 import androidx.compose.runtime.DerivedState
-import androidx.compose.runtime.DerivedStateObserver
 import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.ScopeMap
@@ -30,11 +30,9 @@ import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.currentThreadId
 import androidx.compose.runtime.internal.currentThreadName
-import androidx.compose.runtime.observeDerivedStateRecalculations
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.requirePrecondition
-import androidx.compose.runtime.structuralEqualityPolicy
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -403,22 +401,39 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
             _invalidated ?: MutableScatterSet<Any>().also { _invalidated = it }
 
         /** Reusable vector for re-recording states inside [recordInvalidation] */
-        private var _statesToReread: MutableVector<DerivedState<*>>? = null
+        private var _statesToReread: MutableVector<IndirectState<*>>? = null
         private val statesToReread
             get() =
-                _statesToReread ?: mutableVectorOf<DerivedState<*>>().also { _statesToReread = it }
+                _statesToReread ?: mutableVectorOf<IndirectState<*>>().also { _statesToReread = it }
 
         // derived state handling
 
         /** Observer for derived state recalculation */
         val derivedStateObserver =
-            object : DerivedStateObserver {
-                override fun start(derivedState: DerivedState<*>) {
-                    deriveStateScopeCount++
+            object : IndirectStateObserver {
+                private var computedStateDepth = 0
+
+                override fun start(state: IndirectState<*>) {
+                    if (state is DerivedState<*>) {
+                        deriveStateScopeCount++
+                    } else if (state is ComputedState<*>) {
+                        if (deriveStateScopeCount == 0 && computedStateDepth == 0) {
+                            dependencyToIndirectStates.remove(state)
+                            rootComputingState = state
+                        }
+                        computedStateDepth++
+                    }
                 }
 
-                override fun done(derivedState: DerivedState<*>) {
-                    deriveStateScopeCount--
+                override fun done(state: IndirectState<*>, calculatedValue: Any?) {
+                    if (state is DerivedState<*>) {
+                        deriveStateScopeCount--
+                    } else if (state is ComputedState<*>) {
+                        if (--computedStateDepth == 0) {
+                            recordedIndirectStateValues[state] = calculatedValue
+                            rootComputingState = null
+                        }
+                    }
                 }
             }
 
@@ -426,27 +441,29 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
          * Guards reentrant apply notifications from accessing derived state list. This avoids
          * b/435655844 without modifying how derived state behaves internally.
          */
-        var readingDerivedStates = false
+        var readingIndirectStates = false
 
         /**
          * Counter for skipping reads inside derived states. If count is > 0, read happens inside a
-         * derived state. Reads for derived states are captured separately through
+         * derived state. Reads for derived states are exposed via
          * [DerivedState.Record.dependencies].
          */
         private var deriveStateScopeCount = 0
 
+        private var rootComputingState: ComputedState<*>? = null
+
         /** Invalidation index from state objects to derived states reading them. */
-        private var _dependencyToDerivedStates: ScopeMap<Any, DerivedState<*>>? = null
-        private val dependencyToDerivedStates =
-            _dependencyToDerivedStates
-                ?: ScopeMap<Any, DerivedState<*>>().also { _dependencyToDerivedStates = it }
+        private var _dependencyToIndirectStates: ScopeMap<Any, IndirectState<*>>? = null
+        private val dependencyToIndirectStates =
+            _dependencyToIndirectStates
+                ?: ScopeMap<Any, IndirectState<*>>().also { _dependencyToIndirectStates = it }
 
         /** Last derived state value recorded during read. */
-        private var _recordedDerivedStateValues: MutableScatterMap<DerivedState<*>, Any?>? = null
-        private val recordedDerivedStateValues =
-            _recordedDerivedStateValues
-                ?: MutableScatterMap<DerivedState<*>, Any?>().also {
-                    _recordedDerivedStateValues = it
+        private var _recordedIndirectStateValues: MutableScatterMap<IndirectState<*>, Any?>? = null
+        private val recordedIndirectStateValues =
+            _recordedIndirectStateValues
+                ?: MutableScatterMap<IndirectState<*>, Any?>().also {
+                    _recordedIndirectStateValues = it
                 }
 
         fun recordRead(value: Any) {
@@ -476,21 +493,38 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                 return
             }
 
+            val rootComputingState = rootComputingState
+            if (rootComputingState != null) {
+                if (value is StateObjectImpl) {
+                    value.recordReadIn(ReaderKind.SnapshotStateObserver)
+                }
+                dependencyToIndirectStates.add(value, rootComputingState)
+                if (value is DerivedState<*>) {
+                    val record = value.currentRecord
+                    record.dependencies.forEach { dependency, _ ->
+                        if (dependency is StateObjectImpl) {
+                            dependency.recordReadIn(ReaderKind.SnapshotStateObserver)
+                        }
+                        dependencyToIndirectStates.add(dependency, rootComputingState)
+                    }
+                }
+                return
+            }
+
             val previousToken = recordedValues.put(value, currentToken, -1)
             if (value is DerivedState<*> && previousToken != currentToken) {
                 val record = value.currentRecord
                 // re-read the value before removing dependencies, in case the new value wasn't read
-                recordedDerivedStateValues[value] = record.currentValue
+                recordedIndirectStateValues[value] = record.currentValue
 
-                val dependencies = record.dependencies
-                val dependencyToDerivedStates = dependencyToDerivedStates
+                val dependencyToIndirectStates = dependencyToIndirectStates
 
-                dependencyToDerivedStates.removeScope(value)
-                dependencies.forEachKey { dependency ->
+                dependencyToIndirectStates.removeScope(value)
+                record.dependencies.forEach { dependency, _ ->
                     if (dependency is StateObjectImpl) {
                         dependency.recordReadIn(ReaderKind.SnapshotStateObserver)
                     }
-                    dependencyToDerivedStates.add(dependency, value)
+                    dependencyToIndirectStates.add(dependency, value)
                 }
             }
 
@@ -520,7 +554,7 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                 currentToken = currentSnapshot().snapshotId.hashCode()
             }
 
-            observeDerivedStateRecalculations(derivedStateObserver) {
+            observeIndirectStateRecalculations(derivedStateObserver) {
                 Snapshot.observeInternal(readObserver, null, block)
             }
 
@@ -563,9 +597,9 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
 
         private fun removeObservation(scope: Any, value: Any) {
             valueToScopes.remove(value, scope)
-            if (value is DerivedState<*> && value !in valueToScopes) {
-                dependencyToDerivedStates.removeScope(value)
-                recordedDerivedStateValues.remove(value)
+            if (value is IndirectState<*> && value !in valueToScopes) {
+                dependencyToIndirectStates.removeScope(value)
+                recordedIndirectStateValues.remove(value)
             }
         }
 
@@ -573,8 +607,8 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         fun clear() {
             valueToScopes.clear()
             scopeToValues.clear()
-            dependencyToDerivedStates.clear()
-            recordedDerivedStateValues.clear()
+            dependencyToIndirectStates.clear()
+            recordedIndirectStateValues.clear()
         }
 
         /**
@@ -585,8 +619,8 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         fun recordInvalidation(changes: Set<Any>): Boolean {
             var hasValues = false
 
-            val dependencyToDerivedStates = dependencyToDerivedStates
-            val recordedDerivedStateValues = recordedDerivedStateValues
+            val dependencyToIndirectStates = dependencyToIndirectStates
+            val recordedIndirectStateValues = recordedIndirectStateValues
             val valueToScopes = valueToScopes
             val invalidated = invalidated
 
@@ -595,33 +629,27 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                     return@fastForEach
                 }
 
-                if (!readingDerivedStates && value in dependencyToDerivedStates) {
-                    readingDerivedStates = true
+                if (!readingIndirectStates && value in dependencyToIndirectStates) {
+                    readingIndirectStates = true
                     try {
-                        // Find derived state that is invalidated by this change
-                        dependencyToDerivedStates.forEachScopeOf(value) { derivedState ->
-                            derivedState as DerivedState<Any?>
-                            val previousValue = recordedDerivedStateValues[derivedState]
-                            val policy = derivedState.policy ?: structuralEqualityPolicy()
+                        // Find indirect state that is invalidated by this change
+                        dependencyToIndirectStates.forEachScopeOf(value) { indirectState ->
+                            indirectState as IndirectState<Any?>
+                            val previousValue = recordedIndirectStateValues[indirectState]
 
                             // Invalidate only if currentValue is different than observed on read
-                            if (
-                                !policy.equivalent(
-                                    derivedState.currentRecord.currentValue,
-                                    previousValue,
-                                )
-                            ) {
-                                valueToScopes.forEachScopeOf(derivedState) { scope ->
+                            if (indirectState.isInvalidFor(previousValue)) {
+                                valueToScopes.forEachScopeOf(indirectState) { scope ->
                                     invalidated.add(scope)
                                     hasValues = true
                                 }
                             } else {
                                 // Re-read state to ensure its dependencies are up-to-date
-                                statesToReread.add(derivedState)
+                                statesToReread.add(indirectState)
                             }
                         }
                     } finally {
-                        readingDerivedStates = false
+                        readingIndirectStates = false
                     }
                 }
 
@@ -631,27 +659,39 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                 }
             }
 
-            if (!readingDerivedStates && statesToReread.isNotEmpty()) {
-                statesToReread.forEach { rereadDerivedState(it) }
+            if (!readingIndirectStates && statesToReread.isNotEmpty()) {
+                statesToReread.forEach { rereadIndirectState(it) }
                 statesToReread.clear()
             }
 
             return hasValues
         }
 
-        fun rereadDerivedState(derivedState: DerivedState<*>) {
+        fun rereadIndirectState(indirectState: IndirectState<*>) {
             val scopeToValues = scopeToValues
             val token = currentSnapshot().snapshotId.hashCode()
-
-            valueToScopes.forEachScopeOf(derivedState) { scope ->
-                recordRead(
-                    value = derivedState,
-                    currentToken = token,
-                    currentScope = scope,
-                    recordedValues =
-                        scopeToValues[scope]
-                            ?: MutableObjectIntMap<Any>().also { scopeToValues[scope] = it },
-                )
+            if (indirectState is ComputedState<*>) {
+                Snapshot.observeInternal({
+                    valueToScopes.forEachScopeOf(indirectState) { scope ->
+                        recordRead(
+                            value = it,
+                            currentToken = token,
+                            currentScope = scope,
+                            recordedValues = scopeToValues.getOrPut(scope) { MutableObjectIntMap() },
+                        )
+                    }
+                }) {
+                    indirectState.value
+                }
+            } else {
+                valueToScopes.forEachScopeOf(indirectState) { scope ->
+                    recordRead(
+                        value = indirectState,
+                        currentToken = token,
+                        currentScope = scope,
+                        recordedValues = scopeToValues.getOrPut(scope) { MutableObjectIntMap() },
+                    )
+                }
             }
         }
 

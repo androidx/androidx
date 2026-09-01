@@ -22,6 +22,7 @@ import androidx.collection.ScatterSet
 import androidx.compose.runtime.composer.gapbuffer.GapAnchor
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
+import androidx.compose.runtime.snapshots.IndirectState
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.tooling.ComposeToolingApi
@@ -251,7 +252,7 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
 
     private var currentToken = 0
     private var trackedInstances: MutableObjectIntMap<Any>? = null
-    private var trackedDependencies: MutableScatterMap<DerivedState<*>, Any?>? = null
+    private var trackedDependencies: MutableScatterMap<IndirectState<*>, Any?>? = null
     private var rereading: Boolean
         get() = getFlag(RereadingFlag)
         set(value) {
@@ -311,10 +312,10 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
         return false
     }
 
-    fun recordDerivedStateValue(instance: DerivedState<*>, value: Any?) {
+    fun recordDerivedStateValue(instance: IndirectState<*>, value: Any?) {
         val trackedDependencies =
             trackedDependencies
-                ?: MutableScatterMap<DerivedState<*>, Any?>().also { trackedDependencies = it }
+                ?: MutableScatterMap<IndirectState<*>, Any?>().also { trackedDependencies = it }
 
         trackedDependencies[instance] = value
     }
@@ -339,26 +340,26 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
         val trackedDependencies = trackedDependencies ?: return true
 
         return when (instances) {
-            is DerivedState<*> -> {
-                instances.checkDerivedStateChanged(trackedDependencies)
+            is IndirectState<*> -> {
+                instances.checkStateInvalidatedConditionally(trackedDependencies)
             }
             is ScatterSet<*> -> {
                 instances.isNotEmpty() &&
                     instances.any {
-                        it !is DerivedState<*> || it.checkDerivedStateChanged(trackedDependencies)
+                        it !is IndirectState<*> ||
+                            it.checkStateInvalidatedConditionally(trackedDependencies)
                     }
             }
             else -> true
         }
     }
 
-    private fun DerivedState<*>.checkDerivedStateChanged(
-        dependencies: MutableScatterMap<DerivedState<*>, Any?>
+    private fun IndirectState<*>.checkStateInvalidatedConditionally(
+        dependencies: MutableScatterMap<IndirectState<*>, Any?>
     ): Boolean {
         @Suppress("UNCHECKED_CAST")
-        this as DerivedState<Any?>
-        val policy = policy ?: structuralEqualityPolicy()
-        return !policy.equivalent(currentRecord.currentValue, dependencies[this])
+        this as IndirectState<Any?>
+        return this.isInvalidFor(dependencies[this])
     }
 
     fun rereadTrackedInstances() {
@@ -366,7 +367,13 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
             trackedInstances?.let { trackedInstances ->
                 rereading = true
                 try {
-                    trackedInstances.forEach { value, _ -> owner.recordReadOf(value) }
+                    trackedInstances.forEach { value, _ ->
+                        if (value is ComputedState<*>) {
+                            value.value
+                        } else {
+                            owner.recordReadOf(value)
+                        }
+                    }
                 } finally {
                     rereading = false
                 }
@@ -397,7 +404,7 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
                             val shouldRemove = instanceToken != token
                             if (shouldRemove) {
                                 composition.removeObservation(instance, this)
-                                if (instance is DerivedState<*>) {
+                                if (instance is IndirectState<*>) {
                                     composition.removeDerivedStateObservation(instance)
                                     trackedDependencies?.remove(instance)
                                 }
