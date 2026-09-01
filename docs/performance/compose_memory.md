@@ -86,3 +86,10 @@ tools:
 
 *   **Perfetto:** Perfetto has built-in viewers for Perfetto traces containing
     **hprofs and pprofs**.
+
+## Further Reading & Guides
+
+*   [**Continuous pprof Basics**](pprof_basics.md): Overview of Continuous pprof
+    views (Flame, Graph, Tree, Top-Down, Bottom-Up) and navigation strategies.
+*   [**Memory Profiling Case Study**](compose_memory_pprof_case_study.md):
+    Real-world step-by-step analysis of Compose memory overheads using pprof.
