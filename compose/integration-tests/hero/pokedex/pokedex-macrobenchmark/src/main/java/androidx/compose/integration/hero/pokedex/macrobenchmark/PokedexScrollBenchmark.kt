@@ -109,6 +109,7 @@ class PokedexScrollBenchmark(
                 // process is already active.
                 killProcess()
                 databaseCleanupRule.deleteDatabaseFiles()
+                cacheCleanupRule.deleteCacheFiles()
 
                 val intent = Intent()
                 intent.configure(

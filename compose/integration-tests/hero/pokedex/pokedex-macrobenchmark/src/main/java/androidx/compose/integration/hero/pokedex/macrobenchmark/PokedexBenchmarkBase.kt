@@ -18,6 +18,7 @@ package androidx.compose.integration.hero.pokedex.macrobenchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
+import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexCacheCleanupRule
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_API_URL
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SCROLLBAR
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.Compose.POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS
@@ -32,10 +33,14 @@ abstract class PokedexBenchmarkBase {
     val benchmarkRule = MacrobenchmarkRule()
     val mockServerRule = PokedexMockServerRule()
     internal val databaseCleanupRule = PokedexDatabaseCleanupRule()
+    internal val cacheCleanupRule = PokedexCacheCleanupRule()
 
     @get:Rule
     val pokedexBenchmarkRuleChain: RuleChain =
-        RuleChain.outerRule(databaseCleanupRule).around(mockServerRule).around(benchmarkRule)
+        RuleChain.outerRule(databaseCleanupRule)
+            .around(cacheCleanupRule)
+            .around(mockServerRule)
+            .around(benchmarkRule)
 
     fun Intent.configure(
         action: String,

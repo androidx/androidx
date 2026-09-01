@@ -106,6 +106,7 @@ class PokedexTransitionBenchmark(
             setupBlock = {
                 killProcess()
                 databaseCleanupRule.deleteDatabaseFiles()
+                cacheCleanupRule.deleteCacheFiles()
 
                 val intent = Intent()
                 intent.configure(
