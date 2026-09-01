@@ -19,7 +19,9 @@ package androidx.a2ui.compose.ui.catalog
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.schema.A2uiAnySchema
 import androidx.a2ui.model.schema.A2uiBooleanSchema
+import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
+import androidx.a2ui.model.schema.A2uiStringSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -84,15 +86,43 @@ class A2uiBasicCatalogV1DateTimeInputTest {
 
         assertThat(A2uiBasicCatalogV1.DateTimeInput.MinProperty.key).isEqualTo("min")
         assertThat(A2uiBasicCatalogV1.DateTimeInput.MinProperty.isRequired).isFalse()
-        assertIs<A2uiAnySchema>(A2uiBasicCatalogV1.DateTimeInput.MinProperty.schema)
+        assertDateTimeFormatConstraints(A2uiBasicCatalogV1.DateTimeInput.MinProperty.schema)
 
         assertThat(A2uiBasicCatalogV1.DateTimeInput.MaxProperty.key).isEqualTo("max")
         assertThat(A2uiBasicCatalogV1.DateTimeInput.MaxProperty.isRequired).isFalse()
-        assertIs<A2uiAnySchema>(A2uiBasicCatalogV1.DateTimeInput.MaxProperty.schema)
+        assertDateTimeFormatConstraints(A2uiBasicCatalogV1.DateTimeInput.MaxProperty.schema)
 
         assertThat(A2uiBasicCatalogV1.DateTimeInput.LabelProperty.key).isEqualTo("label")
         assertThat(A2uiBasicCatalogV1.DateTimeInput.LabelProperty.isRequired).isFalse()
         assertIs<A2uiDynamicStringSchema>(A2uiBasicCatalogV1.DateTimeInput.LabelProperty.schema)
+    }
+
+    private fun assertDateTimeFormatConstraints(schema: A2uiSchema) {
+        assertIs<A2uiAnySchema>(schema)
+        val allOf = schema.keywords.single()
+        assertIs<A2uiSchemaKeyword.AllOf>(allOf)
+        assertThat(allOf.schemas).hasSize(2)
+        assertIs<A2uiDynamicStringSchema>(allOf.schemas.first())
+
+        val formatConstraintSchema = allOf.schemas.last()
+        assertIs<A2uiAnySchema>(formatConstraintSchema)
+        val ifThen = formatConstraintSchema.keywords.single()
+        assertIs<A2uiSchemaKeyword.IfThen>(ifThen)
+        assertIs<A2uiStringSchema>(ifThen.ifSchema)
+        assertThat(ifThen.elseSchema).isNull()
+
+        val thenSchema = ifThen.thenSchema
+        assertIs<A2uiAnySchema>(thenSchema)
+        val oneOf = thenSchema.keywords.single()
+        assertIs<A2uiSchemaKeyword.OneOf>(oneOf)
+        val formats =
+            oneOf.schemas.map {
+                assertIs<A2uiAnySchema>(it)
+                val formatKeyword = it.keywords.single()
+                assertIs<A2uiSchemaKeyword.Format>(formatKeyword)
+                formatKeyword.format
+            }
+        assertThat(formats).containsExactly("date", "time", "date-time").inOrder()
     }
 
     @Test

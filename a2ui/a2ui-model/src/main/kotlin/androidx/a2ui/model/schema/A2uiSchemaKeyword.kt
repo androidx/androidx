@@ -19,12 +19,13 @@ package androidx.a2ui.model.schema
 import androidx.a2ui.model.schema.internal.toJsonElement
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObjectBuilder
+import kotlinx.serialization.json.JsonPrimitive
 
 /**
  * Represents a JSON Schema (Draft 2020-12) keyword applied to a schema node of type [T].
  *
- * Keywords include subschema applicators (`oneOf`, `allOf`, `anyOf`, `not`), annotations
- * (`default`), and validation constraints (`enum`, `const`).
+ * Keywords include subschema applicators (`oneOf`, `allOf`, `anyOf`, `not`, conditional
+ * `if-then-else`), annotations (`default`), and validation constraints (`enum`, `const`, `format`).
  */
 public sealed class A2uiSchemaKeyword<out T> {
     internal abstract fun addToJsonObject(builder: JsonObjectBuilder)
@@ -206,6 +207,80 @@ public sealed class A2uiSchemaKeyword<out T> {
 
         public companion object {
             private const val KEY = "const"
+        }
+    }
+
+    /**
+     * String format constraint (`format`).
+     *
+     * Supported formats: `"date"`, `"time"`, and `"date-time"`.
+     *
+     * @property format format constraint name
+     */
+    public class Format(public val format: String) : A2uiSchemaKeyword<String>() {
+        override fun addToJsonObject(builder: JsonObjectBuilder) {
+            builder.put(KEY, JsonPrimitive(format))
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            return other is Format && format == other.format
+        }
+
+        override fun hashCode(): Int = format.hashCode()
+
+        override fun toString(): String = "Format($format)"
+
+        public companion object {
+            private const val KEY = "format"
+        }
+    }
+
+    /**
+     * Conditional subschema applicator (`if`-`then`-`else`).
+     *
+     * Note: Standard JSON Schema Draft 2020-12 permits only one `if`-`then`-`else` block per schema
+     * node. To apply multiple conditional rules to a single node, wrap multiple [IfThen] keywords
+     * inside an [AllOf] list.
+     *
+     * @property ifSchema condition subschema
+     * @property thenSchema subschema evaluated if [ifSchema] matches
+     * @property elseSchema optional subschema evaluated if [ifSchema] fails
+     */
+    public class IfThen(
+        public val ifSchema: A2uiSchema,
+        public val thenSchema: A2uiSchema,
+        public val elseSchema: A2uiSchema? = null,
+    ) : A2uiSchemaKeyword<Nothing>() {
+        override fun addToJsonObject(builder: JsonObjectBuilder) {
+            builder.put(KEY_IF, ifSchema.toJsonElement())
+            builder.put(KEY_THEN, thenSchema.toJsonElement())
+            if (elseSchema != null) {
+                builder.put(KEY_ELSE, elseSchema.toJsonElement())
+            }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            return other is IfThen &&
+                ifSchema == other.ifSchema &&
+                thenSchema == other.thenSchema &&
+                elseSchema == other.elseSchema
+        }
+
+        override fun hashCode(): Int {
+            var result = ifSchema.hashCode()
+            result = 31 * result + thenSchema.hashCode()
+            result = 31 * result + (elseSchema?.hashCode() ?: 0)
+            return result
+        }
+
+        override fun toString(): String = "IfThen(if=$ifSchema, then=$thenSchema, else=$elseSchema)"
+
+        public companion object {
+            private const val KEY_IF = "if"
+            private const val KEY_THEN = "then"
+            private const val KEY_ELSE = "else"
         }
     }
 }

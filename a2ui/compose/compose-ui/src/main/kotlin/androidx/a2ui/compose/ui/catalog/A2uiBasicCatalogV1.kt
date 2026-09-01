@@ -1321,6 +1321,46 @@ public class A2uiBasicCatalogV1(
             get() = "Allows the user to select a date and/or time."
 
         public companion object {
+            private val DateTimeFormatConstraintSchema =
+                A2uiAnySchema(
+                    keywords =
+                        listOf(
+                            A2uiSchemaKeyword.IfThen(
+                                ifSchema = A2uiStringSchema.INSTANCE,
+                                thenSchema =
+                                    A2uiAnySchema(
+                                        keywords =
+                                            listOf(
+                                                A2uiSchemaKeyword.OneOf(
+                                                    listOf(
+                                                        A2uiAnySchema(
+                                                            keywords =
+                                                                listOf(
+                                                                    A2uiSchemaKeyword.Format("date")
+                                                                )
+                                                        ),
+                                                        A2uiAnySchema(
+                                                            keywords =
+                                                                listOf(
+                                                                    A2uiSchemaKeyword.Format("time")
+                                                                )
+                                                        ),
+                                                        A2uiAnySchema(
+                                                            keywords =
+                                                                listOf(
+                                                                    A2uiSchemaKeyword.Format(
+                                                                        "date-time"
+                                                                    )
+                                                                )
+                                                        ),
+                                                    )
+                                                )
+                                            )
+                                    ),
+                            )
+                        )
+                )
+
             /** The [A2uiProperty] for the `"value"` property of a [DateTimeInput]. */
             public val ValueProperty: DynamicA2uiProperty<String> =
                 A2uiProperty.dynamicString(
@@ -1357,9 +1397,10 @@ public class A2uiBasicCatalogV1(
                             keywords =
                                 listOf(
                                     A2uiSchemaKeyword.AllOf(
-                                        // TODO(b/553193771): Support the `format` schema values
-                                        //  once supported in the schema API.
-                                        listOf(A2uiDynamicStringSchema.DEFAULT_INSTANCE)
+                                        listOf(
+                                            A2uiDynamicStringSchema.DEFAULT_INSTANCE,
+                                            DateTimeFormatConstraintSchema,
+                                        )
                                     )
                                 ),
                         ),
@@ -1377,9 +1418,10 @@ public class A2uiBasicCatalogV1(
                             keywords =
                                 listOf(
                                     A2uiSchemaKeyword.AllOf(
-                                        // TODO(b/553193771): Support the `format` schema values
-                                        //  once supported in the schema API.
-                                        listOf(A2uiDynamicStringSchema.DEFAULT_INSTANCE)
+                                        listOf(
+                                            A2uiDynamicStringSchema.DEFAULT_INSTANCE,
+                                            DateTimeFormatConstraintSchema,
+                                        )
                                     )
                                 ),
                         ),

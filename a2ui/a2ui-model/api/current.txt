@@ -752,6 +752,31 @@ package androidx.a2ui.model.schema {
   public static final class A2uiSchemaKeyword.Enum.Companion {
   }
 
+  public static final class A2uiSchemaKeyword.Format extends androidx.a2ui.model.schema.A2uiSchemaKeyword<java.lang.String> {
+    ctor public A2uiSchemaKeyword.Format(String format);
+    method @InaccessibleFromKotlin public String getFormat();
+    property public String format;
+    field public static final androidx.a2ui.model.schema.A2uiSchemaKeyword.Format.Companion Companion;
+  }
+
+  public static final class A2uiSchemaKeyword.Format.Companion {
+  }
+
+  public static final class A2uiSchemaKeyword.IfThen extends androidx.a2ui.model.schema.A2uiSchemaKeyword {
+    ctor public A2uiSchemaKeyword.IfThen(androidx.a2ui.model.schema.A2uiSchema ifSchema, androidx.a2ui.model.schema.A2uiSchema thenSchema, optional androidx.a2ui.model.schema.A2uiSchema? elseSchema);
+    ctor @BytecodeOnly public A2uiSchemaKeyword.IfThen(androidx.a2ui.model.schema.A2uiSchema!, androidx.a2ui.model.schema.A2uiSchema!, androidx.a2ui.model.schema.A2uiSchema!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema? getElseSchema();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getIfSchema();
+    method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getThenSchema();
+    property public androidx.a2ui.model.schema.A2uiSchema? elseSchema;
+    property public androidx.a2ui.model.schema.A2uiSchema ifSchema;
+    property public androidx.a2ui.model.schema.A2uiSchema thenSchema;
+    field public static final androidx.a2ui.model.schema.A2uiSchemaKeyword.IfThen.Companion Companion;
+  }
+
+  public static final class A2uiSchemaKeyword.IfThen.Companion {
+  }
+
   public static final class A2uiSchemaKeyword.Not extends androidx.a2ui.model.schema.A2uiSchemaKeyword {
     ctor public A2uiSchemaKeyword.Not(androidx.a2ui.model.schema.A2uiSchema schema);
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getSchema();

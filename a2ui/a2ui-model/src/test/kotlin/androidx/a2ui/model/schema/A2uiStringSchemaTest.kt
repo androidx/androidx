@@ -73,17 +73,17 @@ class A2uiStringSchemaTest {
     fun equalsAndHashCode_behavesAccordingToContract() {
         EqualsTester()
             .addEqualityGroup(
-                A2uiStringSchema(TEST_DESCRIPTION_1),
-                A2uiStringSchema(TEST_DESCRIPTION_1),
+                A2uiStringSchema(description = TEST_DESCRIPTION_1),
+                A2uiStringSchema(description = TEST_DESCRIPTION_1),
             )
-            .addEqualityGroup(A2uiStringSchema(TEST_DESCRIPTION_2))
+            .addEqualityGroup(A2uiStringSchema(description = TEST_DESCRIPTION_2))
             .addEqualityGroup(A2uiStringSchema(null))
             .testEquals()
     }
 
     @Test
     fun toString_withDescription_returnsExpectedFormat() {
-        val schema = A2uiStringSchema(TEST_DESCRIPTION_1)
+        val schema = A2uiStringSchema(description = TEST_DESCRIPTION_1)
         assertThat(schema.toString()).isEqualTo("String(description=$TEST_DESCRIPTION_1)")
     }
 
