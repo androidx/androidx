@@ -24,7 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
 /** Contains the default values used by [LazyVerticalGrid] and [LazyHorizontalGrid]. */
-internal object LazyGridDefaults {
+public object LazyGridDefaults {
 
     /**
      * Creates and remembers the default [LazyLayoutCacheWindow] for [LazyVerticalGrid] and
@@ -39,7 +39,7 @@ internal object LazyGridDefaults {
      */
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun cacheWindow(state: LazyGridState): LazyLayoutCacheWindow =
+    public fun cacheWindow(state: LazyGridState): LazyLayoutCacheWindow =
         remember(state) {
             DefaultLazyLayoutCacheWindow(
                 { state.layoutInfo.visibleLinesAverageMainAxisSize() },

@@ -28,7 +28,7 @@ import androidx.compose.runtime.snapshots.Snapshot
  * Contains the default values used by [LazyVerticalStaggeredGrid] and
  * [LazyHorizontalStaggeredGrid].
  */
-internal object LazyStaggeredGridDefaults {
+public object LazyStaggeredGridDefaults {
 
     /**
      * Creates and remembers the default [LazyLayoutCacheWindow] for [LazyVerticalStaggeredGrid] and
@@ -43,7 +43,7 @@ internal object LazyStaggeredGridDefaults {
      */
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun cacheWindow(state: LazyStaggeredGridState): LazyLayoutCacheWindow =
+    public fun cacheWindow(state: LazyStaggeredGridState): LazyLayoutCacheWindow =
         remember(state) {
             DefaultLazyLayoutCacheWindow(
                 { Snapshot.withoutReadObservation { state.layoutInfo.visibleItemsAverageSize() } },
