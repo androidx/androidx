@@ -31,6 +31,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteCardDefault
 import androidx.wear.compose.remote.material3.previews.RemoteCardOutline
+import androidx.wear.compose.remote.material3.previews.RemoteCardWithImage
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
 import org.junit.Rule
@@ -100,6 +101,16 @@ class RemoteCardTest {
             },
         ) {
             ComponentContainer { RemoteCardDefault() }
+        }
+    }
+
+    @Test
+    fun card_with_image() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteCardWithImage() }
         }
     }
 }
