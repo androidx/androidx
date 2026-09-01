@@ -74,7 +74,7 @@ internal class RemoteCollapsibleRowNode : RemoteComposeNode() {
         val scope = overriddenScope(creationState)
         val recordingModifier = scope.toRecordingModifier(modifier)
         (horizontalArrangement as? RemoteSpaced)?.let {
-            recordingModifier.spacedBy(it.space.getFloatIdForCreationState(creationState))
+            recordingModifier.spacedBy(it.getSpacingFloatId(creationState))
         }
         creationState.document.startCollapsibleRow(
             recordingModifier,
