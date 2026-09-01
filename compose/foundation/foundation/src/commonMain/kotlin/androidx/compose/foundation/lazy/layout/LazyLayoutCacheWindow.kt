@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.annotation.FloatRange
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,8 @@ public interface LazyLayoutCacheWindow {
      * while the layout remains idle. Other common scenarios in which the ahead window fills include
      * initial composition and item reordering, during which the layout is in a non-scroll state,
      * providing the opportunity to populate the window.
+     *
+     * Note: Default cache windows for lazy layouts set this to `false`.
      */
     public val isNonScrollCachingEnabled: Boolean
         get() = true
@@ -153,6 +156,36 @@ private class FractionLazyLayoutCacheWindow(
         }
     }
 }
+
+internal fun interface ItemSizeCalculator {
+    operator fun invoke(): Int
+}
+
+private fun DynamicLazyLayoutCacheWindow(
+    itemSizeCalculator: ItemSizeCalculator
+): LazyLayoutCacheWindow {
+    return object : LazyLayoutCacheWindow {
+        override val isNonScrollCachingEnabled: Boolean = false
+
+        override fun Density.calculateAheadWindow(viewport: Int): Int {
+            val visibleItemsAverageSize =
+                Snapshot.withoutReadObservation { itemSizeCalculator() }.takeIf { it != 0 }
+                    ?: return 0
+            val minWindow = (viewport * 10) / 100
+            val maxWindow = viewport / 2
+
+            return visibleItemsAverageSize.coerceIn(minWindow, maxWindow)
+        }
+    }
+}
+
+internal class DefaultLazyLayoutCacheWindow(
+    itemSizeCalculator: ItemSizeCalculator,
+    isUsingDynamicDefaultCacheWindow: Boolean,
+) :
+    LazyLayoutCacheWindow by if (isUsingDynamicDefaultCacheWindow)
+        DynamicLazyLayoutCacheWindow(itemSizeCalculator)
+    else LazyLayoutCacheWindow(DEFAULT_LAZY_LAYOUT_CACHE_WINDOW_AHEAD_FRACTION, 0f, false)
 
 /**
  * The default ahead fraction used by LazyLayouts. This value is chosen as a reasonable default to

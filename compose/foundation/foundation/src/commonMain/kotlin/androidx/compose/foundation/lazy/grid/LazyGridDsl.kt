@@ -22,7 +22,6 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.lazy.layout.DEFAULT_LAZY_LAYOUT_CACHE_WINDOW_AHEAD_FRACTION
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
@@ -67,8 +66,11 @@ import androidx.compose.ui.unit.dp
  * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
  *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
  *   need to use Modifier.overscroll separately.
- * @param cacheWindow specifies the size of the ahead and behind window to be used as per
- *   [LazyLayoutCacheWindow].
+ * @param cacheWindow [LazyLayoutCacheWindow] configuring the area ahead and behind the viewport to
+ *   prefetch and retain items. The default cache window does not cache items while the user is not
+ *   scrolling. Override this to tune scrolling performance, such as increasing the ahead window to
+ *   reduce frame drops during scrolling or adding a behind window to retain recently visible items
+ *   when scrolling back and forth.
  * @param content the [LazyGridScope] which describes the content
  */
 @Composable
@@ -84,7 +86,7 @@ public fun LazyVerticalGrid(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    cacheWindow: LazyLayoutCacheWindow = DefaultLazyGridCacheWindow,
+    cacheWindow: LazyLayoutCacheWindow = LazyGridDefaults.cacheWindow(state),
     content: LazyGridScope.() -> Unit,
 ) {
     LazyGrid(
@@ -161,7 +163,7 @@ public fun LazyVerticalGrid(
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
-        cacheWindow = DefaultLazyGridCacheWindow,
+        cacheWindow = LazyGridDefaults.cacheWindow(state),
         content = content,
     )
 }
@@ -226,8 +228,11 @@ public fun LazyVerticalGrid(
  * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
  *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
  *   need to use Modifier.overscroll separately.
- * @param cacheWindow specifies the size of the ahead and behind window to be used as per
- *   [LazyLayoutCacheWindow].
+ * @param cacheWindow [LazyLayoutCacheWindow] configuring the area ahead and behind the viewport to
+ *   prefetch and retain items. The default cache window does not cache items while the user is not
+ *   scrolling. Override this to tune scrolling performance, such as increasing the ahead window to
+ *   reduce frame drops during scrolling or adding a behind window to retain recently visible items
+ *   when scrolling back and forth.
  * @param content the [LazyGridScope] which describes the content
  */
 @Composable
@@ -243,7 +248,7 @@ public fun LazyHorizontalGrid(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    cacheWindow: LazyLayoutCacheWindow = DefaultLazyGridCacheWindow,
+    cacheWindow: LazyLayoutCacheWindow = LazyGridDefaults.cacheWindow(state),
     content: LazyGridScope.() -> Unit,
 ) {
     LazyGrid(
@@ -318,7 +323,7 @@ public fun LazyHorizontalGrid(
         flingBehavior = flingBehavior,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
-        cacheWindow = DefaultLazyGridCacheWindow,
+        cacheWindow = LazyGridDefaults.cacheWindow(state),
         content = content,
     )
 }
@@ -790,10 +795,3 @@ public inline fun <T> LazyGridScope.itemsIndexed(
     ) {
         itemContent(it, items[it])
     }
-
-internal object DefaultLazyGridCacheWindow :
-    LazyLayoutCacheWindow by LazyLayoutCacheWindow(
-        behindFraction = 0f,
-        aheadFraction = DEFAULT_LAZY_LAYOUT_CACHE_WINDOW_AHEAD_FRACTION,
-        isNonScrollCachingEnabled = false,
-    )
