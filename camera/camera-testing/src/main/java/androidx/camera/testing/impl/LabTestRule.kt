@@ -106,7 +106,7 @@ public class LabTestRule : TestRule {
         override fun evaluate() {
             // Only test in CameraX lab environment and the loggable tag will be set when running
             // the CameraX e2e test with enabling front camera.
-            assumeTrue(Log.isLoggable("frontCameraE2E", Log.DEBUG))
+            assumeTrue(isLensFacingEnabledInLabTest(CameraSelector.LENS_FACING_FRONT))
             statement.evaluate()
         }
     }
@@ -117,13 +117,12 @@ public class LabTestRule : TestRule {
         override fun evaluate() {
             // Only test in CameraX lab environment and the loggable tag will be set when running
             // the CameraX e2e test with enabling rear camera.
-            assumeTrue(Log.isLoggable("rearCameraE2E", Log.DEBUG))
+            assumeTrue(isLensFacingEnabledInLabTest(CameraSelector.LENS_FACING_BACK))
             statement.evaluate()
         }
     }
 
     override fun apply(base: Statement, description: Description): Statement {
-
         return if (description.getAnnotation(LabTestOnly::class.java) != null) {
             LabTestStatement(base)
         } else if (description.getAnnotation(LabTestFrontCamera::class.java) != null) {
@@ -156,8 +155,12 @@ public class LabTestRule : TestRule {
             @CameraSelector.LensFacing lensFacing: Int
         ): Boolean =
             when (lensFacing) {
-                CameraSelector.LENS_FACING_BACK -> Log.isLoggable("rearCameraE2E", Log.DEBUG)
-                CameraSelector.LENS_FACING_FRONT -> Log.isLoggable("frontCameraE2E", Log.DEBUG)
+                CameraSelector.LENS_FACING_BACK ->
+                    Log.isLoggable("rearCameraE2E", Log.DEBUG) &&
+                        !Log.isLoggable("frontCameraE2E", Log.DEBUG)
+                CameraSelector.LENS_FACING_FRONT ->
+                    Log.isLoggable("frontCameraE2E", Log.DEBUG) &&
+                        !Log.isLoggable("rearCameraE2E", Log.DEBUG)
                 else -> false
             }
 
