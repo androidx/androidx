@@ -28,7 +28,6 @@ dependencies {
 android {
     defaultConfig {
         applicationId = "androidx.core.performance.play.services.testapp"
-        minSdk { version = release(24) }
     }
 
     namespace = "androidx.core.performance.play.services.testapp"

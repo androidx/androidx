@@ -55,8 +55,5 @@ androidx {
 
 android {
     compileSdk { version = release(37) }
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
     namespace = "androidx.navigation.benchmark"
 }

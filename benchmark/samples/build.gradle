@@ -29,9 +29,6 @@ plugins {
 
 android {
     namespace = "androidx.benchmark.samples"
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
 }
 
 dependencies {

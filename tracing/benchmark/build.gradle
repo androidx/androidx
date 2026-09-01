@@ -43,9 +43,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
     namespace = "androidx.tracing.benchmark"
     buildTypes.release {
         androidTest {

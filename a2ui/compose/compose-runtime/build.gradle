@@ -54,9 +54,6 @@ dependencies {
 
 android {
     namespace = "androidx.a2ui.compose.runtime"
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
     compileSdk { version = release(37) }
 }
 

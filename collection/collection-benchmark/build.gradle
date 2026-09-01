@@ -36,7 +36,6 @@ androidXMultiplatform {
     jvm()
     androidLibrary {
         namespace = "androidx.collection.benchmark.kmp"
-        minSdk { version = release(24) }
     }
 
     // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks

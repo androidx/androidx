@@ -42,8 +42,5 @@ androidx {
 }
 
 android {
-    defaultConfig {
-        minSdk { version = release(24) }
-    }
     namespace = "androidx.core.performance.samples"
 }
