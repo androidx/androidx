@@ -19,8 +19,6 @@
 package androidx.compose.foundation.style
 
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -487,15 +485,4 @@ private fun ComposeContentTestRule.onChildWith(
     }
 
     return onNodeWithTag(tag)
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-internal fun withStyleInheritance(block: () -> Unit) {
-    val previous = ComposeFoundationFlags.isInheritedTextStyleEnabled
-    ComposeFoundationFlags.isInheritedTextStyleEnabled = true
-    try {
-        block()
-    } finally {
-        ComposeFoundationFlags.isInheritedTextStyleEnabled = previous
-    }
 }

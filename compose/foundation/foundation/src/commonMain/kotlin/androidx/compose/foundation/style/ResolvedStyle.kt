@@ -26,7 +26,6 @@ import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
-import androidx.compose.animation.core.spring
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -88,11 +87,11 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     private var _density: Float = 1f
     private var _fontScale: Float = 1f
     private var node: StyleOuterNode? = null
-    private var properties: StyleProperties? = null
-    private var previous: StyleProperties? = null
-    private var inFlightAnimationProperties: StyleProperties? = null
-    private var fromProperties: StyleProperties? = null
-    private var toProperties: StyleProperties? = null
+    private var properties: StyleableProperties? = null
+    private var previous: StyleableProperties? = null
+    private var inFlightAnimationProperties: StyleableProperties? = null
+    private var fromProperties: StyleableProperties? = null
+    private var toProperties: StyleableProperties? = null
     private var toSpecs: MutableIntObjectMap<AnimationSpec<Float>>? = null
     private var fromSpecs: MutableIntObjectMap<AnimationSpec<Float>>? = null
     private var previousFromSpecs: MutableIntObjectMap<AnimationSpec<Float>>? = null
@@ -100,7 +99,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     private var animatedObjects: Int = 0
     private var defaultToSpec: AnimationSpec<Float>? = UnspecifiedSpec
     private var defaultFromSpec: AnimationSpec<Float>? = UnspecifiedSpec
-    private var animations: StyleAnimations? = null
+    private var animations: StyleableAnimations? = null
 
     internal fun build(style: Style, node: StyleOuterNode, density: Density) {
         trace("Compose:Styles:build") {
@@ -128,14 +127,14 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
     val animatingFlags: Int
         get() = animations?.phaseFlags() ?: 0
 
-    fun lerpInto(primitivesSet: Long, objectsSet: Int, target: StyleProperties) {
+    fun lerpInto(primitivesSet: Long, objectsSet: Int, target: StyleableProperties) {
         val animations = animations ?: return
         val fromProperties = fromProperties ?: previous ?: return
         val toProperties = toProperties ?: properties ?: return
         lerp(fromProperties, toProperties, animations, primitivesSet, objectsSet, target)
     }
 
-    fun resolveInto(flags: Int, target: StyleProperties) {
+    fun resolveInto(flags: Int, target: StyleableProperties) {
         val properties = properties ?: EmptyStyleProperties
         properties.copyInto(target)
         val animations = animations ?: return
@@ -633,7 +632,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
             if (inFlight != 0L) {
                 val inFlightPrimitives = inFlight.toPrimitivesSet()
                 val inFlightObjects = inFlight.toObjectsSet()
-                val inFlightAnimationProperties = StyleProperties()
+                val inFlightAnimationProperties = StyleableProperties()
 
                 // Collect the current value of in-flight animated properties
                 lerpInto(inFlightPrimitives, inFlightObjects, inFlightAnimationProperties)
@@ -650,7 +649,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         this.node = node
         this._density = density.density
         val properties = properties
-        val newProperties = previous?.also { it.clear() } ?: StyleProperties()
+        val newProperties = previous?.also { it.clear() } ?: StyleableProperties()
         this.properties = newProperties
         previous = properties
         previousFromSpecs = null
@@ -689,7 +688,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
         val animations =
             animations
                 ?: run {
-                    val newAnimations = StyleAnimations()
+                    val newAnimations = StyleableAnimations()
                     animations = newAnimations
                     newAnimations
                 }
@@ -722,7 +721,7 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
             val fromProperties =
                 fromProperties
                     ?: run {
-                        val fromProperties = StyleProperties()
+                        val fromProperties = StyleableProperties()
                         this.fromProperties = fromProperties
                         fromProperties
                     }
@@ -839,9 +838,11 @@ internal class ResolvedStyle internal constructor() : StyleScope, InspectableVal
             if (animated) animatedObjects.withId(id) else animatedObjects.withoutId(id)
         recordWriteCommon(id, effectiveTo, effectiveFrom)
     }
-}
 
-internal val DefaultSpringSpec = spring<Float>()
+    override fun <T> ProvidableStyleProperty<T>.provide(value: T) {
+        error("Cannot use style properties when using the styleable() modifier")
+    }
+}
 
 // Used as a sentinel value to track when the animation was not set. This value is never used as
 // a specification, it just needs to compare not-equal to any other specification.
