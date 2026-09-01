@@ -366,6 +366,99 @@ public fun <T> produceState(
 
 /**
  * Return an observable [snapshot][androidx.compose.runtime.snapshots.Snapshot] [State] that
+ * produces values over time from [key1], [key2] and [key3].
+ *
+ * [producer] is launched when [produceState] enters the composition and is cancelled when
+ * [produceState] leaves the composition. If [key1], [key2] or [key3] change, a running [producer]
+ * will be cancelled and re-launched for the new source. [producer] should use
+ * [ProduceStateScope.value] to set new values on the returned [State].
+ *
+ * The returned [State] conflates values; no change will be observable if [ProduceStateScope.value]
+ * is used to set a value that is [equal][Any.equals] to its old value, and observers may only see
+ * the latest value if several values are set in rapid succession. This can be changed by providing
+ * a [SnapshotMutationPolicy].
+ *
+ * [produceState] may be used to observe either suspending or non-suspending sources of external
+ * data, for example:
+ *
+ * @sample androidx.compose.runtime.samples.ProduceState
+ * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
+ * @param initialValue The value that the returned state will initially contain
+ * @param key1 A key that, when changed, will restart the [producer] lambda
+ * @param key2 A key that, when changed, will restart the [producer] lambda
+ * @param key3 A key that, when changed, will restart the [producer] lambda
+ * @param key4 A key that, when changed, will restart the [producer] lambda
+ * @param producer A suspending lambda that defines what values are emitted to the returned state
+ */
+@Composable
+public fun <T> produceState(
+    initialValue: T,
+    key1: Any?,
+    key2: Any?,
+    key3: Any?,
+    key4: Any?,
+    producer: suspend ProduceStateScope<T>.() -> Unit,
+): State<T> {
+    val result = remember { mutableStateOf(initialValue) }
+    LaunchedEffect(key1, key2, key3, key4) {
+        ProduceStateScopeImpl(result, coroutineContext).producer()
+    }
+    return result
+}
+
+/**
+ * Return an observable [snapshot][androidx.compose.runtime.snapshots.Snapshot] [State] that
+ * produces values over time from [key1], [key2], [key3] or [key4].
+ *
+ * [producer] is launched when [produceState] enters the composition and is cancelled when
+ * [produceState] leaves the composition. If [key1], [key2], [key3] or [key4] change, a running
+ * [producer] will be cancelled and re-launched for the new source. [producer] should use
+ * [ProduceStateScope.value] to set new values on the returned [State].
+ *
+ * The given [mutationPolicy] is used to control how changes are reported and merged in the returned
+ * state. If not specified, the default behavior is [structuralEqualityPolicy], which conflates
+ * values that are [equal][Any.equals] to each other. Note observers may only see the latest value
+ * if several values are set in rapid succession. This is especially true when reading the returned
+ * state in composition, as composition executes with the latest values from a snapshot rather than
+ * composing once with each intermediate value of a state.
+ *
+ * The [mutationPolicy] is only used when initializing the underlying state object. If the
+ * [mutationPolicy] changes after creating the state, the state and the producer are unaffected and
+ * will continue collecting in the previously returned state with the original
+ * [SnapshotMutationPolicy].
+ *
+ * [produceState] may be used to observe either suspending or non-suspending sources of external
+ * data, for example:
+ *
+ * @sample androidx.compose.runtime.samples.ProduceState
+ * @sample androidx.compose.runtime.samples.ProduceStateAwaitDispose
+ * @param initialValue The value that the returned state will initially contain
+ * @param key1 A key that, when changed, will restart the [producer] lambda
+ * @param key2 A key that, when changed, will restart the [producer] lambda
+ * @param key3 A key that, when changed, will restart the [producer] lambda
+ * @param key4 A key that, when changed, will restart the [producer] lambda
+ * @param mutationPolicy A policy used to control how changes are handled in the returned state
+ * @param producer A suspending lambda that defines what values are emitted to the returned state
+ */
+@Composable
+public fun <T> produceState(
+    initialValue: T,
+    key1: Any?,
+    key2: Any?,
+    key3: Any?,
+    key4: Any?,
+    mutationPolicy: SnapshotMutationPolicy<T>,
+    producer: suspend ProduceStateScope<T>.() -> Unit,
+): State<T> {
+    val result = remember { mutableStateOf(initialValue, mutationPolicy) }
+    LaunchedEffect(key1, key2, key3, key4) {
+        ProduceStateScopeImpl(result, coroutineContext).producer()
+    }
+    return result
+}
+
+/**
+ * Return an observable [snapshot][androidx.compose.runtime.snapshots.Snapshot] [State] that
  * produces values over time from [keys].
  *
  * [producer] is launched when [produceState] enters the composition and is cancelled when
