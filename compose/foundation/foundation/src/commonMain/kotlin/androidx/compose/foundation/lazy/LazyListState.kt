@@ -99,6 +99,7 @@ public fun rememberLazyListState(
 @Deprecated(
     """Providing `LazyLayoutCacheWindow` via `LazyColumn` or `LazyRow` composables should be preferred over using `LazyListPrefetchStrategy` here."""
 )
+@Suppress("DEPRECATION")
 @Composable
 public fun rememberLazyListState(
     initialFirstVisibleItemIndex: Int = 0,
@@ -106,7 +107,6 @@ public fun rememberLazyListState(
     prefetchStrategy: LazyListPrefetchStrategy = remember { LazyListPrefetchStrategy() },
 ): LazyListState {
     return rememberSaveable(prefetchStrategy, saver = LazyListState.saver(prefetchStrategy)) {
-        @Suppress("DEPRECATION")
         LazyListState(
             initialFirstVisibleItemIndex,
             initialFirstVisibleItemScrollOffset,
@@ -160,7 +160,7 @@ public fun rememberLazyListState(
 @Stable
 public class LazyListState
 internal constructor(
-    internal val legacyPrefetchStrategy: LazyListPrefetchStrategy?,
+    @Suppress("DEPRECATION") internal val legacyPrefetchStrategy: LazyListPrefetchStrategy?,
     firstVisibleItemIndex: Int = 0,
     firstVisibleItemScrollOffset: Int = 0,
 ) : ScrollableState {
@@ -180,6 +180,7 @@ internal constructor(
     @Deprecated(
         """`LazyListPrefetchStrategy` is deprecated. Prefetching behaviour should be specified via lazy list composable arguments as a `CacheWindow`."""
     )
+    @Suppress("DEPRECATION")
     public constructor(
         firstVisibleItemIndex: Int = 0,
         firstVisibleItemScrollOffset: Int = 0,
@@ -364,11 +365,13 @@ internal constructor(
             Snapshot.withoutReadObservation { layoutInfoState.value.prefetchState }
                 ?: legacyPrefetchState
 
+    @Suppress("DEPRECATION")
     private val prefetchStrategy
         get() =
             Snapshot.withoutReadObservation { layoutInfoState.value.prefetchStrategy }
                 ?: legacyPrefetchStrategy
 
+    @Suppress("DEPRECATION")
     private val prefetchScope: LazyListPrefetchScope =
         object : LazyListPrefetchScope {
             override fun schedulePrefetch(
@@ -748,11 +751,11 @@ internal constructor(
          * [LazyListPrefetchStrategy].
          */
         @ExperimentalFoundationApi
+        @Suppress("DEPRECATION")
         internal fun saver(prefetchStrategy: LazyListPrefetchStrategy): Saver<LazyListState, *> =
             listSaver(
                 save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },
                 restore = {
-                    @Suppress("DEPRECATION")
                     LazyListState(
                         firstVisibleItemIndex = it[0],
                         firstVisibleItemScrollOffset = it[1],

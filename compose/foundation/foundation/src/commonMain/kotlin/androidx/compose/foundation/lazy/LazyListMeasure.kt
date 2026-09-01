@@ -79,7 +79,7 @@ internal fun measureLazyList(
     shouldRunItemAnimation: Boolean,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
     prefetchState: LazyLayoutPrefetchState?,
-    prefetchStrategy: LazyListPrefetchStrategy?,
+    @Suppress("DEPRECATION") prefetchStrategy: LazyListPrefetchStrategy?,
 ): LazyListMeasureResult {
     requirePrecondition(beforeContentPadding >= 0) { "invalid beforeContentPadding" }
     requirePrecondition(afterContentPadding >= 0) { "invalid afterContentPadding" }

@@ -1205,29 +1205,29 @@ package androidx.compose.foundation.lazy {
     property public abstract java.util.List<androidx.compose.foundation.lazy.LazyListItemInfo> visibleItemsInfo;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed nonexhaustive interface LazyListPrefetchResultScope {
-    method @InaccessibleFromKotlin public int getIndex();
-    method @InaccessibleFromKotlin public int getMainAxisSize();
-    property public abstract int index;
-    property public abstract int mainAxisSize;
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed nonexhaustive interface LazyListPrefetchResultScope {
+    method @InaccessibleFromKotlin @Deprecated public int getIndex();
+    method @InaccessibleFromKotlin @Deprecated public int getMainAxisSize();
+    property @Deprecated public abstract int index;
+    property @Deprecated public abstract int mainAxisSize;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyListPrefetchScope {
-    method public androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle schedulePrefetch(int index, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.LazyListPrefetchResultScope,kotlin.Unit>? onPrefetchFinished);
-    method @BytecodeOnly public static androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle! schedulePrefetch$default(androidx.compose.foundation.lazy.LazyListPrefetchScope!, int, kotlin.jvm.functions.Function1!, int, Object!);
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyListPrefetchScope {
+    method @Deprecated public androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle schedulePrefetch(int index, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.LazyListPrefetchResultScope,kotlin.Unit>? onPrefetchFinished);
+    method @BytecodeOnly @Deprecated public static androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle! schedulePrefetch$default(androidx.compose.foundation.lazy.LazyListPrefetchScope!, int, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyListPrefetchStrategy {
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyListPrefetchStrategy {
     method @InaccessibleFromKotlin @Deprecated public default androidx.compose.foundation.lazy.layout.PrefetchScheduler? getPrefetchScheduler();
-    method public void onNestedPrefetch(androidx.compose.foundation.lazy.layout.NestedPrefetchScope, int firstVisibleItemIndex);
-    method public void onScroll(androidx.compose.foundation.lazy.LazyListPrefetchScope, float delta, androidx.compose.foundation.lazy.LazyListLayoutInfo layoutInfo);
-    method public void onVisibleItemsUpdated(androidx.compose.foundation.lazy.LazyListPrefetchScope, androidx.compose.foundation.lazy.LazyListLayoutInfo layoutInfo);
+    method @Deprecated public void onNestedPrefetch(androidx.compose.foundation.lazy.layout.NestedPrefetchScope, int firstVisibleItemIndex);
+    method @Deprecated public void onScroll(androidx.compose.foundation.lazy.LazyListPrefetchScope, float delta, androidx.compose.foundation.lazy.LazyListLayoutInfo layoutInfo);
+    method @Deprecated public void onVisibleItemsUpdated(androidx.compose.foundation.lazy.LazyListPrefetchScope, androidx.compose.foundation.lazy.LazyListLayoutInfo layoutInfo);
     property @Deprecated public default androidx.compose.foundation.lazy.layout.PrefetchScheduler? prefetchScheduler;
   }
 
   @SuppressCompatibility public final class LazyListPrefetchStrategyKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.LazyListPrefetchStrategy LazyListPrefetchStrategy(optional int nestedPrefetchItemCount);
-    method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.LazyListPrefetchStrategy! LazyListPrefetchStrategy$default(int, int, Object!);
+    method @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.LazyListPrefetchStrategy LazyListPrefetchStrategy(optional int nestedPrefetchItemCount);
+    method @BytecodeOnly @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.lazy.LazyListPrefetchStrategy! LazyListPrefetchStrategy$default(int, int, Object!);
   }
 
   @androidx.compose.foundation.lazy.LazyScopeMarker @kotlin.jvm.JvmDefaultWithCompatibility public interface LazyListScope {
