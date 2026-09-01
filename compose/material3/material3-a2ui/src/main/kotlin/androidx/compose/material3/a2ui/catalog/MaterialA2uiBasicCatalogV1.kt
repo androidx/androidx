@@ -51,6 +51,8 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  *   [MaterialA2uiBasicCatalogV1Defaults.list]
  * @param tabs [A2uiBasicCatalogV1.Tabs] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.tabs]
+ * @param divider [A2uiBasicCatalogV1.Divider] component implementation, defaults to
+ *   [MaterialA2uiBasicCatalogV1Defaults.divider]
  * @param button [A2uiBasicCatalogV1.Button] component implementation, defaults to
  *   [MaterialA2uiBasicCatalogV1Defaults.button]
  * @param dateTimeInput [A2uiBasicCatalogV1.DateTimeInput] component implementation, defaults to
@@ -69,6 +71,7 @@ public fun materialA2uiBasicCatalogV1(
     column: A2uiBasicCatalogV1.Column = MaterialA2uiBasicCatalogV1Defaults.column,
     list: A2uiBasicCatalogV1.List = MaterialA2uiBasicCatalogV1Defaults.list,
     tabs: A2uiBasicCatalogV1.Tabs = MaterialA2uiBasicCatalogV1Defaults.tabs,
+    divider: A2uiBasicCatalogV1.Divider = MaterialA2uiBasicCatalogV1Defaults.divider,
     button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Defaults.button,
     dateTimeInput: A2uiBasicCatalogV1.DateTimeInput =
         MaterialA2uiBasicCatalogV1Defaults.dateTimeInput,
@@ -84,6 +87,7 @@ public fun materialA2uiBasicCatalogV1(
             column = column,
             list = list,
             tabs = tabs,
+            divider = divider,
             button = button,
             dateTimeInput = dateTimeInput,
             // TODO(b/547851648): Add the rest of the basic catalog component types.
@@ -122,6 +126,9 @@ public object MaterialA2uiBasicCatalogV1Defaults {
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Tabs] component. */
     public val tabs: A2uiBasicCatalogV1.Tabs = MaterialA2uiBasicCatalogV1Tabs
+
+    /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Divider] component. */
+    public val divider: A2uiBasicCatalogV1.Divider = MaterialA2uiBasicCatalogV1Divider
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Button] component. */
     public val button: A2uiBasicCatalogV1.Button = MaterialA2uiBasicCatalogV1Button
