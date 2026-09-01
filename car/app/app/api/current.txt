@@ -2296,6 +2296,7 @@ package androidx.car.app.model {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(6) public class TabTemplate implements androidx.car.app.model.Template {
     method public String getActiveTabContentId();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.Action? getEndAction();
     method public androidx.car.app.model.Action getHeaderAction();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.TabStyle? getStyle();
     method public androidx.car.app.model.TabCallbackDelegate getTabCallbackDelegate();
@@ -2310,6 +2311,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.TabTemplate.Builder addTab(androidx.car.app.model.Tab);
     method public androidx.car.app.model.TabTemplate build();
     method public androidx.car.app.model.TabTemplate.Builder setActiveTabContentId(String);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.TabTemplate.Builder setEndAction(androidx.car.app.model.Action?);
     method public androidx.car.app.model.TabTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.TabTemplate.Builder setLoading(boolean);
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(9) public androidx.car.app.model.TabTemplate.Builder setStyle(androidx.car.app.model.TabStyle?);
