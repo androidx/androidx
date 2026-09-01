@@ -27,7 +27,9 @@ import androidx.compose.foundation.shape.PolygonShape
 import androidx.compose.foundation.shape.PolygonShapeGeometry
 import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.scaledToFit
 import androidx.compose.foundation.shape.toPolygonShape
+import androidx.compose.foundation.shape.transformed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
@@ -214,4 +217,54 @@ fun RoundedCornerShapeToPolygonShapeSample() {
             expanded = !expanded
         }
     )
+}
+
+@Sampled
+@Composable
+fun TransformedPolygonShapeSample() {
+    // A square polygon rotated 45 degrees around its center and scaled into the layout bounds in a
+    // single pass so the rotated diamond stays inscribed without clipping.
+    val diamond = remember {
+        PolygonShape { polygon(numVertices = 4, rounding = CornerRounding(percent = 15)) }
+            .transformed(rotation = 45f, contentScale = ContentScale.Fit)
+    }
+    Box(Modifier.size(96.dp).clip(diamond).background(Color(0xFFE91E63)))
+}
+
+@Sampled
+@Composable
+fun RuntimeTransformedPolygonShapeSample() {
+    // Pre-creates the unrotated and rotated badge shape values. The runtime decision toggles
+    // between shape instances without rebuilding or recomputing geometry on state flips.
+    val badge = remember {
+        PolygonShape.star(
+            numPoints = 8,
+            innerRadiusRatio = 0.75f,
+            outerRounding = CornerRounding(percent = 40),
+        )
+    }
+    val selectedBadge = remember(badge) { badge.transformed(rotation = 22.5f) }
+    var selected by remember { mutableStateOf(false) }
+    val shape = if (selected) selectedBadge else badge
+    Box(
+        Modifier.size(96.dp).clip(shape).background(Color(0xFF00695C)).clickable {
+            selected = !selected
+        }
+    )
+}
+
+@Sampled
+@Composable
+fun ScaledToFitPolygonShapeSample() {
+    // Inside a wide container the star keeps its aspect ratio and is centered; passing
+    // ContentScale.FillBounds instead would stretch it to fill the container.
+    val star = remember {
+        PolygonShape.star(
+                numPoints = 5,
+                innerRadiusRatio = 0.5f,
+                outerRounding = CornerRounding(percent = 30),
+            )
+            .scaledToFit(contentScale = ContentScale.Fit)
+    }
+    Box(Modifier.size(width = 160.dp, height = 64.dp).clip(star).background(Color(0xFF9C27B0)))
 }
