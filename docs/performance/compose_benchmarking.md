@@ -43,6 +43,17 @@ what they signify, please read our dedicated
 profiling guidelines, see
 [Compose Memory Performance & Tooling](compose_memory.md).
 
+### Memory Profiling with `pprof`
+
+For in-depth memory analysis, heap allocation tracking, and differential
+comparisons using `pprof`:
+
+*   [Continuous pprof Basics](pprof_basics.md): Core trace views (Flame, Graph,
+    Tree, Top-Down, Bottom-Up, List) and filtering operations.
+*   [Memory Profiling Case Study](compose_memory_pprof_case_study.md):
+    End-to-end investigation of `Modifier.sharedElement` memory allocations and
+    runtime optimization patterns.
+
 ### Skia Perf Dashboards
 
 You can view CI results for Compose benchmarks on the
