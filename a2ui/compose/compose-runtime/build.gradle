@@ -41,7 +41,6 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.truth)
     testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
 
     androidTestImplementation("androidx.compose.foundation:foundation:1.10.0")
     androidTestImplementation(project(":compose:ui:ui-test"))

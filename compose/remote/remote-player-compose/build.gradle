@@ -28,6 +28,7 @@ androidx {
     inceptionYear = "2025"
     description = "Compose player for RemoteCompose documents"
     addGoldenImageAssets()
+    enableRobolectric()
 }
 
 android {
@@ -73,7 +74,6 @@ dependencies {
     testImplementation(project(":compose:remote:remote-testing"))
     testImplementation(project(":compose:remote:remote-creation"))
     testImplementation(project(":compose:remote:remote-creation-compose"))
-    testImplementation(libs.robolectric)
     testImplementation(libs.testCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)

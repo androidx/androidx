@@ -44,7 +44,6 @@ dependencies {
     testImplementation(libs.kotlinTest)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.mockitoCore4)
-    testImplementation(libs.robolectric)
     testImplementation(libs.truth)
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.testRunner)
@@ -66,4 +65,5 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "Contains the runtime APIs that allow SceneCore to work on multiple devices. Developers are not expected to interact directly with these APIs, but rather use the ones from the top-level SceneCore library."
+    enableRobolectric()
 }
