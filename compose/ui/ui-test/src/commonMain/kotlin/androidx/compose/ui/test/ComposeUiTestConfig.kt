@@ -18,6 +18,7 @@ package androidx.compose.ui.test
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.unit.Dp
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.jvm.JvmInline
@@ -50,6 +51,9 @@ import kotlinx.coroutines.test.TestDispatcher
  * @property failurePolicy The [TestFailurePolicy] used to configure the failure handling pipeline,
  *   such as capture modes for diagnostic artifacts (screenshots, UI hierarchy) and custom failure
  *   handlers. Defaults to [TestFailurePolicy].
+ * @property boundsAssertionTolerance The default [Dp] tolerance used for bounds assertions (such as
+ *   [assertWidthIsEqualTo], [assertHeightIsEqualTo], and [assertPositionInRootIsEqualTo]). Defaults
+ *   to [Dp.Unspecified].
  */
 @Immutable
 public expect class ComposeUiTestConfig(
@@ -58,20 +62,14 @@ public expect class ComposeUiTestConfig(
     testTimeout: Duration = 60.seconds,
     inputMode: InputMode = InputMode.Touch,
     failurePolicy: TestFailurePolicy = TestFailurePolicy(),
+    boundsAssertionTolerance: Dp = Dp.Unspecified,
 ) {
     public val effectContext: CoroutineContext
     public val runTestContext: CoroutineContext
     public val testTimeout: Duration
     public val inputMode: InputMode
     public val failurePolicy: TestFailurePolicy
-
-    @Deprecated("Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
-    public constructor(
-        effectContext: CoroutineContext = EmptyCoroutineContext,
-        runTestContext: CoroutineContext = EmptyCoroutineContext,
-        testTimeout: Duration = 60.seconds,
-        inputMode: InputMode = InputMode.Touch,
-    )
+    public val boundsAssertionTolerance: Dp
 }
 
 /**
