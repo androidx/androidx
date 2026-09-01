@@ -693,7 +693,7 @@ internal constructor(
 
     internal val testReceiverScope = AndroidComposeUiTestImpl()
     private val testOwner = AndroidTestOwner()
-    private val testContext = TestContext(testOwner)
+    private val testContext = TestContext(testOwner, config.boundsAssertionTolerance)
 
     /**
      * The receiver scope of the test passed to [runTest]. Note that some of the properties and

@@ -237,9 +237,10 @@ final class androidx.compose.ui.test/ComposeTimeoutException : kotlin/Throwable 
 }
 
 final class androidx.compose.ui.test/ComposeUiTestConfig { // androidx.compose.ui.test/ComposeUiTestConfig|null[0]
-    constructor <init>(kotlin.coroutines/CoroutineContext = ..., kotlin.coroutines/CoroutineContext = ..., kotlin.time/Duration = ..., androidx.compose.ui.input/InputMode = ...) // androidx.compose.ui.test/ComposeUiTestConfig.<init>|<init>(kotlin.coroutines.CoroutineContext;kotlin.coroutines.CoroutineContext;kotlin.time.Duration;androidx.compose.ui.input.InputMode){}[0]
-    constructor <init>(kotlin.coroutines/CoroutineContext = ..., kotlin.coroutines/CoroutineContext = ..., kotlin.time/Duration = ..., androidx.compose.ui.input/InputMode = ..., androidx.compose.ui.test/TestFailurePolicy = ...) // androidx.compose.ui.test/ComposeUiTestConfig.<init>|<init>(kotlin.coroutines.CoroutineContext;kotlin.coroutines.CoroutineContext;kotlin.time.Duration;androidx.compose.ui.input.InputMode;androidx.compose.ui.test.TestFailurePolicy){}[0]
+    constructor <init>(kotlin.coroutines/CoroutineContext = ..., kotlin.coroutines/CoroutineContext = ..., kotlin.time/Duration = ..., androidx.compose.ui.input/InputMode = ..., androidx.compose.ui.test/TestFailurePolicy = ..., androidx.compose.ui.unit/Dp = ...) // androidx.compose.ui.test/ComposeUiTestConfig.<init>|<init>(kotlin.coroutines.CoroutineContext;kotlin.coroutines.CoroutineContext;kotlin.time.Duration;androidx.compose.ui.input.InputMode;androidx.compose.ui.test.TestFailurePolicy;androidx.compose.ui.unit.Dp){}[0]
 
+    final val boundsAssertionTolerance // androidx.compose.ui.test/ComposeUiTestConfig.boundsAssertionTolerance|{}boundsAssertionTolerance[0]
+        final fun <get-boundsAssertionTolerance>(): androidx.compose.ui.unit/Dp // androidx.compose.ui.test/ComposeUiTestConfig.boundsAssertionTolerance.<get-boundsAssertionTolerance>|<get-boundsAssertionTolerance>(){}[0]
     final val effectContext // androidx.compose.ui.test/ComposeUiTestConfig.effectContext|{}effectContext[0]
         final fun <get-effectContext>(): kotlin.coroutines/CoroutineContext // androidx.compose.ui.test/ComposeUiTestConfig.effectContext.<get-effectContext>|<get-effectContext>(){}[0]
     final val failurePolicy // androidx.compose.ui.test/ComposeUiTestConfig.failurePolicy|{}failurePolicy[0]
