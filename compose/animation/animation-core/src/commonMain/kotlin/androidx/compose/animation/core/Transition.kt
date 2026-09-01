@@ -1029,8 +1029,22 @@ public sealed class Transition<S>
 protected constructor(
     private val transitionState: TransitionState<S>,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val parentTransition: Transition<*>?,
-    public val label: String? = null,
+    label: String? = null,
 ) {
+    private val _rawLabel: String? = label
+
+    /** An optional label for differentiating different transitions in Android Studio. */
+    public val label: String?
+        get() {
+            val parent = parentTransition
+            val parentLabel = parent?.label
+            return when {
+                parentLabel != null && _rawLabel != null -> "$parentLabel > $_rawLabel"
+                parentLabel != null -> parentLabel
+                else -> _rawLabel
+            }
+        }
+
     /**
      * Current state of the transition. This will always be the initialState of the transition until
      * the transition is finished. Once the transition is finished, [currentState] will be set to
@@ -2022,11 +2036,7 @@ internal fun <S, T> Transition<S>.createChildTransitionInternal(
 ): Transition<T> {
     val transition =
         remember(this) {
-            TransitionInstance(
-                MutableTransitionState(initialState),
-                this,
-                "${this.label} > $childLabel",
-            )
+            TransitionInstance(MutableTransitionState(initialState), this, childLabel)
         }
 
     DisposableEffect(transition) {
