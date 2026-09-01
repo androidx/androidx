@@ -293,12 +293,6 @@
   <string name="msg_template_demo_text">Message goes here.\nMore text on second line.</string>
   <string name="short_msg_template_demo_title">Short Message Template Demo</string>
 
-  <string name="msg_tab_template_style_text">Tab Template Style</string>
-  <string name="msg_tab_overridden_style_text">Tab Overridden Style</string>
-  <string name="msg_tab_failing_style_text">Tab Failing Style\nRed Icon on Red Background</string>
-
-
-
     <!-- SectionedItemTemplateDemo -->
     <string name="sectioned_item_template_demo_title">Sectioned Item Template Demo</string>
     <string name="condensed_item_demo_title">Condensed Item Demo</string>
@@ -375,12 +369,8 @@
   <string name="tab_title_grid">Grid Tab with Long Tab Title</string>
   <string name="tab_title_search">Search Tab</string>
   <string name="tab_title_loading">Loading Tab</string>
-  <string name="tab_title_default_style">Template Style</string>
-  <string name="tab_title_overridden_style">Override Style</string>
-  <string name="tab_title_failing_style">Failed Style</string>
   <string name="tab_template_loading_demo_title">Tab Template Loading Demo</string>
   <string name="tab_template_no_tabs_demo_title">Tab Template No Tabs Demo</string>
-  <string name="tab_template_style_demo_screen">Tab Template Style Demo Screen</string>
 
   <!-- ContentProviderIconsDemoScreen -->
   <string name="images_unknown_host_error">Images cannot be displayed for an unknown host</string>
