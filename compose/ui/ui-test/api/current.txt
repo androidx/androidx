@@ -170,16 +170,16 @@ package androidx.compose.ui.test {
   }
 
   @androidx.compose.runtime.Immutable public final class ComposeUiTestConfig {
-    ctor @KotlinOnly public ComposeUiTestConfig(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, optional androidx.compose.ui.input.InputMode inputMode, optional androidx.compose.ui.test.TestFailurePolicy failurePolicy);
-    ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, androidx.compose.ui.test.TestFailurePolicy!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, androidx.compose.ui.test.TestFailurePolicy!, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor @BytecodeOnly @Deprecated public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @KotlinOnly public ComposeUiTestConfig(optional kotlin.coroutines.CoroutineContext effectContext, optional kotlin.coroutines.CoroutineContext runTestContext, optional kotlin.time.Duration testTimeout, optional androidx.compose.ui.input.InputMode inputMode, optional androidx.compose.ui.test.TestFailurePolicy failurePolicy, optional androidx.compose.ui.unit.Dp boundsAssertionTolerance);
+    ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, androidx.compose.ui.test.TestFailurePolicy!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly public ComposeUiTestConfig(kotlin.coroutines.CoroutineContext!, kotlin.coroutines.CoroutineContext!, long, int, androidx.compose.ui.test.TestFailurePolicy!, float, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @BytecodeOnly public float getBoundsAssertionTolerance-D9Ej5fM();
     method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getEffectContext();
     method @InaccessibleFromKotlin public androidx.compose.ui.test.TestFailurePolicy getFailurePolicy();
     method @BytecodeOnly public int getInputMode-aOaMEAU();
     method @InaccessibleFromKotlin public kotlin.coroutines.CoroutineContext getRunTestContext();
     method @BytecodeOnly public long getTestTimeout-UwyO8pc();
+    property public androidx.compose.ui.unit.Dp boundsAssertionTolerance;
     property public kotlin.coroutines.CoroutineContext effectContext;
     property public androidx.compose.ui.test.TestFailurePolicy failurePolicy;
     property public androidx.compose.ui.input.InputMode inputMode;
@@ -927,6 +927,7 @@ package androidx.compose.ui.test {
   }
 
   public final class TestContext {
+    ctor @BytecodeOnly public TestContext(androidx.compose.ui.test.TestOwner!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
   public fun interface TestFailureHandler {

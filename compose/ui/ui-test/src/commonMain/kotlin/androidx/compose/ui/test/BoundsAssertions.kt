@@ -55,14 +55,18 @@ public fun SemanticsNodeInteraction.assertWidthIsEqualTo(
  *
  * @param expectedWidth The expected width of the layout.
  * @param tolerance The tolerance within which the values should be treated as equal. Defaults to
- *   `0.5.dp`.
+ *   the tolerance configured in [ComposeUiTestConfig], or `0.5.dp` if unspecified.
  * @throws AssertionError if comparison fails.
+ * @see ComposeUiTestConfig
  */
 public fun SemanticsNodeInteraction.assertWidthIsEqualTo(
     expectedWidth: Dp,
-    tolerance: Dp = 0.5.dp,
+    tolerance: Dp = Dp.Unspecified,
 ): SemanticsNodeInteraction {
-    return withUnclippedBoundsInRoot { it.width.assertIsEqualTo(expectedWidth, "width", tolerance) }
+    val effectiveTolerance = resolveEffectiveTolerance(tolerance)
+    return withUnclippedBoundsInRoot {
+        it.width.assertIsEqualTo(expectedWidth, "width", effectiveTolerance)
+    }
 }
 
 /**
@@ -83,15 +87,17 @@ public fun SemanticsNodeInteraction.assertHeightIsEqualTo(
  *
  * @param expectedHeight The expected height of the layout.
  * @param tolerance The tolerance within which the values should be treated as equal. Defaults to
- *   `0.5.dp`.
+ *   the tolerance configured in [ComposeUiTestConfig], or `0.5.dp` if unspecified.
  * @throws AssertionError if comparison fails.
+ * @see ComposeUiTestConfig
  */
 public fun SemanticsNodeInteraction.assertHeightIsEqualTo(
     expectedHeight: Dp,
-    tolerance: Dp = 0.5.dp,
+    tolerance: Dp = Dp.Unspecified,
 ): SemanticsNodeInteraction {
+    val effectiveTolerance = resolveEffectiveTolerance(tolerance)
     return withUnclippedBoundsInRoot {
-        it.height.assertIsEqualTo(expectedHeight, "height", tolerance)
+        it.height.assertIsEqualTo(expectedHeight, "height", effectiveTolerance)
     }
 }
 
@@ -116,14 +122,17 @@ public fun SemanticsNodeInteraction.assertTouchWidthIsEqualTo(
  *
  * @param expectedWidth The expected touch width of the layout.
  * @param tolerance The tolerance within which the values should be treated as equal. Defaults to
- *   `0.5.dp`.
- * @throws AssertionError if comparison fails.
+ *   the tolerance configured in [ComposeUiTestConfig], or `0.5.dp` if unspecified.
+ * @see ComposeUiTestConfig
  */
 public fun SemanticsNodeInteraction.assertTouchWidthIsEqualTo(
     expectedWidth: Dp,
-    tolerance: Dp = 0.5.dp,
+    tolerance: Dp = Dp.Unspecified,
 ): SemanticsNodeInteraction {
-    return withTouchBoundsInRoot { it.width.assertIsEqualTo(expectedWidth, "width", tolerance) }
+    val effectiveTolerance = resolveEffectiveTolerance(tolerance)
+    return withTouchBoundsInRoot {
+        it.width.assertIsEqualTo(expectedWidth, "width", effectiveTolerance)
+    }
 }
 
 /**
@@ -147,14 +156,18 @@ public fun SemanticsNodeInteraction.assertTouchHeightIsEqualTo(
  *
  * @param expectedHeight The expected touch height of the layout.
  * @param tolerance The tolerance within which the values should be treated as equal. Defaults to
- *   `0.5.dp`.
+ *   the tolerance configured in [ComposeUiTestConfig], or `0.5.dp` if unspecified.
  * @throws AssertionError if comparison fails.
+ * @see ComposeUiTestConfig
  */
 public fun SemanticsNodeInteraction.assertTouchHeightIsEqualTo(
     expectedHeight: Dp,
-    tolerance: Dp = 0.5.dp,
+    tolerance: Dp = Dp.Unspecified,
 ): SemanticsNodeInteraction {
-    return withTouchBoundsInRoot { it.height.assertIsEqualTo(expectedHeight, "height", tolerance) }
+    val effectiveTolerance = resolveEffectiveTolerance(tolerance)
+    return withTouchBoundsInRoot {
+        it.height.assertIsEqualTo(expectedHeight, "height", effectiveTolerance)
+    }
 }
 
 /**
@@ -207,17 +220,19 @@ public fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
  * @param expectedLeft The left (x) position to assert.
  * @param expectedTop The top (y) position to assert.
  * @param tolerance The tolerance within which the values should be treated as equal. Defaults to
- *   `0.5.dp`.
+ *   the tolerance configured in [ComposeUiTestConfig], or `0.5.dp` if unspecified.
  * @throws AssertionError if comparison fails.
+ * @see ComposeUiTestConfig
  */
 public fun SemanticsNodeInteraction.assertPositionInRootIsEqualTo(
     expectedLeft: Dp,
     expectedTop: Dp,
-    tolerance: Dp = 0.5.dp,
+    tolerance: Dp = Dp.Unspecified,
 ): SemanticsNodeInteraction {
+    val effectiveTolerance = resolveEffectiveTolerance(tolerance)
     return withUnclippedBoundsInRoot {
-        it.left.assertIsEqualTo(expectedLeft, "left", tolerance)
-        it.top.assertIsEqualTo(expectedTop, "top", tolerance)
+        it.left.assertIsEqualTo(expectedLeft, "left", effectiveTolerance)
+        it.top.assertIsEqualTo(expectedTop, "top", effectiveTolerance)
     }
 }
 
@@ -244,14 +259,18 @@ public fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
  *
  * @param expectedTop The top (y) position to assert.
  * @param tolerance The tolerance within which the values should be treated as equal. Defaults to
- *   `0.5.dp`.
+ *   the tolerance configured in [ComposeUiTestConfig], or `0.5.dp` if unspecified.
  * @throws AssertionError if comparison fails.
+ * @see ComposeUiTestConfig
  */
 public fun SemanticsNodeInteraction.assertTopPositionInRootIsEqualTo(
     expectedTop: Dp,
-    tolerance: Dp = 0.5.dp,
+    tolerance: Dp = Dp.Unspecified,
 ): SemanticsNodeInteraction {
-    return withUnclippedBoundsInRoot { it.top.assertIsEqualTo(expectedTop, "top", tolerance) }
+    val effectiveTolerance = resolveEffectiveTolerance(tolerance)
+    return withUnclippedBoundsInRoot {
+        it.top.assertIsEqualTo(expectedTop, "top", effectiveTolerance)
+    }
 }
 
 /**
@@ -277,14 +296,18 @@ public fun SemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
  *
  * @param expectedLeft The left (x) position to assert.
  * @param tolerance The tolerance within which the values should be treated as equal. Defaults to
- *   `0.5.dp`.
+ *   the tolerance configured in [ComposeUiTestConfig], or `0.5.dp` if unspecified.
  * @throws AssertionError if comparison fails.
+ * @see ComposeUiTestConfig
  */
 public fun SemanticsNodeInteraction.assertLeftPositionInRootIsEqualTo(
     expectedLeft: Dp,
-    tolerance: Dp = 0.5.dp,
+    tolerance: Dp = Dp.Unspecified,
 ): SemanticsNodeInteraction {
-    return withUnclippedBoundsInRoot { it.left.assertIsEqualTo(expectedLeft, "left", tolerance) }
+    val effectiveTolerance = resolveEffectiveTolerance(tolerance)
+    return withUnclippedBoundsInRoot {
+        it.left.assertIsEqualTo(expectedLeft, "left", effectiveTolerance)
+    }
 }
 
 /**
@@ -436,19 +459,6 @@ private val SemanticsNode.unclippedBoundsInRoot: Rect
     }
 
 /**
- * Returns if this value is equal to the [reference], within a given [tolerance]. If the reference
- * value is [Float.NaN], [Float.POSITIVE_INFINITY] or [Float.NEGATIVE_INFINITY], this only returns
- * true if this value is exactly the same (tolerance is disregarded).
- */
-private fun Dp.isWithinTolerance(reference: Dp, tolerance: Dp): Boolean {
-    return when {
-        reference.isUnspecified -> this.isUnspecified
-        reference.value.isInfinite() -> this.value == reference.value
-        else -> abs(this.value - reference.value) <= tolerance.value
-    }
-}
-
-/**
  * Asserts that this value is equal to the given [expected] value.
  *
  * Performs the comparison with the given [tolerance] or the default one if none is provided. It is
@@ -465,6 +475,42 @@ public fun Dp.assertIsEqualTo(expected: Dp, subject: String, tolerance: Dp = Dp(
     if (!isWithinTolerance(expected, tolerance)) {
         // Comparison failed, report the error in DPs
         throw AssertionError("Actual $subject is $this, expected $expected (tolerance: $tolerance)")
+    }
+}
+
+private val DefaultBoundsAssertionTolerance: Dp = 0.5.dp
+
+/**
+ * Resolves the effective tolerance to use for a bound's assertion.
+ *
+ * Resolution follows this order of precedence:
+ * 1. [explicitTolerance], if specified (not [Dp.Unspecified]).
+ * 2. [ComposeUiTestConfig.boundsAssertionTolerance], if configured in the current test environment.
+ * 3. [DefaultBoundsAssertionTolerance] as the final fallback.
+ *
+ * @param explicitTolerance tolerance provided at the assertion call site
+ * @return resolved [Dp] tolerance
+ */
+private fun SemanticsNodeInteraction.resolveEffectiveTolerance(explicitTolerance: Dp): Dp {
+    if (!explicitTolerance.isUnspecified) {
+        return explicitTolerance
+    }
+    if (!testContext.boundsAssertionTolerance.isUnspecified) {
+        return testContext.boundsAssertionTolerance
+    }
+    return DefaultBoundsAssertionTolerance
+}
+
+/**
+ * Returns if this value is equal to the [reference], within a given [tolerance]. If the reference
+ * value is [Float.NaN], [Float.POSITIVE_INFINITY] or [Float.NEGATIVE_INFINITY], this only returns
+ * true if this value is exactly the same (tolerance is disregarded).
+ */
+private fun Dp.isWithinTolerance(reference: Dp, tolerance: Dp): Boolean {
+    return when {
+        reference.isUnspecified -> this.isUnspecified
+        reference.value.isInfinite() -> this.value == reference.value
+        else -> abs(this.value - reference.value) <= tolerance.value
     }
 }
 
