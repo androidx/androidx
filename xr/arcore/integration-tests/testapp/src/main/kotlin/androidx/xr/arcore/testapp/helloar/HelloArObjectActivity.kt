@@ -214,14 +214,17 @@ class HelloArObjectActivity : ComponentActivity() {
                 }
             },
         ) { innerPadding ->
+            // Note that this logic needs to handle races between the ComposeUI and the perception
+            // stack. Sometimes under load this can collect CoreState events which don't include
+            // perceptionState.
             val state by session.state.collectAsStateWithLifecycle()
             Column(modifier = Modifier.padding(innerPadding).background(color = Color.White)) {
                 Text(text = "CoreState: ${state.timeMark}")
                 TrackablesList(
-                    state.perceptionState!!
-                        .trackableStates
-                        .filterIsInstance<AugmentedObject.State>()
-                        .map { it.owner }
+                    state.perceptionState
+                        ?.trackableStates
+                        ?.filterIsInstance<AugmentedObject.State>()
+                        ?.map { it.owner } ?: emptyList()
                 )
             }
         }
