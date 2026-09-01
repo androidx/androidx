@@ -24,7 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
 /** Contains the default values used by [LazyColumn] and [LazyRow]. */
-internal object LazyListDefaults {
+public object LazyListDefaults {
 
     /**
      * Creates and remembers the default [LazyLayoutCacheWindow] for [LazyColumn] and [LazyRow].
@@ -38,7 +38,7 @@ internal object LazyListDefaults {
      */
     @Composable
     @OptIn(ExperimentalFoundationApi::class)
-    fun cacheWindow(state: LazyListState): LazyLayoutCacheWindow =
+    public fun cacheWindow(state: LazyListState): LazyLayoutCacheWindow =
         remember(state) {
             DefaultLazyLayoutCacheWindow(
                 { state.layoutInfo.visibleItemsAverageSize() },
