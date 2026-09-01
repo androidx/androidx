@@ -16,12 +16,22 @@
 
 package androidx.compose.foundation.text.input
 
-/** Defines an interactable undo history. */
+/**
+ * Controls the undo and redo history for a [TextFieldState].
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextFieldUndoSample
+ * @see TextFieldState.undoState
+ */
 public class UndoState internal constructor(private val state: TextFieldState) {
 
     /**
-     * Whether it is possible to execute a meaningful undo action right now. If this value is false,
-     * calling `undo` would be a no-op.
+     * Whether an [undo] action can currently be performed.
+     *
+     * If this value is `false`, calling [undo] is a no-op. This property is backed by snapshot
+     * state and will cause recomposition when its value changes.
+     *
+     * @see undo
+     * @see canRedo
      */
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
@@ -29,8 +39,13 @@ public class UndoState internal constructor(private val state: TextFieldState) {
         get() = state.textUndoManager.canUndo
 
     /**
-     * Whether it is possible to execute a meaningful redo action right now. If this value is false,
-     * calling `redo` would be a no-op.
+     * Whether a [redo] action can currently be performed.
+     *
+     * If this value is `false`, calling [redo] is a no-op. This property is backed by snapshot
+     * state and will cause recomposition when its value changes.
+     *
+     * @see redo
+     * @see canUndo
      */
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
@@ -38,19 +53,35 @@ public class UndoState internal constructor(private val state: TextFieldState) {
         get() = state.textUndoManager.canRedo
 
     /**
-     * Reverts the latest edit action or a group of actions that are merged together. Calling it
-     * repeatedly can continue undoing the previous actions.
+     * Reverts the latest edit action or a group of actions that are merged together.
+     *
+     * If [canUndo] is `false`, this is a no-op. Calling it repeatedly continues undoing previous
+     * actions.
+     *
+     * @see canUndo
+     * @see redo
      */
     public fun undo() {
         state.textUndoManager.undo(state)
     }
 
-    /** Re-applies a change that was previously reverted via [undo]. */
+    /**
+     * Re-applies a change that was previously reverted via [undo].
+     *
+     * If [canRedo] is `false`, this is a no-op.
+     *
+     * @see canRedo
+     * @see undo
+     */
     public fun redo() {
         state.textUndoManager.redo(state)
     }
 
-    /** Clears all undo and redo history up to this point. */
+    /**
+     * Clears all undo and redo history up to this point.
+     *
+     * Calling this sets both [canUndo] and [canRedo] to `false`.
+     */
     public fun clearHistory() {
         state.textUndoManager.clearHistory()
     }
