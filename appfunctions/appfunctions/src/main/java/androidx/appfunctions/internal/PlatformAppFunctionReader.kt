@@ -28,7 +28,6 @@ import androidx.appfunctions.AppFunctionState
 import androidx.appfunctions.ObserveAppFunctionsEvent
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
-import androidx.appfunctions.metadata.AppFunctionPackageMetadata
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.Runnable
@@ -86,13 +85,6 @@ internal class PlatformAppFunctionReader(
             )
         }
     }
-
-    // TODO(b/508188326): Routing the legacy observeAppFunctions API to AppSearchAppFunctionReader
-    // This should be cleaned up once the legacy observeAppFunctions API is removed.
-    override fun searchAppFunctionsPackageMetadata(
-        searchFunctionSpec: AppFunctionSearchSpec
-    ): Flow<List<AppFunctionPackageMetadata>> =
-        appSearchReader.searchAppFunctionsPackageMetadata(searchFunctionSpec)
 
     override suspend fun getAppFunctionMetadata(
         functionId: String,
