@@ -411,6 +411,198 @@ public class TabTemplateTest {
         TabTemplate copy = new TabTemplate.Builder(template).setStyle(null).build();
         assertEquals(null, copy.getStyle());
     }
+
+    @Test
+    public void setEndAction_validAction_buildsAndReturnsAction() {
+        CarIcon carIcon = TestUtils.getTestCarIcon(
+                ApplicationProvider.getApplicationContext(), "ic_test_1");
+        Action action = TestUtils.createAction(null, carIcon);
+
+        TabTemplate template = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setEndAction(action)
+                .build();
+
+        assertThat(template.getEndAction()).isEqualTo(action);
+    }
+
+    @Test
+    public void setEndAction_overwritesPreviousAction() {
+        CarIcon carIcon1 = TestUtils.getTestCarIcon(
+                ApplicationProvider.getApplicationContext(), "ic_test_1");
+        CarIcon carIcon2 = TestUtils.getTestCarIcon(
+                ApplicationProvider.getApplicationContext(), "ic_test_2");
+        Action action1 = TestUtils.createAction(null, carIcon1);
+        Action action2 = TestUtils.createAction(null, carIcon2);
+
+        TabTemplate template = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setEndAction(action1)
+                .setEndAction(action2)
+                .build();
+
+        assertThat(template.getEndAction()).isEqualTo(action2);
+    }
+
+    @Test
+    public void setEndAction_null_clearsAction() {
+        CarIcon carIcon = TestUtils.getTestCarIcon(
+                ApplicationProvider.getApplicationContext(), "ic_test_1");
+        Action action = TestUtils.createAction(null, carIcon);
+
+        TabTemplate template = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setEndAction(action)
+                .build();
+
+        TabTemplate copy = new TabTemplate.Builder(template)
+                .setEndAction(null)
+                .build();
+
+        assertThat(copy.getEndAction()).isNull();
+    }
+
+    @Test
+    public void setEndAction_nullOnBuilder_clearsAction() {
+        CarIcon carIcon = TestUtils.getTestCarIcon(
+                ApplicationProvider.getApplicationContext(), "ic_test_1");
+        Action action = TestUtils.createAction(null, carIcon);
+
+        TabTemplate template = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setEndAction(action)
+                .setEndAction(null)
+                .build();
+
+        assertThat(template.getEndAction()).isNull();
+    }
+
+
+    @Test
+    public void setEndAction_actionWithTitle_throws() {
+        CarIcon carIcon = TestUtils.getTestCarIcon(
+                ApplicationProvider.getApplicationContext(), "ic_test_1");
+        Action actionWithTitle = TestUtils.createAction("Title", carIcon);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new TabTemplate.Builder(mMockTabCallback)
+                        .setEndAction(actionWithTitle));
+    }
+
+    @Test
+    public void setEndAction_actionWithoutIcon_throws() {
+        Action actionWithoutIcon = new Action.Builder()
+                .setTitle("Title")
+                .setOnClickListener(() -> {})
+                .build();
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new TabTemplate.Builder(mMockTabCallback)
+                        .setEndAction(actionWithoutIcon));
+    }
+
+    @Test
+    public void setEndAction_standardAction_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new TabTemplate.Builder(mMockTabCallback)
+                        .setEndAction(Action.APP_ICON));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new TabTemplate.Builder(mMockTabCallback)
+                        .setEndAction(Action.BACK));
+    }
+
+    @Test
+    public void copy_copiesEndAction() {
+        CarIcon carIcon1 = TestUtils.getTestCarIcon(
+                ApplicationProvider.getApplicationContext(), "ic_test_1");
+        Action action = TestUtils.createAction(null, carIcon1);
+
+        TabTemplate template1 = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setEndAction(action)
+                .build();
+
+        TabTemplate template2 = new TabTemplate.Builder(template1).build();
+
+        assertThat(template2.getEndAction()).isEqualTo(action);
+        assertEquals(template1, template2);
+    }
+
+    @Test
+    public void equals_and_hashCode_withEndAction() {
+        CarIcon carIcon1 = TestUtils.getTestCarIcon(
+                ApplicationProvider.getApplicationContext(), "ic_test_1");
+        CarIcon carIcon2 = TestUtils.getTestCarIcon(
+                ApplicationProvider.getApplicationContext(), "ic_test_2");
+        Action action1 = TestUtils.createAction(null, carIcon1);
+        Action action2 = TestUtils.createAction(null, carIcon2);
+
+        TabTemplate template1 = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setEndAction(action1)
+                .build();
+
+        TabTemplate template2 = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setEndAction(action1)
+                .build();
+
+        TabTemplate templateDifferentAction = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .setEndAction(action2)
+                .build();
+
+        TabTemplate templateNoAction = new TabTemplate.Builder(mMockTabCallback)
+                .setHeaderAction(Action.APP_ICON)
+                .addTab(getTab("TAB_1", ACTIVE_TAB_CONTENT_ID))
+                .addTab(getTab("TAB_2", "ID_2"))
+                .setTabContents(TAB_CONTENTS)
+                .setActiveTabContentId(ACTIVE_TAB_CONTENT_ID)
+                .build();
+
+        assertEquals(template1, template2);
+        assertEquals(template1.hashCode(), template2.hashCode());
+        assertNotEquals(template1, templateDifferentAction);
+        assertNotEquals(template1, templateNoAction);
+        assertNotEquals(template1.hashCode(), templateNoAction.hashCode());
+    }
+
     private static Tab getTab(String title, String contentId) {
         return new Tab.Builder()
                 .setContentId(contentId)
