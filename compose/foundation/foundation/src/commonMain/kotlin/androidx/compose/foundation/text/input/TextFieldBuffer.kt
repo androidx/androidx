@@ -109,14 +109,14 @@ internal constructor(
         get() = originalValue.selection
 
     /**
-     * The [ChangeList] represents the changes made to this value and is inherently mutable. This
-     * means that the returned [ChangeList] always reflects the complete list of changes made to
-     * this value at any given time, even those made after reading this property.
+     * The [ChangeList] represents the changes made to this [TextFieldBuffer] and is inherently
+     * mutable. This means that the returned [ChangeList] always reflects the complete list of
+     * changes made to this [TextFieldBuffer] at any given time, even those made after reading this
+     * property.
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
      */
-    @ExperimentalFoundationApi
     public val changes: ChangeList
         get() = changeTracker
 
@@ -1120,17 +1120,26 @@ public fun TextFieldBuffer.selectAll() {
 }
 
 /**
- * Iterates over all the changes in this [ChangeList].
+ * Iterates over all changes in this [ChangeList] in order of their appearance in the text (from the
+ * lowest character offset to the highest).
  *
- * Changes are iterated by index, so any changes made by [block] after the current one will be
- * visited by [block]. [block] should not make any new changes _before_ the current one or changes
- * will be visited more than once. If you need to make changes, consider using
- * [forEachChangeReversed].
+ * In each iteration, [block] receives `range` (the range of the change in the updated
+ * [TextFieldBuffer]) and `originalRange` (the corresponding range in the original text buffer
+ * before any changes).
  *
+ * Avoid modifying text *before* the current `range`. Changes are ordered by character offset, so
+ * modifying text earlier in the buffer shifts the current change to a higher index in the
+ * [ChangeList]. Because this function iterates forward by index, it will mistakenly visit the
+ * current change again and skip the newly inserted change.
+ *
+ * For example, assume [ChangeList] initially has one change at `5..8`. If [block] inserts text at
+ * index `0`, a new change at `0..2` is placed at index 0, and the original change is shifted to
+ * index 1. As the loop advances to index 1, it visits the original change a second time.
+ *
+ * @param block The block to be invoked for each change.
  * @sample androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
  * @see forEachChangeReversed
  */
-@ExperimentalFoundationApi
 public inline fun ChangeList.forEachChange(
     block: (range: TextRange, originalRange: TextRange) -> Unit
 ) {
@@ -1143,16 +1152,28 @@ public inline fun ChangeList.forEachChange(
 }
 
 /**
- * Iterates over all the changes in this [ChangeList] in reverse order.
+ * Iterates over all changes in this [ChangeList] in reverse order of their appearance in the text
+ * (from the highest character offset down to the lowest).
  *
- * Changes are iterated by index, so [block] should not perform any new changes before the current
- * one or changes may be skipped. [block] may make non-overlapping changes after the current one
- * safely, such changes will not be visited.
+ * In each iteration, [block] receives `range` (the range of the change in the updated
+ * [TextFieldBuffer]) and `originalRange` (the corresponding range in the original text buffer
+ * before any changes).
  *
+ * Unlike [forEachChange], you may safely make non-overlapping changes *after* the current `range`
+ * without triggering repeated iterations.
+ *
+ * Because iteration proceeds backward by index, any new changes made after the current range are
+ * assigned greater indices in the [ChangeList] and fall beyond the current loop index, so they are
+ * cleanly skipped.
+ *
+ * For example, suppose [ChangeList] has changes at index 0 (`0..2`) and index 1 (`10..12`). This
+ * function visits index 1 first. If you then insert text at index `15`, the new change is appended
+ * at index 2. Since the loop next decrements to index 0, the new change at index 2 is skipped.
+ *
+ * @param block The block to be invoked for each change.
  * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
  * @see forEachChange
  */
-@ExperimentalFoundationApi
 public inline fun ChangeList.forEachChangeReversed(
     block: (range: TextRange, originalRange: TextRange) -> Unit
 ) {
