@@ -219,6 +219,29 @@ class CustomColumnConverterProcessorTest {
     }
 
     @Test
+    fun extensionFunction() {
+        val src =
+            Source.kotlin(
+                "${CONVERTER.canonicalName}.kt",
+                """
+                package ${CONVERTER.packageName}
+                import androidx.room3.ColumnTypeConverter
+
+                object ${CONVERTER.simpleNames.first()} {
+                    @ColumnTypeConverter
+                    fun Short.toChar(): Char = this.toInt().toChar()
+                }
+                """
+                    .trimIndent(),
+            )
+        singleClass(src) { converter, _ ->
+            assertThat(converter?.fromTypeName).isEqualTo(XTypeName.PRIMITIVE_SHORT)
+            assertThat(converter?.toTypeName).isEqualTo(XTypeName.PRIMITIVE_CHAR)
+            assertThat(converter?.function?.isExtensionFunction()).isTrue()
+        }
+    }
+
+    @Test
     fun checkPublic() {
         singleClass(
             Source.java(
