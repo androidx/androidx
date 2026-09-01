@@ -50,8 +50,8 @@ androidXMultiplatform {
         commonMain.dependencies {
             api(project(":room3:room3-common"))
             api(project(":room3:room3-runtime"))
-            api("androidx.sqlite:sqlite:2.7.1")
-            implementation("androidx.sqlite:sqlite-async:2.7.1")
+            api(project(":sqlite:sqlite"))
+            implementation(project(":sqlite:sqlite-async"))
             implementation(project(":room3:room3-migration"))
         }
         commonTest.dependencies {
@@ -63,7 +63,7 @@ androidXMultiplatform {
         }
         androidMain.dependencies {
             api(libs.junit)
-            api("androidx.sqlite:sqlite-framework:2.7.1")
+            api(project(":sqlite:sqlite-framework"))
             implementation("androidx.arch.core:core-runtime:2.2.0")
         }
         nativeMain.dependencies {
