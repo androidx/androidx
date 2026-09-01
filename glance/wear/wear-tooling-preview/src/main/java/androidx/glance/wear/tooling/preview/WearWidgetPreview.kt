@@ -112,8 +112,10 @@ public fun WearWidgetPreview(
  * @param modifier The [Modifier] to be applied to the container box hosting the widget preview.
  * @param background The [WearWidgetBrush] to be used as the background of the widget. Defaults to a
  *   transparent solid color.
- * @param useSafeFallbackRendererVersion Whether to render using the safe fallback renderer version
- *   to test compatibility against older hosts, or the latest renderer version. Defaults to false.
+ * @param useSafeFallbackRendererVersion Whether to render using a safe fallback renderer version
+ *   (e.g., a conservative baseline version representing older hosts). This allows developers to
+ *   test widget compatibility against older versions of the Wear OS host. If false, the preview
+ *   renders using the latest renderer version. Defaults to true.
  * @param content The [Composable] content of the widget to be previewed.
  */
 @Composable
@@ -121,7 +123,9 @@ public fun WearWidgetPreview(
     params: WearWidgetParams,
     modifier: Modifier = Modifier,
     background: WearWidgetBrush = WearWidgetBrush.color(Color.Transparent.rc),
-    useSafeFallbackRendererVersion: Boolean = false,
+    // TODO: b/553471238 - Set default value back to false once java player handles CORE_TEXT for
+    //    Wear Widgets
+    useSafeFallbackRendererVersion: Boolean = true,
     content: @RemoteComposable @Composable () -> Unit,
 ) {
     val widget =
