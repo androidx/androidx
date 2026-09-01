@@ -30,11 +30,11 @@ import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.json.BenchmarkData.TestResult.ProfilerOutput
 import androidx.benchmark.perfetto.StackSamplingConfig
+import androidx.benchmark.perfetto.appendToPerfettoTrace
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
 import androidx.benchmark.vmtrace.ArtTrace
 import java.io.File
-import java.io.FileOutputStream
 
 /**
  * Profiler abstraction used for the timing stage.
@@ -274,8 +274,10 @@ internal object MethodTracing : Profiler() {
     override val requiresSingleMeasurementIteration: Boolean = true
 
     override fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {
-        ArtTrace(profilerTrace)
-            .writeAsPerfettoTrace(FileOutputStream(perfettoTrace, /* append= */ true))
+        appendToPerfettoTrace(perfettoTrace = perfettoTrace, entryName = "MethodTrace.pb") {
+            outputStream ->
+            ArtTrace(profilerTrace).writeAsPerfettoTrace(outputStream)
+        }
     }
 
     var hasBeenUsed: Boolean = false
