@@ -3459,12 +3459,12 @@ package androidx.compose.foundation.text.input {
     method @BytecodeOnly public long getSelection-d9O1mEE();
     method @InaccessibleFromKotlin public CharSequence getText();
     method @InaccessibleFromKotlin public androidx.compose.foundation.text.input.TextFieldTextStyles getTextStyles();
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text.input.UndoState getUndoState();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.text.input.UndoState getUndoState();
     property public androidx.compose.ui.text.TextRange? composition;
     property public androidx.compose.ui.text.TextRange selection;
     property public CharSequence text;
     property public androidx.compose.foundation.text.input.TextFieldTextStyles textStyles;
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.text.input.UndoState undoState;
+    property public androidx.compose.foundation.text.input.UndoState undoState;
   }
 
   public static final class TextFieldState.Saver implements androidx.compose.runtime.saveable.Saver<androidx.compose.foundation.text.input.TextFieldState,java.lang.Object> {

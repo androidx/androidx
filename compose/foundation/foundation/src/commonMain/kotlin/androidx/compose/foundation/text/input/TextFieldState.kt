@@ -225,9 +225,7 @@ internal constructor(
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldUndoSample
      */
-    // TextField does not implement UndoState because Undo related APIs should be able to remain
-    // separately experimental than TextFieldState
-    @ExperimentalFoundationApi public val undoState: UndoState = UndoState(this)
+    public val undoState: UndoState = UndoState(this)
 
     @Suppress("ShowingMemberInHiddenClass")
     @PublishedApi

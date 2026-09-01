@@ -1282,6 +1282,8 @@ final class androidx.compose.foundation.text.input/TextFieldState { // androidx.
         final fun <get-text>(): kotlin/CharSequence // androidx.compose.foundation.text.input/TextFieldState.text.<get-text>|<get-text>(){}[0]
     final val textStyles // androidx.compose.foundation.text.input/TextFieldState.textStyles|{}textStyles[0]
         final fun <get-textStyles>(): androidx.compose.foundation.text.input/TextFieldTextStyles // androidx.compose.foundation.text.input/TextFieldState.textStyles.<get-textStyles>|<get-textStyles>(){}[0]
+    final val undoState // androidx.compose.foundation.text.input/TextFieldState.undoState|{}undoState[0]
+        final fun <get-undoState>(): androidx.compose.foundation.text.input/UndoState // androidx.compose.foundation.text.input/TextFieldState.undoState.<get-undoState>|<get-undoState>(){}[0]
 
     final fun commitEdit(androidx.compose.foundation.text.input/TextFieldBuffer) // androidx.compose.foundation.text.input/TextFieldState.commitEdit|commitEdit(androidx.compose.foundation.text.input.TextFieldBuffer){}[0]
     final fun finishEditing() // androidx.compose.foundation.text.input/TextFieldState.finishEditing|finishEditing(){}[0]
