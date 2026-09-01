@@ -246,7 +246,7 @@ package androidx.xr.scenecore {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalSurfaceEntityPixelDimensionsApi {
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalGltfAnimationApi public final class GltfAnimation {
+  public final class GltfAnimation {
     method public void addAnimationStateListener(java.util.concurrent.Executor executor, java.util.function.Consumer<androidx.xr.scenecore.GltfAnimation.AnimationState> listener);
     method public void addAnimationStateListener(java.util.function.Consumer<androidx.xr.scenecore.GltfAnimation.AnimationState> listener);
     method @InaccessibleFromKotlin @MainThread public androidx.xr.scenecore.GltfAnimation.AnimationState getAnimationState();
@@ -259,10 +259,10 @@ package androidx.xr.scenecore {
     method public void removeAnimationStateListener(java.util.function.Consumer<androidx.xr.scenecore.GltfAnimation.AnimationState> listener);
     method @MainThread public void resume();
     method @Deprecated @MainThread @RequiresApi(android.os.Build.VERSION_CODES.O) public void seekTo(java.time.Duration time);
-    method @InaccessibleFromKotlin @MainThread public void setLoop(boolean);
+    method @InaccessibleFromKotlin @SuppressCompatibility @MainThread @androidx.xr.scenecore.ExperimentalGltfAnimationApi public void setLoop(boolean);
     method @InaccessibleFromKotlin @MainThread public void setSpeed(float);
     method @MainThread public void start();
-    method @Deprecated @MainThread @RequiresApi(android.os.Build.VERSION_CODES.O) public void start(androidx.xr.scenecore.GltfAnimationStartOptions options);
+    method @Deprecated @SuppressCompatibility @MainThread @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.xr.scenecore.ExperimentalGltfAnimationApi public void start(androidx.xr.scenecore.GltfAnimationStartOptions options);
     method @MainThread public void stop();
     property @MainThread public androidx.xr.scenecore.GltfAnimation.AnimationState animationState;
     property @RequiresApi(android.os.Build.VERSION_CODES.O) public java.time.Duration duration;
@@ -272,14 +272,14 @@ package androidx.xr.scenecore {
     property @MainThread public float speed;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalGltfAnimationApi public static final class GltfAnimation.AnimationState {
+  public static final class GltfAnimation.AnimationState {
     field public static final androidx.xr.scenecore.GltfAnimation.AnimationState.Companion Companion;
     field public static final androidx.xr.scenecore.GltfAnimation.AnimationState PAUSED;
     field public static final androidx.xr.scenecore.GltfAnimation.AnimationState PLAYING;
     field public static final androidx.xr.scenecore.GltfAnimation.AnimationState STOPPED;
   }
 
-  @SuppressCompatibility @androidx.xr.scenecore.ExperimentalGltfAnimationApi public static final class GltfAnimation.AnimationState.Companion {
+  public static final class GltfAnimation.AnimationState.Companion {
     property public androidx.xr.scenecore.GltfAnimation.AnimationState PAUSED;
     property public androidx.xr.scenecore.GltfAnimation.AnimationState PLAYING;
     property public androidx.xr.scenecore.GltfAnimation.AnimationState STOPPED;
@@ -320,10 +320,10 @@ package androidx.xr.scenecore {
     method @MainThread public static androidx.xr.scenecore.GltfModelEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.GltfModel model);
     method @MainThread public static androidx.xr.scenecore.GltfModelEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.GltfModel model, optional androidx.xr.runtime.math.Pose pose);
     method @MainThread public static androidx.xr.scenecore.GltfModelEntity create(androidx.xr.runtime.Session session, androidx.xr.scenecore.GltfModel model, optional androidx.xr.runtime.math.Pose pose, optional androidx.xr.scenecore.Entity? parent);
-    method @SuppressCompatibility @MainThread @androidx.xr.scenecore.ExperimentalGltfAnimationApi public java.util.List<androidx.xr.scenecore.GltfAnimation> getAnimations();
+    method @MainThread public java.util.List<androidx.xr.scenecore.GltfAnimation> getAnimations();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.xr.runtime.math.BoundingBox getGltfModelBoundingBox();
     method @InaccessibleFromKotlin @MainThread public java.util.List<androidx.xr.scenecore.GltfModelNode> getNodes();
-    method @SuppressCompatibility @MainThread @androidx.xr.scenecore.ExperimentalGltfAnimationApi public void stopAllAnimations();
+    method @MainThread public void stopAllAnimations();
     property @MainThread public java.util.List<androidx.xr.scenecore.GltfModelNode> nodes;
     field public static final androidx.xr.scenecore.GltfModelEntity.Companion Companion;
   }

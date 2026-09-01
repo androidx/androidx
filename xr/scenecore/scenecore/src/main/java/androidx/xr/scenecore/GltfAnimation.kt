@@ -44,7 +44,6 @@ import kotlinx.coroutines.asExecutor
  * @property name The name of this animation, or `null` if the animation is unnamed.
  */
 @Suppress("NotCloseable")
-@ExperimentalGltfAnimationApi
 public class GltfAnimation
 internal constructor(
     private val rtGltfEntity: RtGltfEntity,
@@ -60,11 +59,15 @@ internal constructor(
      * playback reaches the end of the animation, the animation state transitions to
      * [AnimationState.STOPPED], while remaining clamped at the final frame pose.
      *
-     * Changes to the loop configuration only take effect during [start].
+     * Changes to the loop configuration only take effect during [start]. Modifying this property
+     * while the animation is actively playing is currently not supported. The setter will remain
+     * annotated with [ExperimentalGltfAnimationApi] until dynamic loop updates during active
+     * playback are supported.
      */
     @get:MainThread
     @set:MainThread
     @get:Suppress("GetterSetterNames")
+    @set:ExperimentalGltfAnimationApi
     public var loop: Boolean = false
 
     /**
@@ -162,6 +165,7 @@ internal constructor(
     )
     @RequiresApi(Build.VERSION_CODES.O)
     @Suppress("DEPRECATION")
+    @ExperimentalGltfAnimationApi
     @MainThread
     public fun start(options: GltfAnimationStartOptions) {
         this.loop = options.shouldLoop

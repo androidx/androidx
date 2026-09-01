@@ -69,7 +69,6 @@ private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) 
             return _nodes
         }
 
-    @OptIn(ExperimentalGltfAnimationApi::class)
     private val _animations: List<GltfAnimation> by lazy {
         // The unique identifier of an animation is their index so we first get the
         // count of the nodes in the model from the native side.
@@ -102,7 +101,6 @@ private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) 
      * file's `animations` array.
      */
     @MainThread
-    @ExperimentalGltfAnimationApi
     public fun getAnimations(): List<GltfAnimation> {
         checkNotDisposed()
         return _animations
@@ -116,7 +114,6 @@ private constructor(rtGltfEntity: RtGltfEntity, entityRegistry: EntityRegistry) 
      * animations are playing or paused, this method has no effect.
      */
     @MainThread
-    @ExperimentalGltfAnimationApi
     public fun stopAllAnimations() {
         checkNotDisposed()
         for (animation in _animations) {
