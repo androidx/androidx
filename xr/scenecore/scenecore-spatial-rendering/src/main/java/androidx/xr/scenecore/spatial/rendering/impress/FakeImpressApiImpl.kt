@@ -36,6 +36,7 @@ import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.DrawMode
 import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.MediaBlendingMode
 import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.StereoMode
 import com.google.ar.imp.view.View
+import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 import kotlinx.coroutines.CompletableDeferred
@@ -1143,6 +1144,23 @@ public class FakeImpressApiImpl : ImpressApi {
 
     override fun destroyMeshBuffer(meshBufferHandle: Long) {}
 
+    override fun updateMeshBufferVertexData(
+        meshBufferHandle: Long,
+        bufferIndex: Int,
+        vertexData: ByteBuffer,
+        vertexDataOffset: Int,
+        vertexDataSize: Int,
+        destOffsetInBytes: Int,
+    ) {}
+
+    override fun updateMeshBufferIndexData(
+        meshBufferHandle: Long,
+        indexData: ByteBuffer,
+        indexDataOffset: Int,
+        indexDataSize: Int,
+        destOffsetInBytes: Int,
+    ) {}
+
     override fun createCustomMesh(
         meshBufferHandle: Long,
         subsetOffsets: IntArray,
@@ -1160,6 +1178,16 @@ public class FakeImpressApiImpl : ImpressApi {
     }
 
     override fun getCustomMeshAabb(customMeshHandle: Long, outAabb: FloatArray) {}
+
+    override fun setCustomMeshBoundingBox(
+        customMeshHandle: Long,
+        centerX: Float,
+        centerY: Float,
+        centerZ: Float,
+        halfExtentX: Float,
+        halfExtentY: Float,
+        halfExtentZ: Float,
+    ) {}
 
     override fun destroyCustomMesh(customMeshHandle: Long) {}
 

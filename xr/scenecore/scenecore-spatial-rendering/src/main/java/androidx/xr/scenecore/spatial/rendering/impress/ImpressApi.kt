@@ -1319,6 +1319,44 @@ public interface ImpressApi {
     ): MeshBuffer
 
     /**
+     * This method dynamically updates the vertex data of a mesh buffer.
+     *
+     * @param meshBufferHandle The native handle of the mesh buffer to update.
+     * @param bufferIndex The index of the vertex buffer to update.
+     * @param vertexData The ByteBuffer containing the new vertex data.
+     * @param vertexDataOffset The starting offset in the ByteBuffer.
+     * @param vertexDataSize The size of the data in the ByteBuffer to update.
+     * @param destOffsetInBytes The starting offset in bytes in the target buffer where the data
+     *   should be written.
+     */
+    public fun updateMeshBufferVertexData(
+        meshBufferHandle: Long,
+        bufferIndex: Int,
+        vertexData: ByteBuffer,
+        vertexDataOffset: Int,
+        vertexDataSize: Int,
+        destOffsetInBytes: Int,
+    )
+
+    /**
+     * This method dynamically updates the index data of a mesh buffer.
+     *
+     * @param meshBufferHandle The native handle of the mesh buffer to update.
+     * @param indexData The ByteBuffer containing the new index data.
+     * @param indexDataOffset The starting offset in the ByteBuffer.
+     * @param indexDataSize The size of the data in the ByteBuffer to update.
+     * @param destOffsetInBytes The starting offset in bytes in the target buffer where the data
+     *   should be written.
+     */
+    public fun updateMeshBufferIndexData(
+        meshBufferHandle: Long,
+        indexData: ByteBuffer,
+        indexDataOffset: Int,
+        indexDataSize: Int,
+        destOffsetInBytes: Int,
+    )
+
+    /**
      * This method destroys a mesh buffer using its native handle.
      *
      * @param meshBufferHandle The native handle of the mesh buffer to be destroyed.
@@ -1361,6 +1399,27 @@ public interface ImpressApi {
      *   halfExtentX, halfExtentY, halfExtentZ).
      */
     public fun getCustomMeshAabb(customMeshHandle: Long, outAabb: FloatArray)
+
+    /**
+     * Sets the axis-aligned bounding box of a custom mesh.
+     *
+     * @param customMeshHandle The native handle of the custom mesh.
+     * @param centerX The x coordinate of the center of the bounding box.
+     * @param centerY The y coordinate of the center of the bounding box.
+     * @param centerZ The z coordinate of the center of the bounding box.
+     * @param halfExtentX The half extent of the bounding box along the x axis.
+     * @param halfExtentY The half extent of the bounding box along the y axis.
+     * @param halfExtentZ The half extent of the bounding box along the z axis.
+     */
+    public fun setCustomMeshBoundingBox(
+        customMeshHandle: Long,
+        centerX: Float,
+        centerY: Float,
+        centerZ: Float,
+        halfExtentX: Float,
+        halfExtentY: Float,
+        halfExtentZ: Float,
+    )
 
     /**
      * This method destroys a custom mesh using its native handle.

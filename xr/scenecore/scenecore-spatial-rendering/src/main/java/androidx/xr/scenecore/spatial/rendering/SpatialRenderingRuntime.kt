@@ -59,6 +59,7 @@ import com.android.extensions.xr.XrExtensions
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 import com.google.ar.imp.view.splitengine.ImpSplitEngine
 import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer
+import java.nio.ByteBuffer
 
 /**
  * Implementation of [RenderingRuntime] for devices that support the
@@ -743,6 +744,40 @@ private constructor(
         (meshBuffer as MeshBuffer).destroy()
     }
 
+    override fun updateMeshBufferVertexData(
+        meshBuffer: MeshBufferResource,
+        bufferIndex: Int,
+        vertexData: ByteBuffer,
+        vertexDataOffset: Int,
+        vertexDataSize: Int,
+        destOffsetInBytes: Int,
+    ) {
+        impressApi.updateMeshBufferVertexData(
+            (meshBuffer as MeshBuffer).nativeHandle,
+            bufferIndex,
+            vertexData,
+            vertexDataOffset,
+            vertexDataSize,
+            destOffsetInBytes,
+        )
+    }
+
+    override fun updateMeshBufferIndexData(
+        meshBuffer: MeshBufferResource,
+        indexData: ByteBuffer,
+        indexDataOffset: Int,
+        indexDataSize: Int,
+        destOffsetInBytes: Int,
+    ) {
+        impressApi.updateMeshBufferIndexData(
+            (meshBuffer as MeshBuffer).nativeHandle,
+            indexData,
+            indexDataOffset,
+            indexDataSize,
+            destOffsetInBytes,
+        )
+    }
+
     override fun createCustomMesh(
         meshBuffer: MeshBufferResource,
         subsetOffsets: IntArray,
@@ -775,6 +810,18 @@ private constructor(
         val center = Vector3(aabb[0], aabb[1], aabb[2])
         val halfExtents = FloatSize3d(aabb[3], aabb[4], aabb[5])
         return BoundingBox.fromCenterAndHalfExtents(center, halfExtents)
+    }
+
+    override fun setCustomMeshBoundingBox(customMesh: CustomMeshResource, bounds: BoundingBox) {
+        impressApi.setCustomMeshBoundingBox(
+            (customMesh as CustomMesh).nativeHandle,
+            bounds.center.x,
+            bounds.center.y,
+            bounds.center.z,
+            bounds.halfExtents.width,
+            bounds.halfExtents.height,
+            bounds.halfExtents.depth,
+        )
     }
 
     override fun destroyCustomMesh(customMesh: CustomMeshResource) {
