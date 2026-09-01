@@ -30,8 +30,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,6 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureHostActivity
+import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureProjectedActivity
 import androidx.xr.arcore.projected.testapp.tiltgesture.TiltGestureTrackingActivity
 import androidx.xr.projected.ProjectedContext
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
@@ -58,7 +64,11 @@ class MainActivity : ComponentActivity() {
     private val lifecycleCallbacks =
         object : Application.ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-                if (activity != this@MainActivity) {
+                if (
+                    activity != this@MainActivity &&
+                        activity !is TiltGestureProjectedActivity &&
+                        activity !is TiltGestureHostActivity
+                ) {
                     activeProjectedActivities.add(activity)
                 }
             }
@@ -86,67 +96,83 @@ class MainActivity : ComponentActivity() {
         application.registerActivityLifecycleCallbacks(lifecycleCallbacks)
 
         setContent {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Column(modifier = Modifier.fillMaxWidth(0.8f)) {
-                    HorizontalDivider(color = Color.Gray)
-                    TestActivityRow(
-                        "Inertial Tracking test",
-                        InertialTrackingActivity::class.java,
-                        isProjected = true,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
-                        "TiltGesture test",
-                        TiltGestureTrackingActivity::class.java,
-                        isProjected = true,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
-                        "Geospatial/Tracking Test",
-                        GeospatialProjectedActivity::class.java,
-                        isProjected = true,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
-                        "Geospatial/Tracking Remote",
-                        GeospatialRemoteSensorActivity::class.java,
-                        isProjected = false,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
-                        "Low Power Geospatial Test",
-                        LowPowerGeospatialActivity::class.java,
-                        isProjected = true,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
-                        "Low Power Geospatial Remote",
-                        LowPowerRemoteSensorGeospatialActivity::class.java,
-                        isProjected = false,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
-                        "Threading Stress Test",
-                        ThreadingStressTestActivity::class.java,
-                        isProjected = true,
-                        this@MainActivity,
-                    )
-                    TestActivityRow(
-                        "Threading Stress Remote",
-                        ThreadingRemoteSensorStressTestActivity::class.java,
-                        isProjected = false,
-                        this@MainActivity,
-                    )
-                    GeospatialActivityRow(
-                        "Config Projected: INERTIAL",
-                        "INERTIAL",
-                        this@MainActivity,
-                    )
-                    GeospatialActivityRow("Config Projected: SPATIAL", "SPATIAL", this@MainActivity)
+            MaterialTheme {
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(vertical = 48.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Column(
+                            modifier =
+                                Modifier.fillMaxWidth(0.8f).verticalScroll(rememberScrollState())
+                        ) {
+                            HorizontalDivider(color = Color.Gray)
+                            TestActivityRow(
+                                "Inertial Tracking test",
+                                InertialTrackingActivity::class.java,
+                                isProjected = true,
+                                this@MainActivity,
+                            )
+                            TestActivityRow(
+                                "(Deprecated) TiltGesture test",
+                                TiltGestureTrackingActivity::class.java,
+                                isProjected = true,
+                                this@MainActivity,
+                            )
+                            TestActivityRow(
+                                "(New!) TiltGesture Test",
+                                TiltGestureHostActivity::class.java,
+                                isProjected = false,
+                                this@MainActivity,
+                            )
+                            TestActivityRow(
+                                "Geospatial/Tracking Test",
+                                GeospatialProjectedActivity::class.java,
+                                isProjected = true,
+                                this@MainActivity,
+                            )
+                            TestActivityRow(
+                                "Geospatial/Tracking Remote",
+                                GeospatialRemoteSensorActivity::class.java,
+                                isProjected = false,
+                                this@MainActivity,
+                            )
+                            TestActivityRow(
+                                "Low Power Geospatial Test",
+                                LowPowerGeospatialActivity::class.java,
+                                isProjected = true,
+                                this@MainActivity,
+                            )
+                            TestActivityRow(
+                                "Low Power Geospatial Remote",
+                                LowPowerRemoteSensorGeospatialActivity::class.java,
+                                isProjected = false,
+                                this@MainActivity,
+                            )
+                            TestActivityRow(
+                                "Threading Stress Test",
+                                ThreadingStressTestActivity::class.java,
+                                isProjected = true,
+                                this@MainActivity,
+                            )
+                            TestActivityRow(
+                                "Threading Stress Remote",
+                                ThreadingRemoteSensorStressTestActivity::class.java,
+                                isProjected = false,
+                                this@MainActivity,
+                            )
+                            GeospatialActivityRow(
+                                "Config Projected: INERTIAL",
+                                "INERTIAL",
+                                this@MainActivity,
+                            )
+                            GeospatialActivityRow(
+                                "Config Projected: SPATIAL",
+                                "SPATIAL",
+                                this@MainActivity,
+                            )
+                        }
+                    }
                 }
             }
         }
