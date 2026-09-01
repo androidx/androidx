@@ -34,13 +34,14 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 class StateStoreDeviceTest {
-    @Serializable object StringKey : StateStoreKey<String>()
+    @Serializable object StringKey : StateStoreKey<String>("default")
 
-    @Serializable object AutoClearKey : StateStoreKey<String>(autoClearKey = StringKey)
+    @Serializable object AutoClearKey : StateStoreKey<String>("default", autoClearKey = StringKey)
 
     @Serializable
     object StringKeyWithPredicate :
         StateStoreKey<String>(
+            "default",
             autoClearKey = StringKey,
             shouldClearState = { stateStore -> stateStore.getState(StringKey, "").value == "clear" },
         )
@@ -53,9 +54,7 @@ class StateStoreDeviceTest {
         stateStore.setState(StringKey, "initial")
         val job =
             backgroundScope.launch {
-                listener(testDispatcher) {
-                    receivedValue = stateStore.getState(StringKey, "default").value
-                }
+                listener(testDispatcher) { receivedValue = stateStore.getState(StringKey).value }
             }
 
         // Wait for first composition

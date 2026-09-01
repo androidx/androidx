@@ -49,22 +49,23 @@ class StateStoreDataStoreTest {
         Dispatchers.resetMain()
     }
 
-    @Serializable @PersistToDataStore object StringKey : StateStoreKey<String>()
+    val defaultValue = "default"
 
-    @Serializable @PersistToDataStore object IntKey : StateStoreKey<Int>()
+    @Serializable @PersistToDataStore object StringKey : StateStoreKey<String>("default")
 
-    @Serializable object NonPersistedStringKey : StateStoreKey<String>()
+    @Serializable @PersistToDataStore object IntKey : StateStoreKey<Int>(0)
+
+    @Serializable object NonPersistedStringKey : StateStoreKey<String>("default")
 
     @Test
     fun testStateStoreGetStateReturnsDefaultValue() = runTest {
         // Required for Compose state observation in JVM tests, even though our logic runs on
         // Dispatchers.Default.
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        val defaultValue = "default"
         val stateStore = StateStore()
         val job = launch { stateStore.syncToDataStore(testFile.toString(), backgroundScope) }
 
-        val state = stateStore.getState(StringKey, defaultValue)
+        val state = stateStore.getState(StringKey)
         assertThat(state.value).isEqualTo(defaultValue)
 
         val dataStore =
@@ -88,10 +89,9 @@ class StateStoreDataStoreTest {
                 storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { testFile },
                 scope = backgroundScope,
             )
-        val defaultValue = "default"
         val updatedValue = "new value"
         val stateStore = StateStore()
-        stateStore.getState(StringKey, defaultValue)
+        stateStore.getState(StringKey)
         val job = launch { stateStore.syncToDataStore(dataStore) }
 
         // Update StateStore key value
@@ -101,10 +101,10 @@ class StateStoreDataStoreTest {
         sendApplyNotifications()
         advanceUntilIdle()
 
-        val state = stateStore.getState(StringKey, defaultValue)
+        val state = stateStore.getState(StringKey)
         assertThat(state.value).isEqualTo(updatedValue)
 
-        val stateStoreValue = stateStore.getState(StringKey, defaultValue).value
+        val stateStoreValue = stateStore.getState(StringKey).value
         val stateStoreDataStore = dataStore.data.first { it[StringKey] == updatedValue }
 
         // Confirm datastore reflects the updated app state
@@ -124,23 +124,22 @@ class StateStoreDataStoreTest {
                 scope = backgroundScope,
             )
         val initialValue = 5
-        val defaultValue = 0
         val updatedValue = 10
 
         val stateStore = StateStore()
-        stateStore.getState(IntKey, defaultValue)
+        stateStore.getState(IntKey)
         val job = launch { stateStore.syncToDataStore(dataStore) }
 
         // Set initial StateStore value
         stateStore.setState(IntKey, initialValue)
         // Update StateStore key value
-        stateStore.updateState(IntKey, defaultValue) { it + 5 }
+        stateStore.updateState(IntKey) { it + 5 }
 
         // Ensure compose snapshot effects are propagated
         sendApplyNotifications()
         advanceUntilIdle()
 
-        val stateStoreValue = stateStore.getState(IntKey, defaultValue).value
+        val stateStoreValue = stateStore.getState(IntKey).value
         val stateStoreDataStore = dataStore.data.first { it[IntKey] == updatedValue }
 
         // Confirm datastore reflects the updated app state
@@ -159,10 +158,9 @@ class StateStoreDataStoreTest {
                 storage = OkioStorage(FileSystem.SYSTEM, StateStoreSerializer) { testFile },
                 scope = backgroundScope,
             )
-        val defaultValue = "default"
         val updatedValue = "new value"
         val stateStore = StateStore()
-        stateStore.getState(NonPersistedStringKey, defaultValue)
+        stateStore.getState(NonPersistedStringKey)
         val job = launch { stateStore.syncToDataStore(dataStore) }
 
         // Update StateStore key value
@@ -172,7 +170,7 @@ class StateStoreDataStoreTest {
         sendApplyNotifications()
         advanceUntilIdle()
 
-        val state = stateStore.getState(NonPersistedStringKey, defaultValue)
+        val state = stateStore.getState(NonPersistedStringKey)
         assertThat(state.value).isEqualTo(updatedValue)
 
         val stateStoreDataStore = dataStore.data.first()
@@ -197,7 +195,6 @@ class StateStoreDataStoreTest {
                     },
                 scope = backgroundScope,
             )
-        val defaultValue = "default"
         val storedValue = "stored value"
 
         // Setup the datastore with an existing value first
@@ -205,7 +202,7 @@ class StateStoreDataStoreTest {
 
         val stateStore = StateStore()
         // Initialize StateStore with default value
-        val state = stateStore.getState(StringKey, defaultValue)
+        val state = stateStore.getState(StringKey)
         assertThat(state.value).isEqualTo(defaultValue)
 
         // Register the listener, which should trigger a datastore read and update stateStore
@@ -236,12 +233,11 @@ class StateStoreDataStoreTest {
                     },
                 scope = backgroundScope,
             )
-        val defaultValue = "default"
         val firstValue = "first value"
         val secondValue = "second value"
 
         val stateStore = StateStore()
-        stateStore.getState(StringKey, defaultValue)
+        stateStore.getState(StringKey)
 
         // Register the listener and capture the job so we can cancel for cleanup
         val job = launch { stateStore.syncToDataStore(dataStore) }
@@ -266,7 +262,7 @@ class StateStoreDataStoreTest {
         advanceUntilIdle()
 
         // Confirm StateStore was updated
-        val state = stateStore.getState(StringKey, defaultValue)
+        val state = stateStore.getState(StringKey)
         assertThat(state.value).isEqualTo(secondValue)
 
         // Confirm datastore does NOT reflect the second update
