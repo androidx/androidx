@@ -19,6 +19,9 @@ package androidx.compose.remote.player.compose.embedded
 import androidx.annotation.RestrictTo
 import androidx.collection.IntObjectMap
 import androidx.collection.mutableIntObjectMapOf
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RemoteContext
@@ -111,6 +114,20 @@ internal val LocalRemoteNamedActionHandler: ProvidableCompositionLocal<(String, 
  */
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public val LocalTypefaceResolver: ProvidableCompositionLocal<TypefaceResolver?> =
+    compositionLocalOf {
+        null
+    }
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val LocalSharedTransitionScope: ProvidableCompositionLocal<SharedTransitionScope?> =
+    compositionLocalOf {
+        null
+    }
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public val LocalAnimatedVisibilityScope: ProvidableCompositionLocal<AnimatedVisibilityScope?> =
     compositionLocalOf {
         null
     }

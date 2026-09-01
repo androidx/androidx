@@ -56,6 +56,7 @@ import androidx.compose.remote.core.operations.layout.Container
 import androidx.compose.remote.core.operations.layout.LayoutComponent
 import androidx.compose.remote.core.operations.layout.LayoutComponentContent
 import androidx.compose.remote.core.operations.layout.LoopOperation
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.Custom
@@ -1358,3 +1359,10 @@ private val layoutContentField =
 internal fun LayoutComponent.getContentReflection(): LayoutComponentContent? {
     return layoutContentField.get(this) as? LayoutComponentContent
 }
+
+// 12. Component AnimationSpec Reflection
+private val componentAnimationSpecField =
+    Component::class.java.getDeclaredField("mAnimationSpec").apply { isAccessible = true }
+
+internal val Component.animationSpecReflection: AnimationSpec?
+    get() = componentAnimationSpecField.get(this) as? AnimationSpec

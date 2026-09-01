@@ -18,25 +18,65 @@
 
 package androidx.compose.remote.player.compose.embedded.layout
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
+import androidx.compose.remote.player.compose.embedded.LocalAnimatedVisibilityScope
+import androidx.compose.remote.player.compose.embedded.LocalSharedTransitionScope
 import androidx.compose.remote.player.compose.embedded.RcPlayerComponent
+import androidx.compose.remote.player.compose.embedded.animationSpecReflection
 import androidx.compose.remote.player.compose.embedded.indexIdReflection
+import androidx.compose.remote.player.compose.embedded.mapEasing
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAsState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 internal fun RcPlayerStateLayout(layout: StateLayout, modifier: Modifier) {
     val index by rememberRemoteIntAsState(layout.indexIdReflection)
+    val children = remember(layout) { ArrayList<Component>().apply { layout.getComponents(this) } }
 
-    // StateLayout relies on remote-core's internal visibility toggle based on currentLayoutIndex
-    Box(modifier = modifier, contentAlignment = Alignment.Center) {
-        val children = remember { ArrayList<Component>().apply { layout.getComponents(this) } }
-        RcPlayerComponent(children[index])
+    if (children.isEmpty()) {
+        Box(modifier = modifier)
+        return
+    }
+
+    val targetIndex = index.coerceIn(0, children.size - 1)
+    val duration = layout.animationSpecReflection?.motionDuration?.toInt() ?: 300
+    val easing = mapEasing(layout.animationSpecReflection?.motionEasingType ?: 0)
+
+    SharedTransitionLayout(modifier = modifier) {
+        AnimatedContent(
+            targetState = targetIndex,
+            contentAlignment = Alignment.Center,
+            label = "RcPlayerStateLayout",
+            transitionSpec = {
+                fadeIn(
+                    animationSpec = tween(durationMillis = duration, easing = easing)
+                ) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = duration, easing = easing))
+            },
+        ) { currentIndex ->
+            CompositionLocalProvider(
+                LocalSharedTransitionScope provides this@SharedTransitionLayout,
+                LocalAnimatedVisibilityScope provides this@AnimatedContent,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    RcPlayerComponent(children[currentIndex])
+                }
+            }
+        }
     }
 }
