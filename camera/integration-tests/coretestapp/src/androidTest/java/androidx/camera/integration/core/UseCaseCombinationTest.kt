@@ -46,6 +46,7 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.IgnoreVideoRecordingProblematicDeviceRule.Companion.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
+import androidx.camera.testing.impl.WakelockRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.camera.testing.impl.video.AudioChecker
@@ -78,6 +79,7 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -105,7 +107,13 @@ class UseCaseCombinationTest(
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO)
 
-    @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+    @get:Rule
+    val wakelockRule: TestRule =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            WakelockRule()
+        } else {
+            WakelockEmptyActivityRule()
+        }
 
     companion object {
 
