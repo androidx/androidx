@@ -42,9 +42,9 @@ class StateStorePreferencesTest {
         Dispatchers.resetMain()
     }
 
-    @Serializable @PersistToDataStore object StringKey : StateStoreKey<String>()
+    @Serializable @PersistToDataStore object StringKey : StateStoreKey<String>("default")
 
-    @Serializable @PersistToDataStore object IntKey : StateStoreKey<Int>()
+    @Serializable @PersistToDataStore object IntKey : StateStoreKey<Int>(0)
 
     @Test
     fun testGetStateReturnsDefaultValue() = runTest {

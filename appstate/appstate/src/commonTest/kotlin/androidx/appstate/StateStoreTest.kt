@@ -22,15 +22,15 @@ import kotlinx.serialization.Serializable
 
 class StateStoreTest {
 
-    @Serializable object StringKey : StateStoreKey<String>()
+    @Serializable object StringKey : StateStoreKey<String>("default")
 
-    @Serializable object IntKey : StateStoreKey<Int>()
+    @Serializable object IntKey : StateStoreKey<Int>(0)
 
     @Test
     fun testGetStateReturnsDefaultValue() {
         val stateStore = StateStore()
 
-        val state = stateStore.getState(StringKey, "default")
+        val state = stateStore.getState(StringKey)
         assertThat(state.value).isEqualTo("default")
     }
 
@@ -40,7 +40,7 @@ class StateStoreTest {
 
         stateStore.setState(StringKey, "new value")
 
-        val state = stateStore.getState(StringKey, "default")
+        val state = stateStore.getState(StringKey)
         assertThat(state.value).isEqualTo("new value")
     }
 
@@ -49,9 +49,9 @@ class StateStoreTest {
         val stateStore = StateStore()
 
         stateStore.setState(IntKey, 5)
-        stateStore.updateState(IntKey, 0) { it + 5 }
+        stateStore.updateState(IntKey) { it + 5 }
 
-        val state = stateStore.getState(IntKey, 0)
+        val state = stateStore.getState(IntKey)
         assertThat(state.value).isEqualTo(10)
     }
 }

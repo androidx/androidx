@@ -27,14 +27,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.Serializable
 
-@Serializable @PersistToDataStore private object SampleKey : StateStoreKey<String>()
+@Serializable @PersistToDataStore private object SampleKey : StateStoreKey<String>("default")
 
 @Sampled
 suspend fun SyncStateStoreDataStoreSample(dataStore: DataStore<StateStorePreferences>) {
     val stateStore = StateStore()
 
     // Register the key by getting the state
-    val state = stateStore.getState(SampleKey, "default")
+    val state = stateStore.getState(SampleKey)
 
     stateStore.syncToDataStore(dataStore)
 }
@@ -44,7 +44,7 @@ suspend fun SyncStateStoreDataStorePathSample() {
     val stateStore = StateStore()
 
     // Register the key by getting the state
-    val state = stateStore.getState(SampleKey, "default")
+    val state = stateStore.getState(SampleKey)
 
     // The path must include the directory, for example, on Android:
     // val path = context.filesDir.resolve("stateStore.preferences_pb").absolutePath
