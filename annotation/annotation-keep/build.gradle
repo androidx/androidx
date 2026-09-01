@@ -36,6 +36,10 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 }
 
+dependencies {
+    lintPublish(project(":annotation:annotation-keep-lint"))
+}
+
 androidx {
     name = "Keep Annotation"
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY_WITH_API_TASKS
