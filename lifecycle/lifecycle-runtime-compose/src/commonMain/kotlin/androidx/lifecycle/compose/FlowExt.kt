@@ -17,8 +17,12 @@
 package androidx.lifecycle.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -96,13 +100,11 @@ fun <T> StateFlow<T>.collectAsStateWithLifecycle(
     lifecycle: Lifecycle,
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
     context: CoroutineContext = EmptyCoroutineContext,
-): State<T> =
-    collectAsStateWithLifecycle(
-        initialValue = this.value,
-        lifecycle = lifecycle,
-        minActiveState = minActiveState,
-        context = context,
-    )
+): State<T> {
+    val state = remember { mutableStateOf(this.value) }
+    collectInto(state, lifecycle, minActiveState, context)
+    return state
+}
 
 /**
  * Collects values from this [Flow] and represents its latest value via [State] in a lifecycle-aware
@@ -173,14 +175,27 @@ public fun <T> Flow<T>.collectAsStateWithLifecycle(
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
     context: CoroutineContext = EmptyCoroutineContext,
 ): State<T> {
-    return produceState(initialValue, this, lifecycle, minActiveState, context) {
+    val state = remember { mutableStateOf(initialValue) }
+    collectInto(state, lifecycle, minActiveState, context)
+    return state
+}
+
+@Suppress("ComposableNaming")
+@Composable
+@NonRestartableComposable
+private fun <T> Flow<T>.collectInto(
+    state: MutableState<T>,
+    lifecycle: Lifecycle,
+    minActiveState: Lifecycle.State,
+    context: CoroutineContext,
+) {
+    LaunchedEffect(this, lifecycle, minActiveState, context) {
         lifecycle.repeatOnLifecycle(minActiveState) {
             if (context == EmptyCoroutineContext) {
-                this@collectAsStateWithLifecycle.collect { this@produceState.value = it }
-            } else
-                withContext(context) {
-                    this@collectAsStateWithLifecycle.collect { this@produceState.value = it }
-                }
+                collect { state.value = it }
+            } else {
+                withContext(context) { collect { state.value = it } }
+            }
         }
     }
 }
