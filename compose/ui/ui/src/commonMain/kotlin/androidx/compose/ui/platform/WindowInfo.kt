@@ -41,19 +41,25 @@ public interface WindowInfo {
         get() = WindowInfoImpl.GlobalKeyboardModifiers.value
 
     /**
-     * Size of the window. This size excludes insets, such as any system bars, so it is not safe to
-     * assume that this size matches the available space of the compose hierarchy hosted inside this
-     * window. Instead this size should be used as a breakpoint when changing between UI
-     * configurations, or similar window-dependent configuration.
+     * The size of the window in pixels that can used by the application in some way. Note that this
+     * may be a larger size than is available to the Compose hierarchy (if Compose does not fill the
+     * window). In addition, it may not be safe to display content using the entire window size, for
+     * example in situations where insets representing cutouts or obscuring system UI reduce the
+     * amount of available space. Even though all pixels included in this size may not be usable at
+     * any given time, it's relative stability means it is generally the correct signal to drive the
+     * overall layout structure displaying in the window.
      */
     public val containerSize: IntSize
         get() = IntSize(Int.MIN_VALUE, Int.MIN_VALUE)
 
     /**
-     * Size of the window represented as [DpSize]. This size excludes insets, such as any system
-     * bars, so it is not safe to assume that this size matches the available space of the compose
-     * hierarchy hosted inside this window. Instead this size should be used as a breakpoint when
-     * changing between UI configurations, or similar window-dependent configuration.
+     * The size of the window represented as a [DpSize] that can used by the application in some
+     * way. Note that this may be a larger size than is available to the Compose hierarchy (if
+     * Compose does not fill the window). In addition, it may not be safe to display content using
+     * the entire window size, for example in situations where insets representing cutouts or
+     * obscuring system UI reduce the amount of available space. Even though all pixels included in
+     * this size may not be usable at any given time, it's relative stability means it is generally
+     * the correct signal to drive the overall layout structure displaying in the window.
      */
     public val containerDpSize: DpSize
         get() = DpSize.Unspecified
