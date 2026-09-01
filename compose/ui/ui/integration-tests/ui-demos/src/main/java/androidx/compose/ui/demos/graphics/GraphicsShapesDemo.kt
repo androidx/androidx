@@ -47,6 +47,8 @@ import androidx.compose.foundation.shape.PolygonShapeGeometry
 import androidx.compose.foundation.shape.PolygonShapeGeometry.Companion.CornerRounding
 import androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.scaledToFit
+import androidx.compose.foundation.shape.transformed
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
@@ -71,9 +73,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -615,6 +619,9 @@ private data class PointNRound(val o: Offset, val r: CornerRounding = CornerRoun
 private val cornerRound15 = CornerRounding(percent = 15)
 private val cornerRound50 = CornerRounding(percent = 50)
 
+private val rotateNeg45 = Matrix().apply { rotateZ(-45f) }
+private val rotateNeg90 = Matrix().apply { rotateZ(-90f) }
+
 private fun Float.toRadians() = this / 360f * 2 * PI.toFloat()
 
 private fun Offset.angleDegrees() = atan2(y, x) * 180f / PI.toFloat()
@@ -667,22 +674,37 @@ private fun customPolygonShape(
     reps: Int,
     center: Offset = Offset(0.5f, 0.5f),
     mirroring: Boolean = false,
+    startRotation: Matrix? = null,
 ): PolygonShape {
     val points = doRepeat(pnr, reps, center, mirroring)
-    return PolygonShape(
-        PolygonShapeGeometry(
-            vertices = points.fastMap { it.o },
-            perVertexRounding = points.fastMap { it.r },
-            center = center,
+    val shape =
+        PolygonShape(
+            PolygonShapeGeometry(
+                vertices = points.fastMap { it.o },
+                perVertexRounding = points.fastMap { it.r },
+                center = center,
+            )
         )
-    )
+    // A rotation applied after the internal fit can overflow the bounds, so re-fit.
+    return if (startRotation != null) {
+        shape.transformed(startRotation, contentScale = ContentScale.Fit)
+    } else {
+        shape
+    }
 }
 
 object M3Shapes {
 
-    // TODO: Oval and Cookie9Sided match Material's definitions up to a scale/rotation applied
-    //  with the shape transform operators, which land in a follow-up CL.
-    val Oval = PolygonShape.circle(numVertices = 10)
+    val Oval =
+        PolygonShape.circle(numVertices = 10)
+            .transformed(
+                matrix =
+                    Matrix().apply {
+                        rotateZ(-45f)
+                        scale(1f, 0.64f)
+                    },
+                contentScale = ContentScale.Fit,
+            )
 
     val Pill =
         customPolygonShape(
@@ -708,6 +730,7 @@ object M3Shapes {
 
     val Sunny =
         PolygonShape.star(numPoints = 8, innerRadiusRatio = 0.8f, outerRounding = cornerRound15)
+            .scaledToFit()
 
     val Cookie4Sided =
         customPolygonShape(
@@ -720,6 +743,7 @@ object M3Shapes {
 
     val Cookie9Sided =
         PolygonShape.star(numPoints = 9, innerRadiusRatio = 0.8f, outerRounding = cornerRound50)
+            .transformed(rotateNeg90, contentScale = ContentScale.Fit)
 
     val SoftBurst =
         customPolygonShape(

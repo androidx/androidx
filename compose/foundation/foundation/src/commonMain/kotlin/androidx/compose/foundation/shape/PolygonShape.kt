@@ -21,6 +21,8 @@ import androidx.annotation.IntRange
 import androidx.compose.foundation.shape.PolygonShapeGeometry.CornerRounding
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.annotation.RememberInComposition
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
@@ -30,8 +32,10 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.isIdentity
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastMap
 import androidx.graphics.shapes.RoundedPolygon
@@ -44,6 +48,7 @@ import androidx.graphics.shapes.star
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 /**
@@ -85,12 +90,15 @@ public fun PolygonShape(geometry: PolygonShapeGeometry): PolygonShape =
     GeometryPolygonShape(geometry)
 
 /**
- * A [Shape] built from rounded polygon geometry, resolved against the layout size, layout
- * direction, and density.
+ * Shape built from rounded polygon geometry.
  *
- * Create instances with the [PolygonShape] factory functions, or with the predefined companion
- * factories such as [star] and [circle]. Instances created with equal parameters compare equal, so
- * consumers can cache resolved outlines across recompositions.
+ * Create instances using the [PolygonShape] factory functions or predefined companion factories
+ * like [regularPolygon] and [star]. Instances created with equal parameters compare equal to enable
+ * caching resolved outlines across recompositions.
+ *
+ * Shapes cache their resolved outline for their most recent layout size. Sharing a single shape
+ * instance across composables with differing sizes is supported, but defining separate instances
+ * per size avoids cache thrashing when repeatedly redrawing.
  *
  * Outlines returned by [createOutline] are shared between callers and must not be mutated.
  */
@@ -101,6 +109,18 @@ public sealed class PolygonShape : Shape {
         layoutDirection: LayoutDirection,
         density: Density,
     ): RoundedPolygon
+
+    /**
+     * Returns a version token representing dynamic inputs affecting geometry resolution.
+     *
+     * Used for cache invalidation when a shape's geometry depends on captured external state (such
+     * as state read inside a builder lambda). Shapes with static geometry return 0.
+     */
+    internal open fun contentVersion(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Int = 0
 
     public companion object {
         /**
@@ -303,6 +323,195 @@ public sealed class PolygonShape : Shape {
             )
     }
 }
+
+/**
+ * Returns a new [PolygonShape] with [rotation] and [translation] applied to the underlying
+ * geometry.
+ *
+ * [rotation] is applied clockwise in degrees around the geometry's center, and [translation] moves
+ * the shape by the specified horizontal and vertical offsets.
+ *
+ * When [contentScale] is non-null, the transformed geometry is scaled and aligned into the layout
+ * container bounds to prevent rotated corners from escaping the container. Pass `contentScale =
+ * null` (the default) to apply only the transformation without scaling, or use [scaledToFit] to
+ * adjust scaling on an existing shape.
+ *
+ * This function returns a new [PolygonShape] and should not be used for continuous animations. To
+ * animate rotation or translation on every frame, apply
+ * [androidx.compose.ui.graphics.graphicsLayer] instead to transform the rendered output without
+ * rebuilding geometry.
+ *
+ * Leaves the receiver untouched and derives a new shape value.
+ *
+ * @sample androidx.compose.foundation.samples.TransformedPolygonShapeSample
+ * @sample androidx.compose.foundation.samples.RuntimeTransformedPolygonShapeSample
+ * @param rotation clockwise rotation in degrees, applied around the geometry center
+ * @param translation offset by which to move the shape
+ * @param contentScale optional scaling policy applied after the transformation, or null to skip
+ *   scaling
+ * @param alignment where to place the scaled geometry within the layout bounds
+ */
+@RememberInComposition
+public fun PolygonShape.transformed(
+    rotation: Float = 0f,
+    translation: Offset = Offset.Zero,
+    contentScale: ContentScale? = null,
+    alignment: Alignment = Alignment.Center,
+): PolygonShape {
+    if (rotation == 0f && translation == Offset.Zero) {
+        return if (contentScale != null) {
+            scaledToFit(contentScale, alignment)
+        } else {
+            this
+        }
+    }
+    if (
+        this is TransformedPolygonShape &&
+            this.matrix == null &&
+            this.contentScale == null &&
+            contentScale == null
+    ) {
+        if (this.translation == Offset.Zero && translation == Offset.Zero) {
+            val mergedRotation = (this.rotation + rotation) % 360f
+            return if (mergedRotation == 0f) {
+                this.inner
+            } else {
+                TransformedPolygonShape(
+                    inner = this.inner,
+                    rotation = mergedRotation,
+                    translation = Offset.Zero,
+                    matrix = null,
+                    contentScale = null,
+                    alignment = alignment,
+                )
+            }
+        }
+        if (this.rotation == 0f && rotation == 0f) {
+            val mergedTranslation = this.translation + translation
+            return if (mergedTranslation == Offset.Zero) {
+                this.inner
+            } else {
+                TransformedPolygonShape(
+                    inner = this.inner,
+                    rotation = 0f,
+                    translation = mergedTranslation,
+                    matrix = null,
+                    contentScale = null,
+                    alignment = alignment,
+                )
+            }
+        }
+    }
+    return TransformedPolygonShape(
+        inner = this,
+        rotation = rotation,
+        translation = translation,
+        matrix = null,
+        contentScale = contentScale,
+        alignment = alignment,
+    )
+}
+
+/**
+ * Returns a new [PolygonShape] with [matrix] applied to the underlying geometry.
+ *
+ * Rotation, scale, and skew act around the resolved geometry's center, changing the shape's
+ * orientation and size in place; translation components move the shape as written.
+ *
+ * When [contentScale] is non-null, the transformed geometry is scaled and aligned into the layout
+ * container bounds to prevent rotated corners from escaping the container. Pass `contentScale =
+ * null` (the default) to apply only the matrix transformation without scaling, or use [scaledToFit]
+ * to adjust scaling on an existing shape.
+ *
+ * This function returns a new [PolygonShape] and should not be used for continuous animations. To
+ * animate rotation or scale on every frame, apply [androidx.compose.ui.graphics.graphicsLayer]
+ * instead to transform the rendered output without rebuilding geometry.
+ *
+ * Leaves the receiver untouched and derives a new shape value holding a snapshot of [matrix].
+ *
+ * @param matrix affine transformation to apply to the geometry
+ * @param contentScale optional scaling policy applied after the transformation, or null to skip
+ *   scaling
+ * @param alignment where to place the scaled geometry within the layout bounds
+ * @throws IllegalArgumentException if [matrix] has perspective components
+ */
+@RememberInComposition
+public fun PolygonShape.transformed(
+    matrix: Matrix,
+    contentScale: ContentScale? = null,
+    alignment: Alignment = Alignment.Center,
+): PolygonShape {
+    // Cubic control points are mapped independently at resolution, which is exact only for
+    // affine transforms; 2D points have z = 0, so only these perspective terms apply.
+    val v = matrix.values
+    require(v[3] == 0f && v[7] == 0f && v[15] == 1f) {
+        "matrix must be an affine transform, without perspective components."
+    }
+    if (matrix.isIdentity()) {
+        return if (contentScale != null) {
+            scaledToFit(contentScale, alignment)
+        } else {
+            this
+        }
+    }
+    if (
+        this is TransformedPolygonShape &&
+            this.matrix != null &&
+            this.contentScale == null &&
+            contentScale == null
+    ) {
+        val merged =
+            Matrix().apply {
+                setFrom(this@transformed.matrix)
+                timesAssign(matrix)
+            }
+        return if (merged.isIdentity()) {
+            this.inner
+        } else {
+            TransformedPolygonShape(
+                inner = this.inner,
+                rotation = 0f,
+                translation = Offset.Zero,
+                matrix = merged,
+                contentScale = null,
+                alignment = alignment,
+            )
+        }
+    }
+    return TransformedPolygonShape(
+        inner = this,
+        rotation = 0f,
+        translation = Offset.Zero,
+        matrix = matrix,
+        contentScale = contentScale,
+        alignment = alignment,
+    )
+}
+
+/**
+ * Returns a new [PolygonShape] scaled and aligned into the layout bounds.
+ *
+ * [contentScale] selects the scaling policy and [alignment] positions the scaled geometry:
+ * - [ContentScale.Fit] (the default) scales uniformly to fit within bounds, preserving aspect ratio
+ * - [ContentScale.FillBounds] stretches each axis independently to fill the bounds
+ * - [ContentScale.Crop] fills the bounds, preserving aspect ratio and clipping overflow
+ * - [ContentScale.None] applies no scaling
+ *
+ * Measures the resolved geometry to place a shape accurately even when rounding pulls it inside its
+ * nominal bounds. Predefined shapes and scope factories are already bounded; scaling is useful
+ * after a [transformed] call or when applying non-default placement policies.
+ *
+ * Leaves the receiver untouched and derives a new shape value.
+ *
+ * @sample androidx.compose.foundation.samples.ScaledToFitPolygonShapeSample
+ * @param contentScale how to scale the resolved geometry into the layout bounds
+ * @param alignment where to place the scaled geometry within the layout bounds
+ */
+@RememberInComposition
+public fun PolygonShape.scaledToFit(
+    contentScale: ContentScale = ContentScale.Fit,
+    alignment: Alignment = Alignment.Center,
+): PolygonShape = ScaledToFitPolygonShape(this, contentScale, alignment)
 
 /**
  * Receiver scope for the [PolygonShape] builder lambda.
@@ -790,28 +999,83 @@ private fun RoundedPolygon.transformed(matrix: Matrix): RoundedPolygon = transfo
 }
 
 /**
- * Uniformly scales and centers the polygon to fit within [size], preserving aspect ratio. Bounds
- * are measured approximately (anchor and control points), matching the convention used by
- * `RoundedPolygon.normalized()` so unit-space shapes scale identically to normalized polygons.
+ * Computes the scale-and-place matrix that maps geometry occupying the given bounds into the
+ * container [size] according to [contentScale] and [alignment], or null when the bounds are
+ * degenerate.
+ *
+ * Bounds are measured approximately (anchor and control points), matching the convention used by
+ * `RoundedPolygon.normalized()` so that fitted shapes scale identically to Material's normalized
+ * polygons. [BiasAlignment]s (all the standard [Alignment] values) are applied with float
+ * precision; other alignments fall back to the [Alignment.align] integer contract.
  */
-private fun RoundedPolygon.fitCentered(size: Size): RoundedPolygon {
-    val bounds = calculateBounds(FloatArray(4), approximate = true)
-    val width = bounds[2] - bounds[0]
-    val height = bounds[3] - bounds[1]
-    if (width <= 0f || height <= 0f) return this
-    val scale = min(size.width / width, size.height / height)
-    val matrix = Matrix()
-    matrix.scale(scale, scale)
-    matrix *=
-        Matrix().apply {
-            translate(
-                (size.width - width * scale) / 2f - bounds[0] * scale,
-                (size.height - height * scale) / 2f - bounds[1] * scale,
+private fun computeFitMatrix(
+    boundsLeft: Float,
+    boundsTop: Float,
+    boundsRight: Float,
+    boundsBottom: Float,
+    size: Size,
+    contentScale: ContentScale,
+    alignment: Alignment,
+    layoutDirection: LayoutDirection,
+): Matrix? {
+    val width = boundsRight - boundsLeft
+    val height = boundsBottom - boundsTop
+    if (width <= 0f || height <= 0f) return null
+    val factor = contentScale.computeScaleFactor(Size(width, height), size)
+    val scaledWidth = width * factor.scaleX
+    val scaledHeight = height * factor.scaleY
+    val position =
+        if (alignment is BiasAlignment) {
+            val horizontalBias =
+                if (layoutDirection == LayoutDirection.Ltr) alignment.horizontalBias
+                else -alignment.horizontalBias
+            Offset(
+                (size.width - scaledWidth) / 2f * (1f + horizontalBias),
+                (size.height - scaledHeight) / 2f * (1f + alignment.verticalBias),
             )
+        } else {
+            val aligned =
+                alignment.align(
+                    IntSize(scaledWidth.roundToInt(), scaledHeight.roundToInt()),
+                    IntSize(size.width.roundToInt(), size.height.roundToInt()),
+                    layoutDirection,
+                )
+            Offset(aligned.x.toFloat(), aligned.y.toFloat())
         }
+    // x' = x * scale + offset: the scale is applied first, then the translation.
+    val matrix = Matrix()
+    matrix.scale(factor.scaleX, factor.scaleY)
+    matrix[3, 0] = position.x - boundsLeft * factor.scaleX
+    matrix[3, 1] = position.y - boundsTop * factor.scaleY
+    return matrix
+}
+
+/** Scales and places the polygon within [size] according to [contentScale] and [alignment]. */
+private fun RoundedPolygon.scaledInto(
+    size: Size,
+    contentScale: ContentScale,
+    alignment: Alignment,
+    layoutDirection: LayoutDirection,
+): RoundedPolygon {
+    val b = calculateBounds(FloatArray(4), approximate = true)
+    val matrix =
+        computeFitMatrix(
+            boundsLeft = b[0],
+            boundsTop = b[1],
+            boundsRight = b[2],
+            boundsBottom = b[3],
+            size = size,
+            contentScale = contentScale,
+            alignment = alignment,
+            layoutDirection = layoutDirection,
+        ) ?: return this
     if (matrix.isIdentity()) return this
     return transformed(matrix)
 }
+
+/** Uniformly scales and centers the polygon to fit within [size], preserving aspect ratio. */
+private fun RoundedPolygon.fitCentered(size: Size): RoundedPolygon =
+    scaledInto(size, ContentScale.Fit, Alignment.Center, LayoutDirection.Ltr)
 
 /**
  * Base class for [PolygonShape] implementations. Caches the geometry and outline built by
@@ -835,7 +1099,7 @@ internal abstract class CachingPolygonShape : PolygonShape() {
      * equal (e.g. a builder lambda reading captured state) bump the version so the caches rebuild
      * instead of returning stale results.
      */
-    internal open fun contentVersion(
+    override fun contentVersion(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density,
@@ -859,7 +1123,7 @@ internal abstract class CachingPolygonShape : PolygonShape() {
      * cache, so a shape instance shared across consumers builds its geometry once per size instead
      * of once per consumer.
      */
-    internal final override fun resolvePolygon(
+    final override fun resolvePolygon(
         size: Size,
         layoutDirection: LayoutDirection,
         density: Density,
@@ -1427,4 +1691,133 @@ private fun cutCornerPolygon(
         centerX = width / 2f,
         centerY = height / 2f,
     )
+}
+
+/**
+ * A [PolygonShape] that applies a transformation to its inner shape's resolved geometry and
+ * optionally scales and aligns it into the container bounds.
+ *
+ * Holds a private snapshot of the matrix (if provided), so later caller-side mutations do not
+ * affect this shape's behavior, equality, or hash code.
+ */
+private class TransformedPolygonShape(
+    val inner: PolygonShape,
+    val rotation: Float = 0f,
+    val translation: Offset = Offset.Zero,
+    matrix: Matrix? = null,
+    val contentScale: ContentScale? = null,
+    val alignment: Alignment = Alignment.Center,
+) : CachingPolygonShape() {
+
+    val matrix: Matrix? = matrix?.let { Matrix().apply { setFrom(it) } }
+
+    /**
+     * A wrapper adds no versioned inputs of its own, but its inner shape can (a builder lambda
+     * reading captured state), so the inner version must key this shape's caches too; otherwise a
+     * wrapper over a builder base would serve stale outlines.
+     */
+    override fun contentVersion(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Int = inner.contentVersion(size, layoutDirection, density)
+
+    override fun buildPolygon(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): RoundedPolygon {
+        val polygon = inner.resolvePolygon(size, layoutDirection, density)
+        val transformed =
+            if (matrix != null) {
+                // Pivot the matrix around the geometry center: the linear components (rotation,
+                // scale, skew) then only change the shape's orientation and size, never its
+                // position, while translation components pass through unchanged.
+                val pivot = Matrix()
+                pivot.translate(-polygon.centerX, -polygon.centerY)
+                pivot *= matrix
+                pivot[3, 0] = pivot[3, 0] + polygon.centerX
+                pivot[3, 1] = pivot[3, 1] + polygon.centerY
+                polygon.transformed(pivot)
+            } else if (rotation != 0f || translation != Offset.Zero) {
+                val pivot = Matrix()
+                pivot.translate(-polygon.centerX, -polygon.centerY)
+                if (rotation != 0f) {
+                    pivot.rotateZ(rotation)
+                }
+                pivot[3, 0] = pivot[3, 0] + polygon.centerX + translation.x
+                pivot[3, 1] = pivot[3, 1] + polygon.centerY + translation.y
+                polygon.transformed(pivot)
+            } else {
+                polygon
+            }
+        return if (contentScale != null) {
+            transformed.scaledInto(size, contentScale, alignment, layoutDirection)
+        } else {
+            transformed
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is TransformedPolygonShape) return false
+        return contentScale == other.contentScale &&
+            alignment == other.alignment &&
+            rotation == other.rotation &&
+            translation == other.translation &&
+            inner == other.inner &&
+            ((matrix == null && other.matrix == null) ||
+                (matrix != null &&
+                    other.matrix != null &&
+                    matrix.values.contentEquals(other.matrix.values)))
+    }
+
+    override fun hashCode(): Int {
+        var result = inner.hashCode()
+        result = 31 * result + rotation.hashCode()
+        result = 31 * result + translation.hashCode()
+        result = 31 * result + (matrix?.values?.contentHashCode() ?: 0)
+        result = 31 * result + (contentScale?.hashCode() ?: 0)
+        result = 31 * result + alignment.hashCode()
+        return result
+    }
+}
+
+/** A [PolygonShape] that scales and places its inner shape's resolved geometry. */
+private class ScaledToFitPolygonShape(
+    private val inner: PolygonShape,
+    private val contentScale: ContentScale,
+    private val alignment: Alignment,
+) : CachingPolygonShape() {
+
+    /** See [TransformedPolygonShape.contentVersion]. */
+    override fun contentVersion(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): Int = inner.contentVersion(size, layoutDirection, density)
+
+    override fun buildPolygon(
+        size: Size,
+        layoutDirection: LayoutDirection,
+        density: Density,
+    ): RoundedPolygon =
+        inner
+            .resolvePolygon(size, layoutDirection, density)
+            .scaledInto(size, contentScale, alignment, layoutDirection)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ScaledToFitPolygonShape) return false
+        return contentScale == other.contentScale &&
+            alignment == other.alignment &&
+            inner == other.inner
+    }
+
+    override fun hashCode(): Int {
+        var result = inner.hashCode()
+        result = 31 * result + contentScale.hashCode()
+        result = 31 * result + alignment.hashCode()
+        return result
+    }
 }
