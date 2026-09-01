@@ -67,6 +67,22 @@ class GlanceSurfaceTest {
     }
 
     @Test
+    fun glanceSurface_aliasesAndTags_resolveCorrectly() {
+        assertThat(GlanceSurface.HOME_SCREEN).isEqualTo(GlanceSurface.MOBILE_HOME_SCREEN)
+        assertThat(GlanceSurface.LOCK_SCREEN).isEqualTo(GlanceSurface.MOBILE_LOCK_SCREEN)
+        assertThat(GlanceSurface.WEAR_WIDGETS).isEqualTo(GlanceSurface.WEAR_TILE)
+        assertThat(GlanceSurface.TV).isEqualTo(GlanceSurface.TV_HOME_SCREEN)
+
+        assertThat(GlanceSurface.MOBILE_HOME_SCREEN.tag).isEqualTo("home_screen")
+        assertThat(GlanceSurface.MOBILE_LOCK_SCREEN.tag).isEqualTo("keyguard")
+        assertThat(GlanceSurface.TABLET_HOME_SCREEN.tag).isEqualTo("tablet_home_screen")
+        assertThat(GlanceSurface.TV_HOME_SCREEN.tag).isEqualTo("tv")
+        assertThat(GlanceSurface.WEAR_TILE.tag).isEqualTo("wear_tile")
+        assertThat(GlanceSurface.WEAR_COMPLICATION.tag).isEqualTo("wear_complication")
+        assertThat(GlanceSurface.XR_GLASSES.tag).isEqualTo("xr")
+    }
+
+    @Test
     fun hostConstraints_equalsHashCodeToString() {
         val constraints1 = HostConstraints(Dimensions(100, 200), GlanceSurface.MOBILE_HOME_SCREEN)
         val constraints2 = HostConstraints(Dimensions(100, 200), GlanceSurface.MOBILE_HOME_SCREEN)

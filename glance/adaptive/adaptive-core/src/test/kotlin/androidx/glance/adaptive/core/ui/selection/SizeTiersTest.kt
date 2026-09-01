@@ -52,6 +52,11 @@ class SizeTiersTest {
         assertThat(WidthTier.fromDp(300, GlanceSurface.XR_GLASSES)).isEqualTo(WidthTier.W2)
         assertThat(WidthTier.fromDp(400, GlanceSurface.XR_GLASSES)).isEqualTo(WidthTier.W3)
         assertThat(WidthTier.fromDp(600, GlanceSurface.XR_GLASSES)).isEqualTo(WidthTier.W4)
+
+        assertThat(WidthTier.fromDp(200, GlanceSurface.TV_HOME_SCREEN)).isEqualTo(WidthTier.W1)
+        assertThat(WidthTier.fromDp(400, GlanceSurface.TV_HOME_SCREEN)).isEqualTo(WidthTier.W2)
+        assertThat(WidthTier.fromDp(600, GlanceSurface.TV_HOME_SCREEN)).isEqualTo(WidthTier.W3)
+        assertThat(WidthTier.fromDp(800, GlanceSurface.TV_HOME_SCREEN)).isEqualTo(WidthTier.W4)
     }
 
     @Test
@@ -81,6 +86,12 @@ class SizeTiersTest {
         assertThat(HeightTier.fromDp(250, GlanceSurface.XR_GLASSES)).isEqualTo(HeightTier.H2)
         assertThat(HeightTier.fromDp(400, GlanceSurface.XR_GLASSES)).isEqualTo(HeightTier.H3)
         assertThat(HeightTier.fromDp(600, GlanceSurface.XR_GLASSES)).isEqualTo(HeightTier.H4)
+
+        assertThat(HeightTier.fromDp(80, GlanceSurface.TV_HOME_SCREEN)).isEqualTo(HeightTier.H0)
+        assertThat(HeightTier.fromDp(150, GlanceSurface.TV_HOME_SCREEN)).isEqualTo(HeightTier.H1)
+        assertThat(HeightTier.fromDp(250, GlanceSurface.TV_HOME_SCREEN)).isEqualTo(HeightTier.H2)
+        assertThat(HeightTier.fromDp(350, GlanceSurface.TV_HOME_SCREEN)).isEqualTo(HeightTier.H3)
+        assertThat(HeightTier.fromDp(500, GlanceSurface.TV_HOME_SCREEN)).isEqualTo(HeightTier.H4)
     }
 
     @Test
