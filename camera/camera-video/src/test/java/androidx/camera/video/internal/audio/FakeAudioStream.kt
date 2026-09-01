@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.audio
 
+import android.annotation.SuppressLint
 import androidx.camera.testing.impl.mocks.MockConsumer
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.video.internal.audio.AudioStream.PacketInfo
@@ -29,6 +30,7 @@ class FakeAudioStream(
     isSilenced: Boolean = false,
     private val exceptionOnStart: AudioStream.AudioStreamException? = null,
     private val exceptionOnStartMaxTimes: Int = Int.MAX_VALUE,
+    private val readDelayMs: Long = 0,
 ) : AudioStream {
     var isSilenced: Boolean = isSilenced
         set(value) {
@@ -86,9 +88,13 @@ class FakeAudioStream(
         releaseCalls.accept(Unit)
     }
 
+    @SuppressLint("BanThreadSleep")
     override fun read(byteBuffer: ByteBuffer): PacketInfo {
         if (isReleased || !isStarted) {
             throw IllegalStateException()
+        }
+        if (readDelayMs > 0) {
+            Thread.sleep(readDelayMs)
         }
         val audioData = audioDataProvider.invoke(bufferIndex++)
         _audioDataList.add(audioData)
