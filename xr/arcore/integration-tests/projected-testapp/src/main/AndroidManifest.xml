@@ -81,9 +81,25 @@
             android:requiredDisplayCategory="xr_projected">
         </activity>
         <activity
+            android:name=".tiltgesture.TiltGestureHostActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:label="TiltGesture Test Host Activity">
+        </activity>
+        <activity
+            android:name=".tiltgesture.TiltGestureProjectedActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:label="TiltGesture Projected Activity"
+            android:requiredDisplayCategory="xr_projected">
+        </activity>
+        <activity
             android:name=".MainActivity"
             android:configChanges="uiMode"
             android:exported="true"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
             android:label="ARCore Projected Test App">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
