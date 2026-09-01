@@ -46,6 +46,8 @@ internal class ExclusiveLock(filename: String, useFileLock: Boolean) {
         try {
             fileLock?.lock()
             try {
+                // https://youtrack.jetbrains.com/issue/KT-88968
+                @Suppress("ASSIGNED_VALUE_IS_NEVER_READ")
                 locked = true
                 return onLocked()
             } finally {
