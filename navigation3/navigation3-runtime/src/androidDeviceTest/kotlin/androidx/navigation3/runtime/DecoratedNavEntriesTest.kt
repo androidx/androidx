@@ -84,7 +84,7 @@ class DecoratedNavEntriesTest {
     fun decorator_called() {
         var calledWrapContent = false
 
-        val decorator = NavEntryDecorator<Any> { entry -> calledWrapContent = true }
+        val decorator = NavEntryDecorator<Any> { _ -> calledWrapContent = true }
 
         composeTestRule.setContent {
             val entries =
@@ -103,7 +103,7 @@ class DecoratedNavEntriesTest {
     fun decorator_calledOnce() {
         var calledWrapContentCount = 0
 
-        val decorator = NavEntryDecorator<Any> { entry -> calledWrapContentCount++ }
+        val decorator = NavEntryDecorator<Any> { _ -> calledWrapContentCount++ }
 
         composeTestRule.setContent {
             val entries =

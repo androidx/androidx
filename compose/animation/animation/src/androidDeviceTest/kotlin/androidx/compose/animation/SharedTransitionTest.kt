@@ -3319,7 +3319,6 @@ class SharedTransitionTest {
         var position1: Offset? = null
         var position2: Offset? = null
         val state = LazyListState()
-        val scrollPosition = 0
         rule.setContent {
             val key = remember { Any() }
             CompositionLocalProvider(LocalDensity provides Density(1f)) {

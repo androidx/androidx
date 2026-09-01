@@ -783,7 +783,7 @@ class StatusBarTest {
         Assert.assertNull(testView.rootWindowInsets)
 
         // Initialize orchestrator while unattached and without insets
-        val orchestrator = StatusBarOrchestrator(testView)
+        StatusBarOrchestrator(testView)
         Assert.assertEquals(1, testView.attachListenerCount)
         Assert.assertEquals(1, testView.layoutListenerCount)
 
@@ -817,7 +817,7 @@ class StatusBarTest {
         Assert.assertNull(testView.rootWindowInsets)
 
         // Initialize orchestrator while unattached and without insets
-        val orchestrator = StatusBarOrchestrator(testView)
+        StatusBarOrchestrator(testView)
         Assert.assertEquals(1, testView.attachListenerCount)
         Assert.assertEquals(1, testView.layoutListenerCount)
 
