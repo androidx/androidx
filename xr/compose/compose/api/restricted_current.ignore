@@ -1,3 +1,5 @@
 // Baseline format: 1.0
-AddedPackage: androidx.xr.compose:
-    Added package androidx.xr.compose
+RemovedDeprecatedMethod: androidx.xr.compose.subspace.SpatialPanelKt#SpatialActivityPanel(android.content.Intent, androidx.xr.compose.subspace.layout.SubspaceModifier, androidx.xr.compose.subspace.layout.SpatialShape, androidx.xr.compose.subspace.layout.InteractionPolicy):
+    Source breaking change: Removed deprecated method androidx.xr.compose.subspace.SpatialPanelKt.SpatialActivityPanel(android.content.Intent,androidx.xr.compose.subspace.layout.SubspaceModifier,androidx.xr.compose.subspace.layout.SpatialShape,androidx.xr.compose.subspace.layout.InteractionPolicy)
+RemovedDeprecatedMethod: androidx.xr.compose.subspace.SpatialPanelKt#SpatialActivityPanel(android.content.Intent, androidx.xr.compose.subspace.layout.SubspaceModifier, androidx.xr.compose.subspace.layout.SpatialShape, androidx.xr.compose.subspace.layout.InteractionPolicy, androidx.compose.runtime.Composer, int, int):
+    Binary breaking change: Removed deprecated method androidx.xr.compose.subspace.SpatialPanelKt.SpatialActivityPanel(android.content.Intent,androidx.xr.compose.subspace.layout.SubspaceModifier,androidx.xr.compose.subspace.layout.SpatialShape,androidx.xr.compose.subspace.layout.InteractionPolicy,androidx.compose.runtime.Composer,int,int)
