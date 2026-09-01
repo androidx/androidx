@@ -97,7 +97,7 @@ dependencies {
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation("androidx.collection:collection")
-    androidTestImplementation(project(":sqlite:sqlite-bundled"))
+    androidTestImplementation("androidx.sqlite:sqlite-bundled:2.7.1")
     androidTestImplementation(project(":tracing:tracing"))
 }
 
