@@ -74,6 +74,33 @@ class NavDeepLinkTest {
     }
 
     @Test
+    fun matchRouteBestMatchExact() {
+        val navigatorProvider = NavigatorProvider().apply { addNavigator(NavGraphNavigator(this)) }
+        val graph = NavGraphNavigator(navigatorProvider).createDestination()
+
+        val detailsDestination =
+            NavDestination("test").apply {
+                addArgument("id", stringArgument())
+                route = "counters/{id}"
+            }
+        val addDestination = NavDestination("test").apply { route = "counters/add" }
+        graph.addDestination(detailsDestination)
+        graph.addDestination(addDestination)
+
+        val match =
+            graph.matchRouteComprehensive(
+                route = "counters/add",
+                searchChildren = true,
+                searchParent = false,
+                lastVisited = graph,
+            )
+
+        assertWithMessage("Route should pick the exact match")
+            .that(match?.destination)
+            .isSameInstanceAs(addDestination)
+    }
+
+    @Test
     fun deepLinkExactMatchWithHyphens() {
         val deepLinkString = "android-app://com.example"
         val deepLink = NavDeepLink(deepLinkString)

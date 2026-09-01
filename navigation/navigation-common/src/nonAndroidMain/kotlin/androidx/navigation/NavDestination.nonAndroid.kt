@@ -75,6 +75,13 @@ actual constructor(public actual val navigatorName: String) {
             } else if (!isExactDeepLink && other.isExactDeepLink) {
                 return -1
             }
+            // Then prefer most exact match path segments
+            val pathSegmentDifference = matchingPathSegments - other.matchingPathSegments
+            if (pathSegmentDifference > 0) {
+                return 1
+            } else if (pathSegmentDifference < 0) {
+                return -1
+            }
             if (matchingArgs != null && other.matchingArgs == null) {
                 return 1
             } else if (matchingArgs == null && other.matchingArgs != null) {
