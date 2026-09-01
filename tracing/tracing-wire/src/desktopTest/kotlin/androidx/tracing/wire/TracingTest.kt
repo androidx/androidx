@@ -43,6 +43,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -50,6 +51,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import okio.blackholeSink
 import okio.buffer
 import okio.sink
@@ -691,5 +693,34 @@ class TracingTest {
         } finally {
             executor.shutdown()
         }
+    }
+
+    @Test
+    internal fun interleavedWithThreadHops() = runTest {
+        driver.use {
+            tracer.traceCoroutine(category = "category", name = "coroutine") {
+                tracer.trace("category", "inner-1") {}
+                withContext(Dispatchers.IO) {
+                    tracer.trace("category", "nested-1") {
+                        tracer.trace("category", "nested-1-1") {}
+                    }
+                }
+                tracer.trace("category", "inner-2") {}
+            }
+        }
+        // We are not using the outer coroutine track_uuid to make assertions.
+        // This is because everytime the traceCoroutine block suspends and resumes, we emit
+        // more slices, which make the tests somewhat harder to reason about.
+        assertNotNull(sink.firstStartStopWithName("coroutine"))
+        val firstInner = sink.firstStartStopWithName("inner-1")
+        assertNotNull(firstInner)
+        assertNotNull(sink.firstStartStopWithName("nested-1"))
+        assertNotNull(sink.firstStartStopWithName("nested-1-1"))
+        val secondInner = sink.firstStartStopWithName("inner-2")
+        assertNotNull(secondInner)
+        assertEquals(
+            expected = firstInner.first.track_event?.track_uuid,
+            actual = secondInner.first.track_event?.track_uuid,
+        )
     }
 }
