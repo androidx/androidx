@@ -72,6 +72,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.divider)
         assertThat(catalog.components["Button"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.button)
+        assertThat(catalog.components["CheckBox"])
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.checkBox)
         assertThat(catalog.components["DateTimeInput"])
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)
 
@@ -340,6 +342,34 @@ class MaterialA2uiBasicCatalogV1Test {
     }
 
     @Test
+    fun factory_withCustomCheckBoxComponent_overridesDefaultMaterialCheckBox() {
+        val customCheckBox =
+            object : A2uiBasicCatalogV1.CheckBox {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    label: String,
+                    value: Boolean,
+                    onValueChange: (Boolean) -> Unit,
+                    enabled: Boolean,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        val catalog =
+            materialA2uiBasicCatalogV1(
+                image = MaterialA2uiBasicCatalogV1Defaults.image(fakeImageRenderer),
+                urlOpener = fakeUrlOpener,
+                messageFormatter = fakeMessageFormatter,
+                localeProvider = fakeLocaleProvider,
+                checkBox = customCheckBox,
+            )
+
+        assertThat(catalog.components["CheckBox"]).isSameInstanceAs(customCheckBox)
+        assertThat(catalog.components["CheckBox"])
+            .isNotSameInstanceAs(MaterialA2uiBasicCatalogV1Defaults.checkBox)
+    }
+
+    @Test
     fun factory_withCustomDateTimeInputComponent_overridesDefaultMaterialDateTimeInput() {
         val customDateTimeInput =
             object : A2uiBasicCatalogV1.DateTimeInput {
@@ -392,6 +422,8 @@ class MaterialA2uiBasicCatalogV1Test {
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Divider)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.button)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1Button)
+        assertThat(MaterialA2uiBasicCatalogV1Defaults.checkBox)
+            .isSameInstanceAs(MaterialA2uiBasicCatalogV1CheckBox)
         assertThat(MaterialA2uiBasicCatalogV1Defaults.dateTimeInput)
             .isSameInstanceAs(MaterialA2uiBasicCatalogV1DateTimeInput)
     }
