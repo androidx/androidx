@@ -23,12 +23,16 @@ import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.rdp
+import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.PreviewWrapper
+import androidx.wear.compose.remote.material3.RemoteCardDefaults
 import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.RemoteTitleCard
 import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
+import androidx.wear.compose.remote.material3.previews.utils.createImage
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 
 @Sampled
@@ -44,5 +48,27 @@ fun RemoteTitleCardSample() {
         subtitle = { RemoteText("Card Subtitle here".rs) },
     ) {
         RemoteText("This is a sample Title Card.".rs)
+    }
+}
+
+@Sampled
+@Composable
+@WearPreviewDevices
+@PreviewWrapper(RemoteComponentPreviewWrapper::class)
+fun RemoteTitleCardWithImageSample() {
+    val backgroundImage =
+        rememberNamedRemoteImageBitmap(name = "backgroundImage") {
+            createImage(200, 200).asImageBitmap()
+        }
+    val containerPainter = RemoteCardDefaults.containerPainter(backgroundImage)
+    RemoteTitleCard(
+        onClick = Action.Empty,
+        containerPainter = containerPainter,
+        title = { RemoteText("Title Card".rs) },
+        time = { RemoteText("now".rs) },
+        modifier = RemoteModifier.padding(16.rdp),
+        subtitle = { RemoteText("Card Subtitle".rs) },
+    ) {
+        RemoteText("Card with background image.".rs)
     }
 }
