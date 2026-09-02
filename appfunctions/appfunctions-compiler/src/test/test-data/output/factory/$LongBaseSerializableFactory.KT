@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -18,10 +19,10 @@ public class `$LongBaseSerializableFactory` : AppFunctionSerializableFactory<Lon
     return resultLongBaseSerializable
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: LongBaseSerializable): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: LongBaseSerializable): AppFunctionData {
     val longBaseSerializable_appFunctionSerializable = appFunctionSerializable
 
-    val builder = getAppFunctionDataBuilder("com.testdata.LongBaseSerializable")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.LongBaseSerializable")
     val age = longBaseSerializable_appFunctionSerializable.age
     builder.setLong("age", age)
     val stringToOpen = longBaseSerializable_appFunctionSerializable.stringToOpen

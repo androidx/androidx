@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -22,14 +23,20 @@ public class `$RecursiveSerializableFactory` : AppFunctionSerializableFactory<Re
     return resultRecursiveSerializable
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: RecursiveSerializable): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: RecursiveSerializable): AppFunctionData {
     val recursiveSerializable_appFunctionSerializable = appFunctionSerializable
     val recursiveSerializableFactory = `$RecursiveSerializableFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.RecursiveSerializable")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.RecursiveSerializable")
     val nested = recursiveSerializable_appFunctionSerializable.nested
     if (nested != null) {
-      builder.setAppFunctionData("nested", recursiveSerializableFactory.toAppFunctionData(nested))
+      builder.setAppFunctionData(
+        "nested",
+        recursiveSerializableFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("nested", checkNotNull(nested::class.java.canonicalName)),
+          nested
+        )
+      )
     }
 
     return builder.build()

@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import com.testdata.differentPackage.`$DiffPackageSerializableFactory`
 import javax.`annotation`.processing.Generated
@@ -24,16 +25,25 @@ public class `$EntityWithDiffPackageSerializablePropertyFactory` : AppFunctionSe
     return resultEntityWithDiffPackageSerializableProperty
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: EntityWithDiffPackageSerializableProperty): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: EntityWithDiffPackageSerializableProperty): AppFunctionData {
     val entityWithDiffPackageSerializableProperty_appFunctionSerializable = appFunctionSerializable
     val diffPackageSerializableFactory = `$DiffPackageSerializableFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.EntityWithDiffPackageSerializableProperty")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.EntityWithDiffPackageSerializableProperty")
     val inputSerializable = entityWithDiffPackageSerializableProperty_appFunctionSerializable.inputSerializable
-    builder.setAppFunctionData("inputSerializable", diffPackageSerializableFactory.toAppFunctionData(inputSerializable))
+    builder.setAppFunctionData(
+      "inputSerializable",
+      diffPackageSerializableFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("inputSerializable", checkNotNull(inputSerializable::class.java.canonicalName)),
+        inputSerializable
+      )
+    )
     val serializableList = entityWithDiffPackageSerializableProperty_appFunctionSerializable.serializableList
     builder.setAppFunctionDataList("serializableList", serializableList.map{ diffPackageSerializable ->
-      diffPackageSerializableFactory.toAppFunctionData(diffPackageSerializable)
+      diffPackageSerializableFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("serializableList",checkNotNull(diffPackageSerializable::class.java.canonicalName)),
+        diffPackageSerializable
+      )
     })
 
     return builder.build()

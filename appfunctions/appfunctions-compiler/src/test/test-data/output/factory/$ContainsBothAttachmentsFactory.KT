@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -22,16 +23,28 @@ public class `$ContainsBothAttachmentsFactory` : AppFunctionSerializableFactory<
     return resultContainsBothAttachments
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: ContainsBothAttachments): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: ContainsBothAttachments): AppFunctionData {
     val containsBothAttachments_appFunctionSerializable = appFunctionSerializable
     val simpleNoteSimpleAttachmentFactory = `$SimpleNote$SimpleAttachmentFactory`()
     val simpleMessageSimpleAttachmentFactory = `$SimpleMessage$SimpleAttachmentFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.ContainsBothAttachments")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.ContainsBothAttachments")
     val noteAttachment = containsBothAttachments_appFunctionSerializable.noteAttachment
-    builder.setAppFunctionData("noteAttachment", simpleNoteSimpleAttachmentFactory.toAppFunctionData(noteAttachment))
+    builder.setAppFunctionData(
+      "noteAttachment",
+      simpleNoteSimpleAttachmentFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("noteAttachment", checkNotNull(noteAttachment::class.java.canonicalName)),
+        noteAttachment
+      )
+    )
     val messageAttachment = containsBothAttachments_appFunctionSerializable.messageAttachment
-    builder.setAppFunctionData("messageAttachment", simpleMessageSimpleAttachmentFactory.toAppFunctionData(messageAttachment))
+    builder.setAppFunctionData(
+      "messageAttachment",
+      simpleMessageSimpleAttachmentFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("messageAttachment", checkNotNull(messageAttachment::class.java.canonicalName)),
+        messageAttachment
+      )
+    )
 
     return builder.build()
   }

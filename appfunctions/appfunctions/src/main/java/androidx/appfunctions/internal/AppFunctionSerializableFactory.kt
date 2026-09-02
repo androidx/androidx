@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 
@@ -43,7 +44,10 @@ public interface AppFunctionSerializableFactory<T : Any> {
     public fun fromAppFunctionData(appFunctionData: AppFunctionData): T
 
     /** Serializes the given class into an [AppFunctionData]. */
-    public fun toAppFunctionData(appFunctionSerializable: T): AppFunctionData
+    public fun toAppFunctionData(
+        spec: AppFunctionDataSpec?,
+        appFunctionSerializable: T,
+    ): AppFunctionData
 
     // TODO: b/442726462 - Consider decoupling Serializable metadata generation from inventories.
     private fun getAppFunctionComponentsMetadata(): AppFunctionComponentsMetadata =
@@ -53,9 +57,16 @@ public interface AppFunctionSerializableFactory<T : Any> {
      * Returns an [AppFunctionData.Builder] instance with validation for the serializable specified
      * by [qualifiedName], if the metadata for the serializable is available.
      */
-    public fun getAppFunctionDataBuilder(qualifiedName: String): AppFunctionData.Builder {
-        // TODO(b/446606781): Take metadata from caller
-        return AppFunctionData.Builder(qualifiedName)
+    public fun getAppFunctionDataBuilder(
+        spec: AppFunctionDataSpec?,
+        qualifiedName: String,
+    ): AppFunctionData.Builder {
+        return if (spec != null) {
+            AppFunctionData.Builder(spec)
+        } else {
+            // TODO(b/446606781): Make spec a requirement
+            AppFunctionData.Builder(qualifiedName)
+        }
     }
 
     /**
@@ -210,9 +221,10 @@ public interface AppFunctionSerializableFactory<T : Any> {
             ) {
                 if (value == null) return
 
+                // TODO(b/446606781): Support generic type validation
                 appFunctionDataBuilder.setAppFunctionData(
                     key,
-                    serializableFactory.toAppFunctionData(value),
+                    serializableFactory.toAppFunctionData(null, value),
                 )
             }
 
@@ -240,9 +252,10 @@ public interface AppFunctionSerializableFactory<T : Any> {
             ) {
                 if (value == null) return
 
+                // TODO(b/446606781): Support generic type validation
                 appFunctionDataBuilder.setAppFunctionDataList(
                     key,
-                    value.map { serializableFactory.toAppFunctionData(it as I) },
+                    value.map { serializableFactory.toAppFunctionData(null, it as I) },
                 )
             }
 

@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -19,13 +20,19 @@ public class `$CreateNoteFunction$ResponseFactory` : AppFunctionSerializableFact
     return resultResponse
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: CreateNoteFunction.Response): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: CreateNoteFunction.Response): AppFunctionData {
     val response_appFunctionSerializable = appFunctionSerializable
     val createNoteFunctionDataMyNoteFactory = `$CreateNoteFunction$Data$MyNoteFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.CreateNoteFunction${'$'}Response")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.CreateNoteFunction${'$'}Response")
     val createdNote = response_appFunctionSerializable.createdNote
-    builder.setAppFunctionData("createdNote", createNoteFunctionDataMyNoteFactory.toAppFunctionData(createdNote))
+    builder.setAppFunctionData(
+      "createdNote",
+      createNoteFunctionDataMyNoteFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("createdNote", checkNotNull(createdNote::class.java.canonicalName)),
+        createdNote
+      )
+    )
 
     return builder.build()
   }

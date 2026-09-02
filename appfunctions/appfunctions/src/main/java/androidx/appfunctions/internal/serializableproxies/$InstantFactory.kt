@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import java.time.Instant
 
@@ -41,11 +42,14 @@ public class `$InstantFactory` : AppFunctionSerializableFactory<Instant> {
         return resultAppFunctionInstant.toInstant()
     }
 
-    override fun toAppFunctionData(appFunctionSerializable: Instant): AppFunctionData {
+    override fun toAppFunctionData(
+        spec: AppFunctionDataSpec?,
+        appFunctionSerializable: Instant,
+    ): AppFunctionData {
         val appFunctionInstant_appFunctionSerializable =
             AppFunctionInstant.fromInstant(appFunctionSerializable)
 
-        val builder = getAppFunctionDataBuilder("java.time.Instant")
+        val builder = getAppFunctionDataBuilder(spec, "java.time.Instant")
         val epochSecond = appFunctionInstant_appFunctionSerializable.epochSecond
         builder.setLong("epochSecond", epochSecond)
         val nanoAdjustment = appFunctionInstant_appFunctionSerializable.nanoAdjustment

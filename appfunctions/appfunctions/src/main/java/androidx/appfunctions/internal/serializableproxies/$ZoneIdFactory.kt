@@ -20,7 +20,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionData
-import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
+import androidx.appfunctions.AppFunctionDataSpec
+import androidx.appfunctions.internal.AppFunctionSerializableFactory
 import java.time.ZoneId
 
 // TODO(b/413622177): Temporary workaround of supporting proxy before being able to apply KSP on
@@ -40,11 +41,14 @@ public class `$ZoneIdFactory` : AppFunctionSerializableFactory<ZoneId> {
         return resultAppFunctionZoneId.toZoneId()
     }
 
-    override fun toAppFunctionData(appFunctionSerializable: ZoneId): AppFunctionData {
+    override fun toAppFunctionData(
+        spec: AppFunctionDataSpec?,
+        appFunctionSerializable: ZoneId,
+    ): AppFunctionData {
         val appFunctionZoneId_appFunctionSerializable =
             AppFunctionZoneId.fromZoneId(appFunctionSerializable)
 
-        val builder = getAppFunctionDataBuilder("java.time.ZoneId")
+        val builder = getAppFunctionDataBuilder(spec, "java.time.ZoneId")
         val zoneID = appFunctionZoneId_appFunctionSerializable.zoneID
         builder.setString("zoneID", zoneID)
 

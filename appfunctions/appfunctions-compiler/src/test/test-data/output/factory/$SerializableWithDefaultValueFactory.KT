@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -55,11 +56,11 @@ public class `$SerializableWithDefaultValueFactory` : AppFunctionSerializableFac
     return resultSerializableWithDefaultValue
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: SerializableWithDefaultValue): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: SerializableWithDefaultValue): AppFunctionData {
     val serializableWithDefaultValue_appFunctionSerializable = appFunctionSerializable
     val nestedSerializableFactory = `$NestedSerializableFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.SerializableWithDefaultValue")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.SerializableWithDefaultValue")
     val optionalNonNullInt = serializableWithDefaultValue_appFunctionSerializable.optionalNonNullInt
     builder.setInt("optionalNonNullInt", optionalNonNullInt)
     val optionalNullableInt = serializableWithDefaultValue_appFunctionSerializable.optionalNullableInt
@@ -96,7 +97,13 @@ public class `$SerializableWithDefaultValueFactory` : AppFunctionSerializableFac
     }
     val optionalNullableSerializable = serializableWithDefaultValue_appFunctionSerializable.optionalNullableSerializable
     if (optionalNullableSerializable != null) {
-      builder.setAppFunctionData("optionalNullableSerializable", nestedSerializableFactory.toAppFunctionData(optionalNullableSerializable))
+      builder.setAppFunctionData(
+        "optionalNullableSerializable",
+        nestedSerializableFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("optionalNullableSerializable", checkNotNull(optionalNullableSerializable::class.java.canonicalName)),
+          optionalNullableSerializable
+        )
+      )
     }
     val optionalNonNullIntArray = serializableWithDefaultValue_appFunctionSerializable.optionalNonNullIntArray
     builder.setIntArray("optionalNonNullIntArray", optionalNonNullIntArray)
@@ -142,12 +149,18 @@ public class `$SerializableWithDefaultValueFactory` : AppFunctionSerializableFac
     }
     val optionalNonNullSerializableList = serializableWithDefaultValue_appFunctionSerializable.optionalNonNullSerializableList
     builder.setAppFunctionDataList("optionalNonNullSerializableList", optionalNonNullSerializableList.map{ nestedSerializable ->
-      nestedSerializableFactory.toAppFunctionData(nestedSerializable)
+      nestedSerializableFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("optionalNonNullSerializableList",checkNotNull(nestedSerializable::class.java.canonicalName)),
+        nestedSerializable
+      )
     })
     val optionalNullableSerializableList = serializableWithDefaultValue_appFunctionSerializable.optionalNullableSerializableList
     if (optionalNullableSerializableList != null) {
       builder.setAppFunctionDataList("optionalNullableSerializableList", optionalNullableSerializableList.map{ nestedSerializable ->
-        nestedSerializableFactory.toAppFunctionData(nestedSerializable)
+        nestedSerializableFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("optionalNullableSerializableList",checkNotNull(nestedSerializable::class.java.canonicalName)),
+          nestedSerializable
+        )
       })
     }
 
