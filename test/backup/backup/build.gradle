@@ -22,7 +22,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":annotation:annotation"))
+    implementation(libs.androidx.annotation)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
