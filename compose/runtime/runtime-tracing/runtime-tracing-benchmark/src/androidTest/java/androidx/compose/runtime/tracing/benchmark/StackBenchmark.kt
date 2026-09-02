@@ -18,7 +18,7 @@ package androidx.compose.runtime.tracing.benchmark
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.compose.runtime.tracing.Stack
+import androidx.compose.runtime.tracing.stack.Stack
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlin.test.Test
 import org.junit.Rule

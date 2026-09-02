@@ -28,7 +28,6 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.RecomposerInfo
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.removeLast
-import androidx.compose.runtime.internal.trace
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.tooling.SnapshotInstanceObservers
@@ -113,7 +112,7 @@ internal constructor(private val traceEventListener: TraceEventListener) {
      * Registers observers and starts recording events using the caller's coroutine context. The
      * method returns after the recomposer observer is installed.
      *
-     * @param coroutineContext context to run the observer in
+     * @param coroutineContext context to run the recomposer observer in
      * @return a [CancellationHandle] to stop tracing and dispose of registered observers
      */
     public fun installTracing(coroutineContext: CoroutineContext): CancellationHandle {
@@ -495,40 +494,38 @@ private class ScopeData {
 }
 
 private fun currentStackTrace(): List<StackTraceElement> {
-    trace("currentStackTrace") {
-        val frames = Exception().stackTrace.toMutableList()
+    val frames = Exception().stackTrace.toMutableList()
 
-        var isPrefix = true
-        // Filter captured frames to remove common prefix / suffix / internal frames.
-        // This reduces verbosity and slightly improves perf.
-        val filtered = ArrayList<StackTraceElement>(frames.size)
-        for (i in frames.indices) {
-            val element = frames[i]
-            if (isPrefix) {
-                if (!element.isPrefixFrame()) {
-                    isPrefix = false
-                } else {
-                    continue
-                }
-            }
-
-            if (element.isSuffixFrame()) {
-                break
-            }
-
-            if (filter(element)) {
+    var isPrefix = true
+    // Filter captured frames to remove common prefix / suffix / internal frames.
+    // This reduces verbosity and slightly improves perf.
+    val filtered = ArrayList<StackTraceElement>(frames.size)
+    for (i in frames.indices) {
+        val element = frames[i]
+        if (isPrefix) {
+            if (!element.isPrefixFrame()) {
+                isPrefix = false
+            } else {
                 continue
             }
-
-            filtered.add(element)
         }
 
-        // Accidentally removed all elements, just return the unfiltered list.
-        if (filtered.isEmpty()) {
-            return frames
+        if (element.isSuffixFrame()) {
+            break
         }
-        return filtered
+
+        if (filter(element)) {
+            continue
+        }
+
+        filtered.add(element)
     }
+
+    // Accidentally removed all elements, just return the unfiltered list.
+    if (filtered.isEmpty()) {
+        return frames
+    }
+    return filtered
 }
 
 private fun StackTraceElement.isPrefixFrame(): Boolean =
