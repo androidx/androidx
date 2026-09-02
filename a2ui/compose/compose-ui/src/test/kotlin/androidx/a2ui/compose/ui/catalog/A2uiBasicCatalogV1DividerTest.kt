@@ -45,7 +45,10 @@ class A2uiBasicCatalogV1DividerTest {
         assertThat(dividerComponent.description)
             .isEqualTo("A horizontal or vertical dividing line.")
         assertThat(dividerComponent.properties)
-            .containsExactly(A2uiBasicCatalogV1.Divider.AxisProperty)
+            .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
+                A2uiBasicCatalogV1.Divider.AxisProperty,
+            )
             .inOrder()
     }
 

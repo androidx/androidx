@@ -22,6 +22,7 @@ import androidx.a2ui.compose.runtime.A2uiComponentState
 import androidx.a2ui.compose.runtime.observeA2uiComponentState
 import androidx.a2ui.compose.ui.A2uiComponent
 import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1
+import androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Companion.WeightProperty
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -70,24 +71,31 @@ internal object MaterialA2uiBasicCatalogV1Column : A2uiBasicCatalogV1.Column {
         val isStretchAlignment = align == A2uiBasicCatalogV1.Column.Align.Stretch
         val isStretchJustify = justify == A2uiBasicCatalogV1.Column.Justify.Stretch
         val columnModifier = if (isStretchAlignment) modifier.fillMaxWidth() else modifier
+        val baseChildModifier = if (isStretchAlignment) Modifier.fillMaxWidth() else Modifier
 
         Column(
             modifier = columnModifier,
             verticalArrangement = verticalArrangement,
             horizontalAlignment = horizontalAlignment,
         ) {
-            val childWeight = if (isStretchJustify) StretchJustifyChildWeight else null
-            var childModifier: Modifier = Modifier
-            if (isStretchAlignment) {
-                childModifier = childModifier.fillMaxWidth()
-            }
-            if (childWeight != null) {
-                childModifier = childModifier.weight(childWeight)
-            }
-
             children.fastForEach { reference ->
                 key(reference.id, reference.baseDataPath) {
                     val childState = observeA2uiComponentState(reference)
+                    val childWeightPropertyValue =
+                        (childState as? A2uiComponentState.Success)
+                            ?.component
+                            ?.properties
+                            ?.get(WeightProperty)
+                            ?.toFloat()
+                    val childWeight =
+                        childWeightPropertyValue
+                            ?: if (isStretchJustify) StretchJustifyChildWeight else null
+                    val childModifier =
+                        if (childWeight != null) {
+                            baseChildModifier.weight(childWeight)
+                        } else {
+                            baseChildModifier
+                        }
 
                     ColumnChildItem(
                         modifier = childModifier,
@@ -105,7 +113,6 @@ internal object MaterialA2uiBasicCatalogV1Column : A2uiBasicCatalogV1.Column {
         childState: A2uiComponentState,
         reference: A2uiComponentReference,
     ) {
-        // TODO(b/547501861): Add support for child weight.
         AnimatedContent(
             targetState = childState,
             modifier = modifier,

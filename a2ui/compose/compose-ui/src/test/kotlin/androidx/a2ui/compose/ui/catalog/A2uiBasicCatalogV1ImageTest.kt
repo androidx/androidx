@@ -49,6 +49,7 @@ class A2uiBasicCatalogV1ImageTest {
         assertThat(imageComponent.description).isEqualTo("Displays an image from a URL.")
         assertThat(imageComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Image.UrlProperty,
                 A2uiBasicCatalogV1.Image.DescriptionProperty,
                 A2uiBasicCatalogV1.Image.FitProperty,

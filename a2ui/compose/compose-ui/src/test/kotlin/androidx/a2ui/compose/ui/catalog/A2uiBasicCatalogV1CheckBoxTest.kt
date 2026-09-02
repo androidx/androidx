@@ -49,6 +49,7 @@ class A2uiBasicCatalogV1CheckBoxTest {
             .isEqualTo("A checkbox with a label and a boolean value.")
         assertThat(checkBoxComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.CheckBox.LabelProperty,
                 A2uiBasicCatalogV1.CheckBox.ValueProperty,
             )

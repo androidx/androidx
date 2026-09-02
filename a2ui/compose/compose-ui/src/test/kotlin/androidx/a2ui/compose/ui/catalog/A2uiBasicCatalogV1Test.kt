@@ -20,6 +20,7 @@ import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.catalog.A2uiFunction
 import androidx.a2ui.model.catalog.functions.A2uiFormatStringFunction
+import androidx.a2ui.model.schema.A2uiNumberSchema
 import androidx.a2ui.model.schema.A2uiObjectSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -50,6 +51,14 @@ class A2uiBasicCatalogV1Test {
         assertThat(themeObjSchema.properties.keys)
             .containsExactly("primaryColor", "iconUrl", "agentDisplayName")
         assertThat(themeObjSchema.isAdditionalPropertiesAllowed).isTrue()
+    }
+
+    @Test
+    fun weightProperty_hasExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.WeightProperty.key).isEqualTo("weight")
+        assertThat(A2uiBasicCatalogV1.WeightProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.WeightProperty.schema)
+            .isInstanceOf(A2uiNumberSchema::class.java)
     }
 
     @Test
