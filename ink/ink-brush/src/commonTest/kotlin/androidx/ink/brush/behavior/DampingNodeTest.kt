@@ -28,6 +28,7 @@ class DampingNodeTest {
     @Test
     fun dampingNodeNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused = DampingNode(ProgressDomain.TIME_IN_SECONDS, 1f, ConstantNode(0f))
         }
     }

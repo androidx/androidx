@@ -66,6 +66,7 @@ class BrushBehaviorTest {
     @Test
     fun brushBehaviorNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused = BrushBehavior(createTestStepBehaviorTerminalNode())
         }
     }
@@ -168,7 +169,7 @@ class BrushBehaviorTest {
 
     @Test
     fun createEmptyBehavior() {
-        val unused = BrushBehavior(emptyList())
+        @Suppress("UNUSED_VARIABLE") val unused = BrushBehavior(emptyList())
     }
 
     @OptIn(ExperimentalInkCustomBrushApi::class)

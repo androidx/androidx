@@ -137,7 +137,7 @@ class StockBrushesTestHelper(private val context: Context) {
 
     fun drawToBitmap(strokeGrid: List<List<List<Stroke>>>): Bitmap {
         setStrokes(strokeGrid)
-        return ImageDiffer.createBitmap(width, height) { canvas ->
+        return ImageDiffer.createBitmap(width, height, TestColors.WHITE) { canvas ->
             // Draw strokes in scaled 2D grid.
             strokes.forEachIndexed { i, row ->
                 row.forEachIndexed { j, cell ->

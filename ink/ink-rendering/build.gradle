@@ -100,3 +100,10 @@ androidx {
     description = "Display beautiful strokes"
     addGoldenImageAssets()
 }
+
+tasks.configureEach { task ->
+    if (task.name == "testAndroidHostTest") {
+        // Disabled for AbstractStrokeRendererTest
+        task.failOnNoDiscoveredTests = false
+    }
+}
