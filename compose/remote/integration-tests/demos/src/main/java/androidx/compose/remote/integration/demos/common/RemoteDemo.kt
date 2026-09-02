@@ -23,7 +23,12 @@ import androidx.compose.remote.creation.compose.capture.createCreationDisplayInf
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.integration.demos.settings.LocalPlayerType
+import androidx.compose.remote.integration.demos.settings.PLAYER_TYPE_COMPOSE
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
+import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
+import androidx.compose.remote.player.compose.embedded.RcPlayer
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.platform.AndroidCustomContext
 import androidx.compose.remote.player.core.platform.BitmapLoader
@@ -32,6 +37,7 @@ import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalWindowInfo
 
+@OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
 @Suppress("RestrictedApiAndroidX")
 fun RemoteDemo(
@@ -51,12 +58,12 @@ fun RemoteDemo(
     customSupport: AndroidCustomContext? = null,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
-    var documentState by remember { mutableStateOf<RemoteDocument?>(null) }
+    var capturedBytes by remember { mutableStateOf<ByteArray?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         val context = LocalContext.current
         val creationDisplayInfo = createCreationDisplayInfo()
-        LaunchedEffect(Unit) {
+        LaunchedEffect(profile, content) {
             val captured =
                 captureSingleRemoteDocument(
                     creationDisplayInfo = creationDisplayInfo,
@@ -64,23 +71,39 @@ fun RemoteDemo(
                     profile = profile,
                     content = content,
                 )
-            documentState = RemoteDocument(captured.bytes)
+            capturedBytes = captured.bytes
         }
 
-        if (documentState != null) {
-            val windowInfo = LocalWindowInfo.current
-            RemoteDocumentPlayer(
-                document = documentState!!.document,
-                documentWidth = windowInfo.containerSize.width,
-                documentHeight = windowInfo.containerSize.height,
-                modifier = modifier.fillMaxSize(),
-                debugMode = 0,
-                init = init,
-                update = update,
-                onNamedAction = onNamedAction,
-                bitmapLoader = bitmapLoader,
-                customSupport = customSupport,
-            )
+        val playerType = LocalPlayerType.current
+
+        val currentBytes = capturedBytes
+        if (currentBytes != null) {
+            key(playerType, currentBytes) {
+                val remoteDoc = remember(playerType, currentBytes) { RemoteDocument(currentBytes) }
+                val doc = remoteDoc.document
+                if (playerType == PLAYER_TYPE_COMPOSE) {
+                    RemoteComposePlayerFlags.isEmbeddedPlayerEnabled = true
+                    RcPlayer(
+                        document = doc,
+                        modifier = modifier.fillMaxSize(),
+                        onNamedAction = onNamedAction,
+                    )
+                } else {
+                    val windowInfo = LocalWindowInfo.current
+                    RemoteDocumentPlayer(
+                        document = doc,
+                        documentWidth = windowInfo.containerSize.width,
+                        documentHeight = windowInfo.containerSize.height,
+                        modifier = modifier.fillMaxSize(),
+                        debugMode = 0,
+                        init = init,
+                        update = update,
+                        onNamedAction = onNamedAction,
+                        bitmapLoader = bitmapLoader,
+                        customSupport = customSupport,
+                    )
+                }
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.remote.integration.demos.integration.GesturePropagationD
 import androidx.compose.remote.integration.demos.integration.GesturePropagationViewDemo
 import androidx.compose.remote.integration.demos.layout.RemoteBoxAlignmentsDemo
 import androidx.compose.remote.integration.demos.layout.RemoteFlowRowDemo
+import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSharedElementsDemo
 import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSimpleDemo
 import androidx.compose.remote.integration.demos.modifier.AlphaDemo
 import androidx.compose.remote.integration.demos.modifier.ClickableDemo
@@ -46,6 +47,7 @@ private object ScreenKeys {
     const val REMOTE_BOX_ALIGNMENT = "REMOTE_BOX_ALIGNMENT"
     const val REMOTE_FLOW_ROW = "REMOTE_FLOW_ROW"
     const val REMOTE_STATE_LAYOUT = "REMOTE_STATE_LAYOUT"
+    const val REMOTE_STATE_LAYOUT_SHARED_ELEMENTS = "REMOTE_STATE_LAYOUT_SHARED_ELEMENTS"
     const val CLICKABLE = "CLICKABLE"
     const val COMBINED_CLICKABLE = "COMBINED_CLICKABLE"
     const val PADDING = "PADDING"
@@ -74,6 +76,7 @@ fun ComposableScreenNavigation(key: String, onNavigateUp: () -> Unit) {
         ScreenKeys.REMOTE_BOX_ALIGNMENT -> RemoteBoxAlignmentsDemo()
         ScreenKeys.REMOTE_FLOW_ROW -> RemoteFlowRowDemo()
         ScreenKeys.REMOTE_STATE_LAYOUT -> RemoteStateLayoutSimpleDemo()
+        ScreenKeys.REMOTE_STATE_LAYOUT_SHARED_ELEMENTS -> RemoteStateLayoutSharedElementsDemo()
         ScreenKeys.PADDING -> PaddingDemo()
         ScreenKeys.ALPHA -> AlphaDemo()
         ScreenKeys.ROTATE -> RotateDemo()
@@ -120,6 +123,10 @@ val Screens =
                             ComposableScreen(
                                 key = ScreenKeys.REMOTE_STATE_LAYOUT,
                                 title = "RemoteStateLayout",
+                            ),
+                            ComposableScreen(
+                                key = ScreenKeys.REMOTE_STATE_LAYOUT_SHARED_ELEMENTS,
+                                title = "RemoteStateLayout Shared Elements",
                             ),
                         ),
                 ),

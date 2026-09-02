@@ -17,6 +17,7 @@
 package androidx.compose.remote.integration.demos.settings
 
 import android.content.Context
+import androidx.compose.runtime.compositionLocalOf
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 
@@ -26,6 +27,13 @@ const val LAYOUT_DIRECTION_KEY = "layout_direction_key"
 const val LAYOUT_DIRECTION_LTR = 0
 const val LAYOUT_DIRECTION_RTL = 1
 
+const val PLAYER_TYPE_KEY = "player_type_key"
+const val PLAYER_TYPE_JAVA = 0
+const val PLAYER_TYPE_COMPOSE = 1
+
 val Context.dataStore by preferencesDataStore(name = SETTINGS_NAME)
 
 val LAYOUT_DIRECTION_PREF_KEY = intPreferencesKey(LAYOUT_DIRECTION_KEY)
+val PLAYER_TYPE_PREF_KEY = intPreferencesKey(PLAYER_TYPE_KEY)
+
+val LocalPlayerType = compositionLocalOf { PLAYER_TYPE_JAVA }
