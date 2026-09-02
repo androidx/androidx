@@ -2551,6 +2551,33 @@ package androidx.core.os {
     method @Deprecated @RequiresApi(24) public static androidx.core.os.LocaleListCompat! wrap(Object!);
   }
 
+  public final class MemorySnapshot {
+    method public static androidx.core.os.MemorySnapshot? capture();
+    method @InaccessibleFromKotlin public long getAnonRssBytes();
+    method @InaccessibleFromKotlin public long getFileRssBytes();
+    method @InaccessibleFromKotlin public long getPackageMemoryUsageBytes();
+    method @InaccessibleFromKotlin public long getProcessMemoryUsageBytes();
+    method @InaccessibleFromKotlin public long getRssBytes();
+    method @InaccessibleFromKotlin public long getRssHwmBytes();
+    method @InaccessibleFromKotlin public long getShmemRssBytes();
+    method @InaccessibleFromKotlin public long getSwapBytes();
+    method @InaccessibleFromKotlin public long getVssBytes();
+    property public long anonRssBytes;
+    property public long fileRssBytes;
+    property public long packageMemoryUsageBytes;
+    property public long processMemoryUsageBytes;
+    property public long rssBytes;
+    property public long rssHwmBytes;
+    property public long shmemRssBytes;
+    property public long swapBytes;
+    property public long vssBytes;
+    field public static final androidx.core.os.MemorySnapshot.Companion Companion;
+  }
+
+  public static final class MemorySnapshot.Companion {
+    method public androidx.core.os.MemorySnapshot? capture();
+  }
+
   public final class MessageCompat {
     method public static boolean isAsynchronous(android.os.Message);
     method public static void setAsynchronous(android.os.Message, boolean);
