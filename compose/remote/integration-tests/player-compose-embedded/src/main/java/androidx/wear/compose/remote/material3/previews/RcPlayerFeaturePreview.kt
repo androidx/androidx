@@ -40,9 +40,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 
 /**
- * Individual-feature confirmation previews for the embedded [RcPlayer] vs the legacy player.
+ * Individual-feature confirmation previews for the embedded [RcPlayer] vs the View player.
  *
- * Each preview is parameterized over [PlayerImpl], so it renders twice — once with the legacy
+ * Each preview is parameterized over [PlayerImpl], so it renders twice — once with the
  * `RemoteDocumentPlayer` (Java) and once with the embedded `RcPlayer` (Compose) — making the two
  * directly diffable. Each isolates a single modifier/feature.
  */

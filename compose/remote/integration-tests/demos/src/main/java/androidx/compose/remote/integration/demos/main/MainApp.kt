@@ -49,6 +49,9 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.remote.integration.demos.settings.LAYOUT_DIRECTION_LTR
 import androidx.compose.remote.integration.demos.settings.LAYOUT_DIRECTION_PREF_KEY
 import androidx.compose.remote.integration.demos.settings.LAYOUT_DIRECTION_RTL
+import androidx.compose.remote.integration.demos.settings.LocalPlayerType
+import androidx.compose.remote.integration.demos.settings.PLAYER_TYPE_JAVA
+import androidx.compose.remote.integration.demos.settings.PLAYER_TYPE_PREF_KEY
 import androidx.compose.remote.integration.demos.settings.dataStore
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -87,7 +90,14 @@ fun MainApp(backDispatcher: OnBackPressedDispatcher) {
             }
             .collectAsState(initial = LayoutDirection.Ltr)
 
-    CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+    val playerType by
+        remember { context.dataStore.data.map { it[PLAYER_TYPE_PREF_KEY] ?: PLAYER_TYPE_JAVA } }
+            .collectAsState(initial = PLAYER_TYPE_JAVA)
+
+    CompositionLocalProvider(
+        LocalLayoutDirection provides layoutDirection,
+        LocalPlayerType provides playerType,
+    ) {
         MaterialTheme {
             val rootScreen = Screens
             val backStack = rememberNavBackStack(rootScreen)
