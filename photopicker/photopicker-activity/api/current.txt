@@ -21,10 +21,22 @@ package androidx.photopicker.activity {
     field public static final String ACTION_SYSTEM_FALLBACK_PICK_IMAGES = "androidx.activity.result.contract.action.PICK_IMAGES";
     field public static final androidx.photopicker.activity.PickVisualMedia.Companion Companion;
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_ACCENT_COLOR = "androidx.activity.result.contract.extra.PICK_IMAGES_ACCENT_COLOR";
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM = "androidx.activity.result.contract.extra.PICK_IMAGES_HIGHLIGHT_ALBUM";
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS = "androidx.activity.result.contract.extra.PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS";
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_IN_ORDER = "androidx.activity.result.contract.extra.PICK_IMAGES_IN_ORDER";
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB = "androidx.activity.result.contract.extra.PICK_IMAGES_LAUNCH_TAB";
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX = "androidx.activity.result.contract.extra.PICK_IMAGES_MAX";
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS = "androidx.activity.result.contract.extra.PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS";
+    field public static final String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_ID = "androidx.activity.result.contract.key.PICK_IMAGES_HIGHLIGHT_ALBUM_ID";
+    field public static final String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_SEARCH_TEXT_QUERY = "androidx.activity.result.contract.key.PICK_IMAGES_HIGHLIGHT_SEARCH_TEXT_QUERY";
+    field public static final String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE = "androidx.activity.result.contract.key.PICK_IMAGES_HIGHLIGHT_TYPE";
+    field public static final String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_CAMERA = "androidx.activity.result.contract.album.CAMERA";
+    field public static final String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_DOWNLOADS = "androidx.activity.result.contract.album.DOWNLOADS";
+    field public static final String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_FAVORITES = "androidx.activity.result.contract.album.FAVORITES";
+    field public static final String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_SCREENSHOTS = "androidx.activity.result.contract.album.SCREENSHOTS";
+    field public static final String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_VIDEOS = "androidx.activity.result.contract.album.VIDEOS";
+    field public static final int SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE_COLLAPSED = 0; // 0x0
+    field public static final int SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE_EXPANDED = 1; // 0x1
   }
 
   public static final class PickVisualMedia.Companion {
@@ -32,10 +44,22 @@ package androidx.photopicker.activity {
     method public boolean isPhotoPickerAvailable(android.content.Context context);
     property public static String ACTION_SYSTEM_FALLBACK_PICK_IMAGES;
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_ACCENT_COLOR;
+    property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM;
+    property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS;
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_IN_ORDER;
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB;
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX;
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS;
+    property public static String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_ID;
+    property public static String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_SEARCH_TEXT_QUERY;
+    property public static String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE;
+    property public static String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_CAMERA;
+    property public static String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_DOWNLOADS;
+    property public static String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_FAVORITES;
+    property public static String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_SCREENSHOTS;
+    property public static String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_VIDEOS;
+    property public static int SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE_COLLAPSED;
+    property public static int SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE_EXPANDED;
   }
 
   public abstract static class PickVisualMedia.DefaultTab {
@@ -102,6 +126,8 @@ package androidx.photopicker.activity {
   public final class PickVisualMediaRequest {
     method @InaccessibleFromKotlin public long getAccentColor();
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.DefaultTab getDefaultTab();
+    method @InaccessibleFromKotlin public androidx.photopicker.activity.params.HighlightAlbumParams? getHighlightAlbumParams();
+    method @InaccessibleFromKotlin public androidx.photopicker.activity.params.HighlightSearchResultsParams? getHighlightSearchResultsParams();
     method @InaccessibleFromKotlin public int getMaxItems();
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? getMediaCapabilitiesForTranscoding();
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.VisualMediaType getMediaType();
@@ -110,6 +136,8 @@ package androidx.photopicker.activity {
     method @InaccessibleFromKotlin public boolean isOrderedSelection();
     property public long accentColor;
     property public androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab;
+    property public androidx.photopicker.activity.params.HighlightAlbumParams? highlightAlbumParams;
+    property public androidx.photopicker.activity.params.HighlightSearchResultsParams? highlightSearchResultsParams;
     property public boolean isCustomAccentColorApplied;
     property public boolean isLocationMetadataAccessRequested;
     property public boolean isOrderedSelection;
@@ -123,6 +151,8 @@ package androidx.photopicker.activity {
     method public androidx.photopicker.activity.PickVisualMediaRequest build();
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setAccentColor(long accentColor);
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setDefaultTab(androidx.photopicker.activity.PickVisualMedia.DefaultTab defaultTab);
+    method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setHighlightAlbumParams(androidx.photopicker.activity.params.HighlightAlbumParams? highlightAlbumParams);
+    method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setHighlightSearchResultsParams(androidx.photopicker.activity.params.HighlightSearchResultsParams? highlightSearchResultsParams);
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setLocationMetadataAccessRequested(boolean isLocationMetadataAccessRequested);
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMaxItems(@IntRange(from=2L) int maxItems);
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMediaCapabilitiesForTranscoding(androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? mediaCapabilities);
@@ -143,6 +173,63 @@ package androidx.photopicker.activity {
     method @BytecodeOnly @Deprecated public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest$default(androidx.photopicker.activity.PickVisualMedia.VisualMediaType!, int, int, Object!);
     method @BytecodeOnly @Deprecated public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest$default(androidx.photopicker.activity.PickVisualMedia.VisualMediaType!, int, Object!);
     method @BytecodeOnly public static androidx.photopicker.activity.PickVisualMediaRequest! PickVisualMediaRequest$default(long, androidx.photopicker.activity.PickVisualMedia.VisualMediaType!, int, boolean, androidx.photopicker.activity.PickVisualMedia.DefaultTab!, int, Object!);
+  }
+
+}
+
+package androidx.photopicker.activity.params {
+
+  public final class HighlightAlbumParams {
+    method @InaccessibleFromKotlin public String getHighlightAlbum();
+    method @InaccessibleFromKotlin public int getHighlightType();
+    property public String highlightAlbum;
+    property public int highlightType;
+    field public static final String ALBUM_CAMERA = "androidx.activity.result.contract.album.CAMERA";
+    field public static final String ALBUM_DOWNLOADS = "androidx.activity.result.contract.album.DOWNLOADS";
+    field public static final String ALBUM_FAVORITES = "androidx.activity.result.contract.album.FAVORITES";
+    field public static final String ALBUM_SCREENSHOTS = "androidx.activity.result.contract.album.SCREENSHOTS";
+    field public static final String ALBUM_VIDEOS = "androidx.activity.result.contract.album.VIDEOS";
+    field public static final androidx.photopicker.activity.params.HighlightAlbumParams.Companion Companion;
+  }
+
+  public static final class HighlightAlbumParams.Builder {
+    ctor public HighlightAlbumParams.Builder();
+    method public androidx.photopicker.activity.params.HighlightAlbumParams build();
+    method public androidx.photopicker.activity.params.HighlightAlbumParams.Builder setHighlightAlbum(String highlightAlbum);
+    method public androidx.photopicker.activity.params.HighlightAlbumParams.Builder setHighlightType(int highlightType);
+  }
+
+  public static final class HighlightAlbumParams.Companion {
+    property public static String ALBUM_CAMERA;
+    property public static String ALBUM_DOWNLOADS;
+    property public static String ALBUM_FAVORITES;
+    property public static String ALBUM_SCREENSHOTS;
+    property public static String ALBUM_VIDEOS;
+  }
+
+  public final class HighlightSearchResultsParams {
+    method @InaccessibleFromKotlin public String getHighlightSearchTextQuery();
+    method @InaccessibleFromKotlin public int getHighlightType();
+    property public String highlightSearchTextQuery;
+    property public int highlightType;
+  }
+
+  public static final class HighlightSearchResultsParams.Builder {
+    ctor public HighlightSearchResultsParams.Builder();
+    method public androidx.photopicker.activity.params.HighlightSearchResultsParams build();
+    method public androidx.photopicker.activity.params.HighlightSearchResultsParams.Builder setHighlightSearchTextQuery(String highlightSearchTextQuery);
+    method public androidx.photopicker.activity.params.HighlightSearchResultsParams.Builder setHighlightType(int highlightType);
+  }
+
+  public final class HighlightType {
+    field public static final int COLLAPSED = 0; // 0x0
+    field public static final androidx.photopicker.activity.params.HighlightType.Companion Companion;
+    field public static final int EXPANDED = 1; // 0x1
+  }
+
+  public static final class HighlightType.Companion {
+    property public static int COLLAPSED;
+    property public static int EXPANDED;
   }
 
 }

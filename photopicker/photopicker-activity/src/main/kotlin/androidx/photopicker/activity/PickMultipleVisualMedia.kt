@@ -90,6 +90,22 @@ public open class PickMultipleVisualMedia(private val maxItems: Int = getMaxItem
                     putExtra(MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR, input.accentColor)
                 }
 
+                if (PickVisualMedia.areSystemHighlightParamsAvailable()) {
+                    input.highlightSearchResultsParams?.let {
+                        putExtra(
+                            MediaStore.EXTRA_PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS,
+                            it.createHighlightSearchResultsBundle(),
+                        )
+                    }
+
+                    input.highlightAlbumParams?.let {
+                        putExtra(
+                            MediaStore.EXTRA_PICK_IMAGES_HIGHLIGHT_ALBUM,
+                            it.createHighlightAlbumBundle(),
+                        )
+                    }
+                }
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     input.mediaCapabilitiesForTranscoding?.let { capabilities ->
                         putExtra(
@@ -137,6 +153,20 @@ public open class PickMultipleVisualMedia(private val maxItems: Int = getMaxItem
                         PickVisualMedia
                             .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS,
                         true,
+                    )
+                }
+
+                input.highlightSearchResultsParams?.let {
+                    putExtra(
+                        PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_SEARCH_RESULTS,
+                        it.createHighlightSearchResultsFallbackBundle(),
+                    )
+                }
+
+                input.highlightAlbumParams?.let {
+                    putExtra(
+                        PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM,
+                        it.createHighlightAlbumFallbackBundle(),
                     )
                 }
             }
