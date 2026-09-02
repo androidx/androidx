@@ -34,7 +34,7 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.createDeferredAnimation
-import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -996,7 +996,7 @@ public fun <S> Transition<S>.AnimatedContent(
  * @param contentKey A key to identify the content.
  * @param mutableTransformSpec A specification to control an optional manual transformation during
  *   the deferred phase (e.g., for predictive back gestures) before the main transition begins. This
- *   is only active if the [Transition] was created using [rememberTransition] with
+ *   is only active if the [Transition] was created using [rememberDeferredTransition] with
  *   [DeferredTransitionState]. By default, this returns `null`, meaning no manual transformations
  *   are applied.
  *
