@@ -29,6 +29,7 @@ internal class SafeLibLoader(context: Context) {
     fun loadLib(file: File, abiToSha256Map: Map<String, String>) {
         // ensure the file is in an approved location (and if not, copy it over to one)
         val safeLocationFile = copyToSafeLocation(file)
+        safeLocationFile.setReadOnly()
 
         // verify checksum of the file
         verifyChecksum(safeLocationFile, findAbiAwareSha(abiToSha256Map))
