@@ -53,6 +53,7 @@ class A2uiBasicCatalogV1SliderTest {
             .isEqualTo("A slider for selecting a numeric value within a range.")
         assertThat(sliderComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Slider.LabelProperty,
                 A2uiBasicCatalogV1.Slider.MinProperty,
                 A2uiBasicCatalogV1.Slider.MaxProperty,

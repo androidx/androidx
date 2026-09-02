@@ -49,6 +49,7 @@ class A2uiBasicCatalogV1RowTest {
             )
         assertThat(rowComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Row.ChildrenProperty,
                 A2uiBasicCatalogV1.Row.JustifyProperty,
                 A2uiBasicCatalogV1.Row.AlignProperty,

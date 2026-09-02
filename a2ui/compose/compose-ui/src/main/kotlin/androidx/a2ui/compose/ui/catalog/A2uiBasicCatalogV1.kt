@@ -148,6 +148,28 @@ public class A2uiBasicCatalogV1(
                             ),
                     )
             )
+
+        /**
+         * The relative weight property for [A2uiBasicCatalogV1] components.
+         *
+         * Defined at the catalog level because it is supported across all [A2uiBasicCatalogV1]
+         * components rather than belonging to a single component type.
+         *
+         * Expected usage:
+         * * **Components**: Included in the [A2uiComponent.properties] list of all basic catalog
+         *   components.
+         * * **Parent components**: Container components (such as [Row] and [Column]) access this
+         *   property from child component properties to apply layout weights to their direct
+         *   children.
+         */
+        public val WeightProperty: StaticA2uiProperty<Number> =
+            A2uiProperty.number(
+                key = "weight",
+                description =
+                    "The relative weight of the component within a Row or Column. " +
+                        "Note: this may ONLY be set when the component is a direct descendant of a " +
+                        "Row or Column.",
+            )
     }
 
     /** Accessibility attributes for an element in the A2UI Basic Catalog V1. */
@@ -229,7 +251,7 @@ public class A2uiBasicCatalogV1(
                     description = "A hint for the base text style.",
                 )
             internal val componentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(textProperty, variantProperty)
+                listOf(WeightProperty, textProperty, variantProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -353,7 +375,13 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(UrlProperty, DescriptionProperty, FitProperty, VariantProperty)
+                listOf(
+                    WeightProperty,
+                    UrlProperty,
+                    DescriptionProperty,
+                    FitProperty,
+                    VariantProperty,
+                )
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -581,7 +609,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(NameProperty, AccessibilityProperty)
+                listOf(WeightProperty, NameProperty, AccessibilityProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -647,7 +675,7 @@ public class A2uiBasicCatalogV1(
                             "multiple IDs or a non-existent ID.",
                 )
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(ChildProperty)
+                listOf(WeightProperty, ChildProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -764,7 +792,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(ChildrenProperty, JustifyProperty, AlignProperty)
+                listOf(WeightProperty, ChildrenProperty, JustifyProperty, AlignProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -902,7 +930,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(ChildrenProperty, JustifyProperty, AlignProperty)
+                listOf(WeightProperty, ChildrenProperty, JustifyProperty, AlignProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1029,7 +1057,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(ChildrenProperty, DirectionProperty, AlignProperty)
+                listOf(WeightProperty, ChildrenProperty, DirectionProperty, AlignProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1145,7 +1173,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(TabsProperty)
+                listOf(WeightProperty, TabsProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1242,7 +1270,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(AxisProperty)
+                listOf(WeightProperty, AxisProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1333,7 +1361,7 @@ public class A2uiBasicCatalogV1(
                 A2uiProperty.action(key = "action", required = true)
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(ChildProperty, VariantProperty, ActionProperty)
+                listOf(WeightProperty, ChildProperty, VariantProperty, ActionProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1427,7 +1455,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(LabelProperty, MinProperty, MaxProperty, ValueProperty)
+                listOf(WeightProperty, LabelProperty, MinProperty, MaxProperty, ValueProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
@@ -1588,6 +1616,7 @@ public class A2uiBasicCatalogV1(
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
                 listOf(
+                    WeightProperty,
                     ValueProperty,
                     EnableDateProperty,
                     EnableTimeProperty,
@@ -1725,7 +1754,7 @@ public class A2uiBasicCatalogV1(
                 )
 
             internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
-                listOf(LabelProperty, ValueProperty)
+                listOf(WeightProperty, LabelProperty, ValueProperty)
         }
 
         override val properties: kotlin.collections.List<A2uiProperty<*>>
