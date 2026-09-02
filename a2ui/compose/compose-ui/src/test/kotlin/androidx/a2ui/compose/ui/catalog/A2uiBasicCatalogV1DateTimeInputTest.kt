@@ -54,6 +54,7 @@ class A2uiBasicCatalogV1DateTimeInputTest {
             .isEqualTo("Allows the user to select a date and/or time.")
         assertThat(dateTimeInputComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.DateTimeInput.ValueProperty,
                 A2uiBasicCatalogV1.DateTimeInput.EnableDateProperty,
                 A2uiBasicCatalogV1.DateTimeInput.EnableTimeProperty,

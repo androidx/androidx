@@ -243,8 +243,10 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.Companion {
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getThemeSchema();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> getWeightProperty();
     property public static String CatalogId;
     property public androidx.a2ui.model.schema.A2uiSchema ThemeSchema;
+    property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.Number> WeightProperty;
   }
 
   public static interface A2uiBasicCatalogV1.DateTimeInput extends androidx.a2ui.compose.ui.A2uiComponent {

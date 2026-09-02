@@ -50,6 +50,7 @@ class A2uiBasicCatalogV1ButtonTest {
             .isEqualTo("A clickable button that dispatches an action.")
         assertThat(buttonComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Button.ChildProperty,
                 A2uiBasicCatalogV1.Button.VariantProperty,
                 A2uiBasicCatalogV1.Button.ActionProperty,
