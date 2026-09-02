@@ -101,7 +101,7 @@ public abstract class AppFunctionDataSpec {
                 ObjectSpec(type.getPseudoObjectTypeMetadata(componentMetadata), componentMetadata)
             }
             is AppFunctionOneOfTypeMetadata -> {
-                val oneOfType = type.getObjectMetadataForOneOfType(qualifiedName)
+                val oneOfType = type.getObjectMetadataForOneOfType(qualifiedName, componentMetadata)
                 getPropertyObjectSpec(oneOfType, qualifiedName)
             }
             else -> {

@@ -29,7 +29,6 @@ import androidx.appfunction.integration.test.sharedschema.CreateNoteAppFunction
 import androidx.appfunction.integration.test.sharedschema.CreateNoteParams
 import androidx.appfunction.integration.test.sharedschema.FilesData
 import androidx.appfunction.integration.test.sharedschema.Note
-import androidx.appfunction.integration.test.sharedschema.OneOfSealedInterface
 import androidx.appfunction.integration.test.sharedschema.OneOfSealedNestedSerializable
 import androidx.appfunction.integration.test.sharedschema.OpenableNote
 import androidx.appfunction.integration.test.sharedschema.Owner
@@ -61,10 +60,12 @@ import androidx.appfunctions.integration.test.agent.TestUtil.revokeAppFunctionAc
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionComponentsMetadata
+import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionDeprecationMetadata
 import androidx.appfunctions.metadata.AppFunctionMetadata
 import androidx.appfunctions.metadata.AppFunctionName
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionOneOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
@@ -77,6 +78,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import kotlin.collections.singleOrNull
 import kotlin.test.assertIs
 import kotlinx.coroutines.async
 import org.junit.After
@@ -259,6 +261,12 @@ class ExecuteAppFunctionIntegrationTest {
                             .setAppFunctionData(
                                 "createNoteParams",
                                 AppFunctionData.serialize(
+                                    requireTargetObjectTypeMetadata(
+                                        "createNoteParams",
+                                        createNoteMetadata.parameters,
+                                        createNoteMetadata.components,
+                                    ),
+                                    createNoteMetadata.components,
                                     CreateNoteParams(
                                         title = "Test Title",
                                         content = listOf("1", "2"),
@@ -267,7 +275,6 @@ class ExecuteAppFunctionIntegrationTest {
                                             listOf(Attachment("Uri1", Attachment("nested"))),
                                         folderId = null,
                                     ),
-                                    CreateNoteParams::class.java,
                                 ),
                             )
                             .build(),
@@ -309,6 +316,12 @@ class ExecuteAppFunctionIntegrationTest {
                             .setAppFunctionData(
                                 "createNoteParams",
                                 AppFunctionData.serialize(
+                                    requireTargetObjectTypeMetadata(
+                                        "createNoteParams",
+                                        metadata.parameters,
+                                        metadata.components,
+                                    ),
+                                    metadata.components,
                                     CreateNoteParams(
                                         title = "Test Title",
                                         content = listOf("1", "2"),
@@ -317,7 +330,6 @@ class ExecuteAppFunctionIntegrationTest {
                                             listOf(Attachment("Uri1", Attachment("nested"))),
                                         folderId = null,
                                     ),
-                                    CreateNoteParams::class.java,
                                 ),
                             )
                             .build(),
@@ -359,6 +371,12 @@ class ExecuteAppFunctionIntegrationTest {
                             .setAppFunctionData(
                                 "createNoteParams",
                                 AppFunctionData.serialize(
+                                    requireTargetObjectTypeMetadata(
+                                        "createNoteParams",
+                                        metadata.parameters,
+                                        metadata.components,
+                                    ),
+                                    metadata.components,
                                     CreateNoteParams(
                                         title = "Test Title",
                                         content = listOf("1", "2"),
@@ -367,7 +385,6 @@ class ExecuteAppFunctionIntegrationTest {
                                             listOf(Attachment("Uri1", Attachment("nested"))),
                                         folderId = null,
                                     ),
-                                    CreateNoteParams::class.java,
                                 ),
                             )
                             .build(),
@@ -424,7 +441,15 @@ class ExecuteAppFunctionIntegrationTest {
                             AppFunctionData.Builder(metadata.parameters, metadata.components)
                                 .setAppFunctionData(
                                     "value",
-                                    AppFunctionData.serialize(value, ProxyTypesWrapper::class.java),
+                                    AppFunctionData.serialize(
+                                        requireTargetObjectTypeMetadata(
+                                            "value",
+                                            metadata.parameters,
+                                            metadata.components,
+                                        ),
+                                        metadata.components,
+                                        value,
+                                    ),
                                 )
                                 .build(),
                     )
@@ -466,6 +491,12 @@ class ExecuteAppFunctionIntegrationTest {
                             .setAppFunctionData(
                                 "updateNoteParams",
                                 AppFunctionData.serialize(
+                                    requireTargetObjectTypeMetadata(
+                                        "updateNoteParams",
+                                        metadata.parameters,
+                                        metadata.components,
+                                    ),
+                                    metadata.components,
                                     UpdateNoteParams(
                                         title = SetField("NewTitle1"),
                                         nullableTitle = SetField("NewTitle2"),
@@ -474,7 +505,6 @@ class ExecuteAppFunctionIntegrationTest {
                                         attachments = SetField(listOf(attachment)),
                                         modifiedTime = SetField(dateTime),
                                     ),
-                                    UpdateNoteParams::class.java,
                                 ),
                             )
                             .build(),
@@ -517,13 +547,18 @@ class ExecuteAppFunctionIntegrationTest {
                             .setAppFunctionData(
                                 "updateNoteParams",
                                 AppFunctionData.serialize(
+                                    requireTargetObjectTypeMetadata(
+                                        "updateNoteParams",
+                                        metadata.parameters,
+                                        metadata.components,
+                                    ),
+                                    metadata.components,
                                     UpdateNoteParams(
                                         title = SetField("NewTitle1"),
                                         nullableTitle = SetField(null),
                                         content = SetField(listOf("NewContent1")),
                                         nullableContent = SetField(null),
                                     ),
-                                    UpdateNoteParams::class.java,
                                 ),
                             )
                             .build(),
@@ -565,8 +600,13 @@ class ExecuteAppFunctionIntegrationTest {
                             .setAppFunctionData(
                                 "updateNoteParams",
                                 AppFunctionData.serialize(
+                                    requireTargetObjectTypeMetadata(
+                                        "updateNoteParams",
+                                        metadata.parameters,
+                                        metadata.components,
+                                    ),
+                                    metadata.components,
                                     UpdateNoteParams(),
-                                    UpdateNoteParams::class.java,
                                 ),
                             )
                             .build(),
@@ -677,8 +717,13 @@ class ExecuteAppFunctionIntegrationTest {
                         .setAppFunctionData(
                             "parameters",
                             AppFunctionData.serialize(
+                                requireTargetObjectTypeMetadata(
+                                    "parameters",
+                                    createNoteMetadata.parameters,
+                                    createNoteMetadata.components,
+                                ),
+                                createNoteMetadata.components,
                                 parameters,
-                                CreateNoteAppFunction.Parameters::class.java,
                             ),
                         )
                         .build(),
@@ -865,8 +910,13 @@ class ExecuteAppFunctionIntegrationTest {
                             .setAppFunctionData(
                                 "classWithOptionalValues",
                                 AppFunctionData.serialize(
+                                    requireTargetObjectTypeMetadata(
+                                        "classWithOptionalValues",
+                                        metadata.parameters,
+                                        metadata.components,
+                                    ),
+                                    metadata.components,
                                     classWithOptionalValues,
-                                    ClassWithOptionalValues::class.java,
                                 ),
                             )
                             .build(),
@@ -974,13 +1024,26 @@ class ExecuteAppFunctionIntegrationTest {
                             .setString("optionalNullableString", "Initialized String")
                             .setAppFunctionData(
                                 "optionalNullableSerializable",
-                                AppFunctionData.serialize(Owner("John"), Owner::class.java),
+                                AppFunctionData.serialize(
+                                    requireTargetObjectTypeMetadata(
+                                        "optionalNullableSerializable",
+                                        metadata.parameters,
+                                        metadata.components,
+                                    ),
+                                    metadata.components,
+                                    Owner("John"),
+                                ),
                             )
                             .setAppFunctionData(
                                 "optionalNullableProxySerializable",
                                 AppFunctionData.serialize(
+                                    requireTargetObjectTypeMetadata(
+                                        "optionalNullableProxySerializable",
+                                        metadata.parameters,
+                                        metadata.components,
+                                    ),
+                                    metadata.components,
                                     LocalDateTime.of(2025, 7, 4, 12, 0),
-                                    LocalDateTime::class.java,
                                 ),
                             )
                             .setIntArray("optionalNonNullIntArray", intArrayOf(1, 2, 3))
@@ -1009,22 +1072,51 @@ class ExecuteAppFunctionIntegrationTest {
                             .setAppFunctionDataList(
                                 "optionalNonNullSerializableList",
                                 listOf(
-                                    AppFunctionData.serialize(Owner("Alice"), Owner::class.java),
-                                    AppFunctionData.serialize(Owner("Bob"), Owner::class.java),
+                                    AppFunctionData.serialize(
+                                        requireTargetObjectTypeMetadata(
+                                            "optionalNonNullSerializableList",
+                                            metadata.parameters,
+                                            metadata.components,
+                                        ),
+                                        metadata.components,
+                                        Owner("Alice"),
+                                    ),
+                                    AppFunctionData.serialize(
+                                        requireTargetObjectTypeMetadata(
+                                            "optionalNonNullSerializableList",
+                                            metadata.parameters,
+                                            metadata.components,
+                                        ),
+                                        metadata.components,
+                                        Owner("Bob"),
+                                    ),
                                 ),
                             )
                             .setAppFunctionDataList(
                                 "optionalNullableSerializableList",
                                 listOf(
-                                    AppFunctionData.serialize(Owner("Charlie"), Owner::class.java)
+                                    AppFunctionData.serialize(
+                                        requireTargetObjectTypeMetadata(
+                                            "optionalNullableSerializableList",
+                                            metadata.parameters,
+                                            metadata.components,
+                                        ),
+                                        metadata.components,
+                                        Owner("Charlie"),
+                                    )
                                 ),
                             )
                             .setAppFunctionDataList(
                                 "optionalNonNullProxySerializableList",
                                 listOf(
                                     AppFunctionData.serialize(
+                                        requireTargetObjectTypeMetadata(
+                                            "optionalNonNullProxySerializableList",
+                                            metadata.parameters,
+                                            metadata.components,
+                                        ),
+                                        metadata.components,
                                         LocalDateTime.of(2025, 7, 4, 12, 0),
-                                        LocalDateTime::class.java,
                                     )
                                 ),
                             )
@@ -1032,8 +1124,13 @@ class ExecuteAppFunctionIntegrationTest {
                                 "optionalNullableProxySerializableList",
                                 listOf(
                                     AppFunctionData.serialize(
+                                        requireTargetObjectTypeMetadata(
+                                            "optionalNullableProxySerializableList",
+                                            metadata.parameters,
+                                            metadata.components,
+                                        ),
+                                        metadata.components,
                                         LocalDateTime.of(2025, 7, 4, 12, 0),
-                                        LocalDateTime::class.java,
                                     )
                                 ),
                             )
@@ -1277,8 +1374,17 @@ class ExecuteAppFunctionIntegrationTest {
                         )
                         .setAppFunctionDataList(
                             "oneOfList",
-                            oneOfList.map {
-                                AppFunctionData.serialize(it, OneOfSealedInterface::class.java)
+                            oneOfList.map { item ->
+                                AppFunctionData.serialize(
+                                    requireTargetObjectTypeMetadata(
+                                        "oneOfList",
+                                        oneOfFunctionMetadata.parameters,
+                                        oneOfFunctionMetadata.components,
+                                        item.javaClass.canonicalName,
+                                    ),
+                                    oneOfFunctionMetadata.components,
+                                    item,
+                                )
                             },
                         )
                         .build(),
@@ -1511,29 +1617,65 @@ class ExecuteAppFunctionIntegrationTest {
         parameterName: String,
         parameters: List<AppFunctionParameterMetadata>,
         components: AppFunctionComponentsMetadata,
+        targetQualifiedName: String? = null,
     ): AppFunctionObjectTypeMetadata {
+        fun resolveObjectType(
+            dataTypeMetadata: AppFunctionDataTypeMetadata
+        ): AppFunctionObjectTypeMetadata {
+            return when (dataTypeMetadata) {
+                is AppFunctionObjectTypeMetadata -> {
+                    dataTypeMetadata
+                }
+                is AppFunctionReferenceTypeMetadata -> {
+                    val resolvedType =
+                        components.dataTypes[dataTypeMetadata.referenceDataType]
+                            ?: throw IllegalArgumentException(
+                                "Unable to resolve ${dataTypeMetadata.referenceDataType}"
+                            )
+                    resolveObjectType(resolvedType)
+                }
+                is AppFunctionArrayTypeMetadata -> {
+                    resolveObjectType(dataTypeMetadata.itemType)
+                }
+                is AppFunctionOneOfTypeMetadata -> {
+                    val validQualifiedName = checkNotNull(targetQualifiedName)
+                    val target =
+                        dataTypeMetadata.matchOneOf.singleOrNull {
+                            when (it) {
+                                is AppFunctionObjectTypeMetadata ->
+                                    it.qualifiedName == validQualifiedName
+                                is AppFunctionReferenceTypeMetadata ->
+                                    it.referenceDataType == validQualifiedName
+                                is AppFunctionAllOfTypeMetadata ->
+                                    it.qualifiedName == validQualifiedName
+                                else ->
+                                    throw IllegalArgumentException(
+                                        "Unexpected data type $it for one of type"
+                                    )
+                            }
+                        }
+                            ?: throw IllegalArgumentException(
+                                "$validQualifiedName does not match any of the oneOf types"
+                            )
+                    resolveObjectType(target)
+                }
+                is AppFunctionAllOfTypeMetadata -> {
+                    dataTypeMetadata.getPseudoObjectTypeMetadata(components)
+                }
+                else -> {
+                    throw IllegalArgumentException(
+                        "The parameter metadata of $parameterName is not an object type. Found $dataTypeMetadata"
+                    )
+                }
+            }
+        }
+
         val targetParameterMetadata =
             parameters.find { it.name == parameterName }
                 ?: throw IllegalArgumentException(
                     "Unable to find parameter metadata with name $parameterName"
                 )
-        return when (val parameterDataTypeMetadata = targetParameterMetadata.dataType) {
-            is AppFunctionObjectTypeMetadata -> {
-                parameterDataTypeMetadata
-            }
-            is AppFunctionReferenceTypeMetadata -> {
-                components.dataTypes[parameterDataTypeMetadata.referenceDataType]
-                    as? AppFunctionObjectTypeMetadata
-                    ?: throw IllegalArgumentException(
-                        "Unable to find object metadata with reference name ${parameterDataTypeMetadata.referenceDataType}"
-                    )
-            }
-            else -> {
-                throw IllegalArgumentException(
-                    "The parameter metadata of $parameterName is not an object type."
-                )
-            }
-        }
+        return resolveObjectType(targetParameterMetadata.dataType)
     }
 
     private suspend fun searchAppFunction(id: String): AppFunctionMetadata {
