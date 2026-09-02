@@ -45,6 +45,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -1000,11 +1001,11 @@ class StatusBarTest {
         val key2 = Any()
 
         // Add first screen
-        screenContent.addScreen(key1, timeText = null, view = view1)
+        screenContent.addScreen(key1, view = mutableStateOf(view1))
         val orchestrator1 = screenContent.currentActiveOrchestrator.value
 
         // Add second screen sharing the same window
-        screenContent.addScreen(key2, timeText = null, view = view2)
+        screenContent.addScreen(key2, view = mutableStateOf(view2))
         val orchestrator2 = screenContent.currentActiveOrchestrator.value
 
         // Both screens should resolve to the exact same orchestrator instance
@@ -1214,7 +1215,7 @@ class StatusBarTest {
     }
 
     @Test
-    fun multiWindow_updateIfNeeded_switchesWindowsCleanly() {
+    fun multiWindow_screenViewChanges_switchesWindowsCleanly() {
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         val hostWindow = TestView(targetContext)
         val windowA = TestView(targetContext)
@@ -1234,22 +1235,26 @@ class StatusBarTest {
             )
 
         val key = Any()
-        screenContent.addScreen(key, timeText = null, view = windowA)
+        var currentScreenView by mutableStateOf<View>(windowA)
+        screenContent.addScreen(
+            key = key,
+            view = derivedStateOf { currentScreenView },
+            timeText = mutableStateOf(null),
+        )
         screenContent.currentActiveOrchestrator.value.hide()
         Assert.assertEquals(1, windowA.testController.hideCount)
 
-        // Update screen to windowB: windowA should be disposed as it's no longer in use
-        screenContent.updateIfNeeded(key, timeText = null, view = windowB)
-        Assert.assertEquals(
-            "Switching window via updateIfNeeded should dispose old window without insets mutation",
-            0,
-            windowA.testController.showCount,
-        )
-
+        // Update screen view to windowB: windowA should be disposed as it's no longer in use
+        currentScreenView = windowB
         // WindowB is now active
         val activeOrchestrator = screenContent.currentActiveOrchestrator.value
         activeOrchestrator.hide()
         Assert.assertEquals(1, windowB.testController.hideCount)
+        Assert.assertEquals(
+            "Switching window via screen view state change should dispose old window without insets mutation",
+            0,
+            windowA.testController.showCount,
+        )
 
         // Removing screen disposes windowB without insets mutation
         screenContent.removeScreen(key)
@@ -1277,7 +1282,7 @@ class StatusBarTest {
             )
 
         val key = Any()
-        screenContent.addScreen(key, timeText = null, view = hostWindow)
+        screenContent.addScreen(key, view = mutableStateOf(hostWindow))
         screenContent.currentActiveOrchestrator.value.hide()
         Assert.assertEquals(1, hostWindow.testController.hideCount)
 
@@ -1311,8 +1316,8 @@ class StatusBarTest {
 
         val key1 = Any()
         val key2 = Any()
-        screenContent.addScreen(key1, timeText = null, view = dialogWindow)
-        screenContent.addScreen(key2, timeText = null, view = dialogWindow)
+        screenContent.addScreen(key1, view = mutableStateOf(dialogWindow))
+        screenContent.addScreen(key2, view = mutableStateOf(dialogWindow))
 
         screenContent.currentActiveOrchestrator.value.hide()
         Assert.assertEquals(1, dialogWindow.testController.hideCount)
@@ -1356,9 +1361,9 @@ class StatusBarTest {
 
         val keyA = Any()
         val keyB = Any()
-        screenContent.addScreen(keyA, timeText = null, view = windowA)
+        screenContent.addScreen(keyA, view = mutableStateOf(windowA))
         screenContent.currentActiveOrchestrator.value.hide()
-        screenContent.addScreen(keyB, timeText = null, view = windowB)
+        screenContent.addScreen(keyB, view = mutableStateOf(windowB))
         screenContent.currentActiveOrchestrator.value.hide()
 
         screenContent.cleanupAllOrchestrators()
@@ -1431,11 +1436,10 @@ class StatusBarTest {
 
     @Test
     fun screenContent_resolveShowStatusBarForScreen_isolatesScreensInStack() {
-        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val hostWindow = TestView(targetContext)
+        val dummyView = mutableStateOf(View(ApplicationProvider.getApplicationContext()))
         val screenContent =
             ScreenContent(
-                appWindowView = mutableStateOf(hostWindow),
+                appWindowView = dummyView,
                 appShowStatusBar = mutableStateOf(true),
                 isStatusBarSupported = mutableStateOf(true),
                 appTimeText = mutableStateOf({}),
@@ -1447,9 +1451,8 @@ class StatusBarTest {
         // 1. Add background screen with StatusBarMode.Enabled
         screenContent.addScreen(
             key = backgroundScreenKey,
-            timeText = null,
-            statusBarMode = StatusBarMode.Enabled,
-            view = hostWindow,
+            view = dummyView,
+            statusBarMode = mutableStateOf(StatusBarMode.Enabled),
         )
 
         // Background screen resolves to true, currentShowStatusBar is true
@@ -1461,9 +1464,8 @@ class StatusBarTest {
         // 2. Add overlay screen with StatusBarMode.Disabled
         screenContent.addScreen(
             key = overlayScreenKey,
-            timeText = null,
-            statusBarMode = StatusBarMode.Disabled,
-            view = hostWindow,
+            view = dummyView,
+            statusBarMode = mutableStateOf(StatusBarMode.Disabled),
         )
 
         // Active top screen (overlay) sets currentShowStatusBar to false
@@ -1480,11 +1482,10 @@ class StatusBarTest {
 
     @Test
     fun screenContent_resolveShowStatusBarForScreen_inheritsFromParent() {
-        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val hostWindow = TestView(targetContext)
+        val dummyView = mutableStateOf(View(ApplicationProvider.getApplicationContext()))
         val screenContent =
             ScreenContent(
-                appWindowView = mutableStateOf(hostWindow),
+                appWindowView = dummyView,
                 appShowStatusBar = mutableStateOf(true),
                 isStatusBarSupported = mutableStateOf(true),
                 appTimeText = mutableStateOf({}),
@@ -1496,17 +1497,15 @@ class StatusBarTest {
         // Add parent screen with Disabled mode
         screenContent.addScreen(
             key = parentKey,
-            timeText = null,
-            statusBarMode = StatusBarMode.Disabled,
-            view = hostWindow,
+            view = dummyView,
+            statusBarMode = mutableStateOf(StatusBarMode.Disabled),
         )
 
         // Add child screen with Inherit mode
         screenContent.addScreen(
             key = childKey,
-            timeText = null,
-            statusBarMode = StatusBarMode.Inherit,
-            view = hostWindow,
+            view = dummyView,
+            statusBarMode = mutableStateOf(StatusBarMode.Inherit),
         )
 
         // Child inherits Disabled (false) from parent
