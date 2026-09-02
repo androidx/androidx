@@ -21,21 +21,21 @@ package androidx.appfunctions
  * in app functions.
  *
  * This annotation can be applied to:
- * - functions annotated with `@AppFunction` (to constrain the return value),
- * - parameters of `@AppFunction`,
+ * - functions annotated with `@AppFunctionDeclaration` (to constrain the return value),
+ * - parameters of `@AppFunctionDeclaration`,
  * - or properties within an `@AppFunctionSerializable`.
  *
  * ### Usage Example:
  * ```
  * // Constraining a function return value:
- * @AppFunction
+ * @AppFunctionDeclaration
  * @AppFunctionIntValueConstraint(enumValues = [0, 1, 2])
  * fun getDisplayMode(): Int {
  *     // Function body
  * }
  *
  * // Constraining a parameter:
- * @AppFunction
+ * @AppFunctionDeclaration
  * fun adjustVolume(
  *     @AppFunctionIntValueConstraint(enumValues = [10, 15, 20, 25])
  *     volumeLevel: Int
@@ -58,9 +58,9 @@ public annotation class AppFunctionIntValueConstraint(
      * The list of allowed integer values for the annotated element.
      *
      * These values are communicated to the agent or framework that interprets or invokes the
-     * `@AppFunction`. If any of the values carry special meaning (e.g., `0` means "off", `1` means
-     * "on"), such meanings should be documented clearly in the corresponding property, parameter,
-     * or function return KDoc.
+     * `@AppFunctionDeclaration`. If any of the values carry special meaning (e.g., `0` means "off",
+     * `1` means "on"), such meanings should be documented clearly in the corresponding property,
+     * parameter, or function return KDoc.
      */
     public val enumValues: IntArray = []
 )

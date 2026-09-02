@@ -1,6 +1,6 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionSerializableInterface
@@ -16,6 +16,6 @@ data class UpdateNoteParams(
 )
 
 class FunctionWithNestedSerializableInterface {
-    @AppFunction
+    @AppFunctionDeclaration
     suspend fun test(appFunctionContext: AppFunctionContext, params: UpdateNoteParams) {}
 }

@@ -24,7 +24,7 @@ import androidx.appfunction.integration.test.sharedschema.MultiServiceCreateNote
 import androidx.appfunction.integration.test.sharedschema.MultiServiceFilesData
 import androidx.appfunction.integration.test.sharedschema.MultiServiceNote
 import androidx.appfunction.integration.test.sharedschema.MultiServiceProxyTypesWrapper
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionIntValueConstraint
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionSerializable
@@ -39,21 +39,21 @@ import androidx.appfunctions.AppFunctionUriGrant
     appFunctionXmlFileName = "simple_app_function_service",
 )
 abstract class SimpleAppFunctionServiceWithAdditionalFunctions : AppFunctionService() {
-    @AppFunction
+    @AppFunctionDeclaration
     fun echoProxyTypes(value: MultiServiceProxyTypesWrapper): MultiServiceProxyTypesWrapper = value
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun doThrow() {
         throw AppFunctionInvalidArgumentException("invalid")
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun enumValueFunction(
         @AppFunctionIntValueConstraint(enumValues = [0, 1]) intEnum: Int,
         @AppFunctionStringValueConstraint(enumValues = ["A", "B"]) stringEnum: String,
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun getFilesData(): MultiServiceFilesData {
         return MultiServiceFilesData(
             readOnlyUri =
@@ -102,14 +102,14 @@ abstract class SimpleAppFunctionServiceWithAdditionalFunctions : AppFunctionServ
      * @param createNoteParams Multi-service's createNoteParams.
      * @return The multiservice node.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun createNote(createNoteParams: MultiServiceCreateNoteParams): MultiServiceNote {
         return MultiServiceNote(title = createNoteParams.title, content = createNoteParams.content)
     }
 
-    @AppFunction fun additionalFunction(): String = "new function"
+    @AppFunctionDeclaration fun additionalFunction(): String = "new function"
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun componentChangeFunction(param: ComponentChangeSerializable): String = param.prop1
 }
 

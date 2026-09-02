@@ -1,6 +1,6 @@
 package com.testdata
 
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 
@@ -22,7 +22,7 @@ data class UpdateNoteParams(
 )
 
 class FunctionWithGenericSerializable {
-    @AppFunction
+    @AppFunctionDeclaration
     suspend fun test(
         appFunctionContext: AppFunctionContext,
         params: UpdateNoteParams,

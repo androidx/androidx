@@ -256,7 +256,7 @@ data class AnnotatedAppFunction(
         val appFunctionAnnotation =
             functionDeclaration.annotations.findAnnotation(AppFunctionAnnotation.CLASS_NAME)
                 ?: throw ProcessingException(
-                    "Function not annotated with @AppFunction.",
+                    "Function not annotated with @AppFunctionDeclaration.",
                     functionDeclaration,
                 )
         val rootInterfaceWithAppFunctionSchemaDefinition =

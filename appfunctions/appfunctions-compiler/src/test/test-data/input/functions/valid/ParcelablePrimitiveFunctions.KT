@@ -2,20 +2,20 @@ package com.testdata
 
 import android.app.PendingIntent
 import android.content.Intent
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionContext
 
 class ParcelablePrimitiveFunctions {
-    @AppFunction
+    @AppFunctionDeclaration
     fun pendingIntentInput(appFunctionContext: AppFunctionContext, pendingIntent: PendingIntent) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun listPendingIntentInput(
         appFunctionContext: AppFunctionContext,
         listPendingIntent: List<PendingIntent>
     ) {}
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun pendingIntentOutput(appFunctionContext: AppFunctionContext): PendingIntent {
         val intent = Intent()
         return PendingIntent.getActivity(
@@ -27,7 +27,7 @@ class ParcelablePrimitiveFunctions {
     }
 
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun listPendingIntentOutput(appFunctionContext: AppFunctionContext): List<PendingIntent> {
         val intent = Intent()
         return listOf(

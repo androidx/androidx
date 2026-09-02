@@ -21,21 +21,21 @@ package androidx.appfunctions
  * app functions.
  *
  * This annotation can be applied to:
- * - functions annotated with `@AppFunction` (to constrain the return value),
- * - parameters of `@AppFunction`,
+ * - functions annotated with `@AppFunctionDeclaration` (to constrain the return value),
+ * - parameters of `@AppFunctionDeclaration`,
  * - or properties within an `@AppFunctionSerializable`.
  *
  * ### Usage Example:
  * ```
  * // Constraining a function return value:
- * @AppFunction
+ * @AppFunctionDeclaration
  * @AppFunctionStringValueConstraint(enumValues = ["LOW", "MEDIUM", "HIGH"])
  * fun getPriorityLevel(): String {
  *     // Function body
  * }
  *
  * // Constraining a parameter:
- * @AppFunction
+ * @AppFunctionDeclaration
  * fun setMode(
  *     @AppFunctionStringValueConstraint(enumValues = ["AUTO", "MANUAL"])
  *     mode: String
@@ -58,9 +58,9 @@ public annotation class AppFunctionStringValueConstraint(
      * The list of allowed string values for the annotated element.
      *
      * These values are communicated to the agent or framework that interprets or invokes the
-     * `@AppFunction`. If any of the values carry special meaning (e.g., `"AUTO"` means automatic
-     * mode), such meanings should be documented clearly in the corresponding property, parameter,
-     * or function return KDoc.
+     * `@AppFunctionDeclaration`. If any of the values carry special meaning (e.g., `"AUTO"` means
+     * automatic mode), such meanings should be documented clearly in the corresponding property,
+     * parameter, or function return KDoc.
      */
     val enumValues: Array<String> = [],
     /**

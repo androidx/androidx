@@ -62,8 +62,8 @@ class AppFunctionLegacySchemaXmlGenerator(
     /**
      * Generates AppFunction's legacy index XML files for v1 indexer in App Search.
      *
-     * @param appFunctionsByClass a collection of functions annotated with @AppFunction grouped by
-     *   their enclosing classes.
+     * @param appFunctionsByClass a collection of functions annotated with @AppFunctionDeclaration
+     *   grouped by their enclosing classes.
      */
     fun generateLegacyIndexXml(
         appFunctionsByClass: List<AnnotatedAppFunctions>,

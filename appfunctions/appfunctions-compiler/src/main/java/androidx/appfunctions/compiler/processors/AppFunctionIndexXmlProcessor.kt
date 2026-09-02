@@ -59,7 +59,7 @@ class AppFunctionIndexXmlProcessor(
     /**
      * Generates AppFunction's index xml files for indexer in App Search.
      *
-     * @param appFunctionsByClass a collection of functions annotated with @AppFunction
+     * @param appFunctionsByClass a collection of functions annotated with @AppFunctionDeclaration
      * @param resolvedAnnotatedSerializableProxies a collection of resolved annotated serializable
      *   proxies
      */

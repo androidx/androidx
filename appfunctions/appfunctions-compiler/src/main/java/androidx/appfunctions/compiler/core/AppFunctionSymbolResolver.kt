@@ -94,7 +94,8 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
     }
 
     /**
-     * Resolves functions annotated with @AppFunction annotation ***that are not validated yet***.
+     * Resolves functions annotated with @AppFunctionDeclaration annotation ***that are not
+     * validated yet***.
      *
      * The caller should generally prefer using [resolveAnnotatedAppFunctions] to ensure that the
      * processor is working on validated AppFunctions. This should only be used when the visibility
@@ -110,7 +111,7 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
             .map { declaration ->
                 if (declaration !is KSFunctionDeclaration) {
                     throw ProcessingException(
-                        "Only functions can be annotated with @AppFunction",
+                        "Only functions can be annotated with @AppFunctionDeclaration",
                         declaration,
                     )
                 }
@@ -126,7 +127,7 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
             .groupBy { declaration ->
                 declaration.parentDeclaration as? KSClassDeclaration
                     ?: throw ProcessingException(
-                        "Top level functions cannot be annotated with @AppFunction ",
+                        "Top level functions cannot be annotated with @AppFunctionDeclaration ",
                         declaration,
                     )
             }
@@ -140,7 +141,7 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
             }
     }
 
-    /** Resolves valid functions annotated with @AppFunction annotation. */
+    /** Resolves valid functions annotated with @AppFunctionDeclaration annotation. */
     fun resolveAnnotatedAppFunctions(): List<AnnotatedAppFunctions> {
         return resolveUnvalidatedAnnotatedAppFunctions().map { annotatedAppFunction ->
             annotatedAppFunction.validate()
@@ -281,7 +282,7 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
             .groupBy { declaration ->
                 declaration.parentDeclaration as? KSClassDeclaration
                     ?: throw ProcessingException(
-                        "Top level functions cannot be annotated with @AppFunction ",
+                        "Top level functions cannot be annotated with @AppFunctionDeclaration ",
                         declaration,
                     )
             }

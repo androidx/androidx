@@ -1,14 +1,6 @@
 // Signature format: 4.0
 package androidx.appfunctions {
 
-  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface AppFunction {
-    ctor @KotlinOnly public AppFunction(optional boolean isEnabled, optional boolean isDescribedByKDoc);
-    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc() default false;
-    method @InaccessibleFromKotlin public abstract boolean isEnabled() default true;
-    property public abstract boolean isDescribedByKDoc;
-    property public abstract boolean isEnabled;
-  }
-
   @RequiresApi(android.os.Build.VERSION_CODES.CINNAMON_BUN) public final class AppFunctionActivityState {
     method @InaccessibleFromKotlin public android.app.appfunctions.AppFunctionActivityId getActivityId();
     method @InaccessibleFromKotlin public android.util.ArraySet<androidx.appfunctions.metadata.AppFunctionName> getFunctionNames();
@@ -96,6 +88,14 @@ package androidx.appfunctions {
     method @KotlinOnly public inline <reified T> androidx.appfunctions.AppFunctionData serialize(androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata metadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata, T serializable);
     method public <T> androidx.appfunctions.AppFunctionData serialize(androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata metadata, androidx.appfunctions.metadata.AppFunctionComponentsMetadata componentMetadata, T serializable, Class<T> serializableClass);
     property public androidx.appfunctions.AppFunctionData EMPTY;
+  }
+
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface AppFunctionDeclaration {
+    ctor @KotlinOnly public AppFunctionDeclaration(optional boolean isEnabled, optional boolean isDescribedByKDoc);
+    method @InaccessibleFromKotlin public abstract boolean isDescribedByKDoc() default false;
+    method @InaccessibleFromKotlin public abstract boolean isEnabled() default true;
+    property public abstract boolean isDescribedByKDoc;
+    property public abstract boolean isEnabled;
   }
 
   public final class AppFunctionDeniedException extends androidx.appfunctions.AppFunctionRequestException {

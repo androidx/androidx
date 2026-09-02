@@ -2,12 +2,12 @@ package com.testdata
 
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionSerializable
 
 @AppFunctionServiceEntryPoint("MyPropertyDocPriorityService", "property_doc_priority.xml")
 abstract class PropertyDocPriorityService: AppFunctionService() {
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun propertyKdocParameters(
         all: AllKDocAvailable,
         onlyClass: OnlyClassLevelKDoc,

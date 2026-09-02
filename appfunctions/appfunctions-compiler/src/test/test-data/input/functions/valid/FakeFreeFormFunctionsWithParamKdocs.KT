@@ -2,7 +2,7 @@ package com.testdata
 
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 
 /**
  * Tests the generation of descriptions elements for app functions' parameters.
@@ -19,7 +19,7 @@ class FakeFreeFormFunctions {
      * @return a string.
      * @throws IllegalArgumentException if the parameters have an incorrect format.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_isDescribedByKDoc_true(
         appFunctionContext: AppFunctionContext,
         intParam: Int,
@@ -39,7 +39,7 @@ class FakeFreeFormFunctions {
      * @return a string.
      * @throws IllegalArgumentException if the inputString is in an incorrect format.
      */
-    @AppFunction(isDescribedByKDoc = false)
+    @AppFunctionDeclaration(isDescribedByKDoc = false)
     fun fakeFreeFormFunction_isDescribedByKDoc_false(
         appFunctionContext: AppFunctionContext,
         intParam: Int,
@@ -55,7 +55,7 @@ class FakeFreeFormFunctions {
      * @return a string.
      * @throws IllegalArgumentException if the parameters have an incorrect format.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_invalidParam_ignored(
         appFunctionContext: AppFunctionContext,
         intParam: Int,
@@ -72,7 +72,7 @@ class FakeFreeFormFunctions {
      * @return a string.
      * @throws IllegalArgumentException if the parameters have an incorrect format.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_emptyDescription_ignored(
         appFunctionContext: AppFunctionContext,
         paramWithEmptyDescription: Int,
@@ -89,7 +89,7 @@ class FakeFreeFormFunctions {
      * @return a string.
      * @throws IllegalArgumentException if the parameters have an incorrect format.
      */
-    @AppFunction(isDescribedByKDoc = true)
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun fakeFreeFormFunction_onlyKnownTagsSkipped(
         appFunctionContext: AppFunctionContext,
         intParam: Int,

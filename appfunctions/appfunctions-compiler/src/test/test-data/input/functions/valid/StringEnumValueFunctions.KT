@@ -19,10 +19,10 @@ package com.testdata
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionStringValueConstraint
-import androidx.appfunctions.AppFunction
+import androidx.appfunctions.AppFunctionDeclaration
 
 class StringEnumValueFunctions {
-    @AppFunction
+    @AppFunctionDeclaration
     fun stringEnumParamFunction(
         ctx: AppFunctionContext,
         @AppFunctionStringValueConstraint(enumValues = ["ON", "OFF"])
@@ -30,13 +30,13 @@ class StringEnumValueFunctions {
     ) {
     }
 
-    @AppFunction
+    @AppFunctionDeclaration
     @AppFunctionStringValueConstraint(enumValues = ["ON", "OFF"])
     fun stringEnumReturnFunction(
         ctx: AppFunctionContext,
     ): String = "ON"
 
-    @AppFunction
+    @AppFunctionDeclaration
     fun stringEnumSerializableFunction(
         ctx: AppFunctionContext,
         stringEnumPropSerializable: StringEnumPropSerializable
