@@ -27,6 +27,16 @@
                 android:name="androidx.compose.runtime.tracing.ComposeTracingInitializer"
                 android:value="androidx.startup" />
         </provider>
+        <receiver
+            android:name="androidx.compose.runtime.tracing.RecompositionTracingReceiver"
+            android:directBootAware="false"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.compose.tracing.action.START_RECOMPOSE_TRACING" />
+                <action android:name="androidx.compose.tracing.action.STOP_RECOMPOSE_TRACING" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
