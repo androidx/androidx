@@ -82,11 +82,10 @@ internal class AutoCloser(
         check(newCount >= 0) { "Unbalanced reference count." }
         lastReferenceTimestamp.set(watch.getMillis())
         if (newCount == 0) {
-            autoCloseJob =
-                coroutineScope.launch {
-                    delay(config.timeoutInMs)
-                    autoCloseConnections()
-                }
+            autoCloseJob = coroutineScope.launch {
+                delay(config.timeoutInMs)
+                autoCloseConnections()
+            }
         }
     }
 

@@ -282,8 +282,9 @@ public sealed class Snapshot(
         }
     }
 
-    internal fun takeoverPinnedSnapshot(): Int =
-        pinningTrackingHandle.also { pinningTrackingHandle = -1 }
+    internal fun takeoverPinnedSnapshot(): Int = pinningTrackingHandle.also {
+        pinningTrackingHandle = -1
+    }
 
     public companion object {
         /**
@@ -2424,9 +2425,9 @@ public inline fun <T : StateRecord, R> T.writable(
 public inline fun <T : StateRecord, R> T.writable(state: StateObject, block: T.() -> R): R {
     val snapshot: Snapshot
     return sync {
-            snapshot = Snapshot.current
-            this.writableRecord(state, snapshot).block()
-        }
+        snapshot = Snapshot.current
+        this.writableRecord(state, snapshot).block()
+    }
         .also { notifyWrite(snapshot, state) }
 }
 
@@ -2451,9 +2452,9 @@ internal inline fun <T : StateRecord, R> T.overwritable(
 ): R {
     val snapshot: Snapshot
     return sync {
-            snapshot = Snapshot.current
-            this.overwritableRecord(state, snapshot, candidate).block()
-        }
+        snapshot = Snapshot.current
+        this.overwritableRecord(state, snapshot, candidate).block()
+    }
         .also { notifyWrite(snapshot, state) }
 }
 

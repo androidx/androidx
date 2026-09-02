@@ -104,12 +104,11 @@ public fun CurvedScope.curvedText(
 ): Unit =
     basicCurvedText(text, modifier, angularDirection, overflow) {
         val baseStyle = style ?: CurvedTextStyle(LocalTextStyle.current)
-        val textColor =
-            color.takeOrElse {
-                baseStyle.color.takeOrElse {
-                    LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-                }
+        val textColor = color.takeOrElse {
+            baseStyle.color.takeOrElse {
+                LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
             }
+        }
         baseStyle.merge(
             CurvedTextStyle(
                 color = textColor,
@@ -186,12 +185,11 @@ public fun CurvedScope.curvedText(
 ): Unit =
     basicCurvedText(text, modifier, angularDirection, overflow) {
         val baseStyle = style ?: CurvedTextStyle(LocalTextStyle.current)
-        val textColor =
-            color.takeOrElse {
-                baseStyle.color.takeOrElse {
-                    LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-                }
+        val textColor = color.takeOrElse {
+            baseStyle.color.takeOrElse {
+                LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
             }
+        }
         baseStyle.merge(
             CurvedTextStyle(color = textColor, fontSize = fontSize, background = background)
         )

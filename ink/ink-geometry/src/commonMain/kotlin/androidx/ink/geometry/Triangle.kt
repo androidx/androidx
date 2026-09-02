@@ -152,19 +152,19 @@ public abstract class Triangle internal constructor() {
                 Vec.areEquivalent(first.p2, second.p2)
 
         /** Returns a hash code for [triangle] using its [Triangle] properties. */
-        internal fun hash(triangle: Triangle): Int =
-            triangle.run {
-                31 * p0.x.hashCode() +
-                    p0.y.hashCode() +
-                    31 * p1.x.hashCode() +
-                    p1.y.hashCode() +
-                    31 * p2.x.hashCode() +
-                    p2.y.hashCode()
-            }
+        internal fun hash(triangle: Triangle): Int = triangle.run {
+            31 * p0.x.hashCode() +
+                p0.y.hashCode() +
+                31 * p1.x.hashCode() +
+                p1.y.hashCode() +
+                31 * p2.x.hashCode() +
+                p2.y.hashCode()
+        }
 
         /** Returns a string representation for [triangle] using its [Triangle] properties. */
-        internal fun string(triangle: Triangle): String =
-            triangle.run { "Triangle(p0=$p0, p1=$p1, p2=$p2)" }
+        internal fun string(triangle: Triangle): String = triangle.run {
+            "Triangle(p0=$p0, p1=$p1, p2=$p2)"
+        }
     }
 }
 

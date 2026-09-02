@@ -127,11 +127,10 @@ class DraggableTest {
                 durationMillis = 100,
             )
         }
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
         rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -161,11 +160,10 @@ class DraggableTest {
                 durationMillis = 100,
             )
         }
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
         rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -394,11 +392,10 @@ class DraggableTest {
                 durationMillis = 100,
             )
         }
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
         rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -541,12 +538,11 @@ class DraggableTest {
                 durationMillis = 100,
             )
         }
-        val prevTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0f)
-                enabled.value = false
-                total
-            }
+        val prevTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0f)
+            enabled.value = false
+            total
+        }
         rule.onNodeWithTag(draggableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -572,12 +568,11 @@ class DraggableTest {
             swipeRight(startX = TouchPadStart, endX = TouchPadEnd)
         }
 
-        val prevTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0f)
-                enabled.value = false
-                total
-            }
+        val prevTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0f)
+            enabled.value = false
+            total
+        }
         rule.sendIndirectPointerInput(
             indirectPointerEventPrimaryDirectionalMotionAxis =
                 IndirectPointerEventPrimaryDirectionalMotionAxis.X,
@@ -926,12 +921,11 @@ class DraggableTest {
                 down(center)
                 moveBy(Offset(100f, 100f))
             }
-            val prevTotal =
-                rule.runOnIdle {
-                    assertThat(dragStopped).isEqualTo(0f)
-                    assertThat(total).isGreaterThan(0f)
-                    total
-                }
+            val prevTotal = rule.runOnIdle {
+                assertThat(dragStopped).isEqualTo(0f)
+                assertThat(total).isGreaterThan(0f)
+                total
+            }
             state.drag(MutatePriority.PreventUserInput) { dragBy(123f) }
             rule.runOnIdle {
                 assertThat(total).isEqualTo(prevTotal + 123f)
@@ -972,12 +966,11 @@ class DraggableTest {
                 repeat(5) { moveBy(delta = defaultForwardMovementAlongXAxis) }
             }
 
-            val prevTotal =
-                rule.runOnIdle {
-                    assertThat(dragStopped).isEqualTo(0f)
-                    assertThat(total).isGreaterThan(0f)
-                    total
-                }
+            val prevTotal = rule.runOnIdle {
+                assertThat(dragStopped).isEqualTo(0f)
+                assertThat(total).isGreaterThan(0f)
+                total
+            }
             state.drag(MutatePriority.PreventUserInput) { dragBy(123f) }
             rule.runOnIdle {
                 assertThat(total).isEqualTo(prevTotal + 123f)

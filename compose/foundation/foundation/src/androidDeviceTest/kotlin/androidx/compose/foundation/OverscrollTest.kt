@@ -495,15 +495,14 @@ class OverscrollTest {
             up()
         }
 
-        val lastAccScroll =
-            rule.runOnIdle {
-                assertThat(controller.isInProgressCallCount).isEqualTo(1)
-                // respect touch slop if overscroll animation is not running
-                assertThat(acummulatedScroll).isEqualTo(500f - viewConfiguration.touchSlop)
-                // pretend we're settling the overscroll animation
-                controller.animationRunning = true
-                acummulatedScroll
-            }
+        val lastAccScroll = rule.runOnIdle {
+            assertThat(controller.isInProgressCallCount).isEqualTo(1)
+            // respect touch slop if overscroll animation is not running
+            assertThat(acummulatedScroll).isEqualTo(500f - viewConfiguration.touchSlop)
+            // pretend we're settling the overscroll animation
+            controller.animationRunning = true
+            acummulatedScroll
+        }
 
         rule.onNodeWithTag(boxTag).performTouchInput {
             down(center)

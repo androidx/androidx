@@ -224,14 +224,13 @@ private class ComposePredictiveBackHandler(
      */
     private fun launchNewGesture() {
         activeChannel = Channel(capacity = BUFFERED, onBufferOverflow = SUSPEND)
-        activeJob =
-            scope.launch {
-                if (isBackEnabled) {
-                    var completed = false
-                    currentOnBack(activeChannel!!.consumeAsFlow().onCompletion { completed = true })
-                    check(completed) { "You must collect the progress flow" }
-                }
+        activeJob = scope.launch {
+            if (isBackEnabled) {
+                var completed = false
+                currentOnBack(activeChannel!!.consumeAsFlow().onCompletion { completed = true })
+                check(completed) { "You must collect the progress flow" }
             }
+        }
     }
 
     override fun onBackStarted(event: BackEventCompat) {

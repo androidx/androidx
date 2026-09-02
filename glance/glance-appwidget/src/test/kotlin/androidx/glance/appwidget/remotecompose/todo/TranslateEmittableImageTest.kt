@@ -70,34 +70,34 @@ class TranslateEmittableImageTest : BaseRemoteComposeTest() {
     // TODO(b/450985714): Fix and re-enable this test
     @Ignore("Test not yet written, see b/450985714")
     @Test
-    fun translateBox_backgroundImage_iconImageProvider() =
-        fakeCoroutineScope.runTest { TODO("test IconImageProider") }
+    fun translateBox_backgroundImage_iconImageProvider() = fakeCoroutineScope.runTest {
+        TODO("test IconImageProider")
+    }
 
     // TODO(b/450985714): Fix and re-enable this test
     @Ignore("Test not yet written, see b/450985714")
     @Test
-    fun translateBox_backgroundImage_bitmapImageProvider() =
-        fakeCoroutineScope.runTest {
-            @DrawableRes val id = R.drawable.ic_secure
-            val bmp = BitmapFactory.decodeResource(context.resources, id)
+    fun translateBox_backgroundImage_bitmapImageProvider() = fakeCoroutineScope.runTest {
+        @DrawableRes val id = R.drawable.ic_secure
+        val bmp = BitmapFactory.decodeResource(context.resources, id)
 
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(
-                        modifier =
-                            GlanceModifier.Companion.size(100.dp, 100.dp)
-                                .background(ImageProvider(bmp))
-                    ) {
-                        // no content
-                    }
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(
+                    modifier =
+                        GlanceModifier.Companion.size(100.dp, 100.dp).background(ImageProvider(bmp))
+                ) {
+                    // no content
                 }
+            }
 
-            TODO("test BitmapImageProvider")
-        }
+        TODO("test BitmapImageProvider")
+    }
 
     // TODO(b/450985714): Fix and re-enable this test
     @Ignore("Test not yet written, see b/450985714")
     @Test
-    fun translateBox_backgroundImage_uriImageProvider() =
-        fakeCoroutineScope.runTest { TODO("test uriImageProvider") }
+    fun translateBox_backgroundImage_uriImageProvider() = fakeCoroutineScope.runTest {
+        TODO("test uriImageProvider")
+    }
 }

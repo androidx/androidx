@@ -37,41 +37,40 @@ internal class DataStoreInMemoryCache<T> {
      * higher than the current state.
      */
     fun tryUpdate(newState: State<T>): State<T> {
-        val updated =
-            cachedValue.updateAndGet { cached ->
-                when (cached) {
-                    is ReadException<T>,
-                    UnInitialized -> {
-                        // for ReadException and UnInitialized; we can always accept the new state.
-                        // this is especially useful when multiple reads fail so each can
-                        // send their own exception.
+        val updated = cachedValue.updateAndGet { cached ->
+            when (cached) {
+                is ReadException<T>,
+                UnInitialized -> {
+                    // for ReadException and UnInitialized; we can always accept the new state.
+                    // this is especially useful when multiple reads fail so each can
+                    // send their own exception.
+                    newState
+                }
+                is Data<T> -> {
+                    // When overriding Data, only accept newer values.
+                    // Note that, when we have Data, we'll only every try to read again
+                    // if version changed, and it will arrive here as either new data or
+                    // new error with its new version.
+                    //
+                    // If a read happens in parallel to a write ("dirty read"), we will not
+                    // update
+                    // the cache here but make it local in the flow that does the dirty read. In
+                    // this cache we guarantee the version matches with the data because only
+                    // reads
+                    // that have file lock can set the cache.
+                    if (newState.version > cached.version) {
                         newState
-                    }
-                    is Data<T> -> {
-                        // When overriding Data, only accept newer values.
-                        // Note that, when we have Data, we'll only every try to read again
-                        // if version changed, and it will arrive here as either new data or
-                        // new error with its new version.
-                        //
-                        // If a read happens in parallel to a write ("dirty read"), we will not
-                        // update
-                        // the cache here but make it local in the flow that does the dirty read. In
-                        // this cache we guarantee the version matches with the data because only
-                        // reads
-                        // that have file lock can set the cache.
-                        if (newState.version > cached.version) {
-                            newState
-                        } else {
-                            cached
-                        }
-                    }
-                    is Final<T> -> {
-                        // no going back from final state
+                    } else {
                         cached
                     }
-                    is NoValueDataState -> error(DataStoreImpl.BUG_MESSAGE)
                 }
+                is Final<T> -> {
+                    // no going back from final state
+                    cached
+                }
+                is NoValueDataState -> error(DataStoreImpl.BUG_MESSAGE)
             }
+        }
         return updated
     }
 }

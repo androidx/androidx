@@ -34,8 +34,9 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(sdk = [Config.ALL_SDKS])
 class EncoderProfilesResolverFactoryTest {
 
-    private val videoEncoderInfoFinder: VideoEncoderInfo.Finder =
-        VideoEncoderInfo.Finder { FakeVideoEncoderInfo() }
+    private val videoEncoderInfoFinder: VideoEncoderInfo.Finder = VideoEncoderInfo.Finder {
+        FakeVideoEncoderInfo()
+    }
 
     @Test
     fun getResolver_returnsCachedInstanceForSameCamera() {

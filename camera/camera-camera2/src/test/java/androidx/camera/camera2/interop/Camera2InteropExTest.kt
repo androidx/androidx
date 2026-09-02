@@ -225,13 +225,12 @@ class Camera2InteropExTest {
     fun applyCamera2InteropAsync() {
         val mutableConfig = androidx.camera.core.impl.MutableOptionsBundle.create()
         val cameraControl = createCameraControl(mutableConfig)
-        val future =
-            cameraControl.applyCamera2InteropAsync {
-                setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_MODE,
-                    CaptureRequest.CONTROL_AE_MODE_OFF,
-                )
-            }
+        val future = cameraControl.applyCamera2InteropAsync {
+            setCaptureRequestOption(
+                CaptureRequest.CONTROL_AE_MODE,
+                CaptureRequest.CONTROL_AE_MODE_OFF,
+            )
+        }
         assertThat(future.isDone).isTrue()
         val config = Camera2ImplConfig(mutableConfig)
         assertThat(config.getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE))
@@ -242,10 +241,9 @@ class Camera2InteropExTest {
     fun applyCamera2InteropAsync_indexingOperatorTargets() {
         val mutableConfig = androidx.camera.core.impl.MutableOptionsBundle.create()
         val cameraControl = createCameraControl(mutableConfig)
-        val future =
-            cameraControl.applyCamera2InteropAsync {
-                captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_OFF
-            }
+        val future = cameraControl.applyCamera2InteropAsync {
+            captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_OFF
+        }
         assertThat(future.isDone).isTrue()
         val config = Camera2ImplConfig(mutableConfig)
         assertThat(config.getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE))
@@ -256,10 +254,9 @@ class Camera2InteropExTest {
     fun applyCamera2InteropAsync_properties() {
         val mutableConfig = androidx.camera.core.impl.MutableOptionsBundle.create()
         val cameraControl = createCameraControl(mutableConfig)
-        val future =
-            cameraControl.applyCamera2InteropAsync {
-                repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_RECORD
-            }
+        val future = cameraControl.applyCamera2InteropAsync {
+            repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_RECORD
+        }
         assertThat(future.isDone).isTrue()
         val config = Camera2ImplConfig(mutableConfig)
         assertThat(config.getCaptureRequestTemplate(-1)).isEqualTo(CameraDevice.TEMPLATE_RECORD)

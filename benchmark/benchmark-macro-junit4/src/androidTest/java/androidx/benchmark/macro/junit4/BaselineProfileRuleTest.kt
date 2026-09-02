@@ -229,7 +229,9 @@ class BaselineProfileRuleTest {
 
     private fun List<String>.assertInOrder(
         @Suppress("SameParameterValue") vararg toFind: String,
-        predicate: (String, String) -> (Boolean) = { line, nextToFind -> line.endsWith(nextToFind) },
+        predicate: (String, String) -> (Boolean) = { line, nextToFind ->
+            line.endsWith(nextToFind)
+        },
     ) {
         val remaining = toFind.filter { it.isNotBlank() }.toMutableList()
         for (line in this) {

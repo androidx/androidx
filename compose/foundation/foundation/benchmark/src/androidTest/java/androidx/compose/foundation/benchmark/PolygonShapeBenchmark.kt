@@ -115,8 +115,10 @@ class PolygonShapeBenchmark {
 
     @Test
     fun foundationNormalizedPolygonOutline() {
-        val shape =
-            PolygonShape { polygon(5, rounding = CornerRounding(percent = 20)) }.scaledToFit()
+        val shape = PolygonShape {
+            polygon(5, rounding = CornerRounding(percent = 20))
+        }
+            .scaledToFit()
         benchmarkRule.measureRepeated { shape.createOutline(size, LayoutDirection.Ltr, density) }
     }
 

@@ -80,60 +80,60 @@ internal suspend fun <T> withTimer(
     val timerScope = this
     val timerJob: AtomicReference<Job?> = AtomicReference(null)
     coroutineScope {
-            val blockScope =
-                object : TimerScope, CoroutineScope by this {
-                    override val timeLeft: Duration
-                        get() =
-                            (deadline.get()?.minus(timeSource.markNow()))?.milliseconds
-                                ?: Duration.INFINITE
+        val blockScope =
+            object : TimerScope, CoroutineScope by this {
+                override val timeLeft: Duration
+                    get() =
+                        (deadline.get()?.minus(timeSource.markNow()))?.milliseconds
+                            ?: Duration.INFINITE
 
-                    private val deadline: AtomicReference<Long?> = AtomicReference(null)
+                private val deadline: AtomicReference<Long?> = AtomicReference(null)
 
-                    override fun addTime(time: Duration) {
-                        deadline.update {
-                            checkNotNull(it) {
-                                "Start the timer with startTimer before calling addTime"
-                            }
-                            require(time.isPositive()) {
-                                "Cannot call addTime with a negative duration"
-                            }
-                            it + time.inWholeMilliseconds
+                override fun addTime(time: Duration) {
+                    deadline.update {
+                        checkNotNull(it) {
+                            "Start the timer with startTimer before calling addTime"
                         }
-                    }
-
-                    override fun startTimer(initialTimeout: Duration) {
-                        if (initialTimeout.inWholeMilliseconds <= 0) {
-                            timerScope.cancel(
-                                TimeoutCancellationException(
-                                    "Timed out immediately",
-                                    block.hashCode(),
-                                )
-                            )
-                            return
+                        require(time.isPositive()) {
+                            "Cannot call addTime with a negative duration"
                         }
-                        if (timeLeft < initialTimeout) return
-
-                        deadline.set(timeSource.markNow() + initialTimeout.inWholeMilliseconds)
-                        // Loop until the deadline is reached.
-                        timerJob
-                            .getAndSet(
-                                timerScope.launch {
-                                    while (deadline.get()!! > timeSource.markNow()) {
-                                        delay(timeLeft)
-                                    }
-                                    timerScope.cancel(
-                                        TimeoutCancellationException(
-                                            "Timed out of executing block.",
-                                            block.hashCode(),
-                                        )
-                                    )
-                                }
-                            )
-                            ?.cancel()
+                        it + time.inWholeMilliseconds
                     }
                 }
-            blockScope.block()
-        }
+
+                override fun startTimer(initialTimeout: Duration) {
+                    if (initialTimeout.inWholeMilliseconds <= 0) {
+                        timerScope.cancel(
+                            TimeoutCancellationException(
+                                "Timed out immediately",
+                                block.hashCode(),
+                            )
+                        )
+                        return
+                    }
+                    if (timeLeft < initialTimeout) return
+
+                    deadline.set(timeSource.markNow() + initialTimeout.inWholeMilliseconds)
+                    // Loop until the deadline is reached.
+                    timerJob
+                        .getAndSet(
+                            timerScope.launch {
+                                while (deadline.get()!! > timeSource.markNow()) {
+                                    delay(timeLeft)
+                                }
+                                timerScope.cancel(
+                                    TimeoutCancellationException(
+                                        "Timed out of executing block.",
+                                        block.hashCode(),
+                                    )
+                                )
+                            }
+                        )
+                        ?.cancel()
+                }
+            }
+        blockScope.block()
+    }
         .also { timerJob.get()?.cancel() }
 }
 

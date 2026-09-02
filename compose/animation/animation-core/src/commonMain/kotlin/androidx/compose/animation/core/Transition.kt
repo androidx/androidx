@@ -725,8 +725,9 @@ public class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() 
                     currentState = oldTargetState
                     this@SeekableTransitionState.targetState = targetState
                 }
-                val composedTargetState =
-                    compositionContinuationMutex.withLock { composedTargetState }
+                val composedTargetState = compositionContinuationMutex.withLock {
+                    composedTargetState
+                }
                 if (targetState != composedTargetState) {
                     doOneFrame() // We have to wait a frame for the composition, so continue
                     // Now we shouldn't skip a frame while waiting for composition

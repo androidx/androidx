@@ -358,18 +358,17 @@ private fun createRoundRectPath(
     strokeWidth: Float,
     insetWidth: Float,
     fillArea: Boolean,
-): Path =
-    targetPath.apply {
-        reset()
-        addRoundRect(createInsetRoundedRect(insetWidth, roundedRect))
-        if (!fillArea) {
-            val insetPath =
-                Path().apply {
-                    addRoundRect(createInsetRoundedRect(strokeWidth + insetWidth, roundedRect))
-                }
-            op(this, insetPath, PathOperation.Difference)
-        }
+): Path = targetPath.apply {
+    reset()
+    addRoundRect(createInsetRoundedRect(insetWidth, roundedRect))
+    if (!fillArea) {
+        val insetPath =
+            Path().apply {
+                addRoundRect(createInsetRoundedRect(strokeWidth + insetWidth, roundedRect))
+            }
+        op(this, insetPath, PathOperation.Difference)
     }
+}
 
 private fun createInsetRoundedRect(widthPx: Float, roundedRect: RoundRect) =
     RoundRect(

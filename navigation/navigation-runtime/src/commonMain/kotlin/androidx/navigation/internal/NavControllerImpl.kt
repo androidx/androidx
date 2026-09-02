@@ -867,10 +867,9 @@ internal class NavControllerImpl(
         }
         // Add any STARTED entries from the backQueue. This will include the topmost
         // non-FloatingWindow destination plus every FloatingWindow destination above it.
-        entries +=
-            backQueue.filter { entry ->
-                !entries.contains(entry) && entry.maxLifecycle.isAtLeast(Lifecycle.State.STARTED)
-            }
+        entries += backQueue.filter { entry ->
+            !entries.contains(entry) && entry.maxLifecycle.isAtLeast(Lifecycle.State.STARTED)
+        }
         return entries.filter { it.destination !is NavGraph }
     }
 
@@ -1726,8 +1725,9 @@ internal class NavControllerImpl(
     }
 
     internal fun getBackStackEntry(destinationId: Int): NavBackStackEntry {
-        val lastFromBackStack: NavBackStackEntry? =
-            backQueue.lastOrNull { entry -> entry.destination.id == destinationId }
+        val lastFromBackStack: NavBackStackEntry? = backQueue.lastOrNull { entry ->
+            entry.destination.id == destinationId
+        }
         requireNotNull(lastFromBackStack) {
             "No destination with ID $destinationId is on the NavController's back stack. The " +
                 "current destination is $currentDestination"
@@ -1736,8 +1736,9 @@ internal class NavControllerImpl(
     }
 
     internal fun getBackStackEntry(route: String): NavBackStackEntry {
-        val lastFromBackStack: NavBackStackEntry? =
-            backQueue.lastOrNull { entry -> entry.destination.hasRoute(route, entry.arguments) }
+        val lastFromBackStack: NavBackStackEntry? = backQueue.lastOrNull { entry ->
+            entry.destination.hasRoute(route, entry.arguments)
+        }
         requireNotNull(lastFromBackStack) {
             "No destination with route $route is on the NavController's back stack. The " +
                 "current destination is $currentDestination"

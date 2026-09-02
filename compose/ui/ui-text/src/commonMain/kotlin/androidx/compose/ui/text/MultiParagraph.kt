@@ -1025,14 +1025,13 @@ internal fun findParagraphByIndex(paragraphInfoList: List<ParagraphInfo>, index:
     requirePrecondition(index <= paragraphInfoList.last().endIndex) {
         "Index $index should be less or equal than last line's end $lastLineEnd"
     }
-    val paragraphIndex =
-        paragraphInfoList.fastBinarySearch { paragraphInfo ->
-            when {
-                paragraphInfo.startIndex > index -> 1
-                paragraphInfo.endIndex <= index -> -1
-                else -> 0
-            }
+    val paragraphIndex = paragraphInfoList.fastBinarySearch { paragraphInfo ->
+        when {
+            paragraphInfo.startIndex > index -> 1
+            paragraphInfo.endIndex <= index -> -1
+            else -> 0
         }
+    }
     requirePrecondition(paragraphIndex in paragraphInfoList.indices) {
         "Found paragraph index $paragraphIndex should be in range [0, ${paragraphInfoList.size}).\n" +
             "Debug info: index=$index, paragraphs=[${paragraphInfoList.fastJoinToString { "[${it.startIndex}, ${it.endIndex})" }}]"

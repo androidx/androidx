@@ -235,12 +235,11 @@ class TouchScrollable2DTest : Scrollable2DInputTest() {
             moveBy(Offset(x = 100f, y = 100f))
         }
 
-        val prevTotal =
-            rule.runOnIdle {
-                assertThat(total.x).isGreaterThan(0f)
-                assertThat(total.y).isGreaterThan(0f)
-                total
-            }
+        val prevTotal = rule.runOnIdle {
+            assertThat(total.x).isGreaterThan(0f)
+            assertThat(total.y).isGreaterThan(0f)
+            total
+        }
 
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput {
             moveBy(Offset(x = 100f, y = 100f))

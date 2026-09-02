@@ -132,8 +132,9 @@ internal constructor(
         } else {
             require(startTime.isBefore(endTime)) { "startTime must be before endTime." }
             if (segments.isNotEmpty()) {
-                val sortedSegments =
-                    segments.sortedWith { a, b -> a.startTime.compareTo(b.startTime) }
+                val sortedSegments = segments.sortedWith { a, b ->
+                    a.startTime.compareTo(b.startTime)
+                }
                 for (i in 0 until sortedSegments.lastIndex) {
                     require(!sortedSegments[i].endTime.isAfter(sortedSegments[i + 1].startTime)) {
                         "segments can not overlap."

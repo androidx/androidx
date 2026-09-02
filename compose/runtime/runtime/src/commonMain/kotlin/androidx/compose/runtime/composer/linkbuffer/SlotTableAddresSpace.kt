@@ -285,8 +285,9 @@ internal class SlotTableAddressSpace(
         return newRange
     }
 
-    fun sourceInformationOf(group: GroupAddress) =
-        sourceInformationMap?.let { map -> anchors[group]?.let { anchor -> map[anchor] } }
+    fun sourceInformationOf(group: GroupAddress) = sourceInformationMap?.let { map ->
+        anchors[group]?.let { anchor -> map[anchor] }
+    }
 
     fun recordSourceInformation(
         parent: GroupAddress,

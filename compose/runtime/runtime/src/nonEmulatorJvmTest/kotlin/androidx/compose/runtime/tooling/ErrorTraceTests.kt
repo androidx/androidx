@@ -798,7 +798,9 @@ private fun exceptionTest(
         if (composerToUse == ComposerToUse.Both || composerToUse == ComposerToUse.Gap) {
             assertTrace(
                 expectedTrace?.substituteComposerImpl("GapComposer"),
-                captureTrace { compositionTest(ComposerToUse.Gap, block = block).awaitCompletion() },
+                captureTrace {
+                    compositionTest(ComposerToUse.Gap, block = block).awaitCompletion()
+                },
             )
         }
 

@@ -864,14 +864,13 @@ class BoundsAssertionsTest {
         }
 
         val textNode = rule.onNodeWithTag("tag")
-        val expectedBounds =
-            textLayoutResult.run {
-                val right = getBoundingBox(1).right
-                val top = getBoundingBox(1).top
-                val left = getBoundingBox(3).left
-                val bottom = getBoundingBox(3).bottom
-                Rect(left, top, right, bottom)
-            }
+        val expectedBounds = textLayoutResult.run {
+            val right = getBoundingBox(1).right
+            val top = getBoundingBox(1).top
+            val left = getBoundingBox(3).left
+            val bottom = getBoundingBox(3).bottom
+            Rect(left, top, right, bottom)
+        }
         assertThat(textNode.getFirstLinkBounds { true }).isEqualTo(expectedBounds)
     }
 

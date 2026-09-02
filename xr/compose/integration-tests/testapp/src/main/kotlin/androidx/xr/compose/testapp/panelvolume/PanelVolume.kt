@@ -128,12 +128,11 @@ class PanelVolume : ComponentActivity() {
     private fun SpatialContent() {
         val session = LocalSession.current ?: return
         var arrows by remember { mutableStateOf<GltfModel?>(null) }
-        val gltfEntity =
-            arrows?.let {
-                remember {
-                    GltfModelEntity.create(session, it, parent = session.scene.activitySpace)
-                }
+        val gltfEntity = arrows?.let {
+            remember {
+                GltfModelEntity.create(session, it, parent = session.scene.activitySpace)
             }
+        }
 
         LaunchedEffect(Unit) {
             arrows = GltfModel.create(session, Paths.get("models", "xyzArrows.glb"))

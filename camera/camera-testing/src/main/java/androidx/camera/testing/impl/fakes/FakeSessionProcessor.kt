@@ -38,7 +38,8 @@ private const val FAKE_CAPTURE_SEQUENCE_ID = 1
 public class FakeSessionProcessor(
     private val postviewSupportedSizes: Map<Int, List<Size>>? = null,
     private val supportedCameraOperations: Set<Int> = emptySet(),
-    private val extensionSpecificChars: List<Pair<CameraCharacteristics.Key<*>, Any>>? = emptyList(),
+    private val extensionSpecificChars: List<Pair<CameraCharacteristics.Key<*>, Any>>? =
+        emptyList(),
 ) : SessionProcessor {
 
     // Values of these Deferred are the timestamp to complete.

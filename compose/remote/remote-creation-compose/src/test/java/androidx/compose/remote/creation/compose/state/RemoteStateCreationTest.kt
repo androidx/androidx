@@ -168,7 +168,8 @@ class RemoteStateCreationTest {
                 val namedBitmap =
                     rememberNamedRemoteImageBitmap(
                         name = "testBitmapUrl",
-                        url = "android.resource://androidx.compose.remote.foundation/drawable/dummy",
+                        url =
+                            "android.resource://androidx.compose.remote.foundation/drawable/dummy",
                     )
                 RemoteBox(
                     modifier =

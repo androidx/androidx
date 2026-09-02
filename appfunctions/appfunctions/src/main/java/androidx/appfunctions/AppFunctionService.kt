@@ -90,44 +90,43 @@ public abstract class AppFunctionService :
         // [executeFunction] for subclass to receive too.
         val delegateCancellationSignal = CancellationSignal()
         // Just delegate to the suspend version
-        val functionExecutionJob =
-            workerCoroutineScope.launch {
-                val appFunctionMetadata =
-                    getAppFunctionMetadata(
-                        this@AppFunctionService,
-                        resolveInventory(),
-                        request.functionIdentifier,
-                    )
-                if (appFunctionMetadata == null) {
-                    callback.onError(
-                        AppFunctionFunctionNotFoundException(
-                                "No function found with identifier: " +
-                                    "${request.functionIdentifier} in package: " +
-                                    this@AppFunctionService.packageName
+        val functionExecutionJob = workerCoroutineScope.launch {
+            val appFunctionMetadata =
+                getAppFunctionMetadata(
+                    this@AppFunctionService,
+                    resolveInventory(),
+                    request.functionIdentifier,
+                )
+            if (appFunctionMetadata == null) {
+                callback.onError(
+                    AppFunctionFunctionNotFoundException(
+                            "No function found with identifier: " +
+                                "${request.functionIdentifier} in package: " +
+                                this@AppFunctionService.packageName
+                        )
+                        .toPlatformClass()
+                )
+                return@launch
+            }
+            this@AppFunctionService.mainExecutor.execute {
+                onExecuteFunction(
+                    request.toCompatExecuteAppFunctionRequest(appFunctionMetadata),
+                    delegateCancellationSignal,
+                ) { response ->
+                    when (response) {
+                        is ExecuteAppFunctionResponse.Success -> {
+                            response.grantUriAccess(
+                                context = this@AppFunctionService,
+                                callingPackageName = callingPackage,
                             )
-                            .toPlatformClass()
-                    )
-                    return@launch
-                }
-                this@AppFunctionService.mainExecutor.execute {
-                    onExecuteFunction(
-                        request.toCompatExecuteAppFunctionRequest(appFunctionMetadata),
-                        delegateCancellationSignal,
-                    ) { response ->
-                        when (response) {
-                            is ExecuteAppFunctionResponse.Success -> {
-                                response.grantUriAccess(
-                                    context = this@AppFunctionService,
-                                    callingPackageName = callingPackage,
-                                )
-                                callback.onResult(response.toPlatformExecuteAppFunctionResponse())
-                            }
-                            is ExecuteAppFunctionResponse.Error ->
-                                callback.onError(response.error.toPlatformClass())
+                            callback.onResult(response.toPlatformExecuteAppFunctionResponse())
                         }
+                        is ExecuteAppFunctionResponse.Error ->
+                            callback.onError(response.error.toPlatformClass())
                     }
                 }
             }
+        }
         // Handle cancellation
         cancellationSignal.setOnCancelListener {
             delegateCancellationSignal.cancel()

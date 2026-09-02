@@ -87,12 +87,12 @@ internal class TestInCallService : InCallServiceCompat() {
         disconnectAllCalls()
         // Wait for the InCallService to unbind from Telecom before the next test.
         runCatching {
-                withTimeout(5000) {
-                    if (isTelecomBound()) {
-                        mTelecomBoundFlow.first { isBound -> !isBound }
-                    }
+            withTimeout(5000) {
+                if (isTelecomBound()) {
+                    mTelecomBoundFlow.first { isBound -> !isBound }
                 }
             }
+        }
             .onFailure { Log.w(LOG_TAG, "destroyAlLCalls: no unbind detected during destroy") }
     }
 

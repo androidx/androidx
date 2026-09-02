@@ -374,14 +374,13 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
             val onConflict = OnConflictProcessor.onConflictText(insertFunction.onConflict)
             val entities = insertFunction.entities
 
-            val fields =
-                entities.mapValues {
-                    val spec = getOrCreateProperty(InsertFunctionProperty(it.value, onConflict))
-                    val impl =
-                        EntityInsertAdapterWriter.create(it.value, onConflict)
-                            .createAnonymous(this@DaoWriter)
-                    spec to impl
-                }
+            val fields = entities.mapValues {
+                val spec = getOrCreateProperty(InsertFunctionProperty(it.value, onConflict))
+                val impl =
+                    EntityInsertAdapterWriter.create(it.value, onConflict)
+                        .createAnonymous(this@DaoWriter)
+                spec to impl
+            }
             val functionImpl =
                 overrideWithoutAnnotations(insertFunction.element, declaredDao)
                     .apply { addCode(createInsertFunctionBody(insertFunction, fields)) }
@@ -439,15 +438,14 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
                     } else {
                         ""
                     }
-                val fields =
-                    entities.mapValues {
-                        val spec =
-                            getOrCreateProperty(
-                                DeleteOrUpdateAdapterProperty(it.value, functionPrefix, onConflict)
-                            )
-                        val impl = implCallback(function, it.value)
-                        spec to impl
-                    }
+                val fields = entities.mapValues {
+                    val spec =
+                        getOrCreateProperty(
+                            DeleteOrUpdateAdapterProperty(it.value, functionPrefix, onConflict)
+                        )
+                    val impl = implCallback(function, it.value)
+                    spec to impl
+                }
                 val functionSpec =
                     overrideWithoutAnnotations(function.element, declaredDao)
                         .apply { addCode(createDeleteOrUpdateFunctionBody(function, fields)) }
@@ -482,14 +480,13 @@ class DaoWriter(val dao: Dao, private val dbElement: XElement, writerContext: Wr
     private fun createUpsertFunctions(): List<PreparedStmtQuery> {
         return dao.upsertFunctions.map { upsertFunctions ->
             val entities = upsertFunctions.entities
-            val fields =
-                entities.mapValues {
-                    val spec = getOrCreateProperty(UpsertAdapterProperty(it.value))
-                    val impl =
-                        EntityUpsertAdapterWriter.create(it.value)
-                            .createConcrete(it.value, this@DaoWriter)
-                    spec to impl
-                }
+            val fields = entities.mapValues {
+                val spec = getOrCreateProperty(UpsertAdapterProperty(it.value))
+                val impl =
+                    EntityUpsertAdapterWriter.create(it.value)
+                        .createConcrete(it.value, this@DaoWriter)
+                spec to impl
+            }
             val functionImpl =
                 overrideWithoutAnnotations(upsertFunctions.element, declaredDao)
                     .apply { addCode(createUpsertFunctionBody(upsertFunctions, fields)) }

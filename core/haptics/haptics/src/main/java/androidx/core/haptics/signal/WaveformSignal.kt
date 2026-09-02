@@ -198,8 +198,9 @@ public class WaveformSignal(
     override fun toVibration(): VibrationWrapper? =
         HapticSignalConverter.toVibration(initialWaveform = this, repeatingWaveform = null)
 
-    override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean =
-        atoms.all { it.isSupportedBy(deviceProfile) }
+    override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean = atoms.all {
+        it.isSupportedBy(deviceProfile)
+    }
 
     /**
      * A [WaveformSignal.Atom] is a building block for creating a [WaveformSignal].

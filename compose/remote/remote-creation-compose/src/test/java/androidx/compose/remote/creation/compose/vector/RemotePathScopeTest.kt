@@ -73,12 +73,11 @@ class RemotePathScopeTest {
 
     @Test
     fun remotePath_withConicTo() {
-        val path =
-            testRemoteStateScope.remotePath {
-                moveTo(0f.rf, 0f.rf)
-                conicTo(100f.rf, 0f.rf, 100f.rf, 100f.rf, 0.70710678f.rf)
-                close()
-            }
+        val path = testRemoteStateScope.remotePath {
+            moveTo(0f.rf, 0f.rf)
+            conicTo(100f.rf, 0f.rf, 100f.rf, 100f.rf, 0.70710678f.rf)
+            close()
+        }
         val floatArray = path.createFloatArray()
         assertTrue(floatArray.isNotEmpty())
     }

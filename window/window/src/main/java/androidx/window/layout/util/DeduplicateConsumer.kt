@@ -26,15 +26,14 @@ internal class DeduplicateConsumer<T>(private val callback: Consumer<T>) : Consu
     private var lastValue: T? = null
 
     override fun accept(value: T) {
-        val shouldNotify =
-            lock.withLock {
-                if (lastValue != value) {
-                    lastValue = value
-                    true
-                } else {
-                    false
-                }
+        val shouldNotify = lock.withLock {
+            if (lastValue != value) {
+                lastValue = value
+                true
+            } else {
+                false
             }
+        }
         if (shouldNotify) {
             callback.accept(value)
         }

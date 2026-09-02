@@ -108,14 +108,18 @@ internal sealed interface A2uiComponentStubImpl : A2uiComponentStub {
 internal class IdStubImpl(
     val id: String,
     override val isReady: @Composable A2uiComponentScope.(A2uiComponentProperties) -> Boolean,
-    override val content: @Composable A2uiComponentScope.(A2uiComponentProperties, Modifier) -> Unit,
+    override val content:
+        @Composable
+        A2uiComponentScope.(A2uiComponentProperties, Modifier) -> Unit,
 ) : A2uiComponentStubImpl
 
 /** Backing implementation for type-scoped component test stubs. */
 internal class TypeStubImpl(
     val type: String,
     override val isReady: @Composable A2uiComponentScope.(A2uiComponentProperties) -> Boolean,
-    override val content: @Composable A2uiComponentScope.(A2uiComponentProperties, Modifier) -> Unit,
+    override val content:
+        @Composable
+        A2uiComponentScope.(A2uiComponentProperties, Modifier) -> Unit,
 ) : A2uiComponentStubImpl
 
 internal const val STUB_TYPE_SENTINEL = "__a2ui_stub_payload_sentinel__"

@@ -32,14 +32,13 @@ class ParameterizedComposeTestRuleTest {
         val paramList = listOf(Param("first"), Param("second"))
         composeTestRule.setContent { Box(modifier = Modifier.size(10.dp)) }
 
-        val error =
-            kotlin.runCatching {
-                composeTestRule.forEachParameter(paramList) {
-                    if (it.singleParam == "first") {
-                        throw AssertionError()
-                    }
+        val error = kotlin.runCatching {
+            composeTestRule.forEachParameter(paramList) {
+                if (it.singleParam == "first") {
+                    throw AssertionError()
                 }
             }
+        }
 
         assertTrue(error.exceptionOrNull()?.localizedMessage?.contains("Error on Config") == true)
     }

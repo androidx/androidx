@@ -72,21 +72,18 @@ class ProjectedServiceConnectionTest {
     }
 
     @Test
-    fun connect_bindsAndConnects_returnsInstance() =
-        testScope.runTest {
-            shadowOf(context).setBindServiceCallsOnServiceConnectedDirectly(true)
+    fun connect_bindsAndConnects_returnsInstance() = testScope.runTest {
+        shadowOf(context).setBindServiceCallsOnServiceConnectedDirectly(true)
 
-            assertThat(projectedServiceConnection.connect())
-                .isInstanceOf(IProjectedService::class.java)
-        }
+        assertThat(projectedServiceConnection.connect()).isInstanceOf(IProjectedService::class.java)
+    }
 
     @Test
-    fun connect_doesNotBind_throwsIllegalStateException() =
-        testScope.runTest {
-            shadowOf(context).declareComponentUnbindable(COMPONENT_NAME)
+    fun connect_doesNotBind_throwsIllegalStateException() = testScope.runTest {
+        shadowOf(context).declareComponentUnbindable(COMPONENT_NAME)
 
-            assertFailsWith<IllegalStateException> { projectedServiceConnection.connect() }
-        }
+        assertFailsWith<IllegalStateException> { projectedServiceConnection.connect() }
+    }
 
     @Test
     fun connect_calledSecondTimeWithoutDisconnect_throwsIllegalStateException() =
@@ -100,18 +97,15 @@ class ProjectedServiceConnectionTest {
         }
 
     @Test
-    fun connect_calledSecondTimeWithDisconnect_returnsInstance() =
-        testScope.runTest {
-            shadowOf(context).setBindServiceCallsOnServiceConnectedDirectly(true)
+    fun connect_calledSecondTimeWithDisconnect_returnsInstance() = testScope.runTest {
+        shadowOf(context).setBindServiceCallsOnServiceConnectedDirectly(true)
 
-            assertThat(projectedServiceConnection.connect())
-                .isInstanceOf(IProjectedService::class.java)
+        assertThat(projectedServiceConnection.connect()).isInstanceOf(IProjectedService::class.java)
 
-            projectedServiceConnection.disconnect()
+        projectedServiceConnection.disconnect()
 
-            assertThat(projectedServiceConnection.connect())
-                .isInstanceOf(IProjectedService::class.java)
-        }
+        assertThat(projectedServiceConnection.connect()).isInstanceOf(IProjectedService::class.java)
+    }
 
     @Test
     fun connect_serviceDies_disconnects() = runTest {
@@ -134,13 +128,12 @@ class ProjectedServiceConnectionTest {
     }
 
     @Test
-    fun disconnect_unbinds() =
-        testScope.runTest {
-            backgroundScope.launch { projectedServiceConnection.connect() }
+    fun disconnect_unbinds() = testScope.runTest {
+        backgroundScope.launch { projectedServiceConnection.connect() }
 
-            projectedServiceConnection.disconnect()
-            assertThat(shadowOf(context).unboundServiceConnections).isNotEmpty()
-        }
+        projectedServiceConnection.disconnect()
+        assertThat(shadowOf(context).unboundServiceConnections).isNotEmpty()
+    }
 
     @Test
     fun disconnect_notConnected_doesNotThrow() {

@@ -750,10 +750,9 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
             CameraSelector.Builder.fromSelector(primaryCameraSelector)
                 .addCameraFilter(sessionFilter)
                 .build()
-        val finalSecondary =
-            secondaryCameraSelector?.let {
-                CameraSelector.Builder.fromSelector(it).addCameraFilter(sessionFilter).build()
-            }
+        val finalSecondary = secondaryCameraSelector?.let {
+            CameraSelector.Builder.fromSelector(it).addCameraFilter(sessionFilter).build()
+        }
 
         return finalPrimary to finalSecondary
     }

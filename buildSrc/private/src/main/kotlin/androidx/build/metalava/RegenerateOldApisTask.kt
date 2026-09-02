@@ -235,15 +235,14 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
 
         val jars = dependencyFiles.filter { file -> file.name.endsWith(".jar") }
         val aars = dependencyFiles.filter { file -> file.name.endsWith(".aar") }
-        val classesJars =
-            aars.map { aar ->
-                val tree = project.zipTree(aar)
-                val classesJar =
-                    tree
-                        .matching { filter: PatternFilterable -> filter.include("classes.jar") }
-                        .single()
-                classesJar
-            }
+        val classesJars = aars.map { aar ->
+            val tree = project.zipTree(aar)
+            val classesJar =
+                tree
+                    .matching { filter: PatternFilterable -> filter.include("classes.jar") }
+                    .single()
+            classesJar
+        }
         val embeddedLibs = getEmbeddedLibs(runnerProject, mavenId)
         val undeclaredJarDeps = getUndeclaredJarDeps(runnerProject, mavenId)
         return runnerProject.files(jars + classesJars + embeddedLibs + undeclaredJarDeps)

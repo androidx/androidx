@@ -42,85 +42,81 @@ class WindowInsetsBenchmark {
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     @Test
-    fun readImeInset() =
-        benchmarkRule.benchmarkFirstCompose {
-            object : LayeredComposeTestCase() {
-                @Composable
-                override fun MeasuredContent() {
-                    WindowInsets.ime
+    fun readImeInset() = benchmarkRule.benchmarkFirstCompose {
+        object : LayeredComposeTestCase() {
+            @Composable
+            override fun MeasuredContent() {
+                WindowInsets.ime
+            }
+        }
+    }
+
+    @Test
+    fun applyImeInset() = benchmarkRule.benchmarkFirstCompose {
+        object : LayeredComposeTestCase() {
+            @Composable
+            override fun MeasuredContent() {
+                Box(Modifier.windowInsetsPadding(WindowInsets.ime))
+            }
+        }
+    }
+
+    @Test
+    fun provideRulers() = benchmarkRule.benchmarkFirstMeasure {
+        object : LayeredComposeTestCase() {
+            val rulers = RectRulers()
+
+            @Composable
+            override fun MeasuredContent() {
+                Layout { _, _ ->
+                    layout(
+                        100,
+                        100,
+                        rulers = {
+                            rulers.top provides 0.5f
+                            rulers.left provides 0.5f
+                            rulers.right provides 0.5f
+                            rulers.bottom provides 0.5f
+                        },
+                    ) {}
                 }
             }
         }
+    }
 
     @Test
-    fun applyImeInset() =
-        benchmarkRule.benchmarkFirstCompose {
-            object : LayeredComposeTestCase() {
-                @Composable
-                override fun MeasuredContent() {
-                    Box(Modifier.windowInsetsPadding(WindowInsets.ime))
-                }
-            }
-        }
+    fun readMergedRulers() = benchmarkRule.benchmarkToFirstPixel {
+        object : LayeredComposeTestCase() {
+            val rulers1 = RectRulers()
+            val rulers2 = RectRulers()
+            val innerMost = RectRulers.innermostOf(rulers1, rulers2)
 
-    @Test
-    fun provideRulers() =
-        benchmarkRule.benchmarkFirstMeasure {
-            object : LayeredComposeTestCase() {
-                val rulers = RectRulers()
-
-                @Composable
-                override fun MeasuredContent() {
-                    Layout { _, _ ->
-                        layout(
-                            100,
-                            100,
-                            rulers = {
-                                rulers.top provides 0.5f
-                                rulers.left provides 0.5f
-                                rulers.right provides 0.5f
-                                rulers.bottom provides 0.5f
-                            },
-                        ) {}
-                    }
-                }
-            }
-        }
-
-    @Test
-    fun readMergedRulers() =
-        benchmarkRule.benchmarkToFirstPixel {
-            object : LayeredComposeTestCase() {
-                val rulers1 = RectRulers()
-                val rulers2 = RectRulers()
-                val innerMost = RectRulers.innermostOf(rulers1, rulers2)
-
-                @Composable
-                override fun MeasuredContent() {
-                    Layout { _, _ ->
-                        layout(
-                            100,
-                            100,
-                            rulers = {
-                                rulers1.top provides 0.5f
-                                rulers1.left provides 0.5f
-                                rulers2.right provides 0.5f
-                                rulers2.bottom provides 0.5f
-                            },
-                        ) {
-                            BlackHole.consume(
-                                Rect(
-                                    innerMost.left.current(-1f),
-                                    innerMost.top.current(-1f),
-                                    innerMost.right.current(-1f),
-                                    innerMost.bottom.current(-1f),
-                                )
+            @Composable
+            override fun MeasuredContent() {
+                Layout { _, _ ->
+                    layout(
+                        100,
+                        100,
+                        rulers = {
+                            rulers1.top provides 0.5f
+                            rulers1.left provides 0.5f
+                            rulers2.right provides 0.5f
+                            rulers2.bottom provides 0.5f
+                        },
+                    ) {
+                        BlackHole.consume(
+                            Rect(
+                                innerMost.left.current(-1f),
+                                innerMost.top.current(-1f),
+                                innerMost.right.current(-1f),
+                                innerMost.bottom.current(-1f),
                             )
-                        }
+                        )
                     }
                 }
             }
         }
+    }
 
     @Test fun initRulers() = benchmarkRule.measureRepeated { BlackHole.consume(RectRulers()) }
 }

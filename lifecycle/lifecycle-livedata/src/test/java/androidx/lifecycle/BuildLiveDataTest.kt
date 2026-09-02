@@ -365,16 +365,15 @@ class BuildLiveDataTest {
             exception.complete(throwable)
         }
         val src = MutableLiveData<Int>()
-        val ld =
-            src.switchMap {
-                liveData(testScope.coroutineContext + exceptionHandler) {
-                    if (exception.isActive) {
-                        throw IllegalArgumentException("i like to fail")
-                    } else {
-                        emit(3)
-                    }
+        val ld = src.switchMap {
+            liveData(testScope.coroutineContext + exceptionHandler) {
+                if (exception.isActive) {
+                    throw IllegalArgumentException("i like to fail")
+                } else {
+                    emit(3)
                 }
             }
+        }
         ld.addObserver().apply {
             assertItems()
             scopes.runOnMain { src.value = 1 }

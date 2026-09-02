@@ -431,7 +431,10 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
                 cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
                 enableVideoCapture = true,
                 compositionSettings =
-                    CompositionSettings.Builder().setOffset(0.0f, 0.0f).setScale(1.0f, 1.0f).build(),
+                    CompositionSettings.Builder()
+                        .setOffset(0.0f, 0.0f)
+                        .setScale(1.0f, 1.0f)
+                        .build(),
             )
 
         val secondary =
@@ -474,7 +477,10 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
                 cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
                 enableVideoCapture = true,
                 compositionSettings =
-                    CompositionSettings.Builder().setOffset(0.0f, 0.0f).setScale(1.0f, 1.0f).build(),
+                    CompositionSettings.Builder()
+                        .setOffset(0.0f, 0.0f)
+                        .setScale(1.0f, 1.0f)
+                        .build(),
             )
 
         val secondary =
@@ -616,7 +622,10 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
                 cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA,
                 enableVideoCapture = true,
                 compositionSettings =
-                    CompositionSettings.Builder().setOffset(0.0f, 0.0f).setScale(1.0f, 1.0f).build(),
+                    CompositionSettings.Builder()
+                        .setOffset(0.0f, 0.0f)
+                        .setScale(1.0f, 1.0f)
+                        .build(),
             )
 
         val secondary =
@@ -624,7 +633,10 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
                 cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
                 useCaseGroup = primary.useCaseGroup,
                 compositionSettings =
-                    CompositionSettings.Builder().setOffset(0.0f, 0.0f).setScale(1.0f, 1.0f).build(),
+                    CompositionSettings.Builder()
+                        .setOffset(0.0f, 0.0f)
+                        .setScale(1.0f, 1.0f)
+                        .build(),
             )
 
         val tertiary =
@@ -660,7 +672,10 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
                 cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
                 enableVideoCapture = true,
                 compositionSettings =
-                    CompositionSettings.Builder().setOffset(0.0f, 0.0f).setScale(1.0f, 1.0f).build(),
+                    CompositionSettings.Builder()
+                        .setOffset(0.0f, 0.0f)
+                        .setScale(1.0f, 1.0f)
+                        .build(),
             )
 
         // Act & Assert.

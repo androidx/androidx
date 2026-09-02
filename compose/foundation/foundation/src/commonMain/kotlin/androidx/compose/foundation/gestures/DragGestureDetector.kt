@@ -258,7 +258,9 @@ public suspend fun PointerInputScope.detectDragGestures(
     orientationLock: Orientation?,
     onDragStart:
         (
-            down: PointerInputChange, slopTriggerChange: PointerInputChange, overSlopOffset: Offset,
+            down: PointerInputChange,
+            slopTriggerChange: PointerInputChange,
+            overSlopOffset: Offset,
         ) -> Unit =
         { _, _, _ ->
         },

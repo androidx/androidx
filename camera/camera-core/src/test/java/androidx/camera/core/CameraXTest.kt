@@ -168,36 +168,39 @@ class CameraXTest {
     private fun createCameraFactoryProvider(
         cameras: List<FakeCamera>,
         cameraCoordinator: CameraCoordinator = FakeCameraCoordinator(),
-    ) =
-        CameraFactory.Provider { _, _, _, _, _, _ ->
-            FakeCameraFactory().apply {
-                for (camera in cameras) {
-                    val cameraInfo = camera.cameraInfoInternal
-                    insertCamera(cameraInfo.lensFacing, cameraInfo.cameraId) { camera }
-                }
-                this.cameraCoordinator = cameraCoordinator
+    ) = CameraFactory.Provider { _, _, _, _, _, _ ->
+        FakeCameraFactory().apply {
+            for (camera in cameras) {
+                val cameraInfo = camera.cameraInfoInternal
+                insertCamera(cameraInfo.lensFacing, cameraInfo.cameraId) { camera }
             }
+            this.cameraCoordinator = cameraCoordinator
         }
+    }
 
     private fun createConfigProvider(
-        cameraFactoryProvider: CameraFactory.Provider =
-            CameraFactory.Provider { _, _, _, _, _, _ -> FakeCameraFactory() },
+        cameraFactoryProvider: CameraFactory.Provider = CameraFactory.Provider { _, _, _, _, _, _ ->
+            FakeCameraFactory()
+        },
         cameraDeviceSurfaceManager: CameraDeviceSurfaceManager.Provider =
-            CameraDeviceSurfaceManager.Provider { _, _, _, _ -> FakeCameraDeviceSurfaceManager() },
+            CameraDeviceSurfaceManager.Provider { _, _, _, _ ->
+                FakeCameraDeviceSurfaceManager()
+            },
         useCaseConfigFactoryProvider: UseCaseConfigFactory.Provider =
-            UseCaseConfigFactory.Provider { _, _ -> FakeUseCaseConfigFactory() },
+            UseCaseConfigFactory.Provider { _, _ ->
+                FakeUseCaseConfigFactory()
+            },
         cameraExecutor: Executor = CameraXExecutors.directExecutor(),
         quirkSettings: QuirkSettings? = null,
-    ) =
-        CameraXConfig.Provider {
-            CameraXConfig.Builder()
-                .apply {
-                    setCameraFactoryProvider(cameraFactoryProvider)
-                    setDeviceSurfaceManagerProvider(cameraDeviceSurfaceManager)
-                    setUseCaseConfigFactoryProvider(useCaseConfigFactoryProvider)
-                    setCameraExecutor(cameraExecutor)
-                    quirkSettings?.let { setQuirkSettings(it) }
-                }
-                .build()
-        }
+    ) = CameraXConfig.Provider {
+        CameraXConfig.Builder()
+            .apply {
+                setCameraFactoryProvider(cameraFactoryProvider)
+                setDeviceSurfaceManagerProvider(cameraDeviceSurfaceManager)
+                setUseCaseConfigFactoryProvider(useCaseConfigFactoryProvider)
+                setCameraExecutor(cameraExecutor)
+                quirkSettings?.let { setQuirkSettings(it) }
+            }
+            .build()
+    }
 }

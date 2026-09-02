@@ -125,8 +125,9 @@ internal fun findPacket(
 }
 
 internal fun TestSink.attributes(): Map<String, Any?> {
-    val attributes: List<MutableTraceAttributes> =
-        packets.mapNotNull { packet -> packet.trace_attributes }
+    val attributes: List<MutableTraceAttributes> = packets.mapNotNull { packet ->
+        packet.trace_attributes
+    }
     val attributeMap = mutableMapOf<String, Any?>()
     attributes.forEach { traceAttributes ->
         traceAttributes.attribute.forEach { attribute ->

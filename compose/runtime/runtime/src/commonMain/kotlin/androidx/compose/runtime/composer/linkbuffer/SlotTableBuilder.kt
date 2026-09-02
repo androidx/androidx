@@ -134,8 +134,9 @@ internal class SlotTableBuilder(
 
     fun flagsOf(address: SlotAddress) = addressSpace.groups.groupFlags(address)
 
-    fun isNode() =
-        parent.let { it != NULL_ADDRESS && IsNodeFlag in addressSpace.groups.groupFlags(it) }
+    fun isNode() = parent.let {
+        it != NULL_ADDRESS && IsNodeFlag in addressSpace.groups.groupFlags(it)
+    }
 
     fun lastRoot(): GroupHandle {
         var last = table.root

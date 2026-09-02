@@ -1280,10 +1280,9 @@ internal class GapComposer(
     }
 
     override val currentRecomposeScope: RecomposeScopeImpl?
-        get() =
-            invalidateStack.let {
-                if (childrenComposing == 0 && it.isNotEmpty()) it.peek() else null
-            }
+        get() = invalidateStack.let {
+            if (childrenComposing == 0 && it.isNotEmpty()) it.peek() else null
+        }
 
     private fun ensureWriter() {
         if (writer.closed) {
@@ -2527,7 +2526,9 @@ internal class GapComposer(
         }
 
     private fun stackTraceForGroup(group: Int, dataOffset: Int?): List<ComposeStackTraceFrame> =
-        slotTable.read { it.traceForGroup(group, dataOffset) }
+        slotTable.read {
+            it.traceForGroup(group, dataOffset)
+        }
 
     override fun parentStackTrace(): List<ComposeStackTraceFrame> {
         val parentComposition = parentContext.composition as? CompositionImpl ?: return emptyList()

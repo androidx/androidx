@@ -249,11 +249,9 @@ internal class TriggerBasedInvalidationTracker(
                             emit(resolvedTableNames.toSet())
                         }
                     } else {
-                        val invalidatedTablesNames =
-                            resolvedTableNames.filterIndexed { i, _ ->
-                                checkNotNull(currentVersions)[tableIds[i]] !=
-                                    newVersions[tableIds[i]]
-                            }
+                        val invalidatedTablesNames = resolvedTableNames.filterIndexed { i, _ ->
+                            checkNotNull(currentVersions)[tableIds[i]] != newVersions[tableIds[i]]
+                        }
                         if (invalidatedTablesNames.isNotEmpty()) {
                             emit(invalidatedTablesNames.toSet())
                         }
@@ -288,10 +286,10 @@ internal class TriggerBasedInvalidationTracker(
      */
     private fun resolveViews(names: Array<out String>): Array<String> {
         return buildSet {
-                names.forEach { name ->
-                    viewTables[name.lowercase()]?.let { addAll(it) } ?: add(name)
-                }
+            names.forEach { name ->
+                viewTables[name.lowercase()]?.let { addAll(it) } ?: add(name)
             }
+        }
             .toTypedArray()
     }
 
@@ -524,80 +522,75 @@ internal class ObservedTableStates(size: Int) {
      */
     internal suspend inline fun onSync(
         crossinline action: suspend (Array<ObserveOp>) -> Unit
-    ): Unit =
-        onSyncMutex.withLock {
-            inProgressSync = true
-            val ops =
-                lock.withLock {
-                    if (!needsSync) {
-                        // Sync was already done, no need to do action.
-                        return@withLock null
-                    }
-                    needsSync = false
-                    var addOrRemove = false
-                    val ops =
-                        Array(tableObserversCount.size) { i ->
-                            val newState = tableObserversCount[i] > 0
-                            if (newState != tableObservedState[i]) {
-                                addOrRemove = true
-                                tableObservedState[i] = newState
-                                if (newState) ObserveOp.ADD else ObserveOp.REMOVE
-                            } else {
-                                ObserveOp.NO_OP
-                            }
-                        }
-                    return@withLock if (addOrRemove) ops else null
-                }
-            try {
-                if (!ops.isNullOrEmpty()) {
-                    action.invoke(ops)
-                }
-            } finally {
-                inProgressSync = false
+    ): Unit = onSyncMutex.withLock {
+        inProgressSync = true
+        val ops = lock.withLock {
+            if (!needsSync) {
+                // Sync was already done, no need to do action.
+                return@withLock null
             }
+            needsSync = false
+            var addOrRemove = false
+            val ops =
+                Array(tableObserversCount.size) { i ->
+                    val newState = tableObserversCount[i] > 0
+                    if (newState != tableObservedState[i]) {
+                        addOrRemove = true
+                        tableObservedState[i] = newState
+                        if (newState) ObserveOp.ADD else ObserveOp.REMOVE
+                    } else {
+                        ObserveOp.NO_OP
+                    }
+                }
+            return@withLock if (addOrRemove) ops else null
         }
+        try {
+            if (!ops.isNullOrEmpty()) {
+                action.invoke(ops)
+            }
+        } finally {
+            inProgressSync = false
+        }
+    }
 
     /**
      * Notifies that an observer was added and return true if the state of some table has a pending
      * change.
      */
-    internal fun onObserverAdded(tableIds: IntArray): Boolean =
-        lock.withLock {
-            var shouldSync = false
-            tableIds.forEach { tableId ->
-                val previousCount = tableObserversCount[tableId]
-                tableObserversCount[tableId] = previousCount + 1
-                if (previousCount == 0L) {
-                    needsSync = true
-                    shouldSync = true
-                }
+    internal fun onObserverAdded(tableIds: IntArray): Boolean = lock.withLock {
+        var shouldSync = false
+        tableIds.forEach { tableId ->
+            val previousCount = tableObserversCount[tableId]
+            tableObserversCount[tableId] = previousCount + 1
+            if (previousCount == 0L) {
+                needsSync = true
+                shouldSync = true
             }
-            return shouldSync || needsSync || inProgressSync
         }
+        return shouldSync || needsSync || inProgressSync
+    }
 
     /**
      * Notifies that an observer was removed and return true if the state of some table has a
      * pending change.
      */
-    internal fun onObserverRemoved(tableIds: IntArray): Boolean =
-        lock.withLock {
-            var shouldSync = false
-            tableIds.forEach { tableId ->
-                val previousCount = tableObserversCount[tableId]
-                tableObserversCount[tableId] = previousCount - 1
-                if (previousCount == 1L) {
-                    needsSync = true
-                    shouldSync = true
-                }
+    internal fun onObserverRemoved(tableIds: IntArray): Boolean = lock.withLock {
+        var shouldSync = false
+        tableIds.forEach { tableId ->
+            val previousCount = tableObserversCount[tableId]
+            tableObserversCount[tableId] = previousCount - 1
+            if (previousCount == 1L) {
+                needsSync = true
+                shouldSync = true
             }
-            return shouldSync || needsSync || inProgressSync
         }
+        return shouldSync || needsSync || inProgressSync
+    }
 
-    internal fun resetTriggerState() =
-        lock.withLock {
-            tableObservedState.fill(element = false)
-            needsSync = true
-        }
+    internal fun resetTriggerState() = lock.withLock {
+        tableObservedState.fill(element = false)
+        needsSync = true
+    }
 
     internal fun forceNeedSync() {
         lock.withLock { needsSync = true }

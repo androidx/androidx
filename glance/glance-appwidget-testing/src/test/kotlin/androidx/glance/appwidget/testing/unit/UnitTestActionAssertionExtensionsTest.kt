@@ -688,7 +688,8 @@ class UnitTestActionAssertionExtensionsTest {
                                     actionSendBroadcast(
                                         testBroadcastIntent(
                                             context = context,
-                                            receiverClass = AnotherTestBroadcastReceiver::class.java,
+                                            receiverClass =
+                                                AnotherTestBroadcastReceiver::class.java,
                                         )
                                     )
                                 )

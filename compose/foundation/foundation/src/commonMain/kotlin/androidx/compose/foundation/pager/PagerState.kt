@@ -780,18 +780,17 @@ internal constructor(
         }
     }
 
-    private fun tryRunPrefetch(result: PagerMeasureResult) =
-        Snapshot.withoutReadObservation {
-            if (!prefetchingEnabled) return
-            if (result.beyondViewportPageCount >= pageCount) return
-            if (abs(previousPassDelta) <= 0.5f) return
-            if (!isGestureActionMatchesScroll(previousPassDelta)) return
-            if (isCacheWindowForPagerEnabled) {
-                cacheWindowLogic.onScroll(previousPassDelta, result)
-            } else {
-                notifyPrefetch(previousPassDelta, result)
-            }
+    private fun tryRunPrefetch(result: PagerMeasureResult) = Snapshot.withoutReadObservation {
+        if (!prefetchingEnabled) return
+        if (result.beyondViewportPageCount >= pageCount) return
+        if (abs(previousPassDelta) <= 0.5f) return
+        if (!isGestureActionMatchesScroll(previousPassDelta)) return
+        if (isCacheWindowForPagerEnabled) {
+            cacheWindowLogic.onScroll(previousPassDelta, result)
+        } else {
+            notifyPrefetch(previousPassDelta, result)
         }
+    }
 
     private fun Int.coerceInPageRange() =
         if (pageCount > 0) {

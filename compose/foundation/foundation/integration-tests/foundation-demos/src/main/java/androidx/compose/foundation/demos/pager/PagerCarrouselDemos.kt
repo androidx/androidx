@@ -68,7 +68,9 @@ val SnapPositionDemos =
         ComposableDemo("Snap Position - Start") { HorizontalCarrouselDemo(SnapPosition.Start) },
         ComposableDemo("Snap Position - Center") { HorizontalCarrouselDemo(SnapPosition.Center) },
         ComposableDemo("Snap Position - End") { HorizontalCarrouselDemo(SnapPosition.End) },
-        ComposableDemo("Snap Position - Custom") { HorizontalCarrouselDemoWithCustomSnapPosition() },
+        ComposableDemo("Snap Position - Custom") {
+            HorizontalCarrouselDemoWithCustomSnapPosition()
+        },
     )
 
 @Composable

@@ -135,12 +135,11 @@ class SoundEffectPoolTest {
         var loadedSoundEffect: SoundEffect? = null
         var loadedSuccess = false
 
-        val listener =
-            SoundEffectPool.LoadCompleteListener { soundEffect, success ->
-                callbackCalled = true
-                loadedSoundEffect = soundEffect
-                loadedSuccess = success
-            }
+        val listener = SoundEffectPool.LoadCompleteListener { soundEffect, success ->
+            callbackCalled = true
+            loadedSoundEffect = soundEffect
+            loadedSuccess = success
+        }
 
         soundEffectPool.addLoadCompleteListener(listener)
 

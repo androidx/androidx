@@ -348,16 +348,15 @@ fun VerticalSliderSample() {
                 }
             },
             onValueChangeFinished = {
-                animateJob =
-                    coroutineScope.launch {
-                        animate(
-                            initialValue = sliderState.value,
-                            targetValue = currentValue,
-                            animationSpec = snapAnimationSpec,
-                        ) { value, _ ->
-                            sliderState.value = value
-                        }
+                animateJob = coroutineScope.launch {
+                    animate(
+                        initialValue = sliderState.value,
+                        targetValue = currentValue,
+                        animationSpec = snapAnimationSpec,
+                    ) { value, _ ->
+                        sliderState.value = value
                     }
+                }
             },
             interactionSource = interactionSource,
             track = {
@@ -414,16 +413,15 @@ fun VerticalCenteredSliderSample() {
                 }
             },
             onValueChangeFinished = {
-                animateJob =
-                    coroutineScope.launch {
-                        animate(
-                            initialValue = sliderState.value,
-                            targetValue = currentValue,
-                            animationSpec = snapAnimationSpec,
-                        ) { value, _ ->
-                            sliderState.value = value
-                        }
+                animateJob = coroutineScope.launch {
+                    animate(
+                        initialValue = sliderState.value,
+                        targetValue = currentValue,
+                        animationSpec = snapAnimationSpec,
+                    ) { value, _ ->
+                        sliderState.value = value
                     }
+                }
             },
             interactionSource = interactionSource,
             track = { SliderDefaults.CenteredTrack(sliderState = sliderState) },

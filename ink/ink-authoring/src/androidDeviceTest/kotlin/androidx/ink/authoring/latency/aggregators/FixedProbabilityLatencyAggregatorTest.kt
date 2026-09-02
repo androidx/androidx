@@ -81,48 +81,47 @@ class FixedProbabilityLatencyAggregatorTest {
         }
 
     @Test
-    fun fixedProbabilityLatencyAggregator_reportSynchronouslyDoesNothing() =
-        testScope.runTest {
-            val sampleStarts = mutableListOf<Long>()
-            val sampleEnds = mutableListOf<Long>()
+    fun fixedProbabilityLatencyAggregator_reportSynchronouslyDoesNothing() = testScope.runTest {
+        val sampleStarts = mutableListOf<Long>()
+        val sampleEnds = mutableListOf<Long>()
 
-            val aggregator =
-                FixedProbabilityLatencyAggregator.create(
-                    sampleProbability = 0.3f,
-                    testScope.backgroundScope,
-                    mockRandom,
-                ) { startNanos: Long, endNanos: Long ->
-                    sampleStarts.add(startNanos)
-                    sampleEnds.add(endNanos)
-                }
+        val aggregator =
+            FixedProbabilityLatencyAggregator.create(
+                sampleProbability = 0.3f,
+                testScope.backgroundScope,
+                mockRandom,
+            ) { startNanos: Long, endNanos: Long ->
+                sampleStarts.add(startNanos)
+                sampleEnds.add(endNanos)
+            }
 
-            // When the "random" number is above sampleProbability, no report happens.
-            whenever(mockRandom.nextFloat()).thenReturn(0.5f)
-            aggregator.aggregate(11L, 15L)
+        // When the "random" number is above sampleProbability, no report happens.
+        whenever(mockRandom.nextFloat()).thenReturn(0.5f)
+        aggregator.aggregate(11L, 15L)
 
-            // Give the report time to run if it is actually triggered.
-            delay(1.seconds)
+        // Give the report time to run if it is actually triggered.
+        delay(1.seconds)
 
-            // reportSynchronously is a no-op.
-            aggregator.reportSynchronously()
+        // reportSynchronously is a no-op.
+        aggregator.reportSynchronously()
 
-            // When it's below the sampleProbability, the report callback is called.
-            whenever(mockRandom.nextFloat()).thenReturn(0.2f)
-            aggregator.aggregate(21L, 25L)
+        // When it's below the sampleProbability, the report callback is called.
+        whenever(mockRandom.nextFloat()).thenReturn(0.2f)
+        aggregator.aggregate(21L, 25L)
 
-            // Give the report time to run.
-            delay(1.seconds)
+        // Give the report time to run.
+        delay(1.seconds)
 
-            // reportSynchronously is a no-op in this case too.
-            aggregator.reportSynchronously()
+        // reportSynchronously is a no-op in this case too.
+        aggregator.reportSynchronously()
 
-            // Wait for all running reports to complete.
-            aggregator.job().cancelAndJoin()
+        // Wait for all running reports to complete.
+        aggregator.job().cancelAndJoin()
 
-            // Only one of the `aggregate` calls resulted in a report.
-            assertThat(sampleStarts).containsExactly(21L)
-            assertThat(sampleEnds).containsExactly(25L)
-        }
+        // Only one of the `aggregate` calls resulted in a report.
+        assertThat(sampleStarts).containsExactly(21L)
+        assertThat(sampleEnds).containsExactly(25L)
+    }
 
     @Test
     fun fixedProbabilityLatencyAggregator_canStartTwoAggregatorsInSameCoroutine() =

@@ -520,15 +520,14 @@ private class NonAdaptiveButtonGroupMeasurePolicy(
             }
         }
 
-        placeables =
-            measurables.fastMapIndexed { index, placeable ->
-                placeable.measure(
-                    (childrenConstraints[index] ?: constraints).copy(
-                        minWidth = widths[index],
-                        maxWidth = widths[index],
-                    )
+        placeables = measurables.fastMapIndexed { index, placeable ->
+            placeable.measure(
+                (childrenConstraints[index] ?: constraints).copy(
+                    minWidth = widths[index],
+                    maxWidth = widths[index],
                 )
-            }
+            )
+        }
 
         // Compute the row size and position the children.
         val mainAxisLayoutSize = max((fixedSpace + weightedSpace).coerceAtLeast(0), mainAxisMin)
@@ -1015,32 +1014,31 @@ internal class EnlargeOnPressNode(
 
     internal fun launchCollectionJob() {
         collectionJob?.cancel()
-        collectionJob =
-            coroutineScope.launch {
-                val pressInteractions = mutableListOf<PressInteraction.Press>()
-                launch {
-                    interactionSource.interactions
-                        .map { interaction ->
-                            when (interaction) {
-                                is PressInteraction.Press -> pressInteractions.add(interaction)
-                                is PressInteraction.Release ->
-                                    pressInteractions.remove(interaction.press)
-                                is PressInteraction.Cancel ->
-                                    pressInteractions.remove(interaction.press)
-                            }
-                            pressInteractions.isNotEmpty()
+        collectionJob = coroutineScope.launch {
+            val pressInteractions = mutableListOf<PressInteraction.Press>()
+            launch {
+                interactionSource.interactions
+                    .map { interaction ->
+                        when (interaction) {
+                            is PressInteraction.Press -> pressInteractions.add(interaction)
+                            is PressInteraction.Release ->
+                                pressInteractions.remove(interaction.press)
+                            is PressInteraction.Cancel ->
+                                pressInteractions.remove(interaction.press)
                         }
-                        .distinctUntilChanged()
-                        .collectLatest { pressed ->
-                            if (pressed) {
-                                launch { pressedAnimatable.animateTo(1f, animationSpec) }
-                            } else {
-                                waitUntil { pressedAnimatable.value > 0.75f }
-                                pressedAnimatable.animateTo(0f, animationSpec)
-                            }
+                        pressInteractions.isNotEmpty()
+                    }
+                    .distinctUntilChanged()
+                    .collectLatest { pressed ->
+                        if (pressed) {
+                            launch { pressedAnimatable.animateTo(1f, animationSpec) }
+                        } else {
+                            waitUntil { pressedAnimatable.value > 0.75f }
+                            pressedAnimatable.animateTo(0f, animationSpec)
                         }
-                }
+                    }
             }
+        }
     }
 
     override fun Density.modifyParentData(parentData: Any?) =

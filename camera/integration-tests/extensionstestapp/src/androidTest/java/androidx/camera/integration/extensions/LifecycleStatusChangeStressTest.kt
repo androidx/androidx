@@ -75,23 +75,22 @@ class LifecycleStatusChangeStressTest(
             .add(
                 3,
                 RequireForegroundRule {
-                        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-                        CoreAppTestUtil.assumeCompatibleDevice()
+                    assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+                    CoreAppTestUtil.assumeCompatibleDevice()
 
-                        cameraProvider =
-                            ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+                    cameraProvider =
+                        ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
-                        val extensionsManager =
-                            ExtensionsManager.getInstance(context, cameraProvider)
+                    val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
-                        // Checks whether the extension mode can be supported first before launching
-                        // the activity.
-                        CameraXExtensionsTestUtil.assumeExtensionModeSupported(
-                            extensionsManager,
-                            cameraId,
-                            extensionMode,
-                        )
-                    }
+                    // Checks whether the extension mode can be supported first before launching
+                    // the activity.
+                    CameraXExtensionsTestUtil.assumeExtensionModeSupported(
+                        extensionsManager,
+                        cameraId,
+                        extensionMode,
+                    )
+                }
                     .withCleanup {
                         if (::cameraProvider.isInitialized) {
                             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]

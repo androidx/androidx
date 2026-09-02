@@ -35,29 +35,29 @@ val LevelIndicatorScreen =
             get() = {
                 repeat(3) {
                     retryIfStale {
-                            requireNotNull(
-                                device.wait(
-                                    Until.findObject(By.desc("Volume up icon")),
-                                    FIND_OBJECT_TIMEOUT_MS,
-                                )
-                            ) {
-                                "Button 'Volume up icon' not found"
-                            }
+                        requireNotNull(
+                            device.wait(
+                                Until.findObject(By.desc("Volume up icon")),
+                                FIND_OBJECT_TIMEOUT_MS,
+                            )
+                        ) {
+                            "Button 'Volume up icon' not found"
                         }
+                    }
                         .click()
                     device.waitForIdle()
                 }
                 repeat(3) {
                     retryIfStale {
-                            requireNotNull(
-                                device.wait(
-                                    Until.findObject(By.desc("Volume down icon")),
-                                    FIND_OBJECT_TIMEOUT_MS,
-                                )
-                            ) {
-                                "Button 'Volume down icon' not found"
-                            }
+                        requireNotNull(
+                            device.wait(
+                                Until.findObject(By.desc("Volume down icon")),
+                                FIND_OBJECT_TIMEOUT_MS,
+                            )
+                        ) {
+                            "Button 'Volume down icon' not found"
                         }
+                    }
                         .click()
                     device.waitForIdle()
                 }

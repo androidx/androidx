@@ -348,10 +348,9 @@ internal class GestureRegistry(
         newOnGestureAvailable: () -> Unit,
         newOnGesture: suspend (centerOffset: Offset) -> Unit,
     ) {
-        val index =
-            registeredGestures.indexOfFirst { registeredGesture ->
-                registeredGesture.gestureConfiguration == oldGestureConfiguration
-            }
+        val index = registeredGestures.indexOfFirst { registeredGesture ->
+            registeredGesture.gestureConfiguration == oldGestureConfiguration
+        }
         val isActive = registeredGestures[index].isActive
         val size = registeredGestures[index].size
 
@@ -380,59 +379,58 @@ internal class GestureRegistry(
             resubscribeToSdkGestureActionIfNeeded(sdkGestureAction)
         }
 
-        showIndicatorJob =
-            scope.launch {
-                // A slight delay of 1s to avoid jumping indicators while the user is mid-flick.
-                delay(1000)
+        showIndicatorJob = scope.launch {
+            // A slight delay of 1s to avoid jumping indicators while the user is mid-flick.
+            delay(1000)
 
-                // Make a copy of registeredGestures, because emitting Indicate() might modify the
-                // list
-                val snapshot = registeredGestures.toList()
-                // Since gestures are sorted by priority, the first visible gesture corresponds
-                // to the highest priority.
-                supportedSdkGestureActions.forEach { sdkAction ->
-                    val gestureAction = fromSdkGestureAction(sdkAction)
-                    val priority =
-                        snapshot
-                            .fastFirstOrNull { gesture ->
-                                gesture.isActive() &&
-                                    gesture.gestureConfiguration.action == gestureAction
-                            }
-                            ?.gestureConfiguration
-                            ?.priority
-
-                    snapshot.fastForEach { gesture ->
-                        val gestureConfig = gesture.gestureConfiguration
-                        if (
-                            gestureConfig.priority == priority &&
-                                gestureConfig.action == gestureAction &&
-                                gesture.isActive()
-                        ) {
-                            // Check whether to show the indicator, based on whether it is an
-                            // overlay(goes outside the bounds of the component) and frequency
-                            // settings.
-                            if (
-                                gestureInputManager.shouldShowIndicator(
-                                    gestureConfig.gestureId,
-                                    toSdkGestureAction(gestureConfig.action),
-                                    isOverlayProvider(gestureConfig),
-                                )
-                            ) {
-                                // In this callback, the developer should call
-                                // state.onShowIndicator()
-                                // We only call this when the GestureInputManager confirms that
-                                // the indicator should be shown.
-                                gesture.onGestureAvailable()
-                            }
-
-                            gestureAccessibilityAnnouncer.announce(
-                                gesture.gestureConfiguration,
-                                gesture.onGestureLabel,
-                            )
+            // Make a copy of registeredGestures, because emitting Indicate() might modify the
+            // list
+            val snapshot = registeredGestures.toList()
+            // Since gestures are sorted by priority, the first visible gesture corresponds
+            // to the highest priority.
+            supportedSdkGestureActions.forEach { sdkAction ->
+                val gestureAction = fromSdkGestureAction(sdkAction)
+                val priority =
+                    snapshot
+                        .fastFirstOrNull { gesture ->
+                            gesture.isActive() &&
+                                gesture.gestureConfiguration.action == gestureAction
                         }
+                        ?.gestureConfiguration
+                        ?.priority
+
+                snapshot.fastForEach { gesture ->
+                    val gestureConfig = gesture.gestureConfiguration
+                    if (
+                        gestureConfig.priority == priority &&
+                            gestureConfig.action == gestureAction &&
+                            gesture.isActive()
+                    ) {
+                        // Check whether to show the indicator, based on whether it is an
+                        // overlay(goes outside the bounds of the component) and frequency
+                        // settings.
+                        if (
+                            gestureInputManager.shouldShowIndicator(
+                                gestureConfig.gestureId,
+                                toSdkGestureAction(gestureConfig.action),
+                                isOverlayProvider(gestureConfig),
+                            )
+                        ) {
+                            // In this callback, the developer should call
+                            // state.onShowIndicator()
+                            // We only call this when the GestureInputManager confirms that
+                            // the indicator should be shown.
+                            gesture.onGestureAvailable()
+                        }
+
+                        gestureAccessibilityAnnouncer.announce(
+                            gesture.gestureConfiguration,
+                            gesture.onGestureLabel,
+                        )
                     }
                 }
             }
+        }
     }
 
     fun dispose() {

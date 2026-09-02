@@ -174,7 +174,8 @@ class CombinedClickableTest {
             Box {
                 BasicText(
                     "ClickableText",
-                    modifier = Modifier.testTag("myClickable").combinedClickable(enabled = false) {},
+                    modifier =
+                        Modifier.testTag("myClickable").combinedClickable(enabled = false) {},
                 )
             }
         }

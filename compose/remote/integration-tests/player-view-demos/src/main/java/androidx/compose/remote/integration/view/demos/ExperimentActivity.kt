@@ -782,12 +782,11 @@ class ExperimentActivity : ComponentActivity() {
         rideShare.setBitmaps(carLogo, carDriver, carIcon)
 
         val rawDocs = getRawRcDocs()
-        val rawFuncs =
-            rawDocs.map { rawDoc ->
-                getb("${rawDoc.name}.rc") {
-                    resources.openRawResource(rawDoc.id).use { it.readBytes() }
-                }
+        val rawFuncs = rawDocs.map { rawDoc ->
+            getb("${rawDoc.name}.rc") {
+                resources.openRawResource(rawDoc.id).use { it.readBytes() }
             }
+        }
         subMenus = subMenus + ("Raw..." to rawFuncs)
 
         val fullList = cmap.toMutableList()

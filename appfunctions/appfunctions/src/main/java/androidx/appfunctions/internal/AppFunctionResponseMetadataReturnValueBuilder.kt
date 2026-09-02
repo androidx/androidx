@@ -238,10 +238,9 @@ private fun AppFunctionResponseSpec.buildArrayReturnValue(
         AppFunctionDataTypeMetadata.TYPE_OBJECT,
         AppFunctionDataTypeMetadata.TYPE_REFERENCE -> {
             val serializableList = result as List<Any>
-            val appFunctionDataList =
-                serializableList.map { item ->
-                    AppFunctionData.serialize(item, getClass(checkNotNull(itemQualifiedName)))
-                }
+            val appFunctionDataList = serializableList.map { item ->
+                AppFunctionData.serialize(item, getClass(checkNotNull(itemQualifiedName)))
+            }
             builder
                 .setAppFunctionDataList(
                     ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,

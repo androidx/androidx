@@ -145,7 +145,8 @@ class GraphicsLayerTest {
             FixedSize(
                 30,
                 Modifier.padding(10).graphicsLayer().onGloballyPositioned { coords = it },
-            ) { /* no-op */
+            ) {
+                /* no-op */
             }
         }
 
@@ -2050,15 +2051,14 @@ class GraphicsLayerTest {
         lateinit var coordinates: LayoutCoordinates
         var remeasureCount = 0
         var relayoutCount = 0
-        val layoutModifier =
-            Modifier.layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                remeasureCount++
-                layout(placeable.width, placeable.height) {
-                    relayoutCount++
-                    placeable.place(0, 0)
-                }
+        val layoutModifier = Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            remeasureCount++
+            layout(placeable.width, placeable.height) {
+                relayoutCount++
+                placeable.place(0, 0)
             }
+        }
         rule.setContent {
             Box(Modifier.graphicsLayer(translationX = translationX).then(layoutModifier)) {
                 Layout(Modifier.onGloballyPositioned { coordinates = it }) { _, _ ->
@@ -2089,15 +2089,14 @@ class GraphicsLayerTest {
         lateinit var coordinates: LayoutCoordinates
         var remeasureCount = 0
         var relayoutCount = 0
-        val layoutModifier =
-            Modifier.layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                remeasureCount++
-                layout(placeable.width, placeable.height) {
-                    relayoutCount++
-                    placeable.place(0, 0)
-                }
+        val layoutModifier = Modifier.layout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            remeasureCount++
+            layout(placeable.width, placeable.height) {
+                relayoutCount++
+                placeable.place(0, 0)
             }
+        }
         rule.setContent {
             Box(Modifier.graphicsLayer(lambda).then(layoutModifier)) {
                 Layout(Modifier.onGloballyPositioned { coordinates = it }) { _, _ ->

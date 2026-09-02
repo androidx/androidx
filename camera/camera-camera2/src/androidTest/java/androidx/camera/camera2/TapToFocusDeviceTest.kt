@@ -134,31 +134,30 @@ class TapToFocusDeviceTest {
                 .java
                 .isInstance(
                     runCatching {
-                            verifyResultListener.verify(
-                                { captureRequest, _ ->
-                                    if (
-                                        captureRequest[CONTROL_AF_TRIGGER] ==
-                                            CONTROL_AF_TRIGGER_START
-                                    ) {
-                                        assumeThat(
-                                            "No AE mode in the CONTROL_AF_TRIGGER_START request",
-                                            captureRequest[CONTROL_AE_MODE],
-                                            CoreMatchers.notNullValue(),
+                        verifyResultListener.verify(
+                            { captureRequest, _ ->
+                                if (
+                                    captureRequest[CONTROL_AF_TRIGGER] == CONTROL_AF_TRIGGER_START
+                                ) {
+                                    assumeThat(
+                                        "No AE mode in the CONTROL_AF_TRIGGER_START request",
+                                        captureRequest[CONTROL_AE_MODE],
+                                        CoreMatchers.notNullValue(),
+                                    )
+
+                                    Truth.assertWithMessage(
+                                            "AE mode in CONTROL_AF_TRIGGER_START request is not as expected"
                                         )
+                                        .that(captureRequest[CONTROL_AE_MODE])
+                                        .isEqualTo(CONTROL_AE_MODE_ON)
 
-                                        Truth.assertWithMessage(
-                                                "AE mode in CONTROL_AF_TRIGGER_START request is not as expected"
-                                            )
-                                            .that(captureRequest[CONTROL_AE_MODE])
-                                            .isEqualTo(CONTROL_AE_MODE_ON)
-
-                                        return@verify true
-                                    }
-                                    return@verify false
-                                },
-                                5000,
-                            )
-                        }
+                                    return@verify true
+                                }
+                                return@verify false
+                            },
+                            5000,
+                        )
+                    }
                         .exceptionOrNull()
                 ),
         )

@@ -80,7 +80,9 @@ fun PixelMap.assertPixelColor(
     expected: Color,
     x: Int,
     y: Int,
-    error: (Color) -> String = { color -> "Pixel($x, $y) expected to be $expected, but was $color" },
+    error: (Color) -> String = { color ->
+        "Pixel($x, $y) expected to be $expected, but was $color"
+    },
 ) {
     val actual = this[x, y]
     assert(abs(expected.red - actual.red) < 0.02f) { error(actual) }

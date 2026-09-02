@@ -123,22 +123,21 @@ internal class CanvasBufferedRendererV29(
      */
     private val mAllocatedBuffers = HashMap<HardwareBuffer, Image>()
 
-    private fun closeBuffers() =
-        mBufferLock.withLock {
-            for (entry in mAllocatedBuffers) {
-                entry.key.close() // HardwareBuffer
-                entry.value.waitAndClose() // Image
-            }
-            mAllocatedBuffers.clear()
-            mBufferSignal.signal()
-            mImageReader?.close()
-            mImageReader = null
-            mHardwareRenderer?.let { renderer ->
-                renderer.stop()
-                renderer.destroy()
-            }
-            mHardwareRenderer = null
+    private fun closeBuffers() = mBufferLock.withLock {
+        for (entry in mAllocatedBuffers) {
+            entry.key.close() // HardwareBuffer
+            entry.value.waitAndClose() // Image
         }
+        mAllocatedBuffers.clear()
+        mBufferSignal.signal()
+        mImageReader?.close()
+        mImageReader = null
+        mHardwareRenderer?.let { renderer ->
+            renderer.stop()
+            renderer.destroy()
+        }
+        mHardwareRenderer = null
+    }
 
     private val mIsReleased = AtomicBoolean(false)
 

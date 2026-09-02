@@ -275,14 +275,16 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     animatedRadius.animateTo(
                         targetValue =
                             with(density) { pixelDensity.convertMetersToPixels(15f).toDp().value },
-                        animationSpec = tween(durationMillis = 2000, easing = FastOutLinearInEasing),
+                        animationSpec =
+                            tween(durationMillis = 2000, easing = FastOutLinearInEasing),
                     )
                 }
                 // An initial offset is necessary to perceive the radius animation.
                 LaunchedEffect(Unit) {
                     animatedOffset.animateTo(
                         targetValue = 0f,
-                        animationSpec = tween(durationMillis = 2000, easing = FastOutLinearInEasing),
+                        animationSpec =
+                            tween(durationMillis = 2000, easing = FastOutLinearInEasing),
                     )
                 }
                 SpatialExternalSurfaceHemisphere(

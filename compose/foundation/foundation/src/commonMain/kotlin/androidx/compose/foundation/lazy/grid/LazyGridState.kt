@@ -338,15 +338,14 @@ internal constructor(
      * [legacyPrefetchState] will always be null if [LazyGridState] is constructed without
      * specifying either a [LazyLayoutCacheWindow] or a [LazyGridPrefetchStrategy] explicitly.
      */
-    internal val legacyPrefetchState =
-        legacyPrefetchStrategy?.let { legacyPrefetchStrategy ->
-            @Suppress("DEPRECATION") // b/420551535
-            LazyLayoutPrefetchState(legacyPrefetchStrategy.prefetchScheduler) {
-                with(legacyPrefetchStrategy) {
-                    onNestedPrefetch(Snapshot.withoutReadObservation { firstVisibleItemIndex })
-                }
+    internal val legacyPrefetchState = legacyPrefetchStrategy?.let { legacyPrefetchStrategy ->
+        @Suppress("DEPRECATION") // b/420551535
+        LazyLayoutPrefetchState(legacyPrefetchStrategy.prefetchScheduler) {
+            with(legacyPrefetchStrategy) {
+                onNestedPrefetch(Snapshot.withoutReadObservation { firstVisibleItemIndex })
             }
         }
+    }
 
     private val prefetchState
         get() =
@@ -474,8 +473,9 @@ internal constructor(
             } else {
                 // Fallback for sticky headers, where the line is an UnknownRow/UnknownColumn (-1
                 // index)
-                val firstValidItem =
-                    visibleItems.fastFirstOrNull { it.lineIndex(orientation) != -1 }
+                val firstValidItem = visibleItems.fastFirstOrNull {
+                    it.lineIndex(orientation) != -1
+                }
                 val firstValidLineIndex = firstValidItem?.lineIndex(orientation) ?: 0
 
                 maxOf(0, firstValidLineIndex - 1)

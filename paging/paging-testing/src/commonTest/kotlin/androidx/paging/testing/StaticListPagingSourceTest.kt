@@ -154,11 +154,10 @@ class StaticListPagingSourceTest {
 
     @Test
     fun append_loadSizeLargerThanAvailableData() = runPagingSourceTest { _, pager ->
-        val result =
-            pager.run {
-                refresh(initialKey = 94)
-                append() as LoadResult.Page
-            }
+        val result = pager.run {
+            refresh(initialKey = 94)
+            append() as LoadResult.Page
+        }
         assertThat(result)
             .isEqualTo(
                 LoadResult.Page(
@@ -221,11 +220,10 @@ class StaticListPagingSourceTest {
 
     @Test
     fun prepend_loadSizeLargerThanAvailableData() = runPagingSourceTest { _, pager ->
-        val result =
-            pager.run {
-                refresh(initialKey = 2)
-                prepend()
-            }
+        val result = pager.run {
+            refresh(initialKey = 2)
+            prepend()
+        }
         assertThat(result)
             .isEqualTo(
                 LoadResult.Page(
@@ -246,13 +244,12 @@ class StaticListPagingSourceTest {
 
     @Test
     fun refreshKey() = runPagingSourceTest { pagingSource, pager ->
-        val state =
-            pager.run {
-                refresh() // [0, 1, 2, 3, 4]
-                append() // [5, 6, 7]
-                // the anchorPos should be 7
-                getPagingState(anchorPosition = 7)
-            }
+        val state = pager.run {
+            refresh() // [0, 1, 2, 3, 4]
+            append() // [5, 6, 7]
+            // the anchorPos should be 7
+            getPagingState(anchorPosition = 7)
+        }
 
         val refreshKey = pagingSource.getRefreshKey(state)
         val expected = 7 - (CONFIG.initialLoadSize / 2)
@@ -262,12 +259,11 @@ class StaticListPagingSourceTest {
 
     @Test
     fun refreshKey_negativeKeyClippedToZero() = runPagingSourceTest { pagingSource, pager ->
-        val state =
-            pager.run {
-                refresh(2) // [2, 3, 4, 5, 6]
-                prepend() // [0, 1]
-                getPagingState(anchorPosition = 1)
-            }
+        val state = pager.run {
+            refresh(2) // [2, 3, 4, 5, 6]
+            prepend() // [0, 1]
+            getPagingState(anchorPosition = 1)
+        }
         // before clipping, refreshKey = 1 - (CONFIG.initialLoadSize / 2) = -1
         val refreshKey = pagingSource.getRefreshKey(state)
         assertThat(refreshKey).isEqualTo(0)

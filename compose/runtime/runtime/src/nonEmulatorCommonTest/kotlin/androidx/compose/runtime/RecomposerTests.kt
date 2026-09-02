@@ -359,8 +359,9 @@ class RecomposerTests {
 
         // Register the apply observer after changing state to invalidate composition, but
         // before actually allowing the recomposition to happen.
-        val observerHandle =
-            Snapshot.registerApplyObserver { applied, _ -> applications += applied }
+        val observerHandle = Snapshot.registerApplyObserver { applied, _ ->
+            applications += applied
+        }
 
         try {
             assertTrue(applications.isEmpty())

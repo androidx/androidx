@@ -131,82 +131,81 @@ internal class BrushPaintCache(
                 // coordinates, so we need to compute the combined chain of transforms from that
                 // coordinate
                 // space to the graphics object space.
-                val texelToGraphicsObjectTransform =
-                    scratchShaderLocalMatrix.also {
-                        it.reset()
-                        if (strokeToGraphicsObjectTransform != null) {
-                            it.preConcat(strokeToGraphicsObjectTransform)
-                        }
-                        when (textureLayer) {
-                            // For tiling textures, we must end up in graphics object space.
-                            is TilingTexture -> {
-                                // This code assembles the chain of transforms backwards from stroke
-                                // space.
-                                //
-                                // While we're in stroke space, shift the origin to the position
-                                // specified by the
-                                // [TextureLayer].
-                                when (textureLayer.origin) {
-                                    TilingTexture.Origin.STROKE_SPACE_ORIGIN -> {}
-                                    TilingTexture.Origin.FIRST_STROKE_INPUT -> {
-                                        it.preTranslate(firstInput.x, firstInput.y)
-                                    }
-                                    TilingTexture.Origin.LAST_STROKE_INPUT -> {
-                                        it.preTranslate(lastInput.x, lastInput.y)
-                                    }
-                                }
-
-                                // To get to stroke space, we first need to scale from the
-                                // coordinate space where
-                                // distance is measured in the chosen SizeUnit for this particular
-                                // texture layer.
-                                //
-                                // Compute (SizeUnit -> stroke) = (stroke -> stroke) * (SizeUnit ->
-                                // stroke)
-                                when (textureLayer.sizeUnit) {
-                                    TextureLayer.SizeUnit.BRUSH_SIZE ->
-                                        it.preScale(brushSize, brushSize)
-                                    TextureLayer.SizeUnit.STROKE_COORDINATES -> {
-                                        // Nothing to do, since stroke space and SizeUnit space are
-                                        // identical.
-                                    }
-                                }
-
-                                // To get to SizeUnit space, we first need to scale from the texture
-                                // UV coordinate
-                                // space; that is, the coordinate space where the texture image is a
-                                // unit square.
-                                //
-                                // Compute (UV -> stroke) = (SizeUnit -> stroke) * (UV -> SizeUnit)
-                                it.preScale(textureLayer.sizeX, textureLayer.sizeY)
-
-                                // The texture rotation is specified as being around the center of
-                                // the first
-                                // repetition, so include a pivot point of 50% in both axes in
-                                // texture UV space.
-                                it.preRotate(textureLayer.rotationDegrees, 0.5f, 0.5f)
-
-                                // The texture offset is specified as fractions of the texture size;
-                                // in other words,
-                                // it should be applied within texture UV space.
-                                it.preTranslate(textureLayer.offsetX, textureLayer.offsetY)
-                            }
-                            // For stamping textures, we must end up in surface UV space. The shader
-                            // will apply
-                            // animation parameters as needed to calculate texture UV from that (see
-                            // `calculateStampingTextureUv()` in
-                            // `sksl_vertex_shader_helper_functions.h`).
-                            is StampingTexture -> {}
-                        }
-
-                        // To get to texture UV space, we first need to scale from the coordinate
-                        // space where
-                        // distance is measured in texels; that is, where each texel is a unit
-                        // square.
-                        //
-                        // Compute (texel -> stroke) = (UV -> stroke) * (texel -> UV)
-                        it.preScale(1f / bitmap.width, 1f / bitmap.height)
+                val texelToGraphicsObjectTransform = scratchShaderLocalMatrix.also {
+                    it.reset()
+                    if (strokeToGraphicsObjectTransform != null) {
+                        it.preConcat(strokeToGraphicsObjectTransform)
                     }
+                    when (textureLayer) {
+                        // For tiling textures, we must end up in graphics object space.
+                        is TilingTexture -> {
+                            // This code assembles the chain of transforms backwards from stroke
+                            // space.
+                            //
+                            // While we're in stroke space, shift the origin to the position
+                            // specified by the
+                            // [TextureLayer].
+                            when (textureLayer.origin) {
+                                TilingTexture.Origin.STROKE_SPACE_ORIGIN -> {}
+                                TilingTexture.Origin.FIRST_STROKE_INPUT -> {
+                                    it.preTranslate(firstInput.x, firstInput.y)
+                                }
+                                TilingTexture.Origin.LAST_STROKE_INPUT -> {
+                                    it.preTranslate(lastInput.x, lastInput.y)
+                                }
+                            }
+
+                            // To get to stroke space, we first need to scale from the
+                            // coordinate space where
+                            // distance is measured in the chosen SizeUnit for this particular
+                            // texture layer.
+                            //
+                            // Compute (SizeUnit -> stroke) = (stroke -> stroke) * (SizeUnit ->
+                            // stroke)
+                            when (textureLayer.sizeUnit) {
+                                TextureLayer.SizeUnit.BRUSH_SIZE ->
+                                    it.preScale(brushSize, brushSize)
+                                TextureLayer.SizeUnit.STROKE_COORDINATES -> {
+                                    // Nothing to do, since stroke space and SizeUnit space are
+                                    // identical.
+                                }
+                            }
+
+                            // To get to SizeUnit space, we first need to scale from the texture
+                            // UV coordinate
+                            // space; that is, the coordinate space where the texture image is a
+                            // unit square.
+                            //
+                            // Compute (UV -> stroke) = (SizeUnit -> stroke) * (UV -> SizeUnit)
+                            it.preScale(textureLayer.sizeX, textureLayer.sizeY)
+
+                            // The texture rotation is specified as being around the center of
+                            // the first
+                            // repetition, so include a pivot point of 50% in both axes in
+                            // texture UV space.
+                            it.preRotate(textureLayer.rotationDegrees, 0.5f, 0.5f)
+
+                            // The texture offset is specified as fractions of the texture size;
+                            // in other words,
+                            // it should be applied within texture UV space.
+                            it.preTranslate(textureLayer.offsetX, textureLayer.offsetY)
+                        }
+                        // For stamping textures, we must end up in surface UV space. The shader
+                        // will apply
+                        // animation parameters as needed to calculate texture UV from that (see
+                        // `calculateStampingTextureUv()` in
+                        // `sksl_vertex_shader_helper_functions.h`).
+                        is StampingTexture -> {}
+                    }
+
+                    // To get to texture UV space, we first need to scale from the coordinate
+                    // space where
+                    // distance is measured in texels; that is, where each texel is a unit
+                    // square.
+                    //
+                    // Compute (texel -> stroke) = (UV -> stroke) * (texel -> UV)
+                    it.preScale(1f / bitmap.width, 1f / bitmap.height)
+                }
                 // Do not use Matrix.isIdentity - it returns false for the identity matrix on
                 // earlier API
                 // levels.
@@ -269,14 +268,13 @@ internal class BrushPaintCache(
             // Early exit for efficiency.
             return PaintCacheData(paint)
         }
-        val bitmaps =
-            textureLayers.map {
-                when (it) {
-                    is TilingTexture -> textureStore[it.clientTextureId]
-                    is StampingTexture -> textureStore[it.clientTextureId]
-                    else -> null
-                }
+        val bitmaps = textureLayers.map {
+            when (it) {
+                is TilingTexture -> textureStore[it.clientTextureId]
+                is StampingTexture -> textureStore[it.clientTextureId]
+                else -> null
             }
+        }
         val bitmapShaders =
             textureLayers.zip(bitmaps) { layer, bitmap ->
                 if (bitmap == null) return@zip null

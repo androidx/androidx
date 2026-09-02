@@ -702,15 +702,14 @@ class SubcomposeLayoutTest {
 
         rule.setContent { SubcomposeLayout(state) { layout(10, 10) {} } }
 
-        val slot =
-            rule.runOnIdle {
-                state.precompose(Unit) {
-                    DisposableEffect(Unit) {
-                        composed = true
-                        onDispose { disposed = true }
-                    }
+        val slot = rule.runOnIdle {
+            state.precompose(Unit) {
+                DisposableEffect(Unit) {
+                    composed = true
+                    onDispose { disposed = true }
                 }
             }
+        }
 
         rule.runOnIdle {
             assertThat(composed).isTrue()
@@ -1325,11 +1324,10 @@ class SubcomposeLayoutTest {
     fun nodesKeptAsReusableAreReusedWhenTheStateObjectChanges() {
         val slotState = mutableStateOf(0)
         var remeasuresCount = 0
-        val measureModifier =
-            Modifier.layout { _, _ ->
-                remeasuresCount++
-                layout(10, 10) {}
-            }
+        val measureModifier = Modifier.layout { _, _ ->
+            remeasuresCount++
+            layout(10, 10) {}
+        }
         val layoutState = mutableStateOf(SubcomposeLayoutState(SubcomposeSlotReusePolicy(1)))
 
         rule.setContent {
@@ -1365,11 +1363,10 @@ class SubcomposeLayoutTest {
     fun previouslyActiveNodesAreReusedWhenTheStateObjectChanges() {
         val slotState = mutableStateOf(0)
         var remeasuresCount = 0
-        val measureModifier =
-            Modifier.layout { _, _ ->
-                remeasuresCount++
-                layout(10, 10) {}
-            }
+        val measureModifier = Modifier.layout { _, _ ->
+            remeasuresCount++
+            layout(10, 10) {}
+        }
         val layoutState = mutableStateOf(SubcomposeLayoutState(SubcomposeSlotReusePolicy(1)))
 
         rule.setContent {
@@ -2086,17 +2083,16 @@ class SubcomposeLayoutTest {
 
         var precomposedSlotActive = false
 
-        val handle =
-            rule.runOnIdle {
-                state.precompose(1) {
-                    Box(modifier = Modifier.size(10.dp).testTag("1"))
+        val handle = rule.runOnIdle {
+            state.precompose(1) {
+                Box(modifier = Modifier.size(10.dp).testTag("1"))
 
-                    DisposableEffect(Unit) {
-                        precomposedSlotActive = true
-                        onDispose { precomposedSlotActive = false }
-                    }
+                DisposableEffect(Unit) {
+                    precomposedSlotActive = true
+                    onDispose { precomposedSlotActive = false }
                 }
             }
+        }
 
         rule.runOnIdle {
             assertThat(precomposedSlotActive).isTrue()
@@ -2392,12 +2388,11 @@ class SubcomposeLayoutTest {
 
         val activeChildren = mutableSetOf<Int>()
         var remeasureCount = 0
-        val measureCountModifier =
-            Modifier.layout { measurable, constraints ->
-                remeasureCount++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-            }
+        val measureCountModifier = Modifier.layout { measurable, constraints ->
+            remeasureCount++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
 
         rule.setContent {
             SubcomposeLayout(remember { SubcomposeLayoutState(SubcomposeSlotReusePolicy(1)) }) {
@@ -2454,12 +2449,11 @@ class SubcomposeLayoutTest {
         var slotId by mutableStateOf(0)
         val activeChildren = mutableSetOf<Int>()
         var remeasureCount = 0
-        val measureCountModifier =
-            Modifier.layout { measurable, constraints ->
-                remeasureCount++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-            }
+        val measureCountModifier = Modifier.layout { measurable, constraints ->
+            remeasureCount++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
 
         rule.setContent {
             SubcomposeLayout(remember { SubcomposeLayoutState(SubcomposeSlotReusePolicy(1)) }) {
@@ -3109,19 +3103,17 @@ class SubcomposeLayoutTest {
 
         rule.runOnIdle { addSlot = false }
 
-        val handle =
-            rule.runOnIdle {
-                modifier =
-                    Modifier.layout { measurable, _ ->
-                        val placeable = measurable.measure(Constraints.fixed(10, 10))
-                        measured++
-                        layout(placeable.width, placeable.height) {
-                            placeable.place(0, 0)
-                            placed++
-                        }
-                    }
-                state.precompose(Unit, content)
+        val handle = rule.runOnIdle {
+            modifier = Modifier.layout { measurable, _ ->
+                val placeable = measurable.measure(Constraints.fixed(10, 10))
+                measured++
+                layout(placeable.width, placeable.height) {
+                    placeable.place(0, 0)
+                    placed++
+                }
             }
+            state.precompose(Unit, content)
+        }
 
         rule.runOnIdle {
             assertThat(measured).isEqualTo(0)
@@ -3169,13 +3161,12 @@ class SubcomposeLayoutTest {
 
         rule.runOnIdle { addSlot = false }
 
-        val handle =
-            rule.runOnIdle {
-                measured = 0
-                placed = 0
-                modifier = RemeasureAndRelayoutOnChangeModifierElement(onMeasured, onPlaced, 1)
-                state.precompose(Unit, content)
-            }
+        val handle = rule.runOnIdle {
+            measured = 0
+            placed = 0
+            modifier = RemeasureAndRelayoutOnChangeModifierElement(onMeasured, onPlaced, 1)
+            state.precompose(Unit, content)
+        }
 
         rule.runOnIdle {
             assertThat(measured).isEqualTo(0)
@@ -3294,11 +3285,10 @@ class SubcomposeLayoutTest {
             }
         }
 
-        val precomposition =
-            rule.runOnIdle {
-                assertThat(composingCounter).isEqualTo(0)
-                state.createPausedPrecomposition(Unit, content)
-            }
+        val precomposition = rule.runOnIdle {
+            assertThat(composingCounter).isEqualTo(0)
+            state.createPausedPrecomposition(Unit, content)
+        }
 
         rule.runOnIdle {
             assertThat(composingCounter).isEqualTo(0)
@@ -3340,11 +3330,10 @@ class SubcomposeLayoutTest {
             }
         }
 
-        val precomposition =
-            rule.runOnIdle {
-                assertThat(composingCounter).isEqualTo(0)
-                state.createPausedPrecomposition(Unit, content)
-            }
+        val precomposition = rule.runOnIdle {
+            assertThat(composingCounter).isEqualTo(0)
+            state.createPausedPrecomposition(Unit, content)
+        }
 
         rule.runOnIdle {
             assertThat(composingCounter).isEqualTo(0)
@@ -3383,11 +3372,10 @@ class SubcomposeLayoutTest {
             }
         }
 
-        val precomposition =
-            rule.runOnIdle {
-                assertThat(composingCounter).isEqualTo(0)
-                state.createPausedPrecomposition(Unit, content)
-            }
+        val precomposition = rule.runOnIdle {
+            assertThat(composingCounter).isEqualTo(0)
+            state.createPausedPrecomposition(Unit, content)
+        }
 
         rule.runOnIdle {
             assertThat(composingCounter).isEqualTo(0)

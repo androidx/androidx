@@ -42,71 +42,65 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 class ModifierVisibilityTest : BaseRemoteComposeTest() {
     @Test
-    fun translateBox_visible() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.visibility(Visibility.Visible)) {
-                        // no content
-                    }
+    fun translateBox_visible() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.visibility(Visibility.Visible)) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val debugContext = GlanceDebugCreationContext()
-            //            doc.initializeContext(debugContext)
+        val debugContext = GlanceDebugCreationContext()
+        //            doc.initializeContext(debugContext)
 
-            val box = getSimpleLeaf(doc) as BoxLayout
-            box.updateVariables(debugContext)
-            debugPrintDoc(doc)
-            val modifiers = box.mList[0] as ComponentModifiers
-            val modifier = modifiers.list[0] as ComponentVisibilityOperation
+        val box = getSimpleLeaf(doc) as BoxLayout
+        box.updateVariables(debugContext)
+        debugPrintDoc(doc)
+        val modifiers = box.mList[0] as ComponentModifiers
+        val modifier = modifiers.list[0] as ComponentVisibilityOperation
 
-            assertEquals(Component.Visibility.VISIBLE, box.mVisibility)
-        }
+        assertEquals(Component.Visibility.VISIBLE, box.mVisibility)
+    }
 
     @Test
-    fun translateBox_invisible() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(
-                        modifier =
-                            GlanceModifier.size(300.dp, 150.dp).visibility(Visibility.Invisible)
-                    ) {}
-                }
+    fun translateBox_invisible() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(
+                    modifier = GlanceModifier.size(300.dp, 150.dp).visibility(Visibility.Invisible)
+                ) {}
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val debugContext = GlanceDebugCreationContext()
-            doc.initializeContext(debugContext)
+        val debugContext = GlanceDebugCreationContext()
+        doc.initializeContext(debugContext)
 
-            val box = getSimpleLeaf(doc) as BoxLayout
-            doc.paint(debugContext, Theme.UNSPECIFIED)
-            debugPrintDoc(doc)
-            assertEquals(Component.Visibility.INVISIBLE, box.mVisibility)
-        }
+        val box = getSimpleLeaf(doc) as BoxLayout
+        doc.paint(debugContext, Theme.UNSPECIFIED)
+        debugPrintDoc(doc)
+        assertEquals(Component.Visibility.INVISIBLE, box.mVisibility)
+    }
 
     @Test
-    fun translateBox_gone() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(
-                        modifier = GlanceModifier.size(300.dp, 150.dp).visibility(Visibility.Gone)
-                    ) {}
-                }
+    fun translateBox_gone() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.size(300.dp, 150.dp).visibility(Visibility.Gone)) {}
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val debugContext = GlanceDebugCreationContext()
-            doc.initializeContext(debugContext)
+        val debugContext = GlanceDebugCreationContext()
+        doc.initializeContext(debugContext)
 
-            val box = getSimpleLeaf(doc) as BoxLayout
-            doc.paint(debugContext, Theme.UNSPECIFIED)
-            box.updateVariables(debugContext)
-            debugPrintDoc(doc)
+        val box = getSimpleLeaf(doc) as BoxLayout
+        doc.paint(debugContext, Theme.UNSPECIFIED)
+        box.updateVariables(debugContext)
+        debugPrintDoc(doc)
 
-            assertEquals(Component.Visibility.GONE, box.mVisibility)
-        }
+        assertEquals(Component.Visibility.GONE, box.mVisibility)
+    }
 }

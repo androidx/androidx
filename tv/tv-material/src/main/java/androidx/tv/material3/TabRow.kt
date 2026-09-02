@@ -128,18 +128,18 @@ fun TabRow(
             val tabMeasurables = subcompose(TabRowSlots.Tabs, tabContent)
 
             // Tab placeables
-            val tabPlaceables =
-                tabMeasurables.fastMap { it.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
+            val tabPlaceables = tabMeasurables.fastMap {
+                it.measure(constraints.copy(minWidth = 0, minHeight = 0))
+            }
             val tabsCount = tabMeasurables.size
             val separatorsCount = tabsCount - 1
 
             // Separators
             val separators = @Composable { repeat(separatorsCount) { separator() } }
             val separatorMeasurables = subcompose(TabRowSlots.Separator, separators)
-            val separatorPlaceables =
-                separatorMeasurables.fastMap {
-                    it.measure(constraints.copy(minWidth = 0, minHeight = 0))
-                }
+            val separatorPlaceables = separatorMeasurables.fastMap {
+                it.measure(constraints.copy(minWidth = 0, minHeight = 0))
+            }
             val separatorWidth = separatorPlaceables.firstOrNull()?.width ?: 0
 
             val layoutWidth =

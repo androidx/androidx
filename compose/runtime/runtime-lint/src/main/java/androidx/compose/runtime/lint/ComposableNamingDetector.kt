@@ -72,11 +72,10 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
 
                 if (node.returnsUnit) {
                     if (!capitalizedFunctionName) {
-                        val capitalizedName =
-                            name.replaceFirstChar {
-                                if (it.isLowerCase()) it.titlecase(Locale.getDefault())
-                                else it.toString()
-                            }
+                        val capitalizedName = name.replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase(Locale.getDefault())
+                            else it.toString()
+                        }
                         context.report(
                             ComposableNaming,
                             node,
@@ -94,8 +93,9 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
                     }
                 } else {
                     if (capitalizedFunctionName) {
-                        val lowercaseName =
-                            name.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+                        val lowercaseName = name.replaceFirstChar {
+                            it.lowercase(Locale.getDefault())
+                        }
                         context.report(
                             ComposableNaming,
                             node,

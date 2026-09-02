@@ -486,18 +486,18 @@ class AndroidComposeViewsRecyclerViewTest {
             awaitFrame()
             val visibleChildren =
                 recyclerView.children.count { (it as DisposalCountingComposeView).visible }
-            val initialNotVisible =
-                initialChildren.all { !(it as DisposalCountingComposeView).visible }
+            val initialNotVisible = initialChildren.all {
+                !(it as DisposalCountingComposeView).visible
+            }
             assertThat(visibleChildren).isEqualTo(2)
             assertThat(initialNotVisible).isTrue()
 
             recyclerView.scrollBy(0, -100)
             awaitFrame()
 
-            val reusedVisible =
-                initialChildren.all {
-                    it.parent == recyclerView && (it as DisposalCountingComposeView).visible
-                }
+            val reusedVisible = initialChildren.all {
+                it.parent == recyclerView && (it as DisposalCountingComposeView).visible
+            }
             assertThat(reusedVisible).isTrue()
         }
     }

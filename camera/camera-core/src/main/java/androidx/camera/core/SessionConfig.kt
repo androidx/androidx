@@ -258,8 +258,9 @@ constructor(
     private fun validateRequiredFeatures() {
         val requiredFeatureTypes = requiredFeatureGroup.map { it.featureTypeInternal }.distinct()
         requiredFeatureTypes.forEach { featureType ->
-            val distinctFeaturesPerType =
-                requiredFeatureGroup.filter { it.featureTypeInternal == featureType }
+            val distinctFeaturesPerType = requiredFeatureGroup.filter {
+                it.featureTypeInternal == featureType
+            }
 
             require(distinctFeaturesPerType.size <= 1) {
                 "requiredFeatures has conflicting feature values: $distinctFeaturesPerType"

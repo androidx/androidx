@@ -1543,88 +1543,88 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
             assertThat(companionSubject.getDeclaredFields().map { it.name }).isEmpty()
 
             buildList {
-                    add(MethodData("getCompanionVal", isStatic = false, isGetter = true))
-                    add(MethodData("getCompanionVar", isStatic = false, isGetter = true))
-                    add(MethodData("setCompanionVar", isStatic = false, isSetter = true))
-                    add(MethodData("companionFun", isStatic = false))
+                add(MethodData("getCompanionVal", isStatic = false, isGetter = true))
+                add(MethodData("getCompanionVar", isStatic = false, isGetter = true))
+                add(MethodData("setCompanionVar", isStatic = false, isSetter = true))
+                add(MethodData("companionFun", isStatic = false))
+                add(
+                    MethodData(
+                        "getCompanionVarPropJvmStatic",
+                        isStatic = false,
+                        isGetter = true,
+                    )
+                )
+                if (!invocation.isKsp) {
+                    // TODO(b/290800523): remove synthetic annotation methods from KAPT.
                     add(
                         MethodData(
-                            "getCompanionVarPropJvmStatic",
-                            isStatic = false,
-                            isGetter = true,
+                            "getCompanionVarPropJvmStatic\$annotations",
+                            isStatic = true,
+                            isPropertyMethod = true,
                         )
                     )
-                    if (!invocation.isKsp) {
-                        // TODO(b/290800523): remove synthetic annotation methods from KAPT.
-                        add(
-                            MethodData(
-                                "getCompanionVarPropJvmStatic\$annotations",
-                                isStatic = true,
-                                isPropertyMethod = true,
-                            )
-                        )
-                    }
-                    add(
-                        MethodData(
-                            "setCompanionVarPropJvmStatic",
-                            isStatic = false,
-                            isSetter = true,
-                        )
-                    )
-                    add(
-                        MethodData(
-                            "getCompanionVarGetterJvmStatic",
-                            isStatic = false,
-                            isGetter = true,
-                        )
-                    )
-                    add(
-                        MethodData(
-                            "setCompanionVarGetterJvmStatic",
-                            isStatic = false,
-                            isSetter = true,
-                        )
-                    )
-                    add(
-                        MethodData(
-                            "getCompanionVarSetterJvmStatic",
-                            isStatic = false,
-                            isGetter = true,
-                        )
-                    )
-                    add(
-                        MethodData(
-                            "setCompanionVarSetterJvmStatic",
-                            isStatic = false,
-                            isSetter = true,
-                        )
-                    )
-                    add(
-                        MethodData(
-                            "getCompanionValPropJvmStatic",
-                            isStatic = false,
-                            isGetter = true,
-                        )
-                    )
-                    if (!invocation.isKsp) {
-                        // TODO(b/290800523): remove synthetic annotation methods from KAPT.
-                        add(
-                            MethodData(
-                                "getCompanionValPropJvmStatic\$annotations",
-                                isStatic = true,
-                                isPropertyMethod = true,
-                            )
-                        )
-                    }
-                    add(
-                        MethodData(
-                            "getCompanionValGetterJvmStatic",
-                            isStatic = false,
-                            isGetter = true,
-                        )
-                    )
-                    add(MethodData("companionFunJvmStatic", isStatic = false))
                 }
+                add(
+                    MethodData(
+                        "setCompanionVarPropJvmStatic",
+                        isStatic = false,
+                        isSetter = true,
+                    )
+                )
+                add(
+                    MethodData(
+                        "getCompanionVarGetterJvmStatic",
+                        isStatic = false,
+                        isGetter = true,
+                    )
+                )
+                add(
+                    MethodData(
+                        "setCompanionVarGetterJvmStatic",
+                        isStatic = false,
+                        isSetter = true,
+                    )
+                )
+                add(
+                    MethodData(
+                        "getCompanionVarSetterJvmStatic",
+                        isStatic = false,
+                        isGetter = true,
+                    )
+                )
+                add(
+                    MethodData(
+                        "setCompanionVarSetterJvmStatic",
+                        isStatic = false,
+                        isSetter = true,
+                    )
+                )
+                add(
+                    MethodData(
+                        "getCompanionValPropJvmStatic",
+                        isStatic = false,
+                        isGetter = true,
+                    )
+                )
+                if (!invocation.isKsp) {
+                    // TODO(b/290800523): remove synthetic annotation methods from KAPT.
+                    add(
+                        MethodData(
+                            "getCompanionValPropJvmStatic\$annotations",
+                            isStatic = true,
+                            isPropertyMethod = true,
+                        )
+                    )
+                }
+                add(
+                    MethodData(
+                        "getCompanionValGetterJvmStatic",
+                        isStatic = false,
+                        isGetter = true,
+                    )
+                )
+                add(MethodData("companionFunJvmStatic", isStatic = false))
+            }
                 .let { expectedMethods ->
                     assertThat(companionSubject.getDeclaredMethods().map { it.jvmName })
                         .containsExactlyElementsIn(expectedMethods.map { it.name })
@@ -1897,10 +1897,9 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     "AbstractExplicit",
                     "AnnotationClass",
                 )
-            val constructorCounts =
-                subjects.map {
-                    it to invocation.processingEnv.requireTypeElement(it).getConstructors().size
-                }
+            val constructorCounts = subjects.map {
+                it to invocation.processingEnv.requireTypeElement(it).getConstructors().size
+            }
             assertThat(constructorCounts)
                 .containsExactly(
                     "MyInterface" to 0,
@@ -1915,15 +1914,14 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     "AnnotationClass" to 0,
                 )
 
-            val primaryConstructorParameterNames =
-                subjects.map {
-                    it to
-                        invocation.processingEnv
-                            .requireTypeElement(it)
-                            .findPrimaryConstructor()
-                            ?.parameters
-                            ?.map { it.name }
-                }
+            val primaryConstructorParameterNames = subjects.map {
+                it to
+                    invocation.processingEnv
+                        .requireTypeElement(it)
+                        .findPrimaryConstructor()
+                        ?.parameters
+                        ?.map { it.name }
+            }
             assertThat(primaryConstructorParameterNames)
                 .containsExactly(
                     "MyInterface" to null,
@@ -2029,15 +2027,14 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
 
             val subjects = listOf("DefaultArgs", "NoDefaultArgs", "AllDefaultArgs")
             if (invocation.isKsp) {
-                val syntheticConstructorCounts =
-                    subjects.map {
-                        it to
-                            invocation.processingEnv
-                                .requireTypeElement(it)
-                                .getConstructors()
-                                .filter { it.isSyntheticConstructorForJvmOverloads() }
-                                .size
-                    }
+                val syntheticConstructorCounts = subjects.map {
+                    it to
+                        invocation.processingEnv
+                            .requireTypeElement(it)
+                            .getConstructors()
+                            .filter { it.isSyntheticConstructorForJvmOverloads() }
+                            .size
+                }
                 assertThat(syntheticConstructorCounts)
                     .containsExactly(
                         "DefaultArgs" to 2,
@@ -2086,10 +2083,9 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     "CantHaveNoArgsCtor",
                     "AnnotationClass",
                 )
-            val constructorCounts =
-                subjects.associateWith {
-                    invocation.processingEnv.requireTypeElement(it).getConstructors().size
-                }
+            val constructorCounts = subjects.associateWith {
+                invocation.processingEnv.requireTypeElement(it).getConstructors().size
+            }
             assertThat(constructorCounts)
                 .containsExactlyEntriesIn(
                     mapOf(
@@ -2103,12 +2099,11 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     )
                 )
 
-            val hasNoArgConstructor =
-                subjects.associateWith {
-                    invocation.processingEnv.requireTypeElement(it).getConstructors().any {
-                        it.parameters.isEmpty()
-                    }
+            val hasNoArgConstructor = subjects.associateWith {
+                invocation.processingEnv.requireTypeElement(it).getConstructors().any {
+                    it.parameters.isEmpty()
                 }
+            }
             assertThat(hasNoArgConstructor)
                 .containsExactlyEntriesIn(
                     mapOf(
@@ -2201,10 +2196,9 @@ class XTypeElementTest(private val isPreCompiled: Boolean) {
                     "AbstractNoExplicit",
                     "AbstractExplicit",
                 )
-            val constructorCounts =
-                subjects.map {
-                    it to invocation.processingEnv.requireTypeElement(it).getConstructors().size
-                }
+            val constructorCounts = subjects.map {
+                it to invocation.processingEnv.requireTypeElement(it).getConstructors().size
+            }
             assertThat(constructorCounts)
                 .containsExactly(
                     "MyInterface" to 0,

@@ -40,10 +40,9 @@ public class FakeCameraDevices(
             "FakeCameraDevices must include $defaultCameraBackendId"
         }
 
-        cameraBackends =
-            cameraMetadataMap.mapValues { entry ->
-                FakeCameraBackend(entry.value.associateBy { it.camera })
-            }
+        cameraBackends = cameraMetadataMap.mapValues { entry ->
+            FakeCameraBackend(entry.value.associateBy { it.camera })
+        }
     }
 
     override fun cameraIdsFlow(cameraBackendId: CameraBackendId?): Flow<List<CameraId>> =

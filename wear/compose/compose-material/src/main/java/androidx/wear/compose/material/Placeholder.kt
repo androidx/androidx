@@ -271,55 +271,51 @@ internal constructor(
     internal var placeholderStage: PlaceholderStage =
         if (isContentReady.value.invoke()) PlaceholderStage.ShowContent
         else PlaceholderStage.ShowPlaceholder
-        get() =
-            derivedStateOf {
+        get() = derivedStateOf {
+            if (field == PlaceholderStage.WipeOff || field == PlaceholderStage.ShowPlaceholder) {
+                // WipeOff
+                if (startOfWipeOffAnimation != 0L) {
                     if (
-                        field == PlaceholderStage.WipeOff ||
-                            field == PlaceholderStage.ShowPlaceholder
+                        (frameMillis.longValue - startOfWipeOffAnimation) >=
+                            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS
                     ) {
-                        // WipeOff
-                        if (startOfWipeOffAnimation != 0L) {
-                            if (
-                                (frameMillis.longValue - startOfWipeOffAnimation) >=
-                                    PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS
-                            ) {
-                                field = PlaceholderStage.ShowContent
-                            }
-                            // Placeholder
-                        } else if (isContentReady.value()) {
-                            if (isReduceMotionEnabled) {
-                                field = PlaceholderStage.ShowContent
-                            } else {
-                                startOfWipeOffAnimation = frameMillis.longValue
-                                field = PlaceholderStage.WipeOff
-                            }
+                        field = PlaceholderStage.ShowContent
+                    }
+                    // Placeholder
+                } else if (isContentReady.value()) {
+                    if (isReduceMotionEnabled) {
+                        field = PlaceholderStage.ShowContent
+                    } else {
+                        startOfWipeOffAnimation = frameMillis.longValue
+                        field = PlaceholderStage.WipeOff
+                    }
+                }
+            } else {
+                if (!isContentReady.value()) {
+                    // Reset
+                    if (startOfResetAnimation != 0L) {
+                        if (
+                            frameMillis.longValue - startOfResetAnimation >=
+                                PLACEHOLDER_RESET_ANIMATION_DURATION
+                        ) {
+                            startOfResetAnimation = 0L
+                            field = PlaceholderStage.ShowPlaceholder
                         }
                     } else {
-                        if (!isContentReady.value()) {
-                            // Reset
-                            if (startOfResetAnimation != 0L) {
-                                if (
-                                    frameMillis.longValue - startOfResetAnimation >=
-                                        PLACEHOLDER_RESET_ANIMATION_DURATION
-                                ) {
-                                    startOfResetAnimation = 0L
-                                    field = PlaceholderStage.ShowPlaceholder
-                                }
-                            } else {
-                                // ShowContent
-                                startOfWipeOffAnimation = 0L
-                                if (isReduceMotionEnabled) {
-                                    field = PlaceholderStage.ShowPlaceholder
-                                } else {
-                                    startOfResetAnimation = frameMillis.longValue
-                                    field = PlaceholderStage.ResetContent
-                                }
-                            }
+                        // ShowContent
+                        startOfWipeOffAnimation = 0L
+                        if (isReduceMotionEnabled) {
+                            field = PlaceholderStage.ShowPlaceholder
+                        } else {
+                            startOfResetAnimation = frameMillis.longValue
+                            field = PlaceholderStage.ResetContent
                         }
                     }
-                    field
                 }
-                .value
+            }
+            field
+        }
+            .value
 
     /**
      * The frame time in milliseconds in the calling context of frame dispatch. Used to coordinate

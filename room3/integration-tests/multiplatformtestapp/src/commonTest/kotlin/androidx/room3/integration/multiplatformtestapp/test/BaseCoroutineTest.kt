@@ -63,23 +63,21 @@ abstract class BaseCoroutineTest {
         // it doesn't affect others.
         val failureQueryScope = CoroutineScope(Job())
         val successQueryScope = CoroutineScope(Job())
-        val failureDeferred =
-            failureQueryScope.async {
-                db.useReaderConnection { connection ->
-                    connection.usePrepared("SELECT * FROM WrongTableName") {
-                        assertThat(it.step()).isFalse()
-                    }
+        val failureDeferred = failureQueryScope.async {
+            db.useReaderConnection { connection ->
+                connection.usePrepared("SELECT * FROM WrongTableName") {
+                    assertThat(it.step()).isFalse()
                 }
             }
-        val successDeferred =
-            successQueryScope.async {
-                db.useReaderConnection { connection ->
-                    connection.usePrepared("SELECT * FROM SampleEntity") {
-                        assertThat(it.step()).isTrue()
-                        it.getLong(0)
-                    }
+        }
+        val successDeferred = successQueryScope.async {
+            db.useReaderConnection { connection ->
+                connection.usePrepared("SELECT * FROM SampleEntity") {
+                    assertThat(it.step()).isTrue()
+                    it.getLong(0)
                 }
             }
+        }
         assertThrows<SQLiteException> { failureDeferred.await() }
             .hasMessageThat()
             .contains("no such table: WrongTableName")
@@ -93,16 +91,14 @@ abstract class BaseCoroutineTest {
         val toBeCancelledScope = CoroutineScope(Job())
         val notCancelledScope = CoroutineScope(Job())
         val latch = Mutex(locked = true)
-        val cancelledDeferred =
-            toBeCancelledScope.async {
-                db.useReaderConnection { latch.withLock {} }
-                1
-            }
-        val notCancelledDeferred =
-            notCancelledScope.async {
-                db.useReaderConnection { latch.withLock {} }
-                1
-            }
+        val cancelledDeferred = toBeCancelledScope.async {
+            db.useReaderConnection { latch.withLock {} }
+            1
+        }
+        val notCancelledDeferred = notCancelledScope.async {
+            db.useReaderConnection { latch.withLock {} }
+            1
+        }
 
         yield()
         toBeCancelledScope.cancel()

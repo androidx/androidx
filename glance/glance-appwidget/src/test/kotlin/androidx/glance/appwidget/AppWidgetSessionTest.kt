@@ -103,17 +103,17 @@ class AppWidgetSessionTest {
     @Test
     fun processEmittableTree() = runMediumTest {
         measureTime {
-                val root =
-                    RemoteViewsRoot(maxDepth = 1).apply {
-                        children += EmittableText().apply { text = "hello" }
-                    }
-
-                session.processEmittableTree(context, root)
-                context.applyRemoteViews(session.lastRemoteViews.value!!).let {
-                    val text = assertIs<TextView>(it)
-                    assertThat(text.text).isEqualTo("hello")
+            val root =
+                RemoteViewsRoot(maxDepth = 1).apply {
+                    children += EmittableText().apply { text = "hello" }
                 }
+
+            session.processEmittableTree(context, root)
+            context.applyRemoteViews(session.lastRemoteViews.value!!).let {
+                val text = assertIs<TextView>(it)
+                assertThat(text.text).isEqualTo("hello")
             }
+        }
             .also { println("processEmittableTree test took: $it") }
     }
 

@@ -849,8 +849,9 @@ class RequestFocusTest {
         rule.runOnIdle { button3.requestFocus() }
         rule.onNodeWithTag(tag3).assertIsFocused()
 
-        val success =
-            rule.runOnIdle { button2.requestFocus(View.FOCUS_UP, android.graphics.Rect()) }
+        val success = rule.runOnIdle {
+            button2.requestFocus(View.FOCUS_UP, android.graphics.Rect())
+        }
 
         @OptIn(ExperimentalComposeUiApi::class)
         when {

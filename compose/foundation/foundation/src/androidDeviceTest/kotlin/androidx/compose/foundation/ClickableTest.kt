@@ -210,7 +210,10 @@ class ClickableTest {
                 BasicText(
                     "ClickableText",
                     modifier =
-                        Modifier.testTag("myClickable").clickable(enabled = enabled, role = role) {},
+                        Modifier.testTag("myClickable").clickable(
+                            enabled = enabled,
+                            role = role,
+                        ) {},
                 )
             }
         }
@@ -5440,7 +5443,9 @@ class ClickableTest {
                         BasicText(
                             "ClickableText",
                             modifier =
-                                Modifier.testTag("clickable").clickable(interactionSource = null) {},
+                                Modifier.testTag("clickable").clickable(
+                                    interactionSource = null
+                                ) {},
                         )
                     }
                 }

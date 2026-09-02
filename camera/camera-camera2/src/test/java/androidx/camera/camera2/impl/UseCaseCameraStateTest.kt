@@ -310,7 +310,9 @@ class UseCaseCameraStateTest {
                 useCaseCameraState.updateAsync(
                     streams = setOf(StreamId(0)),
                     parameters =
-                        mapOf(CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_AUTO),
+                        mapOf(
+                            CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_AUTO
+                        ),
                 )
             }
 

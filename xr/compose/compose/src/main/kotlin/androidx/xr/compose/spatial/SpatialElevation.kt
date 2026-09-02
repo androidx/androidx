@@ -121,12 +121,11 @@ private fun LayoutSpatialElevation(elevation: Dp, content: @Composable () -> Uni
         }
 
     DisposableEffect(parentView) {
-        val listener =
-            View.OnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
-                val newWidth = right - left
-                val newHeight = bottom - top
-                holder.parentViewSize = IntSize(newWidth, newHeight)
-            }
+        val listener = View.OnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
+            val newWidth = right - left
+            val newHeight = bottom - top
+            holder.parentViewSize = IntSize(newWidth, newHeight)
+        }
 
         parentView.addOnLayoutChangeListener(listener)
 

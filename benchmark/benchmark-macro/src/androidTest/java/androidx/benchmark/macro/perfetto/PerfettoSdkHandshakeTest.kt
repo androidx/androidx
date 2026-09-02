@@ -186,10 +186,9 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         val libraryZip: File? = resolvePerfettoAar()
         val tmpDir = Outputs.dirUsableByAppAndShell
         val mvTmpDst = createShellFileMover()
-        val librarySource =
-            libraryZip?.let {
-                PerfettoSdkHandshake.LibrarySource.aarLibrarySource(libraryZip, tmpDir, mvTmpDst)
-            }
+        val librarySource = libraryZip?.let {
+            PerfettoSdkHandshake.LibrarySource.aarLibrarySource(libraryZip, tmpDir, mvTmpDst)
+        }
         val versionRx = "\\d+(\\.\\d+){2}(-[\\w-]+)?"
         val handshake = constructPerfettoHandshake()
         when (testConfig.sdkDelivery) {
@@ -238,10 +237,9 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         val libraryZip = resolvePerfettoAar()
         val tmpDir = Outputs.dirUsableByAppAndShell
         val mvTmpDst = createShellFileMover()
-        val librarySource =
-            libraryZip?.let {
-                PerfettoSdkHandshake.LibrarySource.aarLibrarySource(libraryZip, tmpDir, mvTmpDst)
-            }
+        val librarySource = libraryZip?.let {
+            PerfettoSdkHandshake.LibrarySource.aarLibrarySource(libraryZip, tmpDir, mvTmpDst)
+        }
 
         try {
             val enableColdTracingResponse =
@@ -345,10 +343,9 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
         val libraryZip = resolvePerfettoAar()
         val tmpDir = Outputs.dirUsableByAppAndShell
         val mvTmpDst = createShellFileMover()
-        val librarySource =
-            libraryZip?.let {
-                PerfettoSdkHandshake.LibrarySource.aarLibrarySource(libraryZip, tmpDir, mvTmpDst)
-            }
+        val librarySource = libraryZip?.let {
+            PerfettoSdkHandshake.LibrarySource.aarLibrarySource(libraryZip, tmpDir, mvTmpDst)
+        }
         val enableColdTracingResponse = handshake.enableTracingColdStart(persistent, librarySource)
         assertThat(enableColdTracingResponse.resultCode).isEqualTo(RESULT_CODE_SUCCESS)
 
@@ -503,12 +500,12 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
             targetPackage,
             parseJsonMap = { jsonString: String ->
                 sequence {
-                        JsonReader(StringReader(jsonString)).use { reader ->
-                            reader.beginObject()
-                            while (reader.hasNext()) yield(reader.nextName() to reader.nextString())
-                            reader.endObject()
-                        }
+                    JsonReader(StringReader(jsonString)).use { reader ->
+                        reader.beginObject()
+                        while (reader.hasNext()) yield(reader.nextName() to reader.nextString())
+                        reader.endObject()
                     }
+                }
                     .toMap()
             },
             executeShellCommand = { cmd ->

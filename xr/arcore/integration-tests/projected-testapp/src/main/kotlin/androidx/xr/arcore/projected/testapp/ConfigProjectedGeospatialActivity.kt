@@ -64,11 +64,10 @@ class ConfigProjectedGeospatialActivity : ComponentActivity() {
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
             )
-        val hasAllPermissions =
-            permissionsRequired.all {
-                androidx.core.content.ContextCompat.checkSelfPermission(this, it) ==
-                    android.content.pm.PackageManager.PERMISSION_GRANTED
-            }
+        val hasAllPermissions = permissionsRequired.all {
+            androidx.core.content.ContextCompat.checkSelfPermission(this, it) ==
+                android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
 
         if (hasAllPermissions) {
 

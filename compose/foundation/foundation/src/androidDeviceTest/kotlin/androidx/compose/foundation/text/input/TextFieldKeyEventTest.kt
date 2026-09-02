@@ -934,7 +934,8 @@ class TextFieldKeyEventTest {
             BasicTextField(
                 value = "text",
                 onValueChange = {},
-                modifier = Modifier.focusRequester(focusRequester).testTag(tag).onKeyEvent(::handle),
+                modifier =
+                    Modifier.focusRequester(focusRequester).testTag(tag).onKeyEvent(::handle),
             )
         }
 

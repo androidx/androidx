@@ -39,11 +39,10 @@ class PageTransformerController(private val viewPager: ViewPager2, private val s
                 "Margin 32dp" to MarginPageTransformer(32.dpToPx),
             )
 
-        val cancelTranslationsTransformer =
-            ViewPager2.PageTransformer { page, _ ->
-                page.translationX = 0f
-                page.translationY = 0f
-            }
+        val cancelTranslationsTransformer = ViewPager2.PageTransformer { page, _ ->
+            page.translationX = 0f
+            page.translationY = 0f
+        }
 
         spinner.adapter =
             ArrayAdapter(

@@ -76,8 +76,9 @@ class AppFunctionSignatureProcessor(
 
         if (appFunctionSignatures.isNotEmpty()) {
             val xmlGenerator = AppFunctionXmlGenerator(codeGenerator, logger)
-            val groupedSignatures =
-                appFunctionSignatures.groupBy { signature -> signature.appFunctionXmlFileName }
+            val groupedSignatures = appFunctionSignatures.groupBy { signature ->
+                signature.appFunctionXmlFileName
+            }
 
             for ((appFunctionXmlFileName, signaturesInGroup) in groupedSignatures) {
                 xmlGenerator.generateXml(

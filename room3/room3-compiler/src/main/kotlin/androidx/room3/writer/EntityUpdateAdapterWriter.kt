@@ -98,14 +98,13 @@ private constructor(
                                 scope = bindScope,
                             )
                             val pkeyStart = dataClass.properties.size
-                            val mappedPrimaryKeys =
-                                primaryKeyFields.mapIndexed { index, field ->
-                                    PropertyWithIndex(
-                                        property = field,
-                                        indexVar = "${pkeyStart + index + 1}",
-                                        alwaysExists = true,
-                                    )
-                                }
+                            val mappedPrimaryKeys = primaryKeyFields.mapIndexed { index, field ->
+                                PropertyWithIndex(
+                                    property = field,
+                                    indexVar = "${pkeyStart + index + 1}",
+                                    alwaysExists = true,
+                                )
+                            }
                             PropertyReadWriteWriter.bindToStatement(
                                 ownerVar = entityParam,
                                 stmtParamVar = stmtParam,

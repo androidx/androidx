@@ -29,15 +29,14 @@ import androidx.benchmark.traceprocessor.TraceProcessor
 @Sampled
 fun traceProcessorRunServerSimple(): List<Long> {
     // Collect the duration of all slices named "activityStart" in the trace
-    val activityStartDurNs =
-        TraceProcessor.runServer {
-            loadTrace(PerfettoTrace("/path/to/trace.perfetto-trace")) {
-                    query("SELECT dur FROM slice WHERE name = 'activityStart'").map {
-                        it.long("dur")
-                    }
+    val activityStartDurNs = TraceProcessor.runServer {
+        loadTrace(PerfettoTrace("/path/to/trace.perfetto-trace")) {
+                query("SELECT dur FROM slice WHERE name = 'activityStart'").map {
+                    it.long("dur")
                 }
-                .toList()
-        }
+            }
+            .toList()
+    }
     return activityStartDurNs
 }
 

@@ -239,8 +239,9 @@ class DialogWithInsetsTest {
         // There is going to be some insets
         assertThat(maxOf(insetsLeft, insetsTop, insetsRight, insetsBottom)).isNotEqualTo(0)
 
-        val hardKeyboardHidden =
-            rule.runOnUiThread { rule.activity.resources.configuration.hardKeyboardHidden }
+        val hardKeyboardHidden = rule.runOnUiThread {
+            rule.activity.resources.configuration.hardKeyboardHidden
+        }
         if (hardKeyboardHidden == HARDKEYBOARDHIDDEN_NO) {
             return // can't launch the IME when the hardware keyboard is up.
         }

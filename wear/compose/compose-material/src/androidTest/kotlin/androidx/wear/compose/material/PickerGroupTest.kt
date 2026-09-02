@@ -62,7 +62,9 @@ class PickerGroupTest {
             PickerGroup(
                 pickers = getPickerColumns(2),
                 pickerGroupState =
-                    rememberPickerGroupState(initiallySelectedColumn).also { pickerGroupState = it },
+                    rememberPickerGroupState(initiallySelectedColumn).also {
+                        pickerGroupState = it
+                    },
             )
         }
 

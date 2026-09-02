@@ -142,590 +142,570 @@ class Camera2DeviceCacheTest {
     }
 
     @Test
-    fun testCanGetCameraIds() =
-        testScope.runTest {
-            fakeCameraManagerProvider.setCameraIds(listOf("0"))
-            setUpPackageManager(enableBack = false, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
+    fun testCanGetCameraIds() = testScope.runTest {
+        fakeCameraManagerProvider.setCameraIds(listOf("0"))
+        setUpPackageManager(enableBack = false, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
 
-            val cameraIds = camera2DeviceCache.getCameraIds()
+        val cameraIds = camera2DeviceCache.getCameraIds()
 
-            assertThat(cameraIds).containsExactly(CameraId("0"))
+        assertThat(cameraIds).containsExactly(CameraId("0"))
 
-            camera2DeviceCache.shutdown()
-        }
-
-    @Test
-    fun testCanAwaitCameraIds() =
-        testScope.runTest {
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
-            setUpPackageManager(enableBack = true, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
-
-            val cameraIds = camera2DeviceCache.awaitCameraIds()
-
-            assertThat(cameraIds).containsExactly(CameraId("0"), CameraId("1"))
-
-            camera2DeviceCache.shutdown()
-        }
+        camera2DeviceCache.shutdown()
+    }
 
     @Test
-    fun testCanGetCameraIdsFromFlow() =
-        testScope.runTest {
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1", "2"))
-            setUpPackageManager(enableBack = true, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
+    fun testCanAwaitCameraIds() = testScope.runTest {
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
+        setUpPackageManager(enableBack = true, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
 
-            val cameraIds = camera2DeviceCache.cameraIds.first()
+        val cameraIds = camera2DeviceCache.awaitCameraIds()
 
-            assertThat(cameraIds).containsExactly(CameraId("0"), CameraId("1"), CameraId("2"))
+        assertThat(cameraIds).containsExactly(CameraId("0"), CameraId("1"))
 
-            camera2DeviceCache.shutdown()
-        }
-
-    @Test
-    fun testCanGetEmptyCameraIdsFromFlow() =
-        testScope.runTest {
-            // Test that verifies regardless of the validity of our current camera ID list, we
-            // should still get an initial value from the flow. The empty camera ID list is a
-            // tricky edge in which no cameras would ever become available, but we should still
-            // return an initial value.
-            fakeCameraManagerProvider.setCameraIds(emptyList())
-            setUpPackageManager(enableBack = true, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
-
-            val cameraIds = camera2DeviceCache.cameraIds.first()
-            assertThat(cameraIds.isEmpty()).isTrue()
-
-            camera2DeviceCache.shutdown()
-        }
+        camera2DeviceCache.shutdown()
+    }
 
     @Test
-    fun getCameraIdsCachesCameraIdList() =
-        testScope.runTest {
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1", "2"))
-            setUpPackageManager(enableBack = true, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
+    fun testCanGetCameraIdsFromFlow() = testScope.runTest {
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1", "2"))
+        setUpPackageManager(enableBack = true, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
 
-            // Get the camera ID list for the first time.
-            val cameraIds = camera2DeviceCache.getCameraIds()
-            assertThat(cameraIds).containsExactly(CameraId("0"), CameraId("1"), CameraId("2"))
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+        val cameraIds = camera2DeviceCache.cameraIds.first()
 
-            // Get the camera ID list for the second time.
-            val cameraIds2 = camera2DeviceCache.getCameraIds()
-            assertThat(cameraIds2).containsExactly(CameraId("0"), CameraId("1"), CameraId("2"))
-            // Since the list is valid, we shouldn't query the camera ID list again.
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+        assertThat(cameraIds).containsExactly(CameraId("0"), CameraId("1"), CameraId("2"))
 
-            camera2DeviceCache.shutdown()
-        }
+        camera2DeviceCache.shutdown()
+    }
 
     @Test
-    fun getCameraIdsDoesNotCacheCameraIdListWithInvalidList() =
-        testScope.runTest {
-            // There should be at least 2 cameras if both cameras are supported.
-            fakeCameraManagerProvider.setCameraIds(listOf("0"))
-            setUpPackageManager(enableBack = true, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
+    fun testCanGetEmptyCameraIdsFromFlow() = testScope.runTest {
+        // Test that verifies regardless of the validity of our current camera ID list, we
+        // should still get an initial value from the flow. The empty camera ID list is a
+        // tricky edge in which no cameras would ever become available, but we should still
+        // return an initial value.
+        fakeCameraManagerProvider.setCameraIds(emptyList())
+        setUpPackageManager(enableBack = true, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
 
-            // Get the camera ID list for the first time.
-            val cameraIds = camera2DeviceCache.getCameraIds()
-            assertThat(cameraIds).containsExactly(CameraId("0"))
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+        val cameraIds = camera2DeviceCache.cameraIds.first()
+        assertThat(cameraIds.isEmpty()).isTrue()
 
-            // Get the camera ID list for the second time.
-            val cameraIds2 = camera2DeviceCache.getCameraIds()
-            assertThat(cameraIds2).containsExactly(CameraId("0"))
-            // Since the list is invalid, we should query the camera ID list again.
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
-
-            camera2DeviceCache.shutdown()
-        }
+        camera2DeviceCache.shutdown()
+    }
 
     @Test
-    fun awaitCameraIdsCachesCameraIdList() =
-        testScope.runTest {
-            // If no cameras are supported, then we can and should cache an empty list.
-            fakeCameraManagerProvider.setCameraIds(emptyList())
-            setUpPackageManager(enableBack = false, enableFront = false)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
+    fun getCameraIdsCachesCameraIdList() = testScope.runTest {
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1", "2"))
+        setUpPackageManager(enableBack = true, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
 
-            // Get the camera ID list for the first time.
-            val cameraIds = camera2DeviceCache.awaitCameraIds()
-            assertThat(cameraIds != null && cameraIds.isEmpty()).isTrue()
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+        // Get the camera ID list for the first time.
+        val cameraIds = camera2DeviceCache.getCameraIds()
+        assertThat(cameraIds).containsExactly(CameraId("0"), CameraId("1"), CameraId("2"))
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
 
-            // Get the camera ID list for the second time.
-            val cameraIds2 = camera2DeviceCache.awaitCameraIds()
-            assertThat(cameraIds2 != null && cameraIds2.isEmpty()).isTrue()
-            // Since the list is valid, we shouldn't query the camera ID list again.
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+        // Get the camera ID list for the second time.
+        val cameraIds2 = camera2DeviceCache.getCameraIds()
+        assertThat(cameraIds2).containsExactly(CameraId("0"), CameraId("1"), CameraId("2"))
+        // Since the list is valid, we shouldn't query the camera ID list again.
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
 
-            camera2DeviceCache.shutdown()
-        }
+        camera2DeviceCache.shutdown()
+    }
 
     @Test
-    fun awaitCameraIdsDoesNotCacheCameraIdListWithInvalidList() =
-        testScope.runTest {
-            // There should be at least 1 camera if one of the cameras is supported.
-            fakeCameraManagerProvider.setCameraIds(emptyList())
-            setUpPackageManager(enableBack = true, enableFront = false)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
+    fun getCameraIdsDoesNotCacheCameraIdListWithInvalidList() = testScope.runTest {
+        // There should be at least 2 cameras if both cameras are supported.
+        fakeCameraManagerProvider.setCameraIds(listOf("0"))
+        setUpPackageManager(enableBack = true, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
 
-            // Get the camera ID list for the first time. Note that even if the camera ID list is
-            // invalid, the query should still succeed.
-            val cameraIds = camera2DeviceCache.awaitCameraIds()
-            assertThat(cameraIds).isNotNull()
-            assertThat(cameraIds!!.isEmpty()).isTrue()
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+        // Get the camera ID list for the first time.
+        val cameraIds = camera2DeviceCache.getCameraIds()
+        assertThat(cameraIds).containsExactly(CameraId("0"))
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
 
-            // Get the camera ID list for the second time.
-            val cameraIds2 = camera2DeviceCache.awaitCameraIds()
-            assertThat(cameraIds2).isNotNull()
-            assertThat(cameraIds2!!.isEmpty()).isTrue()
-            // Since the list is invalid, we should query the camera ID list again.
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
+        // Get the camera ID list for the second time.
+        val cameraIds2 = camera2DeviceCache.getCameraIds()
+        assertThat(cameraIds2).containsExactly(CameraId("0"))
+        // Since the list is invalid, we should query the camera ID list again.
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
 
-            camera2DeviceCache.shutdown()
-        }
+        camera2DeviceCache.shutdown()
+    }
 
     @Test
-    fun cameraIdsFlowCachesCameraIdList() =
-        testScope.runTest {
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
-            setUpPackageManager(enableBack = true, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
+    fun awaitCameraIdsCachesCameraIdList() = testScope.runTest {
+        // If no cameras are supported, then we can and should cache an empty list.
+        fakeCameraManagerProvider.setCameraIds(emptyList())
+        setUpPackageManager(enableBack = false, enableFront = false)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
 
-            val job = launch {
-                camera2DeviceCache.cameraIds.collect {
-                    assertThat(it).containsExactly(CameraId("0"), CameraId("1"))
-                }
+        // Get the camera ID list for the first time.
+        val cameraIds = camera2DeviceCache.awaitCameraIds()
+        assertThat(cameraIds != null && cameraIds.isEmpty()).isTrue()
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+
+        // Get the camera ID list for the second time.
+        val cameraIds2 = camera2DeviceCache.awaitCameraIds()
+        assertThat(cameraIds2 != null && cameraIds2.isEmpty()).isTrue()
+        // Since the list is valid, we shouldn't query the camera ID list again.
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+
+        camera2DeviceCache.shutdown()
+    }
+
+    @Test
+    fun awaitCameraIdsDoesNotCacheCameraIdListWithInvalidList() = testScope.runTest {
+        // There should be at least 1 camera if one of the cameras is supported.
+        fakeCameraManagerProvider.setCameraIds(emptyList())
+        setUpPackageManager(enableBack = true, enableFront = false)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
+
+        // Get the camera ID list for the first time. Note that even if the camera ID list is
+        // invalid, the query should still succeed.
+        val cameraIds = camera2DeviceCache.awaitCameraIds()
+        assertThat(cameraIds).isNotNull()
+        assertThat(cameraIds!!.isEmpty()).isTrue()
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+
+        // Get the camera ID list for the second time.
+        val cameraIds2 = camera2DeviceCache.awaitCameraIds()
+        assertThat(cameraIds2).isNotNull()
+        assertThat(cameraIds2!!.isEmpty()).isTrue()
+        // Since the list is invalid, we should query the camera ID list again.
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
+
+        camera2DeviceCache.shutdown()
+    }
+
+    @Test
+    fun cameraIdsFlowCachesCameraIdList() = testScope.runTest {
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
+        setUpPackageManager(enableBack = true, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
+
+        val job = launch {
+            camera2DeviceCache.cameraIds.collect {
+                assertThat(it).containsExactly(CameraId("0"), CameraId("1"))
             }
-            advanceUntilIdle()
-
-            // When camera IDs are collected, we mark all cameras as available. The initial
-            // camera ID lists should return [0, 1], so there should be only one query.
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
-
-            // A previously available camera is available again, this should not trigger a new
-            // query as it should be cached.
-            fakeCameraManagerProvider.notifyCameraAvailable("0")
-            advanceUntilIdle()
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
-
-            job.cancel()
-            camera2DeviceCache.shutdown()
         }
+        advanceUntilIdle()
+
+        // When camera IDs are collected, we mark all cameras as available. The initial
+        // camera ID lists should return [0, 1], so there should be only one query.
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+
+        // A previously available camera is available again, this should not trigger a new
+        // query as it should be cached.
+        fakeCameraManagerProvider.notifyCameraAvailable("0")
+        advanceUntilIdle()
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+
+        job.cancel()
+        camera2DeviceCache.shutdown()
+    }
 
     @Test
-    fun cameraIdsFlowDoesNotCacheCameraIdListWithInvalidList() =
-        testScope.runTest {
-            fakeCameraManagerProvider.setCameraIds(emptyList())
-            setUpPackageManager(enableBack = true, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
-            val collectedCameraIds = mutableListOf<List<CameraId>>()
+    fun cameraIdsFlowDoesNotCacheCameraIdListWithInvalidList() = testScope.runTest {
+        fakeCameraManagerProvider.setCameraIds(emptyList())
+        setUpPackageManager(enableBack = true, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
+        val collectedCameraIds = mutableListOf<List<CameraId>>()
 
-            val job = launch { camera2DeviceCache.cameraIds.collect { collectedCameraIds.add(it) } }
-            advanceUntilIdle()
-            // Make sure we still get a value even if no cameras were ever available.
-            assertThat(collectedCameraIds).containsExactly(listOf<CameraId>())
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+        val job = launch { camera2DeviceCache.cameraIds.collect { collectedCameraIds.add(it) } }
+        advanceUntilIdle()
+        // Make sure we still get a value even if no cameras were ever available.
+        assertThat(collectedCameraIds).containsExactly(listOf<CameraId>())
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
 
-            // A new camera is available. This should trigger a new query, though the list is still
-            // invalid and shouldn't be cached.
-            fakeCameraManagerProvider.setCameraIds(listOf("0"))
-            fakeCameraManagerProvider.notifyCameraAvailable("0")
-            advanceUntilIdle()
-            assertThat(collectedCameraIds)
-                .containsExactly(listOf<CameraId>(), listOf(CameraId("0")))
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
+        // A new camera is available. This should trigger a new query, though the list is still
+        // invalid and shouldn't be cached.
+        fakeCameraManagerProvider.setCameraIds(listOf("0"))
+        fakeCameraManagerProvider.notifyCameraAvailable("0")
+        advanceUntilIdle()
+        assertThat(collectedCameraIds).containsExactly(listOf<CameraId>(), listOf(CameraId("0")))
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
 
-            // Get camera IDs. Given the list is still invalid, we should make another query.
-            val cameraIds = camera2DeviceCache.getCameraIds()
-            assertThat(cameraIds).containsExactly(CameraId("0"))
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(3)).cameraIdList
-            // Given the list is unchanged, we shouldn't be collecting any new values.
-            assertThat(collectedCameraIds)
-                .containsExactly(listOf<CameraId>(), listOf(CameraId("0")))
+        // Get camera IDs. Given the list is still invalid, we should make another query.
+        val cameraIds = camera2DeviceCache.getCameraIds()
+        assertThat(cameraIds).containsExactly(CameraId("0"))
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(3)).cameraIdList
+        // Given the list is unchanged, we shouldn't be collecting any new values.
+        assertThat(collectedCameraIds).containsExactly(listOf<CameraId>(), listOf(CameraId("0")))
 
-            // Mark camera 1 as available. The list is now valid.
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
-            fakeCameraManagerProvider.notifyCameraAvailable("1")
-            advanceUntilIdle()
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(4)).cameraIdList
-            assertThat(collectedCameraIds)
-                .containsExactly(
-                    listOf<CameraId>(),
-                    listOf(CameraId("0")),
-                    listOf(CameraId("0"), CameraId("1")),
-                )
+        // Mark camera 1 as available. The list is now valid.
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
+        fakeCameraManagerProvider.notifyCameraAvailable("1")
+        advanceUntilIdle()
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(4)).cameraIdList
+        assertThat(collectedCameraIds)
+            .containsExactly(
+                listOf<CameraId>(),
+                listOf(CameraId("0")),
+                listOf(CameraId("0"), CameraId("1")),
+            )
 
-            // The list should be cached from now on.
-            val cameraIds2 = camera2DeviceCache.awaitCameraIds()
-            assertThat(cameraIds2).isNotNull()
-            assertThat(cameraIds2).containsExactly(CameraId("0"), CameraId("1"))
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(4)).cameraIdList
-            assertThat(collectedCameraIds)
-                .containsExactly(
-                    listOf<CameraId>(),
-                    listOf(CameraId("0")),
-                    listOf(CameraId("0"), CameraId("1")),
-                )
+        // The list should be cached from now on.
+        val cameraIds2 = camera2DeviceCache.awaitCameraIds()
+        assertThat(cameraIds2).isNotNull()
+        assertThat(cameraIds2).containsExactly(CameraId("0"), CameraId("1"))
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(4)).cameraIdList
+        assertThat(collectedCameraIds)
+            .containsExactly(
+                listOf<CameraId>(),
+                listOf(CameraId("0")),
+                listOf(CameraId("0"), CameraId("1")),
+            )
 
-            job.cancel()
-            camera2DeviceCache.shutdown()
-        }
+        job.cancel()
+        camera2DeviceCache.shutdown()
+    }
 
     @Test
-    fun cameraIdsFlowUpdatesWhenCameraIdListChanges() =
-        testScope.runTest {
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
-            setUpPackageManager(enableBack = true, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
-            val collectedCameraIds = mutableListOf<List<CameraId>>()
+    fun cameraIdsFlowUpdatesWhenCameraIdListChanges() = testScope.runTest {
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
+        setUpPackageManager(enableBack = true, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
+        val collectedCameraIds = mutableListOf<List<CameraId>>()
 
-            val job = launch { camera2DeviceCache.cameraIds.collect { collectedCameraIds.add(it) } }
-            advanceUntilIdle()
+        val job = launch { camera2DeviceCache.cameraIds.collect { collectedCameraIds.add(it) } }
+        advanceUntilIdle()
 
-            // When camera IDs are collected, we mark all cameras as available. The initial
-            // camera ID lists should return [0, 1], so there should be only one query.
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
-            assertThat(collectedCameraIds).containsExactly(listOf(CameraId("0"), CameraId("1")))
+        // When camera IDs are collected, we mark all cameras as available. The initial
+        // camera ID lists should return [0, 1], so there should be only one query.
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+        assertThat(collectedCameraIds).containsExactly(listOf(CameraId("0"), CameraId("1")))
 
-            // A new camera - Camera 2 shows up
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1", "2"))
-            fakeCameraManagerProvider.notifyCameraAvailable("2")
-            advanceUntilIdle()
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
-            assertThat(collectedCameraIds)
-                .containsExactly(
-                    listOf(CameraId("0"), CameraId("1")),
-                    listOf(CameraId("0"), CameraId("1"), CameraId("2")),
-                )
+        // A new camera - Camera 2 shows up
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1", "2"))
+        fakeCameraManagerProvider.notifyCameraAvailable("2")
+        advanceUntilIdle()
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
+        assertThat(collectedCameraIds)
+            .containsExactly(
+                listOf(CameraId("0"), CameraId("1")),
+                listOf(CameraId("0"), CameraId("1"), CameraId("2")),
+            )
 
-            // Camera 2 is removed (unplugged).
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
-            fakeCameraManagerProvider.notifyCameraUnavailable("2")
-            advanceUntilIdle()
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(3)).cameraIdList
-            assertThat(collectedCameraIds)
-                .containsExactly(
-                    listOf(CameraId("0"), CameraId("1")),
-                    listOf(CameraId("0"), CameraId("1"), CameraId("2")),
-                    listOf(CameraId("0"), CameraId("1")),
-                )
+        // Camera 2 is removed (unplugged).
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
+        fakeCameraManagerProvider.notifyCameraUnavailable("2")
+        advanceUntilIdle()
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(3)).cameraIdList
+        assertThat(collectedCameraIds)
+            .containsExactly(
+                listOf(CameraId("0"), CameraId("1")),
+                listOf(CameraId("0"), CameraId("1"), CameraId("2")),
+                listOf(CameraId("0"), CameraId("1")),
+            )
 
-            job.cancel()
-            camera2DeviceCache.shutdown()
-        }
+        job.cancel()
+        camera2DeviceCache.shutdown()
+    }
 
     @Test
-    fun cameraIdListDoesNotUpdateWhenCameraIdsGoBelowMinimum() =
-        testScope.runTest {
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
-            setUpPackageManager(enableBack = true, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
-            val collectedCameraIds = mutableListOf<List<CameraId>>()
+    fun cameraIdListDoesNotUpdateWhenCameraIdsGoBelowMinimum() = testScope.runTest {
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
+        setUpPackageManager(enableBack = true, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
+        val collectedCameraIds = mutableListOf<List<CameraId>>()
 
-            val job = launch { camera2DeviceCache.cameraIds.collect { collectedCameraIds.add(it) } }
-            advanceUntilIdle()
+        val job = launch { camera2DeviceCache.cameraIds.collect { collectedCameraIds.add(it) } }
+        advanceUntilIdle()
 
-            val cameraIds = camera2DeviceCache.getCameraIds()
-            assertThat(cameraIds).containsExactly(CameraId("0"), CameraId("1"))
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
+        val cameraIds = camera2DeviceCache.getCameraIds()
+        assertThat(cameraIds).containsExactly(CameraId("0"), CameraId("1"))
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1)).cameraIdList
 
-            // Let's say camera 1 encounters an error and becomes unavailable. In such a case we
-            // would dip below the minimum expected cameras, but we should still get the cached
-            // cameras.
-            fakeCameraManagerProvider.setCameraIds(listOf("0"))
-            fakeCameraManagerProvider.notifyCameraUnavailable("1")
-            advanceUntilIdle()
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
-            val cameraIds2 = camera2DeviceCache.getCameraIds()
-            assertThat(cameraIds2).containsExactly(CameraId("0"), CameraId("1"))
-            assertThat(collectedCameraIds).containsExactly(listOf(CameraId("0"), CameraId("1")))
+        // Let's say camera 1 encounters an error and becomes unavailable. In such a case we
+        // would dip below the minimum expected cameras, but we should still get the cached
+        // cameras.
+        fakeCameraManagerProvider.setCameraIds(listOf("0"))
+        fakeCameraManagerProvider.notifyCameraUnavailable("1")
+        advanceUntilIdle()
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
+        val cameraIds2 = camera2DeviceCache.getCameraIds()
+        assertThat(cameraIds2).containsExactly(CameraId("0"), CameraId("1"))
+        assertThat(collectedCameraIds).containsExactly(listOf(CameraId("0"), CameraId("1")))
 
-            // Then camera 1 comes back. Nothing should change.
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
-            fakeCameraManagerProvider.notifyCameraAvailable("1")
-            advanceUntilIdle()
-            // Our cache should remain [0, 1], so camera 1 becoming available shouldn't trigger
-            // a new query.
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
-            val cameraIds3 = camera2DeviceCache.awaitCameraIds()
-            assertThat(cameraIds3).containsExactly(CameraId("0"), CameraId("1"))
-            assertThat(collectedCameraIds).containsExactly(listOf(CameraId("0"), CameraId("1")))
+        // Then camera 1 comes back. Nothing should change.
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
+        fakeCameraManagerProvider.notifyCameraAvailable("1")
+        advanceUntilIdle()
+        // Our cache should remain [0, 1], so camera 1 becoming available shouldn't trigger
+        // a new query.
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(2)).cameraIdList
+        val cameraIds3 = camera2DeviceCache.awaitCameraIds()
+        assertThat(cameraIds3).containsExactly(CameraId("0"), CameraId("1"))
+        assertThat(collectedCameraIds).containsExactly(listOf(CameraId("0"), CameraId("1")))
 
-            job.cancel()
-            camera2DeviceCache.shutdown()
-        }
+        job.cancel()
+        camera2DeviceCache.shutdown()
+    }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
     @Test
-    fun cameraDeviceSetupCompatIsCached() =
-        testScope.runTest {
-            val cameraId = CameraId("0")
-            val mockSetupCompat: CameraDeviceSetupCompat = mock()
-            whenever(mockDeviceSetupFactoryProvider.get()).thenReturn(mockDeviceSetupFactory)
+    fun cameraDeviceSetupCompatIsCached() = testScope.runTest {
+        val cameraId = CameraId("0")
+        val mockSetupCompat: CameraDeviceSetupCompat = mock()
+        whenever(mockDeviceSetupFactoryProvider.get()).thenReturn(mockDeviceSetupFactory)
 
-            whenever(mockDeviceSetupFactoryProvider.get().getCameraDeviceSetupCompat(any()))
-                .thenReturn(mockSetupCompat)
+        whenever(mockDeviceSetupFactoryProvider.get().getCameraDeviceSetupCompat(any()))
+            .thenReturn(mockSetupCompat)
 
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
 
-            // First call should invoke the factory
-            camera2DeviceCache.getOrInitializeDeviceSetupCompat(cameraId)
-            advanceUntilIdle()
-            verify(mockDeviceSetupFactoryProvider.get(), times(1))
-                .getCameraDeviceSetupCompat(cameraId.value)
+        // First call should invoke the factory
+        camera2DeviceCache.getOrInitializeDeviceSetupCompat(cameraId)
+        advanceUntilIdle()
+        verify(mockDeviceSetupFactoryProvider.get(), times(1))
+            .getCameraDeviceSetupCompat(cameraId.value)
 
-            // Second call should return the cached value without invoking the factory again.
-            camera2DeviceCache.getOrInitializeDeviceSetupCompat(cameraId)
-            advanceUntilIdle()
-            verify(mockDeviceSetupFactoryProvider.get(), times(1))
-                .getCameraDeviceSetupCompat(cameraId.value)
+        // Second call should return the cached value without invoking the factory again.
+        camera2DeviceCache.getOrInitializeDeviceSetupCompat(cameraId)
+        advanceUntilIdle()
+        verify(mockDeviceSetupFactoryProvider.get(), times(1))
+            .getCameraDeviceSetupCompat(cameraId.value)
 
-            camera2DeviceCache.shutdown()
-        }
+        camera2DeviceCache.shutdown()
+    }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
     @Test
-    fun cameraDeviceSetupWrapperIsCached() =
-        testScope.runTest {
-            val cameraId = CameraId("0")
-            val mockCameraDeviceSetup: CameraDevice.CameraDeviceSetup = mock()
+    fun cameraDeviceSetupWrapperIsCached() = testScope.runTest {
+        val cameraId = CameraId("0")
+        val mockCameraDeviceSetup: CameraDevice.CameraDeviceSetup = mock()
 
-            whenever(mockDeviceSetupFactoryProvider.get()).thenReturn(mockDeviceSetupFactory)
-            whenever(
-                    fakeCameraManagerProvider.fakeCameraManager.isCameraDeviceSetupSupported(
-                        cameraId.value
-                    )
+        whenever(mockDeviceSetupFactoryProvider.get()).thenReturn(mockDeviceSetupFactory)
+        whenever(
+                fakeCameraManagerProvider.fakeCameraManager.isCameraDeviceSetupSupported(
+                    cameraId.value
                 )
-                .thenReturn(true)
-            whenever(
-                    fakeCameraManagerProvider.fakeCameraManager.getCameraDeviceSetup(cameraId.value)
-                )
-                .thenReturn(mockCameraDeviceSetup)
+            )
+            .thenReturn(true)
+        whenever(fakeCameraManagerProvider.fakeCameraManager.getCameraDeviceSetup(cameraId.value))
+            .thenReturn(mockCameraDeviceSetup)
 
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
 
-            // First call should invoke the cameraManager
-            camera2DeviceCache.getOrInitializeDeviceSetupWrapper(cameraId)
-            advanceUntilIdle()
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1))
-                .getCameraDeviceSetup(cameraId.value)
+        // First call should invoke the cameraManager
+        camera2DeviceCache.getOrInitializeDeviceSetupWrapper(cameraId)
+        advanceUntilIdle()
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1))
+            .getCameraDeviceSetup(cameraId.value)
 
-            // Second call should return the cached value
-            camera2DeviceCache.getOrInitializeDeviceSetupWrapper(cameraId)
-            advanceUntilIdle()
-            verify(fakeCameraManagerProvider.fakeCameraManager, times(1))
-                .getCameraDeviceSetup(cameraId.value)
+        // Second call should return the cached value
+        camera2DeviceCache.getOrInitializeDeviceSetupWrapper(cameraId)
+        advanceUntilIdle()
+        verify(fakeCameraManagerProvider.fakeCameraManager, times(1))
+            .getCameraDeviceSetup(cameraId.value)
 
-            camera2DeviceCache.shutdown()
-        }
+        camera2DeviceCache.shutdown()
+    }
 
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.BAKLAVA)
     @Config(maxSdk = Build.VERSION_CODES.BAKLAVA)
     @Test
-    fun onCriticalCameraErrorRemovesExternalCamera() =
-        testScope.runTest {
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1", "2"))
-            setUpPackageManager(enableBack = true, enableFront = true)
-            val camera2DeviceCache =
-                Camera2DeviceCache(
-                    fakeCameraManagerProvider,
-                    fakeCamera2MetadataProvider,
-                    fakeThreads,
-                    context,
-                    packageManager,
-                    mockErrorListener,
-                    mockDeviceSetupFactoryProvider,
-                    fakeCameraPipeLifetime,
-                    fakeCameraPipeJob,
-                )
+    fun onCriticalCameraErrorRemovesExternalCamera() = testScope.runTest {
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1", "2"))
+        setUpPackageManager(enableBack = true, enableFront = true)
+        val camera2DeviceCache =
+            Camera2DeviceCache(
+                fakeCameraManagerProvider,
+                fakeCamera2MetadataProvider,
+                fakeThreads,
+                context,
+                packageManager,
+                mockErrorListener,
+                mockDeviceSetupFactoryProvider,
+                fakeCameraPipeLifetime,
+                fakeCameraPipeJob,
+            )
 
-            // Ensure we have all three cameras initially.
-            assertThat(camera2DeviceCache.getCameraIds())
-                .containsExactly(CameraId("0"), CameraId("1"), CameraId("2"))
+        // Ensure we have all three cameras initially.
+        assertThat(camera2DeviceCache.getCameraIds())
+            .containsExactly(CameraId("0"), CameraId("1"), CameraId("2"))
 
-            // Simulate the external camera being disconnected by updating the camera ID list.
-            fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
+        // Simulate the external camera being disconnected by updating the camera ID list.
+        fakeCameraManagerProvider.setCameraIds(listOf("0", "1"))
 
-            // Trigger onCriticalCameraError for the back camera ("0").
-            camera2DeviceCache.onCriticalCameraError(cameraId0)
-            advanceUntilIdle()
+        // Trigger onCriticalCameraError for the back camera ("0").
+        camera2DeviceCache.onCriticalCameraError(cameraId0)
+        advanceUntilIdle()
 
-            // Verify that the list shouldn't change on a built-in camera.
-            assertThat(camera2DeviceCache.getCameraIds())
-                .containsExactly(CameraId("0"), CameraId("1"), CameraId("2"))
+        // Verify that the list shouldn't change on a built-in camera.
+        assertThat(camera2DeviceCache.getCameraIds())
+            .containsExactly(CameraId("0"), CameraId("1"), CameraId("2"))
 
-            // Trigger onCriticalCameraError for the external camera ("2").
-            camera2DeviceCache.onCriticalCameraError(cameraId2)
-            advanceUntilIdle()
+        // Trigger onCriticalCameraError for the external camera ("2").
+        camera2DeviceCache.onCriticalCameraError(cameraId2)
+        advanceUntilIdle()
 
-            // Verify that the external camera is now removed.
-            assertThat(camera2DeviceCache.getCameraIds())
-                .containsExactly(CameraId("0"), CameraId("1"))
+        // Verify that the external camera is now removed.
+        assertThat(camera2DeviceCache.getCameraIds()).containsExactly(CameraId("0"), CameraId("1"))
 
-            camera2DeviceCache.shutdown()
-        }
+        camera2DeviceCache.shutdown()
+    }
 
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.BAKLAVA)
     @Config(maxSdk = Build.VERSION_CODES.BAKLAVA)

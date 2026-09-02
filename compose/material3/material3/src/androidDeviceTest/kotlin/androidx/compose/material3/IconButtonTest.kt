@@ -1351,7 +1351,9 @@ class IconButtonTest {
                         contentColor = localContentColor,
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
-                            localContentColor.copy(alpha = OutlinedIconButtonTokens.DisabledOpacity),
+                            localContentColor.copy(
+                                alpha = OutlinedIconButtonTokens.DisabledOpacity
+                            ),
                     )
                 )
         }

@@ -513,10 +513,9 @@ internal class TextFieldDecoratorModifierNode(
 
                 if (isFocused && toolbarAndHandlesVisibilityObserverJob != null) {
                     toolbarAndHandlesVisibilityObserverJob?.cancel()
-                    toolbarAndHandlesVisibilityObserverJob =
-                        coroutineScope.launch {
-                            textFieldSelectionState.startToolbarAndHandlesVisibilityObserver()
-                        }
+                    toolbarAndHandlesVisibilityObserverJob = coroutineScope.launch {
+                        textFieldSelectionState.startToolbarAndHandlesVisibilityObserver()
+                    }
                 }
             }
             textFieldSelectionState.requestAutofillAction = { requestAutofill() }
@@ -708,10 +707,9 @@ internal class TextFieldDecoratorModifierNode(
         textFieldSelectionState.isWindowAndTextFieldFocused = this.isFocused
         if (isFocused && toolbarAndHandlesVisibilityObserverJob == null) {
             // only start a new job is there's not an ongoing one.
-            toolbarAndHandlesVisibilityObserverJob =
-                coroutineScope.launch {
-                    textFieldSelectionState.startToolbarAndHandlesVisibilityObserver()
-                }
+            toolbarAndHandlesVisibilityObserverJob = coroutineScope.launch {
+                textFieldSelectionState.startToolbarAndHandlesVisibilityObserver()
+            }
         } else if (!isFocused) {
             toolbarAndHandlesVisibilityObserverJob?.cancel()
             toolbarAndHandlesVisibilityObserverJob = null

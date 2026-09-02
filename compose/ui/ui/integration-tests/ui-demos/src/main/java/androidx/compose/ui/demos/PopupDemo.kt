@@ -81,31 +81,29 @@ fun PopupDemo() {
             )
 
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                val description: String =
-                    {
-                            when (exampleIndex) {
-                                0 -> "Shadow demo"
-                                1 -> "Toggle a simple popup"
-                                2 -> "Different content for the popup"
-                                3 -> "Popup's behavior when the parent's size or position changes"
-                                4 -> "Aligning the popup below the parent"
-                                5 -> "Aligning the popup inside a parent"
-                                6 ->
-                                    "Insert an email in the popup and then click outside to dismiss"
-                                7 ->
-                                    "[bug] Undesired visual effect caused by" +
-                                        " having a new size content displayed at the old" +
-                                        " position, until the new one is calculated"
-                                8 ->
-                                    "The popup is aligning to its parent when the parent is" +
-                                        " inside a Scroller"
-                                9 ->
-                                    "[bug] The popup is not repositioned " +
-                                        "when the parent is moved by the keyboard"
-                                else -> "Demo description here"
-                            }
-                        }
-                        .invoke()
+                val description: String = {
+                    when (exampleIndex) {
+                        0 -> "Shadow demo"
+                        1 -> "Toggle a simple popup"
+                        2 -> "Different content for the popup"
+                        3 -> "Popup's behavior when the parent's size or position changes"
+                        4 -> "Aligning the popup below the parent"
+                        5 -> "Aligning the popup inside a parent"
+                        6 -> "Insert an email in the popup and then click outside to dismiss"
+                        7 ->
+                            "[bug] Undesired visual effect caused by" +
+                                " having a new size content displayed at the old" +
+                                " position, until the new one is calculated"
+                        8 ->
+                            "The popup is aligning to its parent when the parent is" +
+                                " inside a Scroller"
+                        9 ->
+                            "[bug] The popup is not repositioned " +
+                                "when the parent is moved by the keyboard"
+                        else -> "Demo description here"
+                    }
+                }
+                    .invoke()
 
                 Text(text = description, textAlign = TextAlign.Center)
             }

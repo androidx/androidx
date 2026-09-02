@@ -649,7 +649,8 @@ class PagerNestedScrollContentTest(private val config: ParamConfig) :
                             movingDeltas += it
                             it
                         },
-                        orientation = if (vertical) Orientation.Horizontal else Orientation.Vertical,
+                        orientation =
+                            if (vertical) Orientation.Horizontal else Orientation.Vertical,
                     )
             )
         }

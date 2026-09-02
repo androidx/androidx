@@ -346,7 +346,9 @@ class GlanceWearWidgetTest {
             WearWidgetDocument(background = WearWidgetBrush) {}
 
         override suspend fun findActiveWidgetById(context: Context, instanceId: WidgetInstanceId) =
-            activeWidgets.find { it.instanceId == instanceId }
+            activeWidgets.find {
+                it.instanceId == instanceId
+            }
 
         override suspend fun fetchActiveWidgets(context: Context) = activeWidgets
     }

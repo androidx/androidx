@@ -136,8 +136,9 @@ public class FakeRenderingRuntime(
                 FakeTexture.wrap(it as TextureResource) as FakeTexture
             }
         set(value) {
-            internalRuntime.reflectionTexture =
-                value?.let { FakeTexture.unwrap(it as TextureResource) as InternalFakeTexture }
+            internalRuntime.reflectionTexture = value?.let {
+                FakeTexture.unwrap(it as TextureResource) as InternalFakeTexture
+            }
         }
 
     override fun borrowReflectionTexture(): TextureResource? {

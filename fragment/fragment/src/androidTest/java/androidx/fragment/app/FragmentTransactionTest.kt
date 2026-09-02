@@ -62,8 +62,9 @@ class FragmentTransactionTest {
     @Before
     fun setUp() {
         onBackStackChangedTimes = 0
-        onBackStackChangedListener =
-            FragmentManager.OnBackStackChangedListener { onBackStackChangedTimes++ }
+        onBackStackChangedListener = FragmentManager.OnBackStackChangedListener {
+            onBackStackChangedTimes++
+        }
         activityRule.activity.supportFragmentManager.addOnBackStackChangedListener(
             onBackStackChangedListener
         )
@@ -377,8 +378,9 @@ class FragmentTransactionTest {
         // specified by transactionCount times 2 (1 for adding, 1 for removal)
         val transactionCount = 100
         val backStackLatch = CountDownLatch(transactionCount * 2)
-        val countDownListener =
-            FragmentManager.OnBackStackChangedListener { backStackLatch.countDown() }
+        val countDownListener = FragmentManager.OnBackStackChangedListener {
+            backStackLatch.countDown()
+        }
 
         fm.addOnBackStackChangedListener(countDownListener)
 

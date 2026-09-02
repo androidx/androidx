@@ -112,20 +112,19 @@ internal class WakeLock(
 
     @GuardedBy("lock")
     private fun startTimeout() {
-        timeoutJob =
-            scope.launch {
-                delay(timeout)
+        timeoutJob = scope.launch {
+            delay(timeout)
 
-                synchronized(lock) {
-                    if (closed || count != 0) {
-                        return@launch
-                    }
-                    timeoutJob = null
-                    closed = true
+            synchronized(lock) {
+                if (closed || count != 0) {
+                    return@launch
                 }
-
-                // Execute the callback
-                callback()
+                timeoutJob = null
+                closed = true
             }
+
+            // Execute the callback
+            callback()
+        }
     }
 }

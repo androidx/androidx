@@ -327,21 +327,21 @@ class PageEventTest {
                 }
                 presenter.collectFrom(pagingData)
                 val originalItems = presenter.snapshot().items
-                val expectedItems =
-                    originalItems.flatMapIndexed { index, s ->
-                        val result = mutableListOf<String>()
-                        if (index == 0) {
-                            transform(null, s)?.let(result::add)
-                        }
-                        result.add(s)
-                        transform(s, originalItems.getOrNull(index + 1))?.let(result::add)
-                        if (index == originalItems.lastIndex) {
-                            transform(s, null)?.let(result::add)
-                        }
-                        result
+                val expectedItems = originalItems.flatMapIndexed { index, s ->
+                    val result = mutableListOf<String>()
+                    if (index == 0) {
+                        transform(null, s)?.let(result::add)
                     }
-                val transformedPagingData =
-                    pagingData.insertSeparators { left, right -> transform(left, right) }
+                    result.add(s)
+                    transform(s, originalItems.getOrNull(index + 1))?.let(result::add)
+                    if (index == originalItems.lastIndex) {
+                        transform(s, null)?.let(result::add)
+                    }
+                    result
+                }
+                val transformedPagingData = pagingData.insertSeparators { left, right ->
+                    transform(left, right)
+                }
                 presenter.collectFrom(transformedPagingData)
                 assertEquals(expectedItems, presenter.snapshot().items)
             }

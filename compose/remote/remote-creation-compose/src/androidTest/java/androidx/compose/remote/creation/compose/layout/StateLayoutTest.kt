@@ -57,12 +57,11 @@ class StateLayoutTest {
         )
 
     @Test
-    fun single() =
-        testRule.runScreenshotTest {
-            NestedStateLayout("one".rs) { one ->
-                RemoteText("Innermost $one".rs, color = Color.Black.rc)
-            }
+    fun single() = testRule.runScreenshotTest {
+        NestedStateLayout("one".rs) { one ->
+            RemoteText("Innermost $one".rs, color = Color.Black.rc)
         }
+    }
 
     @Test
     fun update() {
@@ -103,19 +102,18 @@ class StateLayoutTest {
     }
 
     @Test
-    fun nested() =
-        testRule.runScreenshotTest {
-            NestedStateLayout("one".rs) { one ->
-                NestedStateLayout(
-                    "two".rs,
-                    currentState = rememberMutableRemoteEnum(LayoutState.Second),
-                ) { two ->
-                    NestedStateLayout("three".rs) { three ->
-                        RemoteText("Innermost $one / $two / $three".rs, color = Color.Black.rc)
-                    }
+    fun nested() = testRule.runScreenshotTest {
+        NestedStateLayout("one".rs) { one ->
+            NestedStateLayout(
+                "two".rs,
+                currentState = rememberMutableRemoteEnum(LayoutState.Second),
+            ) { two ->
+                NestedStateLayout("three".rs) { three ->
+                    RemoteText("Innermost $one / $two / $three".rs, color = Color.Black.rc)
                 }
             }
         }
+    }
 
     @Composable
     @RemoteComposable

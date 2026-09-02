@@ -64,193 +64,192 @@ class DefaultMinSizeModifierScreenshotTest {
     private val gridScreenshotUI = GridScreenshotUI()
 
     @Test
-    fun grid() =
-        composeTestRule.runScreenshotTest {
-            val tests =
-                listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
-                    // 1. Content sizing vs default minimum (unconstrained outer container)
-                    "child 20x20 < min 50\n-> clamps to 50x50" to
-                        @RemoteComposable @Composable {
+    fun grid() = composeTestRule.runScreenshotTest {
+        val tests =
+            listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
+                // 1. Content sizing vs default minimum (unconstrained outer container)
+                "child 20x20 < min 50\n-> clamps to 50x50" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.defaultMinSize(
+                                        minWidth = 50.rdp,
+                                        minHeight = 50.rdp,
+                                    )
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.defaultMinSize(
-                                            minWidth = 50.rdp,
-                                            minHeight = 50.rdp,
-                                        )
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "child 80x80 > min 50\n-> wraps to 80x80" to
-                        @RemoteComposable @Composable {
+                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "child 80x80 > min 50\n-> wraps to 80x80" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.defaultMinSize(
+                                        minWidth = 50.rdp,
+                                        minHeight = 50.rdp,
+                                    )
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.defaultMinSize(
-                                            minWidth = 50.rdp,
-                                            minHeight = 50.rdp,
-                                        )
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(80.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
+                                modifier = RemoteModifier.size(80.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
 
-                    // 2. Explicit size modifier BEFORE defaultMinSize (creation time override)
-                    "size(80) before min(50)\n-> explicit 80x80 wins" to
-                        @RemoteComposable @Composable {
+                // 2. Explicit size modifier BEFORE defaultMinSize (creation time override)
+                "size(80) before min(50)\n-> explicit 80x80 wins" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(80.rdp)
+                                    .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(80.rdp)
-                                        .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "size(20) before min(50)\n-> explicit 20x20 wins" to
-                        @RemoteComposable @Composable {
+                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "size(20) before min(50)\n-> explicit 20x20 wins" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(20.rdp)
+                                    .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(20.rdp)
-                                        .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "width(20) before min(50)\n-> 20x50 (width fixed)" to
-                        @RemoteComposable @Composable {
+                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "width(20) before min(50)\n-> 20x50 (width fixed)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.width(20.rdp)
+                                    .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.width(20.rdp)
-                                        .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "height(20) before min(50)\n-> 50x20 (height fixed)" to
-                        @RemoteComposable @Composable {
+                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "height(20) before min(50)\n-> 50x20 (height fixed)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.height(20.rdp)
+                                    .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.height(20.rdp)
-                                        .defaultMinSize(minWidth = 50.rdp, minHeight = 50.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
+                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
 
-                    // 3. Explicit size modifier AFTER defaultMinSize (player time interaction)
-                    "min(50) then size(80)\n-> player renders 80x80" to
-                        @RemoteComposable @Composable {
+                // 3. Explicit size modifier AFTER defaultMinSize (player time interaction)
+                "min(50) then size(80)\n-> player renders 80x80" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.defaultMinSize(
+                                        minWidth = 50.rdp,
+                                        minHeight = 50.rdp,
+                                    )
+                                    .size(80.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.defaultMinSize(
-                                            minWidth = 50.rdp,
-                                            minHeight = 50.rdp,
-                                        )
-                                        .size(80.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "min(50) then size(20)\n-> player clamps 50x50" to
-                        @RemoteComposable @Composable {
+                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "min(50) then size(20)\n-> player clamps 50x50" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.defaultMinSize(
+                                        minWidth = 50.rdp,
+                                        minHeight = 50.rdp,
+                                    )
+                                    .size(20.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.defaultMinSize(
-                                            minWidth = 50.rdp,
-                                            minHeight = 50.rdp,
-                                        )
-                                        .size(20.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
+                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
 
-                    // 4. Stacked / multiple defaultMinSize modifiers
-                    "min(40) then min(70)\n-> 1st modifier (40) wins" to
-                        @RemoteComposable @Composable {
+                // 4. Stacked / multiple defaultMinSize modifiers
+                "min(40) then min(70)\n-> 1st modifier (40) wins" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.defaultMinSize(
+                                        minWidth = 40.rdp,
+                                        minHeight = 40.rdp,
+                                    )
+                                    .defaultMinSize(minWidth = 70.rdp, minHeight = 70.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.defaultMinSize(
-                                            minWidth = 40.rdp,
-                                            minHeight = 40.rdp,
-                                        )
-                                        .defaultMinSize(minWidth = 70.rdp, minHeight = 70.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "min(40) pad min(70)\n-> 40x40 (1st min wins)" to
-                        @RemoteComposable @Composable {
+                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "min(40) pad min(70)\n-> 40x40 (1st min wins)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.defaultMinSize(
+                                        minWidth = 40.rdp,
+                                        minHeight = 40.rdp,
+                                    )
+                                    .background(Color.Gray.rc)
+                                    .padding(10.rdp)
+                                    .defaultMinSize(minWidth = 70.rdp, minHeight = 70.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.defaultMinSize(
-                                            minWidth = 40.rdp,
-                                            minHeight = 40.rdp,
-                                        )
-                                        .background(Color.Gray.rc)
-                                        .padding(10.rdp)
-                                        .defaultMinSize(minWidth = 70.rdp, minHeight = 70.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
+                                modifier = RemoteModifier.size(10.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
 
-                    // 5. Independent single-axis minimum constraints
-                    "minWidth(50) only\n-> 50x20 (wraps height)" to
-                        @RemoteComposable @Composable {
+                // 5. Independent single-axis minimum constraints
+                "minWidth(50) only\n-> 50x20 (wraps height)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.defaultMinSize(minWidth = 50.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.defaultMinSize(minWidth = 50.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "minHeight(50) only\n-> 20x50 (wraps width)" to
-                        @RemoteComposable @Composable {
+                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "minHeight(50) only\n-> 20x50 (wraps width)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.defaultMinSize(minHeight = 50.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
                             RemoteBox(
-                                modifier =
-                                    RemoteModifier.defaultMinSize(minHeight = 50.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                )
+                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+            )
 
-            gridScreenshotUI.GridContent(tests)
-        }
+        gridScreenshotUI.GridContent(tests)
+    }
 }

@@ -243,15 +243,15 @@ abstract class BaseConnectionPoolTest {
         pool.useReaderConnection { initialConnection ->
             coroutineScope {
                 launch {
-                        pool.useReaderConnection { reusedConnection ->
-                            reusedConnection.usePrepared("SELECT * FROM Pet") {
-                                while (it.step()) {
-                                    count++
-                                }
+                    pool.useReaderConnection { reusedConnection ->
+                        reusedConnection.usePrepared("SELECT * FROM Pet") {
+                            while (it.step()) {
+                                count++
                             }
-                            assertThat(reusedConnection).isEqualTo(initialConnection)
                         }
+                        assertThat(reusedConnection).isEqualTo(initialConnection)
                     }
+                }
                     .join()
             }
         }
@@ -273,15 +273,15 @@ abstract class BaseConnectionPoolTest {
         pool.useReaderConnection { initialConnection ->
             coroutineScope {
                 async {
-                        pool.useReaderConnection { reusedConnection ->
-                            reusedConnection.usePrepared("SELECT * FROM Pet") {
-                                while (it.step()) {
-                                    count++
-                                }
+                    pool.useReaderConnection { reusedConnection ->
+                        reusedConnection.usePrepared("SELECT * FROM Pet") {
+                            while (it.step()) {
+                                count++
                             }
-                            assertThat(reusedConnection).isEqualTo(initialConnection)
                         }
+                        assertThat(reusedConnection).isEqualTo(initialConnection)
                     }
+                }
                     .await()
             }
         }
@@ -362,13 +362,12 @@ abstract class BaseConnectionPoolTest {
             .isEqualTo("Intermediate Error")
 
         pool.useWriterConnection { it.executeSQL("PRAGMA user_version = 5") }
-        val result =
-            pool.useReaderConnection {
-                it.usePrepared("PRAGMA user_version") {
-                    it.step()
-                    it.getLong(0)
-                }
+        val result = pool.useReaderConnection {
+            it.usePrepared("PRAGMA user_version") {
+                it.step()
+                it.getLong(0)
             }
+        }
         assertThat(result).isEqualTo(5)
         pool.close()
     }
@@ -1053,15 +1052,14 @@ abstract class BaseConnectionPoolTest {
         pool.useWriterConnection { connection ->
             connection.executeSQL("CREATE TEMP TABLE Cat (name)")
             val name = "Pelusa"
-            val result =
-                connection.exclusiveTransaction {
-                    val newName =
-                        usePrepared("INSERT INTO Cat (name) VALUES ('$name') RETURNING *") { stmt ->
-                            assertThat(stmt.step()).isTrue()
-                            stmt.getText(0).also { assertThat(it).isEqualTo(name) }
-                        }
-                    rollback(newName)
-                }
+            val result = connection.exclusiveTransaction {
+                val newName =
+                    usePrepared("INSERT INTO Cat (name) VALUES ('$name') RETURNING *") { stmt ->
+                        assertThat(stmt.step()).isTrue()
+                        stmt.getText(0).also { assertThat(it).isEqualTo(name) }
+                    }
+                rollback(newName)
+            }
             assertThat(result).isEqualTo(name)
         }
         pool.close()

@@ -50,64 +50,55 @@ class AlphaModifierScreenshotTest {
     private val gridScreenshotUI = GridScreenshotUI()
 
     @Test
-    fun grid() =
-        composeTestRule.runScreenshotTest {
-            val tests =
-                listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
-                    "alpha(1.0f)" to
-                        @RemoteComposable @Composable {
+    fun grid() = composeTestRule.runScreenshotTest {
+        val tests =
+            listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
+                "alpha(1.0f)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(20.rdp)
-                                            .alpha(1.0f.rf)
-                                            .background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "alpha(0.5f)" to
-                        @RemoteComposable @Composable {
+                                modifier =
+                                    RemoteModifier.size(20.rdp)
+                                        .alpha(1.0f.rf)
+                                        .background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "alpha(0.5f)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(20.rdp)
-                                            .alpha(0.5f.rf)
-                                            .background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "alpha(0.1f)" to
-                        @RemoteComposable @Composable {
+                                modifier =
+                                    RemoteModifier.size(20.rdp)
+                                        .alpha(0.5f.rf)
+                                        .background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "alpha(0.1f)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(20.rdp)
-                                            .alpha(0.1f.rf)
-                                            .background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "alpha(0f)" to
-                        @RemoteComposable @Composable {
+                                modifier =
+                                    RemoteModifier.size(20.rdp)
+                                        .alpha(0.1f.rf)
+                                        .background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "alpha(0f)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)) {
                             RemoteBox(
-                                modifier = RemoteModifier.size(50.rdp).background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.size(20.rdp)
-                                            .alpha(0f.rf)
-                                            .background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                )
+                                modifier =
+                                    RemoteModifier.size(20.rdp)
+                                        .alpha(0f.rf)
+                                        .background(Color.Blue.rc)
+                            )
+                        }
+                    },
+            )
 
-            gridScreenshotUI.GridContent(tests)
-        }
+        gridScreenshotUI.GridContent(tests)
+    }
 }

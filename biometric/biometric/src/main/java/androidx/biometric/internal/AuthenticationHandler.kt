@@ -94,7 +94,8 @@ private class DefaultClientAuthenticationCallback : AuthenticationCallback() {
     private fun logClientCallbackNullError() {
         Log.e(
             TAG,
-            "Callbacks are not re-registered when the caller's activity/fragment is " + "recreated!",
+            "Callbacks are not re-registered when the caller's activity/fragment is " +
+                "recreated!",
         )
     }
 }

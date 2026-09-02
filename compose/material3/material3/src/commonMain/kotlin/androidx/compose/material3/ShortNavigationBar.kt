@@ -372,10 +372,9 @@ private class EqualWeightContentMeasurePolicy : MeasurePolicy {
         if (!constraints.hasBoundedWidth) {
             // If width constraint is not bounded, let item containers widths be as big as they are.
             // This may lead to a different items arrangement than the expected.
-            itemsPlaceables =
-                measurables.fastMap {
-                    it.measure(constraints.constrain(Constraints.fixedHeight(height = itemHeight)))
-                }
+            itemsPlaceables = measurables.fastMap {
+                it.measure(constraints.constrain(Constraints.fixedHeight(height = itemHeight)))
+            }
         } else {
             val itemWidth = width / itemsCount
             measurables.fastForEach {
@@ -386,14 +385,11 @@ private class EqualWeightContentMeasurePolicy : MeasurePolicy {
             }
 
             // Make sure the item containers have the same width and height.
-            itemsPlaceables =
-                measurables.fastMap {
-                    it.measure(
-                        constraints.constrain(
-                            Constraints.fixed(width = itemWidth, height = itemHeight)
-                        )
-                    )
-                }
+            itemsPlaceables = measurables.fastMap {
+                it.measure(
+                    constraints.constrain(Constraints.fixed(width = itemWidth, height = itemHeight))
+                )
+            }
         }
 
         return layout(width, itemHeight) {
@@ -425,10 +421,9 @@ private class CenteredContentMeasurePolicy : MeasurePolicy {
         if (!constraints.hasBoundedWidth) {
             // If width constraint is not bounded, let item containers widths be as big as they are.
             // This may lead to a different items arrangement than the expected.
-            itemsPlaceables =
-                measurables.fastMap {
-                    it.measure(constraints.constrain(Constraints.fixedHeight(height = itemHeight)))
-                }
+            itemsPlaceables = measurables.fastMap {
+                it.measure(constraints.constrain(Constraints.fixedHeight(height = itemHeight)))
+            }
         } else {
             val itemMaxWidth = width / itemsCount
             barHorizontalPadding = calculateCenteredContentHorizontalPadding(itemsCount, width)
@@ -441,24 +436,23 @@ private class CenteredContentMeasurePolicy : MeasurePolicy {
                     itemHeight = measurableHeight.coerceAtMost(constraints.maxHeight)
                 }
             }
-            itemsPlaceables =
-                measurables.fastMap {
-                    var currentItemWidth = itemMinWidth
-                    val measurableWidth = it.maxIntrinsicWidth(constraints.minHeight)
-                    if (currentItemWidth < measurableWidth) {
-                        // Let an item container be bigger in width if needed, but limit it to
-                        // itemMaxWidth.
-                        currentItemWidth = measurableWidth.coerceAtMost(itemMaxWidth)
-                        // Update horizontal padding so that items remain centered.
-                        barHorizontalPadding -= (currentItemWidth - itemMinWidth) / 2
-                    }
-
-                    it.measure(
-                        constraints.constrain(
-                            Constraints.fixed(width = currentItemWidth, height = itemHeight)
-                        )
-                    )
+            itemsPlaceables = measurables.fastMap {
+                var currentItemWidth = itemMinWidth
+                val measurableWidth = it.maxIntrinsicWidth(constraints.minHeight)
+                if (currentItemWidth < measurableWidth) {
+                    // Let an item container be bigger in width if needed, but limit it to
+                    // itemMaxWidth.
+                    currentItemWidth = measurableWidth.coerceAtMost(itemMaxWidth)
+                    // Update horizontal padding so that items remain centered.
+                    barHorizontalPadding -= (currentItemWidth - itemMinWidth) / 2
                 }
+
+                it.measure(
+                    constraints.constrain(
+                        Constraints.fixed(width = currentItemWidth, height = itemHeight)
+                    )
+                )
+            }
         }
 
         return layout(width, itemHeight) {

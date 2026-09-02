@@ -245,12 +245,12 @@ class DiagnosticsTest internal constructor(private val runTest: TestRunner) : Mu
 
                 assertThat(
                         runCatching {
-                                hasError(
-                                    "error: This is the \nfirst line" +
-                                        "This is the \nsecond line" +
-                                        "This is the third line"
-                                )
-                            }
+                            hasError(
+                                "error: This is the \nfirst line" +
+                                    "This is the \nsecond line" +
+                                    "This is the third line"
+                            )
+                        }
                             .isFailure
                     )
                     .isTrue()

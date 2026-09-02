@@ -49,14 +49,20 @@ class DeviceSetupServiceTest {
                     request: ImportCredentialsRequest,
                     callingAppInfo: CallingAppInfo,
                     callback:
-                        OutcomeReceiverCompat<ImportCredentialsResponse, ImportCredentialsException>,
+                        OutcomeReceiverCompat<
+                            ImportCredentialsResponse,
+                            ImportCredentialsException,
+                        >,
                 ) {}
 
                 override fun onExportCredentialsRequest(
                     request: ExportCredentialsRequest,
                     callingAppInfo: CallingAppInfo,
                     callback:
-                        OutcomeReceiverCompat<ExportCredentialsResponse, ExportCredentialsException>,
+                        OutcomeReceiverCompat<
+                            ExportCredentialsResponse,
+                            ExportCredentialsException,
+                        >,
                 ) {}
 
                 override fun onGetCredentialTransferCapabilities(
@@ -81,14 +87,20 @@ class DeviceSetupServiceTest {
                     request: ImportCredentialsRequest,
                     callingAppInfo: CallingAppInfo,
                     callback:
-                        OutcomeReceiverCompat<ImportCredentialsResponse, ImportCredentialsException>,
+                        OutcomeReceiverCompat<
+                            ImportCredentialsResponse,
+                            ImportCredentialsException,
+                        >,
                 ) {}
 
                 override fun onExportCredentialsRequest(
                     request: ExportCredentialsRequest,
                     callingAppInfo: CallingAppInfo,
                     callback:
-                        OutcomeReceiverCompat<ExportCredentialsResponse, ExportCredentialsException>,
+                        OutcomeReceiverCompat<
+                            ExportCredentialsResponse,
+                            ExportCredentialsException,
+                        >,
                 ) {}
 
                 override fun onGetCredentialTransferCapabilities(
@@ -115,14 +127,20 @@ class DeviceSetupServiceTest {
                     request: ImportCredentialsRequest,
                     callingAppInfo: CallingAppInfo,
                     callback:
-                        OutcomeReceiverCompat<ImportCredentialsResponse, ImportCredentialsException>,
+                        OutcomeReceiverCompat<
+                            ImportCredentialsResponse,
+                            ImportCredentialsException,
+                        >,
                 ) {}
 
                 override fun onExportCredentialsRequest(
                     request: ExportCredentialsRequest,
                     callingAppInfo: CallingAppInfo,
                     callback:
-                        OutcomeReceiverCompat<ExportCredentialsResponse, ExportCredentialsException>,
+                        OutcomeReceiverCompat<
+                            ExportCredentialsResponse,
+                            ExportCredentialsException,
+                        >,
                 ) {}
 
                 override fun onGetCredentialTransferCapabilities(

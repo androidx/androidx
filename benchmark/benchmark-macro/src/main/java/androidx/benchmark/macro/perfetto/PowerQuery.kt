@@ -105,8 +105,9 @@ internal object PowerQuery {
         return PowerCategory.values()
             .associateWith { category ->
                 // combine components under same category
-                val rails: List<ComponentMeasurement> =
-                    railMetrics.filter { rail -> railInCategory(category, rail.name) }
+                val rails: List<ComponentMeasurement> = railMetrics.filter { rail ->
+                    railInCategory(category, rail.name)
+                }
 
                 // combine components into category
                 rails.fold(

@@ -785,19 +785,19 @@ public actual class GraphicsLayer internal constructor(internal val impl: Graphi
                 Outline.Generic(tmpPath).also { internalOutline = it }
             } else {
                 resolveOutlinePosition { outlineTopLeft, outlineSize ->
-                        val left = outlineTopLeft.x
-                        val top = outlineTopLeft.y
-                        val right = left + outlineSize.width
-                        val bottom = top + outlineSize.height
-                        val cornerRadius = this.roundRectCornerRadius
-                        if (cornerRadius > 0f) {
-                            Outline.Rounded(
-                                RoundRect(left, top, right, bottom, CornerRadius(cornerRadius))
-                            )
-                        } else {
-                            Outline.Rectangle(Rect(left, top, right, bottom))
-                        }
+                    val left = outlineTopLeft.x
+                    val top = outlineTopLeft.y
+                    val right = left + outlineSize.width
+                    val bottom = top + outlineSize.height
+                    val cornerRadius = this.roundRectCornerRadius
+                    if (cornerRadius > 0f) {
+                        Outline.Rounded(
+                            RoundRect(left, top, right, bottom, CornerRadius(cornerRadius))
+                        )
+                    } else {
+                        Outline.Rectangle(Rect(left, top, right, bottom))
                     }
+                }
                     .also { internalOutline = it }
             }
         }

@@ -69,10 +69,9 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
         val assetsToLoad =
             SUPPORTED_OBJECT_MODELS.values.toMutableSet().apply { add(DEFAULT_OBJECT_MODEL) }
 
-        val assetToModel =
-            assetsToLoad.associateWith { assetName ->
-                GltfModel.create(session, Paths.get("models", assetName))
-            }
+        val assetToModel = assetsToLoad.associateWith { assetName ->
+            GltfModel.create(session, Paths.get("models", assetName))
+        }
 
         for ((category, assetName) in SUPPORTED_OBJECT_MODELS) {
             _planesModelsMap[category] = assetToModel[assetName]!!
@@ -117,35 +116,34 @@ internal class PlaneRenderer(val session: Session) : DefaultLifecycleObserver {
         // only update their static planes once.
         var counter = PANEL_RESIZE_UPDATE_COUNT
         // Make the render job a child of the update job so it completes when the parent completes.
-        val renderJob =
-            renderScope.launch {
-                plane.state.collect { state ->
-                    if (state.trackingState == TrackingState.TRACKING) {
-                        if (state.label == PlaneLabel.UNKNOWN) {
-                            modelEntity.setEnabled(false)
-                        } else {
-                            modelEntity.setEnabled(true)
-                            modelEntity.setAlpha(.5f)
-                            modelEntity.setPose(
-                                session.scene.perceptionSpace
-                                    .transformPoseTo(state.centerPose, session.scene.activitySpace)
-                                    // Planes are X-Y while Panels are X-Z, so we need to rotate the
-                                    // X-axis by -90 degrees to align them.
-                                    .compose(PANEL_TO_PLANE_ROTATION)
-                            )
-
-                            counter++
-                            if (counter > PANEL_RESIZE_UPDATE_COUNT) {
-                                @SuppressLint("RestrictedApiAndroidX")
-                                modelEntity.setScale(scaledExtents(state.extents))
-                                counter = 0
-                            }
-                        }
-                    } else {
+        val renderJob = renderScope.launch {
+            plane.state.collect { state ->
+                if (state.trackingState == TrackingState.TRACKING) {
+                    if (state.label == PlaneLabel.UNKNOWN) {
                         modelEntity.setEnabled(false)
+                    } else {
+                        modelEntity.setEnabled(true)
+                        modelEntity.setAlpha(.5f)
+                        modelEntity.setPose(
+                            session.scene.perceptionSpace
+                                .transformPoseTo(state.centerPose, session.scene.activitySpace)
+                                // Planes are X-Y while Panels are X-Z, so we need to rotate the
+                                // X-axis by -90 degrees to align them.
+                                .compose(PANEL_TO_PLANE_ROTATION)
+                        )
+
+                        counter++
+                        if (counter > PANEL_RESIZE_UPDATE_COUNT) {
+                            @SuppressLint("RestrictedApiAndroidX")
+                            modelEntity.setScale(scaledExtents(state.extents))
+                            counter = 0
+                        }
                     }
+                } else {
+                    modelEntity.setEnabled(false)
                 }
             }
+        }
 
         planesToRender.add(
             PlaneModel(plane.hashCode(), plane.type, plane.state, modelEntity, renderJob)

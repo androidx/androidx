@@ -35,22 +35,21 @@ public object CameraCompatibilityFilter {
     public fun getBackwardCompatibleCameraIds(
         cameraDevices: CameraDevices,
         availableCameraIds: List<String>,
-    ): List<String> =
-        availableCameraIds.filter { cameraId ->
-            // Heuristic: Always include camera IDs "0" and "1" to align with camera-camera2
-            // behavior, assuming they are the default back and front cameras.
-            if (cameraId == "0" || cameraId == "1") {
-                true
-            } else if (isBackwardCompatible(cameraId, cameraDevices)) {
-                true
-            } else {
-                Camera2Logger.debug {
-                    "Camera $cameraId is filtered out because its capabilities " +
-                        "do not contain REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE."
-                }
-                false
+    ): List<String> = availableCameraIds.filter { cameraId ->
+        // Heuristic: Always include camera IDs "0" and "1" to align with camera-camera2
+        // behavior, assuming they are the default back and front cameras.
+        if (cameraId == "0" || cameraId == "1") {
+            true
+        } else if (isBackwardCompatible(cameraId, cameraDevices)) {
+            true
+        } else {
+            Camera2Logger.debug {
+                "Camera $cameraId is filtered out because its capabilities " +
+                    "do not contain REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE."
             }
+            false
         }
+    }
 
     @JvmStatic
     public fun isBackwardCompatible(cameraMetadata: CameraMetadata): Boolean {

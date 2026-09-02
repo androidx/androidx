@@ -64,42 +64,39 @@ class CameraDeviceWrapperTest {
     private val sessionStateCallback2: CameraCaptureSessionWrapper.StateCallback = mock()
 
     @Test
-    fun testCreateCaptureSession() =
-        testScope.runTest {
-            androidCameraDevice.createCaptureSession(emptyList(), sessionStateCallback1)
-            advanceUntilIdle()
+    fun testCreateCaptureSession() = testScope.runTest {
+        androidCameraDevice.createCaptureSession(emptyList(), sessionStateCallback1)
+        advanceUntilIdle()
 
-            verify(cameraDevice, times(1)).createCaptureSession(any(), any(), any())
-        }
-
-    @Test
-    fun testCaptureSessionGetsFinalizedWhenDeviceClosed() =
-        testScope.runTest {
-            androidCameraDevice.onDeviceClosing()
-            androidCameraDevice.onDeviceClosed()
-            advanceUntilIdle()
-
-            assertThat(androidCameraDevice.createCaptureSession(emptyList(), sessionStateCallback1))
-                .isFalse()
-            verify(sessionStateCallback1, times(1)).onSessionFinalized()
-        }
+        verify(cameraDevice, times(1)).createCaptureSession(any(), any(), any())
+    }
 
     @Test
-    fun testCreateSecondCaptureSessionDisconnectsAndFinalizesTheFirstOne() =
-        testScope.runTest {
-            androidCameraDevice.createCaptureSession(emptyList(), sessionStateCallback1)
-            advanceUntilIdle()
+    fun testCaptureSessionGetsFinalizedWhenDeviceClosed() = testScope.runTest {
+        androidCameraDevice.onDeviceClosing()
+        androidCameraDevice.onDeviceClosed()
+        advanceUntilIdle()
 
-            verify(cameraDevice, times(1)).createCaptureSession(any(), any(), any())
+        assertThat(androidCameraDevice.createCaptureSession(emptyList(), sessionStateCallback1))
+            .isFalse()
+        verify(sessionStateCallback1, times(1)).onSessionFinalized()
+    }
 
-            whenever(cameraDevice.createCaptureSession(any(), any(), any())).thenAnswer {
-                val callback = it.arguments[1] as CameraCaptureSession.StateCallback
-                val session: CameraCaptureSession = mock()
-                callback.onConfigured(session)
-            }
-            androidCameraDevice.createCaptureSession(emptyList(), sessionStateCallback2)
-            verify(sessionStateCallback1, times(1)).onSessionDisconnected()
-            advanceUntilIdle()
-            verify(sessionStateCallback1, times(1)).onSessionFinalized()
+    @Test
+    fun testCreateSecondCaptureSessionDisconnectsAndFinalizesTheFirstOne() = testScope.runTest {
+        androidCameraDevice.createCaptureSession(emptyList(), sessionStateCallback1)
+        advanceUntilIdle()
+
+        verify(cameraDevice, times(1)).createCaptureSession(any(), any(), any())
+
+        whenever(cameraDevice.createCaptureSession(any(), any(), any())).thenAnswer {
+            val callback = it.arguments[1] as CameraCaptureSession.StateCallback
+            val session: CameraCaptureSession = mock()
+            callback.onConfigured(session)
         }
+        androidCameraDevice.createCaptureSession(emptyList(), sessionStateCallback2)
+        verify(sessionStateCallback1, times(1)).onSessionDisconnected()
+        advanceUntilIdle()
+        verify(sessionStateCallback1, times(1)).onSessionFinalized()
+    }
 }

@@ -128,7 +128,8 @@ class AlphaTest {
         rule.setContent {
             AtLeastSize(
                 size = 10,
-                modifier = Modifier.background(Color.White).alpha(1f).alpha(alpha).background(color),
+                modifier =
+                    Modifier.background(Color.White).alpha(1f).alpha(alpha).background(color),
             ) {}
         }
 

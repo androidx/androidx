@@ -902,17 +902,16 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
             val surfaceProvidedDeferred = CompletableDeferred<SurfaceRequest>()
 
             val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
-            preview.surfaceProvider =
-                Preview.SurfaceProvider { request ->
-                    request.setTransformationInfoListener(CameraXExecutors.directExecutor()) {
-                        transformationInfoDeferred.complete(it)
-                    }
-                    val surface = Surface(SurfaceTexture(0))
-                    request.provideSurface(surface, CameraXExecutors.directExecutor()) {
-                        surface.release()
-                    }
-                    surfaceProvidedDeferred.complete(request)
+            preview.surfaceProvider = Preview.SurfaceProvider { request ->
+                request.setTransformationInfoListener(CameraXExecutors.directExecutor()) {
+                    transformationInfoDeferred.complete(it)
                 }
+                val surface = Surface(SurfaceTexture(0))
+                request.provideSurface(surface, CameraXExecutors.directExecutor()) {
+                    surface.release()
+                }
+                surfaceProvidedDeferred.complete(request)
+            }
 
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
             surfaceProvidedDeferred.await()
@@ -1684,10 +1683,9 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
         val surfaceRequestDeferred = CompletableDeferred<SurfaceRequest>()
         val preview = Preview.Builder().setDynamicRange(DynamicRange.HLG_10_BIT).build()
         withContext(Dispatchers.Main) {
-            preview.surfaceProvider =
-                Preview.SurfaceProvider { surfaceRequest ->
-                    surfaceRequestDeferred.complete(surfaceRequest)
-                }
+            preview.surfaceProvider = Preview.SurfaceProvider { surfaceRequest ->
+                surfaceRequestDeferred.complete(surfaceRequest)
+            }
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
         }
 
@@ -1700,10 +1698,9 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
         val surfaceRequestDeferred = CompletableDeferred<SurfaceRequest>()
         val preview = Preview.Builder().build()
         withContext(Dispatchers.Main) {
-            preview.surfaceProvider =
-                Preview.SurfaceProvider { surfaceRequest ->
-                    surfaceRequestDeferred.complete(surfaceRequest)
-                }
+            preview.surfaceProvider = Preview.SurfaceProvider { surfaceRequest ->
+                surfaceRequestDeferred.complete(surfaceRequest)
+            }
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
         }
 
@@ -1742,10 +1739,9 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
         val surfaceRequestDeferred = CompletableDeferred<SurfaceRequest>()
 
         withContext(Dispatchers.Main) {
-            preview.surfaceProvider =
-                Preview.SurfaceProvider { surfaceRequest ->
-                    surfaceRequestDeferred.complete(surfaceRequest)
-                }
+            preview.surfaceProvider = Preview.SurfaceProvider { surfaceRequest ->
+                surfaceRequestDeferred.complete(surfaceRequest)
+            }
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
         }
         assertThat(withTimeoutOrNull(3000) { surfaceRequestDeferred.await() }!!.expectedFrameRate)

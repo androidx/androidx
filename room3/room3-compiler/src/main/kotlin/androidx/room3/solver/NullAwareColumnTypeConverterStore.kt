@@ -60,11 +60,10 @@ class NullAwareColumnTypeConverterStore(
                     val candidate = NullSafeTypeConverter(delegate = converter)
                     // before we add this null safe converter, make sure there is no other converter
                     // that would already handle the same arguments.
-                    val match =
-                        processedConverters.any { other ->
-                            other.from.isAssignableFromWithNullability(candidate.from) &&
-                                candidate.to.isAssignableFromWithNullability(other.to)
-                        }
+                    val match = processedConverters.any { other ->
+                        other.from.isAssignableFromWithNullability(candidate.from) &&
+                            candidate.to.isAssignableFromWithNullability(other.to)
+                    }
                     if (!match) {
                         processedConverters.add(candidate)
                     }

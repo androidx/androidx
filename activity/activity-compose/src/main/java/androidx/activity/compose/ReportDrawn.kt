@@ -35,8 +35,10 @@ private class ReportDrawnComposition(
     private val predicate: () -> Boolean,
 ) : () -> Unit {
 
-    private val snapshotStateObserver =
-        SnapshotStateObserver { command -> command() }.apply { start() }
+    private val snapshotStateObserver = SnapshotStateObserver { command ->
+        command()
+    }
+        .apply { start() }
 
     /** Called whenever the values read in the lambda parameter has changed. */
     private val checkReporter: (() -> Boolean) -> Unit = ::observeReporter

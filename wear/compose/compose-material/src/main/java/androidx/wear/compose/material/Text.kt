@@ -300,12 +300,11 @@ public fun Text(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
 ) {
-    val textColor =
-        color.takeOrElse {
-            style.color.takeOrElse {
-                LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
-            }
+    val textColor = color.takeOrElse {
+        style.color.takeOrElse {
+            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
         }
+    }
     androidx.wear.compose.materialcore.Text(
         text = text,
         modifier = modifier,

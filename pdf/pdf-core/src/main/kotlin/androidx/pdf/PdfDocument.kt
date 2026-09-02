@@ -426,7 +426,8 @@ public interface PdfDocument : Closeable {
 
     @LongDef(
         flag = true,
-        value = [PAGE_OBJECT_INCLUDE_ALL_TYPES, INCLUDE_IMAGE_PAGE_OBJECT, INCLUDE_PATH_PAGE_OBJECT],
+        value =
+            [PAGE_OBJECT_INCLUDE_ALL_TYPES, INCLUDE_IMAGE_PAGE_OBJECT, INCLUDE_PATH_PAGE_OBJECT],
     )
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

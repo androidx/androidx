@@ -56,15 +56,14 @@ class RemoteWorker(private val context: Context, private val parameters: WorkerP
                 return@getFuture "startRemoteWork"
             }
             val scope = CoroutineScope(Dispatchers.Default)
-            job =
-                scope.launch {
-                    for (i in 1..10) {
-                        delay(10000)
-                        progress = workDataOf(Progress to i * 10)
-                        setForegroundAsync(getForegroundInfo(NotificationId))
-                        setProgressAsync(progress).await()
-                    }
+            job = scope.launch {
+                for (i in 1..10) {
+                    delay(10000)
+                    progress = workDataOf(Progress to i * 10)
+                    setForegroundAsync(getForegroundInfo(NotificationId))
+                    setProgressAsync(progress).await()
                 }
+            }
 
             job?.invokeOnCompletion {
                 Log.d(TAG, "Done.")

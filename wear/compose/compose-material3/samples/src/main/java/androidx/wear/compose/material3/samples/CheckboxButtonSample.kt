@@ -58,9 +58,7 @@ fun SplitCheckboxButtonSample() {
         checked = checked,
         onCheckedChange = { checked = it },
         toggleContentDescription = "Split Checkbox Button Sample",
-        onContainerClick = {
-            /* Do something */
-        },
+        onContainerClick = { /* Do something */ },
         containerClickLabel = "click",
         enabled = true,
     )

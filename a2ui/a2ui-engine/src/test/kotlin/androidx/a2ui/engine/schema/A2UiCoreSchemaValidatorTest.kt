@@ -843,17 +843,16 @@ class A2UiCoreSchemaValidatorTest {
     private fun createTestCatalog(
         functionsList: List<A2uiFunctionDefinition> = emptyList()
     ): A2uiCoreCatalog {
-        val wrappedFunctions =
-            functionsList.map { def ->
-                object : A2uiFunction {
-                    override val definition = def
+        val wrappedFunctions = functionsList.map { def ->
+            object : A2uiFunction {
+                override val definition = def
 
-                    override fun execute(
-                        args: Map<String, Any>,
-                        executionContext: A2uiExecutionContext,
-                    ) = null
-                }
+                override fun execute(
+                    args: Map<String, Any>,
+                    executionContext: A2uiExecutionContext,
+                ) = null
             }
+        }
         return object : A2uiCoreCatalog {
             override val id = "test"
             override val componentDefinitions = A2uiCoreComponentDefinitionCollection()

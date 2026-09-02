@@ -219,7 +219,9 @@ public class StreamSpecsCalculatorImpl(
                         useCase.currentConfig.getTargetFrameRate(FRAME_RATE_RANGE_UNSPECIFIED)
                     ),
                     useCase.currentConfig.isStrictFrameRateRequired,
-                    useCase.currentConfig.getCustomMaxFrameRate(useCase.attachedSurfaceResolution!!),
+                    useCase.currentConfig.getCustomMaxFrameRate(
+                        useCase.attachedSurfaceResolution!!
+                    ),
                 )
             existingSurfaces.add(attachedSurfaceInfo)
             surfaceInfoUseCaseMap.put(attachedSurfaceInfo, useCase)
@@ -275,16 +277,15 @@ public class StreamSpecsCalculatorImpl(
                     supportedOutputSizesSorter.getSortedSupportedOutputSizes(combinedUseCaseConfig)
             }
 
-            val videoStabilization =
-                newUseCases.getVideoStabilization {
-                    val configPair = requireNotNull(configPairMap[it])
+            val videoStabilization = newUseCases.getVideoStabilization {
+                val configPair = requireNotNull(configPairMap[it])
 
-                    it.mergeConfigs(
-                        cameraInfoInternal,
-                        configPair.mExtendedConfig,
-                        configPair.mCameraConfig,
-                    )
-                }
+                it.mergeConfigs(
+                    cameraInfoInternal,
+                    configPair.mExtendedConfig,
+                    configPair.mCameraConfig,
+                )
+            }
 
             // Get suggested stream specifications and update the use case session configuration
             val (streamSpecMapForNewUseCases, streamSpecMapForAttachedSurfaces, maxSupportedFps) =

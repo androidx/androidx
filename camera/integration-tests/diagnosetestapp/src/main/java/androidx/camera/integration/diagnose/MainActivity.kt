@@ -361,10 +361,9 @@ class MainActivity : AppCompatActivity() {
         cameraController.setImageAnalysisAnalyzer(calibrationExecutor, analyzer)
     }
 
-    private fun allPermissionsGranted() =
-        REQUIRED_PERMISSIONS.all {
-            ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
-        }
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
+    }
 
     private fun checkCalibrationThread() {
         @Suppress("deprecation")

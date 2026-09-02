@@ -350,15 +350,14 @@ internal constructor(
      * [legacyPrefetchState] will always be null if [LazyListState] is constructed without
      * specifying either a [LazyLayoutCacheWindow] or a [LazyListPrefetchStrategy] explicitly.
      */
-    internal val legacyPrefetchState =
-        legacyPrefetchStrategy?.let { legacyPrefetchStrategy ->
-            @Suppress("DEPRECATION") // b/420551535
-            LazyLayoutPrefetchState(legacyPrefetchStrategy.prefetchScheduler) {
-                with(legacyPrefetchStrategy) {
-                    onNestedPrefetch(Snapshot.withoutReadObservation { firstVisibleItemIndex })
-                }
+    internal val legacyPrefetchState = legacyPrefetchStrategy?.let { legacyPrefetchStrategy ->
+        @Suppress("DEPRECATION") // b/420551535
+        LazyLayoutPrefetchState(legacyPrefetchStrategy.prefetchScheduler) {
+            with(legacyPrefetchStrategy) {
+                onNestedPrefetch(Snapshot.withoutReadObservation { firstVisibleItemIndex })
             }
         }
+    }
 
     private val prefetchState
         get() =

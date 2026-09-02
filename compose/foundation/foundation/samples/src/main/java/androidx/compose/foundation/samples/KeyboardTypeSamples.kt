@@ -83,7 +83,8 @@ fun BasicLoginFormSample() {
                     keyboardType = KeyboardType.Password,
                     capitalization = KeyboardCapitalization.None,
                     imeAction =
-                        ImeAction.Done, // Soft keyboard automatically dismisses the keyboard on Done
+                        ImeAction
+                            .Done, // Soft keyboard automatically dismisses the keyboard on Done
                 ),
             modifier = Modifier.fillMaxWidth(),
         )

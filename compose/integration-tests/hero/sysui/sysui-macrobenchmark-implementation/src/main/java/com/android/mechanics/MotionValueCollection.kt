@@ -142,18 +142,18 @@ class MotionValueCollection(
                     val activeComputations = managedComputations.toSet()
 
                     snapshotFlow {
-                            val hasComputations =
-                                activeComputations.isNotEmpty() || managedComputations.isNotEmpty()
+                        val hasComputations =
+                            activeComputations.isNotEmpty() || managedComputations.isNotEmpty()
 
-                            val wakeup =
-                                hasComputations &&
-                                    (activeComputations != managedComputations ||
-                                        activeComputations.any { it.wantWakeup() } ||
-                                        input.invoke() != currentInput ||
-                                        gestureContext.direction != currentDirection ||
-                                        gestureContext.dragOffset != currentGestureDragOffset)
-                            wakeup
-                        }
+                        val wakeup =
+                            hasComputations &&
+                                (activeComputations != managedComputations ||
+                                    activeComputations.any { it.wantWakeup() } ||
+                                    input.invoke() != currentInput ||
+                                    gestureContext.direction != currentDirection ||
+                                    gestureContext.dragOffset != currentGestureDragOffset)
+                        wakeup
+                    }
                         .first { it }
                     isAnimating = true
                     managedComputations.forEach { it.debugInspector?.isAnimating = true }

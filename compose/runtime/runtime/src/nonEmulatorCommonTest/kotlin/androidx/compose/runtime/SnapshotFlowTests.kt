@@ -39,10 +39,11 @@ class SnapshotFlowTests {
 
         // Use Dispatchers.Unconfined to cause the observer to run immediately for this test,
         // both here and when we apply a change.
-        val collector =
-            snapshotFlow { state * 2 }
-                .onEach { result = it }
-                .launchIn(this + Dispatchers.Unconfined)
+        val collector = snapshotFlow {
+            state * 2
+        }
+            .onEach { result = it }
+            .launchIn(this + Dispatchers.Unconfined)
 
         assertEquals(2, result, "value after initial run")
 
@@ -311,15 +312,16 @@ class SnapshotFlowTests {
 
         val collector2Done = Latch().also { it.closeLatch() }
         val result2 = mutableListOf<Boolean>()
-        val collector2 =
-            snapshotFlow { state.value }
-                .onEach {
-                    result2.add(it)
-                    if (result2.size == 2) {
-                        collector2Done.openLatch()
-                    }
+        val collector2 = snapshotFlow {
+            state.value
+        }
+            .onEach {
+                result2.add(it)
+                if (result2.size == 2) {
+                    collector2Done.openLatch()
                 }
-                .launchIn(this + Dispatchers.Unconfined)
+            }
+            .launchIn(this + Dispatchers.Unconfined)
 
         // This test uses the `runTest` single-threaded dispatcher, which means that changes aren't
         // flushed to observers until we `yield()` intentionally.

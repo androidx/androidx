@@ -338,47 +338,46 @@ internal class BitmapFetcher(
      *   guarantee tiles are loaded left-to-right and top-to-bottom
      */
     private fun fetchBitmap(tile: TileBoard.Tile, scale: Float, prevJob: Job?): Job {
-        val job =
-            backgroundScope.launch {
-                prevJob?.join()
+        val job = backgroundScope.launch {
+            prevJob?.join()
+            ensureActive()
+            try {
+                val bitmap =
+                    bitmapSource.getBitmap(
+                        Size(
+                            (pageSize.x * scale).roundToInt(),
+                            (pageSize.y * scale).roundToInt(),
+                        ),
+                        tile.rectPx.toRect(),
+                    )
                 ensureActive()
-                try {
-                    val bitmap =
-                        bitmapSource.getBitmap(
-                            Size(
-                                (pageSize.x * scale).roundToInt(),
-                                (pageSize.y * scale).roundToInt(),
-                            ),
-                            tile.rectPx.toRect(),
-                        )
-                    ensureActive()
-                    tile.bitmap = bitmap
-                    onBitmapReady(pageNum)
-                } catch (e: RemoteException) {
-                    if (!e.isHandledRemoteException) throw e
+                tile.bitmap = bitmap
+                onBitmapReady(pageNum)
+            } catch (e: RemoteException) {
+                if (!e.isHandledRemoteException) throw e
 
-                    // Service was disconnected or another IPC error occurred.
-                    val exception =
-                        RequestFailedException(
-                            requestMetadata =
-                                RequestMetadata(
-                                    requestName = PAGE_BITMAP_TILE_REQUEST_NAME,
-                                    pageRange = pageNum..pageNum,
-                                ),
-                            throwable = e,
-                        )
-                    errorFlow.emit(exception)
-                    return@launch
-                } catch (e: IllegalStateException) {
-                    /*
-                      This exception is thrown when attempting to render a page that has already
-                      been closed. This can happen in a race condition where the document is
-                      closed while a background render task is in progress. We can safely ignore
-                      this exception because if the document is being closed, the rendered bitmap
-                      is no longer needed.
-                    */
-                }
+                // Service was disconnected or another IPC error occurred.
+                val exception =
+                    RequestFailedException(
+                        requestMetadata =
+                            RequestMetadata(
+                                requestName = PAGE_BITMAP_TILE_REQUEST_NAME,
+                                pageRange = pageNum..pageNum,
+                            ),
+                        throwable = e,
+                    )
+                errorFlow.emit(exception)
+                return@launch
+            } catch (e: IllegalStateException) {
+                /*
+                  This exception is thrown when attempting to render a page that has already
+                  been closed. This can happen in a race condition where the document is
+                  closed while a background render task is in progress. We can safely ignore
+                  this exception because if the document is being closed, the rendered bitmap
+                  is no longer needed.
+                */
             }
+        }
         return job
     }
 

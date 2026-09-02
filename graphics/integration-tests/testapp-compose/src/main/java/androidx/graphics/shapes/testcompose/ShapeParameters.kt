@@ -194,7 +194,8 @@ open class ShapeParameters(
                 shapegen = {
                     RoundedPolygon(
                         numVertices = this.sides.floatValue.roundToInt(),
-                        rounding = CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
+                        rounding =
+                            CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                     )
                 },
                 shapeOutput = {
@@ -359,7 +360,8 @@ open class ShapeParameters(
                     RoundedPolygon.rectangle(
                         width = 4f,
                         height = 2f,
-                        rounding = CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
+                        rounding =
+                            CornerRounding(this.roundness.floatValue, this.smooth.floatValue),
                     )
                 },
                 shapeOutput = {

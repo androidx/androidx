@@ -56,8 +56,8 @@ fun AnimatedVisibilityLazyColumnDemo() {
 
         LaunchedEffect(model) {
             snapshotFlow {
-                    model.items.firstOrNull { it.visible.isIdle && !it.visible.targetState }
-                }
+                model.items.firstOrNull { it.visible.isIdle && !it.visible.targetState }
+            }
                 .collect {
                     if (it != null) {
                         model.pruneItems()

@@ -395,10 +395,9 @@ class JavaNavWriterTest {
         ClassLoader(ClassLoader.getSystemClassLoader()) {
         override fun findClass(name: String): Class<*> {
             val simpleName = name.let { it.substring(it.lastIndexOf('.') + 1, it.length) }
-            val match =
-                generatedFiles.firstOrNull {
-                    it.isNameCompatible(simpleName, JavaFileObject.Kind.CLASS)
-                }
+            val match = generatedFiles.firstOrNull {
+                it.isNameCompatible(simpleName, JavaFileObject.Kind.CLASS)
+            }
             if (match != null) {
                 val data =
                     match.openInputStream().use { inputStream ->

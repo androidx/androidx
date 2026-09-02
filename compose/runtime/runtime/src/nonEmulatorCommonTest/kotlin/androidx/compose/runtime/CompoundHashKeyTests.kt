@@ -296,7 +296,9 @@ private fun IntObjectMap<CompositeKeyHashCode>.mergedWith(
     other: IntObjectMap<CompositeKeyHashCode>,
     inconsistent:
         (
-            key: Int, existingValue: CompositeKeyHashCode, mergedValue: CompositeKeyHashCode,
+            key: Int,
+            existingValue: CompositeKeyHashCode,
+            mergedValue: CompositeKeyHashCode,
         ) -> CompositeKeyHashCode,
 ): IntObjectMap<CompositeKeyHashCode> {
     val result = MutableIntObjectMap<CompositeKeyHashCode>()

@@ -504,7 +504,8 @@ fun SystemUi(
                 val mediaPlayer:
                     (@Composable
                     ContentScope.(
-                        presentationStyle: DemoMediaPresentationStyle, revealEffect: Boolean,
+                        presentationStyle: DemoMediaPresentationStyle,
+                        revealEffect: Boolean,
                     ) -> Unit)? =
                     if (configuration.showMediaPlayer) {
                         { presentationStyle, revealEffect ->
@@ -523,8 +524,9 @@ fun SystemUi(
                     } else {
                         null
                     }
-                val defaultMediaPlayer: (@Composable ContentScope.() -> Unit)? =
-                    mediaPlayer?.let { { it(DemoMediaPresentationStyle.Default, false) } }
+                val defaultMediaPlayer: (@Composable ContentScope.() -> Unit)? = mediaPlayer?.let {
+                    { it(DemoMediaPresentationStyle.Default, false) }
+                }
                 val compactMediaPlayer:
                     (@Composable
                     ContentScope.(revealEffect: Boolean) -> Unit)? =

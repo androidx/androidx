@@ -50,14 +50,13 @@ class PermissionsController(
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
             )
-        val statusMap =
-            permissions.associate { perm ->
-                val simpleName = perm.substringAfterLast('.')
-                val isGranted =
-                    ContextCompat.checkSelfPermission(context, perm) ==
-                        PackageManager.PERMISSION_GRANTED
-                simpleName to isGranted
-            }
+        val statusMap = permissions.associate { perm ->
+            val simpleName = perm.substringAfterLast('.')
+            val isGranted =
+                ContextCompat.checkSelfPermission(context, perm) ==
+                    PackageManager.PERMISSION_GRANTED
+            simpleName to isGranted
+        }
         viewModel.updatePermissions(statusMap)
     }
 

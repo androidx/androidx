@@ -313,13 +313,12 @@ class DepthTest {
         }
     }
 
-    private fun applyExpectedValues(depthTester: DepthTester) =
-        depthTester.apply {
-            width = expectedWidth
-            height = expectedHeight
-            rawDepthMap = expectedRawDepthBuffer
-            rawConfidenceMap = expectedRawConfidenceBuffer
-            smoothDepthMap = expectedSmoothDepthBuffer
-            smoothConfidenceMap = expectedSmoothConfidenceBuffer
-        }
+    private fun applyExpectedValues(depthTester: DepthTester) = depthTester.apply {
+        width = expectedWidth
+        height = expectedHeight
+        rawDepthMap = expectedRawDepthBuffer
+        rawConfidenceMap = expectedRawConfidenceBuffer
+        smoothDepthMap = expectedSmoothDepthBuffer
+        smoothConfidenceMap = expectedSmoothConfidenceBuffer
+    }
 }

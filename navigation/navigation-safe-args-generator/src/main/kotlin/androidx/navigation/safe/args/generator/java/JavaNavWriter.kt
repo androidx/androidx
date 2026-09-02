@@ -80,45 +80,44 @@ class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCod
             destination.actions.map { action -> action to generateDirectionsTypeSpec(action) }
 
         @Suppress("NAME_SHADOWING")
-        val getters =
-            actionTypes.map { (action, actionType) ->
-                val annotations = Annotations.getInstance(useAndroidX)
-                val methodName = action.id.javaIdentifier.toCamelCaseAsVar()
-                if (action.args.isEmpty()) {
-                    MethodSpec.methodBuilder(methodName)
-                        .addAnnotation(annotations.CHECK_RESULT)
-                        .addAnnotation(annotations.NONNULL_CLASSNAME)
-                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                        .returns(NAV_DIRECTION_CLASSNAME)
-                        .addStatement(
-                            "return new $T($L)",
-                            ACTION_ONLY_NAV_DIRECTION_CLASSNAME,
-                            action.id.accessor(),
-                        )
-                        .build()
-                } else {
-                    val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
-                    val params = constructor.parameters.joinToString(", ") { param -> param.name }
-                    val actionTypeName =
-                        ClassName.get(
-                            className.packageName(),
-                            className.simpleName(),
-                            actionType.name,
-                        )
-                    MethodSpec.methodBuilder(methodName)
-                        .apply {
-                            if (useAndroidX) {
-                                addAnnotation((annotations as AndroidXAnnotations).CHECK_RESULT)
-                            }
+        val getters = actionTypes.map { (action, actionType) ->
+            val annotations = Annotations.getInstance(useAndroidX)
+            val methodName = action.id.javaIdentifier.toCamelCaseAsVar()
+            if (action.args.isEmpty()) {
+                MethodSpec.methodBuilder(methodName)
+                    .addAnnotation(annotations.CHECK_RESULT)
+                    .addAnnotation(annotations.NONNULL_CLASSNAME)
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .returns(NAV_DIRECTION_CLASSNAME)
+                    .addStatement(
+                        "return new $T($L)",
+                        ACTION_ONLY_NAV_DIRECTION_CLASSNAME,
+                        action.id.accessor(),
+                    )
+                    .build()
+            } else {
+                val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
+                val params = constructor.parameters.joinToString(", ") { param -> param.name }
+                val actionTypeName =
+                    ClassName.get(
+                        className.packageName(),
+                        className.simpleName(),
+                        actionType.name,
+                    )
+                MethodSpec.methodBuilder(methodName)
+                    .apply {
+                        if (useAndroidX) {
+                            addAnnotation((annotations as AndroidXAnnotations).CHECK_RESULT)
                         }
-                        .addAnnotation(annotations.NONNULL_CLASSNAME)
-                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                        .addParameters(constructor.parameters)
-                        .returns(actionTypeName)
-                        .addStatement("return new $T($params)", actionTypeName)
-                        .build()
-                }
+                    }
+                    .addAnnotation(annotations.NONNULL_CLASSNAME)
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addParameters(constructor.parameters)
+                    .returns(actionTypeName)
+                    .addStatement("return new $T($params)", actionTypeName)
+                    .build()
             }
+        }
 
         // The parent destination list is ordered from the closest to the farthest parent of the
         // processing destination in the graph hierarchy.
@@ -416,27 +415,26 @@ private class ClassWithArgsSpecs(
             .initializer("new $T()", HASHMAP_CLASSNAME)
             .build()
 
-    fun setters(thisClassName: ClassName) =
-        args.map { arg ->
-            val capitalizedName = arg.sanitizedName.capitalize(Locale.US)
-            MethodSpec.methodBuilder("set$capitalizedName")
-                .apply {
-                    addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
-                    addAnnotation(suppressAnnotationSpec)
-                    addModifiers(Modifier.PUBLIC)
-                    addParameter(generateParameterSpec(arg))
-                    addNullCheck(arg, arg.sanitizedName)
-                    addStatement(
-                        "this.$N.put($S, $N)",
-                        hashMapFieldSpec.name,
-                        arg.name,
-                        arg.sanitizedName,
-                    )
-                    addStatement("return this")
-                    returns(thisClassName)
-                }
-                .build()
-        }
+    fun setters(thisClassName: ClassName) = args.map { arg ->
+        val capitalizedName = arg.sanitizedName.capitalize(Locale.US)
+        MethodSpec.methodBuilder("set$capitalizedName")
+            .apply {
+                addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
+                addAnnotation(suppressAnnotationSpec)
+                addModifiers(Modifier.PUBLIC)
+                addParameter(generateParameterSpec(arg))
+                addNullCheck(arg, arg.sanitizedName)
+                addStatement(
+                    "this.$N.put($S, $N)",
+                    hashMapFieldSpec.name,
+                    arg.name,
+                    arg.sanitizedName,
+                )
+                addStatement("return this")
+                returns(thisClassName)
+            }
+            .build()
+    }
 
     fun constructor() =
         MethodSpec.constructorBuilder()
@@ -561,37 +559,36 @@ private class ClassWithArgsSpecs(
             )
             .build()
 
-    fun getters(isBuilder: Boolean = false) =
-        args.map { arg ->
-            MethodSpec.methodBuilder(getterFromArgName(arg.sanitizedName))
-                .apply {
-                    addModifiers(Modifier.PUBLIC)
-                    if (!isBuilder) {
-                        addAnnotation(suppressAnnotationSpec)
-                    } else {
-                        addAnnotation(
-                            AnnotationSpec.builder(SuppressWarnings::class.java)
-                                .addMember("value", "{$S,$S}", "unchecked", "GetterOnBuilder")
-                                .build()
-                        )
-                    }
-                    if (arg.type.allowsNullable()) {
-                        if (arg.isNullable) {
-                            addAnnotation(androidAnnotations.NULLABLE_CLASSNAME)
-                        } else {
-                            addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
-                        }
-                    }
-                    addStatement(
-                        "return ($T) $N.get($S)",
-                        arg.type.typeName(),
-                        hashMapFieldSpec.name,
-                        arg.name,
+    fun getters(isBuilder: Boolean = false) = args.map { arg ->
+        MethodSpec.methodBuilder(getterFromArgName(arg.sanitizedName))
+            .apply {
+                addModifiers(Modifier.PUBLIC)
+                if (!isBuilder) {
+                    addAnnotation(suppressAnnotationSpec)
+                } else {
+                    addAnnotation(
+                        AnnotationSpec.builder(SuppressWarnings::class.java)
+                            .addMember("value", "{$S,$S}", "unchecked", "GetterOnBuilder")
+                            .build()
                     )
-                    returns(arg.type.typeName())
                 }
-                .build()
-        }
+                if (arg.type.allowsNullable()) {
+                    if (arg.isNullable) {
+                        addAnnotation(androidAnnotations.NULLABLE_CLASSNAME)
+                    } else {
+                        addAnnotation(androidAnnotations.NONNULL_CLASSNAME)
+                    }
+                }
+                addStatement(
+                    "return ($T) $N.get($S)",
+                    arg.type.typeName(),
+                    hashMapFieldSpec.name,
+                    arg.name,
+                )
+                returns(arg.type.typeName())
+            }
+            .build()
+    }
 
     fun equalsMethod(className: ClassName, additionalCode: CodeBlock? = null) =
         MethodSpec.methodBuilder("equals")

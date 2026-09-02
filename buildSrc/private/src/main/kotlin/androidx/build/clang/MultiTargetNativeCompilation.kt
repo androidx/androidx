@@ -127,12 +127,11 @@ class MultiTargetNativeCompilation(
      */
     internal fun targetsProvider(
         predicate: (NativeTarget) -> Boolean
-    ): Provider<List<NativeTargetCompilation>> =
-        project.provider {
-            nativeTargets.names
-                .filter { predicate(NativeTarget.fromName(it)) }
-                .map { nativeTargets.getByName(it) }
-        }
+    ): Provider<List<NativeTargetCompilation>> = project.provider {
+        nativeTargets.names
+            .filter { predicate(NativeTarget.fromName(it)) }
+            .map { nativeTargets.getByName(it) }
+    }
 
     /** Returns true if the given [target] is configured as a compilation target. */
     fun hasTarget(target: NativeTarget) = nativeTargets.names.contains(target.name)

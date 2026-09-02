@@ -68,7 +68,8 @@ internal class SelectableTextAnnotatedStringNode(
     private var selectionController: SelectionController? = null,
     overrideColor: ColorProducer? = null,
     autoSize: TextAutoSize? = null,
-    private var onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null,
+    private var onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? =
+        null,
 ) :
     DelegatingNode(),
     LayoutModifierNode,

@@ -654,7 +654,8 @@ class MultiParagraphIntegrationTest {
         val paragraph =
             simpleMultiParagraph(
                 text = text,
-                style = TextStyle(textDirection = TextDirection.Content, localeList = ltrLocaleList),
+                style =
+                    TextStyle(textDirection = TextDirection.Content, localeList = ltrLocaleList),
             )
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
         assertThat(paragraph.getParagraphDirection(1)).isEqualTo(ResolvedTextDirection.Rtl)
@@ -668,7 +669,8 @@ class MultiParagraphIntegrationTest {
         val paragraph =
             simpleMultiParagraph(
                 text = text,
-                style = TextStyle(textDirection = TextDirection.Content, localeList = rtlLocaleList),
+                style =
+                    TextStyle(textDirection = TextDirection.Content, localeList = rtlLocaleList),
             )
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
         assertThat(paragraph.getParagraphDirection(1)).isEqualTo(ResolvedTextDirection.Rtl)

@@ -137,7 +137,8 @@ public fun fontStyle(
     letterSpacingEm: Float = Float.NaN,
     @RequiresSchemaVersion(major = 1, minor = 300) additionalSizesSp: List<Float> = emptyList(),
     @RequiresSchemaVersion(major = 1, minor = 400) settings: List<FontSetting> = emptyList(),
-    @RequiresSchemaVersion(major = 1, minor = 400) preferredFontFamilies: List<String> = emptyList(),
+    @RequiresSchemaVersion(major = 1, minor = 400)
+    preferredFontFamilies: List<String> = emptyList(),
 ): FontStyle =
     FontStyle.Builder()
         .apply {

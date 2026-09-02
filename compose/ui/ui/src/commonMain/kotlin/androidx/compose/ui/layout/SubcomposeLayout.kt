@@ -1221,23 +1221,22 @@ internal class LayoutNodeSubcompositionsState(
                     if (ExtraLoggingEnabled) {
                         nodeState.record(SLOperation.ResumePaused)
                     }
-                    val isComplete =
-                        Snapshot.withoutReadObservation {
-                            try {
-                                pausedComposition.resume(shouldPause)
-                            } catch (e: Throwable) {
-                                val operations = nodeState.operations
-                                if (operations != null) {
-                                    throw SubcomposeLayoutPausableCompositionException(
-                                        nodeState.operations,
-                                        slotId,
-                                        e,
-                                    )
-                                } else {
-                                    throw e
-                                }
+                    val isComplete = Snapshot.withoutReadObservation {
+                        try {
+                            pausedComposition.resume(shouldPause)
+                        } catch (e: Throwable) {
+                            val operations = nodeState.operations
+                            if (operations != null) {
+                                throw SubcomposeLayoutPausableCompositionException(
+                                    nodeState.operations,
+                                    slotId,
+                                    e,
+                                )
+                            } else {
+                                throw e
                             }
                         }
+                    }
                     if (ExtraLoggingEnabled && !isComplete) {
                         nodeState.record(SLOperation.PausePaused)
                     }

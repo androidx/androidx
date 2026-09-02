@@ -119,47 +119,46 @@ public abstract class ExtensionsAppFunctionService :
         // [executeFunction] for subclass to receive too.
         val delegateCancellationSignal = CancellationSignal()
         // Just delegate to the suspend version
-        val functionExecutionJob =
-            workerCoroutineScope.launch {
-                val appFunctionMetadata =
-                    getAppFunctionMetadata(
-                        this@ExtensionsAppFunctionService,
-                        resolveInventory(),
-                        request.functionIdentifier,
-                    )
-                if (appFunctionMetadata == null) {
-                    callback.onError(
-                        AppFunctionFunctionNotFoundException(
-                                "No function found with identifier: " +
-                                    "${request.functionIdentifier} in package: " +
-                                    this@ExtensionsAppFunctionService.packageName
+        val functionExecutionJob = workerCoroutineScope.launch {
+            val appFunctionMetadata =
+                getAppFunctionMetadata(
+                    this@ExtensionsAppFunctionService,
+                    resolveInventory(),
+                    request.functionIdentifier,
+                )
+            if (appFunctionMetadata == null) {
+                callback.onError(
+                    AppFunctionFunctionNotFoundException(
+                            "No function found with identifier: " +
+                                "${request.functionIdentifier} in package: " +
+                                this@ExtensionsAppFunctionService.packageName
+                        )
+                        .toPlatformExtensionsClass()
+                )
+                return@launch
+            }
+            this@ExtensionsAppFunctionService.mainExecutor.execute {
+                onExecuteFunction(
+                    ExecuteAppFunctionRequest.fromPlatformExtensionClass(
+                        request,
+                        appFunctionMetadata,
+                    ),
+                    delegateCancellationSignal,
+                ) { response ->
+                    when (response) {
+                        is ExecuteAppFunctionResponse.Success -> {
+                            response.grantUriAccess(
+                                context = this@ExtensionsAppFunctionService,
+                                callingPackageName = callingPackage,
                             )
-                            .toPlatformExtensionsClass()
-                    )
-                    return@launch
-                }
-                this@ExtensionsAppFunctionService.mainExecutor.execute {
-                    onExecuteFunction(
-                        ExecuteAppFunctionRequest.fromPlatformExtensionClass(
-                            request,
-                            appFunctionMetadata,
-                        ),
-                        delegateCancellationSignal,
-                    ) { response ->
-                        when (response) {
-                            is ExecuteAppFunctionResponse.Success -> {
-                                response.grantUriAccess(
-                                    context = this@ExtensionsAppFunctionService,
-                                    callingPackageName = callingPackage,
-                                )
-                                callback.onResult(response.toPlatformExtensionClass())
-                            }
-                            is ExecuteAppFunctionResponse.Error ->
-                                callback.onError(response.error.toPlatformExtensionsClass())
+                            callback.onResult(response.toPlatformExtensionClass())
                         }
+                        is ExecuteAppFunctionResponse.Error ->
+                            callback.onError(response.error.toPlatformExtensionsClass())
                     }
                 }
             }
+        }
         // Handle cancellation
         cancellationSignal.setOnCancelListener {
             delegateCancellationSignal.cancel()

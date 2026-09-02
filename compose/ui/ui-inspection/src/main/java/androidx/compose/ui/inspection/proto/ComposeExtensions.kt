@@ -323,10 +323,9 @@ internal fun ObservedReadResult.convert(
 ): StateReadGroup {
     val builder = StateReadGroup.newBuilder()
     builder.recompositionNumber = recomposition
-    val parameters =
-        parameterChanges.mapNotNull {
-            layoutInspectorTree.convertStateValue(it.name, it.value)?.convert(stringTable)
-        }
+    val parameters = parameterChanges.mapNotNull {
+        layoutInspectorTree.convertStateValue(it.name, it.value)?.convert(stringTable)
+    }
     builder.addAllParameterChanges(parameters)
 
     // Collapse state reads that are identical:

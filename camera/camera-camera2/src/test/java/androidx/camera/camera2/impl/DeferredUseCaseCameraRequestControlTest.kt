@@ -82,14 +82,13 @@ class DeferredUseCaseCameraRequestControlImplTest {
     }
 
     @Test
-    fun initializationFailure_propagatesException() =
-        testScope.runTest {
-            `when`(mockImplProvider.get()).thenThrow(RuntimeException("Init failed"))
-            val deferred = deferredControl.setTorchOnAsync()
-            advanceUntilIdle()
-            assertThat(deferred.isCompleted).isTrue()
-            assertThat(deferred.getCompletionExceptionOrNull()).isNotNull()
-        }
+    fun initializationFailure_propagatesException() = testScope.runTest {
+        `when`(mockImplProvider.get()).thenThrow(RuntimeException("Init failed"))
+        val deferred = deferredControl.setTorchOnAsync()
+        advanceUntilIdle()
+        assertThat(deferred.isCompleted).isTrue()
+        assertThat(deferred.getCompletionExceptionOrNull()).isNotNull()
+    }
 
     @Test
     fun constructor_doesNotInitializeImpl() {
@@ -98,166 +97,158 @@ class DeferredUseCaseCameraRequestControlImplTest {
     }
 
     @Test
-    fun setParametersAsync_initializesImplAndDelegates() =
-        testScope.runTest {
-            // Arrange
-            val values =
-                mapOf<CaptureRequest.Key<*>, Any>(
-                    CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON
-                )
-            val deferredResult = CompletableDeferred(Unit)
+    fun setParametersAsync_initializesImplAndDelegates() = testScope.runTest {
+        // Arrange
+        val values =
+            mapOf<CaptureRequest.Key<*>, Any>(
+                CaptureRequest.CONTROL_AE_MODE to CaptureRequest.CONTROL_AE_MODE_ON
+            )
+        val deferredResult = CompletableDeferred(Unit)
 
-            `when`(mockImpl.setParametersAsync(anyMap(), any(), any())).thenReturn(deferredResult)
+        `when`(mockImpl.setParametersAsync(anyMap(), any(), any())).thenReturn(deferredResult)
 
-            // Act
-            deferredControl.setParametersAsync(
+        // Act
+        deferredControl.setParametersAsync(
+            values,
+            UseCaseCameraRequestControl.Type.DEFAULT,
+            Config.OptionPriority.OPTIONAL,
+        )
+
+        advanceUntilIdle() // Ensure the sequential coroutine runs
+
+        // Assert
+        verify(mockImplProvider, times(1)).get()
+        verify(mockImpl)
+            .setParametersAsync(
                 values,
                 UseCaseCameraRequestControl.Type.DEFAULT,
                 Config.OptionPriority.OPTIONAL,
             )
-
-            advanceUntilIdle() // Ensure the sequential coroutine runs
-
-            // Assert
-            verify(mockImplProvider, times(1)).get()
-            verify(mockImpl)
-                .setParametersAsync(
-                    values,
-                    UseCaseCameraRequestControl.Type.DEFAULT,
-                    Config.OptionPriority.OPTIONAL,
-                )
-        }
+    }
 
     @Test
-    fun subsequentCalls_doNotReinitializeImpl() =
-        testScope.runTest {
-            // Arrange
-            `when`(mockImpl.setTorchOnAsync())
-                .thenReturn(CompletableDeferred(Result3A(Result3A.Status.OK)))
+    fun subsequentCalls_doNotReinitializeImpl() = testScope.runTest {
+        // Arrange
+        `when`(mockImpl.setTorchOnAsync())
+            .thenReturn(CompletableDeferred(Result3A(Result3A.Status.OK)))
 
-            // Act
-            deferredControl.setTorchOnAsync()
-            advanceUntilIdle()
+        // Act
+        deferredControl.setTorchOnAsync()
+        advanceUntilIdle()
 
-            deferredControl.setTorchOnAsync()
-            advanceUntilIdle()
+        deferredControl.setTorchOnAsync()
+        advanceUntilIdle()
 
-            // Assert
-            verify(mockImplProvider, times(1)).get()
-            verify(mockImpl, times(2)).setTorchOnAsync()
-        }
-
-    @Test
-    fun updateRepeatingRequestAsync_delegatesWithCorrectArguments() =
-        testScope.runTest {
-            // Arrange
-            val fakeUseCase = FakeUseCase()
-            val runningUseCases = listOf(fakeUseCase)
-
-            `when`(mockImpl.updateRepeatingRequestAsync(anyBoolean(), anyList()))
-                .thenReturn(CompletableDeferred(Unit))
-
-            // Act
-            deferredControl.updateRepeatingRequestAsync(
-                isPrimary = true,
-                runningUseCases = runningUseCases,
-            )
-            advanceUntilIdle()
-
-            // Assert
-            verify(mockImpl).updateRepeatingRequestAsync(true, runningUseCases)
-        }
+        // Assert
+        verify(mockImplProvider, times(1)).get()
+        verify(mockImpl, times(2)).setTorchOnAsync()
+    }
 
     @Test
-    fun issueSingleCaptureAsync_delegatesAndReturnsMappedDeferreds() =
-        testScope.runTest {
-            // Arrange
-            val captureConfig = CaptureConfig.Builder().build()
-            val sequence = listOf(captureConfig, captureConfig)
+    fun updateRepeatingRequestAsync_delegatesWithCorrectArguments() = testScope.runTest {
+        // Arrange
+        val fakeUseCase = FakeUseCase()
+        val runningUseCases = listOf(fakeUseCase)
 
-            val mockDeferred1 = CompletableDeferred<Void?>().apply { complete(null) }
-            val mockDeferred2 = CompletableDeferred<Void?>().apply { complete(null) }
-            val implDeferreds = listOf(mockDeferred1, mockDeferred2)
+        `when`(mockImpl.updateRepeatingRequestAsync(anyBoolean(), anyList()))
+            .thenReturn(CompletableDeferred(Unit))
 
-            `when`(mockImpl.issueSingleCaptureAsync(anyList(), anyInt(), anyInt(), anyInt()))
-                .thenReturn(implDeferreds)
+        // Act
+        deferredControl.updateRepeatingRequestAsync(
+            isPrimary = true,
+            runningUseCases = runningUseCases,
+        )
+        advanceUntilIdle()
 
-            // Act
-            val resultDeferreds = deferredControl.issueSingleCaptureAsync(sequence, 0, 0, 0)
-            advanceUntilIdle()
-
-            // Assert
-            verify(mockImplProvider).get()
-            verify(mockImpl).issueSingleCaptureAsync(sequence, 0, 0, 0)
-
-            assertThat(resultDeferreds).hasSize(2)
-            assertThat(resultDeferreds[0].isCompleted).isTrue()
-        }
+        // Assert
+        verify(mockImpl).updateRepeatingRequestAsync(true, runningUseCases)
+    }
 
     @Test
-    fun close_callsCloseOnImpl_onlyIfInitialized() =
-        testScope.runTest {
-            // Arrange: Initialize it first
-            `when`(mockImpl.setTorchOnAsync())
-                .thenReturn(CompletableDeferred(Result3A(Result3A.Status.OK)))
-            deferredControl.setTorchOnAsync()
-            advanceUntilIdle()
+    fun issueSingleCaptureAsync_delegatesAndReturnsMappedDeferreds() = testScope.runTest {
+        // Arrange
+        val captureConfig = CaptureConfig.Builder().build()
+        val sequence = listOf(captureConfig, captureConfig)
 
-            // Act
-            deferredControl.close()
-            advanceUntilIdle()
+        val mockDeferred1 = CompletableDeferred<Void?>().apply { complete(null) }
+        val mockDeferred2 = CompletableDeferred<Void?>().apply { complete(null) }
+        val implDeferreds = listOf(mockDeferred1, mockDeferred2)
 
-            // Assert
-            verify(mockImpl).close()
-        }
+        `when`(mockImpl.issueSingleCaptureAsync(anyList(), anyInt(), anyInt(), anyInt()))
+            .thenReturn(implDeferreds)
 
-    @Test
-    fun close_doesNotInitializeImpl_ifNotCalledBefore() =
-        testScope.runTest {
-            // Act
-            deferredControl.close()
-            advanceUntilIdle()
+        // Act
+        val resultDeferreds = deferredControl.issueSingleCaptureAsync(sequence, 0, 0, 0)
+        advanceUntilIdle()
 
-            // Assert
-            verify(mockImplProvider, never()).get()
-        }
+        // Assert
+        verify(mockImplProvider).get()
+        verify(mockImpl).issueSingleCaptureAsync(sequence, 0, 0, 0)
+
+        assertThat(resultDeferreds).hasSize(2)
+        assertThat(resultDeferreds[0].isCompleted).isTrue()
+    }
 
     @Test
-    fun awaitSurfaceSetup_initializesAndDelegates() =
-        testScope.runTest {
-            // Arrange
-            `when`(mockImpl.awaitSurfaceSetup()).thenReturn(true)
+    fun close_callsCloseOnImpl_onlyIfInitialized() = testScope.runTest {
+        // Arrange: Initialize it first
+        `when`(mockImpl.setTorchOnAsync())
+            .thenReturn(CompletableDeferred(Result3A(Result3A.Status.OK)))
+        deferredControl.setTorchOnAsync()
+        advanceUntilIdle()
 
-            // Act
-            val result = deferredControl.awaitSurfaceSetup()
+        // Act
+        deferredControl.close()
+        advanceUntilIdle()
 
-            // Assert
-            verify(mockImplProvider).get()
-            verify(mockImpl).awaitSurfaceSetup()
-            assertThat(result).isTrue()
-        }
+        // Assert
+        verify(mockImpl).close()
+    }
 
     @Test
-    fun submitParameters_runsOnSequentialThread() =
-        testScope.runTest {
-            val values = mapOf<CaptureRequest.Key<*>, Any>()
+    fun close_doesNotInitializeImpl_ifNotCalledBefore() = testScope.runTest {
+        // Act
+        deferredControl.close()
+        advanceUntilIdle()
 
-            `when`(mockImpl.submitParameters(anyMap(), any(), any()))
-                .thenReturn(CompletableDeferred(Unit))
+        // Assert
+        verify(mockImplProvider, never()).get()
+    }
 
-            deferredControl.submitParameters(
+    @Test
+    fun awaitSurfaceSetup_initializesAndDelegates() = testScope.runTest {
+        // Arrange
+        `when`(mockImpl.awaitSurfaceSetup()).thenReturn(true)
+
+        // Act
+        val result = deferredControl.awaitSurfaceSetup()
+
+        // Assert
+        verify(mockImplProvider).get()
+        verify(mockImpl).awaitSurfaceSetup()
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun submitParameters_runsOnSequentialThread() = testScope.runTest {
+        val values = mapOf<CaptureRequest.Key<*>, Any>()
+
+        `when`(mockImpl.submitParameters(anyMap(), any(), any()))
+            .thenReturn(CompletableDeferred(Unit))
+
+        deferredControl.submitParameters(
+            values,
+            UseCaseCameraRequestControl.Type.DEFAULT,
+            Config.OptionPriority.OPTIONAL,
+        )
+        advanceUntilIdle()
+
+        verify(mockImplProvider).get()
+        verify(mockImpl)
+            .submitParameters(
                 values,
                 UseCaseCameraRequestControl.Type.DEFAULT,
                 Config.OptionPriority.OPTIONAL,
             )
-            advanceUntilIdle()
-
-            verify(mockImplProvider).get()
-            verify(mockImpl)
-                .submitParameters(
-                    values,
-                    UseCaseCameraRequestControl.Type.DEFAULT,
-                    Config.OptionPriority.OPTIONAL,
-                )
-        }
+    }
 }

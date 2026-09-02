@@ -798,9 +798,9 @@ private fun Modifier.fillVector(
                 next.all(
                     predicate
                         ?: { element: Modifier.Element ->
-                                result.add(element)
-                                true
-                            }
+                            result.add(element)
+                            true
+                        }
                             .also { predicate = it }
                 )
         }

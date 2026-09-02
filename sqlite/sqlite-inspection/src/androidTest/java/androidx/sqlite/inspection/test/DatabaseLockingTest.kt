@@ -117,10 +117,9 @@ class DatabaseLockingTest {
                 val db = Database(it).createInstance(temporaryFolder)
                 testEnvironment.inspectDatabase(db)
             }
-        val lockIds =
-            dbIds.map {
-                testEnvironment.sendCommand(acquireLockCommand(it)).acquireDatabaseLock.lockId
-            }
+        val lockIds = dbIds.map {
+            testEnvironment.sendCommand(acquireLockCommand(it)).acquireDatabaseLock.lockId
+        }
         assertThat(lockIds.toSet()).hasSize(dbIds.size)
         assertThat(lockIds.minOrNull() ?: 0).isGreaterThan(0)
 
@@ -258,15 +257,14 @@ class DatabaseLockingTest {
         // start a job inserting values at app thread
         val insertCount = AtomicInteger(0)
         var latch = CountDownLatch(2) // allows for a few insert operations to succeed
-        val insertTask =
-            applicationThread.submit {
-                while (true) {
-                    db.execSQL("insert into ${table.name} values (1)")
-                    insertCount.incrementAndGet()
-                    latch.countDown()
-                    sleep(10)
-                }
+        val insertTask = applicationThread.submit {
+            while (true) {
+                db.execSQL("insert into ${table.name} values (1)")
+                insertCount.incrementAndGet()
+                latch.countDown()
+                sleep(10)
             }
+        }
         assertThat(latch.await(2, SECONDS)).isTrue()
 
         // lock the database
@@ -317,11 +315,10 @@ class DatabaseLockingTest {
 
             // try to insert a value on app thread
             val appInsertDone = AtomicBoolean(false)
-            val appInsertTask =
-                applicationThread.submit {
-                    insertValue(db, value2)
-                    appInsertDone.set(true)
-                }
+            val appInsertTask = applicationThread.submit {
+                insertValue(db, value2)
+                appInsertDone.set(true)
+            }
             assertThat(appInsertDone.get()).isFalse()
 
             // query schema

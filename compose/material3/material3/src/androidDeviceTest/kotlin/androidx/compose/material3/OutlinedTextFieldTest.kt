@@ -1851,7 +1851,10 @@ class OutlinedTextFieldTest {
                     modifier = Modifier.testTag(TextFieldTag),
                     state = rememberTextFieldState(),
                     keyboardOptions =
-                        KeyboardOptions(imeAction = ImeAction.Go, keyboardType = KeyboardType.Email),
+                        KeyboardOptions(
+                            imeAction = ImeAction.Go,
+                            keyboardType = KeyboardType.Email,
+                        ),
                 )
             }
         }

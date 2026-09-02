@@ -70,7 +70,8 @@ class DaoReturnTypeConverterProcessor(
             singleArgSuspendLambda =
                 context.processingEnv.requireType(SINGLE_ARG_SUSPEND_LAMBDA).rawType,
             noArgNonSuspendLambda = context.processingEnv.requireType(NO_ARG_LAMBDA).rawType,
-            singleArgNonSuspendLambda = context.processingEnv.requireType(SINGLE_ARG_LAMBDA).rawType,
+            singleArgNonSuspendLambda =
+                context.processingEnv.requireType(SINGLE_ARG_LAMBDA).rawType,
         )
 
     private val paramTypesConstants =
@@ -103,8 +104,9 @@ class DaoReturnTypeConverterProcessor(
                 .filter { it.hasAnnotation(DaoReturnTypeConverter::class) }
                 .mapNotNull { processFunction(it, isKotlinObjectDeclaration) }
 
-        val classContainsAtLeastOneConverterFunction =
-            memberFunctions.any { it.hasAnnotation(DaoReturnTypeConverter::class) }
+        val classContainsAtLeastOneConverterFunction = memberFunctions.any {
+            it.hasAnnotation(DaoReturnTypeConverter::class)
+        }
         context.checker.check(
             predicate = classContainsAtLeastOneConverterFunction,
             element = containerTypeElement,
@@ -247,7 +249,8 @@ class DaoReturnTypeConverterProcessor(
             context.checker.check(
                 predicate = suspendLambdaReturnType.isKotlinUnit(),
                 element = convertFunction,
-                errorMsg = DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_WITHOUT_TYPE_PARAM_SHOULD_RETURN_UNIT,
+                errorMsg =
+                    DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_WITHOUT_TYPE_PARAM_SHOULD_RETURN_UNIT,
             )
             return -1
         }
@@ -349,62 +352,61 @@ class DaoReturnTypeConverterProcessor(
         operationTypes: List<OperationType>,
         convertFunction: XMethodElement,
         paramTypes: List<XType>,
-    ): List<OptionalParam>? =
-        paramTypes.map {
-            if (it.isSameType(paramTypesConstants.roomDb)) {
-                OptionalParam.ROOM_DB
-            } else if (it.isSameType(paramTypesConstants.rawQuery)) {
-                if (OperationType.WRITE in operationTypes) {
-                    context.logger.e(
-                        element = convertFunction,
-                        msg =
-                            daoReturnTypeFunctionForOpWithBadParam(
-                                op = OperationType.WRITE.name,
-                                paramTypeName = it.asTypeName().toString(context.codeLanguage),
-                            ),
-                    )
-                    return null
-                }
-                OptionalParam.RAW_QUERY
-            } else if (it.isSameType(paramTypesConstants.listOfString)) {
-                if (OperationType.WRITE in operationTypes) {
-                    context.logger.e(
-                        element = convertFunction,
-                        msg =
-                            daoReturnTypeFunctionForOpWithBadParam(
-                                op = OperationType.WRITE.name,
-                                paramTypeName = it.asTypeName().toString(context.codeLanguage),
-                            ),
-                    )
-                    return null
-                }
-                OptionalParam.TABLE_NAMES_LIST
-            } else if (it.isArray() && it.componentType.isSameType(paramTypesConstants.string)) {
-                if (OperationType.WRITE in operationTypes) {
-                    context.logger.e(
-                        element = convertFunction,
-                        msg =
-                            daoReturnTypeFunctionForOpWithBadParam(
-                                op = OperationType.WRITE.name,
-                                paramTypeName = it.asTypeName().toString(context.codeLanguage),
-                            ),
-                    )
-                    return null
-                }
-                OptionalParam.TABLE_NAMES_ARRAY
-            } else if (it.isBoolean()) {
-                OptionalParam.IN_TRANSACTION
-            } else {
+    ): List<OptionalParam>? = paramTypes.map {
+        if (it.isSameType(paramTypesConstants.roomDb)) {
+            OptionalParam.ROOM_DB
+        } else if (it.isSameType(paramTypesConstants.rawQuery)) {
+            if (OperationType.WRITE in operationTypes) {
                 context.logger.e(
                     element = convertFunction,
                     msg =
-                        daoReturnTypeFunctionWithBadParam(
-                            paramTypeName = it.asTypeName().toString(context.codeLanguage)
+                        daoReturnTypeFunctionForOpWithBadParam(
+                            op = OperationType.WRITE.name,
+                            paramTypeName = it.asTypeName().toString(context.codeLanguage),
                         ),
                 )
                 return null
             }
+            OptionalParam.RAW_QUERY
+        } else if (it.isSameType(paramTypesConstants.listOfString)) {
+            if (OperationType.WRITE in operationTypes) {
+                context.logger.e(
+                    element = convertFunction,
+                    msg =
+                        daoReturnTypeFunctionForOpWithBadParam(
+                            op = OperationType.WRITE.name,
+                            paramTypeName = it.asTypeName().toString(context.codeLanguage),
+                        ),
+                )
+                return null
+            }
+            OptionalParam.TABLE_NAMES_LIST
+        } else if (it.isArray() && it.componentType.isSameType(paramTypesConstants.string)) {
+            if (OperationType.WRITE in operationTypes) {
+                context.logger.e(
+                    element = convertFunction,
+                    msg =
+                        daoReturnTypeFunctionForOpWithBadParam(
+                            op = OperationType.WRITE.name,
+                            paramTypeName = it.asTypeName().toString(context.codeLanguage),
+                        ),
+                )
+                return null
+            }
+            OptionalParam.TABLE_NAMES_ARRAY
+        } else if (it.isBoolean()) {
+            OptionalParam.IN_TRANSACTION
+        } else {
+            context.logger.e(
+                element = convertFunction,
+                msg =
+                    daoReturnTypeFunctionWithBadParam(
+                        paramTypeName = it.asTypeName().toString(context.codeLanguage)
+                    ),
+            )
+            return null
         }
+    }
 
     companion object {
         fun findConverters(context: Context, element: XElement): ProcessResult {

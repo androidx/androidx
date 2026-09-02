@@ -269,8 +269,10 @@ public class OnBackPressedDispatcher(
          * This is hosted here and initialized lazily alongside the input to ensure they are linked
          * atomically.
          */
-        val dispatcher =
-            NavigationEventDispatcher { fallbackOnBackPressed?.run() }.also { it.addInput(this) }
+        val dispatcher = NavigationEventDispatcher {
+            fallbackOnBackPressed?.run()
+        }
+            .also { it.addInput(this) }
 
         /**
          * Syncs the enabled-handler count back to [OnBackPressedDispatcher].

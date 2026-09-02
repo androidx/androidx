@@ -234,13 +234,12 @@ private fun GlimmerLazyColumnWithTitleLayout(
         var titleMaxHeight = 0
         var titleMaxWidth = 0
         val titleConstraints = constraints.copyMaxDimensions()
-        val titlePlaceables =
-            titleMeasurables.fastMap { measurable ->
-                val placeable = measurable.measure(titleConstraints)
-                titleMaxHeight = max(titleMaxHeight, placeable.height)
-                titleMaxWidth = max(titleMaxWidth, placeable.width)
-                placeable
-            }
+        val titlePlaceables = titleMeasurables.fastMap { measurable ->
+            val placeable = measurable.measure(titleConstraints)
+            titleMaxHeight = max(titleMaxHeight, placeable.height)
+            titleMaxWidth = max(titleMaxWidth, placeable.width)
+            placeable
+        }
 
         // List shouldn't use the space above the vertical center of the title.
         val titleYOffset = titleMaxHeight / 2

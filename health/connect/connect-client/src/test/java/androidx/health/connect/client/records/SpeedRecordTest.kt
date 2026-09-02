@@ -100,7 +100,9 @@ class SpeedRecordTest {
                         endZoneOffset = null,
                         metadata = Metadata.unknownRecordingMethod(),
                         samples =
-                            listOf(SpeedRecord.Sample(Instant.ofEpochMilli(1234L), 24.milesPerHour)),
+                            listOf(
+                                SpeedRecord.Sample(Instant.ofEpochMilli(1234L), 24.milesPerHour)
+                            ),
                     )
                     .toString()
             )

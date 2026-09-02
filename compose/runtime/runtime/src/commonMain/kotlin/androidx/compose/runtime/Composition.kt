@@ -1460,18 +1460,17 @@ internal class CompositionImpl(
     ): InvalidationResult {
         val delegate =
             synchronized(lock) {
-                val delegate =
-                    invalidationDelegate?.let { changeDelegate ->
-                        // Invalidations are delegated when recomposing changes to movable content
-                        // that is destined to be moved. The movable content is composed in the
-                        // destination composer but all the recompose scopes point the current
-                        // composer and will arrive here. this redirects the invalidations that
-                        // will be moved to the destination composer instead of recording an
-                        // invalid invalidation in the from composer.
-                        if (slotStorage.groupContainsAnchor(invalidationDelegateGroup, anchor)) {
-                            changeDelegate
-                        } else null
-                    }
+                val delegate = invalidationDelegate?.let { changeDelegate ->
+                    // Invalidations are delegated when recomposing changes to movable content
+                    // that is destined to be moved. The movable content is composed in the
+                    // destination composer but all the recompose scopes point the current
+                    // composer and will arrive here. this redirects the invalidations that
+                    // will be moved to the destination composer instead of recording an
+                    // invalid invalidation in the from composer.
+                    if (slotStorage.groupContainsAnchor(invalidationDelegateGroup, anchor)) {
+                        changeDelegate
+                    } else null
+                }
                 if (delegate == null) {
                     if (tryImminentInvalidation(scope, instance)) {
                         // The invalidation was redirected to the composer.

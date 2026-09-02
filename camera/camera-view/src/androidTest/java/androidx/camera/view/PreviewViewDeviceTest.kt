@@ -392,21 +392,20 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
     }
 
     @Test
-    fun clearCameraController_controllerIsNull() =
-        instrumentation.runOnMainSync {
-            // Arrange.
-            val previewView = PreviewView(context)
-            setContentView(previewView)
-            val cameraController: CameraController = LifecycleCameraController(context)
-            previewView.controller = cameraController
-            Truth.assertThat(previewView.controller).isEqualTo(cameraController)
+    fun clearCameraController_controllerIsNull() = instrumentation.runOnMainSync {
+        // Arrange.
+        val previewView = PreviewView(context)
+        setContentView(previewView)
+        val cameraController: CameraController = LifecycleCameraController(context)
+        previewView.controller = cameraController
+        Truth.assertThat(previewView.controller).isEqualTo(cameraController)
 
-            // Act and Assert.
-            previewView.controller = null
+        // Act and Assert.
+        previewView.controller = null
 
-            // Assert
-            Truth.assertThat(previewView.controller).isNull()
-        }
+        // Assert
+        Truth.assertThat(previewView.controller).isNull()
+    }
 
     @Test
     fun setNewCameraController_oldControllerIsCleared() {

@@ -691,13 +691,12 @@ constructor(
      * Converts this [AppFunctionObjectTypeMetadata] to an [AppFunctionDataTypeMetadataDocument].
      */
     override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        val properties =
-            properties.map { (name, dataType) ->
-                AppFunctionNamedDataTypeMetadataDocument(
-                    name = checkNotNull(name),
-                    dataTypeMetadata = dataType.toAppFunctionDataTypeMetadataDocument(),
-                )
-            }
+        val properties = properties.map { (name, dataType) ->
+            AppFunctionNamedDataTypeMetadataDocument(
+                name = checkNotNull(name),
+                dataTypeMetadata = dataType.toAppFunctionDataTypeMetadataDocument(),
+            )
+        }
         return AppFunctionDataTypeMetadataDocument(
             type = TYPE,
             properties = properties,
@@ -1482,10 +1481,9 @@ internal data class AppFunctionDataTypeMetadataDocument(
                 check(properties.isNotEmpty()) {
                     "Properties must be present for object type can't be empty"
                 }
-                val propertiesMap =
-                    properties.associate {
-                        it.name to it.dataTypeMetadata.toAppFunctionDataTypeMetadata()
-                    }
+                val propertiesMap = properties.associate {
+                    it.name to it.dataTypeMetadata.toAppFunctionDataTypeMetadata()
+                }
                 AppFunctionObjectTypeMetadata(
                     properties = propertiesMap,
                     required = required,

@@ -91,7 +91,9 @@ class StepperScreenshotTest {
                 steps = 3,
                 onValueChange = {},
                 decreaseIcon = { Icon(imageVector = Icons.Default.Star, contentDescription = "") },
-                increaseIcon = { Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "") },
+                increaseIcon = {
+                    Icon(imageVector = Icons.Filled.ThumbUp, contentDescription = "")
+                },
             ) {}
         }
     }

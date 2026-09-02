@@ -216,18 +216,17 @@ internal object StartupTimingQuery {
 
         val reportFullyDrawnSlice = groupedData[StartupSliceType.ReportFullyDrawn]?.firstOrNull()
 
-        val reportFullyDrawnEndTs: Long? =
-            reportFullyDrawnSlice?.let {
-                // find first uiSlice with end after reportFullyDrawn (reportFullyDrawn may happen
-                // during or before a given frame)
-                findEndRenderTimeForUiFrame(
-                    uiSlices = uiSlices,
-                    rtSlices = rtSlices,
-                    predicateErrorLabel = "ends after reportFullyDrawn",
-                ) { uiSlice ->
-                    uiSlice.endTs > reportFullyDrawnSlice.ts
-                }
+        val reportFullyDrawnEndTs: Long? = reportFullyDrawnSlice?.let {
+            // find first uiSlice with end after reportFullyDrawn (reportFullyDrawn may happen
+            // during or before a given frame)
+            findEndRenderTimeForUiFrame(
+                uiSlices = uiSlices,
+                rtSlices = rtSlices,
+                predicateErrorLabel = "ends after reportFullyDrawn",
+            ) { uiSlice ->
+                uiSlice.endTs > reportFullyDrawnSlice.ts
             }
+        }
 
         return SubMetrics(
             startTs = startTs,

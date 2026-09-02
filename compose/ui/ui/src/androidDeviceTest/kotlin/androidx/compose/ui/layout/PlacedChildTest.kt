@@ -189,15 +189,14 @@ class PlacedChildTest {
         var measureCount = 0
         var placementCount = 0
         rule.runOnIdle {
-            modifier =
-                Modifier.layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-                    measureCount++
-                    layout(placeable.width, placeable.height) {
-                        placementCount++
-                        placeable.place(0, 0)
-                    }
+            modifier = Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                measureCount++
+                layout(placeable.width, placeable.height) {
+                    placementCount++
+                    placeable.place(0, 0)
                 }
+            }
         }
 
         rule.runOnIdle {

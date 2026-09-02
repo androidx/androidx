@@ -45,10 +45,9 @@ class RotateSampleScreenshotTest {
         )
 
     @Test
-    fun rotateSample() =
-        composeTestRule.runScreenshotTest {
-            RemoteBox(modifier = RemoteModifier.fillMaxSize(), contentAlignment = Center) {
-                RotateSample()
-            }
+    fun rotateSample() = composeTestRule.runScreenshotTest {
+        RemoteBox(modifier = RemoteModifier.fillMaxSize(), contentAlignment = Center) {
+            RotateSample()
         }
+    }
 }

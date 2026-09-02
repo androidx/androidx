@@ -61,12 +61,11 @@ public object GlobalSnapshotManager {
 public suspend fun globalSnapshotMonitor() {
     val channel = Channel<Unit>(1)
     val sent = AtomicBoolean(false)
-    val observerHandle =
-        Snapshot.registerGlobalWriteObserver {
-            if (sent.compareAndSet(false, true)) {
-                channel.trySend(Unit)
-            }
+    val observerHandle = Snapshot.registerGlobalWriteObserver {
+        if (sent.compareAndSet(false, true)) {
+            channel.trySend(Unit)
         }
+    }
     try {
         channel.consumeEach {
             sent.set(false)

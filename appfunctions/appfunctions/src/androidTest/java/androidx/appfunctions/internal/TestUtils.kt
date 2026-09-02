@@ -27,7 +27,8 @@ import org.junit.Assume.assumeNotNull
 internal fun runWithActivityAppFunctionManager(
     block:
         suspend CoroutineScope.(
-            activity: TestActivity, activityAppFunctionManager: AppFunctionManager,
+            activity: TestActivity,
+            activityAppFunctionManager: AppFunctionManager,
         ) -> Unit
 ) {
     val context = InstrumentationRegistry.getInstrumentation().targetContext

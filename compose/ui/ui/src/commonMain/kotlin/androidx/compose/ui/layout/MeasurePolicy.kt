@@ -100,10 +100,9 @@ public fun interface MeasurePolicy {
         measurables: List<IntrinsicMeasurable>,
         height: Int,
     ): Int {
-        val mapped =
-            measurables.fastMap {
-                DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
-            }
+        val mapped = measurables.fastMap {
+            DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Width)
+        }
         val constraints = Constraints(maxHeight = height)
         val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
         val layoutResult = layoutReceiver.measure(mapped, constraints)
@@ -120,10 +119,9 @@ public fun interface MeasurePolicy {
         measurables: List<IntrinsicMeasurable>,
         width: Int,
     ): Int {
-        val mapped =
-            measurables.fastMap {
-                DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
-            }
+        val mapped = measurables.fastMap {
+            DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Min, IntrinsicWidthHeight.Height)
+        }
         val constraints = Constraints(maxWidth = width)
         val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
         val layoutResult = layoutReceiver.measure(mapped, constraints)
@@ -139,10 +137,9 @@ public fun interface MeasurePolicy {
         measurables: List<IntrinsicMeasurable>,
         height: Int,
     ): Int {
-        val mapped =
-            measurables.fastMap {
-                DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
-            }
+        val mapped = measurables.fastMap {
+            DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Width)
+        }
         val constraints = Constraints(maxHeight = height)
         val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
         val layoutResult = layoutReceiver.measure(mapped, constraints)
@@ -158,10 +155,9 @@ public fun interface MeasurePolicy {
         measurables: List<IntrinsicMeasurable>,
         width: Int,
     ): Int {
-        val mapped =
-            measurables.fastMap {
-                DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
-            }
+        val mapped = measurables.fastMap {
+            DefaultIntrinsicMeasurable(it, IntrinsicMinMax.Max, IntrinsicWidthHeight.Height)
+        }
         val constraints = Constraints(maxWidth = width)
         val layoutReceiver = IntrinsicsMeasureScope(this, layoutDirection)
         val layoutResult = layoutReceiver.measure(mapped, constraints)

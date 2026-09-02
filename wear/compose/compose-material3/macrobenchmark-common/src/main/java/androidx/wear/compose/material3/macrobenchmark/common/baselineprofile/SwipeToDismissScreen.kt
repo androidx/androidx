@@ -35,15 +35,15 @@ val SwipeToDismissScreen =
         override val exercise: MacrobenchmarkScope.() -> Unit
             get() = {
                 retryIfStale {
-                        requireNotNull(
-                            device.wait(
-                                Until.findObject(By.text("Item details")),
-                                FIND_OBJECT_TIMEOUT_MS,
-                            )
-                        ) {
-                            "Button 'Item details' not found"
-                        }
+                    requireNotNull(
+                        device.wait(
+                            Until.findObject(By.text("Item details")),
+                            FIND_OBJECT_TIMEOUT_MS,
+                        )
+                    ) {
+                        "Button 'Item details' not found"
                     }
+                }
                     .click()
                 check(
                     device.wait(

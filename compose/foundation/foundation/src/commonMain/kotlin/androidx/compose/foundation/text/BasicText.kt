@@ -492,8 +492,9 @@ private class TextMeasurePolicy(
         constraints: Constraints,
     ): MeasureResult {
         // inline content
-        val inlineContentMeasurables =
-            measurables.fastFilter { it.parentData !is TextRangeLayoutModifier }
+        val inlineContentMeasurables = measurables.fastFilter {
+            it.parentData !is TextRangeLayoutModifier
+        }
         val inlineContentToPlace =
             placements()?.fastMapIndexedNotNull { index, rect ->
                 // PlaceholderRect will be null if it's ellipsized. In that case, the corresponding

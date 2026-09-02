@@ -159,28 +159,27 @@ public suspend fun captureSingleRemoteDocument(
             }
         }
 
-        val document =
-            Snapshot.withMutableSnapshot {
-                val recordingCanvas =
-                    RecordingCanvas(createBitmap(1, 1)).apply {
-                        setRemoteComposeCreationState(creationState)
-                    }
-
-                val remoteCanvas = RemoteCanvas(recordingCanvas)
-
-                if (RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
-                    check(creationState.document.buffer.buffer.size() == initialSize) {
-                        "Document was written to during composition. Expected size $initialSize, got ${creationState.document.buffer.buffer.size()}"
-                    }
+        val document = Snapshot.withMutableSnapshot {
+            val recordingCanvas =
+                RecordingCanvas(createBitmap(1, 1)).apply {
+                    setRemoteComposeCreationState(creationState)
                 }
 
-                trace("CaptureRemoteDocument:captureSingleRemoteDocument:rootNodeRender") {
-                    rootNode.render(creationState, remoteCanvas)
-                    recordingCanvas.flush()
-                }
+            val remoteCanvas = RemoteCanvas(recordingCanvas)
 
-                creationState.document.encodeToByteArray()
+            if (RemoteComposeCreationComposeFlags.isEnforceCleanRecompositionEnabled) {
+                check(creationState.document.buffer.buffer.size() == initialSize) {
+                    "Document was written to during composition. Expected size $initialSize, got ${creationState.document.buffer.buffer.size()}"
+                }
             }
+
+            trace("CaptureRemoteDocument:captureSingleRemoteDocument:rootNodeRender") {
+                rootNode.render(creationState, remoteCanvas)
+                recordingCanvas.flush()
+            }
+
+            creationState.document.encodeToByteArray()
+        }
 
         return CapturedDocument(document, writerEvents.pendingIntents, writerEvents.lambdas)
     } finally {

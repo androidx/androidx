@@ -38,8 +38,9 @@ internal class FakeTrackableComponent(
 
     override fun onAttach(entity: Entity): Boolean {
         if (poseFlow != null) {
-            collectionJob =
-                coroutineScope.launch { poseFlow.collect { newPose -> perceptionPose = newPose } }
+            collectionJob = coroutineScope.launch {
+                poseFlow.collect { newPose -> perceptionPose = newPose }
+            }
         }
 
         return super.onAttach(entity)

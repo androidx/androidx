@@ -165,8 +165,9 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
         if (cuttingPoint < DistanceEpsilon) return this
 
         // Find the index of cubic we want to cut
-        val targetIndex =
-            cubics.indexOfFirst { cuttingPoint in it.startOutlineProgress..it.endOutlineProgress }
+        val targetIndex = cubics.indexOfFirst {
+            cuttingPoint in it.startOutlineProgress..it.endOutlineProgress
+        }
         val target = cubics[targetIndex]
         if (DEBUG) {
             cubics.forEachIndexed { index, cubic ->

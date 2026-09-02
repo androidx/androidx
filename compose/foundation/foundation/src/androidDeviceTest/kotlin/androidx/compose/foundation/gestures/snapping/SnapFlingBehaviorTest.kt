@@ -187,13 +187,12 @@ class SnapFlingBehaviorTest {
                 override fun calculateSnapOffset(velocity: Float): Float = Float.NaN
             }
         lateinit var testFlingBehavior: TargetedFlingBehavior
-        val exception =
-            kotlin.runCatching {
-                rule.setContent {
-                    testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
-                    VelocityEffect(testFlingBehavior, TestVelocity)
-                }
+        val exception = kotlin.runCatching {
+            rule.setContent {
+                testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
+                VelocityEffect(testFlingBehavior, TestVelocity)
             }
+        }
         assert(exception.isFailure)
     }
 
@@ -207,13 +206,12 @@ class SnapFlingBehaviorTest {
                 override fun calculateSnapOffset(velocity: Float): Float = 0.0f
             }
         lateinit var testFlingBehavior: TargetedFlingBehavior
-        val exception =
-            kotlin.runCatching {
-                rule.setContent {
-                    testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
-                    VelocityEffect(testFlingBehavior, TestVelocity)
-                }
+        val exception = kotlin.runCatching {
+            rule.setContent {
+                testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
+                VelocityEffect(testFlingBehavior, TestVelocity)
             }
+        }
         assert(exception.isFailure)
     }
 

@@ -884,13 +884,12 @@ private class AnimatedEnterExitMeasurePolicy(val scope: AnimatedVisibilityScopeI
     ): MeasureResult {
         var maxWidth = 0
         var maxHeight = 0
-        val placeables =
-            measurables.fastMap {
-                it.measure(constraints).apply {
-                    maxWidth = max(maxWidth, width)
-                    maxHeight = max(maxHeight, height)
-                }
+        val placeables = measurables.fastMap {
+            it.measure(constraints).apply {
+                maxWidth = max(maxWidth, width)
+                maxHeight = max(maxHeight, height)
             }
+        }
         // Position the children.
         if (isLookingAhead) {
             hasLookaheadOccurred = true

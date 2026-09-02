@@ -65,46 +65,43 @@ internal class CameraGraphSessionImplTest {
     private val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
 
     @Test
-    fun sessionCannotBeUsedAfterClose() =
-        testScope.runTest {
-            val session = simulator.acquireSession()
-            session.close()
+    fun sessionCannotBeUsedAfterClose() = testScope.runTest {
+        val session = simulator.acquireSession()
+        session.close()
 
-            val result = assertThrows<IllegalStateException> { session.submit(Request(listOf())) }
-            result.hasMessageThat().contains("submit")
-        }
-
-    @Test
-    fun stopRepeatingShouldCancel3ARequests() =
-        testScope.runTest {
-            val session = simulator.acquireSession()
-            session.startRepeating(Request(streams = listOf(StreamId(1))))
-            val deferred = session.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
-
-            assertThat(deferred.isCompleted).isFalse()
-
-            // Don't return any results to simulate that the 3A conditions haven't been met, but the
-            // app calls stopRepeating(). In which case, we should fail here with SUBMIT_CANCELLED.
-            session.stopRepeating()
-            assertThat(deferred.isCompleted).isTrue()
-            val result = deferred.await()
-            assertThat(result.status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
-            session.close()
-        }
+        val result = assertThrows<IllegalStateException> { session.submit(Request(listOf())) }
+        result.hasMessageThat().contains("submit")
+    }
 
     @Test
-    fun initiate3ARequestsShouldThrowWhenSessionIsClosed() =
-        testScope.runTest {
-            val session = simulator.acquireSession()
-            session.startRepeating(Request(streams = listOf(StreamId(1))))
-            advanceUntilIdle()
+    fun stopRepeatingShouldCancel3ARequests() = testScope.runTest {
+        val session = simulator.acquireSession()
+        session.startRepeating(Request(streams = listOf(StreamId(1))))
+        val deferred = session.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
 
-            // Now close the session
-            session.close()
-            assertThrows<IllegalStateException> {
-                session.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
-            }
+        assertThat(deferred.isCompleted).isFalse()
+
+        // Don't return any results to simulate that the 3A conditions haven't been met, but the
+        // app calls stopRepeating(). In which case, we should fail here with SUBMIT_CANCELLED.
+        session.stopRepeating()
+        assertThat(deferred.isCompleted).isTrue()
+        val result = deferred.await()
+        assertThat(result.status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
+        session.close()
+    }
+
+    @Test
+    fun initiate3ARequestsShouldThrowWhenSessionIsClosed() = testScope.runTest {
+        val session = simulator.acquireSession()
+        session.startRepeating(Request(streams = listOf(StreamId(1))))
+        advanceUntilIdle()
+
+        // Now close the session
+        session.close()
+        assertThrows<IllegalStateException> {
+            session.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
         }
+    }
 
     @Test
     fun lock3AShouldFailWhenInvokedBeforeStartRepeating() = runTest {
@@ -122,46 +119,44 @@ internal class CameraGraphSessionImplTest {
     }
 
     @Test
-    fun lock3AShouldSucceedWhenInvokedAfterStartRepeatingAndConverged() =
-        testScope.runTest {
-            val stream = simulator.streams[streamConfig]!!
-            val request = Request(streams = listOf(stream.id))
-            simulator.acquireSession().use { it.startRepeating(request) }
-            simulator.start()
-            simulator.initializeSurfaces()
-            simulator.simulateCameraStarted()
-            simulator.simulateNextFrame()
+    fun lock3AShouldSucceedWhenInvokedAfterStartRepeatingAndConverged() = testScope.runTest {
+        val stream = simulator.streams[streamConfig]!!
+        val request = Request(streams = listOf(stream.id))
+        simulator.acquireSession().use { it.startRepeating(request) }
+        simulator.start()
+        simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
+        simulator.simulateNextFrame()
 
-            val session = simulator.acquireSession()
-            val result = session.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
+        val session = simulator.acquireSession()
+        val result = session.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
 
-            val frame = simulator.simulateNextFrame()
-            frame.simulateTotalCaptureResult(
-                mapOf(CaptureResult.CONTROL_AE_STATE to CONTROL_AE_STATE_LOCKED)
-            )
+        val frame = simulator.simulateNextFrame()
+        frame.simulateTotalCaptureResult(
+            mapOf(CaptureResult.CONTROL_AE_STATE to CONTROL_AE_STATE_LOCKED)
+        )
 
-            assertThat(result.await().status).isEqualTo(Result3A.Status.OK)
-            session.close()
-        }
+        assertThat(result.await().status).isEqualTo(Result3A.Status.OK)
+        session.close()
+    }
 
     @Test
-    fun lock3AShouldFailWhenInvokedAfterStartAndStopRepeating() =
-        testScope.runTest {
-            val stream = simulator.streams[streamConfig]!!
-            val request = Request(streams = listOf(stream.id))
-            simulator.acquireSession().use { it.startRepeating(request) }
-            simulator.start()
-            simulator.initializeSurfaces()
-            simulator.simulateCameraStarted()
-            simulator.simulateNextFrame()
+    fun lock3AShouldFailWhenInvokedAfterStartAndStopRepeating() = testScope.runTest {
+        val stream = simulator.streams[streamConfig]!!
+        val request = Request(streams = listOf(stream.id))
+        simulator.acquireSession().use { it.startRepeating(request) }
+        simulator.start()
+        simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
+        simulator.simulateNextFrame()
 
-            // Stop repeating
-            val session = simulator.acquireSession()
-            session.stopRepeating()
+        // Stop repeating
+        val session = simulator.acquireSession()
+        session.stopRepeating()
 
-            // Now lock3A should fail immediately with SUBMIT_FAILED.
-            val result = session.lock3A(afLockBehavior = Lock3ABehavior.IMMEDIATE).await()
-            assertThat(result.status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
-            session.close()
-        }
+        // Now lock3A should fail immediately with SUBMIT_FAILED.
+        val result = session.lock3A(afLockBehavior = Lock3ABehavior.IMMEDIATE).await()
+        assertThat(result.status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        session.close()
+    }
 }

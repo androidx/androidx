@@ -449,26 +449,25 @@ private class NonInteractiveScrollbarNode(
             // Launch a single coroutine loop that persists throughout the active scroll session.
             if (alpha.targetValue == 0f || fadeJob == null || fadeJob?.isActive == false) {
                 fadeJob?.cancel()
-                fadeJob =
-                    coroutineScope.launch {
-                        alpha.snapTo(1f)
+                fadeJob = coroutineScope.launch {
+                    alpha.snapTo(1f)
 
-                        while (true) {
-                            // Consume any pending events before starting the wait
-                            events.tryReceive()
+                    while (true) {
+                        // Consume any pending events before starting the wait
+                        events.tryReceive()
 
-                            // Suspend until a new scroll event comes in, OR the timeout is reached.
-                            val interrupted =
-                                withTimeoutOrNull(fadeDelayMillis.toLong()) { events.receive() }
+                        // Suspend until a new scroll event comes in, OR the timeout is reached.
+                        val interrupted =
+                            withTimeoutOrNull(fadeDelayMillis.toLong()) { events.receive() }
 
-                            // Timeout completed without being interrupted by a scroll.
-                            if (interrupted == null) {
-                                break
-                            }
+                        // Timeout completed without being interrupted by a scroll.
+                        if (interrupted == null) {
+                            break
                         }
-
-                        alpha.animateTo(0f, fadeAnimationSpec)
                     }
+
+                    alpha.animateTo(0f, fadeAnimationSpec)
+                }
             }
         }
 

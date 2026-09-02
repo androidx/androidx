@@ -132,7 +132,8 @@ public constructor(
                 adData.adRenderId?.let {
                     Log.w(
                         "AdData",
-                        "adRenderId is ignored. Min version to use adRenderId is " + "API 31 ext 10",
+                        "adRenderId is ignored. Min version to use adRenderId is " +
+                            "API 31 ext 10",
                     )
                 }
                 return android.adservices.common.AdData.Builder()
@@ -167,7 +168,8 @@ public constructor(
                 adData.adRenderId?.let {
                     Log.w(
                         "AdData",
-                        "adRenderId is ignored. Min version to use adRenderId is " + "API 31 ext 10",
+                        "adRenderId is ignored. Min version to use adRenderId is " +
+                            "API 31 ext 10",
                     )
                 }
                 return android.adservices.common.AdData.Builder()

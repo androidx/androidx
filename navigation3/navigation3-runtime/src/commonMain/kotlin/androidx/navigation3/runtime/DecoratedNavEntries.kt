@@ -167,10 +167,9 @@ public fun <T : Any> rememberDecoratedNavEntries(
 ): List<NavEntry<T>> {
     val keysInBackstack: MutableSet<Any> = remember { mutableSetOf() }
     val keysInComposition: MutableSet<Any> = remember { mutableSetOf() }
-    val decoratedEntries =
-        entries.fastMapOrMap { entry ->
-            decorateEntry(entry, entryDecorators, keysInBackstack, keysInComposition)
-        }
+    val decoratedEntries = entries.fastMapOrMap { entry ->
+        decorateEntry(entry, entryDecorators, keysInBackstack, keysInComposition)
+    }
 
     PrepareBackStack(decoratedEntries, entryDecorators, keysInBackstack, keysInComposition)
     return decoratedEntries

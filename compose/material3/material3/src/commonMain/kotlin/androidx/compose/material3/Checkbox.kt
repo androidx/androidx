@@ -861,7 +861,8 @@ public constructor(
                 disabledIndeterminateBorderColor.takeOrElse {
                     this.disabledIndeterminateBorderColor
                 },
-            disabledCheckmarkColor = checkedCheckmarkColor.takeOrElse { this.checkedCheckmarkColor },
+            disabledCheckmarkColor =
+                checkedCheckmarkColor.takeOrElse { this.checkedCheckmarkColor },
         )
 
     /**

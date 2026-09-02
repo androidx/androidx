@@ -610,10 +610,9 @@ private fun TransformingLazyColumnState.isItemClickableAt(
                 items
             }
         }
-    val foundItem =
-        edgeItems.fastFirstOrNull { info ->
-            info.offset <= position.y && position.y <= info.offset + info.transformedHeight
-        }
+    val foundItem = edgeItems.fastFirstOrNull { info ->
+        info.offset <= position.y && position.y <= info.offset + info.transformedHeight
+    }
     // 2. Check if found item has visible area that is big enough. If click is not on edge items,
     // the function will return true since the visible check should be done only on edge items and
     // other items are considered clickable.

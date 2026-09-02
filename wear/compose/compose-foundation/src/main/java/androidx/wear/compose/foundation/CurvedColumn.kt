@@ -77,10 +77,9 @@ internal class CurvedColumnChild(
         parentThickness: Float,
     ): PartialLayoutInfo {
         // Compute space used by weighted children and space left
-        val weights =
-            childrenInLayoutOrder.fastMap { node ->
-                (node.computeParentData() as? CurvedScopeParentData)?.weight ?: 0f
-            }
+        val weights = childrenInLayoutOrder.fastMap { node ->
+            (node.computeParentData() as? CurvedScopeParentData)?.weight ?: 0f
+        }
         val sumWeights = weights.sum()
         val extraSpace =
             parentThickness -

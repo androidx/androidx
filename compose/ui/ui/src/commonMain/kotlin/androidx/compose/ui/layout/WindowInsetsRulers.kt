@@ -168,7 +168,14 @@ public sealed interface WindowInsetsRulers {
         public val SafeDrawing: WindowInsetsRulers =
             InnermostInsetsRulers(
                 "safe drawing",
-                arrayOf(StatusBars, NavigationBars, CaptionBar, DisplayCutout, Ime, TappableElement),
+                arrayOf(
+                    StatusBars,
+                    NavigationBars,
+                    CaptionBar,
+                    DisplayCutout,
+                    Ime,
+                    TappableElement,
+                ),
             )
 
         /**

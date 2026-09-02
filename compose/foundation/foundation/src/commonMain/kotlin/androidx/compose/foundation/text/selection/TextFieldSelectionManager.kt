@@ -1218,7 +1218,9 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                         ?.localToRoot(
                             Offset(
                                 x = 0f,
-                                y = it.layoutResult?.value?.getCursorRect(transformedEnd)?.top ?: 0f,
+                                y =
+                                    it.layoutResult?.value?.getCursorRect(transformedEnd)?.top
+                                        ?: 0f,
                             )
                         )
                         ?.y ?: 0f

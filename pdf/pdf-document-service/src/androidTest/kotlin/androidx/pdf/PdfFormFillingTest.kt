@@ -848,8 +848,9 @@ class PdfFormFillingTest {
             val callingThread: Thread = Thread.currentThread()
             val customThreadName = "CustomThread"
 
-            val customExecutor =
-                Executors.newSingleThreadExecutor { command -> Thread(command, customThreadName) }
+            val customExecutor = Executors.newSingleThreadExecutor { command ->
+                Thread(command, customThreadName)
+            }
 
             document.addOnPdfContentInvalidatedListener(
                 customExecutor,

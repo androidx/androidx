@@ -1449,11 +1449,10 @@ internal class SavedStateTest : RobolectricTest() {
             putKotlinSerializable(KEY_1, expected)
         }
 
-        val actual =
-            underTest.read {
-                // Testing the reified inline function
-                getKotlinSerializable<TestUser>(KEY_1)
-            }
+        val actual = underTest.read {
+            // Testing the reified inline function
+            getKotlinSerializable<TestUser>(KEY_1)
+        }
 
         assertThat(actual).isEqualTo(expected)
     }

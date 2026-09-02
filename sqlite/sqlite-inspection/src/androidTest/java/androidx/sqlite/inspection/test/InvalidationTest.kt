@@ -66,10 +66,9 @@ class InvalidationTest {
             // Verification of hooks registration and triggering the DatabasePossiblyChangedEvent
             testEnvironment.consumeRegisteredHooks().let { hooks ->
                 expectedHooks.forEach { (method, clazz) ->
-                    val hook =
-                        hooks.filter { hook ->
-                            hook.originMethod == method && hook.originClass == clazz
-                        }
+                    val hook = hooks.filter { hook ->
+                        hook.originMethod == method && hook.originClass == clazz
+                    }
                     assertThat(hook).hasSize(1)
 
                     testEnvironment.assertNoQueuedEvents()

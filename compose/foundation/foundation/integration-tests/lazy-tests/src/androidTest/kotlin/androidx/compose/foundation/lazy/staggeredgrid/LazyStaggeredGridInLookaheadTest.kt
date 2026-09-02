@@ -392,7 +392,8 @@ class LazyStaggeredGridInLookaheadTest(private val orientation: Orientation) :
                             else Modifier
                         )
                 },
-                state = rememberLazyStaggeredGridState(initialFirstVisibleItemIndex = startingIndex),
+                state =
+                    rememberLazyStaggeredGridState(initialFirstVisibleItemIndex = startingIndex),
             ) {
                 items(list, key = { it }) { item ->
                     Box(

@@ -145,8 +145,9 @@ class GltfModelMaterialTextureActivity : AppCompatActivity() {
             }
         }
 
-        val sliderListener =
-            Slider.OnChangeListener { _, _, fromUser -> if (fromUser) updatePoseScaleFromSliders() }
+        val sliderListener = Slider.OnChangeListener { _, _, fromUser ->
+            if (fromUser) updatePoseScaleFromSliders()
+        }
 
         listOf(locX, locY, locZ, rotX, rotY, rotZ, rotW, scaleX, scaleY, scaleZ).forEach {
             it.addOnChangeListener(sliderListener)

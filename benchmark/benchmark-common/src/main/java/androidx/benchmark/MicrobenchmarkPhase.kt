@@ -84,15 +84,14 @@ internal class MicrobenchmarkPhase(
             var profilerStartEnd = 0L
             while (true) { // keep running until phase successful
                 try {
-                    phaseProfilerResult =
-                        profiler?.run {
-                            profilerStartBegin = System.nanoTime()
-                            startIfNotRiskingAnrDeadline(
-                                    traceUniqueName = traceUniqueName,
-                                    estimatedDurationNs = state.warmupEstimatedIterationTimeNs,
-                                )
-                                .also { profilerStartEnd = System.nanoTime() }
-                        }
+                    phaseProfilerResult = profiler?.run {
+                        profilerStartBegin = System.nanoTime()
+                        startIfNotRiskingAnrDeadline(
+                                traceUniqueName = traceUniqueName,
+                                estimatedDurationNs = state.warmupEstimatedIterationTimeNs,
+                            )
+                            .also { profilerStartEnd = System.nanoTime() }
+                    }
                     state.metrics = metricsContainer // needed for pausing
                     metricsContainer.captureInit()
 

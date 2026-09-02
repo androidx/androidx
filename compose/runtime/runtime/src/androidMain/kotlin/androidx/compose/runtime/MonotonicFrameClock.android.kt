@@ -48,10 +48,9 @@ private object DefaultChoreographerFrameClock : MonotonicFrameClock {
 
     override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
         suspendCancellableCoroutine<R> { co ->
-            val callback =
-                Choreographer.FrameCallback { frameTimeNanos ->
-                    co.resumeWith(runCatching { onFrame(frameTimeNanos) })
-                }
+            val callback = Choreographer.FrameCallback { frameTimeNanos ->
+                co.resumeWith(runCatching { onFrame(frameTimeNanos) })
+            }
             choreographer.postFrameCallback(callback)
             co.invokeOnCancellation { choreographer.removeFrameCallback(callback) }
         }

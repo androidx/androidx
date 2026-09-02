@@ -207,10 +207,9 @@ private fun LayoutSpatialPopup(
         }
 
     DisposableEffect(parentView) {
-        val listener =
-            View.OnLayoutChangeListener { _, _, _, right, bottom, _, _, _, _ ->
-                holder.parentViewSize = IntSize(right, bottom)
-            }
+        val listener = View.OnLayoutChangeListener { _, _, _, right, bottom, _, _, _, _ ->
+            holder.parentViewSize = IntSize(right, bottom)
+        }
         parentView.addOnLayoutChangeListener(listener)
         onDispose { parentView.removeOnLayoutChangeListener(listener) }
     }

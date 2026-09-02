@@ -60,7 +60,8 @@ class RippleTestActivity : ComponentActivity() {
                         Modifier.clickable(
                                 interactionSource = interactionSource,
                                 indication = ripple(),
-                            ) { /* do something */
+                            ) {
+                                /* do something */
                             }
                             .padding(10.dp),
                 )

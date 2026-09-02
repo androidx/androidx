@@ -955,7 +955,10 @@ class TextFieldTest {
                     modifier = Modifier.testTag(TextFieldTag),
                     state = state,
                     keyboardOptions =
-                        KeyboardOptions(imeAction = ImeAction.Go, keyboardType = KeyboardType.Email),
+                        KeyboardOptions(
+                            imeAction = ImeAction.Go,
+                            keyboardType = KeyboardType.Email,
+                        ),
                 )
             }
         }

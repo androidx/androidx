@@ -246,10 +246,9 @@ internal class EmbeddingCompat(
     override fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams,
-    ): Bundle =
-        options.apply {
-            ActivityEmbeddingOptionsImpl.setOverlayCreateParams(options, overlayCreateParams)
-        }
+    ): Bundle = options.apply {
+        ActivityEmbeddingOptionsImpl.setOverlayCreateParams(options, overlayCreateParams)
+    }
 
     @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     override fun setOverlayAttributesCalculator(

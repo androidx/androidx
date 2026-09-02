@@ -49,75 +49,74 @@ class HeightInModifierScreenshotTest {
     private val gridScreenshotUI = GridScreenshotUI()
 
     @Test
-    fun grid() =
-        composeTestRule.runScreenshotTest {
-            val tests =
-                listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
-                    "min 50, child 20" to
-                        @RemoteComposable @Composable {
+    fun grid() = composeTestRule.runScreenshotTest {
+        val tests =
+            listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
+                "min 50, child 20" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.heightIn(min = 50.rdp).background(Color.Red.rc)
+                        ) {
+                            RemoteBox(
+                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "max 50, child 80" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.heightIn(max = 50.rdp).background(Color.Red.rc)
+                        ) {
+                            RemoteBox(
+                                modifier = RemoteModifier.size(80.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "min 30 max 70, child 20" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.heightIn(min = 30.rdp, max = 70.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
+                            RemoteBox(
+                                modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "min 30 max 70, child 80" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.heightIn(min = 30.rdp, max = 70.rdp)
+                                    .background(Color.Red.rc)
+                        ) {
+                            RemoteBox(
+                                modifier = RemoteModifier.size(80.rdp).background(Color.Blue.rc)
+                            )
+                        }
+                    },
+                "min 100, parent 80" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(80.rdp)
+                                    .border(2.rdp, Color.Red.rc)
+                                    .background(Color(0xFFCFD8DC).rc)
+                        ) {
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.heightIn(min = 50.rdp).background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "max 50, child 80" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.heightIn(max = 50.rdp).background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(80.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "min 30 max 70, child 20" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.heightIn(min = 30.rdp, max = 70.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "min 30 max 70, child 80" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.heightIn(min = 30.rdp, max = 70.rdp)
-                                        .background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier = RemoteModifier.size(80.rdp).background(Color.Blue.rc)
-                                )
-                            }
-                        },
-                    "min 100, parent 80" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(80.rdp)
-                                        .border(2.rdp, Color.Red.rc)
-                                        .background(Color(0xFFCFD8DC).rc)
-                            ) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.heightIn(min = 100.rdp)
-                                            .width(50.rdp)
-                                            .background(Color.Blue.rc)
-                                            .border(2.rdp, Color.Cyan.rc)
-                                )
-                            }
-                        },
-                )
+                                    RemoteModifier.heightIn(min = 100.rdp)
+                                        .width(50.rdp)
+                                        .background(Color.Blue.rc)
+                                        .border(2.rdp, Color.Cyan.rc)
+                            )
+                        }
+                    },
+            )
 
-            gridScreenshotUI.GridContent(tests)
-        }
+        gridScreenshotUI.GridContent(tests)
+    }
 }

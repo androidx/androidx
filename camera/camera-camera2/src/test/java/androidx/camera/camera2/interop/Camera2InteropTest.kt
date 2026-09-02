@@ -409,15 +409,14 @@ class Camera2InteropTest {
     fun canConfigureUseCase() {
         // Arrange
         val builder = Preview.Builder()
-        val configurator =
-            Camera2Interop.forUseCase { interop ->
-                interop.physicalCameraId = "0"
-                interop.streamUseCase = 3
-                interop.timestampBase = 1
-                interop.dynamicRangeProfile = 5L
-                interop.surfaceGroupId = 3
-                interop.mirrorMode = 2
-            }
+        val configurator = Camera2Interop.forUseCase { interop ->
+            interop.physicalCameraId = "0"
+            interop.streamUseCase = 3
+            interop.timestampBase = 1
+            interop.dynamicRangeProfile = 5L
+            interop.surfaceGroupId = 3
+            interop.mirrorMode = 2
+        }
 
         // Act
         builder.setInterop(configurator)
@@ -434,8 +433,9 @@ class Camera2InteropTest {
         // Verify VideoCapture builder interop configuration
         val videoOutput = VideoOutput { _ -> }
         val videoBuilder = VideoCapture.Builder(videoOutput)
-        val videoConfigurator =
-            Camera2Interop.forUseCase { interop -> interop.physicalCameraId = "5" }
+        val videoConfigurator = Camera2Interop.forUseCase { interop ->
+            interop.physicalCameraId = "5"
+        }
         videoBuilder.setInterop(videoConfigurator)
         val videoConfig = Camera2ImplConfig(videoBuilder.useCaseConfig)
         assertThat(videoConfig.getPhysicalCameraId(null)).isEqualTo("5")
@@ -446,17 +446,16 @@ class Camera2InteropTest {
         // Arrange
         val builder = SessionConfig.Builder(Preview.Builder().build())
         val fakeRange = Range(15, 30)
-        val configurator =
-            Camera2Interop.forSessionConfig { interop ->
-                interop.sessionType = 4
-                interop.colorSpace = ColorSpace.Named.DISPLAY_P3
-                interop.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AF_MODE,
-                    CaptureRequest.CONTROL_AF_MODE_OFF,
-                )
-                interop.repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_RECORD
-                interop.setSessionParameter(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fakeRange)
-            }
+        val configurator = Camera2Interop.forSessionConfig { interop ->
+            interop.sessionType = 4
+            interop.colorSpace = ColorSpace.Named.DISPLAY_P3
+            interop.setCaptureRequestOption(
+                CaptureRequest.CONTROL_AF_MODE,
+                CaptureRequest.CONTROL_AF_MODE_OFF,
+            )
+            interop.repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_RECORD
+            interop.setSessionParameter(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fakeRange)
+        }
 
         // Act
         builder.setInterop(configurator)
@@ -482,15 +481,14 @@ class Camera2InteropTest {
         val executor = Executor { it.run() }
 
         val builder = ImageCapture.Builder()
-        val configurator =
-            Camera2Interop.forImageCapture { interop ->
-                interop.stillCaptureRequestTemplateType = CameraDevice.TEMPLATE_STILL_CAPTURE
-                interop.setStillCaptureRequestOption(
-                    CaptureRequest.COLOR_CORRECTION_MODE,
-                    CaptureRequest.COLOR_CORRECTION_MODE_TRANSFORM_MATRIX,
-                )
-                interop.setStillCaptureCallback(executor, callback)
-            }
+        val configurator = Camera2Interop.forImageCapture { interop ->
+            interop.stillCaptureRequestTemplateType = CameraDevice.TEMPLATE_STILL_CAPTURE
+            interop.setStillCaptureRequestOption(
+                CaptureRequest.COLOR_CORRECTION_MODE,
+                CaptureRequest.COLOR_CORRECTION_MODE_TRANSFORM_MATRIX,
+            )
+            interop.setStillCaptureCallback(executor, callback)
+        }
 
         builder.setInterop(configurator)
         val config = Camera2ImplConfig(builder.useCaseConfig)
@@ -507,8 +505,9 @@ class Camera2InteropTest {
 
         // Act & Assert - Verify default overload (without executor)
         val builder2 = ImageCapture.Builder()
-        val configurator2 =
-            Camera2Interop.forImageCapture { interop -> interop.stillCaptureCallback = callback }
+        val configurator2 = Camera2Interop.forImageCapture { interop ->
+            interop.stillCaptureCallback = callback
+        }
         builder2.setInterop(configurator2)
         val config2 = Camera2ImplConfig(builder2.useCaseConfig)
         val retrievedCallback2 =
@@ -521,14 +520,13 @@ class Camera2InteropTest {
     fun canConfigureCaptureRequestOptionsAndClear() {
         // Arrange - Test setting and clearing a single capture request option
         val builder1 = SessionConfig.Builder(Preview.Builder().build())
-        val configurator1 =
-            Camera2Interop.forSessionConfig { interop ->
-                interop.setCaptureRequestOption(
-                    CaptureRequest.COLOR_CORRECTION_MODE,
-                    CameraMetadata.COLOR_CORRECTION_MODE_FAST,
-                )
-                interop.clearCaptureRequestOption(CaptureRequest.COLOR_CORRECTION_MODE)
-            }
+        val configurator1 = Camera2Interop.forSessionConfig { interop ->
+            interop.setCaptureRequestOption(
+                CaptureRequest.COLOR_CORRECTION_MODE,
+                CameraMetadata.COLOR_CORRECTION_MODE_FAST,
+            )
+            interop.clearCaptureRequestOption(CaptureRequest.COLOR_CORRECTION_MODE)
+        }
         builder1.setInterop(configurator1)
         val camera2Config1 = Camera2ImplConfig(builder1.build().interopConfig)
         assertThat(
@@ -542,19 +540,18 @@ class Camera2InteropTest {
         // Arrange & Act - Test setting options and clearing all options
         val builder2 = SessionConfig.Builder(Preview.Builder().build())
         val fakeRange = Range(0, 30)
-        val configurator2 =
-            Camera2Interop.forSessionConfig { interop ->
-                interop.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-                    fakeRange,
-                )
-                interop.setCaptureRequestOption(
-                    CaptureRequest.COLOR_CORRECTION_MODE,
-                    CameraMetadata.COLOR_CORRECTION_MODE_FAST,
-                )
-                interop.repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_RECORD
-                interop.clearAllCaptureRequestOptions()
-            }
+        val configurator2 = Camera2Interop.forSessionConfig { interop ->
+            interop.setCaptureRequestOption(
+                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+                fakeRange,
+            )
+            interop.setCaptureRequestOption(
+                CaptureRequest.COLOR_CORRECTION_MODE,
+                CameraMetadata.COLOR_CORRECTION_MODE_FAST,
+            )
+            interop.repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_RECORD
+            interop.clearAllCaptureRequestOptions()
+        }
         builder2.setInterop(configurator2)
         val camera2Config2 = Camera2ImplConfig(builder2.build().interopConfig)
 
@@ -599,12 +596,11 @@ class Camera2InteropTest {
         val captureCallback = object : CameraCaptureSession.CaptureCallback() {}
         val executor = Executor { it.run() }
 
-        val configurator =
-            Camera2Interop.forSessionConfig { interop ->
-                interop.setDeviceStateCallback(executor, deviceCallback)
-                interop.setSessionStateCallback(executor, sessionCallback)
-                interop.setRepeatingCaptureCallback(executor, captureCallback)
-            }
+        val configurator = Camera2Interop.forSessionConfig { interop ->
+            interop.setDeviceStateCallback(executor, deviceCallback)
+            interop.setSessionStateCallback(executor, sessionCallback)
+            interop.setRepeatingCaptureCallback(executor, captureCallback)
+        }
 
         // Act
         builder.setInterop(configurator)
@@ -635,12 +631,11 @@ class Camera2InteropTest {
 
         // Verify default overloads (without executor)
         val builder2 = SessionConfig.Builder(Preview.Builder().build())
-        val configurator2 =
-            Camera2Interop.forSessionConfig { interop ->
-                interop.deviceStateCallback = deviceCallback
-                interop.sessionStateCallback = sessionCallback
-                interop.repeatingCaptureCallback = captureCallback
-            }
+        val configurator2 = Camera2Interop.forSessionConfig { interop ->
+            interop.deviceStateCallback = deviceCallback
+            interop.sessionStateCallback = sessionCallback
+            interop.repeatingCaptureCallback = captureCallback
+        }
         builder2.setInterop(configurator2)
         val sessionConfig2 = builder2.build()
         val camera2Config2 = Camera2ImplConfig(sessionConfig2.interopConfig)
@@ -676,10 +671,9 @@ class Camera2InteropTest {
         // Test with executor
         val mutableConfig1 = MutableOptionsBundle.create()
         val cameraControl1 = createCameraControl(mutableConfig1)
-        val configurator1 =
-            Camera2Interop.forCameraControl { interop ->
-                interop.setRepeatingCaptureCallback(executor, callback)
-            }
+        val configurator1 = Camera2Interop.forCameraControl { interop ->
+            interop.setRepeatingCaptureCallback(executor, callback)
+        }
         cameraControl1.applyInteropAsync(configurator1)
         val config1 = Camera2ImplConfig(mutableConfig1)
         val retrievedCallback1 =
@@ -693,10 +687,9 @@ class Camera2InteropTest {
         // Test default overload (without executor)
         val mutableConfig2 = MutableOptionsBundle.create()
         val cameraControl2 = createCameraControl(mutableConfig2)
-        val configurator2 =
-            Camera2Interop.forCameraControl { interop ->
-                interop.repeatingCaptureCallback = callback
-            }
+        val configurator2 = Camera2Interop.forCameraControl { interop ->
+            interop.repeatingCaptureCallback = callback
+        }
         cameraControl2.applyInteropAsync(configurator2)
         val config2 = Camera2ImplConfig(mutableConfig2)
         val retrievedCallback2 =
@@ -714,17 +707,16 @@ class Camera2InteropTest {
         val mutableConfig1 = MutableOptionsBundle.create()
         val cameraControl1 = createCameraControl(mutableConfig1)
         val fakeRange = Range(0, 30)
-        val configurator1 =
-            Camera2Interop.forCameraControl { interop ->
-                interop.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-                    fakeRange,
-                )
-                interop.setCaptureRequestOption(
-                    CaptureRequest.COLOR_CORRECTION_MODE,
-                    CameraMetadata.COLOR_CORRECTION_MODE_FAST,
-                )
-            }
+        val configurator1 = Camera2Interop.forCameraControl { interop ->
+            interop.setCaptureRequestOption(
+                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+                fakeRange,
+            )
+            interop.setCaptureRequestOption(
+                CaptureRequest.COLOR_CORRECTION_MODE,
+                CameraMetadata.COLOR_CORRECTION_MODE_FAST,
+            )
+        }
         cameraControl1.applyInteropAsync(configurator1)
         val config1 = Camera2ImplConfig(mutableConfig1)
 
@@ -747,18 +739,17 @@ class Camera2InteropTest {
         // Arrange & Act - Test clearing a single capture request option
         val mutableConfig2 = MutableOptionsBundle.create()
         val cameraControl2 = createCameraControl(mutableConfig2)
-        val configurator2 =
-            Camera2Interop.forCameraControl { interop ->
-                interop.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-                    fakeRange,
-                )
-                interop.setCaptureRequestOption(
-                    CaptureRequest.COLOR_CORRECTION_MODE,
-                    CameraMetadata.COLOR_CORRECTION_MODE_FAST,
-                )
-                interop.clearCaptureRequestOption(CaptureRequest.COLOR_CORRECTION_MODE)
-            }
+        val configurator2 = Camera2Interop.forCameraControl { interop ->
+            interop.setCaptureRequestOption(
+                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+                fakeRange,
+            )
+            interop.setCaptureRequestOption(
+                CaptureRequest.COLOR_CORRECTION_MODE,
+                CameraMetadata.COLOR_CORRECTION_MODE_FAST,
+            )
+            interop.clearCaptureRequestOption(CaptureRequest.COLOR_CORRECTION_MODE)
+        }
         cameraControl2.applyInteropAsync(configurator2)
         val config2 = Camera2ImplConfig(mutableConfig2)
 
@@ -781,19 +772,18 @@ class Camera2InteropTest {
         // Arrange & Act - Test clearing all capture request options
         val mutableConfig3 = MutableOptionsBundle.create()
         val cameraControl3 = createCameraControl(mutableConfig3)
-        val configurator3 =
-            Camera2Interop.forCameraControl { interop ->
-                interop.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-                    fakeRange,
-                )
-                interop.setCaptureRequestOption(
-                    CaptureRequest.COLOR_CORRECTION_MODE,
-                    CameraMetadata.COLOR_CORRECTION_MODE_FAST,
-                )
-                interop.repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_RECORD
-                interop.clearAllCaptureRequestOptions()
-            }
+        val configurator3 = Camera2Interop.forCameraControl { interop ->
+            interop.setCaptureRequestOption(
+                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+                fakeRange,
+            )
+            interop.setCaptureRequestOption(
+                CaptureRequest.COLOR_CORRECTION_MODE,
+                CameraMetadata.COLOR_CORRECTION_MODE_FAST,
+            )
+            interop.repeatingCaptureRequestTemplate = CameraDevice.TEMPLATE_RECORD
+            interop.clearAllCaptureRequestOptions()
+        }
         cameraControl3.applyInteropAsync(configurator3)
         val config3 = Camera2ImplConfig(mutableConfig3)
 

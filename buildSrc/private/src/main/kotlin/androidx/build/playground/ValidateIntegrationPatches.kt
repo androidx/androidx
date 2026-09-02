@@ -46,19 +46,18 @@ abstract class ValidateIntegrationPatches : DefaultTask() {
         for (patchFile in patchFiles) {
             // Only check patch files, skip the README.
             if (patchFile.extension == "patch") {
-                val result =
-                    execOperations.exec {
-                        it.commandLine(
-                            "git",
-                            "apply",
-                            // This option will see if the patch can be applied but not apply it.
-                            "--check",
-                            patchFile.absolutePath,
-                        )
-                        // Don't immediately error if the patch fails, to throw a custom error
-                        // message.
-                        it.isIgnoreExitValue = true
-                    }
+                val result = execOperations.exec {
+                    it.commandLine(
+                        "git",
+                        "apply",
+                        // This option will see if the patch can be applied but not apply it.
+                        "--check",
+                        patchFile.absolutePath,
+                    )
+                    // Don't immediately error if the patch fails, to throw a custom error
+                    // message.
+                    it.isIgnoreExitValue = true
+                }
                 if (result.exitValue != 0) {
                     throw GradleException(
                         "Failed to apply patch file ${patchFile.absolutePath}\n" +

@@ -403,15 +403,14 @@ constructor(
 
                 if (triggerAePreCapture) {
                     debug { "CapturePipeline#torchApplyCapture: Locking 3A for capture" }
-                    val result3A =
-                        useCaseCameraContext.useGraphSession {
-                            it.lock3AForCapture(
-                                    timeLimitNs = timeLimitNs,
-                                    triggerAf = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY,
-                                    waitForAwb = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY,
-                                )
-                                .await()
-                        }
+                    val result3A = useCaseCameraContext.useGraphSession {
+                        it.lock3AForCapture(
+                                timeLimitNs = timeLimitNs,
+                                triggerAf = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY,
+                                waitForAwb = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY,
+                            )
+                            .await()
+                    }
                     debug {
                         "CapturePipeline#torchApplyCapture: Locking 3A for capture done" +
                             ", result3A = $result3A"

@@ -201,22 +201,21 @@ public fun NavigationRailItem(
             }
         }
 
-    val styledLabel: @Composable (() -> Unit)? =
-        label?.let {
-            @Composable {
-                val style = NavigationRailVerticalItemTokens.LabelTextFont.value
-                val textColor by
-                    animateColorAsState(
-                        targetValue = colors.textColor(selected = selected, enabled = enabled),
-                        animationSpec = colorAnimationSpec,
-                    )
-                ProvideContentColorTextStyle(
-                    contentColor = textColor,
-                    textStyle = style,
-                    content = label,
+    val styledLabel: @Composable (() -> Unit)? = label?.let {
+        @Composable {
+            val style = NavigationRailVerticalItemTokens.LabelTextFont.value
+            val textColor by
+                animateColorAsState(
+                    targetValue = colors.textColor(selected = selected, enabled = enabled),
+                    animationSpec = colorAnimationSpec,
                 )
-            }
+            ProvideContentColorTextStyle(
+                contentColor = textColor,
+                textStyle = style,
+                content = label,
+            )
         }
+    }
 
     Box(
         modifier
@@ -586,10 +585,9 @@ private fun NavigationRailItemLayout(
                     Constraints.fixed(width = animatedIndicatorWidth, height = indicatorHeight)
                 )
 
-        val labelPlaceable =
-            label?.let {
-                measurables.fastFirst { it.layoutId == LabelLayoutIdTag }.measure(looseConstraints)
-            }
+        val labelPlaceable = label?.let {
+            measurables.fastFirst { it.layoutId == LabelLayoutIdTag }.measure(looseConstraints)
+        }
 
         if (label == null) {
             placeIcon(iconPlaceable, indicatorRipplePlaceable, indicatorPlaceable, constraints)

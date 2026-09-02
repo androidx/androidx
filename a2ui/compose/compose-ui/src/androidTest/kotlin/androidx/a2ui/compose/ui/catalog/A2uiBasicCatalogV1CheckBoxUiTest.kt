@@ -96,7 +96,10 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
                             id = "root",
                             type = "CheckBox",
                             properties =
-                                mapOf("label" to mapOf("path" to "/pendingLabel"), "value" to false),
+                                mapOf(
+                                    "label" to mapOf("path" to "/pendingLabel"),
+                                    "value" to false,
+                                ),
                         )
                     ),
             )
@@ -540,7 +543,10 @@ class A2uiBasicCatalogV1CheckBoxUiTest {
                             id = "root",
                             type = "CheckBox",
                             properties =
-                                mapOf("label" to "Static Label", "value" to mapOf("path" to "/val")),
+                                mapOf(
+                                    "label" to "Static Label",
+                                    "value" to mapOf("path" to "/val"),
+                                ),
                         )
                     ),
                 initialData = mapOf("val" to false),

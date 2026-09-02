@@ -274,19 +274,17 @@ class LazyListSlotsReuseTest {
         var counter0 = 0
         var counter1 = 0
 
-        val measureCountModifier0 =
-            Modifier.layout { measurable, constraints ->
-                counter0++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(IntOffset.Zero) }
-            }
+        val measureCountModifier0 = Modifier.layout { measurable, constraints ->
+            counter0++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(IntOffset.Zero) }
+        }
 
-        val measureCountModifier1 =
-            Modifier.layout { measurable, constraints ->
-                counter1++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(IntOffset.Zero) }
-            }
+        val measureCountModifier1 = Modifier.layout { measurable, constraints ->
+            counter1++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(IntOffset.Zero) }
+        }
 
         rule.setContent {
             state = rememberLazyListState()

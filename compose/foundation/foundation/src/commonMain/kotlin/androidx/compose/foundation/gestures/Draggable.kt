@@ -753,37 +753,34 @@ internal abstract class DragGestureNode(
         initialTouchSlopPositionChange: Offset = Offset.Zero,
         verifyConsumptionInFinalPass: Boolean = false,
     ) {
-        currentDragState =
-            awaitTouchSlopState.apply {
-                this.initialDown = initialDown
-                this.pointerId = pointerId
-                if (touchSlopDetector == null) {
-                    touchSlopDetector = TouchSlopDetector(orientation)
-                } else {
-                    touchSlopDetector?.orientation = orientation
-                    touchSlopDetector?.reset(initialTouchSlopPositionChange)
-                }
-                this.verifyConsumptionInFinalPass = verifyConsumptionInFinalPass
+        currentDragState = awaitTouchSlopState.apply {
+            this.initialDown = initialDown
+            this.pointerId = pointerId
+            if (touchSlopDetector == null) {
+                touchSlopDetector = TouchSlopDetector(orientation)
+            } else {
+                touchSlopDetector?.orientation = orientation
+                touchSlopDetector?.reset(initialTouchSlopPositionChange)
             }
+            this.verifyConsumptionInFinalPass = verifyConsumptionInFinalPass
+        }
     }
 
     private fun moveToDraggingState(pointerId: PointerId, hasStartedDragImmediately: Boolean) {
-        currentDragState =
-            draggingState.apply {
-                this.pointerId = pointerId
-                this.consumedOnInitial = false
-                this.hasStartedDragImmediately = hasStartedDragImmediately
-            }
+        currentDragState = draggingState.apply {
+            this.pointerId = pointerId
+            this.consumedOnInitial = false
+            this.hasStartedDragImmediately = hasStartedDragImmediately
+        }
     }
 
     private fun moveToAwaitDownState() {
         dragAccumulator = Offset.Zero
-        currentDragState =
-            awaitDownState.apply {
-                awaitTouchSlop = DragDetectionState.AwaitDown.AwaitTouchSlop.NotInitialized
-                consumedOnInitial = false
-                hasSeenInitialEvent = false
-            }
+        currentDragState = awaitDownState.apply {
+            awaitTouchSlop = DragDetectionState.AwaitDown.AwaitTouchSlop.NotInitialized
+            consumedOnInitial = false
+            hasSeenInitialEvent = false
+        }
     }
 
     private fun moveToAwaitGesturePickupState(
@@ -791,12 +788,11 @@ internal abstract class DragGestureNode(
         pointerId: PointerId,
         touchSlopDetector: TouchSlopDetector,
     ) {
-        currentDragState =
-            awaitGesturePickupState.apply {
-                this.initialDown = initialDown
-                this.pointerId = pointerId
-                this.touchSlopDetector = touchSlopDetector.also { it.reset() }
-            }
+        currentDragState = awaitGesturePickupState.apply {
+            this.initialDown = initialDown
+            this.pointerId = pointerId
+            this.touchSlopDetector = touchSlopDetector.also { it.reset() }
+        }
     }
 
     @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -1471,11 +1467,10 @@ private fun PointerEvent.isAnyChangedToDown(requireUnconsumed: Boolean): Boolean
     // If so, we ignore this event to match the old behavior where all pressed pointers
     // must have changed to down (i.e. we don't start on ACTION_POINTER_DOWN if another
     // pointer is already active).
-    val hasOtherActivePressedPointer =
-        changes.fastAny {
-            it.pressed &&
-                !(if (requireUnconsumed) it.changedToDown() else it.changedToDownIgnoreConsumed())
-        }
+    val hasOtherActivePressedPointer = changes.fastAny {
+        it.pressed &&
+            !(if (requireUnconsumed) it.changedToDown() else it.changedToDownIgnoreConsumed())
+    }
     if (hasOtherActivePressedPointer) return false
     return changes.fastAny {
         if (requireUnconsumed) it.changedToDown() else it.changedToDownIgnoreConsumed()

@@ -2819,12 +2819,11 @@ class LookaheadScopeTest {
                 modifier = modifier,
                 content = content,
                 measurePolicy = { measurables, constraints ->
-                    val placeableData =
-                        measurables.fastMap { measurable ->
-                            val data = measurable.getOffsetData()
-                            val placeable = measurable.measure(constraints)
-                            placeable to data
-                        }
+                    val placeableData = measurables.fastMap { measurable ->
+                        val data = measurable.getOffsetData()
+                        val placeable = measurable.measure(constraints)
+                        placeable to data
+                    }
 
                     layout(300, 300) {
                         placeableData.fastForEach { (placeable, offsetData) ->
@@ -4003,7 +4002,8 @@ class LookaheadScopeTest {
         lookaheadScope: LookaheadScope,
         onLookaheadPassCoordinates:
             (
-                lookaheadScopeCoordinates: LayoutCoordinates, layoutCoordinates: LayoutCoordinates,
+                lookaheadScopeCoordinates: LayoutCoordinates,
+                layoutCoordinates: LayoutCoordinates,
             ) -> Unit,
     ): Modifier =
         with(lookaheadScope) {
@@ -4025,7 +4025,8 @@ class LookaheadScopeTest {
         lookaheadScope: LookaheadScope,
         onApproachPassCoordinates:
             (
-                lookaheadScopeCoordinates: LayoutCoordinates, layoutCoordinates: LayoutCoordinates,
+                lookaheadScopeCoordinates: LayoutCoordinates,
+                layoutCoordinates: LayoutCoordinates,
             ) -> Unit,
     ): Modifier =
         with(lookaheadScope) {

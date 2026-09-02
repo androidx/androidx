@@ -48,18 +48,17 @@ actual internal object BrushFamilyNative {
         inputModelPointer: Long,
         clientBrushFamilyId: String,
         developerComment: String,
-    ): Long =
-        coatNativePointers.usePinned { pinnedCoats ->
-            BrushFamilyNative_create(
-                jni_env_pass_through = null,
-                if (coatNativePointers.isEmpty()) null else pinnedCoats.addressOf(0),
-                coatNativePointers.size,
-                inputModelPointer,
-                clientBrushFamilyId,
-                developerComment,
-                throwForNonOkStatusCallback,
-            )
-        }
+    ): Long = coatNativePointers.usePinned { pinnedCoats ->
+        BrushFamilyNative_create(
+            jni_env_pass_through = null,
+            if (coatNativePointers.isEmpty()) null else pinnedCoats.addressOf(0),
+            coatNativePointers.size,
+            inputModelPointer,
+            clientBrushFamilyId,
+            developerComment,
+            throwForNonOkStatusCallback,
+        )
+    }
 
     actual fun free(nativePointer: Long) = BrushFamilyNative_free(nativePointer)
 

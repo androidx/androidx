@@ -192,7 +192,9 @@ class BaseWidgetDelegateTest {
         if (widgetId != null) {
             appWidgetManager.updateAppWidgetOptions(
                 appWidgetId,
-                Bundle().apply { putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, widgetId) },
+                Bundle().apply {
+                    putString(GlanceAdaptiveWidgetReceiver.EXTRA_WIDGET_ID, widgetId)
+                },
             )
         }
     }

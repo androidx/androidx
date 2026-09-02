@@ -35,15 +35,15 @@ val Navigation3Screen =
             get() = {
                 repeat(2) {
                     retryIfStale {
-                            requireNotNull(
-                                device.wait(
-                                    Until.findObject(By.text("Second")),
-                                    FIND_OBJECT_TIMEOUT_MS,
-                                )
-                            ) {
-                                "Button 'Second' not found"
-                            }
+                        requireNotNull(
+                            device.wait(
+                                Until.findObject(By.text("Second")),
+                                FIND_OBJECT_TIMEOUT_MS,
+                            )
+                        ) {
+                            "Button 'Second' not found"
                         }
+                    }
                         .click()
                     check(device.wait(Until.gone(By.text("First")), FIND_OBJECT_TIMEOUT_MS)) {
                         "First screen still visible"

@@ -55,12 +55,11 @@ class SoundEffectPoolImplTest {
         val resId = 123
 
         val testExecutor = TestExecutor()
-        val loadCompleteListener =
-            SoundEffectPool.LoadCompleteListener { soundEffect, success ->
-                callbackCalled = true
-                loadedSoundEffect = soundEffect
-                loadedSuccess = success
-            }
+        val loadCompleteListener = SoundEffectPool.LoadCompleteListener { soundEffect, success ->
+            callbackCalled = true
+            loadedSoundEffect = soundEffect
+            loadedSuccess = success
+        }
 
         soundEffectPool.setOnLoadCompleteListener(testExecutor, loadCompleteListener)
 

@@ -1997,22 +1997,21 @@ class ParagraphIntegrationTest {
                     LocaleList("zh-TW"),
                 )
 
-            val bitmaps =
-                locales.map { localeList ->
-                    val paragraph =
-                        Paragraph(
-                            text = text,
-                            spanStyles = listOf(),
-                            style = TextStyle(fontSize = fontSize, localeList = localeList),
-                            density = defaultDensity,
-                            fontFamilyResolver = resourceLoader,
-                            // just have 10x font size to have a bitmap
-                            constraints = Constraints(maxWidth = (fontSizeInPx * 10).ceilToInt()),
-                            overflow = TextOverflow.Clip,
-                        )
+            val bitmaps = locales.map { localeList ->
+                val paragraph =
+                    Paragraph(
+                        text = text,
+                        spanStyles = listOf(),
+                        style = TextStyle(fontSize = fontSize, localeList = localeList),
+                        density = defaultDensity,
+                        fontFamilyResolver = resourceLoader,
+                        // just have 10x font size to have a bitmap
+                        constraints = Constraints(maxWidth = (fontSizeInPx * 10).ceilToInt()),
+                        overflow = TextOverflow.Clip,
+                    )
 
-                    paragraph.bitmap()
-                }
+                paragraph.bitmap()
+            }
 
             assertThat(bitmaps[0]).isEqualToBitmap(bitmaps[1])
             assertThat(bitmaps[1]).isNotEqualToBitmap(bitmaps[2])
@@ -4801,23 +4800,21 @@ class ParagraphIntegrationTest {
                     width = paragraphWidth,
                 )
 
-            val bitmapDefault =
-                baseParagraph.onCanvas { canvas ->
-                    // first draw a Red background
-                    val paint = Paint().apply { color = Color.Red }
-                    canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
-                    // draw the paragraph as usual
-                    baseParagraph.paint(canvas)
-                }
+            val bitmapDefault = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                baseParagraph.paint(canvas)
+            }
 
-            val bitmapPlus =
-                baseParagraph.onCanvas { canvas ->
-                    // first draw a Red background
-                    val paint = Paint().apply { color = Color.Red }
-                    canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
-                    // draw the paragraph as usual
-                    this.paint(canvas, blendMode = BlendMode.Plus)
-                }
+            val bitmapPlus = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                this.paint(canvas, blendMode = BlendMode.Plus)
+            }
 
             assertThat(bitmapDefault).isNotEqualToBitmap(bitmapPlus)
         }
@@ -4839,23 +4836,21 @@ class ParagraphIntegrationTest {
                     width = paragraphWidth,
                 )
 
-            val bitmapSrc =
-                baseParagraph.onCanvas { canvas ->
-                    // first draw a Red background
-                    val paint = Paint().apply { color = Color.Red }
-                    canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
-                    // draw the paragraph as usual
-                    baseParagraph.paint(canvas, blendMode = BlendMode.Src)
-                }
+            val bitmapSrc = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                baseParagraph.paint(canvas, blendMode = BlendMode.Src)
+            }
 
-            val bitmapSrcOver =
-                baseParagraph.onCanvas { canvas ->
-                    // first draw a Red background
-                    val paint = Paint().apply { color = Color.Red }
-                    canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
-                    // draw the paragraph as usual
-                    this.paint(canvas, blendMode = BlendMode.SrcOver)
-                }
+            val bitmapSrcOver = baseParagraph.onCanvas { canvas ->
+                // first draw a Red background
+                val paint = Paint().apply { color = Color.Red }
+                canvas.drawRect(Rect(Offset.Zero, Size(width, height)), paint)
+                // draw the paragraph as usual
+                this.paint(canvas, blendMode = BlendMode.SrcOver)
+            }
 
             assertThat(bitmapSrc).isEqualToBitmap(bitmapSrcOver)
         }

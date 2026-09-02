@@ -69,13 +69,12 @@ internal class PlatformAppFunctionReader(
                     override fun onResult(
                         result: List<android.app.appfunctions.AppFunctionMetadata>
                     ) {
-                        val mappedResults =
-                            result.mapNotNull {
-                                AppFunctionMetadata.fromPlatformAppFunctionMetadata(
-                                    it,
-                                    schemaAppFunctionInventory,
-                                )
-                            }
+                        val mappedResults = result.mapNotNull {
+                            AppFunctionMetadata.fromPlatformAppFunctionMetadata(
+                                it,
+                                schemaAppFunctionInventory,
+                            )
+                        }
                         cont.resume(mappedResults)
                     }
 
@@ -115,8 +114,9 @@ internal class PlatformAppFunctionReader(
             Runnable::run,
             object : OutcomeReceiver<List<android.app.appfunctions.AppFunctionState>, Exception> {
                 override fun onResult(result: List<android.app.appfunctions.AppFunctionState>) {
-                    val mappedResults =
-                        result.map { AppFunctionState.fromPlatformAppFunctionState(it) }
+                    val mappedResults = result.map {
+                        AppFunctionState.fromPlatformAppFunctionState(it)
+                    }
                     cont.resume(mappedResults)
                 }
 
@@ -127,33 +127,30 @@ internal class PlatformAppFunctionReader(
         )
     }
 
-    override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> =
-        callbackFlow {
-                val appFunctionObserver =
-                    object : AppFunctionObserver {
-                        override fun onAppFunctionMetadataChanged(
-                            changedPackageNames: Set<String>
-                        ) {
-                            trySend(ObserveAppFunctionsEvent.MetadataChanged(changedPackageNames))
-                        }
+    override fun observeAppFunctions(): Flow<ObserveAppFunctionsEvent> = callbackFlow {
+        val appFunctionObserver =
+            object : AppFunctionObserver {
+                override fun onAppFunctionMetadataChanged(changedPackageNames: Set<String>) {
+                    trySend(ObserveAppFunctionsEvent.MetadataChanged(changedPackageNames))
+                }
 
-                        override fun onAppFunctionStatesChanged(
-                            changedFunctionNames: Set<android.app.appfunctions.AppFunctionName>
-                        ) {
-                            trySend(
-                                ObserveAppFunctionsEvent.StatesChanged(
-                                    changedFunctionNames
-                                        .map { AppFunctionName.fromPlatformAppFunctionName(it) }
-                                        .toSet()
-                                )
-                            )
-                        }
-                    }
-
-                val observation: AppFunctionObservation =
-                    appFunctionManager.observeAppFunctions(Runnable::run, appFunctionObserver)
-
-                awaitClose { observation.cancel() }
+                override fun onAppFunctionStatesChanged(
+                    changedFunctionNames: Set<android.app.appfunctions.AppFunctionName>
+                ) {
+                    trySend(
+                        ObserveAppFunctionsEvent.StatesChanged(
+                            changedFunctionNames
+                                .map { AppFunctionName.fromPlatformAppFunctionName(it) }
+                                .toSet()
+                        )
+                    )
+                }
             }
-            .buffer(Channel.UNLIMITED)
+
+        val observation: AppFunctionObservation =
+            appFunctionManager.observeAppFunctions(Runnable::run, appFunctionObserver)
+
+        awaitClose { observation.cancel() }
+    }
+        .buffer(Channel.UNLIMITED)
 }

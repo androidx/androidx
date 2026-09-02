@@ -364,7 +364,8 @@ class FrameRateTest {
 
         Button(
             onClick = { expanded = !expanded },
-            modifier = Modifier.testTag("ContentResizing").preferredFrameRate(frameRate).width(size),
+            modifier =
+                Modifier.testTag("ContentResizing").preferredFrameRate(frameRate).width(size),
         ) {
             Text("Click Me for size change $frameRate")
         }

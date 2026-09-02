@@ -44,8 +44,7 @@ class RemoteSpacerTest {
         )
 
     @Test
-    fun spacerWithBackground() =
-        composeTestRule.runScreenshotTest {
-            RemoteSpacer(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
-        }
+    fun spacerWithBackground() = composeTestRule.runScreenshotTest {
+        RemoteSpacer(modifier = RemoteModifier.size(100.rdp).background(Color.Red.rc))
+    }
 }

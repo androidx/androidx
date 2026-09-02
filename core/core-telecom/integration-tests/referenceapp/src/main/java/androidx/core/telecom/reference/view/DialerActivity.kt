@@ -100,11 +100,9 @@ class DialerActivity : ComponentActivity() {
                 // You might want to show a dialog explaining why they are needed
                 // and potentially guide the user to settings.
                 // Check if rationale should be shown for any denied permission
-                val shouldShowRationale =
-                    requiredPermissions.any {
-                        !permissions.getOrDefault(it, false) &&
-                            shouldShowRequestPermissionRationale(it)
-                    }
+                val shouldShowRationale = requiredPermissions.any {
+                    !permissions.getOrDefault(it, false) && shouldShowRequestPermissionRationale(it)
+                }
                 if (!shouldShowRationale) {
                     // User selected "Don't ask again" or policy prevents asking.
                     // Guide to settings.

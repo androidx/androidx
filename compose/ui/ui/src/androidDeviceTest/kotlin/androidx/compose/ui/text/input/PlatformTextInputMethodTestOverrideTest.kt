@@ -79,15 +79,14 @@ class PlatformTextInputMethodTestOverrideTest {
             }
         setContent(testHandler)
 
-        val testJob =
-            rule.runOnIdle {
-                launch {
-                    testNode.establishTextInputSession {
-                        // This context should be propagated to startInputMethod.
-                        withContext(CoroutineName(coroutineName)) { startInputMethod(testRequest) }
-                    }
+        val testJob = rule.runOnIdle {
+            launch {
+                testNode.establishTextInputSession {
+                    // This context should be propagated to startInputMethod.
+                    withContext(CoroutineName(coroutineName)) { startInputMethod(testRequest) }
                 }
             }
+        }
         // Let the session start.
         testScheduler.advanceUntilIdle()
 
@@ -111,10 +110,9 @@ class PlatformTextInputMethodTestOverrideTest {
             }
         setContent(testHandler)
 
-        val testJob =
-            rule.runOnIdle {
-                launch { testNode.establishTextInputSession { startInputMethod(testRequest) } }
-            }
+        val testJob = rule.runOnIdle {
+            launch { testNode.establishTextInputSession { startInputMethod(testRequest) } }
+        }
         // Let the session start.
         testScheduler.advanceUntilIdle()
 

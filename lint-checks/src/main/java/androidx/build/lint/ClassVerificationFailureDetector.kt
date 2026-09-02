@@ -156,8 +156,9 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         else ApiLevelRequirement(apiLevel)
     }
 
-    private fun isPlatformClass(className: String): Boolean =
-        PLATFORM_PACKAGES.any { className.startsWith(it) }
+    private fun isPlatformClass(className: String): Boolean = PLATFORM_PACKAGES.any {
+        className.startsWith(it)
+    }
 
     private sealed interface ApiRequirement {
         val wrapperClassName: String
@@ -1158,19 +1159,18 @@ ${wrapperMethodBody.prependIndent("                            ")}
                         }
                     Pair(typeToUse, param.name)
                 }
-            val paramStrings =
-                paramsWithTypes.map { (type, name) ->
-                    val typeText = type.canonicalTextForLanguage(isKotlin)
-                    if (isKotlin) {
-                        if (type is PsiEllipsisType) {
-                            "vararg $name: ${type.componentType.canonicalTextForLanguage(isKotlin)}"
-                        } else {
-                            "$name: $typeText"
-                        }
+            val paramStrings = paramsWithTypes.map { (type, name) ->
+                val typeText = type.canonicalTextForLanguage(isKotlin)
+                if (isKotlin) {
+                    if (type is PsiEllipsisType) {
+                        "vararg $name: ${type.componentType.canonicalTextForLanguage(isKotlin)}"
                     } else {
-                        "$typeText $name"
+                        "$name: $typeText"
                     }
+                } else {
+                    "$typeText $name"
                 }
+            }
             val typedParamsStr = (listOfNotNull(hostParam) + paramStrings).joinToString(", ")
 
             val paramTypes =

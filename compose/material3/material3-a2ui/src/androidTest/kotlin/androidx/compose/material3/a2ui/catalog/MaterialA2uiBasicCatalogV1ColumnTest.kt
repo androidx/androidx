@@ -1296,7 +1296,8 @@ class MaterialA2uiBasicCatalogV1ColumnTest {
                         A2uiComponentPayload(
                             id = "root",
                             type = "Column",
-                            properties = mapOf("children" to listOf("child1"), "align" to "stretch"),
+                            properties =
+                                mapOf("children" to listOf("child1"), "align" to "stretch"),
                         ),
                         A2uiComponentPayload(id = "child1"),
                     ),

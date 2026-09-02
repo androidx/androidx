@@ -203,7 +203,8 @@ class DaoReturnTypeConverterProcessorTest {
         runTest(
             sources = listOf(EITHER, problematicConverter, DATABASE, dao, FOO_BAR_TYPES),
             expectedErrorCount = 1,
-            expectedError = DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_MUST_HAVE_AT_MOST_ONE_TYPE_PARAMETER,
+            expectedError =
+                DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_MUST_HAVE_AT_MOST_ONE_TYPE_PARAMETER,
         )
     }
 

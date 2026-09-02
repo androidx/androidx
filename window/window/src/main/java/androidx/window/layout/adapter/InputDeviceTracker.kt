@@ -142,19 +142,18 @@ internal class InputDeviceTracker(private val inputHelper: InputHelper) : AutoCl
         }
 
         override fun onInputDeviceRemoved(deviceId: Int) {
-            val changed =
-                lock.withLock {
-                    qualifiedKeyboards.remove(deviceId)
-                    qualifiedPointers.remove(deviceId)
-                    val currQualifiedInputDevice =
-                        qualifiedKeyboards.isNotEmpty() && qualifiedPointers.isNotEmpty()
-                    if (isMouseAndKeyboardConnected != currQualifiedInputDevice) {
-                        isMouseAndKeyboardConnected = currQualifiedInputDevice
-                        true
-                    } else {
-                        false
-                    }
+            val changed = lock.withLock {
+                qualifiedKeyboards.remove(deviceId)
+                qualifiedPointers.remove(deviceId)
+                val currQualifiedInputDevice =
+                    qualifiedKeyboards.isNotEmpty() && qualifiedPointers.isNotEmpty()
+                if (isMouseAndKeyboardConnected != currQualifiedInputDevice) {
+                    isMouseAndKeyboardConnected = currQualifiedInputDevice
+                    true
+                } else {
+                    false
                 }
+            }
             if (changed) {
                 notifyListeners()
             }

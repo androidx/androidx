@@ -312,12 +312,11 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                         workContinuation = null
                         runnerJob.invokeOnCompletion { runnerJobCause ->
                             synchronized(stateLock) {
-                                closeCause =
-                                    throwable?.apply {
-                                        runnerJobCause
-                                            ?.takeIf { it !is CancellationException }
-                                            ?.let { addSuppressed(it) }
-                                    }
+                                closeCause = throwable?.apply {
+                                    runnerJobCause
+                                        ?.takeIf { it !is CancellationException }
+                                        ?.let { addSuppressed(it) }
+                                }
                                 _state.value = State.ShutDown
                             }
                         }
@@ -1091,27 +1090,23 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
             // Observe snapshot changes and propagate them to known composers only from
             // this caller's dispatcher, never working with the same composer in parallel.
             // unregisterApplyObserver is called as part of the big finally below
-            val unregisterApplyObserver =
-                Snapshot.registerApplyObserver { changed, _ ->
-                    synchronized(stateLock) {
-                            if (_state.value >= State.Idle) {
-                                val snapshotInvalidations = snapshotInvalidations
-                                changed.fastForEach {
-                                    if (
-                                        it is StateObjectImpl &&
-                                            !it.isReadIn(ReaderKind.Composition)
-                                    ) {
-                                        // continue if we know that state is never read in
-                                        // composition
-                                        return@fastForEach
-                                    }
-                                    snapshotInvalidations.add(it)
+            val unregisterApplyObserver = Snapshot.registerApplyObserver { changed, _ ->
+                synchronized(stateLock) {
+                        if (_state.value >= State.Idle) {
+                            val snapshotInvalidations = snapshotInvalidations
+                            changed.fastForEach {
+                                if (it is StateObjectImpl && !it.isReadIn(ReaderKind.Composition)) {
+                                    // continue if we know that state is never read in
+                                    // composition
+                                    return@fastForEach
                                 }
-                                deriveStateLocked()
-                            } else null
-                        }
-                        ?.resume(Unit)
-                }
+                                snapshotInvalidations.add(it)
+                            }
+                            deriveStateLocked()
+                        } else null
+                    }
+                    ?.resume(Unit)
+            }
 
             addRunning(recomposerInfo)
 
@@ -1428,10 +1423,9 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                         // Return the content not moving to the awaiting list. These will come back
                         // here in the next iteration of the caller's loop and either have content
                         // to move or by still needing to create the content.
-                        val toReturn =
-                            pairs.fastMapNotNull { item ->
-                                if (item.second == null) item.first else null
-                            }
+                        val toReturn = pairs.fastMapNotNull { item ->
+                            if (item.second == null) item.first else null
+                        }
                         synchronized(stateLock) { movableContentAwaitingInsert += toReturn }
 
                         // Only insert the moving content this time
@@ -1460,8 +1454,9 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                     movableContentRemoved.clear()
                     movableContentNestedStatesAvailable.clear()
                     movableContentNestedExtractionsPending.clear()
-                    val unusedValues =
-                        references.fastMap { it to movableContentStatesAvailable[it] }
+                    val unusedValues = references.fastMap {
+                        it to movableContentStatesAvailable[it]
+                    }
                     movableContentStatesAvailable.clear()
                     unusedValues
                 } else emptyObjectList()

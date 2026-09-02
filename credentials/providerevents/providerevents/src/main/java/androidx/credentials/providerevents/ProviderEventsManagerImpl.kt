@@ -41,7 +41,10 @@ internal class ProviderEventsManagerImpl(private val context: Context) : Provide
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback:
-            CredentialManagerCallback<ProviderImportCredentialsResponse, ImportCredentialsException>,
+            CredentialManagerCallback<
+                ProviderImportCredentialsResponse,
+                ImportCredentialsException,
+            >,
     ) {
         val provider: ProviderEventsApiProvider? =
             ProviderEventsApiProviderFactory().getBestAvailableProvider(this.context)

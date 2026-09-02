@@ -59,19 +59,18 @@ internal class StyleAnimations {
 
         fun animate(coroutineScope: CoroutineScope) {
             job?.cancel()
-            job =
-                coroutineScope.launch {
-                    synchronized(lock) {
-                        if (state == EntryState.Interrupted) state = EntryState.Unchanged
-                    }
-                    try {
-                        val velocity = animation.velocity
-                        animation.snapTo(0f)
-                        animation.animateTo(1f, animationSpec = spec, initialVelocity = velocity)
-                    } finally {
-                        cleanupAnimations()
-                    }
+            job = coroutineScope.launch {
+                synchronized(lock) {
+                    if (state == EntryState.Interrupted) state = EntryState.Unchanged
                 }
+                try {
+                    val velocity = animation.velocity
+                    animation.snapTo(0f)
+                    animation.animateTo(1f, animationSpec = spec, initialVelocity = velocity)
+                } finally {
+                    cleanupAnimations()
+                }
+            }
         }
 
         fun interrupted(coroutineScope: CoroutineScope) {

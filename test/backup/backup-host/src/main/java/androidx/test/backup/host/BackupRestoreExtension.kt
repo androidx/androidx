@@ -136,15 +136,14 @@ private constructor(
             deviceAnnotation?.api ?: 0
         }
 
-        val devices =
-            runBlocking {
-                    withTimeoutOrNull(ADB_TIMEOUT_MS) {
-                        adbSession.connectedDevicesTracker.connectedDevices.first { list ->
-                            list.any { it.isOnline }
-                        }
-                    } ?: emptyList()
+        val devices = runBlocking {
+            withTimeoutOrNull(ADB_TIMEOUT_MS) {
+                adbSession.connectedDevicesTracker.connectedDevices.first { list ->
+                    list.any { it.isOnline }
                 }
-                .filter { it.isOnline }
+            } ?: emptyList()
+        }
+            .filter { it.isOnline }
 
         if (devices.isEmpty()) {
             throw IllegalStateException(

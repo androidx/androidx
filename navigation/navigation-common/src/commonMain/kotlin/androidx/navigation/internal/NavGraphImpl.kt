@@ -209,8 +209,9 @@ internal class NavGraphImpl(val graph: NavGraph) {
         findNode(route.serializer().generateHashCode())
 
     @OptIn(InternalSerializationApi::class)
-    internal fun <T> findNode(route: T?): NavDestination? =
-        route?.let { findNode(it::class.serializer().generateHashCode()) }
+    internal fun <T> findNode(route: T?): NavDestination? = route?.let {
+        findNode(it::class.serializer().generateHashCode())
+    }
 
     internal fun findNode(route: String, searchParents: Boolean): NavDestination? {
         val destination =

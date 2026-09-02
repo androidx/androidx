@@ -23,7 +23,8 @@ data class Dependencies(
     val mediaPlayer:
         (@Composable
         (
-            presentationStyle: DemoMediaPresentationStyle, onVisibilityChange: (Boolean) -> Unit,
+            presentationStyle: DemoMediaPresentationStyle,
+            onVisibilityChange: (Boolean) -> Unit,
         ) -> Unit)? =
         null
 )

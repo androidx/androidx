@@ -55,13 +55,12 @@ class PerfettoSdkTraceTest(enableAppTagTracing: Boolean, enableUserspaceTracing:
             enableAppTagTracing = enableAppTagTracing,
             enableUserspaceTracing = enableUserspaceTracing,
         ) { trace ->
-            val expectedSlices =
-                sequence {
-                        if (enableAppTagTracing) yield(StringSource.appTagTraceStrings)
-                        if (enableUserspaceTracing) yield(StringSource.userspaceTraceStrings)
-                    }
-                    .flatMap { it }
-                    .toList()
+            val expectedSlices = sequence {
+                if (enableAppTagTracing) yield(StringSource.appTagTraceStrings)
+                if (enableUserspaceTracing) yield(StringSource.userspaceTraceStrings)
+            }
+                .flatMap { it }
+                .toList()
             val actualSlices =
                 TraceProcessor.runSingleSessionServer(trace.path) {
                     StringSource.allTraceStrings.flatMap {

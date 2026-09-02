@@ -62,12 +62,12 @@ class RecomposerTests : BaseComposeTest() {
         var tv1: TextView? = null
         val trigger = Trigger()
         compose {
-                trigger.subscribe()
-                // this should cause the textview to get recreated on every compose
-                i++
+            trigger.subscribe()
+            // this should cause the textview to get recreated on every compose
+            i++
 
-                key(i) { TextView(id = 456, text = "some text") }
-            }
+            key(i) { TextView(id = 456, text = "some text") }
+        }
             .then { activity ->
                 tv1 = activity.findViewById(456) as TextView
                 trigger.recompose()

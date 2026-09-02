@@ -349,10 +349,9 @@ class CallingMainActivity : Activity() {
                 )
             var raiseHandState: RaiseHandState? = null
             if (isRaiseHandEnabled) {
-                raiseHandState =
-                    participantExtension.addRaiseHandSupport {
-                        participants.onRaisedHandStateChanged(it)
-                    }
+                raiseHandState = participantExtension.addRaiseHandSupport {
+                    participants.onRaisedHandStateChanged(it)
+                }
             }
             if (isKickParticipantEnabled) {
                 participantExtension.addKickParticipantSupport {

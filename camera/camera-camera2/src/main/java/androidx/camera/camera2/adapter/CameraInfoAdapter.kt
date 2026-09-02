@@ -371,8 +371,8 @@ constructor(
 
     override fun getSupportedHighSpeedFrameRateRangesFor(size: Size): Set<Range<Int>> {
         return runCatching {
-                streamConfigurationMapCompat.getHighSpeedVideoFpsRangesFor(size)?.toSet()
-            }
+            streamConfigurationMapCompat.getHighSpeedVideoFpsRangesFor(size)?.toSet()
+        }
             .getOrNull() ?: emptySet()
     }
 
@@ -382,8 +382,8 @@ constructor(
 
     override fun getSupportedHighSpeedResolutionsFor(fpsRange: Range<Int>): List<Size> {
         return runCatching {
-                streamConfigurationMapCompat.getHighSpeedVideoSizesFor(fpsRange)?.toList()
-            }
+            streamConfigurationMapCompat.getHighSpeedVideoSizesFor(fpsRange)?.toList()
+        }
             .getOrNull() ?: emptyList()
     }
 

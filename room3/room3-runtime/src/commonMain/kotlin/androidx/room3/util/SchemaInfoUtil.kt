@@ -142,17 +142,17 @@ private suspend fun readForeignKeyFieldMappings(
     val toColumnIndex = stmt.columnIndexOf("to")
 
     return buildList {
-            while (stmt.step()) {
-                add(
-                    ForeignKeyWithSequence(
-                        id = stmt.getLong(idColumnIndex).toInt(),
-                        sequence = stmt.getLong(seqColumnIndex).toInt(),
-                        from = stmt.getText(fromColumnIndex),
-                        to = stmt.getText(toColumnIndex),
-                    )
+        while (stmt.step()) {
+            add(
+                ForeignKeyWithSequence(
+                    id = stmt.getLong(idColumnIndex).toInt(),
+                    sequence = stmt.getLong(seqColumnIndex).toInt(),
+                    from = stmt.getText(fromColumnIndex),
+                    to = stmt.getText(toColumnIndex),
                 )
-            }
+            )
         }
+    }
         .sorted()
 }
 

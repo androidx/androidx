@@ -77,12 +77,11 @@ fun ScrollableAreaSample() {
         var totalHeight = 0
 
         val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
-        val placeables =
-            measurables.map { measurable ->
-                val placeable = measurable.measure(childConstraints)
-                totalHeight += placeable.height
-                placeable
-            }
+        val placeables = measurables.map { measurable ->
+            val placeable = measurable.measure(childConstraints)
+            totalHeight += placeable.height
+            placeable
+        }
 
         val viewportHeight = constraints.maxHeight
         // Update the maximum scroll value to not scroll beyond limits and stop when scroll

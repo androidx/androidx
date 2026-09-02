@@ -345,8 +345,9 @@ internal class SharedBoundsNode(entry: SharedElementEntry) :
 
         val animatedBounds = boundsAnimation.value
         val topLeft: Offset
-        val animatedTopLeft =
-            animatedBounds?.let { targetData.calculateOffsetFromDirectManipulation(it) }
+        val animatedTopLeft = animatedBounds?.let {
+            targetData.calculateOffsetFromDirectManipulation(it)
+        }
 
         if (boundsAnimation.target || activeMatchRemoved) {
             // The visible shared element defines the current bounds, either through animation

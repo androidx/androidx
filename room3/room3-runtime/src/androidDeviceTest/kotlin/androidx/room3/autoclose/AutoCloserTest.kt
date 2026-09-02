@@ -205,11 +205,10 @@ class AutoCloserTest {
         assertThat(areAllConnectionsClosed()).isTrue()
     }
 
-    private fun runTest(testBody: suspend TestScope.() -> Unit) =
-        testCoroutineScope.runTest {
-            testBody.invoke(this)
-            testWatch.step()
-        }
+    private fun runTest(testBody: suspend TestScope.() -> Unit) = testCoroutineScope.runTest {
+        testBody.invoke(this)
+        testWatch.step()
+    }
 
     private fun areAllConnectionsClosed() = autoCloseConnections.all { it.isClosed }
 

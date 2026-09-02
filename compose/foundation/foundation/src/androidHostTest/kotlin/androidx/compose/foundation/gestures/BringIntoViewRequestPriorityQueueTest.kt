@@ -262,6 +262,8 @@ class BringIntoViewRequestPriorityQueueTest {
         return continuation
     }
 
-    private fun BringIntoViewRequestPriorityQueue.toList() =
-        buildList { forEachFromSmallest { add(it) } }.asReversed()
+    private fun BringIntoViewRequestPriorityQueue.toList() = buildList {
+        forEachFromSmallest { add(it) }
+    }
+        .asReversed()
 }

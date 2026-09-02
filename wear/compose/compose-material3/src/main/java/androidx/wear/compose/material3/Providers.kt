@@ -95,63 +95,59 @@ internal fun <T> provideNullableScopeContent(
     contentColor: State<Color>,
     textStyle: TextStyle,
     content: (@Composable T.() -> Unit)?,
-): (@Composable T.() -> Unit)? =
-    content?.let {
-        {
-            val color = contentColor.value
-            CompositionLocalProvider(
-                LocalContentColor provides color,
-                LocalTextStyle provides textStyle,
-            ) {
-                content()
-            }
+): (@Composable T.() -> Unit)? = content?.let {
+    {
+        val color = contentColor.value
+        CompositionLocalProvider(
+            LocalContentColor provides color,
+            LocalTextStyle provides textStyle,
+        ) {
+            content()
         }
     }
+}
 
 internal fun <T> provideNullableScopeContent(
     contentColor: State<Color>,
     textStyle: TextStyle,
     textConfiguration: TextConfiguration,
     content: (@Composable T.() -> Unit)?,
-): (@Composable T.() -> Unit)? =
-    content?.let {
-        {
-            val color = contentColor.value
-            CompositionLocalProvider(
-                LocalContentColor provides color,
-                LocalTextStyle provides textStyle,
-                LocalTextConfiguration provides textConfiguration,
-            ) {
-                content()
-            }
+): (@Composable T.() -> Unit)? = content?.let {
+    {
+        val color = contentColor.value
+        CompositionLocalProvider(
+            LocalContentColor provides color,
+            LocalTextStyle provides textStyle,
+            LocalTextConfiguration provides textConfiguration,
+        ) {
+            content()
         }
     }
+}
 
 internal fun <T> provideNullableScopeContent(
     contentColor: State<Color>,
     content: (@Composable T.() -> Unit)?,
-): (@Composable T.() -> Unit)? =
-    content?.let {
-        {
-            val color = contentColor.value
-            CompositionLocalProvider(LocalContentColor provides color) { content() }
-        }
+): (@Composable T.() -> Unit)? = content?.let {
+    {
+        val color = contentColor.value
+        CompositionLocalProvider(LocalContentColor provides color) { content() }
     }
+}
 
 internal fun <T> provideNullableScopeContent(
     contentColor: Color,
     textStyle: TextStyle,
     textConfiguration: TextConfiguration,
     content: (@Composable T.() -> Unit)?,
-): (@Composable T.() -> Unit)? =
-    content?.let {
-        {
-            CompositionLocalProvider(
-                LocalContentColor provides contentColor,
-                LocalTextStyle provides textStyle,
-                LocalTextConfiguration provides textConfiguration,
-            ) {
-                content()
-            }
+): (@Composable T.() -> Unit)? = content?.let {
+    {
+        CompositionLocalProvider(
+            LocalContentColor provides contentColor,
+            LocalTextStyle provides textStyle,
+            LocalTextConfiguration provides textConfiguration,
+        ) {
+            content()
         }
     }
+}

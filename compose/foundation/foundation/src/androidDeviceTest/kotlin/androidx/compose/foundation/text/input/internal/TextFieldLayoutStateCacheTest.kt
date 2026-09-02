@@ -87,8 +87,9 @@ class TextFieldLayoutStateCacheTest {
 
     @Before
     fun setUp() {
-        globalWriteObserverHandle =
-            Snapshot.registerGlobalWriteObserver { Snapshot.sendApplyNotifications() }
+        globalWriteObserverHandle = Snapshot.registerGlobalWriteObserver {
+            Snapshot.sendApplyNotifications()
+        }
     }
 
     @After

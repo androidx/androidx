@@ -709,6 +709,7 @@ public object NavigationUI {
      * id is a parent/grandparent/etc of the destination.
      */
     @JvmStatic
-    internal fun NavDestination.matchDestination(@IdRes destId: Int): Boolean =
-        hierarchy.any { it.id == destId }
+    internal fun NavDestination.matchDestination(@IdRes destId: Int): Boolean = hierarchy.any {
+        it.id == destId
+    }
 }

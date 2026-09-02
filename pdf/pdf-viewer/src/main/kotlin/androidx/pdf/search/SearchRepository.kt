@@ -289,12 +289,11 @@ public class SearchRepository(
                 async(ocrDispatcher) {
                     ensureActive()
                     val contexts = ocrContextRepository?.getOcrContexts(pageNum) ?: emptyList()
-                    val matches =
-                        contexts.flatMap { context ->
-                            context.search(query).map { bounds ->
-                                PageMatchBounds(bounds, textStartIndex = -1)
-                            }
+                    val matches = contexts.flatMap { context ->
+                        context.search(query).map { bounds ->
+                            PageMatchBounds(bounds, textStartIndex = -1)
                         }
+                    }
 
                     pageNum to matches
                 }

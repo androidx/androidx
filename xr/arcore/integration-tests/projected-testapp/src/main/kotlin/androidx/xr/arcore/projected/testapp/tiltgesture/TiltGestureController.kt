@@ -89,12 +89,11 @@ internal class TiltGestureController(
     }
 
     private fun startTracking() {
-        detectionJob =
-            coroutineScope.launch {
-                viewModel.setMessage("Tracking started.")
-                TiltGesture.detect(session).collect {
-                    viewModel.setTiltGestureState(it.tilt, it.progress)
-                }
+        detectionJob = coroutineScope.launch {
+            viewModel.setMessage("Tracking started.")
+            TiltGesture.detect(session).collect {
+                viewModel.setTiltGestureState(it.tilt, it.progress)
             }
+        }
     }
 }

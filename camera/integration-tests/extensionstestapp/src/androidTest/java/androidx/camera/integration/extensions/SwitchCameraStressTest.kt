@@ -70,41 +70,40 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
             .add(
                 3,
                 RequireForegroundRule {
-                        assumeTrue(CameraUtil.deviceHasCamera())
-                        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-                        assumePcsSupportedForImageCapture(context)
+                    assumeTrue(CameraUtil.deviceHasCamera())
+                    assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+                    assumePcsSupportedForImageCapture(context)
 
-                        cameraProvider =
-                            ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+                    cameraProvider =
+                        ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
-                        val extensionsManager =
-                            ExtensionsManager.getInstance(context, cameraProvider)
+                    val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
-                        val isBackCameraSupported =
-                            extensionsManager.isExtensionAvailable(
-                                CameraSelector.DEFAULT_BACK_CAMERA,
-                                extensionMode,
+                    val isBackCameraSupported =
+                        extensionsManager.isExtensionAvailable(
+                            CameraSelector.DEFAULT_BACK_CAMERA,
+                            extensionMode,
+                        )
+                    val isFrontCameraSupported =
+                        extensionsManager.isExtensionAvailable(
+                            CameraSelector.DEFAULT_FRONT_CAMERA,
+                            extensionMode,
+                        )
+
+                    // Checks whether the extension mode can be supported first before launching
+                    // the activity.
+                    // Only runs the test when at least one of the back or front cameras support
+                    // the target testing extension mode
+                    assumeTrue(isBackCameraSupported || isFrontCameraSupported)
+
+                    if (!isBackCameraSupported) {
+                        startingExtensionMode =
+                            CameraXExtensionsTestUtil.getFirstSupportedExtensionMode(
+                                extensionsManager,
+                                DEFAULT_BACK_CAMERA_ID,
                             )
-                        val isFrontCameraSupported =
-                            extensionsManager.isExtensionAvailable(
-                                CameraSelector.DEFAULT_FRONT_CAMERA,
-                                extensionMode,
-                            )
-
-                        // Checks whether the extension mode can be supported first before launching
-                        // the activity.
-                        // Only runs the test when at least one of the back or front cameras support
-                        // the target testing extension mode
-                        assumeTrue(isBackCameraSupported || isFrontCameraSupported)
-
-                        if (!isBackCameraSupported) {
-                            startingExtensionMode =
-                                CameraXExtensionsTestUtil.getFirstSupportedExtensionMode(
-                                    extensionsManager,
-                                    DEFAULT_BACK_CAMERA_ID,
-                                )
-                        }
                     }
+                }
                     .withCleanup {
                         if (::cameraProvider.isInitialized) {
                             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]

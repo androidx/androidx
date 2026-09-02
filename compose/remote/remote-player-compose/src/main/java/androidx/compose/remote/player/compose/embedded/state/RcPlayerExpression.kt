@@ -293,13 +293,11 @@ private val IMPERATIVE_OPCODES: Set<Int> =
  * or a data-variable / array id (consumed by the array ops) — in which case [parseRpn] returns an
  * [ImperativeRpnOp] instead of building the tree.
  */
-private fun needsImperativeEval(exp: FloatArray): Boolean =
-    exp.any { v ->
-        v.isNaN() &&
-            ((AnimatedFloatExpression.isMathOperator(v) &&
-                AnimatedFloatExpression.fromNaN(v) in IMPERATIVE_OPCODES) ||
-                NanMap.isDataVariable(v))
-    }
+private fun needsImperativeEval(exp: FloatArray): Boolean = exp.any { v ->
+    v.isNaN() &&
+        ((AnimatedFloatExpression.isMathOperator(v) &&
+            AnimatedFloatExpression.fromNaN(v) in IMPERATIVE_OPCODES) || NanMap.isDataVariable(v))
+}
 
 /**
  * Linear, imperative RPN evaluator delegating to the core [AnimatedFloatExpression] for expressions

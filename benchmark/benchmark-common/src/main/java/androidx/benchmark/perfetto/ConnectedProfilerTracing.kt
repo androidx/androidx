@@ -74,10 +74,10 @@ public class ConnectedProfilerTracing(private val targetPackage: String) {
 
     internal fun sendBroadcast(action: String): Response {
         return runCatching {
-                val command = "-a $action $targetPackage/$RECEIVER_NAME"
-                val output = Shell.amBroadcast(command)
-                return parseResponse(output)
-            }
+            val command = "-a $action $targetPackage/$RECEIVER_NAME"
+            val output = Shell.amBroadcast(command)
+            return parseResponse(output)
+        }
             .getOrElse { throwable -> Response(code = RESPONSE_CODE_FAILED, throwable = throwable) }
     }
 

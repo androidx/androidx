@@ -217,18 +217,17 @@ internal class Camera2CaptureSequenceProcessor(
                 //  (2) Let clients override the 3A parameters freely and when that happens
                 //      intercept those parameters from the request and keep the internal 3A state
                 //      machine in sync.
-                val filteredRequiredParameters =
-                    requiredParameters.filterKeys { key ->
-                        val is3AKey = key is CaptureRequest.Key<*> && REQUEST_3A_KEYS.contains(key)
-                        if (!is3AKey) {
-                            return@filterKeys true
-                        }
-                        val isAlreadySetKey =
-                            defaultParameters.containsKey(key) ||
-                                graphParameters.containsKey(key) ||
-                                request.parameters.containsKey(key)
-                        !isAlreadySetKey
+                val filteredRequiredParameters = requiredParameters.filterKeys { key ->
+                    val is3AKey = key is CaptureRequest.Key<*> && REQUEST_3A_KEYS.contains(key)
+                    if (!is3AKey) {
+                        return@filterKeys true
                     }
+                    val isAlreadySetKey =
+                        defaultParameters.containsKey(key) ||
+                            graphParameters.containsKey(key) ||
+                            request.parameters.containsKey(key)
+                    !isAlreadySetKey
+                }
                 requestBuilder.writeParameters(filteredRequiredParameters)
             }
             val requestNumber = nextRequestNumber()

@@ -101,17 +101,18 @@ internal fun Iterable<*>.countDuplicatesAndAddTypeInfo(): String {
     }
 }
 
-internal fun Iterable<*>.countDuplicates(): String =
-    groupingBy { it }
-        .eachCount()
-        .entries
-        .joinToString(
-            prefix = "[",
-            postfix = "]",
-            transform = { (item, count) ->
-                if (count > 1) "$item [$count copies]" else item.toString()
-            },
-        )
+internal fun Iterable<*>.countDuplicates(): String = groupingBy {
+    it
+}
+    .eachCount()
+    .entries
+    .joinToString(
+        prefix = "[",
+        postfix = "]",
+        transform = { (item, count) ->
+            if (count > 1) "$item [$count copies]" else item.toString()
+        },
+    )
 
 /** Returns the name of the single type of all given items or `null` if no such type exists. */
 private fun Iterable<*>.homogeneousTypeName(): String? {

@@ -74,10 +74,9 @@ internal class SavedStateRegistryControllerImpl(
         }
         check(!registryImpl.isRestored) { "SavedStateRegistry was already restored." }
 
-        val restored =
-            savedState?.read {
-                if (contains(SAVED_COMPONENTS_KEY)) getSavedState(SAVED_COMPONENTS_KEY) else null
-            }
+        val restored = savedState?.read {
+            if (contains(SAVED_COMPONENTS_KEY)) getSavedState(SAVED_COMPONENTS_KEY) else null
+        }
         registryImpl.restoreState(restored)
     }
 

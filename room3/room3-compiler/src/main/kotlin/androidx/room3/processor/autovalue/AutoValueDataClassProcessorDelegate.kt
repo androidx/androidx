@@ -41,8 +41,9 @@ class AutoValueDataClassProcessorDelegate(
 
     override fun onPreProcess(element: XTypeElement) {
         val allMethods = autoValueElement.getAllMethods()
-        val autoValueAbstractGetters =
-            allMethods.filter { it.isAbstract() && it.parameters.size == 0 }
+        val autoValueAbstractGetters = allMethods.filter {
+            it.isAbstract() && it.parameters.size == 0
+        }
 
         // Warn about missing @AutoValue.CopyAnnotations in the property getters.
         autoValueAbstractGetters.forEach {

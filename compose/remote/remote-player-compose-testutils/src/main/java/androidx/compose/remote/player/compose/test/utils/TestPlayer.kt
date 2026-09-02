@@ -81,10 +81,9 @@ class TestPlayer(private val document: CoreDocument, width: Float, height: Float
                         "  paint.setTextureShader($bitmapId, ...)"
                     }
                     else -> {
-                        val mappedArgs =
-                            args?.map { arg ->
-                                if (arg is Float) arg.formatToString() else arg.toString()
-                            }
+                        val mappedArgs = args?.map { arg ->
+                            if (arg is Float) arg.formatToString() else arg.toString()
+                        }
                         val formattedArgs = mappedArgs?.joinToString() ?: ""
                         "  paint.$methodName($formattedArgs)"
                     }

@@ -51,17 +51,16 @@ internal class BasicTextFieldSendKeyEventTest {
         lateinit var imm: FakeInputMethodManager
         lateinit var originalFactory: ((View) -> ComposeInputMethodManager)
 
-        originalFactory =
-            immRule.setFactory {
-                val actualImm = originalFactory(it)
-                imm =
-                    object : FakeInputMethodManager() {
-                        override fun sendKeyEvent(event: KeyEvent) {
-                            actualImm.sendKeyEvent(event)
-                        }
+        originalFactory = immRule.setFactory {
+            val actualImm = originalFactory(it)
+            imm =
+                object : FakeInputMethodManager() {
+                    override fun sendKeyEvent(event: KeyEvent) {
+                        actualImm.sendKeyEvent(event)
                     }
-                imm
-            }
+                }
+            imm
+        }
 
         val state = TextFieldState()
         inputMethodInterceptor.setContent {
@@ -87,17 +86,16 @@ internal class BasicTextFieldSendKeyEventTest {
         lateinit var imm: FakeInputMethodManager
         lateinit var originalFactory: ((View) -> ComposeInputMethodManager)
 
-        originalFactory =
-            immRule.setFactory {
-                val actualImm = originalFactory(it)
-                imm =
-                    object : FakeInputMethodManager() {
-                        override fun sendKeyEvent(event: KeyEvent) {
-                            actualImm.sendKeyEvent(event)
-                        }
+        originalFactory = immRule.setFactory {
+            val actualImm = originalFactory(it)
+            imm =
+                object : FakeInputMethodManager() {
+                    override fun sendKeyEvent(event: KeyEvent) {
+                        actualImm.sendKeyEvent(event)
                     }
-                imm
-            }
+                }
+            imm
+        }
 
         val state = TextFieldState("abc")
         inputMethodInterceptor.setContent {

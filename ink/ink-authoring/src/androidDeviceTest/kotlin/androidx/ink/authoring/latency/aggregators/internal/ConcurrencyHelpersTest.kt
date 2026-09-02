@@ -36,141 +36,137 @@ internal class ConcurrencyHelpersTest {
     private val testScope = TestScope(testDispatcher)
 
     @Test
-    fun runEvery_runsAtExpectedTimes() =
-        testScope.runTest {
-            var runCount = 0
-            testScope.backgroundScope.runEvery(5.seconds) { runCount += 1 }
+    fun runEvery_runsAtExpectedTimes() = testScope.runTest {
+        var runCount = 0
+        testScope.backgroundScope.runEvery(5.seconds) { runCount += 1 }
 
-            // The lambda does not run immediately; the first run is after 5 seconds.
+        // The lambda does not run immediately; the first run is after 5 seconds.
 
-            // t=4.9
-            testScope.advanceTimeBy(4.9.seconds)
-            assertThat(runCount).isEqualTo(0)
+        // t=4.9
+        testScope.advanceTimeBy(4.9.seconds)
+        assertThat(runCount).isEqualTo(0)
 
-            // t=5.1
-            testScope.advanceTimeBy(0.2.seconds)
-            assertThat(runCount).isEqualTo(1)
+        // t=5.1
+        testScope.advanceTimeBy(0.2.seconds)
+        assertThat(runCount).isEqualTo(1)
 
-            // It runs again 5 seconds later.
+        // It runs again 5 seconds later.
 
-            // t=9.9
-            testScope.advanceTimeBy(4.8.seconds)
-            assertThat(runCount).isEqualTo(1)
+        // t=9.9
+        testScope.advanceTimeBy(4.8.seconds)
+        assertThat(runCount).isEqualTo(1)
 
-            // t=10.1
-            testScope.advanceTimeBy(0.2.seconds)
-            assertThat(runCount).isEqualTo(2)
+        // t=10.1
+        testScope.advanceTimeBy(0.2.seconds)
+        assertThat(runCount).isEqualTo(2)
 
-            // And again 5 seconds after that.
+        // And again 5 seconds after that.
 
-            // t=14.9
-            testScope.advanceTimeBy(4.8.seconds)
-            assertThat(runCount).isEqualTo(2)
+        // t=14.9
+        testScope.advanceTimeBy(4.8.seconds)
+        assertThat(runCount).isEqualTo(2)
 
-            // t=15.1
-            testScope.advanceTimeBy(0.2.seconds)
-            assertThat(runCount).isEqualTo(3)
-        }
-
-    @Test
-    fun runEvery_twoCallsRunTwoPeriodicCallbacks() =
-        testScope.runTest {
-            var runCount3 = 0
-            var runCount5 = 0
-            testScope.backgroundScope.runEvery(3.seconds) { runCount3 += 1 }
-            testScope.backgroundScope.runEvery(5.seconds) { runCount5 += 1 }
-
-            // The lambdas do not run immediately; they first run after 5 and 3 seconds,
-            // respectively.
-
-            // t=2.9
-            testScope.advanceTimeBy(2.9.seconds)
-            assertThat(runCount3).isEqualTo(0)
-            assertThat(runCount5).isEqualTo(0)
-
-            // t=3.1
-            testScope.advanceTimeBy(0.2.seconds)
-            assertThat(runCount3).isEqualTo(1)
-            assertThat(runCount5).isEqualTo(0)
-
-            // t=4.9
-            testScope.advanceTimeBy(1.8.seconds)
-            assertThat(runCount3).isEqualTo(1)
-            assertThat(runCount5).isEqualTo(0)
-
-            // t=5.1
-            testScope.advanceTimeBy(0.2.seconds)
-            assertThat(runCount3).isEqualTo(1)
-            assertThat(runCount5).isEqualTo(1)
-
-            // t=5.9
-            testScope.advanceTimeBy(0.8.seconds)
-            assertThat(runCount3).isEqualTo(1)
-            assertThat(runCount5).isEqualTo(1)
-
-            // t=6.1
-            testScope.advanceTimeBy(0.2.seconds)
-            assertThat(runCount3).isEqualTo(2)
-            assertThat(runCount5).isEqualTo(1)
-
-            // t=8.9
-            testScope.advanceTimeBy(2.8.seconds)
-            assertThat(runCount3).isEqualTo(2)
-            assertThat(runCount5).isEqualTo(1)
-
-            // t=9.1
-            testScope.advanceTimeBy(0.2.seconds)
-            assertThat(runCount3).isEqualTo(3)
-            assertThat(runCount5).isEqualTo(1)
-
-            // t=9.9
-            testScope.advanceTimeBy(0.8.seconds)
-            assertThat(runCount3).isEqualTo(3)
-            assertThat(runCount5).isEqualTo(1)
-
-            // t=10.1
-            testScope.advanceTimeBy(0.2.seconds)
-            assertThat(runCount3).isEqualTo(3)
-            assertThat(runCount5).isEqualTo(2)
-        }
+        // t=15.1
+        testScope.advanceTimeBy(0.2.seconds)
+        assertThat(runCount).isEqualTo(3)
+    }
 
     @Test
-    fun runEvery_cancelingScopeCancelsAllRunEveryLoops() =
-        testScope.runTest {
-            var runCount3 = 0
-            var runCount5 = 0
-            testScope.backgroundScope.runEvery(3.seconds) { runCount3 += 1 }
-            testScope.backgroundScope.runEvery(5.seconds) { runCount5 += 1 }
+    fun runEvery_twoCallsRunTwoPeriodicCallbacks() = testScope.runTest {
+        var runCount3 = 0
+        var runCount5 = 0
+        testScope.backgroundScope.runEvery(3.seconds) { runCount3 += 1 }
+        testScope.backgroundScope.runEvery(5.seconds) { runCount5 += 1 }
 
-            testScope.advanceTimeBy(8.9.seconds)
-            assertThat(runCount3).isEqualTo(2)
-            assertThat(runCount5).isEqualTo(1)
+        // The lambdas do not run immediately; they first run after 5 and 3 seconds,
+        // respectively.
 
-            testScope.backgroundScope.cancel()
+        // t=2.9
+        testScope.advanceTimeBy(2.9.seconds)
+        assertThat(runCount3).isEqualTo(0)
+        assertThat(runCount5).isEqualTo(0)
 
-            // After canceling, no more lambda calls happen.
-            testScope.advanceTimeBy(20.seconds)
-            assertThat(runCount3).isEqualTo(2)
-            assertThat(runCount5).isEqualTo(1)
-        }
+        // t=3.1
+        testScope.advanceTimeBy(0.2.seconds)
+        assertThat(runCount3).isEqualTo(1)
+        assertThat(runCount5).isEqualTo(0)
+
+        // t=4.9
+        testScope.advanceTimeBy(1.8.seconds)
+        assertThat(runCount3).isEqualTo(1)
+        assertThat(runCount5).isEqualTo(0)
+
+        // t=5.1
+        testScope.advanceTimeBy(0.2.seconds)
+        assertThat(runCount3).isEqualTo(1)
+        assertThat(runCount5).isEqualTo(1)
+
+        // t=5.9
+        testScope.advanceTimeBy(0.8.seconds)
+        assertThat(runCount3).isEqualTo(1)
+        assertThat(runCount5).isEqualTo(1)
+
+        // t=6.1
+        testScope.advanceTimeBy(0.2.seconds)
+        assertThat(runCount3).isEqualTo(2)
+        assertThat(runCount5).isEqualTo(1)
+
+        // t=8.9
+        testScope.advanceTimeBy(2.8.seconds)
+        assertThat(runCount3).isEqualTo(2)
+        assertThat(runCount5).isEqualTo(1)
+
+        // t=9.1
+        testScope.advanceTimeBy(0.2.seconds)
+        assertThat(runCount3).isEqualTo(3)
+        assertThat(runCount5).isEqualTo(1)
+
+        // t=9.9
+        testScope.advanceTimeBy(0.8.seconds)
+        assertThat(runCount3).isEqualTo(3)
+        assertThat(runCount5).isEqualTo(1)
+
+        // t=10.1
+        testScope.advanceTimeBy(0.2.seconds)
+        assertThat(runCount3).isEqualTo(3)
+        assertThat(runCount5).isEqualTo(2)
+    }
 
     @Test
-    fun runEvery_cancelingOneLoopDoesNotAffectTheOther() =
-        testScope.runTest {
-            var runCount3 = 0
-            var runCount5 = 0
-            val job3 = testScope.backgroundScope.runEvery(3.seconds) { runCount3 += 1 }
-            testScope.backgroundScope.runEvery(5.seconds) { runCount5 += 1 }
+    fun runEvery_cancelingScopeCancelsAllRunEveryLoops() = testScope.runTest {
+        var runCount3 = 0
+        var runCount5 = 0
+        testScope.backgroundScope.runEvery(3.seconds) { runCount3 += 1 }
+        testScope.backgroundScope.runEvery(5.seconds) { runCount5 += 1 }
 
-            testScope.advanceTimeBy(8.9.seconds)
-            assertThat(runCount3).isEqualTo(2)
-            assertThat(runCount5).isEqualTo(1)
+        testScope.advanceTimeBy(8.9.seconds)
+        assertThat(runCount3).isEqualTo(2)
+        assertThat(runCount5).isEqualTo(1)
 
-            job3.cancel()
+        testScope.backgroundScope.cancel()
 
-            // t=15.1. After canceling job3, runCount3 ceases updating but runCount5 keeps going.
-            testScope.advanceTimeBy(6.2.seconds)
-            assertThat(runCount3).isEqualTo(2)
-            assertThat(runCount5).isEqualTo(3)
-        }
+        // After canceling, no more lambda calls happen.
+        testScope.advanceTimeBy(20.seconds)
+        assertThat(runCount3).isEqualTo(2)
+        assertThat(runCount5).isEqualTo(1)
+    }
+
+    @Test
+    fun runEvery_cancelingOneLoopDoesNotAffectTheOther() = testScope.runTest {
+        var runCount3 = 0
+        var runCount5 = 0
+        val job3 = testScope.backgroundScope.runEvery(3.seconds) { runCount3 += 1 }
+        testScope.backgroundScope.runEvery(5.seconds) { runCount5 += 1 }
+
+        testScope.advanceTimeBy(8.9.seconds)
+        assertThat(runCount3).isEqualTo(2)
+        assertThat(runCount5).isEqualTo(1)
+
+        job3.cancel()
+
+        // t=15.1. After canceling job3, runCount3 ceases updating but runCount5 keeps going.
+        testScope.advanceTimeBy(6.2.seconds)
+        assertThat(runCount3).isEqualTo(2)
+        assertThat(runCount5).isEqualTo(3)
+    }
 }

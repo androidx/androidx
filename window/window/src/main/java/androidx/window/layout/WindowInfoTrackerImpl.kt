@@ -115,21 +115,20 @@ internal class WindowInfoTrackerImpl(
         executor: Executor,
         listener: Consumer<WindowEngagementInfo>,
     ) {
-        val adapter =
-            lock.withLock {
-                if (consumerToAdapterMap.containsKey(listener)) {
-                    return
-                }
-                CombineLatestConsumerAdapter(::combineEngagementInfo, DeduplicateConsumer(listener))
-                    .also { adapter ->
-                        consumerToAdapterMap[listener] = adapter
-                        windowBackend.registerLayoutChangeCallback(
-                            context,
-                            executor,
-                            adapter.consumerT,
-                        )
-                    }
+        val adapter = lock.withLock {
+            if (consumerToAdapterMap.containsKey(listener)) {
+                return
             }
+            CombineLatestConsumerAdapter(::combineEngagementInfo, DeduplicateConsumer(listener))
+                .also { adapter ->
+                    consumerToAdapterMap[listener] = adapter
+                    windowBackend.registerLayoutChangeCallback(
+                        context,
+                        executor,
+                        adapter.consumerT,
+                    )
+                }
+        }
 
         engagementModeBackend.addEngagementLayoutChangeCallback(
             context,

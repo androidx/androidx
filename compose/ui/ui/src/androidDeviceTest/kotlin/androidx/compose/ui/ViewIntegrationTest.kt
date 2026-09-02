@@ -160,12 +160,11 @@ class ViewIntegrationTest {
         lateinit var view: ComposeView
         var size by mutableStateOf(10.dp)
         var measuredSize = 0.dp
-        val sizeModifier =
-            Modifier.layout { measurable, constraints ->
-                measuredSize = size
-                val pxSize = size.roundToPx()
-                layout(pxSize, pxSize) { measurable.measure(constraints).place(0, 0) }
-            }
+        val sizeModifier = Modifier.layout { measurable, constraints ->
+            measuredSize = size
+            val pxSize = size.roundToPx()
+            layout(pxSize, pxSize) { measurable.measure(constraints).place(0, 0) }
+        }
         rule.runOnUiThread {
             view = ComposeView(activity)
             view.setContent { Box(Modifier.background(Color.Blue).then(sizeModifier)) }

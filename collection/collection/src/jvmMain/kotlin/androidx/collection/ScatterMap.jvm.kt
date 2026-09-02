@@ -893,8 +893,9 @@ private class Entries<K, V>(private val parent: ScatterMap<K, V>) : Set<Map.Entr
         }
     }
 
-    override fun containsAll(elements: Collection<Map.Entry<K, V>>): Boolean =
-        elements.all { parent[it.key] == it.value }
+    override fun containsAll(elements: Collection<Map.Entry<K, V>>): Boolean = elements.all {
+        parent[it.key] == it.value
+    }
 
     override fun contains(element: Map.Entry<K, V>): Boolean = parent[element.key] == element.value
 
@@ -909,8 +910,9 @@ private class Keys<K, V>(private val parent: ScatterMap<K, V>) : Set<K> {
 
     override fun iterator(): Iterator<K> = iterator { parent.forEachKey { key -> yield(key) } }
 
-    override fun containsAll(elements: Collection<K>): Boolean =
-        elements.all { parent.containsKey(it) }
+    override fun containsAll(elements: Collection<K>): Boolean = elements.all {
+        parent.containsKey(it)
+    }
 
     override fun contains(element: K): Boolean = parent.containsKey(element)
 
@@ -927,8 +929,9 @@ private class Values<K, V>(private val parent: ScatterMap<K, V>) : Collection<V>
         parent.forEachValue { value -> yield(value) }
     }
 
-    override fun containsAll(elements: Collection<V>): Boolean =
-        elements.all { parent.containsValue(it) }
+    override fun containsAll(elements: Collection<V>): Boolean = elements.all {
+        parent.containsValue(it)
+    }
 
     override fun contains(element: V): Boolean = parent.containsValue(element)
 
@@ -1160,8 +1163,9 @@ private class MutableKeys<K, V>(private val parent: MutableScatterMap<K, V>) : M
         return false
     }
 
-    override fun containsAll(elements: Collection<K>): Boolean =
-        elements.all { parent.containsKey(it) }
+    override fun containsAll(elements: Collection<K>): Boolean = elements.all {
+        parent.containsKey(it)
+    }
 
     override fun contains(element: K): Boolean = parent.containsKey(element)
 }
@@ -1235,8 +1239,9 @@ private class MutableValues<K, V>(private val parent: MutableScatterMap<K, V>) :
         return false
     }
 
-    override fun containsAll(elements: Collection<V>): Boolean =
-        elements.all { parent.containsValue(it) }
+    override fun containsAll(elements: Collection<V>): Boolean = elements.all {
+        parent.containsValue(it)
+    }
 
     override fun contains(element: V): Boolean = parent.containsValue(element)
 }

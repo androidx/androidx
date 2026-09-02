@@ -37,21 +37,20 @@ class FakeThreadsTest {
     private val fakeThreads = FakeThreads.fromTestScope(testScope)
 
     @Test
-    fun fakeThreadsUseDelaySkipping() =
-        testScope.runTest {
-            launch(fakeThreads.backgroundDispatcher) { delay(1000.seconds) }.join()
-            launch(fakeThreads.lightweightDispatcher) { delay(1000.seconds) }.join()
-            fakeThreads.cameraPipeScope.launch { delay(1000.seconds) }.join()
+    fun fakeThreadsUseDelaySkipping() = testScope.runTest {
+        launch(fakeThreads.backgroundDispatcher) { delay(1000.seconds) }.join()
+        launch(fakeThreads.lightweightDispatcher) { delay(1000.seconds) }.join()
+        fakeThreads.cameraPipeScope.launch { delay(1000.seconds) }.join()
 
-            var backgroundTaskExecuted = false
-            var lightweightTaskExecuted = false
-            fakeThreads.backgroundExecutor.execute { backgroundTaskExecuted = true }
-            fakeThreads.lightweightExecutor.execute { lightweightTaskExecuted = true }
-            advanceUntilIdle()
+        var backgroundTaskExecuted = false
+        var lightweightTaskExecuted = false
+        fakeThreads.backgroundExecutor.execute { backgroundTaskExecuted = true }
+        fakeThreads.lightweightExecutor.execute { lightweightTaskExecuted = true }
+        advanceUntilIdle()
 
-            assertThat(backgroundTaskExecuted).isTrue()
-            assertThat(lightweightTaskExecuted).isTrue()
-        }
+        assertThat(backgroundTaskExecuted).isTrue()
+        assertThat(lightweightTaskExecuted).isTrue()
+    }
 
     @Test
     fun exceptionsInDispatcherPropagateToTestScopeFailure() {

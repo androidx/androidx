@@ -252,12 +252,11 @@ public class FingerprintDialogActivity : ComponentActivity() {
                         currentState != FingerprintDialogState.FINGERPRINT
                 ) {
                     resetDialogJob?.cancel()
-                    resetDialogJob =
-                        lifecycleScope.launch {
-                            delay(MESSAGE_DISPLAY_TIME_MS)
-                            resetDialog()
-                            resetDialogJob = null
-                        }
+                    resetDialogJob = lifecycleScope.launch {
+                        delay(MESSAGE_DISPLAY_TIME_MS)
+                        resetDialog()
+                        resetDialogJob = null
+                    }
                 }
             }
         }

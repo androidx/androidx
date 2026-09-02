@@ -460,9 +460,10 @@ class AverageDurationMeasurer(private val capacity: Int = 600 /*60 fps * 10 seco
 
     val current = derivedStateOf { if (values.isEmpty()) 0L else values.average().roundToLong() }
 
-    val averageDurationFlow =
-        snapshotFlow { current.value }
-            .withIndex()
-            .map { (index, value) -> if (index % 60 == 0) value else null }
-            .filterNotNull()
+    val averageDurationFlow = snapshotFlow {
+        current.value
+    }
+        .withIndex()
+        .map { (index, value) -> if (index % 60 == 0) value else null }
+        .filterNotNull()
 }

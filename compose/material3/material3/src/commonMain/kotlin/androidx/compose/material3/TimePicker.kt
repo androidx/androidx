@@ -2536,16 +2536,15 @@ private fun HorizontalPeriodToggle(
                         PeriodTogglePaddingSmall.roundToPx(),
                         VibrantSeparatorWidth.roundToPx(),
                     )
-                val items =
-                    measurables.fastMap { item ->
-                        item.measure(
-                            constraints.copy(
-                                minWidth = 0,
-                                minHeight = 0,
-                                maxWidth = ((constraints.maxWidth - gap) / 2).coerceAtLeast(0),
-                            )
+                val items = measurables.fastMap { item ->
+                    item.measure(
+                        constraints.copy(
+                            minWidth = 0,
+                            minHeight = 0,
+                            maxWidth = ((constraints.maxWidth - gap) / 2).coerceAtLeast(0),
                         )
-                    }
+                    )
+                }
                 layout(constraints.maxWidth, constraints.maxHeight) {
                     items[0].place(0, 0)
                     items[1].place(items[0].width + gap, 0)
@@ -2611,16 +2610,15 @@ private fun VerticalPeriodToggle(
                         PeriodTogglePaddingSmall.roundToPx(),
                         VibrantPeriodTogglePadding.roundToPx(),
                     )
-                val items =
-                    measurables.fastMap { item ->
-                        item.measure(
-                            constraints.copy(
-                                minWidth = 0,
-                                minHeight = 0,
-                                maxHeight = ((constraints.maxHeight - gap) / 2).coerceAtLeast(0),
-                            )
+                val items = measurables.fastMap { item ->
+                    item.measure(
+                        constraints.copy(
+                            minWidth = 0,
+                            minHeight = 0,
+                            maxHeight = ((constraints.maxHeight - gap) / 2).coerceAtLeast(0),
                         )
-                    }
+                    )
+                }
                 layout(constraints.maxWidth, constraints.maxHeight) {
                     items[0].place(0, 0)
                     items[1].place(0, items[0].height + gap)

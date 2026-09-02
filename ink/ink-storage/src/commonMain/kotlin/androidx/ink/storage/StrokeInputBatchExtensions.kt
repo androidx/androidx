@@ -63,10 +63,9 @@ internal fun StrokeInputBatch.encodeUncompressed(): ByteArray =
 @Throws(IOException::class)
 internal fun StrokeInputBatch.Companion.decodeUncompressed(
     input: DecompressedBytes
-): ImmutableStrokeInputBatch =
-    ImmutableStrokeInputBatch.wrapNative {
-        StrokeInputBatchSerializationNative.createFromProto(input.buffer, input.size)
-    }
+): ImmutableStrokeInputBatch = ImmutableStrokeInputBatch.wrapNative {
+    StrokeInputBatchSerializationNative.createFromProto(input.buffer, input.size)
+}
 
 expect internal object StrokeInputBatchSerializationNative {
     // Returns a native pointer to a `StrokeInputBatch`.

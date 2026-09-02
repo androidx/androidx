@@ -364,217 +364,206 @@ class LatestFrameMetadataAggregatorTest {
     // --- Integration Tests with CameraGraphSimulator ---
 
     @Test
-    fun simulatorCanSimulateCameraParametersListener() =
-        testScope.runTest {
-            val sim = startSimulator()
+    fun simulatorCanSimulateCameraParametersListener() = testScope.runTest {
+        val sim = startSimulator()
 
-            var latestParams: LatestFrameMetadata? = null
-            val listener =
-                RequestListeners.createLatestFrameMetadataListener(
-                    captureResultKeys = setOf(keyX)
-                ) {
-                    latestParams = it
-                }
-            sim.listeners.add(listener)
-
-            sim.simulateNextFrame() // drain repeating
-
-            val frame = sim.simulateNextFrame()
-            assertThat(latestParams?.get(keyX)).isNull()
-
-            val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>(keyX to 10L)
-            frame.simulatePartialCaptureResult(resultMetadata)
-            advanceUntilIdle()
-
-            assertThat(latestParams?.get(keyX)).isEqualTo(10L)
-
-            sim.listeners.remove(listener)
-        }
-
-    @Test
-    fun simulatorCanSimulateCameraParametersFlow() =
-        testScope.runTest {
-            val sim = startSimulator()
-
-            var latestParams: LatestFrameMetadata? = null
-            val job = launch {
-                sim.subscribeToLatestFrameResults(captureResultKeys = setOf(keyX)).collect {
-                    latestParams = it
-                }
+        var latestParams: LatestFrameMetadata? = null
+        val listener =
+            RequestListeners.createLatestFrameMetadataListener(captureResultKeys = setOf(keyX)) {
+                latestParams = it
             }
+        sim.listeners.add(listener)
 
-            sim.simulateNextFrame() // drain
+        sim.simulateNextFrame() // drain repeating
 
-            val frame = sim.simulateNextFrame()
-            assertThat(latestParams?.get(keyX)).isNull()
+        val frame = sim.simulateNextFrame()
+        assertThat(latestParams?.get(keyX)).isNull()
 
-            val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>(keyX to 10L)
-            frame.simulatePartialCaptureResult(resultMetadata)
-            advanceUntilIdle()
+        val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>(keyX to 10L)
+        frame.simulatePartialCaptureResult(resultMetadata)
+        advanceUntilIdle()
 
-            assertThat(latestParams?.get(keyX)).isEqualTo(10L)
+        assertThat(latestParams?.get(keyX)).isEqualTo(10L)
 
-            job.cancel()
-        }
-
-    @Test
-    fun simulatorCanSimulateSingleKeySubscriptionListener() =
-        testScope.runTest {
-            val sim = startSimulator()
-
-            var latestValue: Long? = null
-            val listener =
-                RequestListeners.createLatestFrameMetadataListener(
-                    captureResultKeys = setOf(keyX)
-                ) {
-                    latestValue = it[keyX]
-                }
-            sim.listeners.add(listener)
-
-            sim.simulateNextFrame() // drain
-
-            val frame = sim.simulateNextFrame()
-            assertThat(latestValue).isNull()
-
-            val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>(keyX to 20L)
-            frame.simulatePartialCaptureResult(resultMetadata)
-            advanceUntilIdle()
-
-            assertThat(latestValue).isEqualTo(20L)
-
-            sim.listeners.remove(listener)
-        }
+        sim.listeners.remove(listener)
+    }
 
     @Test
-    fun simulatorCanSimulateSingleKeySubscriptionFlow() =
-        testScope.runTest {
-            val sim = startSimulator()
+    fun simulatorCanSimulateCameraParametersFlow() = testScope.runTest {
+        val sim = startSimulator()
 
-            var latestValue: Long? = null
-            val job = launch { sim.subscribeToLatestFrameResult(keyX).collect { latestValue = it } }
-
-            sim.simulateNextFrame() // drain
-
-            val frame = sim.simulateNextFrame()
-            assertThat(latestValue).isNull()
-
-            val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>(keyX to 30L)
-            frame.simulatePartialCaptureResult(resultMetadata)
-            advanceUntilIdle()
-
-            assertThat(latestValue).isEqualTo(30L)
-
-            job.cancel()
-        }
-
-    @Test
-    fun simulatorCanSimulateSingleMetadataKeySubscriptionListener() =
-        testScope.runTest {
-            val sim = startSimulator()
-
-            var latestValue: Int? = null
-            val listener =
-                RequestListeners.createLatestFrameMetadataListener(metadataKeys = setOf(metaKeyZ)) {
-                    latestValue = it[metaKeyZ]
-                }
-            sim.listeners.add(listener)
-
-            sim.simulateNextFrame() // drain
-
-            val frame = sim.simulateNextFrame()
-            assertThat(latestValue).isNull()
-
-            frame.simulateTotalCaptureResult(emptyMap(), extraResultMetadata = mapOf(metaKeyZ to 5))
-            advanceUntilIdle()
-
-            assertThat(latestValue).isEqualTo(5)
-
-            sim.listeners.remove(listener)
-        }
-
-    @Test
-    fun simulatorCanSimulateSingleMetadataKeySubscriptionFlow() =
-        testScope.runTest {
-            val sim = startSimulator()
-
-            var latestValue: Int? = null
-            val job = launch {
-                sim.subscribeToLatestFrameResult(metaKeyZ).collect { latestValue = it }
+        var latestParams: LatestFrameMetadata? = null
+        val job = launch {
+            sim.subscribeToLatestFrameResults(captureResultKeys = setOf(keyX)).collect {
+                latestParams = it
             }
-
-            sim.simulateNextFrame() // drain
-
-            val frame = sim.simulateNextFrame()
-            assertThat(latestValue).isNull()
-
-            frame.simulateTotalCaptureResult(emptyMap(), extraResultMetadata = mapOf(metaKeyZ to 6))
-            advanceUntilIdle()
-
-            assertThat(latestValue).isEqualTo(6)
-
-            job.cancel()
         }
+
+        sim.simulateNextFrame() // drain
+
+        val frame = sim.simulateNextFrame()
+        assertThat(latestParams?.get(keyX)).isNull()
+
+        val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>(keyX to 10L)
+        frame.simulatePartialCaptureResult(resultMetadata)
+        advanceUntilIdle()
+
+        assertThat(latestParams?.get(keyX)).isEqualTo(10L)
+
+        job.cancel()
+    }
 
     @Test
-    fun simulatorCanSimulateMultipleKeysOrderingAndFiltering() =
-        testScope.runTest {
-            val sim = startSimulator()
+    fun simulatorCanSimulateSingleKeySubscriptionListener() = testScope.runTest {
+        val sim = startSimulator()
 
-            var params: LatestFrameMetadata? = null
-            val listener =
-                RequestListeners.createLatestFrameMetadataListener(
-                    captureResultKeys = setOf(keyX, keyY),
-                    metadataKeys = setOf(metaKeyZ),
-                ) {
-                    params = it
-                }
-            sim.listeners.add(listener)
+        var latestValue: Long? = null
+        val listener =
+            RequestListeners.createLatestFrameMetadataListener(captureResultKeys = setOf(keyX)) {
+                latestValue = it[keyX]
+            }
+        sim.listeners.add(listener)
 
-            sim.simulateNextFrame() // drain
+        sim.simulateNextFrame() // drain
 
-            // Frame 1 Partial & Total
-            val frame1 = sim.simulateNextFrame()
-            frame1.simulatePartialCaptureResult(
-                mapOf<CaptureResult.Key<*>, Any>(keyX to 10L, keyY to 100)
-            )
-            frame1.simulateTotalCaptureResult(
-                emptyMap(),
-                extraResultMetadata = mapOf(metaKeyZ to 1),
-            )
-            advanceUntilIdle()
+        val frame = sim.simulateNextFrame()
+        assertThat(latestValue).isNull()
 
-            assertThat(params?.get(keyX)).isEqualTo(10L)
-            assertThat(params?.get(keyY)).isEqualTo(100)
-            assertThat(params?.get(metaKeyZ)).isEqualTo(1)
-            assertThat(params?.keys).containsExactly(keyX, keyY)
-            assertThat(params?.metadataKeys).containsExactly(metaKeyZ)
+        val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>(keyX to 20L)
+        frame.simulatePartialCaptureResult(resultMetadata)
+        advanceUntilIdle()
 
-            // Frame 2 Partial with A, B
-            val frame2 = sim.simulateNextFrame()
-            frame2.simulatePartialCaptureResult(
-                mapOf<CaptureResult.Key<*>, Any>(keyX to 20L, keyY to 200)
-            )
-            advanceUntilIdle()
+        assertThat(latestValue).isEqualTo(20L)
 
-            // Frame 3 Partial with A
-            val frame3 = sim.simulateNextFrame()
-            frame3.simulatePartialCaptureResult(mapOf(keyX to 30L))
-            advanceUntilIdle()
+        sim.listeners.remove(listener)
+    }
 
-            // Assert A comes from F3 partial (30) and B comes from F2 partial (200)
-            assertThat(params?.get(keyX)).isEqualTo(30L)
-            assertThat(params?.get(keyY)).isEqualTo(200)
+    @Test
+    fun simulatorCanSimulateSingleKeySubscriptionFlow() = testScope.runTest {
+        val sim = startSimulator()
 
-            // Total for Frame 2
-            frame2.simulateTotalCaptureResult(emptyMap())
-            advanceUntilIdle()
+        var latestValue: Long? = null
+        val job = launch { sim.subscribeToLatestFrameResult(keyX).collect { latestValue = it } }
 
-            // Assert A still comes from F3 partial (30)
-            assertThat(params?.get(keyX)).isEqualTo(30L)
-            assertThat(params?.get(keyY)).isEqualTo(200)
+        sim.simulateNextFrame() // drain
 
-            sim.listeners.remove(listener)
+        val frame = sim.simulateNextFrame()
+        assertThat(latestValue).isNull()
+
+        val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>(keyX to 30L)
+        frame.simulatePartialCaptureResult(resultMetadata)
+        advanceUntilIdle()
+
+        assertThat(latestValue).isEqualTo(30L)
+
+        job.cancel()
+    }
+
+    @Test
+    fun simulatorCanSimulateSingleMetadataKeySubscriptionListener() = testScope.runTest {
+        val sim = startSimulator()
+
+        var latestValue: Int? = null
+        val listener =
+            RequestListeners.createLatestFrameMetadataListener(metadataKeys = setOf(metaKeyZ)) {
+                latestValue = it[metaKeyZ]
+            }
+        sim.listeners.add(listener)
+
+        sim.simulateNextFrame() // drain
+
+        val frame = sim.simulateNextFrame()
+        assertThat(latestValue).isNull()
+
+        frame.simulateTotalCaptureResult(emptyMap(), extraResultMetadata = mapOf(metaKeyZ to 5))
+        advanceUntilIdle()
+
+        assertThat(latestValue).isEqualTo(5)
+
+        sim.listeners.remove(listener)
+    }
+
+    @Test
+    fun simulatorCanSimulateSingleMetadataKeySubscriptionFlow() = testScope.runTest {
+        val sim = startSimulator()
+
+        var latestValue: Int? = null
+        val job = launch {
+            sim.subscribeToLatestFrameResult(metaKeyZ).collect { latestValue = it }
         }
+
+        sim.simulateNextFrame() // drain
+
+        val frame = sim.simulateNextFrame()
+        assertThat(latestValue).isNull()
+
+        frame.simulateTotalCaptureResult(emptyMap(), extraResultMetadata = mapOf(metaKeyZ to 6))
+        advanceUntilIdle()
+
+        assertThat(latestValue).isEqualTo(6)
+
+        job.cancel()
+    }
+
+    @Test
+    fun simulatorCanSimulateMultipleKeysOrderingAndFiltering() = testScope.runTest {
+        val sim = startSimulator()
+
+        var params: LatestFrameMetadata? = null
+        val listener =
+            RequestListeners.createLatestFrameMetadataListener(
+                captureResultKeys = setOf(keyX, keyY),
+                metadataKeys = setOf(metaKeyZ),
+            ) {
+                params = it
+            }
+        sim.listeners.add(listener)
+
+        sim.simulateNextFrame() // drain
+
+        // Frame 1 Partial & Total
+        val frame1 = sim.simulateNextFrame()
+        frame1.simulatePartialCaptureResult(
+            mapOf<CaptureResult.Key<*>, Any>(keyX to 10L, keyY to 100)
+        )
+        frame1.simulateTotalCaptureResult(
+            emptyMap(),
+            extraResultMetadata = mapOf(metaKeyZ to 1),
+        )
+        advanceUntilIdle()
+
+        assertThat(params?.get(keyX)).isEqualTo(10L)
+        assertThat(params?.get(keyY)).isEqualTo(100)
+        assertThat(params?.get(metaKeyZ)).isEqualTo(1)
+        assertThat(params?.keys).containsExactly(keyX, keyY)
+        assertThat(params?.metadataKeys).containsExactly(metaKeyZ)
+
+        // Frame 2 Partial with A, B
+        val frame2 = sim.simulateNextFrame()
+        frame2.simulatePartialCaptureResult(
+            mapOf<CaptureResult.Key<*>, Any>(keyX to 20L, keyY to 200)
+        )
+        advanceUntilIdle()
+
+        // Frame 3 Partial with A
+        val frame3 = sim.simulateNextFrame()
+        frame3.simulatePartialCaptureResult(mapOf(keyX to 30L))
+        advanceUntilIdle()
+
+        // Assert A comes from F3 partial (30) and B comes from F2 partial (200)
+        assertThat(params?.get(keyX)).isEqualTo(30L)
+        assertThat(params?.get(keyY)).isEqualTo(200)
+
+        // Total for Frame 2
+        frame2.simulateTotalCaptureResult(emptyMap())
+        advanceUntilIdle()
+
+        // Assert A still comes from F3 partial (30)
+        assertThat(params?.get(keyX)).isEqualTo(30L)
+        assertThat(params?.get(keyY)).isEqualTo(200)
+
+        sim.listeners.remove(listener)
+    }
 
     @Test
     fun testFrameNumberPropagation() {
@@ -642,51 +631,50 @@ class LatestFrameMetadataAggregatorTest {
     }
 
     @Test
-    fun simulatorCanFilterRequestsUsingRequestFilter() =
-        testScope.runTest {
-            val sim = startSimulator()
+    fun simulatorCanFilterRequestsUsingRequestFilter() = testScope.runTest {
+        val sim = startSimulator()
 
-            var latestParams: LatestFrameMetadata? = null
-            Request(streams = sim.streams.streams.map { it.id })
-            val excludeRequest = Request(streams = sim.streams.streams.map { it.id })
+        var latestParams: LatestFrameMetadata? = null
+        Request(streams = sim.streams.streams.map { it.id })
+        val excludeRequest = Request(streams = sim.streams.streams.map { it.id })
 
-            val listener =
-                RequestListeners.createLatestFrameMetadataListener(
-                    captureResultKeys = setOf(keyX),
-                    filter = { requestMetadata -> requestMetadata.request == excludeRequest },
-                ) {
-                    latestParams = it
-                }
-            sim.listeners.add(listener)
+        val listener =
+            RequestListeners.createLatestFrameMetadataListener(
+                captureResultKeys = setOf(keyX),
+                filter = { requestMetadata -> requestMetadata.request == excludeRequest },
+            ) {
+                latestParams = it
+            }
+        sim.listeners.add(listener)
 
-            advanceUntilIdle()
-            sim.simulateNextFrame() // Drain initial repeating request (without listener)
+        advanceUntilIdle()
+        sim.simulateNextFrame() // Drain initial repeating request (without listener)
 
-            // 1. Simulate frame with targetRequest (repeating)
-            val frame1 = sim.simulateNextFrame()
-            frame1.simulatePartialCaptureResult(mapOf(keyX to 10L))
-            frame1.simulateTotalCaptureResult(emptyMap())
-            advanceUntilIdle()
-            assertThat(latestParams?.get(keyX)).isEqualTo(10L)
+        // 1. Simulate frame with targetRequest (repeating)
+        val frame1 = sim.simulateNextFrame()
+        frame1.simulatePartialCaptureResult(mapOf(keyX to 10L))
+        frame1.simulateTotalCaptureResult(emptyMap())
+        advanceUntilIdle()
+        assertThat(latestParams?.get(keyX)).isEqualTo(10L)
 
-            // 2. Submit single request to exclude and simulate it
-            sim.acquireSession().use { it.submit(excludeRequest) }
-            advanceUntilIdle() // Wait for request to be processed
-            val frame2 = sim.simulateNextFrame()
-            frame2.simulatePartialCaptureResult(mapOf(keyX to 20L))
-            frame2.simulateTotalCaptureResult(emptyMap())
-            advanceUntilIdle()
-            assertThat(latestParams?.get(keyX)).isEqualTo(10L) // Still 10L (excluded!)
+        // 2. Submit single request to exclude and simulate it
+        sim.acquireSession().use { it.submit(excludeRequest) }
+        advanceUntilIdle() // Wait for request to be processed
+        val frame2 = sim.simulateNextFrame()
+        frame2.simulatePartialCaptureResult(mapOf(keyX to 20L))
+        frame2.simulateTotalCaptureResult(emptyMap())
+        advanceUntilIdle()
+        assertThat(latestParams?.get(keyX)).isEqualTo(10L) // Still 10L (excluded!)
 
-            // 3. Simulate another target frame to verify it resumes updating
-            val frame3 = sim.simulateNextFrame()
-            frame3.simulatePartialCaptureResult(mapOf(keyX to 30L))
-            frame3.simulateTotalCaptureResult(emptyMap())
-            advanceUntilIdle()
-            assertThat(latestParams?.get(keyX)).isEqualTo(30L) // Resumed!
+        // 3. Simulate another target frame to verify it resumes updating
+        val frame3 = sim.simulateNextFrame()
+        frame3.simulatePartialCaptureResult(mapOf(keyX to 30L))
+        frame3.simulateTotalCaptureResult(emptyMap())
+        advanceUntilIdle()
+        assertThat(latestParams?.get(keyX)).isEqualTo(30L) // Resumed!
 
-            sim.listeners.remove(listener)
-        }
+        sim.listeners.remove(listener)
+    }
 
     @Test
     fun testTotalCaptureResultWithNullValueOverwritesPreviousValue() {

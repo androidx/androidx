@@ -188,10 +188,9 @@ abstract class StableAidlCompile : DefaultTask() {
             // Collect all aidl files in the directory then process them
             val processingRequests = mutableListOf<ProcessingRequest>()
 
-            val collector =
-                DirectoryWalker.FileAction { root: Path, file: Path ->
-                    processingRequests.add(ProcessingRequest(root.toFile(), file.toFile()))
-                }
+            val collector = DirectoryWalker.FileAction { root: Path, file: Path ->
+                processingRequests.add(ProcessingRequest(root.toFile(), file.toFile()))
+            }
 
             try {
                 DirectoryWalker.builder()

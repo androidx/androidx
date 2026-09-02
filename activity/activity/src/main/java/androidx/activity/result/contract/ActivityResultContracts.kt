@@ -185,11 +185,10 @@ public class ActivityResultContracts private constructor() {
             if (input.isEmpty()) {
                 return SynchronousResult(emptyMap())
             }
-            val allGranted =
-                input.all { permission ->
-                    ContextCompat.checkSelfPermission(context, permission) ==
-                        PackageManager.PERMISSION_GRANTED
-                }
+            val allGranted = input.all { permission ->
+                ContextCompat.checkSelfPermission(context, permission) ==
+                    PackageManager.PERMISSION_GRANTED
+            }
             return if (allGranted) {
                 SynchronousResult(input.associate { it to true })
             } else null
@@ -201,8 +200,9 @@ public class ActivityResultContracts private constructor() {
             val permissions = intent.getStringArrayExtra(EXTRA_PERMISSIONS)
             val grantResults = intent.getIntArrayExtra(EXTRA_PERMISSION_GRANT_RESULTS)
             if (grantResults == null || permissions == null) return emptyMap()
-            val grantState =
-                grantResults.map { result -> result == PackageManager.PERMISSION_GRANTED }
+            val grantState = grantResults.map { result ->
+                result == PackageManager.PERMISSION_GRANTED
+            }
             return permissions.filterNotNull().zip(grantState).toMap()
         }
     }

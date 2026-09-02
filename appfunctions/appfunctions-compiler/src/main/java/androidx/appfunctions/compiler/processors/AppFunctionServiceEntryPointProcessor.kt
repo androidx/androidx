@@ -249,7 +249,9 @@ class AppFunctionServiceEntryPointProcessor(
             )
             .addParameter(
                 AppFunctionServiceClass.ExecuteFunctionMethod.CALLBACK_PARAM_NAME,
-                ConsumerClass.CLASS_NAME.parameterizedBy(ExecuteAppFunctionResponseClass.CLASS_NAME),
+                ConsumerClass.CLASS_NAME.parameterizedBy(
+                    ExecuteAppFunctionResponseClass.CLASS_NAME
+                ),
             )
             .addCode(buildExecuteFunctionBody(serviceEntryPoint))
             .build()

@@ -203,7 +203,10 @@ class UnnecessaryLambdaCreationDetector : Detector(), SourceCodeScanner {
                 Category.PERFORMANCE,
                 5,
                 Severity.ERROR,
-                Implementation(UnnecessaryLambdaCreationDetector::class.java, Scope.JAVA_FILE_SCOPE),
+                Implementation(
+                    UnnecessaryLambdaCreationDetector::class.java,
+                    Scope.JAVA_FILE_SCOPE,
+                ),
             )
     }
 }

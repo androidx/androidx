@@ -52,16 +52,15 @@ internal actual fun CursorHandle(
     modifier: Modifier,
     minTouchTargetSize: DpSize,
 ) {
-    val finalModifier =
-        modifier.semantics {
-            this[SelectionHandleInfoKey] =
-                SelectionHandleInfo(
-                    handle = Handle.Cursor,
-                    position = offsetProvider.provide(),
-                    anchor = SelectionHandleAnchor.Middle,
-                    visible = true,
-                )
-        }
+    val finalModifier = modifier.semantics {
+        this[SelectionHandleInfoKey] =
+            SelectionHandleInfo(
+                handle = Handle.Cursor,
+                position = offsetProvider.provide(),
+                anchor = SelectionHandleAnchor.Middle,
+                visible = true,
+            )
+    }
     HandlePopup(positionProvider = offsetProvider, handleReferencePoint = Alignment.TopCenter) {
         if (minTouchTargetSize.isSpecified) {
             Box(

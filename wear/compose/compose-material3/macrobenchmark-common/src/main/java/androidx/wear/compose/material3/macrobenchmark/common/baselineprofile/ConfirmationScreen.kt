@@ -70,11 +70,11 @@ val ConfirmationScreen =
             get() = {
                 for (i in 0..3) {
                     retryIfStale {
-                            device.wait(
-                                Until.findObject(By.desc(numberedContentDescription(i))),
-                                FIND_OBJECT_TIMEOUT_MS,
-                            )
-                        }
+                        device.wait(
+                            Until.findObject(By.desc(numberedContentDescription(i))),
+                            FIND_OBJECT_TIMEOUT_MS,
+                        )
+                    }
                         .click()
                     device.waitForIdle()
                     SystemClock.sleep(DurationMillis)

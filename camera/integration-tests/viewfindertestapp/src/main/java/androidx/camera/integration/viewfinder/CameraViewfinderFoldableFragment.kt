@@ -99,15 +99,14 @@ import kotlinx.coroutines.withContext
 /** Fold aware fragment for {@link CameraViewfinder}. */
 class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
 
-    private val onImageAvailableListener =
-        ImageReader.OnImageAvailableListener {
-            cameraHandler?.post(
-                ImageSaver(
-                    it.acquireNextImage(),
-                    checkNotNull(file) { "file cannot be null when saving image" },
-                )
+    private val onImageAvailableListener = ImageReader.OnImageAvailableListener {
+        cameraHandler?.post(
+            ImageSaver(
+                it.acquireNextImage(),
+                checkNotNull(file) { "file cannot be null when saving image" },
             )
-        }
+        )
+    }
 
     private lateinit var cameraManager: CameraManager
 
@@ -215,13 +214,12 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                                 .looper
                         )
 
-                    layoutChangedListener =
-                        ViewTreeObserver.OnGlobalLayoutListener {
-                            mViewfinderView.viewTreeObserver.removeOnGlobalLayoutListener(
-                                layoutChangedListener
-                            )
-                            layoutChangedListener = null
-                        }
+                    layoutChangedListener = ViewTreeObserver.OnGlobalLayoutListener {
+                        mViewfinderView.viewTreeObserver.removeOnGlobalLayoutListener(
+                            layoutChangedListener
+                        )
+                        layoutChangedListener = null
+                    }
                     mViewfinderView.viewTreeObserver.addOnGlobalLayoutListener(
                         layoutChangedListener
                     )
@@ -632,8 +630,9 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
 
     private fun View.moveToRightOf(foldingFeatureRect: Rect) {
         x = foldingFeatureRect.left.toFloat()
-        layoutParams =
-            layoutParams.apply { width = (parent as View).width - foldingFeatureRect.left }
+        layoutParams = layoutParams.apply {
+            width = (parent as View).width - foldingFeatureRect.left
+        }
     }
 
     private fun View.moveToTopOf(foldingFeatureRect: Rect) {
@@ -643,17 +642,17 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
 
     private fun View.moveToBottomOf(foldingFeatureRect: Rect) {
         y = foldingFeatureRect.top.toFloat()
-        layoutParams =
-            layoutParams.apply { height = (parent as View).height - foldingFeatureRect.top }
+        layoutParams = layoutParams.apply {
+            height = (parent as View).height - foldingFeatureRect.top
+        }
     }
 
     private fun View.restore() {
         // Restore to full view
-        layoutParams =
-            layoutParams.apply {
-                width = ViewGroup.LayoutParams.MATCH_PARENT
-                height = ViewGroup.LayoutParams.MATCH_PARENT
-            }
+        layoutParams = layoutParams.apply {
+            width = ViewGroup.LayoutParams.MATCH_PARENT
+            height = ViewGroup.LayoutParams.MATCH_PARENT
+        }
         y = 0f
         x = 0f
     }

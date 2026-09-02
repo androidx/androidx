@@ -107,10 +107,9 @@ internal fun Project.registerVersionMetadataComponent(
         )
 
         // The generate API task has many output files, only add the version metadata as an artifact
-        val levelsFile =
-            generateApiTask.map { task ->
-                task.apiLocation.map { location -> location.apiLevelsFile }
-            }
+        val levelsFile = generateApiTask.map { task ->
+            task.apiLocation.map { location -> location.apiLevelsFile }
+        }
         configuration.outgoing.artifact(levelsFile) { it.classifier = "versionMetadata" }
 
         registerAsComponentForPublishing(configuration)

@@ -50,7 +50,10 @@ class A2uiStringSchemaTest {
             A2uiStringSchema(
                 description = TEST_DESCRIPTION_1,
                 keywords =
-                    listOf(A2uiSchemaKeyword.Enum(listOf("a", "b")), A2uiSchemaKeyword.Default("a")),
+                    listOf(
+                        A2uiSchemaKeyword.Enum(listOf("a", "b")),
+                        A2uiSchemaKeyword.Default("a"),
+                    ),
             )
         assertThat(Json.parseToJsonElement(schema.toJsonSchema()))
             .isEqualTo(

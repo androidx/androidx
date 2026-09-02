@@ -114,7 +114,8 @@ class PageKeyedDataSourceTest {
     @Suppress("DEPRECATION")
     private fun performLoadInitial(
         invalidateDataSource: Boolean = false,
-        callbackInvoker: (callback: PageKeyedDataSource.LoadInitialCallback<String, String>) -> Unit,
+        callbackInvoker:
+            (callback: PageKeyedDataSource.LoadInitialCallback<String, String>) -> Unit,
     ) {
         val dataSource =
             object : PageKeyedDataSource<String, String>() {

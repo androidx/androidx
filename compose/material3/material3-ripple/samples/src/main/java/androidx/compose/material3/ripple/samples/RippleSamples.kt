@@ -80,7 +80,8 @@ fun CreateRippleModifierNodeSample() {
                     RippleNodeConfiguration.FocusConfiguration.Opacity(alpha = 0.24f),
                 hoverConfiguration =
                     RippleNodeConfiguration.HoverConfiguration.Opacity(alpha = 0.08f),
-                dragConfiguration = RippleNodeConfiguration.DragConfiguration.Opacity(alpha = 0.16f),
+                dragConfiguration =
+                    RippleNodeConfiguration.DragConfiguration.Opacity(alpha = 0.16f),
             )
 
         override fun onAttach() {

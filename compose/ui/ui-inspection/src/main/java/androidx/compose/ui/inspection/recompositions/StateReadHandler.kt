@@ -364,26 +364,25 @@ internal class StateReadHandler(
                 return
             }
         }
-        observerJob =
-            scope.launch {
-                Recomposer.runningRecomposers.collect { running ->
-                    running.forEach { info ->
-                        val alreadyRegistered = synchronized(lock) { info in recomposers.keys }
-                        if (!alreadyRegistered) {
-                            info.observe(observer)?.let { handle ->
-                                synchronized(lock) { recomposers[info] = handle }
-                            }
-                        }
-                    }
-                    val toRemove = synchronized(lock) { recomposers.keys.filter { it !in running } }
-                    toRemove.forEach { info ->
-                        synchronized(lock) {
-                            recomposers[info]?.dispose()
-                            recomposers.remove(info)
+        observerJob = scope.launch {
+            Recomposer.runningRecomposers.collect { running ->
+                running.forEach { info ->
+                    val alreadyRegistered = synchronized(lock) { info in recomposers.keys }
+                    if (!alreadyRegistered) {
+                        info.observe(observer)?.let { handle ->
+                            synchronized(lock) { recomposers[info] = handle }
                         }
                     }
                 }
+                val toRemove = synchronized(lock) { recomposers.keys.filter { it !in running } }
+                toRemove.forEach { info ->
+                    synchronized(lock) {
+                        recomposers[info]?.dispose()
+                        recomposers.remove(info)
+                    }
+                }
             }
+        }
     }
 
     private fun stopObservingStateReads() {

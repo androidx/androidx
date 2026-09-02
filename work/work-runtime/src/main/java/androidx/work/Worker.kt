@@ -60,11 +60,14 @@ public abstract class Worker(context: Context, workerParams: WorkerParameters) :
      */
     @WorkerThread public abstract fun doWork(): Result
 
-    final override fun startWork(): ListenableFuture<Result> =
-        backgroundExecutor.future { doWork() }
+    final override fun startWork(): ListenableFuture<Result> = backgroundExecutor.future {
+        doWork()
+    }
 
     override fun getForegroundInfoAsync(): ListenableFuture<ForegroundInfo> =
-        backgroundExecutor.future { getForegroundInfo() }
+        backgroundExecutor.future {
+            getForegroundInfo()
+        }
 
     /**
      * An instance of [ForegroundInfo] if the [WorkRequest] is important to the user. In this case,

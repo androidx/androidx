@@ -99,11 +99,10 @@ class RxWorkerTest {
             it.run()
         }
         var testSchedulerDidRun = false
-        val testScheduler =
-            Schedulers.from {
-                testSchedulerDidRun = true
-                it.run()
-            }
+        val testScheduler = Schedulers.from {
+            testSchedulerDidRun = true
+            it.run()
+        }
         val params = createWorkerParams(executor)
         val worker =
             object : RxWorker(mock(Context::class.java), params) {

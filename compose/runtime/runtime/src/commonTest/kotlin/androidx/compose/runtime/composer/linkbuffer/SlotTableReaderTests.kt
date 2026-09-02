@@ -41,13 +41,12 @@ class SlotTableReaderTests {
     fun canReadMultipleGroupsAndSlots() {
         val groupCount = 103
         val slotCount = 10
-        val table =
-            SlotTable.build {
-                group(1000) {
-                    repeat(slotCount) { append(it) }
-                    repeat(groupCount) { key -> group(key) { repeat(slotCount) { append(it) } } }
-                }
+        val table = SlotTable.build {
+            group(1000) {
+                repeat(slotCount) { append(it) }
+                repeat(groupCount) { key -> group(key) { repeat(slotCount) { append(it) } } }
             }
+        }
         table.verifyWellFormed()
         table.read {
             group(1000) {
@@ -70,37 +69,36 @@ class SlotTableReaderTests {
                 block()
             }
         }
-        val table =
-            SlotTable.build {
-                g(1000) {
-                    g(1100) {
-                        g(1110) {
-                            g(1111)
-                            g(1112)
-                            g(1113)
-                        }
-                        g(1120) {
-                            g(1121)
-                            g(1122)
-                            g(1123)
-                        }
+        val table = SlotTable.build {
+            g(1000) {
+                g(1100) {
+                    g(1110) {
+                        g(1111)
+                        g(1112)
+                        g(1113)
                     }
-                }
-                g(2000) {
-                    g(2100) {
-                        g(2110) {
-                            g(2111)
-                            g(2112)
-                            g(2113)
-                        }
-                        g(2120) {
-                            g(2121)
-                            g(2122)
-                            g(2123)
-                        }
+                    g(1120) {
+                        g(1121)
+                        g(1122)
+                        g(1123)
                     }
                 }
             }
+            g(2000) {
+                g(2100) {
+                    g(2110) {
+                        g(2111)
+                        g(2112)
+                        g(2113)
+                    }
+                    g(2120) {
+                        g(2121)
+                        g(2122)
+                        g(2123)
+                    }
+                }
+            }
+        }
         fun SlotTableReader.expect(contextKey: Int, groupKey: Int) {
             val handle = handle()
             val expectedContext = keyGroupMap.getOrElse(contextKey) { NULL_ADDRESS }
@@ -170,28 +168,27 @@ class SlotTableReaderTests {
 
     @Test
     fun canConditionallyTraverseChildren() {
-        val table =
-            SlotTable.build {
-                group(0) {
-                    group(10) {
-                        group(100) {
-                            group(key = 1000)
-                            group(key = 1001)
-                            group(key = 1002)
-                        }
-                        group(101) { group(1010) }
-                        group(102) {
-                            group(1020)
-                            group(1021) { addFlags(IsRecompositionRequiredFlag) }
-                            group(1022)
-                            group(1023)
-                        }
+        val table = SlotTable.build {
+            group(0) {
+                group(10) {
+                    group(100) {
+                        group(key = 1000)
+                        group(key = 1001)
+                        group(key = 1002)
                     }
-                    group(20) {
-                        group(200) { group(2000) { addFlags(IsRecompositionRequiredFlag) } }
+                    group(101) { group(1010) }
+                    group(102) {
+                        group(1020)
+                        group(1021) { addFlags(IsRecompositionRequiredFlag) }
+                        group(1022)
+                        group(1023)
                     }
                 }
+                group(20) {
+                    group(200) { group(2000) { addFlags(IsRecompositionRequiredFlag) } }
+                }
             }
+        }
 
         fun traverse(
             enter: SlotTableReader.(group: GroupAddress) -> Boolean,

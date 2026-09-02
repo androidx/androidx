@@ -193,24 +193,23 @@ class NetworkRequestConstraintControllerTest {
 
         val constraints = listOf(buildConstraint(), buildConstraint())
         val initialValueBarriers = listOf(CompletableDeferred<Unit>(), CompletableDeferred<Unit>())
-        val asyncResults =
-            constraints.mapIndexed { index, constraint ->
-                async(Dispatchers.IO) {
-                    val result = CompletableDeferred<ConstraintsState>()
-                    controller.track(constraints[index]).take(2).collectIndexed { i, state ->
-                        when (i) {
-                            // initial value is ConstraintNotMet due timeout since there is
-                            // no network
-                            0 -> initialValueBarriers[index].complete(Unit)
-                            // second value is the one we are interested on emitted by the test
-                            // network callback invocation
-                            1 -> result.complete(state)
-                            else -> error("Received too many results")
-                        }
+        val asyncResults = constraints.mapIndexed { index, constraint ->
+            async(Dispatchers.IO) {
+                val result = CompletableDeferred<ConstraintsState>()
+                controller.track(constraints[index]).take(2).collectIndexed { i, state ->
+                    when (i) {
+                        // initial value is ConstraintNotMet due timeout since there is
+                        // no network
+                        0 -> initialValueBarriers[index].complete(Unit)
+                        // second value is the one we are interested on emitted by the test
+                        // network callback invocation
+                        1 -> result.complete(state)
+                        else -> error("Received too many results")
                     }
-                    result.await()
                 }
+                result.await()
             }
+        }
         initialValueBarriers.awaitAll() // await for async initial values
 
         connManagerShadow.setActiveNetworkInfo(mobileNetwork)

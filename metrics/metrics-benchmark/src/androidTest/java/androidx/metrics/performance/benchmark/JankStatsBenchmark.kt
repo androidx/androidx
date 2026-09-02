@@ -125,11 +125,10 @@ class JankStatsBenchmark {
         ) {
             var frameMetrics: FrameMetrics? = null
             val frameMetricsLatch = CountDownLatch(1)
-            val listener =
-                Window.OnFrameMetricsAvailableListener { _, metrics, _ ->
-                    frameMetrics = metrics
-                    frameMetricsLatch.countDown()
-                }
+            val listener = Window.OnFrameMetricsAvailableListener { _, metrics, _ ->
+                frameMetrics = metrics
+                frameMetricsLatch.countDown()
+            }
             // First have to get a FrameMetrics object, which we cannot create ourselves.
             // Instead, we will enable FrameMetrics on the window and wait to receive a callback
             val thread = HandlerThread("FrameMetricsAggregator")
