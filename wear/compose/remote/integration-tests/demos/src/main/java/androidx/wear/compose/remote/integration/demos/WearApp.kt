@@ -50,6 +50,7 @@ import androidx.wear.compose.remote.integration.demos.components.RemoteHorizonta
 import androidx.wear.compose.remote.integration.demos.components.RemoteIconButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteIconDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteLinearProgressIndicatorDemos
+import androidx.wear.compose.remote.integration.demos.components.RemoteRadioButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteSplitCheckboxButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteSplitRadioButtonDemos
 import androidx.wear.compose.remote.integration.demos.components.RemoteSplitSwitchButtonDemos
@@ -131,6 +132,9 @@ fun WearApp(
                 }
                 composable(route = Screen.RemoteCheckboxButtonDemosScreen.route) {
                     RemoteCheckboxButtonDemos()
+                }
+                composable(route = Screen.RemoteRadioButtonDemosScreen.route) {
+                    RemoteRadioButtonDemos()
                 }
                 composable(route = Screen.RemoteSplitCheckboxButtonDemosScreen.route) {
                     RemoteSplitCheckboxButtonDemos()
