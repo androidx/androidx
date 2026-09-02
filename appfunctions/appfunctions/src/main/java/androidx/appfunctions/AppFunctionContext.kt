@@ -17,8 +17,11 @@
 package androidx.appfunctions
 
 import android.content.Context
+import androidx.annotation.RestrictTo
 
 /** The execution context of app function. */
+// TODO(b/500281348): Remove this class once migration is finished
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AppFunctionContext {
     /** The Android context. */
     public val context: Context
