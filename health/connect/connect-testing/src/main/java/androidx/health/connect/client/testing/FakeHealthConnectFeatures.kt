@@ -28,7 +28,6 @@ import java.util.Collections
  *   [HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE].
  */
 public class FakeHealthConnectFeatures
-@JvmOverloads
 constructor(
     @FeatureStatus private val defaultStatus: Int = HealthConnectFeatures.FEATURE_STATUS_UNAVAILABLE
 ) : HealthConnectFeatures {
