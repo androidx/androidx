@@ -144,6 +144,30 @@ fun MainScreen(
                 }
                 item {
                     MenuButton(
+                        "RemoteSplitCheckboxButton",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteSplitCheckboxButtonDemosScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
+                        "RemoteSplitRadioButton",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteSplitRadioButtonDemosScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
+                        "RemoteSplitSwitchButton",
+                        onClick = {
+                            navigateToRoute(Screen.RemoteSplitSwitchButtonDemosScreen.route)
+                        },
+                    )
+                }
+                item {
+                    MenuButton(
                         "RemoteIcon",
                         onClick = { navigateToRoute(Screen.RemoteIconDemosScreen.route) },
                     )
