@@ -134,10 +134,9 @@ internal class GlimmerLazyListMeasuredItem(
                 var offset = getOffset(index)
 
                 if (layoutProperties.reverseLayout) {
-                    offset =
-                        offset.copy { mainAxisOffset ->
-                            mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
-                        }
+                    offset = offset.copy { mainAxisOffset ->
+                        mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
+                    }
                 }
                 offset += layoutProperties.visualOffset
                 if (isVertical) {

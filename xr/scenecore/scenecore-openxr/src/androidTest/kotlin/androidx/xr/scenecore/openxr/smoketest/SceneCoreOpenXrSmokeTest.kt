@@ -62,8 +62,9 @@ class SceneCoreOpenXrSmokeTest {
             assertThat(step4.status).isEqualTo(SceneCoreOpenXrSmokeTestActivity.StepStatus.PASSED)
 
             // Ensure zero unexpected step failures occurred across the entire checklist
-            val failedSteps =
-                results.filter { it.status == SceneCoreOpenXrSmokeTestActivity.StepStatus.FAILED }
+            val failedSteps = results.filter {
+                it.status == SceneCoreOpenXrSmokeTestActivity.StepStatus.FAILED
+            }
             assertThat(failedSteps).isEmpty()
         }
     }

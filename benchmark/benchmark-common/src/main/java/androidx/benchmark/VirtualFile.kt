@@ -139,8 +139,11 @@ sealed class VirtualFile {
 
     fun ls(): List<String> = executeCommand { "ls -1 $it" }.lines().filter { it.isNotBlank() }
 
-    fun listFiles(): List<String> =
-        executeCommand { "ls -1tp $it" }.lines().filter { it.isNotBlank() && !it.endsWith("/") }
+    fun listFiles(): List<String> = executeCommand {
+        "ls -1tp $it"
+    }
+        .lines()
+        .filter { it.isNotBlank() && !it.endsWith("/") }
 
     abstract fun mkdir()
 

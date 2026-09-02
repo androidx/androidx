@@ -592,13 +592,10 @@ class TransformableTest {
             )
         }
 
-        val prevScale =
-            rule.runOnIdle {
-                assertWithMessage("Should have scaled at least 4x")
-                    .that(cumulativeScale)
-                    .isAtLeast(4f)
-                cumulativeScale
-            }
+        val prevScale = rule.runOnIdle {
+            assertWithMessage("Should have scaled at least 4x").that(cumulativeScale).isAtLeast(4f)
+            cumulativeScale
+        }
         enabled.value = false
         rule.waitForIdle()
 
@@ -869,13 +866,12 @@ class TransformableTest {
 
             rule.mainClock.advanceTimeByFrame()
 
-            val lastCallbackCount =
-                rule.runOnIdle {
-                    assertWithMessage("Rotation should have been smooth")
-                        .that(callbackCount)
-                        .isAtLeast(2)
-                    callbackCount
-                }
+            val lastCallbackCount = rule.runOnIdle {
+                assertWithMessage("Rotation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(2)
+                callbackCount
+            }
 
             state.stopTransformation()
 

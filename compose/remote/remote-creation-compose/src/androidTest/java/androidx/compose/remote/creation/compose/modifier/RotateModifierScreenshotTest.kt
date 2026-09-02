@@ -51,24 +51,23 @@ class RotateModifierScreenshotTest {
     private val gridScreenshotUI = GridScreenshotUI()
 
     @Test
-    fun grid() =
-        composeTestRule.runScreenshotTest {
-            val tests =
-                listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
-                    "rotate(0f)" to
-                        @Composable @RemoteComposable { Content(RemoteModifier.rotate(0f.rf)) },
-                    "rotate(45f)" to
-                        @Composable @RemoteComposable { Content(RemoteModifier.rotate(45f.rf)) },
-                    "rotate(60f)" to
-                        @Composable @RemoteComposable { Content(RemoteModifier.rotate(60f.rf)) },
-                    "rotate(90f)" to
-                        @Composable @RemoteComposable { Content(RemoteModifier.rotate(90f.rf)) },
-                    "rotate(-45f)" to
-                        @Composable @RemoteComposable { Content(RemoteModifier.rotate((-45f).rf)) },
-                )
+    fun grid() = composeTestRule.runScreenshotTest {
+        val tests =
+            listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
+                "rotate(0f)" to
+                    @Composable @RemoteComposable { Content(RemoteModifier.rotate(0f.rf)) },
+                "rotate(45f)" to
+                    @Composable @RemoteComposable { Content(RemoteModifier.rotate(45f.rf)) },
+                "rotate(60f)" to
+                    @Composable @RemoteComposable { Content(RemoteModifier.rotate(60f.rf)) },
+                "rotate(90f)" to
+                    @Composable @RemoteComposable { Content(RemoteModifier.rotate(90f.rf)) },
+                "rotate(-45f)" to
+                    @Composable @RemoteComposable { Content(RemoteModifier.rotate((-45f).rf)) },
+            )
 
-            gridScreenshotUI.GridContent(tests)
-        }
+        gridScreenshotUI.GridContent(tests)
+    }
 
     @Composable
     @RemoteComposable

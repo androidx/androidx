@@ -50,146 +50,140 @@ class ModifierBackgroundTest : BaseRemoteComposeTest() {
     // TODO(b/450985714): Fix and re-enable this test
     @Ignore("Test not yet written, see b/450985714")
     @Test
-    fun translateBox_backgroundColor_fixed() =
-        fakeCoroutineScope.runTest {
-            //            val backgroundColor = Color.Red
-            //
-            //            val (_, wireBuffer: WireBuffer) =
-            //                context.runAndTranslateSingleRoot {
-            //                    Box(
-            //                        modifier = GlanceModifier.size(100.dp,
-            // 100.dp).background(backgroundColor)
-            //                    ) {
-            //                        // no content
-            //                    }
-            //                }
-            //
-            //            val doc: CoreDocument = makeCoreDocumentForDebug(wireBuffer = wireBuffer,
-            // platform = platform)
-            //
-            //            val box = getSimpleLeaf(doc) as BoxLayout
-            //            val rcModifierOperation: ModifierOperation? =
-            //                box.mComponentModifiers.list.find { it is BackgroundModifierOperation
-            // }
-            //            rcModifierOperation as? BackgroundModifierOperation
-            //                ?: fail("background modifier not found")
-            //            val modifierBackgroundColor = Color(red = rcModifierOperation.mR, green =
-            // rcModifierOperation.mG, blue = rcModifierOperation.mB)
-            //            assertEquals(backgroundColor.toArgb(), modifierBackgroundColor)
-            fail("todo: rewrite this test. The fields we were using are now private")
-        }
+    fun translateBox_backgroundColor_fixed() = fakeCoroutineScope.runTest {
+        //            val backgroundColor = Color.Red
+        //
+        //            val (_, wireBuffer: WireBuffer) =
+        //                context.runAndTranslateSingleRoot {
+        //                    Box(
+        //                        modifier = GlanceModifier.size(100.dp,
+        // 100.dp).background(backgroundColor)
+        //                    ) {
+        //                        // no content
+        //                    }
+        //                }
+        //
+        //            val doc: CoreDocument = makeCoreDocumentForDebug(wireBuffer = wireBuffer,
+        // platform = platform)
+        //
+        //            val box = getSimpleLeaf(doc) as BoxLayout
+        //            val rcModifierOperation: ModifierOperation? =
+        //                box.mComponentModifiers.list.find { it is BackgroundModifierOperation
+        // }
+        //            rcModifierOperation as? BackgroundModifierOperation
+        //                ?: fail("background modifier not found")
+        //            val modifierBackgroundColor = Color(red = rcModifierOperation.mR, green =
+        // rcModifierOperation.mG, blue = rcModifierOperation.mB)
+        //            assertEquals(backgroundColor.toArgb(), modifierBackgroundColor)
+        fail("todo: rewrite this test. The fields we were using are now private")
+    }
 
     // TODO(b/450985714): Fix and re-enable this test
     @Ignore("Test not yet written, see b/450985714")
     @Test
-    fun translateBox_backgroundColor_DayNight() =
-        fakeCoroutineScope.runTest {
-            var backgroundColor: ColorProvider
+    fun translateBox_backgroundColor_DayNight() = fakeCoroutineScope.runTest {
+        var backgroundColor: ColorProvider
 
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    backgroundColor = GlanceTheme.colors.background
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                backgroundColor = GlanceTheme.colors.background
 
-                    Box(
-                        modifier =
-                            GlanceModifier.Companion.size(100.dp, 100.dp)
-                                .background(backgroundColor)
-                    ) {
-                        // no content
-                    }
+                Box(
+                    modifier =
+                        GlanceModifier.Companion.size(100.dp, 100.dp).background(backgroundColor)
+                ) {
+                    // no content
                 }
-
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
-
-            /*
-             * TODO:
-             * There's a few ways to do daynight. The first is to duplicate a component into
-             * day and night versions. This is supported as of 2024-12-13, but it might not be the
-             * best solution because it adds more bytes, and the representation of it is a little
-             * hard to discern from the data structure. There's some consideration about other ways
-             * to implement these sorts of themed colors.
-             */
-            TODO("write test")
-        }
-
-    // TODO(b/450985714): Fix and re-enable this test
-    @Ignore("Test not yet written, see b/450985714")
-    @Test
-    fun translateBox_backgroundColor_Resource() =
-        fakeCoroutineScope.runTest {
-            @ColorRes val backgroundColorResource: Int = R.color.system_background_dark
-
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(
-                        modifier =
-                            GlanceModifier.Companion.size(100.dp, 100.dp)
-                                .background(backgroundColorResource)
-                    ) {
-                        // no content
-                    }
-                }
-
-            TODO("Translate a box with a background set to a color resource")
-        }
-
-    // TODO(b/450985714): Fix and re-enable this test
-    @Ignore("Test not yet written, see b/450985714")
-    @Test
-    fun translateBox_backgroundImage_fillBounds() =
-        fakeCoroutineScope.runTest {
-            val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-            bitmap.applyCanvas() {
-                val paint = Paint()
-                paint.color = Color.CYAN
-                paint.style = Paint.Style.FILL
-                drawRect(0f, 0f, 100f, 100f, paint)
             }
 
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(
-                        modifier =
-                            GlanceModifier.Companion.size(100.dp, 100.dp)
-                                .background(
-                                    imageProvider = ImageProvider(bitmap),
-                                    contentScale = ContentScale.Companion.FillBounds,
-                                )
-                    ) {
-                        // no content
-                    }
-                }
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            TODO("Translate a box with a background set to a bitmap")
-        }
+        /*
+         * TODO:
+         * There's a few ways to do daynight. The first is to duplicate a component into
+         * day and night versions. This is supported as of 2024-12-13, but it might not be the
+         * best solution because it adds more bytes, and the representation of it is a little
+         * hard to discern from the data structure. There's some consideration about other ways
+         * to implement these sorts of themed colors.
+         */
+        TODO("write test")
+    }
 
     // TODO(b/450985714): Fix and re-enable this test
     @Ignore("Test not yet written, see b/450985714")
     @Test
-    fun translateBox_backgroundImage_fit() =
-        fakeCoroutineScope.runTest {
-            val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-            bitmap.applyCanvas() {
-                val paint = Paint()
-                paint.color = Color.CYAN
-                paint.style = Paint.Style.FILL
-                drawRect(0f, 0f, 100f, 100f, paint)
+    fun translateBox_backgroundColor_Resource() = fakeCoroutineScope.runTest {
+        @ColorRes val backgroundColorResource: Int = R.color.system_background_dark
+
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(
+                    modifier =
+                        GlanceModifier.Companion.size(100.dp, 100.dp)
+                            .background(backgroundColorResource)
+                ) {
+                    // no content
+                }
             }
 
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(
-                        modifier =
-                            GlanceModifier.Companion.size(100.dp, 150.dp)
-                                .background(
-                                    imageProvider = ImageProvider(bitmap),
-                                    contentScale = ContentScale.Companion.Fit,
-                                )
-                    ) {
-                        // no content
-                    }
-                }
+        TODO("Translate a box with a background set to a color resource")
+    }
 
-            TODO("Translate a box with a background set to a bitmap and check the content scaling")
+    // TODO(b/450985714): Fix and re-enable this test
+    @Ignore("Test not yet written, see b/450985714")
+    @Test
+    fun translateBox_backgroundImage_fillBounds() = fakeCoroutineScope.runTest {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        bitmap.applyCanvas() {
+            val paint = Paint()
+            paint.color = Color.CYAN
+            paint.style = Paint.Style.FILL
+            drawRect(0f, 0f, 100f, 100f, paint)
         }
+
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(
+                    modifier =
+                        GlanceModifier.Companion.size(100.dp, 100.dp)
+                            .background(
+                                imageProvider = ImageProvider(bitmap),
+                                contentScale = ContentScale.Companion.FillBounds,
+                            )
+                ) {
+                    // no content
+                }
+            }
+
+        TODO("Translate a box with a background set to a bitmap")
+    }
+
+    // TODO(b/450985714): Fix and re-enable this test
+    @Ignore("Test not yet written, see b/450985714")
+    @Test
+    fun translateBox_backgroundImage_fit() = fakeCoroutineScope.runTest {
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        bitmap.applyCanvas() {
+            val paint = Paint()
+            paint.color = Color.CYAN
+            paint.style = Paint.Style.FILL
+            drawRect(0f, 0f, 100f, 100f, paint)
+        }
+
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(
+                    modifier =
+                        GlanceModifier.Companion.size(100.dp, 150.dp)
+                            .background(
+                                imageProvider = ImageProvider(bitmap),
+                                contentScale = ContentScale.Companion.Fit,
+                            )
+                ) {
+                    // no content
+                }
+            }
+
+        TODO("Translate a box with a background set to a bitmap and check the content scaling")
+    }
 }

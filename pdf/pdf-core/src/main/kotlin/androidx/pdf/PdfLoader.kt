@@ -64,6 +64,7 @@ public interface PdfLoader {
         uri: Uri,
         fileDescriptor: ParcelFileDescriptor,
         password: String? = null,
-        renderParams: RenderParams = RenderParams(renderMode = RenderParams.RENDER_MODE_FOR_DISPLAY),
+        renderParams: RenderParams =
+            RenderParams(renderMode = RenderParams.RENDER_MODE_FOR_DISPLAY),
     ): PdfDocument
 }

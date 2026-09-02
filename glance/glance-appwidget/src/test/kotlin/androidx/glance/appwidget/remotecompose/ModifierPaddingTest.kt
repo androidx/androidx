@@ -42,137 +42,131 @@ import org.robolectric.annotation.Config
 class ModifierPaddingTest : BaseRemoteComposeTest() {
 
     @Test
-    fun translateBox_horizontalPadding() =
-        fakeCoroutineScope.runTest {
-            val horizontal = 21
+    fun translateBox_horizontalPadding() = fakeCoroutineScope.runTest {
+        val horizontal = 21
 
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.padding(horizontal = horizontal.dp)) {
-                        // no content
-                    }
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.padding(horizontal = horizontal.dp)) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            assertModifierStringContainsSubstring(
-                expectedSubstring = makePaddingString(start = horizontal, end = horizontal),
-                modifierToString = getSinglePaddingModifierStringFromDoc(doc),
-            )
-        }
+        assertModifierStringContainsSubstring(
+            expectedSubstring = makePaddingString(start = horizontal, end = horizontal),
+            modifierToString = getSinglePaddingModifierStringFromDoc(doc),
+        )
+    }
 
     @Test
-    fun translateBox_verticalPadding() =
-        fakeCoroutineScope.runTest {
-            val vertical = 21
+    fun translateBox_verticalPadding() = fakeCoroutineScope.runTest {
+        val vertical = 21
 
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.padding(vertical = vertical.dp)) {
-                        // no content
-                    }
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.padding(vertical = vertical.dp)) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            assertModifierStringContainsSubstring(
-                expectedSubstring = makePaddingString(top = vertical, bottom = vertical),
-                modifierToString = getSinglePaddingModifierStringFromDoc(doc),
-            )
-        }
+        assertModifierStringContainsSubstring(
+            expectedSubstring = makePaddingString(top = vertical, bottom = vertical),
+            modifierToString = getSinglePaddingModifierStringFromDoc(doc),
+        )
+    }
 
     @Test
-    fun translateBox_Padding_start() =
-        fakeCoroutineScope.runTest {
-            val start = 21
+    fun translateBox_Padding_start() = fakeCoroutineScope.runTest {
+        val start = 21
 
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.padding(start = start.dp)) {
-                        // no content
-                    }
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.padding(start = start.dp)) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            assertModifierStringContainsSubstring(
-                expectedSubstring = makePaddingString(start = start),
-                modifierToString = getSinglePaddingModifierStringFromDoc(doc),
-            )
-        }
+        assertModifierStringContainsSubstring(
+            expectedSubstring = makePaddingString(start = start),
+            modifierToString = getSinglePaddingModifierStringFromDoc(doc),
+        )
+    }
 
     @Test
-    fun translateBox_Padding_top() =
-        fakeCoroutineScope.runTest {
-            val top = 21
+    fun translateBox_Padding_top() = fakeCoroutineScope.runTest {
+        val top = 21
 
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.padding(top = top.dp)) {
-                        // no content
-                    }
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.padding(top = top.dp)) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            assertModifierStringContainsSubstring(
-                expectedSubstring = makePaddingString(top = top),
-                modifierToString = getSinglePaddingModifierStringFromDoc(doc),
-            )
-        }
+        assertModifierStringContainsSubstring(
+            expectedSubstring = makePaddingString(top = top),
+            modifierToString = getSinglePaddingModifierStringFromDoc(doc),
+        )
+    }
 
     @Test
-    fun translateBox_Padding_endBottom() =
-        fakeCoroutineScope.runTest {
-            val end = 33
-            val bottom = 44
+    fun translateBox_Padding_endBottom() = fakeCoroutineScope.runTest {
+        val end = 33
+        val bottom = 44
 
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.padding(end = end.dp, bottom = bottom.dp)) {
-                        // no content
-                    }
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.padding(end = end.dp, bottom = bottom.dp)) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            assertModifierStringContainsSubstring(
-                expectedSubstring = makePaddingString(end = end, bottom = bottom),
-                modifierToString = getSinglePaddingModifierStringFromDoc(doc),
-            )
-        }
+        assertModifierStringContainsSubstring(
+            expectedSubstring = makePaddingString(end = end, bottom = bottom),
+            modifierToString = getSinglePaddingModifierStringFromDoc(doc),
+        )
+    }
 
     @Test
-    fun translateBox_Padding() =
-        fakeCoroutineScope.runTest {
-            val start = 11
-            val top = 22
-            val end = 33
-            val bottom = 44
+    fun translateBox_Padding() = fakeCoroutineScope.runTest {
+        val start = 11
+        val top = 22
+        val end = 33
+        val bottom = 44
 
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(
-                        modifier =
-                            GlanceModifier.padding(
-                                start = start.dp,
-                                top = top.dp,
-                                end = end.dp,
-                                bottom = bottom.dp,
-                            )
-                    ) {
-                        // no content
-                    }
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(
+                    modifier =
+                        GlanceModifier.padding(
+                            start = start.dp,
+                            top = top.dp,
+                            end = end.dp,
+                            bottom = bottom.dp,
+                        )
+                ) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            assertModifierStringContainsSubstring(
-                expectedSubstring =
-                    makePaddingString(start = start, top = top, end = end, bottom = bottom),
-                modifierToString = getSinglePaddingModifierStringFromDoc(doc),
-            )
-        }
+        assertModifierStringContainsSubstring(
+            expectedSubstring =
+                makePaddingString(start = start, top = top, end = end, bottom = bottom),
+            modifierToString = getSinglePaddingModifierStringFromDoc(doc),
+        )
+    }
 }
 
 private fun makePaddingString(start: Int = 0, top: Int = 0, end: Int = 0, bottom: Int = 0): String {

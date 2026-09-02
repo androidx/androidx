@@ -374,14 +374,13 @@ public fun updatePaintFromBundle(
                 i++ // filter/maxAnisotropy word (filtering managed by Compose; consumed to stay
                 // synced)
                 val bitmap = resolveBitmap(remoteContext, bitmapId)
-                val shader =
-                    bitmap?.let {
-                        BitmapShader(
-                            it,
-                            nativeTileMode(tileModes and 0xF),
-                            nativeTileMode((tileModes shr 16) and 0xF),
-                        )
-                    }
+                val shader = bitmap?.let {
+                    BitmapShader(
+                        it,
+                        nativeTileMode(tileModes and 0xF),
+                        nativeTileMode((tileModes shr 16) and 0xF),
+                    )
+                }
                 paintState.nativeShader = shader
                 paintState.brush = shader?.let { nativeShaderBrush(it) }
             }

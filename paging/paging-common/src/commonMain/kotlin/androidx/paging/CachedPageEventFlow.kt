@@ -56,15 +56,14 @@ internal class CachedPageEventFlow<T : Any>(src: Flow<PageEvent<T>>, scope: Coro
      * this where it first receives a history event and then any other event that was emitted by the
      * upstream.
      */
-    private val sharedForDownstream =
-        mutableSharedSrc.onSubscription {
-            val history = pageController.getStateAsEvents()
-            // start the job if it has not started yet. We do this after capturing the history so
-            // that
-            // the first subscriber does not receive any history.
-            job.start()
-            history.forEach { emit(it) }
-        }
+    private val sharedForDownstream = mutableSharedSrc.onSubscription {
+        val history = pageController.getStateAsEvents()
+        // start the job if it has not started yet. We do this after capturing the history so
+        // that
+        // the first subscriber does not receive any history.
+        job.start()
+        history.forEach { emit(it) }
+    }
 
     /** The actual job that collects the upstream. */
     private val job =

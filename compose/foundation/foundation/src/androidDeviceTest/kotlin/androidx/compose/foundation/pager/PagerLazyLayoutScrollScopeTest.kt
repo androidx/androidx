@@ -41,18 +41,17 @@ class PagerLazyLayoutScrollScopeTest : BasePagerTest(ParamConfig(Orientation.Hor
             }
         createPager(pageSize = { pageSize })
 
-        val distance =
-            rule.runOnIdle {
-                runBlocking {
-                    var calculatedDistance = 0
-                    pagerState.scroll {
-                        calculatedDistance =
-                            LazyLayoutScrollScope(pagerState, this)
-                                .calculateDistanceTo(DefaultPageCount - 1)
-                    }
-                    calculatedDistance
+        val distance = rule.runOnIdle {
+            runBlocking {
+                var calculatedDistance = 0
+                pagerState.scroll {
+                    calculatedDistance =
+                        LazyLayoutScrollScope(pagerState, this)
+                            .calculateDistanceTo(DefaultPageCount - 1)
                 }
+                calculatedDistance
             }
+        }
 
         assertThat(distance.toLong()).isAtLeast(pagerState.minScrollOffset)
         assertThat(distance.toLong()).isAtMost(pagerState.maxScrollOffset)

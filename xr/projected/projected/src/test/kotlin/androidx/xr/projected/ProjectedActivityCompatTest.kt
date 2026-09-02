@@ -130,14 +130,13 @@ class ProjectedActivityCompatTest {
         runTest(UnconfinedTestDispatcher()) {
             val projectedActivityCompat = ProjectedActivityCompat.create(context)
             var isFlowClosed = false
-            val job =
-                backgroundScope.launch {
-                    try {
-                        projectedActivityCompat.projectedInputEvents.collect { /* Do nothing */ }
-                    } finally {
-                        isFlowClosed = true
-                    }
+            val job = backgroundScope.launch {
+                try {
+                    projectedActivityCompat.projectedInputEvents.collect { /* Do nothing */ }
+                } finally {
+                    isFlowClosed = true
                 }
+            }
 
             projectedActivityCompat.close()
             job.join()

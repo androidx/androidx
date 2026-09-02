@@ -69,7 +69,8 @@ fun SwipeToRevealSample() {
                 text = { Text("Delete") },
             )
         },
-        onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
+        onSwipePrimaryAction = {
+            /* This block is called when the full swipe gesture is performed. */
         },
         secondaryAction = {
             SecondaryActionButton(
@@ -119,7 +120,8 @@ fun SwipeToRevealSingleActionCardSample() {
                 modifier = Modifier.height(SwipeToRevealDefaults.LargeActionButtonHeight),
             )
         },
-        onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
+        onSwipePrimaryAction = {
+            /* This block is called when the full swipe gesture is performed. */
         },
         undoPrimaryAction = {
             UndoActionButton(
@@ -278,7 +280,8 @@ fun SwipeToRevealWithScalingLazyColumnSample() {
                 onSwipePrimaryAction = { messages.remove(message) },
                 secondaryAction = {
                     SecondaryActionButton(
-                        onClick = { /* This block is called when the secondary action is executed. */
+                        onClick = {
+                            /* This block is called when the secondary action is executed. */
                         },
                         icon = { Icon(Icons.Outlined.MoreVert, contentDescription = "Options") },
                     )

@@ -394,22 +394,21 @@ public fun SemanticsNodeInteraction.getFirstLinkBounds(
         val text = textLayoutResult.layoutInput.text
         val link = text.getLinkAnnotations(0, text.length).firstOrNull(predicate)
 
-        val boundsOfLink =
-            link?.let {
-                val firstCharIndex = it.start
-                val lineForLink = textLayoutResult.getLineForOffset(firstCharIndex)
-                val lastCharIndex = min(textLayoutResult.getLineEnd(lineForLink), it.end) - 1
+        val boundsOfLink = link?.let {
+            val firstCharIndex = it.start
+            val lineForLink = textLayoutResult.getLineForOffset(firstCharIndex)
+            val lastCharIndex = min(textLayoutResult.getLineEnd(lineForLink), it.end) - 1
 
-                val startBB = textLayoutResult.getBoundingBox(firstCharIndex)
-                val endBB = textLayoutResult.getBoundingBox(lastCharIndex)
+            val startBB = textLayoutResult.getBoundingBox(firstCharIndex)
+            val endBB = textLayoutResult.getBoundingBox(lastCharIndex)
 
-                Rect(
-                    min(startBB.left, endBB.left),
-                    startBB.top,
-                    max(startBB.right, endBB.right),
-                    startBB.bottom,
-                )
-            }
+            Rect(
+                min(startBB.left, endBB.left),
+                startBB.top,
+                max(startBB.right, endBB.right),
+                startBB.bottom,
+            )
+        }
         if (boundsOfLink != null) return@withDensity boundsOfLink
     }
     return@withDensity null

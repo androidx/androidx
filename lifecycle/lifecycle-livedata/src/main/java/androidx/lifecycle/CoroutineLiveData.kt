@@ -164,12 +164,11 @@ internal class BlockRunner<T>(
         if (runningJob != null) {
             return
         }
-        runningJob =
-            scope.launch {
-                val liveDataScope = LiveDataScopeImpl(liveData, coroutineContext)
-                block(liveDataScope)
-                onDone()
-            }
+        runningJob = scope.launch {
+            val liveDataScope = LiveDataScopeImpl(liveData, coroutineContext)
+            block(liveDataScope)
+            onDone()
+        }
     }
 
     @MainThread

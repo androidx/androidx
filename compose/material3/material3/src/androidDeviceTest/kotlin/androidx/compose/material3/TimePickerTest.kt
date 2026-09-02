@@ -1343,16 +1343,14 @@ class TimePickerTest {
             TimeScroll(state, shapes = TimePickerDefaults.shapes())
         }
 
-        val expectedHourDescription =
-            rule.runOnIdle {
-                val res = InstrumentationRegistry.getInstrumentation().context.resources
-                res.getString(R.string.m3c_time_picker_hour_suffix, 12)
-            }
-        val expectedMinuteDescription =
-            rule.runOnIdle {
-                val res = InstrumentationRegistry.getInstrumentation().context.resources
-                res.getString(R.string.m3c_time_picker_minute_suffix, 30)
-            }
+        val expectedHourDescription = rule.runOnIdle {
+            val res = InstrumentationRegistry.getInstrumentation().context.resources
+            res.getString(R.string.m3c_time_picker_hour_suffix, 12)
+        }
+        val expectedMinuteDescription = rule.runOnIdle {
+            val res = InstrumentationRegistry.getInstrumentation().context.resources
+            res.getString(R.string.m3c_time_picker_minute_suffix, 30)
+        }
 
         rule
             .onNode(hasStateDescription(expectedHourDescription), useUnmergedTree = true)
@@ -1370,16 +1368,14 @@ class TimePickerTest {
             TimeScroll(state, shapes = TimePickerDefaults.shapes())
         }
 
-        val expectedHourDescription =
-            rule.runOnIdle {
-                val res = InstrumentationRegistry.getInstrumentation().context.resources
-                res.getString(R.string.m3c_time_picker_hour_24h_suffix, 0)
-            }
-        val expectedMinuteDescription =
-            rule.runOnIdle {
-                val res = InstrumentationRegistry.getInstrumentation().context.resources
-                res.getString(R.string.m3c_time_picker_minute_suffix, 5)
-            }
+        val expectedHourDescription = rule.runOnIdle {
+            val res = InstrumentationRegistry.getInstrumentation().context.resources
+            res.getString(R.string.m3c_time_picker_hour_24h_suffix, 0)
+        }
+        val expectedMinuteDescription = rule.runOnIdle {
+            val res = InstrumentationRegistry.getInstrumentation().context.resources
+            res.getString(R.string.m3c_time_picker_minute_suffix, 5)
+        }
 
         rule
             .onNode(hasStateDescription(expectedHourDescription), useUnmergedTree = true)

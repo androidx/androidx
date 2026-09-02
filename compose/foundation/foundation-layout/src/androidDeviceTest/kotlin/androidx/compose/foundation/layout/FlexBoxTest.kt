@@ -202,7 +202,9 @@ class FlexBoxTest {
                         horizontalLine = TestHorizontalLine,
                         modifier =
                             Modifier.flex { alignSelf(TestHorizontalLine) }
-                                .onGloballyPositioned { yPositions.add(0, it.positionInParent().y) },
+                                .onGloballyPositioned {
+                                    yPositions.add(0, it.positionInParent().y)
+                                },
                     )
                     BaselineTestLayout(
                         width = 50.dp,
@@ -211,7 +213,9 @@ class FlexBoxTest {
                         horizontalLine = TestHorizontalLine,
                         modifier =
                             Modifier.flex { alignSelf(TestHorizontalLine) }
-                                .onGloballyPositioned { yPositions.add(1, it.positionInParent().y) },
+                                .onGloballyPositioned {
+                                    yPositions.add(1, it.positionInParent().y)
+                                },
                     )
                 }
             }

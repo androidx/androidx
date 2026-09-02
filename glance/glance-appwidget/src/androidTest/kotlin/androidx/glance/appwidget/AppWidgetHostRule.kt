@@ -305,10 +305,9 @@ class AppWidgetHostRule(
     ) {
         val hostView = mHostView
         val latch = CountDownLatch(1)
-        val onDrawListener =
-            ViewTreeObserver.OnDrawListener {
-                if (hostView.childCount > 0 && test()) latch.countDown()
-            }
+        val onDrawListener = ViewTreeObserver.OnDrawListener {
+            if (hostView.childCount > 0 && test()) latch.countDown()
+        }
         mActivityRule.scenario.onActivity {
             hostView.viewTreeObserver.addOnDrawListener(onDrawListener)
         }

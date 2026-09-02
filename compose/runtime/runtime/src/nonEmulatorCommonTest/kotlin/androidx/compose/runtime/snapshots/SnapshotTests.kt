@@ -222,11 +222,10 @@ class SnapshotTests {
     fun appliesCanBeObserved() {
         val state = mutableIntStateOf(0)
         var observedSnapshot: Snapshot? = null
-        val unregister =
-            Snapshot.registerApplyObserver { changed, snapshot ->
-                assertTrue(state in changed)
-                observedSnapshot = snapshot
-            }
+        val unregister = Snapshot.registerApplyObserver { changed, snapshot ->
+            assertTrue(state in changed)
+            observedSnapshot = snapshot
+        }
         val snapshot = takeMutableSnapshot()
         try {
             snapshot.enter { state.intValue = 2 }
@@ -246,11 +245,10 @@ class SnapshotTests {
         Snapshot.notifyObjectsInitialized()
 
         var applyObserved = false
-        val unregister =
-            Snapshot.registerApplyObserver { changed, _ ->
-                assertTrue(state in changed)
-                applyObserved = true
-            }
+        val unregister = Snapshot.registerApplyObserver { changed, _ ->
+            assertTrue(state in changed)
+            applyObserved = true
+        }
         try {
             state.intValue = 2
 
@@ -271,10 +269,9 @@ class SnapshotTests {
         val state = mutableIntStateOf(0)
 
         var notificationsPendingWhileObserving = false
-        val unregister =
-            Snapshot.registerApplyObserver { _, _ ->
-                notificationsPendingWhileObserving = Snapshot.isApplyObserverNotificationPending
-            }
+        val unregister = Snapshot.registerApplyObserver { _, _ ->
+            notificationsPendingWhileObserving = Snapshot.isApplyObserverNotificationPending
+        }
 
         try {
             // Normally not pending
@@ -829,11 +826,10 @@ class SnapshotTests {
     @Test
     fun canTakeNestedSnapshotsFromApplyObserver() {
         var takenSnapshot: Snapshot? = null
-        val observer =
-            Snapshot.registerApplyObserver { _, snapshot ->
-                if (takenSnapshot != null) error("already took a nested snapshot")
-                takenSnapshot = snapshot.takeNestedSnapshot()
-            }
+        val observer = Snapshot.registerApplyObserver { _, snapshot ->
+            if (takenSnapshot != null) error("already took a nested snapshot")
+            takenSnapshot = snapshot.takeNestedSnapshot()
+        }
 
         try {
             var state by mutableStateOf("initial")
@@ -853,13 +849,12 @@ class SnapshotTests {
     @Test
     fun canTakeNestedMutableSnapshotsFromApplyObserver() {
         var takenSnapshot: MutableSnapshot? = null
-        val observer =
-            Snapshot.registerApplyObserver { _, snapshot ->
-                if (takenSnapshot != null) error("already took a nested snapshot")
-                takenSnapshot =
-                    (snapshot as? MutableSnapshot)?.takeNestedMutableSnapshot()
-                        ?: error("Applied snapshot was not mutable")
-            }
+        val observer = Snapshot.registerApplyObserver { _, snapshot ->
+            if (takenSnapshot != null) error("already took a nested snapshot")
+            takenSnapshot =
+                (snapshot as? MutableSnapshot)?.takeNestedMutableSnapshot()
+                    ?: error("Applied snapshot was not mutable")
+        }
 
         try {
             var state by mutableStateOf("initial")
@@ -1483,12 +1478,11 @@ class SnapshotTests {
 
         val snapshot2 = takeMutableSnapshot()
         var stateObserved = false
-        val handle =
-            Snapshot.registerApplyObserver { changed, _ ->
-                if (state!! in changed) {
-                    stateObserved = true
-                }
+        val handle = Snapshot.registerApplyObserver { changed, _ ->
+            if (state!! in changed) {
+                stateObserved = true
             }
+        }
 
         try {
             snapshot2.enter {
@@ -1539,8 +1533,9 @@ class SnapshotTests {
 
 internal fun <T> changesOf(state: State<T>, block: () -> Unit): Int {
     var changes = 0
-    val removeObserver =
-        Snapshot.registerApplyObserver { states, _ -> if (states.contains(state)) changes++ }
+    val removeObserver = Snapshot.registerApplyObserver { states, _ ->
+        if (states.contains(state)) changes++
+    }
     try {
         block()
         Snapshot.sendApplyNotifications()
@@ -1552,10 +1547,9 @@ internal fun <T> changesOf(state: State<T>, block: () -> Unit): Int {
 
 internal fun observeChanges(snapshot: Snapshot, block: () -> Unit): Set<Any> {
     var changes = setOf<Any>()
-    val removeObserver =
-        Snapshot.registerApplyObserver { states, changedSnapshot ->
-            if (changedSnapshot == snapshot) changes = states
-        }
+    val removeObserver = Snapshot.registerApplyObserver { states, changedSnapshot ->
+        if (changedSnapshot == snapshot) changes = states
+    }
     try {
         block()
         Snapshot.sendApplyNotifications()

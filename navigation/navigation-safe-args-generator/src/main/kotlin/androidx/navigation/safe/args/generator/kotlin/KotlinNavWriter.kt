@@ -48,40 +48,39 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
         val actionTypes =
             destination.actions.map { action -> action to generateDirectionTypeSpec(action) }
 
-        val actionsFunSpec =
-            actionTypes.map { (action, actionTypeSpec) ->
-                val typeName = ClassName("", actionTypeSpec.name!!)
-                val parameters =
-                    action.args
-                        .map { arg ->
-                            ParameterSpec.builder(
-                                    name = arg.sanitizedName,
-                                    type = arg.type.typeName().copy(nullable = arg.isNullable),
-                                )
-                                .apply { arg.defaultValue?.let { defaultValue(it.write()) } }
-                                .build()
-                        }
-                        .sortedBy { it.defaultValue != null }
-                FunSpec.builder(action.id.javaIdentifier.toCamelCaseAsVar())
-                    .apply {
-                        returns(NAV_DIRECTION_CLASSNAME)
-                        addAnnotation(CHECK_RESULT)
-                        addParameters(parameters)
-                        if (action.args.isEmpty()) {
-                            addStatement(
-                                "return %T(%L)",
-                                ACTION_ONLY_NAV_DIRECTION_CLASSNAME,
-                                action.id.accessor(),
+        val actionsFunSpec = actionTypes.map { (action, actionTypeSpec) ->
+            val typeName = ClassName("", actionTypeSpec.name!!)
+            val parameters =
+                action.args
+                    .map { arg ->
+                        ParameterSpec.builder(
+                                name = arg.sanitizedName,
+                                type = arg.type.typeName().copy(nullable = arg.isNullable),
                             )
-                        } else {
-                            addStatement(
-                                "return %T(${parameters.joinToString(", ") { it.name }})",
-                                typeName,
-                            )
-                        }
+                            .apply { arg.defaultValue?.let { defaultValue(it.write()) } }
+                            .build()
                     }
-                    .build()
-            }
+                    .sortedBy { it.defaultValue != null }
+            FunSpec.builder(action.id.javaIdentifier.toCamelCaseAsVar())
+                .apply {
+                    returns(NAV_DIRECTION_CLASSNAME)
+                    addAnnotation(CHECK_RESULT)
+                    addParameters(parameters)
+                    if (action.args.isEmpty()) {
+                        addStatement(
+                            "return %T(%L)",
+                            ACTION_ONLY_NAV_DIRECTION_CLASSNAME,
+                            action.id.accessor(),
+                        )
+                    } else {
+                        addStatement(
+                            "return %T(${parameters.joinToString(", ") { it.name }})",
+                            typeName,
+                        )
+                    }
+                }
+                .build()
+        }
 
         // The parent destination list is ordered from the closest to the farthest parent of the
         // processing destination in the graph hierarchy.

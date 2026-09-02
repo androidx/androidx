@@ -69,7 +69,9 @@ constructor(
     public val compareMode: CompareMode = CompareMode.NONE,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     public val compareFunction: CompareFunction = CompareFunction.LESSER_OR_EQUAL,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY) @IntRange(from = 0) public val anisotropyLog2: Int = 0,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntRange(from = 0)
+    public val anisotropyLog2: Int = 0,
 ) {
     /**
      * Defines the sampling behavior for a texture.

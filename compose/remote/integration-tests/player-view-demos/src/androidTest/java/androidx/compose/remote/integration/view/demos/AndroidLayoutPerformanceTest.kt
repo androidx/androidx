@@ -716,23 +716,21 @@ class AndroidLayoutPerformanceTest {
         measuredRuns: Int,
         optimizationMask: Int,
     ): BenchmarkResult {
-        val docs =
-            demoByteArrays.map { bytes ->
-                val doc = CoreDocument(SystemClock())
-                doc.setOptimizationLevel(optimizationMask)
-                val buffer = RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(bytes))
-                doc.initFromBuffer(buffer)
-                doc
-            }
+        val docs = demoByteArrays.map { bytes ->
+            val doc = CoreDocument(SystemClock())
+            doc.setOptimizationLevel(optimizationMask)
+            val buffer = RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(bytes))
+            doc.initFromBuffer(buffer)
+            doc
+        }
 
-        val contexts =
-            docs.map { doc ->
-                val debugContext = AndroidMockRemoteContext(doc)
-                debugContext.mWidth = 1000f
-                debugContext.mHeight = 1000f
-                doc.initializeContext(debugContext)
-                debugContext
-            }
+        val contexts = docs.map { doc ->
+            val debugContext = AndroidMockRemoteContext(doc)
+            debugContext.mWidth = 1000f
+            debugContext.mHeight = 1000f
+            doc.initializeContext(debugContext)
+            debugContext
+        }
 
         val width = 1000f
         val height = 1000f

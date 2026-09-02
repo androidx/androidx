@@ -403,13 +403,12 @@ class CameraViewModel(private val savedStateHandle: SavedStateHandle) : ViewMode
                 it.close()
             }
 
-            imageAnalysisJob =
-                viewModelScope.launch {
-                    while (true) {
-                        delay(1.seconds)
-                        _imageAnalysisFrameCount.value = (frameCount.get() + 5) / 10 * 10
-                    }
+            imageAnalysisJob = viewModelScope.launch {
+                while (true) {
+                    delay(1.seconds)
+                    _imageAnalysisFrameCount.value = (frameCount.get() + 5) / 10 * 10
                 }
+            }
         } else {
             imageAnalysisJob?.cancel()
             imageAnalysis.clearAnalyzer()

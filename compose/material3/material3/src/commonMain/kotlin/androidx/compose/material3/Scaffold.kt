@@ -231,18 +231,17 @@ private fun ScaffoldLayout(
 
         val bottomBarHeight = bottomBarPlaceables.fastMaxBy { it.height }?.height
 
-        val fabOffsetFromBottom =
-            fabPlacement?.let {
-                if (bottomBarHeight == null || fabPosition == FabPosition.EndOverlay) {
-                    it.height +
-                        FabSpacing.roundToPx() +
-                        contentWindowInsets.getBottom(this@SubcomposeLayout)
-                } else {
-                    // Total height is the bottom bar height + the FAB height + the padding
-                    // between the FAB and bottom bar
-                    bottomBarHeight + it.height + FabSpacing.roundToPx()
-                }
+        val fabOffsetFromBottom = fabPlacement?.let {
+            if (bottomBarHeight == null || fabPosition == FabPosition.EndOverlay) {
+                it.height +
+                    FabSpacing.roundToPx() +
+                    contentWindowInsets.getBottom(this@SubcomposeLayout)
+            } else {
+                // Total height is the bottom bar height + the FAB height + the padding
+                // between the FAB and bottom bar
+                bottomBarHeight + it.height + FabSpacing.roundToPx()
             }
+        }
 
         val snackbarOffsetFromBottom =
             if (snackbarHeight != 0) {

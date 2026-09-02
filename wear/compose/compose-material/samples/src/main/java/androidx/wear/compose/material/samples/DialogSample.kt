@@ -174,19 +174,13 @@ fun AlertWithButtons() {
         negativeButton = {
             Button(
                 colors = ButtonDefaults.secondaryButtonColors(),
-                onClick = {
-                    /* Do something e.g. navController.popBackStack()*/
-                },
+                onClick = { /* Do something e.g. navController.popBackStack()*/ },
             ) {
                 Text("No")
             }
         },
         positiveButton = {
-            Button(
-                onClick = {
-                    /* Do something e.g. navController.popBackStack()*/
-                }
-            ) {
+            Button(onClick = { /* Do something e.g. navController.popBackStack()*/ }) {
                 Text("Yes")
             }
         },
@@ -243,9 +237,7 @@ fun AlertWithChips() {
 fun ConfirmationWithAnimation() {
     val animation = AnimatedImageVector.animatedVectorResource(R.drawable.open_on_phone_animation)
     Confirmation(
-        onTimeout = {
-            /* Do something e.g. navController.popBackStack() */
-        },
+        onTimeout = { /* Do something e.g. navController.popBackStack() */ },
         icon = {
             // Initially, animation is static and shown at the start position (atEnd = false).
             // Then, we use the EffectAPI to trigger a state change to atEnd = true,

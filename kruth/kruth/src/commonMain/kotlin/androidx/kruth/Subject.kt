@@ -468,22 +468,21 @@ internal constructor(
 }
 
 internal fun lenientFormat(template: String, args: Array<out Any?>): String {
-    val argsToLenientStrings =
-        args.map {
-            if (it == null) {
-                return@map "null"
-            }
-
-            try {
-                it.toString()
-            } catch (e: Exception) {
-                // Default toString() behavior - see Object.toString()
-                val className = it::class.simpleName
-                val exceptionClassName = e::class.simpleName
-                val hashCodeHexString = it.hashCode().toUInt().toString(16)
-                "<$$className@$hashCodeHexString threw $exceptionClassName>"
-            }
+    val argsToLenientStrings = args.map {
+        if (it == null) {
+            return@map "null"
         }
+
+        try {
+            it.toString()
+        } catch (e: Exception) {
+            // Default toString() behavior - see Object.toString()
+            val className = it::class.simpleName
+            val exceptionClassName = e::class.simpleName
+            val hashCodeHexString = it.hashCode().toUInt().toString(16)
+            "<$$className@$hashCodeHexString threw $exceptionClassName>"
+        }
+    }
 
     var i = 0
     val formattedString =

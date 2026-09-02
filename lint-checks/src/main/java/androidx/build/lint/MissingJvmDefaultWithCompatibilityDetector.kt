@@ -124,10 +124,9 @@ class MissingJvmDefaultWithCompatibilityDetector : Detector(), SourceCodeScanner
         }
 
         /** Returns a list of the class's stable methods (methods not labelled as experimental). */
-        private fun UClass.stableMethods(): List<UMethod> =
-            methods.filter {
-                !it.annotatedWithAnyOf(BanInappropriateExperimentalUsage.APPLICABLE_ANNOTATIONS)
-            }
+        private fun UClass.stableMethods(): List<UMethod> = methods.filter {
+            !it.annotatedWithAnyOf(BanInappropriateExperimentalUsage.APPLICABLE_ANNOTATIONS)
+        }
 
         /**
          * Checks if the element is annotated with any of the provided (fully qualified) annotation
@@ -140,8 +139,9 @@ class MissingJvmDefaultWithCompatibilityDetector : Detector(), SourceCodeScanner
 
         private fun UMethod.hasDefaultImplementation(): Boolean = uastBody != null
 
-        private fun UMethod.hasParameterWithDefaultValue(): Boolean =
-            uastParameters.any { param -> param.uastInitializer != null }
+        private fun UMethod.hasParameterWithDefaultValue(): Boolean = uastParameters.any { param ->
+            param.uastInitializer != null
+        }
     }
 
     companion object {

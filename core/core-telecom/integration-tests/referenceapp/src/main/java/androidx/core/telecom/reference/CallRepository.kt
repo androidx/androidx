@@ -206,14 +206,13 @@ class CallRepository {
         // Cancel any previous job before starting a new one
         mServiceCollectionJob?.cancel()
 
-        mServiceCollectionJob =
-            mRepositoryScope.launch {
-                Log.i(LOG_TAG, "Starting collection from service flow")
-                serviceBinder.callDataUpdates.collect { dataList ->
-                    Log.v(LOG_TAG, "Received data update from service: ${dataList.size} calls")
-                    _callDataFlow.value = dataList // Update the repository's StateFlow
-                }
+        mServiceCollectionJob = mRepositoryScope.launch {
+            Log.i(LOG_TAG, "Starting collection from service flow")
+            serviceBinder.callDataUpdates.collect { dataList ->
+                Log.v(LOG_TAG, "Received data update from service: ${dataList.size} calls")
+                _callDataFlow.value = dataList // Update the repository's StateFlow
             }
+        }
         Log.d(LOG_TAG, "Collection job started: $mServiceCollectionJob")
     }
 

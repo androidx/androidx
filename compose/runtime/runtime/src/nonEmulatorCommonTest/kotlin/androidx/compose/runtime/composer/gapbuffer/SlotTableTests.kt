@@ -131,13 +131,12 @@ class SlotTableTests {
     @Test
     fun testInsertInTheMiddle() {
         val slots = testSlotsNumbered()
-        val seekAmount =
-            slots.read { reader ->
-                reader.startGroup()
-                val start = reader.currentGroup
-                repeat(50) { reader.skipGroup() }
-                reader.currentGroup - start
-            }
+        val seekAmount = slots.read { reader ->
+            reader.startGroup()
+            val start = reader.currentGroup
+            repeat(50) { reader.skipGroup() }
+            reader.currentGroup - start
+        }
         slots.write { writer ->
             writer.startGroup()
             writer.advanceBy(seekAmount)
@@ -258,18 +257,17 @@ class SlotTableTests {
     @Test
     fun testAllocateAnchors() {
         val slots = testSlotsNumbered()
-        val anchors =
-            slots.read { reader ->
-                val anchors = mutableListOf<GapAnchor>()
-                reader.startGroup()
-                repeat(7) {
-                    repeat(10) { reader.skipGroup() }
-                    anchors.add(reader.anchor())
-                }
-                reader.skipToGroupEnd()
-                reader.endGroup()
-                anchors
+        val anchors = slots.read { reader ->
+            val anchors = mutableListOf<GapAnchor>()
+            reader.startGroup()
+            repeat(7) {
+                repeat(10) { reader.skipGroup() }
+                anchors.add(reader.anchor())
             }
+            reader.skipToGroupEnd()
+            reader.endGroup()
+            anchors
+        }
         slots.read { reader ->
             anchors.forEachIndexed { index, anchor ->
                 val key = reader.groupKey(anchor.toIndexFor(slots))
@@ -281,18 +279,17 @@ class SlotTableTests {
     @Test
     fun testAnchorsTrackInserts() {
         val slots = testSlotsNumbered()
-        val anchors =
-            slots.read { reader ->
-                val anchors = mutableListOf<GapAnchor>()
-                reader.startGroup()
-                repeat(7) {
-                    repeat(10) { reader.skipGroup() }
-                    anchors.add(reader.anchor())
-                }
-                reader.skipToGroupEnd()
-                reader.endGroup()
-                anchors
+        val anchors = slots.read { reader ->
+            val anchors = mutableListOf<GapAnchor>()
+            reader.startGroup()
+            repeat(7) {
+                repeat(10) { reader.skipGroup() }
+                anchors.add(reader.anchor())
             }
+            reader.skipToGroupEnd()
+            reader.endGroup()
+            anchors
+        }
         slots.write { writer ->
             writer.startGroup()
             repeat(41) { writer.skipGroup() }
@@ -1331,13 +1328,12 @@ class SlotTableTests {
         }
 
         val slotsToMove = sourceAnchors.shuffled(random)
-        val slotKeys =
-            sourceTable.read { reader ->
-                slotsToMove.map { anchor ->
-                    val location = anchor.toIndexFor(sourceTable)
-                    reader.groupKey(location)
-                }
+        val slotKeys = sourceTable.read { reader ->
+            slotsToMove.map { anchor ->
+                val location = anchor.toIndexFor(sourceTable)
+                reader.groupKey(location)
             }
+        }
 
         val movedAnchors = mutableSetOf<GapAnchor>()
         slotsToMove.forEach { anchor ->
@@ -1364,13 +1360,12 @@ class SlotTableTests {
         }
 
         // Verify the anchors still point to the correct groups
-        val movedKeys =
-            destinationTable.read { reader ->
-                slotsToMove.map { anchor ->
-                    val location = anchor.toIndexFor(destinationTable)
-                    reader.groupKey(location)
-                }
+        val movedKeys = destinationTable.read { reader ->
+            slotsToMove.map { anchor ->
+                val location = anchor.toIndexFor(destinationTable)
+                reader.groupKey(location)
             }
+        }
         assertEquals(slotKeys.size, movedKeys.size, "slot keys changed")
         for (index in slotKeys.indices) {
             val sourceKey = slotKeys[index]
@@ -2384,17 +2379,16 @@ class SlotTableTests {
     fun testWriterGroupSlots() {
         val slots = testItems()
         val allSlots = slots.write { writer -> writer.groupSlots() }.toList()
-        val sumSlots =
-            slots.write { writer ->
-                val list = mutableListOf<Any?>()
-                writer.startGroup()
-                while (!writer.isGroupEnd) {
-                    list.addAll(writer.groupSlots().toList())
-                    writer.skipGroup()
-                }
-                writer.endGroup()
-                list
+        val sumSlots = slots.write { writer ->
+            val list = mutableListOf<Any?>()
+            writer.startGroup()
+            while (!writer.isGroupEnd) {
+                list.addAll(writer.groupSlots().toList())
+                writer.skipGroup()
             }
+            writer.endGroup()
+            list
+        }
         assertEquals(allSlots.size, sumSlots.size)
         allSlots.forEachIndexed { index, item -> assertEquals(item, sumSlots[index]) }
     }

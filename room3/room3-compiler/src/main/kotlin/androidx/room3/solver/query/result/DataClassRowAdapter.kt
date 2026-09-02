@@ -66,14 +66,13 @@ class DataClassRowAdapter(
                         property
                     }
                 }
-            val notRequired =
-                remainingProperties.filter { property ->
-                    dataClass.constructor
-                        ?.params
-                        ?.filterIsInstance<Constructor.Param.PropertyParam>()
-                        ?.firstOrNull { it.property == property }
-                        ?.hasDefaultValue == true
-                }
+            val notRequired = remainingProperties.filter { property ->
+                dataClass.constructor
+                    ?.params
+                    ?.filterIsInstance<Constructor.Param.PropertyParam>()
+                    ?.firstOrNull { it.property == property }
+                    ?.hasDefaultValue == true
+            }
             remainingProperties.removeAll(notRequired)
             val nonNulls = remainingProperties.filter { it.nonNull }
             if (nonNulls.isNotEmpty()) {
@@ -127,15 +126,14 @@ class DataClassRowAdapter(
         scope: CodeGenScope,
         indices: List<ColumnIndexVar>,
     ) {
-        propertiesWithIndices =
-            indices.map { (column, indexVar) ->
-                val property = mapping.matchedProperties.first { it.columnName == column }
-                PropertyWithIndex(
-                    property = property,
-                    indexVar = indexVar,
-                    alwaysExists = info != null,
-                )
-            }
+        propertiesWithIndices = indices.map { (column, indexVar) ->
+            val property = mapping.matchedProperties.first { it.columnName == column }
+            PropertyWithIndex(
+                property = property,
+                indexVar = indexVar,
+                alwaysExists = info != null,
+            )
+        }
         emitRelationCollectorsReady(stmtVarName, scope)
     }
 

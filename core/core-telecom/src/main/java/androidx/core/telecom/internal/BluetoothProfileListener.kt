@@ -79,9 +79,9 @@ internal class BluetoothProfileListener(
     private fun getBluetoothProfileProxies(context: Context) {
         BLUETOOTH_PROFILES.forEach { profile ->
             runCatching {
-                    val hasProxy = mBluetoothAdapter?.getProfileProxy(context, this, profile)
-                    Log.d(TAG, "gBPP: btProfile=[$profile] isConnect=[$hasProxy]")
-                }
+                val hasProxy = mBluetoothAdapter?.getProfileProxy(context, this, profile)
+                Log.d(TAG, "gBPP: btProfile=[$profile] isConnect=[$hasProxy]")
+            }
                 .onFailure { e ->
                     Log.e(TAG, "gBPP: hit exception while getting bluetooth profile=[$profile]", e)
                 }

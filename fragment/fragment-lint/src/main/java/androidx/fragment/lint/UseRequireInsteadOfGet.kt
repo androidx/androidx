@@ -82,8 +82,9 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                 "getView",
             )
         // Convert 'getArguments' to 'arguments'
-        internal val REQUIRABLE_REFERENCES =
-            REQUIRABLE_METHODS.map { it.removePrefix("get").decapitalize(Locale.US) }
+        internal val REQUIRABLE_REFERENCES = REQUIRABLE_METHODS.map {
+            it.removePrefix("get").decapitalize(Locale.US)
+        }
         internal val KNOWN_NULLCHECKS = setOf("checkNotNull", "requireNonNull")
     }
 

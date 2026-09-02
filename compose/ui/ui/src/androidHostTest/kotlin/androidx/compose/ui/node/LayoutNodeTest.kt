@@ -894,11 +894,10 @@ class LayoutNodeTest {
         parent.attach(MockOwner())
         val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
-        child.modifier =
-            Modifier.graphicsLayer {
-                translationX = 5f
-                translationY = 2f
-            }
+        child.modifier = Modifier.graphicsLayer {
+            translationX = 5f
+            translationY = 2f
+        }
         parent.outerCoordinator.measure(listOf(parent.outerCoordinator), Constraints())
         child.outerCoordinator.measure(listOf(child.outerCoordinator), Constraints())
         parent.place(0, 0)
@@ -988,20 +987,18 @@ class LayoutNodeTest {
         parent.attach(MockOwner())
         val child1 = ZeroSizedLayoutNode()
         parent.insertAt(0, child1)
-        child1.modifier =
-            Modifier.graphicsLayer {
-                scaleX = 0.5f
-                scaleY = 0.25f
-                transformOrigin = TransformOrigin(0f, 0f)
-            }
+        child1.modifier = Modifier.graphicsLayer {
+            scaleX = 0.5f
+            scaleY = 0.25f
+            transformOrigin = TransformOrigin(0f, 0f)
+        }
         val child2 = ZeroSizedLayoutNode()
         parent.insertAt(0, child2)
-        child2.modifier =
-            Modifier.graphicsLayer {
-                scaleX = 5f
-                scaleY = 2f
-                transformOrigin = TransformOrigin(0f, 0f)
-            }
+        child2.modifier = Modifier.graphicsLayer {
+            scaleX = 5f
+            scaleY = 2f
+            transformOrigin = TransformOrigin(0f, 0f)
+        }
         parent.outerCoordinator.measure(listOf(parent.outerCoordinator), Constraints())
         child1.outerCoordinator.measure(listOf(child1.outerCoordinator), Constraints())
         child2.outerCoordinator.measure(listOf(child2.outerCoordinator), Constraints())

@@ -193,8 +193,9 @@ fun remoteMediatorPageKeyedSample() {
                             return MediatorResult.Success(endOfPaginationReached = true)
                         // Query remoteKeyDao for the next RemoteKey.
                         LoadType.APPEND -> {
-                            val remoteKey =
-                                database.withTransaction { remoteKeyDao.remoteKeyByQuery(query) }
+                            val remoteKey = database.withTransaction {
+                                remoteKeyDao.remoteKeyByQuery(query)
+                            }
 
                             // We must explicitly check if the page key is `null` when appending,
                             // since `null` is only valid for initial load. If we receive `null`

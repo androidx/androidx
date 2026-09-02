@@ -126,58 +126,53 @@ internal class TextFieldKeyInput(
                 KeyCommand.LINE_RIGHT -> moveCursorToLineRightSide()
                 KeyCommand.HOME -> moveCursorToHome()
                 KeyCommand.END -> moveCursorToEnd()
-                KeyCommand.DELETE_PREV_CHAR ->
-                    deleteIfSelectedOr {
-                            val precedingCodePointIndex = getPrecedingCodePointOrEmojiStartIndex()
-                            if (precedingCodePointIndex == NoCharacterFound) {
-                                return@deleteIfSelectedOr null
-                            }
-                            DeleteSurroundingTextCommand(selection.end - precedingCodePointIndex, 0)
+                KeyCommand.DELETE_PREV_CHAR -> deleteIfSelectedOr {
+                        val precedingCodePointIndex = getPrecedingCodePointOrEmojiStartIndex()
+                        if (precedingCodePointIndex == NoCharacterFound) {
+                            return@deleteIfSelectedOr null
                         }
+                        DeleteSurroundingTextCommand(selection.end - precedingCodePointIndex, 0)
+                    }
                         ?.apply()
                 KeyCommand.DELETE_NEXT_CHAR -> {
                     // Note that some software keyboards, such as Samsungs, go through this code
                     // path instead of making calls on the InputConnection directly.
                     deleteIfSelectedOr {
-                            val nextCharacterIndex = getNextCharacterIndex()
-                            // If there's no next character, it means the cursor is at the end of
-                            // the
-                            // text, and this should be a no-op. See b/199919707.
-                            if (nextCharacterIndex != NoCharacterFound) {
-                                DeleteSurroundingTextCommand(0, nextCharacterIndex - selection.end)
-                            } else {
-                                null
-                            }
+                        val nextCharacterIndex = getNextCharacterIndex()
+                        // If there's no next character, it means the cursor is at the end of
+                        // the
+                        // text, and this should be a no-op. See b/199919707.
+                        if (nextCharacterIndex != NoCharacterFound) {
+                            DeleteSurroundingTextCommand(0, nextCharacterIndex - selection.end)
+                        } else {
+                            null
                         }
+                    }
                         ?.apply()
                 }
-                KeyCommand.DELETE_PREV_WORD ->
-                    deleteIfSelectedOr {
-                            getPreviousWordOffset()?.let {
-                                DeleteSurroundingTextCommand(selection.end - it, 0)
-                            }
+                KeyCommand.DELETE_PREV_WORD -> deleteIfSelectedOr {
+                        getPreviousWordOffset()?.let {
+                            DeleteSurroundingTextCommand(selection.end - it, 0)
                         }
+                    }
                         ?.apply()
-                KeyCommand.DELETE_NEXT_WORD ->
-                    deleteIfSelectedOr {
-                            getNextWordOffset()?.let {
-                                DeleteSurroundingTextCommand(0, it - selection.end)
-                            }
+                KeyCommand.DELETE_NEXT_WORD -> deleteIfSelectedOr {
+                        getNextWordOffset()?.let {
+                            DeleteSurroundingTextCommand(0, it - selection.end)
                         }
+                    }
                         ?.apply()
-                KeyCommand.DELETE_FROM_LINE_START ->
-                    deleteIfSelectedOr {
-                            getLineStartByOffset()?.let {
-                                DeleteSurroundingTextCommand(selection.end - it, 0)
-                            }
+                KeyCommand.DELETE_FROM_LINE_START -> deleteIfSelectedOr {
+                        getLineStartByOffset()?.let {
+                            DeleteSurroundingTextCommand(selection.end - it, 0)
                         }
+                    }
                         ?.apply()
-                KeyCommand.DELETE_TO_LINE_END ->
-                    deleteIfSelectedOr {
-                            getLineEndByOffset()?.let {
-                                DeleteSurroundingTextCommand(0, it - selection.end)
-                            }
+                KeyCommand.DELETE_TO_LINE_END -> deleteIfSelectedOr {
+                        getLineEndByOffset()?.let {
+                            DeleteSurroundingTextCommand(0, it - selection.end)
                         }
+                    }
                         ?.apply()
                 KeyCommand.NEW_LINE ->
                     if (!singleLine) {

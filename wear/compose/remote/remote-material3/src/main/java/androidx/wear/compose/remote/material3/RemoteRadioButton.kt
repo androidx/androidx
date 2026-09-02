@@ -274,7 +274,8 @@ public object RemoteRadioButtonDefaults {
                 disabledUnselectedSecondaryContentColor =
                     onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
                 disabledUnselectedIconColor = onSurface.toDisabledColor(disabledAlpha = 0.38f.rf),
-                disabledUnselectedControlColor = onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
+                disabledUnselectedControlColor =
+                    onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
             )
         }
 }

@@ -48,7 +48,8 @@ object OpenOnPhoneDialogBenchmark : MacrobenchmarkScreen {
             ) {
                 Button(
                     onClick = { showDialog.value = true },
-                    modifier = Modifier.semantics { contentDescription = SHOW_OPEN_ON_PHONE_DIALOG },
+                    modifier =
+                        Modifier.semantics { contentDescription = SHOW_OPEN_ON_PHONE_DIALOG },
                 ) {
                     Text("Open")
                 }

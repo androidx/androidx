@@ -95,46 +95,45 @@ class LoadFullListTest(private val reverse: Boolean) {
         it % (pageConfig.prefetchDistance * 2) == pageConfig.prefetchDistance
     }
 
-    private fun loadAll(sourceSize: Int = 100, testFilter: (Int) -> Boolean) =
-        testScope.runTest {
-            val expectedFinalSize = (0 until sourceSize).count(testFilter)
-            val pager =
-                Pager(
-                    config = pageConfig,
-                    initialKey =
-                        if (reverse) {
-                            sourceSize - 1
-                        } else {
-                            0
-                        },
-                ) {
-                    TestPagingSource(items = List(sourceSize) { it })
-                }
-
-            val job = launch {
-                pager.flow
-                    .map { pagingData -> pagingData.filter { testFilter(it) } }
-                    .collectLatest { differ.submitData(it) }
+    private fun loadAll(sourceSize: Int = 100, testFilter: (Int) -> Boolean) = testScope.runTest {
+        val expectedFinalSize = (0 until sourceSize).count(testFilter)
+        val pager =
+            Pager(
+                config = pageConfig,
+                initialKey =
+                    if (reverse) {
+                        sourceSize - 1
+                    } else {
+                        0
+                    },
+            ) {
+                TestPagingSource(items = List(sourceSize) { it })
             }
 
-            advanceUntilIdle()
-            // repeatedly load pages until all of the list is loaded
-            while (differ.itemCount < expectedFinalSize) {
-                val startSize = differ.itemCount
-                if (reverse) {
-                    differ.getItem(0)
-                } else {
-                    differ.getItem(differ.itemCount - 1)
-                }
-                advanceUntilIdle()
-                if (differ.itemCount == startSize) {
-                    break
-                }
-            }
-            assertThat(differ.itemCount).isEqualTo(expectedFinalSize)
-
-            job.cancel()
+        val job = launch {
+            pager.flow
+                .map { pagingData -> pagingData.filter { testFilter(it) } }
+                .collectLatest { differ.submitData(it) }
         }
+
+        advanceUntilIdle()
+        // repeatedly load pages until all of the list is loaded
+        while (differ.itemCount < expectedFinalSize) {
+            val startSize = differ.itemCount
+            if (reverse) {
+                differ.getItem(0)
+            } else {
+                differ.getItem(differ.itemCount - 1)
+            }
+            advanceUntilIdle()
+            if (differ.itemCount == startSize) {
+                break
+            }
+        }
+        assertThat(differ.itemCount).isEqualTo(expectedFinalSize)
+
+        job.cancel()
+    }
 
     companion object {
         @JvmStatic

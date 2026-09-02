@@ -174,23 +174,22 @@ class Scrollable2DTest : AbstractScrollable2DTest() {
             }
         }
 
-        val lastValueBeforeFling =
-            rule.runOnIdle {
-                val preScrollConsumed =
-                    dispatcher.dispatchPreScroll(Offset(20f, 20f), NestedScrollSource.UserInput)
-                // scrollable is not interested in pre scroll
-                assertThat(preScrollConsumed).isEqualTo(Offset.Zero)
+        val lastValueBeforeFling = rule.runOnIdle {
+            val preScrollConsumed =
+                dispatcher.dispatchPreScroll(Offset(20f, 20f), NestedScrollSource.UserInput)
+            // scrollable is not interested in pre scroll
+            assertThat(preScrollConsumed).isEqualTo(Offset.Zero)
 
-                val consumed =
-                    dispatcher.dispatchPostScroll(
-                        Offset(20f, 20f),
-                        Offset(50f, 50f),
-                        NestedScrollSource.UserInput,
-                    )
-                assertThat(consumed.x).isWithin(0.001f).of(expectedConsumed.x)
-                assertThat(consumed.y).isWithin(0.001f).of(expectedConsumed.y)
-                value
-            }
+            val consumed =
+                dispatcher.dispatchPostScroll(
+                    Offset(20f, 20f),
+                    Offset(50f, 50f),
+                    NestedScrollSource.UserInput,
+                )
+            assertThat(consumed.x).isWithin(0.001f).of(expectedConsumed.x)
+            assertThat(consumed.y).isWithin(0.001f).of(expectedConsumed.y)
+            value
+        }
 
         scope.launch {
             val preFlingConsumed = dispatcher.dispatchPreFling(Velocity(50f, 50f))
@@ -310,8 +309,9 @@ class Scrollable2DTest : AbstractScrollable2DTest() {
         lateinit var animateJob: Job
 
         rule.runOnIdle {
-            animateJob =
-                scope.launch { scrollable2DState.animateScrollBy(Offset(100f, 100f), tween(1000)) }
+            animateJob = scope.launch {
+                scrollable2DState.animateScrollBy(Offset(100f, 100f), tween(1000))
+            }
         }
 
         rule.mainClock.advanceTimeBy(500)
@@ -580,13 +580,12 @@ class Scrollable2DTest : AbstractScrollable2DTest() {
 
         rule.runOnIdle {
             // causes the inner scrollable to dispatch a post fling to the outer scrollable
-            flingJob =
-                scope.launch {
-                    innerState.scroll {
-                        dispatcher.dispatchPreFling(Velocity(10000f, 10000f))
-                        dispatcher.dispatchPostFling(Velocity.Zero, Velocity(10000f, 10000f))
-                    }
+            flingJob = scope.launch {
+                innerState.scroll {
+                    dispatcher.dispatchPreFling(Velocity(10000f, 10000f))
+                    dispatcher.dispatchPostFling(Velocity.Zero, Velocity(10000f, 10000f))
                 }
+            }
         }
 
         rule.mainClock.advanceTimeBy(200L)

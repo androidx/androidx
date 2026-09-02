@@ -767,9 +767,9 @@ private class SwipeAnchorsModifier(
 private fun <T> Map<T, Float>.closestAnchor(offset: Float = 0f, searchUpwards: Boolean = false): T {
     require(isNotEmpty()) { "The anchors were empty when trying to find the closest anchor" }
     return minBy { (_, anchor) ->
-            val delta = if (searchUpwards) anchor - offset else offset - anchor
-            if (delta < 0) Float.POSITIVE_INFINITY else delta
-        }
+        val delta = if (searchUpwards) anchor - offset else offset - anchor
+        if (delta < 0) Float.POSITIVE_INFINITY else delta
+    }
         .key
 }
 

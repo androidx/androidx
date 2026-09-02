@@ -79,11 +79,10 @@ internal class CanvasBufferedRendererV34(
     private var mPreserveContents = false
     private var mCurrentBufferProvider: HardwareBufferProvider? = null
 
-    private fun obtainBufferEntry(): HardwareBufferProvider =
-        mPool.obtain {
-            val hardwareBuffer = HardwareBuffer.create(mWidth, mHeight, mFormat, 1, mUsage)
-            HardwareBufferProvider(hardwareBuffer, HardwareBufferRenderer(hardwareBuffer))
-        }
+    private fun obtainBufferEntry(): HardwareBufferProvider = mPool.obtain {
+        val hardwareBuffer = HardwareBuffer.create(mWidth, mHeight, mFormat, 1, mUsage)
+        HardwareBufferProvider(hardwareBuffer, HardwareBufferRenderer(hardwareBuffer))
+    }
 
     override fun close() {
         mPool.close()

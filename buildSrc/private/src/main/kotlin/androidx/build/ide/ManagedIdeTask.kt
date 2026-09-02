@@ -465,14 +465,13 @@ fun ManagedIdeTask.installVSCodeExtensions(
 ) {
     val binary = resolveInstallationFile(ideBinaryRelativePath.get())
 
-    val extensionsToInstall =
-        extensionIds.filter { extensionId ->
-            val alreadyInstalled =
-                extensionsDir.listFiles()?.any {
-                    it.isDirectory && it.name.lowercase().startsWith(extensionId.lowercase())
-                } ?: false
-            !alreadyInstalled
-        }
+    val extensionsToInstall = extensionIds.filter { extensionId ->
+        val alreadyInstalled =
+            extensionsDir.listFiles()?.any {
+                it.isDirectory && it.name.lowercase().startsWith(extensionId.lowercase())
+            } ?: false
+        !alreadyInstalled
+    }
 
     if (extensionsToInstall.isEmpty()) {
         println("All extensions are already installed: $extensionIds")

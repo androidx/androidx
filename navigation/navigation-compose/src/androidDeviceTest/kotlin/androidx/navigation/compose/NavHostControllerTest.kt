@@ -69,8 +69,9 @@ class NavHostControllerTest {
             }
         }
 
-        val navigator =
-            composeTestRule.runOnIdle { navController.navigatorProvider[ComposeNavigator::class] }
+        val navigator = composeTestRule.runOnIdle {
+            navController.navigatorProvider[ComposeNavigator::class]
+        }
 
         // trigger recompose
         composeTestRule.runOnIdle { navController.navigate("second") }
@@ -96,8 +97,9 @@ class NavHostControllerTest {
             }
         }
 
-        val navigator =
-            composeTestRule.runOnIdle { navController.navigatorProvider[NoOpNavigator::class] }
+        val navigator = composeTestRule.runOnIdle {
+            navController.navigatorProvider[NoOpNavigator::class]
+        }
 
         // trigger recompose
         composeTestRule.runOnIdle { navController.navigate("second") }

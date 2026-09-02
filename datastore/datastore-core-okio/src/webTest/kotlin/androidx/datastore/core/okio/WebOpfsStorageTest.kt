@@ -67,46 +67,42 @@ class WebOpfsStorageTest {
     }
 
     @Test
-    fun readEmptyOpfsStorage() =
-        testScope.runTest {
-            val data = testOpfsStorage.createConnection().use { it.readData() }
-            assertThat(data).isEqualTo(0)
-        }
+    fun readEmptyOpfsStorage() = testScope.runTest {
+        val data = testOpfsStorage.createConnection().use { it.readData() }
+        assertThat(data).isEqualTo(0)
+    }
 
     @Test
-    fun readAfterDisposeFailsOpfsStorage() =
-        testScope.runTest {
-            testOpfsStorage.createConnection().use {
-                it.writeScope { writeData(1) }
-                it.close()
-                assertThrows<IllegalStateException> { it.readData() }
-                    .hasMessageThat()
-                    .isEqualTo("StorageConnection has already been disposed.")
-            }
+    fun readAfterDisposeFailsOpfsStorage() = testScope.runTest {
+        testOpfsStorage.createConnection().use {
+            it.writeScope { writeData(1) }
+            it.close()
+            assertThrows<IllegalStateException> { it.readData() }
+                .hasMessageThat()
+                .isEqualTo("StorageConnection has already been disposed.")
         }
+    }
 
     @Test
-    fun writeAfterDisposeFailsOpfsStorage() =
-        testScope.runTest {
-            testOpfsStorage.createConnection().use {
-                it.writeScope { writeData(1) }
-                it.close()
-                assertThrows<IllegalStateException> { it.writeScope { writeData(1) } }
-                    .hasMessageThat()
-                    .isEqualTo("StorageConnection has already been disposed.")
-            }
+    fun writeAfterDisposeFailsOpfsStorage() = testScope.runTest {
+        testOpfsStorage.createConnection().use {
+            it.writeScope { writeData(1) }
+            it.close()
+            assertThrows<IllegalStateException> { it.writeScope { writeData(1) } }
+                .hasMessageThat()
+                .isEqualTo("StorageConnection has already been disposed.")
         }
+    }
 
     @Test
-    fun blockWithNoWriteSucceedsOpfsStorage() =
-        testScope.runTest {
-            testOpfsStorage.createConnection().use {
-                val count = atomic(0)
-                it.writeScope { count.incrementAndGet() }
+    fun blockWithNoWriteSucceedsOpfsStorage() = testScope.runTest {
+        testOpfsStorage.createConnection().use {
+            val count = atomic(0)
+            it.writeScope { count.incrementAndGet() }
 
-                assertThat(count.value).isEqualTo(1)
-            }
+            assertThat(count.value).isEqualTo(1)
         }
+    }
 
     @Test
     fun testOpfsStorage_writeThenRead() = runTest {

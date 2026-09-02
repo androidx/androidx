@@ -71,16 +71,19 @@ class WindowStateViewModel(initStates: List<WindowState> = emptyList()) : ViewMo
     fun clearWindowStates() = _states.update { emptyList() }
 
     /** Adds a new window state to the beginning of the list. */
-    fun onWindowStateCallback(state: WindowState) =
-        _states.update { listOf(state) + it } // Prepend to the list.
+    fun onWindowStateCallback(state: WindowState) = _states.update {
+        listOf(state) + it
+    } // Prepend to the list.
 
     /** Updates the latest window state if it's different from the current latest state. */
-    fun updateLatestWindowState(state: WindowState) =
-        _states.update { if (state.isSameState(it.firstOrNull())) it else listOf(state) + it }
+    fun updateLatestWindowState(state: WindowState) = _states.update {
+        if (state.isSameState(it.firstOrNull())) it else listOf(state) + it
+    }
 
     /** Toggles the expanded state of a window state at the given index. */
-    fun onWindowStateItemClick(index: Int) =
-        _states.update { states -> states.updateAtIndex(index) { it.toggleExpand() } }
+    fun onWindowStateItemClick(index: Int) = _states.update { states ->
+        states.updateAtIndex(index) { it.toggleExpand() }
+    }
 }
 
 /**

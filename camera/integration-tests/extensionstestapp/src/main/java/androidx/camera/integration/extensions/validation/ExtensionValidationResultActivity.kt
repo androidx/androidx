@@ -92,22 +92,20 @@ class ExtensionValidationResultActivity : AppCompatActivity() {
         val listView = findViewById<ListView>(R.id.listView)
         listView.adapter = adapter
 
-        listView.onItemClickListener =
-            AdapterView.OnItemClickListener { _, _, position, _ ->
-                if (
-                    extensionTestResultMap.values.elementAt(position).first ==
-                        TEST_RESULT_NOT_SUPPORTED
-                ) {
-                    Toast.makeText(this, "Not supported!", Toast.LENGTH_SHORT).show()
-                    return@OnItemClickListener
-                }
-
-                startCaptureValidationActivity(
-                    testType,
-                    cameraId,
-                    extensionTestResultMap.keys.elementAt(position),
-                )
+        listView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            if (
+                extensionTestResultMap.values.elementAt(position).first == TEST_RESULT_NOT_SUPPORTED
+            ) {
+                Toast.makeText(this, "Not supported!", Toast.LENGTH_SHORT).show()
+                return@OnItemClickListener
             }
+
+            startCaptureValidationActivity(
+                testType,
+                cameraId,
+                extensionTestResultMap.keys.elementAt(position),
+            )
+        }
     }
 
     @Suppress("DEPRECATION")

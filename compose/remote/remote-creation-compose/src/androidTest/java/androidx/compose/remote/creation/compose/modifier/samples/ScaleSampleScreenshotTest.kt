@@ -46,18 +46,16 @@ class ScaleSampleScreenshotTest {
         )
 
     @Test
-    fun scaleUniformSample() =
-        composeTestRule.runScreenshotTest {
-            RemoteBox(modifier = RemoteModifier.fillMaxSize(), contentAlignment = Center) {
-                ScaleUniformSample()
-            }
+    fun scaleUniformSample() = composeTestRule.runScreenshotTest {
+        RemoteBox(modifier = RemoteModifier.fillMaxSize(), contentAlignment = Center) {
+            ScaleUniformSample()
         }
+    }
 
     @Test
-    fun scaleNonUniformSample() =
-        composeTestRule.runScreenshotTest {
-            RemoteBox(modifier = RemoteModifier.fillMaxSize(), contentAlignment = Center) {
-                ScaleNonUniformSample()
-            }
+    fun scaleNonUniformSample() = composeTestRule.runScreenshotTest {
+        RemoteBox(modifier = RemoteModifier.fillMaxSize(), contentAlignment = Center) {
+            ScaleNonUniformSample()
         }
+    }
 }

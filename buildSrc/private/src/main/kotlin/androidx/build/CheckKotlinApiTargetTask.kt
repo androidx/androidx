@@ -36,20 +36,19 @@ abstract class CheckKotlinApiTargetTask : DefaultTask() {
     @get:Internal val projectPath: String = project.path
 
     @get:Input
-    val allDependencies: Provider<List<Pair<String, String>>> =
-        project.provider {
-            @Suppress("EagerGradleConfiguration")
-            project.configurations
-                .filter(project::shouldVerifyConfiguration)
-                .filter { it.isCanBeResolved && it.isPublished() }
-                .flatMap { config ->
-                    config.incoming.resolutionResult.allComponents.mapNotNull { component ->
-                        (component.id as? ModuleComponentIdentifier)?.let { id ->
-                            "${id.module}:${id.version}" to config.name
-                        }
+    val allDependencies: Provider<List<Pair<String, String>>> = project.provider {
+        @Suppress("EagerGradleConfiguration")
+        project.configurations
+            .filter(project::shouldVerifyConfiguration)
+            .filter { it.isCanBeResolved && it.isPublished() }
+            .flatMap { config ->
+                config.incoming.resolutionResult.allComponents.mapNotNull { component ->
+                    (component.id as? ModuleComponentIdentifier)?.let { id ->
+                        "${id.module}:${id.version}" to config.name
                     }
                 }
-        }
+            }
+    }
 
     @get:OutputFile abstract val outputFile: RegularFileProperty
 

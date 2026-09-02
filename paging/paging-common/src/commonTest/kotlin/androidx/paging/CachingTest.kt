@@ -52,392 +52,376 @@ class CachingTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    fun noSharing() =
-        testScope.runTest {
-            val pageFlow = buildPageFlow()
-            val firstCollect = pageFlow.collectItemsUntilSize(6)
-            val secondCollect = pageFlow.collectItemsUntilSize(9)
-            assertThat(firstCollect)
-                .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 6))
+    fun noSharing() = testScope.runTest {
+        val pageFlow = buildPageFlow()
+        val firstCollect = pageFlow.collectItemsUntilSize(6)
+        val secondCollect = pageFlow.collectItemsUntilSize(9)
+        assertThat(firstCollect)
+            .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 6))
 
-            assertThat(secondCollect)
-                .isEqualTo(buildItems(version = 1, generation = 0, start = 0, size = 9))
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
-        }
-
-    @Test
-    fun cached() =
-        testScope.runTest {
-            val pageFlow = buildPageFlow().cachedIn(backgroundScope, tracker)
-            val firstCollect = pageFlow.collectItemsUntilSize(6)
-            val secondCollect = pageFlow.collectItemsUntilSize(9)
-            assertThat(firstCollect)
-                .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 6))
-
-            assertThat(secondCollect)
-                .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 9))
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-        }
+        assertThat(secondCollect)
+            .isEqualTo(buildItems(version = 1, generation = 0, start = 0, size = 9))
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
+    }
 
     @Test
-    fun cachedData() =
-        testScope.runTest {
-            val pageFlow = buildPageFlow().cachedIn(backgroundScope, tracker)
-            assertThat(pageFlow).isInstanceOf<SharedFlow<PagingData<Item>>>()
-            assertThat((pageFlow as SharedFlow<PagingData<Item>>).replayCache).isEmpty()
+    fun cached() = testScope.runTest {
+        val pageFlow = buildPageFlow().cachedIn(backgroundScope, tracker)
+        val firstCollect = pageFlow.collectItemsUntilSize(6)
+        val secondCollect = pageFlow.collectItemsUntilSize(9)
+        assertThat(firstCollect)
+            .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 6))
 
-            pageFlow.collectItemsUntilSize(6)
-            val firstCachedData = pageFlow.cachedData()
-            assertThat(firstCachedData)
-                .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 6))
-
-            pageFlow.collectItemsUntilSize(9)
-            val secondCachedEvent = pageFlow.cachedData()
-            assertThat(secondCachedEvent)
-                .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 9))
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-        }
+        assertThat(secondCollect)
+            .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 9))
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+    }
 
     @Test
-    fun cached_afterMapping() =
-        testScope.runTest {
-            var mappingCnt = 0
-            val pageFlow =
-                buildPageFlow()
-                    .map { pagingData ->
-                        val mappingIndex = mappingCnt++
-                        pagingData.map { it.copy(metadata = mappingIndex.toString()) }
-                    }
-                    .cachedIn(backgroundScope, tracker)
-            val firstCollect = pageFlow.collectItemsUntilSize(6)
-            val secondCollect = pageFlow.collectItemsUntilSize(9)
-            assertThat(firstCollect)
-                .isEqualTo(
-                    buildItems(version = 0, generation = 0, start = 0, size = 6) {
-                        it.copy(metadata = "0")
-                    }
-                )
+    fun cachedData() = testScope.runTest {
+        val pageFlow = buildPageFlow().cachedIn(backgroundScope, tracker)
+        assertThat(pageFlow).isInstanceOf<SharedFlow<PagingData<Item>>>()
+        assertThat((pageFlow as SharedFlow<PagingData<Item>>).replayCache).isEmpty()
 
-            assertThat(secondCollect)
-                .isEqualTo(
-                    buildItems(version = 0, generation = 0, start = 0, size = 9) {
-                        it.copy(metadata = "0")
-                    }
-                )
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-        }
+        pageFlow.collectItemsUntilSize(6)
+        val firstCachedData = pageFlow.cachedData()
+        assertThat(firstCachedData)
+            .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 6))
+
+        pageFlow.collectItemsUntilSize(9)
+        val secondCachedEvent = pageFlow.cachedData()
+        assertThat(secondCachedEvent)
+            .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 9))
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+    }
 
     @Test
-    fun cachedData_afterMapping() =
-        testScope.runTest {
-            var mappingCnt = 0
-            val pageFlow =
-                buildPageFlow()
-                    .map { pagingData ->
-                        val mappingIndex = mappingCnt++
-                        pagingData.map { it.copy(metadata = mappingIndex.toString()) }
-                    }
-                    .cachedIn(backgroundScope, tracker)
-
-            pageFlow.collectItemsUntilSize(6)
-            val firstCachedData = pageFlow.cachedData()
-            assertThat(firstCachedData)
-                .isEqualTo(
-                    buildItems(version = 0, generation = 0, start = 0, size = 6) {
-                        it.copy(metadata = "0")
-                    }
-                )
-
-            pageFlow.collectItemsUntilSize(9)
-            val secondCachedData = pageFlow.cachedData()
-            assertThat(secondCachedData)
-                .isEqualTo(
-                    buildItems(version = 0, generation = 0, start = 0, size = 9) {
-                        it.copy(metadata = "0")
-                    }
-                )
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-        }
-
-    @Test
-    fun cached_beforeMapping() =
-        testScope.runTest {
-            var mappingCnt = 0
-            val pageFlow =
-                buildPageFlow().cachedIn(backgroundScope, tracker).map { pagingData ->
+    fun cached_afterMapping() = testScope.runTest {
+        var mappingCnt = 0
+        val pageFlow =
+            buildPageFlow()
+                .map { pagingData ->
                     val mappingIndex = mappingCnt++
                     pagingData.map { it.copy(metadata = mappingIndex.toString()) }
                 }
-            val firstCollect = pageFlow.collectItemsUntilSize(6)
-            val secondCollect = pageFlow.collectItemsUntilSize(9)
-            assertThat(firstCollect)
-                .isEqualTo(
-                    buildItems(version = 0, generation = 0, start = 0, size = 6) {
-                        it.copy(metadata = "0")
-                    }
-                )
+                .cachedIn(backgroundScope, tracker)
+        val firstCollect = pageFlow.collectItemsUntilSize(6)
+        val secondCollect = pageFlow.collectItemsUntilSize(9)
+        assertThat(firstCollect)
+            .isEqualTo(
+                buildItems(version = 0, generation = 0, start = 0, size = 6) {
+                    it.copy(metadata = "0")
+                }
+            )
 
-            assertThat(secondCollect)
-                .isEqualTo(
-                    buildItems(version = 0, generation = 0, start = 0, size = 9) {
-                        it.copy(metadata = "1")
-                    }
-                )
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-        }
+        assertThat(secondCollect)
+            .isEqualTo(
+                buildItems(version = 0, generation = 0, start = 0, size = 9) {
+                    it.copy(metadata = "0")
+                }
+            )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+    }
 
     @Test
-    fun cachedData_beforeMapping() =
-        testScope.runTest {
-            var mappingCnt = 0
-            val pageFlow = buildPageFlow().cachedIn(backgroundScope, tracker)
-            val mappedFlow =
-                pageFlow.map { pagingData ->
+    fun cachedData_afterMapping() = testScope.runTest {
+        var mappingCnt = 0
+        val pageFlow =
+            buildPageFlow()
+                .map { pagingData ->
                     val mappingIndex = mappingCnt++
                     pagingData.map { it.copy(metadata = mappingIndex.toString()) }
                 }
-            // Mapping converts SharedFlow to Flow and thereby blocks access to cachedIn's
-            // replayCache. You can still access latest cachedData directly from pre-mapped flow.
-            mappedFlow.collectItemsUntilSize(6)
-            val firstCachedData = pageFlow.cachedData()
-            assertThat(firstCachedData)
-                .isEqualTo(
-                    buildItems(
-                        version = 0,
-                        generation = 0,
-                        start = 0,
-                        size = 6,
-                        modifier = null, // before mapping
-                    )
-                )
+                .cachedIn(backgroundScope, tracker)
 
-            mappedFlow.collectItemsUntilSize(9)
-            val secondCachedEvent = pageFlow.cachedData()
-            assertThat(secondCachedEvent)
-                .isEqualTo(
-                    buildItems(
-                        version = 0,
-                        generation = 0,
-                        start = 0,
-                        size = 9,
-                        modifier = null, // before mapping
-                    )
-                )
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-        }
+        pageFlow.collectItemsUntilSize(6)
+        val firstCachedData = pageFlow.cachedData()
+        assertThat(firstCachedData)
+            .isEqualTo(
+                buildItems(version = 0, generation = 0, start = 0, size = 6) {
+                    it.copy(metadata = "0")
+                }
+            )
+
+        pageFlow.collectItemsUntilSize(9)
+        val secondCachedData = pageFlow.cachedData()
+        assertThat(secondCachedData)
+            .isEqualTo(
+                buildItems(version = 0, generation = 0, start = 0, size = 9) {
+                    it.copy(metadata = "0")
+                }
+            )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+    }
 
     @Test
-    fun cached_afterMapping_withMoreMappingAfterwards() =
-        testScope.runTest {
-            var mappingCnt = 0
-            val pageFlow =
-                buildPageFlow()
-                    .map { pagingData ->
-                        val mappingIndex = mappingCnt++
-                        pagingData.map { it.copy(metadata = mappingIndex.toString()) }
-                    }
-                    .cachedIn(backgroundScope, tracker)
-                    .map { pagingData ->
-                        val mappingIndex = mappingCnt++
-                        pagingData.map { it.copy(metadata = "${it.metadata}_$mappingIndex") }
-                    }
-            val firstCollect = pageFlow.collectItemsUntilSize(6)
-            val secondCollect = pageFlow.collectItemsUntilSize(9)
-            assertThat(firstCollect)
-                .isEqualTo(
-                    buildItems(version = 0, generation = 0, start = 0, size = 6) {
-                        it.copy(metadata = "0_1")
-                    }
-                )
+    fun cached_beforeMapping() = testScope.runTest {
+        var mappingCnt = 0
+        val pageFlow =
+            buildPageFlow().cachedIn(backgroundScope, tracker).map { pagingData ->
+                val mappingIndex = mappingCnt++
+                pagingData.map { it.copy(metadata = mappingIndex.toString()) }
+            }
+        val firstCollect = pageFlow.collectItemsUntilSize(6)
+        val secondCollect = pageFlow.collectItemsUntilSize(9)
+        assertThat(firstCollect)
+            .isEqualTo(
+                buildItems(version = 0, generation = 0, start = 0, size = 6) {
+                    it.copy(metadata = "0")
+                }
+            )
 
-            assertThat(secondCollect)
-                .isEqualTo(
-                    buildItems(version = 0, generation = 0, start = 0, size = 9) {
-                        it.copy(metadata = "0_2")
-                    }
-                )
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-        }
+        assertThat(secondCollect)
+            .isEqualTo(
+                buildItems(version = 0, generation = 0, start = 0, size = 9) {
+                    it.copy(metadata = "1")
+                }
+            )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+    }
 
     @Test
-    fun cachedData_afterMapping_withMoreMappingAfterwards() =
-        testScope.runTest {
-            var mappingCnt = 0
-            val pageFlow =
-                buildPageFlow()
-                    .map { pagingData ->
-                        val mappingIndex = mappingCnt++
-                        pagingData.map { it.copy(metadata = mappingIndex.toString()) }
-                    }
-                    .cachedIn(backgroundScope, tracker)
-            val mappedFlow =
-                pageFlow.map { pagingData ->
+    fun cachedData_beforeMapping() = testScope.runTest {
+        var mappingCnt = 0
+        val pageFlow = buildPageFlow().cachedIn(backgroundScope, tracker)
+        val mappedFlow = pageFlow.map { pagingData ->
+            val mappingIndex = mappingCnt++
+            pagingData.map { it.copy(metadata = mappingIndex.toString()) }
+        }
+        // Mapping converts SharedFlow to Flow and thereby blocks access to cachedIn's
+        // replayCache. You can still access latest cachedData directly from pre-mapped flow.
+        mappedFlow.collectItemsUntilSize(6)
+        val firstCachedData = pageFlow.cachedData()
+        assertThat(firstCachedData)
+            .isEqualTo(
+                buildItems(
+                    version = 0,
+                    generation = 0,
+                    start = 0,
+                    size = 6,
+                    modifier = null, // before mapping
+                )
+            )
+
+        mappedFlow.collectItemsUntilSize(9)
+        val secondCachedEvent = pageFlow.cachedData()
+        assertThat(secondCachedEvent)
+            .isEqualTo(
+                buildItems(
+                    version = 0,
+                    generation = 0,
+                    start = 0,
+                    size = 9,
+                    modifier = null, // before mapping
+                )
+            )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+    }
+
+    @Test
+    fun cached_afterMapping_withMoreMappingAfterwards() = testScope.runTest {
+        var mappingCnt = 0
+        val pageFlow =
+            buildPageFlow()
+                .map { pagingData ->
+                    val mappingIndex = mappingCnt++
+                    pagingData.map { it.copy(metadata = mappingIndex.toString()) }
+                }
+                .cachedIn(backgroundScope, tracker)
+                .map { pagingData ->
                     val mappingIndex = mappingCnt++
                     pagingData.map { it.copy(metadata = "${it.metadata}_$mappingIndex") }
                 }
-            // Mapping converts SharedFlow to Flow and thereby blocks access to cachedIn's
-            // replayCache. You can still access latest cachedData directly from pre-mapped flow.
-            mappedFlow.collectItemsUntilSize(6)
-            val firstCachedData = pageFlow.cachedData()
-            assertThat(firstCachedData)
-                .isEqualTo(
-                    buildItems(version = 0, generation = 0, start = 0, size = 6) {
-                        it.copy(metadata = "0") // with mapping before cache
-                    }
-                )
+        val firstCollect = pageFlow.collectItemsUntilSize(6)
+        val secondCollect = pageFlow.collectItemsUntilSize(9)
+        assertThat(firstCollect)
+            .isEqualTo(
+                buildItems(version = 0, generation = 0, start = 0, size = 6) {
+                    it.copy(metadata = "0_1")
+                }
+            )
 
-            mappedFlow.collectItemsUntilSize(9)
-            val secondCachedEvent = pageFlow.cachedData()
-            assertThat(secondCachedEvent)
-                .isEqualTo(
-                    buildItems(version = 0, generation = 0, start = 0, size = 9) {
-                        it.copy(metadata = "0") // with mapping before cache
-                    }
-                )
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-        }
+        assertThat(secondCollect)
+            .isEqualTo(
+                buildItems(version = 0, generation = 0, start = 0, size = 9) {
+                    it.copy(metadata = "0_2")
+                }
+            )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+    }
 
     @Test
-    fun pagesAreClosedProperty() =
-        testScope.runTest {
-            val job = SupervisorJob()
-            val subScope = CoroutineScope(job + Dispatchers.Default)
-            val pageFlow = buildPageFlow().cachedIn(subScope, tracker)
-            assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
-            val items = pageFlow.collectItemsUntilSize(9)
-            val firstList = buildItems(version = 0, generation = 0, start = 0, size = 9)
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-            val items2 = pageFlow.collectItemsUntilSize(21)
-            assertThat(items2)
-                .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 21))
-            assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
-            assertThat(items).isEqualTo(firstList)
-            job.cancelAndJoin()
-            assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
-            assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
+    fun cachedData_afterMapping_withMoreMappingAfterwards() = testScope.runTest {
+        var mappingCnt = 0
+        val pageFlow =
+            buildPageFlow()
+                .map { pagingData ->
+                    val mappingIndex = mappingCnt++
+                    pagingData.map { it.copy(metadata = mappingIndex.toString()) }
+                }
+                .cachedIn(backgroundScope, tracker)
+        val mappedFlow = pageFlow.map { pagingData ->
+            val mappingIndex = mappingCnt++
+            pagingData.map { it.copy(metadata = "${it.metadata}_$mappingIndex") }
         }
+        // Mapping converts SharedFlow to Flow and thereby blocks access to cachedIn's
+        // replayCache. You can still access latest cachedData directly from pre-mapped flow.
+        mappedFlow.collectItemsUntilSize(6)
+        val firstCachedData = pageFlow.cachedData()
+        assertThat(firstCachedData)
+            .isEqualTo(
+                buildItems(version = 0, generation = 0, start = 0, size = 6) {
+                    it.copy(metadata = "0") // with mapping before cache
+                }
+            )
+
+        mappedFlow.collectItemsUntilSize(9)
+        val secondCachedEvent = pageFlow.cachedData()
+        assertThat(secondCachedEvent)
+            .isEqualTo(
+                buildItems(version = 0, generation = 0, start = 0, size = 9) {
+                    it.copy(metadata = "0") // with mapping before cache
+                }
+            )
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+    }
 
     @Test
-    fun cachedWithPassiveCollector() =
-        testScope.runTest {
-            val flow = buildPageFlow().cachedIn(backgroundScope, tracker)
-            val passive = ItemCollector(flow)
-            passive.collectPassivelyIn(backgroundScope)
-            testScope.runCurrent()
-            // collecting on the paged source will trigger initial page
-            assertThat(passive.items())
-                .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 3))
-            val firstList = buildItems(version = 0, generation = 0, start = 0, size = 9)
-            // another collector is causing more items to be loaded, they should be reflected in the
-            // passive one
-            assertThat(flow.collectItemsUntilSize(9)).isEqualTo(firstList)
-            assertThat(passive.items()).isEqualTo(firstList)
-            val passive2 = ItemCollector(flow)
-            passive2.collectPassivelyIn(backgroundScope)
-            testScope.runCurrent()
-            // a new passive one should receive all existing items immediately
-            assertThat(passive2.items()).isEqualTo(firstList)
+    fun pagesAreClosedProperty() = testScope.runTest {
+        val job = SupervisorJob()
+        val subScope = CoroutineScope(job + Dispatchers.Default)
+        val pageFlow = buildPageFlow().cachedIn(subScope, tracker)
+        assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
+        val items = pageFlow.collectItemsUntilSize(9)
+        val firstList = buildItems(version = 0, generation = 0, start = 0, size = 9)
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+        val items2 = pageFlow.collectItemsUntilSize(21)
+        assertThat(items2).isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 21))
+        assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(1)
+        assertThat(items).isEqualTo(firstList)
+        job.cancelAndJoin()
+        assertThat(tracker.pageEventFlowCount()).isEqualTo(0)
+        assertThat(tracker.pageDataFlowCount()).isEqualTo(0)
+    }
 
-            // now we get another collector that'll fetch more pages, it should reflect in passives
-            val secondList = buildItems(version = 0, generation = 0, start = 0, size = 12)
-            // another collector is causing more items to be loaded, they should be reflected in the
-            // passive one
-            assertThat(flow.collectItemsUntilSize(12)).isEqualTo(secondList)
-            assertThat(passive.items()).isEqualTo(secondList)
-            assertThat(passive2.items()).isEqualTo(secondList)
-        }
+    @Test
+    fun cachedWithPassiveCollector() = testScope.runTest {
+        val flow = buildPageFlow().cachedIn(backgroundScope, tracker)
+        val passive = ItemCollector(flow)
+        passive.collectPassivelyIn(backgroundScope)
+        testScope.runCurrent()
+        // collecting on the paged source will trigger initial page
+        assertThat(passive.items())
+            .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 3))
+        val firstList = buildItems(version = 0, generation = 0, start = 0, size = 9)
+        // another collector is causing more items to be loaded, they should be reflected in the
+        // passive one
+        assertThat(flow.collectItemsUntilSize(9)).isEqualTo(firstList)
+        assertThat(passive.items()).isEqualTo(firstList)
+        val passive2 = ItemCollector(flow)
+        passive2.collectPassivelyIn(backgroundScope)
+        testScope.runCurrent()
+        // a new passive one should receive all existing items immediately
+        assertThat(passive2.items()).isEqualTo(firstList)
+
+        // now we get another collector that'll fetch more pages, it should reflect in passives
+        val secondList = buildItems(version = 0, generation = 0, start = 0, size = 12)
+        // another collector is causing more items to be loaded, they should be reflected in the
+        // passive one
+        assertThat(flow.collectItemsUntilSize(12)).isEqualTo(secondList)
+        assertThat(passive.items()).isEqualTo(secondList)
+        assertThat(passive2.items()).isEqualTo(secondList)
+    }
 
     /**
      * Test that, when cache is active but there is no active downstream collectors, intermediate
      * invalidations create new PagingData BUT a new collector only sees the latest one.
      */
     @Test
-    public fun unusedPagingDataIsNeverCollectedByNewDownstream() =
-        testScope.runTest {
-            val factory = StringPagingSource.VersionedFactory()
-            val flow = buildPageFlow(factory).cachedIn(backgroundScope, tracker)
-            val collector = ItemCollector(flow)
-            val job = SupervisorJob()
-            val subScope = CoroutineScope(coroutineContext + job)
-            collector.collectPassivelyIn(subScope)
+    public fun unusedPagingDataIsNeverCollectedByNewDownstream() = testScope.runTest {
+        val factory = StringPagingSource.VersionedFactory()
+        val flow = buildPageFlow(factory).cachedIn(backgroundScope, tracker)
+        val collector = ItemCollector(flow)
+        val job = SupervisorJob()
+        val subScope = CoroutineScope(coroutineContext + job)
+        collector.collectPassivelyIn(subScope)
+        testScope.runCurrent()
+        assertThat(collector.items())
+            .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 3))
+        // finish that collector
+        job.cancelAndJoin()
+        assertThat(factory.nextVersion).isEqualTo(1)
+        repeat(10) {
+            factory.invalidateLatest()
             testScope.runCurrent()
-            assertThat(collector.items())
-                .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 3))
-            // finish that collector
-            job.cancelAndJoin()
-            assertThat(factory.nextVersion).isEqualTo(1)
-            repeat(10) {
-                factory.invalidateLatest()
-                testScope.runCurrent()
-            }
-            runCurrent()
-            // next version is 11, the last paged data we've created has version 10
-            assertThat(factory.nextVersion).isEqualTo(11)
-
-            // create another collector from shared, should only receive 1 paging data and that
-            // should be the latest because previous PagingData is invalidated
-            val collector2 = ItemCollector(flow)
-            collector2.collectPassivelyIn(backgroundScope)
-            testScope.runCurrent()
-            assertThat(collector2.items())
-                .isEqualTo(buildItems(version = 10, generation = 0, start = 0, size = 3))
-            assertThat(collector2.receivedPagingDataCount).isEqualTo(1)
-            testScope.runCurrent()
-            assertThat(factory.nextVersion).isEqualTo(11)
-            val activeCollection = flow.collectItemsUntilSize(9)
-            assertThat(activeCollection)
-                .isEqualTo(buildItems(version = 10, generation = 0, start = 0, size = 9))
-            testScope.runCurrent()
-            // make sure passive collector received those items as well
-            assertThat(collector2.items())
-                .isEqualTo(buildItems(version = 10, generation = 0, start = 0, size = 9))
         }
+        runCurrent()
+        // next version is 11, the last paged data we've created has version 10
+        assertThat(factory.nextVersion).isEqualTo(11)
+
+        // create another collector from shared, should only receive 1 paging data and that
+        // should be the latest because previous PagingData is invalidated
+        val collector2 = ItemCollector(flow)
+        collector2.collectPassivelyIn(backgroundScope)
+        testScope.runCurrent()
+        assertThat(collector2.items())
+            .isEqualTo(buildItems(version = 10, generation = 0, start = 0, size = 3))
+        assertThat(collector2.receivedPagingDataCount).isEqualTo(1)
+        testScope.runCurrent()
+        assertThat(factory.nextVersion).isEqualTo(11)
+        val activeCollection = flow.collectItemsUntilSize(9)
+        assertThat(activeCollection)
+            .isEqualTo(buildItems(version = 10, generation = 0, start = 0, size = 9))
+        testScope.runCurrent()
+        // make sure passive collector received those items as well
+        assertThat(collector2.items())
+            .isEqualTo(buildItems(version = 10, generation = 0, start = 0, size = 9))
+    }
 
     @Test
-    public fun unusedPagingDataIsNeverCached() =
-        testScope.runTest {
-            val factory = StringPagingSource.VersionedFactory()
-            val flow = buildPageFlow(factory).cachedIn(backgroundScope, tracker)
-            val collector = ItemCollector(flow)
-            val job = SupervisorJob()
-            val subScope = CoroutineScope(coroutineContext + job)
-            collector.collectPassivelyIn(subScope)
+    public fun unusedPagingDataIsNeverCached() = testScope.runTest {
+        val factory = StringPagingSource.VersionedFactory()
+        val flow = buildPageFlow(factory).cachedIn(backgroundScope, tracker)
+        val collector = ItemCollector(flow)
+        val job = SupervisorJob()
+        val subScope = CoroutineScope(coroutineContext + job)
+        collector.collectPassivelyIn(subScope)
+        testScope.runCurrent()
+        // check that cachedData contains data from passive collector
+        assertThat(flow.cachedData())
+            .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 3))
+        // finish that collector
+        job.cancelAndJoin()
+        assertThat(factory.nextVersion).isEqualTo(1)
+        repeat(10) {
+            factory.invalidateLatest()
             testScope.runCurrent()
-            // check that cachedData contains data from passive collector
-            assertThat(flow.cachedData())
-                .isEqualTo(buildItems(version = 0, generation = 0, start = 0, size = 3))
-            // finish that collector
-            job.cancelAndJoin()
-            assertThat(factory.nextVersion).isEqualTo(1)
-            repeat(10) {
-                factory.invalidateLatest()
-                testScope.runCurrent()
-            }
-            runCurrent()
-            // next version is 11, the last paged data we've created has version 10
-            assertThat(factory.nextVersion).isEqualTo(11)
-
-            // the replayCache has paged data version 10 but no collection on this pagingData yet
-            // so it has no cachedEvent.
-            val cachedPagingData = (flow as SharedFlow<PagingData<Item>>).replayCache.first()
-            assertThat(cachedPagingData.cachedEvent()).isNull()
-
-            // create another collector from shared, should only receive 1 paging data and that
-            // should be the latest because previous PagingData is invalidated
-            val collector2 = ItemCollector(flow)
-            collector2.collectPassivelyIn(backgroundScope)
-            testScope.runCurrent()
-            // now this PagingData has cachedEvents from version 10
-            assertThat(flow.cachedData())
-                .isEqualTo(buildItems(version = 10, generation = 0, start = 0, size = 3))
-            assertThat(factory.nextVersion).isEqualTo(11)
-            // collect some more and ensure cachedData is still up-to-date
-            flow.collectItemsUntilSize(9)
-            assertThat(flow.cachedData())
-                .isEqualTo(buildItems(version = 10, generation = 0, start = 0, size = 9))
         }
+        runCurrent()
+        // next version is 11, the last paged data we've created has version 10
+        assertThat(factory.nextVersion).isEqualTo(11)
+
+        // the replayCache has paged data version 10 but no collection on this pagingData yet
+        // so it has no cachedEvent.
+        val cachedPagingData = (flow as SharedFlow<PagingData<Item>>).replayCache.first()
+        assertThat(cachedPagingData.cachedEvent()).isNull()
+
+        // create another collector from shared, should only receive 1 paging data and that
+        // should be the latest because previous PagingData is invalidated
+        val collector2 = ItemCollector(flow)
+        collector2.collectPassivelyIn(backgroundScope)
+        testScope.runCurrent()
+        // now this PagingData has cachedEvents from version 10
+        assertThat(flow.cachedData())
+            .isEqualTo(buildItems(version = 10, generation = 0, start = 0, size = 3))
+        assertThat(factory.nextVersion).isEqualTo(11)
+        // collect some more and ensure cachedData is still up-to-date
+        flow.collectItemsUntilSize(9)
+        assertThat(flow.cachedData())
+            .isEqualTo(buildItems(version = 10, generation = 0, start = 0, size = 9))
+    }
 
     private fun buildPageFlow(
         factory: StringPagingSource.VersionedFactory = StringPagingSource.VersionedFactory()

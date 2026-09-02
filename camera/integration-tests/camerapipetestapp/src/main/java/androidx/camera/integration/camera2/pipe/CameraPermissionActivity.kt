@@ -194,10 +194,9 @@ open class CameraPermissionActivity : AppCompatActivity() {
      * Check to see if the required permissions have been granted, and invoke the result on success.
      */
     fun checkPermissionsAndRun(permissions: Set<String>, permissionsGrantedListener: () -> Unit) {
-        val granted =
-            permissions.filter {
-                ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-            }
+        val granted = permissions.filter {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }
 
         // Invoke and exit early if we already have permissions.
         if (permissions.size == granted.size) {

@@ -42,20 +42,20 @@ object Launcher {
         configuration: DemoConfiguration,
     ): Map<UserAction, UserActionResult> {
         return buildList {
-                if (configuration.enableOverlays) {
-                    add(
-                        Swipe.Down(fromSource = SceneContainerArea.StartHalf) to
-                            UserActionResult.ShowOverlay(Overlays.Notifications)
-                    )
-                    add(
-                        Swipe.Down(fromSource = SceneContainerArea.EndHalf) to
-                            UserActionResult.ShowOverlay(Overlays.QuickSettings)
-                    )
-                } else {
-                    add(Swipe.Down to shadeScene)
-                    add(Swipe.Down(pointerCount = 2) to Scenes.QuickSettings)
-                }
+            if (configuration.enableOverlays) {
+                add(
+                    Swipe.Down(fromSource = SceneContainerArea.StartHalf) to
+                        UserActionResult.ShowOverlay(Overlays.Notifications)
+                )
+                add(
+                    Swipe.Down(fromSource = SceneContainerArea.EndHalf) to
+                        UserActionResult.ShowOverlay(Overlays.QuickSettings)
+                )
+            } else {
+                add(Swipe.Down to shadeScene)
+                add(Swipe.Down(pointerCount = 2) to Scenes.QuickSettings)
             }
+        }
             .toMap()
     }
 

@@ -55,15 +55,14 @@ internal interface WorkMetricsSpecDao {
     @Transaction
     fun insertWorkMetricsSpec(spec: WorkMetricsSpec, tags: Set<String> = emptySet()) {
         insertWorkMetricsSpec(spec)
-        val tagsToInsert =
-            tags.map { tag ->
-                WorkMetricsTag(
-                    tag = tag,
-                    workSpecId = spec.workSpecId,
-                    generation = spec.generation,
-                    periodCount = spec.periodCount,
-                )
-            }
+        val tagsToInsert = tags.map { tag ->
+            WorkMetricsTag(
+                tag = tag,
+                workSpecId = spec.workSpecId,
+                generation = spec.generation,
+                periodCount = spec.periodCount,
+            )
+        }
         if (tagsToInsert.isNotEmpty()) {
             insertWorkMetricsTags(tagsToInsert)
         }

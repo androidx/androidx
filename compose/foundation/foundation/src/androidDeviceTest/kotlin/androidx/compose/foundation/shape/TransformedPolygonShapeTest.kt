@@ -94,9 +94,10 @@ class TransformedPolygonShapeTest {
     fun roundingPercent_isRelativeToGeneratingRadius() {
         // Geometry-relative rounding: the same percent at different explicit radii must produce
         // the same shape once scaled to fit, because the rounding scales with the radius.
-        fun pentagonAt(radius: Float) =
-            PolygonShape { polygon(5, radius = radius, rounding = CornerRounding(percent = 20)) }
-                .scaledToFit()
+        fun pentagonAt(radius: Float) = PolygonShape {
+            polygon(5, radius = radius, rounding = CornerRounding(percent = 20))
+        }
+            .scaledToFit()
         assertPathsMatch(
             "percent rounding at radius 50 vs 400",
             pentagonAt(50f).outlinePath(),
@@ -259,10 +260,11 @@ class TransformedPolygonShapeTest {
 
     @Test
     fun transformed_scaleThenRotate_staysCentered() {
-        val shape =
-            PolygonShape { polygon(4) }
-                .transformed(Matrix().apply { scale(1f, 0.5f) })
-                .transformed(Matrix().apply { rotateZ(45f) })
+        val shape = PolygonShape {
+            polygon(4)
+        }
+            .transformed(Matrix().apply { scale(1f, 0.5f) })
+            .transformed(Matrix().apply { rotateZ(45f) })
         val polygon = shape.resolvePolygon(size, LayoutDirection.Ltr, unitDensity)
         assertEquals(sizePx / 2f, polygon.centerX, 1e-2f)
         assertEquals(sizePx / 2f, polygon.centerY, 1e-2f)
@@ -369,9 +371,10 @@ class TransformedPolygonShapeTest {
         // The wrapper's caches are keyed on the inner shape's content version, so a builder
         // lambda reading captured state must produce a fresh outline when that state changes.
         var radius = 40f
-        val shape =
-            PolygonShape { polygon(4, radius = radius) }
-                .transformed(Matrix().apply { rotateZ(45f) })
+        val shape = PolygonShape {
+            polygon(4, radius = radius)
+        }
+            .transformed(Matrix().apply { rotateZ(45f) })
         val before = shape.outlinePath().getBounds()
         radius = 80f
         val after = shape.outlinePath().getBounds()

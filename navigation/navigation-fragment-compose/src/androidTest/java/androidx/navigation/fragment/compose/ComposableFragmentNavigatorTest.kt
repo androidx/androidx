@@ -67,24 +67,23 @@ class ComposableFragmentNavigatorTest {
 
     @Test
     fun navigateWithArgsOverride() {
-        val navController =
-            testRule.runOnUiThread {
-                val controller =
-                    NavController(testRule.activity).apply {
-                        navigatorProvider +=
-                            FragmentNavigator(
-                                testRule.activity,
-                                testRule.activity.supportFragmentManager,
-                                R.id.fragment_container,
-                            )
-                        navigatorProvider += ComposableFragmentNavigator(navigatorProvider)
-                    }
-                Navigation.setViewNavController(
-                    testRule.activity.findViewById(R.id.fragment_container),
-                    controller,
-                )
-                controller
-            }
+        val navController = testRule.runOnUiThread {
+            val controller =
+                NavController(testRule.activity).apply {
+                    navigatorProvider +=
+                        FragmentNavigator(
+                            testRule.activity,
+                            testRule.activity.supportFragmentManager,
+                            R.id.fragment_container,
+                        )
+                    navigatorProvider += ComposableFragmentNavigator(navigatorProvider)
+                }
+            Navigation.setViewNavController(
+                testRule.activity.findViewById(R.id.fragment_container),
+                controller,
+            )
+            controller
+        }
 
         testRule.runOnUiThread {
             val args =

@@ -161,16 +161,15 @@ public fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): 
     if (drawOpsList != null && !drawContentProcessed) {
         val remoteContext = LocalRemoteContext.current
         val graph = LocalGraphContext.current
-        modifier =
-            modifier.drawWithContent {
-                executeOperations(
-                    operations = drawOpsList,
-                    remoteContext = remoteContext,
-                    textMeasurer = textMeasurer,
-                    onDrawContent = { drawContent() },
-                    graph = graph,
-                )
-            }
+        modifier = modifier.drawWithContent {
+            executeOperations(
+                operations = drawOpsList,
+                remoteContext = remoteContext,
+                textMeasurer = textMeasurer,
+                onDrawContent = { drawContent() },
+                graph = graph,
+            )
+        }
     }
     return modifier
 }

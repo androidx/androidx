@@ -217,17 +217,16 @@ class RelationCollectorFunctionWriter(private val collector: RelationCollector) 
         scope: CodeGenScope,
         functionName: String,
     ) {
-        val utilFunction =
-            RELATION_UTIL.let {
-                when {
-                    usingLongSparseArray -> it.packageMember("recursiveFetchLongSparseArray")
-                    usingArrayMap -> it.packageMember("recursiveFetchArrayMap")
-                    else ->
-                        it.packageMember(
-                            XName.of(java = "recursiveFetchHashMap", kotlin = "recursiveFetchMap")
-                        )
-                }
+        val utilFunction = RELATION_UTIL.let {
+            when {
+                usingLongSparseArray -> it.packageMember("recursiveFetchLongSparseArray")
+                usingArrayMap -> it.packageMember("recursiveFetchArrayMap")
+                else ->
+                    it.packageMember(
+                        XName.of(java = "recursiveFetchHashMap", kotlin = "recursiveFetchMap")
+                    )
             }
+        }
         val paramName = scope.getTmpVar("_tmpMap")
         val recursiveFetchBlock =
             InvokeWithLambdaParameter(

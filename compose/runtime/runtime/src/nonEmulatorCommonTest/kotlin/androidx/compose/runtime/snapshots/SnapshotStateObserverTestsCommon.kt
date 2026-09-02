@@ -572,9 +572,7 @@ class SnapshotStateObserverTestsCommon {
             Snapshot.notifyObjectsInitialized()
 
             // stop observing state in other scope
-            stateObserver.observeReads(scope2, onChange) {
-                /* no-op */
-            }
+            stateObserver.observeReads(scope2, onChange) { /* no-op */ }
         }
         assertEquals(1, changes)
     }
@@ -747,9 +745,7 @@ class SnapshotStateObserverTestsCommon {
             Snapshot.notifyObjectsInitialized()
 
             // stop observing state in other scope
-            stateObserver.observeReads(scope2, onChange) {
-                /* no-op */
-            }
+            stateObserver.observeReads(scope2, onChange) { /* no-op */ }
         }
         assertEquals(1, changes)
     }

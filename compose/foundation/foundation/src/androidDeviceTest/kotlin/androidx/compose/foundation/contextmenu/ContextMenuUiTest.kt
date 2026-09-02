@@ -584,7 +584,9 @@ class ContextMenuUiTest {
             TestColumn(colors) {
                 testItem(
                     enabled = false,
-                    leadingIcon = { iconColor -> Box(Modifier.background(iconColor).fillMaxSize()) },
+                    leadingIcon = { iconColor ->
+                        Box(Modifier.background(iconColor).fillMaxSize())
+                    },
                 )
             }
         }
@@ -610,7 +612,9 @@ class ContextMenuUiTest {
                 testItem(
                     label = "M".repeat(5),
                     enabled = enabled,
-                    leadingIcon = { iconColor -> Box(Modifier.background(iconColor).fillMaxSize()) },
+                    leadingIcon = { iconColor ->
+                        Box(Modifier.background(iconColor).fillMaxSize())
+                    },
                 )
             }
         }
@@ -684,7 +688,9 @@ class ContextMenuUiTest {
                 testItem(
                     label = "M".repeat(10),
                     enabled = enabled,
-                    leadingIcon = { iconColor -> Box(Modifier.background(iconColor).fillMaxSize()) },
+                    leadingIcon = { iconColor ->
+                        Box(Modifier.background(iconColor).fillMaxSize())
+                    },
                 )
             }
         }

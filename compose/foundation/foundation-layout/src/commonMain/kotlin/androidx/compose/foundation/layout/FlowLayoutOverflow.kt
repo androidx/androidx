@@ -606,7 +606,8 @@ public sealed class FlowLayoutOverflow(
     private val minLinesToShowCollapse: Int = 0,
     private val minCrossAxisSizeToShowCollapse: Int = 0,
     private val seeMoreGetter: ((state: FlowLayoutOverflowState) -> @Composable () -> Unit)? = null,
-    private val collapseGetter: ((state: FlowLayoutOverflowState) -> @Composable () -> Unit)? = null,
+    private val collapseGetter: ((state: FlowLayoutOverflowState) -> @Composable () -> Unit)? =
+        null,
 ) {
     internal fun createOverflowState() =
         FlowLayoutOverflowState(type, minLinesToShowCollapse, minCrossAxisSizeToShowCollapse)

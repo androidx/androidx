@@ -336,5 +336,7 @@ public fun <T> mutableStateSetOf(vararg elements: T): SnapshotStateSet<T> =
  * By using [rememberUpdatedState] a composable function can update these operations in progress.
  */
 @Composable
-public fun <T> rememberUpdatedState(newValue: T): State<T> =
-    remember { mutableStateOf(newValue) }.apply { value = newValue }
+public fun <T> rememberUpdatedState(newValue: T): State<T> = remember {
+    mutableStateOf(newValue)
+}
+    .apply { value = newValue }

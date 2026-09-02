@@ -132,8 +132,11 @@ public open class SwipeableState<T>(
 
     internal var anchors by mutableStateOf(emptyMap<Float, T>())
 
-    private val latestNonEmptyAnchorsFlow: Flow<Map<Float, T>> =
-        snapshotFlow { anchors }.filter { it.isNotEmpty() }.take(1)
+    private val latestNonEmptyAnchorsFlow: Flow<Map<Float, T>> = snapshotFlow {
+        anchors
+    }
+        .filter { it.isNotEmpty() }
+        .take(1)
 
     internal var minBound = Float.NEGATIVE_INFINITY
     internal var maxBound = Float.POSITIVE_INFINITY

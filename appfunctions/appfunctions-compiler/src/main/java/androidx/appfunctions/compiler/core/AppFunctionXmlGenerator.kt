@@ -106,13 +106,12 @@ class AppFunctionXmlGenerator(
         fileName: String,
         outputLocation: String? = null,
     ) {
-        val appFunctionMetadataList =
-            appFunctionsByClass.flatMap {
-                it.createAppFunctionMetadataList(
-                    resolvedAnnotatedSerializableProxies,
-                    appFunctionSerializablesDescriptionMap,
-                )
-            }
+        val appFunctionMetadataList = appFunctionsByClass.flatMap {
+            it.createAppFunctionMetadataList(
+                resolvedAnnotatedSerializableProxies,
+                appFunctionSerializablesDescriptionMap,
+            )
+        }
         generateXmlFromMetadata(
             appFunctionMetadataList,
             appFunctionsByClass.flatMap { it.getSourceFiles() }.toSet(),
@@ -146,13 +145,12 @@ class AppFunctionXmlGenerator(
         fileName: String,
         outputLocation: String? = null,
     ) {
-        val appFunctionMetadataList =
-            appFunctionSignatures.map {
-                it.createAppFunctionMetadata(
-                    resolvedAnnotatedSerializableProxies,
-                    appFunctionSerializablesDescriptionMap,
-                )
-            }
+        val appFunctionMetadataList = appFunctionSignatures.map {
+            it.createAppFunctionMetadata(
+                resolvedAnnotatedSerializableProxies,
+                appFunctionSerializablesDescriptionMap,
+            )
+        }
         generateXmlFromMetadata(
             appFunctionMetadataList,
             appFunctionSignatures.flatMap { it.getSourceFiles() }.toSet(),

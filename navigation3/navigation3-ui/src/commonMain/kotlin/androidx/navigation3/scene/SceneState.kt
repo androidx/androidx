@@ -83,7 +83,9 @@ public fun <T : Any> rememberSceneState(
     val currentOnBack by rememberUpdatedState(onBack)
 
     val sharedElementDecorator: SharedEntryInSceneNavEntryDecorator<T>? =
-        sharedTransitionScope?.let { rememberSharedEntryInSceneNavEntryDecorator(it) }
+        sharedTransitionScope?.let {
+            rememberSharedEntryInSceneNavEntryDecorator(it)
+        }
 
     // Re-wrap the entries with:
     // - SharedEntryInSceneNavEntryDecorator to allow entries between scenes to be animated

@@ -375,11 +375,9 @@ public class AndroidMultiResolutionImageReader(
                 }
             }
 
-            val streamInfoToOutputIdMap =
-                outputs.associate {
-                    MultiResolutionStreamInfo(it.size.width, it.size.height, it.camera.value) to
-                        it.id
-                }
+            val streamInfoToOutputIdMap = outputs.associate {
+                MultiResolutionStreamInfo(it.size.width, it.size.height, it.camera.value) to it.id
+            }
             val streamInfos = streamInfoToOutputIdMap.keys
 
             val multiResolutionImageReader =

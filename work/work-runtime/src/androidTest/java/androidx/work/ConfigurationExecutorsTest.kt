@@ -41,10 +41,9 @@ import org.junit.runner.RunWith
 @MediumTest
 class ConfigurationExecutorsTest {
     val workerFactory = TrackingWorkerFactory()
-    val executor =
-        Executors.newSingleThreadExecutor {
-            Thread(it).also { thread -> thread.name = threadTestName }
-        }
+    val executor = Executors.newSingleThreadExecutor {
+        Thread(it).also { thread -> thread.name = threadTestName }
+    }
 
     @Test
     fun testSetExecutor() = runBlocking {

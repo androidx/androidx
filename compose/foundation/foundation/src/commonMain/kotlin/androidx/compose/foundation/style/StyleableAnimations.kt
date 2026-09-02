@@ -56,19 +56,18 @@ internal class StyleableAnimations {
 
         fun animate(coroutineScope: CoroutineScope) {
             job?.cancel()
-            job =
-                coroutineScope.launch {
-                    synchronized(lock) {
-                        if (state == EntryState.Interrupted) state = EntryState.Unchanged
-                    }
-                    try {
-                        val velocity = animation.velocity
-                        animation.snapTo(0f)
-                        animation.animateTo(1f, animationSpec = spec, initialVelocity = velocity)
-                    } finally {
-                        cleanupAnimations()
-                    }
+            job = coroutineScope.launch {
+                synchronized(lock) {
+                    if (state == EntryState.Interrupted) state = EntryState.Unchanged
                 }
+                try {
+                    val velocity = animation.velocity
+                    animation.snapTo(0f)
+                    animation.animateTo(1f, animationSpec = spec, initialVelocity = velocity)
+                } finally {
+                    cleanupAnimations()
+                }
+            }
         }
 
         fun interrupted(coroutineScope: CoroutineScope) {
@@ -178,32 +177,30 @@ internal class StyleableAnimations {
         }
     }
 
-    fun preRecordLocked() =
-        entries.forEach { _, entry ->
-            when (entry.state) {
-                EntryState.Inserted,
-                EntryState.Unchanged,
-                EntryState.Changed -> entry.state = EntryState.Untouched
-                else -> {}
-            }
+    fun preRecordLocked() = entries.forEach { _, entry ->
+        when (entry.state) {
+            EntryState.Inserted,
+            EntryState.Unchanged,
+            EntryState.Changed -> entry.state = EntryState.Untouched
+            else -> {}
         }
+    }
 
-    fun postRecordLocked(node: StyleOuterNode) =
-        entries.forEach { _, entry ->
-            when (entry.state) {
-                EntryState.Inserted -> {
-                    entry.animate(node.animationScope)
-                }
-                EntryState.Untouched -> {
-                    entry.state = EntryState.Removing
-                }
-                EntryState.Changed -> {
-                    entry.state = EntryState.Interrupted
-                    entry.interrupted(node.animationScope)
-                }
-                else -> {}
+    fun postRecordLocked(node: StyleOuterNode) = entries.forEach { _, entry ->
+        when (entry.state) {
+            EntryState.Inserted -> {
+                entry.animate(node.animationScope)
             }
+            EntryState.Untouched -> {
+                entry.state = EntryState.Removing
+            }
+            EntryState.Changed -> {
+                entry.state = EntryState.Interrupted
+                entry.interrupted(node.animationScope)
+            }
+            else -> {}
         }
+    }
 
     fun close() {
         synchronized(lock) {

@@ -79,7 +79,10 @@ class SeparatorsTest {
                                     hintOriginalPageOffset = 1,
                                     hintOriginalIndices = listOf(0),
                                 ),
-                                TransformablePage(originalPageOffset = 1, data = listOf("c1", "c2")),
+                                TransformablePage(
+                                    originalPageOffset = 1,
+                                    data = listOf("c1", "c2"),
+                                ),
                             ),
                         placeholdersAfter = 1,
                     )
@@ -179,7 +182,10 @@ class SeparatorsTest {
                                     hintOriginalPageOffset = 1,
                                     hintOriginalIndices = listOf(0, 1, 1),
                                 ),
-                                TransformablePage(originalPageOffset = 2, data = listOf("d2", "d3")),
+                                TransformablePage(
+                                    originalPageOffset = 2,
+                                    data = listOf("d2", "d3"),
+                                ),
                             ),
                         placeholdersAfter = 1,
                     ),
@@ -1000,7 +1006,10 @@ class SeparatorsTest {
                         source =
                             loadStates(append = NotLoading.Complete, prepend = NotLoading.Complete),
                         mediator =
-                            loadStates(refresh = NotLoading.Complete, prepend = NotLoading.Complete),
+                            loadStates(
+                                refresh = NotLoading.Complete,
+                                prepend = NotLoading.Complete,
+                            ),
                     ),
                     remoteAppend(
                         pages =
@@ -1104,7 +1113,10 @@ class SeparatorsTest {
                         source =
                             loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
                         mediator =
-                            loadStates(refresh = NotLoading.Complete, prepend = NotLoading.Complete),
+                            loadStates(
+                                refresh = NotLoading.Complete,
+                                prepend = NotLoading.Complete,
+                            ),
                     ),
                     remoteAppend(
                         pages = listOf(),
@@ -1886,6 +1898,6 @@ internal fun <T : Any> TransformablePage(data: List<T>) =
 
 internal fun <T : Any> List<List<T>>.toTransformablePages(indexOfInitialPage: Int = 0) =
     mapIndexed { index, list ->
-            TransformablePage(data = list, originalPageOffset = index - indexOfInitialPage)
-        }
-        .toMutableList()
+        TransformablePage(data = list, originalPageOffset = index - indexOfInitialPage)
+    }
+    .toMutableList()

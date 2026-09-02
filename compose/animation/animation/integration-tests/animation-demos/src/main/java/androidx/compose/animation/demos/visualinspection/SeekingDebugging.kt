@@ -123,14 +123,13 @@ fun Transition<Boolean>.ComplexAV() {
                 colors.forEachIndexed { index, color ->
                     // Creates a custom enter/exit animation on scale using
                     // `AnimatedVisibilityScope.transition`
-                    val scale by
-                        transition.animateFloat { enterExitState ->
-                            when (enterExitState) {
-                                EnterExitState.PreEnter -> 0.9f
-                                EnterExitState.Visible -> 1.0f
-                                EnterExitState.PostExit -> 0.5f
-                            }
+                    val scale by transition.animateFloat { enterExitState ->
+                        when (enterExitState) {
+                            EnterExitState.PreEnter -> 0.9f
+                            EnterExitState.Visible -> 1.0f
+                            EnterExitState.PostExit -> 0.5f
                         }
+                    }
                     val staggeredSpring = remember {
                         spring<IntOffset>(stiffness = Spring.StiffnessLow * (1f - index * 0.2f))
                     }

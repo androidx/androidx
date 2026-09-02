@@ -111,43 +111,41 @@ internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration)
     override fun provideComposable(composable: @Composable () -> Unit) {
         check(testContext.rootGlanceNode == null) { "provideComposable can only be called once" }
 
-        provideComposableJob =
-            testScope.launch {
-                var compositionLocals =
-                    arrayOf(
-                        LocalGlanceId provides fakeGlanceID,
-                        LocalState provides state,
-                        LocalAppWidgetOptions provides appWidgetOptions,
-                        LocalSize provides size,
-                    )
-                context?.let {
-                    compositionLocals = compositionLocals.plus(LocalContext provides it)
-                }
+        provideComposableJob = testScope.launch {
+            var compositionLocals =
+                arrayOf(
+                    LocalGlanceId provides fakeGlanceID,
+                    LocalState provides state,
+                    LocalAppWidgetOptions provides appWidgetOptions,
+                    LocalSize provides size,
+                )
+            context?.let {
+                compositionLocals = compositionLocals.plus(LocalContext provides it)
+            }
 
-                composition.setContent {
-                    CompositionLocalProvider(values = compositionLocals, content = composable)
-                }
+            composition.setContent {
+                CompositionLocalProvider(values = compositionLocals, content = composable)
+            }
 
-                launch(currentCoroutineContext() + TestFrameClock()) {
-                    recomposer.runRecomposeAndApplyChanges()
-                }
+            launch(currentCoroutineContext() + TestFrameClock()) {
+                recomposer.runRecomposeAndApplyChanges()
+            }
 
-                launch {
-                    recomposer.currentState.collect { curState ->
-                        Log.d(TAG, "Recomposer state: $curState")
-                        when (curState) {
-                            Recomposer.State.Idle -> {
-                                testContext.rootGlanceNode =
-                                    GlanceMappedNode(emittable = root.copy())
-                            }
-                            Recomposer.State.ShutDown -> {
-                                cancel()
-                            }
-                            else -> {}
+            launch {
+                recomposer.currentState.collect { curState ->
+                    Log.d(TAG, "Recomposer state: $curState")
+                    when (curState) {
+                        Recomposer.State.Idle -> {
+                            testContext.rootGlanceNode = GlanceMappedNode(emittable = root.copy())
                         }
+                        Recomposer.State.ShutDown -> {
+                            cancel()
+                        }
+                        else -> {}
                     }
                 }
             }
+        }
     }
 
     override fun awaitIdle() {

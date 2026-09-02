@@ -100,48 +100,44 @@ fun RulerConsumerUsage(content: @Composable BoxScope.() -> Unit) {
 @Sampled
 fun DerivedVerticalRulerUsage() {
     class PaddedRulers(val ruler: VerticalRuler, val padding: Dp) {
-        val left =
-            VerticalRuler.derived { defaultValue ->
-                val rulerValue = ruler.current(Float.NaN)
-                if (rulerValue.isNaN()) {
-                    defaultValue
-                } else {
-                    rulerValue + padding.toPx()
-                }
+        val left = VerticalRuler.derived { defaultValue ->
+            val rulerValue = ruler.current(Float.NaN)
+            if (rulerValue.isNaN()) {
+                defaultValue
+            } else {
+                rulerValue + padding.toPx()
             }
-        val right =
-            VerticalRuler.derived { defaultValue ->
-                val rulerValue = ruler.current(Float.NaN)
-                if (rulerValue.isNaN()) {
-                    defaultValue
-                } else {
-                    rulerValue - padding.toPx()
-                }
+        }
+        val right = VerticalRuler.derived { defaultValue ->
+            val rulerValue = ruler.current(Float.NaN)
+            if (rulerValue.isNaN()) {
+                defaultValue
+            } else {
+                rulerValue - padding.toPx()
             }
+        }
     }
 }
 
 @Sampled
 fun DerivedHorizontalRulerUsage() {
     class PaddedRulers(val ruler: HorizontalRuler, val padding: Dp) {
-        val top =
-            HorizontalRuler.derived { defaultValue ->
-                val rulerValue = ruler.current(Float.NaN)
-                if (rulerValue.isNaN()) {
-                    defaultValue
-                } else {
-                    rulerValue + padding.toPx()
-                }
+        val top = HorizontalRuler.derived { defaultValue ->
+            val rulerValue = ruler.current(Float.NaN)
+            if (rulerValue.isNaN()) {
+                defaultValue
+            } else {
+                rulerValue + padding.toPx()
             }
-        val bottom =
-            HorizontalRuler.derived { defaultValue ->
-                val rulerValue = ruler.current(Float.NaN)
-                if (rulerValue.isNaN()) {
-                    defaultValue
-                } else {
-                    rulerValue - padding.toPx()
-                }
+        }
+        val bottom = HorizontalRuler.derived { defaultValue ->
+            val rulerValue = ruler.current(Float.NaN)
+            if (rulerValue.isNaN()) {
+                defaultValue
+            } else {
+                rulerValue - padding.toPx()
             }
+        }
     }
 }
 

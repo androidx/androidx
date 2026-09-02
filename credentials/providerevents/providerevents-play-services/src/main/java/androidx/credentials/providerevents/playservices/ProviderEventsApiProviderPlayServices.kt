@@ -72,7 +72,10 @@ public class ProviderEventsApiProviderPlayServices(private val context: Context)
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback:
-            CredentialManagerCallback<ProviderImportCredentialsResponse, ImportCredentialsException>,
+            CredentialManagerCallback<
+                ProviderImportCredentialsResponse,
+                ImportCredentialsException,
+            >,
     ) {
         val controller =
             ImportCredentialsController(context, request, cancellationSignal, executor, callback)

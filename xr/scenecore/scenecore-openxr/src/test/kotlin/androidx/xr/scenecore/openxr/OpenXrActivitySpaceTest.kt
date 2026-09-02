@@ -168,8 +168,9 @@ class OpenXrActivitySpaceTest {
     @Test
     fun onBoundsChanged_updatesBoundsAndNotifiesListeners() {
         var notifiedBounds: Dimensions? = null
-        val listener =
-            ActivitySpace.OnBoundsChangedListener { dimensions -> notifiedBounds = dimensions }
+        val listener = ActivitySpace.OnBoundsChangedListener { dimensions ->
+            notifiedBounds = dimensions
+        }
         activitySpace.addOnBoundsChangedListener(listener)
 
         val newBounds = Dimensions(2f, 3f, 4f)

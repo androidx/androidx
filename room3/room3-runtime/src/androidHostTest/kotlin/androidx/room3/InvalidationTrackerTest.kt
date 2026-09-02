@@ -304,14 +304,13 @@ class InvalidationTrackerTest {
         // Validates that a slow observer will finish notification after database closing
         val invalidatedLatch = CompletableDeferred<Unit>()
         val invalidated = AtomicBoolean(false)
-        val job =
-            backgroundScope.launch {
-                tracker.createFlow("a", emitInitialState = false).collect {
-                    invalidatedLatch.complete(Unit)
-                    assertThat(invalidated.compareAndSet(false, true)).isTrue()
-                    delay(100)
-                }
+        val job = backgroundScope.launch {
+            tracker.createFlow("a", emitInitialState = false).collect {
+                invalidatedLatch.complete(Unit)
+                assertThat(invalidated.compareAndSet(false, true)).isTrue()
+                delay(100)
             }
+        }
         sqliteDriver.setInvalidatedTables(0)
         tracker.refreshAsync()
         testScheduler.advanceUntilIdle()
@@ -489,12 +488,11 @@ class InvalidationTrackerTest {
             .contains("Database is closed")
     }
 
-    private fun runTest(testBody: suspend TestScope.() -> Unit) =
-        testCoroutineScope.runTest {
-            testBody.invoke(this)
-            testScheduler.advanceUntilIdle()
-            roomDatabase.close()
-        }
+    private fun runTest(testBody: suspend TestScope.() -> Unit) = testCoroutineScope.runTest {
+        testBody.invoke(this)
+        testScheduler.advanceUntilIdle()
+        roomDatabase.close()
+    }
 
     /**
      * Start invalidation async and await for it to be done.

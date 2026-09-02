@@ -80,9 +80,7 @@ fun SplitToggleChipWithCheckbox() {
         checked = checked,
         toggleControl = { Checkbox(checked = checked, enabled = true) },
         onCheckedChange = { checked = it },
-        onClick = {
-            /* Do something */
-        },
+        onClick = { /* Do something */ },
         enabled = true,
     )
 }

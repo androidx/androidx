@@ -45,15 +45,14 @@ import org.robolectric.util.ReflectionHelpers
 @Config(sdk = [Config.ALL_SDKS], shadows = [TestShadowWindowManager::class])
 class DisplayInfoManagerTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val displayInfoManager =
-        DisplayInfoManager.run {
-            // DisplayInfoManager is used in multiple classes which may be initiated in many other
-            // classes i.e. it may be used through many tests indirectly. So, we call
-            // releaseInstance once before getInstance too so that the first test in this class can
-            // also start with a clean slate.
-            releaseInstance()
-            getInstance(context)
-        }
+    private val displayInfoManager = DisplayInfoManager.run {
+        // DisplayInfoManager is used in multiple classes which may be initiated in many other
+        // classes i.e. it may be used through many tests indirectly. So, we call
+        // releaseInstance once before getInstance too so that the first test in this class can
+        // also start with a clean slate.
+        releaseInstance()
+        getInstance(context)
+    }
 
     private fun addDisplay(width: Int, height: Int, state: Int = Display.STATE_ON): Int {
         val displayStr = String.format("w%ddp-h%ddp", width, height)

@@ -519,7 +519,8 @@ class FlattenedPageEventStorageTest {
                         placeholdersBefore = 0,
                         placeholdersAfter = 0,
                         sourceLoadStates = event.sourceLoadStates ?: snapshot.sourceLoadStates,
-                        mediatorLoadStates = event.mediatorLoadStates ?: snapshot.mediatorLoadStates,
+                        mediatorLoadStates =
+                            event.mediatorLoadStates ?: snapshot.mediatorLoadStates,
                     )
                 }
             }

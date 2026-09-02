@@ -3509,7 +3509,8 @@ class SharedTransitionTest {
                                                     },
                                             ),
                                             this@AnimatedContent,
-                                            boundsTransform = BoundsTransform { _, _ -> tween(160) },
+                                            boundsTransform =
+                                                BoundsTransform { _, _ -> tween(160) },
                                         )
                                         .onPlaced {
                                             sizes2.add(it.size)
@@ -3656,7 +3657,8 @@ class SharedTransitionTest {
                                                     },
                                             ),
                                             this@AnimatedContent,
-                                            boundsTransform = BoundsTransform { _, _ -> tween(160) },
+                                            boundsTransform =
+                                                BoundsTransform { _, _ -> tween(160) },
                                         )
                                         .onPlaced {
                                             sizes2.add(it.size)
@@ -3821,7 +3823,8 @@ class SharedTransitionTest {
                                                 config = disableInSpiteOfAnimationConfig,
                                             ),
                                             this@AnimatedContent,
-                                            boundsTransform = BoundsTransform { _, _ -> tween(160) },
+                                            boundsTransform =
+                                                BoundsTransform { _, _ -> tween(160) },
                                         )
                                         .onPlaced {
                                             sizes2.add(it.size)
@@ -4121,7 +4124,8 @@ class SharedTransitionTest {
                                                 config = configWithAlternativeTarget,
                                             ),
                                             this@AnimatedContent,
-                                            boundsTransform = BoundsTransform { _, _ -> tween(160) },
+                                            boundsTransform =
+                                                BoundsTransform { _, _ -> tween(160) },
                                         )
                                         .onPlaced {
                                             sizes2.add(it.size)
@@ -5209,8 +5213,9 @@ class SharedTransitionTest {
         rule.waitForIdle()
 
         // Check animated positions during the transition
-        val inBetweenPositions =
-            positionRecord.count { it.x > 0f && it.x < 200f && it.y > 0f && it.y < 100f }
+        val inBetweenPositions = positionRecord.count {
+            it.x > 0f && it.x < 200f && it.y > 0f && it.y < 100f
+        }
         // At least 3 frames of in-between positions. This check verifies that the position was
         // obtained from before the shared element was detached.
         assertTrue(inBetweenPositions >= 3)
@@ -5282,8 +5287,9 @@ class SharedTransitionTest {
         rule.waitForIdle()
 
         // Check animated positions during the transition
-        val inBetweenPositions =
-            positionRecord.count { it.x > 0f && it.x < 200f && it.y > 0f && it.y < 100f }
+        val inBetweenPositions = positionRecord.count {
+            it.x > 0f && it.x < 200f && it.y > 0f && it.y < 100f
+        }
         // At least 3 frames of in-between positions. This check verifies that the initial position
         // uses the position obtained from before the shared element was detached, rather than
         // after the shared element is re-attached after the movableContent is re-parented.

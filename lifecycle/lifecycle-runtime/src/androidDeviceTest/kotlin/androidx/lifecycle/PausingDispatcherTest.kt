@@ -249,18 +249,17 @@ class PausingDispatcherTest {
     @Test
     fun cancel() {
         runBlocking {
-            val job =
-                testingScope.launch {
-                    owner.whenResumed {
-                        try {
-                            expectations.expect(1)
-                            delay(5000)
-                            expectations.expectUnreached()
-                        } finally {
-                            expectations.expect(2)
-                        }
+            val job = testingScope.launch {
+                owner.whenResumed {
+                    try {
+                        expectations.expect(1)
+                        delay(5000)
+                        expectations.expectUnreached()
+                    } finally {
+                        expectations.expect(2)
                     }
                 }
+            }
             drain()
             expectations.expectTotal(1)
             job.cancelAndJoin()
@@ -287,24 +286,23 @@ class PausingDispatcherTest {
     @Test
     fun innerThrowException() {
         runBlocking {
-            val job =
-                testingScope.launch {
-                    val res = runCatching {
-                        owner.whenResumed {
-                            try {
-                                expectations.expect(1)
-                                withContext(testingScope.coroutineContext) {
-                                    throw IllegalStateException("i fail")
-                                }
-                                @Suppress("UNREACHABLE_CODE") expectations.expectUnreached()
-                            } finally {
-                                expectations.expect(2)
+            val job = testingScope.launch {
+                val res = runCatching {
+                    owner.whenResumed {
+                        try {
+                            expectations.expect(1)
+                            withContext(testingScope.coroutineContext) {
+                                throw IllegalStateException("i fail")
                             }
                             @Suppress("UNREACHABLE_CODE") expectations.expectUnreached()
+                        } finally {
+                            expectations.expect(2)
                         }
+                        @Suppress("UNREACHABLE_CODE") expectations.expectUnreached()
                     }
-                    assertThat(res.exceptionOrNull()).hasMessageThat().isEqualTo("i fail")
                 }
+                assertThat(res.exceptionOrNull()).hasMessageThat().isEqualTo("i fail")
+            }
             job.join()
             expectations.expectTotal(2)
         }
@@ -327,16 +325,15 @@ class PausingDispatcherTest {
     fun pause_thenFinish() {
         owner.pause()
         runBlocking {
-            val job =
-                testingScope.launch {
-                    owner.whenResumed {
-                        try {
-                            expectations.expectUnreached()
-                        } finally {
-                            expectations.expectUnreached()
-                        }
+            val job = testingScope.launch {
+                owner.whenResumed {
+                    try {
+                        expectations.expectUnreached()
+                    } finally {
+                        expectations.expectUnreached()
                     }
                 }
+            }
             drain()
             expectations.expectTotal(0)
             owner.destroy()
@@ -349,19 +346,18 @@ class PausingDispatcherTest {
     @Test
     fun finishWhileDelayed() {
         runBlocking {
-            val job =
-                testingScope.launch {
-                    owner.whenResumed {
-                        try {
-                            expectations.expect(1)
-                            delay(100000)
-                            expectations.expectUnreached()
-                        } finally {
-                            expectations.expect(2)
-                            assertThat(isActive).isFalse()
-                        }
+            val job = testingScope.launch {
+                owner.whenResumed {
+                    try {
+                        expectations.expect(1)
+                        delay(100000)
+                        expectations.expectUnreached()
+                    } finally {
+                        expectations.expect(2)
+                        assertThat(isActive).isFalse()
                     }
                 }
+            }
             drain()
             expectations.expectTotal(1)
             owner.destroy()
@@ -399,22 +395,21 @@ class PausingDispatcherTest {
     @Test
     fun catchFinishWhileDelayed() {
         runBlocking {
-            val job =
-                testingScope.launch {
-                    owner.whenResumed {
-                        try {
-                            expectations.expect(1)
-                            delay(100000)
-                            expectations.expectUnreached()
-                        } catch (e: Exception) {
-                            expectations.expect(2)
-                            assertThat(isActive).isFalse()
-                        } finally {
-                            expectations.expect(3)
-                        }
-                        expectations.expect(4)
+            val job = testingScope.launch {
+                owner.whenResumed {
+                    try {
+                        expectations.expect(1)
+                        delay(100000)
+                        expectations.expectUnreached()
+                    } catch (e: Exception) {
+                        expectations.expect(2)
+                        assertThat(isActive).isFalse()
+                    } finally {
+                        expectations.expect(3)
                     }
+                    expectations.expect(4)
                 }
+            }
             drain()
             expectations.expectTotal(1)
             owner.destroy()
@@ -426,15 +421,14 @@ class PausingDispatcherTest {
     @Test
     fun pauseThenContinue() {
         runBlocking {
-            val job =
-                testingScope.launch {
-                    owner.whenResumed {
-                        expectations.expect(1)
-                        withContext(testingScope.coroutineContext) { owner.pause() }
-                        expectations.expect(2)
-                    }
-                    expectations.expect(3)
+            val job = testingScope.launch {
+                owner.whenResumed {
+                    expectations.expect(1)
+                    withContext(testingScope.coroutineContext) { owner.pause() }
+                    expectations.expect(2)
                 }
+                expectations.expect(3)
+            }
             drain()
             expectations.expectTotal(1)
             assertThat(owner.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
@@ -447,18 +441,17 @@ class PausingDispatcherTest {
     @Test
     fun parentJobCancelled() {
         runBlocking {
-            val parent =
-                testingScope.launch {
-                    owner.whenResumed {
-                        try {
-                            expectations.expect(1)
-                            delay(5000)
-                            expectations.expectUnreached()
-                        } finally {
-                            expectations.expect(2)
-                        }
+            val parent = testingScope.launch {
+                owner.whenResumed {
+                    try {
+                        expectations.expect(1)
+                        delay(5000)
+                        expectations.expectUnreached()
+                    } finally {
+                        expectations.expect(2)
                     }
                 }
+            }
             drain()
             expectations.expectTotal(1)
             parent.cancelAndJoin()

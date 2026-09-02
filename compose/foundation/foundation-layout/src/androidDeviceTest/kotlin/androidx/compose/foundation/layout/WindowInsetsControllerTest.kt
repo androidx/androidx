@@ -183,15 +183,14 @@ class WindowInsetsControllerTest {
         val startTime = SystemClock.uptimeMillis()
         do {
             assertThat(SystemClock.uptimeMillis()).isLessThan(startTime + 1000)
-            val size =
-                rule.runOnUiThread {
-                    connection.onPostScroll(
-                        consumed = Offset.Zero,
-                        available = Offset(3f, directionMultiplier * 5f),
-                        source = NestedScrollSource.UserInput,
-                    )
-                    coordinates.size
-                }
+            val size = rule.runOnUiThread {
+                connection.onPostScroll(
+                    consumed = Offset.Zero,
+                    available = Offset(3f, directionMultiplier * 5f),
+                    source = NestedScrollSource.UserInput,
+                )
+                coordinates.size
+            }
         } while (size == sizeBefore)
 
         rule.runOnIdle {
@@ -235,14 +234,13 @@ class WindowInsetsControllerTest {
         val startTime = SystemClock.uptimeMillis()
         do {
             assertThat(SystemClock.uptimeMillis()).isLessThan(startTime + 1000)
-            val size =
-                rule.runOnUiThread {
-                    connection.onPreScroll(
-                        available = Offset(3f, directionMultiplier * -5f),
-                        source = NestedScrollSource.UserInput,
-                    )
-                    coordinates.size
-                }
+            val size = rule.runOnUiThread {
+                connection.onPreScroll(
+                    available = Offset(3f, directionMultiplier * -5f),
+                    source = NestedScrollSource.UserInput,
+                )
+                coordinates.size
+            }
         } while (size == sizeBefore)
 
         rule.runOnIdle {
@@ -586,13 +584,12 @@ class WindowInsetsControllerTest {
 
         rule.runOnUiThread { view.windowInsetsController?.show(imeType) }
 
-        val imeAvailable =
-            rule.runOnIdle {
-                val windowInsets = view.rootWindowInsets
-                val insets = windowInsets.getInsets(imeType)
-                shownSize = insets.value
-                windowInsets.isVisible(imeType) && insets.value != 0
-            }
+        val imeAvailable = rule.runOnIdle {
+            val windowInsets = view.rootWindowInsets
+            val insets = windowInsets.getInsets(imeType)
+            shownSize = insets.value
+            windowInsets.isVisible(imeType) && insets.value != 0
+        }
         if (!imeAvailable) {
             return // IME isn't available on this device
         }

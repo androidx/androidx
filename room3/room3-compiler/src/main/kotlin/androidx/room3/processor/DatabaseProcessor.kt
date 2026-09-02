@@ -365,22 +365,20 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         entities: List<Entity>,
         views: List<DatabaseView>,
     ) {
-        val entitiesInfo =
-            entities.map {
-                Triple(
-                    it.tableName.lowercase(Locale.US),
-                    it.typeName.toString(context.codeLanguage),
-                    it.element,
-                )
-            }
-        val viewsInfo =
-            views.map {
-                Triple(
-                    it.viewName.lowercase(Locale.US),
-                    it.typeName.toString(context.codeLanguage),
-                    it.element,
-                )
-            }
+        val entitiesInfo = entities.map {
+            Triple(
+                it.tableName.lowercase(Locale.US),
+                it.typeName.toString(context.codeLanguage),
+                it.element,
+            )
+        }
+        val viewsInfo = views.map {
+            Triple(
+                it.viewName.lowercase(Locale.US),
+                it.typeName.toString(context.codeLanguage),
+                it.element,
+            )
+        }
         (entitiesInfo + viewsInfo)
             .groupBy { (name, _, _) -> name }
             .filter { it.value.size > 1 }

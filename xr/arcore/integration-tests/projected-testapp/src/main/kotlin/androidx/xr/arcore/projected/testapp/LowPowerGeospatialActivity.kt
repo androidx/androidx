@@ -114,10 +114,9 @@ open class LowPowerGeospatialActivity : ComponentActivity() {
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
             )
-        val hasAllPermissions =
-            permissionsRequired.all {
-                ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-            }
+        val hasAllPermissions = permissionsRequired.all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }
         if (hasAllPermissions) {
             tryCreateAndConfigureSession()
         } else if (ProjectedContext.isProjectedDeviceContext(this)) {

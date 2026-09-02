@@ -1258,18 +1258,17 @@ public class AnchoredDraggableState<T>(initialValue: T) {
      *
      * @return true if the synchronous snap was successful, or false if we couldn't snap synchronous
      */
-    private fun trySnapTo(targetValue: T): Boolean =
-        dragMutex.tryMutate {
-            with(anchoredDragScope) {
-                val targetOffset = anchors.positionOf(targetValue)
-                if (!targetOffset.isNaN()) {
-                    dragTo(targetOffset)
-                    dragTarget = null
-                }
-                currentValue = targetValue
-                settledValue = targetValue
+    private fun trySnapTo(targetValue: T): Boolean = dragMutex.tryMutate {
+        with(anchoredDragScope) {
+            val targetOffset = anchors.positionOf(targetValue)
+            if (!targetOffset.isNaN()) {
+                dragTo(targetOffset)
+                dragTarget = null
             }
+            currentValue = targetValue
+            settledValue = targetValue
         }
+    }
 
     public companion object {
         /** The default [Saver] implementation for [AnchoredDraggableState]. */

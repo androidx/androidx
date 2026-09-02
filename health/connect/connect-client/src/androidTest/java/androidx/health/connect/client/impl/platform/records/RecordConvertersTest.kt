@@ -469,7 +469,8 @@ class RecordConvertersTest {
                     PlatformExerciseSegmentBuilder(
                             START_TIME.plusMillis(1),
                             START_TIME.plusMillis(10),
-                            PlatformExerciseSegmentType.EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS,
+                            PlatformExerciseSegmentType
+                                .EXERCISE_SEGMENT_TYPE_BARBELL_SHOULDER_PRESS,
                         )
                         .setRepetitionsCount(10)
                         .build()

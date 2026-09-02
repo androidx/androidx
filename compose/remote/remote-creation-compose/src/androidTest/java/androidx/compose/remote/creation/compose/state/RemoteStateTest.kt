@@ -176,12 +176,14 @@ class RemoteStateTest {
             }
 
             // s2 has global scope so is created before ROOT
-            val s2Index =
-                operations.indexOfFirst { it is NamedVariable && it.mVarName == "USER:s2" }
+            val s2Index = operations.indexOfFirst {
+                it is NamedVariable && it.mVarName == "USER:s2"
+            }
             val rootIndex = operations.indexOfFirst { it is RootLayoutComponent }
             val boxIndex = operations.indexOfFirst { it is BoxLayout }
-            val s1Index =
-                operations.indexOfFirst { it is NamedVariable && it.mVarName == "USER:s1" }
+            val s1Index = operations.indexOfFirst {
+                it is NamedVariable && it.mVarName == "USER:s1"
+            }
 
             val operationIds = listOf(s2Index, rootIndex, boxIndex, s1Index)
             assertThat(operationIds).doesNotContain(-1)

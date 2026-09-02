@@ -321,24 +321,23 @@ private class SingleSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() 
     // Caches the only valid return value of [readObserverFor].
     private val readObserverCache = { obj: Any -> watch(subscribedChannel!!, obj) }
 
-    private val unregisterApplyObserver =
-        Snapshot.registerApplyObserver { changed, _ ->
-            var toNotify: SendChannel<Unit>? = null
-            synchronized(lock) {
-                val watchSet = watchSet
-                if (watchSet == null) {
-                    if (changed.contains(soleWatchedObject)) {
-                        toNotify = subscribedChannel
-                    }
-                } else {
-                    // Assumption: [watchSet] will typically be smaller than [changed].
-                    if (watchSet.any { changed.contains(it) }) {
-                        toNotify = subscribedChannel
-                    }
+    private val unregisterApplyObserver = Snapshot.registerApplyObserver { changed, _ ->
+        var toNotify: SendChannel<Unit>? = null
+        synchronized(lock) {
+            val watchSet = watchSet
+            if (watchSet == null) {
+                if (changed.contains(soleWatchedObject)) {
+                    toNotify = subscribedChannel
+                }
+            } else {
+                // Assumption: [watchSet] will typically be smaller than [changed].
+                if (watchSet.any { changed.contains(it) }) {
+                    toNotify = subscribedChannel
                 }
             }
-            toNotify?.trySend(Unit)
         }
+        toNotify?.trySend(Unit)
+    }
 
     override fun watch(channel: SendChannel<Unit>, obj: Any) {
         checkPrecondition(subscribedChannel == channel) {
@@ -471,27 +470,26 @@ private class MultiSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() {
     // Used by [readObserverFor] to cache partially applied functions.
     private val readObserverCache = mutableScatterMapOf<SendChannel<Unit>, (Any) -> Unit>()
 
-    private val unregisterApplyObserver =
-        Snapshot.registerApplyObserver { changed, _ ->
-            var toNotify: MutableList<SendChannel<Unit>>? = null
+    private val unregisterApplyObserver = Snapshot.registerApplyObserver { changed, _ ->
+        var toNotify: MutableList<SendChannel<Unit>>? = null
 
-            synchronized(lock) {
-                // Assumption: there will typically be fewer keys in [subscriptions] than elements
-                // in [changed].
-                subscriptions.forEachKey { key ->
-                    if (changed.contains(key)) {
-                        subscriptions.forEachScopeOf(key) {
-                            if (toNotify == null) {
-                                toNotify = mutableListOf()
-                            }
-                            toNotify.add(it)
+        synchronized(lock) {
+            // Assumption: there will typically be fewer keys in [subscriptions] than elements
+            // in [changed].
+            subscriptions.forEachKey { key ->
+                if (changed.contains(key)) {
+                    subscriptions.forEachScopeOf(key) {
+                        if (toNotify == null) {
+                            toNotify = mutableListOf()
                         }
+                        toNotify.add(it)
                     }
                 }
-
-                toNotify?.fastForEach { it.trySend(Unit) }
             }
+
+            toNotify?.fastForEach { it.trySend(Unit) }
         }
+    }
 
     override fun watch(channel: SendChannel<Unit>, obj: Any) {
         pendingChanges.add(Add(obj, channel))

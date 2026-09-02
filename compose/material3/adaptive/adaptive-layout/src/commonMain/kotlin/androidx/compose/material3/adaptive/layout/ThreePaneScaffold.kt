@@ -128,21 +128,23 @@ internal fun ThreePaneScaffold(
     val ltrPaneOrder =
         remember(paneOrder, layoutDirection) { paneOrder.toLtrOrder(layoutDirection) }
     val paneMotions = scaffoldState.calculateThreePaneMotion(ltrPaneOrder)
-    val motionDataProvider =
-        remember { ThreePaneScaffoldMotionDataProvider() }
-            .apply {
-                // TODO(conradchen): Find a better way to provide predictive back state
-                this.scaffoldState = scaffoldState
-                update(paneMotions, ltrPaneOrder)
-            }
+    val motionDataProvider = remember {
+        ThreePaneScaffoldMotionDataProvider()
+    }
+        .apply {
+            // TODO(conradchen): Find a better way to provide predictive back state
+            this.scaffoldState = scaffoldState
+            update(paneMotions, ltrPaneOrder)
+        }
 
     val currentTransition = scaffoldState.rememberTransition()
-    val transitionScope =
-        remember { ThreePaneScaffoldTransitionScopeImpl(motionDataProvider) }
-            .apply {
-                transitionState = scaffoldState
-                scaffoldStateTransition = currentTransition
-            }
+    val transitionScope = remember {
+        ThreePaneScaffoldTransitionScopeImpl(motionDataProvider)
+    }
+        .apply {
+            transitionState = scaffoldState
+            scaffoldStateTransition = currentTransition
+        }
 
     val stateHolder = rememberSaveableStateHolder()
 
@@ -772,11 +774,10 @@ private class ThreePaneContentMeasurePolicy(
         paneBounds: IntRect,
         measurable: PaneMeasurable,
         isLookingAhead: Boolean,
-    ) =
-        measurable.apply {
-            measuredBounds = paneBounds
-            recordMeasureResult(isLookingAhead)
-        }
+    ) = measurable.apply {
+        measuredBounds = paneBounds
+        recordMeasureResult(isLookingAhead)
+    }
 
     private fun placeLevitatedPanes(
         measurables: List<PaneMeasurable>,

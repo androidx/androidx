@@ -500,10 +500,9 @@ class ProcessCameraProviderTest(
     class PreviewSurfaceProvider : Preview.SurfaceProvider {
         var surfaceRequestLatch = CountDownLatch(1)
         var frameLatch: CountDownLatch? = null
-        val surfaceProviderImpl =
-            SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
-                frameLatch?.countDown()
-            }
+        val surfaceProviderImpl = SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
+            frameLatch?.countDown()
+        }
 
         override fun onSurfaceRequested(request: SurfaceRequest) {
             surfaceProviderImpl.onSurfaceRequested(request)

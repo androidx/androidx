@@ -70,29 +70,28 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
             .add(
                 3,
                 RequireForegroundRule {
-                        assumeTrue(CameraUtil.deviceHasCamera())
-                        assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-                        assumePcsSupportedForImageCapture(context)
+                    assumeTrue(CameraUtil.deviceHasCamera())
+                    assumeTrue(CameraXExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+                    assumePcsSupportedForImageCapture(context)
 
-                        cameraProvider =
-                            ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+                    cameraProvider =
+                        ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
-                        val extensionsManager =
-                            ExtensionsManager.getInstance(context, cameraProvider)
+                    val extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
-                        // Checks whether any extension mode can be supported first before launching
-                        // the activity.
-                        CameraXExtensionsTestUtil.assumeAnyExtensionModeSupported(
+                    // Checks whether any extension mode can be supported first before launching
+                    // the activity.
+                    CameraXExtensionsTestUtil.assumeAnyExtensionModeSupported(
+                        extensionsManager,
+                        cameraId,
+                    )
+
+                    firstSupportedExtensionMode =
+                        CameraXExtensionsTestUtil.getFirstSupportedExtensionMode(
                             extensionsManager,
                             cameraId,
                         )
-
-                        firstSupportedExtensionMode =
-                            CameraXExtensionsTestUtil.getFirstSupportedExtensionMode(
-                                extensionsManager,
-                                cameraId,
-                            )
-                    }
+                }
                     .withCleanup {
                         if (::cameraProvider.isInitialized) {
                             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]

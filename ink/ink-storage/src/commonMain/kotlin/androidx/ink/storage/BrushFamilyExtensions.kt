@@ -92,16 +92,15 @@ internal fun BrushFamily.Companion.decodeUncompressed(
     decompressed: DecompressedBytes,
     maxVersion: Version,
     onDecodeTexture: OnDecodeTexturePngBytes?,
-): BrushFamily =
-    BrushFamily.wrapNative {
-        BrushFamilySerializationNative.createFromProto(
-                brushFamilyByteArray = decompressed.buffer,
-                length = decompressed.size,
-                onDecodeTexture = onDecodeTexture,
-                maxVersion = maxVersion.value,
-            )
-            .also { check(it != 0L) { "Should have thrown exception if decoding failed." } }
-    }
+): BrushFamily = BrushFamily.wrapNative {
+    BrushFamilySerializationNative.createFromProto(
+            brushFamilyByteArray = decompressed.buffer,
+            length = decompressed.size,
+            onDecodeTexture = onDecodeTexture,
+            maxVersion = maxVersion.value,
+        )
+        .also { check(it != 0L) { "Should have thrown exception if decoding failed." } }
+}
 
 /**
  * Write a gzip-compressed serialized `ink.proto.BrushFamily` proto message representing the [List]
@@ -281,19 +280,18 @@ internal class MultipleBrushFamilies private constructor(nativeAlloc: () -> Long
             length: Int,
             onDecodeTexture: OnDecodeTexturePngBytes?,
             maxVersion: Int,
-        ): List<BrushFamily> =
-            MultipleBrushFamilies {
-                    MultipleBrushFamiliesNative.createFromProto(
-                            brushFamilyByteArray,
-                            length,
-                            onDecodeTexture,
-                            maxVersion,
-                        )
-                        .also {
-                            check(it != 0L) { "Should have thrown exception if decoding failed." }
-                        }
+        ): List<BrushFamily> = MultipleBrushFamilies {
+            MultipleBrushFamiliesNative.createFromProto(
+                    brushFamilyByteArray,
+                    length,
+                    onDecodeTexture,
+                    maxVersion,
+                )
+                .also {
+                    check(it != 0L) { "Should have thrown exception if decoding failed." }
                 }
-                .releaseBrushFamilies()
+        }
+            .releaseBrushFamilies()
     }
 }
 

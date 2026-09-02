@@ -85,11 +85,10 @@ class OnBackPressedHandlerTest {
     @Test
     fun testIsEnabledWithinCallback() {
         var count = 0
-        val callback =
-            dispatcher.addCallback {
-                count++
-                isEnabled = false
-            }
+        val callback = dispatcher.addCallback {
+            count++
+            isEnabled = false
+        }
         assertWithMessage("Callback should be enabled by default").that(callback.isEnabled).isTrue()
         assertWithMessage("Dispatcher should have an enabled callback")
             .that(dispatcher.hasEnabledCallbacks())

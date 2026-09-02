@@ -176,7 +176,8 @@ class StrokeTest {
                                                         offsetX = 0.1F,
                                                         offsetY = 0.2F,
                                                         sizeUnit =
-                                                            TextureLayer.SizeUnit.STROKE_COORDINATES,
+                                                            TextureLayer.SizeUnit
+                                                                .STROKE_COORDINATES,
                                                     ),
                                                     TilingTexture(
                                                         clientTextureId = "test-two",
@@ -185,7 +186,8 @@ class StrokeTest {
                                                         offsetX = 0.1F,
                                                         offsetY = 0.2F,
                                                         sizeUnit =
-                                                            TextureLayer.SizeUnit.STROKE_COORDINATES,
+                                                            TextureLayer.SizeUnit
+                                                                .STROKE_COORDINATES,
                                                     ),
                                                 )
                                             )

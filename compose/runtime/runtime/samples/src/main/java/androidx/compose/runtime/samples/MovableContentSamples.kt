@@ -48,11 +48,10 @@ fun MovableContentMultiColumnSample(items: List<Item>) {
     val movableItems =
         remember(items) {
             val itemsToRemove = itemMap.keys.toMutableSet()
-            val movableItems =
-                items.map { item ->
-                    itemsToRemove.remove(item)
-                    itemMap.getOrPut(item) { movableContentOf { ItemView(item) } }
-                }
+            val movableItems = items.map { item ->
+                itemsToRemove.remove(item)
+                itemMap.getOrPut(item) { movableContentOf { ItemView(item) } }
+            }
             itemsToRemove.forEach { itemMap.remove(it) }
             movableItems
         }

@@ -51,8 +51,9 @@ class VirtualCameraTest {
             override fun onUseCaseReset(useCase: UseCase) {}
         }
 
-    private val streamSharingControl =
-        StreamSharing.Control { _, _ -> Futures.immediateFuture(null) }
+    private val streamSharingControl = StreamSharing.Control { _, _ ->
+        Futures.immediateFuture(null)
+    }
 
     private val virtualCamera =
         VirtualCamera(parentCamera, useCaseStateCallback, streamSharingControl)

@@ -71,13 +71,12 @@ public fun RcScope.pieChart(
         polarBackground(theme)
         val total = values.sum().let { if (it <= 0f) 1f else it }
         val topReserve = drawTitleTop(theme, title)
-        val entries =
-            names.mapIndexed { i, n ->
-                LegendEntry(
-                    "$n  ${(values[i] / total * 100f).roundToInt()}%",
-                    sliceColors[i % sliceColors.size],
-                )
-            }
+        val entries = names.mapIndexed { i, n ->
+            LegendEntry(
+                "$n  ${(values[i] / total * 100f).roundToInt()}%",
+                sliceColors[i % sliceColors.size],
+            )
+        }
         val rows = legendRowCount(entries)
         val bottomReserve =
             theme.outerPad + rows * (theme.legendSize + theme.labelGap) + theme.outerPad

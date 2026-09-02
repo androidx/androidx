@@ -894,13 +894,12 @@ private fun DialogLayout(modifier: Modifier = Modifier, content: @Composable () 
     Layout(content = content, modifier = modifier) { measurables, constraints ->
         var maxWidth = 0
         var maxHeight = 0
-        val placeables =
-            measurables.fastMap {
-                it.measure(constraints).apply {
-                    maxWidth = max(maxWidth, width)
-                    maxHeight = max(maxHeight, height)
-                }
+        val placeables = measurables.fastMap {
+            it.measure(constraints).apply {
+                maxWidth = max(maxWidth, width)
+                maxHeight = max(maxHeight, height)
             }
+        }
         if (measurables.isEmpty()) {
             maxWidth = constraints.minWidth
             maxHeight = constraints.minHeight

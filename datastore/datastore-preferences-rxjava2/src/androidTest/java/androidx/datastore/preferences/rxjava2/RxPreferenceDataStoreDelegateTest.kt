@@ -117,8 +117,8 @@ class RxPreferenceDataStoreDelegateTest {
 
         assertThat(
                 RxPreferenceDataStoreBuilder {
-                        File(context.filesDir, "datastore/file5.preferences_pb")
-                    }
+                    File(context.filesDir, "datastore/file5.preferences_pb")
+                }
                     .build()
                     .data()
                     .blockingFirst()

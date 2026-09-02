@@ -84,7 +84,9 @@ public fun Modifier.carouselParallaxScrollEffect(
     if (border != null) {
         return this.border(
             border,
-            remember(index, state, shape) { MaskShape(index = index, state = state, shape = shape) },
+            remember(index, state, shape) {
+                MaskShape(index = index, state = state, shape = shape)
+            },
         ) then MaskParallaxNodeElement(index = index, state = state, shape = shape)
     }
     return this then MaskParallaxNodeElement(index = index, state = state, shape = shape)

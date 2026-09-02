@@ -89,13 +89,12 @@ public fun RcScope.waffleChart(
     Canvas(modifier = modifier) {
         val total = values.sum().let { if (it <= 0f) 1f else it }
         val topReserve = gridBgTitle(theme, title)
-        val entries =
-            names.mapIndexed { i, n ->
-                LegendEntry(
-                    "$n  ${kotlin.math.round(values[i] / total * 100f).toInt()}%",
-                    partColors[i % partColors.size],
-                )
-            }
+        val entries = names.mapIndexed { i, n ->
+            LegendEntry(
+                "$n  ${kotlin.math.round(values[i] / total * 100f).toInt()}%",
+                partColors[i % partColors.size],
+            )
+        }
         val rowsLegend = legendRowCount(entries)
         val bottomReserve =
             theme.outerPad + rowsLegend * (theme.legendSize + theme.labelGap) + theme.outerPad

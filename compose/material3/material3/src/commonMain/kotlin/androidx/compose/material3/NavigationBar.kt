@@ -198,22 +198,21 @@ public fun RowScope.NavigationBarItem(
             }
         }
 
-    val styledLabel: @Composable (() -> Unit)? =
-        label?.let {
-            @Composable {
-                val style = NavigationBarTokens.LabelTextFont.value
-                val textColor by
-                    animateColorAsState(
-                        targetValue = colors.textColor(selected = selected, enabled = enabled),
-                        animationSpec = colorAnimationSpec,
-                    )
-                ProvideContentColorTextStyle(
-                    contentColor = textColor,
-                    textStyle = style,
-                    content = label,
+    val styledLabel: @Composable (() -> Unit)? = label?.let {
+        @Composable {
+            val style = NavigationBarTokens.LabelTextFont.value
+            val textColor by
+                animateColorAsState(
+                    targetValue = colors.textColor(selected = selected, enabled = enabled),
+                    animationSpec = colorAnimationSpec,
                 )
-            }
+            ProvideContentColorTextStyle(
+                contentColor = textColor,
+                textStyle = style,
+                content = label,
+            )
         }
+    }
 
     var itemWidth by remember { mutableIntStateOf(0) }
 
@@ -573,10 +572,9 @@ private fun NavigationBarItemLayout(
                     Constraints.fixed(width = animatedIndicatorWidth, height = indicatorHeight)
                 )
 
-        val labelPlaceable =
-            label?.let {
-                measurables.fastFirst { it.layoutId == LabelLayoutIdTag }.measure(looseConstraints)
-            }
+        val labelPlaceable = label?.let {
+            measurables.fastFirst { it.layoutId == LabelLayoutIdTag }.measure(looseConstraints)
+        }
 
         if (label == null) {
             placeIcon(iconPlaceable, indicatorRipplePlaceable, indicatorPlaceable, constraints)

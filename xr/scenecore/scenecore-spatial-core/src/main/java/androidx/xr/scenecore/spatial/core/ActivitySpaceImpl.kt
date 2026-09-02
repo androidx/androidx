@@ -77,15 +77,14 @@ public class ActivitySpaceImpl(
     // The bounds are kept in sync with the Extensions in the onBoundsChangedEvent callback. We
     // only invoke getSpatialState if they've never been set.
     override val bounds: Dimensions
-        get() =
-            _bounds.updateAndGet { oldBounds ->
-                if (oldBounds == null) {
-                    val bounds = spatialStateProvider.get().bounds
-                    Dimensions(bounds.width, bounds.height, bounds.depth)
-                } else {
-                    oldBounds
-                }
+        get() = _bounds.updateAndGet { oldBounds ->
+            if (oldBounds == null) {
+                val bounds = spatialStateProvider.get().bounds
+                Dimensions(bounds.width, bounds.height, bounds.depth)
+            } else {
+                oldBounds
             }
+        }
 
     public val poseInPerceptionSpace: Pose
         get() {
@@ -117,25 +116,24 @@ public class ActivitySpaceImpl(
      * @return a [BoundingBox] sized to place content in.
      */
     override val recommendedContentBoxInFullSpace: BoundingBox
-        get() =
-            cachedRecommendedContentBox.updateAndGet { currentBox ->
-                currentBox
-                    ?: run {
-                        val recommendedBox = extensions.recommendedContentBoxInFullSpace
-                        BoundingBox.fromMinMax(
-                            Vector3(
-                                recommendedBox.min.x,
-                                recommendedBox.min.y,
-                                recommendedBox.min.z,
-                            ),
-                            Vector3(
-                                recommendedBox.max.x,
-                                recommendedBox.max.y,
-                                recommendedBox.max.z,
-                            ),
-                        )
-                    }
-            }
+        get() = cachedRecommendedContentBox.updateAndGet { currentBox ->
+            currentBox
+                ?: run {
+                    val recommendedBox = extensions.recommendedContentBoxInFullSpace
+                    BoundingBox.fromMinMax(
+                        Vector3(
+                            recommendedBox.min.x,
+                            recommendedBox.min.y,
+                            recommendedBox.min.z,
+                        ),
+                        Vector3(
+                            recommendedBox.max.x,
+                            recommendedBox.max.y,
+                            recommendedBox.max.z,
+                        ),
+                    )
+                }
+        }
 
     override fun getPose(@SpaceValue relativeTo: Int): Pose {
         return when (relativeTo) {
@@ -268,8 +266,9 @@ public class ActivitySpaceImpl(
      * block it.
      */
     public fun onBoundsChanged(newBounds: Bounds) {
-        val newDimensions =
-            _bounds.updateAndGet { Dimensions(newBounds.width, newBounds.height, newBounds.depth) }
+        val newDimensions = _bounds.updateAndGet {
+            Dimensions(newBounds.width, newBounds.height, newBounds.depth)
+        }
         synchronized(boundsListeners) {
             for (listener in boundsListeners) {
                 listener.onBoundsChanged(newDimensions)

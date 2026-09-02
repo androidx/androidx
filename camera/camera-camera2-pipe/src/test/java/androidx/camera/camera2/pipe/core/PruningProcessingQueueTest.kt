@@ -57,336 +57,326 @@ class PruningProcessingQueueTest {
     }
 
     @Test
-    fun processingQueueBuffersItems() =
-        testScope.runTest {
-            val processingQueue =
-                PruningProcessingQueue<Int>(
+    fun processingQueueBuffersItems() = testScope.runTest {
+        val processingQueue =
+            PruningProcessingQueue<Int>(
+                capacity = 2,
+                onUnprocessedElements = unprocessElementHandler,
+            ) { _, _ ->
+            }
+
+        assertThat(processingQueue.tryEmit(1)).isTrue()
+        assertThat(processingQueue.tryEmit(2)).isTrue()
+        assertThat(processingQueue.tryEmit(3)).isFalse() // Queue is full (2 items)
+    }
+
+    @Test
+    fun processingQueueProcessesElements() = testScope.runTest {
+        val processingQueue =
+            PruningProcessingQueue<Int>(
                     capacity = 2,
-                    onUnprocessedElements = unprocessElementHandler,
-                ) { _, _ ->
-                }
-
-            assertThat(processingQueue.tryEmit(1)).isTrue()
-            assertThat(processingQueue.tryEmit(2)).isTrue()
-            assertThat(processingQueue.tryEmit(3)).isFalse() // Queue is full (2 items)
-        }
-
-    @Test
-    fun processingQueueProcessesElements() =
-        testScope.runTest {
-            val processingQueue =
-                PruningProcessingQueue<Int>(
-                        capacity = 2,
-                        prune = { elements, _ ->
-                            pruningCalls.add(elements.toList())
-                            false
-                        },
-                        onUnprocessedElements = unprocessElementHandler,
-                    ) { element, _ ->
-                        processingCalls.add(element)
-                    }
-                    .processIn(processingScope)
-
-            assertThat(processingQueue.tryEmit(1)).isTrue()
-            assertThat(processingQueue.tryEmit(2)).isTrue()
-            assertThat(processingQueue.tryEmit(3)).isFalse() // Queue is full
-
-            advanceUntilIdle() // Processing loop runs
-
-            // The pruning step should continue to receive elements whenever possible to reduce
-            // prune calls. It should therefore be called only once with [1, 2].
-            assertThat(pruningCalls).containsExactly(listOf(1, 2))
-            // Processing loop receives 1 and 2.
-            assertThat(processingCalls).containsExactly(1, 2)
-
-            processingScope.cancel()
-        }
-
-    @Test
-    fun processingQueuePrunesElements() =
-        testScope.runTest {
-            val processingQueue =
-                PruningProcessingQueue<Int>(
-                        prune = { elements, _ ->
-                            pruningCalls.add(elements.toList())
-
-                            // Prune algorithm: A number supersedes all preceding numbers that are
-                            // smaller than it. Repeat |size - 1| times for all neighboring pairs -
-                            // the biggest number can supersede smaller numbers at most |size - 1|
-                            // times.
-                            repeat(elements.size - 1) {
-                                for (i in 0..elements.size - 2) {
-                                    if (elements[i] < elements[i + 1]) {
-                                        elements.removeAt(i)
-                                        break
-                                    }
-                                }
-                            }
-                            false
-                        },
-                        onUnprocessedElements = unprocessElementHandler,
-                    ) { element, _ ->
-                        processingCalls.add(element)
-                    }
-                    .processIn(processingScope)
-
-            processingQueue.tryEmit(2)
-            processingQueue.tryEmit(5)
-            processingQueue.tryEmit(4)
-            advanceUntilIdle()
-
-            processingQueue.tryEmit(1)
-            processingQueue.tryEmit(3)
-            processingQueue.tryEmit(6)
-            advanceUntilIdle()
-
-            // Processing loop should run the following:
-            // 1. prune([2, 5, 4]) --> reduces the list to [5, 4]
-            // 2. process(5)
-            // 3. process(4)
-            // 4. prune([1, 3, 6]) --> reduces the list to [6]
-            // 5. process(6)
-            assertThat(pruningCalls).containsExactly(listOf(2, 5, 4), listOf(1, 3, 6))
-            assertThat(processingCalls).containsExactly(5, 4, 6)
-        }
-
-    @Test
-    fun processingQueueIterativelyAggregatesAndProcessesElements() =
-        testScope.runTest {
-            val processingQueue =
-                PruningProcessingQueue<Int>(
-                        capacity = 2,
-                        prune = { elements, _ ->
-                            pruningCalls.add(elements.toList())
-                            false
-                        },
-                        onUnprocessedElements = unprocessElementHandler,
-                    ) { element, _ ->
-                        processingCalls.add(element)
-                    }
-                    .processIn(processingScope)
-
-            processingQueue.tryEmit(1)
-            processingQueue.tryEmit(2)
-            advanceUntilIdle()
-
-            processingQueue.tryEmit(3)
-            advanceUntilIdle()
-
-            processingQueue.tryEmit(4)
-            processingQueue.tryEmit(5)
-            advanceUntilIdle()
-
-            // Processing loop should run the following:
-            // 1. prune([1, 2])
-            // 2. process(1)
-            // 3. process(2)
-            // 4. prune([3])
-            // 5. process(3)
-            // 6. prune([4, 5])
-            // 7. process(4)
-            // 8. process(5)
-            assertThat(pruningCalls).containsExactly(listOf(1, 2), listOf(3), listOf(4, 5))
-            assertThat(processingCalls).containsExactly(1, 2, 3, 4, 5)
-
-            processingScope.cancel()
-        }
-
-    @Test
-    fun processInOnCanceledScopeInvokesOnUnprocessedElements() =
-        testScope.runTest {
-            val processingQueue =
-                PruningProcessingQueue<Int>(
                     prune = { elements, _ ->
                         pruningCalls.add(elements.toList())
                         false
                     },
                     onUnprocessedElements = unprocessElementHandler,
-                ) { _, _ ->
+                ) { element, _ ->
+                    processingCalls.add(element)
                 }
+                .processIn(processingScope)
 
-            processingQueue.tryEmit(1)
-            processingQueue.tryEmit(2)
+        assertThat(processingQueue.tryEmit(1)).isTrue()
+        assertThat(processingQueue.tryEmit(2)).isTrue()
+        assertThat(processingQueue.tryEmit(3)).isFalse() // Queue is full
 
-            processingScope.cancel()
-            processingQueue.processIn(processingScope)
+        advanceUntilIdle() // Processing loop runs
 
-            // Processing loop does not receive anything
-            assertThat(pruningCalls).isEmpty()
-            assertThat(unprocessedElements).containsExactly(listOf(1, 2))
-        }
+        // The pruning step should continue to receive elements whenever possible to reduce
+        // prune calls. It should therefore be called only once with [1, 2].
+        assertThat(pruningCalls).containsExactly(listOf(1, 2))
+        // Processing loop receives 1 and 2.
+        assertThat(processingCalls).containsExactly(1, 2)
 
-    @Test
-    fun cancellingProcessingScopeStopsProcessing() =
-        testScope.runTest {
-            val processingQueue =
-                PruningProcessingQueue<Int>(
-                        prune = { elements, _ ->
-                            pruningCalls.add(elements.toList())
-                            false
-                        },
-                        onUnprocessedElements = unprocessElementHandler,
-                    ) { element, _ ->
-                        processingCalls.add(element)
-                    }
-                    .processIn(processingScope)
-
-            processingQueue.tryEmit(1)
-            processingQueue.tryEmit(2)
-            advanceUntilIdle()
-
-            assertThat(processingQueue.tryEmit(3)).isTrue() // Normal
-            assertThat(processingQueue.tryEmit(4)).isTrue() // Normal
-            processingScope.cancel()
-            assertThat(processingQueue.tryEmit(5)).isTrue() // Channel hasn't been closed
-            assertThat(processingQueue.tryEmit(6)).isTrue() // Channel hasn't been closed
-            advanceUntilIdle()
-
-            assertThat(processingQueue.tryEmit(7)).isFalse() // fails
-            assertThat(processingQueue.tryEmit(8)).isFalse() // fails
-
-            assertThat(pruningCalls).containsExactly(listOf(1, 2))
-            assertThat(processingCalls).containsExactly(1, 2)
-            assertThat(unprocessedElements).containsExactly(listOf(3, 4, 5, 6))
-        }
+        processingScope.cancel()
+    }
 
     @Test
-    fun longProcessingDoesNotBlockPruning() =
-        testScope.runTest {
-            val processingQueue =
-                PruningProcessingQueue<Int>(
-                        prune = { elements, _ ->
-                            pruningCalls.add(elements.toList())
-                            false
-                        },
-                        onUnprocessedElements = unprocessElementHandler,
-                    ) { element, _ ->
-                        processingCalls.add(element)
-                        delay(100.milliseconds)
-                    }
-                    .processIn(processingScope)
+    fun processingQueuePrunesElements() = testScope.runTest {
+        val processingQueue =
+            PruningProcessingQueue<Int>(
+                    prune = { elements, _ ->
+                        pruningCalls.add(elements.toList())
 
-            processingQueue.emitChecked(1)
-            processingQueue.emitChecked(2)
-            processingQueue.emitChecked(3)
-            advanceTimeBy(50.milliseconds) // Triggers initial processing call
-            assertThat(processingCalls).containsExactly(1)
-
-            processingQueue.emitChecked(4)
-            processingQueue.emitChecked(5)
-            advanceTimeBy(
-                25.milliseconds
-            ) // Still processing 1, but elements are still aggregated and pruned.
-            assertThat(processingCalls).containsExactly(1)
-
-            processingQueue.emitChecked(6)
-            advanceTimeBy(50.milliseconds) // Processed 1, and processing 2.
-            assertThat(processingCalls).containsExactly(1, 2)
-
-            processingQueue.emitChecked(7)
-            processingQueue.emitChecked(8)
-            advanceUntilIdle() // Last update includes all previous updates.
-
-            assertThat(pruningCalls)
-                .containsExactly(
-                    listOf(1, 2, 3),
-                    listOf(2, 3, 4, 5),
-                    listOf(2, 3, 4, 5, 6),
-                    listOf(3, 4, 5, 6, 7, 8),
-                )
-            assertThat(processingCalls).containsExactly(1, 2, 3, 4, 5, 6, 7, 8)
-            processingScope.cancel()
-        }
-
-    @Test
-    fun exceptionsDuringProcessingArePropagated() =
-        testScope.runTest {
-            val processingQueue =
-                PruningProcessingQueue<Int>(
-                        prune = { elements, _ ->
-                            pruningCalls.add(elements.toList())
-                            false
-                        },
-                        onUnprocessedElements = unprocessElementHandler,
-                    ) { element, _ ->
-                        processingCalls.add(element)
-                        delay(100.milliseconds)
-                        throw RuntimeException("Test")
-                    }
-                    .processIn(processingScope)
-
-            processingQueue.emitChecked(1)
-            processingQueue.emitChecked(2)
-            processingQueue.emitChecked(3)
-            advanceTimeBy(50.milliseconds) // Triggers initial processing call, but not exception
-
-            processingQueue.emitChecked(4)
-            processingQueue.emitChecked(5)
-            advanceUntilIdle() // Trigger exception.
-
-            assertThat(pruningCalls).containsExactly(listOf(1, 2, 3), listOf(2, 3, 4, 5))
-            assertThat(unprocessedElements).containsExactly(listOf(2, 3, 4, 5))
-            assertThat(lastUncaughtException).isInstanceOf(RuntimeException::class.java)
-        }
-
-    @Test
-    fun duplicateItemsAreNotOmitted() =
-        testScope.runTest {
-            val processingQueue =
-                PruningProcessingQueue<Int>(
-                        prune = { elements, _ ->
-                            pruningCalls.add(elements.toList())
-                            false
-                        },
-                        onUnprocessedElements = unprocessElementHandler,
-                    ) { element, _ ->
-                        processingCalls.add(element)
-                    }
-                    .processIn(processingScope)
-
-            processingQueue.emitChecked(1)
-            processingQueue.emitChecked(1)
-            advanceUntilIdle()
-            processingQueue.emitChecked(1)
-            processingQueue.emitChecked(1)
-            processingQueue.emitChecked(1)
-            advanceUntilIdle()
-
-            assertThat(pruningCalls).containsExactly(listOf(1, 1), listOf(1, 1, 1))
-            assertThat(processingCalls).containsExactly(1, 1, 1, 1, 1)
-        }
-
-    @Test
-    fun elementsCanBeAborted() =
-        testScope.runTest {
-            val processingQueue =
-                PruningProcessingQueue<Int>(
-                        prune = { elements, currentElement ->
-                            if (currentElement == null) {
-                                false
-                            } else {
-                                elements.any { it > currentElement }
+                        // Prune algorithm: A number supersedes all preceding numbers that are
+                        // smaller than it. Repeat |size - 1| times for all neighboring pairs -
+                        // the biggest number can supersede smaller numbers at most |size - 1|
+                        // times.
+                        repeat(elements.size - 1) {
+                            for (i in 0..elements.size - 2) {
+                                if (elements[i] < elements[i + 1]) {
+                                    elements.removeAt(i)
+                                    break
+                                }
                             }
-                        },
-                        onUnprocessedElements = unprocessElementHandler,
-                    ) { element, elementAborted ->
-                        withTimeoutOrNull(100.milliseconds) { elementAborted.await() }
-                            ?: processingCalls.add(element)
-                    }
-                    .processIn(processingScope)
+                        }
+                        false
+                    },
+                    onUnprocessedElements = unprocessElementHandler,
+                ) { element, _ ->
+                    processingCalls.add(element)
+                }
+                .processIn(processingScope)
 
-            processingQueue.emitChecked(1)
-            advanceTimeBy(50.milliseconds)
+        processingQueue.tryEmit(2)
+        processingQueue.tryEmit(5)
+        processingQueue.tryEmit(4)
+        advanceUntilIdle()
 
-            processingQueue.emitChecked(2)
-            advanceTimeBy(50.milliseconds)
+        processingQueue.tryEmit(1)
+        processingQueue.tryEmit(3)
+        processingQueue.tryEmit(6)
+        advanceUntilIdle()
 
-            processingQueue.emitChecked(3)
-            advanceTimeBy(50.milliseconds)
+        // Processing loop should run the following:
+        // 1. prune([2, 5, 4]) --> reduces the list to [5, 4]
+        // 2. process(5)
+        // 3. process(4)
+        // 4. prune([1, 3, 6]) --> reduces the list to [6]
+        // 5. process(6)
+        assertThat(pruningCalls).containsExactly(listOf(2, 5, 4), listOf(1, 3, 6))
+        assertThat(processingCalls).containsExactly(5, 4, 6)
+    }
 
-            processingQueue.emitChecked(4)
-            advanceUntilIdle()
+    @Test
+    fun processingQueueIterativelyAggregatesAndProcessesElements() = testScope.runTest {
+        val processingQueue =
+            PruningProcessingQueue<Int>(
+                    capacity = 2,
+                    prune = { elements, _ ->
+                        pruningCalls.add(elements.toList())
+                        false
+                    },
+                    onUnprocessedElements = unprocessElementHandler,
+                ) { element, _ ->
+                    processingCalls.add(element)
+                }
+                .processIn(processingScope)
 
-            assertThat(processingCalls).containsExactly(4)
-        }
+        processingQueue.tryEmit(1)
+        processingQueue.tryEmit(2)
+        advanceUntilIdle()
+
+        processingQueue.tryEmit(3)
+        advanceUntilIdle()
+
+        processingQueue.tryEmit(4)
+        processingQueue.tryEmit(5)
+        advanceUntilIdle()
+
+        // Processing loop should run the following:
+        // 1. prune([1, 2])
+        // 2. process(1)
+        // 3. process(2)
+        // 4. prune([3])
+        // 5. process(3)
+        // 6. prune([4, 5])
+        // 7. process(4)
+        // 8. process(5)
+        assertThat(pruningCalls).containsExactly(listOf(1, 2), listOf(3), listOf(4, 5))
+        assertThat(processingCalls).containsExactly(1, 2, 3, 4, 5)
+
+        processingScope.cancel()
+    }
+
+    @Test
+    fun processInOnCanceledScopeInvokesOnUnprocessedElements() = testScope.runTest {
+        val processingQueue =
+            PruningProcessingQueue<Int>(
+                prune = { elements, _ ->
+                    pruningCalls.add(elements.toList())
+                    false
+                },
+                onUnprocessedElements = unprocessElementHandler,
+            ) { _, _ ->
+            }
+
+        processingQueue.tryEmit(1)
+        processingQueue.tryEmit(2)
+
+        processingScope.cancel()
+        processingQueue.processIn(processingScope)
+
+        // Processing loop does not receive anything
+        assertThat(pruningCalls).isEmpty()
+        assertThat(unprocessedElements).containsExactly(listOf(1, 2))
+    }
+
+    @Test
+    fun cancellingProcessingScopeStopsProcessing() = testScope.runTest {
+        val processingQueue =
+            PruningProcessingQueue<Int>(
+                    prune = { elements, _ ->
+                        pruningCalls.add(elements.toList())
+                        false
+                    },
+                    onUnprocessedElements = unprocessElementHandler,
+                ) { element, _ ->
+                    processingCalls.add(element)
+                }
+                .processIn(processingScope)
+
+        processingQueue.tryEmit(1)
+        processingQueue.tryEmit(2)
+        advanceUntilIdle()
+
+        assertThat(processingQueue.tryEmit(3)).isTrue() // Normal
+        assertThat(processingQueue.tryEmit(4)).isTrue() // Normal
+        processingScope.cancel()
+        assertThat(processingQueue.tryEmit(5)).isTrue() // Channel hasn't been closed
+        assertThat(processingQueue.tryEmit(6)).isTrue() // Channel hasn't been closed
+        advanceUntilIdle()
+
+        assertThat(processingQueue.tryEmit(7)).isFalse() // fails
+        assertThat(processingQueue.tryEmit(8)).isFalse() // fails
+
+        assertThat(pruningCalls).containsExactly(listOf(1, 2))
+        assertThat(processingCalls).containsExactly(1, 2)
+        assertThat(unprocessedElements).containsExactly(listOf(3, 4, 5, 6))
+    }
+
+    @Test
+    fun longProcessingDoesNotBlockPruning() = testScope.runTest {
+        val processingQueue =
+            PruningProcessingQueue<Int>(
+                    prune = { elements, _ ->
+                        pruningCalls.add(elements.toList())
+                        false
+                    },
+                    onUnprocessedElements = unprocessElementHandler,
+                ) { element, _ ->
+                    processingCalls.add(element)
+                    delay(100.milliseconds)
+                }
+                .processIn(processingScope)
+
+        processingQueue.emitChecked(1)
+        processingQueue.emitChecked(2)
+        processingQueue.emitChecked(3)
+        advanceTimeBy(50.milliseconds) // Triggers initial processing call
+        assertThat(processingCalls).containsExactly(1)
+
+        processingQueue.emitChecked(4)
+        processingQueue.emitChecked(5)
+        advanceTimeBy(
+            25.milliseconds
+        ) // Still processing 1, but elements are still aggregated and pruned.
+        assertThat(processingCalls).containsExactly(1)
+
+        processingQueue.emitChecked(6)
+        advanceTimeBy(50.milliseconds) // Processed 1, and processing 2.
+        assertThat(processingCalls).containsExactly(1, 2)
+
+        processingQueue.emitChecked(7)
+        processingQueue.emitChecked(8)
+        advanceUntilIdle() // Last update includes all previous updates.
+
+        assertThat(pruningCalls)
+            .containsExactly(
+                listOf(1, 2, 3),
+                listOf(2, 3, 4, 5),
+                listOf(2, 3, 4, 5, 6),
+                listOf(3, 4, 5, 6, 7, 8),
+            )
+        assertThat(processingCalls).containsExactly(1, 2, 3, 4, 5, 6, 7, 8)
+        processingScope.cancel()
+    }
+
+    @Test
+    fun exceptionsDuringProcessingArePropagated() = testScope.runTest {
+        val processingQueue =
+            PruningProcessingQueue<Int>(
+                    prune = { elements, _ ->
+                        pruningCalls.add(elements.toList())
+                        false
+                    },
+                    onUnprocessedElements = unprocessElementHandler,
+                ) { element, _ ->
+                    processingCalls.add(element)
+                    delay(100.milliseconds)
+                    throw RuntimeException("Test")
+                }
+                .processIn(processingScope)
+
+        processingQueue.emitChecked(1)
+        processingQueue.emitChecked(2)
+        processingQueue.emitChecked(3)
+        advanceTimeBy(50.milliseconds) // Triggers initial processing call, but not exception
+
+        processingQueue.emitChecked(4)
+        processingQueue.emitChecked(5)
+        advanceUntilIdle() // Trigger exception.
+
+        assertThat(pruningCalls).containsExactly(listOf(1, 2, 3), listOf(2, 3, 4, 5))
+        assertThat(unprocessedElements).containsExactly(listOf(2, 3, 4, 5))
+        assertThat(lastUncaughtException).isInstanceOf(RuntimeException::class.java)
+    }
+
+    @Test
+    fun duplicateItemsAreNotOmitted() = testScope.runTest {
+        val processingQueue =
+            PruningProcessingQueue<Int>(
+                    prune = { elements, _ ->
+                        pruningCalls.add(elements.toList())
+                        false
+                    },
+                    onUnprocessedElements = unprocessElementHandler,
+                ) { element, _ ->
+                    processingCalls.add(element)
+                }
+                .processIn(processingScope)
+
+        processingQueue.emitChecked(1)
+        processingQueue.emitChecked(1)
+        advanceUntilIdle()
+        processingQueue.emitChecked(1)
+        processingQueue.emitChecked(1)
+        processingQueue.emitChecked(1)
+        advanceUntilIdle()
+
+        assertThat(pruningCalls).containsExactly(listOf(1, 1), listOf(1, 1, 1))
+        assertThat(processingCalls).containsExactly(1, 1, 1, 1, 1)
+    }
+
+    @Test
+    fun elementsCanBeAborted() = testScope.runTest {
+        val processingQueue =
+            PruningProcessingQueue<Int>(
+                    prune = { elements, currentElement ->
+                        if (currentElement == null) {
+                            false
+                        } else {
+                            elements.any { it > currentElement }
+                        }
+                    },
+                    onUnprocessedElements = unprocessElementHandler,
+                ) { element, elementAborted ->
+                    withTimeoutOrNull(100.milliseconds) { elementAborted.await() }
+                        ?: processingCalls.add(element)
+                }
+                .processIn(processingScope)
+
+        processingQueue.emitChecked(1)
+        advanceTimeBy(50.milliseconds)
+
+        processingQueue.emitChecked(2)
+        advanceTimeBy(50.milliseconds)
+
+        processingQueue.emitChecked(3)
+        advanceTimeBy(50.milliseconds)
+
+        processingQueue.emitChecked(4)
+        advanceUntilIdle()
+
+        assertThat(processingCalls).containsExactly(4)
+    }
 }

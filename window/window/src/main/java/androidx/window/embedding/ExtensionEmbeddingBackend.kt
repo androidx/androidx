@@ -264,8 +264,9 @@ constructor(
         private var lastValue: List<SplitInfo>? = null
 
         fun accept(splitInfoList: List<SplitInfo>) {
-            val splitsWithActivity =
-                splitInfoList.filter { splitState -> splitState.contains(activity) }
+            val splitsWithActivity = splitInfoList.filter { splitState ->
+                splitState.contains(activity)
+            }
             if (splitsWithActivity == lastValue) {
                 return
             }
@@ -372,11 +373,10 @@ constructor(
         globalLock.withLock { embeddingExtension?.clearSplitAttributesCalculator() }
     }
 
-    override fun getActivityStack(activity: Activity): ActivityStack? =
-        globalLock.withLock {
-            embeddingCallback.lastActivityStacks.find { activityStack -> activity in activityStack }
-                ?: getActivityStackFromSplitInfoList(activity)
-        }
+    override fun getActivityStack(activity: Activity): ActivityStack? = globalLock.withLock {
+        embeddingCallback.lastActivityStacks.find { activityStack -> activity in activityStack }
+            ?: getActivityStackFromSplitInfoList(activity)
+    }
 
     @GuardedBy("globalLock")
     private fun getActivityStackFromSplitInfoList(activity: Activity): ActivityStack? {

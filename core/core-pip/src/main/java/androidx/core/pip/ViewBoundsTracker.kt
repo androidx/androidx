@@ -51,8 +51,9 @@ internal class ViewBoundsTracker(private val view: View) {
     private var isTracking = false
 
     // Listener for changes to the view's own layout
-    private val layoutChangeListener =
-        View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> updateBounds() }
+    private val layoutChangeListener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+        updateBounds()
+    }
 
     // Listener for scroll changes within the view tree
     private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener { updateBounds() }

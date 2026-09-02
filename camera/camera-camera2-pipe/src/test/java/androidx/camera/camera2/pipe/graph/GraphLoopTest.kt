@@ -113,449 +113,425 @@ class GraphLoopTest {
     }
 
     @Test
-    fun graphLoopSubmitsRequests() =
-        testScope.runTest {
-            graphLoop.submit(listOf(request1))
-            graphLoop.submit(listOf(request2))
-            graphLoop.requestProcessor = grp1
-            assertThat(csp1.events).isEmpty()
+    fun graphLoopSubmitsRequests() = testScope.runTest {
+        graphLoop.submit(listOf(request1))
+        graphLoop.submit(listOf(request2))
+        graphLoop.requestProcessor = grp1
+        assertThat(csp1.events).isEmpty()
 
-            advanceUntilIdle()
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isCapture).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request2)
-        }
-
-    @Test
-    fun abortRemovesPendingRequests() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.submit(listOf(request1))
-            graphLoop.abort()
-            assertThat(csp1.events).isEmpty()
-
-            advanceUntilIdle()
-            assertThat(csp1.events).isEmpty()
-        }
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isCapture).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request2)
+    }
 
     @Test
-    fun abortRemovesPendingRequestsAndInvokesAbort() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            advanceUntilIdle()
+    fun abortRemovesPendingRequests() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.submit(listOf(request1))
+        graphLoop.abort()
+        assertThat(csp1.events).isEmpty()
 
-            graphLoop.submit(listOf(request1))
-            graphLoop.abort()
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isAbort).isTrue()
-        }
+        advanceUntilIdle()
+        assertThat(csp1.events).isEmpty()
+    }
 
     @Test
-    fun abortRemovesStartRepeating() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            advanceUntilIdle()
+    fun abortRemovesPendingRequestsAndInvokesAbort() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
 
-            graphLoop.repeatingRequest = request1
-            graphLoop.repeatingRequest = null // StopRepeating
-            graphLoop.abort()
-            assertThat(csp1.events).isEmpty()
+        graphLoop.submit(listOf(request1))
+        graphLoop.abort()
+        advanceUntilIdle()
 
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isAbort).isTrue()
-            verify(mockListener, never()).onAborted(request1)
-        }
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isAbort).isTrue()
+    }
 
     @Test
-    fun abortBeforeRequestProcessorDoesNotInvokeAbortOnRequestProcessor() =
-        testScope.runTest {
-            graphLoop.submit(listOf(request1))
-            graphLoop.abort()
-            graphLoop.requestProcessor = grp1
-            advanceUntilIdle()
+    fun abortRemovesStartRepeating() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
 
-            assertThat(csp1.events).isEmpty()
+        graphLoop.repeatingRequest = request1
+        graphLoop.repeatingRequest = null // StopRepeating
+        graphLoop.abort()
+        assertThat(csp1.events).isEmpty()
 
-            graphLoop.submit(listOf(request2))
-            advanceUntilIdle()
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].requests).containsExactly(request2)
-        }
-
-    @Test
-    fun repeatingRequestsCanBeSkipped() =
-        testScope.runTest {
-            graphLoop.repeatingRequest = request1
-            graphLoop.repeatingRequest = request2
-            graphLoop.requestProcessor = grp1
-            assertThat(csp1.events).isEmpty()
-            advanceUntilIdle()
-            assertThat(csp1.events.size).isEqualTo(1)
-
-            graphLoop.repeatingRequest = request3
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request2)
-
-            assertThat(csp1.events[1].isRepeating).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request3)
-        }
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isAbort).isTrue()
+        verify(mockListener, never()).onAborted(request1)
+    }
 
     @Test
-    fun nullRequestProcessorHaltsProcessing() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
+    fun abortBeforeRequestProcessorDoesNotInvokeAbortOnRequestProcessor() = testScope.runTest {
+        graphLoop.submit(listOf(request1))
+        graphLoop.abort()
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
 
-            graphLoop.requestProcessor = null
-            advanceUntilIdle()
+        assertThat(csp1.events).isEmpty()
 
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[1].isClose).isTrue()
-        }
+        graphLoop.submit(listOf(request2))
+        advanceUntilIdle()
 
-    @Test
-    fun nullRepeatingRequestInvokesStopRepeating() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
-
-            // Set to null and toggle to ensure only one stopRepeating event is issued.
-            graphLoop.repeatingRequest = null
-            graphLoop.repeatingRequest = request2
-            graphLoop.repeatingRequest = null
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[1].isStopRepeating).isTrue()
-        }
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].requests).containsExactly(request2)
+    }
 
     @Test
-    fun repeatingAfterStopRepeatingDoesNotSkipStopRepeating() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
+    fun repeatingRequestsCanBeSkipped() = testScope.runTest {
+        graphLoop.repeatingRequest = request1
+        graphLoop.repeatingRequest = request2
+        graphLoop.requestProcessor = grp1
+        assertThat(csp1.events).isEmpty()
+        advanceUntilIdle()
+        assertThat(csp1.events.size).isEqualTo(1)
 
-            // Set to null and toggle to ensure only one stopRepeating event is issued.
-            graphLoop.repeatingRequest = null
-            graphLoop.repeatingRequest = request2
-            graphLoop.repeatingRequest = null
-            graphLoop.repeatingRequest = request2
-            advanceUntilIdle()
+        graphLoop.repeatingRequest = request3
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(3)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request2)
 
-            assertThat(csp1.events[1].isStopRepeating).isTrue()
-
-            assertThat(csp1.events[2].isRepeating).isTrue()
-            assertThat(csp1.events[2].requests).containsExactly(request2)
-        }
+        assertThat(csp1.events[1].isRepeating).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request3)
+    }
 
     @Test
-    fun changingRequestProcessorsReIssuesRepeatingRequest() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
+    fun nullRequestProcessorHaltsProcessing() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
 
-            graphLoop.requestProcessor = grp2
-            advanceUntilIdle()
+        graphLoop.requestProcessor = null
+        advanceUntilIdle()
 
-            assertThat(csp2.events.size).isEqualTo(1)
-            assertThat(csp2.events[0].isRepeating).isTrue()
-            assertThat(csp2.events[0].requests).containsExactly(request1)
-        }
-
-    @Test
-    fun changingRequestProcessorsReIssuesCaptureRequests() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            csp1.shutdown() // reject incoming requests
-            graphLoop.submit(listOf(request1))
-            graphLoop.submit(listOf(request2))
-            advanceUntilIdle()
-
-            graphLoop.requestProcessor = grp2
-            advanceUntilIdle()
-
-            assertThat(csp2.events.size).isEqualTo(2)
-            assertThat(csp2.events[0].isCapture).isTrue()
-            assertThat(csp2.events[0].requests).containsExactly(request1)
-            assertThat(csp2.events[1].isCapture).isTrue()
-            assertThat(csp2.events[1].requests).containsExactly(request2)
-        }
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[1].isClose).isTrue()
+    }
 
     @Test
-    fun capturesThatFailCanBeRetried() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            csp1.shutdown() // reject incoming requests
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
+    fun nullRepeatingRequestInvokesStopRepeating() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
 
-            graphLoop.requestProcessor = grp2
-            advanceUntilIdle()
+        // Set to null and toggle to ensure only one stopRepeating event is issued.
+        graphLoop.repeatingRequest = null
+        graphLoop.repeatingRequest = request2
+        graphLoop.repeatingRequest = null
+        advanceUntilIdle()
 
-            assertThat(csp2.events.size).isEqualTo(1)
-            assertThat(csp2.events[0].isRepeating).isTrue()
-            assertThat(csp2.events[0].requests).containsExactly(request1)
-        }
-
-    @Test
-    fun closingGraphLoopAbortsPendingRequests() =
-        testScope.runTest {
-            graphLoop.submit(listOf(request1))
-            graphLoop.submit(listOf(request2))
-            graphLoop.close()
-
-            // Ensure close does not synchronously cause shutdown to fire.
-            verify(mockListener, never()).onAborted(request1)
-            verify(mockListener, never()).onAborted(request2)
-
-            advanceUntilIdle()
-
-            // Ensure listeners have been invoked.
-            verify(mockListener).onAborted(request1)
-            verify(mockListener).onAborted(request2)
-        }
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[1].isStopRepeating).isTrue()
+    }
 
     @Test
-    fun mixedUpdatesPrioritizeRepeatingRequests() =
-        testScope.runTest {
-            graphLoop.submit(listOf(request1))
-            graphLoop.repeatingRequest = request2
-            graphLoop.requestProcessor = grp1
-            advanceUntilIdle()
+    fun repeatingAfterStopRepeatingDoesNotSkipStopRepeating() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isCapture).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[1].isRepeating).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request2)
-        }
+        // Set to null and toggle to ensure only one stopRepeating event is issued.
+        graphLoop.repeatingRequest = null
+        graphLoop.repeatingRequest = request2
+        graphLoop.repeatingRequest = null
+        graphLoop.repeatingRequest = request2
+        advanceUntilIdle()
 
-    @Test
-    fun submitParametersUsesLatestRepeatingRequest() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            graphLoop.repeatingRequest = request2
-            graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
-            advanceUntilIdle()
+        assertThat(csp1.events.size).isEqualTo(3)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
 
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request2)
-            assertThat(csp1.events[1].isCapture).isTrue() // Capture, based on request 2, with keys
-            assertThat(csp1.events[1].requests).containsExactly(request2)
-            assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
-        }
+        assertThat(csp1.events[1].isStopRepeating).isTrue()
+
+        assertThat(csp1.events[2].isRepeating).isTrue()
+        assertThat(csp1.events[2].requests).containsExactly(request2)
+    }
 
     @Test
-    fun abortCaptureIsProcessedBeforeGraphRequestProcessorEvents() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.submit(listOf(request1))
-            graphLoop.abort()
-            graphLoop.requestProcessor = grp2 // Change the graphRequestProcessor
-            advanceUntilIdle()
+    fun changingRequestProcessorsReIssuesRepeatingRequest() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isClose).isTrue()
+        graphLoop.requestProcessor = grp2
+        advanceUntilIdle()
 
-            // Abort happens before grp1 & grp2
-            assertThat(csp2.events).isEmpty()
-        }
+        assertThat(csp2.events.size).isEqualTo(1)
+        assertThat(csp2.events[0].isRepeating).isTrue()
+        assertThat(csp2.events[0].requests).containsExactly(request1)
+    }
 
     @Test
-    fun abortCaptureIsProcessedOnActiveRequestProcessor() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            advanceUntilIdle()
+    fun changingRequestProcessorsReIssuesCaptureRequests() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        csp1.shutdown() // reject incoming requests
+        graphLoop.submit(listOf(request1))
+        graphLoop.submit(listOf(request2))
+        advanceUntilIdle()
 
-            graphLoop.submit(listOf(request1))
-            graphLoop.abort()
-            graphLoop.requestProcessor = grp2 // Change the graphRequestProcessor
-            advanceUntilIdle()
+        graphLoop.requestProcessor = grp2
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isAbort).isTrue()
-            assertThat(csp1.events[1].isClose).isTrue()
-
-            // Abort happens before grp1 & grp2
-            assertThat(csp2.events).isEmpty()
-        }
-
-    @Test
-    fun stopCaptureIsOnlyInvokedOnActiveGraphRequestProcessor() =
-        testScope.runTest {
-            graphLoop.repeatingRequest = request1
-            graphLoop.requestProcessor = grp1
-            advanceUntilIdle()
-
-            graphLoop.repeatingRequest = request2
-            graphLoop.repeatingRequest = null
-            graphLoop.requestProcessor = grp2 // Change the graphRequestProcessor
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(3)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[1].isStopRepeating).isTrue() // StopRepeating is fired.
-            assertThat(csp1.events[2].isClose).isTrue()
-
-            assertThat(csp2.events).isEmpty()
-        }
+        assertThat(csp2.events.size).isEqualTo(2)
+        assertThat(csp2.events[0].isCapture).isTrue()
+        assertThat(csp2.events[0].requests).containsExactly(request1)
+        assertThat(csp2.events[1].isCapture).isTrue()
+        assertThat(csp2.events[1].requests).containsExactly(request2)
+    }
 
     @Test
-    fun abortAndStopDoNotPropagateToNewRequestProcessor() =
-        testScope.runTest {
-            graphLoop.repeatingRequest = request1
-            graphLoop.submit(listOf(request2))
-            graphLoop.repeatingRequest = null
-            graphLoop.abort()
-            graphLoop.submit(listOf(request3))
-            graphLoop.requestProcessor = grp1
-            advanceUntilIdle()
+    fun capturesThatFailCanBeRetried() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        csp1.shutdown() // reject incoming requests
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isCapture).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request3)
-        }
+        graphLoop.requestProcessor = grp2
+        advanceUntilIdle()
 
-    @Test
-    fun stopCaptureOnlyRemovesPriorStopCapturesFromSameGraphRequestProcessor() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            graphLoop.repeatingRequest = null // issue stopCapture #1 with grp1
-            graphLoop.requestProcessor = grp2
-            graphLoop.repeatingRequest = request2
-            graphLoop.repeatingRequest = null // issue stopCapture #2 with grp2 (skip r1, r2)
-
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isClose).isTrue()
-
-            assertThat(csp2.events).isEmpty()
-        }
+        assertThat(csp2.events.size).isEqualTo(1)
+        assertThat(csp2.events[0].isRepeating).isTrue()
+        assertThat(csp2.events[0].requests).containsExactly(request1)
+    }
 
     @Test
-    fun submitParametersBeforeRequestProcessorUsesLatestRepeatingRequest() =
-        testScope.runTest {
-            graphLoop.repeatingRequest = request1
-            graphLoop.repeatingRequest = request2
-            graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
-            graphLoop.repeatingRequest = request3
-            graphLoop.requestProcessor = grp1
-            advanceUntilIdle()
+    fun closingGraphLoopAbortsPendingRequests() = testScope.runTest {
+        graphLoop.submit(listOf(request1))
+        graphLoop.submit(listOf(request2))
+        graphLoop.close()
 
-            assertThat(csp1.events.size).isEqualTo(3)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request2)
-            assertThat(csp1.events[0].requiredParameters).isEmpty()
+        // Ensure close does not synchronously cause shutdown to fire.
+        verify(mockListener, never()).onAborted(request1)
+        verify(mockListener, never()).onAborted(request2)
 
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request2)
-            assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
+        advanceUntilIdle()
 
-            assertThat(csp1.events[2].isRepeating).isTrue()
-            assertThat(csp1.events[2].requests).containsExactly(request3)
-            assertThat(csp1.events[2].requiredParameters).isEmpty()
-        }
+        // Ensure listeners have been invoked.
+        verify(mockListener).onAborted(request1)
+        verify(mockListener).onAborted(request2)
+    }
 
     @Test
-    fun abortWillSkipSubmitParameters() =
-        testScope.runTest {
-            graphLoop.repeatingRequest = request1
-            graphLoop.repeatingRequest = request2
-            graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
-            graphLoop.repeatingRequest = request3
-            graphLoop.requestProcessor = grp1
-            graphLoop.abort()
-            advanceUntilIdle()
+    fun mixedUpdatesPrioritizeRepeatingRequests() = testScope.runTest {
+        graphLoop.submit(listOf(request1))
+        graphLoop.repeatingRequest = request2
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
 
-            assertThat(csp1.events).isEmpty()
-        }
-
-    @Test
-    fun requestsCanBeSubmittedWithParameters() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
-            graphLoop.submit(listOf(request2))
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(3)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[0].requiredParameters).isEmpty()
-
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request1)
-            assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
-
-            assertThat(csp1.events[2].isCapture).isTrue()
-            assertThat(csp1.events[2].requests).containsExactly(request2)
-            assertThat(csp1.events[2].requiredParameters).isEmpty()
-        }
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isCapture).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[1].isRepeating).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request2)
+    }
 
     @Test
-    fun defaultParametersAreAppliedToAllRequests() =
-        testScope.runTest {
-            val gl =
-                GraphLoop(
-                    cameraGraphId = cameraGraphId,
-                    defaultParameters = mapOf<Any, Any?>(TEST_KEY to 10),
-                    requiredParameters = requiredParameters,
-                    requiredListeners = listOf(mockListener),
-                    listeners = listOf(listener3A),
-                    shutdownScope = shutdownScope,
-                    dispatcher = testDispatcher,
-                )
+    fun submitParametersUsesLatestRepeatingRequest() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        graphLoop.repeatingRequest = request2
+        graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
+        advanceUntilIdle()
 
-            gl.requestProcessor = grp1
-            gl.repeatingRequest = request1
-            gl.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
-            gl.submit(listOf(request2))
-            advanceUntilIdle()
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request2)
+        assertThat(csp1.events[1].isCapture).isTrue() // Capture, based on request 2, with keys
+        assertThat(csp1.events[1].requests).containsExactly(request2)
+        assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
+    }
 
-            assertThat(csp1.events.size).isEqualTo(3)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[0].defaultParameters).containsEntry(TEST_KEY, 10)
-            assertThat(csp1.events[0].requiredParameters).isEmpty()
+    @Test
+    fun abortCaptureIsProcessedBeforeGraphRequestProcessorEvents() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.submit(listOf(request1))
+        graphLoop.abort()
+        graphLoop.requestProcessor = grp2 // Change the graphRequestProcessor
+        advanceUntilIdle()
 
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request1)
-            assertThat(csp1.events[1].defaultParameters).containsEntry(TEST_KEY, 10)
-            assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isClose).isTrue()
 
-            assertThat(csp1.events[2].isCapture).isTrue()
-            assertThat(csp1.events[2].requests).containsExactly(request2)
-            assertThat(csp1.events[2].defaultParameters).containsEntry(TEST_KEY, 10)
-            assertThat(csp1.events[2].requiredParameters).isEmpty()
-        }
+        // Abort happens before grp1 & grp2
+        assertThat(csp2.events).isEmpty()
+    }
+
+    @Test
+    fun abortCaptureIsProcessedOnActiveRequestProcessor() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
+
+        graphLoop.submit(listOf(request1))
+        graphLoop.abort()
+        graphLoop.requestProcessor = grp2 // Change the graphRequestProcessor
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isAbort).isTrue()
+        assertThat(csp1.events[1].isClose).isTrue()
+
+        // Abort happens before grp1 & grp2
+        assertThat(csp2.events).isEmpty()
+    }
+
+    @Test
+    fun stopCaptureIsOnlyInvokedOnActiveGraphRequestProcessor() = testScope.runTest {
+        graphLoop.repeatingRequest = request1
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
+
+        graphLoop.repeatingRequest = request2
+        graphLoop.repeatingRequest = null
+        graphLoop.requestProcessor = grp2 // Change the graphRequestProcessor
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(3)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[1].isStopRepeating).isTrue() // StopRepeating is fired.
+        assertThat(csp1.events[2].isClose).isTrue()
+
+        assertThat(csp2.events).isEmpty()
+    }
+
+    @Test
+    fun abortAndStopDoNotPropagateToNewRequestProcessor() = testScope.runTest {
+        graphLoop.repeatingRequest = request1
+        graphLoop.submit(listOf(request2))
+        graphLoop.repeatingRequest = null
+        graphLoop.abort()
+        graphLoop.submit(listOf(request3))
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isCapture).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request3)
+    }
+
+    @Test
+    fun stopCaptureOnlyRemovesPriorStopCapturesFromSameGraphRequestProcessor() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        graphLoop.repeatingRequest = null // issue stopCapture #1 with grp1
+        graphLoop.requestProcessor = grp2
+        graphLoop.repeatingRequest = request2
+        graphLoop.repeatingRequest = null // issue stopCapture #2 with grp2 (skip r1, r2)
+
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isClose).isTrue()
+
+        assertThat(csp2.events).isEmpty()
+    }
+
+    @Test
+    fun submitParametersBeforeRequestProcessorUsesLatestRepeatingRequest() = testScope.runTest {
+        graphLoop.repeatingRequest = request1
+        graphLoop.repeatingRequest = request2
+        graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
+        graphLoop.repeatingRequest = request3
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(3)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request2)
+        assertThat(csp1.events[0].requiredParameters).isEmpty()
+
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request2)
+        assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
+
+        assertThat(csp1.events[2].isRepeating).isTrue()
+        assertThat(csp1.events[2].requests).containsExactly(request3)
+        assertThat(csp1.events[2].requiredParameters).isEmpty()
+    }
+
+    @Test
+    fun abortWillSkipSubmitParameters() = testScope.runTest {
+        graphLoop.repeatingRequest = request1
+        graphLoop.repeatingRequest = request2
+        graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
+        graphLoop.repeatingRequest = request3
+        graphLoop.requestProcessor = grp1
+        graphLoop.abort()
+        advanceUntilIdle()
+
+        assertThat(csp1.events).isEmpty()
+    }
+
+    @Test
+    fun requestsCanBeSubmittedWithParameters() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
+        graphLoop.submit(listOf(request2))
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(3)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[0].requiredParameters).isEmpty()
+
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1)
+        assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
+
+        assertThat(csp1.events[2].isCapture).isTrue()
+        assertThat(csp1.events[2].requests).containsExactly(request2)
+        assertThat(csp1.events[2].requiredParameters).isEmpty()
+    }
+
+    @Test
+    fun defaultParametersAreAppliedToAllRequests() = testScope.runTest {
+        val gl =
+            GraphLoop(
+                cameraGraphId = cameraGraphId,
+                defaultParameters = mapOf<Any, Any?>(TEST_KEY to 10),
+                requiredParameters = requiredParameters,
+                requiredListeners = listOf(mockListener),
+                listeners = listOf(listener3A),
+                shutdownScope = shutdownScope,
+                dispatcher = testDispatcher,
+            )
+
+        gl.requestProcessor = grp1
+        gl.repeatingRequest = request1
+        gl.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
+        gl.submit(listOf(request2))
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(3)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[0].defaultParameters).containsEntry(TEST_KEY, 10)
+        assertThat(csp1.events[0].requiredParameters).isEmpty()
+
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1)
+        assertThat(csp1.events[1].defaultParameters).containsEntry(TEST_KEY, 10)
+        assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
+
+        assertThat(csp1.events[2].isCapture).isTrue()
+        assertThat(csp1.events[2].requests).containsExactly(request2)
+        assertThat(csp1.events[2].defaultParameters).containsEntry(TEST_KEY, 10)
+        assertThat(csp1.events[2].requiredParameters).isEmpty()
+    }
 
     @Test
     fun requiredParametersOverrideSubmittedParametersAndCameraGraphParameters() =
@@ -599,90 +575,85 @@ class GraphLoopTest {
         }
 
     @Test
-    fun requestsSubmittedToClosedRequestProcessorAreEnqueuedToTheNextOne() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            grp1.shutdown()
-            graphLoop.repeatingRequest = request1
-            graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
-            graphLoop.submit(listOf(request2))
-            advanceUntilIdle()
+    fun requestsSubmittedToClosedRequestProcessorAreEnqueuedToTheNextOne() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        grp1.shutdown()
+        graphLoop.repeatingRequest = request1
+        graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
+        graphLoop.submit(listOf(request2))
+        advanceUntilIdle()
 
-            graphLoop.requestProcessor = grp2
-            advanceUntilIdle()
+        graphLoop.requestProcessor = grp2
+        advanceUntilIdle()
 
-            assertThat(csp2.events.size).isEqualTo(3)
-            assertThat(csp2.events[0].isRepeating).isTrue()
-            assertThat(csp2.events[0].requests).containsExactly(request1)
-            assertThat(csp2.events[0].requiredParameters).isEmpty()
+        assertThat(csp2.events.size).isEqualTo(3)
+        assertThat(csp2.events[0].isRepeating).isTrue()
+        assertThat(csp2.events[0].requests).containsExactly(request1)
+        assertThat(csp2.events[0].requiredParameters).isEmpty()
 
-            assertThat(csp2.events[1].isCapture).isTrue()
-            assertThat(csp2.events[1].requests).containsExactly(request1)
-            assertThat(csp2.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
+        assertThat(csp2.events[1].isCapture).isTrue()
+        assertThat(csp2.events[1].requests).containsExactly(request1)
+        assertThat(csp2.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
 
-            assertThat(csp2.events[2].isCapture).isTrue()
-            assertThat(csp2.events[2].requests).containsExactly(request2)
-            assertThat(csp2.events[2].requiredParameters).isEmpty()
-        }
-
-    @Test
-    fun closingGraphLoopClosesRequestProcessor() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.close()
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isClose).isTrue()
-        }
+        assertThat(csp2.events[2].isCapture).isTrue()
+        assertThat(csp2.events[2].requests).containsExactly(request2)
+        assertThat(csp2.events[2].requiredParameters).isEmpty()
+    }
 
     @Test
-    fun swappingRequestProcessorClosesPreviousRequestProcessor() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.requestProcessor = grp2
-            advanceUntilIdle()
+    fun closingGraphLoopClosesRequestProcessor() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.close()
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isClose).isTrue()
-
-            assertThat(csp2.events).isEmpty()
-        }
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isClose).isTrue()
+    }
 
     @Test
-    fun submitParametersUseInitialRequest() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
-            graphLoop.repeatingRequest = request2
-            advanceUntilIdle()
+    fun swappingRequestProcessorClosesPreviousRequestProcessor() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.requestProcessor = grp2
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(3)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[0].requiredParameters).isEmpty()
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isClose).isTrue()
 
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request1) // uses original request
-            assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
-
-            assertThat(csp1.events[2].isRepeating).isTrue()
-            assertThat(csp1.events[2].requests).containsExactly(request2)
-            assertThat(csp1.events[2].requiredParameters).isEmpty()
-        }
+        assertThat(csp2.events).isEmpty()
+    }
 
     @Test
-    fun submitParametersDoesNotWorkIfRepeatingRequestIsStopped() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
-            graphLoop.repeatingRequest = null
-            advanceUntilIdle()
+    fun submitParametersUseInitialRequest() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
+        graphLoop.repeatingRequest = request2
+        advanceUntilIdle()
 
-            assertThat(csp1.events).isEmpty()
-        }
+        assertThat(csp1.events.size).isEqualTo(3)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[0].requiredParameters).isEmpty()
+
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1) // uses original request
+        assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 42)
+
+        assertThat(csp1.events[2].isRepeating).isTrue()
+        assertThat(csp1.events[2].requests).containsExactly(request2)
+        assertThat(csp1.events[2].requiredParameters).isEmpty()
+    }
+
+    @Test
+    fun submitParametersDoesNotWorkIfRepeatingRequestIsStopped() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
+        graphLoop.repeatingRequest = null
+        advanceUntilIdle()
+
+        assertThat(csp1.events).isEmpty()
+    }
 
     @Test
     fun exceptionsAreThrown() {
@@ -700,54 +671,51 @@ class GraphLoopTest {
     }
 
     @Test
-    fun stopRepeatingCancelsTriggers() =
-        testScope.runTest {
-            val listener = Result3AStateListenerImpl({ _ -> true }, 10, 1_000_000_000)
-            listener3A.addListener(listener)
-            assertThat(listener.result.isCompleted).isFalse()
+    fun stopRepeatingCancelsTriggers() = testScope.runTest {
+        val listener = Result3AStateListenerImpl({ _ -> true }, 10, 1_000_000_000)
+        listener3A.addListener(listener)
+        assertThat(listener.result.isCompleted).isFalse()
 
-            graphLoop.repeatingRequest = null
+        graphLoop.repeatingRequest = null
 
-            assertThat(listener.result.isCompleted).isTrue()
-            assertThat(listener.result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
-        }
-
-    @Test
-    fun clearingRequestProcessorCancelsTriggers() =
-        testScope.runTest {
-            // Setup the graph loop so that the repeating request and trigger are enqueued before
-            // the graphRequestProcessor is configured. Assert that the listener is not invoked
-            // until after the requestProcessor is stopped.
-            graphLoop.repeatingRequest = request1
-            val listener = Result3AStateListenerImpl({ _ -> true }, 10, 1_000_000_000)
-            listener3A.addListener(listener)
-            graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
-            graphLoop.requestProcessor = grp1
-            advanceUntilIdle()
-
-            assertThat(listener.result.isCompleted).isFalse()
-
-            graphLoop.requestProcessor = null
-            advanceUntilIdle()
-
-            assertThat(listener.result.isCompleted).isTrue()
-            assertThat(listener.result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
-        }
+        assertThat(listener.result.isCompleted).isTrue()
+        assertThat(listener.result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
+    }
 
     @Test
-    fun shutdownRequestProcessorCancelsTriggers() =
-        testScope.runTest {
-            // Arrange
-            val listener = Result3AStateListenerImpl({ _ -> true }, 10, 1_000_000_000)
-            listener3A.addListener(listener)
+    fun clearingRequestProcessorCancelsTriggers() = testScope.runTest {
+        // Setup the graph loop so that the repeating request and trigger are enqueued before
+        // the graphRequestProcessor is configured. Assert that the listener is not invoked
+        // until after the requestProcessor is stopped.
+        graphLoop.repeatingRequest = request1
+        val listener = Result3AStateListenerImpl({ _ -> true }, 10, 1_000_000_000)
+        listener3A.addListener(listener)
+        graphLoop.trigger(mapOf<Any, Any?>(TEST_KEY to 42))
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
 
-            // Act
-            graphLoop.requestProcessor = null
+        assertThat(listener.result.isCompleted).isFalse()
 
-            // Assert
-            assertThat(listener.result.isCompleted).isTrue()
-            assertThat(listener.result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
-        }
+        graphLoop.requestProcessor = null
+        advanceUntilIdle()
+
+        assertThat(listener.result.isCompleted).isTrue()
+        assertThat(listener.result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
+    }
+
+    @Test
+    fun shutdownRequestProcessorCancelsTriggers() = testScope.runTest {
+        // Arrange
+        val listener = Result3AStateListenerImpl({ _ -> true }, 10, 1_000_000_000)
+        listener3A.addListener(listener)
+
+        // Act
+        graphLoop.requestProcessor = null
+
+        // Assert
+        assertThat(listener.result.isCompleted).isTrue()
+        assertThat(listener.result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
+    }
 
     @Test
     fun swappingRequestProcessorsDoesNotCancelTriggers() {
@@ -774,92 +742,87 @@ class GraphLoopTest {
     }
 
     @Test
-    fun pausingCaptureProcessingPreventsCaptureRequests() =
-        testScope.runTest {
-            // Arrange
-            graphLoop.requestProcessor = grp1
-            graphLoop.captureProcessingEnabled = false // Disable captureProcessing
+    fun pausingCaptureProcessingPreventsCaptureRequests() = testScope.runTest {
+        // Arrange
+        graphLoop.requestProcessor = grp1
+        graphLoop.captureProcessingEnabled = false // Disable captureProcessing
 
-            // Act
-            graphLoop.submit(listOf(request1))
-            graphLoop.submit(listOf(request2))
-            advanceUntilIdle()
+        // Act
+        graphLoop.submit(listOf(request1))
+        graphLoop.submit(listOf(request2))
+        advanceUntilIdle()
 
-            // Assert: Events are not processed
-            assertThat(csp1.events.size).isEqualTo(0)
-        }
-
-    @Test
-    fun resumingCaptureProcessingResumesCaptureRequests() =
-        testScope.runTest {
-            // Arrange
-            graphLoop.requestProcessor = grp1
-            graphLoop.captureProcessingEnabled = false // Disable captureProcessing
-
-            // Act
-            graphLoop.submit(listOf(request1))
-            graphLoop.submit(listOf(request2))
-            advanceUntilIdle()
-            graphLoop.captureProcessingEnabled = true // Enable processing
-            advanceUntilIdle()
-
-            // Assert: Events are not processed
-            assertThat(csp1.events.size).isEqualTo(2)
-
-            assertThat(csp1.events[0].isCapture).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request2)
-        }
+        // Assert: Events are not processed
+        assertThat(csp1.events.size).isEqualTo(0)
+    }
 
     @Test
-    fun disablingCaptureProcessingAllowsRepeatingRequests() =
-        testScope.runTest {
-            // Arrange
-            graphLoop.requestProcessor = grp1
+    fun resumingCaptureProcessingResumesCaptureRequests() = testScope.runTest {
+        // Arrange
+        graphLoop.requestProcessor = grp1
+        graphLoop.captureProcessingEnabled = false // Disable captureProcessing
 
-            // Act
-            graphLoop.captureProcessingEnabled = false // Disable captureProcessing
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
+        // Act
+        graphLoop.submit(listOf(request1))
+        graphLoop.submit(listOf(request2))
+        advanceUntilIdle()
+        graphLoop.captureProcessingEnabled = true // Enable processing
+        advanceUntilIdle()
 
-            // Assert
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-        }
+        // Assert: Events are not processed
+        assertThat(csp1.events.size).isEqualTo(2)
 
-    @Test
-    fun settingNullForRequestProcessorAfterCloseDoesNotCrash() =
-        testScope.runTest {
-            // Arrange
-            graphLoop.requestProcessor = grp1
-            graphLoop.close()
+        assertThat(csp1.events[0].isCapture).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
 
-            // Act
-            graphLoop.requestProcessor = null
-            advanceUntilIdle()
-
-            // Assert: does not crash, and only Close is invoked.
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isClose).isTrue()
-        }
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request2)
+    }
 
     @Test
-    fun settingRequestProcessorAfterCloseCausesRequestProcessorToBeShutdown() =
-        testScope.runTest {
-            // Arrange
-            graphLoop.close()
+    fun disablingCaptureProcessingAllowsRepeatingRequests() = testScope.runTest {
+        // Arrange
+        graphLoop.requestProcessor = grp1
 
-            // Act
-            graphLoop.requestProcessor = grp1
-            advanceUntilIdle()
+        // Act
+        graphLoop.captureProcessingEnabled = false // Disable captureProcessing
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
 
-            // Assert: Does not crash, and request processor is closed.
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isClose).isTrue()
-        }
+        // Assert
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+    }
+
+    @Test
+    fun settingNullForRequestProcessorAfterCloseDoesNotCrash() = testScope.runTest {
+        // Arrange
+        graphLoop.requestProcessor = grp1
+        graphLoop.close()
+
+        // Act
+        graphLoop.requestProcessor = null
+        advanceUntilIdle()
+
+        // Assert: does not crash, and only Close is invoked.
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isClose).isTrue()
+    }
+
+    @Test
+    fun settingRequestProcessorAfterCloseCausesRequestProcessorToBeShutdown() = testScope.runTest {
+        // Arrange
+        graphLoop.close()
+
+        // Act
+        graphLoop.requestProcessor = grp1
+        advanceUntilIdle()
+
+        // Assert: Does not crash, and request processor is closed.
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isClose).isTrue()
+    }
 
     @Test
     fun settingRequestProcessorAfterShutdownCausesRequestProcessorToBeShutdown() =
@@ -914,22 +877,21 @@ class GraphLoopTest {
         }
 
     @Test
-    fun updateGraphParametersInvokesSubmitRequestWithGraphParameters() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
-            graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 1))
-            advanceUntilIdle()
+    fun updateGraphParametersInvokesSubmitRequestWithGraphParameters() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
+        graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 1))
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
 
-            assertThat(csp1.events[1].isRepeating).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request1)
-            assertThat(csp1.events[1].graphParameters).containsEntry(TEST_KEY, 1)
-        }
+        assertThat(csp1.events[1].isRepeating).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1)
+        assertThat(csp1.events[1].graphParameters).containsEntry(TEST_KEY, 1)
+    }
 
     @Test
     fun updateGraphParametersNoAdvanceUntilIdleInBetweenInvokesSubmitRequestWithGraphParameters() =
@@ -947,24 +909,23 @@ class GraphLoopTest {
         }
 
     @Test
-    fun updateGraphParametersMultipleTimesPrioritizesUpdates() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
+    fun updateGraphParametersMultipleTimesPrioritizesUpdates() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
 
-            graphLoop.repeatingRequest = request1
-            graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 1))
-            graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 2))
-            graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 3))
-            graphLoop.repeatingRequest = request2
-            graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 4))
-            graphLoop.repeatingRequest = request3
-            advanceUntilIdle()
+        graphLoop.repeatingRequest = request1
+        graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 1))
+        graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 2))
+        graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 3))
+        graphLoop.repeatingRequest = request2
+        graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 4))
+        graphLoop.repeatingRequest = request3
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request3)
-            assertThat(csp1.events[0].graphParameters).containsEntry(TEST_KEY, 4)
-        }
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request3)
+        assertThat(csp1.events[0].graphParameters).containsEntry(TEST_KEY, 4)
+    }
 
     @Test
     fun updateGraphParametersAfterRepeatingWithMultipleUpdatesPrioritizesLatest() =
@@ -1027,32 +988,31 @@ class GraphLoopTest {
         }
 
     @Test
-    fun updateGraphParametersFollowingSubmitContainsGraphParameters() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 1))
-            graphLoop.repeatingRequest = request1
-            graphLoop.submit(listOf(request2))
-            graphLoop.trigger(mapOf<Any, Any?>(CaptureRequest.CONTROL_AF_MODE to 1))
-            advanceUntilIdle()
+    fun updateGraphParametersFollowingSubmitContainsGraphParameters() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.graphParameters = GraphParameters(mapOf(TEST_KEY to 1))
+        graphLoop.repeatingRequest = request1
+        graphLoop.submit(listOf(request2))
+        graphLoop.trigger(mapOf<Any, Any?>(CaptureRequest.CONTROL_AF_MODE to 1))
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(3)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[0].graphParameters).containsEntry(TEST_KEY, 1)
-            assertThat(csp1.events[0].requiredParameters).isEmpty()
+        assertThat(csp1.events.size).isEqualTo(3)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[0].graphParameters).containsEntry(TEST_KEY, 1)
+        assertThat(csp1.events[0].requiredParameters).isEmpty()
 
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request2)
-            assertThat(csp1.events[1].graphParameters).containsEntry(TEST_KEY, 1)
-            assertThat(csp1.events[1].requiredParameters).isEmpty()
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request2)
+        assertThat(csp1.events[1].graphParameters).containsEntry(TEST_KEY, 1)
+        assertThat(csp1.events[1].requiredParameters).isEmpty()
 
-            assertThat(csp1.events[2].isRepeating).isFalse()
-            assertThat(csp1.events[2].requests).containsExactly(request1)
-            assertThat(csp1.events[2].graphParameters).containsEntry(TEST_KEY, 1)
-            assertThat(csp1.events[2].requiredParameters)
-                .containsEntry(CaptureRequest.CONTROL_AF_MODE, 1)
-        }
+        assertThat(csp1.events[2].isRepeating).isFalse()
+        assertThat(csp1.events[2].requests).containsExactly(request1)
+        assertThat(csp1.events[2].graphParameters).containsEntry(TEST_KEY, 1)
+        assertThat(csp1.events[2].requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AF_MODE, 1)
+    }
 
     @Test
     fun updateGraphParametersWithListenerInvokesSubmitRequestWithGraphParametersAndListener() =
@@ -1110,58 +1070,55 @@ class GraphLoopTest {
         }
 
     @Test
-    fun capturesAfterStopRepeatingHappenBeforeRepeatingRequests() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
+    fun capturesAfterStopRepeatingHappenBeforeRepeatingRequests() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
 
-            graphLoop.repeatingRequest = null // StopRepeating
-            graphLoop.submit(request2) // First, submit
-            graphLoop.repeatingRequest = request3 // Then, start repeating
-            advanceUntilIdle()
+        graphLoop.repeatingRequest = null // StopRepeating
+        graphLoop.submit(request2) // First, submit
+        graphLoop.repeatingRequest = request3 // Then, start repeating
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(4)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events.size).isEqualTo(4)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
 
-            assertThat(csp1.events[1].isStopRepeating).isTrue()
+        assertThat(csp1.events[1].isStopRepeating).isTrue()
 
-            assertThat(csp1.events[2].isCapture).isTrue()
-            assertThat(csp1.events[2].requests)
-                .containsExactly(request2) // Make sure capture is first
+        assertThat(csp1.events[2].isCapture).isTrue()
+        assertThat(csp1.events[2].requests).containsExactly(request2) // Make sure capture is first
 
-            assertThat(csp1.events[3].isRepeating).isTrue()
-            assertThat(csp1.events[3].requests).containsExactly(request3)
-        }
+        assertThat(csp1.events[3].isRepeating).isTrue()
+        assertThat(csp1.events[3].requests).containsExactly(request3)
+    }
 
     @Test
-    fun multipleRejectedCapturesWillAttemptCapture() =
-        testScope.runTest {
-            csp1.rejectSubmit = true
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            graphLoop.repeatingRequest = request2
-            graphLoop.submit(request3)
-            advanceUntilIdle()
+    fun multipleRejectedCapturesWillAttemptCapture() = testScope.runTest {
+        csp1.rejectSubmit = true
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        graphLoop.repeatingRequest = request2
+        graphLoop.submit(request3)
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(3)
-            // If there is no (current) repeating request, first attempt repeating requests.
-            // Start by attempting R2 (most recent)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].isRejected).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request2)
+        assertThat(csp1.events.size).isEqualTo(3)
+        // If there is no (current) repeating request, first attempt repeating requests.
+        // Start by attempting R2 (most recent)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].isRejected).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request2)
 
-            // Fallback to R2 (next most recent repeating request)
-            assertThat(csp1.events[1].isRepeating).isTrue()
-            assertThat(csp1.events[1].isRejected).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request1)
+        // Fallback to R2 (next most recent repeating request)
+        assertThat(csp1.events[1].isRepeating).isTrue()
+        assertThat(csp1.events[1].isRejected).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1)
 
-            // Finally, fallback to attempting Capture (C1)
-            assertThat(csp1.events[2].isCapture).isTrue()
-            assertThat(csp1.events[2].isRejected).isTrue()
-            assertThat(csp1.events[2].requests).containsExactly(request3)
-        }
+        // Finally, fallback to attempting Capture (C1)
+        assertThat(csp1.events[2].isCapture).isTrue()
+        assertThat(csp1.events[2].isRejected).isTrue()
+        assertThat(csp1.events[2].requests).containsExactly(request3)
+    }
 
     @Test
     fun multipleRejectedCapturesWillAttemptRepeatingWithExistingRepeatingRequest() =
@@ -1193,94 +1150,90 @@ class GraphLoopTest {
         }
 
     @Test
-    fun triggerCommandsMergeRequiredParameters() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
+    fun triggerCommandsMergeRequiredParameters() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
 
-            graphLoop.graph3AParameters = mapOf(TEST_KEY to 1)
-            graphLoop.trigger(mapOf(TEST_KEY to 2))
-            graphLoop.repeatingRequest = request2
-            advanceUntilIdle()
+        graphLoop.graph3AParameters = mapOf(TEST_KEY to 1)
+        graphLoop.trigger(mapOf(TEST_KEY to 2))
+        graphLoop.repeatingRequest = request2
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(4)
-            // R1 is issued as the repeating request
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[0].requiredParameters).isEmpty()
+        assertThat(csp1.events.size).isEqualTo(4)
+        // R1 is issued as the repeating request
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[0].requiredParameters).isEmpty()
 
-            // The update to graph3A parameters causes the repeating request to be re-issued with
-            // the
-            // new parameters.
-            assertThat(csp1.events[1].isRepeating).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request1)
-            assertThat(csp1.events[1].graphParameters).isEmpty()
-            assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 1)
+        // The update to graph3A parameters causes the repeating request to be re-issued with
+        // the
+        // new parameters.
+        assertThat(csp1.events[1].isRepeating).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1)
+        assertThat(csp1.events[1].graphParameters).isEmpty()
+        assertThat(csp1.events[1].requiredParameters).containsEntry(TEST_KEY, 1)
 
-            // Trigger causes a one-time event. Trigger parameters are prioritized over existing
-            // graph3AParameters.
-            assertThat(csp1.events[2].isCapture).isTrue()
-            assertThat(csp1.events[2].requests).containsExactly(request1)
-            assertThat(csp1.events[2].graphParameters).isEmpty()
-            assertThat(csp1.events[2].requiredParameters).containsEntry(TEST_KEY, 2)
+        // Trigger causes a one-time event. Trigger parameters are prioritized over existing
+        // graph3AParameters.
+        assertThat(csp1.events[2].isCapture).isTrue()
+        assertThat(csp1.events[2].requests).containsExactly(request1)
+        assertThat(csp1.events[2].graphParameters).isEmpty()
+        assertThat(csp1.events[2].requiredParameters).containsEntry(TEST_KEY, 2)
 
-            // R2 is issued _after_ trigger and using the original required parameters.
-            assertThat(csp1.events[3].isRepeating).isTrue()
-            assertThat(csp1.events[3].requests).containsExactly(request2)
-            assertThat(csp1.events[3].graphParameters).isEmpty()
-            assertThat(csp1.events[3].requiredParameters).containsEntry(TEST_KEY, 1)
-        }
-
-    @Test
-    fun graph3AParametersPropagateNullParameters() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
-
-            graphLoop.graph3AParameters = mapOf(TEST_KEY to null)
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[1].isRepeating).isTrue()
-            assertThat(csp1.events[1].requiredParameters).containsKey(TEST_KEY)
-            assertThat(csp1.events[1].requiredParameters[TEST_KEY]).isNull()
-        }
+        // R2 is issued _after_ trigger and using the original required parameters.
+        assertThat(csp1.events[3].isRepeating).isTrue()
+        assertThat(csp1.events[3].requests).containsExactly(request2)
+        assertThat(csp1.events[3].graphParameters).isEmpty()
+        assertThat(csp1.events[3].requiredParameters).containsEntry(TEST_KEY, 1)
+    }
 
     @Test
-    fun triggerCommandsPropagateNullParameters() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
+    fun graph3AParametersPropagateNullParameters() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
 
-            graphLoop.trigger(mapOf(TEST_KEY to null))
-            advanceUntilIdle()
+        graphLoop.graph3AParameters = mapOf(TEST_KEY to null)
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requiredParameters).containsKey(TEST_KEY)
-            assertThat(csp1.events[1].requiredParameters[TEST_KEY]).isNull()
-        }
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[1].isRepeating).isTrue()
+        assertThat(csp1.events[1].requiredParameters).containsKey(TEST_KEY)
+        assertThat(csp1.events[1].requiredParameters[TEST_KEY]).isNull()
+    }
 
     @Test
-    fun updateRequestListenersInvokeSubmitRequestWithRequiredListeners() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
-            graphLoop.repeatingRequest = request1
-            advanceUntilIdle()
-            graphLoop.requestListeners = listOf(requestListener1)
-            advanceUntilIdle()
+    fun triggerCommandsPropagateNullParameters() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
+        graphLoop.trigger(mapOf(TEST_KEY to null))
+        advanceUntilIdle()
 
-            assertThat(csp1.events[1].isRepeating).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request1)
-            assertThat(csp1.events[1].listeners).containsExactly(mockListener, requestListener1)
-        }
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requiredParameters).containsKey(TEST_KEY)
+        assertThat(csp1.events[1].requiredParameters[TEST_KEY]).isNull()
+    }
+
+    @Test
+    fun updateRequestListenersInvokeSubmitRequestWithRequiredListeners() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
+        graphLoop.repeatingRequest = request1
+        advanceUntilIdle()
+        graphLoop.requestListeners = listOf(requestListener1)
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+
+        assertThat(csp1.events[1].isRepeating).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1)
+        assertThat(csp1.events[1].listeners).containsExactly(mockListener, requestListener1)
+    }
 
     @Test
     fun updateRequestListenersNoAdvanceUntilIdleInBetweenInvokesSubmitRequestWithGraphParameters() =
@@ -1298,26 +1251,24 @@ class GraphLoopTest {
         }
 
     @Test
-    fun updateRequestListenersMultipleTimesPrioritizesUpdates() =
-        testScope.runTest {
-            graphLoop.requestProcessor = grp1
+    fun updateRequestListenersMultipleTimesPrioritizesUpdates() = testScope.runTest {
+        graphLoop.requestProcessor = grp1
 
-            graphLoop.repeatingRequest = request1
-            graphLoop.requestListeners = listOf(requestListener1)
-            graphLoop.requestListeners = listOf(requestListener2)
-            graphLoop.requestListeners = listOf(requestListener1, requestListener2)
-            graphLoop.repeatingRequest = request2
-            graphLoop.requestListeners =
-                listOf(requestListener1, requestListener2, requestListener3)
-            graphLoop.repeatingRequest = request3
-            advanceUntilIdle()
+        graphLoop.repeatingRequest = request1
+        graphLoop.requestListeners = listOf(requestListener1)
+        graphLoop.requestListeners = listOf(requestListener2)
+        graphLoop.requestListeners = listOf(requestListener1, requestListener2)
+        graphLoop.repeatingRequest = request2
+        graphLoop.requestListeners = listOf(requestListener1, requestListener2, requestListener3)
+        graphLoop.repeatingRequest = request3
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request3)
-            assertThat(csp1.events[0].listeners)
-                .containsExactly(mockListener, requestListener1, requestListener2, requestListener3)
-        }
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request3)
+        assertThat(csp1.events[0].listeners)
+            .containsExactly(mockListener, requestListener1, requestListener2, requestListener3)
+    }
 
     @Test
     fun updateRequestListenersAfterRepeatingWithMultipleUpdatesPrioritizesLatest() =

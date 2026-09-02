@@ -291,15 +291,15 @@ constructor(
                 videoStabilizationMode
         }
 
-        val postviewStream =
-            sessionConfig?.let { config ->
-                val physicalCameraIdForAllStreams =
-                    config.toCamera2ImplConfig().getPhysicalCameraId(null)
-                config.postviewOutputConfig?.let { postviewOutputConfig ->
-                    createPostviewStream(postviewOutputConfig, physicalCameraIdForAllStreams)
-                        ?.also { streamConfigMap[it] = postviewOutputConfig.surface }
+        val postviewStream = sessionConfig?.let { config ->
+            val physicalCameraIdForAllStreams =
+                config.toCamera2ImplConfig().getPhysicalCameraId(null)
+            config.postviewOutputConfig?.let { postviewOutputConfig ->
+                createPostviewStream(postviewOutputConfig, physicalCameraIdForAllStreams)?.also {
+                    streamConfigMap[it] = postviewOutputConfig.surface
                 }
             }
+        }
 
         cameraXConfig
             ?.getCamera2CaptureRequestConfigurator()

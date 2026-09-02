@@ -226,14 +226,13 @@ internal fun LazyStaggeredGridMeasureResult.lastVisibleItemIndexesAndEndOffsets(
 
     visibleItemsInfo.fastForEach { item ->
         val lane = item.lane
-        val itemEndOffset =
-            item.run {
-                if (orientation == Orientation.Vertical) {
-                    offset.y + size.height
-                } else {
-                    offset.x + size.width
-                }
+        val itemEndOffset = item.run {
+            if (orientation == Orientation.Vertical) {
+                offset.y + size.height
+            } else {
+                offset.x + size.width
             }
+        }
 
         val laneCurrentMaxEndOffset = perLaneMainAxisExtraEndSpace[lane]
 

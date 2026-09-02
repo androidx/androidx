@@ -154,62 +154,58 @@ public fun ListItem(
             headlineContent,
         )
     }
-    val decoratedSupportingContent: @Composable (() -> Unit)? =
-        supportingContent?.let {
-            {
-                ProvideTextStyleFromToken(
-                    colors.supportingContentColor(
-                        enabled = true,
-                        selected = false,
-                        dragged = false,
-                    ),
-                    ListTokens.ItemSupportingTextFont,
-                    it,
-                )
-            }
+    val decoratedSupportingContent: @Composable (() -> Unit)? = supportingContent?.let {
+        {
+            ProvideTextStyleFromToken(
+                colors.supportingContentColor(
+                    enabled = true,
+                    selected = false,
+                    dragged = false,
+                ),
+                ListTokens.ItemSupportingTextFont,
+                it,
+            )
         }
-    val decoratedOverlineContent: @Composable (() -> Unit)? =
-        overlineContent?.let {
-            {
-                ProvideTextStyleFromToken(
-                    colors.overlineContentColor(enabled = true, selected = false, dragged = false),
-                    ListTokens.ItemOverlineFont,
-                    it,
-                )
-            }
+    }
+    val decoratedOverlineContent: @Composable (() -> Unit)? = overlineContent?.let {
+        {
+            ProvideTextStyleFromToken(
+                colors.overlineContentColor(enabled = true, selected = false, dragged = false),
+                ListTokens.ItemOverlineFont,
+                it,
+            )
         }
-    val decoratedLeadingContent: @Composable (() -> Unit)? =
-        leadingContent?.let {
-            {
-                Box(Modifier.padding(end = LeadingContentEndPadding)) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides
-                            colors.leadingContentColor(
-                                enabled = true,
-                                selected = false,
-                                dragged = false,
-                            ),
-                        content = it,
-                    )
-                }
-            }
-        }
-    val decoratedTrailingContent: @Composable (() -> Unit)? =
-        trailingContent?.let {
-            {
-                Box(Modifier.padding(start = TrailingContentStartPadding)) {
-                    ProvideTextStyleFromToken(
-                        colors.trailingContentColor(
+    }
+    val decoratedLeadingContent: @Composable (() -> Unit)? = leadingContent?.let {
+        {
+            Box(Modifier.padding(end = LeadingContentEndPadding)) {
+                CompositionLocalProvider(
+                    LocalContentColor provides
+                        colors.leadingContentColor(
                             enabled = true,
                             selected = false,
                             dragged = false,
                         ),
-                        ListTokens.ItemTrailingSupportingTextFont,
-                        content = it,
-                    )
-                }
+                    content = it,
+                )
             }
         }
+    }
+    val decoratedTrailingContent: @Composable (() -> Unit)? = trailingContent?.let {
+        {
+            Box(Modifier.padding(start = TrailingContentStartPadding)) {
+                ProvideTextStyleFromToken(
+                    colors.trailingContentColor(
+                        enabled = true,
+                        selected = false,
+                        dragged = false,
+                    ),
+                    ListTokens.ItemTrailingSupportingTextFont,
+                    content = it,
+                )
+            }
+        }
+    }
 
     Surface(
         modifier = Modifier.semantics(mergeDescendants = true) {}.then(modifier),

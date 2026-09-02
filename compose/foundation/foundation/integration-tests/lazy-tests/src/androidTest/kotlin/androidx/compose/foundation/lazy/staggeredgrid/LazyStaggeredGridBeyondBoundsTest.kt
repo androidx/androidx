@@ -168,12 +168,11 @@ class LazyStaggeredGridBeyondBoundsTest {
                 }
 
                 // Act.
-                val hasMoreContent =
-                    rule.runOnIdle {
-                        beyondBoundsLayoutRef.layout(param.beyondBoundsLayoutDirection) {
-                            hasMoreContent
-                        }
+                val hasMoreContent = rule.runOnIdle {
+                    beyondBoundsLayoutRef.layout(param.beyondBoundsLayoutDirection) {
+                        hasMoreContent
                     }
+                }
 
                 // Assert.
                 runOnIdle { assertThat(hasMoreContent).isFalse() }

@@ -162,17 +162,16 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
 
                 val recommendedReplacement =
                     if (methodName in REGISTRATIONS_NAME_LOOKUP_METHODS) "findByName" else null
-                val fix =
-                    recommendedReplacement?.let {
-                        fix()
-                            .replace()
-                            .with(it)
-                            .reformat(true)
-                            // Don't auto-fix from the command line because findByName has a
-                            // nullable return type, so the fixed code likely won't compile.
-                            .autoFix(robot = false, independent = false)
-                            .build()
-                    }
+                val fix = recommendedReplacement?.let {
+                    fix()
+                        .replace()
+                        .with(it)
+                        .reformat(true)
+                        // Don't auto-fix from the command line because findByName has a
+                        // nullable return type, so the fixed code likely won't compile.
+                        .autoFix(robot = false, independent = false)
+                        .build()
+                }
                 val target = "on the build service registrations collection"
                 val message =
                     recommendedReplacement?.let { "Use $it instead of $methodName $target" }

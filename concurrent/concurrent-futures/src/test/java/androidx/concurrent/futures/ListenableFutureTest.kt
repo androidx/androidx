@@ -46,11 +46,10 @@ class ListenableFutureTest {
     @Test
     fun testFutureWithResult() {
         val future: ResolvableFuture<Int> = ResolvableFuture.create()
-        val job =
-            GlobalScope.launch {
-                val result = future.await()
-                assertThat(result, `is`(10))
-            }
+        val job = GlobalScope.launch {
+            val result = future.await()
+            assertThat(result, `is`(10))
+        }
         future.set(10)
         runBlocking { job.join() }
     }
@@ -59,15 +58,14 @@ class ListenableFutureTest {
     fun testFutureWithException() {
         val future: ResolvableFuture<Int> = ResolvableFuture.create()
         val exception = RuntimeException("Something bad happened")
-        val job =
-            GlobalScope.launch {
-                try {
-                    future.await()
-                } catch (throwable: Throwable) {
-                    assertThat(throwable, `is`(instanceOf(RuntimeException::class.java)))
-                    assertThat(throwable.message, `is`(exception.message))
-                }
+        val job = GlobalScope.launch {
+            try {
+                future.await()
+            } catch (throwable: Throwable) {
+                assertThat(throwable, `is`(instanceOf(RuntimeException::class.java)))
+                assertThat(throwable.message, `is`(exception.message))
             }
+        }
         future.setException(exception)
         runBlocking { job.join() }
     }

@@ -315,8 +315,9 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
                 textContent ->
                 when (tagName) {
                     TAG_TEXT -> text = textContent.let { PlainComplicationText.Builder(it).build() }
-                    TAG_TITLE ->
-                        title = textContent.let { PlainComplicationText.Builder(it).build() }
+                    TAG_TITLE -> title = textContent.let {
+                            PlainComplicationText.Builder(it).build()
+                        }
                 }
             }
 
@@ -353,8 +354,9 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
                 textContent ->
                 when (tagName) {
                     TAG_TEXT -> text = textContent.let { PlainComplicationText.Builder(it).build() }
-                    TAG_TITLE ->
-                        title = textContent.let { PlainComplicationText.Builder(it).build() }
+                    TAG_TITLE -> title = textContent.let {
+                            PlainComplicationText.Builder(it).build()
+                        }
                 }
             }
 
@@ -405,8 +407,9 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
                 textContent ->
                 when (tagName) {
                     TAG_TEXT -> text = textContent.let { PlainComplicationText.Builder(it).build() }
-                    TAG_TITLE ->
-                        title = textContent.let { PlainComplicationText.Builder(it).build() }
+                    TAG_TITLE -> title = textContent.let {
+                            PlainComplicationText.Builder(it).build()
+                        }
                 }
             }
 
@@ -457,8 +460,9 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
                 textContent ->
                 when (tagName) {
                     TAG_TEXT -> text = textContent.let { PlainComplicationText.Builder(it).build() }
-                    TAG_TITLE ->
-                        title = textContent.let { PlainComplicationText.Builder(it).build() }
+                    TAG_TITLE -> title = textContent.let {
+                            PlainComplicationText.Builder(it).build()
+                        }
                 }
             }
 
@@ -526,8 +530,9 @@ internal constructor(private val data: Map<ComplicationType, ComplicationData>) 
             ) { tagName, textContent ->
                 when (tagName) {
                     TAG_TEXT -> text = textContent.let { PlainComplicationText.Builder(it).build() }
-                    TAG_TITLE ->
-                        title = textContent.let { PlainComplicationText.Builder(it).build() }
+                    TAG_TITLE -> title = textContent.let {
+                            PlainComplicationText.Builder(it).build()
+                        }
                 }
             }
 

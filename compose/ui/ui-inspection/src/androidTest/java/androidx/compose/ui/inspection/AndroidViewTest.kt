@@ -53,14 +53,13 @@ class AndroidViewTest {
                 .single()
         assertThat(strings[composeNode.name]).isEqualTo("ComposeNode")
         val rootView = rule.rootsForTest.single().view
-        val androidViewsHandler =
-            rootView.let {
-                if (isArrEnabled) {
-                    it.childAt(1)
-                } else {
-                    it.childAt(0)
-                }
+        val androidViewsHandler = rootView.let {
+            if (isArrEnabled) {
+                it.childAt(1)
+            } else {
+                it.childAt(0)
             }
+        }
         val viewFactoryHolder = androidViewsHandler.childAt(0)
         assertThat(composeNode.viewId).isEqualTo(viewFactoryHolder.uniqueDrawingId)
     }

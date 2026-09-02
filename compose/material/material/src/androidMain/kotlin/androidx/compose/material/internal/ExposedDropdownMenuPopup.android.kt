@@ -337,12 +337,11 @@ private class PopupLayout(
         val parentBounds = parentBounds ?: return
         val popupContentSize = popupContentSize ?: return
 
-        val windowSize =
-            previousWindowVisibleFrame.let {
-                composeView.getWindowVisibleDisplayFrame(it)
-                val bounds = it.toIntBounds()
-                IntSize(width = bounds.width, height = bounds.height)
-            }
+        val windowSize = previousWindowVisibleFrame.let {
+            composeView.getWindowVisibleDisplayFrame(it)
+            val bounds = it.toIntBounds()
+            IntSize(width = bounds.width, height = bounds.height)
+        }
 
         val popupPosition =
             positionProvider.calculatePosition(

@@ -207,13 +207,12 @@ public fun RowScope.BottomNavigationItem(
     selectedContentColor: Color = LocalContentColor.current,
     unselectedContentColor: Color = selectedContentColor.copy(alpha = ContentAlpha.medium),
 ) {
-    val styledLabel: @Composable (() -> Unit)? =
-        label?.let {
-            @Composable {
-                val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
-                ProvideTextStyle(style, content = label)
-            }
+    val styledLabel: @Composable (() -> Unit)? = label?.let {
+        @Composable {
+            val style = MaterialTheme.typography.caption.copy(textAlign = TextAlign.Center)
+            ProvideTextStyle(style, content = label)
         }
+    }
     // The color of the Ripple should always the selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by BottomNavigationTransition.
@@ -324,17 +323,16 @@ private fun BottomNavigationItemBaselineLayout(
     }) { measurables, constraints ->
         val iconPlaceable = measurables.fastFirst { it.layoutId == "icon" }.measure(constraints)
 
-        val labelPlaceable =
-            label?.let {
-                measurables
-                    .fastFirst { it.layoutId == "label" }
-                    .measure(
-                        // Measure with loose constraints for height as we don't want the label to
-                        // take up more
-                        // space than it needs
-                        constraints.copy(minHeight = 0)
-                    )
-            }
+        val labelPlaceable = label?.let {
+            measurables
+                .fastFirst { it.layoutId == "label" }
+                .measure(
+                    // Measure with loose constraints for height as we don't want the label to
+                    // take up more
+                    // space than it needs
+                    constraints.copy(minHeight = 0)
+                )
+        }
 
         // If there is no label, just place the icon.
         if (label == null) {

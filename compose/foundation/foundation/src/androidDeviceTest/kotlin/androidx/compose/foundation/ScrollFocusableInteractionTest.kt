@@ -207,7 +207,9 @@ class ScrollFocusableInteractionTest(
                                 .also { focusableView = it }
                         },
                         modifier =
-                            Modifier.testTag(focusableTag).size(10.toDp()).border(1.dp, Color.White),
+                            Modifier.testTag(focusableTag)
+                                .size(10.toDp())
+                                .border(1.dp, Color.White),
                     )
                 }
             }
@@ -277,7 +279,9 @@ class ScrollFocusableInteractionTest(
                             }
                         },
                         modifier =
-                            Modifier.testTag(focusableTag).size(20.toDp()).border(1.dp, Color.White),
+                            Modifier.testTag(focusableTag)
+                                .size(20.toDp())
+                                .border(1.dp, Color.White),
                     )
                 }
             }

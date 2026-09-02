@@ -1049,10 +1049,9 @@ constructor(
             }
 
             // Bind to all providers concurrently to minimize total latency
-            val deferredResults =
-                trustedServices.map { serviceComponent ->
-                    async { fetchFromUpdateInfoService(serviceComponent, timeoutMillis) }
-                }
+            val deferredResults = trustedServices.map { serviceComponent ->
+                async { fetchFromUpdateInfoService(serviceComponent, timeoutMillis) }
+            }
 
             return@withContext deferredResults.awaitAll()
         }

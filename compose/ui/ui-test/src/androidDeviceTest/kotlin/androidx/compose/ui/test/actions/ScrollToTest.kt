@@ -237,23 +237,21 @@ class ScrollToTest(private val config: TestConfig) {
 
     private fun DpRect.toPx(): Rect = with(rule.density) { toRect() }
 
-    private fun rowModifier(scrollState: ScrollState): Modifier =
-        Modifier.composed {
-            with(LocalDensity.current) {
-                Modifier.testTag(containerTag)
-                    .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
-                    .horizontalScroll(scrollState, reverseScrolling = config.reverseScrolling)
-            }
+    private fun rowModifier(scrollState: ScrollState): Modifier = Modifier.composed {
+        with(LocalDensity.current) {
+            Modifier.testTag(containerTag)
+                .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
+                .horizontalScroll(scrollState, reverseScrolling = config.reverseScrolling)
         }
+    }
 
-    private fun columnModifier(scrollState: ScrollState): Modifier =
-        Modifier.composed {
-            with(LocalDensity.current) {
-                Modifier.testTag(containerTag)
-                    .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
-                    .verticalScroll(scrollState, reverseScrolling = config.reverseScrolling)
-            }
+    private fun columnModifier(scrollState: ScrollState): Modifier = Modifier.composed {
+        with(LocalDensity.current) {
+            Modifier.testTag(containerTag)
+                .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
+                .verticalScroll(scrollState, reverseScrolling = config.reverseScrolling)
         }
+    }
 
     @Composable
     private fun Boxes() {

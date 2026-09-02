@@ -116,15 +116,13 @@ public object AmbiguousColumnResolver {
                 startIndex,
                 endIndex,
                 resultColumnsSublist ->
-                val resultIndices =
-                    mapping.map { mappingColumnName ->
-                        val resultColumn =
-                            resultColumnsSublist.firstOrNull { (resultColumnName, _) ->
-                                // TODO: Incorporate workarounds in CursorUtil.getColumnIndex()
-                                mappingColumnName == resultColumnName
-                            }
-                        resultColumn?.index ?: return@rabinKarpSearch
+                val resultIndices = mapping.map { mappingColumnName ->
+                    val resultColumn = resultColumnsSublist.firstOrNull { (resultColumnName, _) ->
+                        // TODO: Incorporate workarounds in CursorUtil.getColumnIndex()
+                        mappingColumnName == resultColumnName
                     }
+                    resultColumn?.index ?: return@rabinKarpSearch
+                }
                 mappingMatches[mappingIndex].add(
                     Match(
                         resultRange = IntRange(startIndex, endIndex - 1),
@@ -134,21 +132,20 @@ public object AmbiguousColumnResolver {
             }
             // Step 3.b - Failed to quickly find a continuous match, widen the search (slow!)
             if (mappingMatches[mappingIndex].isEmpty()) {
-                val foundIndices =
-                    mapping.map { mappingColumnName ->
-                        buildList {
-                                usefulResultColumns.forEach { resultColumn ->
-                                    if (mappingColumnName == resultColumn.name) {
-                                        add(resultColumn.index)
-                                    }
-                                }
+                val foundIndices = mapping.map { mappingColumnName ->
+                    buildList {
+                        usefulResultColumns.forEach { resultColumn ->
+                            if (mappingColumnName == resultColumn.name) {
+                                add(resultColumn.index)
                             }
-                            .also {
-                                check(it.isNotEmpty()) {
-                                    "Column $mappingColumnName not found in result"
-                                }
-                            }
+                        }
                     }
+                        .also {
+                            check(it.isNotEmpty()) {
+                                "Column $mappingColumnName not found in result"
+                            }
+                        }
+                }
                 dfs(foundIndices) { indices ->
                     val first = indices.minOf { it }
                     val last = indices.maxOf { it }
@@ -239,10 +236,9 @@ public object AmbiguousColumnResolver {
             val NO_SOLUTION = Solution(emptyList(), Int.MAX_VALUE, Int.MAX_VALUE)
 
             fun build(matches: List<Match>): Solution {
-                val coverageOffset =
-                    matches.sumOf {
-                        (it.resultRange.last - it.resultRange.first + 1) - it.resultIndices.size
-                    }
+                val coverageOffset = matches.sumOf {
+                    (it.resultRange.last - it.resultRange.first + 1) - it.resultIndices.size
+                }
                 val min = matches.minOf { it.resultRange.first }
                 val max = matches.maxOf { it.resultRange.last }
                 val overlaps =

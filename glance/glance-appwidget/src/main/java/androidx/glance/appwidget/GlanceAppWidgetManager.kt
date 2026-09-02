@@ -274,7 +274,8 @@ public class GlanceAppWidgetManager(private val context: Context) {
                                 state = previewState,
                                 options = Bundle.EMPTY,
                                 size =
-                                    previewSize ?: info.getMinSize(context.resources.displayMetrics),
+                                    previewSize
+                                        ?: info.getMinSize(context.resources.displayMetrics),
                             )
                         putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, snapshot)
                     }
@@ -345,25 +346,24 @@ public class GlanceAppWidgetManager(private val context: Context) {
             } else {
                 null
             }
-        val success =
-            widgetCategories.all { category ->
-                val preview = glanceAppWidget.composeForPreview(context, category, providerInfo)
-                val result =
-                    AppWidgetManagerApi35Impl.setWidgetPreview(
-                        appWidgetManager,
-                        componentName,
-                        category,
-                        preview,
-                    )
-                if (!result) {
-                    Log.w(
-                        TAG,
-                        "setWidgetPreview call for $componentName with categories $category was " +
-                            "rate-limited",
-                    )
-                }
-                result
+        val success = widgetCategories.all { category ->
+            val preview = glanceAppWidget.composeForPreview(context, category, providerInfo)
+            val result =
+                AppWidgetManagerApi35Impl.setWidgetPreview(
+                    appWidgetManager,
+                    componentName,
+                    category,
+                    preview,
+                )
+            if (!result) {
+                Log.w(
+                    TAG,
+                    "setWidgetPreview call for $componentName with categories $category was " +
+                        "rate-limited",
+                )
             }
+            result
+        }
         return if (success) {
             SET_WIDGET_PREVIEWS_RESULT_SUCCESS
         } else {

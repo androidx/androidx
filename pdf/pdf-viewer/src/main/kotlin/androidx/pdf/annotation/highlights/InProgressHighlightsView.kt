@@ -152,10 +152,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                 )
 
             if (pageRects.isNotEmpty()) {
-                val viewRects =
-                    pageRects.map { pageRect ->
-                        RectF().apply { pageToViewTransform.mapRect(this, pageRect) }
-                    }
+                val viewRects = pageRects.map { pageRect ->
+                    RectF().apply { pageToViewTransform.mapRect(this, pageRect) }
+                }
 
                 // If the gesture hasn't been canceled, update its state and notify listeners.
                 activeHighlights[id]?.let { currentState ->
@@ -185,12 +184,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                             currentState.startPdfPoint,
                             currentPdfPoint,
                         )
-                    val newViewRects =
-                        pageRects.map { pageRect ->
-                            RectF().apply {
-                                currentState.pageToViewTransform.mapRect(this, pageRect)
-                            }
+                    val newViewRects = pageRects.map { pageRect ->
+                        RectF().apply {
+                            currentState.pageToViewTransform.mapRect(this, pageRect)
                         }
+                    }
 
                     // Check if the highlight is still active before updating the viewRects.
                     if (activeHighlights.contains(id)) {

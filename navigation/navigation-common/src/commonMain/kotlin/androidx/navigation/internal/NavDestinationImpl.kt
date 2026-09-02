@@ -55,10 +55,9 @@ internal class NavDestinationImpl(val destination: NavDestination) {
                 // make sure the route contains all required arguments
                 val tempRoute = createRoute(route)
                 val tempDeepLink = NavDeepLink.Builder().setUriPattern(tempRoute).build()
-                val missingRequiredArguments =
-                    arguments.missingRequiredArguments { key ->
-                        key !in tempDeepLink.argumentsNames
-                    }
+                val missingRequiredArguments = arguments.missingRequiredArguments { key ->
+                    key !in tempDeepLink.argumentsNames
+                }
                 require(missingRequiredArguments.isEmpty()) {
                     "Cannot set route \"$route\" for destination $destination. " +
                         "Following required arguments are missing: $missingRequiredArguments"
@@ -82,8 +81,9 @@ internal class NavDestinationImpl(val destination: NavDestination) {
     private var routeDeepLink: Lazy<NavDeepLink>? = null
 
     internal fun addDeepLink(navDeepLink: NavDeepLink) {
-        val missingRequiredArguments =
-            arguments.missingRequiredArguments { key -> key !in navDeepLink.argumentsNames }
+        val missingRequiredArguments = arguments.missingRequiredArguments { key ->
+            key !in navDeepLink.argumentsNames
+        }
         require(missingRequiredArguments.isEmpty()) {
             "Deep link ${navDeepLink.uriPattern} can't be used to open destination $destination.\n" +
                 "Following required arguments are missing: $missingRequiredArguments"
@@ -157,8 +157,9 @@ internal class NavDestinationImpl(val destination: NavDestination) {
         arguments: Map<String, NavArgument>,
     ): Boolean {
         val matchingArgs = deepLink.getMatchingPathAndQueryArgs(uri, arguments)
-        val missingRequiredArguments =
-            arguments.missingRequiredArguments { key -> !matchingArgs.read { contains(key) } }
+        val missingRequiredArguments = arguments.missingRequiredArguments { key ->
+            !matchingArgs.read { contains(key) }
+        }
         return missingRequiredArguments.isEmpty()
     }
 

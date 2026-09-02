@@ -37,11 +37,10 @@ class FakeImageCaptureControl : ImageCaptureControl {
     lateinit var pendingResultCompleter: CallbackToFutureAdapter.Completer<Void>
     var pendingResult = createPendingResult()
 
-    private fun createPendingResult() =
-        CallbackToFutureAdapter.getFuture { completer ->
-            pendingResultCompleter = completer
-            "FakeImageCaptureControl's pendingResult"
-        }
+    private fun createPendingResult() = CallbackToFutureAdapter.getFuture { completer ->
+        pendingResultCompleter = completer
+        "FakeImageCaptureControl's pendingResult"
+    }
 
     fun resetPendingResult() {
         pendingResult = createPendingResult()

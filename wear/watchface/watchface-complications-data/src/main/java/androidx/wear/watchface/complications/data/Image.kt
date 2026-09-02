@@ -69,11 +69,10 @@ internal constructor(public val image: Icon, public val ambientImage: Icon?) {
     }
 
     /** Adds a [MonochromaticImage] to a builder for [WireComplicationData]. */
-    internal fun addToWireComplicationData(builder: WireComplicationData.Builder) =
-        builder.apply {
-            setIcon(image)
-            setBurnInProtectionIcon(ambientImage)
-        }
+    internal fun addToWireComplicationData(builder: WireComplicationData.Builder) = builder.apply {
+        setIcon(image)
+        setBurnInProtectionIcon(ambientImage)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -173,17 +172,16 @@ internal constructor(
     }
 
     /** Adds a [SmallImage] to a builder for [WireComplicationData]. */
-    internal fun addToWireComplicationData(builder: WireComplicationData.Builder) =
-        builder.apply {
-            setSmallImage(image)
-            setSmallImageStyle(
-                when (this@SmallImage.type) {
-                    SmallImageType.ICON -> WireComplicationData.IMAGE_STYLE_ICON
-                    SmallImageType.PHOTO -> WireComplicationData.IMAGE_STYLE_PHOTO
-                }
-            )
-            setBurnInProtectionSmallImage(ambientImage)
-        }
+    internal fun addToWireComplicationData(builder: WireComplicationData.Builder) = builder.apply {
+        setSmallImage(image)
+        setSmallImageStyle(
+            when (this@SmallImage.type) {
+                SmallImageType.ICON -> WireComplicationData.IMAGE_STYLE_ICON
+                SmallImageType.PHOTO -> WireComplicationData.IMAGE_STYLE_PHOTO
+            }
+        )
+        setBurnInProtectionSmallImage(ambientImage)
+    }
 
     /** Adds a [SmallImage] to a builder for [WearSdkComplicationData]. */
     internal fun addToWearSdkComplicationData(builder: WearSdkComplicationData.Builder) =

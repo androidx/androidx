@@ -287,7 +287,8 @@ private fun VerticalContent(
             availableSize =
                 DpSize(
                     width = (0.8 * contentWidth.value).dp,
-                    height = (if (showImage) 0.4f * contentHeight.value else contentHeight.value).dp,
+                    height =
+                        (if (showImage) 0.4f * contentHeight.value else contentHeight.value).dp,
                 ),
         )
     }

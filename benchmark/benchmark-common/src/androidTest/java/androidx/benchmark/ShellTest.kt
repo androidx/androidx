@@ -359,12 +359,11 @@ class ShellTest {
     fun getChecksum() {
         val emptyPaths = listOf("/data/local/tmp/emptyfile1", "/data/local/tmp/emptyfile2")
         try {
-            val checksums =
-                emptyPaths.map {
-                    Shell.executeScriptSilent("rm -f $it")
-                    Shell.executeScriptSilent("touch $it")
-                    Shell.getChecksum(it)
-                }
+            val checksums = emptyPaths.map {
+                Shell.executeScriptSilent("rm -f $it")
+                Shell.executeScriptSilent("touch $it")
+                Shell.getChecksum(it)
+            }
 
             assertEquals(checksums.first(), checksums.last())
             if (Build.VERSION.SDK_INT < 23) {

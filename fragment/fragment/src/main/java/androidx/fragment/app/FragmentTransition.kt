@@ -38,16 +38,15 @@ internal object FragmentTransition {
 
     /** Utility to find the String key in [map] that maps to [value]. */
     @JvmStatic
-    fun ArrayMap<String, String>.findKeyForValue(value: String): String? =
-        filter { entry ->
-                // Find the entries with the given value
-                entry.value == value
-            }
-            .map { entry ->
-                // And get the key associated with that value
-                entry.key
-            }
-            .firstOrNull()
+    fun ArrayMap<String, String>.findKeyForValue(value: String): String? = filter { entry ->
+        // Find the entries with the given value
+        entry.value == value
+    }
+        .map { entry ->
+            // And get the key associated with that value
+            entry.key
+        }
+        .firstOrNull()
 
     /**
      * A utility to retain only the mappings in the map that have a value that has a key in

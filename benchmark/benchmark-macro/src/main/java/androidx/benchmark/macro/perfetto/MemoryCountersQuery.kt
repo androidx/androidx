@@ -84,8 +84,9 @@ internal object MemoryCountersQuery {
         return if (rows.isEmpty()) {
             null
         } else {
-            val summations: Map<String, Double> =
-                rows.associate { it.string("counter_name") to it.double("SUM(value)") }
+            val summations: Map<String, Double> = rows.associate {
+                it.string("counter_name") to it.double("SUM(value)")
+            }
             SubMetrics(
                 minorPageFaults = summations[MINOR_PAGE_FAULTS_COUNT] ?: 0.0,
                 majorPageFaults = summations[MAJOR_PAGE_FAULTS_COUNT] ?: 0.0,

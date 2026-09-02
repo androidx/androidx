@@ -154,10 +154,9 @@ public fun TabRow(
             val tabMeasurables = subcompose(TabSlots.Tabs, tabs)
             val tabCount = tabMeasurables.size
             val tabWidth = (tabRowWidth / tabCount)
-            val tabPlaceables =
-                tabMeasurables.fastMap {
-                    it.measure(constraints.copy(minWidth = tabWidth, maxWidth = tabWidth))
-                }
+            val tabPlaceables = tabMeasurables.fastMap {
+                it.measure(constraints.copy(minWidth = tabWidth, maxWidth = tabWidth))
+            }
 
             val tabRowHeight = tabPlaceables.fastMaxBy { it.height }?.height ?: 0
 

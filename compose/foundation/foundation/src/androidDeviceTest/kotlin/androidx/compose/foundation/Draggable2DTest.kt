@@ -141,13 +141,12 @@ class Draggable2DTest {
             down(center)
             moveBy(Offset(100f, 100f))
         }
-        val prevTotal =
-            rule.runOnIdle {
-                assertThat(total.x).isGreaterThan(0f)
-                assertThat(total.y).isGreaterThan(0f)
-                enabled.value = false
-                total
-            }
+        val prevTotal = rule.runOnIdle {
+            assertThat(total.x).isGreaterThan(0f)
+            assertThat(total.y).isGreaterThan(0f)
+            enabled.value = false
+            total
+        }
         rule.onNodeWithTag(draggable2DBoxTag).performTouchInput { moveBy(Offset(100f, 100f)) }
         rule.runOnIdle { assertThat(total).isEqualTo(prevTotal) }
     }
@@ -389,12 +388,11 @@ class Draggable2DTest {
                 down(center)
                 moveBy(Offset(100f, 100f))
             }
-            val prevTotal =
-                rule.runOnIdle {
-                    assertThat(total.x).isGreaterThan(0f)
-                    assertThat(total.y).isGreaterThan(0f)
-                    total
-                }
+            val prevTotal = rule.runOnIdle {
+                assertThat(total.x).isGreaterThan(0f)
+                assertThat(total.y).isGreaterThan(0f)
+                total
+            }
             state.drag(MutatePriority.PreventUserInput) { dragBy(Offset(123f, 123f)) }
             rule.runOnIdle {
                 assertThat(total).isEqualTo(prevTotal + Offset(123f, 123f))
@@ -756,8 +754,9 @@ class Draggable2DTest {
                             enabled = enabled.value,
                             state = rememberDraggable2DState {},
                             onDragStopped = { _ ->
-                                runningJob =
-                                    scope.launch { delay(10_000L) } // long running operation
+                                runningJob = scope.launch {
+                                    delay(10_000L)
+                                } // long running operation
                             },
                         )
             )

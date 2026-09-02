@@ -275,8 +275,9 @@ class ExtensionSessionConfigTest(
                 ExtensionMode.AUTO,
             )
         // Finds an unsupported extension type for the test
-        val unsupportedMode =
-            allModes.firstOrNull { !extensionsManager.isExtensionAvailable(baseCameraSelector, it) }
+        val unsupportedMode = allModes.firstOrNull {
+            !extensionsManager.isExtensionAvailable(baseCameraSelector, it)
+        }
 
         assumeTrue("No unsupported extension mode found on this device.", unsupportedMode != null)
 

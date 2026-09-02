@@ -78,7 +78,8 @@ internal val SDK_TO_PLATFORM_CERVICAL_MUCUS_APPEARANCE: Map<Int, Int> =
         CervicalMucusRecord.APPEARANCE_STICKY to PlatformCervicalMucusAppearance.APPEARANCE_STICKY,
         CervicalMucusRecord.APPEARANCE_CREAMY to PlatformCervicalMucusAppearance.APPEARANCE_CREAMY,
         CervicalMucusRecord.APPEARANCE_WATERY to PlatformCervicalMucusAppearance.APPEARANCE_WATERY,
-        CervicalMucusRecord.APPEARANCE_UNUSUAL to PlatformCervicalMucusAppearance.APPEARANCE_UNUSUAL,
+        CervicalMucusRecord.APPEARANCE_UNUSUAL to
+            PlatformCervicalMucusAppearance.APPEARANCE_UNUSUAL,
     )
 
 internal val PLATFORM_TO_SDK_CERVICAL_MUCUS_APPEARANCE =
@@ -417,7 +418,8 @@ internal val SDK_TO_PLATFORM_SLEEP_STAGE_TYPE: Map<Int, Int> =
         SleepSessionRecord.STAGE_TYPE_LIGHT to PlatformSleepStageType.STAGE_TYPE_SLEEPING_LIGHT,
         SleepSessionRecord.STAGE_TYPE_DEEP to PlatformSleepStageType.STAGE_TYPE_SLEEPING_DEEP,
         SleepSessionRecord.STAGE_TYPE_REM to PlatformSleepStageType.STAGE_TYPE_SLEEPING_REM,
-        SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED to PlatformSleepStageType.STAGE_TYPE_AWAKE_IN_BED,
+        SleepSessionRecord.STAGE_TYPE_AWAKE_IN_BED to
+            PlatformSleepStageType.STAGE_TYPE_AWAKE_IN_BED,
     )
 
 internal val PLATFORM_TO_SDK_SLEEP_STAGE_TYPE = SDK_TO_PLATFORM_SLEEP_STAGE_TYPE.reversed()

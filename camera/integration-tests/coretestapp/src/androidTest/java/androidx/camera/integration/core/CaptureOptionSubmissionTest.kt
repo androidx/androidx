@@ -152,13 +152,12 @@ class CaptureOptionSubmissionTest(
             }
 
             var lastSubmittedFpsRange: Range<Int>? = null
-            val result =
-                sessionCaptureCallback.verify { captureRequest, _ ->
-                    captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
-                        lastSubmittedFpsRange = it
-                    }
-                    captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
+            val result = sessionCaptureCallback.verify { captureRequest, _ ->
+                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                    lastSubmittedFpsRange = it
                 }
+                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
+            }
 
             bindUseCases(listOf(Preview.Builder().setTargetFrameRate(targetFpsRange)))
 
@@ -185,13 +184,12 @@ class CaptureOptionSubmissionTest(
                 }
 
                 var lastSubmittedFpsRange: Range<Int>? = null
-                val result =
-                    sessionCaptureCallback.verify { captureRequest, _ ->
-                        captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
-                            lastSubmittedFpsRange = it
-                        }
-                        captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
+                val result = sessionCaptureCallback.verify { captureRequest, _ ->
+                    captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                        lastSubmittedFpsRange = it
                     }
+                    captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
+                }
 
                 bindUseCases(
                     listOf(
@@ -223,13 +221,12 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedFpsRange: Range<Int>? = null
-        val result =
-            sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
-                    lastSubmittedFpsRange = it
-                }
-                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                lastSubmittedFpsRange = it
             }
+            captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
+        }
 
         bindUseCases(listOf(Preview.Builder()))
 
@@ -283,13 +280,12 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedFpsRange: Range<Int>? = null
-        val result =
-            sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
-                    lastSubmittedFpsRange = it
-                }
-                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == interopFpsRange
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                lastSubmittedFpsRange = it
             }
+            captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == interopFpsRange
+        }
 
         bindUseCases(
             listOf(
@@ -326,11 +322,10 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedMode: Int? = null
-        val result =
-            sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
-                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
-            }
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
+        }
 
         bindUseCases(
             listOf(
@@ -358,11 +353,10 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedMode: Int? = null
-        val result =
-            sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
-                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
-            }
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
+        }
 
         bindUseCases(
             listOf(
@@ -396,11 +390,10 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedMode: Int? = null
-        val result =
-            sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
-                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
-            }
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
+        }
 
         bindUseCases(
             listOf(
@@ -428,11 +421,10 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedMode: Int? = null
-        val result =
-            sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
-                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
-            }
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
+        }
 
         bindUseCases(
             listOf(
@@ -468,11 +460,10 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedMode: Int? = null
-        val result =
-            sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
-                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
-            }
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
+        }
 
         bindUseCases(
             listOf(
@@ -562,11 +553,10 @@ class CaptureOptionSubmissionTest(
         targetValue: ValueT,
     ) {
         var lastSubmittedValue: ValueT? = null
-        val result =
-            sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[key]?.let { lastSubmittedValue = it }
-                captureRequest[key] == targetValue
-            }
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[key]?.let { lastSubmittedValue = it }
+            captureRequest[key] == targetValue
+        }
 
         bindUseCases(
             listOf(

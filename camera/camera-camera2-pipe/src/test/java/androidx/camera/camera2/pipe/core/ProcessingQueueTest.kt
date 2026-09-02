@@ -57,229 +57,220 @@ class ProcessingQueueTest {
     }
 
     @Test
-    fun processingQueueBuffersItems() =
-        testScope.runTest {
-            val processingQueue =
-                ProcessingQueue<Int>(
+    fun processingQueueBuffersItems() = testScope.runTest {
+        val processingQueue =
+            ProcessingQueue<Int>(
+                capacity = 2,
+                onUnprocessedElements = unprocessElementHandler,
+            ) {}
+
+        assertThat(processingQueue.tryEmit(1)).isTrue()
+        assertThat(processingQueue.tryEmit(2)).isTrue()
+        assertThat(processingQueue.tryEmit(3)).isFalse() // Queue is full (2 items)
+    }
+
+    @Test
+    fun processInProcessesItems() = testScope.runTest {
+        val processingQueue =
+            ProcessingQueue<Int>(
                     capacity = 2,
                     onUnprocessedElements = unprocessElementHandler,
-                ) {}
+                ) {
+                    processingCalls.add(it.toMutableList())
+                    it.removeAt(0)
+                }
+                .processIn(processingScope)
 
-            assertThat(processingQueue.tryEmit(1)).isTrue()
-            assertThat(processingQueue.tryEmit(2)).isTrue()
-            assertThat(processingQueue.tryEmit(3)).isFalse() // Queue is full (2 items)
-        }
+        assertThat(processingQueue.tryEmit(1)).isTrue()
+        assertThat(processingQueue.tryEmit(2)).isTrue()
+        assertThat(processingQueue.tryEmit(3)).isFalse() // Queue is full
 
-    @Test
-    fun processInProcessesItems() =
-        testScope.runTest {
-            val processingQueue =
-                ProcessingQueue<Int>(
-                        capacity = 2,
-                        onUnprocessedElements = unprocessElementHandler,
-                    ) {
-                        processingCalls.add(it.toMutableList())
-                        it.removeAt(0)
-                    }
-                    .processIn(processingScope)
+        advanceUntilIdle() // Processing loop runs
 
-            assertThat(processingQueue.tryEmit(1)).isTrue()
-            assertThat(processingQueue.tryEmit(2)).isTrue()
-            assertThat(processingQueue.tryEmit(3)).isFalse() // Queue is full
+        // Processing loop receives [1, 2], removes 1, then is re-invoked with [2]
+        assertThat(processingCalls).containsExactly(listOf(1, 2), listOf(2))
 
-            advanceUntilIdle() // Processing loop runs
-
-            // Processing loop receives [1, 2], removes 1, then is re-invoked with [2]
-            assertThat(processingCalls).containsExactly(listOf(1, 2), listOf(2))
-
-            processingScope.cancel()
-        }
+        processingScope.cancel()
+    }
 
     @Test
-    fun processingQueueIterativelyProcessesElements() =
-        testScope.runTest {
-            val processingQueue =
-                ProcessingQueue<Int>(
-                        capacity = 2,
-                        onUnprocessedElements = unprocessElementHandler,
-                    ) {
-                        processingCalls.add(it.toMutableList())
-                        it.removeAt(0) // Mutation works
-                    }
-                    .processIn(processingScope)
+    fun processingQueueIterativelyProcessesElements() = testScope.runTest {
+        val processingQueue =
+            ProcessingQueue<Int>(
+                    capacity = 2,
+                    onUnprocessedElements = unprocessElementHandler,
+                ) {
+                    processingCalls.add(it.toMutableList())
+                    it.removeAt(0) // Mutation works
+                }
+                .processIn(processingScope)
 
-            processingQueue.tryEmit(1)
-            processingQueue.tryEmit(2)
-            advanceUntilIdle()
+        processingQueue.tryEmit(1)
+        processingQueue.tryEmit(2)
+        advanceUntilIdle()
 
-            processingQueue.tryEmit(3)
-            advanceUntilIdle()
+        processingQueue.tryEmit(3)
+        advanceUntilIdle()
 
-            processingQueue.tryEmit(4)
-            processingQueue.tryEmit(5)
-            advanceUntilIdle()
+        processingQueue.tryEmit(4)
+        processingQueue.tryEmit(5)
+        advanceUntilIdle()
 
-            // Processing loop run 5 times:
-            // [1, 2] (removes 1)
-            // [2] (removes 2)
-            // [3] (removes 3)
-            // [4, 5] (removes 4)
-            // [5] (removes 5)
-            assertThat(processingCalls)
-                .containsExactly(listOf(1, 2), listOf(2), listOf(3), listOf(4, 5), listOf(5))
+        // Processing loop run 5 times:
+        // [1, 2] (removes 1)
+        // [2] (removes 2)
+        // [3] (removes 3)
+        // [4, 5] (removes 4)
+        // [5] (removes 5)
+        assertThat(processingCalls)
+            .containsExactly(listOf(1, 2), listOf(2), listOf(3), listOf(4, 5), listOf(5))
 
-            processingScope.cancel()
-        }
-
-    @Test
-    fun processingQueueAggregatesElements() =
-        testScope.runTest {
-            val processingQueue =
-                ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
-                        processingCalls.add(it.toMutableList())
-                    }
-                    .processIn(processingScope)
-
-            processingQueue.tryEmit(1)
-            processingQueue.tryEmit(2)
-            advanceUntilIdle()
-
-            processingQueue.tryEmit(3)
-            advanceUntilIdle()
-
-            processingQueue.tryEmit(4)
-            processingQueue.tryEmit(5)
-            advanceUntilIdle()
-
-            // Processing loop does not remove anything
-            assertThat(processingCalls)
-                .containsExactly(listOf(1, 2), listOf(1, 2, 3), listOf(1, 2, 3, 4, 5))
-
-            processingScope.cancel()
-        }
+        processingScope.cancel()
+    }
 
     @Test
-    fun processInOnCanceledScopeInvokesOnUnprocessedElements() =
-        testScope.runTest {
-            val processingQueue =
-                ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
+    fun processingQueueAggregatesElements() = testScope.runTest {
+        val processingQueue =
+            ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
+                    processingCalls.add(it.toMutableList())
+                }
+                .processIn(processingScope)
+
+        processingQueue.tryEmit(1)
+        processingQueue.tryEmit(2)
+        advanceUntilIdle()
+
+        processingQueue.tryEmit(3)
+        advanceUntilIdle()
+
+        processingQueue.tryEmit(4)
+        processingQueue.tryEmit(5)
+        advanceUntilIdle()
+
+        // Processing loop does not remove anything
+        assertThat(processingCalls)
+            .containsExactly(listOf(1, 2), listOf(1, 2, 3), listOf(1, 2, 3, 4, 5))
+
+        processingScope.cancel()
+    }
+
+    @Test
+    fun processInOnCanceledScopeInvokesOnUnprocessedElements() = testScope.runTest {
+        val processingQueue =
+            ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
+                processingCalls.add(it.toMutableList())
+                it.clear()
+            }
+
+        processingQueue.tryEmit(1)
+        processingQueue.tryEmit(2)
+
+        processingScope.cancel()
+        processingQueue.processIn(processingScope)
+
+        // Processing loop does not receive anything
+        assertThat(processingCalls).isEmpty()
+        assertThat(unprocessedElements).containsExactly(listOf(1, 2))
+    }
+
+    @Test
+    fun cancellingProcessingScopeStopsProcessing() = testScope.runTest {
+        val processingQueue =
+            ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
                     processingCalls.add(it.toMutableList())
                     it.clear()
                 }
+                .processIn(processingScope)
 
-            processingQueue.tryEmit(1)
-            processingQueue.tryEmit(2)
+        processingQueue.tryEmit(1)
+        processingQueue.tryEmit(2)
+        advanceUntilIdle()
 
-            processingScope.cancel()
-            processingQueue.processIn(processingScope)
+        assertThat(processingQueue.tryEmit(3)).isTrue() // Normal
+        assertThat(processingQueue.tryEmit(4)).isTrue() // Normal
+        processingScope.cancel()
+        assertThat(processingQueue.tryEmit(5)).isTrue() // Channel hasn't been closed
+        assertThat(processingQueue.tryEmit(6)).isTrue() // Channel hasn't been closed
+        advanceUntilIdle()
 
-            // Processing loop does not receive anything
-            assertThat(processingCalls).isEmpty()
-            assertThat(unprocessedElements).containsExactly(listOf(1, 2))
-        }
+        assertThat(processingQueue.tryEmit(7)).isFalse() // fails
+        assertThat(processingQueue.tryEmit(8)).isFalse() // fails
 
-    @Test
-    fun cancellingProcessingScopeStopsProcessing() =
-        testScope.runTest {
-            val processingQueue =
-                ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
-                        processingCalls.add(it.toMutableList())
-                        it.clear()
-                    }
-                    .processIn(processingScope)
-
-            processingQueue.tryEmit(1)
-            processingQueue.tryEmit(2)
-            advanceUntilIdle()
-
-            assertThat(processingQueue.tryEmit(3)).isTrue() // Normal
-            assertThat(processingQueue.tryEmit(4)).isTrue() // Normal
-            processingScope.cancel()
-            assertThat(processingQueue.tryEmit(5)).isTrue() // Channel hasn't been closed
-            assertThat(processingQueue.tryEmit(6)).isTrue() // Channel hasn't been closed
-            advanceUntilIdle()
-
-            assertThat(processingQueue.tryEmit(7)).isFalse() // fails
-            assertThat(processingQueue.tryEmit(8)).isFalse() // fails
-
-            // Processing loop does not remove anything
-            assertThat(processingCalls).containsExactly(listOf(1, 2))
-            // Processing loop does not remove anything
-            assertThat(unprocessedElements).containsExactly(listOf(3, 4, 5, 6))
-        }
+        // Processing loop does not remove anything
+        assertThat(processingCalls).containsExactly(listOf(1, 2))
+        // Processing loop does not remove anything
+        assertThat(unprocessedElements).containsExactly(listOf(3, 4, 5, 6))
+    }
 
     @Test
-    fun longProcessingBlocksAggregateItems() =
-        testScope.runTest {
-            val processingQueue =
-                ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
-                        processingCalls.add(it.toMutableList())
-                        delay(100.milliseconds)
-                        it.clear()
-                    }
-                    .processIn(processingScope)
+    fun longProcessingBlocksAggregateItems() = testScope.runTest {
+        val processingQueue =
+            ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
+                    processingCalls.add(it.toMutableList())
+                    delay(100.milliseconds)
+                    it.clear()
+                }
+                .processIn(processingScope)
 
-            processingQueue.emitChecked(1)
-            processingQueue.emitChecked(2)
-            processingQueue.emitChecked(3)
-            advanceTimeBy(50.milliseconds) // Triggers initial processing call
+        processingQueue.emitChecked(1)
+        processingQueue.emitChecked(2)
+        processingQueue.emitChecked(3)
+        advanceTimeBy(50.milliseconds) // Triggers initial processing call
 
-            processingQueue.emitChecked(4)
-            processingQueue.emitChecked(5)
-            advanceTimeBy(25.milliseconds) // No updates, process function is still suspended
+        processingQueue.emitChecked(4)
+        processingQueue.emitChecked(5)
+        advanceTimeBy(25.milliseconds) // No updates, process function is still suspended
 
-            processingQueue.emitChecked(6)
-            advanceUntilIdle() // Last update includes all previous updates.
+        processingQueue.emitChecked(6)
+        advanceUntilIdle() // Last update includes all previous updates.
 
-            // Processing loop does not remove anything
-            assertThat(processingCalls).containsExactly(listOf(1, 2, 3), listOf(4, 5, 6))
-            processingScope.cancel()
-        }
-
-    @Test
-    fun exceptionsDuringProcessingArePropagated() =
-        testScope.runTest {
-            val processingQueue =
-                ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
-                        processingCalls.add(it.toMutableList())
-                        it.clear()
-                        delay(100.milliseconds)
-                        throw RuntimeException("Test")
-                    }
-                    .processIn(processingScope)
-
-            processingQueue.emitChecked(1)
-            processingQueue.emitChecked(2)
-            processingQueue.emitChecked(3)
-            advanceTimeBy(50.milliseconds) // Triggers initial processing call, but not exception
-
-            processingQueue.emitChecked(4)
-            processingQueue.emitChecked(5)
-            advanceUntilIdle() // Trigger exception.
-
-            assertThat(processingCalls).containsExactly(listOf(1, 2, 3))
-            assertThat(unprocessedElements).containsExactly(listOf(4, 5))
-            assertThat(lastUncaughtException).isInstanceOf(RuntimeException::class.java)
-        }
+        // Processing loop does not remove anything
+        assertThat(processingCalls).containsExactly(listOf(1, 2, 3), listOf(4, 5, 6))
+        processingScope.cancel()
+    }
 
     @Test
-    fun duplicateItemsAreNotOmitted() =
-        testScope.runTest {
-            val processingQueue =
-                ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
-                        processingCalls.add(it.toMutableList())
-                        it.clear()
-                    }
-                    .processIn(processingScope)
+    fun exceptionsDuringProcessingArePropagated() = testScope.runTest {
+        val processingQueue =
+            ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
+                    processingCalls.add(it.toMutableList())
+                    it.clear()
+                    delay(100.milliseconds)
+                    throw RuntimeException("Test")
+                }
+                .processIn(processingScope)
 
-            processingQueue.emitChecked(1)
-            processingQueue.emitChecked(1)
-            advanceUntilIdle()
-            processingQueue.emitChecked(1)
-            processingQueue.emitChecked(1)
-            processingQueue.emitChecked(1)
-            advanceUntilIdle()
+        processingQueue.emitChecked(1)
+        processingQueue.emitChecked(2)
+        processingQueue.emitChecked(3)
+        advanceTimeBy(50.milliseconds) // Triggers initial processing call, but not exception
 
-            assertThat(processingCalls).containsExactly(listOf(1, 1), listOf(1, 1, 1))
-        }
+        processingQueue.emitChecked(4)
+        processingQueue.emitChecked(5)
+        advanceUntilIdle() // Trigger exception.
+
+        assertThat(processingCalls).containsExactly(listOf(1, 2, 3))
+        assertThat(unprocessedElements).containsExactly(listOf(4, 5))
+        assertThat(lastUncaughtException).isInstanceOf(RuntimeException::class.java)
+    }
+
+    @Test
+    fun duplicateItemsAreNotOmitted() = testScope.runTest {
+        val processingQueue =
+            ProcessingQueue<Int>(onUnprocessedElements = unprocessElementHandler) {
+                    processingCalls.add(it.toMutableList())
+                    it.clear()
+                }
+                .processIn(processingScope)
+
+        processingQueue.emitChecked(1)
+        processingQueue.emitChecked(1)
+        advanceUntilIdle()
+        processingQueue.emitChecked(1)
+        processingQueue.emitChecked(1)
+        processingQueue.emitChecked(1)
+        advanceUntilIdle()
+
+        assertThat(processingCalls).containsExactly(listOf(1, 1), listOf(1, 1, 1))
+    }
 }

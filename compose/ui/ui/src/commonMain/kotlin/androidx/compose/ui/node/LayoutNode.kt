@@ -809,11 +809,10 @@ internal class LayoutNode(
         get() = layoutDelegate.height
 
     internal val alignmentLinesRequired: Boolean
-        get() =
-            layoutDelegate.run {
-                alignmentLinesOwner.alignmentLines.required ||
-                    lookaheadAlignmentLinesOwner?.alignmentLines?.required == true
-            }
+        get() = layoutDelegate.run {
+            alignmentLinesOwner.alignmentLines.required ||
+                lookaheadAlignmentLinesOwner?.alignmentLines?.required == true
+        }
 
     internal val mDrawScope: LayoutNodeDrawScope
         get() = requireOwner().sharedDrawScope

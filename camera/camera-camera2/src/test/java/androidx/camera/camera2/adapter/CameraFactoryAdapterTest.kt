@@ -116,30 +116,28 @@ class CameraFactoryAdapterTest {
     }
 
     @Test
-    fun constructor_initializesWithAllCompatibleCameras_whenNoSelector() =
-        testScope.runTest {
-            // Arrange
-            setFingerprint("fake-fingerprint") // Trigger backward compatibility filter
+    fun constructor_initializesWithAllCompatibleCameras_whenNoSelector() = testScope.runTest {
+        // Arrange
+        setFingerprint("fake-fingerprint") // Trigger backward compatibility filter
 
-            // Act
-            val factory = createCameraFactoryAdapter(null)
+        // Act
+        val factory = createCameraFactoryAdapter(null)
 
-            // Assert
-            assertThat(factory.availableCameraIds).containsExactly("0", "1", "2")
-        }
+        // Assert
+        assertThat(factory.availableCameraIds).containsExactly("0", "1", "2")
+    }
 
     @Test
-    fun constructor_initializesWithFilteredCameras_whenSelectorIsUsed() =
-        testScope.runTest {
-            // Arrange
-            setFingerprint("fake-fingerprint") // Trigger backward compatibility filter
+    fun constructor_initializesWithFilteredCameras_whenSelectorIsUsed() = testScope.runTest {
+        // Arrange
+        setFingerprint("fake-fingerprint") // Trigger backward compatibility filter
 
-            // Act
-            val factory = createCameraFactoryAdapter(CameraSelector.DEFAULT_BACK_CAMERA)
+        // Act
+        val factory = createCameraFactoryAdapter(CameraSelector.DEFAULT_BACK_CAMERA)
 
-            // Assert
-            assertThat(factory.availableCameraIds).containsExactly("0", "2")
-        }
+        // Assert
+        assertThat(factory.availableCameraIds).containsExactly("0", "2")
+    }
 
     @Test
     fun constructor_notFilterIncompatibleCameras_whenBuildFingerprintIsRobolectric() =
@@ -155,85 +153,81 @@ class CameraFactoryAdapterTest {
         }
 
     @Test
-    fun onCameraIdsUpdated_refreshesAndFiltersList() =
-        testScope.runTest {
-            // Arrange
-            setFingerprint("fake-fingerprint")
-            val factory = createCameraFactoryAdapter(null)
+    fun onCameraIdsUpdated_refreshesAndFiltersList() = testScope.runTest {
+        // Arrange
+        setFingerprint("fake-fingerprint")
+        val factory = createCameraFactoryAdapter(null)
 
-            // Assert initial state
-            assertThat(factory.availableCameraIds).containsExactly("0", "1", "2")
+        // Assert initial state
+        assertThat(factory.availableCameraIds).containsExactly("0", "1", "2")
 
-            // Act: Simulate camera "1" being removed from the system
-            factory.onCameraIdsUpdated(listOf("0", "2", "3"))
+        // Act: Simulate camera "1" being removed from the system
+        factory.onCameraIdsUpdated(listOf("0", "2", "3"))
 
-            // Assert: The list should be re-filtered. "3" is incompatible, "1" is gone.
-            assertThat(factory.availableCameraIds).containsExactly("0", "2")
-        }
-
-    @Test
-    fun onCameraIdsUpdated_appliesCameraSelectorToNewList() =
-        testScope.runTest {
-            // Arrange
-            setFingerprint("fake-fingerprint")
-            val factory = createCameraFactoryAdapter(CameraSelector.DEFAULT_BACK_CAMERA)
-
-            // Assert initial state is correct (filters by selector AND compatibility)
-            assertThat(factory.availableCameraIds).containsExactly("0", "2")
-
-            // Act: Simulate a new compatible BACK camera ("4") being added, while "1" (FRONT) is
-            // removed.
-            val metadata4 = createFakeMetadata("4", CameraCharacteristics.LENS_FACING_BACK, true)
-            fakeCameraDevices.addMetadata(metadata4) // Make the backend aware of the new camera
-            // Simulates a new list to trigger the update.
-            factory.onCameraIdsUpdated(
-                listOf(metadata0.camera, metadata2.camera, metadata3.camera, metadata4.camera).map {
-                    it.value
-                }
-            )
-
-            // Assert: The selector is re-applied. "3" is filtered out for compat.
-            assertThat(factory.availableCameraIds).containsExactly("0", "2", "4")
-        }
-
-    fun getAvailableCameraIds_previewsResult_withoutChangingState() =
-        testScope.runTest {
-            // Arrange
-            setFingerprint("fake-fingerprint")
-            val factory = createCameraFactoryAdapter(null)
-
-            // Assert initial state
-            assertThat(factory.availableCameraIds).containsExactly("0", "1", "2")
-
-            // Act: Preview a new list where camera "1" is removed.
-            val previewedIds = factory.getAvailableCameraIds(listOf("0", "2", "3"))
-
-            // Assert: The previewed list is correct.
-            assertThat(previewedIds).containsExactly("0", "2")
-            // Assert: The factory's internal state has NOT changed.
-            assertThat(factory.availableCameraIds).containsExactly("0", "1", "2")
-        }
+        // Assert: The list should be re-filtered. "3" is incompatible, "1" is gone.
+        assertThat(factory.availableCameraIds).containsExactly("0", "2")
+    }
 
     @Test
-    fun shutdown_callsShutdownOnDependencies() =
-        testScope.runTest {
-            // Arrange
-            var isShutdown = false
-            val cameraPipe =
-                object : CameraPipe by fakeCameraPipe {
-                    override fun shutdown() {
-                        isShutdown = true
-                    }
+    fun onCameraIdsUpdated_appliesCameraSelectorToNewList() = testScope.runTest {
+        // Arrange
+        setFingerprint("fake-fingerprint")
+        val factory = createCameraFactoryAdapter(CameraSelector.DEFAULT_BACK_CAMERA)
+
+        // Assert initial state is correct (filters by selector AND compatibility)
+        assertThat(factory.availableCameraIds).containsExactly("0", "2")
+
+        // Act: Simulate a new compatible BACK camera ("4") being added, while "1" (FRONT) is
+        // removed.
+        val metadata4 = createFakeMetadata("4", CameraCharacteristics.LENS_FACING_BACK, true)
+        fakeCameraDevices.addMetadata(metadata4) // Make the backend aware of the new camera
+        // Simulates a new list to trigger the update.
+        factory.onCameraIdsUpdated(
+            listOf(metadata0.camera, metadata2.camera, metadata3.camera, metadata4.camera).map {
+                it.value
+            }
+        )
+
+        // Assert: The selector is re-applied. "3" is filtered out for compat.
+        assertThat(factory.availableCameraIds).containsExactly("0", "2", "4")
+    }
+
+    fun getAvailableCameraIds_previewsResult_withoutChangingState() = testScope.runTest {
+        // Arrange
+        setFingerprint("fake-fingerprint")
+        val factory = createCameraFactoryAdapter(null)
+
+        // Assert initial state
+        assertThat(factory.availableCameraIds).containsExactly("0", "1", "2")
+
+        // Act: Preview a new list where camera "1" is removed.
+        val previewedIds = factory.getAvailableCameraIds(listOf("0", "2", "3"))
+
+        // Assert: The previewed list is correct.
+        assertThat(previewedIds).containsExactly("0", "2")
+        // Assert: The factory's internal state has NOT changed.
+        assertThat(factory.availableCameraIds).containsExactly("0", "1", "2")
+    }
+
+    @Test
+    fun shutdown_callsShutdownOnDependencies() = testScope.runTest {
+        // Arrange
+        var isShutdown = false
+        val cameraPipe =
+            object : CameraPipe by fakeCameraPipe {
+                override fun shutdown() {
+                    isShutdown = true
                 }
+            }
 
-            val factory = createCameraFactoryAdapter(null, cameraPipe)
+        val factory = createCameraFactoryAdapter(null, cameraPipe)
 
-            // Act
-            factory.shutdown()
+        // Act
+        factory.shutdown()
 
-            // Assert
-            assertThat(isShutdown).isTrue()
-        }
+        // Assert
+        assertThat(isShutdown).isTrue()
+    }
 
     private fun setFingerprint(fingerprint: String) {
         ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", fingerprint)

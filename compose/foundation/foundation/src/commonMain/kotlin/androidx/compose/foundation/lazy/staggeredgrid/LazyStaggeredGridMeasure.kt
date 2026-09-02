@@ -1078,20 +1078,19 @@ private inline fun LazyStaggeredGridMeasureContext.itemsRetainedForLookahead(
         if (approachVisibleItems != null && approachVisibleItems.isNotEmpty()) {
             // Find first item with index > end. Note that `visibleItemsInfo.last()` may not have
             // the largest index as the last few items could be added to animate item placement.
-            val firstItem =
-                approachVisibleItems.run {
-                    var found: LazyStaggeredGridItemInfo? = null
-                    for (i in size - 1 downTo 0) {
-                        if (
-                            this[i].index > lastVisibleItemIndex &&
-                                (i == 0 || this[i - 1].index <= lastVisibleItemIndex)
-                        ) {
-                            found = this[i]
-                            break
-                        }
+            val firstItem = approachVisibleItems.run {
+                var found: LazyStaggeredGridItemInfo? = null
+                for (i in size - 1 downTo 0) {
+                    if (
+                        this[i].index > lastVisibleItemIndex &&
+                            (i == 0 || this[i - 1].index <= lastVisibleItemIndex)
+                    ) {
+                        found = this[i]
+                        break
                     }
-                    found
                 }
+                found
+            }
             val lastVisibleItem = approachVisibleItems.last()
             if (firstItem != null) {
                 for (i in firstItem.index..min(lastVisibleItem.index, itemsCount - 1)) {
@@ -1475,10 +1474,9 @@ internal class LazyStaggeredGridMeasuredItem(
                     layer = null
                 }
                 if (reverseLayout) {
-                    offset =
-                        offset.copy { mainAxisOffset ->
-                            mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
-                        }
+                    offset = offset.copy { mainAxisOffset ->
+                        mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
+                    }
                 }
                 offset += contentOffset
                 if (!isLookingAhead) {

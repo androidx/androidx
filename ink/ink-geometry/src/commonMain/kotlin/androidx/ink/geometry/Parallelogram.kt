@@ -339,14 +339,13 @@ public abstract class Parallelogram internal constructor() {
         /**
          * Returns a string representation for [parallelogram] using its [Parallelogram] properties.
          */
-        internal fun string(parallelogram: Parallelogram): String =
-            parallelogram.run {
-                "Parallelogram(center=$center, " +
-                    "width=$width, " +
-                    "height=$height, " +
-                    "rotationDegrees=$rotationDegrees, " +
-                    "skew=$skew)"
-            }
+        internal fun string(parallelogram: Parallelogram): String = parallelogram.run {
+            "Parallelogram(center=$center, " +
+                "width=$width, " +
+                "height=$height, " +
+                "rotationDegrees=$rotationDegrees, " +
+                "skew=$skew)"
+        }
     }
 }
 

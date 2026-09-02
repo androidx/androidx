@@ -554,22 +554,20 @@ public class ChartScope internal constructor(public var theme: GraphTheme) {
         layers.filterIsInstance<SeriesLayer>().map { it.spec }
 
     /** True if any layer positions itself on the category axis. */
-    internal fun hasCategoricalLayers(): Boolean =
-        layers.any {
-            it is SeriesLayer || it is ErrorBarsLayer || it is BandLayer || it is CandlesLayer
-        }
+    internal fun hasCategoricalLayers(): Boolean = layers.any {
+        it is SeriesLayer || it is ErrorBarsLayer || it is BandLayer || it is CandlesLayer
+    }
 
     /** True if any layer needs a continuous numeric x axis. */
-    internal fun hasNumericLayers(): Boolean =
-        layers.any { it is PointsLayer || it is XYLineLayer || it is FitLineLayer }
+    internal fun hasNumericLayers(): Boolean = layers.any {
+        it is PointsLayer || it is XYLineLayer || it is FitLineLayer
+    }
 
     /** Whether a legend should actually render given the data and the [legend] override. */
     internal fun showLegend(): Boolean {
-        val named =
-            layers.count {
-                (it is SeriesLayer && it.spec.name != null) ||
-                    (it is PointsLayer && it.name != null)
-            }
+        val named = layers.count {
+            (it is SeriesLayer && it.spec.name != null) || (it is PointsLayer && it.name != null)
+        }
         return !bare && (legend ?: (named > 1))
     }
 }

@@ -213,22 +213,21 @@ class SimpleActorTest {
             val senderScope =
                 CoroutineScope(Job() + Executors.newFixedThreadPool(4).asCoroutineDispatcher())
 
-            val sender =
-                senderScope.async {
-                    repeat(500) {
-                        launch {
-                            try {
-                                val msg = CompletableDeferred<Unit>()
-                                // If `offer` doesn't throw CancellationException, the msg must be
-                                // processed.
-                                actor.offer(msg)
-                                msg.await() // This must complete even though we've completed.
-                            } catch (canceled: CancellationException) {
-                                // This is OK.
-                            }
+            val sender = senderScope.async {
+                repeat(500) {
+                    launch {
+                        try {
+                            val msg = CompletableDeferred<Unit>()
+                            // If `offer` doesn't throw CancellationException, the msg must be
+                            // processed.
+                            actor.offer(msg)
+                            msg.await() // This must complete even though we've completed.
+                        } catch (canceled: CancellationException) {
+                            // This is OK.
                         }
                     }
                 }
+            }
 
             actorScope.coroutineContext.job.cancelAndJoin()
             sender.await()

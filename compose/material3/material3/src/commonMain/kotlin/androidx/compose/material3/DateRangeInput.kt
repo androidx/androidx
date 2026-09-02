@@ -104,7 +104,8 @@ internal fun DateRangeInputContent(
             label = {
                 Text(
                     endRangeText,
-                    modifier = Modifier.semantics { contentDescription = "$endRangeText, $pattern" },
+                    modifier =
+                        Modifier.semantics { contentDescription = "$endRangeText, $pattern" },
                 )
             },
             placeholder = { Text(pattern, modifier = Modifier.clearAndSetSemantics {}) },

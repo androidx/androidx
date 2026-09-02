@@ -81,10 +81,9 @@ class MainDispatcherCheckerTest {
             executor = newExecutorService()
         }
 
-        private fun newExecutorService(): ExecutorService =
-            Executors.newSingleThreadExecutor {
-                thread = Thread(it)
-                thread
-            }
+        private fun newExecutorService(): ExecutorService = Executors.newSingleThreadExecutor {
+            thread = Thread(it)
+            thread
+        }
     }
 }

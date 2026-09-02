@@ -289,33 +289,34 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
             }
         }
 
-        fun List<Dependency>.asBuildInfoDependencies() =
-            filter { it.group.isAndroidXDependency() }
-                .map {
-                    LibraryBuildInfoFile.Dependency().apply {
-                        this.artifactId = it.name
-                        this.groupId = it.group!!
-                        this.version = it.version!!
-                        this.isTipOfTree =
-                            it is ProjectDependency || it is BuildInfoVariantDependency
-                    }
+        fun List<Dependency>.asBuildInfoDependencies() = filter {
+            it.group.isAndroidXDependency()
+        }
+            .map {
+                LibraryBuildInfoFile.Dependency().apply {
+                    this.artifactId = it.name
+                    this.groupId = it.group!!
+                    this.version = it.version!!
+                    this.isTipOfTree = it is ProjectDependency || it is BuildInfoVariantDependency
                 }
-                .toHashSet()
-                .sortedWith(compareBy({ it.groupId }, { it.artifactId }, { it.version }))
+            }
+            .toHashSet()
+            .sortedWith(compareBy({ it.groupId }, { it.artifactId }, { it.version }))
 
         @JvmName("dependencyConstraintsasBuildInfoDependencies")
-        fun List<DependencyConstraint>.asBuildInfoDependencies() =
-            filter { it.group.isAndroidXDependency() }
-                .map {
-                    LibraryBuildInfoFile.Dependency().apply {
-                        this.artifactId = it.name
-                        this.groupId = it.group
-                        this.version = it.version!!
-                        this.isTipOfTree = it is DefaultProjectDependencyConstraint
-                    }
+        fun List<DependencyConstraint>.asBuildInfoDependencies() = filter {
+            it.group.isAndroidXDependency()
+        }
+            .map {
+                LibraryBuildInfoFile.Dependency().apply {
+                    this.artifactId = it.name
+                    this.groupId = it.group
+                    this.version = it.version!!
+                    this.isTipOfTree = it is DefaultProjectDependencyConstraint
                 }
-                .toHashSet()
-                .sortedWith(compareBy({ it.groupId }, { it.artifactId }, { it.version }))
+            }
+            .toHashSet()
+            .sortedWith(compareBy({ it.groupId }, { it.artifactId }, { it.version }))
 
         private fun String?.isAndroidXDependency() =
             this != null &&
@@ -366,8 +367,9 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
 private fun createBuildTargetProvider(
     hasApplePlatform: Boolean,
     crossCompilationEnabled: Provider<Boolean>,
-): Provider<String> =
-    crossCompilationEnabled.map { enabled -> computeBuildTarget(hasApplePlatform, enabled) }
+): Provider<String> = crossCompilationEnabled.map { enabled ->
+    computeBuildTarget(hasApplePlatform, enabled)
+}
 
 /**
  * Selects the build target for a project based on whether it targets an Apple platform and whether
@@ -602,5 +604,6 @@ fun computeTaskSuffix(variantName: String, isKmp: Boolean) =
  * @return true if any [PlatformIdentifier]s targets an Apple platform, false otherwise
  */
 @VisibleForTesting
-fun hasApplePlatform(supportedPlatforms: Set<PlatformIdentifier>) =
-    supportedPlatforms.any { it.group == PlatformGroup.MAC }
+fun hasApplePlatform(supportedPlatforms: Set<PlatformIdentifier>) = supportedPlatforms.any {
+    it.group == PlatformGroup.MAC
+}

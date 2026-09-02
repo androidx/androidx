@@ -145,17 +145,16 @@ class MlKitOcrProviderTest {
 
     private fun createMockElement(word: String, rect: Rect): Text.Element {
         val charWidth = if (word.isNotEmpty()) rect.width() / word.length else 0
-        val symbols =
-            word.mapIndexed { index, char ->
-                val symbolRect =
-                    Rect(
-                        rect.left + index * charWidth,
-                        rect.top,
-                        rect.left + (index + 1) * charWidth,
-                        rect.bottom,
-                    )
-                createMockSymbol(char.toString(), symbolRect)
-            }
+        val symbols = word.mapIndexed { index, char ->
+            val symbolRect =
+                Rect(
+                    rect.left + index * charWidth,
+                    rect.top,
+                    rect.left + (index + 1) * charWidth,
+                    rect.bottom,
+                )
+            createMockSymbol(char.toString(), symbolRect)
+        }
         return mock<Text.Element>().apply {
             whenever(text).thenReturn(word)
             whenever(boundingBox).thenReturn(rect)

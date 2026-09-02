@@ -37,9 +37,10 @@ class SupportSQLiteQueryBuilderTest {
 
     @Test
     fun null_groupBy_and_having_throws_error() {
-        val error =
-            assertFails { SupportSQLiteQueryBuilder.builder("Books").having(">100").create() }
-                .message
+        val error = assertFails {
+            SupportSQLiteQueryBuilder.builder("Books").having(">100").create()
+        }
+            .message
         assertThat(error).isEqualTo("HAVING clauses are only permitted when using a groupBy clause")
     }
 

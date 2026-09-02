@@ -34,10 +34,9 @@ internal constructor(
             dispatcher ?: coroutineContext[ContinuationInterceptor] as? AndroidUiDispatcher
         return suspendCancellableCoroutine { co ->
             // Important: this callback won't throw, and AndroidUiDispatcher counts on it.
-            val callback =
-                Choreographer.FrameCallback { frameTimeNanos ->
-                    co.resumeWith(runCatching { onFrame(frameTimeNanos) })
-                }
+            val callback = Choreographer.FrameCallback { frameTimeNanos ->
+                co.resumeWith(runCatching { onFrame(frameTimeNanos) })
+            }
 
             // If we're on an AndroidUiDispatcher then we post callback to happen *after*
             // the greedy trampoline dispatch is complete.

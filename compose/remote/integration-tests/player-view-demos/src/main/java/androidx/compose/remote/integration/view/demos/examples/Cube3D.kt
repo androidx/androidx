@@ -98,7 +98,9 @@ fun cube3d(platform: RcPlatformServices = AndroidxRcPlatformServices()): RemoteC
     addHeaderParam(Header.DOC_DESIRED_FPS, 120)
     addHeaderParam(
         Header.DOC_PROFILES,
-        RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_WIDGETS or RcProfiles.PROFILE_EXPERIMENTAL,
+        RcProfiles.PROFILE_ANDROIDX or
+            RcProfiles.PROFILE_WIDGETS or
+            RcProfiles.PROFILE_EXPERIMENTAL,
     )
     addHeaderParam(Header.DEBUG, 0)
 

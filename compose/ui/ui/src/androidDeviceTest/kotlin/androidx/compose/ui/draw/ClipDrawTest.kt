@@ -258,7 +258,8 @@ class ClipDrawTest {
         rule.setContent {
             AtLeastSize(
                 size = 30,
-                modifier = Modifier.fillColor(Color.Green).clip(triangleShape).fillColor(Color.Cyan),
+                modifier =
+                    Modifier.fillColor(Color.Green).clip(triangleShape).fillColor(Color.Cyan),
             ) {}
         }
 
@@ -382,11 +383,10 @@ class ClipDrawTest {
             )
         }
 
-        val clip =
-            Modifier.graphicsLayer {
-                shape = model.value
-                clip = true
-            }
+        val clip = Modifier.graphicsLayer {
+            shape = model.value
+            clip = true
+        }
 
         rule.setContent {
             AtLeastSize(
@@ -430,11 +430,10 @@ class ClipDrawTest {
             )
         }
 
-        val clip =
-            Modifier.graphicsLayer {
-                shape = observableShape
-                clip = true
-            }
+        val clip = Modifier.graphicsLayer {
+            shape = observableShape
+            clip = true
+        }
 
         rule.setContent {
             AtLeastSize(
@@ -483,11 +482,10 @@ class ClipDrawTest {
             )
         }
 
-        val clip =
-            Modifier.graphicsLayer {
-                shape = observableShape
-                clip = true
-            }
+        val clip = Modifier.graphicsLayer {
+            shape = observableShape
+            clip = true
+        }
 
         rule.setContent {
             AtLeastSize(

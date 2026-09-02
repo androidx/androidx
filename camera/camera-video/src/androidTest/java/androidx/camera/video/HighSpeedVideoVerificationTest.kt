@@ -96,28 +96,27 @@ class HighSpeedVideoVerificationTest(
         @Parameterized.Parameters(
             name = "quality={7}, captureFrameRate={8}, config={1}, lensFacing={3}, dynamicRange={5}"
         )
-        fun data(): List<Array<Any?>> =
-            cameraConfigs.flatMap { (cameraConfigName, cameraConfig) ->
-                cameraSelectors.flatMap { cameraSelector ->
-                    dynamicRanges.flatMap { (dynamicRangeName, dynamicRange) ->
-                        qualities.flatMap { quality ->
-                            captureFrameRates.map { captureFrameRate ->
-                                arrayOf(
-                                    cameraConfig,
-                                    cameraConfigName,
-                                    cameraSelector,
-                                    cameraSelector.lensFacing,
-                                    dynamicRange,
-                                    dynamicRangeName,
-                                    quality,
-                                    (quality as Quality.ConstantQuality).name,
-                                    captureFrameRate,
-                                )
-                            }
+        fun data(): List<Array<Any?>> = cameraConfigs.flatMap { (cameraConfigName, cameraConfig) ->
+            cameraSelectors.flatMap { cameraSelector ->
+                dynamicRanges.flatMap { (dynamicRangeName, dynamicRange) ->
+                    qualities.flatMap { quality ->
+                        captureFrameRates.map { captureFrameRate ->
+                            arrayOf(
+                                cameraConfig,
+                                cameraConfigName,
+                                cameraSelector,
+                                cameraSelector.lensFacing,
+                                dynamicRange,
+                                dynamicRangeName,
+                                quality,
+                                (quality as Quality.ConstantQuality).name,
+                                captureFrameRate,
+                            )
                         }
                     }
                 }
             }
+        }
     }
 
     @get:Rule

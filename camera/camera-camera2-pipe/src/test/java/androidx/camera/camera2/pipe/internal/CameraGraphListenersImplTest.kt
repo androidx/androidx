@@ -82,181 +82,173 @@ class CameraGraphListenersImplTest {
     private val request2 = Request(listOf(StreamId(1)), listeners = listOf(requestListener))
 
     @Test
-    fun add_requestContainsBothGraphAndAddedListeners() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp)
-            graphProcessor.repeatingRequest = request
-            val newListener: Request.Listener = mock()
+    fun add_requestContainsBothGraphAndAddedListeners() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp)
+        graphProcessor.repeatingRequest = request
+        val newListener: Request.Listener = mock()
 
-            val listeners =
-                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
-            listeners.add(newListener)
-            advanceUntilIdle()
+        val listeners =
+            CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+        listeners.add(newListener)
+        advanceUntilIdle()
 
-            assertThat(csp.events.size).isEqualTo(2)
-            assertThat(csp.events[1].isRepeating).isTrue()
-            assertThat(csp.events[1].listeners.size).isEqualTo(2)
-            assertThat(csp.events[1].listeners).contains(graphListener)
-            assertThat(csp.events[1].listeners).contains(newListener)
-        }
-
-    @Test
-    fun add_requestAndAddedListenerReceiveCallbacks() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp)
-            graphProcessor.repeatingRequest = request
-            val newListener: Request.Listener = mock()
-            advanceUntilIdle()
-
-            val listeners =
-                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
-            listeners.add(newListener)
-            advanceUntilIdle()
-
-            // The request should be invalidated when there's a listener change, trigger a new
-            // callback.
-            verify(requestListener, times(2)).onRequestSequenceCreated(any())
-            verify(newListener, times(1)).onRequestSequenceCreated(any())
-        }
+        assertThat(csp.events.size).isEqualTo(2)
+        assertThat(csp.events[1].isRepeating).isTrue()
+        assertThat(csp.events[1].listeners.size).isEqualTo(2)
+        assertThat(csp.events[1].listeners).contains(graphListener)
+        assertThat(csp.events[1].listeners).contains(newListener)
+    }
 
     @Test
-    fun multipleAdd_receiveCallbacks() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp)
-            graphProcessor.repeatingRequest = request
-            val newListener1: Request.Listener = mock()
-            val newListener2: Request.Listener = mock()
-            val newListener3: Request.Listener = mock()
-            advanceUntilIdle()
+    fun add_requestAndAddedListenerReceiveCallbacks() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp)
+        graphProcessor.repeatingRequest = request
+        val newListener: Request.Listener = mock()
+        advanceUntilIdle()
 
-            val listeners =
-                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
-            listeners.add(newListener1)
-            advanceUntilIdle()
-            listeners.addAll(listOf(newListener2, newListener3))
-            advanceUntilIdle()
+        val listeners =
+            CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+        listeners.add(newListener)
+        advanceUntilIdle()
 
-            verify(requestListener, times(3)).onRequestSequenceCreated(any())
-            verify(newListener1, times(2)).onRequestSequenceCreated(any())
-            verify(newListener2, times(1)).onRequestSequenceCreated(any())
-            verify(newListener3, times(1)).onRequestSequenceCreated(any())
-        }
+        // The request should be invalidated when there's a listener change, trigger a new
+        // callback.
+        verify(requestListener, times(2)).onRequestSequenceCreated(any())
+        verify(newListener, times(1)).onRequestSequenceCreated(any())
+    }
 
     @Test
-    fun remove_noLongerReceiveCallback() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp)
-            graphProcessor.repeatingRequest = request
-            val newListener1: Request.Listener = mock()
-            val newListener2: Request.Listener = mock()
-            advanceUntilIdle()
+    fun multipleAdd_receiveCallbacks() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp)
+        graphProcessor.repeatingRequest = request
+        val newListener1: Request.Listener = mock()
+        val newListener2: Request.Listener = mock()
+        val newListener3: Request.Listener = mock()
+        advanceUntilIdle()
 
-            val listeners =
-                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
-            listeners.addAll(listOf(newListener1, newListener2))
-            advanceUntilIdle()
-            listeners.remove(newListener2)
-            advanceUntilIdle()
+        val listeners =
+            CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+        listeners.add(newListener1)
+        advanceUntilIdle()
+        listeners.addAll(listOf(newListener2, newListener3))
+        advanceUntilIdle()
 
-            // The request should be invalidated when there's a listener change, trigger a new
-            // callback.
-            verify(requestListener, times(3)).onRequestSequenceCreated(any())
-            verify(newListener1, times(2)).onRequestSequenceCreated(any())
-            // Removed listener no longer receive callbacks.
-            verify(newListener2, times(1)).onRequestSequenceCreated(any())
-        }
+        verify(requestListener, times(3)).onRequestSequenceCreated(any())
+        verify(newListener1, times(2)).onRequestSequenceCreated(any())
+        verify(newListener2, times(1)).onRequestSequenceCreated(any())
+        verify(newListener3, times(1)).onRequestSequenceCreated(any())
+    }
 
     @Test
-    fun multipleRemove_noLongerReceiveCallbacks() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp)
-            graphProcessor.repeatingRequest = request
-            val newListener1: Request.Listener = mock()
-            val newListener2: Request.Listener = mock()
-            val newListener3: Request.Listener = mock()
-            advanceUntilIdle()
+    fun remove_noLongerReceiveCallback() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp)
+        graphProcessor.repeatingRequest = request
+        val newListener1: Request.Listener = mock()
+        val newListener2: Request.Listener = mock()
+        advanceUntilIdle()
 
-            val listeners =
-                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
-            listeners.addAll(listOf(newListener1, newListener2, newListener3))
-            advanceUntilIdle()
-            listeners.remove(newListener1)
-            advanceUntilIdle()
-            listeners.removeAll(listOf(newListener1, newListener2))
-            advanceUntilIdle()
+        val listeners =
+            CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+        listeners.addAll(listOf(newListener1, newListener2))
+        advanceUntilIdle()
+        listeners.remove(newListener2)
+        advanceUntilIdle()
 
-            verify(requestListener, times(4)).onRequestSequenceCreated(any())
-            verify(newListener1, times(1)).onRequestSequenceCreated(any())
-            verify(newListener2, times(2)).onRequestSequenceCreated(any())
-            verify(newListener3, times(3)).onRequestSequenceCreated(any())
-        }
+        // The request should be invalidated when there's a listener change, trigger a new
+        // callback.
+        verify(requestListener, times(3)).onRequestSequenceCreated(any())
+        verify(newListener1, times(2)).onRequestSequenceCreated(any())
+        // Removed listener no longer receive callbacks.
+        verify(newListener2, times(1)).onRequestSequenceCreated(any())
+    }
 
     @Test
-    fun updateRequest_listenersContinueToReceiveCallbacks() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp)
-            graphProcessor.repeatingRequest = request // Initial request
-            val newListener: Request.Listener = mock()
-            advanceUntilIdle()
+    fun multipleRemove_noLongerReceiveCallbacks() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp)
+        graphProcessor.repeatingRequest = request
+        val newListener1: Request.Listener = mock()
+        val newListener2: Request.Listener = mock()
+        val newListener3: Request.Listener = mock()
+        advanceUntilIdle()
 
-            val listeners =
-                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
-            listeners.add(newListener)
-            advanceUntilIdle()
+        val listeners =
+            CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+        listeners.addAll(listOf(newListener1, newListener2, newListener3))
+        advanceUntilIdle()
+        listeners.remove(newListener1)
+        advanceUntilIdle()
+        listeners.removeAll(listOf(newListener1, newListener2))
+        advanceUntilIdle()
 
-            // Update to a new request
-            graphProcessor.repeatingRequest = request2
-            advanceUntilIdle()
-
-            // requestListener: initial(1) + addListener(2) + updateRequest(3)
-            verify(requestListener, times(3)).onRequestSequenceCreated(any())
-            // newListener: addListener(1) + updateRequest(2)
-            verify(newListener, times(2)).onRequestSequenceCreated(any())
-        }
-
-    @Test
-    fun addExistingListener_doesNotTriggerUpdate() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp)
-            graphProcessor.repeatingRequest = request
-            val newListener: Request.Listener = mock()
-            advanceUntilIdle()
-
-            val listeners =
-                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
-
-            listeners.add(newListener)
-            advanceUntilIdle()
-
-            // Baseline verification
-            verify(requestListener, times(2)).onRequestSequenceCreated(any())
-            verify(newListener, times(1)).onRequestSequenceCreated(any())
-
-            // Add the same listener again
-            listeners.add(newListener)
-            advanceUntilIdle()
-
-            // Call counts should not increase because modified is false
-            verify(requestListener, times(2)).onRequestSequenceCreated(any())
-            verify(newListener, times(1)).onRequestSequenceCreated(any())
-        }
+        verify(requestListener, times(4)).onRequestSequenceCreated(any())
+        verify(newListener1, times(1)).onRequestSequenceCreated(any())
+        verify(newListener2, times(2)).onRequestSequenceCreated(any())
+        verify(newListener3, times(3)).onRequestSequenceCreated(any())
+    }
 
     @Test
-    fun removeNonExistentListener_doesNotTriggerUpdate() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp)
-            graphProcessor.repeatingRequest = request
-            val newListener: Request.Listener = mock()
-            advanceUntilIdle()
+    fun updateRequest_listenersContinueToReceiveCallbacks() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp)
+        graphProcessor.repeatingRequest = request // Initial request
+        val newListener: Request.Listener = mock()
+        advanceUntilIdle()
 
-            val listeners =
-                CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+        val listeners =
+            CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+        listeners.add(newListener)
+        advanceUntilIdle()
 
-            // Remove a listener that was never added
-            listeners.remove(newListener)
-            advanceUntilIdle()
+        // Update to a new request
+        graphProcessor.repeatingRequest = request2
+        advanceUntilIdle()
 
-            // Call count should remain 1 (from the initial graph start)
-            verify(requestListener, times(1)).onRequestSequenceCreated(any())
-        }
+        // requestListener: initial(1) + addListener(2) + updateRequest(3)
+        verify(requestListener, times(3)).onRequestSequenceCreated(any())
+        // newListener: addListener(1) + updateRequest(2)
+        verify(newListener, times(2)).onRequestSequenceCreated(any())
+    }
+
+    @Test
+    fun addExistingListener_doesNotTriggerUpdate() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp)
+        graphProcessor.repeatingRequest = request
+        val newListener: Request.Listener = mock()
+        advanceUntilIdle()
+
+        val listeners =
+            CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+
+        listeners.add(newListener)
+        advanceUntilIdle()
+
+        // Baseline verification
+        verify(requestListener, times(2)).onRequestSequenceCreated(any())
+        verify(newListener, times(1)).onRequestSequenceCreated(any())
+
+        // Add the same listener again
+        listeners.add(newListener)
+        advanceUntilIdle()
+
+        // Call counts should not increase because modified is false
+        verify(requestListener, times(2)).onRequestSequenceCreated(any())
+        verify(newListener, times(1)).onRequestSequenceCreated(any())
+    }
+
+    @Test
+    fun removeNonExistentListener_doesNotTriggerUpdate() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp)
+        graphProcessor.repeatingRequest = request
+        val newListener: Request.Listener = mock()
+        advanceUntilIdle()
+
+        val listeners =
+            CameraGraphRequestListenersImpl(GraphSessionLock(), graphProcessor, testScope)
+
+        // Remove a listener that was never added
+        listeners.remove(newListener)
+        advanceUntilIdle()
+
+        // Call count should remain 1 (from the initial graph start)
+        verify(requestListener, times(1)).onRequestSequenceCreated(any())
+    }
 }

@@ -348,43 +348,41 @@ class ConstraintLayoutDslDetector : Detector(), SourceCodeScanner {
                         }
                     }
 
-                val resolvedChainLikeConstraintsPerNode =
-                    chainNodes.map {
-                        if (it.hasChainParams) {
-                            emptyList()
-                        } else {
-                            findChainLikeConstraints(containingBlock, it, isHorizontal)
-                        }
+                val resolvedChainLikeConstraintsPerNode = chainNodes.map {
+                    if (it.hasChainParams) {
+                        emptyList()
+                    } else {
+                        findChainLikeConstraints(containingBlock, it, isHorizontal)
                     }
+                }
                 resolvedChainLikeConstraintsPerNode.forEachIndexed { index, chainLikeExpressions ->
                     val chainParamsBuilder = ChainParamsMethodBuilder()
-                    val removeLinkToFixes =
-                        chainLikeExpressions.map { resolvedExpression ->
-                            resolvedExpression.marginExpression?.let {
-                                chainParamsBuilder.append(
-                                    resolvedExpression.marginParamName,
-                                    resolvedExpression.marginExpression,
-                                )
-                            }
-                            resolvedExpression.marginGoneExpression?.let {
-                                chainParamsBuilder.append(
-                                    resolvedExpression.marginGoneParamName,
-                                    resolvedExpression.marginGoneExpression,
-                                )
-                            }
-                            val expressionToDelete =
-                                resolvedExpression.fullExpression.getParentOfType<
-                                    UQualifiedReferenceExpression
-                                >()
-                            LintFix.create()
-                                .replace()
-                                .name("Remove conflicting `linkTo` declaration.")
-                                .range(context.getLocation(expressionToDelete))
-                                .all()
-                                .with("")
-                                .autoFix()
-                                .build()
+                    val removeLinkToFixes = chainLikeExpressions.map { resolvedExpression ->
+                        resolvedExpression.marginExpression?.let {
+                            chainParamsBuilder.append(
+                                resolvedExpression.marginParamName,
+                                resolvedExpression.marginExpression,
+                            )
                         }
+                        resolvedExpression.marginGoneExpression?.let {
+                            chainParamsBuilder.append(
+                                resolvedExpression.marginGoneParamName,
+                                resolvedExpression.marginGoneExpression,
+                            )
+                        }
+                        val expressionToDelete =
+                            resolvedExpression.fullExpression.getParentOfType<
+                                UQualifiedReferenceExpression
+                            >()
+                        LintFix.create()
+                            .replace()
+                            .name("Remove conflicting `linkTo` declaration.")
+                            .range(context.getLocation(expressionToDelete))
+                            .all()
+                            .with("")
+                            .autoFix()
+                            .build()
+                    }
                     val chainNode = chainNodes[index]
                     if (!chainParamsBuilder.isEmpty() && removeLinkToFixes.isNotEmpty()) {
                         context.report(

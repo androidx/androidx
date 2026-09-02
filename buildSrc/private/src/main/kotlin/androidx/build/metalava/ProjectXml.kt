@@ -41,34 +41,32 @@ internal object ProjectXml {
     ) {
         // Compute the files for each source set initially so they can be checked multiple times
         // without recomputing.
-        val sourceSetFiles =
-            sourceSets.associate { sourceSet ->
-                sourceSet.sourceSetName to sourceFiles(sourceSet.sourcePaths)
-            }
+        val sourceSetFiles = sourceSets.associate { sourceSet ->
+            sourceSet.sourceSetName to sourceFiles(sourceSet.sourcePaths)
+        }
         val updatedSourceSets = filterSourceSets(updateDependsOn(sourceSets), sourceSetFiles)
-        val sourceSetElements =
-            updatedSourceSets.map { sourceSet ->
-                val sourceSetDependencies = sourceSet.dependencyClasspath.files
-                // Include Android jars only for JVM and Android source sets (they are needed for
-                // JVM because they provide the java standard libraries).
-                val allDependencies =
-                    if (
-                        KotlinPlatformType.jvm in sourceSet.kotlinPlatforms ||
-                            KotlinPlatformType.androidJvm in sourceSet.kotlinPlatforms
-                    ) {
-                        sourceSetDependencies + bootClasspath
-                    } else {
-                        sourceSetDependencies
-                    }
-                createSourceSetElement(
-                    sourceSet.sourceSetName,
-                    sourceSet.dependsOnSourceSets,
-                    sourceSetFiles[sourceSet.sourceSetName]!!,
-                    allDependencies,
-                    compiledSourceJar,
-                    sourceSet.kotlinPlatforms,
-                )
-            }
+        val sourceSetElements = updatedSourceSets.map { sourceSet ->
+            val sourceSetDependencies = sourceSet.dependencyClasspath.files
+            // Include Android jars only for JVM and Android source sets (they are needed for
+            // JVM because they provide the java standard libraries).
+            val allDependencies =
+                if (
+                    KotlinPlatformType.jvm in sourceSet.kotlinPlatforms ||
+                        KotlinPlatformType.androidJvm in sourceSet.kotlinPlatforms
+                ) {
+                    sourceSetDependencies + bootClasspath
+                } else {
+                    sourceSetDependencies
+                }
+            createSourceSetElement(
+                sourceSet.sourceSetName,
+                sourceSet.dependsOnSourceSets,
+                sourceSetFiles[sourceSet.sourceSetName]!!,
+                allDependencies,
+                compiledSourceJar,
+                sourceSet.kotlinPlatforms,
+            )
+        }
         val projectElement = createProjectElement(sourceSetElements)
         writeXml(projectElement, outputFile.writer())
     }

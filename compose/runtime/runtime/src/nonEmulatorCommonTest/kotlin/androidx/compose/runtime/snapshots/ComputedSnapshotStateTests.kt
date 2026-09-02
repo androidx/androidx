@@ -210,11 +210,10 @@ class ComputedSnapshotStateTests {
 
         var readCount = 0
         val readStates = mutableSetOf<Any>()
-        val snapshot =
-            Snapshot.takeSnapshot {
-                readCount++
-                readStates.add(it)
-            }
+        val snapshot = Snapshot.takeSnapshot {
+            readCount++
+            readStates.add(it)
+        }
         try {
             val result = snapshot.enter { computed.value }
 

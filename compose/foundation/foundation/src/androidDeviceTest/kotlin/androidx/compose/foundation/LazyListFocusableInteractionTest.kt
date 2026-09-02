@@ -265,7 +265,9 @@ class LazyListFocusableInteractionTest(private val orientation: Orientation) {
                             }
                         },
                         modifier =
-                            Modifier.testTag(focusableTag).size(20.toDp()).border(1.dp, Color.White),
+                            Modifier.testTag(focusableTag)
+                                .size(20.toDp())
+                                .border(1.dp, Color.White),
                     )
                 }
             }

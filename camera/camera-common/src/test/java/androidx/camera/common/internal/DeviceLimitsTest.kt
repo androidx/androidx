@@ -33,15 +33,14 @@ class DeviceLimitsTest {
 
     @Test
     fun build_withAllFields_succeeds() {
-        val deviceLimits =
-            DeviceLimits.build {
-                maxPreviewSize = Size(1920, 1080)
-                maxRecordSize = Size(3840, 2160)
-                maxOutputSizes = mapOf(ImageFormat.YUV_420_888 to Size(4000, 3000))
-                maxOutputSizes4by3 = mapOf(ImageFormat.YUV_420_888 to Size(4000, 3000))
-                maxOutputSizes16by9 = mapOf(ImageFormat.YUV_420_888 to Size(3840, 2160))
-                maxUltraOutputSizes = mapOf(ImageFormat.YUV_420_888 to Size(8000, 6000))
-            }
+        val deviceLimits = DeviceLimits.build {
+            maxPreviewSize = Size(1920, 1080)
+            maxRecordSize = Size(3840, 2160)
+            maxOutputSizes = mapOf(ImageFormat.YUV_420_888 to Size(4000, 3000))
+            maxOutputSizes4by3 = mapOf(ImageFormat.YUV_420_888 to Size(4000, 3000))
+            maxOutputSizes16by9 = mapOf(ImageFormat.YUV_420_888 to Size(3840, 2160))
+            maxUltraOutputSizes = mapOf(ImageFormat.YUV_420_888 to Size(8000, 6000))
+        }
 
         assertThat(deviceLimits.maxPreviewSize).isEqualTo(Size(1920, 1080))
         assertThat(deviceLimits.maxRecordSize).isEqualTo(Size(3840, 2160))
@@ -89,25 +88,23 @@ class DeviceLimitsTest {
 
     @Test
     fun build_missingMaxOutputSizes4by3_defaultsToEmpty() {
-        val deviceLimits =
-            DeviceLimits.build {
-                maxPreviewSize = Size(1920, 1080)
-                maxRecordSize = Size(3840, 2160)
-                maxOutputSizes = mapOf(ImageFormat.YUV_420_888 to Size(4000, 3000))
-                maxOutputSizes16by9 = emptyMap()
-            }
+        val deviceLimits = DeviceLimits.build {
+            maxPreviewSize = Size(1920, 1080)
+            maxRecordSize = Size(3840, 2160)
+            maxOutputSizes = mapOf(ImageFormat.YUV_420_888 to Size(4000, 3000))
+            maxOutputSizes16by9 = emptyMap()
+        }
         assertThat(deviceLimits.maxOutputSizes4by3).isEmpty()
     }
 
     @Test
     fun build_missingMaxOutputSizes16by9_defaultsToEmpty() {
-        val deviceLimits =
-            DeviceLimits.build {
-                maxPreviewSize = Size(1920, 1080)
-                maxRecordSize = Size(3840, 2160)
-                maxOutputSizes = mapOf(ImageFormat.YUV_420_888 to Size(4000, 3000))
-                maxOutputSizes4by3 = emptyMap()
-            }
+        val deviceLimits = DeviceLimits.build {
+            maxPreviewSize = Size(1920, 1080)
+            maxRecordSize = Size(3840, 2160)
+            maxOutputSizes = mapOf(ImageFormat.YUV_420_888 to Size(4000, 3000))
+            maxOutputSizes4by3 = emptyMap()
+        }
         assertThat(deviceLimits.maxOutputSizes16by9).isEmpty()
     }
 

@@ -228,10 +228,9 @@ class MultiMeasureCompositionTest {
                 .maxOf { it.width }
 
         // Remeasure, assign the maxWrapWidth to every child
-        val placeables =
-            measurables.map {
-                it.measure(constraints.copy(minWidth = maxWrapWidth, minHeight = height))
-            }
+        val placeables = measurables.map {
+            it.measure(constraints.copy(minWidth = maxWrapWidth, minHeight = height))
+        }
 
         // Wrap the layout height to the content in a column
         var layoutHeight = 0

@@ -154,105 +154,104 @@ class InCallServiceImpl : LocalIcsBinder, InCallServiceCompat() {
     override fun onCallAdded(call: Call?) {
         if (call == null) return
         var callJob: Job? = null
-        callJob =
-            lifecycleScope.launch {
-                connectExtensions(call) {
-                    val participantsEmitter = ParticipantExtensionDataEmitter()
-                    val participantExtension =
-                        addParticipantExtension(
-                            onActiveParticipantChanged =
-                                participantsEmitter::onActiveParticipantChanged,
-                            onParticipantsUpdated = participantsEmitter::onParticipantsChanged,
-                        )
-
-                    val meetingSummaryEmitter = MeetingSummaryExtensionDataEmitter()
-                    addMeetingSummaryExtension(
-                        onCurrentSpeakerChanged = meetingSummaryEmitter::onCurrentSpeakerChanged,
-                        onParticipantCountChanged = meetingSummaryEmitter::onParticipantCountChanged,
+        callJob = lifecycleScope.launch {
+            connectExtensions(call) {
+                val participantsEmitter = ParticipantExtensionDataEmitter()
+                val participantExtension =
+                    addParticipantExtension(
+                        onActiveParticipantChanged =
+                            participantsEmitter::onActiveParticipantChanged,
+                        onParticipantsUpdated = participantsEmitter::onParticipantsChanged,
                     )
 
-                    val kickParticipantDataEmitter = KickParticipantDataEmitter()
-                    val kickParticipantAction = participantExtension.addKickParticipantAction()
+                val meetingSummaryEmitter = MeetingSummaryExtensionDataEmitter()
+                addMeetingSummaryExtension(
+                    onCurrentSpeakerChanged = meetingSummaryEmitter::onCurrentSpeakerChanged,
+                    onParticipantCountChanged = meetingSummaryEmitter::onParticipantCountChanged,
+                )
 
-                    val raiseHandDataEmitter = RaiseHandDataEmitter()
-                    val raiseHandAction =
-                        participantExtension.addRaiseHandAction(
-                            raiseHandDataEmitter::onRaisedHandsChanged
-                        )
+                val kickParticipantDataEmitter = KickParticipantDataEmitter()
+                val kickParticipantAction = participantExtension.addKickParticipantAction()
 
-                    val localCallSilenceDataEmitter = LocalCallSilenceExtensionDataEmitter()
-                    val localCallSilenceExtension =
-                        addLocalCallSilenceExtension(
-                            onIsLocallySilencedUpdated =
-                                localCallSilenceDataEmitter::onVoipAppUpdateIsSilenced,
-                            onCanUserUpdateSilence =
-                                localCallSilenceDataEmitter::onVoipAppUpdateCanUserUpdateSilence,
-                        )
+                val raiseHandDataEmitter = RaiseHandDataEmitter()
+                val raiseHandAction =
+                    participantExtension.addRaiseHandAction(
+                        raiseHandDataEmitter::onRaisedHandsChanged
+                    )
 
-                    val callIconDataEmitter = CallIconExtensionDataEmitter()
+                val localCallSilenceDataEmitter = LocalCallSilenceExtensionDataEmitter()
+                val localCallSilenceExtension =
+                    addLocalCallSilenceExtension(
+                        onIsLocallySilencedUpdated =
+                            localCallSilenceDataEmitter::onVoipAppUpdateIsSilenced,
+                        onCanUserUpdateSilence =
+                            localCallSilenceDataEmitter::onVoipAppUpdateCanUserUpdateSilence,
+                    )
 
-                    var contentObserver: MyContentObserver? = null
-                    var observedUri: Uri? = null
-                    addCallIconSupport { newUri ->
-                        // Check if the URI has changed.  No need to do anything if it's the same.
-                        if (newUri != observedUri) {
-                            // Unregister the previous observer if it exists.  Use safe call ?. and
-                            // let
-                            // the platform handle nulls gracefully. No need for !!.
-                            contentObserver?.let { contentResolver.unregisterContentObserver(it) }
-                            // Create a new observer.  Use a local variable for clarity.
-                            val newObserver =
-                                MyContentObserver(
-                                    Handler(Looper.getMainLooper()),
-                                    newUri,
-                                    callIconDataEmitter,
-                                )
-                            // Register the new observer.
-                            contentResolver.registerContentObserver(newUri, false, newObserver)
-                            // Update the tracked observer and URI.
-                            contentObserver = newObserver
-                            observedUri = newUri
-                            // Read the call icon and emit the update.  Use let for concise null
-                            // check.
-                            readCallIconUriFromFile(newUri)?.let { bitmap ->
-                                callIconDataEmitter.onVoipAppUpdate(bitmap)
-                            }
+                val callIconDataEmitter = CallIconExtensionDataEmitter()
+
+                var contentObserver: MyContentObserver? = null
+                var observedUri: Uri? = null
+                addCallIconSupport { newUri ->
+                    // Check if the URI has changed.  No need to do anything if it's the same.
+                    if (newUri != observedUri) {
+                        // Unregister the previous observer if it exists.  Use safe call ?. and
+                        // let
+                        // the platform handle nulls gracefully. No need for !!.
+                        contentObserver?.let { contentResolver.unregisterContentObserver(it) }
+                        // Create a new observer.  Use a local variable for clarity.
+                        val newObserver =
+                            MyContentObserver(
+                                Handler(Looper.getMainLooper()),
+                                newUri,
+                                callIconDataEmitter,
+                            )
+                        // Register the new observer.
+                        contentResolver.registerContentObserver(newUri, false, newObserver)
+                        // Update the tracked observer and URI.
+                        contentObserver = newObserver
+                        observedUri = newUri
+                        // Read the call icon and emit the update.  Use let for concise null
+                        // check.
+                        readCallIconUriFromFile(newUri)?.let { bitmap ->
+                            callIconDataEmitter.onVoipAppUpdate(bitmap)
                         }
                     }
-
-                    onConnected {
-                        val callData = CallDataEmitter(IcsCall(currId.getAndAdd(1), call)).collect()
-
-                        val meetingSummaryData = meetingSummaryEmitter.collect()
-
-                        val participantData =
-                            participantsEmitter.collect(
-                                participantExtension.isSupported,
-                                raiseHandDataEmitter.collect(raiseHandAction),
-                                kickParticipantDataEmitter.collect(kickParticipantAction),
-                            )
-
-                        val localCallSilenceData =
-                            localCallSilenceDataEmitter.collect(localCallSilenceExtension)
-
-                        val callIconData = callIconDataEmitter.collect()
-
-                        val fullData =
-                            combine(
-                                callData,
-                                meetingSummaryData,
-                                participantData,
-                                localCallSilenceData,
-                                callIconData,
-                            ) { cd, summary, partData, silenceData, iconData ->
-                                CallData(cd, summary, partData, silenceData, iconData)
-                            }
-                        mCallDataAggregator.watch(this@launch, fullData)
-                    }
                 }
-                callJob?.cancel("Call Disconnected")
-                Log.d(LOG_TAG, "onCallAdded: connectedExtensions complete")
+
+                onConnected {
+                    val callData = CallDataEmitter(IcsCall(currId.getAndAdd(1), call)).collect()
+
+                    val meetingSummaryData = meetingSummaryEmitter.collect()
+
+                    val participantData =
+                        participantsEmitter.collect(
+                            participantExtension.isSupported,
+                            raiseHandDataEmitter.collect(raiseHandAction),
+                            kickParticipantDataEmitter.collect(kickParticipantAction),
+                        )
+
+                    val localCallSilenceData =
+                        localCallSilenceDataEmitter.collect(localCallSilenceExtension)
+
+                    val callIconData = callIconDataEmitter.collect()
+
+                    val fullData =
+                        combine(
+                            callData,
+                            meetingSummaryData,
+                            participantData,
+                            localCallSilenceData,
+                            callIconData,
+                        ) { cd, summary, partData, silenceData, iconData ->
+                            CallData(cd, summary, partData, silenceData, iconData)
+                        }
+                    mCallDataAggregator.watch(this@launch, fullData)
+                }
             }
+            callJob?.cancel("Call Disconnected")
+            Log.d(LOG_TAG, "onCallAdded: connectedExtensions complete")
+        }
     }
 
     @Deprecated("Deprecated in API 34")

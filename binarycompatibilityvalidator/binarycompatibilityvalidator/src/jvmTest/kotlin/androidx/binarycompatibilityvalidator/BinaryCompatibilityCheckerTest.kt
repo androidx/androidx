@@ -1900,7 +1900,8 @@ class BinaryCompatibilityCheckerTest {
                 baselines = emptySet(),
                 shouldFreeze = false,
                 validate = false,
-                dependencies = mapOf("iosX64" to setOf(stdlibKlib), "linuxX64" to setOf(stdlibKlib)),
+                dependencies =
+                    mapOf("iosX64" to setOf(stdlibKlib), "linuxX64" to setOf(stdlibKlib)),
             )
         assertThat(errors.map { it.toString() })
             .containsExactly(

@@ -177,8 +177,9 @@ constructor(
             }
             Camera2Logger.debug { "Attaching $useCases from $this" }
 
-            val unattachedUseCases =
-                useCases.filter { useCase -> !attachedUseCases.contains(useCase) }
+            val unattachedUseCases = useCases.filter { useCase ->
+                !attachedUseCases.contains(useCase)
+            }
 
             // Notify session start to use cases
             for (useCase in unattachedUseCases) {
@@ -499,10 +500,9 @@ constructor(
             return false
         }
 
-        val hasActiveSurfaces =
-            runningUseCases.any {
-                it != meteringRepeating && it.sessionConfig.surfaces.isNotEmpty()
-            }
+        val hasActiveSurfaces = runningUseCases.any {
+            it != meteringRepeating && it.sessionConfig.surfaces.isNotEmpty()
+        }
         if (!hasActiveSurfaces) {
             return false
         }

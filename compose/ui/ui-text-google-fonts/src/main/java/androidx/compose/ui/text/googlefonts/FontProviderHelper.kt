@@ -40,15 +40,14 @@ internal fun GoogleFont.Provider.checkAvailable(
     val signatures = packageManager.getSignatures(providerInfo.packageName)
     val sortedSignatures = signatures.sortedWith(ByteArrayComparator)
     val allExpectedCerts = loadCertsIfNeeded(resources)
-    val certsMatched =
-        allExpectedCerts.any { certList ->
-            val expected = certList?.sortedWith(ByteArrayComparator)
-            if (expected?.size != sortedSignatures.size) return@any false
-            for (i in expected.indices) {
-                if (!Arrays.equals(expected[i], sortedSignatures[i])) return@any false
-            }
-            true
+    val certsMatched = allExpectedCerts.any { certList ->
+        val expected = certList?.sortedWith(ByteArrayComparator)
+        if (expected?.size != sortedSignatures.size) return@any false
+        for (i in expected.indices) {
+            if (!Arrays.equals(expected[i], sortedSignatures[i])) return@any false
         }
+        true
+    }
     return if (certsMatched) {
         true
     } else {

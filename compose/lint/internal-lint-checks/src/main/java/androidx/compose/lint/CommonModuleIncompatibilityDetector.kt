@@ -58,11 +58,10 @@ class CommonModuleIncompatibilityDetector : Detector(), SourceCodeScanner {
         return object : UElementHandler() {
             override fun visitImportStatement(node: UImportStatement) {
                 val reference = node.importReference?.asRenderString() ?: return
-                val isPlatformImport =
-                    PLATFORM_PACKAGES.any { platformPackage ->
-                        (platformPackage == reference && node.isOnDemand) ||
-                            reference.startsWith("$platformPackage.")
-                    }
+                val isPlatformImport = PLATFORM_PACKAGES.any { platformPackage ->
+                    (platformPackage == reference && node.isOnDemand) ||
+                        reference.startsWith("$platformPackage.")
+                }
                 if (!isPlatformImport) return
 
                 val target = node.importReference!!

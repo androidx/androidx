@@ -58,14 +58,13 @@ class MeasureInPlacementTest {
     fun measureInModifierPlacement() {
         var childSize = IntSize.Zero
         rule.setContent {
-            val measureInPlaceModifier =
-                Modifier.layout { measurable, constraints ->
-                    layout(100, 100) {
-                        val p = measurable.measure(constraints)
-                        childSize = IntSize(p.width, p.height)
-                        p.place(0, 0)
-                    }
+            val measureInPlaceModifier = Modifier.layout { measurable, constraints ->
+                layout(100, 100) {
+                    val p = measurable.measure(constraints)
+                    childSize = IntSize(p.width, p.height)
+                    p.place(0, 0)
                 }
+            }
             Box(Modifier.fillMaxSize().then(measureInPlaceModifier)) { Box(Modifier.size(10.dp)) }
         }
 
@@ -104,14 +103,13 @@ class MeasureInPlacementTest {
         var childSize = IntSize.Zero
         rule.setContent {
             LookaheadScope {
-                val measureInPlaceModifier =
-                    Modifier.layout { measurable, constraints ->
-                        layout(100, 100) {
-                            val p = measurable.measure(constraints)
-                            childSize = IntSize(p.width, p.height)
-                            p.place(0, 0)
-                        }
+                val measureInPlaceModifier = Modifier.layout { measurable, constraints ->
+                    layout(100, 100) {
+                        val p = measurable.measure(constraints)
+                        childSize = IntSize(p.width, p.height)
+                        p.place(0, 0)
                     }
+                }
                 Box(Modifier.fillMaxSize().then(measureInPlaceModifier)) {
                     Box(Modifier.size(10.dp))
                 }
@@ -153,12 +151,11 @@ class MeasureInPlacementTest {
     fun remeasureRequestForANodeWhichIsNotYetPlacedButMeasuredAlready() {
         var needToMeasureTopBar by mutableStateOf(false)
         var topBoxSize by mutableStateOf(0.dp)
-        val stateBasedSize =
-            Modifier.layout { measurable, _ ->
-                val sizePx = topBoxSize.roundToPx()
-                val placeable = measurable.measure(Constraints.fixed(sizePx, sizePx))
-                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-            }
+        val stateBasedSize = Modifier.layout { measurable, _ ->
+            val sizePx = topBoxSize.roundToPx()
+            val placeable = measurable.measure(Constraints.fixed(sizePx, sizePx))
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
         rule.setContent {
             Layout(
                 content = {

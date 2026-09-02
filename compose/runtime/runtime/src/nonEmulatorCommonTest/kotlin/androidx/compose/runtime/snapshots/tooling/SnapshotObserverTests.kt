@@ -244,11 +244,10 @@ class SnapshotObserverTests {
         ) {
             val snapshot = Snapshot.takeMutableSnapshot(writeObserver = { writes.add(it to false) })
             try {
-                val result =
-                    snapshot.enter {
-                        state.intValue = 20
-                        state.intValue
-                    }
+                val result = snapshot.enter {
+                    state.intValue = 20
+                    state.intValue
+                }
                 assertEquals(20, result)
                 assertEquals(
                     expected = mutableListOf<Pair<Any, Boolean>>(state to true, state to false),

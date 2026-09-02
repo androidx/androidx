@@ -197,16 +197,15 @@ private constructor(rtAnchorEntity: RtAnchorEntity, entityRegistry: EntityRegist
                             return@collect
                         }
 
-                        val plane =
-                            planes.firstOrNull {
-                                val planeState = it.state.value
-                                val planeOrientation = it.type.toSceneCoreOrientation()
-                                val planeSemanticType = planeState.label.toSceneCoreSemanticType()
-                                info.orientations.contains(planeOrientation) &&
-                                    info.semanticTypes.contains(planeSemanticType) &&
-                                    info.dimensions.width <= planeState.extents.width &&
-                                    info.dimensions.height <= planeState.extents.height
-                            }
+                        val plane = planes.firstOrNull {
+                            val planeState = it.state.value
+                            val planeOrientation = it.type.toSceneCoreOrientation()
+                            val planeSemanticType = planeState.label.toSceneCoreSemanticType()
+                            info.orientations.contains(planeOrientation) &&
+                                info.semanticTypes.contains(planeSemanticType) &&
+                                info.dimensions.width <= planeState.extents.width &&
+                                info.dimensions.height <= planeState.extents.height
+                        }
 
                         if (plane != null && entity.state != State.ANCHORED) {
                             val anchorCreateResult = plane.createAnchor(Pose.Identity)

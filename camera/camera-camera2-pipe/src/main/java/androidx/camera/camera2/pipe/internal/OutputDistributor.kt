@@ -154,8 +154,9 @@ internal class OutputDistributor<T>(
                             outputNumber = it,
                         )
                     }
-                outputToFinalize =
-                    outputToFinalizeKey?.let { availableOutputs.remove(outputToFinalizeKey) }
+                outputToFinalize = outputToFinalizeKey?.let {
+                    availableOutputs.remove(outputToFinalizeKey)
+                }
                 outputNumber = outputToFinalizeKey
                 invokeOutputListener = true
                 return@synchronized
@@ -256,13 +257,12 @@ internal class OutputDistributor<T>(
                 return@synchronized
             }
 
-            val matchingOutput =
-                startedOutputs.firstOrNull {
-                    outputMatcher.fuzzyEqual(
-                        cameraOutputNumber = it.cameraOutputNumber,
-                        outputNumber = outputNumber,
-                    )
-                }
+            val matchingOutput = startedOutputs.firstOrNull {
+                outputMatcher.fuzzyEqual(
+                    cameraOutputNumber = it.cameraOutputNumber,
+                    outputNumber = outputNumber,
+                )
+            }
 
             // Complete the matching output, if possible, and remove it from the list of started
             // outputs.
@@ -329,12 +329,11 @@ internal class OutputDistributor<T>(
         // This filter is bi-modal: If [output] is outOfOrder, it will only remove *other* out of
         // order events that are older than the most recent event. Similarly, if it's normal and in
         // order, then this will ignore other outOfOrder events.
-        val outputsToCancel =
-            startedOutputs.filter {
-                it.isOutOfOrder == isOutOfOrder &&
-                    it.cameraOutputSequence < cameraOutputSequence &&
-                    it.cameraOutputNumber < cameraOutputNumber
-            }
+        val outputsToCancel = startedOutputs.filter {
+            it.isOutOfOrder == isOutOfOrder &&
+                it.cameraOutputSequence < cameraOutputSequence &&
+                it.cameraOutputNumber < cameraOutputNumber
+        }
         startedOutputs.removeAll(outputsToCancel)
         return outputsToCancel
     }

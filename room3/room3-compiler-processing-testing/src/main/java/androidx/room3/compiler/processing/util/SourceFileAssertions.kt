@@ -39,11 +39,12 @@ internal fun Source.findMismatch(other: Source): SourceFileMismatch? {
  * Associate each line with an index ([Line]) while also dropping empty lines and trimming each
  * line.
  */
-private fun Sequence<String>.nonEmptySourceLines() =
-    map { it.trim() }
-        .mapIndexed { index, content -> Line(index + 1, content) }
-        .filterNot { it.content.isNullOrBlank() }
-        .iterator()
+private fun Sequence<String>.nonEmptySourceLines() = map {
+    it.trim()
+}
+    .mapIndexed { index, content -> Line(index + 1, content) }
+    .filterNot { it.content.isNullOrBlank() }
+    .iterator()
 
 private fun <T> Iterator<T>.nextOrNull(): T? =
     if (this.hasNext()) {

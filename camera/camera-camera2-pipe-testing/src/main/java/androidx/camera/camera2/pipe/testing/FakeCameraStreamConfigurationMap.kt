@@ -54,8 +54,9 @@ public class FakeCameraStreamConfigurationMap(
     override fun getInputSizes(format: StreamFormat): List<Size> =
         inputTable.filter { it.format == format }.map { it.size }.distinct()
 
-    override fun isOutputSupportedFor(format: StreamFormat): Boolean =
-        outputTable.any { it.format == format }
+    override fun isOutputSupportedFor(format: StreamFormat): Boolean = outputTable.any {
+        it.format == format
+    }
 
     override fun <T> isOutputSupportedFor(klass: Class<T>): Boolean =
         outputClassTypes.contains(klass)

@@ -139,8 +139,9 @@ class RestoreFocusTest {
         rule.runOnIdle { child2.requestFocus() }
 
         // Act.
-        val savedSuccessfully =
-            rule.runOnIdle { @Suppress("DEPRECATION") parent.saveFocusedChild() }
+        val savedSuccessfully = rule.runOnIdle {
+            @Suppress("DEPRECATION") parent.saveFocusedChild()
+        }
         rule.runOnIdle { focusManager.clearFocus() }
         val restoredSuccessfully = rule.runOnIdle { parent.restoreFocusedChild() }
 

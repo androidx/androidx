@@ -195,7 +195,10 @@ class ExerciseCapabilitiesTest {
                 supportedMilestones = emptyMap(),
                 supportsAutoPauseAndResume = true,
                 exerciseEventCapabilities =
-                    ImmutableMap.of(ExerciseEventType.GOLF_SHOT_EVENT, GOLF_SHOT_EVENT_CAPABILITIES),
+                    ImmutableMap.of(
+                        ExerciseEventType.GOLF_SHOT_EVENT,
+                        GOLF_SHOT_EVENT_CAPABILITIES,
+                    ),
             )
 
         private val EXERCISE_TYPE_TO_EXERCISE_CAPABILITIES_MAPPING =

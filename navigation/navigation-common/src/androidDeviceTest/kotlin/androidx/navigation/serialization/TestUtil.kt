@@ -37,8 +37,9 @@ internal val collectionNavType =
             bundle.putStringArrayList(key, ArrayList(value.map { it.id.toString() }))
         }
 
-        override fun serializeAsValues(value: List<CustomTypeWithArg>): List<String> =
-            value.map { it.id.toString() }
+        override fun serializeAsValues(value: List<CustomTypeWithArg>): List<String> = value.map {
+            it.id.toString()
+        }
 
         override fun emptyCollection(): List<CustomTypeWithArg> = emptyList()
 

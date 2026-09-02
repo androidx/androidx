@@ -154,7 +154,9 @@ class FakeHealthConnectClientClockTest {
                     record1::class,
                     // No endTime, defaults to clock
                     timeRangeFilter =
-                        TimeRangeFilter(localStartTime = LocalDateTime.of(2000, 1, 1, 9, 59, 30, 1)),
+                        TimeRangeFilter(
+                            localStartTime = LocalDateTime.of(2000, 1, 1, 9, 59, 30, 1)
+                        ),
                 )
             )
 
@@ -222,7 +224,9 @@ class FakeHealthConnectClientClockTest {
                     heightRecord::class,
                     // No endTime, defaults to clock
                     timeRangeFilter =
-                        TimeRangeFilter(localStartTime = LocalDateTime.of(2000, 1, 1, 9, 59, 30, 1)),
+                        TimeRangeFilter(
+                            localStartTime = LocalDateTime.of(2000, 1, 1, 9, 59, 30, 1)
+                        ),
                 )
             )
         // Records that start after the record.
@@ -232,7 +236,9 @@ class FakeHealthConnectClientClockTest {
                     heightRecord::class,
                     // No endTime, defaults to clock
                     timeRangeFilter =
-                        TimeRangeFilter(localStartTime = LocalDateTime.of(2000, 1, 1, 9, 59, 31, 1)),
+                        TimeRangeFilter(
+                            localStartTime = LocalDateTime.of(2000, 1, 1, 9, 59, 31, 1)
+                        ),
                 )
             )
 

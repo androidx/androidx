@@ -1087,25 +1087,24 @@ internal sealed class Operation(
                     ?: composeRuntimeError("Could not resolve state for movable content")
 
             val resolvedTable = resolvedState.slotStorage.asLinkBufferSlotTable()
-            val newGroup =
-                resolvedTable.edit {
-                    // At this point, slots' currentGroup and the root of the resolvedTable both
-                    // point to the wrapper group containing the MovableContent instance and the
-                    // IsMovableContent flag. We want to move the content itself, which is the
-                    // grandchild of this group (the child group is from invokeMovableContentLambda,
-                    // which we also don't want to copy)
-                    startGroup()
-                    startGroup()
-                    slots.moveFrom(
-                        sourceEditor = this@edit,
-                        sourceHandle = handle(),
-                        destination =
-                            makeGroupHandle(
-                                groupContext = slots.firstChildOf(slots.currentGroup),
-                                group = NULL_ADDRESS,
-                            ),
-                    )
-                }
+            val newGroup = resolvedTable.edit {
+                // At this point, slots' currentGroup and the root of the resolvedTable both
+                // point to the wrapper group containing the MovableContent instance and the
+                // IsMovableContent flag. We want to move the content itself, which is the
+                // grandchild of this group (the child group is from invokeMovableContentLambda,
+                // which we also don't want to copy)
+                startGroup()
+                startGroup()
+                slots.moveFrom(
+                    sourceEditor = this@edit,
+                    sourceHandle = handle(),
+                    destination =
+                        makeGroupHandle(
+                            groupContext = slots.firstChildOf(slots.currentGroup),
+                            group = NULL_ADDRESS,
+                        ),
+                )
+            }
 
             // For all the anchors that moved, if the anchor is tracking a recompose
             // scope, update it to reference its new composer.

@@ -4836,43 +4836,42 @@ class SupportedSurfaceCombinationTest {
 
         // Assert that correct params were passed to FeatureCombinationQuery
         fakeFeatureCombinationQuery.queriedConfigs.forEach { sessionConfig ->
-            val expectedOutputConfigs =
-                useCases.map {
-                    val dynamicRange =
-                        if (
-                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                                dynamicRangeProfiles == HLG10_CONSTRAINED
-                        ) {
-                            HLG_10_BIT
-                        } else {
-                            SDR
-                        }
-
-                    when (it.currentConfig.captureType) {
-                        CaptureType.PREVIEW ->
-                            listOf(
-                                PRIVATE,
-                                RESOLUTION_1080P,
-                                UseCaseType.PREVIEW.surfaceClass,
-                                dynamicRange,
-                            )
-                        CaptureType.IMAGE_CAPTURE ->
-                            listOf(
-                                imageCaptureFormat,
-                                RESOLUTION_1440P_16_9,
-                                UseCaseType.IMAGE_CAPTURE.surfaceClass,
-                                dynamicRange,
-                            )
-                        CaptureType.VIDEO_CAPTURE ->
-                            listOf(
-                                PRIVATE,
-                                RESOLUTION_1080P,
-                                UseCaseType.VIDEO_CAPTURE.surfaceClass,
-                                dynamicRange,
-                            )
-                        else -> throw IllegalArgumentException("Unsupported CaptureType")
+            val expectedOutputConfigs = useCases.map {
+                val dynamicRange =
+                    if (
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                            dynamicRangeProfiles == HLG10_CONSTRAINED
+                    ) {
+                        HLG_10_BIT
+                    } else {
+                        SDR
                     }
+
+                when (it.currentConfig.captureType) {
+                    CaptureType.PREVIEW ->
+                        listOf(
+                            PRIVATE,
+                            RESOLUTION_1080P,
+                            UseCaseType.PREVIEW.surfaceClass,
+                            dynamicRange,
+                        )
+                    CaptureType.IMAGE_CAPTURE ->
+                        listOf(
+                            imageCaptureFormat,
+                            RESOLUTION_1440P_16_9,
+                            UseCaseType.IMAGE_CAPTURE.surfaceClass,
+                            dynamicRange,
+                        )
+                    CaptureType.VIDEO_CAPTURE ->
+                        listOf(
+                            PRIVATE,
+                            RESOLUTION_1080P,
+                            UseCaseType.VIDEO_CAPTURE.surfaceClass,
+                            dynamicRange,
+                        )
+                    else -> throw IllegalArgumentException("Unsupported CaptureType")
                 }
+            }
             assertThat(
                     sessionConfig.outputConfigs.map {
                         listOf(

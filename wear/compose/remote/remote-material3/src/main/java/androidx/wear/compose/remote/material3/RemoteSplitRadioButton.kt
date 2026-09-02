@@ -343,7 +343,8 @@ public object RemoteSplitRadioButtonDefaults {
                 disabledUnselectedSecondaryContentColor =
                     onSurface.toDisabledColor(disabledAlpha = DisabledContentAlpha.rf),
                 disabledUnselectedSplitContainerColor = onSurface.copy(alpha = 0.16f.rf),
-                disabledUnselectedControlColor = onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
+                disabledUnselectedControlColor =
+                    onSurface.toDisabledColor(disabledAlpha = 0.12f.rf),
             )
         }
 }

@@ -208,8 +208,9 @@ private class HierarchicalFocusCoordinatorModifierNode(
                 // reach the innermost block, with an empty nextActiveNodePath).
                 lastActiveNodePath.lastOrNull()?.let { node -> changedNodes.add(node) }
 
-                val parentActiveNodes =
-                    changedNodes.fastFilter { it.isAttached && it.parentChainActive() }
+                val parentActiveNodes = changedNodes.fastFilter {
+                    it.isAttached && it.parentChainActive()
+                }
 
                 // We only care about changes in the active part of the tree.
                 if (parentActiveNodes.isNotEmpty()) {

@@ -557,7 +557,9 @@ class RawQueryFunctionProcessorTest {
                     .map {
                         Pair(
                             it,
-                            it.getAllMethods().filter { it.hasAnnotation(RawQuery::class) }.toList(),
+                            it.getAllMethods()
+                                .filter { it.hasAnnotation(RawQuery::class) }
+                                .toList(),
                         )
                     }
                     .first { it.second.isNotEmpty() }
@@ -604,7 +606,9 @@ class RawQueryFunctionProcessorTest {
                     .map {
                         Pair(
                             it,
-                            it.getAllMethods().filter { it.hasAnnotation(RawQuery::class) }.toList(),
+                            it.getAllMethods()
+                                .filter { it.hasAnnotation(RawQuery::class) }
+                                .toList(),
                         )
                     }
                     .first { it.second.isNotEmpty() }

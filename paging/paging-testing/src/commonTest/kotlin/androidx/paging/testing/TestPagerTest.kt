@@ -109,11 +109,10 @@ class TestPagerTest {
         val pager = TestPager(CONFIG, source)
 
         runTest {
-            val page: LoadResult.Page<Int, Int>? =
-                pager.run {
-                    refresh()
-                    getLastLoadedPage()
-                }
+            val page: LoadResult.Page<Int, Int>? = pager.run {
+                refresh()
+                getLastLoadedPage()
+            }
             assertThat(page).isNotNull()
             assertThat(page?.data).containsExactlyElementsIn(listOf(0, 1, 2, 3, 4)).inOrder()
         }
@@ -125,14 +124,13 @@ class TestPagerTest {
         val pager = TestPager(CONFIG, source)
 
         runTest {
-            val page =
-                pager.run {
-                    refresh()
-                    append() // page should be this appended page
-                    source.invalidate()
-                    assertTrue(source.invalid)
-                    getLastLoadedPage()
-                }
+            val page = pager.run {
+                refresh()
+                append() // page should be this appended page
+                source.invalidate()
+                assertTrue(source.invalid)
+                getLastLoadedPage()
+            }
             assertThat(page).isNotNull()
             assertThat(page?.data).containsExactlyElementsIn(listOf(5, 6, 7)).inOrder()
         }
@@ -144,11 +142,10 @@ class TestPagerTest {
         val pager = TestPager(CONFIG, source)
 
         runTest {
-            val pages =
-                pager.run {
-                    refresh()
-                    getPages()
-                }
+            val pages = pager.run {
+                refresh()
+                getPages()
+            }
             assertThat(pages).hasSize(1)
             assertThat(pages)
                 .containsExactlyElementsIn(listOf(listOf(0, 1, 2, 3, 4).asPage()))
@@ -191,14 +188,13 @@ class TestPagerTest {
         val pager = TestPager(CONFIG, source)
 
         runTest {
-            val pages =
-                pager.run {
-                    refresh()
-                    append()
-                    source.invalidate()
-                    assertTrue(source.invalid)
-                    getPages()
-                }
+            val pages = pager.run {
+                refresh()
+                append()
+                source.invalidate()
+                assertTrue(source.invalid)
+                getPages()
+            }
             assertThat(pages)
                 .containsExactlyElementsIn(
                     listOf(listOf(0, 1, 2, 3, 4).asPage(), listOf(5, 6, 7).asPage())
@@ -222,13 +218,12 @@ class TestPagerTest {
         }
         job.start()
         assertTrue(job.isActive)
-        val pages2 =
-            pager.run {
-                delay(200) // let launch start first
-                append() // second
-                prepend() // fourth
-                getPages() // sixth
-            }
+        val pages2 = pager.run {
+            delay(200) // let launch start first
+            append() // second
+            prepend() // fourth
+            getPages() // sixth
+        }
 
         advanceUntilIdle()
         assertThat(pages)
@@ -354,15 +349,14 @@ class TestPagerTest {
         val source = TestPagingSource()
         val pager = TestPager(CONFIG, source)
 
-        val result =
-            pager.run {
-                refresh()
-                source.invalidate()
-                assertThat(source.invalid).isTrue()
-                // simulate a PagingSource which returns LoadResult.Invalid when it's invalidated
-                source.nextLoadResult = LoadResult.Invalid()
-                append()
-            }
+        val result = pager.run {
+            refresh()
+            source.invalidate()
+            assertThat(source.invalid).isTrue()
+            // simulate a PagingSource which returns LoadResult.Invalid when it's invalidated
+            source.nextLoadResult = LoadResult.Invalid()
+            append()
+        }
         assertThat(result).isInstanceOf<LoadResult.Invalid<Int, Int>>()
     }
 
@@ -371,15 +365,14 @@ class TestPagerTest {
         val source = TestPagingSource()
         val pager = TestPager(CONFIG, source)
 
-        val result =
-            pager.run {
-                refresh(initialKey = 20)
-                source.invalidate()
-                assertThat(source.invalid).isTrue()
-                // simulate a PagingSource which returns LoadResult.Invalid when it's invalidated
-                source.nextLoadResult = LoadResult.Invalid()
-                prepend()
-            }
+        val result = pager.run {
+            refresh(initialKey = 20)
+            source.invalidate()
+            assertThat(source.invalid).isTrue()
+            // simulate a PagingSource which returns LoadResult.Invalid when it's invalidated
+            source.nextLoadResult = LoadResult.Invalid()
+            prepend()
+        }
         assertThat(result).isInstanceOf<LoadResult.Invalid<Int, Int>>()
     }
 
@@ -542,15 +535,14 @@ class TestPagerTest {
         job.start()
         assertTrue(job.isActive)
 
-        val pages =
-            pager.run {
-                // give some time for job to start first
-                delay(200)
-                append().also { loadOrder.add(2) } // second operation
-                prepend().also { loadOrder.add(4) } // fourth operation
-                // sixth operation, should return 4 pages
-                getPages().also { loadOrder.add(6) }
-            }
+        val pages = pager.run {
+            // give some time for job to start first
+            delay(200)
+            append().also { loadOrder.add(2) } // second operation
+            prepend().also { loadOrder.add(4) } // fourth operation
+            // sixth operation, should return 4 pages
+            getPages().also { loadOrder.add(6) }
+        }
 
         advanceUntilIdle()
         assertThat(loadOrder).containsExactlyElementsIn(listOf(1, 2, 3, 4, 5, 6, 7)).inOrder()
@@ -573,13 +565,12 @@ class TestPagerTest {
         val source = TestPagingSource()
         val pager = TestPager(CONFIG, source)
 
-        val state =
-            pager.run {
-                refresh(20)
-                prepend()
-                append()
-                getPagingState(7)
-            }
+        val state = pager.run {
+            refresh(20)
+            prepend()
+            append()
+            getPagingState(7)
+        }
         // in this case anchorPos is a placeholder at index 7
         assertThat(state)
             .isEqualTo(
@@ -609,13 +600,12 @@ class TestPagerTest {
         val config = PagingConfig(pageSize = 3, initialLoadSize = 5, enablePlaceholders = false)
         val pager = TestPager(config, source)
 
-        val state =
-            pager.run {
-                refresh(20)
-                prepend()
-                append()
-                getPagingState(7)
-            }
+        val state = pager.run {
+            refresh(20)
+            prepend()
+            append()
+            getPagingState(7)
+        }
         assertThat(state)
             .isEqualTo(
                 PagingState(
@@ -708,13 +698,12 @@ class TestPagerTest {
         val source = TestPagingSource()
         val pager = TestPager(CONFIG, source)
 
-        val state =
-            pager.run {
-                refresh(20)
-                prepend()
-                append()
-                getPagingState { it == TestPagingSource.ITEMS[22] }
-            }
+        val state = pager.run {
+            refresh(20)
+            prepend()
+            append()
+            getPagingState { it == TestPagingSource.ITEMS[22] }
+        }
         assertThat(state)
             .isEqualTo(
                 PagingState(
@@ -744,13 +733,12 @@ class TestPagerTest {
         val config = PagingConfig(pageSize = 3, initialLoadSize = 5, enablePlaceholders = false)
         val pager = TestPager(config, source)
 
-        val state =
-            pager.run {
-                refresh(20)
-                prepend()
-                append()
-                getPagingState { it == TestPagingSource.ITEMS[22] } // item 22 in this case
-            }
+        val state = pager.run {
+            refresh(20)
+            prepend()
+            append()
+            getPagingState { it == TestPagingSource.ITEMS[22] } // item 22 in this case
+        }
         assertThat(state)
             .isEqualTo(
                 PagingState(

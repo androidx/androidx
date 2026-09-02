@@ -411,7 +411,8 @@ public class RemoteSwitchButtonColors(
             ifTrue =
                 progress?.let { tween(uncheckedContainerColor, checkedContainerColor, it) }
                     ?: checked.select(checkedContainerColor, uncheckedContainerColor),
-            ifFalse = checked.select(disabledCheckedContainerColor, disabledUncheckedContainerColor),
+            ifFalse =
+                checked.select(disabledCheckedContainerColor, disabledUncheckedContainerColor),
         )
 
     @Stable

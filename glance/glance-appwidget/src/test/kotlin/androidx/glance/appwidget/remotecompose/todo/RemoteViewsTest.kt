@@ -36,17 +36,16 @@ class RemoteViewsTest : BaseRemoteComposeTest() {
     // TODO(b/450985714): Fix and re-enable this test
     @Ignore("Test not yet written, see b/450985714")
     @Test
-    fun testCorrectnessOfRemoteViews() =
-        fakeCoroutineScope.runTest {
-            val content: @Composable () -> Unit = {
-                Box(modifier = GlanceModifier.Companion.size(100.dp, 100.dp)) {
-                    // no content
-                }
+    fun testCorrectnessOfRemoteViews() = fakeCoroutineScope.runTest {
+        val content: @Composable () -> Unit = {
+            Box(modifier = GlanceModifier.Companion.size(100.dp, 100.dp)) {
+                // no content
             }
-
-            TODO(
-                "What tests, if any, can we perform on the RemoteViews object we create with" +
-                    "draw instructions in order to verify it is well formed?"
-            )
         }
+
+        TODO(
+            "What tests, if any, can we perform on the RemoteViews object we create with" +
+                "draw instructions in order to verify it is well formed?"
+        )
+    }
 }

@@ -480,8 +480,9 @@ class PausableCompositionTests {
         try {
             val actualException: Throwable? =
                 try {
-                    val handle =
-                        pausableComposition.setPausableContentWithReuse { throw expectedException }
+                    val handle = pausableComposition.setPausableContentWithReuse {
+                        throw expectedException
+                    }
                     handle.resume { false }
                     null
                 } catch (t: Throwable) {
@@ -503,10 +504,9 @@ class PausableCompositionTests {
             val pausableComposition = PausableComposition(EmptyApplier(), recomposer)
 
             try {
-                val handle =
-                    pausableComposition.setPausableContent {
-                        DisposableEffect(Unit) { throw IllegalStateException("test") }
-                    }
+                val handle = pausableComposition.setPausableContent {
+                    DisposableEffect(Unit) { throw IllegalStateException("test") }
+                }
                 handle.resume { false }
                 handle.apply()
             } finally {
@@ -540,8 +540,9 @@ class PausableCompositionTests {
         val pausableComposition = PausableComposition(EmptyApplier(), recomposer)
 
         try {
-            val handle =
-                pausableComposition.setPausableContent { DisposableEffect(Unit) { onDispose {} } }
+            val handle = pausableComposition.setPausableContent {
+                DisposableEffect(Unit) { onDispose {} }
+            }
             assertFalse(handle.isApplied)
             handle.resume { false }
             assertFalse(handle.isApplied)
@@ -559,8 +560,9 @@ class PausableCompositionTests {
         val pausableComposition = PausableComposition(EmptyApplier(), recomposer)
 
         try {
-            val handle =
-                pausableComposition.setPausableContent { DisposableEffect(Unit) { onDispose {} } }
+            val handle = pausableComposition.setPausableContent {
+                DisposableEffect(Unit) { onDispose {} }
+            }
             assertFalse(handle.isCancelled)
             handle.resume { false }
             assertFalse(handle.isCancelled)

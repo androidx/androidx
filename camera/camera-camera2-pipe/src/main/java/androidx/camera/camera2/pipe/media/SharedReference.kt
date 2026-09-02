@@ -41,14 +41,13 @@ internal class SharedReference<T>(private val value: T, defaultFinalizer: Finali
      * reference count is zero.
      */
     fun acquireOrNull(): T? {
-        val current =
-            count.updateAndGet { current ->
-                if (current == 0) {
-                    0
-                } else {
-                    current + 1
-                }
+        val current = count.updateAndGet { current ->
+            if (current == 0) {
+                0
+            } else {
+                current + 1
             }
+        }
         if (current != 0) {
             return value
         }
@@ -86,14 +85,13 @@ internal class SharedReference<T>(private val value: T, defaultFinalizer: Finali
     fun setFinalizer(value: Finalizer<T>) {
         // Update the finalizer to the new value, but only if the current finalizer is not null. If
         // the previous finalizer is null, do not update the value.
-        val previous =
-            currentFinalizer.getAndUpdate { previous ->
-                if (previous == null) {
-                    null
-                } else {
-                    value
-                }
+        val previous = currentFinalizer.getAndUpdate { previous ->
+            if (previous == null) {
+                null
+            } else {
+                value
             }
+        }
 
         // If the previous finalizer is not null, then invoke the previous finalizer with null.
         // This indicates it has been replaced by a different finalizer instance and will not be

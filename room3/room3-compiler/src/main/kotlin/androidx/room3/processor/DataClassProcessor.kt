@@ -184,28 +184,27 @@ private constructor(
                     )
                     .process()
             } ?: emptyList()
-        val myProperties =
-            unfilteredMyProperties.filterNot { ignoredColumns.contains(it.columnName) }
+        val myProperties = unfilteredMyProperties.filterNot {
+            ignoredColumns.contains(it.columnName)
+        }
         myProperties.forEach { property ->
             propertyBindingErrors[property]?.let { context.logger.e(property.element, it) }
         }
         val unfilteredEmbeddedProperties =
             allProperties[Embedded::class]?.mapNotNull { processEmbeddedProperty(declaredType, it) }
                 ?: emptyList()
-        val embeddedProperties =
-            unfilteredEmbeddedProperties.filterNot {
-                ignoredColumns.contains(it.property.columnName)
-            }
+        val embeddedProperties = unfilteredEmbeddedProperties.filterNot {
+            ignoredColumns.contains(it.property.columnName)
+        }
 
         val subProperties = embeddedProperties.flatMap { it.dataClass.properties }
         val properties = myProperties + subProperties
 
         val unfilteredCombinedProperties =
             unfilteredMyProperties + unfilteredEmbeddedProperties.map { it.property }
-        val missingIgnoredColumns =
-            ignoredColumns.filterNot { ignoredColumn ->
-                unfilteredCombinedProperties.any { it.columnName == ignoredColumn }
-            }
+        val missingIgnoredColumns = ignoredColumns.filterNot { ignoredColumn ->
+            unfilteredCombinedProperties.any { it.columnName == ignoredColumn }
+        }
         context.checker.check(
             missingIgnoredColumns.isEmpty(),
             element,
@@ -247,15 +246,13 @@ private constructor(
                 }
                 .toList()
 
-        val getterCandidates =
-            methods.filter {
-                it.element.parameters.size == 0 && it.resolvedType.returnType.isNotVoid()
-            }
+        val getterCandidates = methods.filter {
+            it.element.parameters.size == 0 && it.resolvedType.returnType.isNotVoid()
+        }
 
-        val setterCandidates =
-            methods.filter {
-                it.element.parameters.size == 1 && it.resolvedType.returnType.isVoid()
-            }
+        val setterCandidates = methods.filter {
+            it.element.parameters.size == 1 && it.resolvedType.returnType.isVoid()
+        }
 
         // don't try to find a constructor for binding to statement.
         val constructor =
@@ -518,10 +515,9 @@ private constructor(
             )
             return null
         }
-        val parentColumnNameToProperty =
-            parentColumnNames.associateWith { columnName ->
-                myProperties.firstOrNull { it.columnName == columnName }
-            }
+        val parentColumnNameToProperty = parentColumnNames.associateWith { columnName ->
+            myProperties.firstOrNull { it.columnName == columnName }
+        }
         val missingParentColumnNames = parentColumnNameToProperty.filterValues { it == null }.keys
         if (missingParentColumnNames.isNotEmpty()) {
             context.logger.e(
@@ -587,10 +583,9 @@ private constructor(
             )
             return null
         }
-        val entityColumnNameToProperty =
-            entityColumnNames.associateWith { columnName ->
-                entity.findPropertyByColumnName(columnName)
-            }
+        val entityColumnNameToProperty = entityColumnNames.associateWith { columnName ->
+            entity.findPropertyByColumnName(columnName)
+        }
         val missingEntityColumnNames = entityColumnNameToProperty.filterValues { it == null }.keys
         if (missingEntityColumnNames.isNotEmpty()) {
             context.logger.e(
@@ -646,8 +641,9 @@ private constructor(
 
                 val junctionParentColumnNames =
                     junctionAnnotation["parentColumns"]?.asStringList() ?: emptyList()
-                val junctionParentColumns =
-                    junctionParentColumnNames.ifEmpty { parentProperties.map { it.columnName } }
+                val junctionParentColumns = junctionParentColumnNames.ifEmpty {
+                    parentProperties.map { it.columnName }
+                }
                 if (junctionParentColumns.size != parentProperties.size) {
                     context.logger.e(
                         junctionElement,
@@ -678,8 +674,9 @@ private constructor(
 
                 val junctionEntityColumnNames =
                     junctionAnnotation["entityColumns"]?.asStringList() ?: emptyList()
-                val junctionEntityColumns =
-                    junctionEntityColumnNames.ifEmpty { entityProperties.map { it.columnName } }
+                val junctionEntityColumns = junctionEntityColumnNames.ifEmpty {
+                    entityProperties.map { it.columnName }
+                }
                 if (junctionEntityColumns.size != entityProperties.size) {
                     context.logger.e(
                         junctionElement,

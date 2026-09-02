@@ -319,10 +319,9 @@ class SchemaDiffer(
             return match.columnName
         }
 
-        val isColumnDeleted =
-            deletedColumns.any {
-                it.tableName == fromTable.tableName && it.columnName == fromColumn.columnName
-            }
+        val isColumnDeleted = deletedColumns.any {
+            it.tableName == fromTable.tableName && it.columnName == fromColumn.columnName
+        }
 
         if (!isColumnDeleted) {
             // We have encountered an ambiguous scenario, need more input from the user.
@@ -477,8 +476,9 @@ class SchemaDiffer(
         tableName: String,
     ): AutoMigration.RenamedColumn? {
         val annotations = renameColumnEntries
-        val renamedColumnAnnotations =
-            annotations.filter { it.originalColumnName == columnName && it.tableName == tableName }
+        val renamedColumnAnnotations = annotations.filter {
+            it.originalColumnName == columnName && it.tableName == tableName
+        }
 
         // Make sure there aren't multiple renames on the same column
         if (renamedColumnAnnotations.size > 1) {

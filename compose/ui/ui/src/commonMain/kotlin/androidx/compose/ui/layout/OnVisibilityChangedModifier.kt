@@ -214,11 +214,10 @@ internal class OnVisibilityChangedNode(
                 // only wait for minDurationMs if the result is visible, not visible events are
                 // always reported immediately
                 if (newResult && minDurationMs > 0) {
-                    job =
-                        coroutineScope.launch {
-                            delay(minDurationMs)
-                            triggerCallback()
-                        }
+                    job = coroutineScope.launch {
+                        delay(minDurationMs)
+                        triggerCallback()
+                    }
                 } else {
                     triggerCallback()
                 }

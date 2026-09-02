@@ -495,10 +495,9 @@ private class FakeObservable<T>(initialValue: T) : Observable<T> {
 /** A simple monitor to verify that preview frames are being produced. */
 class PreviewMonitor {
     private val frameReceivedSemaphore = Semaphore(0)
-    private val surfaceProvider =
-        SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
-            frameReceivedSemaphore.release()
-        }
+    private val surfaceProvider = SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
+        frameReceivedSemaphore.release()
+    }
 
     fun getSurfaceProvider(): Preview.SurfaceProvider = surfaceProvider
 

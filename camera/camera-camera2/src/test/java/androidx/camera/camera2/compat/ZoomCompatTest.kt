@@ -73,7 +73,9 @@ class ZoomCompatTest {
             FakeCameraMetadata.fromTemplate(
                 template = HighEndDeviceTemplate,
                 characteristicsOverrides =
-                    mapOf(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 10, 10)),
+                    mapOf(
+                        CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 10, 10)
+                    ),
             )
         val zoomCompat = CropRegionZoomCompat(FakeCameraProperties(fakeCameraMetadata))
         zoomCompat.resetAsync(fakeRequestControl)

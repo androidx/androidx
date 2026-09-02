@@ -157,11 +157,10 @@ class ExpectTest {
     @Test
     fun failWhenCallingThatAfterTest() {
         val executor = newSingleThreadExecutor()
-        taskToAwait =
-            executor.submit {
-                awaitUninterruptibly(testMethodComplete)
-                assertFailsWith<IllegalStateException> { expect.that(3) }
-            }
+        taskToAwait = executor.submit {
+            awaitUninterruptibly(testMethodComplete)
+            assertFailsWith<IllegalStateException> { expect.that(3) }
+        }
         executor.shutdown()
     }
 
@@ -174,13 +173,12 @@ class ExpectTest {
          * IllegalStateException, not record a "failure" that we never read.
          */
         val expectThat3 = expect.that(3)
-        taskToAwait =
-            executor.submit {
-                awaitUninterruptibly(testMethodComplete)
-                val expectedException =
-                    assertFailsWith<IllegalStateException> { expectThat3.isEqualTo(4) }
-                assertThat(expectedException).hasCauseThat().isInstanceOf<AssertionError>()
-            }
+        taskToAwait = executor.submit {
+            awaitUninterruptibly(testMethodComplete)
+            val expectedException =
+                assertFailsWith<IllegalStateException> { expectThat3.isEqualTo(4) }
+            assertThat(expectedException).hasCauseThat().isInstanceOf<AssertionError>()
+        }
         executor.shutdown()
     }
 }

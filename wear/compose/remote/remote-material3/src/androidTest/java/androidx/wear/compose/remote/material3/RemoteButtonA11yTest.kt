@@ -74,7 +74,9 @@ class RemoteButtonA11yTest {
             RemoteButton(
                 onClick = hostAction("click".rs),
                 secondaryLabel = { RemoteText("text".rs) },
-                icon = { RemoteIcon(TestImageVectors.VolumeUp, contentDescription = "VolumeUp".rs) },
+                icon = {
+                    RemoteIcon(TestImageVectors.VolumeUp, contentDescription = "VolumeUp".rs)
+                },
             ) {}
         }
 

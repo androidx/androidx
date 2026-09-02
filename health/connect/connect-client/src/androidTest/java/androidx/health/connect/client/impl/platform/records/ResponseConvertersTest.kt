@@ -106,7 +106,8 @@ class ResponseConvertersTest {
             getLongMetricValues(
                 mapOf(
                     HeartRateRecord.BPM_MIN as AggregateMetric<Any> to 53L,
-                    ExerciseSessionRecord.EXERCISE_DURATION_TOTAL as AggregateMetric<Any> to 60_000L,
+                    ExerciseSessionRecord.EXERCISE_DURATION_TOTAL as AggregateMetric<Any> to
+                        60_000L,
                 )
             )
         assertThat(metricValues)

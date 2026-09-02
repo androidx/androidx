@@ -27,10 +27,9 @@ class GetChangesTokenRequest(override val proto: RequestProto.GetChangesTokenReq
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<GetChangesTokenRequest> =
-            ProtoParcelable.newCreator {
-                val proto = RequestProto.GetChangesTokenRequest.parseFrom(it)
-                GetChangesTokenRequest(proto)
-            }
+        val CREATOR: Parcelable.Creator<GetChangesTokenRequest> = ProtoParcelable.newCreator {
+            val proto = RequestProto.GetChangesTokenRequest.parseFrom(it)
+            GetChangesTokenRequest(proto)
+        }
     }
 }

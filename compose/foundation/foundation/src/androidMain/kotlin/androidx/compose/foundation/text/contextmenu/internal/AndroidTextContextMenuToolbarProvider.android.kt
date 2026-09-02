@@ -164,15 +164,15 @@ internal class AndroidTextContextMenuToolbarProvider(
                 val startActionModeRunnable =
                     this.startActionModeRunnable
                         ?: Runnable {
-                                val actionMode =
-                                    TextToolbarHelper.startActionMode(view, callback).also {
-                                        this.actionMode = it
-                                    }
-                                // Failed to start action mode, close session by us.
-                                if (actionMode == null) {
-                                    session.close()
+                            val actionMode =
+                                TextToolbarHelper.startActionMode(view, callback).also {
+                                    this.actionMode = it
                                 }
+                            // Failed to start action mode, close session by us.
+                            if (actionMode == null) {
+                                session.close()
                             }
+                        }
                             .also { this.startActionModeRunnable = it }
                 view.post(startActionModeRunnable)
             } else {

@@ -51,30 +51,29 @@ class ScaleModifierScreenshotTest {
     private val gridScreenshotUI = GridScreenshotUI()
 
     @Test
-    fun grid() =
-        composeTestRule.runScreenshotTest {
-            val tests =
-                listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
-                    "scale(1.0f)" to
-                        @Composable @RemoteComposable {
-                            Content(RemoteModifier.size(20.rdp).scale(1.0f.rf))
-                        },
-                    "scale(0.5f)" to
-                        @Composable @RemoteComposable {
-                            Content(RemoteModifier.size(20.rdp).scale(0.5f.rf))
-                        },
-                    "scale(2.0f)" to
-                        @Composable @RemoteComposable {
-                            Content(RemoteModifier.size(20.rdp).scale(2.0f.rf))
-                        },
-                    "scale(0.5f, 2.0f)" to
-                        @Composable @RemoteComposable {
-                            Content(RemoteModifier.size(20.rdp).scale(0.5f.rf, 2.0f.rf))
-                        },
-                )
+    fun grid() = composeTestRule.runScreenshotTest {
+        val tests =
+            listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
+                "scale(1.0f)" to
+                    @Composable @RemoteComposable {
+                        Content(RemoteModifier.size(20.rdp).scale(1.0f.rf))
+                    },
+                "scale(0.5f)" to
+                    @Composable @RemoteComposable {
+                        Content(RemoteModifier.size(20.rdp).scale(0.5f.rf))
+                    },
+                "scale(2.0f)" to
+                    @Composable @RemoteComposable {
+                        Content(RemoteModifier.size(20.rdp).scale(2.0f.rf))
+                    },
+                "scale(0.5f, 2.0f)" to
+                    @Composable @RemoteComposable {
+                        Content(RemoteModifier.size(20.rdp).scale(0.5f.rf, 2.0f.rf))
+                    },
+            )
 
-            gridScreenshotUI.GridContent(tests)
-        }
+        gridScreenshotUI.GridContent(tests)
+    }
 
     @Composable
     @RemoteComposable

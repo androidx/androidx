@@ -263,7 +263,11 @@ class AnnotatedStringBuilderTest {
                     'd',
                     item = ParagraphStyle(lineHeight = 50.sp),
                 ),
-                expectedString.inclusiveRangeOf('e', 'e', item = ParagraphStyle(lineHeight = 60.sp)),
+                expectedString.inclusiveRangeOf(
+                    'e',
+                    'e',
+                    item = ParagraphStyle(lineHeight = 60.sp),
+                ),
             )
         val expectedStringAnnotations =
             listOf(

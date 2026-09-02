@@ -118,13 +118,12 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
             FocusableBox(top, x = 40, y = 0, width = 10, height = 10)
             FocusableBox(left, x = 0, y = 40, width = 10, height = 10, otherItem)
             FocusableBox(grandparent, 20, 20, 50, 50) {
-                val customExit =
-                    Modifier.focusProperties {
-                        onExit = {
-                            receivedFocusDirection = focusDirection
-                            otherItem.requestFocus()
-                        }
+                val customExit = Modifier.focusProperties {
+                    onExit = {
+                        receivedFocusDirection = focusDirection
+                        otherItem.requestFocus()
                     }
+                }
                 FocusableBox(parent, 10, 10, 30, 30, deactivated = true, modifier = customExit) {
                     FocusableBox(focusedItem, 10, 10, 10, 10, initialFocus)
                 }
@@ -167,13 +166,12 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
         var receivedFocusDirection: FocusDirection? = null
         rule.setContentForTest {
             FocusableBox(grandparent, 0, 0, 50, 50, otherItem) {
-                val customExit =
-                    Modifier.focusProperties {
-                        onExit = {
-                            receivedFocusDirection = focusDirection
-                            otherItem.requestFocus()
-                        }
+                val customExit = Modifier.focusProperties {
+                    onExit = {
+                        receivedFocusDirection = focusDirection
+                        otherItem.requestFocus()
                     }
+                }
                 FocusableBox(parent, 10, 10, 30, 30, deactivated = true, modifier = customExit) {
                     FocusableBox(focusedItem, 10, 10, 10, 10, initialFocus)
                 }

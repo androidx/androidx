@@ -40,27 +40,27 @@ class AndroidCompositionObserverTests : BaseComposeTest() {
     fun testObservingUiComposition() {
         var handle: CompositionObserverHandle? = null
         compose {
-                val view = LocalView.current
-                val composition = view.getTag(R.id.wrapped_composition_tag) as Composition
-                handle =
-                    composition.setObserver(
-                        object : CompositionObserver {
-                            override fun onBeginComposition(composition: ObservableComposition) {}
+            val view = LocalView.current
+            val composition = view.getTag(R.id.wrapped_composition_tag) as Composition
+            handle =
+                composition.setObserver(
+                    object : CompositionObserver {
+                        override fun onBeginComposition(composition: ObservableComposition) {}
 
-                            override fun onEndComposition(composition: ObservableComposition) {}
+                        override fun onEndComposition(composition: ObservableComposition) {}
 
-                            override fun onScopeEnter(scope: RecomposeScope) {}
+                        override fun onScopeEnter(scope: RecomposeScope) {}
 
-                            override fun onScopeExit(scope: RecomposeScope) {}
+                        override fun onScopeExit(scope: RecomposeScope) {}
 
-                            override fun onReadInScope(scope: RecomposeScope, value: Any) {}
+                        override fun onReadInScope(scope: RecomposeScope, value: Any) {}
 
-                            override fun onScopeDisposed(scope: RecomposeScope) {}
+                        override fun onScopeDisposed(scope: RecomposeScope) {}
 
-                            override fun onScopeInvalidated(scope: RecomposeScope, value: Any?) {}
-                        }
-                    )
-            }
+                        override fun onScopeInvalidated(scope: RecomposeScope, value: Any?) {}
+                    }
+                )
+        }
             .then {
                 assertNotNull(handle)
                 handle?.dispose()

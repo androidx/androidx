@@ -97,8 +97,9 @@ fun AppCompatActivity.setUpDemoAppActivity() {
  * @param features the list of WebView features to check.
  * @return `true` if all features are supported, `false` otherwise.
  */
-fun areAllFeaturesSupported(vararg features: String) =
-    features.all { feature -> WebViewFeature.isFeatureSupported(feature) }
+fun areAllFeaturesSupported(vararg features: String) = features.all { feature ->
+    WebViewFeature.isFeatureSupported(feature)
+}
 
 /** Reads text from an [InputStream] and returns the content as a [String]. */
 fun InputStream.readText(charSet: Charset = UTF_8): String {

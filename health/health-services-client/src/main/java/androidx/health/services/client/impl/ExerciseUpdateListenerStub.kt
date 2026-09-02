@@ -65,10 +65,9 @@ internal constructor(
                 // not enough information to distinguish. For example, the developer might have
                 // requested ether or both of HEART_RATE_BPM / HEART_RATE_BPM_STATS. We should
                 // trigger onAvailabilityChanged for all matching data types.
-                val matchingDataTypes =
-                    requestedDataTypes.filter {
-                        it.name == proto.availabilityResponse.dataType.name
-                    }
+                val matchingDataTypes = requestedDataTypes.filter {
+                    it.name == proto.availabilityResponse.dataType.name
+                }
                 val availability = Availability.fromProto(proto.availabilityResponse.availability)
                 matchingDataTypes.forEach { listener.onAvailabilityChanged(it, availability) }
             }

@@ -118,18 +118,12 @@ internal object MaterialA2uiBasicCatalogV1DateTimeInput : A2uiBasicCatalogV1.Dat
                     DatePickerDefaults.AllDates
                 } else {
                     val utcZone = TimeZone.getTimeZone("UTC")
-                    val minYear =
-                        min?.let {
-                            Calendar.getInstance(utcZone)
-                                .apply { timeInMillis = it }
-                                .get(Calendar.YEAR)
-                        }
-                    val maxYear =
-                        max?.let {
-                            Calendar.getInstance(utcZone)
-                                .apply { timeInMillis = it }
-                                .get(Calendar.YEAR)
-                        }
+                    val minYear = min?.let {
+                        Calendar.getInstance(utcZone).apply { timeInMillis = it }.get(Calendar.YEAR)
+                    }
+                    val maxYear = max?.let {
+                        Calendar.getInstance(utcZone).apply { timeInMillis = it }.get(Calendar.YEAR)
+                    }
                     object : SelectableDates {
                         override fun isSelectableDate(utcTimeMillis: Long): Boolean {
                             if (min != null && utcTimeMillis < min) return false

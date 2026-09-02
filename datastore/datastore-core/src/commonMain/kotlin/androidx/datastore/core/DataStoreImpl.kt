@@ -159,17 +159,16 @@ internal class DataStoreImpl<T>(
     private suspend fun incrementCollector() {
         collectorMutex.withLock {
             if (++collectorCounter == 1) {
-                collectorJob =
-                    scope.launch {
-                        readAndInit.awaitComplete()
-                        coordinator.updateNotifications.conflate().collect {
-                            val currentState = inMemoryCache.currentState
-                            if (currentState !is Final) {
-                                // update triggered reads should always wait for lock
-                                readDataAndUpdateCache(requireLock = true)
-                            }
+                collectorJob = scope.launch {
+                    readAndInit.awaitComplete()
+                    coordinator.updateNotifications.conflate().collect {
+                        val currentState = inMemoryCache.currentState
+                        if (currentState !is Final) {
+                            // update triggered reads should always wait for lock
+                            readDataAndUpdateCache(requireLock = true)
                         }
                     }
+                }
             }
         }
     }
@@ -423,36 +422,35 @@ internal class DataStoreImpl<T>(
         transform: suspend (t: T) -> T,
         callerContext: CoroutineContext,
         token: DataStoreTraceToken?,
-    ): T =
-        coordinator.lock {
-            trace(tracer = tracer, name = "DataStore.transformAndWrite", token = token) {
-                val curData =
-                    readDataOrHandleCorruption(
-                        hasWriteFileLock = true,
-                        getVersion = { coordinator.getVersion() },
-                    )
-                // Get new token as we are under a new span ("DataStore.transformAndWrite")
-                val transformAndWriteToken = captureTraceToken(tracer)
-                val newData =
-                    withContext(callerContext) {
-                        trace(
-                            tracer = tracer,
-                            name = "DataStore.transform",
-                            token = transformAndWriteToken,
-                        ) {
-                            transform(curData.value)
-                        }
+    ): T = coordinator.lock {
+        trace(tracer = tracer, name = "DataStore.transformAndWrite", token = token) {
+            val curData =
+                readDataOrHandleCorruption(
+                    hasWriteFileLock = true,
+                    getVersion = { coordinator.getVersion() },
+                )
+            // Get new token as we are under a new span ("DataStore.transformAndWrite")
+            val transformAndWriteToken = captureTraceToken(tracer)
+            val newData =
+                withContext(callerContext) {
+                    trace(
+                        tracer = tracer,
+                        name = "DataStore.transform",
+                        token = transformAndWriteToken,
+                    ) {
+                        transform(curData.value)
                     }
-
-                // Check that curData has not changed...
-                curData.checkHashCode()
-
-                if (curData.value != newData) {
-                    writeData(newData, updateCache = true)
                 }
-                newData
+
+            // Check that curData has not changed...
+            curData.checkHashCode()
+
+            if (curData.value != newData) {
+                writeData(newData, updateCache = true)
             }
+            newData
         }
+    }
 
     // Write data to disk and return the corresponding version if succeed.
     internal suspend fun writeData(newData: T, updateCache: Boolean): Int {

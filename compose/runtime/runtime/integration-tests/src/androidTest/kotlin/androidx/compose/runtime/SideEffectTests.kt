@@ -46,11 +46,11 @@ class SideEffectTests : BaseComposeTest() {
         var resultsAtComposition: List<Int>? = null
         var scope: RecomposeScope? = null
         compose {
-                SideEffect { results += 1 }
-                SideEffect { results += 2 }
-                resultsAtComposition = results.toList()
-                scope = currentRecomposeScope
-            }
+            SideEffect { results += 1 }
+            SideEffect { results += 2 }
+            resultsAtComposition = results.toList()
+            scope = currentRecomposeScope
+        }
             .then {
                 assertEquals(listOf(1, 2), results, "side effects were applied")
                 assertEquals(
@@ -94,13 +94,13 @@ class SideEffectTests : BaseComposeTest() {
         var wasObserverTwoPresent = false
 
         compose {
-                val one = remember { myObserverOne }
-                SideEffect {
-                    wasObserverOnePresent = myObserverOne.isPresent
-                    wasObserverTwoPresent = myObserverTwo.isPresent
-                }
-                val two = remember { myObserverTwo }
+            val one = remember { myObserverOne }
+            SideEffect {
+                wasObserverOnePresent = myObserverOne.isPresent
+                wasObserverTwoPresent = myObserverTwo.isPresent
             }
+            val two = remember { myObserverTwo }
+        }
             .then {
                 assertTrue(wasObserverOnePresent, "observer one present for side effect")
                 assertTrue(wasObserverTwoPresent, "observer two present for side effect")
@@ -118,15 +118,15 @@ class SideEffectTests : BaseComposeTest() {
         var key4 = "D"
         var keys = arrayOf(key1, key2, key3, key4)
         compose {
-                SideEffect { results += 1 }
-                SideEffect(key1) { results += 2 }
-                SideEffect(key1, key2) { results += 3 }
-                SideEffect(key1, key2, key3) { results += 4 }
-                SideEffect(key1, key2, key3, key4) { results += 5 }
-                SideEffect(*keys) { results += 6 }
-                resultsAtComposition = results
-                scope = currentRecomposeScope
-            }
+            SideEffect { results += 1 }
+            SideEffect(key1) { results += 2 }
+            SideEffect(key1, key2) { results += 3 }
+            SideEffect(key1, key2, key3) { results += 4 }
+            SideEffect(key1, key2, key3, key4) { results += 5 }
+            SideEffect(*keys) { results += 6 }
+            resultsAtComposition = results
+            scope = currentRecomposeScope
+        }
             .then {
                 assertEquals("123456", results, "side effects were applied")
                 assertEquals(
@@ -213,14 +213,14 @@ class SideEffectTests : BaseComposeTest() {
         var key4 by mutableStateOf("D")
         var keys by mutableStateOf(arrayOf(key1, key2, key3, key4))
         compose {
-                SideEffect { results += 1 }
-                SideEffect(key1) { results += 2 }
-                SideEffect(key1, key2) { results += 3 }
-                SideEffect(key1, key2, key3) { results += 4 }
-                SideEffect(key1, key2, key3, key4) { results += 5 }
-                SideEffect(*keys) { results += 6 }
-                resultsAtComposition = results
-            }
+            SideEffect { results += 1 }
+            SideEffect(key1) { results += 2 }
+            SideEffect(key1, key2) { results += 3 }
+            SideEffect(key1, key2, key3) { results += 4 }
+            SideEffect(key1, key2, key3, key4) { results += 5 }
+            SideEffect(*keys) { results += 6 }
+            resultsAtComposition = results
+        }
             .then {
                 assertEquals("123456", results, "side effects were applied")
                 assertEquals(
@@ -327,12 +327,12 @@ class SideEffectTests : BaseComposeTest() {
         }
 
         compose {
-                log("compose:start")
-                if (mount) {
-                    Unmountable()
-                }
-                log("compose:end")
+            log("compose:start")
+            if (mount) {
+                Unmountable()
             }
+            log("compose:end")
+        }
             .then { _ ->
                 assertEquals(
                     listOf(
@@ -383,18 +383,18 @@ class SideEffectTests : BaseComposeTest() {
         }
 
         compose {
-                DisposableEffect(NeverEqualObject) {
-                    log("DisposableEffect:a1")
-                    onDispose { log("onDispose:a1") }
-                }
-                if (mount) {
-                    Unmountable()
-                }
-                DisposableEffect(NeverEqualObject) {
-                    log("DisposableEffect:b1")
-                    onDispose { log("onDispose:b1") }
-                }
+            DisposableEffect(NeverEqualObject) {
+                log("DisposableEffect:a1")
+                onDispose { log("onDispose:a1") }
             }
+            if (mount) {
+                Unmountable()
+            }
+            DisposableEffect(NeverEqualObject) {
+                log("DisposableEffect:b1")
+                onDispose { log("onDispose:b1") }
+            }
+        }
             .then { _ ->
                 assertEquals(
                     listOf(
@@ -438,13 +438,13 @@ class SideEffectTests : BaseComposeTest() {
         fun log(x: String) = logHistory.add(x)
 
         compose {
-                scope = currentRecomposeScope
-                DisposableEffect(key) {
-                    val y = x++
-                    log("DisposableEffect:$y")
-                    onDispose { log("dispose:$y") }
-                }
+            scope = currentRecomposeScope
+            DisposableEffect(key) {
+                val y = x++
+                log("DisposableEffect:$y")
+                onDispose { log("dispose:$y") }
             }
+        }
             .then { _ ->
                 log("recompose")
                 scope.invalidate()
@@ -476,14 +476,14 @@ class SideEffectTests : BaseComposeTest() {
         // Used as a signal that LaunchedEffect will await
         val ch = Channel<Unit>(Channel.CONFLATED)
         compose {
-                LaunchedEffect(ch) {
-                    counter++
-                    ch.receive()
-                    counter++
-                    ch.receive()
-                    counter++
-                }
+            LaunchedEffect(ch) {
+                counter++
+                ch.receive()
+                counter++
+                ch.receive()
+                counter++
             }
+        }
             .then {
                 assertEquals(1, counter)
                 ch.trySend(Unit)
@@ -500,14 +500,14 @@ class SideEffectTests : BaseComposeTest() {
         var choreographerTime by mutableStateOf(Long.MIN_VALUE)
         var awaitFrameTime by mutableStateOf(Long.MAX_VALUE)
         compose {
-                LaunchedEffect(Unit) { withFrameNanos { awaitFrameTime = it } }
-                DisposableEffect(true) {
-                    Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
-                        choreographerTime = frameTimeNanos
-                    }
-                    onDispose {}
+            LaunchedEffect(Unit) { withFrameNanos { awaitFrameTime = it } }
+            DisposableEffect(true) {
+                Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
+                    choreographerTime = frameTimeNanos
                 }
+                onDispose {}
             }
+        }
             .then {
                 assertNotEquals(
                     choreographerTime,
@@ -532,11 +532,11 @@ class SideEffectTests : BaseComposeTest() {
         var onCommitRan = false
         var launchRanAfter = false
         compose {
-                // Confirms that these run "out of order" with respect to one another because
-                // the launch runs dispatched.
-                LaunchedEffect(Unit) { launchRanAfter = onCommitRan }
-                SideEffect { onCommitRan = true }
-            }
+            // Confirms that these run "out of order" with respect to one another because
+            // the launch runs dispatched.
+            LaunchedEffect(Unit) { launchRanAfter = onCommitRan }
+            SideEffect { onCommitRan = true }
+        }
             .then {
                 assertTrue(launchRanAfter, "expected LaunchedEffect to run after later onCommit")
             }
@@ -550,14 +550,14 @@ class SideEffectTests : BaseComposeTest() {
         var rememberCoroutineScopeFrameClock: MonotonicFrameClock? = null
 
         compose {
-                recomposerClock = currentComposer.applyCoroutineContext[MonotonicFrameClock]
-                LaunchedEffect(Unit) { LaunchedEffectClock = coroutineContext[MonotonicFrameClock] }
-                val rememberedScope = rememberCoroutineScope()
-                SideEffect {
-                    rememberCoroutineScopeFrameClock =
-                        rememberedScope.coroutineContext[MonotonicFrameClock]
-                }
+            recomposerClock = currentComposer.applyCoroutineContext[MonotonicFrameClock]
+            LaunchedEffect(Unit) { LaunchedEffectClock = coroutineContext[MonotonicFrameClock] }
+            val rememberedScope = rememberCoroutineScope()
+            SideEffect {
+                rememberCoroutineScopeFrameClock =
+                    rememberedScope.coroutineContext[MonotonicFrameClock]
             }
+        }
             .then {
                 assertNotNull(recomposerClock, "Recomposer frameClock")
                 assertSame(recomposerClock, LaunchedEffectClock, "LaunchedEffect clock")

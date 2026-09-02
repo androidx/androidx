@@ -108,8 +108,9 @@ class StockBrushesTest(val brushName: String) {
 
         @Parameters(name = "{0}")
         @JvmStatic
-        fun params(): List<Array<String>> =
-            families.map { family -> arrayOf(family.clientBrushFamilyId) }
+        fun params(): List<Array<String>> = families.map { family ->
+            arrayOf(family.clientBrushFamilyId)
+        }
     }
 
     fun assertStrokesMatchGolden(strokes: List<List<List<Stroke>>>, name: String) =

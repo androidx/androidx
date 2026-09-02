@@ -353,7 +353,8 @@ class GlanceAppWidgetReceiverScreenshotTest {
             ) {
                 Text(
                     "Upper half",
-                    modifier = GlanceModifier.defaultWeight().fillMaxWidth().background(Color.Green),
+                    modifier =
+                        GlanceModifier.defaultWeight().fillMaxWidth().background(Color.Green),
                 )
                 Text(
                     "Lower right half",
@@ -376,7 +377,8 @@ class GlanceAppWidgetReceiverScreenshotTest {
             ) {
                 Text(
                     "Upper half",
-                    modifier = GlanceModifier.defaultWeight().fillMaxWidth().background(Color.Green),
+                    modifier =
+                        GlanceModifier.defaultWeight().fillMaxWidth().background(Color.Green),
                 )
                 Text(
                     "Lower right half",
@@ -691,7 +693,9 @@ class GlanceAppWidgetReceiverScreenshotTest {
                     text = "Button w/incorrect bg modifier: image",
                     onClick = {},
                     modifier =
-                        GlanceModifier.background(imageProvider = ImageProvider(R.drawable.compose)),
+                        GlanceModifier.background(
+                            imageProvider = ImageProvider(R.drawable.compose)
+                        ),
                 )
                 Spacer(GlanceModifier.size(4.dp))
 
@@ -1057,7 +1061,8 @@ private fun CheckBoxScreenshotTest() {
                     fontWeight = FontWeight.Medium,
                     fontStyle = FontStyle.Italic,
                 ),
-            colors = CheckboxDefaults.colors(checkedColor = Color.Red, uncheckedColor = Color.Green),
+            colors =
+                CheckboxDefaults.colors(checkedColor = Color.Red, uncheckedColor = Color.Green),
         )
     }
 }

@@ -93,7 +93,8 @@ private fun NavigationSnippet5(navController: NavHostController) {
         composable(
             "profile/{userId}",
             arguments = listOf(navArgument("userId") { type = NavType.StringType }),
-        ) { /*...*/
+        ) {
+            /*...*/
         }
     }
 }

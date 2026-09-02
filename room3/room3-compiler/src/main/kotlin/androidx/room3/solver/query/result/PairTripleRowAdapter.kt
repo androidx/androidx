@@ -29,13 +29,12 @@ class PairTripleRowAdapter(out: XType, val readers: List<StatementValueReader>) 
     }
 
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {
-        val valueVars =
-            readers.mapIndexed { index, reader ->
-                val valueVar = scope.getTmpVar("_value$index")
-                scope.builder.addLocalVariable(valueVar, reader.typeMirror().asTypeName())
-                reader.readFromStatement(valueVar, stmtVarName, index.toString(), scope)
-                valueVar
-            }
+        val valueVars = readers.mapIndexed { index, reader ->
+            val valueVar = scope.getTmpVar("_value$index")
+            scope.builder.addLocalVariable(valueVar, reader.typeMirror().asTypeName())
+            reader.readFromStatement(valueVar, stmtVarName, index.toString(), scope)
+            valueVar
+        }
 
         val ctrArgs = valueVars.joinToString(separator = ", ") { "%L" }
         scope.builder.addStatement(

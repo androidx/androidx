@@ -88,10 +88,9 @@ fun SnapScrollingMinDemo() {
                 val myModifier = GlanceModifier
 
                 Box(
-                    myModifier
-                        .background(ColorProvider(Color.Magenta))
-                        .fillMaxSize()
-                        .clickable { /* todo */ },
+                    myModifier.background(ColorProvider(Color.Magenta)).fillMaxSize().clickable {
+                        /* todo */
+                    },
                     // TODO: For some versions of remote compose player, we may need a workaround
                     //   Consider an onTouch handler rather than using click.
                     // This bug is fixed on RC Api Version 10

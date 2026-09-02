@@ -53,10 +53,9 @@ fun HeaderFooterLayout(
         val itemHeight =
             (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
                 contentMeasurables.size
-        val contentPlaceables =
-            contentMeasurables.map { measurable ->
-                measurable.measure(Constraints.fixed(constraints.maxWidth, itemHeight))
-            }
+        val contentPlaceables = contentMeasurables.map { measurable ->
+            measurable.measure(Constraints.fixed(constraints.maxWidth, itemHeight))
+        }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
             headerPlaceable.placeRelative(0, 0)

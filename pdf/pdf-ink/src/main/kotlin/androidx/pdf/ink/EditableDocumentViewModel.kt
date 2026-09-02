@@ -382,11 +382,10 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
             annotationsManager = manager
 
             // Collect history states in a tracked job
-            historyCollectionJob =
-                viewModelScope.launch {
-                    launch { history.canUndo.collect { _canUndo.value = it } }
-                    launch { history.canRedo.collect { _canRedo.value = it } }
-                }
+            historyCollectionJob = viewModelScope.launch {
+                launch { history.canUndo.collect { _canUndo.value = it } }
+                launch { history.canRedo.collect { _canRedo.value = it } }
+            }
 
             viewModelScope.launch {
                 val visiblePdfAnnotations =

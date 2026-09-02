@@ -67,11 +67,10 @@ data class ObservedStateReads(
     fun addStateRead(value: Any?, trace: Exception) {
         // Use [Snapshot.withoutReadObservation] to avoid another callback when we read
         // the value.
-        val currentValue =
-            Snapshot.withoutReadObservation {
-                (value as? MutableState<*>)?.value
-                    ?: (value as? SnapshotStateList<*>)?.toList()?.toList()
-            }
+        val currentValue = Snapshot.withoutReadObservation {
+            (value as? MutableState<*>)?.value
+                ?: (value as? SnapshotStateList<*>)?.toList()?.toList()
+        }
         val valueInstanceHash = System.identityHashCode(value)
         val invalidated = wasInvalidated(valueInstanceHash)
         reads.add(StateReadRecord(currentValue, valueInstanceHash, invalidated, trace))

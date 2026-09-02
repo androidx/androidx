@@ -46,13 +46,12 @@ class TransactionFunctionProcessor(
         val returnType = delegate.extractReturnType()
         val rawReturnType = returnType.rawType
 
-        val deferredReturnTypeName =
-            DEFERRED_TYPES.firstOrNull { className ->
-                context.processingEnv
-                    .findType(className.canonicalName)
-                    ?.rawType
-                    ?.isAssignableFrom(rawReturnType) ?: false
-            }
+        val deferredReturnTypeName = DEFERRED_TYPES.firstOrNull { className ->
+            context.processingEnv
+                .findType(className.canonicalName)
+                ?.rawType
+                ?.isAssignableFrom(rawReturnType) ?: false
+        }
         if (deferredReturnTypeName != null) {
             context.logger.e(
                 ProcessorErrors.transactionFunctionAsync(
@@ -84,15 +83,14 @@ class TransactionFunctionProcessor(
             }
 
         val parameters = delegate.extractParams()
-        val processedParamNames =
-            parameters.map { param ->
-                // Apply spread operator when delegating to a vararg parameter in Kotlin.
-                if (context.codeLanguage == CodeLanguage.KOTLIN && param.isVarArgs()) {
-                    "*${param.name}"
-                } else {
-                    param.name
-                }
+        val processedParamNames = parameters.map { param ->
+            // Apply spread operator when delegating to a vararg parameter in Kotlin.
+            if (context.codeLanguage == CodeLanguage.KOTLIN && param.isVarArgs()) {
+                "*${param.name}"
+            } else {
+                param.name
             }
+        }
 
         return TransactionFunction(
             element = executableElement,

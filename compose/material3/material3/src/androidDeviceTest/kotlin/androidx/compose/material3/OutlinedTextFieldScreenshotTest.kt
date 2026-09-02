@@ -941,7 +941,9 @@ class OutlinedTextFieldScreenshotTest {
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
                 labelPosition =
-                    TextFieldLabelPosition.Cutout(minimizedAlignment = Alignment.CenterHorizontally),
+                    TextFieldLabelPosition.Cutout(
+                        minimizedAlignment = Alignment.CenterHorizontally
+                    ),
             )
         }
 
@@ -956,7 +958,9 @@ class OutlinedTextFieldScreenshotTest {
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
                 labelPosition =
-                    TextFieldLabelPosition.Inside(minimizedAlignment = Alignment.CenterHorizontally),
+                    TextFieldLabelPosition.Inside(
+                        minimizedAlignment = Alignment.CenterHorizontally
+                    ),
             )
         }
 

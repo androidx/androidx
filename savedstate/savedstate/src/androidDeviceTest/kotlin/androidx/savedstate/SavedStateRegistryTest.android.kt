@@ -39,9 +39,9 @@ class SavedStateRegistryTest {
     @Test
     fun saveRestoreFlow() {
         startFlow { registry ->
-                registry.registerSavedStateProvider("a") { bundleOf("foo", 1) }
-                registry.registerSavedStateProvider("b") { bundleOf("foo", 2) }
-            }
+            registry.registerSavedStateProvider("a") { bundleOf("foo", 1) }
+            registry.registerSavedStateProvider("b") { bundleOf("foo", 2) }
+        }
             .recreateAndCheck { registry ->
                 val bundleForA = registry.consumeRestoredStateForKey("a")
                 val bundleForB = registry.consumeRestoredStateForKey("b")
@@ -169,12 +169,12 @@ class SavedStateRegistryTest {
     @Test
     fun unregister() {
         startFlow { registry ->
-                registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
-                registry.unregisterSavedStateProvider("a")
-                // this call should succeed
-                registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
-                registry.unregisterSavedStateProvider("a")
-            }
+            registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
+            registry.unregisterSavedStateProvider("a")
+            // this call should succeed
+            registry.registerSavedStateProvider("a") { bundleOf("key", "fo") }
+            registry.unregisterSavedStateProvider("a")
+        }
             .recreateAndCheck { registry ->
                 assertThat(registry.consumeRestoredStateForKey("a")).isNull()
             }
@@ -230,11 +230,10 @@ class SavedStateRegistryTest {
     @Test
     fun sneakClass() {
         startFlow { registry ->
-                @Suppress("UNCHECKED_CAST")
-                val sneak =
-                    ErrorInStaticBlock::class.java as Class<SavedStateRegistry.AutoRecreated>
-                registry.runOnNextRecreation(sneak)
-            }
+            @Suppress("UNCHECKED_CAST")
+            val sneak = ErrorInStaticBlock::class.java as Class<SavedStateRegistry.AutoRecreated>
+            registry.runOnNextRecreation(sneak)
+        }
             .recreate { owner ->
                 try {
                     owner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)

@@ -57,22 +57,21 @@ class SingleProcessDatastoreTest {
 
     @Test
     @LargeTest
-    fun create() =
-        testScope.runTest {
-            benchmark.measureRepeated {
-                // create a new scope for each instance and cancel it to avoid hoarding memory
-                val newScope = runWithMeasurementDisabled { TestScope(UnconfinedTestDispatcher()) }
-                val testFile = tmp.newFile()
-                val store =
-                    DataStoreFactory.create(serializer = TestingSerializer(), scope = newScope) {
-                        testFile
-                    }
-                runWithMeasurementDisabled {
-                    newScope.cancel()
-                    Assert.assertNotNull(store)
+    fun create() = testScope.runTest {
+        benchmark.measureRepeated {
+            // create a new scope for each instance and cancel it to avoid hoarding memory
+            val newScope = runWithMeasurementDisabled { TestScope(UnconfinedTestDispatcher()) }
+            val testFile = tmp.newFile()
+            val store =
+                DataStoreFactory.create(serializer = TestingSerializer(), scope = newScope) {
+                    testFile
                 }
+            runWithMeasurementDisabled {
+                newScope.cancel()
+                Assert.assertNotNull(store)
             }
         }
+    }
 
     @Test
     @MediumTest
@@ -109,69 +108,66 @@ class SingleProcessDatastoreTest {
 
     @Test
     @MediumTest
-    fun read() =
-        testScope.runTest {
-            val scope = this
-            val testFile = tmp.newFile()
-            val store =
-                DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
-                    testFile
-                }
-            store.updateData { 1 }
-            benchmark.measureRepeated {
-                runBlocking(scope.coroutineContext) {
-                    val data = store.data.first()
-                    runWithMeasurementDisabled {
-                        val exp: Byte = 1
-                        Assert.assertEquals(exp, data)
-                    }
+    fun read() = testScope.runTest {
+        val scope = this
+        val testFile = tmp.newFile()
+        val store =
+            DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
+                testFile
+            }
+        store.updateData { 1 }
+        benchmark.measureRepeated {
+            runBlocking(scope.coroutineContext) {
+                val data = store.data.first()
+                runWithMeasurementDisabled {
+                    val exp: Byte = 1
+                    Assert.assertEquals(exp, data)
                 }
             }
         }
+    }
 
     @Test
     @MediumTest
-    fun update_withoutValueChange() =
-        testScope.runTest {
-            val scope = this
-            val testFile = tmp.newFile()
-            val store =
-                DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
-                    testFile
-                }
-            benchmark.measureRepeated {
-                runBlocking(scope.coroutineContext) {
-                    store.updateData { 1 }
-                    val data = store.data.first()
-                    runWithMeasurementDisabled {
-                        val exp: Byte = 1
-                        Assert.assertEquals(exp, data)
-                    }
+    fun update_withoutValueChange() = testScope.runTest {
+        val scope = this
+        val testFile = tmp.newFile()
+        val store =
+            DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
+                testFile
+            }
+        benchmark.measureRepeated {
+            runBlocking(scope.coroutineContext) {
+                store.updateData { 1 }
+                val data = store.data.first()
+                runWithMeasurementDisabled {
+                    val exp: Byte = 1
+                    Assert.assertEquals(exp, data)
                 }
             }
         }
+    }
 
     @Test
     @MediumTest
-    fun update_withValueChange() =
-        testScope.runTest {
-            val scope = this
-            val testFile = tmp.newFile()
-            val store =
-                DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
-                    testFile
-                }
-            var counter = 0
-            benchmark.measureRepeated {
-                runBlocking(scope.coroutineContext) {
-                    val newValue = (++counter).toByte()
-                    store.updateData { newValue }
-                    val data = store.data.first()
-                    runWithMeasurementDisabled {
-                        val exp: Byte = newValue
-                        Assert.assertEquals(exp, data)
-                    }
+    fun update_withValueChange() = testScope.runTest {
+        val scope = this
+        val testFile = tmp.newFile()
+        val store =
+            DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
+                testFile
+            }
+        var counter = 0
+        benchmark.measureRepeated {
+            runBlocking(scope.coroutineContext) {
+                val newValue = (++counter).toByte()
+                store.updateData { newValue }
+                val data = store.data.first()
+                runWithMeasurementDisabled {
+                    val exp: Byte = newValue
+                    Assert.assertEquals(exp, data)
                 }
             }
         }
+    }
 }

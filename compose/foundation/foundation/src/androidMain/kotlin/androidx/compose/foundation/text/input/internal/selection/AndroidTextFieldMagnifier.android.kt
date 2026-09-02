@@ -125,40 +125,39 @@ internal class TextFieldMagnifierNodeImpl28(
                 }
             }
         }
-        animationJob =
-            coroutineScope.launch {
-                val animationScope = this
-                snapshotFlow {
-                        calculateSelectionMagnifierCenterAndroid(
-                            textFieldState,
-                            textFieldSelectionState,
-                            textLayoutState,
-                            magnifierSize,
-                        )
-                    }
-                    .collect { targetValue ->
-                        // Only animate the position when moving vertically (i.e. jumping between
-                        // lines), since horizontal movement in a single line should stay as close
-                        // to
-                        // the gesture as possible and animation would only add unnecessary lag.
-                        if (
-                            animatable.value.isSpecified &&
-                                targetValue.isSpecified &&
-                                animatable.value.y != targetValue.y
-                        ) {
-                            // Launch the animation, instead of cancelling and re-starting manually
-                            // via
-                            // collectLatest, so if another animation is started before this one
-                            // finishes, the new one will use the correct velocity, e.g. in order to
-                            // propagate spring inertia.
-                            animationScope.launch {
-                                animatable.animateTo(targetValue, MagnifierSpringSpec)
-                            }
-                        } else {
-                            animatable.snapTo(targetValue)
-                        }
-                    }
+        animationJob = coroutineScope.launch {
+            val animationScope = this
+            snapshotFlow {
+                calculateSelectionMagnifierCenterAndroid(
+                    textFieldState,
+                    textFieldSelectionState,
+                    textLayoutState,
+                    magnifierSize,
+                )
             }
+                .collect { targetValue ->
+                    // Only animate the position when moving vertically (i.e. jumping between
+                    // lines), since horizontal movement in a single line should stay as close
+                    // to
+                    // the gesture as possible and animation would only add unnecessary lag.
+                    if (
+                        animatable.value.isSpecified &&
+                            targetValue.isSpecified &&
+                            animatable.value.y != targetValue.y
+                    ) {
+                        // Launch the animation, instead of cancelling and re-starting manually
+                        // via
+                        // collectLatest, so if another animation is started before this one
+                        // finishes, the new one will use the correct velocity, e.g. in order to
+                        // propagate spring inertia.
+                        animationScope.launch {
+                            animatable.animateTo(targetValue, MagnifierSpringSpec)
+                        }
+                    } else {
+                        animatable.snapTo(targetValue)
+                    }
+                }
+        }
     }
 
     // TODO(halilibo) Remove this once delegation can propagate this events on its own

@@ -73,19 +73,19 @@ class PropertyReadWriteWriter(propertyWithIndex: PropertyWithIndex) {
             val allParents = getAllParents(propertiesWithIndices.map { it.property })
             val rootNode = Node(rootVar, null)
             rootNode.directProperties = propertiesWithIndices.filter { it.property.parent == null }
-            val parentNodes =
-                allParents.associateWith {
-                    Node(
-                        varName = scope.getTmpVar("_tmp${it.property.name.capitalize(Locale.US)}"),
-                        propertyParent = it,
-                    )
-                }
+            val parentNodes = allParents.associateWith {
+                Node(
+                    varName = scope.getTmpVar("_tmp${it.property.name.capitalize(Locale.US)}"),
+                    propertyParent = it,
+                )
+            }
             parentNodes.values.forEach { node ->
                 val propertyParent = node.propertyParent!!
                 val grandParent = propertyParent.parent
                 val grandParentNode = grandParent?.let { parentNodes[it] } ?: rootNode
-                node.directProperties =
-                    propertiesWithIndices.filter { it.property.parent == propertyParent }
+                node.directProperties = propertiesWithIndices.filter {
+                    it.property.parent == propertyParent
+                }
                 node.parentNode = grandParentNode
                 grandParentNode.subNodes.add(node)
             }
@@ -181,10 +181,9 @@ class PropertyReadWriteWriter(propertyWithIndex: PropertyWithIndex) {
                     param to valueVarName
                 }
 
-            val emitNamedArguments =
-                paramValues.any { (param, valueVarName) ->
-                    valueVarName == null && param.hasDefaultValue
-                }
+            val emitNamedArguments = paramValues.any { (param, valueVarName) ->
+                valueVarName == null && param.hasDefaultValue
+            }
             val args =
                 if (emitNamedArguments) {
                     check(scope.language == CodeLanguage.KOTLIN) {

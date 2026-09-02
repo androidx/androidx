@@ -77,20 +77,19 @@ private constructor(
         inputEventListener.accept(rtEvent.toInputEvent(entityRegistry))
     }
 
-    private val rtStateListener =
-        RtPointerCaptureComponent.StateListener { pcState: Int ->
-            when (pcState) {
-                RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_PAUSED ->
-                    stateListener.accept(PointerCaptureState.PAUSED)
-                RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE ->
-                    stateListener.accept(PointerCaptureState.ACTIVE)
-                RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_STOPPED ->
-                    stateListener.accept(PointerCaptureState.STOPPED)
-                else -> {
-                    // Unreachable
-                }
+    private val rtStateListener = RtPointerCaptureComponent.StateListener { pcState: Int ->
+        when (pcState) {
+            RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_PAUSED ->
+                stateListener.accept(PointerCaptureState.PAUSED)
+            RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE ->
+                stateListener.accept(PointerCaptureState.ACTIVE)
+            RtPointerCaptureComponent.PointerCaptureState.POINTER_CAPTURE_STATE_STOPPED ->
+                stateListener.accept(PointerCaptureState.STOPPED)
+            else -> {
+                // Unreachable
             }
         }
+    }
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public val rtComponent: RtPointerCaptureComponent by lazy {
         sceneRuntime.createPointerCaptureComponent(executor, rtStateListener, rtInputEventListener)

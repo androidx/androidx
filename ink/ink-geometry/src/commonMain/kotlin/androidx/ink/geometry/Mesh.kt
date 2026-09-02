@@ -45,8 +45,9 @@ public class Mesh private constructor(pointerAlloc: () -> Long) {
     @InkInternalOnlyApi
     public val nativePointer: Long by NativePointer(pointerAlloc, MeshNative::free)
 
-    public val format: MeshFormat =
-        MeshFormat.wrapNative { MeshNative.newCopyOfFormat(nativePointer) }
+    public val format: MeshFormat = MeshFormat.wrapNative {
+        MeshNative.newCopyOfFormat(nativePointer)
+    }
 
     /** The number of vertices in the mesh. */
     public val vertexCount: Int = MeshNative.getVertexCount(nativePointer)

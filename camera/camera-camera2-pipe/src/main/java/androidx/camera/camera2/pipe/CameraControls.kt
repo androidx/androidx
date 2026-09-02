@@ -46,8 +46,9 @@ public value class ControlMode(public val value: Int) {
             listOf(OFF, AUTO, USE_SCENE_MODE, OFF_KEEP_STATE, USE_EXTENDED_SCENE_MODE)
 
         @JvmStatic
-        public fun fromIntOrNull(value: Int): ControlMode? =
-            values.firstOrNull { it.value == value }
+        public fun fromIntOrNull(value: Int): ControlMode? = values.firstOrNull {
+            it.value == value
+        }
     }
 }
 

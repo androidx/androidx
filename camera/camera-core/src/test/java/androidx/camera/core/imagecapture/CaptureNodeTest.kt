@@ -199,11 +199,10 @@ class CaptureNodeTest {
         val captureBundleA = createCaptureBundle(intArrayOf(1))
         val callbackA = FakeTakePictureCallback()
         var captureFutureCompleterA: CallbackToFutureAdapter.Completer<Void>? = null
-        val captureFuture1 =
-            CallbackToFutureAdapter.getFuture {
-                captureFutureCompleterA = it
-                "test"
-            }
+        val captureFuture1 = CallbackToFutureAdapter.getFuture {
+            captureFutureCompleterA = it
+            "test"
+        }
         val requestA = FakeProcessingRequest(captureBundleA, callbackA, captureFuture1)
         val tagBundleKeyA = captureBundleA.hashCode().toString()
         val tagBundleA = TagBundle.create(Pair(tagBundleKeyA, /* stage id */ 1))

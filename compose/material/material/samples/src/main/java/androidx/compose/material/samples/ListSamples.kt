@@ -131,7 +131,9 @@ fun OneLineListItems() {
         Divider()
         ListItem(
             text = { Text("One line list item with trailing icon") },
-            trailing = { Icon(Icons.Filled.Favorite, contentDescription = "Localized Description") },
+            trailing = {
+                Icon(Icons.Filled.Favorite, contentDescription = "Localized Description")
+            },
         )
         Divider()
         ListItem(
@@ -143,7 +145,9 @@ fun OneLineListItems() {
                     modifier = Modifier.size(40.dp),
                 )
             },
-            trailing = { Icon(Icons.Filled.Favorite, contentDescription = "Localized description") },
+            trailing = {
+                Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+            },
         )
         Divider()
     }
@@ -236,7 +240,9 @@ fun ThreeLineListItems() {
                 )
             },
             singleLineSecondaryText = false,
-            trailing = { Icon(Icons.Filled.Favorite, contentDescription = "Localized description") },
+            trailing = {
+                Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+            },
         )
         Divider()
         ListItem(

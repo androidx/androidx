@@ -99,17 +99,15 @@ public class SnackbarHostState {
         message: String,
         actionLabel: String? = null,
         duration: SnackbarDuration = SnackbarDuration.Short,
-    ): SnackbarResult =
-        mutex.withLock {
-            try {
-                return suspendCancellableCoroutine { continuation ->
-                    currentSnackbarData =
-                        SnackbarDataImpl(message, actionLabel, duration, continuation)
-                }
-            } finally {
-                currentSnackbarData = null
+    ): SnackbarResult = mutex.withLock {
+        try {
+            return suspendCancellableCoroutine { continuation ->
+                currentSnackbarData = SnackbarDataImpl(message, actionLabel, duration, continuation)
             }
+        } finally {
+            currentSnackbarData = null
         }
+    }
 
     @Stable
     private class SnackbarDataImpl(

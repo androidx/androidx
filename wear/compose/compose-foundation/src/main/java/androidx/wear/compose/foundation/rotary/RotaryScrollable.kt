@@ -824,19 +824,18 @@ private fun flingBehavior(
     viewConfiguration: ViewConfiguration,
 ): RotaryScrollableBehavior {
 
-    fun rotaryFlingHandler(inputDeviceId: Int, initialTimestamp: Long) =
-        flingBehavior?.run {
-            RotaryFlingHandler(
-                scrollableState = scrollableState,
-                flingBehavior = flingBehavior,
-                flingTimeframe =
-                    if (isLowRes) RotaryScrollableDefaults.LowResFlingTimeframe
-                    else RotaryScrollableDefaults.HighResFlingTimeframe,
-                viewConfiguration = viewConfiguration,
-                inputDeviceId = inputDeviceId,
-                initialTimestamp = initialTimestamp,
-            )
-        }
+    fun rotaryFlingHandler(inputDeviceId: Int, initialTimestamp: Long) = flingBehavior?.run {
+        RotaryFlingHandler(
+            scrollableState = scrollableState,
+            flingBehavior = flingBehavior,
+            flingTimeframe =
+                if (isLowRes) RotaryScrollableDefaults.LowResFlingTimeframe
+                else RotaryScrollableDefaults.HighResFlingTimeframe,
+            viewConfiguration = viewConfiguration,
+            inputDeviceId = inputDeviceId,
+            initialTimestamp = initialTimestamp,
+        )
+    }
 
     fun scrollHandler() = RotaryScrollHandler(scrollableState)
 

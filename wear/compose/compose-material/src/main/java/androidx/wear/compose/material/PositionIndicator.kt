@@ -685,12 +685,12 @@ public fun PositionIndicator(
             // This snapshotFlow listens to changes in position, size and visibility
             // of PositionIndicatorState and starts necessary animations if needed
             snapshotFlow {
-                    DisplayState(
-                        state.positionFraction,
-                        state.sizeFraction(containerSize.height.toFloat()),
-                        state.visibility(containerSize.height.toFloat()),
-                    )
-                }
+                DisplayState(
+                    state.positionFraction,
+                    state.sizeFraction(containerSize.height.toFloat()),
+                    state.visibility(containerSize.height.toFloat()),
+                )
+            }
                 .collectLatest {
                     // Workaround for b/315149417. When visibility is Hide and other values equal to
                     // 0,

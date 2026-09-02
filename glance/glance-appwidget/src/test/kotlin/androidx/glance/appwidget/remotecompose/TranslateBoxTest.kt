@@ -43,116 +43,110 @@ import org.robolectric.annotation.Config
 class TranslateBoxTest : BaseRemoteComposeTest() {
 
     @Test
-    fun translateBox_100x100() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.size(100.dp, 100.dp)) {
+    fun translateBox_100x100() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.size(100.dp, 100.dp)) {
+                    // no content
+                }
+            }
+
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+
+        val box = getSimpleLeaf(doc) as BoxLayout
+
+        assertEquals(100f, box.width)
+        assertEquals(100f, box.height)
+    }
+
+    @Test
+    fun translateBox_MatchWidth_100dpHeight() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.fillMaxWidth().height(100.dp)) {
+                    // no content
+                }
+            }
+
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+
+        val box = getSimpleLeaf(doc) as BoxLayout
+
+        assertEquals(DimensionModifierOperation.Type.FILL, box.widthModifier!!.type)
+        assertEquals(100f, box.height)
+    }
+
+    @Test
+    fun translateBox_FillMaxSize() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.fillMaxSize()) {
+                    // no content
+                }
+            }
+
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+
+        val box = getSimpleLeaf(doc) as BoxLayout
+
+        assertEquals(DimensionModifierOperation.Type.FILL, box.widthModifier!!.type)
+        assertEquals(DimensionModifierOperation.Type.FILL, box.heightModifier!!.type)
+    }
+
+    @Test
+    fun translateBox_wrapContent() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.wrapContentSize()) {
+                    // no content
+                }
+            }
+
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+
+        val box = getSimpleLeaf(doc) as BoxLayout
+
+        assertEquals(DimensionModifierOperation.Type.WRAP, box.widthModifier!!.type)
+        assertEquals(DimensionModifierOperation.Type.WRAP, box.heightModifier!!.type)
+    }
+
+    @Test
+    fun translate_Row_Box_defaultWeight() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Row {
+                    Box(modifier = GlanceModifier.defaultWeight()) {
                         // no content
                     }
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val box = getSimpleLeaf(doc) as BoxLayout
+        val box = getSimpleLeaf(doc) as BoxLayout
+        val mod = box.widthModifier!!
 
-            assertEquals(100f, box.width)
-            assertEquals(100f, box.height)
-        }
+        assertEquals(DimensionModifierOperation.Type.WEIGHT, mod.type)
+        assertEquals(1f, mod.value, floatMarginOfError)
+    }
 
     @Test
-    fun translateBox_MatchWidth_100dpHeight() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.fillMaxWidth().height(100.dp)) {
+    fun translate_Column_Box_defaultWeight() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Column {
+                    Box(modifier = GlanceModifier.defaultWeight()) {
                         // no content
                     }
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val box = getSimpleLeaf(doc) as BoxLayout
+        val box = getSimpleLeaf(doc) as BoxLayout
+        val mod = box.heightModifier!!
 
-            assertEquals(DimensionModifierOperation.Type.FILL, box.widthModifier!!.type)
-            assertEquals(100f, box.height)
-        }
-
-    @Test
-    fun translateBox_FillMaxSize() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.fillMaxSize()) {
-                        // no content
-                    }
-                }
-
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
-
-            val box = getSimpleLeaf(doc) as BoxLayout
-
-            assertEquals(DimensionModifierOperation.Type.FILL, box.widthModifier!!.type)
-            assertEquals(DimensionModifierOperation.Type.FILL, box.heightModifier!!.type)
-        }
-
-    @Test
-    fun translateBox_wrapContent() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.wrapContentSize()) {
-                        // no content
-                    }
-                }
-
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
-
-            val box = getSimpleLeaf(doc) as BoxLayout
-
-            assertEquals(DimensionModifierOperation.Type.WRAP, box.widthModifier!!.type)
-            assertEquals(DimensionModifierOperation.Type.WRAP, box.heightModifier!!.type)
-        }
-
-    @Test
-    fun translate_Row_Box_defaultWeight() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Row {
-                        Box(modifier = GlanceModifier.defaultWeight()) {
-                            // no content
-                        }
-                    }
-                }
-
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
-
-            val box = getSimpleLeaf(doc) as BoxLayout
-            val mod = box.widthModifier!!
-
-            assertEquals(DimensionModifierOperation.Type.WEIGHT, mod.type)
-            assertEquals(1f, mod.value, floatMarginOfError)
-        }
-
-    @Test
-    fun translate_Column_Box_defaultWeight() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Column {
-                        Box(modifier = GlanceModifier.defaultWeight()) {
-                            // no content
-                        }
-                    }
-                }
-
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
-
-            val box = getSimpleLeaf(doc) as BoxLayout
-            val mod = box.heightModifier!!
-
-            assertEquals(DimensionModifierOperation.Type.WEIGHT, box.heightModifier!!.type)
-            assertEquals(1f, mod.value, floatMarginOfError)
-        }
+        assertEquals(DimensionModifierOperation.Type.WEIGHT, box.heightModifier!!.type)
+        assertEquals(1f, mod.value, floatMarginOfError)
+    }
 } // end tests

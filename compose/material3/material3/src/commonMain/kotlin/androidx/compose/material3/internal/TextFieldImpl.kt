@@ -163,23 +163,22 @@ internal fun CommonDecorationBox(
             null
         }
 
-    val decoratedLabel =
-        label?.let { label ->
-            @Composable {
-                DecoratedLabel(
-                    labelProgress = labelProgress,
-                    colors = colors,
-                    enabled = enabled,
-                    isError = isError,
-                    isFocused = isFocused,
-                    overrideLabelTextStyleColor = overrideLabelTextStyleColor,
-                    transition = transition,
-                    bodySmall = bodySmall,
-                    bodyLarge = bodyLarge,
-                    content = label,
-                )
-            }
+    val decoratedLabel = label?.let { label ->
+        @Composable {
+            DecoratedLabel(
+                labelProgress = labelProgress,
+                colors = colors,
+                enabled = enabled,
+                isError = isError,
+                isFocused = isFocused,
+                overrideLabelTextStyleColor = overrideLabelTextStyleColor,
+                transition = transition,
+                bodySmall = bodySmall,
+                bodyLarge = bodyLarge,
+                content = label,
+            )
         }
+    }
 
     // Transparent components interfere with Talkback (b/261061240), so if any components below
     // have alpha == 0, we set the component to null instead.
@@ -220,24 +219,21 @@ internal fun CommonDecorationBox(
         } else null
 
     val leadingIconColor = colors.leadingIconColor(enabled, isError, isFocused)
-    val decoratedLeading: @Composable (() -> Unit)? =
-        leadingIcon?.let {
-            @Composable { Decoration(contentColor = leadingIconColor, content = it) }
-        }
+    val decoratedLeading: @Composable (() -> Unit)? = leadingIcon?.let {
+        @Composable { Decoration(contentColor = leadingIconColor, content = it) }
+    }
 
     val trailingIconColor = colors.trailingIconColor(enabled, isError, isFocused)
-    val decoratedTrailing: @Composable (() -> Unit)? =
-        trailingIcon?.let {
-            @Composable { Decoration(contentColor = trailingIconColor, content = it) }
-        }
+    val decoratedTrailing: @Composable (() -> Unit)? = trailingIcon?.let {
+        @Composable { Decoration(contentColor = trailingIconColor, content = it) }
+    }
 
     val supportingTextColor = colors.supportingTextColor(enabled, isError, isFocused)
-    val decoratedSupporting: @Composable (() -> Unit)? =
-        supportingText?.let {
-            @Composable {
-                Decoration(contentColor = supportingTextColor, textStyle = bodySmall, content = it)
-            }
+    val decoratedSupporting: @Composable (() -> Unit)? = supportingText?.let {
+        @Composable {
+            Decoration(contentColor = supportingTextColor, textStyle = bodySmall, content = it)
         }
+    }
 
     val labelProgressProducer = { labelProgress?.value ?: 1f }
     val placeholderAlphaProducer = { placeholderAlpha?.value ?: 0f }

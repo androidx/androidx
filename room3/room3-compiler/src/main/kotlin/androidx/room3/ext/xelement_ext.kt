@@ -35,7 +35,9 @@ fun <T : Annotation> XPropertyElement.getAnnotationOnPropertyOrField(annotation:
     getAnnotation(annotation) ?: backingField?.getAnnotation(annotation)
 
 fun XPropertyElement.hasAnyAnnotationOnPropertyOrField(vararg annotations: KClass<out Annotation>) =
-    annotations.any { hasAnnotationOnPropertyOrField(it) }
+    annotations.any {
+        hasAnnotationOnPropertyOrField(it)
+    }
 
 fun <T : Annotation> XPropertyElement.requireAnnotationOnPropertyOrField(annotation: KClass<T>) =
     requireNotNull(getAnnotationOnPropertyOrField(annotation)) {

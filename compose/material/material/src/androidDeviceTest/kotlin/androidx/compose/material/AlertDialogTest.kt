@@ -129,7 +129,9 @@ class AlertDialogTest {
                 confirmButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier.testTag(ConfirmButtonTestTag).semantics(mergeDescendants = true) {},
+                        Modifier.testTag(ConfirmButtonTestTag).semantics(
+                            mergeDescendants = true
+                        ) {},
                     ) {
                         Text("Confirm with a long text")
                     }
@@ -137,7 +139,9 @@ class AlertDialogTest {
                 dismissButton = {
                     TextButton(
                         onClick = { /* doSomething() */ },
-                        Modifier.testTag(DismissButtonTestTag).semantics(mergeDescendants = true) {},
+                        Modifier.testTag(DismissButtonTestTag).semantics(
+                            mergeDescendants = true
+                        ) {},
                     ) {
                         Text("Dismiss with a long text")
                     }

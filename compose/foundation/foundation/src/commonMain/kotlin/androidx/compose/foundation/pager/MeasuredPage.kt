@@ -90,10 +90,9 @@ internal class MeasuredPage(
                 val placeable = placeables[index]
                 var offset = getOffset(index)
                 if (reverseLayout) {
-                    offset =
-                        offset.copy { mainAxisOffset ->
-                            mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
-                        }
+                    offset = offset.copy { mainAxisOffset ->
+                        mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
+                    }
                 }
                 offset += visualOffset
                 if (isVertical) {

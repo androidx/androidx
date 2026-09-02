@@ -62,34 +62,30 @@ public class FakeStreamSpecsCalculator : StreamSpecsCalculator {
         (attachedUseCases + newUseCases).forEach { useCase ->
             val useCaseConfig = useCase.mergeConfigs(cameraInfoInternal, null, null)
 
-            val supportedSpec =
-                supportedStreamSpecs.find { streamSpec ->
-                    if (streamSpec.dynamicRange != useCaseConfig.dynamicRange) {
-                        return@find false
-                    }
-
-                    if (
-                        streamSpec.expectedFrameRateRange !=
-                            useCaseConfig.getTargetFrameRate(FRAME_RATE_RANGE_UNSPECIFIED)
-                    ) {
-                        return@find false
-                    }
-
-                    if (streamSpec.imageFormat != useCaseConfig.inputFormat) {
-                        return@find false
-                    }
-
-                    if (
-                        streamSpec.previewStabilizationMode !=
-                            useCaseConfig.previewStabilizationMode
-                    ) {
-                        return@find false
-                    }
-
-                    // TODO: Check other options like zslDisabled, implementationOptions etc.
-
-                    return@find true
+            val supportedSpec = supportedStreamSpecs.find { streamSpec ->
+                if (streamSpec.dynamicRange != useCaseConfig.dynamicRange) {
+                    return@find false
                 }
+
+                if (
+                    streamSpec.expectedFrameRateRange !=
+                        useCaseConfig.getTargetFrameRate(FRAME_RATE_RANGE_UNSPECIFIED)
+                ) {
+                    return@find false
+                }
+
+                if (streamSpec.imageFormat != useCaseConfig.inputFormat) {
+                    return@find false
+                }
+
+                if (streamSpec.previewStabilizationMode != useCaseConfig.previewStabilizationMode) {
+                    return@find false
+                }
+
+                // TODO: Check other options like zslDisabled, implementationOptions etc.
+
+                return@find true
+            }
 
             if (supportedSpec == null) {
                 val logMsg =

@@ -463,7 +463,8 @@ public fun RenderVectorGroup(
                     config.getOrDefault(VectorProperty.TranslateY, vectorNode.translationY),
                 pivotX = config.getOrDefault(VectorProperty.PivotX, vectorNode.pivotX),
                 pivotY = config.getOrDefault(VectorProperty.PivotY, vectorNode.pivotY),
-                clipPathData = config.getOrDefault(VectorProperty.PathData, vectorNode.clipPathData),
+                clipPathData =
+                    config.getOrDefault(VectorProperty.PathData, vectorNode.clipPathData),
             ) {
                 RenderVectorGroup(group = vectorNode, configs = configs)
             }

@@ -325,7 +325,8 @@ class VideoEncoderConfigDefaultResolverTest {
                 DynamicRange.SDR to VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED,
                 DynamicRange.HLG_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_HLG,
                 DynamicRange.HDR10_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
-                DynamicRange.HDR10_PLUS_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
+                DynamicRange.HDR10_PLUS_10_BIT to
+                    VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
             )
 
         for (entry in dynamicRangeToExpectedDataSpaces) {
@@ -350,7 +351,8 @@ class VideoEncoderConfigDefaultResolverTest {
                 DynamicRange.SDR to VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED,
                 DynamicRange.HLG_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_HLG,
                 DynamicRange.HDR10_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
-                DynamicRange.HDR10_PLUS_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
+                DynamicRange.HDR10_PLUS_10_BIT to
+                    VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
             )
 
         for (entry in dynamicRangeToExpectedDataSpaces) {
@@ -375,7 +377,8 @@ class VideoEncoderConfigDefaultResolverTest {
                 DynamicRange.SDR to VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED,
                 DynamicRange.HLG_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_HLG,
                 DynamicRange.HDR10_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
-                DynamicRange.HDR10_PLUS_10_BIT to VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
+                DynamicRange.HDR10_PLUS_10_BIT to
+                    VideoEncoderDataSpace.ENCODER_DATA_SPACE_BT2020_PQ,
             )
 
         for (entry in dynamicRangeToExpectedDataSpaces) {

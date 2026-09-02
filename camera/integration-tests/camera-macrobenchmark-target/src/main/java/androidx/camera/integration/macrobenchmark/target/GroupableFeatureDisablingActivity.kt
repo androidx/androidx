@@ -74,16 +74,15 @@ class GroupableFeatureDisablingActivity : ComponentActivity() {
         val lifecycleOwner = LocalLifecycleOwner.current
 
         LifecycleStartEffect(Unit) {
-            camera =
-                coroutineScope.async {
-                    initCameraX(
-                        cameraXConfig,
-                        cameraSelector,
-                        context.applicationContext,
-                        lifecycleOwner,
-                        SessionConfig(listOf(preview, imageCapture, videoCapture)),
-                    )
-                }
+            camera = coroutineScope.async {
+                initCameraX(
+                    cameraXConfig,
+                    cameraSelector,
+                    context.applicationContext,
+                    lifecycleOwner,
+                    SessionConfig(listOf(preview, imageCapture, videoCapture)),
+                )
+            }
             onStopOrDispose {}
         }
 

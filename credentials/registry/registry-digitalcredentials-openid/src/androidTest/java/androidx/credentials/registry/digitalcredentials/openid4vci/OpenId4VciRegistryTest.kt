@@ -237,7 +237,8 @@ class OpenId4VciRegistryTest {
                                 OpenId4VciDisplayData.Entry(
                                     id = "entry_id_2",
                                     subtitle = "sub2",
-                                    explainer = OpenId4VciDisplayData.Explainer(default = "default"),
+                                    explainer =
+                                        OpenId4VciDisplayData.Explainer(default = "default"),
                                 ),
                             ),
                         holderDisplayData =

@@ -75,12 +75,11 @@ class GlanceAppWidgetRemoteViewTest {
 
     @Test
     fun createUiWithSize() = runTest {
-        val rv =
-            TestWidget {
-                    val size = LocalSize.current
-                    Text("${size.width} x ${size.height}")
-                }
-                .compose(context, fakeId, size = DpSize(40.dp, 50.dp))
+        val rv = TestWidget {
+            val size = LocalSize.current
+            Text("${size.width} x ${size.height}")
+        }
+            .compose(context, fakeId, size = DpSize(40.dp, 50.dp))
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -89,18 +88,17 @@ class GlanceAppWidgetRemoteViewTest {
 
     @Test
     fun createUiFromOptionBundle() = runTest {
-        val rv =
-            TestWidget {
-                    val options = LocalAppWidgetOptions.current
+        val rv = TestWidget {
+            val options = LocalAppWidgetOptions.current
 
-                    Text(options.getString("StringKey", "<NOT FOUND>"))
-                }
-                .compose(
-                    context,
-                    fakeId,
-                    @Suppress("DEPRECATION") // bundleOf is deprecated
-                    bundleOf("StringKey" to "FOUND"),
-                )
+            Text(options.getString("StringKey", "<NOT FOUND>"))
+        }
+            .compose(
+                context,
+                fakeId,
+                @Suppress("DEPRECATION") // bundleOf is deprecated
+                bundleOf("StringKey" to "FOUND"),
+            )
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)
@@ -132,12 +130,11 @@ class GlanceAppWidgetRemoteViewTest {
                 resizeMode = AppWidgetProviderInfo.RESIZE_BOTH
             },
         )
-        val rv =
-            TestWidget {
-                    val size = LocalSize.current
-                    Text("${size.width} x ${size.height}")
-                }
-                .compose(context, glanceId)
+        val rv = TestWidget {
+            val size = LocalSize.current
+            Text("${size.width} x ${size.height}")
+        }
+            .compose(context, glanceId)
 
         val view = context.applyRemoteViews(rv)
         assertIs<TextView>(view)

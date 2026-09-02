@@ -40,12 +40,11 @@ actual constructor(
 
     @Suppress("KmpSignatureClash") // also defined in native
     public companion object {
-        public fun deserialize(fis: InputStream): SchemaBundle =
-            fis.use {
-                // TODO: Try to use decodeFromStream if possible, currently blocked by
-                //       https://github.com/Kotlin/kotlinx.serialization/issues/2457
-                json.decodeFromString(it.bufferedReader().readText())
-            }
+        public fun deserialize(fis: InputStream): SchemaBundle = fis.use {
+            // TODO: Try to use decodeFromStream if possible, currently blocked by
+            //       https://github.com/Kotlin/kotlinx.serialization/issues/2457
+            json.decodeFromString(it.bufferedReader().readText())
+        }
 
         @OptIn(ExperimentalSerializationApi::class) // For encodeToStream() with OutputStream
         public fun serialize(bundle: SchemaBundle, outputStream: OutputStream) {

@@ -371,10 +371,9 @@ private val gradleSyncProps by lazy {
     )
 }
 
-internal fun Project.isGradleSyncRunning() =
-    gradleSyncProps.any { property ->
-        providers.gradleProperty(property).map { it.toBoolean() }.orElse(false).get()
-    }
+internal fun Project.isGradleSyncRunning() = gradleSyncProps.any { property ->
+    providers.gradleProperty(property).map { it.toBoolean() }.orElse(false).get()
+}
 
 /** Enumerates the supported android plugins. */
 internal enum class AgpPluginId(val value: String) {

@@ -57,11 +57,10 @@ class ActionQueueTest {
     fun executeWhenAvailable_valueIsNull_actionIsQueuedAndReturnsNull() {
         val queue = ActionQueue<StringBuilder>()
         var executed = false
-        val result =
-            queue.executeWhenAvailable { builder ->
-                executed = true
-                builder.append("test")
-            }
+        val result = queue.executeWhenAvailable { builder ->
+            executed = true
+            builder.append("test")
+        }
 
         assertThat(executed).isFalse()
         assertNull(result)
@@ -111,12 +110,11 @@ class ActionQueueTest {
     fun executeWhenAvailable_valueIsAvailable_actionIsExecutedImmediately() {
         val queue = ActionQueue(initialValue = StringBuilder("initial"))
         var executed = false
-        val result =
-            queue.executeWhenAvailable { builder ->
-                executed = true
-                builder.append("-test")
-                builder.toString()
-            }
+        val result = queue.executeWhenAvailable { builder ->
+            executed = true
+            builder.append("-test")
+            builder.toString()
+        }
 
         assertThat(executed).isTrue()
         assertThat(result).isEqualTo("initial-test")
@@ -127,12 +125,11 @@ class ActionQueueTest {
     fun executeWhenAvailable_valueIsNull_actionIsExecutedImmediately() {
         val queue = ActionQueue(initialValue = StringBuilder("initial"))
         var executed = false
-        val result =
-            queue.executeWhenAvailable { builder ->
-                executed = true
-                builder.append("-test")
-                builder.toString()
-            }
+        val result = queue.executeWhenAvailable { builder ->
+            executed = true
+            builder.append("-test")
+            builder.toString()
+        }
 
         assertThat(executed).isTrue()
         assertThat(result).isEqualTo("initial-test")

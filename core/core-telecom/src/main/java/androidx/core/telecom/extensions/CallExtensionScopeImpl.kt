@@ -391,34 +391,33 @@ internal class CallExtensionScopeImpl(
         val type = resolveCallExtensionsType()
         Log.d(TAG, "connectExtensionsSession: type=$type")
 
-        val extensions: CapabilityExchangeResult? =
-            runCatching {
-                    when (type) {
-                        EXTRAS -> {
-                            // Can't instantiate ExtrasCallExtensionProcessor without a real call
-                            // callProxy.call is only null in tests.
-                            callProxy.call?.let { call ->
-                                val extrasProcessor = ExtrasCallExtensionProcessor(callScope, call)
-                                extrasProcessor.handleExtrasExtensionsFromVoipApp(
-                                    callProxy.getExtensionDetailsFlow().map {
-                                        it.extras ?: Bundle()
-                                    }
-                                )
+        val extensions: CapabilityExchangeResult? = runCatching {
+            when (type) {
+                EXTRAS -> {
+                    // Can't instantiate ExtrasCallExtensionProcessor without a real call
+                    // callProxy.call is only null in tests.
+                    callProxy.call?.let { call ->
+                        val extrasProcessor = ExtrasCallExtensionProcessor(callScope, call)
+                        extrasProcessor.handleExtrasExtensionsFromVoipApp(
+                            callProxy.getExtensionDetailsFlow().map {
+                                it.extras ?: Bundle()
                             }
-                        }
-                        CAPABILITY_EXCHANGE,
-                        UNKNOWN -> performExchangeWithRemote()
-                        else -> {
-                            Log.w(
-                                TAG,
-                                "connectExtensions: unexpected type: $type." +
-                                    " Proceeding with no extension support",
-                            )
-                            null
-                        }
+                        )
                     }
                 }
-                .getOrNull()
+                CAPABILITY_EXCHANGE,
+                UNKNOWN -> performExchangeWithRemote()
+                else -> {
+                    Log.w(
+                        TAG,
+                        "connectExtensions: unexpected type: $type." +
+                            " Proceeding with no extension support",
+                    )
+                    null
+                }
+            }
+        }
+            .getOrNull()
 
         try {
             extensions?.let {

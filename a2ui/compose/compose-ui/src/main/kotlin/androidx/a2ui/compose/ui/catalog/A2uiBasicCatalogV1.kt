@@ -536,8 +536,9 @@ public class A2uiBasicCatalogV1(
 
             public companion object {
                 /** Returns the [BuiltIn] matching [value], or null if unknown. */
-                public fun fromValue(value: String): BuiltIn? =
-                    entries.fastFirstOrNull { it.value == value }
+                public fun fromValue(value: String): BuiltIn? = entries.fastFirstOrNull {
+                    it.value == value
+                }
             }
         }
 

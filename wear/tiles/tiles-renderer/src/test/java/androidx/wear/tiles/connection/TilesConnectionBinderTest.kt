@@ -95,201 +95,192 @@ public class TilesConnectionBinderTest {
     }
 
     @Test
-    public fun canCallTileProvider(): Unit =
-        fakeCoroutineScope.runTest {
-            val result = async {
-                connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
-            }
-
-            // This is a little nasty, as we have to handle the interactions between the fake looper
-            // and the fake coroutine dispatcher. TestCoroutineDispatcher should run everything
-            // eagerly, so we now need to idle the main looper to get bind to be called.
-            shadowOf(Looper.getMainLooper()).idle()
-
-            assertThat(result.await()).isEqualTo(5)
+    public fun canCallTileProvider(): Unit = fakeCoroutineScope.runTest {
+        val result = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
         }
 
+        // This is a little nasty, as we have to handle the interactions between the fake looper
+        // and the fake coroutine dispatcher. TestCoroutineDispatcher should run everything
+        // eagerly, so we now need to idle the main looper to get bind to be called.
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(result.await()).isEqualTo(5)
+    }
+
     @Test
-    public fun binderLeftOpen(): Unit =
-        fakeCoroutineScope.runTest {
-            val result = async {
-                connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
-            }
-
-            shadowOf(Looper.getMainLooper()).idle()
-            result.await()
-
-            // Ensure that the binder is still bound.
-            assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
-            assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
+    public fun binderLeftOpen(): Unit = fakeCoroutineScope.runTest {
+        val result = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
         }
 
+        shadowOf(Looper.getMainLooper()).idle()
+        result.await()
+
+        // Ensure that the binder is still bound.
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
+    }
+
     @Test
-    public fun binderClosesAfterTimeout(): Unit =
-        fakeCoroutineScope.runTest {
-            val result = async {
-                connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
-            }
-
-            shadowOf(Looper.getMainLooper()).idle()
-            result.await()
-
-            // Wait for the timeout
-            advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
-            runCurrent()
-
-            shadowOf(Looper.getMainLooper()).idle()
-
-            assertThat(shadowOf(appContext as Application).boundServiceConnections).isEmpty()
-            assertThat(shadowOf(appContext as Application).unboundServiceConnections).hasSize(1)
+    public fun binderClosesAfterTimeout(): Unit = fakeCoroutineScope.runTest {
+        val result = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
         }
 
+        shadowOf(Looper.getMainLooper()).idle()
+        result.await()
+
+        // Wait for the timeout
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        runCurrent()
+
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).isEmpty()
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).hasSize(1)
+    }
+
     @Test
-    public fun twoCallsShareSameBinder(): Unit =
-        fakeCoroutineScope.runTest {
-            val result1 = async {
-                connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
-            }
-
-            shadowOf(Looper.getMainLooper()).idle()
-            result1.await()
-
-            val result2 = async {
-                connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
-            }
-
-            result2.await()
-
-            assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
-            assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
+    public fun twoCallsShareSameBinder(): Unit = fakeCoroutineScope.runTest {
+        val result1 = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
         }
 
+        shadowOf(Looper.getMainLooper()).idle()
+        result1.await()
+
+        val result2 = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
+        }
+
+        result2.await()
+
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
+    }
+
     @Test
-    public fun longRunningCallsSuspendsBinderKill(): Unit =
-        fakeCoroutineScope.runTest {
-            val result = async {
+    public fun longRunningCallsSuspendsBinderKill(): Unit = fakeCoroutineScope.runTest {
+        val result = async {
+            connectionBinderUnderTest.runWithTilesConnection {
+                delay(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS * 2)
+                it.apiVersion
+            }
+        }
+
+        shadowOf(Looper.getMainLooper()).idle()
+
+        // Binder should be shut down by this time, if there's nothing outstanding
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        runCurrent()
+
+        assertThat(result.isCompleted).isFalse()
+
+        // Binder should still be alive...
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
+
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        runCurrent()
+        assertThat(result.isCompleted).isTrue()
+
+        // Still alive...
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
+
+        // Shut down.
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        runCurrent()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).isEmpty()
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).hasSize(1)
+    }
+
+    @Test
+    public fun anotherCallPostponesUnbind(): Unit = fakeCoroutineScope.runTest {
+        val result1 = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
+        }
+
+        shadowOf(Looper.getMainLooper()).idle()
+        result1.await()
+
+        // Wait a while...
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
+        runCurrent()
+
+        val result2 = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
+        }
+
+        result2.await()
+
+        // Wait for the rest of the inactivity period.
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
+        runCurrent()
+
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
+
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
+        runCurrent()
+
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).isEmpty()
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).hasSize(1)
+    }
+
+    @Test
+    public fun canRebindAfterUnbind(): Unit = fakeCoroutineScope.runTest {
+        val result1 = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
+        }
+
+        shadowOf(Looper.getMainLooper()).idle()
+        result1.await()
+
+        // Wait a while...
+        advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
+        runCurrent()
+
+        val result2 = async {
+            connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
+        }
+
+        shadowOf(Looper.getMainLooper()).idle()
+        result2.await()
+
+        assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
+        assertThat(shadowOf(appContext as Application).unboundServiceConnections).hasSize(1)
+    }
+
+    @Test
+    public fun exceptionInCallPropagates(): Unit = fakeCoroutineScope.runTest {
+        val result1 =
+            async(Job()) {
                 connectionBinderUnderTest.runWithTilesConnection {
-                    delay(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS * 2)
-                    it.apiVersion
+                    throw IllegalStateException("Hello")
                 }
             }
 
-            shadowOf(Looper.getMainLooper()).idle()
+        shadowOf(Looper.getMainLooper()).idle()
 
-            // Binder should be shut down by this time, if there's nothing outstanding
-            advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
-            runCurrent()
-
-            assertThat(result.isCompleted).isFalse()
-
-            // Binder should still be alive...
-            assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
-            assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
-
-            advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
-            runCurrent()
-            assertThat(result.isCompleted).isTrue()
-
-            // Still alive...
-            assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
-            assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
-
-            // Shut down.
-            advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
-            runCurrent()
-            shadowOf(Looper.getMainLooper()).idle()
-
-            assertThat(shadowOf(appContext as Application).boundServiceConnections).isEmpty()
-            assertThat(shadowOf(appContext as Application).unboundServiceConnections).hasSize(1)
-        }
-
-    @Test
-    public fun anotherCallPostponesUnbind(): Unit =
-        fakeCoroutineScope.runTest {
-            val result1 = async {
-                connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
-            }
-
-            shadowOf(Looper.getMainLooper()).idle()
-            result1.await()
-
-            // Wait a while...
-            advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
-            runCurrent()
-
-            val result2 = async {
-                connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
-            }
-
-            result2.await()
-
-            // Wait for the rest of the inactivity period.
-            advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
-            runCurrent()
-
-            assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
-            assertThat(shadowOf(appContext as Application).unboundServiceConnections).isEmpty()
-
-            advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS / 2)
-            runCurrent()
-
-            assertThat(shadowOf(appContext as Application).boundServiceConnections).isEmpty()
-            assertThat(shadowOf(appContext as Application).unboundServiceConnections).hasSize(1)
-        }
-
-    @Test
-    public fun canRebindAfterUnbind(): Unit =
-        fakeCoroutineScope.runTest {
-            val result1 = async {
-                connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
-            }
-
-            shadowOf(Looper.getMainLooper()).idle()
-            result1.await()
-
-            // Wait a while...
-            advanceTimeBy(TilesConnectionBinder.INACTIVITY_TIMEOUT_MILLIS)
-            runCurrent()
-
-            val result2 = async {
-                connectionBinderUnderTest.runWithTilesConnection { it.apiVersion }
-            }
-
-            shadowOf(Looper.getMainLooper()).idle()
-            result2.await()
-
-            assertThat(shadowOf(appContext as Application).boundServiceConnections).hasSize(1)
-            assertThat(shadowOf(appContext as Application).unboundServiceConnections).hasSize(1)
-        }
-
-    @Test
-    public fun exceptionInCallPropagates(): Unit =
-        fakeCoroutineScope.runTest {
-            val result1 =
-                async(Job()) {
-                    connectionBinderUnderTest.runWithTilesConnection {
-                        throw IllegalStateException("Hello")
-                    }
-                }
-
-            shadowOf(Looper.getMainLooper()).idle()
-
-            assertThat(result1.getCompletionExceptionOrNull())
-                .isInstanceOf(IllegalStateException::class.java)
-        }
+        assertThat(result1.getCompletionExceptionOrNull())
+            .isInstanceOf(IllegalStateException::class.java)
+    }
 
     @Test(expected = TimeoutCancellationException::class)
-    public fun bindCanTimeOut(): Unit =
-        fakeCoroutineScope.runTest {
-            val result1 = async { connectionBinderUnderTest.runWithTilesConnection { 5 } }
+    public fun bindCanTimeOut(): Unit = fakeCoroutineScope.runTest {
+        val result1 = async { connectionBinderUnderTest.runWithTilesConnection { 5 } }
 
-            // Never idle Robolectric's looper, so it can't call
-            // ServiceConnection#onServiceConnected.
-            advanceTimeBy(TilesConnectionBinder.BIND_TIMEOUT_MILLIS * 2)
+        // Never idle Robolectric's looper, so it can't call
+        // ServiceConnection#onServiceConnected.
+        advanceTimeBy(TilesConnectionBinder.BIND_TIMEOUT_MILLIS * 2)
 
-            // Await to throw the exception.
-            result1.await()
-        }
+        // Await to throw the exception.
+        result1.await()
+    }
 
     private class FakeTileService : TileProvider.Stub() {
         override fun getApiVersion(): Int {

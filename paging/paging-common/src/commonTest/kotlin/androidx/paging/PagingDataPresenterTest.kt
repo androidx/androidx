@@ -67,219 +67,209 @@ class PagingDataPresenterTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    fun collectFrom_static() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val receiver = UiReceiverFake()
+    fun collectFrom_static() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val receiver = UiReceiverFake()
 
-            val job1 = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
-            advanceUntilIdle()
-            job1.cancel()
+        val job1 = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
+        advanceUntilIdle()
+        job1.cancel()
 
-            val job2 = launch { presenter.collectFrom(PagingData.empty()) }
-            advanceUntilIdle()
-            job2.cancel()
+        val job2 = launch { presenter.collectFrom(PagingData.empty()) }
+        advanceUntilIdle()
+        job2.cancel()
 
-            // Static replacement should also replace the UiReceiver from previous generation.
-            presenter.retry()
-            presenter.refresh()
-            advanceUntilIdle()
+        // Static replacement should also replace the UiReceiver from previous generation.
+        presenter.retry()
+        presenter.refresh()
+        advanceUntilIdle()
 
-            assertFalse { receiver.retryEvents.isNotEmpty() }
-            assertFalse { receiver.refreshEvents.isNotEmpty() }
-        }
-
-    @Test
-    fun collectFrom_twice() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-
-            launch { presenter.collectFrom(infinitelySuspendingPagingData()) }.cancel()
-            launch { presenter.collectFrom(infinitelySuspendingPagingData()) }.cancel()
-        }
+        assertFalse { receiver.retryEvents.isNotEmpty() }
+        assertFalse { receiver.refreshEvents.isNotEmpty() }
+    }
 
     @Test
-    fun collectFrom_twiceConcurrently() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
+    fun collectFrom_twice() = testScope.runTest {
+        val presenter = SimplePresenter()
 
-            val job1 = launch { presenter.collectFrom(infinitelySuspendingPagingData()) }
-
-            // Ensure job1 is running.
-            assertTrue { job1.isActive }
-
-            val job2 = launch { presenter.collectFrom(infinitelySuspendingPagingData()) }
-
-            // job2 collection should complete job1 but not cancel.
-            assertFalse { job1.isCancelled }
-            assertTrue { job1.isCompleted }
-            job2.cancel()
-        }
+        launch { presenter.collectFrom(infinitelySuspendingPagingData()) }.cancel()
+        launch { presenter.collectFrom(infinitelySuspendingPagingData()) }.cancel()
+    }
 
     @Test
-    fun retry() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val receiver = UiReceiverFake()
+    fun collectFrom_twiceConcurrently() = testScope.runTest {
+        val presenter = SimplePresenter()
 
-            val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
+        val job1 = launch { presenter.collectFrom(infinitelySuspendingPagingData()) }
 
-            presenter.retry()
-            assertEquals(1, receiver.retryEvents.size)
+        // Ensure job1 is running.
+        assertTrue { job1.isActive }
 
-            job.cancel()
-        }
+        val job2 = launch { presenter.collectFrom(infinitelySuspendingPagingData()) }
 
-    @Test
-    fun refresh() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val receiver = UiReceiverFake()
-
-            val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
-
-            presenter.refresh()
-
-            assertEquals(1, receiver.refreshEvents.size)
-
-            job.cancel()
-        }
+        // job2 collection should complete job1 but not cancel.
+        assertFalse { job1.isCancelled }
+        assertTrue { job1.isCompleted }
+        job2.cancel()
+    }
 
     @Test
-    fun retrySentBeforeCollection() =
-        testScope.run {
-            val presenter = SimplePresenter()
-            val receiver = UiReceiverFake()
+    fun retry() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val receiver = UiReceiverFake()
 
-            presenter.retry()
+        val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
 
-            val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
+        presenter.retry()
+        assertEquals(1, receiver.retryEvents.size)
 
-            assertEquals(1, receiver.retryEvents.size)
-
-            job.cancel()
-        }
+        job.cancel()
+    }
 
     @Test
-    fun refreshSentBeforeCollection() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val receiver = UiReceiverFake()
+    fun refresh() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val receiver = UiReceiverFake()
 
-            presenter.refresh()
+        val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
 
-            val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
+        presenter.refresh()
 
-            assertEquals(1, receiver.refreshEvents.size)
+        assertEquals(1, receiver.refreshEvents.size)
 
-            job.cancel()
-        }
-
-    @Test
-    fun uiReceiverSetImmediately() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val receiver = UiReceiverFake()
-            val pagingData1 = infinitelySuspendingPagingData(uiReceiver = receiver)
-
-            val job1 = launch { presenter.collectFrom(pagingData1) }
-            assertTrue(job1.isActive) // ensure job started
-
-            assertThat(receiver.refreshEvents).hasSize(0)
-
-            presenter.refresh()
-            // double check that the pagingdata's receiver was registered and had received refresh
-            // call
-            // before any PageEvent is collected/presented
-            assertThat(receiver.refreshEvents).hasSize(1)
-
-            job1.cancel()
-        }
+        job.cancel()
+    }
 
     @Test
-    fun hintReceiverSetAfterNewListPresented() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
+    fun retrySentBeforeCollection() = testScope.run {
+        val presenter = SimplePresenter()
+        val receiver = UiReceiverFake()
 
-            // first generation, load something so next gen can access index to trigger hint
-            val hintReceiver1 = HintReceiverFake()
-            val flow =
-                flowOf(localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))))
+        presenter.retry()
 
-            val job1 = launch {
-                presenter.collectFrom(PagingData(flow, dummyUiReceiver, hintReceiver1))
-            }
+        val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
 
-            // access any loaded item to make sure hint is sent
-            presenter[3]
-            assertThat(hintReceiver1.hints)
-                .containsExactly(
-                    ViewportHint.Access(
-                        pageOffset = 0,
-                        indexInPage = 3,
-                        presentedItemsBefore = 3,
-                        presentedItemsAfter = 1,
-                        originalPageOffsetFirst = 0,
-                        originalPageOffsetLast = 0,
-                    )
-                )
+        assertEquals(1, receiver.retryEvents.size)
 
-            // trigger second generation
-            presenter.refresh()
+        job.cancel()
+    }
 
-            // second generation
-            val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-            val hintReceiver2 = HintReceiverFake()
-            val job2 = launch {
-                presenter.collectFrom(
-                    PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver2)
-                )
-            }
+    @Test
+    fun refreshSentBeforeCollection() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val receiver = UiReceiverFake()
 
-            // we send the initial load state. this should NOT cause second gen hint receiver
-            // to register
-            pageEventCh.trySend(localLoadStateUpdate(refreshLocal = Loading))
-            assertThat(presenter.nonNullLoadStateFlow.first())
-                .isEqualTo(localLoadStatesOf(refreshLocal = Loading))
+        presenter.refresh()
 
-            // ensure both hint receivers are idle before sending a hint
-            assertThat(hintReceiver1.hints).isEmpty()
-            assertThat(hintReceiver2.hints).isEmpty()
+        val job = launch { presenter.collectFrom(infinitelySuspendingPagingData(receiver)) }
 
-            // try sending a hint, should be sent to first receiver
-            presenter[4]
-            assertThat(hintReceiver1.hints).hasSize(1)
-            assertThat(hintReceiver2.hints).isEmpty()
+        assertEquals(1, receiver.refreshEvents.size)
 
-            // now we send actual refresh load and make sure its presented
-            pageEventCh.trySend(
-                localRefresh(
-                    pages = listOf(TransformablePage(listOf(20, 21, 22, 23, 24))),
-                    placeholdersBefore = 20,
-                    placeholdersAfter = 75,
+        job.cancel()
+    }
+
+    @Test
+    fun uiReceiverSetImmediately() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val receiver = UiReceiverFake()
+        val pagingData1 = infinitelySuspendingPagingData(uiReceiver = receiver)
+
+        val job1 = launch { presenter.collectFrom(pagingData1) }
+        assertTrue(job1.isActive) // ensure job started
+
+        assertThat(receiver.refreshEvents).hasSize(0)
+
+        presenter.refresh()
+        // double check that the pagingdata's receiver was registered and had received refresh
+        // call
+        // before any PageEvent is collected/presented
+        assertThat(receiver.refreshEvents).hasSize(1)
+
+        job1.cancel()
+    }
+
+    @Test
+    fun hintReceiverSetAfterNewListPresented() = testScope.runTest {
+        val presenter = SimplePresenter()
+
+        // first generation, load something so next gen can access index to trigger hint
+        val hintReceiver1 = HintReceiverFake()
+        val flow = flowOf(localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))))
+
+        val job1 = launch {
+            presenter.collectFrom(PagingData(flow, dummyUiReceiver, hintReceiver1))
+        }
+
+        // access any loaded item to make sure hint is sent
+        presenter[3]
+        assertThat(hintReceiver1.hints)
+            .containsExactly(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = 3,
+                    presentedItemsBefore = 3,
+                    presentedItemsAfter = 1,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
                 )
             )
-            assertThat(presenter.snapshot().items).containsExactlyElementsIn(20 until 25)
 
-            // access any loaded item to make sure hint is sent to proper receiver
-            presenter[3]
-            // second receiver was registered and received the initial viewport hint
-            assertThat(hintReceiver1.hints).isEmpty()
-            assertThat(hintReceiver2.hints)
-                .containsExactly(
-                    ViewportHint.Access(
-                        pageOffset = 0,
-                        indexInPage = -17,
-                        presentedItemsBefore = -17,
-                        presentedItemsAfter = 21,
-                        originalPageOffsetFirst = 0,
-                        originalPageOffsetLast = 0,
-                    )
-                )
+        // trigger second generation
+        presenter.refresh()
 
-            job2.cancel()
-            job1.cancel()
+        // second generation
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        val hintReceiver2 = HintReceiverFake()
+        val job2 = launch {
+            presenter.collectFrom(
+                PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver2)
+            )
         }
+
+        // we send the initial load state. this should NOT cause second gen hint receiver
+        // to register
+        pageEventCh.trySend(localLoadStateUpdate(refreshLocal = Loading))
+        assertThat(presenter.nonNullLoadStateFlow.first())
+            .isEqualTo(localLoadStatesOf(refreshLocal = Loading))
+
+        // ensure both hint receivers are idle before sending a hint
+        assertThat(hintReceiver1.hints).isEmpty()
+        assertThat(hintReceiver2.hints).isEmpty()
+
+        // try sending a hint, should be sent to first receiver
+        presenter[4]
+        assertThat(hintReceiver1.hints).hasSize(1)
+        assertThat(hintReceiver2.hints).isEmpty()
+
+        // now we send actual refresh load and make sure its presented
+        pageEventCh.trySend(
+            localRefresh(
+                pages = listOf(TransformablePage(listOf(20, 21, 22, 23, 24))),
+                placeholdersBefore = 20,
+                placeholdersAfter = 75,
+            )
+        )
+        assertThat(presenter.snapshot().items).containsExactlyElementsIn(20 until 25)
+
+        // access any loaded item to make sure hint is sent to proper receiver
+        presenter[3]
+        // second receiver was registered and received the initial viewport hint
+        assertThat(hintReceiver1.hints).isEmpty()
+        assertThat(hintReceiver2.hints)
+            .containsExactly(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = -17,
+                    presentedItemsBefore = -17,
+                    presentedItemsAfter = 21,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                )
+            )
+
+        job2.cancel()
+        job1.cancel()
+    }
 
     @Test fun refreshOnLatestGenerationReceiver() = refreshOnLatestGenerationReceiver(false)
 
@@ -382,355 +372,213 @@ class PagingDataPresenterTest {
         }
 
     @Test
-    fun refreshAfterStaticList() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
+    fun refreshAfterStaticList() = testScope.runTest {
+        val presenter = SimplePresenter()
 
-            val pagingData1 = PagingData.from(listOf(1, 2, 3))
-            val job1 = launch { presenter.collectFrom(pagingData1) }
-            assertTrue(job1.isCompleted)
-            assertThat(presenter.snapshot()).containsAtLeastElementsIn(listOf(1, 2, 3))
+        val pagingData1 = PagingData.from(listOf(1, 2, 3))
+        val job1 = launch { presenter.collectFrom(pagingData1) }
+        assertTrue(job1.isCompleted)
+        assertThat(presenter.snapshot()).containsAtLeastElementsIn(listOf(1, 2, 3))
 
-            val uiReceiver = UiReceiverFake()
-            val pagingData2 = infinitelySuspendingPagingData(uiReceiver = uiReceiver)
-            val job2 = launch { presenter.collectFrom(pagingData2) }
-            assertTrue(job2.isActive)
+        val uiReceiver = UiReceiverFake()
+        val pagingData2 = infinitelySuspendingPagingData(uiReceiver = uiReceiver)
+        val job2 = launch { presenter.collectFrom(pagingData2) }
+        assertTrue(job2.isActive)
 
-            // even though the second paging data never presented, it should be receiver of the
-            // refresh
-            presenter.refresh()
-            assertThat(uiReceiver.refreshEvents).hasSize(1)
+        // even though the second paging data never presented, it should be receiver of the
+        // refresh
+        presenter.refresh()
+        assertThat(uiReceiver.refreshEvents).hasSize(1)
 
-            job2.cancel()
-        }
-
-    @Test
-    fun retryAfterStaticList() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-
-            val pagingData1 = PagingData.from(listOf(1, 2, 3))
-            val job1 = launch { presenter.collectFrom(pagingData1) }
-            assertTrue(job1.isCompleted)
-            assertThat(presenter.snapshot()).containsAtLeastElementsIn(listOf(1, 2, 3))
-
-            val uiReceiver = UiReceiverFake()
-            val pagingData2 = infinitelySuspendingPagingData(uiReceiver = uiReceiver)
-            val job2 = launch { presenter.collectFrom(pagingData2) }
-            assertTrue(job2.isActive)
-
-            // even though the second paging data never presented, it should be receiver of the
-            // retry
-            presenter.retry()
-            assertThat(uiReceiver.retryEvents).hasSize(1)
-
-            job2.cancel()
-        }
+        job2.cancel()
+    }
 
     @Test
-    fun hintCalculationBasedOnCurrentGeneration() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
+    fun retryAfterStaticList() = testScope.runTest {
+        val presenter = SimplePresenter()
 
-            // first generation
-            val hintReceiver1 = HintReceiverFake()
-            val uiReceiver1 = UiReceiverFake()
-            val flow =
-                flowOf(
-                    localRefresh(
-                        pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4))),
-                        placeholdersBefore = 0,
-                        placeholdersAfter = 95,
-                    )
-                )
+        val pagingData1 = PagingData.from(listOf(1, 2, 3))
+        val job1 = launch { presenter.collectFrom(pagingData1) }
+        assertTrue(job1.isCompleted)
+        assertThat(presenter.snapshot()).containsAtLeastElementsIn(listOf(1, 2, 3))
 
-            val job1 = launch {
-                presenter.collectFrom(PagingData(flow, uiReceiver1, hintReceiver1))
-            }
-            // access any item make sure hint is sent
-            presenter[3]
-            assertThat(hintReceiver1.hints)
-                .containsExactly(
-                    ViewportHint.Access(
-                        pageOffset = 0,
-                        indexInPage = 3,
-                        presentedItemsBefore = 3,
-                        presentedItemsAfter = 1,
-                        originalPageOffsetFirst = 0,
-                        originalPageOffsetLast = 0,
-                    )
-                )
+        val uiReceiver = UiReceiverFake()
+        val pagingData2 = infinitelySuspendingPagingData(uiReceiver = uiReceiver)
+        val job2 = launch { presenter.collectFrom(pagingData2) }
+        assertTrue(job2.isActive)
 
-            // jump to another position, triggers invalidation
-            presenter[20]
-            assertThat(hintReceiver1.hints)
-                .isEqualTo(
-                    listOf(
-                        ViewportHint.Access(
-                            pageOffset = 0,
-                            indexInPage = 20,
-                            presentedItemsBefore = 20,
-                            presentedItemsAfter = -16,
-                            originalPageOffsetFirst = 0,
-                            originalPageOffsetLast = 0,
-                        )
-                    )
-                )
+        // even though the second paging data never presented, it should be receiver of the
+        // retry
+        presenter.retry()
+        assertThat(uiReceiver.retryEvents).hasSize(1)
 
-            // jump invalidation happens
-            presenter.refresh()
-            assertThat(uiReceiver1.refreshEvents).hasSize(1)
+        job2.cancel()
+    }
 
-            // second generation
-            val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-            val hintReceiver2 = HintReceiverFake()
-            val job2 = launch {
-                presenter.collectFrom(
-                    PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver2)
-                )
-            }
+    @Test
+    fun hintCalculationBasedOnCurrentGeneration() = testScope.runTest {
+        val presenter = SimplePresenter()
 
-            // jump to another position while second gen is loading. It should be sent to first gen.
-            presenter[40]
-            assertThat(hintReceiver1.hints)
-                .isEqualTo(
-                    listOf(
-                        ViewportHint.Access(
-                            pageOffset = 0,
-                            indexInPage = 40,
-                            presentedItemsBefore = 40,
-                            presentedItemsAfter = -36,
-                            originalPageOffsetFirst = 0,
-                            originalPageOffsetLast = 0,
-                        )
-                    )
-                )
-            assertThat(hintReceiver2.hints).isEmpty()
-
-            // gen 2 initial load
-            pageEventCh.trySend(
+        // first generation
+        val hintReceiver1 = HintReceiverFake()
+        val uiReceiver1 = UiReceiverFake()
+        val flow =
+            flowOf(
                 localRefresh(
-                    pages = listOf(TransformablePage(listOf(20, 21, 22, 23, 24))),
-                    placeholdersBefore = 20,
-                    placeholdersAfter = 75,
-                )
-            )
-            // access any item make sure hint is sent
-            presenter[3]
-            assertThat(hintReceiver2.hints)
-                .containsExactly(
-                    ViewportHint.Access(
-                        pageOffset = 0,
-                        indexInPage = -17,
-                        presentedItemsBefore = -17,
-                        presentedItemsAfter = 21,
-                        originalPageOffsetFirst = 0,
-                        originalPageOffsetLast = 0,
-                    )
-                )
-
-            // jumping to index 50. Hint.indexInPage should be adjusted accordingly based on
-            // the placeholdersBefore of new presenter. It should be
-            // (index - placeholdersBefore) = 50 - 20 = 30
-            presenter[50]
-            assertThat(hintReceiver2.hints)
-                .isEqualTo(
-                    listOf(
-                        ViewportHint.Access(
-                            pageOffset = 0,
-                            indexInPage = 30,
-                            presentedItemsBefore = 30,
-                            presentedItemsAfter = -26,
-                            originalPageOffsetFirst = 0,
-                            originalPageOffsetLast = 0,
-                        )
-                    )
-                )
-
-            job2.cancel()
-            job1.cancel()
-        }
-
-    @Test
-    fun fetch_loadHintResentWhenUnfulfilled() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-
-            val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-            pageEventCh.trySend(
-                localRefresh(
-                    pages = listOf(TransformablePage(0, listOf(0, 1))),
-                    placeholdersBefore = 4,
-                    placeholdersAfter = 4,
-                )
-            )
-            pageEventCh.trySend(
-                localPrepend(
-                    pages = listOf(TransformablePage(-1, listOf(-1, -2))),
-                    placeholdersBefore = 2,
-                )
-            )
-            pageEventCh.trySend(
-                localAppend(
-                    pages = listOf(TransformablePage(1, listOf(2, 3))),
-                    placeholdersAfter = 2,
-                )
-            )
-
-            val hintReceiver = HintReceiverFake()
-            val job = launch {
-                presenter.collectFrom(
-                    // Filter the original list of 10 items to 5, removing even numbers.
-                    PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver).filter {
-                        it % 2 != 0
-                    }
-                )
-            }
-
-            // Initial state:
-            // [null, null, [-1], [1], [3], null, null]
-            assertNull(presenter[0])
-            assertThat(hintReceiver.hints)
-                .isEqualTo(
-                    listOf(
-                        ViewportHint.Access(
-                            pageOffset = -1,
-                            indexInPage = -2,
-                            presentedItemsBefore = -2,
-                            presentedItemsAfter = 4,
-                            originalPageOffsetFirst = -1,
-                            originalPageOffsetLast = 1,
-                        )
-                    )
-                )
-
-            // Insert a new page, PagingDataPresenter should try to resend hint since index 0 still
-            // points
-            // to a placeholder:
-            // [null, null, [], [-1], [1], [3], null, null]
-            pageEventCh.trySend(
-                localPrepend(
-                    pages = listOf(TransformablePage(-2, listOf())),
-                    placeholdersBefore = 2,
-                )
-            )
-            assertThat(hintReceiver.hints)
-                .isEqualTo(
-                    listOf(
-                        ViewportHint.Access(
-                            pageOffset = -2,
-                            indexInPage = -2,
-                            presentedItemsBefore = -2,
-                            presentedItemsAfter = 4,
-                            originalPageOffsetFirst = -2,
-                            originalPageOffsetLast = 1,
-                        )
-                    )
-                )
-
-            // Now index 0 has been loaded:
-            // [[-3], [], [-1], [1], [3], null, null]
-            pageEventCh.trySend(
-                localPrepend(
-                    pages = listOf(TransformablePage(-3, listOf(-3, -4))),
+                    pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4))),
                     placeholdersBefore = 0,
-                    source = loadStates(prepend = NotLoading.Complete),
+                    placeholdersAfter = 95,
                 )
             )
-            assertThat(hintReceiver.hints).isEmpty()
 
-            // This index points to a valid placeholder that ends up removed by filter().
-            assertNull(presenter[5])
-            assertThat(hintReceiver.hints)
-                .containsExactly(
+        val job1 = launch {
+            presenter.collectFrom(PagingData(flow, uiReceiver1, hintReceiver1))
+        }
+        // access any item make sure hint is sent
+        presenter[3]
+        assertThat(hintReceiver1.hints)
+            .containsExactly(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = 3,
+                    presentedItemsBefore = 3,
+                    presentedItemsAfter = 1,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                )
+            )
+
+        // jump to another position, triggers invalidation
+        presenter[20]
+        assertThat(hintReceiver1.hints)
+            .isEqualTo(
+                listOf(
                     ViewportHint.Access(
-                        pageOffset = 1,
-                        indexInPage = 2,
-                        presentedItemsBefore = 5,
-                        presentedItemsAfter = -2,
-                        originalPageOffsetFirst = -3,
-                        originalPageOffsetLast = 1,
+                        pageOffset = 0,
+                        indexInPage = 20,
+                        presentedItemsBefore = 20,
+                        presentedItemsAfter = -16,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0,
                     )
                 )
-
-            // Should only resend the hint for index 5, since index 0 has already been loaded:
-            // [[-3], [], [-1], [1], [3], [], null, null]
-            pageEventCh.trySend(
-                localAppend(
-                    pages = listOf(TransformablePage(2, listOf())),
-                    placeholdersAfter = 2,
-                    source = loadStates(prepend = NotLoading.Complete),
-                )
             )
-            assertThat(hintReceiver.hints)
-                .isEqualTo(
-                    listOf(
-                        ViewportHint.Access(
-                            pageOffset = 2,
-                            indexInPage = 1,
-                            presentedItemsBefore = 5,
-                            presentedItemsAfter = -2,
-                            originalPageOffsetFirst = -3,
-                            originalPageOffsetLast = 2,
-                        )
-                    )
-                )
 
-            // Index 5 hasn't loaded, but we are at the end of the list:
-            // [[-3], [], [-1], [1], [3], [], [5]]
-            pageEventCh.trySend(
-                localAppend(
-                    pages = listOf(TransformablePage(3, listOf(4, 5))),
-                    placeholdersAfter = 0,
-                    source = loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
-                )
+        // jump invalidation happens
+        presenter.refresh()
+        assertThat(uiReceiver1.refreshEvents).hasSize(1)
+
+        // second generation
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        val hintReceiver2 = HintReceiverFake()
+        val job2 = launch {
+            presenter.collectFrom(
+                PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver2)
             )
-            assertThat(hintReceiver.hints).isEmpty()
-
-            job.cancel()
         }
 
+        // jump to another position while second gen is loading. It should be sent to first gen.
+        presenter[40]
+        assertThat(hintReceiver1.hints)
+            .isEqualTo(
+                listOf(
+                    ViewportHint.Access(
+                        pageOffset = 0,
+                        indexInPage = 40,
+                        presentedItemsBefore = 40,
+                        presentedItemsAfter = -36,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0,
+                    )
+                )
+            )
+        assertThat(hintReceiver2.hints).isEmpty()
+
+        // gen 2 initial load
+        pageEventCh.trySend(
+            localRefresh(
+                pages = listOf(TransformablePage(listOf(20, 21, 22, 23, 24))),
+                placeholdersBefore = 20,
+                placeholdersAfter = 75,
+            )
+        )
+        // access any item make sure hint is sent
+        presenter[3]
+        assertThat(hintReceiver2.hints)
+            .containsExactly(
+                ViewportHint.Access(
+                    pageOffset = 0,
+                    indexInPage = -17,
+                    presentedItemsBefore = -17,
+                    presentedItemsAfter = 21,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0,
+                )
+            )
+
+        // jumping to index 50. Hint.indexInPage should be adjusted accordingly based on
+        // the placeholdersBefore of new presenter. It should be
+        // (index - placeholdersBefore) = 50 - 20 = 30
+        presenter[50]
+        assertThat(hintReceiver2.hints)
+            .isEqualTo(
+                listOf(
+                    ViewportHint.Access(
+                        pageOffset = 0,
+                        indexInPage = 30,
+                        presentedItemsBefore = 30,
+                        presentedItemsAfter = -26,
+                        originalPageOffsetFirst = 0,
+                        originalPageOffsetLast = 0,
+                    )
+                )
+            )
+
+        job2.cancel()
+        job1.cancel()
+    }
+
     @Test
-    fun fetch_loadHintResentUnlessPageDropped() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
+    fun fetch_loadHintResentWhenUnfulfilled() = testScope.runTest {
+        val presenter = SimplePresenter()
 
-            val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-            pageEventCh.trySend(
-                localRefresh(
-                    pages = listOf(TransformablePage(0, listOf(0, 1))),
-                    placeholdersBefore = 4,
-                    placeholdersAfter = 4,
-                )
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        pageEventCh.trySend(
+            localRefresh(
+                pages = listOf(TransformablePage(0, listOf(0, 1))),
+                placeholdersBefore = 4,
+                placeholdersAfter = 4,
             )
-            pageEventCh.trySend(
-                localPrepend(
-                    pages = listOf(TransformablePage(-1, listOf(-1, -2))),
-                    placeholdersBefore = 2,
-                )
+        )
+        pageEventCh.trySend(
+            localPrepend(
+                pages = listOf(TransformablePage(-1, listOf(-1, -2))),
+                placeholdersBefore = 2,
             )
-            pageEventCh.trySend(
-                localAppend(
-                    pages = listOf(TransformablePage(1, listOf(2, 3))),
-                    placeholdersAfter = 2,
-                )
+        )
+        pageEventCh.trySend(
+            localAppend(
+                pages = listOf(TransformablePage(1, listOf(2, 3))),
+                placeholdersAfter = 2,
             )
+        )
 
-            val hintReceiver = HintReceiverFake()
-            val job = launch {
-                presenter.collectFrom(
-                    // Filter the original list of 10 items to 5, removing even numbers.
-                    PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver).filter {
-                        it % 2 != 0
-                    }
-                )
-            }
+        val hintReceiver = HintReceiverFake()
+        val job = launch {
+            presenter.collectFrom(
+                // Filter the original list of 10 items to 5, removing even numbers.
+                PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver).filter {
+                    it % 2 != 0
+                }
+            )
+        }
 
-            // Initial state:
-            // [null, null, [-1], [1], [3], null, null]
-            assertNull(presenter[0])
-            assertThat(hintReceiver.hints)
-                .containsExactly(
+        // Initial state:
+        // [null, null, [-1], [1], [3], null, null]
+        assertNull(presenter[0])
+        assertThat(hintReceiver.hints)
+            .isEqualTo(
+                listOf(
                     ViewportHint.Access(
                         pageOffset = -1,
                         indexInPage = -2,
@@ -740,705 +588,826 @@ class PagingDataPresenterTest {
                         originalPageOffsetLast = 1,
                     )
                 )
-
-            // Insert a new page, PagingDataPresenter should try to resend hint since index 0 still
-            // points
-            // to a placeholder:
-            // [null, null, [], [-1], [1], [3], null, null]
-            pageEventCh.trySend(
-                localPrepend(
-                    pages = listOf(TransformablePage(-2, listOf())),
-                    placeholdersBefore = 2,
-                )
             )
-            assertThat(hintReceiver.hints)
-                .isEqualTo(
-                    listOf(
-                        ViewportHint.Access(
-                            pageOffset = -2,
-                            indexInPage = -2,
-                            presentedItemsBefore = -2,
-                            presentedItemsAfter = 4,
-                            originalPageOffsetFirst = -2,
-                            originalPageOffsetLast = 1,
-                        )
+
+        // Insert a new page, PagingDataPresenter should try to resend hint since index 0 still
+        // points
+        // to a placeholder:
+        // [null, null, [], [-1], [1], [3], null, null]
+        pageEventCh.trySend(
+            localPrepend(
+                pages = listOf(TransformablePage(-2, listOf())),
+                placeholdersBefore = 2,
+            )
+        )
+        assertThat(hintReceiver.hints)
+            .isEqualTo(
+                listOf(
+                    ViewportHint.Access(
+                        pageOffset = -2,
+                        indexInPage = -2,
+                        presentedItemsBefore = -2,
+                        presentedItemsAfter = 4,
+                        originalPageOffsetFirst = -2,
+                        originalPageOffsetLast = 1,
                     )
                 )
+            )
 
-            // Drop the previous page, which reset resendable index state in the PREPEND direction.
-            // [null, null, [-1], [1], [3], null, null]
-            pageEventCh.trySend(
-                Drop(
-                    loadType = PREPEND,
-                    minPageOffset = -2,
-                    maxPageOffset = -2,
-                    placeholdersRemaining = 2,
+        // Now index 0 has been loaded:
+        // [[-3], [], [-1], [1], [3], null, null]
+        pageEventCh.trySend(
+            localPrepend(
+                pages = listOf(TransformablePage(-3, listOf(-3, -4))),
+                placeholdersBefore = 0,
+                source = loadStates(prepend = NotLoading.Complete),
+            )
+        )
+        assertThat(hintReceiver.hints).isEmpty()
+
+        // This index points to a valid placeholder that ends up removed by filter().
+        assertNull(presenter[5])
+        assertThat(hintReceiver.hints)
+            .containsExactly(
+                ViewportHint.Access(
+                    pageOffset = 1,
+                    indexInPage = 2,
+                    presentedItemsBefore = 5,
+                    presentedItemsAfter = -2,
+                    originalPageOffsetFirst = -3,
+                    originalPageOffsetLast = 1,
                 )
             )
 
-            // Re-insert the previous page, which should not trigger resending the index due to
-            // previous page drop:
-            // [[-3], [], [-1], [1], [3], null, null]
-            pageEventCh.trySend(
-                localPrepend(
-                    pages = listOf(TransformablePage(-2, listOf())),
-                    placeholdersBefore = 2,
+        // Should only resend the hint for index 5, since index 0 has already been loaded:
+        // [[-3], [], [-1], [1], [3], [], null, null]
+        pageEventCh.trySend(
+            localAppend(
+                pages = listOf(TransformablePage(2, listOf())),
+                placeholdersAfter = 2,
+                source = loadStates(prepend = NotLoading.Complete),
+            )
+        )
+        assertThat(hintReceiver.hints)
+            .isEqualTo(
+                listOf(
+                    ViewportHint.Access(
+                        pageOffset = 2,
+                        indexInPage = 1,
+                        presentedItemsBefore = 5,
+                        presentedItemsAfter = -2,
+                        originalPageOffsetFirst = -3,
+                        originalPageOffsetLast = 2,
+                    )
                 )
             )
 
-            job.cancel()
-        }
-
-    @Test
-    fun peek() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-            pageEventCh.trySend(
-                localRefresh(
-                    pages = listOf(TransformablePage(0, listOf(0, 1))),
-                    placeholdersBefore = 4,
-                    placeholdersAfter = 4,
-                )
+        // Index 5 hasn't loaded, but we are at the end of the list:
+        // [[-3], [], [-1], [1], [3], [], [5]]
+        pageEventCh.trySend(
+            localAppend(
+                pages = listOf(TransformablePage(3, listOf(4, 5))),
+                placeholdersAfter = 0,
+                source = loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete),
             )
-            pageEventCh.trySend(
-                localPrepend(
-                    pages = listOf(TransformablePage(-1, listOf(-1, -2))),
-                    placeholdersBefore = 2,
-                )
+        )
+        assertThat(hintReceiver.hints).isEmpty()
+
+        job.cancel()
+    }
+
+    @Test
+    fun fetch_loadHintResentUnlessPageDropped() = testScope.runTest {
+        val presenter = SimplePresenter()
+
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        pageEventCh.trySend(
+            localRefresh(
+                pages = listOf(TransformablePage(0, listOf(0, 1))),
+                placeholdersBefore = 4,
+                placeholdersAfter = 4,
             )
-            pageEventCh.trySend(
-                localAppend(
-                    pages = listOf(TransformablePage(1, listOf(2, 3))),
-                    placeholdersAfter = 2,
-                )
+        )
+        pageEventCh.trySend(
+            localPrepend(
+                pages = listOf(TransformablePage(-1, listOf(-1, -2))),
+                placeholdersBefore = 2,
             )
+        )
+        pageEventCh.trySend(
+            localAppend(
+                pages = listOf(TransformablePage(1, listOf(2, 3))),
+                placeholdersAfter = 2,
+            )
+        )
 
-            val hintReceiver = HintReceiverFake()
-            val job = launch {
-                presenter.collectFrom(
-                    // Filter the original list of 10 items to 5, removing even numbers.
-                    PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver)
-                )
-            }
-
-            // Check that peek fetches the correct placeholder
-            assertThat(presenter.peek(4)).isEqualTo(0)
-
-            // Check that peek fetches the correct placeholder
-            assertNull(presenter.peek(0))
-
-            // Check that peek does not trigger page fetch.
-            assertThat(hintReceiver.hints).isEmpty()
-
-            job.cancel()
-        }
-
-    @Test
-    fun onPagingDataPresentedListener_empty() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val listenerEvents = mutableListOf<Unit>()
-            presenter.addOnPagesUpdatedListener { listenerEvents.add(Unit) }
-
-            presenter.collectFrom(PagingData.empty())
-            assertThat(listenerEvents.size).isEqualTo(1)
-
-            // No change to LoadState or presented list should still trigger the listener.
-            presenter.collectFrom(PagingData.empty())
-            assertThat(listenerEvents.size).isEqualTo(2)
-
-            val pager = Pager(PagingConfig(pageSize = 1)) { TestPagingSource(items = listOf()) }
-            val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
-
-            // Should wait for new generation to load and apply it first.
-            assertThat(listenerEvents.size).isEqualTo(2)
-
-            advanceUntilIdle()
-            assertThat(listenerEvents.size).isEqualTo(3)
-
-            job.cancel()
-        }
-
-    @Test
-    fun onPagingDataPresentedListener_insertDrop() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val listenerEvents = mutableListOf<Unit>()
-            presenter.addOnPagesUpdatedListener { listenerEvents.add(Unit) }
-
-            val pager =
-                Pager(PagingConfig(pageSize = 1, maxSize = 4), initialKey = 50) {
-                    TestPagingSource()
-                }
-            val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
-
-            // Should wait for new generation to load and apply it first.
-            assertThat(listenerEvents.size).isEqualTo(0)
-
-            advanceUntilIdle()
-            assertThat(listenerEvents.size).isEqualTo(1)
-
-            // Trigger PREPEND.
-            presenter[50]
-            assertThat(listenerEvents.size).isEqualTo(1)
-            advanceUntilIdle()
-            assertThat(listenerEvents.size).isEqualTo(2)
-
-            // Trigger APPEND + Drop
-            presenter[52]
-            assertThat(listenerEvents.size).isEqualTo(2)
-            advanceUntilIdle()
-            assertThat(listenerEvents.size).isEqualTo(4)
-
-            job.cancel()
-        }
-
-    @Test
-    fun onPagingDataPresentedFlow_empty() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val listenerEvents = mutableListOf<Unit>()
-            val job1 = launch { presenter.onPagesUpdatedFlow.collect { listenerEvents.add(Unit) } }
-
-            presenter.collectFrom(PagingData.empty())
-            assertThat(listenerEvents.size).isEqualTo(1)
-
-            // No change to LoadState or presented list should still trigger the listener.
-            presenter.collectFrom(PagingData.empty())
-            assertThat(listenerEvents.size).isEqualTo(2)
-
-            val pager = Pager(PagingConfig(pageSize = 1)) { TestPagingSource(items = listOf()) }
-            val job2 = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
-
-            // Should wait for new generation to load and apply it first.
-            assertThat(listenerEvents.size).isEqualTo(2)
-
-            advanceUntilIdle()
-            assertThat(listenerEvents.size).isEqualTo(3)
-
-            job1.cancel()
-            job2.cancel()
-        }
-
-    @Test
-    fun onPagingDataPresentedFlow_insertDrop() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val listenerEvents = mutableListOf<Unit>()
-            val job1 = launch { presenter.onPagesUpdatedFlow.collect { listenerEvents.add(Unit) } }
-
-            val pager =
-                Pager(PagingConfig(pageSize = 1, maxSize = 4), initialKey = 50) {
-                    TestPagingSource()
-                }
-            val job2 = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
-
-            // Should wait for new generation to load and apply it first.
-            assertThat(listenerEvents.size).isEqualTo(0)
-
-            advanceUntilIdle()
-            assertThat(listenerEvents.size).isEqualTo(1)
-
-            // Trigger PREPEND.
-            presenter[50]
-            assertThat(listenerEvents.size).isEqualTo(1)
-            advanceUntilIdle()
-            assertThat(listenerEvents.size).isEqualTo(2)
-
-            // Trigger APPEND + Drop
-            presenter[52]
-            assertThat(listenerEvents.size).isEqualTo(2)
-            advanceUntilIdle()
-            assertThat(listenerEvents.size).isEqualTo(4)
-
-            job1.cancel()
-            job2.cancel()
-        }
-
-    @Test
-    fun onPagingDataPresentedFlow_buffer() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val listenerEvents = mutableListOf<Unit>()
-
-            // Trigger update, which should get ignored due to onPagesUpdatedFlow being hot.
-            presenter.collectFrom(PagingData.empty())
-
-            val job = launch {
-                presenter.onPagesUpdatedFlow.collect {
-                    listenerEvents.add(Unit)
-                    // Await advanceUntilIdle() before accepting another event.
-                    delay(100)
-                }
-            }
-
-            // Previous update before collection happened should be ignored.
-            assertThat(listenerEvents.size).isEqualTo(0)
-
-            // Trigger update; should get immediately received.
-            presenter.collectFrom(PagingData.empty())
-            assertThat(listenerEvents.size).isEqualTo(1)
-
-            // Trigger 64 update while collector is still processing; should all get buffered.
-            repeat(64) { presenter.collectFrom(PagingData.empty()) }
-
-            // Trigger another update while collector is still processing; should cause event to
-            // drop.
-            presenter.collectFrom(PagingData.empty())
-
-            // Await all; we should now receive the buffered event.
-            advanceUntilIdle()
-            assertThat(listenerEvents.size).isEqualTo(65)
-
-            job.cancel()
-        }
-
-    @Test
-    fun loadStateFlow_synchronouslyUpdates() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            var combinedLoadStates: CombinedLoadStates? = null
-            var itemCount = -1
-            val loadStateJob = launch {
-                presenter.nonNullLoadStateFlow.collect {
-                    combinedLoadStates = it
-                    itemCount = presenter.size
-                }
-            }
-
-            val pager =
-                Pager(
-                    config =
-                        PagingConfig(
-                            pageSize = 10,
-                            enablePlaceholders = false,
-                            initialLoadSize = 10,
-                            prefetchDistance = 1,
-                        ),
-                    initialKey = 50,
-                ) {
-                    TestPagingSource()
-                }
-            val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
-
-            // Initial refresh
-            advanceUntilIdle()
-            assertEquals(localLoadStatesOf(), combinedLoadStates)
-            assertEquals(10, itemCount)
-            assertEquals(10, presenter.size)
-
-            // Append
-            presenter[9]
-            advanceUntilIdle()
-            assertEquals(localLoadStatesOf(), combinedLoadStates)
-            assertEquals(20, itemCount)
-            assertEquals(20, presenter.size)
-
-            // Prepend
-            presenter[0]
-            advanceUntilIdle()
-            assertEquals(localLoadStatesOf(), combinedLoadStates)
-            assertEquals(30, itemCount)
-            assertEquals(30, presenter.size)
-
-            job.cancel()
-            loadStateJob.cancel()
-        }
-
-    @Test
-    fun loadStateFlow_hasNoInitialValue() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-
-            // Should not immediately emit without a real value to a new collector.
-            val combinedLoadStates = mutableListOf<CombinedLoadStates>()
-            val loadStateJob = launch {
-                presenter.nonNullLoadStateFlow.collect { combinedLoadStates.add(it) }
-            }
-            assertThat(combinedLoadStates).isEmpty()
-
-            // Add a real value and now we should emit to collector.
+        val hintReceiver = HintReceiverFake()
+        val job = launch {
             presenter.collectFrom(
-                PagingData.empty(
-                    sourceLoadStates =
-                        loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete)
-                )
+                // Filter the original list of 10 items to 5, removing even numbers.
+                PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver).filter {
+                    it % 2 != 0
+                }
             )
-            assertThat(combinedLoadStates)
-                .containsExactly(
-                    localLoadStatesOf(
-                        prependLocal = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                    )
-                )
-
-            // Should emit real values to new collectors immediately
-            val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
-            val newLoadStateJob = launch {
-                presenter.nonNullLoadStateFlow.collect { newCombinedLoadStates.add(it) }
-            }
-            assertThat(newCombinedLoadStates)
-                .containsExactly(
-                    localLoadStatesOf(
-                        prependLocal = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                    )
-                )
-
-            loadStateJob.cancel()
-            newLoadStateJob.cancel()
         }
 
+        // Initial state:
+        // [null, null, [-1], [1], [3], null, null]
+        assertNull(presenter[0])
+        assertThat(hintReceiver.hints)
+            .containsExactly(
+                ViewportHint.Access(
+                    pageOffset = -1,
+                    indexInPage = -2,
+                    presentedItemsBefore = -2,
+                    presentedItemsAfter = 4,
+                    originalPageOffsetFirst = -1,
+                    originalPageOffsetLast = 1,
+                )
+            )
+
+        // Insert a new page, PagingDataPresenter should try to resend hint since index 0 still
+        // points
+        // to a placeholder:
+        // [null, null, [], [-1], [1], [3], null, null]
+        pageEventCh.trySend(
+            localPrepend(
+                pages = listOf(TransformablePage(-2, listOf())),
+                placeholdersBefore = 2,
+            )
+        )
+        assertThat(hintReceiver.hints)
+            .isEqualTo(
+                listOf(
+                    ViewportHint.Access(
+                        pageOffset = -2,
+                        indexInPage = -2,
+                        presentedItemsBefore = -2,
+                        presentedItemsAfter = 4,
+                        originalPageOffsetFirst = -2,
+                        originalPageOffsetLast = 1,
+                    )
+                )
+            )
+
+        // Drop the previous page, which reset resendable index state in the PREPEND direction.
+        // [null, null, [-1], [1], [3], null, null]
+        pageEventCh.trySend(
+            Drop(
+                loadType = PREPEND,
+                minPageOffset = -2,
+                maxPageOffset = -2,
+                placeholdersRemaining = 2,
+            )
+        )
+
+        // Re-insert the previous page, which should not trigger resending the index due to
+        // previous page drop:
+        // [[-3], [], [-1], [1], [3], null, null]
+        pageEventCh.trySend(
+            localPrepend(
+                pages = listOf(TransformablePage(-2, listOf())),
+                placeholdersBefore = 2,
+            )
+        )
+
+        job.cancel()
+    }
+
     @Test
-    fun loadStateFlow_preservesLoadStatesOnEmptyList() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
+    fun peek() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        pageEventCh.trySend(
+            localRefresh(
+                pages = listOf(TransformablePage(0, listOf(0, 1))),
+                placeholdersBefore = 4,
+                placeholdersAfter = 4,
+            )
+        )
+        pageEventCh.trySend(
+            localPrepend(
+                pages = listOf(TransformablePage(-1, listOf(-1, -2))),
+                placeholdersBefore = 2,
+            )
+        )
+        pageEventCh.trySend(
+            localAppend(
+                pages = listOf(TransformablePage(1, listOf(2, 3))),
+                placeholdersAfter = 2,
+            )
+        )
 
-            // Should not immediately emit without a real value to a new collector.
-            val combinedLoadStates = mutableListOf<CombinedLoadStates>()
-            val loadStateJob = launch {
-                presenter.nonNullLoadStateFlow.collect { combinedLoadStates.add(it) }
-            }
-            assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
-
-            // Send a static list without load states, which should not send anything.
-            presenter.collectFrom(PagingData.empty())
-            assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
-
-            // Send a real LoadStateUpdate.
+        val hintReceiver = HintReceiverFake()
+        val job = launch {
             presenter.collectFrom(
-                PagingData(
-                    flow =
-                        flowOf(
-                            remoteLoadStateUpdate(
-                                refreshLocal = Loading,
-                                prependLocal = Loading,
-                                appendLocal = Loading,
-                                refreshRemote = Loading,
-                                prependRemote = Loading,
-                                appendRemote = Loading,
-                            )
-                        ),
-                    uiReceiver = PagingData.NOOP_UI_RECEIVER,
-                    hintReceiver = PagingData.NOOP_HINT_RECEIVER,
-                )
+                // Filter the original list of 10 items to 5, removing even numbers.
+                PagingData(pageEventCh.consumeAsFlow(), dummyUiReceiver, hintReceiver)
             )
-            assertThat(combinedLoadStates.getAllAndClear())
-                .containsExactly(
-                    remoteLoadStatesOf(
-                        refresh = Loading,
-                        prepend = Loading,
-                        append = Loading,
-                        refreshLocal = Loading,
-                        prependLocal = Loading,
-                        appendLocal = Loading,
-                        refreshRemote = Loading,
-                        prependRemote = Loading,
-                        appendRemote = Loading,
-                    )
-                )
-
-            // Send a static list without load states, which should preserve the previous state.
-            presenter.collectFrom(PagingData.empty())
-            // Existing observers should not receive any updates
-            assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
-            // New observers should receive the previous state.
-            val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
-            val newLoadStateJob = launch {
-                presenter.nonNullLoadStateFlow.collect { newCombinedLoadStates.add(it) }
-            }
-            assertThat(newCombinedLoadStates.getAllAndClear())
-                .containsExactly(
-                    remoteLoadStatesOf(
-                        refresh = Loading,
-                        prepend = Loading,
-                        append = Loading,
-                        refreshLocal = Loading,
-                        prependLocal = Loading,
-                        appendLocal = Loading,
-                        refreshRemote = Loading,
-                        prependRemote = Loading,
-                        appendRemote = Loading,
-                    )
-                )
-
-            loadStateJob.cancel()
-            newLoadStateJob.cancel()
         }
 
+        // Check that peek fetches the correct placeholder
+        assertThat(presenter.peek(4)).isEqualTo(0)
+
+        // Check that peek fetches the correct placeholder
+        assertNull(presenter.peek(0))
+
+        // Check that peek does not trigger page fetch.
+        assertThat(hintReceiver.hints).isEmpty()
+
+        job.cancel()
+    }
+
     @Test
-    fun loadStateFlow_preservesLoadStatesOnStaticList() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
+    fun onPagingDataPresentedListener_empty() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val listenerEvents = mutableListOf<Unit>()
+        presenter.addOnPagesUpdatedListener { listenerEvents.add(Unit) }
 
-            // Should not immediately emit without a real value to a new collector.
-            val combinedLoadStates = mutableListOf<CombinedLoadStates>()
-            val loadStateJob = launch {
-                presenter.nonNullLoadStateFlow.collect { combinedLoadStates.add(it) }
+        presenter.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // No change to LoadState or presented list should still trigger the listener.
+        presenter.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        val pager = Pager(PagingConfig(pageSize = 1)) { TestPagingSource(items = listOf()) }
+        val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
+
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(3)
+
+        job.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedListener_insertDrop() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val listenerEvents = mutableListOf<Unit>()
+        presenter.addOnPagesUpdatedListener { listenerEvents.add(Unit) }
+
+        val pager =
+            Pager(PagingConfig(pageSize = 1, maxSize = 4), initialKey = 50) {
+                TestPagingSource()
             }
-            assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+        val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
 
-            // Send a static list without load states, which should not send anything.
-            presenter.collectFrom(PagingData.from(listOf(1)))
-            assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(0)
 
-            // Send a real LoadStateUpdate.
-            presenter.collectFrom(
-                PagingData(
-                    flow =
-                        flowOf(
-                            remoteLoadStateUpdate(
-                                refreshLocal = Loading,
-                                prependLocal = Loading,
-                                appendLocal = Loading,
-                                refreshRemote = Loading,
-                                prependRemote = Loading,
-                                appendRemote = Loading,
-                            )
-                        ),
-                    uiReceiver = PagingData.NOOP_UI_RECEIVER,
-                    hintReceiver = PagingData.NOOP_HINT_RECEIVER,
-                )
-            )
-            assertThat(combinedLoadStates.getAllAndClear())
-                .containsExactly(
-                    remoteLoadStatesOf(
-                        refresh = Loading,
-                        prepend = Loading,
-                        append = Loading,
-                        refreshLocal = Loading,
-                        prependLocal = Loading,
-                        appendLocal = Loading,
-                        refreshRemote = Loading,
-                        prependRemote = Loading,
-                        appendRemote = Loading,
-                    )
-                )
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(1)
 
-            // Send a static list without load states, which should preserve the previous state.
-            presenter.collectFrom(PagingData.from(listOf(1)))
-            // Existing observers should not receive any updates
-            assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
-            // New observers should receive the previous state.
-            val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
-            val newLoadStateJob = launch {
-                presenter.nonNullLoadStateFlow.collect { newCombinedLoadStates.add(it) }
+        // Trigger PREPEND.
+        presenter[50]
+        assertThat(listenerEvents.size).isEqualTo(1)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        // Trigger APPEND + Drop
+        presenter[52]
+        assertThat(listenerEvents.size).isEqualTo(2)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(4)
+
+        job.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedFlow_empty() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val listenerEvents = mutableListOf<Unit>()
+        val job1 = launch { presenter.onPagesUpdatedFlow.collect { listenerEvents.add(Unit) } }
+
+        presenter.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // No change to LoadState or presented list should still trigger the listener.
+        presenter.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        val pager = Pager(PagingConfig(pageSize = 1)) { TestPagingSource(items = listOf()) }
+        val job2 = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
+
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(3)
+
+        job1.cancel()
+        job2.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedFlow_insertDrop() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val listenerEvents = mutableListOf<Unit>()
+        val job1 = launch { presenter.onPagesUpdatedFlow.collect { listenerEvents.add(Unit) } }
+
+        val pager =
+            Pager(PagingConfig(pageSize = 1, maxSize = 4), initialKey = 50) {
+                TestPagingSource()
             }
-            assertThat(newCombinedLoadStates.getAllAndClear())
-                .containsExactly(
-                    remoteLoadStatesOf(
-                        refresh = Loading,
-                        prepend = Loading,
-                        append = Loading,
-                        refreshLocal = Loading,
-                        prependLocal = Loading,
-                        appendLocal = Loading,
-                        refreshRemote = Loading,
-                        prependRemote = Loading,
-                        appendRemote = Loading,
-                    )
-                )
+        val job2 = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
 
-            loadStateJob.cancel()
-            newLoadStateJob.cancel()
+        // Should wait for new generation to load and apply it first.
+        assertThat(listenerEvents.size).isEqualTo(0)
+
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(1)
+
+        // Trigger PREPEND.
+        presenter[50]
+        assertThat(listenerEvents.size).isEqualTo(1)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(2)
+
+        // Trigger APPEND + Drop
+        presenter[52]
+        assertThat(listenerEvents.size).isEqualTo(2)
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(4)
+
+        job1.cancel()
+        job2.cancel()
+    }
+
+    @Test
+    fun onPagingDataPresentedFlow_buffer() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val listenerEvents = mutableListOf<Unit>()
+
+        // Trigger update, which should get ignored due to onPagesUpdatedFlow being hot.
+        presenter.collectFrom(PagingData.empty())
+
+        val job = launch {
+            presenter.onPagesUpdatedFlow.collect {
+                listenerEvents.add(Unit)
+                // Await advanceUntilIdle() before accepting another event.
+                delay(100)
+            }
         }
 
-    @Test
-    fun loadStateFlow_deduplicate() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
+        // Previous update before collection happened should be ignored.
+        assertThat(listenerEvents.size).isEqualTo(0)
 
-            val combinedLoadStates = mutableListOf<CombinedLoadStates>()
-            backgroundScope.launch {
-                presenter.nonNullLoadStateFlow.collect { combinedLoadStates.add(it) }
-            }
+        // Trigger update; should get immediately received.
+        presenter.collectFrom(PagingData.empty())
+        assertThat(listenerEvents.size).isEqualTo(1)
 
-            presenter.collectFrom(
-                PagingData(
-                    flow =
-                        flowOf(
-                            remoteLoadStateUpdate(prependLocal = Loading, appendLocal = Loading),
-                            remoteLoadStateUpdate(appendLocal = Loading),
-                            // duplicate update
-                            remoteLoadStateUpdate(appendLocal = Loading),
-                        ),
-                    uiReceiver = PagingData.NOOP_UI_RECEIVER,
-                    hintReceiver = PagingData.NOOP_HINT_RECEIVER,
-                )
-            )
-            advanceUntilIdle()
-            assertThat(combinedLoadStates)
-                .containsExactly(
-                    remoteLoadStatesOf(prependLocal = Loading, appendLocal = Loading),
-                    remoteLoadStatesOf(appendLocal = Loading),
-                )
-        }
+        // Trigger 64 update while collector is still processing; should all get buffered.
+        repeat(64) { presenter.collectFrom(PagingData.empty()) }
+
+        // Trigger another update while collector is still processing; should cause event to
+        // drop.
+        presenter.collectFrom(PagingData.empty())
+
+        // Await all; we should now receive the buffered event.
+        advanceUntilIdle()
+        assertThat(listenerEvents.size).isEqualTo(65)
+
+        job.cancel()
+    }
 
     @Test
-    fun loadStateFlowListeners_deduplicate() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val combinedLoadStates = mutableListOf<CombinedLoadStates>()
-
-            presenter.addLoadStateListener { combinedLoadStates.add(it) }
-
-            presenter.collectFrom(
-                PagingData(
-                    flow =
-                        flowOf(
-                            remoteLoadStateUpdate(prependLocal = Loading, appendLocal = Loading),
-                            remoteLoadStateUpdate(appendLocal = Loading),
-                            // duplicate update
-                            remoteLoadStateUpdate(appendLocal = Loading),
-                        ),
-                    uiReceiver = PagingData.NOOP_UI_RECEIVER,
-                    hintReceiver = PagingData.NOOP_HINT_RECEIVER,
-                )
-            )
-            advanceUntilIdle()
-            assertThat(combinedLoadStates)
-                .containsExactly(
-                    remoteLoadStatesOf(prependLocal = Loading, appendLocal = Loading),
-                    remoteLoadStatesOf(appendLocal = Loading),
-                )
-        }
-
-    @Test
-    fun addLoadStateListener_SynchronouslyUpdates() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            var combinedLoadStates: CombinedLoadStates? = null
-            var itemCount = -1
-            presenter.addLoadStateListener {
+    fun loadStateFlow_synchronouslyUpdates() = testScope.runTest {
+        val presenter = SimplePresenter()
+        var combinedLoadStates: CombinedLoadStates? = null
+        var itemCount = -1
+        val loadStateJob = launch {
+            presenter.nonNullLoadStateFlow.collect {
                 combinedLoadStates = it
                 itemCount = presenter.size
             }
-
-            val pager =
-                Pager(
-                    config =
-                        PagingConfig(
-                            pageSize = 10,
-                            enablePlaceholders = false,
-                            initialLoadSize = 10,
-                            prefetchDistance = 1,
-                        ),
-                    initialKey = 50,
-                ) {
-                    TestPagingSource()
-                }
-            val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
-
-            // Initial refresh
-            advanceUntilIdle()
-            assertEquals(localLoadStatesOf(), combinedLoadStates)
-            assertEquals(10, itemCount)
-            assertEquals(10, presenter.size)
-
-            // Append
-            presenter[9]
-            advanceUntilIdle()
-            assertEquals(localLoadStatesOf(), combinedLoadStates)
-            assertEquals(20, itemCount)
-            assertEquals(20, presenter.size)
-
-            // Prepend
-            presenter[0]
-            advanceUntilIdle()
-            assertEquals(localLoadStatesOf(), combinedLoadStates)
-            assertEquals(30, itemCount)
-            assertEquals(30, presenter.size)
-
-            job.cancel()
         }
 
+        val pager =
+            Pager(
+                config =
+                    PagingConfig(
+                        pageSize = 10,
+                        enablePlaceholders = false,
+                        initialLoadSize = 10,
+                        prefetchDistance = 1,
+                    ),
+                initialKey = 50,
+            ) {
+                TestPagingSource()
+            }
+        val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
+
+        // Initial refresh
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(10, itemCount)
+        assertEquals(10, presenter.size)
+
+        // Append
+        presenter[9]
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(20, itemCount)
+        assertEquals(20, presenter.size)
+
+        // Prepend
+        presenter[0]
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(30, itemCount)
+        assertEquals(30, presenter.size)
+
+        job.cancel()
+        loadStateJob.cancel()
+    }
+
     @Test
-    fun addLoadStateListener_hasNoInitialValue() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val combinedLoadStateCapture = CombinedLoadStatesCapture()
+    fun loadStateFlow_hasNoInitialValue() = testScope.runTest {
+        val presenter = SimplePresenter()
 
-            // Adding a new listener without a real value should not trigger it.
-            presenter.addLoadStateListener(combinedLoadStateCapture::invoke)
-            assertThat(combinedLoadStateCapture.newEvents()).isEmpty()
+        // Should not immediately emit without a real value to a new collector.
+        val combinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val loadStateJob = launch {
+            presenter.nonNullLoadStateFlow.collect { combinedLoadStates.add(it) }
+        }
+        assertThat(combinedLoadStates).isEmpty()
 
-            // Add a real value and now the listener should trigger.
-            presenter.collectFrom(
-                PagingData.empty(
-                    sourceLoadStates =
-                        loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete)
+        // Add a real value and now we should emit to collector.
+        presenter.collectFrom(
+            PagingData.empty(
+                sourceLoadStates =
+                    loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete)
+            )
+        )
+        assertThat(combinedLoadStates)
+            .containsExactly(
+                localLoadStatesOf(
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Complete,
                 )
             )
-            assertThat(combinedLoadStateCapture.newEvents())
-                .containsExactly(
-                    localLoadStatesOf(
-                        prependLocal = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                    )
-                )
 
-            // Should emit real values to new listeners immediately
-            val newCombinedLoadStateCapture = CombinedLoadStatesCapture()
-            presenter.addLoadStateListener(newCombinedLoadStateCapture::invoke)
-            assertThat(newCombinedLoadStateCapture.newEvents())
-                .containsExactly(
-                    localLoadStatesOf(
-                        prependLocal = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                    )
-                )
+        // Should emit real values to new collectors immediately
+        val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val newLoadStateJob = launch {
+            presenter.nonNullLoadStateFlow.collect { newCombinedLoadStates.add(it) }
         }
+        assertThat(newCombinedLoadStates)
+            .containsExactly(
+                localLoadStatesOf(
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Complete,
+                )
+            )
+
+        loadStateJob.cancel()
+        newLoadStateJob.cancel()
+    }
 
     @Test
-    fun uncaughtException() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val pager =
-                Pager(PagingConfig(1)) {
-                    object : PagingSource<Int, Int>() {
-                        override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
-                            throw IllegalStateException()
-                        }
+    fun loadStateFlow_preservesLoadStatesOnEmptyList() = testScope.runTest {
+        val presenter = SimplePresenter()
 
-                        override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
-                    }
-                }
-
-            val pagingData = pager.flow.first()
-            val deferred = async(Job()) { presenter.collectFrom(pagingData) }
-
-            advanceUntilIdle()
-            assertFailsWith<IllegalStateException> { deferred.await() }
+        // Should not immediately emit without a real value to a new collector.
+        val combinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val loadStateJob = launch {
+            presenter.nonNullLoadStateFlow.collect { combinedLoadStates.add(it) }
         }
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+
+        // Send a static list without load states, which should not send anything.
+        presenter.collectFrom(PagingData.empty())
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+
+        // Send a real LoadStateUpdate.
+        presenter.collectFrom(
+            PagingData(
+                flow =
+                    flowOf(
+                        remoteLoadStateUpdate(
+                            refreshLocal = Loading,
+                            prependLocal = Loading,
+                            appendLocal = Loading,
+                            refreshRemote = Loading,
+                            prependRemote = Loading,
+                            appendRemote = Loading,
+                        )
+                    ),
+                uiReceiver = PagingData.NOOP_UI_RECEIVER,
+                hintReceiver = PagingData.NOOP_HINT_RECEIVER,
+            )
+        )
+        assertThat(combinedLoadStates.getAllAndClear())
+            .containsExactly(
+                remoteLoadStatesOf(
+                    refresh = Loading,
+                    prepend = Loading,
+                    append = Loading,
+                    refreshLocal = Loading,
+                    prependLocal = Loading,
+                    appendLocal = Loading,
+                    refreshRemote = Loading,
+                    prependRemote = Loading,
+                    appendRemote = Loading,
+                )
+            )
+
+        // Send a static list without load states, which should preserve the previous state.
+        presenter.collectFrom(PagingData.empty())
+        // Existing observers should not receive any updates
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+        // New observers should receive the previous state.
+        val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val newLoadStateJob = launch {
+            presenter.nonNullLoadStateFlow.collect { newCombinedLoadStates.add(it) }
+        }
+        assertThat(newCombinedLoadStates.getAllAndClear())
+            .containsExactly(
+                remoteLoadStatesOf(
+                    refresh = Loading,
+                    prepend = Loading,
+                    append = Loading,
+                    refreshLocal = Loading,
+                    prependLocal = Loading,
+                    appendLocal = Loading,
+                    refreshRemote = Loading,
+                    prependRemote = Loading,
+                    appendRemote = Loading,
+                )
+            )
+
+        loadStateJob.cancel()
+        newLoadStateJob.cancel()
+    }
 
     @Test
-    fun handledLoadResultInvalid() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            var generation = 0
-            val pager =
-                Pager(PagingConfig(1)) {
-                    TestPagingSource().also {
-                        if (generation == 0) {
-                            it.nextLoadResult = LoadResult.Invalid()
-                        }
-                        generation++
-                    }
-                }
+    fun loadStateFlow_preservesLoadStatesOnStaticList() = testScope.runTest {
+        val presenter = SimplePresenter()
 
-            val pagingData = pager.flow.first()
-            val deferred = async {
-                // only returns if flow is closed, or work canclled, or exception thrown
-                // in this case it should cancel due LoadResult.Invalid causing collectFrom to
-                // return
-                presenter.collectFrom(pagingData)
+        // Should not immediately emit without a real value to a new collector.
+        val combinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val loadStateJob = launch {
+            presenter.nonNullLoadStateFlow.collect { combinedLoadStates.add(it) }
+        }
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+
+        // Send a static list without load states, which should not send anything.
+        presenter.collectFrom(PagingData.from(listOf(1)))
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+
+        // Send a real LoadStateUpdate.
+        presenter.collectFrom(
+            PagingData(
+                flow =
+                    flowOf(
+                        remoteLoadStateUpdate(
+                            refreshLocal = Loading,
+                            prependLocal = Loading,
+                            appendLocal = Loading,
+                            refreshRemote = Loading,
+                            prependRemote = Loading,
+                            appendRemote = Loading,
+                        )
+                    ),
+                uiReceiver = PagingData.NOOP_UI_RECEIVER,
+                hintReceiver = PagingData.NOOP_HINT_RECEIVER,
+            )
+        )
+        assertThat(combinedLoadStates.getAllAndClear())
+            .containsExactly(
+                remoteLoadStatesOf(
+                    refresh = Loading,
+                    prepend = Loading,
+                    append = Loading,
+                    refreshLocal = Loading,
+                    prependLocal = Loading,
+                    appendLocal = Loading,
+                    refreshRemote = Loading,
+                    prependRemote = Loading,
+                    appendRemote = Loading,
+                )
+            )
+
+        // Send a static list without load states, which should preserve the previous state.
+        presenter.collectFrom(PagingData.from(listOf(1)))
+        // Existing observers should not receive any updates
+        assertThat(combinedLoadStates.getAllAndClear()).isEmpty()
+        // New observers should receive the previous state.
+        val newCombinedLoadStates = mutableListOf<CombinedLoadStates>()
+        val newLoadStateJob = launch {
+            presenter.nonNullLoadStateFlow.collect { newCombinedLoadStates.add(it) }
+        }
+        assertThat(newCombinedLoadStates.getAllAndClear())
+            .containsExactly(
+                remoteLoadStatesOf(
+                    refresh = Loading,
+                    prepend = Loading,
+                    append = Loading,
+                    refreshLocal = Loading,
+                    prependLocal = Loading,
+                    appendLocal = Loading,
+                    refreshRemote = Loading,
+                    prependRemote = Loading,
+                    appendRemote = Loading,
+                )
+            )
+
+        loadStateJob.cancel()
+        newLoadStateJob.cancel()
+    }
+
+    @Test
+    fun loadStateFlow_deduplicate() = testScope.runTest {
+        val presenter = SimplePresenter()
+
+        val combinedLoadStates = mutableListOf<CombinedLoadStates>()
+        backgroundScope.launch {
+            presenter.nonNullLoadStateFlow.collect { combinedLoadStates.add(it) }
+        }
+
+        presenter.collectFrom(
+            PagingData(
+                flow =
+                    flowOf(
+                        remoteLoadStateUpdate(prependLocal = Loading, appendLocal = Loading),
+                        remoteLoadStateUpdate(appendLocal = Loading),
+                        // duplicate update
+                        remoteLoadStateUpdate(appendLocal = Loading),
+                    ),
+                uiReceiver = PagingData.NOOP_UI_RECEIVER,
+                hintReceiver = PagingData.NOOP_HINT_RECEIVER,
+            )
+        )
+        advanceUntilIdle()
+        assertThat(combinedLoadStates)
+            .containsExactly(
+                remoteLoadStatesOf(prependLocal = Loading, appendLocal = Loading),
+                remoteLoadStatesOf(appendLocal = Loading),
+            )
+    }
+
+    @Test
+    fun loadStateFlowListeners_deduplicate() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val combinedLoadStates = mutableListOf<CombinedLoadStates>()
+
+        presenter.addLoadStateListener { combinedLoadStates.add(it) }
+
+        presenter.collectFrom(
+            PagingData(
+                flow =
+                    flowOf(
+                        remoteLoadStateUpdate(prependLocal = Loading, appendLocal = Loading),
+                        remoteLoadStateUpdate(appendLocal = Loading),
+                        // duplicate update
+                        remoteLoadStateUpdate(appendLocal = Loading),
+                    ),
+                uiReceiver = PagingData.NOOP_UI_RECEIVER,
+                hintReceiver = PagingData.NOOP_HINT_RECEIVER,
+            )
+        )
+        advanceUntilIdle()
+        assertThat(combinedLoadStates)
+            .containsExactly(
+                remoteLoadStatesOf(prependLocal = Loading, appendLocal = Loading),
+                remoteLoadStatesOf(appendLocal = Loading),
+            )
+    }
+
+    @Test
+    fun addLoadStateListener_SynchronouslyUpdates() = testScope.runTest {
+        val presenter = SimplePresenter()
+        var combinedLoadStates: CombinedLoadStates? = null
+        var itemCount = -1
+        presenter.addLoadStateListener {
+            combinedLoadStates = it
+            itemCount = presenter.size
+        }
+
+        val pager =
+            Pager(
+                config =
+                    PagingConfig(
+                        pageSize = 10,
+                        enablePlaceholders = false,
+                        initialLoadSize = 10,
+                        prefetchDistance = 1,
+                    ),
+                initialKey = 50,
+            ) {
+                TestPagingSource()
+            }
+        val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
+
+        // Initial refresh
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(10, itemCount)
+        assertEquals(10, presenter.size)
+
+        // Append
+        presenter[9]
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(20, itemCount)
+        assertEquals(20, presenter.size)
+
+        // Prepend
+        presenter[0]
+        advanceUntilIdle()
+        assertEquals(localLoadStatesOf(), combinedLoadStates)
+        assertEquals(30, itemCount)
+        assertEquals(30, presenter.size)
+
+        job.cancel()
+    }
+
+    @Test
+    fun addLoadStateListener_hasNoInitialValue() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val combinedLoadStateCapture = CombinedLoadStatesCapture()
+
+        // Adding a new listener without a real value should not trigger it.
+        presenter.addLoadStateListener(combinedLoadStateCapture::invoke)
+        assertThat(combinedLoadStateCapture.newEvents()).isEmpty()
+
+        // Add a real value and now the listener should trigger.
+        presenter.collectFrom(
+            PagingData.empty(
+                sourceLoadStates =
+                    loadStates(prepend = NotLoading.Complete, append = NotLoading.Complete)
+            )
+        )
+        assertThat(combinedLoadStateCapture.newEvents())
+            .containsExactly(
+                localLoadStatesOf(
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Complete,
+                )
+            )
+
+        // Should emit real values to new listeners immediately
+        val newCombinedLoadStateCapture = CombinedLoadStatesCapture()
+        presenter.addLoadStateListener(newCombinedLoadStateCapture::invoke)
+        assertThat(newCombinedLoadStateCapture.newEvents())
+            .containsExactly(
+                localLoadStatesOf(
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Complete,
+                )
+            )
+    }
+
+    @Test
+    fun uncaughtException() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val pager =
+            Pager(PagingConfig(1)) {
+                object : PagingSource<Int, Int>() {
+                    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
+                        throw IllegalStateException()
+                    }
+
+                    override fun getRefreshKey(state: PagingState<Int, Int>): Int? = null
+                }
             }
 
-            advanceUntilIdle()
-            // this will return only if presenter.collectFrom returns
-            deferred.await()
+        val pagingData = pager.flow.first()
+        val deferred = async(Job()) { presenter.collectFrom(pagingData) }
+
+        advanceUntilIdle()
+        assertFailsWith<IllegalStateException> { deferred.await() }
+    }
+
+    @Test
+    fun handledLoadResultInvalid() = testScope.runTest {
+        val presenter = SimplePresenter()
+        var generation = 0
+        val pager =
+            Pager(PagingConfig(1)) {
+                TestPagingSource().also {
+                    if (generation == 0) {
+                        it.nextLoadResult = LoadResult.Invalid()
+                    }
+                    generation++
+                }
+            }
+
+        val pagingData = pager.flow.first()
+        val deferred = async {
+            // only returns if flow is closed, or work canclled, or exception thrown
+            // in this case it should cancel due LoadResult.Invalid causing collectFrom to
+            // return
+            presenter.collectFrom(pagingData)
         }
+
+        advanceUntilIdle()
+        // this will return only if presenter.collectFrom returns
+        deferred.await()
+    }
 
     @Test fun refresh_pagingDataEvent() = refresh_pagingDataEvent(false)
 
@@ -2219,141 +2188,139 @@ class PagingDataPresenterTest {
         }
 
     @Test
-    fun remoteRefresh_refreshStatePersists() =
-        testScope.runTest {
-            val presenter = SimplePresenter()
-            val remoteMediator =
-                RemoteMediatorMock(loadDelay = 1500).apply {
-                    initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
-                }
-            val pager =
-                Pager(
-                    PagingConfig(pageSize = 3, enablePlaceholders = false),
-                    remoteMediator = remoteMediator,
-                ) {
-                    TestPagingSource(loadDelay = 500, items = emptyList())
-                }
+    fun remoteRefresh_refreshStatePersists() = testScope.runTest {
+        val presenter = SimplePresenter()
+        val remoteMediator =
+            RemoteMediatorMock(loadDelay = 1500).apply {
+                initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+            }
+        val pager =
+            Pager(
+                PagingConfig(pageSize = 3, enablePlaceholders = false),
+                remoteMediator = remoteMediator,
+            ) {
+                TestPagingSource(loadDelay = 500, items = emptyList())
+            }
 
-            val collectLoadStates = launch { presenter.collectLoadStates() }
-            val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
-            // allow local refresh to complete but not remote refresh
-            advanceTimeBy(600)
+        val collectLoadStates = launch { presenter.collectLoadStates() }
+        val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
+        // allow local refresh to complete but not remote refresh
+        advanceTimeBy(600)
 
-            assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    // local starts loading
-                    remoteLoadStatesOf(refreshLocal = Loading),
-                    // remote starts loading
-                    remoteLoadStatesOf(
-                        refresh = Loading,
-                        refreshLocal = Loading,
-                        refreshRemote = Loading,
-                    ),
-                    // local load returns with empty data, mediator is still loading
-                    remoteLoadStatesOf(
-                        refresh = Loading,
-                        prependLocal = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                        refreshRemote = Loading,
-                    ),
+        assertThat(presenter.newCombinedLoadStates())
+            .containsExactly(
+                // local starts loading
+                remoteLoadStatesOf(refreshLocal = Loading),
+                // remote starts loading
+                remoteLoadStatesOf(
+                    refresh = Loading,
+                    refreshLocal = Loading,
+                    refreshRemote = Loading,
+                ),
+                // local load returns with empty data, mediator is still loading
+                remoteLoadStatesOf(
+                    refresh = Loading,
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Complete,
+                    refreshRemote = Loading,
+                ),
+            )
+
+        // refresh triggers new generation & LoadState reset
+        presenter.refresh()
+
+        // allow local refresh to complete but not remote refresh
+        advanceTimeBy(600)
+
+        assertThat(presenter.newCombinedLoadStates())
+            .containsExactly(
+                // local starts second refresh while mediator continues remote refresh from
+                // before
+                remoteLoadStatesOf(
+                    refresh = Loading,
+                    refreshLocal = Loading,
+                    refreshRemote = Loading,
+                ),
+                // local load returns empty data
+                remoteLoadStatesOf(
+                    refresh = Loading,
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Complete,
+                    refreshRemote = Loading,
+                ),
+            )
+
+        // allow remote refresh to complete
+        advanceTimeBy(600)
+
+        assertThat(presenter.newCombinedLoadStates())
+            .containsExactly(
+                // remote refresh returns empty and triggers remote append/prepend
+                remoteLoadStatesOf(
+                    prepend = Loading,
+                    append = Loading,
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Complete,
+                    prependRemote = Loading,
+                    appendRemote = Loading,
                 )
+            )
 
-            // refresh triggers new generation & LoadState reset
-            presenter.refresh()
+        // allow remote append and prepend to complete
+        advanceUntilIdle()
 
-            // allow local refresh to complete but not remote refresh
-            advanceTimeBy(600)
+        assertThat(presenter.newCombinedLoadStates())
+            .containsExactly(
+                // prepend completes first
+                remoteLoadStatesOf(
+                    append = Loading,
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Complete,
+                    appendRemote = Loading,
+                ),
+                remoteLoadStatesOf(
+                    prependLocal = NotLoading.Complete,
+                    appendLocal = NotLoading.Complete,
+                ),
+            )
 
-            assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    // local starts second refresh while mediator continues remote refresh from
-                    // before
-                    remoteLoadStatesOf(
-                        refresh = Loading,
-                        refreshLocal = Loading,
-                        refreshRemote = Loading,
-                    ),
-                    // local load returns empty data
-                    remoteLoadStatesOf(
-                        refresh = Loading,
-                        prependLocal = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                        refreshRemote = Loading,
-                    ),
-                )
-
-            // allow remote refresh to complete
-            advanceTimeBy(600)
-
-            assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    // remote refresh returns empty and triggers remote append/prepend
-                    remoteLoadStatesOf(
-                        prepend = Loading,
-                        append = Loading,
-                        prependLocal = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                        prependRemote = Loading,
-                        appendRemote = Loading,
-                    )
-                )
-
-            // allow remote append and prepend to complete
-            advanceUntilIdle()
-
-            assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(
-                    // prepend completes first
-                    remoteLoadStatesOf(
-                        append = Loading,
-                        prependLocal = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                        appendRemote = Loading,
-                    ),
-                    remoteLoadStatesOf(
-                        prependLocal = NotLoading.Complete,
-                        appendLocal = NotLoading.Complete,
-                    ),
-                )
-
-            job.cancel()
-            collectLoadStates.cancel()
-        }
+        job.cancel()
+        collectLoadStates.cancel()
+    }
 
     @Test
-    fun recollectOnNewPresenter_initialLoadStates() =
-        testScope.runTest {
-            val pager =
-                Pager(
-                        config = PagingConfig(pageSize = 3, enablePlaceholders = false),
-                        initialKey = 50,
-                        pagingSourceFactory = { TestPagingSource() },
-                    )
-                    .flow
-                    .cachedIn(this)
+    fun recollectOnNewPresenter_initialLoadStates() = testScope.runTest {
+        val pager =
+            Pager(
+                    config = PagingConfig(pageSize = 3, enablePlaceholders = false),
+                    initialKey = 50,
+                    pagingSourceFactory = { TestPagingSource() },
+                )
+                .flow
+                .cachedIn(this)
 
-            val presenter = SimplePresenter()
-            backgroundScope.launch { presenter.collectLoadStates() }
+        val presenter = SimplePresenter()
+        backgroundScope.launch { presenter.collectLoadStates() }
 
-            val job = launch { pager.collectLatest { presenter.collectFrom(it) } }
-            advanceUntilIdle()
+        val job = launch { pager.collectLatest { presenter.collectFrom(it) } }
+        advanceUntilIdle()
 
-            assertThat(presenter.newCombinedLoadStates())
-                .containsExactly(localLoadStatesOf(refreshLocal = Loading), localLoadStatesOf())
+        assertThat(presenter.newCombinedLoadStates())
+            .containsExactly(localLoadStatesOf(refreshLocal = Loading), localLoadStatesOf())
 
-            // we start a separate presenter to recollect on cached Pager.flow
-            val presenter2 = SimplePresenter()
-            backgroundScope.launch { presenter2.collectLoadStates() }
+        // we start a separate presenter to recollect on cached Pager.flow
+        val presenter2 = SimplePresenter()
+        backgroundScope.launch { presenter2.collectLoadStates() }
 
-            val job2 = launch { pager.collectLatest { presenter2.collectFrom(it) } }
-            advanceUntilIdle()
+        val job2 = launch { pager.collectLatest { presenter2.collectFrom(it) } }
+        advanceUntilIdle()
 
-            assertThat(presenter2.newCombinedLoadStates()).containsExactly(localLoadStatesOf())
+        assertThat(presenter2.newCombinedLoadStates()).containsExactly(localLoadStatesOf())
 
-            job.cancel()
-            job2.cancel()
-            coroutineContext.cancelChildren()
-        }
+        job.cancel()
+        job2.cancel()
+        coroutineContext.cancelChildren()
+    }
 
     @Test
     fun cachedData() {
@@ -2391,228 +2358,218 @@ class PagingDataPresenterTest {
     }
 
     @Test
-    fun cachedData_doesNotSetHintReceiver() =
-        testScope.runTest {
-            val data = List(50) { it }
-            val hintReceiver = HintReceiverFake()
-            val cachedPagingData =
-                createCachedPagingData(
-                    data = data,
-                    sourceLoadStates = loadStates(refresh = Loading),
-                    mediatorLoadStates = null,
-                    hintReceiver = hintReceiver,
-                )
-            val presenter = SimplePresenter(cachedPagingData)
+    fun cachedData_doesNotSetHintReceiver() = testScope.runTest {
+        val data = List(50) { it }
+        val hintReceiver = HintReceiverFake()
+        val cachedPagingData =
+            createCachedPagingData(
+                data = data,
+                sourceLoadStates = loadStates(refresh = Loading),
+                mediatorLoadStates = null,
+                hintReceiver = hintReceiver,
+            )
+        val presenter = SimplePresenter(cachedPagingData)
 
-            // access item
-            presenter[5]
-            assertThat(hintReceiver.hints).hasSize(0)
+        // access item
+        presenter[5]
+        assertThat(hintReceiver.hints).hasSize(0)
 
-            val flow =
-                flowOf(localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))))
-            val hintReceiver2 = HintReceiverFake()
+        val flow = flowOf(localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))))
+        val hintReceiver2 = HintReceiverFake()
 
-            val job1 = launch {
-                presenter.collectFrom(PagingData(flow, dummyUiReceiver, hintReceiver2))
-            }
-
-            // access item, hint should be sent to the first uncached PagingData
-            presenter[3]
-            assertThat(hintReceiver.hints).hasSize(0)
-            assertThat(hintReceiver2.hints).hasSize(1)
-            job1.cancel()
+        val job1 = launch {
+            presenter.collectFrom(PagingData(flow, dummyUiReceiver, hintReceiver2))
         }
+
+        // access item, hint should be sent to the first uncached PagingData
+        presenter[3]
+        assertThat(hintReceiver.hints).hasSize(0)
+        assertThat(hintReceiver2.hints).hasSize(1)
+        job1.cancel()
+    }
 
     @Test
-    fun cachedData_doesNotSetUiReceiver() =
-        testScope.runTest {
-            val data = List(50) { it }
-            val uiReceiver = UiReceiverFake()
-            val cachedPagingData =
-                createCachedPagingData(
-                    data = data,
-                    sourceLoadStates = loadStates(refresh = Loading),
-                    mediatorLoadStates = null,
-                    uiReceiver = uiReceiver,
-                )
-            val presenter = SimplePresenter(cachedPagingData)
-            presenter.refresh()
-            advanceUntilIdle()
-            assertThat(uiReceiver.refreshEvents).hasSize(0)
+    fun cachedData_doesNotSetUiReceiver() = testScope.runTest {
+        val data = List(50) { it }
+        val uiReceiver = UiReceiverFake()
+        val cachedPagingData =
+            createCachedPagingData(
+                data = data,
+                sourceLoadStates = loadStates(refresh = Loading),
+                mediatorLoadStates = null,
+                uiReceiver = uiReceiver,
+            )
+        val presenter = SimplePresenter(cachedPagingData)
+        presenter.refresh()
+        advanceUntilIdle()
+        assertThat(uiReceiver.refreshEvents).hasSize(0)
 
-            val flow =
-                flowOf(localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))))
-            val uiReceiver2 = UiReceiverFake()
-            val job1 = launch {
-                presenter.collectFrom(PagingData(flow, uiReceiver2, dummyHintReceiver))
-            }
-            assertThat(uiReceiver.refreshEvents).hasSize(0)
-            assertThat(uiReceiver2.refreshEvents).hasSize(1)
-            job1.cancel()
+        val flow = flowOf(localRefresh(pages = listOf(TransformablePage(listOf(0, 1, 2, 3, 4)))))
+        val uiReceiver2 = UiReceiverFake()
+        val job1 = launch {
+            presenter.collectFrom(PagingData(flow, uiReceiver2, dummyHintReceiver))
         }
+        assertThat(uiReceiver.refreshEvents).hasSize(0)
+        assertThat(uiReceiver2.refreshEvents).hasSize(1)
+        job1.cancel()
+    }
 
     @Test
-    fun cachedData_thenRealData() =
-        testScope.runTest {
-            val data = List(2) { it }
-            val cachedPagingData =
-                createCachedPagingData(
-                    data = data,
-                    sourceLoadStates = loadStates(refresh = Loading),
-                    mediatorLoadStates = null,
-                )
-            val presenter = SimplePresenter(cachedPagingData)
-            val data2 = List(10) { it }
-            val flow = flowOf(localRefresh(pages = listOf(TransformablePage(data2))))
-            val job1 = launch {
-                presenter.collectFrom(PagingData(flow, dummyUiReceiver, dummyHintReceiver))
-            }
-
-            assertThat(presenter.snapshot()).isEqualTo(data2)
-            job1.cancel()
+    fun cachedData_thenRealData() = testScope.runTest {
+        val data = List(2) { it }
+        val cachedPagingData =
+            createCachedPagingData(
+                data = data,
+                sourceLoadStates = loadStates(refresh = Loading),
+                mediatorLoadStates = null,
+            )
+        val presenter = SimplePresenter(cachedPagingData)
+        val data2 = List(10) { it }
+        val flow = flowOf(localRefresh(pages = listOf(TransformablePage(data2))))
+        val job1 = launch {
+            presenter.collectFrom(PagingData(flow, dummyUiReceiver, dummyHintReceiver))
         }
+
+        assertThat(presenter.snapshot()).isEqualTo(data2)
+        job1.cancel()
+    }
 
     @Test
-    fun cachedData_withPlaceholders_thenRealData() =
-        testScope.runTest {
-            val data = List(2) { it }
-            val cachedPagingData =
-                createCachedPagingData(
-                    data = data,
-                    placeholdersBefore = 1,
-                    placeholdersAfter = 2,
-                    sourceLoadStates = loadStates(refresh = Loading),
-                    mediatorLoadStates = null,
-                )
-            val presenter = SimplePresenter(cachedPagingData)
-            assertThat(presenter.snapshot()).containsExactly(null, 0, 1, null, null).inOrder()
+    fun cachedData_withPlaceholders_thenRealData() = testScope.runTest {
+        val data = List(2) { it }
+        val cachedPagingData =
+            createCachedPagingData(
+                data = data,
+                placeholdersBefore = 1,
+                placeholdersAfter = 2,
+                sourceLoadStates = loadStates(refresh = Loading),
+                mediatorLoadStates = null,
+            )
+        val presenter = SimplePresenter(cachedPagingData)
+        assertThat(presenter.snapshot()).containsExactly(null, 0, 1, null, null).inOrder()
 
-            val data2 = List(10) { it }
-            val flow = flowOf(localRefresh(pages = listOf(TransformablePage(data2))))
-            val job1 = launch {
-                presenter.collectFrom(PagingData(flow, dummyUiReceiver, dummyHintReceiver))
-            }
-
-            assertThat(presenter.snapshot()).isEqualTo(data2)
-            job1.cancel()
+        val data2 = List(10) { it }
+        val flow = flowOf(localRefresh(pages = listOf(TransformablePage(data2))))
+        val job1 = launch {
+            presenter.collectFrom(PagingData(flow, dummyUiReceiver, dummyHintReceiver))
         }
+
+        assertThat(presenter.snapshot()).isEqualTo(data2)
+        job1.cancel()
+    }
 
     @Test
-    fun cachedData_thenLoadError() =
-        testScope.runTest {
-            val data = List(3) { it }
-            val cachedPagingData =
-                createCachedPagingData(
-                    data = data,
-                    sourceLoadStates = loadStates(refresh = Loading),
-                    mediatorLoadStates = null,
-                )
-            val presenter = SimplePresenter(cachedPagingData)
+    fun cachedData_thenLoadError() = testScope.runTest {
+        val data = List(3) { it }
+        val cachedPagingData =
+            createCachedPagingData(
+                data = data,
+                sourceLoadStates = loadStates(refresh = Loading),
+                mediatorLoadStates = null,
+            )
+        val presenter = SimplePresenter(cachedPagingData)
 
-            val channel = Channel<PageEvent<Int>>(Channel.UNLIMITED)
-            val hintReceiver = HintReceiverFake()
-            val uiReceiver = UiReceiverFake()
-            val job1 = launch {
-                presenter.collectFrom(PagingData(channel.consumeAsFlow(), uiReceiver, hintReceiver))
-            }
-            val error = LoadState.Error(Exception())
-            channel.trySend(localLoadStateUpdate(refreshLocal = error))
-            assertThat(presenter.nonNullLoadStateFlow.first())
-                .isEqualTo(localLoadStatesOf(refreshLocal = error))
-
-            // ui receiver is set upon processing a LoadStateUpdate so we can still trigger
-            // refresh/retry
-            presenter.refresh()
-            assertThat(uiReceiver.refreshEvents).hasSize(1)
-            // but hint receiver is only set if presenter has presented a refresh from this
-            // PagingData
-            // which did not happen in this case
-            presenter[2]
-            assertThat(hintReceiver.hints).hasSize(0)
-            job1.cancel()
+        val channel = Channel<PageEvent<Int>>(Channel.UNLIMITED)
+        val hintReceiver = HintReceiverFake()
+        val uiReceiver = UiReceiverFake()
+        val job1 = launch {
+            presenter.collectFrom(PagingData(channel.consumeAsFlow(), uiReceiver, hintReceiver))
         }
+        val error = LoadState.Error(Exception())
+        channel.trySend(localLoadStateUpdate(refreshLocal = error))
+        assertThat(presenter.nonNullLoadStateFlow.first())
+            .isEqualTo(localLoadStatesOf(refreshLocal = error))
+
+        // ui receiver is set upon processing a LoadStateUpdate so we can still trigger
+        // refresh/retry
+        presenter.refresh()
+        assertThat(uiReceiver.refreshEvents).hasSize(1)
+        // but hint receiver is only set if presenter has presented a refresh from this
+        // PagingData
+        // which did not happen in this case
+        presenter[2]
+        assertThat(hintReceiver.hints).hasSize(0)
+        job1.cancel()
+    }
 
     @Test
-    fun staticList_placeholders() =
-        testScope.runTest {
-            val data = List(10) { it }
-            val presenter = SimplePresenter()
-            launch {
-                presenter.collectFrom(
-                    PagingData.from(data, placeholdersBefore = 10, placeholdersAfter = 20)
-                )
-            }
-            advanceUntilIdle()
-            val collected = presenter.snapshot()
-            assertThat(collected.placeholdersBefore).isEqualTo(10)
-            assertThat(collected.placeholdersAfter).isEqualTo(20)
-
-            launch {
-                presenter.collectFrom(
-                    PagingData.from(data, placeholdersBefore = 5, placeholdersAfter = 30)
-                )
-            }
-            advanceUntilIdle()
-            val collected2 = presenter.snapshot()
-            assertThat(collected2.placeholdersBefore).isEqualTo(5)
-            assertThat(collected2.placeholdersAfter).isEqualTo(30)
+    fun staticList_placeholders() = testScope.runTest {
+        val data = List(10) { it }
+        val presenter = SimplePresenter()
+        launch {
+            presenter.collectFrom(
+                PagingData.from(data, placeholdersBefore = 10, placeholdersAfter = 20)
+            )
         }
+        advanceUntilIdle()
+        val collected = presenter.snapshot()
+        assertThat(collected.placeholdersBefore).isEqualTo(10)
+        assertThat(collected.placeholdersAfter).isEqualTo(20)
+
+        launch {
+            presenter.collectFrom(
+                PagingData.from(data, placeholdersBefore = 5, placeholdersAfter = 30)
+            )
+        }
+        advanceUntilIdle()
+        val collected2 = presenter.snapshot()
+        assertThat(collected2.placeholdersBefore).isEqualTo(5)
+        assertThat(collected2.placeholdersAfter).isEqualTo(30)
+    }
 
     @Test
-    fun staticList_thenRealData() =
-        testScope.runTest {
-            val data = List(10) { it }
-            val presenter = SimplePresenter()
-            launch {
-                presenter.collectFrom(
-                    PagingData.from(data, placeholdersBefore = 10, placeholdersAfter = 20)
-                )
-            }
-            advanceUntilIdle()
-            val collected = presenter.snapshot()
-            assertThat(collected.placeholdersBefore).isEqualTo(10)
-            assertThat(collected.placeholdersAfter).isEqualTo(20)
-
-            val pager =
-                Pager(PagingConfig(pageSize = 1, enablePlaceholders = true)) { TestPagingSource() }
-            val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
-
-            advanceUntilIdle()
-            val collected2 = presenter.snapshot()
-            assertThat(collected2.items).isEqualTo(listOf(0, 1, 2))
-            assertThat(collected2.placeholdersBefore).isEqualTo(0)
-            assertThat(collected2.placeholdersAfter).isEqualTo(97)
-            job.cancel()
+    fun staticList_thenRealData() = testScope.runTest {
+        val data = List(10) { it }
+        val presenter = SimplePresenter()
+        launch {
+            presenter.collectFrom(
+                PagingData.from(data, placeholdersBefore = 10, placeholdersAfter = 20)
+            )
         }
+        advanceUntilIdle()
+        val collected = presenter.snapshot()
+        assertThat(collected.placeholdersBefore).isEqualTo(10)
+        assertThat(collected.placeholdersAfter).isEqualTo(20)
+
+        val pager =
+            Pager(PagingConfig(pageSize = 1, enablePlaceholders = true)) { TestPagingSource() }
+        val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
+
+        advanceUntilIdle()
+        val collected2 = presenter.snapshot()
+        assertThat(collected2.items).isEqualTo(listOf(0, 1, 2))
+        assertThat(collected2.placeholdersBefore).isEqualTo(0)
+        assertThat(collected2.placeholdersAfter).isEqualTo(97)
+        job.cancel()
+    }
 
     @Test
-    fun staticList_thenRealDataInitialKey() =
-        testScope.runTest {
-            val data = List(10) { it }
-            val presenter = SimplePresenter()
-            launch {
-                presenter.collectFrom(
-                    PagingData.from(data, placeholdersBefore = 200, placeholdersAfter = 300)
-                )
-            }
-            advanceUntilIdle()
-            val collected = presenter.snapshot()
-            assertThat(collected.placeholdersBefore).isEqualTo(200)
-            assertThat(collected.placeholdersAfter).isEqualTo(300)
-
-            val pager =
-                Pager(PagingConfig(pageSize = 1, enablePlaceholders = true), initialKey = 50) {
-                    TestPagingSource()
-                }
-            val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
-
-            advanceUntilIdle()
-            val collected2 = presenter.snapshot()
-            assertThat(collected2.items).isEqualTo(listOf(50, 51, 52))
-            assertThat(collected2.placeholdersBefore).isEqualTo(50)
-            assertThat(collected2.placeholdersAfter).isEqualTo(47)
-            job.cancel()
+    fun staticList_thenRealDataInitialKey() = testScope.runTest {
+        val data = List(10) { it }
+        val presenter = SimplePresenter()
+        launch {
+            presenter.collectFrom(
+                PagingData.from(data, placeholdersBefore = 200, placeholdersAfter = 300)
+            )
         }
+        advanceUntilIdle()
+        val collected = presenter.snapshot()
+        assertThat(collected.placeholdersBefore).isEqualTo(200)
+        assertThat(collected.placeholdersAfter).isEqualTo(300)
+
+        val pager =
+            Pager(PagingConfig(pageSize = 1, enablePlaceholders = true), initialKey = 50) {
+                TestPagingSource()
+            }
+        val job = launch { pager.flow.collectLatest { presenter.collectFrom(it) } }
+
+        advanceUntilIdle()
+        val collected2 = presenter.snapshot()
+        assertThat(collected2.items).isEqualTo(listOf(50, 51, 52))
+        assertThat(collected2.placeholdersBefore).isEqualTo(50)
+        assertThat(collected2.placeholdersAfter).isEqualTo(47)
+        job.cancel()
+    }
 
     @Test
     fun refreshInterrupted_pageStoreResets(): TestResult {
@@ -2694,52 +2651,51 @@ class PagingDataPresenterTest {
                 uiReceivers: List<TrackableUiReceiverWrapper>,
                 hintReceivers: List<TrackableHintReceiverWrapper>,
             ) -> Unit,
-    ) =
-        testScope.runTest {
-            val pagingSources = mutableListOf<TestPagingSource>()
-            val pager =
-                Pager(
-                    config = config,
-                    initialKey = initialKey,
-                    pagingSourceFactory = {
-                        TestPagingSource(loadDelay = 1000).also { pagingSources.add(it) }
-                    },
-                )
-            val presenter = SimplePresenter()
-            val uiReceivers = mutableListOf<TrackableUiReceiverWrapper>()
-            val hintReceivers = mutableListOf<TrackableHintReceiverWrapper>()
+    ) = testScope.runTest {
+        val pagingSources = mutableListOf<TestPagingSource>()
+        val pager =
+            Pager(
+                config = config,
+                initialKey = initialKey,
+                pagingSourceFactory = {
+                    TestPagingSource(loadDelay = 1000).also { pagingSources.add(it) }
+                },
+            )
+        val presenter = SimplePresenter()
+        val uiReceivers = mutableListOf<TrackableUiReceiverWrapper>()
+        val hintReceivers = mutableListOf<TrackableHintReceiverWrapper>()
 
-            val collection = launch {
-                pager.flow
-                    .map { pagingData ->
-                        PagingData(
-                            flow = pagingData.flow,
-                            uiReceiver =
-                                TrackableUiReceiverWrapper(pagingData.uiReceiver).also {
-                                    uiReceivers.add(it)
-                                },
-                            hintReceiver =
-                                TrackableHintReceiverWrapper(pagingData.hintReceiver).also {
-                                    hintReceivers.add(it)
-                                },
-                        )
+        val collection = launch {
+            pager.flow
+                .map { pagingData ->
+                    PagingData(
+                        flow = pagingData.flow,
+                        uiReceiver =
+                            TrackableUiReceiverWrapper(pagingData.uiReceiver).also {
+                                uiReceivers.add(it)
+                            },
+                        hintReceiver =
+                            TrackableHintReceiverWrapper(pagingData.hintReceiver).also {
+                                hintReceivers.add(it)
+                            },
+                    )
+                }
+                .let {
+                    if (collectWithCachedIn) {
+                        it.cachedIn(this)
+                    } else {
+                        it
                     }
-                    .let {
-                        if (collectWithCachedIn) {
-                            it.cachedIn(this)
-                        } else {
-                            it
-                        }
-                    }
-                    .collect { presenter.collectFrom(it) }
-            }
-
-            try {
-                block(presenter, pagingSources, uiReceivers, hintReceivers)
-            } finally {
-                collection.cancel()
-            }
+                }
+                .collect { presenter.collectFrom(it) }
         }
+
+        try {
+            block(presenter, pagingSources, uiReceivers, hintReceivers)
+        } finally {
+            collection.cancel()
+        }
+    }
 }
 
 private fun infinitelySuspendingPagingData(

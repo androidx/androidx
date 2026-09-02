@@ -104,21 +104,20 @@ class ConcurrentCameraTest {
         localCoordinator.addConcurrentCameraIdsAndCameraSelectors(combination0)
         localCoordinator.addConcurrentCameraIdsAndCameraSelectors(combinationSize3)
 
-        val cameraFactoryProvider =
-            CameraFactory.Provider { _, _, _, _, _, _ ->
-                val cameraFactory = FakeCameraFactory()
-                cameraFactory.insertCamera(LENS_FACING_BACK, "0") {
-                    FakeCamera("0", null, FakeCameraInfoInternal("0", 0, LENS_FACING_BACK))
-                }
-                cameraFactory.insertCamera(LENS_FACING_FRONT, "1") {
-                    FakeCamera("1", null, FakeCameraInfoInternal("1", 0, LENS_FACING_FRONT))
-                }
-                cameraFactory.insertCamera(LENS_FACING_FRONT, "2") {
-                    FakeCamera("2", null, FakeCameraInfoInternal("2", 0, LENS_FACING_FRONT))
-                }
-                cameraFactory.cameraCoordinator = localCoordinator
-                cameraFactory
+        val cameraFactoryProvider = CameraFactory.Provider { _, _, _, _, _, _ ->
+            val cameraFactory = FakeCameraFactory()
+            cameraFactory.insertCamera(LENS_FACING_BACK, "0") {
+                FakeCamera("0", null, FakeCameraInfoInternal("0", 0, LENS_FACING_BACK))
             }
+            cameraFactory.insertCamera(LENS_FACING_FRONT, "1") {
+                FakeCamera("1", null, FakeCameraInfoInternal("1", 0, LENS_FACING_FRONT))
+            }
+            cameraFactory.insertCamera(LENS_FACING_FRONT, "2") {
+                FakeCamera("2", null, FakeCameraInfoInternal("2", 0, LENS_FACING_FRONT))
+            }
+            cameraFactory.cameraCoordinator = localCoordinator
+            cameraFactory
+        }
         val appConfigBuilder =
             CameraXConfig.Builder()
                 .setCameraFactoryProvider(cameraFactoryProvider)
@@ -695,66 +694,65 @@ class ConcurrentCameraTest {
 
         cameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(combination0)
         cameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(combination1)
-        val cameraFactoryProvider =
-            CameraFactory.Provider { _, _, _, _, _, _ ->
-                val cameraFactory = FakeCameraFactory()
-                cameraFactory.insertCamera(LENS_FACING_BACK, "0") {
-                    FakeCamera("0", null, FakeCameraInfoInternal("0", 0, LENS_FACING_BACK))
-                }
-                cameraFactory.insertCamera(LENS_FACING_FRONT, "1") {
-                    val cameraInfo =
-                        FakePhysicalCameraInfo(
-                            "1",
-                            0,
-                            LENS_FACING_FRONT,
-                            physicalCameraInfos =
-                                setOf(
-                                    FakePhysicalCameraInfo(
-                                        "1",
-                                        0,
-                                        LENS_FACING_FRONT,
-                                        physicalCameraId = "1",
-                                    ),
-                                    FakePhysicalCameraInfo(
-                                        "2",
-                                        0,
-                                        LENS_FACING_FRONT,
-                                        physicalCameraId = "2",
-                                    ),
-                                ),
-                        )
-                    FakeCamera("1", null, cameraInfo)
-                }
-                cameraFactory.insertCamera(LENS_FACING_FRONT, "2") {
-                    val cameraInfo =
-                        FakePhysicalCameraInfo(
-                            "2",
-                            0,
-                            LENS_FACING_FRONT,
-                            physicalCameraInfos =
-                                setOf(
-                                    FakePhysicalCameraInfo(
-                                        "1",
-                                        0,
-                                        LENS_FACING_FRONT,
-                                        physicalCameraId = "1",
-                                    ),
-                                    FakePhysicalCameraInfo(
-                                        "2",
-                                        0,
-                                        LENS_FACING_FRONT,
-                                        physicalCameraId = "2",
-                                    ),
-                                ),
-                        )
-                    FakeCamera("2", null, cameraInfo)
-                }
-                cameraFactory.insertCamera(LENS_FACING_BACK, "3") {
-                    FakeCamera("3", null, FakeCameraInfoInternal("3", 0, LENS_FACING_BACK))
-                }
-                cameraFactory.cameraCoordinator = cameraCoordinator
-                cameraFactory
+        val cameraFactoryProvider = CameraFactory.Provider { _, _, _, _, _, _ ->
+            val cameraFactory = FakeCameraFactory()
+            cameraFactory.insertCamera(LENS_FACING_BACK, "0") {
+                FakeCamera("0", null, FakeCameraInfoInternal("0", 0, LENS_FACING_BACK))
             }
+            cameraFactory.insertCamera(LENS_FACING_FRONT, "1") {
+                val cameraInfo =
+                    FakePhysicalCameraInfo(
+                        "1",
+                        0,
+                        LENS_FACING_FRONT,
+                        physicalCameraInfos =
+                            setOf(
+                                FakePhysicalCameraInfo(
+                                    "1",
+                                    0,
+                                    LENS_FACING_FRONT,
+                                    physicalCameraId = "1",
+                                ),
+                                FakePhysicalCameraInfo(
+                                    "2",
+                                    0,
+                                    LENS_FACING_FRONT,
+                                    physicalCameraId = "2",
+                                ),
+                            ),
+                    )
+                FakeCamera("1", null, cameraInfo)
+            }
+            cameraFactory.insertCamera(LENS_FACING_FRONT, "2") {
+                val cameraInfo =
+                    FakePhysicalCameraInfo(
+                        "2",
+                        0,
+                        LENS_FACING_FRONT,
+                        physicalCameraInfos =
+                            setOf(
+                                FakePhysicalCameraInfo(
+                                    "1",
+                                    0,
+                                    LENS_FACING_FRONT,
+                                    physicalCameraId = "1",
+                                ),
+                                FakePhysicalCameraInfo(
+                                    "2",
+                                    0,
+                                    LENS_FACING_FRONT,
+                                    physicalCameraId = "2",
+                                ),
+                            ),
+                    )
+                FakeCamera("2", null, cameraInfo)
+            }
+            cameraFactory.insertCamera(LENS_FACING_BACK, "3") {
+                FakeCamera("3", null, FakeCameraInfoInternal("3", 0, LENS_FACING_BACK))
+            }
+            cameraFactory.cameraCoordinator = cameraCoordinator
+            cameraFactory
+        }
         val appConfigBuilder =
             CameraXConfig.Builder()
                 .setCameraFactoryProvider(cameraFactoryProvider)

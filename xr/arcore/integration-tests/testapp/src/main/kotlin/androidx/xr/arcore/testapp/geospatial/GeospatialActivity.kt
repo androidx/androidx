@@ -261,11 +261,12 @@ class GeospatialActivity : ComponentActivity() {
                 geospatialState.geospatialTrackingState ==
                     Geospatial.GeospatialTrackingState.RUNNING
             ) {
-                val poseResult =
-                    snapshotFlow { arDeviceState }
-                        .map { geospatial.createGeospatialPoseFromPose(it.devicePose) }
-                        .filterIsInstance<CreateGeospatialPoseFromPoseSuccess>()
-                        .first()
+                val poseResult = snapshotFlow {
+                    arDeviceState
+                }
+                    .map { geospatial.createGeospatialPoseFromPose(it.devicePose) }
+                    .filterIsInstance<CreateGeospatialPoseFromPoseSuccess>()
+                    .first()
 
                 try {
                     vpsAvailability =

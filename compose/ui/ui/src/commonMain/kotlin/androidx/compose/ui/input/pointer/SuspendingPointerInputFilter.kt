@@ -732,10 +732,9 @@ internal class SuspendingPointerInputModifierNodeImpl(
 
         dispatchPointerEvent(pointerEvent, pass)
 
-        lastPointerEvent =
-            pointerEvent.takeIf { event ->
-                !event.changes.fastAll { it.changedToUpIgnoreConsumed() }
-            }
+        lastPointerEvent = pointerEvent.takeIf { event ->
+            !event.changes.fastAll { it.changedToUpIgnoreConsumed() }
+        }
     }
 
     override fun onCancelPointerInput() {
@@ -881,19 +880,18 @@ internal class SuspendingPointerInputModifierNodeImpl(
                 )
             }
 
-            val job =
-                coroutineScope.launch {
-                    // Delay twice because the timeout continuation needs to be lower-priority than
-                    // input events, not treated fairly in FIFO order. The second
-                    // micro-delay reposts it to the back of the queue, after any input events
-                    // that were posted but not processed during the first delay.
-                    delay(timeMillis - WITH_TIMEOUT_MICRO_DELAY_MILLIS)
-                    delay(WITH_TIMEOUT_MICRO_DELAY_MILLIS)
+            val job = coroutineScope.launch {
+                // Delay twice because the timeout continuation needs to be lower-priority than
+                // input events, not treated fairly in FIFO order. The second
+                // micro-delay reposts it to the back of the queue, after any input events
+                // that were posted but not processed during the first delay.
+                delay(timeMillis - WITH_TIMEOUT_MICRO_DELAY_MILLIS)
+                delay(WITH_TIMEOUT_MICRO_DELAY_MILLIS)
 
-                    pointerAwaiter?.resumeWithException(
-                        PointerEventTimeoutCancellationException(timeMillis)
-                    )
-                }
+                pointerAwaiter?.resumeWithException(
+                    PointerEventTimeoutCancellationException(timeMillis)
+                )
+            }
             try {
                 return block()
             } finally {

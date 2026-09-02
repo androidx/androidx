@@ -217,11 +217,10 @@ class ScrollableTest {
             )
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
         rule.onNodeWithTag(scrollableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -343,11 +342,10 @@ class ScrollableTest {
             this.scroll(-100f, ScrollWheel.Horizontal)
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
 
         rule.onNodeWithTag(scrollableBoxTag).performMouseInput {
             this.scroll(-100f, ScrollWheel.Vertical)
@@ -377,11 +375,10 @@ class ScrollableTest {
             this.scroll(Offset(-100f, 0f)) // only moved horizontally
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
 
         rule.onNodeWithTag(scrollableBoxTag).performMouseInput {
             this.scroll(Offset(0f, -100f)) // only moved vertically
@@ -489,11 +486,10 @@ class ScrollableTest {
             pan(Offset(300f, 0f)) // only moved horizontally
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
 
         rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
             this.pan(Offset(0f, 100f)) // only moved vertically
@@ -598,11 +594,10 @@ class ScrollableTest {
             )
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isLessThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isLessThan(0)
+            total
+        }
         rule.onNodeWithTag(scrollableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -688,11 +683,10 @@ class ScrollableTest {
             this.scroll(-100f, ScrollWheel.Horizontal)
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isLessThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isLessThan(0)
+            total
+        }
         rule.onNodeWithTag(scrollableBoxTag).performMouseInput {
             this.scroll(-100f, ScrollWheel.Vertical)
         }
@@ -725,11 +719,10 @@ class ScrollableTest {
             )
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
         rule.onNodeWithTag(scrollableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -766,11 +759,10 @@ class ScrollableTest {
             this.scroll(-100f, ScrollWheel.Vertical)
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
         rule.onNodeWithTag(scrollableBoxTag).performMouseInput {
             this.scroll(-100f, ScrollWheel.Horizontal)
         }
@@ -843,11 +835,10 @@ class ScrollableTest {
         }
         rule.onNodeWithTag(scrollableBoxTag).performMouseInput { this.scroll(Offset(0f, -100f)) }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
         rule.onNodeWithTag(scrollableBoxTag).performMouseInput { this.scroll(Offset(-100f, 0f)) }
 
         rule.runOnIdle { assertThat(total).isEqualTo(lastTotal) }
@@ -1047,11 +1038,10 @@ class ScrollableTest {
             this.pan(Offset(0f, 300f)) // only moved vertically
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0)
+            total
+        }
 
         rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
             this.pan(Offset(100f, 0f)) // only moved horizontally
@@ -1155,11 +1145,10 @@ class ScrollableTest {
             )
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isLessThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isLessThan(0)
+            total
+        }
         rule.onNodeWithTag(scrollableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -1200,11 +1189,10 @@ class ScrollableTest {
             this.scroll(-100f, ScrollWheel.Vertical)
         }
 
-        val lastTotal =
-            rule.runOnIdle {
-                assertThat(total).isLessThan(0)
-                total
-            }
+        val lastTotal = rule.runOnIdle {
+            assertThat(total).isLessThan(0)
+            total
+        }
 
         rule.onNodeWithTag(scrollableBoxTag).performMouseInput {
             this.scroll(-100f, ScrollWheel.Horizontal)
@@ -1242,12 +1230,11 @@ class ScrollableTest {
                 durationMillis = 100,
             )
         }
-        val prevTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0f)
-                enabled.value = false
-                total
-            }
+        val prevTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0f)
+            enabled.value = false
+            total
+        }
         rule.onNodeWithTag(scrollableBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -1529,14 +1516,13 @@ class ScrollableTest {
                 endVelocity = 0f,
             )
         }
-        val lastEqualDrag =
-            rule.runOnIdle {
-                assertThat(innerDrag).isGreaterThan(0f)
-                assertThat(outerDrag).isGreaterThan(0f)
-                // we consumed half delta in child, so exactly half should go to the parent
-                assertThat(outerDrag).isEqualTo(innerDrag)
-                innerDrag
-            }
+        val lastEqualDrag = rule.runOnIdle {
+            assertThat(innerDrag).isGreaterThan(0f)
+            assertThat(outerDrag).isGreaterThan(0f)
+            // we consumed half delta in child, so exactly half should go to the parent
+            assertThat(outerDrag).isEqualTo(innerDrag)
+            innerDrag
+        }
         rule.runOnIdle {
             // values should be the same since no fling
             assertThat(innerDrag).isEqualTo(lastEqualDrag)
@@ -1603,18 +1589,17 @@ class ScrollableTest {
             )
         }
 
-        val lastEqualDrag =
-            rule.runOnIdle {
-                assertThat(innerDrag).isNonZero()
-                assertThat(outerDrag).isNonZero()
-                // Swipe forward has a negative sign because indirect pointer events are inverted in
-                // Scrollable.
-                assertThat(innerDrag.sign).isEqualTo(-1f)
-                assertThat(outerDrag.sign).isEqualTo(-1f)
-                // we consumed half delta in child, so exactly half should go to the parent
-                assertThat(outerDrag).isEqualTo(innerDrag)
-                innerDrag
-            }
+        val lastEqualDrag = rule.runOnIdle {
+            assertThat(innerDrag).isNonZero()
+            assertThat(outerDrag).isNonZero()
+            // Swipe forward has a negative sign because indirect pointer events are inverted in
+            // Scrollable.
+            assertThat(innerDrag.sign).isEqualTo(-1f)
+            assertThat(outerDrag.sign).isEqualTo(-1f)
+            // we consumed half delta in child, so exactly half should go to the parent
+            assertThat(outerDrag).isEqualTo(innerDrag)
+            innerDrag
+        }
         rule.runOnIdle {
             // values should be the same since no fling
             assertThat(innerDrag).isEqualTo(lastEqualDrag)
@@ -2398,22 +2383,21 @@ class ScrollableTest {
             }
         }
 
-        val lastValueBeforeFling =
-            rule.runOnIdle {
-                val preScrollConsumed =
-                    dispatcher.dispatchPreScroll(Offset(20f, 20f), NestedScrollSource.UserInput)
-                // scrollable is not interested in pre scroll
-                assertThat(preScrollConsumed).isEqualTo(Offset.Zero)
+        val lastValueBeforeFling = rule.runOnIdle {
+            val preScrollConsumed =
+                dispatcher.dispatchPreScroll(Offset(20f, 20f), NestedScrollSource.UserInput)
+            // scrollable is not interested in pre scroll
+            assertThat(preScrollConsumed).isEqualTo(Offset.Zero)
 
-                val consumed =
-                    dispatcher.dispatchPostScroll(
-                        Offset(20f, 20f),
-                        Offset(50f, 50f),
-                        NestedScrollSource.UserInput,
-                    )
-                assertThat(consumed.x - expectedConsumed).isWithin(0.001f).of(0.0f)
-                value
-            }
+            val consumed =
+                dispatcher.dispatchPostScroll(
+                    Offset(20f, 20f),
+                    Offset(50f, 50f),
+                    NestedScrollSource.UserInput,
+                )
+            assertThat(consumed.x - expectedConsumed).isWithin(0.001f).of(0.0f)
+            value
+        }
 
         scope.launch {
             val preFlingConsumed = dispatcher.dispatchPreFling(Velocity(50f, 50f))
@@ -3219,11 +3203,10 @@ class ScrollableTest {
             moveBy(Offset(x = 100f, y = 0f))
         }
 
-        val prevTotal =
-            rule.runOnIdle {
-                assertThat(total).isGreaterThan(0f)
-                total
-            }
+        val prevTotal = rule.runOnIdle {
+            assertThat(total).isGreaterThan(0f)
+            total
+        }
 
         rule.onNodeWithTag(scrollableBoxTag).performTouchInput { up() }
 
@@ -3264,11 +3247,10 @@ class ScrollableTest {
             moveBy(Offset(x = 100f, y = 0f))
         }
 
-        val prevTotal =
-            rule.runOnIdle {
-                assertThat(total).isLessThan(0f)
-                total
-            }
+        val prevTotal = rule.runOnIdle {
+            assertThat(total).isLessThan(0f)
+            total
+        }
 
         rule.onNodeWithTag(scrollableBoxTag).performTouchInput { up() }
 
@@ -4223,13 +4205,12 @@ class ScrollableTest {
 
         rule.runOnIdle {
             // causes the inner scrollable to dispatch a post fling to the outer scrollable
-            flingJob =
-                scope.launch {
-                    innerState.scroll {
-                        dispatcher.dispatchPreFling(Velocity(0f, 10000f))
-                        dispatcher.dispatchPostFling(Velocity.Zero, Velocity(0f, 10000f))
-                    }
+            flingJob = scope.launch {
+                innerState.scroll {
+                    dispatcher.dispatchPreFling(Velocity(0f, 10000f))
+                    dispatcher.dispatchPostFling(Velocity.Zero, Velocity(0f, 10000f))
                 }
+            }
         }
 
         rule.mainClock.advanceTimeBy(200L)

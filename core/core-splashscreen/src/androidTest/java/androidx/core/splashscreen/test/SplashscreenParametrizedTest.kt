@@ -296,14 +296,13 @@ public class SplashscreenParametrizedTest(
         val contentViewHeights = mutableListOf<Int>()
         var splashScreenViewProvider: SplashScreenViewProvider? = null
 
-        val onDrawListener =
-            ViewTreeObserver.OnDrawListener {
-                contentViewHeights.add(container.height)
-                drawLatch.countDown()
-                if (drawLatch.count == 1L) {
-                    splashScreenViewProvider!!.remove()
-                }
+        val onDrawListener = ViewTreeObserver.OnDrawListener {
+            contentViewHeights.add(container.height)
+            drawLatch.countDown()
+            if (drawLatch.count == 1L) {
+                splashScreenViewProvider!!.remove()
             }
+        }
 
         activityController.doOnExitAnimation {
             splashScreenViewProvider = it

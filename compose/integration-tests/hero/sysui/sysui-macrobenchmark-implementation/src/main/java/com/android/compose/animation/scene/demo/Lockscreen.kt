@@ -51,40 +51,40 @@ object Lockscreen {
         fastSwipeToQuickSettings: Boolean = true,
     ): Map<UserAction, UserActionResult> {
         return buildList {
-                if (configuration.enableOverlays) {
-                    add(
-                        Swipe.Down(fromSource = SceneContainerArea.StartHalf) to
-                            UserActionResult.ShowOverlay(Overlays.Notifications)
-                    )
-                    add(
-                        Swipe.Down(fromSource = SceneContainerArea.EndHalf) to
-                            UserActionResult.ShowOverlay(Overlays.QuickSettings)
-                    )
-                } else {
-                    add(
-                        Swipe.Down to
-                            UserActionResult(
-                                shadeScene,
-                                requiresFullDistanceSwipe = requiresFullDistanceSwipeToShade,
-                            )
-                    )
-                }
-
-                add(Swipe.Start to Scenes.StubEnd)
-                add(Swipe.End to Scenes.StubStart)
+            if (configuration.enableOverlays) {
                 add(
-                    Swipe.Up to
-                        if (isLockscreenDismissable) {
-                            Scenes.Launcher
-                        } else {
-                            Scenes.Bouncer
-                        }
+                    Swipe.Down(fromSource = SceneContainerArea.StartHalf) to
+                        UserActionResult.ShowOverlay(Overlays.Notifications)
                 )
-
-                if (fastSwipeToQuickSettings) {
-                    add(Swipe.Down(pointerCount = 2) to Scenes.QuickSettings)
-                }
+                add(
+                    Swipe.Down(fromSource = SceneContainerArea.EndHalf) to
+                        UserActionResult.ShowOverlay(Overlays.QuickSettings)
+                )
+            } else {
+                add(
+                    Swipe.Down to
+                        UserActionResult(
+                            shadeScene,
+                            requiresFullDistanceSwipe = requiresFullDistanceSwipeToShade,
+                        )
+                )
             }
+
+            add(Swipe.Start to Scenes.StubEnd)
+            add(Swipe.End to Scenes.StubStart)
+            add(
+                Swipe.Up to
+                    if (isLockscreenDismissable) {
+                        Scenes.Launcher
+                    } else {
+                        Scenes.Bouncer
+                    }
+            )
+
+            if (fastSwipeToQuickSettings) {
+                add(Swipe.Down(pointerCount = 2) to Scenes.QuickSettings)
+            }
+        }
             .toMap()
     }
 

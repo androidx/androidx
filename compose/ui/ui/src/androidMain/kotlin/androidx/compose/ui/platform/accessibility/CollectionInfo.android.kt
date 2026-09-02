@@ -120,13 +120,12 @@ internal fun SemanticsNode.hasCollectionInfo() =
 private fun calculateIfHorizontallyStacked(items: List<SemanticsNode>): Boolean {
     if (items.count() < 2) return true
 
-    val deltas =
-        items.fastZipWithNext { el1, el2 ->
-            Offset(
-                abs(el1.boundsInRoot.center.x - el2.boundsInRoot.center.x),
-                abs(el1.boundsInRoot.center.y - el2.boundsInRoot.center.y),
-            )
-        }
+    val deltas = items.fastZipWithNext { el1, el2 ->
+        Offset(
+            abs(el1.boundsInRoot.center.x - el2.boundsInRoot.center.x),
+            abs(el1.boundsInRoot.center.y - el2.boundsInRoot.center.y),
+        )
+    }
     val (deltaX, deltaY) =
         when (deltas.count()) {
             1 -> deltas.first()

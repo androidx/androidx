@@ -186,7 +186,9 @@ internal fun simpleScope() =
         override fun <T> getOrNull(property: StyleProperty<T>): T? = values[property] as T?
 
         override fun anySet(properties: Set<StyleProperty<*>>): Boolean =
-            values.any { property, _ -> property in values }
+            values.any { property, _ ->
+                property in values
+            }
 
         override fun <T> ProvidableStyleProperty<T>.provide(value: T) {
             values[this] = value

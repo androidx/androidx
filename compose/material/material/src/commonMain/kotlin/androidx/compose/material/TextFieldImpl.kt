@@ -128,23 +128,21 @@ internal fun CommonDecorationBox(
         contentColor = labelColor,
         showLabel = label != null,
     ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlphaProgress ->
-        val decoratedLabel: @Composable (() -> Unit)? =
-            label?.let {
-                @Composable {
-                    val labelTextStyle =
-                        lerp(
-                                MaterialTheme.typography.subtitle1,
-                                MaterialTheme.typography.caption,
-                                labelProgress,
-                            )
-                            .let {
-                                if (shouldOverrideTextStyleColor)
-                                    it.copy(color = labelTextStyleColor)
-                                else it
-                            }
-                    Decoration(labelContentColor, labelTextStyle, null, it)
-                }
+        val decoratedLabel: @Composable (() -> Unit)? = label?.let {
+            @Composable {
+                val labelTextStyle =
+                    lerp(
+                            MaterialTheme.typography.subtitle1,
+                            MaterialTheme.typography.caption,
+                            labelProgress,
+                        )
+                        .let {
+                            if (shouldOverrideTextStyleColor) it.copy(color = labelTextStyleColor)
+                            else it
+                        }
+                Decoration(labelContentColor, labelTextStyle, null, it)
             }
+        }
 
         // Transparent components interfere with Talkback (b/261061240), so if the placeholder has
         // alpha == 0, we set the component to null instead.
@@ -162,16 +160,14 @@ internal fun CommonDecorationBox(
             } else null
 
         val leadingIconColor = colors.leadingIconColor(enabled, isError, interactionSource).value
-        val decoratedLeading: @Composable (() -> Unit)? =
-            leadingIcon?.let {
-                @Composable { Decoration(contentColor = leadingIconColor, content = it) }
-            }
+        val decoratedLeading: @Composable (() -> Unit)? = leadingIcon?.let {
+            @Composable { Decoration(contentColor = leadingIconColor, content = it) }
+        }
 
         val trailingIconColor = colors.trailingIconColor(enabled, isError, interactionSource).value
-        val decoratedTrailing: @Composable (() -> Unit)? =
-            trailingIcon?.let {
-                @Composable { Decoration(contentColor = trailingIconColor, content = it) }
-            }
+        val decoratedTrailing: @Composable (() -> Unit)? = trailingIcon?.let {
+            @Composable { Decoration(contentColor = trailingIconColor, content = it) }
+        }
 
         val backgroundModifier = Modifier.background(colors.backgroundColor(enabled).value, shape)
 

@@ -168,7 +168,9 @@ public open class SessionManagerImpl(
         }
 
     override suspend fun <T> runWithLock(block: suspend SessionManagerScope.() -> T): T =
-        mutex.withLock { scope.block() }
+        mutex.withLock {
+            scope.block()
+        }
 
     /** Workaround worker to fix b/119920965 */
     private suspend fun enqueueDelayedWorker(context: Context) {

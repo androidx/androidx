@@ -66,6 +66,7 @@ class InlineClassConverterTest {
     private fun flatten(group: Group): Sequence<Group> =
         sequenceOf(group).plus(group.children.asSequence().flatMap { flatten(it) })
 
-    private fun find(groups: Sequence<Group>, calleeName: String) =
-        groups.first { it.parameters.isNotEmpty() && it.name == calleeName }
+    private fun find(groups: Sequence<Group>, calleeName: String) = groups.first {
+        it.parameters.isNotEmpty() && it.name == calleeName
+    }
 }

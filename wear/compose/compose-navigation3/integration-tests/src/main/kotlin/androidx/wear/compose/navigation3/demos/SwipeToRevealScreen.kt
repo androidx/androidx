@@ -51,11 +51,13 @@ fun SwipeToRevealSingleButtonWithAnchoring() {
                     text = { Text("Delete") },
                 )
             },
-            onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
+            onSwipePrimaryAction = {
+                /* This block is called when the full swipe gesture is performed. */
             },
             undoPrimaryAction = {
                 UndoActionButton(
-                    onClick = { /* This block is called when the undo primary action is executed. */
+                    onClick = {
+                        /* This block is called when the undo primary action is executed. */
                     },
                     text = { Text("Undo Delete") },
                 )
@@ -95,11 +97,13 @@ fun SwipeToRevealBothDirectionsNonAnchoring() {
                     text = { Text("Delete") },
                 )
             },
-            onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
+            onSwipePrimaryAction = {
+                /* This block is called when the full swipe gesture is performed. */
             },
             undoPrimaryAction = {
                 UndoActionButton(
-                    onClick = { /* This block is called when the undo primary action is executed. */
+                    onClick = {
+                        /* This block is called when the undo primary action is executed. */
                     },
                     text = { Text("Undo Delete") },
                 )

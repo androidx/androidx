@@ -43,26 +43,30 @@ object SwipeToRevealBenchmark : MacrobenchmarkScreen {
             SwipeToReveal(
                 primaryAction = {
                     PrimaryActionButton(
-                        onClick = { /* This block is called when the primary action is executed. */
+                        onClick = {
+                            /* This block is called when the primary action is executed. */
                         },
                         icon = { Icon(Icons.Outlined.Delete, contentDescription = "Delete") },
                         text = { Text("Delete") },
                     )
                 },
-                onSwipePrimaryAction = { /* This block is called when the full swipe gesture is performed. */
+                onSwipePrimaryAction = {
+                    /* This block is called when the full swipe gesture is performed. */
                 },
                 modifier =
                     Modifier.fillMaxWidth().semantics { contentDescription = CONTENT_DESCRIPTION },
                 secondaryAction = {
                     SecondaryActionButton(
-                        onClick = { /* This block is called when the secondary action is executed. */
+                        onClick = {
+                            /* This block is called when the secondary action is executed. */
                         },
                         icon = { Icon(Icons.Outlined.MoreVert, contentDescription = "Options") },
                     )
                 },
                 undoPrimaryAction = {
                     UndoActionButton(
-                        onClick = { /* This block is called when the undo primary action is executed. */
+                        onClick = {
+                            /* This block is called when the undo primary action is executed. */
                         },
                         text = { Text("Undo Delete") },
                     )

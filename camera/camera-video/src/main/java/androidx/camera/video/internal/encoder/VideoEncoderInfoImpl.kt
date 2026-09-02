@@ -95,17 +95,16 @@ internal constructor(codecInfo: MediaCodecInfo, mime: String) :
          * The function will return `null` if it can't find a VideoEncoderInfoImpl.
          */
         @JvmField
-        public val FINDER: VideoEncoderInfo.Finder =
-            VideoEncoderInfo.Finder { mimeType: String ->
-                try {
-                    val videoEncoderInfo =
-                        VideoEncoderInfoImpl(findCodecAndGetCodecInfo(mimeType), mimeType)
-                    return@Finder ProfileAwareVideoEncoderInfo.from(videoEncoderInfo)
-                } catch (e: InvalidConfigException) {
-                    Logger.w(TAG, "Unable to find a VideoEncoderInfoImpl", e)
-                    return@Finder null
-                }
+        public val FINDER: VideoEncoderInfo.Finder = VideoEncoderInfo.Finder { mimeType: String ->
+            try {
+                val videoEncoderInfo =
+                    VideoEncoderInfoImpl(findCodecAndGetCodecInfo(mimeType), mimeType)
+                return@Finder ProfileAwareVideoEncoderInfo.from(videoEncoderInfo)
+            } catch (e: InvalidConfigException) {
+                Logger.w(TAG, "Unable to find a VideoEncoderInfoImpl", e)
+                return@Finder null
             }
+        }
 
         private fun toIllegalArgumentException(t: Throwable): IllegalArgumentException {
             return t as? IllegalArgumentException ?: IllegalArgumentException(t)

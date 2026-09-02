@@ -83,8 +83,9 @@ internal constructor(
      */
     internal var suggestionSelected: Boolean = false
 
-    private var backingChangeTracker: ChangeTracker? =
-        initialChanges?.let { ChangeTracker(initialChanges) }
+    private var backingChangeTracker: ChangeTracker? = initialChanges?.let {
+        ChangeTracker(initialChanges)
+    }
 
     /** Lazily-allocated [ChangeTracker], initialized on the first access. */
     internal val changeTracker: ChangeTracker

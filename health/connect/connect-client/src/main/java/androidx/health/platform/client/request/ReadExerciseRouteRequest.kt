@@ -28,10 +28,9 @@ class ReadExerciseRouteRequest(override val proto: RequestProto.ReadExerciseRout
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<ReadExerciseRouteRequest> =
-            ProtoParcelable.newCreator {
-                val proto = RequestProto.ReadExerciseRouteRequest.parseFrom(it)
-                ReadExerciseRouteRequest(proto)
-            }
+        val CREATOR: Parcelable.Creator<ReadExerciseRouteRequest> = ProtoParcelable.newCreator {
+            val proto = RequestProto.ReadExerciseRouteRequest.parseFrom(it)
+            ReadExerciseRouteRequest(proto)
+        }
     }
 }

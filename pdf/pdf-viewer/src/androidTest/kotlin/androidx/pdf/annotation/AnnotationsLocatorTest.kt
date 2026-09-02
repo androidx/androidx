@@ -224,8 +224,9 @@ class AnnotationsLocatorTest {
     private fun createAnnotationsData(
         annotations: List<PdfAnnotation>
     ): SparseArray<PageAnnotationsData> {
-        val keyedAnnotations =
-            annotations.map { KeyedPdfAnnotation(key = UUID.randomUUID().toString(), it) }
+        val keyedAnnotations = annotations.map {
+            KeyedPdfAnnotation(key = UUID.randomUUID().toString(), it)
+        }
 
         // FakePageInfoProvider always returns pageNum = 0
         val data = PageAnnotationsData(keyedAnnotations, Matrix())

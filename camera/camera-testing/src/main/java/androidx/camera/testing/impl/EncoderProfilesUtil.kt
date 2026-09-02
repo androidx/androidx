@@ -175,12 +175,11 @@ public object EncoderProfilesUtil {
                 )
             },
     ): EncoderProfilesProxy {
-        val videoProfiles =
-            dynamicRanges.map { dynamicRange ->
-                val videoBitDepth = dynamicRange.bitDepth
-                val videoHdrFormat = dynamicRangeToVideoProfileHdrFormats(dynamicRange).single()
-                videoProfileProvider(videoResolution, videoFrameRate, videoBitDepth, videoHdrFormat)
-            }
+        val videoProfiles = dynamicRanges.map { dynamicRange ->
+            val videoBitDepth = dynamicRange.bitDepth
+            val videoHdrFormat = dynamicRangeToVideoProfileHdrFormats(dynamicRange).single()
+            videoProfileProvider(videoResolution, videoFrameRate, videoBitDepth, videoHdrFormat)
+        }
         return createFakeEncoderProfilesProxy(videoProfiles = videoProfiles)
     }
 

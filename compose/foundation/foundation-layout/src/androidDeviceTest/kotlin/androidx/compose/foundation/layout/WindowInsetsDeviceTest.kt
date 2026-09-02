@@ -548,12 +548,11 @@ class WindowInsetsDeviceTest {
         }
 
         rule.waitUntil(timeoutMillis = 5000) {
-            val rootIme =
-                rule.runOnUiThread {
-                    ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
-                        ?.getInsets(WindowInsetsCompat.Type.ime())
-                        ?.bottom ?: 0
-                }
+            val rootIme = rule.runOnUiThread {
+                ViewCompat.getRootWindowInsets(rule.activity.window.decorView)
+                    ?.getInsets(WindowInsetsCompat.Type.ime())
+                    ?.bottom ?: 0
+            }
             imeInsetBottom == rootIme && imeInsetBottom > 0
         }
 

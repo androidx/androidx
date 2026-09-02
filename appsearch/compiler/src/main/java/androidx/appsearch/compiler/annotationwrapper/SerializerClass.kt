@@ -112,8 +112,7 @@ data class SerializerClass(
                         // Direct equality check with the param's type should be sufficient.
                         // Don't need to allow for subtypes because mActualTypeInGenericDoc can
                         // only be a primitive type or String which is a final class.
-                        &&
-                        hasSingleParamOfExactType(method, kind.actualTypeInGenericDoc)
+                        && hasSingleParamOfExactType(method, kind.actualTypeInGenericDoc)
                 ) {
                     return method
                 }

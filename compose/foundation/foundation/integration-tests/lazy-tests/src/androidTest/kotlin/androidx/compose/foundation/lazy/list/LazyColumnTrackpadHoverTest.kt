@@ -132,11 +132,10 @@ class LazyColumnTrackpadHoverTest {
         rule.waitForIdle()
 
         // Find the node under the mouse
-        val initialNodeUnderMouse =
-            initialNodes.firstOrNull { node ->
-                // Use boundsInRoot to check if the point is inside the item
-                node.boundsInRoot.contains(mousePointer)
-            }
+        val initialNodeUnderMouse = initialNodes.firstOrNull { node ->
+            // Use boundsInRoot to check if the point is inside the item
+            node.boundsInRoot.contains(mousePointer)
+        }
 
         val initialItemTagUnderMouse =
             initialNodeUnderMouse?.config?.get(SemanticsProperties.TestTag)
@@ -166,11 +165,10 @@ class LazyColumnTrackpadHoverTest {
                 )
                 .fetchSemanticsNodes()
 
-        val nodeUnderMouse =
-            nodes.firstOrNull { node ->
-                // Use boundsInRoot to check if the point is inside the item
-                node.boundsInRoot.contains(mousePointer)
-            }
+        val nodeUnderMouse = nodes.firstOrNull { node ->
+            // Use boundsInRoot to check if the point is inside the item
+            node.boundsInRoot.contains(mousePointer)
+        }
 
         val itemTagUnderMouse = nodeUnderMouse?.config?.get(SemanticsProperties.TestTag)
 
@@ -247,11 +245,10 @@ class LazyColumnTrackpadHoverTest {
                 .fetchSemanticsNodes()
 
         // 2. Find the node under the mouse
-        val nodeUnderMouse =
-            nodes.firstOrNull { node ->
-                // Use boundsInRoot to check if the point is inside the item
-                node.boundsInRoot.contains(mousePointer)
-            }
+        val nodeUnderMouse = nodes.firstOrNull { node ->
+            // Use boundsInRoot to check if the point is inside the item
+            node.boundsInRoot.contains(mousePointer)
+        }
 
         val itemTagUnderMouse = nodeUnderMouse?.config?.get(SemanticsProperties.TestTag)
 
@@ -390,11 +387,10 @@ class LazyColumnTrackpadHoverTest {
                 .fetchSemanticsNodes()
 
         // 2. Find the node under the mouse
-        val nodeUnderMouse =
-            nodes.firstOrNull { node ->
-                // Use boundsInRoot to check if the point is inside the item
-                node.boundsInRoot.contains(mousePointer)
-            }
+        val nodeUnderMouse = nodes.firstOrNull { node ->
+            // Use boundsInRoot to check if the point is inside the item
+            node.boundsInRoot.contains(mousePointer)
+        }
 
         val itemTagUnderMouse = nodeUnderMouse?.config?.get(SemanticsProperties.TestTag)
 
@@ -461,11 +457,10 @@ class LazyColumnTrackpadHoverTest {
         rule.waitForIdle()
 
         // Find the node under the mouse
-        val initialNodeUnderMouse =
-            initialNodes.firstOrNull { node ->
-                // Use boundsInRoot to check if the point is inside the item
-                node.boundsInRoot.contains(mousePointer)
-            }
+        val initialNodeUnderMouse = initialNodes.firstOrNull { node ->
+            // Use boundsInRoot to check if the point is inside the item
+            node.boundsInRoot.contains(mousePointer)
+        }
 
         val initialItemTagUnderMouse =
             initialNodeUnderMouse?.config?.get(SemanticsProperties.TestTag)
@@ -487,11 +482,10 @@ class LazyColumnTrackpadHoverTest {
                 )
                 .fetchSemanticsNodes()
 
-        val nodeUnderMouse =
-            nodes.firstOrNull { node ->
-                // Use boundsInRoot to check if the point is inside the item
-                node.boundsInRoot.contains(mousePointer)
-            }
+        val nodeUnderMouse = nodes.firstOrNull { node ->
+            // Use boundsInRoot to check if the point is inside the item
+            node.boundsInRoot.contains(mousePointer)
+        }
 
         val itemTagUnderMouse = nodeUnderMouse?.config?.get(SemanticsProperties.TestTag)
 
@@ -561,11 +555,10 @@ class LazyColumnTrackpadHoverTest {
                 .fetchSemanticsNodes()
 
         // Find the node under the mouse
-        val initialNodeUnderMouse: SemanticsNode? =
-            initialNodes.firstOrNull { node ->
-                // Use boundsInRoot to check if the point is inside the item
-                node.boundsInRoot.contains(mousePointer)
-            }
+        val initialNodeUnderMouse: SemanticsNode? = initialNodes.firstOrNull { node ->
+            // Use boundsInRoot to check if the point is inside the item
+            node.boundsInRoot.contains(mousePointer)
+        }
 
         val initialTestTag = initialNodeUnderMouse?.config?.getOrNull(SemanticsProperties.TestTag)
         assertThat(hoveredItems).contains(initialTestTag)
@@ -586,11 +579,10 @@ class LazyColumnTrackpadHoverTest {
                 .fetchSemanticsNodes()
 
         // Find the node under the mouse
-        val nodeUnderMouse =
-            nodes.firstOrNull { node ->
-                // Use boundsInRoot to check if the point is inside the item
-                node.boundsInRoot.contains(mousePointer)
-            }
+        val nodeUnderMouse = nodes.firstOrNull { node ->
+            // Use boundsInRoot to check if the point is inside the item
+            node.boundsInRoot.contains(mousePointer)
+        }
 
         val itemTagUnderMouse = nodeUnderMouse?.config?.get(SemanticsProperties.TestTag)
 
@@ -658,11 +650,10 @@ class LazyColumnTrackpadHoverTest {
                 .fetchSemanticsNodes()
 
         // Find the node under the mouse
-        val initialNodeUnderMouse: SemanticsNode? =
-            initialNodes.firstOrNull { node ->
-                // Use boundsInRoot to check if the point is inside the item
-                node.boundsInRoot.contains(mousePointer)
-            }
+        val initialNodeUnderMouse: SemanticsNode? = initialNodes.firstOrNull { node ->
+            // Use boundsInRoot to check if the point is inside the item
+            node.boundsInRoot.contains(mousePointer)
+        }
 
         val initialTestTag = initialNodeUnderMouse?.config?.getOrNull(SemanticsProperties.TestTag)
         assertThat(hoveredItems).contains(initialTestTag)
@@ -685,11 +676,10 @@ class LazyColumnTrackpadHoverTest {
                 .fetchSemanticsNodes()
 
         // Find the node under the mouse
-        val nodeUnderMouse =
-            nodes.firstOrNull { node ->
-                // Use boundsInRoot to check if the point is inside the item
-                node.boundsInRoot.contains(mousePointer)
-            }
+        val nodeUnderMouse = nodes.firstOrNull { node ->
+            // Use boundsInRoot to check if the point is inside the item
+            node.boundsInRoot.contains(mousePointer)
+        }
 
         val itemTagUnderMouse = nodeUnderMouse?.config?.get(SemanticsProperties.TestTag)
 
@@ -985,10 +975,9 @@ class LazyColumnTrackpadHoverTest {
                 )
                 .fetchSemanticsNodes()
 
-        val nodeUnderMouse =
-            nodes.firstOrNull { node ->
-                node.layoutInfo.isPlaced && node.boundsInRoot.contains(Offset(localX, localY))
-            }
+        val nodeUnderMouse = nodes.firstOrNull { node ->
+            node.layoutInfo.isPlaced && node.boundsInRoot.contains(Offset(localX, localY))
+        }
 
         val itemTagUnderMouse = nodeUnderMouse?.config?.getOrNull(SemanticsProperties.TestTag)
         assertThat(hoveredItems).contains(itemTagUnderMouse)

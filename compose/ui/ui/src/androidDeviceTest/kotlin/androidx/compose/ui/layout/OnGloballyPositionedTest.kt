@@ -269,15 +269,14 @@ class OnGloballyPositionedTest {
 
         val changeLambda = mutableStateOf(true)
 
-        val layoutModifier =
-            Modifier.layout { measurable, constraints ->
-                layoutCalled = true
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    placementCalled = true
-                    placeable.place(0, 0)
-                }
+        val layoutModifier = Modifier.layout { measurable, constraints ->
+            layoutCalled = true
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placementCalled = true
+                placeable.place(0, 0)
             }
+        }
 
         rule.setContent {
             Box(
@@ -970,18 +969,16 @@ class OnGloballyPositionedTest {
         val line2 = HorizontalAlignmentLine(::min)
         val lineValue = 10
         rule.setContent {
-            val onPositioned =
-                Modifier.onGloballyPositioned { coordinates: LayoutCoordinates ->
-                    assertEquals(2, coordinates.providedAlignmentLines.size)
-                    assertEquals(lineValue, coordinates[line1])
-                    assertEquals(lineValue, coordinates[line2])
-                    latch.countDown()
-                }
-            val lineProvider =
-                Modifier.layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-                    layout(0, 0, mapOf(line2 to lineValue)) { placeable.place(0, 0) }
-                }
+            val onPositioned = Modifier.onGloballyPositioned { coordinates: LayoutCoordinates ->
+                assertEquals(2, coordinates.providedAlignmentLines.size)
+                assertEquals(lineValue, coordinates[line1])
+                assertEquals(lineValue, coordinates[line2])
+                latch.countDown()
+            }
+            val lineProvider = Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(0, 0, mapOf(line2 to lineValue)) { placeable.place(0, 0) }
+            }
             Layout(modifier = onPositioned.then(lineProvider), content = {}) { _, _ ->
                 layout(0, 0, mapOf(line1 to lineValue)) {}
             }
@@ -1048,7 +1045,8 @@ class OnGloballyPositionedTest {
                         Modifier.padding(10).background(Color.Red).onGloballyPositioned {
                             coords = it
                         },
-                    ) { /* no-op */
+                    ) {
+                        /* no-op */
                     }
                 }
             }

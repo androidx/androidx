@@ -42,52 +42,50 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 class ModifierCornersTest : BaseRemoteComposeTest() {
     @Test
-    fun translateBox_corners_px() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(modifier = GlanceModifier.size(100.dp, 100.dp).cornerRadius(33.dp)) {
-                        // no content
-                    }
+    fun translateBox_corners_px() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.size(100.dp, 100.dp).cornerRadius(33.dp)) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val rc = GlanceDebugCreationContext()
-            doc.rootLayoutComponent!!.layout(rc)
-            doc.rootLayoutComponent!!.paint(rc.paintContext!!)
+        val rc = GlanceDebugCreationContext()
+        doc.rootLayoutComponent!!.layout(rc)
+        doc.rootLayoutComponent!!.paint(rc.paintContext!!)
 
-            val box = getSimpleLeaf(doc) as BoxLayout
-            debugPrintDoc(doc)
+        val box = getSimpleLeaf(doc) as BoxLayout
+        debugPrintDoc(doc)
 
-            val clipOperations =
-                box.componentModifiers.list.filterIsInstance<RoundedClipRectModifierOperation>()
-            assertEquals(1, clipOperations.size)
-            val clipOp: RoundedClipRectModifierOperation = clipOperations.first()
-            val stringer = StringSerializer()
-            clipOp.serializeToString(0, stringer)
-            val modifierStr: String = stringer.toString()
-            val expected = "33.0, 33.0, 33.0, 33.0]"
-            assertContains(modifierStr, expected)
-        }
+        val clipOperations =
+            box.componentModifiers.list.filterIsInstance<RoundedClipRectModifierOperation>()
+        assertEquals(1, clipOperations.size)
+        val clipOp: RoundedClipRectModifierOperation = clipOperations.first()
+        val stringer = StringSerializer()
+        clipOp.serializeToString(0, stringer)
+        val modifierStr: String = stringer.toString()
+        val expected = "33.0, 33.0, 33.0, 33.0]"
+        assertContains(modifierStr, expected)
+    }
 
     @Test
-    fun translateBox_corners_areResource() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Box(
-                        modifier =
-                            GlanceModifier.size(100.dp, 100.dp)
-                                .cornerRadius(R.dimen.glance_component_square_icon_button_corners)
-                    ) {
-                        // no content
-                    }
+    fun translateBox_corners_areResource() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(
+                    modifier =
+                        GlanceModifier.size(100.dp, 100.dp)
+                            .cornerRadius(R.dimen.glance_component_square_icon_button_corners)
+                ) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val docStr = doc.toNestedString()
-            assertContains(docStr, "RoundedClipRectModifierOperation 16.0 16.0 16.0 16.0")
-        }
+        val docStr = doc.toNestedString()
+        assertContains(docStr, "RoundedClipRectModifierOperation 16.0 16.0 16.0 16.0")
+    }
 }

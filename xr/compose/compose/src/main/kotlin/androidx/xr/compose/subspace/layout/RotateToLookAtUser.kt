@@ -285,8 +285,9 @@ internal class RotateToLookAtUserNode(
 
     private fun manageHeadPoseJob() {
         if (headPoseJob?.isActive == true) return
-        headPoseJob =
-            coroutineScope.launch { arDevice.state.collect { state -> updatePose(state) } }
+        headPoseJob = coroutineScope.launch {
+            arDevice.state.collect { state -> updatePose(state) }
+        }
     }
 
     private fun updatePose(state: ArDevice.State) {

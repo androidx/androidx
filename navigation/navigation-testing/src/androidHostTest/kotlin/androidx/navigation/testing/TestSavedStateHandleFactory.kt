@@ -274,11 +274,13 @@ class TestSavedStateHandleBuilder : RobolectricTest() {
         val testNavType =
             object : NavType<TestType>(isNullableAllowed = false) {
 
-                override fun put(bundle: SavedState, key: String, value: TestType) =
-                    bundle.write { putString(key, value.id) }
+                override fun put(bundle: SavedState, key: String, value: TestType) = bundle.write {
+                    putString(key, value.id)
+                }
 
-                override fun get(bundle: SavedState, key: String): TestType? =
-                    bundle.read { TestType(getString(key)) }
+                override fun get(bundle: SavedState, key: String): TestType? = bundle.read {
+                    TestType(getString(key))
+                }
 
                 override fun serializeAsValue(value: TestType): String = Uri.encode((value.id))
 
@@ -314,8 +316,9 @@ private val testNavType =
 
 private val testCollectionNavType: NavType<List<TestType>> =
     object : CollectionNavType<List<TestType>>(false) {
-        override fun serializeAsValues(value: List<TestType>): List<String> =
-            value.map { "${it.id}.${it.name}" }
+        override fun serializeAsValues(value: List<TestType>): List<String> = value.map {
+            "${it.id}.${it.name}"
+        }
 
         override fun put(bundle: SavedState, key: String, value: List<TestType>) {
             bundle.write { putStringArray(key, serializeAsValues(value).toTypedArray()) }

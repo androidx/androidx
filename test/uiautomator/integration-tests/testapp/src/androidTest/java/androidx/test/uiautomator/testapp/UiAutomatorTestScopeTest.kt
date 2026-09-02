@@ -132,9 +132,10 @@ class UiAutomatorTestScopeTest {
         startActivity(ComposeTestActivity::class.java)
 
         onElement { simpleViewResourceName() == "top-text" }
-        val button =
-            onElement { isScrollable }
-                .scrollToElement(Direction.DOWN) { className == Button::class.java.name }
+        val button = onElement {
+            isScrollable
+        }
+            .scrollToElement(Direction.DOWN) { className == Button::class.java.name }
         val textView = onElement { textAsString() == "Initial" }
         button.click()
         assertThat(textView.text).isEqualTo("Updated")

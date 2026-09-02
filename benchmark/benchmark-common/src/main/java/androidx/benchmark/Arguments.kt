@@ -211,7 +211,8 @@ object Arguments {
             arguments
                 .getBenchmarkArgument(
                     key = "enabledRules",
-                    defaultValue = RuleType.values().joinToString(separator = ",") { it.toString() },
+                    defaultValue =
+                        RuleType.values().joinToString(separator = ",") { it.toString() },
                 )
                 .run {
                     if (this.lowercase() == "none") {

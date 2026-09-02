@@ -298,8 +298,9 @@ abstract class BaseTestAppFunctionService : AppFunctionService(), CreateNoteAppF
     }
 
     @AppFunction
-    internal fun oneOfFunction(oneOfList: List<OneOfSealedInterface>) =
-        oneOfList.map { OneOfSealedNestedSerializable(sealedInterface = it) }
+    internal fun oneOfFunction(oneOfList: List<OneOfSealedInterface>) = oneOfList.map {
+        OneOfSealedNestedSerializable(sealedInterface = it)
+    }
 
     // TODO: b/542935459 - Add additional integration tests for multiple allowed URI schemes
     @AppFunction

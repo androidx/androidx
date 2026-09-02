@@ -313,10 +313,9 @@ class ComposeViewTest {
         rule.setContent { view = LocalView.current }
         rule.waitForIdle()
         val composeViewContext = rule.runOnUiThread { ComposeViewContext(view) }
-        val composeView =
-            rule.runOnUiThread {
-                ComposeView(view.context).also { it.createComposition(composeViewContext) }
-            }
+        val composeView = rule.runOnUiThread {
+            ComposeView(view.context).also { it.createComposition(composeViewContext) }
+        }
         var isComposed by mutableStateOf(false)
         rule.runOnUiThread { composeView.setContent { Box { isComposed = true } } }
         rule.waitForIdle()
@@ -337,13 +336,12 @@ class ComposeViewTest {
         rule.waitForIdle()
         val composeViewContext = rule.runOnUiThread { view.findViewTreeComposeViewContext()!! }
         var isComposed by mutableStateOf(false)
-        composeView =
-            rule.runOnUiThread {
-                ComposeView(view.context).also {
-                    it.createComposition(composeViewContext)
-                    it.setContent { isComposed = true }
-                }
+        composeView = rule.runOnUiThread {
+            ComposeView(view.context).also {
+                it.createComposition(composeViewContext)
+                it.setContent { isComposed = true }
             }
+        }
         rule.waitForIdle()
         assertThat(isComposed).isTrue()
         assertThat(composeViewContext.viewCount).isEqualTo(2)
@@ -374,13 +372,12 @@ class ComposeViewTest {
         rule.waitForIdle()
         val composeViewContext = rule.runOnUiThread { view.findViewTreeComposeViewContext()!! }
         var isComposed by mutableStateOf(false)
-        composeView =
-            rule.runOnUiThread {
-                ComposeView(view.context).also {
-                    it.createComposition(composeViewContext)
-                    it.setContent { isComposed = true }
-                }
+        composeView = rule.runOnUiThread {
+            ComposeView(view.context).also {
+                it.createComposition(composeViewContext)
+                it.setContent { isComposed = true }
             }
+        }
         rule.waitForIdle()
         // Adding the ComposeView to the hierarchy shouldn't add to the view count
         addComposeView = true
@@ -514,13 +511,12 @@ class ComposeViewTest {
             }
         }
         val composeViewContext = rule.runOnUiThread { view.findViewTreeComposeViewContext()!! }
-        childView =
-            rule.runOnUiThread {
-                ComposeView(rule.activity).also {
-                    it.setContent { Box(Modifier.fillMaxSize()) }
-                    it.createComposition(composeViewContext)
-                }
+        childView = rule.runOnUiThread {
+            ComposeView(rule.activity).also {
+                it.setContent { Box(Modifier.fillMaxSize()) }
+                it.createComposition(composeViewContext)
             }
+        }
         rule.waitForIdle()
         addView = true
         rule.waitForIdle()

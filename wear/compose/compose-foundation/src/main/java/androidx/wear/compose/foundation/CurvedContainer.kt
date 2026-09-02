@@ -65,19 +65,18 @@ internal abstract class ContainerChild(
     override fun CurvedMeasureScope.initializeMeasure(
         measurables: Iterator<Measurable>
     ): (Placeable.PlacementScope).() -> Unit {
-        val placementBlocks =
-            children.fastMap { node ->
-                with(
-                    CurvedMeasureScope(
-                        subDensity = this,
-                        curvedContainerScope.curvedLayoutDirection,
-                        radius,
-                        isLookingAhead,
-                    )
-                ) {
-                    with(node) { initializeMeasure(measurables) }
-                }
+        val placementBlocks = children.fastMap { node ->
+            with(
+                CurvedMeasureScope(
+                    subDensity = this,
+                    curvedContainerScope.curvedLayoutDirection,
+                    radius,
+                    isLookingAhead,
+                )
+            ) {
+                with(node) { initializeMeasure(measurables) }
             }
+        }
         return { placementBlocks.fastForEach { it() } }
     }
 

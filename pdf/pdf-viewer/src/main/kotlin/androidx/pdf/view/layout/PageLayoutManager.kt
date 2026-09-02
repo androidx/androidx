@@ -380,52 +380,51 @@ internal class PageLayoutManager(
     private fun loadPageDimensions(pageNum: Int) {
         requestedReach = pageNum
         val previousDimensionsJob = currentDimensionsJob
-        currentDimensionsJob =
-            backgroundScope.launch {
-                previousDimensionsJob?.join()
-                try {
-                    val pageInfoFlags =
-                        if (
-                            isFormFillingEnabled() and
-                                (pdfDocument.formType != PdfDocument.PDF_FORM_TYPE_NONE)
-                        )
-                            PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET
-                        else PdfDocument.PAGE_INFO_EXCLUDE_FORM_WIDGETS
-                    val pageMetadata = pdfDocument.getPageInfo(pageNum, pageInfoFlags)
+        currentDimensionsJob = backgroundScope.launch {
+            previousDimensionsJob?.join()
+            try {
+                val pageInfoFlags =
+                    if (
+                        isFormFillingEnabled() and
+                            (pdfDocument.formType != PdfDocument.PDF_FORM_TYPE_NONE)
+                    )
+                        PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET
+                    else PdfDocument.PAGE_INFO_EXCLUDE_FORM_WIDGETS
+                val pageMetadata = pdfDocument.getPageInfo(pageNum, pageInfoFlags)
 
-                    val size = Point(pageMetadata.width, pageMetadata.height)
-                    // Add the value to the model before emitting, and on the main thread
-                    withContext(Dispatchers.Main) {
-                        paginationModel.addPage(pageNum, size)
-                        layoutStrategy.setPagePositions(pageNum, size)
-                        pdfFormFillingState.addPageFormWidgetInfos(
-                            pageNum,
-                            pageMetadata.formWidgetInfos,
-                        )
-                    }
-                    _pageInfos.emit(pageMetadata)
+                val size = Point(pageMetadata.width, pageMetadata.height)
+                // Add the value to the model before emitting, and on the main thread
+                withContext(Dispatchers.Main) {
+                    paginationModel.addPage(pageNum, size)
+                    layoutStrategy.setPagePositions(pageNum, size)
+                    pdfFormFillingState.addPageFormWidgetInfos(
+                        pageNum,
+                        pageMetadata.formWidgetInfos,
+                    )
                 }
-                // TODO(b/409465579): Propagate custom exception from SandboxedPdfDocument to
-                // decouple
-                // it from service specific exceptions
-                catch (e: RemoteException) {
-                    if (!e.isHandledRemoteException) throw e
-                    // An exception happened above because of service disconnection. Our marked
-                    // requestedReach is no longer correct. In subsequent calls the missed value
-                    // will be approximated by the next known value.
-                    // Propagate error event to UI to take appropriate action.
-                    val exception =
-                        RequestFailedException(
-                            requestMetadata =
-                                RequestMetadata(
-                                    requestName = PAGE_INFO_REQUEST_NAME,
-                                    pageRange = pageNum..pageNum,
-                                ),
-                            throwable = e,
-                        )
-                    errorFlow.emit(exception)
-                }
+                _pageInfos.emit(pageMetadata)
             }
+            // TODO(b/409465579): Propagate custom exception from SandboxedPdfDocument to
+            // decouple
+            // it from service specific exceptions
+            catch (e: RemoteException) {
+                if (!e.isHandledRemoteException) throw e
+                // An exception happened above because of service disconnection. Our marked
+                // requestedReach is no longer correct. In subsequent calls the missed value
+                // will be approximated by the next known value.
+                // Propagate error event to UI to take appropriate action.
+                val exception =
+                    RequestFailedException(
+                        requestMetadata =
+                            RequestMetadata(
+                                requestName = PAGE_INFO_REQUEST_NAME,
+                                pageRange = pageNum..pageNum,
+                            ),
+                        throwable = e,
+                    )
+                errorFlow.emit(exception)
+            }
+        }
     }
 
     companion object {

@@ -113,48 +113,47 @@ class PositionalDataSourceTest {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun validatePositionOffset(enablePlaceholders: Boolean) =
-        testScope.runTest {
-            val config =
-                PagedList.Config.Builder()
-                    .setPageSize(10)
-                    .setEnablePlaceholders(enablePlaceholders)
-                    .build()
-            val success = mutableListOf(false)
-            val dataSource =
-                object : PositionalDataSource<String>() {
-                    override fun loadInitial(
-                        params: LoadInitialParams,
-                        callback: LoadInitialCallback<String>,
-                    ) {
-                        if (enablePlaceholders) {
-                            // 36 - ((10 * 3) / 2) = 21, round down to 20
-                            assertEquals(20, params.requestedStartPosition)
-                        } else {
-                            // 36 - ((10 * 3) / 2) = 21, no rounding
-                            assertEquals(21, params.requestedStartPosition)
-                        }
-
-                        callback.onResult(listOf("a", "b"), 0, 2)
-                        success[0] = true
+    private fun validatePositionOffset(enablePlaceholders: Boolean) = testScope.runTest {
+        val config =
+            PagedList.Config.Builder()
+                .setPageSize(10)
+                .setEnablePlaceholders(enablePlaceholders)
+                .build()
+        val success = mutableListOf(false)
+        val dataSource =
+            object : PositionalDataSource<String>() {
+                override fun loadInitial(
+                    params: LoadInitialParams,
+                    callback: LoadInitialCallback<String>,
+                ) {
+                    if (enablePlaceholders) {
+                        // 36 - ((10 * 3) / 2) = 21, round down to 20
+                        assertEquals(20, params.requestedStartPosition)
+                    } else {
+                        // 36 - ((10 * 3) / 2) = 21, no rounding
+                        assertEquals(21, params.requestedStartPosition)
                     }
 
-                    override fun loadRange(
-                        params: LoadRangeParams,
-                        callback: LoadRangeCallback<String>,
-                    ) {
-                        fail("loadRange not expected")
-                    }
+                    callback.onResult(listOf("a", "b"), 0, 2)
+                    success[0] = true
                 }
 
-            @Suppress("DEPRECATION")
-            PagedList.Builder(dataSource, config)
-                .setFetchExecutor(Executor { it.run() })
-                .setNotifyExecutor(Executor { it.run() })
-                .setInitialKey(36)
-                .build()
-            assertTrue(success[0])
-        }
+                override fun loadRange(
+                    params: LoadRangeParams,
+                    callback: LoadRangeCallback<String>,
+                ) {
+                    fail("loadRange not expected")
+                }
+            }
+
+        @Suppress("DEPRECATION")
+        PagedList.Builder(dataSource, config)
+            .setFetchExecutor(Executor { it.run() })
+            .setNotifyExecutor(Executor { it.run() })
+            .setInitialKey(36)
+            .build()
+        assertTrue(success[0])
+    }
 
     @Test
     fun initialPositionOffset() {
@@ -171,45 +170,44 @@ class PositionalDataSourceTest {
         enablePlaceholders: Boolean = true,
         invalidateDataSource: Boolean = false,
         callbackInvoker: (callback: PositionalDataSource.LoadInitialCallback<String>) -> Unit,
-    ) =
-        testScope.runTest {
-            val dataSource =
-                object : PositionalDataSource<String>() {
-                    override fun loadInitial(
-                        params: LoadInitialParams,
-                        callback: LoadInitialCallback<String>,
-                    ) {
-                        if (invalidateDataSource) {
-                            // invalidate data source so it's invalid when onResult() called
-                            invalidate()
-                        }
-                        callbackInvoker(callback)
+    ) = testScope.runTest {
+        val dataSource =
+            object : PositionalDataSource<String>() {
+                override fun loadInitial(
+                    params: LoadInitialParams,
+                    callback: LoadInitialCallback<String>,
+                ) {
+                    if (invalidateDataSource) {
+                        // invalidate data source so it's invalid when onResult() called
+                        invalidate()
                     }
-
-                    override fun loadRange(
-                        params: LoadRangeParams,
-                        callback: LoadRangeCallback<String>,
-                    ) {
-                        fail("loadRange not expected")
-                    }
+                    callbackInvoker(callback)
                 }
 
-            val config =
-                PagedList.Config.Builder()
-                    .setPageSize(10)
-                    .setEnablePlaceholders(enablePlaceholders)
-                    .build()
+                override fun loadRange(
+                    params: LoadRangeParams,
+                    callback: LoadRangeCallback<String>,
+                ) {
+                    fail("loadRange not expected")
+                }
+            }
 
-            val params =
-                PositionalDataSource.LoadInitialParams(
-                    0,
-                    config.initialLoadSizeHint,
-                    config.pageSize,
-                    config.enablePlaceholders,
-                )
+        val config =
+            PagedList.Config.Builder()
+                .setPageSize(10)
+                .setEnablePlaceholders(enablePlaceholders)
+                .build()
 
-            dataSource.loadInitial(params)
-        }
+        val params =
+            PositionalDataSource.LoadInitialParams(
+                0,
+                config.initialLoadSizeHint,
+                config.pageSize,
+                config.enablePlaceholders,
+            )
+
+        dataSource.loadInitial(params)
+    }
 
     @Test
     fun initialLoadCallbackSuccess() = performLoadInitial {
@@ -472,44 +470,43 @@ class PositionalDataSourceTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun verifyRefreshIsTerminal(counted: Boolean) =
-        testScope.runTest {
-            val dataSource = ListDataSource(list = listOf(0, 1, 2), counted = counted)
-            dataSource
-                .load(
-                    DataSource.Params(
-                        type = LoadType.REFRESH,
-                        key = 0,
-                        initialLoadSize = 3,
-                        placeholdersEnabled = false,
-                        pageSize = 1,
-                    )
+    private fun verifyRefreshIsTerminal(counted: Boolean) = testScope.runTest {
+        val dataSource = ListDataSource(list = listOf(0, 1, 2), counted = counted)
+        dataSource
+            .load(
+                DataSource.Params(
+                    type = LoadType.REFRESH,
+                    key = 0,
+                    initialLoadSize = 3,
+                    placeholdersEnabled = false,
+                    pageSize = 1,
                 )
-                .apply {
-                    assertEquals(listOf(0, 1, 2), data)
-                    // prepends always return prevKey = null if they return the first item
-                    assertEquals(null, prevKey)
-                    // appends only return nextKey if they return the last item, and are counted
-                    assertEquals(if (counted) null else 3, nextKey)
-                }
+            )
+            .apply {
+                assertEquals(listOf(0, 1, 2), data)
+                // prepends always return prevKey = null if they return the first item
+                assertEquals(null, prevKey)
+                // appends only return nextKey if they return the last item, and are counted
+                assertEquals(if (counted) null else 3, nextKey)
+            }
 
-            dataSource
-                .load(
-                    DataSource.Params(
-                        type = LoadType.PREPEND,
-                        key = 1,
-                        initialLoadSize = 3,
-                        placeholdersEnabled = false,
-                        pageSize = 1,
-                    )
+        dataSource
+            .load(
+                DataSource.Params(
+                    type = LoadType.PREPEND,
+                    key = 1,
+                    initialLoadSize = 3,
+                    placeholdersEnabled = false,
+                    pageSize = 1,
                 )
-                .apply {
-                    // prepends should return prevKey = null if they return the first item
-                    assertEquals(listOf(0), data)
-                    assertEquals(null, prevKey)
-                    assertEquals(1, nextKey)
-                }
-        }
+            )
+            .apply {
+                // prepends should return prevKey = null if they return the first item
+                assertEquals(listOf(0), data)
+                assertEquals(null, prevKey)
+                assertEquals(1, nextKey)
+            }
+    }
 
     @Test fun terminalResultCounted() = verifyRefreshIsTerminal(counted = true)
 

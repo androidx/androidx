@@ -42,8 +42,9 @@ internal class CallbackToFlowAdapter {
         globalLock.withLock {
             if (consumerToJobMap[consumer] == null) {
                 val scope = CoroutineScope(executor.asCoroutineDispatcher())
-                consumerToJobMap[consumer] =
-                    scope.launch { flow.collect { value -> consumer.accept(value) } }
+                consumerToJobMap[consumer] = scope.launch {
+                    flow.collect { value -> consumer.accept(value) }
+                }
             }
         }
     }

@@ -132,7 +132,9 @@ fun <T : Any> CommonUiNavDisplay(
                     item(
                         selected = topLevelRoute.route == innerStack.last(),
                         onClick = { onItemClick(topLevelRoute) },
-                        icon = { Icon(imageVector = topLevelRoute.icon, contentDescription = null) },
+                        icon = {
+                            Icon(imageVector = topLevelRoute.icon, contentDescription = null)
+                        },
                     )
                 }
             },

@@ -177,8 +177,9 @@ public class CameraCoordinatorAdapter(
                 if (activeConcurrentCameraInfosList.isEmpty() || pendingCameraIds.isEmpty()) {
                     return
                 }
-                val activeConcurrentCameraIdsList =
-                    activeConcurrentCameraInfosList.map { checkNotNull(it.cameraId).value }
+                val activeConcurrentCameraIdsList = activeConcurrentCameraInfosList.map {
+                    checkNotNull(it.cameraId).value
+                }
                 if (activeConcurrentCameraIdsList.toSet() != pendingCameraIds.toSet()) {
                     return
                 }
@@ -205,12 +206,11 @@ public class CameraCoordinatorAdapter(
                 }
             }
 
-        val graphConfigs =
-            camerasToUpdate.map {
-                checkNotNull(it.getDeferredCameraGraphConfig()) {
-                    "Every CameraInternal instance is expected to have a deferred CameraGraph config"
-                }
+        val graphConfigs = camerasToUpdate.map {
+            checkNotNull(it.getDeferredCameraGraphConfig()) {
+                "Every CameraInternal instance is expected to have a deferred CameraGraph config"
             }
+        }
 
         val cameraGraphs =
             checkNotNull(cameraPipe).createCameraGraphs(CameraGraph.ConcurrentConfig(graphConfigs))

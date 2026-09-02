@@ -148,41 +148,40 @@ class HelloArObjectActivity : ComponentActivity() {
             AugmentedObject.subscribe(session).collect { objects ->
                 for (augmentedObject in objects) {
                     if (!objectJobs.contains(augmentedObject)) {
-                        objectJobs[augmentedObject] =
-                            lifecycleScope.launch {
-                                augmentedObject.state.collect { state ->
-                                    updateModelForObject(augmentedObject, state)
-                                    objectEntitiesMap[augmentedObject]?.let { entity ->
-                                        when (state.trackingState) {
-                                            TrackingState.TRACKING -> {
-                                                entity.setAlpha(TRACKED_ALPHA)
-                                            }
-                                            TrackingState.PAUSED -> {
-                                                entity.setAlpha(PAUSED_ALPHA)
-                                            }
-                                            TrackingState.STOPPED -> {
-                                                objectJobs[augmentedObject]!!.cancel()
-                                                objectJobs.remove(augmentedObject)
-                                                return@collect
-                                            }
+                        objectJobs[augmentedObject] = lifecycleScope.launch {
+                            augmentedObject.state.collect { state ->
+                                updateModelForObject(augmentedObject, state)
+                                objectEntitiesMap[augmentedObject]?.let { entity ->
+                                    when (state.trackingState) {
+                                        TrackingState.TRACKING -> {
+                                            entity.setAlpha(TRACKED_ALPHA)
                                         }
-                                        entity.setPose(
-                                            session.scene.perceptionSpace.transformPoseTo(
-                                                state.centerPose,
-                                                session.scene.activitySpace,
-                                            )
-                                        )
-                                        @SuppressLint("RestrictedApiAndroidX")
-                                        entity.setScale(
-                                            Vector3(
-                                                state.extents.width,
-                                                state.extents.height,
-                                                state.extents.depth,
-                                            )
-                                        )
+                                        TrackingState.PAUSED -> {
+                                            entity.setAlpha(PAUSED_ALPHA)
+                                        }
+                                        TrackingState.STOPPED -> {
+                                            objectJobs[augmentedObject]!!.cancel()
+                                            objectJobs.remove(augmentedObject)
+                                            return@collect
+                                        }
                                     }
+                                    entity.setPose(
+                                        session.scene.perceptionSpace.transformPoseTo(
+                                            state.centerPose,
+                                            session.scene.activitySpace,
+                                        )
+                                    )
+                                    @SuppressLint("RestrictedApiAndroidX")
+                                    entity.setScale(
+                                        Vector3(
+                                            state.extents.width,
+                                            state.extents.height,
+                                            state.extents.depth,
+                                        )
+                                    )
                                 }
                             }
+                        }
                     }
                 }
             }

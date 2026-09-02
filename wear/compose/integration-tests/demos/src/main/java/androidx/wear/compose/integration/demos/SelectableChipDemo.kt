@@ -114,7 +114,8 @@ fun SelectableChips(
                     colors =
                         SelectableChipDefaults.selectableChipColors(
                             selectedSelectionControlColor = AlternatePrimaryColor3,
-                            selectedEndBackgroundColor = AlternatePrimaryColor3.copy(alpha = 0.325f),
+                            selectedEndBackgroundColor =
+                                AlternatePrimaryColor3.copy(alpha = 0.325f),
                         ),
                 )
             }

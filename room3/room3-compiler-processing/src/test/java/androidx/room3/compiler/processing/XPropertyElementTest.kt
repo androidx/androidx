@@ -146,8 +146,9 @@ class XPropertyElementTest {
             assertThat(noBackingFieldProp.getter!!.name).isEqualTo("getNoBackingFieldProp")
             assertThat(noBackingFieldProp.setter).isNull()
 
-            val noBackingFieldVarProp =
-                declaredProperties.first { it.name == "noBackingFieldVarProp" }
+            val noBackingFieldVarProp = declaredProperties.first {
+                it.name == "noBackingFieldVarProp"
+            }
             assertThat(noBackingFieldVarProp.getter).isNotNull()
             assertThat(noBackingFieldVarProp.getter!!.name).isEqualTo("getNoBackingFieldVarProp")
             assertThat(noBackingFieldVarProp.setter).isNotNull()
@@ -213,8 +214,9 @@ class XPropertyElementTest {
             assertThat(noBackingFieldProp.getter!!.name).isEqualTo("getNoBackingFieldProp")
             assertThat(noBackingFieldProp.setter).isNull()
 
-            val noBackingFieldVarProp =
-                declaredProperties.first { it.name == "noBackingFieldVarProp" }
+            val noBackingFieldVarProp = declaredProperties.first {
+                it.name == "noBackingFieldVarProp"
+            }
             assertThat(noBackingFieldVarProp.getter).isNotNull()
             assertThat(noBackingFieldVarProp.getter!!.name).isEqualTo("getNoBackingFieldVarProp")
             assertThat(noBackingFieldVarProp.setter).isNotNull()

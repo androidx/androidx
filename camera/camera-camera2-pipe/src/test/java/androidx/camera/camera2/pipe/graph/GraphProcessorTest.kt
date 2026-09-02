@@ -108,280 +108,266 @@ internal class GraphProcessorTest {
     }
 
     @Test
-    fun graphProcessorSubmitsRequests() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.submit(request1)
-            advanceUntilIdle()
+    fun graphProcessorSubmitsRequests() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.submit(request1)
+        advanceUntilIdle()
 
-            // Make sure the requests get submitted to the request processor
-            assertThat(csp1.events.size).isEqualTo(1)
+        // Make sure the requests get submitted to the request processor
+        assertThat(csp1.events.size).isEqualTo(1)
 
-            assertThat(csp1.events[0].isCapture).isTrue()
-            assertThat(csp1.events[0].requiredParameters)
-                .containsEntry(CaptureRequest.JPEG_THUMBNAIL_QUALITY, 42)
-        }
-
-    @Test
-    fun graphProcessorSubmitsRequestsToMostRecentProcessor() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.onGraphStarted(grp2)
-            graphProcessor.submit(request1)
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isClose).isTrue()
-
-            assertThat(csp2.events.size).isEqualTo(1)
-            assertThat(csp2.events[0].isCapture).isTrue()
-            assertThat(csp2.events[0].requests).containsExactly(request1)
-        }
+        assertThat(csp1.events[0].isCapture).isTrue()
+        assertThat(csp1.events[0].requiredParameters)
+            .containsEntry(CaptureRequest.JPEG_THUMBNAIL_QUALITY, 42)
+    }
 
     @Test
-    fun graphProcessorSubmitsQueuedRequests() =
-        testScope.runTest {
-            graphProcessor.submit(request1)
-            graphProcessor.submit(request2)
+    fun graphProcessorSubmitsRequestsToMostRecentProcessor() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.onGraphStarted(grp2)
+        graphProcessor.submit(request1)
+        advanceUntilIdle()
 
-            // Request1 and 2 should be queued and will be submitted even when the request
-            // processor is set after the requests are submitted.
-            graphProcessor.onGraphStarted(grp1)
-            advanceUntilIdle()
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isClose).isTrue()
 
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isCapture).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request2)
-        }
+        assertThat(csp2.events.size).isEqualTo(1)
+        assertThat(csp2.events[0].isCapture).isTrue()
+        assertThat(csp2.events[0].requests).containsExactly(request1)
+    }
 
     @Test
-    fun graphProcessorSubmitsBurstsOfRequestsTogetherWithExtras() =
-        testScope.runTest {
-            graphProcessor.submit(listOf(request1, request2))
-            graphProcessor.onGraphStarted(grp1)
-            advanceUntilIdle()
+    fun graphProcessorSubmitsQueuedRequests() = testScope.runTest {
+        graphProcessor.submit(request1)
+        graphProcessor.submit(request2)
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isCapture).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1, request2).inOrder()
-        }
+        // Request1 and 2 should be queued and will be submitted even when the request
+        // processor is set after the requests are submitted.
+        graphProcessor.onGraphStarted(grp1)
+        advanceUntilIdle()
 
-    @Test
-    fun graphProcessorDoesNotForgetRejectedRequests() =
-        testScope.runTest {
-            csp1.rejectSubmit = true
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.submit(request1)
-            advanceUntilIdle()
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isCapture).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRejected).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-
-            graphProcessor.submit(request2)
-            advanceUntilIdle()
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[1].isRejected).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request1) // Re-attempt #1
-
-            graphProcessor.onGraphStarted(grp2)
-            advanceUntilIdle()
-
-            // Assert that after a new request processor is set, it receives the queued up requests.
-            assertThat(csp2.events.size).isEqualTo(2)
-            assertThat(csp2.events[0].isCapture).isTrue()
-            assertThat(csp2.events[0].requests).containsExactly(request1)
-            assertThat(csp2.events[1].isCapture).isTrue()
-            assertThat(csp2.events[1].requests).containsExactly(request2).inOrder()
-        }
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request2)
+    }
 
     @Test
-    fun graphProcessorContinuesSubmittingRequestsWhenFirstRequestIsRejected() =
-        testScope.runTest {
+    fun graphProcessorSubmitsBurstsOfRequestsTogetherWithExtras() = testScope.runTest {
+        graphProcessor.submit(listOf(request1, request2))
+        graphProcessor.onGraphStarted(grp1)
+        advanceUntilIdle()
 
-            // Note: setting the requestProcessor, and calling submit() can both trigger a call
-            // to submit a request.
-            csp1.rejectSubmit = true
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.submit(request1)
-            advanceUntilIdle()
-
-            // Check to make sure that submit is called at least once, and that request1 is rejected
-            // from the request processor.
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRejected).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-
-            // Stop rejecting requests
-            csp1.rejectSubmit = false
-
-            graphProcessor.submit(request2)
-            advanceUntilIdle()
-
-            // Assert that immediately after we get a successfully submitted request, the
-            //  next request is also submitted.
-            assertThat(csp1.events.size).isEqualTo(3)
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request1)
-            assertThat(csp1.events[2].isCapture).isTrue()
-            assertThat(csp1.events[2].requests).containsExactly(request2)
-        }
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isCapture).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1, request2).inOrder()
+    }
 
     @Test
-    fun graphProcessorSetsRepeatingRequest() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            graphProcessor.repeatingRequest = request2
-            advanceUntilIdle()
+    fun graphProcessorDoesNotForgetRejectedRequests() = testScope.runTest {
+        csp1.rejectSubmit = true
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.submit(request1)
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request2)
-            assertThat(csp1.events[0].requiredParameters)
-                .containsEntry(CaptureRequest.JPEG_THUMBNAIL_QUALITY, 42)
-        }
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isRejected).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
 
-    @Test
-    fun graphProcessorDoesNotForgetRejectedRepeatingRequests() =
-        testScope.runTest {
-            csp1.rejectSubmit = true
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
+        graphProcessor.submit(request2)
+        advanceUntilIdle()
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[1].isRejected).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1) // Re-attempt #1
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRejected).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
+        graphProcessor.onGraphStarted(grp2)
+        advanceUntilIdle()
 
-            graphProcessor.repeatingRequest = request2
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(3)
-            assertThat(csp1.events[1].isRejected).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request2)
-            assertThat(csp1.events[2].isRejected).isTrue()
-            assertThat(csp1.events[2].requests).containsExactly(request1) // fallback attempt
-
-            csp1.rejectSubmit = false
-            graphProcessor.invalidate()
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(4)
-            assertThat(csp1.events[3].isRepeating).isTrue()
-            assertThat(csp1.events[3].requests).containsExactly(request2)
-        }
+        // Assert that after a new request processor is set, it receives the queued up requests.
+        assertThat(csp2.events.size).isEqualTo(2)
+        assertThat(csp2.events[0].isCapture).isTrue()
+        assertThat(csp2.events[0].requests).containsExactly(request1)
+        assertThat(csp2.events[1].isCapture).isTrue()
+        assertThat(csp2.events[1].requests).containsExactly(request2).inOrder()
+    }
 
     @Test
-    fun graphProcessorTracksRepeatingRequest() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
+    fun graphProcessorContinuesSubmittingRequestsWhenFirstRequestIsRejected() = testScope.runTest {
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
+        // Note: setting the requestProcessor, and calling submit() can both trigger a call
+        // to submit a request.
+        csp1.rejectSubmit = true
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.submit(request1)
+        advanceUntilIdle()
 
-            graphProcessor.onGraphStarted(grp2)
-            advanceUntilIdle()
+        // Check to make sure that submit is called at least once, and that request1 is rejected
+        // from the request processor.
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isRejected).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
 
-            assertThat(csp2.events.size).isEqualTo(1)
-            assertThat(csp2.events[0].isRepeating).isTrue()
-            assertThat(csp2.events[0].requests).containsExactly(request1)
-        }
+        // Stop rejecting requests
+        csp1.rejectSubmit = false
 
-    @Test
-    fun graphProcessorTracksRejectedRepeatingRequests() =
-        testScope.runTest {
-            csp1.rejectSubmit = true
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
+        graphProcessor.submit(request2)
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(1)
-            assertThat(csp1.events[0].isRejected).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-
-            graphProcessor.onGraphStarted(grp2)
-            advanceUntilIdle()
-
-            assertThat(csp2.events.size).isEqualTo(1)
-            assertThat(csp2.events[0].isRepeating).isTrue()
-            assertThat(csp2.events[0].requests).containsExactly(request1)
-        }
+        // Assert that immediately after we get a successfully submitted request, the
+        //  next request is also submitted.
+        assertThat(csp1.events.size).isEqualTo(3)
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1)
+        assertThat(csp1.events[2].isCapture).isTrue()
+        assertThat(csp1.events[2].requests).containsExactly(request2)
+    }
 
     @Test
-    fun graphProcessorSubmitsRepeatingRequestAndQueuedRequests() =
-        testScope.runTest {
-            graphProcessor.repeatingRequest = request1
-            graphProcessor.submit(request2)
-            advanceUntilIdle()
+    fun graphProcessorSetsRepeatingRequest() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        graphProcessor.repeatingRequest = request2
+        advanceUntilIdle()
 
-            graphProcessor.onGraphStarted(grp1)
-            advanceUntilIdle()
-
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request2)
-        }
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request2)
+        assertThat(csp1.events[0].requiredParameters)
+            .containsEntry(CaptureRequest.JPEG_THUMBNAIL_QUALITY, 42)
+    }
 
     @Test
-    fun graphProcessorAbortsQueuedRequests() =
-        testScope.runTest {
-            graphProcessor.repeatingRequest = request1
-            graphProcessor.submit(request2)
+    fun graphProcessorDoesNotForgetRejectedRepeatingRequests() = testScope.runTest {
+        csp1.rejectSubmit = true
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
 
-            // Abort queued and in-flight requests.
-            graphProcessor.abort()
-            graphProcessor.onGraphStarted(grp1)
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isRejected).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
 
-            val abortEvent1 = requestListener2.onAbortedFlow.first()
-            val globalAbortEvent = globalListener.onAbortedFlow.first()
+        graphProcessor.repeatingRequest = request2
+        advanceUntilIdle()
 
-            assertThat(abortEvent1.request).isSameInstanceAs(request2)
-            assertThat(globalAbortEvent.request).isSameInstanceAs(request2)
-        }
+        assertThat(csp1.events.size).isEqualTo(3)
+        assertThat(csp1.events[1].isRejected).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request2)
+        assertThat(csp1.events[2].isRejected).isTrue()
+        assertThat(csp1.events[2].requests).containsExactly(request1) // fallback attempt
 
-    @Test
-    fun closingGraphProcessorAbortsSubsequentRequests() =
-        testScope.runTest {
-            graphProcessor.close()
-            advanceUntilIdle()
+        csp1.rejectSubmit = false
+        graphProcessor.invalidate()
+        advanceUntilIdle()
 
-            // Abort queued and in-flight requests.
-            // graphProcessor.onGraphStarted(graphRequestProcessor1)
-            graphProcessor.repeatingRequest = request1
-            graphProcessor.submit(request2)
-
-            val abortEvent1 =
-                withTimeoutOrNull(50.milliseconds) { requestListener1.onAbortedFlow.firstOrNull() }
-            val abortEvent2 = requestListener2.onAbortedFlow.first()
-            assertThat(abortEvent1).isNull()
-            assertThat(abortEvent2.request).isSameInstanceAs(request2)
-        }
+        assertThat(csp1.events.size).isEqualTo(4)
+        assertThat(csp1.events[3].isRepeating).isTrue()
+        assertThat(csp1.events[3].requests).containsExactly(request2)
+    }
 
     @Test
-    fun graphProcessorResubmitsParametersAfterGraphStarts() =
-        testScope.runTest {
-            // Submit a repeating request first to make sure we have one in progress.
-            graphProcessor.repeatingRequest = request1
-            graphProcessor.trigger(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
-            graphProcessor.onGraphStarted(grp1)
-            advanceUntilIdle()
+    fun graphProcessorTracksRepeatingRequest() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[0].isRepeating).isTrue()
-            assertThat(csp1.events[0].requests).containsExactly(request1)
-            assertThat(csp1.events[1].isCapture).isTrue()
-            assertThat(csp1.events[1].requests).containsExactly(request1)
-            assertThat(csp1.events[1].requiredParameters).containsEntry(CONTROL_AE_LOCK, false)
-        }
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+
+        graphProcessor.onGraphStarted(grp2)
+        advanceUntilIdle()
+
+        assertThat(csp2.events.size).isEqualTo(1)
+        assertThat(csp2.events[0].isRepeating).isTrue()
+        assertThat(csp2.events[0].requests).containsExactly(request1)
+    }
+
+    @Test
+    fun graphProcessorTracksRejectedRepeatingRequests() = testScope.runTest {
+        csp1.rejectSubmit = true
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(1)
+        assertThat(csp1.events[0].isRejected).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+
+        graphProcessor.onGraphStarted(grp2)
+        advanceUntilIdle()
+
+        assertThat(csp2.events.size).isEqualTo(1)
+        assertThat(csp2.events[0].isRepeating).isTrue()
+        assertThat(csp2.events[0].requests).containsExactly(request1)
+    }
+
+    @Test
+    fun graphProcessorSubmitsRepeatingRequestAndQueuedRequests() = testScope.runTest {
+        graphProcessor.repeatingRequest = request1
+        graphProcessor.submit(request2)
+        advanceUntilIdle()
+
+        graphProcessor.onGraphStarted(grp1)
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request2)
+    }
+
+    @Test
+    fun graphProcessorAbortsQueuedRequests() = testScope.runTest {
+        graphProcessor.repeatingRequest = request1
+        graphProcessor.submit(request2)
+
+        // Abort queued and in-flight requests.
+        graphProcessor.abort()
+        graphProcessor.onGraphStarted(grp1)
+
+        val abortEvent1 = requestListener2.onAbortedFlow.first()
+        val globalAbortEvent = globalListener.onAbortedFlow.first()
+
+        assertThat(abortEvent1.request).isSameInstanceAs(request2)
+        assertThat(globalAbortEvent.request).isSameInstanceAs(request2)
+    }
+
+    @Test
+    fun closingGraphProcessorAbortsSubsequentRequests() = testScope.runTest {
+        graphProcessor.close()
+        advanceUntilIdle()
+
+        // Abort queued and in-flight requests.
+        // graphProcessor.onGraphStarted(graphRequestProcessor1)
+        graphProcessor.repeatingRequest = request1
+        graphProcessor.submit(request2)
+
+        val abortEvent1 =
+            withTimeoutOrNull(50.milliseconds) { requestListener1.onAbortedFlow.firstOrNull() }
+        val abortEvent2 = requestListener2.onAbortedFlow.first()
+        assertThat(abortEvent1).isNull()
+        assertThat(abortEvent2.request).isSameInstanceAs(request2)
+    }
+
+    @Test
+    fun graphProcessorResubmitsParametersAfterGraphStarts() = testScope.runTest {
+        // Submit a repeating request first to make sure we have one in progress.
+        graphProcessor.repeatingRequest = request1
+        graphProcessor.trigger(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
+        graphProcessor.onGraphStarted(grp1)
+        advanceUntilIdle()
+
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[0].isRepeating).isTrue()
+        assertThat(csp1.events[0].requests).containsExactly(request1)
+        assertThat(csp1.events[1].isCapture).isTrue()
+        assertThat(csp1.events[1].requests).containsExactly(request1)
+        assertThat(csp1.events[1].requiredParameters).containsEntry(CONTROL_AE_LOCK, false)
+    }
 
     @Test
     fun graphProcessorSubmitsLatestParametersWhenSubmittedTwiceBeforeGraphStarts() =
@@ -410,95 +396,89 @@ internal class GraphProcessorTest {
         }
 
     @Test
-    fun tryTriggerShouldReturnFalseWhenNoRepeatingRequestIsQueued() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            advanceUntilIdle()
+    fun tryTriggerShouldReturnFalseWhenNoRepeatingRequestIsQueued() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        advanceUntilIdle()
 
-            assertThrows<IllegalStateException> {
-                graphProcessor.trigger(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
-            }
+        assertThrows<IllegalStateException> {
+            graphProcessor.trigger(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
         }
+    }
 
     @Test
-    fun graphProcessorChangesGraphStateOnError() =
-        testScope.runTest {
-            assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
+    fun graphProcessorChangesGraphStateOnError() = testScope.runTest {
+        assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
 
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.onGraphError(
-                GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
-            )
-            assertThat(graphProcessor.graphState.value).isInstanceOf(GraphStateError::class.java)
-        }
-
-    @Test
-    fun graphProcessorDropsStaleErrors() =
-        testScope.runTest {
-            assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
-
-            graphProcessor.onGraphError(
-                GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
-            )
-            assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
-
-            graphProcessor.onGraphStarting()
-            graphProcessor.onGraphStarted(grp1)
-
-            // GraphProcessor should drop errors while the camera graph is stopping.
-            graphProcessor.onGraphStopping()
-            graphProcessor.onGraphError(
-                GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
-            )
-            assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
-
-            // GraphProcessor should also drop errors while the camera graph is stopped.
-            graphProcessor.onGraphStopped(grp1)
-            graphProcessor.onGraphError(
-                GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
-            )
-            assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
-        }
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.onGraphError(
+            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+        )
+        assertThat(graphProcessor.graphState.value).isInstanceOf(GraphStateError::class.java)
+    }
 
     @Test
-    fun graphProcessorChangesGraphStateListenerOnError() =
-        testScope.runTest {
-            assertThat(fakeGraphStateListener.states).isEmpty()
+    fun graphProcessorDropsStaleErrors() = testScope.runTest {
+        assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
 
-            graphProcessor.onGraphStarted(grp1)
-            assertThat(fakeGraphStateListener.states.last()).isEqualTo(GraphState.GraphStateStarted)
+        graphProcessor.onGraphError(
+            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+        )
+        assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
 
-            val testError =
-                GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
-            graphProcessor.onGraphError(testError)
+        graphProcessor.onGraphStarting()
+        graphProcessor.onGraphStarted(grp1)
 
-            val lastState = fakeGraphStateListener.states.last()
-            assertThat(lastState).isInstanceOf(GraphStateError::class.java)
-            assertThat((lastState as GraphStateError).cameraError).isEqualTo(testError.cameraError)
-        }
+        // GraphProcessor should drop errors while the camera graph is stopping.
+        graphProcessor.onGraphStopping()
+        graphProcessor.onGraphError(
+            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+        )
+        assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
+
+        // GraphProcessor should also drop errors while the camera graph is stopped.
+        graphProcessor.onGraphStopped(grp1)
+        graphProcessor.onGraphError(
+            GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+        )
+        assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
+    }
 
     @Test
-    fun graphProcessorForwardsAllEvents() =
-        testScope.runTest {
-            // Initially, no states have been dispatched to the listener.
-            assertThat(fakeGraphStateListener.states).isEmpty()
+    fun graphProcessorChangesGraphStateListenerOnError() = testScope.runTest {
+        assertThat(fakeGraphStateListener.states).isEmpty()
 
-            // When an error is received, it should be forwarded immediately.
-            val error1 = GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
-            graphProcessor.onGraphError(error1)
-            assertThat(fakeGraphStateListener.states).containsExactly(error1)
+        graphProcessor.onGraphStarted(grp1)
+        assertThat(fakeGraphStateListener.states.last()).isEqualTo(GraphState.GraphStateStarted)
 
-            // After stopping, if another error is received, it should also be forwarded, as the
-            // GraphProcessor is now stateless and just dispatches events.
-            graphProcessor.onGraphStopping()
-            graphProcessor.onGraphStopped(null)
-            val error2 = GraphStateError(CameraError.ERROR_CAMERA_SERVICE, willAttemptRetry = false)
-            graphProcessor.onGraphError(error2)
+        val testError = GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+        graphProcessor.onGraphError(testError)
 
-            assertThat(fakeGraphStateListener.states)
-                .containsExactly(error1, GraphState.GraphStateStopping, GraphStateStopped, error2)
-                .inOrder()
-        }
+        val lastState = fakeGraphStateListener.states.last()
+        assertThat(lastState).isInstanceOf(GraphStateError::class.java)
+        assertThat((lastState as GraphStateError).cameraError).isEqualTo(testError.cameraError)
+    }
+
+    @Test
+    fun graphProcessorForwardsAllEvents() = testScope.runTest {
+        // Initially, no states have been dispatched to the listener.
+        assertThat(fakeGraphStateListener.states).isEmpty()
+
+        // When an error is received, it should be forwarded immediately.
+        val error1 = GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
+        graphProcessor.onGraphError(error1)
+        assertThat(fakeGraphStateListener.states).containsExactly(error1)
+
+        // After stopping, if another error is received, it should also be forwarded, as the
+        // GraphProcessor is now stateless and just dispatches events.
+        graphProcessor.onGraphStopping()
+        graphProcessor.onGraphStopped(null)
+        val error2 = GraphStateError(CameraError.ERROR_CAMERA_SERVICE, willAttemptRetry = false)
+        graphProcessor.onGraphError(error2)
+
+        assertThat(fakeGraphStateListener.states)
+            .containsExactly(error1, GraphState.GraphStateStopping, GraphStateStopped, error2)
+            .inOrder()
+    }
 
     private class FakeGraphStateListener : GraphStateListener {
         val states = mutableListOf<GraphState>()

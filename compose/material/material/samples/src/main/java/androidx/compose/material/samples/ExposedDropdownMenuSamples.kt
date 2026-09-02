@@ -77,8 +77,9 @@ fun EditableExposedDropdownMenuSample() {
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
         // filter options based on text field value
-        val filteringOptions =
-            options.filter { it.contains(textFieldState.text, ignoreCase = true) }
+        val filteringOptions = options.filter {
+            it.contains(textFieldState.text, ignoreCase = true)
+        }
         if (filteringOptions.isNotEmpty()) {
             ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 filteringOptions.forEach { selectionOption ->

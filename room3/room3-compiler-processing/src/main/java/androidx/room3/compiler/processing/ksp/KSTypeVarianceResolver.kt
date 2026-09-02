@@ -447,8 +447,9 @@ private class KSTypeWrapper(
             typeParamStack = typeParamStack,
         )
 
-    fun hasSuppressJvmWildcardAnnotation() =
-        annotations.any { it.hasQualifiedNameOrAlias(JvmSuppressWildcards::class.qualifiedName!!) }
+    fun hasSuppressJvmWildcardAnnotation() = annotations.any {
+        it.hasQualifiedNameOrAlias(JvmSuppressWildcards::class.qualifiedName!!)
+    }
 
     fun isTypeParameter() = originalType.isTypeParameter()
 
@@ -538,11 +539,13 @@ private class KSTypeArgumentWrapper(
             typeParamStack = typeParamStack,
         )
 
-    fun hasJvmWildcardAnnotation() =
-        annotations.any { it.hasQualifiedNameOrAlias(JvmWildcard::class.qualifiedName!!) }
+    fun hasJvmWildcardAnnotation() = annotations.any {
+        it.hasQualifiedNameOrAlias(JvmWildcard::class.qualifiedName!!)
+    }
 
-    fun hasSuppressJvmWildcardAnnotation() =
-        annotations.any { it.hasQualifiedNameOrAlias(JvmSuppressWildcards::class.qualifiedName!!) }
+    fun hasSuppressJvmWildcardAnnotation() = annotations.any {
+        it.hasQualifiedNameOrAlias(JvmSuppressWildcards::class.qualifiedName!!)
+    }
 
     fun hasSuppressWildcardsAnnotationInHierarchy() =
         originalTypeArg.hasSuppressWildcardsAnnotationInHierarchy()

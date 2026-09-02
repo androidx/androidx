@@ -597,12 +597,11 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     @Test
     fun itemFillingParentSizeParentRecomposed_noRemeasureOnReuse() {
         var counter = 0
-        val modifier =
-            Modifier.layout { measurable, constraints ->
-                counter++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(IntOffset.Zero) }
-            }
+        val modifier = Modifier.layout { measurable, constraints ->
+            counter++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(IntOffset.Zero) }
+        }
 
         lateinit var state: LazyListState
         rule.setContentWithTestViewConfiguration {
@@ -1623,12 +1622,11 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     @Test
     fun recomposingWithNewComposedModifierObjectIsNotCausingRemeasure() {
         var remeasureCount = 0
-        val layoutModifier =
-            Modifier.layout { measurable, constraints ->
-                remeasureCount++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-            }
+        val layoutModifier = Modifier.layout { measurable, constraints ->
+            remeasureCount++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
         val counter = mutableStateOf(0)
 
         rule.setContentWithTestViewConfiguration {
@@ -2390,7 +2388,8 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
                                 Modifier.animateItem(
                                         fadeInSpec = null,
                                         fadeOutSpec = null,
-                                        placementSpec = tween<IntOffset>(160, easing = LinearEasing),
+                                        placementSpec =
+                                            tween<IntOffset>(160, easing = LinearEasing),
                                     )
                                     .trackPositions(
                                         lookaheadPosition,
