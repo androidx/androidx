@@ -80,12 +80,14 @@ public fun AppScaffold(
     val timeTextState = rememberUpdatedState(timeText)
     val showStatusBarState = rememberUpdatedState(isStatusBarEnabled)
     val appWindowView = LocalView.current
+    val appWindowViewState = rememberUpdatedState(appWindowView)
 
     val scaffoldState = remember {
         ScaffoldState(
             appTimeText = timeTextState,
             appShowStatusBar = showStatusBarState,
             isStatusBarSupported = isStatusBarSupportedState,
+            appWindowView = appWindowViewState,
         )
     }
 
@@ -106,13 +108,6 @@ public fun AppScaffold(
                         provider?.isScrollAwayValid != true ||
                         (!offset.isNaN() && offset <= 0f))
             }
-        }
-
-        // Registers the app window view for status bar control and cleans it up when changed or
-        // removed.
-        DisposableEffect(appWindowView) {
-            scaffoldState.screenContent.setAppWindowView(appWindowView)
-            onDispose { scaffoldState.screenContent.clearAppWindowView(appWindowView) }
         }
 
         // Restores all status bar states when AppScaffold leaves composition.
