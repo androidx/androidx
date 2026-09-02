@@ -23,14 +23,12 @@ import androidx.compose.remote.creation.compose.capture.createCreationDisplayInf
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
-import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.test.utils.ComposableWrappers
 import androidx.compose.remote.player.compose.test.utils.RemoteScreenshotTestRule
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -38,7 +36,11 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonEnabled
+import androidx.wear.compose.remote.material3.previews.RemoteIconButtonExtraSmall
+import androidx.wear.compose.remote.material3.previews.RemoteIconButtonFilled
+import androidx.wear.compose.remote.material3.previews.RemoteIconButtonLarge
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonOutlined
+import androidx.wear.compose.remote.material3.previews.RemoteIconButtonSmall
 import androidx.wear.compose.remote.material3.previews.RemoteIconButtonTonal
 import androidx.wear.compose.remote.material3.util.ComponentContainer
 import androidx.wear.compose.remote.material3.util.SCREENSHOT_GOLDEN_DIRECTORY
@@ -73,6 +75,46 @@ class RemoteIconButtonTest {
     }
 
     @Test
+    fun remote_icon_button_large() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteIconButtonLarge() }
+        }
+    }
+
+    @Test
+    fun remote_icon_button_small() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteIconButtonSmall() }
+        }
+    }
+
+    @Test
+    fun remote_icon_button_extra_small() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteIconButtonExtraSmall() }
+        }
+    }
+
+    @Test
+    fun remote_icon_button_filled_enabled() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = RcPlatformProfiles.WEAR_WIDGETS,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteIconButtonFilled() }
+        }
+    }
+
+    @Test
     fun remote_icon_button_rtl() {
         remoteComposeTestRule.runScreenshotTest(
             remoteCreationDisplayInfo = creationDisplayInfo,
@@ -90,7 +132,7 @@ class RemoteIconButtonTest {
                     RemoteIcon(
                         imageVector = TestImageVectors.VolumeUp,
                         contentDescription = null,
-                        modifier = RemoteModifier.size(24.rdp),
+                        modifier = RemoteModifier.size(RemoteIconButtonDefaults.DefaultIconSize),
                     )
                 }
             }
@@ -111,7 +153,7 @@ class RemoteIconButtonTest {
                 RemoteIconButton(
                     testAction,
                     enabled = RemoteBoolean(false),
-                    colors = FILLED_TONAL_COLOR,
+                    colors = RemoteIconButtonDefaults.filledTonalIconButtonColors(),
                 ) {
                     RemoteIcon(
                         modifier = RemoteModifier.size(RemoteIconButtonDefaults.SmallIconSize),
@@ -139,7 +181,7 @@ class RemoteIconButtonTest {
                     border = 1.rdp,
                     borderColor = RemoteMaterialTheme.colorScheme.outline,
                     enabled = RemoteBoolean(false),
-                    colors = OUTLINE_COLOR,
+                    colors = RemoteIconButtonDefaults.outlinedIconButtonColors(),
                 ) {
                     RemoteIcon(
                         modifier = RemoteModifier.size(RemoteIconButtonDefaults.SmallIconSize),
@@ -149,33 +191,6 @@ class RemoteIconButtonTest {
                 }
             }
         }
-    }
-
-    private companion object {
-        val FILLED_TONAL_COLOR
-            @Composable
-            get() =
-                RemoteIconButtonDefaults.iconButtonColors()
-                    .copy(
-                        containerColor = RemoteMaterialTheme.colorScheme.primary,
-                        contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
-                        disabledContainerColor =
-                            RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
-                        disabledContentColor =
-                            RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
-                    )
-
-        val OUTLINE_COLOR
-            @Composable
-            get() =
-                RemoteIconButtonDefaults.iconButtonColors()
-                    .copy(
-                        containerColor = RemoteColor(Color.Transparent),
-                        contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
-                        disabledContainerColor = RemoteColor(Color.Transparent),
-                        disabledContentColor =
-                            RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
-                    )
     }
 
     @Test
