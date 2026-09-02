@@ -101,6 +101,7 @@ class FormFillingActivity : ComponentActivity() {
         super.onNewIntent(intent)
     }
 
+    @Suppress("DEPRECATION") // b/552879150
     @Composable
     private fun FormComposable(lazyListState: LazyListState, rowHeight: Dp, fontSize: TextUnit) {
         val textStyle = LocalTextStyle.current.copy(fontSize = fontSize)

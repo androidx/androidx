@@ -173,6 +173,7 @@ class ScrollCaptureIntegrationTest {
         }
 
     @Test
+    @Suppress("DEPRECATION") // b/552879150
     fun search_doesNotFind_TextField1_singleLine() =
         captureTester.runTest {
             captureTester.setContent {
@@ -189,6 +190,7 @@ class ScrollCaptureIntegrationTest {
         }
 
     @Test
+    @Suppress("DEPRECATION")
     fun search_doesNotFind_TextField1_multiLine_scrollable() =
         captureTester.runTest {
             captureTester.setContent {

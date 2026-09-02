@@ -451,6 +451,7 @@ class AccessibilityIteratorsTest {
         return textLayoutResult!!
     }
 
+    @Suppress("DEPRECATION") // b/552879150
     private fun textFieldInScroller(): TextLayoutResult {
         var textLayoutResult: TextLayoutResult? = null
         rule.setContent {

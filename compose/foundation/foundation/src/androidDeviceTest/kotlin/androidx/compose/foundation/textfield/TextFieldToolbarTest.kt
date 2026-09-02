@@ -54,11 +54,12 @@ class TextFieldToolbarTest {
     @Test
     fun btf1_decorationBoxNotCallInnerTextField_longPress_doNotCrash() {
         rule.setContent {
+            @Suppress("DEPRECATION") // b/552879150
             BasicTextField(
                 modifier = Modifier.testTag(TAG),
                 value = TextFieldValue(),
                 onValueChange = {},
-                decorationBox = { innerTextField ->
+                decorationBox = {
                     Box(modifier = Modifier.size(50.dp, 50.dp).background(Color.Red))
                 },
             )
@@ -75,9 +76,7 @@ class TextFieldToolbarTest {
             BasicTextField(
                 modifier = Modifier.testTag(TAG),
                 state = state,
-                decorator = { innerTextField ->
-                    Box(modifier = Modifier.size(50.dp, 50.dp).background(Color.Red))
-                },
+                decorator = { Box(modifier = Modifier.size(50.dp, 50.dp).background(Color.Red)) },
             )
         }
 

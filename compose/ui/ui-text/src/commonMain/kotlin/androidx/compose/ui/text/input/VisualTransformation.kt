@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.text.input
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.AnnotatedString
 
-/** The transformed text with offset offset mapping */
+/** The transformed text with offset mapping */
+@Deprecated(
+    "The TextField flavors that use VisualTransformation are deprecated. Please" +
+        " refer to OutputTransformation."
+)
 public class TransformedText(
     /** The transformed text */
     public val text: AnnotatedString,
@@ -54,6 +60,11 @@ public class TransformedText(
  * example, you can mask characters in password field with asterisk with
  * [PasswordVisualTransformation].
  */
+@Deprecated(
+    "The TextField flavors that use VisualTransformation are deprecated. Please" +
+        " refer to OutputTransformation.",
+    replaceWith = ReplaceWith("OutputTransformation", "androidx.compose.foundation.text.input"),
+)
 @Immutable
 public fun interface VisualTransformation {
     /**
@@ -93,6 +104,10 @@ public fun interface VisualTransformation {
  *
  * @param mask The mask character used instead of original text.
  */
+@Deprecated(
+    "The TextField flavors that use VisualTransformation are deprecated. Please" +
+        " refer to BasicSecureTextField and other SecureTextField composables for password inputs."
+)
 public class PasswordVisualTransformation(public val mask: Char = '\u2022') : VisualTransformation {
     public override fun filter(text: AnnotatedString): TransformedText {
         return TransformedText(

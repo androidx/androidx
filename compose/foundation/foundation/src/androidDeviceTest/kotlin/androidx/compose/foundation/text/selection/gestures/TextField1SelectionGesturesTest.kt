@@ -67,6 +67,7 @@ internal abstract class TextField1SelectionGesturesTest(
     override fun Content() {
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
             inputMethodInterceptor.Content {
+                @Suppress("DEPRECATION") // b/552879150
                 BasicTextField(
                     value = textFieldValue,
                     onValueChange = { textFieldValue = it },

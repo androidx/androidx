@@ -66,6 +66,7 @@ private fun HorizontalTailFollowingTextField(
 ) {
     Layout(
         content = {
+            @Suppress("DEPRECATION") // b/552879150
             BasicTextField(value = value, onValueChange = onValueChange, textStyle = textStyle)
         },
         modifier = modifier,
@@ -96,6 +97,7 @@ private fun VerticalTailFollowintTextField(
 ) {
     Layout(
         content = {
+            @Suppress("DEPRECATION") // b/552879150
             BasicTextField(value = value, onValueChange = onValueChange, textStyle = textStyle)
         },
         modifier = modifier,

@@ -58,6 +58,7 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
     @Composable
     override fun Content() {
         inputMethodInterceptor.Content {
+            @Suppress("DEPRECATION") // b/552879150
             BasicTextField(
                 value = textFieldValue.value,
                 onValueChange = { textFieldValue.value = it },

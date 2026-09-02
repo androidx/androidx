@@ -53,6 +53,7 @@ class TextFieldUndoTest {
     private fun undoRedoTest(redoKeys: List<Key>) {
         val state = mutableStateOf("hi")
         rule.setContent {
+            @Suppress("DEPRECATION") // b/552879150
             BasicTextField(value = state.value, onValueChange = { state.value = it })
         }
 

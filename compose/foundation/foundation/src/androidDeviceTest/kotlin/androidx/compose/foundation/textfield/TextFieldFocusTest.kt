@@ -98,6 +98,7 @@ class TextFieldFocusTest {
     private fun TextFieldApp(dataList: List<FocusTestData>) {
         for (data in dataList) {
             val editor = remember { mutableStateOf("") }
+            @Suppress("DEPRECATION") // b/552879150
             BasicTextField(
                 value = editor.value,
                 modifier =
@@ -283,6 +284,7 @@ class TextFieldFocusTest {
                     focusRequester.requestFocus()
                 }
 
+                @Suppress("DEPRECATION") // b/552879150
                 BasicTextField(
                     value = "",
                     onValueChange = {},
@@ -600,6 +602,7 @@ class TextFieldFocusTest {
         val focusRequester = remember { FocusRequester() }
         val modifier = if (requestFocus) Modifier.focusRequester(focusRequester) else Modifier
 
+        @Suppress("DEPRECATION") // b/552879150
         BasicTextField(
             value = textInput,
             onValueChange = { textInput = it },

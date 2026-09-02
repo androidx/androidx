@@ -917,6 +917,7 @@ class TextFieldKeyEventTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // b/552879150
     fun textField_keyEvent_functionReference() {
         val state = mutableIntStateOf(0)
         var handled = -1

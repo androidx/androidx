@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.text.input
 
+@Deprecated(
+    "The TextField flavors that use VisualTransformation are deprecated. Please" +
+        " refer to OutputTransformation."
+)
 /** Provides bidirectional offset mapping between original and transformed text. */
 public interface OffsetMapping {
     /**
@@ -43,6 +49,11 @@ public interface OffsetMapping {
     public fun transformedToOriginal(offset: Int): Int
 
     public companion object {
+
+        @Deprecated(
+            "The TextField flavors that use VisualTransformation are deprecated. Please" +
+                " refer to OutputTransformation."
+        )
         /** The offset map used for identity mapping. */
         public val Identity: OffsetMapping =
             object : OffsetMapping {
