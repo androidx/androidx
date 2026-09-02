@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsIgnoringVisibility
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -99,7 +100,8 @@ class StatusBarTest {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(isStatusBarEnabled = true) {
                     showStatusBar =
-                        LocalScaffoldState.current.screenContent.currentShowStatusBar.value
+                        LocalScaffoldState.current?.screenContent?.currentShowStatusBar?.value
+                            ?: false
                     Box(modifier = Modifier.fillMaxSize())
                 }
             }
@@ -117,7 +119,7 @@ class StatusBarTest {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(isStatusBarEnabled = true) {
                     resolvedStatus =
-                        LocalScaffoldState.current.screenContent.currentShowStatusBar.value
+                        LocalScaffoldState.current?.screenContent?.currentShowStatusBar?.value
                     Box(modifier = Modifier.fillMaxSize())
                 }
             }
@@ -132,7 +134,7 @@ class StatusBarTest {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
                 AppScaffold(isStatusBarEnabled = true) {
                     resolvedStatus =
-                        LocalScaffoldState.current.screenContent.currentShowStatusBar.value
+                        LocalScaffoldState.current?.screenContent?.currentShowStatusBar?.value
                     Box(modifier = Modifier.fillMaxSize())
                 }
             }
@@ -988,11 +990,11 @@ class StatusBarTest {
 
         val screenContent =
             ScreenContent(
+                appWindowView = mutableStateOf(hostWindow),
                 appShowStatusBar = mutableStateOf(true),
                 isStatusBarSupported = mutableStateOf(true),
                 appTimeText = mutableStateOf({}),
             )
-        screenContent.setAppWindowView(hostWindow)
 
         val key1 = Any()
         val key2 = Any()
@@ -1225,11 +1227,11 @@ class StatusBarTest {
 
         val screenContent =
             ScreenContent(
+                appWindowView = mutableStateOf(hostWindow),
                 appShowStatusBar = mutableStateOf(true),
                 isStatusBarSupported = mutableStateOf(true),
                 appTimeText = mutableStateOf({}),
             )
-        screenContent.setAppWindowView(hostWindow)
 
         val key = Any()
         screenContent.addScreen(key, timeText = null, view = windowA)
@@ -1268,11 +1270,11 @@ class StatusBarTest {
 
         val screenContent =
             ScreenContent(
+                appWindowView = mutableStateOf(hostWindow),
                 appShowStatusBar = mutableStateOf(true),
                 isStatusBarSupported = mutableStateOf(true),
                 appTimeText = mutableStateOf({}),
             )
-        screenContent.setAppWindowView(hostWindow)
 
         val key = Any()
         screenContent.addScreen(key, timeText = null, view = hostWindow)
@@ -1301,11 +1303,11 @@ class StatusBarTest {
 
         val screenContent =
             ScreenContent(
+                appWindowView = mutableStateOf(hostWindow),
                 appShowStatusBar = mutableStateOf(true),
                 isStatusBarSupported = mutableStateOf(true),
                 appTimeText = mutableStateOf({}),
             )
-        screenContent.setAppWindowView(hostWindow)
 
         val key1 = Any()
         val key2 = Any()
@@ -1346,11 +1348,11 @@ class StatusBarTest {
 
         val screenContent =
             ScreenContent(
+                appWindowView = mutableStateOf(windowA),
                 appShowStatusBar = mutableStateOf(true),
                 isStatusBarSupported = mutableStateOf(true),
                 appTimeText = mutableStateOf({}),
             )
-        screenContent.setAppWindowView(windowA)
 
         val keyA = Any()
         val keyB = Any()
@@ -1373,29 +1375,34 @@ class StatusBarTest {
     }
 
     @Test
-    fun multiWindow_setAndClearAppWindowView_registersAndCleansUpDirectly() {
+    fun multiWindow_appWindowView_registersAndCleansUpDirectly() {
         val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
         val windowA = TestView(targetContext)
+        val windowB = TestView(targetContext)
         val mockInsets =
             WindowInsets.Builder().setVisible(WindowInsets.Type.statusBars(), true).build()
         windowA.mockRootWindowInsets = mockInsets
+        windowB.mockRootWindowInsets = mockInsets
 
+        var currentAppWindowView by mutableStateOf(windowA)
         val screenContent =
             ScreenContent(
+                appWindowView = derivedStateOf { currentAppWindowView },
                 appShowStatusBar = mutableStateOf(true),
                 isStatusBarSupported = mutableStateOf(true),
                 appTimeText = mutableStateOf({}),
             )
 
         // Setting appWindowView makes it active fallback and hides status bar
-        screenContent.setAppWindowView(windowA)
         screenContent.currentActiveOrchestrator.value.hide()
         Assert.assertEquals(1, windowA.testController.hideCount)
 
-        // Clearing appWindowView disposes windowA
-        screenContent.clearAppWindowView(windowA)
+        // Switching appWindowView disposes windowA without insets mutation
+        currentAppWindowView = windowB
+        screenContent.currentActiveOrchestrator.value.hide()
+        Assert.assertEquals(1, windowB.testController.hideCount)
         Assert.assertEquals(
-            "Clearing app window view should dispose orchestrator without insets mutation",
+            "Switching app window view should dispose previous orchestrator without insets mutation",
             0,
             windowA.testController.showCount,
         )
@@ -1424,8 +1431,11 @@ class StatusBarTest {
 
     @Test
     fun screenContent_resolveShowStatusBarForScreen_isolatesScreensInStack() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hostWindow = TestView(targetContext)
         val screenContent =
             ScreenContent(
+                appWindowView = mutableStateOf(hostWindow),
                 appShowStatusBar = mutableStateOf(true),
                 isStatusBarSupported = mutableStateOf(true),
                 appTimeText = mutableStateOf({}),
@@ -1439,6 +1449,7 @@ class StatusBarTest {
             key = backgroundScreenKey,
             timeText = null,
             statusBarMode = StatusBarMode.Enabled,
+            view = hostWindow,
         )
 
         // Background screen resolves to true, currentShowStatusBar is true
@@ -1452,6 +1463,7 @@ class StatusBarTest {
             key = overlayScreenKey,
             timeText = null,
             statusBarMode = StatusBarMode.Disabled,
+            view = hostWindow,
         )
 
         // Active top screen (overlay) sets currentShowStatusBar to false
@@ -1468,8 +1480,11 @@ class StatusBarTest {
 
     @Test
     fun screenContent_resolveShowStatusBarForScreen_inheritsFromParent() {
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hostWindow = TestView(targetContext)
         val screenContent =
             ScreenContent(
+                appWindowView = mutableStateOf(hostWindow),
                 appShowStatusBar = mutableStateOf(true),
                 isStatusBarSupported = mutableStateOf(true),
                 appTimeText = mutableStateOf({}),
@@ -1483,6 +1498,7 @@ class StatusBarTest {
             key = parentKey,
             timeText = null,
             statusBarMode = StatusBarMode.Disabled,
+            view = hostWindow,
         )
 
         // Add child screen with Inherit mode
@@ -1490,6 +1506,7 @@ class StatusBarTest {
             key = childKey,
             timeText = null,
             statusBarMode = StatusBarMode.Inherit,
+            view = hostWindow,
         )
 
         // Child inherits Disabled (false) from parent

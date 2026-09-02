@@ -129,9 +129,10 @@ class DialogTest {
 
     @Test
     fun shrink_background_when_dialog_is_shown() {
-        val scaffoldState = ScaffoldState()
+        var scaffoldState: ScaffoldState? = null
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalScaffoldState provides scaffoldState) {
+            AppScaffold {
+                scaffoldState = LocalScaffoldState.current
                 var visible by remember { mutableStateOf(false) }
                 Button(
                     modifier = Modifier.testTag(SHOW_BUTTON_TAG),
@@ -147,14 +148,15 @@ class DialogTest {
         }
         rule.onNodeWithTag(SHOW_BUTTON_TAG).performClick()
         rule.waitForIdle()
-        assert(scaffoldState.parentScale.floatValue < 1f)
+        assert(scaffoldState!!.parentScale.floatValue < 1f)
     }
 
     @Test
     fun expand_background_when_dialog_is_hidden() {
-        val scaffoldState = ScaffoldState()
+        var scaffoldState: ScaffoldState? = null
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalScaffoldState provides scaffoldState) {
+            AppScaffold {
+                scaffoldState = LocalScaffoldState.current
                 var visible by remember { mutableStateOf(true) }
                 Button(
                     modifier = Modifier.testTag(SHOW_BUTTON_TAG),
@@ -170,14 +172,15 @@ class DialogTest {
         }
         rule.onNodeWithTag(SHOW_BUTTON_TAG).performClick()
         rule.waitForIdle()
-        Assert.assertEquals(scaffoldState.parentScale.floatValue, 1f, 0.01f)
+        Assert.assertEquals(scaffoldState!!.parentScale.floatValue, 1f, 0.01f)
     }
 
     @Test
     fun expand_background_when_dialog_is_removed() {
-        val scaffoldState = ScaffoldState()
+        var scaffoldState: ScaffoldState? = null
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalScaffoldState provides scaffoldState) {
+            AppScaffold {
+                scaffoldState = LocalScaffoldState.current
                 var visible by remember { mutableStateOf(true) }
                 Button(
                     modifier = Modifier.testTag(SHOW_BUTTON_TAG),
@@ -195,7 +198,7 @@ class DialogTest {
         }
         rule.onNodeWithTag(SHOW_BUTTON_TAG).performClick()
         rule.waitForIdle()
-        Assert.assertEquals(scaffoldState.parentScale.floatValue, 1f, 0.01f)
+        Assert.assertEquals(scaffoldState!!.parentScale.floatValue, 1f, 0.01f)
     }
 
     @Test
