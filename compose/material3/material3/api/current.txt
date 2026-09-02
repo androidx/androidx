@@ -3000,10 +3000,10 @@ package androidx.compose.material3 {
     ctor @BytecodeOnly public RippleConfiguration(long, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @BytecodeOnly public long getColor-0d7_KjU();
     method @InaccessibleFromKotlin public androidx.compose.material3.RippleConfiguration.Focus? getFocus();
-    method @InaccessibleFromKotlin public androidx.compose.material.ripple.RippleAlpha? getRippleAlpha();
+    method @InaccessibleFromKotlin @Deprecated public androidx.compose.material.ripple.RippleAlpha? getRippleAlpha();
     property public androidx.compose.ui.graphics.Color color;
     property public androidx.compose.material3.RippleConfiguration.Focus? focus;
-    property public androidx.compose.material.ripple.RippleAlpha? rippleAlpha;
+    property @Deprecated public androidx.compose.material.ripple.RippleAlpha? rippleAlpha;
   }
 
   public abstract static sealed nonexhaustive class RippleConfiguration.Focus {
