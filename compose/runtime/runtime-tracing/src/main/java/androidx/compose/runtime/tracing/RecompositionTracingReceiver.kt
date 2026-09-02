@@ -65,26 +65,18 @@ public class RecompositionTracingReceiver : BroadcastReceiver() {
     @OptIn(InternalComposeTracingApi::class)
     private fun start(context: Context) {
         // Make sure the tracer is initialized
-        try {
-            AppInitializer.getInstance(context)
-                .initializeComponent(ComposeTracingInitializer::class.java)
-        } catch (e: Exception) {
-            resultCode = RESULT_CODE_FAILURE
-            throw e
-        }
-
-        val composeTraceSink = ComposeTracingInitializer.composeTraceSink
-        if (composeTraceSink == null) {
-            resultCode = RESULT_CODE_FAILURE
-            error(
-                "Expected Compose tracer to be initialized before starting tracing. Please report" +
-                    " to Jetpack Compose team through https://goo.gle/compose-feedback"
-            )
-        }
+        val composeTraceCollector =
+            try {
+                AppInitializer.getInstance(context)
+                    .initializeComponent(ComposeTracerInitializer::class.java)
+            } catch (e: Exception) {
+                resultCode = RESULT_CODE_FAILURE
+                throw e
+            }
 
         synchronized(lock) {
             if (tracingHandle == null) {
-                val tracer = RecompositionTracer(composeTraceSink)
+                val tracer = RecompositionTracer(composeTraceCollector)
                 tracingHandle = tracer.installTracing(tracingContext)
             } else {
                 resultCode = RESULT_CODE_ALREADY_IN_PROGRESS
