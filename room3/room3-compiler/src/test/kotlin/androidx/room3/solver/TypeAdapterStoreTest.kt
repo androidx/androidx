@@ -915,6 +915,95 @@ class TypeAdapterStoreTest {
         }
     }
 
+    @Test
+    fun testExtensionFunction_objectConverter() =
+        checkExtensionFunctionConverter(
+            converterDeclaration = "object PointConverter",
+            expectedTarget = "foo.bar.PointConverter",
+        )
+
+    @Test
+    fun testExtensionFunction_classConverter() =
+        checkExtensionFunctionConverter(
+            converterDeclaration = "class PointConverter",
+            expectedTarget = "__pointConverter",
+        )
+
+    @Test
+    fun testExtensionFunction_providedConverter() =
+        checkExtensionFunctionConverter(
+            converterDeclaration = "@ProvidedColumnTypeConverter\nclass PointConverter",
+            expectedTarget = "__pointConverter()",
+        )
+
+    private fun checkExtensionFunctionConverter(
+        converterDeclaration: String,
+        expectedTarget: String,
+    ) {
+        val point =
+            Source.kotlin(
+                "foo/bar/Point.kt",
+                """
+                package foo.bar
+                import androidx.room3.*
+
+                class Point(val x: Int)
+
+                $converterDeclaration {
+                    @ColumnTypeConverter
+                    fun Point.toInt(): Int = this.x
+
+                    @ColumnTypeConverter
+                    fun Int.toPoint(): Point = Point(this)
+                }
+                """
+                    .trimIndent(),
+            )
+        runKspTest(sources = listOf(point)) { invocation ->
+            val context = Context(invocation.processingEnv)
+            val converters =
+                CustomColumnConverterProcessor(
+                        context = context,
+                        element =
+                            invocation.processingEnv.requireTypeElement("foo.bar.PointConverter"),
+                    )
+                    .process()
+                    .map(::CustomColumnTypeConverterWrapper)
+            val store = TypeAdapterStore.create(context, BuiltInConverterFlags.DEFAULT, converters)
+            val pointType = invocation.processingEnv.requireType("foo.bar.Point")
+            val adapter = store.findColumnTypeAdapter(pointType, null, skipDefaultConverter = false)
+            assertThat(adapter, notNullValue())
+            assertThat(adapter, instanceOf(CompositeAdapter::class.java))
+
+            val bindScope = testCodeGenScope()
+            adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
+            assertThat(
+                bindScope.generate().toString(CodeLanguage.KOTLIN).trim(),
+                `is`(
+                    """
+                    val ${tmp(0)}: kotlin.Int = $expectedTarget.run { fooVar.toInt() }
+                    stmt.bindLong(41, ${tmp(0)}.toLong())
+                    """
+                        .trimIndent()
+                ),
+            )
+
+            val cursorScope = testCodeGenScope()
+            adapter.readFromStatement("res", "curs", "11", cursorScope)
+            assertThat(
+                cursorScope.generate().toString(CodeLanguage.KOTLIN).trim(),
+                `is`(
+                    """
+                    val ${tmp(0)}: kotlin.Int
+                    ${tmp(0)} = curs.getLong(11).toInt()
+                    res = $expectedTarget.run { ${tmp(0)}.toPoint() }
+                    """
+                        .trimIndent()
+                ),
+            )
+        }
+    }
+
     private fun createIntListToStringBinders(
         invocation: XTestInvocation
     ): List<ColumnTypeConverter> {
