@@ -58,6 +58,7 @@ import java.util.TimeZone
  * @property text The [Text] component implementation.
  * @property image The [Image] component implementation.
  * @property icon The [Icon] component implementation.
+ * @property audioPlayer The [AudioPlayer] component implementation.
  * @property card The [Card] component implementation.
  * @property row The [Row] component implementation.
  * @property column The [Column] component implementation.
@@ -76,6 +77,7 @@ public class A2uiBasicCatalogV1(
     public val text: Text,
     public val image: Image,
     public val icon: Icon,
+    public val audioPlayer: AudioPlayer,
     public val card: Card,
     public val row: Row,
     public val column: Column,
@@ -102,6 +104,7 @@ public class A2uiBasicCatalogV1(
             text,
             image,
             icon,
+            audioPlayer,
             card,
             row,
             column,
@@ -644,6 +647,78 @@ public class A2uiBasicCatalogV1(
         public fun A2uiComponentScope.TypedContent(
             source: Source,
             accessibility: AccessibilityAttributes?,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"AudioPlayer"` component for playing audio content from a URL.
+     *
+     * **Schema Properties:**
+     * * `url` (Dynamic String, required): The URL of the audio to be played.
+     * * `description` (Dynamic String, optional): A description of the audio, such as a title or
+     *   summary.
+     */
+    public interface AudioPlayer : A2uiComponent {
+        override val name: String
+            get() = "AudioPlayer"
+
+        override val description: String
+            get() = "A player for audio content from a URL."
+
+        public companion object {
+            /** The [A2uiProperty] for the `"url"` property of an [AudioPlayer]. */
+            public val UrlProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "url",
+                    required = true,
+                    description = "The URL of the audio to be played.",
+                )
+
+            /** The [A2uiProperty] for the `"description"` property of an [AudioPlayer]. */
+            public val DescriptionProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "description",
+                    required = false,
+                    description = "A description of the audio, such as a title or summary.",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(WeightProperty, UrlProperty, DescriptionProperty)
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bind(UrlProperty) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val url =
+                checkNotNull(properties.bind(UrlProperty)) {
+                    "Required property '${UrlProperty.key}' is missing."
+                }
+            val description = properties.bind(DescriptionProperty)
+
+            TypedContent(url = url, description = description, modifier = modifier)
+        }
+
+        /**
+         * Renders the [AudioPlayer] with its resolved [url] and [description] properties.
+         *
+         * @param url The URL of the audio to be played.
+         * @param description A description of the audio, such as a title or summary.
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            url: String,
+            description: String?,
             modifier: Modifier,
         )
     }

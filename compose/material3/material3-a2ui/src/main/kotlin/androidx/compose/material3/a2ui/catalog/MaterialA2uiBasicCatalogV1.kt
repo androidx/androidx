@@ -32,6 +32,9 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  * @param image [A2uiBasicCatalogV1.Image] component implementation. Use
  *   [MaterialA2uiBasicCatalogV1Defaults.image] to create a default Material 3 implementation with
  *   an [A2uiImageRenderer]
+ * @param audioPlayer [A2uiBasicCatalogV1.AudioPlayer] component implementation. Use
+ *   [MaterialA2uiBasicCatalogV1Defaults.audioPlayer] to create a default Material 3 implementation
+ *   with an [A2uiAudioPlayerRenderer]
  * @param urlOpener [A2uiUrlOpener] used by catalog functions to open URLs
  * @param messageFormatter [A2uiMessageFormatter] used by catalog functions to format localized
  *   messages with arguments
@@ -65,6 +68,7 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  */
 public fun materialA2uiBasicCatalogV1(
     image: A2uiBasicCatalogV1.Image,
+    audioPlayer: A2uiBasicCatalogV1.AudioPlayer,
     urlOpener: A2uiUrlOpener,
     messageFormatter: A2uiMessageFormatter,
     localeProvider: A2uiLocaleProvider,
@@ -88,6 +92,7 @@ public fun materialA2uiBasicCatalogV1(
             text = text,
             image = image,
             icon = icon,
+            audioPlayer = audioPlayer,
             card = card,
             row = row,
             column = column,
@@ -116,6 +121,17 @@ public object MaterialA2uiBasicCatalogV1Defaults {
      */
     public fun image(imageRenderer: A2uiImageRenderer): A2uiBasicCatalogV1.Image =
         MaterialA2uiBasicCatalogV1Image(imageRenderer)
+
+    /**
+     * Creates a default Material 3 implementation of the [A2uiBasicCatalogV1.AudioPlayer]
+     * component.
+     *
+     * @param audioPlayerRenderer [A2uiAudioPlayerRenderer] used to render audio players
+     * @return an [A2uiBasicCatalogV1.AudioPlayer] instance
+     */
+    public fun audioPlayer(
+        audioPlayerRenderer: A2uiAudioPlayerRenderer
+    ): A2uiBasicCatalogV1.AudioPlayer = MaterialA2uiBasicCatalogV1AudioPlayer(audioPlayerRenderer)
 
     /** Default Material 3 implementation of the [A2uiBasicCatalogV1.Icon] component. */
     public val icon: A2uiBasicCatalogV1.Icon = MaterialA2uiBasicCatalogV1Icon
