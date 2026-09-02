@@ -144,9 +144,9 @@ class DynamicRegistrationService : Service() {
             }
             ACTION_REGISTER_ADAPTER_ALL_PRIMITIVES -> {
                 val adapter =
-                    appFunctionManager.getHandleAppFunctionRequestAdapter(
-                        DynamicAllPrimitivesInputsSignature::class.java
-                    )
+                    appFunctionManager.getHandleAppFunctionRequestAdapter<
+                        DynamicAllPrimitivesInputsSignature
+                    >()
                 val implementation =
                     DynamicAllPrimitivesInputsSignature {
                         intValue,
@@ -182,9 +182,9 @@ class DynamicRegistrationService : Service() {
             }
             ACTION_REGISTER_ADAPTER_COMPLEX_SERIALIZABLE -> {
                 val adapter =
-                    appFunctionManager.getHandleAppFunctionRequestAdapter(
-                        DynamicComplexSerializableSignature::class.java
-                    )
+                    appFunctionManager.getHandleAppFunctionRequestAdapter<
+                        DynamicComplexSerializableSignature
+                    >()
                 val implementation = DynamicComplexSerializableSignature { input ->
                     OuterComplexData(
                         title = "echo_${input.title}",
@@ -216,9 +216,9 @@ class DynamicRegistrationService : Service() {
             }
             ACTION_REGISTER_ADAPTER_THROWING -> {
                 val adapter =
-                    appFunctionManager.getHandleAppFunctionRequestAdapter(
-                        DynamicThrowingSignature::class.java
-                    )
+                    appFunctionManager.getHandleAppFunctionRequestAdapter<
+                        DynamicThrowingSignature
+                    >()
                 val implementation = DynamicThrowingSignature { _ ->
                     throw AppFunctionInvalidArgumentException("Simulated adapter exception")
                 }

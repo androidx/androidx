@@ -60,7 +60,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  * your logic using [AppFunctionManager.handleAppFunction]:
  * ```kotlin
  * val addToCartAppFunctionAdapter =
- *     appFunctionManager.getHandleAppFunctionRequestAdapter(AddCurrentItemToCart::class.java)
+ *     appFunctionManager.getHandleAppFunctionRequestAdapter<AddCurrentItemToCart>()
  *
  * coroutineScope.launch {
  *     appFunctionManager.handleAppFunction(
@@ -104,7 +104,7 @@ import androidx.appfunctions.metadata.AppFunctionMetadata.AppFunctionScope
  *   maps the function string identifier to your interface call and handles request/response data
  *   conversions:
  * ```kotlin
- * appFunctionManager.getHandleAppFunctionRequestAdapter(AddCurrentItemToCart::class.java)
+ * appFunctionManager.getHandleAppFunctionRequestAdapter<AddCurrentItemToCart>()
  * // Returns:
  * object : HandleAppFunctionRequestAdapter<AddCurrentItemToCart> {
  *     override val functionId: String = "com.example.AddCurrentItemToCart#addToCart"
