@@ -66,6 +66,7 @@ class A2uiBasicCatalogV1Test {
         val text = TestTextComponent()
         val image = TestImageComponent()
         val icon = TestIconComponent()
+        val video = TestVideoComponent()
         val audioPlayer = TestAudioPlayerComponent()
         val card = TestCardComponent()
         val row = TestRowComponent()
@@ -82,6 +83,7 @@ class A2uiBasicCatalogV1Test {
                 text = text,
                 image = image,
                 icon = icon,
+                video = video,
                 audioPlayer = audioPlayer,
                 card = card,
                 row = row,
@@ -99,6 +101,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.text).isSameInstanceAs(text)
         assertThat(catalog.image).isSameInstanceAs(image)
         assertThat(catalog.icon).isSameInstanceAs(icon)
+        assertThat(catalog.video).isSameInstanceAs(video)
         assertThat(catalog.audioPlayer).isSameInstanceAs(audioPlayer)
         assertThat(catalog.card).isSameInstanceAs(card)
         assertThat(catalog.row).isSameInstanceAs(row)
@@ -115,6 +118,7 @@ class A2uiBasicCatalogV1Test {
                 text,
                 image,
                 icon,
+                video,
                 audioPlayer,
                 card,
                 row,
@@ -135,6 +139,7 @@ class A2uiBasicCatalogV1Test {
         val text = TestTextComponent()
         val image = TestImageComponent()
         val icon = TestIconComponent()
+        val video = TestVideoComponent()
         val audioPlayer = TestAudioPlayerComponent()
         val card = TestCardComponent()
         val row = TestRowComponent()
@@ -151,6 +156,7 @@ class A2uiBasicCatalogV1Test {
                 text = text,
                 image = image,
                 icon = icon,
+                video = video,
                 audioPlayer = audioPlayer,
                 card = card,
                 row = row,
@@ -168,6 +174,7 @@ class A2uiBasicCatalogV1Test {
                 text = text,
                 image = image,
                 icon = icon,
+                video = video,
                 audioPlayer = audioPlayer,
                 card = card,
                 row = row,
@@ -191,6 +198,7 @@ class A2uiBasicCatalogV1Test {
         val text2 = TestTextComponent()
         val sharedImage = TestImageComponent()
         val sharedIcon = TestIconComponent()
+        val sharedVideo = TestVideoComponent()
         val sharedAudioPlayer = TestAudioPlayerComponent()
         val sharedCard = TestCardComponent()
         val sharedRow = TestRowComponent()
@@ -207,6 +215,7 @@ class A2uiBasicCatalogV1Test {
                 text = text1,
                 image = sharedImage,
                 icon = sharedIcon,
+                video = sharedVideo,
                 audioPlayer = sharedAudioPlayer,
                 card = sharedCard,
                 row = sharedRow,
@@ -224,6 +233,7 @@ class A2uiBasicCatalogV1Test {
                 text = text2,
                 image = sharedImage,
                 icon = sharedIcon,
+                video = sharedVideo,
                 audioPlayer = sharedAudioPlayer,
                 card = sharedCard,
                 row = sharedRow,
@@ -249,8 +259,8 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.toString()).contains("themeSchema=${A2uiBasicCatalogV1.ThemeSchema}")
         assertThat(catalog.toString())
             .containsMatch(
-                "components=.*Text.*Image.*Icon.*AudioPlayer.*Card.*Row.*Column.*List.*Tabs.*Divider" +
-                    ".*Button.*CheckBox.*Slider.*DateTimeInput"
+                "components=.*Text.*Image.*Icon.*Video.*AudioPlayer.*Card.*Row.*Column.*List." +
+                    "*Tabs.*Divider.*Button.*CheckBox.*Slider.*DateTimeInput"
             )
         assertThat(catalog.toString()).contains("functions=[]")
     }
@@ -259,6 +269,7 @@ class A2uiBasicCatalogV1Test {
         text: A2uiBasicCatalogV1.Text = TestTextComponent(),
         image: A2uiBasicCatalogV1.Image = TestImageComponent(),
         icon: A2uiBasicCatalogV1.Icon = TestIconComponent(),
+        video: A2uiBasicCatalogV1.Video = TestVideoComponent(),
         audioPlayer: A2uiBasicCatalogV1.AudioPlayer = TestAudioPlayerComponent(),
         card: A2uiBasicCatalogV1.Card = TestCardComponent(),
         row: A2uiBasicCatalogV1.Row = TestRowComponent(),
@@ -276,6 +287,7 @@ class A2uiBasicCatalogV1Test {
             text = text,
             image = image,
             icon = icon,
+            video = video,
             audioPlayer = audioPlayer,
             card = card,
             row = row,
@@ -317,6 +329,10 @@ class A2uiBasicCatalogV1Test {
             accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
             modifier: Modifier,
         ) {}
+    }
+
+    private class TestVideoComponent : A2uiBasicCatalogV1.Video {
+        @Composable override fun A2uiComponentScope.TypedContent(url: String, modifier: Modifier) {}
     }
 
     private class TestAudioPlayerComponent : A2uiBasicCatalogV1.AudioPlayer {

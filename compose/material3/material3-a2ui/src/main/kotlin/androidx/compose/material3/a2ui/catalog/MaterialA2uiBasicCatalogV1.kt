@@ -32,6 +32,9 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  * @param image [A2uiBasicCatalogV1.Image] component implementation. Use
  *   [MaterialA2uiBasicCatalogV1Defaults.image] to create a default Material 3 implementation with
  *   an [A2uiImageRenderer]
+ * @param video [A2uiBasicCatalogV1.Video] component implementation. Use
+ *   [MaterialA2uiBasicCatalogV1Defaults.video] to create a default Material 3 implementation with
+ *   an [A2uiVideoRenderer]
  * @param audioPlayer [A2uiBasicCatalogV1.AudioPlayer] component implementation. Use
  *   [MaterialA2uiBasicCatalogV1Defaults.audioPlayer] to create a default Material 3 implementation
  *   with an [A2uiAudioPlayerRenderer]
@@ -68,6 +71,7 @@ import androidx.a2ui.model.catalog.functions.A2uiUrlOpener
  */
 public fun materialA2uiBasicCatalogV1(
     image: A2uiBasicCatalogV1.Image,
+    video: A2uiBasicCatalogV1.Video,
     audioPlayer: A2uiBasicCatalogV1.AudioPlayer,
     urlOpener: A2uiUrlOpener,
     messageFormatter: A2uiMessageFormatter,
@@ -92,6 +96,7 @@ public fun materialA2uiBasicCatalogV1(
             text = text,
             image = image,
             icon = icon,
+            video = video,
             audioPlayer = audioPlayer,
             card = card,
             row = row,
@@ -121,6 +126,15 @@ public object MaterialA2uiBasicCatalogV1Defaults {
      */
     public fun image(imageRenderer: A2uiImageRenderer): A2uiBasicCatalogV1.Image =
         MaterialA2uiBasicCatalogV1Image(imageRenderer)
+
+    /**
+     * Creates a default Material 3 implementation of the [A2uiBasicCatalogV1.Video] component.
+     *
+     * @param videoRenderer [A2uiVideoRenderer] used to render videos
+     * @return an [A2uiBasicCatalogV1.Video] instance
+     */
+    public fun video(videoRenderer: A2uiVideoRenderer): A2uiBasicCatalogV1.Video =
+        MaterialA2uiBasicCatalogV1Video(videoRenderer)
 
     /**
      * Creates a default Material 3 implementation of the [A2uiBasicCatalogV1.AudioPlayer]
