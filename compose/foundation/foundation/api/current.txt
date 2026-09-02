@@ -2456,7 +2456,7 @@ package androidx.compose.foundation.style {
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static infix androidx.compose.foundation.style.CommonStyle then(androidx.compose.foundation.style.CommonStyle, androidx.compose.foundation.style.CommonStyle other);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface CommonStyleScope extends androidx.compose.foundation.style.CustomStyleScope androidx.compose.foundation.style.AnimateStyleScope androidx.compose.foundation.style.StyleStateScope {
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface CommonStyleScope extends androidx.compose.foundation.style.CustomStyleScope androidx.compose.foundation.style.AnimateStyleScope androidx.compose.foundation.style.NestedStyleConsumerStyleScope androidx.compose.foundation.style.NestedStyleProviderStyleScope androidx.compose.foundation.style.StyleStateScope {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface ContentColorScope {
@@ -2480,7 +2480,7 @@ package androidx.compose.foundation.style {
     method public void applyStyle(ScopeT);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface CustomStyleScope extends androidx.compose.ui.unit.Density androidx.compose.runtime.CompositionLocalAccessorScope androidx.compose.foundation.style.StylePropertyProviderScope {
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @androidx.compose.foundation.style.StyleScopeMarker public interface CustomStyleScope extends androidx.compose.ui.unit.Density androidx.compose.runtime.CompositionLocalAccessorScope androidx.compose.foundation.style.StylePropertyProviderScope {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface DrawStyleScope extends androidx.compose.foundation.style.BorderScope androidx.compose.foundation.style.BackgroundScope androidx.compose.foundation.style.ForegroundScope androidx.compose.foundation.style.ShadowScope androidx.compose.foundation.style.ShapeScope {
@@ -2633,6 +2633,18 @@ package androidx.compose.foundation.style {
     property public boolean isPressed;
     property public boolean isSelected;
     property public androidx.compose.ui.state.ToggleableState triStateToggle;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface NestedStyleConsumerStyleScope {
+    method public void applyNestedStyle(androidx.compose.foundation.style.NestedStyleKey key);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public final class NestedStyleKey {
+    ctor public NestedStyleKey(String label);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public interface NestedStyleProviderStyleScope {
+    method public void provideNestedStyle(androidx.compose.foundation.style.NestedStyleKey key, androidx.compose.foundation.style.CommonStyle style);
   }
 
   @SuppressCompatibility public final class PlacementKt {
@@ -2910,6 +2922,9 @@ package androidx.compose.foundation.style {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void translation(androidx.compose.foundation.style.TranslationScope, androidx.compose.ui.geometry.Offset offset);
     method @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void translation(androidx.compose.foundation.style.TranslationScope, @FloatRange(from=0.0) float x, @FloatRange(from=0.0) float y);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public static void translation-Uv8p0NA(androidx.compose.foundation.style.TranslationScope, long);
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface StyleScopeMarker {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.style.ExperimentalFoundationStyleApi public abstract sealed exhaustive class StyleState {
