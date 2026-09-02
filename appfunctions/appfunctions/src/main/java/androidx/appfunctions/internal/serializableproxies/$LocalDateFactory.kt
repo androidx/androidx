@@ -19,6 +19,7 @@ package androidx.appfunctions.`internal`.serializableproxies
 import androidx.`annotation`.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import java.time.LocalDate
 import javax.`annotation`.processing.Generated
@@ -43,13 +44,17 @@ public class `$LocalDateFactory` : AppFunctionSerializableFactory<LocalDate> {
         return resultAppFunctionLocalDate.toLocalDate()
     }
 
-    override fun toAppFunctionData(appFunctionSerializable: LocalDate): AppFunctionData {
+    override fun toAppFunctionData(
+        spec: AppFunctionDataSpec?,
+        appFunctionSerializable: LocalDate,
+    ): AppFunctionData {
         val appFunctionLocalDate_appFunctionSerializable =
             AppFunctionLocalDate.fromLocalDate(appFunctionSerializable)
 
         val builder =
             getAppFunctionDataBuilder(
-                "androidx.appfunctions.internal.serializableproxies.AppFunctionLocalDate"
+                spec,
+                "androidx.appfunctions.internal.serializableproxies.AppFunctionLocalDate",
             )
         val year = appFunctionLocalDate_appFunctionSerializable.year
         builder.setInt("year", year)

@@ -41,13 +41,22 @@ public class `$AppFunctionUriGrantFactory` : AppFunctionSerializableFactory<AppF
         return resultAppFunctionUriGrant
     }
 
-    override fun toAppFunctionData(appFunctionSerializable: AppFunctionUriGrant): AppFunctionData {
+    override fun toAppFunctionData(
+        spec: AppFunctionDataSpec?,
+        appFunctionSerializable: AppFunctionUriGrant,
+    ): AppFunctionData {
         val appFunctionUriGrant_appFunctionSerializable = appFunctionSerializable
         val appFunctionUriFactory = `$UriFactory`()
 
-        val builder = getAppFunctionDataBuilder("androidx.appfunctions.AppFunctionUriGrant")
+        val builder = getAppFunctionDataBuilder(spec, "androidx.appfunctions.AppFunctionUriGrant")
         val uri = appFunctionUriGrant_appFunctionSerializable.uri
-        builder.setAppFunctionData("uri", appFunctionUriFactory.toAppFunctionData(uri))
+        builder.setAppFunctionData(
+            "uri",
+            appFunctionUriFactory.toAppFunctionData(
+                spec?.getPropertyObjectSpec("uri", "android.net.Uri"),
+                uri,
+            ),
+        )
         val modeFlags = appFunctionUriGrant_appFunctionSerializable.modeFlags
         builder.setInt("modeFlags", modeFlags)
 

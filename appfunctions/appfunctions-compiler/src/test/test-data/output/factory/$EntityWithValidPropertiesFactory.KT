@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -31,11 +32,11 @@ public class `$EntityWithValidPropertiesFactory` : AppFunctionSerializableFactor
     return resultEntityWithValidProperties
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: EntityWithValidProperties): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: EntityWithValidProperties): AppFunctionData {
     val entityWithValidProperties_appFunctionSerializable = appFunctionSerializable
     val inputSerializableFactory = `$InputSerializableFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.EntityWithValidProperties")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.EntityWithValidProperties")
     val longParam = entityWithValidProperties_appFunctionSerializable.longParam
     builder.setLong("longParam", longParam)
     val doubleParam = entityWithValidProperties_appFunctionSerializable.doubleParam
@@ -53,10 +54,19 @@ public class `$EntityWithValidPropertiesFactory` : AppFunctionSerializableFactor
     val stringList = entityWithValidProperties_appFunctionSerializable.stringList
     builder.setStringList("stringList", stringList)
     val inputSerializable = entityWithValidProperties_appFunctionSerializable.inputSerializable
-    builder.setAppFunctionData("inputSerializable", inputSerializableFactory.toAppFunctionData(inputSerializable))
+    builder.setAppFunctionData(
+      "inputSerializable",
+      inputSerializableFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("inputSerializable", checkNotNull(inputSerializable::class.java.canonicalName)),
+        inputSerializable
+      )
+    )
     val serializableList = entityWithValidProperties_appFunctionSerializable.serializableList
     builder.setAppFunctionDataList("serializableList", serializableList.map{ inputSerializable ->
-      inputSerializableFactory.toAppFunctionData(inputSerializable)
+      inputSerializableFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("serializableList",checkNotNull(inputSerializable::class.java.canonicalName)),
+        inputSerializable
+      )
     })
 
     return builder.build()

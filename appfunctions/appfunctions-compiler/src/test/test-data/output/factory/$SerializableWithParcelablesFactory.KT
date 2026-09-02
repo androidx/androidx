@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.os.Bundle
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -22,10 +23,10 @@ public class `$SerializableWithParcelablesFactory` : AppFunctionSerializableFact
     return resultSerializableWithParcelables
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: SerializableWithParcelables): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: SerializableWithParcelables): AppFunctionData {
     val serializableWithParcelables_appFunctionSerializable = appFunctionSerializable
 
-    val builder = getAppFunctionDataBuilder("com.testdata.SerializableWithParcelables")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.SerializableWithParcelables")
     val pendingIntent = serializableWithParcelables_appFunctionSerializable.pendingIntent
     builder.setParcelable("pendingIntent", pendingIntent)
     val pendingIntentList = serializableWithParcelables_appFunctionSerializable.pendingIntentList

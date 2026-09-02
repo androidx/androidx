@@ -2,6 +2,7 @@ package androidx.appfunctions.`internal`.serializableproxies
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import java.time.LocalTime
 import javax.`annotation`.processing.Generated
@@ -21,10 +22,10 @@ public class `$LocalTimeFactory` : AppFunctionSerializableFactory<LocalTime> {
     return resultAppFunctionLocalTime.toLocalTime()
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: LocalTime): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: LocalTime): AppFunctionData {
     val appFunctionLocalTime_appFunctionSerializable = AppFunctionLocalTime.fromLocalTime(appFunctionSerializable)
 
-    val builder = getAppFunctionDataBuilder("androidx.appfunctions.internal.serializableproxies.AppFunctionLocalTime")
+    val builder = getAppFunctionDataBuilder(spec, "androidx.appfunctions.internal.serializableproxies.AppFunctionLocalTime")
     val hour = appFunctionLocalTime_appFunctionSerializable.hour
     builder.setInt("hour", hour)
     val minute = appFunctionLocalTime_appFunctionSerializable.minute

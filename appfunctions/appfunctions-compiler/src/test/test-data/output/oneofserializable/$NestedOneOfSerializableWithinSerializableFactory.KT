@@ -2,6 +2,7 @@ package com.testdata.oneofserializable
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -25,19 +26,28 @@ public class `$NestedOneOfSerializableWithinSerializableFactory` : AppFunctionSe
     return resultNestedOneOfSerializableWithinSerializable
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: NestedOneOfSerializableWithinSerializable): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: NestedOneOfSerializableWithinSerializable): AppFunctionData {
     val nestedOneOfSerializableWithinSerializable_appFunctionSerializable = appFunctionSerializable
     val oneOfSealedInterfaceFactory = `$OneOfSealedInterfaceFactory`()
     val oneOfSealedClassFactory = `$OneOfSealedClassFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.oneofserializable.NestedOneOfSerializableWithinSerializable")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.oneofserializable.NestedOneOfSerializableWithinSerializable")
     val str = nestedOneOfSerializableWithinSerializable_appFunctionSerializable.str
     builder.setString("str", str)
     val oneOfSerializable = nestedOneOfSerializableWithinSerializable_appFunctionSerializable.oneOfSerializable
-    builder.setAppFunctionData("oneOfSerializable", oneOfSealedInterfaceFactory.toAppFunctionData(oneOfSerializable))
+    builder.setAppFunctionData(
+      "oneOfSerializable",
+      oneOfSealedInterfaceFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("oneOfSerializable", checkNotNull(oneOfSerializable::class.java.canonicalName)),
+        oneOfSerializable
+      )
+    )
     val oneOfSerializableList = nestedOneOfSerializableWithinSerializable_appFunctionSerializable.oneOfSerializableList
     builder.setAppFunctionDataList("oneOfSerializableList", oneOfSerializableList.map{ oneOfSealedClass ->
-      oneOfSealedClassFactory.toAppFunctionData(oneOfSealedClass)
+      oneOfSealedClassFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("oneOfSerializableList",checkNotNull(oneOfSealedClass::class.java.canonicalName)),
+        oneOfSealedClass
+      )
     })
 
     return builder.build()

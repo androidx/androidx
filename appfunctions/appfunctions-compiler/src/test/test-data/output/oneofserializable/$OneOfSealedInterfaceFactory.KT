@@ -2,6 +2,7 @@ package com.testdata.oneofserializable
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import java.lang.IllegalArgumentException
 import javax.`annotation`.processing.Generated
@@ -19,12 +20,18 @@ public class `$OneOfSealedInterfaceFactory` : AppFunctionSerializableFactory<One
     else -> throw IllegalArgumentException("""Unknown qualifiedName: ${appFunctionData.qualifiedName}""")
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: OneOfSealedInterface): AppFunctionData = when(appFunctionSerializable) {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: OneOfSealedInterface): AppFunctionData = when(appFunctionSerializable) {
     is ASubclass ->  {
       val aSubclassFactory = `$ASubclassFactory`()
-      aSubclassFactory.toAppFunctionData(appFunctionSerializable)}
+      aSubclassFactory.toAppFunctionData(
+        spec,
+        appFunctionSerializable)
+    }
     is BSubclass ->  {
       val bSubclassFactory = `$BSubclassFactory`()
-      bSubclassFactory.toAppFunctionData(appFunctionSerializable)}
+      bSubclassFactory.toAppFunctionData(
+        spec,
+        appFunctionSerializable)
+    }
   }
 }

@@ -20,7 +20,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.appfunctions.AppFunctionData
-import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
+import androidx.appfunctions.AppFunctionDataSpec
+import androidx.appfunctions.internal.AppFunctionSerializableFactory
 import java.time.LocalDateTime
 
 // TODO(b/413622177): Temporary workaround of supporting proxy before being able to apply KSP on
@@ -47,11 +48,14 @@ public class `$LocalDateTimeFactory` : AppFunctionSerializableFactory<LocalDateT
         return resultAppFunctionLocalDateTime.toLocalDateTime()
     }
 
-    override fun toAppFunctionData(appFunctionSerializable: LocalDateTime): AppFunctionData {
+    override fun toAppFunctionData(
+        spec: AppFunctionDataSpec?,
+        appFunctionSerializable: LocalDateTime,
+    ): AppFunctionData {
         val appFunctionLocalDateTime_appFunctionSerializable =
             AppFunctionLocalDateTime.fromLocalDateTime(appFunctionSerializable)
 
-        val builder = getAppFunctionDataBuilder("java.time.LocalDateTime")
+        val builder = getAppFunctionDataBuilder(spec, "java.time.LocalDateTime")
         val year = appFunctionLocalDateTime_appFunctionSerializable.year
         builder.setInt("year", year)
         val month = appFunctionLocalDateTime_appFunctionSerializable.month
