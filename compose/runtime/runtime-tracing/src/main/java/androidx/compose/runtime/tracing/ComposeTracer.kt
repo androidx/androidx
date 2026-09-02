@@ -19,7 +19,7 @@ package androidx.compose.runtime.tracing
 import androidx.compose.runtime.CompositionTracer
 import androidx.compose.runtime.InternalComposeTracingApi
 import androidx.compose.runtime.tooling.RecompositionTracer
-import androidx.compose.runtime.tracing.stack.Stack
+import androidx.compose.runtime.tracing.collections.Stack
 import androidx.tracing.EventMetadata
 import androidx.tracing.ExperimentalContextPropagation
 import androidx.tracing.Tracer
