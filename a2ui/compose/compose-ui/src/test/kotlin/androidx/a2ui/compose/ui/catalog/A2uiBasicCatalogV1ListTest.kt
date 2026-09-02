@@ -50,6 +50,7 @@ class A2uiBasicCatalogV1ListTest {
             .isEqualTo("A scrollable list of components laid out vertically or horizontally.")
         assertThat(listComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.List.ChildrenProperty,
                 A2uiBasicCatalogV1.List.DirectionProperty,
                 A2uiBasicCatalogV1.List.AlignProperty,

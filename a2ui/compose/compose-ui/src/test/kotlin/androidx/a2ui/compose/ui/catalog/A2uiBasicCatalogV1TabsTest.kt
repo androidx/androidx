@@ -47,7 +47,10 @@ class A2uiBasicCatalogV1TabsTest {
         assertThat(tabsComponent.description)
             .isEqualTo("A set of tabs, each with a title and a corresponding child component.")
         assertThat(tabsComponent.properties)
-            .containsExactly(A2uiBasicCatalogV1.Tabs.TabsProperty)
+            .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
+                A2uiBasicCatalogV1.Tabs.TabsProperty,
+            )
             .inOrder()
     }
 

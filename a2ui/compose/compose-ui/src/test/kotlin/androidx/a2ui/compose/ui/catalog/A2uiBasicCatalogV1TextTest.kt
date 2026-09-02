@@ -43,6 +43,7 @@ class A2uiBasicCatalogV1TextTest {
         assertThat(textComponent.description).isEqualTo("Displays dynamic text.")
         assertThat(textComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Text.textProperty,
                 A2uiBasicCatalogV1.Text.variantProperty,
             )

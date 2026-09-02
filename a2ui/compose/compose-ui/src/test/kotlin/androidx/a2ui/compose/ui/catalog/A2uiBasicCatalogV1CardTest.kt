@@ -40,7 +40,10 @@ class A2uiBasicCatalogV1CardTest {
         assertThat(cardComponent.name).isEqualTo("Card")
         assertThat(cardComponent.description).contains("styled card container")
         assertThat(cardComponent.properties)
-            .containsExactly(A2uiBasicCatalogV1.Card.ChildProperty)
+            .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
+                A2uiBasicCatalogV1.Card.ChildProperty,
+            )
             .inOrder()
     }
 

@@ -51,6 +51,7 @@ class A2uiBasicCatalogV1IconTest {
             .isEqualTo("Displays an icon from a predefined set of icons or an SVG path.")
         assertThat(iconComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Icon.NameProperty,
                 A2uiBasicCatalogV1.Icon.AccessibilityProperty,
             )
