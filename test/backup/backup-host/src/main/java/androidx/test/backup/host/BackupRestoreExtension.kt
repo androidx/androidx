@@ -329,7 +329,7 @@ private constructor(
         private const val PROP_DEVICE_API = "androidx.test.backup.device.api"
 
         /** Timeout limit for discovering connected devices via ADB. */
-        private const val ADB_TIMEOUT_MS = 5000L
+        private const val ADB_TIMEOUT_MS = 30000L
 
         /** Minimum Android API level required for backup/restore capability (Android 12). */
         private const val MIN_REQUIRED_API = 31
