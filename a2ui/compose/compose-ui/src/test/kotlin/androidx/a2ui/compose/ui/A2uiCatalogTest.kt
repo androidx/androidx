@@ -136,6 +136,7 @@ class A2uiCatalogTest {
         assertThat(catalog.components["Text"]).isSameInstanceAs(basicCatalog.text)
         assertThat(catalog.components["Image"]).isSameInstanceAs(basicCatalog.image)
         assertThat(catalog.components["Icon"]).isSameInstanceAs(basicCatalog.icon)
+        assertThat(catalog.components["AudioPlayer"]).isSameInstanceAs(basicCatalog.audioPlayer)
         assertThat(catalog.components["Card"]).isSameInstanceAs(basicCatalog.card)
         assertThat(catalog.components["Row"]).isSameInstanceAs(basicCatalog.row)
         assertThat(catalog.components["Column"]).isSameInstanceAs(basicCatalog.column)
@@ -334,6 +335,7 @@ class A2uiCatalogTest {
             text: A2uiBasicCatalogV1.Text = createStubText(),
             image: A2uiBasicCatalogV1.Image = createStubImage(),
             icon: A2uiBasicCatalogV1.Icon = createStubIcon(),
+            audioPlayer: A2uiBasicCatalogV1.AudioPlayer = createStubAudioPlayer(),
             card: A2uiBasicCatalogV1.Card = createStubCard(),
             row: A2uiBasicCatalogV1.Row = createStubRow(),
             column: A2uiBasicCatalogV1.Column = createStubColumn(),
@@ -350,6 +352,7 @@ class A2uiCatalogTest {
                 text = text,
                 image = image,
                 icon = icon,
+                audioPlayer = audioPlayer,
                 card = card,
                 row = row,
                 column = column,
@@ -391,6 +394,16 @@ class A2uiCatalogTest {
                 override fun A2uiComponentScope.TypedContent(
                     source: A2uiBasicCatalogV1.Icon.Source,
                     accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    modifier: Modifier,
+                ) {}
+            }
+
+        fun createStubAudioPlayer() =
+            object : A2uiBasicCatalogV1.AudioPlayer {
+                @Composable
+                override fun A2uiComponentScope.TypedContent(
+                    url: String,
+                    description: String?,
                     modifier: Modifier,
                 ) {}
             }
