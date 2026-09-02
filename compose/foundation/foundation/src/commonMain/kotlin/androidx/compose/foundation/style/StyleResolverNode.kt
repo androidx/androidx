@@ -158,7 +158,13 @@ internal class StyleResolverNode(styleResolver: StyleResolver, val overrideScope
         set(value) {
             val previous = styleResolverField
             if (previous != value) {
-                previous.unbind()
+                // If we are attached, then this is swapping out the style resolver
+                // in use for an active style resolver node. Dispose the old one,
+                // and bind the new one.
+                if (isAttached) {
+                    previous.dispose()
+                    value.bind(this)
+                }
                 styleResolverField = value
                 resolved = false
             }
