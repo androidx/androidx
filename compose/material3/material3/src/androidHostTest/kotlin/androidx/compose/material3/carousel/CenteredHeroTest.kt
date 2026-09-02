@@ -207,4 +207,18 @@ class CenteredHeroTest {
         assertThat(strategy.defaultKeylines.lastNonAnchor.offset)
             .isEqualTo((300f + 300f + 300f + 40f + 40f) - 20f)
     }
+
+    @Test
+    fun negativeCarouselSize_shouldReturnEmptyList() {
+        val keylineList =
+            heroKeylineList(
+                density = Density,
+                carouselMainAxisSize = -10f,
+                maxItemSize = 100f,
+                itemSpacing = 0f,
+                itemCount = 5,
+                isCentered = true,
+            )
+        assertThat(keylineList.isEmpty()).isTrue()
+    }
 }

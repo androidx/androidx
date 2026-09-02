@@ -124,6 +124,19 @@ class MultiBrowseTest {
     }
 
     @Test
+    fun testMultiBrowse_negativeCarouselSize_shouldReturnEmptyList() {
+        val keylineList =
+            multiBrowseKeylineList(
+                density = Density,
+                carouselMainAxisSize = -10f,
+                preferredItemSize = 200f,
+                itemSpacing = 0f,
+                itemCount = 10,
+            )
+        assertThat(keylineList).isEmpty()
+    }
+
+    @Test
     fun testMultiBrowse_adjustsMediumSizeToBeProportional() {
         val maxSmallItemSize: Float = with(Density) { CarouselDefaults.MaxSmallItemSize.toPx() }
         val preferredItemSize = 200f

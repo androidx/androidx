@@ -202,4 +202,16 @@ class UncontainedTest {
         assertThat(keylines[0].offset).isEqualTo(-(85 * 1.2f * 0.5f) / 2f)
         assertThat(keylines[5].offset).isEqualTo(itemSize * 3 + 85 * 1.2f + rightAnchorSize / 2f)
     }
+
+    @Test
+    fun testNegativeCarouselSize_shouldReturnEmptyList() {
+        val keylineList =
+            uncontainedKeylineList(
+                density = Density,
+                carouselMainAxisSize = -10f,
+                itemSize = 100f,
+                itemSpacing = 0f,
+            )
+        assertThat(keylineList.isEmpty()).isTrue()
+    }
 }
