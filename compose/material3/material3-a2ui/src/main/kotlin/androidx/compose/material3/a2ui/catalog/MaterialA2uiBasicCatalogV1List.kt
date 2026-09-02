@@ -46,6 +46,7 @@ internal object MaterialA2uiBasicCatalogV1List : A2uiBasicCatalogV1.List {
         children: List<A2uiComponentReference>,
         direction: A2uiBasicCatalogV1.List.Direction,
         align: A2uiBasicCatalogV1.List.Align,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         val itemModifier =

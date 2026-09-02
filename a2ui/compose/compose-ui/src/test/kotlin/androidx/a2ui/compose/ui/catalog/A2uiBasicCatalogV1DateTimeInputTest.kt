@@ -22,6 +22,7 @@ import androidx.a2ui.model.schema.A2uiBooleanSchema
 import androidx.a2ui.model.schema.A2uiSchema
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -47,6 +48,7 @@ class A2uiBasicCatalogV1DateTimeInputTest {
                     min: Long?,
                     max: Long?,
                     label: String?,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -56,6 +58,7 @@ class A2uiBasicCatalogV1DateTimeInputTest {
             .isEqualTo("Allows the user to select a date and/or time.")
         assertThat(dateTimeInputComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.DateTimeInput.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.DateTimeInput.ValueProperty,
                 A2uiBasicCatalogV1.DateTimeInput.EnableDateProperty,
@@ -69,6 +72,12 @@ class A2uiBasicCatalogV1DateTimeInputTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.DateTimeInput.AccessibilityProperty.key)
+            .isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.DateTimeInput.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.DateTimeInput.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.DateTimeInput.ValueProperty.key).isEqualTo("value")
         assertThat(A2uiBasicCatalogV1.DateTimeInput.ValueProperty.isRequired).isTrue()
         assertIs<A2uiDynamicStringSchema>(A2uiBasicCatalogV1.DateTimeInput.ValueProperty.schema)

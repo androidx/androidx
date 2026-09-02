@@ -17,6 +17,7 @@
 package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiComponentIdSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -34,13 +35,18 @@ class A2uiBasicCatalogV1CardTest {
         val cardComponent =
             object : A2uiBasicCatalogV1.Card {
                 @Composable
-                override fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier) {}
+                override fun A2uiComponentScope.TypedContent(
+                    childId: String,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    modifier: Modifier,
+                ) {}
             }
 
         assertThat(cardComponent.name).isEqualTo("Card")
         assertThat(cardComponent.description).contains("styled card container")
         assertThat(cardComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.Card.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Card.ChildProperty,
             )
@@ -49,6 +55,11 @@ class A2uiBasicCatalogV1CardTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.Card.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.Card.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.Card.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.Card.ChildProperty.key).isEqualTo("child")
         assertThat(A2uiBasicCatalogV1.Card.ChildProperty.isRequired).isTrue()
         assertIs<A2uiComponentIdSchema>(A2uiBasicCatalogV1.Card.ChildProperty.schema)

@@ -50,18 +50,21 @@ class A2uiBasicCatalogV1ColumnUiTest {
             var capturedChildren: List<A2uiComponentReference>? = null
             var capturedJustify: A2uiBasicCatalogV1.Column.Justify? = null
             var capturedAlign: A2uiBasicCatalogV1.Column.Align? = null
+            var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
             @Composable
             override fun A2uiComponentScope.TypedContent(
                 children: List<A2uiComponentReference>,
                 justify: A2uiBasicCatalogV1.Column.Justify,
                 align: A2uiBasicCatalogV1.Column.Align,
+                accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                 modifier: Modifier,
             ) {
                 SideEffect {
                     capturedChildren = children
                     capturedJustify = justify
                     capturedAlign = align
+                    capturedAccessibility = accessibility
                 }
                 val childIds = children.joinToString(",") { it.id }
                 BasicText(text = "Column Children: $childIds", modifier = modifier)
@@ -203,6 +206,42 @@ class A2uiBasicCatalogV1ColumnUiTest {
             .inOrder()
         assertThat(testColumn.capturedJustify).isEqualTo(A2uiBasicCatalogV1.Column.Justify.Center)
         assertThat(testColumn.capturedAlign).isEqualTo(A2uiBasicCatalogV1.Column.Align.End)
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Column",
+                            properties =
+                                mapOf(
+                                    "children" to listOf("child_1", "child_2"),
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Column Container",
+                                            "description" to "Main column",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("Column Children: child_1,child_2").assertIsDisplayed()
+        assertThat(testColumn.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Column Container",
+                    description = "Main column",
+                )
+            )
     }
 
     @Test

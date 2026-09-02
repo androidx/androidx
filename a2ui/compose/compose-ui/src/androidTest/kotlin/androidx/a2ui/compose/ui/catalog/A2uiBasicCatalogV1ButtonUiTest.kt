@@ -49,19 +49,21 @@ class A2uiBasicCatalogV1ButtonUiTest {
             var capturedChildId: String? = null
             var capturedVariant: A2uiBasicCatalogV1.Button.Variant? = null
             var capturedAction: Map<String, Any?>? = null
+            var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
             @Composable
             override fun A2uiComponentScope.TypedContent(
                 childId: String,
                 variant: A2uiBasicCatalogV1.Button.Variant,
                 action: Map<String, Any?>,
+                accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                 modifier: Modifier,
             ) {
                 SideEffect {
                     capturedChildId = childId
-
                     capturedVariant = variant
                     capturedAction = action
+                    capturedAccessibility = accessibility
                 }
                 BasicText(text = "Button: $childId", modifier = modifier)
             }
@@ -102,6 +104,44 @@ class A2uiBasicCatalogV1ButtonUiTest {
         assertThat(testButton.capturedChildId).isEqualTo("child_xyz")
         assertThat(testButton.capturedVariant).isEqualTo(A2uiBasicCatalogV1.Button.Variant.Primary)
         assertThat(testButton.capturedAction).isEqualTo(actionPayload)
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val actionPayload = mapOf("event" to mapOf("name" to "submit_form"))
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "Button",
+                            properties =
+                                mapOf(
+                                    "child" to "child_xyz",
+                                    "action" to actionPayload,
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Submit Button",
+                                            "description" to "Submits the form",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("Button: child_xyz").assertIsDisplayed()
+        assertThat(testButton.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Submit Button",
+                    description = "Submits the form",
+                )
+            )
     }
 
     @Test

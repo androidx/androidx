@@ -75,6 +75,7 @@ internal object MaterialA2uiBasicCatalogV1DateTimeInput : A2uiBasicCatalogV1.Dat
         min: Long?,
         max: Long?,
         label: String?,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         val isEnabled = onValueChange != null

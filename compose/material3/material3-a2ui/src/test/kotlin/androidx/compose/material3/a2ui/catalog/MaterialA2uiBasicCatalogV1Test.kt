@@ -102,6 +102,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 override fun A2uiComponentScope.TypedContent(
                     text: String,
                     variant: A2uiBasicCatalogV1.Text.Variant,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -162,6 +163,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     description: String?,
                     fit: A2uiBasicCatalogV1.Image.Fit,
                     variant: A2uiBasicCatalogV1.Image.Variant,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -187,7 +189,11 @@ class MaterialA2uiBasicCatalogV1Test {
         val customVideo =
             object : A2uiBasicCatalogV1.Video {
                 @Composable
-                override fun A2uiComponentScope.TypedContent(url: String, modifier: Modifier) {}
+                override fun A2uiComponentScope.TypedContent(
+                    url: String,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    modifier: Modifier,
+                ) {}
             }
 
         val catalog =
@@ -214,6 +220,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 override fun A2uiComponentScope.TypedContent(
                     url: String,
                     description: String?,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -240,7 +247,11 @@ class MaterialA2uiBasicCatalogV1Test {
         val customCard =
             object : A2uiBasicCatalogV1.Card {
                 @Composable
-                override fun A2uiComponentScope.TypedContent(childId: String, modifier: Modifier) {}
+                override fun A2uiComponentScope.TypedContent(
+                    childId: String,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
+                    modifier: Modifier,
+                ) {}
             }
 
         val catalog =
@@ -269,6 +280,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     children: List<A2uiComponentReference>,
                     justify: A2uiBasicCatalogV1.Row.Justify,
                     align: A2uiBasicCatalogV1.Row.Align,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -299,6 +311,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     children: List<A2uiComponentReference>,
                     justify: A2uiBasicCatalogV1.Column.Justify,
                     align: A2uiBasicCatalogV1.Column.Align,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -329,6 +342,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     children: List<A2uiComponentReference>,
                     direction: A2uiBasicCatalogV1.List.Direction,
                     align: A2uiBasicCatalogV1.List.Align,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -357,6 +371,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 @Composable
                 override fun A2uiComponentScope.TypedContent(
                     tabs: List<A2uiBasicCatalogV1.Tabs.Tab>,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -385,6 +400,7 @@ class MaterialA2uiBasicCatalogV1Test {
                 @Composable
                 override fun A2uiComponentScope.TypedContent(
                     axis: A2uiBasicCatalogV1.Divider.Axis,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -415,6 +431,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     childId: String,
                     variant: A2uiBasicCatalogV1.Button.Variant,
                     action: Map<String, Any?>,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -448,6 +465,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     validationRegexp: String?,
                     onValueChange: (String) -> Unit,
                     enabled: Boolean,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -479,6 +497,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     value: Boolean,
                     onValueChange: (Boolean) -> Unit,
                     enabled: Boolean,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -512,6 +531,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     value: Float,
                     onValueChange: (Float) -> Unit,
                     enabled: Boolean,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -546,6 +566,7 @@ class MaterialA2uiBasicCatalogV1Test {
                     min: Long?,
                     max: Long?,
                     label: String?,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }

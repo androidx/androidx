@@ -19,6 +19,7 @@ package androidx.a2ui.compose.ui.catalog
 import androidx.a2ui.compose.runtime.A2uiComponentScope
 import androidx.a2ui.model.schema.A2uiSchemaKeyword
 import androidx.a2ui.model.schema.A2uiStringSchema
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.a2ui.model.schema.commontypes.A2uiDynamicStringSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -41,6 +42,7 @@ class A2uiBasicCatalogV1ImageTest {
                     description: String?,
                     fit: A2uiBasicCatalogV1.Image.Fit,
                     variant: A2uiBasicCatalogV1.Image.Variant,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -49,6 +51,7 @@ class A2uiBasicCatalogV1ImageTest {
         assertThat(imageComponent.description).isEqualTo("Displays an image from a URL.")
         assertThat(imageComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.Image.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Image.UrlProperty,
                 A2uiBasicCatalogV1.Image.DescriptionProperty,
@@ -60,6 +63,11 @@ class A2uiBasicCatalogV1ImageTest {
 
     @Test
     fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.Image.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.Image.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.Image.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.Image.UrlProperty.key).isEqualTo("url")
         assertThat(A2uiBasicCatalogV1.Image.UrlProperty.isRequired).isTrue()
         val urlSchema =

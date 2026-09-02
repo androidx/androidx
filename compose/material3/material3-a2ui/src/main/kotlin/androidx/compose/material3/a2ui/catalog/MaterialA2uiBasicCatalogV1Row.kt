@@ -46,6 +46,7 @@ internal object MaterialA2uiBasicCatalogV1Row : A2uiBasicCatalogV1.Row {
         children: List<A2uiComponentReference>,
         justify: A2uiBasicCatalogV1.Row.Justify,
         align: A2uiBasicCatalogV1.Row.Align,
+        accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
         modifier: Modifier,
     ) {
         val horizontalArrangement =

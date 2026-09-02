@@ -18,6 +18,7 @@ package androidx.a2ui.compose.ui.catalog
 
 import androidx.a2ui.compose.runtime.A2uiComponentReference
 import androidx.a2ui.compose.runtime.A2uiComponentScope
+import androidx.a2ui.model.schema.commontypes.A2uiAccessibilityAttributesSchema
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.google.common.truth.Truth.assertThat
@@ -37,6 +38,7 @@ class A2uiBasicCatalogV1ColumnTest {
                     children: List<A2uiComponentReference>,
                     justify: A2uiBasicCatalogV1.Column.Justify,
                     align: A2uiBasicCatalogV1.Column.Align,
+                    accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                     modifier: Modifier,
                 ) {}
             }
@@ -49,6 +51,7 @@ class A2uiBasicCatalogV1ColumnTest {
             )
         assertThat(columnComponent.properties)
             .containsExactly(
+                A2uiBasicCatalogV1.Column.AccessibilityProperty,
                 A2uiBasicCatalogV1.WeightProperty,
                 A2uiBasicCatalogV1.Column.ChildrenProperty,
                 A2uiBasicCatalogV1.Column.JustifyProperty,
@@ -58,7 +61,12 @@ class A2uiBasicCatalogV1ColumnTest {
     }
 
     @Test
-    fun companionProperties_haveExpectedKeys() {
+    fun companionProperties_haveExpectedSchema() {
+        assertThat(A2uiBasicCatalogV1.Column.AccessibilityProperty.key).isEqualTo("accessibility")
+        assertThat(A2uiBasicCatalogV1.Column.AccessibilityProperty.isRequired).isFalse()
+        assertThat(A2uiBasicCatalogV1.Column.AccessibilityProperty.schema)
+            .isEqualTo(A2uiAccessibilityAttributesSchema.DEFAULT_INSTANCE)
+
         assertThat(A2uiBasicCatalogV1.Column.ChildrenProperty.key).isEqualTo("children")
         assertThat(A2uiBasicCatalogV1.Column.JustifyProperty.key).isEqualTo("justify")
         assertThat(A2uiBasicCatalogV1.Column.AlignProperty.key).isEqualTo("align")

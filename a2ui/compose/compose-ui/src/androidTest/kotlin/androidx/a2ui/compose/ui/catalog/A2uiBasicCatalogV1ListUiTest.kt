@@ -50,18 +50,21 @@ class A2uiBasicCatalogV1ListUiTest {
             var capturedChildren: List<A2uiComponentReference>? = null
             var capturedDirection: A2uiBasicCatalogV1.List.Direction? = null
             var capturedAlign: A2uiBasicCatalogV1.List.Align? = null
+            var capturedAccessibility: A2uiBasicCatalogV1.AccessibilityAttributes? = null
 
             @Composable
             override fun A2uiComponentScope.TypedContent(
                 children: List<A2uiComponentReference>,
                 direction: A2uiBasicCatalogV1.List.Direction,
                 align: A2uiBasicCatalogV1.List.Align,
+                accessibility: A2uiBasicCatalogV1.AccessibilityAttributes?,
                 modifier: Modifier,
             ) {
                 SideEffect {
                     capturedChildren = children
                     capturedDirection = direction
                     capturedAlign = align
+                    capturedAccessibility = accessibility
                 }
                 val childIds = children.joinToString(",") { it.id }
                 BasicText(text = "List Children: $childIds", modifier = modifier)
@@ -241,6 +244,42 @@ class A2uiBasicCatalogV1ListUiTest {
         assertThat(testList.capturedDirection)
             .isEqualTo(A2uiBasicCatalogV1.List.Direction.Horizontal)
         assertThat(testList.capturedAlign).isEqualTo(A2uiBasicCatalogV1.List.Align.End)
+    }
+
+    @Test
+    fun content_staticAccessibility_resolvesPropertiesAndPassesToTypedContent() = runComposeUiTest {
+        val controller =
+            A2uiTestController(
+                catalog = testCatalog,
+                initialComponents =
+                    listOf(
+                        A2uiComponentPayload(
+                            id = "root",
+                            type = "List",
+                            properties =
+                                mapOf(
+                                    "children" to listOf("child_1", "child_2"),
+                                    "accessibility" to
+                                        mapOf(
+                                            "label" to "Items List",
+                                            "description" to "List of items",
+                                        ),
+                                ),
+                        )
+                    ),
+            )
+        val surface = controller.start()
+
+        setContent { A2uiTestSurface(surface) }
+
+        onNodeWithText("List Children: child_1,child_2").assertIsDisplayed()
+        assertThat(testList.capturedAccessibility)
+            .isEqualTo(
+                A2uiBasicCatalogV1.AccessibilityAttributes(
+                    label = "Items List",
+                    description = "List of items",
+                )
+            )
     }
 
     @Test
