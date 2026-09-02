@@ -403,12 +403,9 @@ public final class JavaScriptSandbox implements AutoCloseable {
             return false;
         }
         long versionCode = PackageInfoCompat.getLongVersionCode(systemWebViewPackage);
-        // The current IPC interface was introduced in 102.0.4976.0 (crrev.com/3560402), so all
-        // versions above that are supported. Additionally, the relevant IPC changes were
-        // cherry-picked into M101 at 101.0.4951.24 (crrev.com/3568575), so versions between
-        // 101.0.4951.24 inclusive and 102.0.4952.0 exclusive are also supported.
-        return versionCode >= 4976_000_00L
-                || (4951_024_00L <= versionCode && versionCode < 4952_000_00L);
+        // Version "104.0.5112.0" which is associated with crrev.com/c/3695978.
+        // See b/537461418 for more details.
+        return versionCode >= 5112_000_00L;
     }
 
     @NonNull
