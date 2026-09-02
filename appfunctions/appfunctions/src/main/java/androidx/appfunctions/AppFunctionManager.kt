@@ -562,7 +562,7 @@ public constructor(
         }
 
     /**
-     * Returns an [HandleAppFunctionRequestAdapter] for an interface annotated with
+     * Returns a [HandleAppFunctionRequestAdapter] for an interface annotated with
      * [AppFunctionSignature].
      *
      * Retrieves a generated [HandleAppFunctionRequestAdapter] that bridges
@@ -600,6 +600,30 @@ public constructor(
             )
         }
     }
+
+    /**
+     * Returns a [HandleAppFunctionRequestAdapter] for an interface annotated with
+     * [AppFunctionSignature].
+     *
+     * Retrieves a generated [HandleAppFunctionRequestAdapter] that bridges
+     * [ExecuteAppFunctionRequest] and [ExecuteAppFunctionResponse] with the strongly-typed
+     * signature of the interface [T]. Because the method uses reflection under the hood to
+     * instantiate the adapter, we recommend loading it in advance to avoid runtime latency.
+     *
+     * This adapter allows wrapping a concrete implementation of the interface into a
+     * [HandleAppFunctionRequest]. The resulting request can then be registered using
+     * [handleAppFunction] or [handleAppFunctions].
+     *
+     * @param T The interface annotated with [AppFunctionSignature].
+     * @return The [HandleAppFunctionRequestAdapter] for the interface [T].
+     * @throws IllegalArgumentException if the adapter class for [T] cannot be found or
+     *   instantiated.
+     * @see getHandleAppFunctionRequestAdapter(Class)
+     */
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    @ExperimentalAppFunctionsApi
+    public inline fun <reified T : Any> getHandleAppFunctionRequestAdapter():
+        HandleAppFunctionRequestAdapter<T> = getHandleAppFunctionRequestAdapter(T::class.java)
 
     @IntDef(
         value =
