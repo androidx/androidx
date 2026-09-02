@@ -281,6 +281,59 @@ class KeylineTest {
         assertThat(actualUnadjustedOffsets).isEqualTo(expectedUnadjustedOffsets)
     }
 
+    @Test
+    fun testKeylineList_emptyScope_shouldReturnEmptyList() {
+        val keylineList =
+            keylineListOf(
+                carouselMainAxisSize = 100f,
+                itemSpacing = 0f,
+                carouselAlignment = CarouselAlignment.Start,
+            ) {}
+        assertThat(keylineList.isEmpty()).isTrue()
+    }
+
+    @Test
+    fun testKeylineList_onlyAnchors_shouldReturnEmptyList() {
+        val keylineList =
+            keylineListOf(
+                carouselMainAxisSize = 100f,
+                itemSpacing = 0f,
+                carouselAlignment = CarouselAlignment.Start,
+            ) {
+                add(10f, isAnchor = true)
+                add(10f, isAnchor = true)
+            }
+        assertThat(keylineList.isEmpty()).isTrue()
+    }
+
+    @Test
+    fun testKeylineList_nonPositiveSizes_shouldReturnEmptyList() {
+        val keylineList =
+            keylineListOf(
+                carouselMainAxisSize = 100f,
+                itemSpacing = 0f,
+                carouselAlignment = CarouselAlignment.Start,
+            ) {
+                add(0f, isAnchor = false)
+                add(-10f, isAnchor = false)
+            }
+        assertThat(keylineList.isEmpty()).isTrue()
+    }
+
+    @Test
+    fun testKeylineList_invalidPivotIndex_shouldReturnEmptyList() {
+        val keylineList =
+            keylineListOf(
+                carouselMainAxisSize = 100f,
+                itemSpacing = 0f,
+                pivotIndex = 10,
+                pivotOffset = 50f,
+            ) {
+                add(100f)
+            }
+        assertThat(keylineList.isEmpty()).isTrue()
+    }
+
     companion object {
         private const val LargeSize = 100f
         private const val SmallSize = 20f
