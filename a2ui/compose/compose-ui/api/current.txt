@@ -62,7 +62,7 @@ package androidx.a2ui.compose.ui {
 package androidx.a2ui.compose.ui.catalog {
 
   public final class A2uiBasicCatalogV1 {
-    ctor public A2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon icon, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Video video, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AudioPlayer audioPlayer, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List list, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Tabs tabs, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Divider divider, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckBox checkBox, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Slider slider, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput, java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions);
+    ctor public A2uiBasicCatalogV1(androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Image image, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Icon icon, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Video video, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AudioPlayer audioPlayer, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card card, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Row row, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Column column, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.List list, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Tabs tabs, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Divider divider, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button button, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField textField, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.CheckBox checkBox, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Slider slider, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.DateTimeInput dateTimeInput, java.util.List<? extends androidx.a2ui.model.catalog.A2uiFunction> functions);
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AudioPlayer getAudioPlayer();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Button getButton();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Card getCard();
@@ -80,6 +80,7 @@ package androidx.a2ui.compose.ui.catalog {
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Slider getSlider();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Tabs getTabs();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text getText();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField getTextField();
     method @InaccessibleFromKotlin public androidx.a2ui.model.schema.A2uiSchema getThemeSchema();
     method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Video getVideo();
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.AudioPlayer audioPlayer;
@@ -99,6 +100,7 @@ package androidx.a2ui.compose.ui.catalog {
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Slider slider;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Tabs tabs;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text text;
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField textField;
     property public androidx.a2ui.model.schema.A2uiSchema themeSchema;
     property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Video video;
     field public static final String CatalogId = "https://a2ui.org/specification/v0_9_1/catalogs/basic/catalog.json";
@@ -696,6 +698,47 @@ package androidx.a2ui.compose.ui.catalog {
 
   public static final class A2uiBasicCatalogV1.Text.Variant.Companion {
     method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.Text.Variant fromValue(String value);
+  }
+
+  public static interface A2uiBasicCatalogV1.TextField extends androidx.a2ui.compose.ui.A2uiComponent {
+    method @KotlinOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties properties, androidx.compose.ui.Modifier modifier);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public default void Content(androidx.a2ui.compose.runtime.A2uiComponentScope, androidx.a2ui.compose.runtime.A2uiComponentProperties, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String, String?, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant, String?, kotlin.jvm.functions.Function1<? super java.lang.String!,kotlin.Unit!>, boolean, androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public void TypedContent(androidx.a2ui.compose.runtime.A2uiComponentScope, String label, String? value, androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant variant, String? validationRegexp, kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> onValueChange, boolean enabled, androidx.compose.ui.Modifier modifier);
+    method @InaccessibleFromKotlin public default String getDescription();
+    method @InaccessibleFromKotlin public default String getName();
+    method @InaccessibleFromKotlin public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> getProperties();
+    property public default String description;
+    property public default String name;
+    property public default java.util.List<androidx.a2ui.compose.runtime.A2uiProperty<? extends java.lang.Object?>> properties;
+    field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Companion Companion;
+  }
+
+  public static final class A2uiBasicCatalogV1.TextField.Companion {
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getLabelProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> getValidationRegexpProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> getValueProperty();
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant> getVariantProperty();
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> LabelProperty;
+    property public androidx.a2ui.compose.runtime.StaticA2uiProperty<java.lang.String> ValidationRegexpProperty;
+    property public androidx.a2ui.compose.runtime.DynamicA2uiProperty<java.lang.String> ValueProperty;
+    property public androidx.a2ui.compose.runtime.StaticA2uiProperty<androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant> VariantProperty;
+  }
+
+  public enum A2uiBasicCatalogV1.TextField.Variant {
+    method @InaccessibleFromKotlin public String getValue();
+    property public String value;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant LongText;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant Number;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant Obscured;
+    enum_constant public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant ShortText;
+    field public static final androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant.Companion Companion;
+  }
+
+  public static final class A2uiBasicCatalogV1.TextField.Variant.Companion {
+    method public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant fromValue(String value);
+    method @InaccessibleFromKotlin public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant getDefault();
+    property public androidx.a2ui.compose.ui.catalog.A2uiBasicCatalogV1.TextField.Variant Default;
   }
 
   public static interface A2uiBasicCatalogV1.Video extends androidx.a2ui.compose.ui.A2uiComponent {

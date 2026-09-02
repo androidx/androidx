@@ -67,6 +67,7 @@ import java.util.TimeZone
  * @property tabs The [Tabs] component implementation.
  * @property divider The [Divider] component implementation.
  * @property button The [Button] component implementation.
+ * @property textField The [TextField] component implementation.
  * @property checkBox The [CheckBox] component implementation.
  * @property slider The [Slider] component implementation.
  * @property dateTimeInput The [DateTimeInput] component implementation.
@@ -87,6 +88,7 @@ public class A2uiBasicCatalogV1(
     public val tabs: Tabs,
     public val divider: Divider,
     public val button: Button,
+    public val textField: TextField,
     public val checkBox: CheckBox,
     public val slider: Slider,
     public val dateTimeInput: DateTimeInput,
@@ -115,6 +117,7 @@ public class A2uiBasicCatalogV1(
             tabs,
             divider,
             button,
+            textField,
             checkBox,
             slider,
             dateTimeInput,
@@ -1535,6 +1538,146 @@ public class A2uiBasicCatalogV1(
             childId: String,
             variant: Variant,
             action: Map<String, Any?>,
+            modifier: Modifier,
+        )
+    }
+
+    /**
+     * The A2UI `"TextField"` component for user text input.
+     *
+     * **Schema Properties:**
+     * * `label` (Dynamic String, required): The text label for the input field.
+     * * `value` (Dynamic String, optional): The value of the text field.
+     * * `variant` (String Enum, optional): The type of input field to display. Valid options:
+     *   `"longText"`, `"number"`, `"shortText"`, `"obscured"`. Defaults to `"shortText"`.
+     * * `validationRegexp` (String, optional): A regular expression used for client-side validation
+     *   of the input.
+     */
+    public interface TextField : A2uiComponent {
+        override val name: String
+            get() = "TextField"
+
+        override val description: String
+            get() = "A field for user text input."
+
+        /** Text field input variant. */
+        public enum class Variant(public val value: String) {
+            LongText("longText"),
+            Number("number"),
+            ShortText("shortText"),
+            Obscured("obscured");
+
+            public companion object {
+                /** The default variant when unspecified in the component payload. */
+                public val Default: Variant = ShortText
+
+                /** Returns the [Variant] matching [value], or [Default] if unknown. */
+                public fun fromValue(value: String): Variant =
+                    entries.fastFirstOrNull { it.value == value } ?: Default
+            }
+        }
+
+        public companion object {
+            /** The [A2uiProperty] for the `"label"` property of a [TextField]. */
+            public val LabelProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "label",
+                    required = true,
+                    description = "The text label for the input field.",
+                )
+
+            /** The [A2uiProperty] for the `"value"` property of a [TextField]. */
+            public val ValueProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "value",
+                    required = false,
+                    description = "The value of the text field.",
+                )
+
+            /** The [A2uiProperty] for the `"variant"` property of a [TextField]. */
+            public val VariantProperty: StaticA2uiProperty<Variant> =
+                A2uiProperty.enum(
+                    key = "variant",
+                    enumValues = Variant.entries,
+                    mapToString = { it.value },
+                    convertFromString = Variant::fromValue,
+                    defaultValue = Variant.Default,
+                    description = "The type of input field to display.",
+                )
+
+            /** The [A2uiProperty] for the `"validationRegexp"` property of a [TextField]. */
+            public val ValidationRegexpProperty: StaticA2uiProperty<String> =
+                A2uiProperty.string(
+                    key = "validationRegexp",
+                    required = false,
+                    description =
+                        "A regular expression used for client-side validation of the input.",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(
+                    WeightProperty,
+                    LabelProperty,
+                    ValueProperty,
+                    VariantProperty,
+                    ValidationRegexpProperty,
+                )
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bind(LabelProperty) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val label =
+                checkNotNull(properties.bind(LabelProperty)) {
+                    "Required property '${LabelProperty.key}' is missing."
+                }
+            val value = properties.bind(ValueProperty)
+            val variant = properties[VariantProperty] ?: Variant.Default
+            val validationRegexp = properties[ValidationRegexpProperty]
+            val onValueChange = properties.bindUpdater(ValueProperty)
+            val isEnabled = onValueChange != null
+
+            TypedContent(
+                label = label,
+                value = value,
+                variant = variant,
+                validationRegexp = validationRegexp,
+                onValueChange = onValueChange ?: {},
+                enabled = isEnabled,
+                modifier = modifier,
+            )
+        }
+
+        /**
+         * Renders the [TextField] with its resolved properties.
+         *
+         * @param label The text label for the input field.
+         * @param value The current text value of the field, or `null` if not set.
+         * @param variant The [Variant] visual style of the text field.
+         * @param validationRegexp An optional regex pattern for client-side input validation, or
+         *   `null` if none.
+         * @param onValueChange Callback invoked when the user updates the text in the field.
+         * @param enabled Controls whether the text field is interactive. When `false`, it does not
+         *   respond to user input.
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable
+        public fun A2uiComponentScope.TypedContent(
+            label: String,
+            value: String?,
+            variant: Variant,
+            validationRegexp: String?,
+            onValueChange: (String) -> Unit,
+            enabled: Boolean,
             modifier: Modifier,
         )
     }

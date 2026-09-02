@@ -75,6 +75,7 @@ class A2uiBasicCatalogV1Test {
         val tabs = TestTabsComponent()
         val divider = TestDividerComponent()
         val button = TestButtonComponent()
+        val textField = TestTextFieldComponent()
         val checkBox = TestCheckBoxComponent()
         val slider = TestSliderComponent()
         val dateTimeInput = TestDateTimeInputComponent()
@@ -92,6 +93,7 @@ class A2uiBasicCatalogV1Test {
                 tabs = tabs,
                 divider = divider,
                 button = button,
+                textField = textField,
                 checkBox = checkBox,
                 slider = slider,
                 dateTimeInput = dateTimeInput,
@@ -110,6 +112,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.tabs).isSameInstanceAs(tabs)
         assertThat(catalog.divider).isSameInstanceAs(divider)
         assertThat(catalog.button).isSameInstanceAs(button)
+        assertThat(catalog.textField).isSameInstanceAs(textField)
         assertThat(catalog.checkBox).isSameInstanceAs(checkBox)
         assertThat(catalog.slider).isSameInstanceAs(slider)
         assertThat(catalog.dateTimeInput).isSameInstanceAs(dateTimeInput)
@@ -127,6 +130,7 @@ class A2uiBasicCatalogV1Test {
                 tabs,
                 divider,
                 button,
+                textField,
                 checkBox,
                 slider,
                 dateTimeInput,
@@ -148,6 +152,7 @@ class A2uiBasicCatalogV1Test {
         val tabs = TestTabsComponent()
         val divider = TestDividerComponent()
         val button = TestButtonComponent()
+        val textField = TestTextFieldComponent()
         val checkBox = TestCheckBoxComponent()
         val slider = TestSliderComponent()
         val dateTimeInput = TestDateTimeInputComponent()
@@ -165,6 +170,7 @@ class A2uiBasicCatalogV1Test {
                 tabs = tabs,
                 divider = divider,
                 button = button,
+                textField = textField,
                 checkBox = checkBox,
                 slider = slider,
                 dateTimeInput = dateTimeInput,
@@ -183,6 +189,7 @@ class A2uiBasicCatalogV1Test {
                 tabs = tabs,
                 divider = divider,
                 button = button,
+                textField = textField,
                 checkBox = checkBox,
                 slider = slider,
                 dateTimeInput = dateTimeInput,
@@ -207,6 +214,7 @@ class A2uiBasicCatalogV1Test {
         val sharedTabs = TestTabsComponent()
         val sharedDivider = TestDividerComponent()
         val sharedButton = TestButtonComponent()
+        val sharedTextField = TestTextFieldComponent()
         val sharedCheckBox = TestCheckBoxComponent()
         val sharedSlider = TestSliderComponent()
         val sharedDateTimeInput = TestDateTimeInputComponent()
@@ -224,6 +232,7 @@ class A2uiBasicCatalogV1Test {
                 tabs = sharedTabs,
                 divider = sharedDivider,
                 button = sharedButton,
+                textField = sharedTextField,
                 checkBox = sharedCheckBox,
                 slider = sharedSlider,
                 dateTimeInput = sharedDateTimeInput,
@@ -242,6 +251,7 @@ class A2uiBasicCatalogV1Test {
                 tabs = sharedTabs,
                 divider = sharedDivider,
                 button = sharedButton,
+                textField = sharedTextField,
                 checkBox = sharedCheckBox,
                 slider = sharedSlider,
                 dateTimeInput = sharedDateTimeInput,
@@ -260,7 +270,7 @@ class A2uiBasicCatalogV1Test {
         assertThat(catalog.toString())
             .containsMatch(
                 "components=.*Text.*Image.*Icon.*Video.*AudioPlayer.*Card.*Row.*Column.*List." +
-                    "*Tabs.*Divider.*Button.*CheckBox.*Slider.*DateTimeInput"
+                    "*Tabs.*Divider.*Button.*TextField.*CheckBox.*Slider.*DateTimeInput"
             )
         assertThat(catalog.toString()).contains("functions=[]")
     }
@@ -278,6 +288,7 @@ class A2uiBasicCatalogV1Test {
         tabs: A2uiBasicCatalogV1.Tabs = TestTabsComponent(),
         divider: A2uiBasicCatalogV1.Divider = TestDividerComponent(),
         button: A2uiBasicCatalogV1.Button = TestButtonComponent(),
+        textField: A2uiBasicCatalogV1.TextField = TestTextFieldComponent(),
         checkBox: A2uiBasicCatalogV1.CheckBox = TestCheckBoxComponent(),
         slider: A2uiBasicCatalogV1.Slider = TestSliderComponent(),
         dateTimeInput: A2uiBasicCatalogV1.DateTimeInput = TestDateTimeInputComponent(),
@@ -296,6 +307,7 @@ class A2uiBasicCatalogV1Test {
             tabs = tabs,
             divider = divider,
             button = button,
+            textField = textField,
             checkBox = checkBox,
             slider = slider,
             dateTimeInput = dateTimeInput,
@@ -401,6 +413,19 @@ class A2uiBasicCatalogV1Test {
             childId: String,
             variant: A2uiBasicCatalogV1.Button.Variant,
             action: Map<String, Any?>,
+            modifier: Modifier,
+        ) {}
+    }
+
+    private class TestTextFieldComponent : A2uiBasicCatalogV1.TextField {
+        @Composable
+        override fun A2uiComponentScope.TypedContent(
+            label: String,
+            value: String?,
+            variant: A2uiBasicCatalogV1.TextField.Variant,
+            validationRegexp: String?,
+            onValueChange: (String) -> Unit,
+            enabled: Boolean,
             modifier: Modifier,
         ) {}
     }
