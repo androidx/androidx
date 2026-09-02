@@ -67,7 +67,7 @@ class EntityRowAdapter(val entity: Entity, out: XType) : QueryMappedRowAdapter(o
         stmtVarName: String,
         scope: CodeGenScope,
         indices: List<ColumnIndexVar>,
-    ) {
+    ): String {
         // Check if given indices are the default ones, i.e. onStatementReady() was called without
         // an indices argument and these are the default parameter ones, which means a wrapped
         // statement is not needed since the generated entity statement converter has access to the
@@ -98,6 +98,7 @@ class EntityRowAdapter(val entity: Entity, out: XType) : QueryMappedRowAdapter(o
         }
         functionSpec =
             scope.writer.getOrCreateFunction(EntityStatementConverterWriter(entity = entity))
+        return stmtVarName
     }
 
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {

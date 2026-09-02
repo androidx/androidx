@@ -230,6 +230,8 @@ object RoomMemberNames {
     val DB_UTIL_PERFORM_CLEAR = RoomTypeNames.DB_UTIL.packageMember("performClear")
     val STATEMENT_UTIL_WRAP_MAPPED_COLUMNS =
         RoomTypeNames.STATEMENT_UTIL.packageMember("wrapMappedColumns")
+    val STATEMENT_UTIL_BUFFER_STATEMENT =
+        RoomTypeNames.STATEMENT_UTIL.packageMember("bufferStatement")
     val ROOM_SQL_QUERY_ACQUIRE =
         RoomTypeNames.ROOM_SQL_QUERY.companionMember("acquire", isJvmStatic = true)
     val TABLE_INFO_READ = RoomTypeNames.TABLE_INFO.companionMember("read", isJvmStatic = true)

@@ -30,16 +30,19 @@ abstract class RowAdapter(val out: XType) {
     /**
      * Called when statement variable along with column indices variables are ready.
      *
+     * @param stmtVarName the name of the statement local variable
+     * @param scope the code generation scope
      * @param indices the list of index variables to use when getting columns from the statement to
      *   convert the row.
-     * @param stmtVarName the name of the statement local variable
+     * @return the name of the effective statement variable to use for row conversion, which may be
+     *   a wrapped/buffered statement.
      */
     open fun onStatementReady(
         stmtVarName: String,
         scope: CodeGenScope,
         indices: List<ColumnIndexVar> =
             getDefaultIndexAdapter().apply { onStatementReady(stmtVarName, scope) }.getIndexVars(),
-    ) {}
+    ): String = stmtVarName
 
     /** Called to convert a single row. */
     abstract fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope)

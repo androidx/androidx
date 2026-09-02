@@ -27,8 +27,8 @@ class SingleItemQueryResultAdapter(private val rowAdapter: RowAdapter) :
     val type = rowAdapter.out
 
     override fun convert(outVarName: String, stmtVarName: String, scope: CodeGenScope) {
+        val stmtVarName = rowAdapter.onStatementReady(stmtVarName = stmtVarName, scope = scope)
         scope.builder.apply {
-            rowAdapter.onStatementReady(stmtVarName = stmtVarName, scope = scope)
             addLocalVariable(outVarName, type.asTypeName())
             beginControlFlow("if (%L.step())", stmtVarName).apply {
                 rowAdapter.convert(outVarName, stmtVarName, scope)
