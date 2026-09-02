@@ -320,12 +320,11 @@ class LazyLayoutTest {
         val constraints = Constraints.fixed(50, 50)
         var measureCount = 0
         @Suppress("NAME_SHADOWING")
-        val modifier =
-            Modifier.layout { measurable, constraints ->
-                measureCount++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-            }
+        val modifier = Modifier.layout { measurable, constraints ->
+            measureCount++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
         val itemProvider =
             itemProvider({ 1 }) { index ->
                 Box(Modifier.fillMaxSize().testTag("$index").then(modifier))
@@ -369,12 +368,11 @@ class LazyLayoutTest {
         val constraints = Constraints.fixed(50, 50)
         var measureCount = 0
         @Suppress("NAME_SHADOWING")
-        val modifier =
-            Modifier.layout { measurable, constraints ->
-                measureCount++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-            }
+        val modifier = Modifier.layout { measurable, constraints ->
+            measureCount++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
         val itemProvider =
             itemProvider({ 1 }) { index ->
                 Box(Modifier.fillMaxSize().testTag("$index").then(modifier))
@@ -413,12 +411,11 @@ class LazyLayoutTest {
         val constraints = Constraints.fixed(50, 50)
         var measureCount = 0
         @Suppress("NAME_SHADOWING")
-        val modifier =
-            Modifier.layout { measurable, constraints ->
-                measureCount++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-            }
+        val modifier = Modifier.layout { measurable, constraints ->
+            measureCount++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
         val itemProvider =
             itemProvider({ 1 }, true) { index ->
                 Box(Modifier.fillMaxSize().testTag("$index").then(modifier))

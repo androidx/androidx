@@ -179,11 +179,10 @@ private fun Window.generateBitmap(boundsInWindow: Rect): Bitmap {
 private fun Window.generateBitmapFromPixelCopy(boundsInWindow: Rect, destBitmap: Bitmap) {
     val latch = CountDownLatch(1)
     var copyResult = 0
-    val onCopyFinished =
-        PixelCopy.OnPixelCopyFinishedListener { result ->
-            copyResult = result
-            latch.countDown()
-        }
+    val onCopyFinished = PixelCopy.OnPixelCopyFinishedListener { result ->
+        copyResult = result
+        latch.countDown()
+    }
     PixelCopyHelper.request(
         this,
         boundsInWindow,

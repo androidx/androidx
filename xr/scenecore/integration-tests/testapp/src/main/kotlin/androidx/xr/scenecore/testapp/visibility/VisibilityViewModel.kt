@@ -92,22 +92,20 @@ class VisibilityViewModel : ViewModel() {
 
     fun hideActivitySpaceTemporarily(durationMs: Long = DEFAULT_DELAY_MS) {
         hideActivitySpaceJob?.cancel()
-        hideActivitySpaceJob =
-            viewModelScope.launch {
-                _uiState.update { it.copy(isActivitySpaceTemporarilyHidden = true) }
-                delay(durationMs.milliseconds)
-                _uiState.update { it.copy(isActivitySpaceTemporarilyHidden = false) }
-            }
+        hideActivitySpaceJob = viewModelScope.launch {
+            _uiState.update { it.copy(isActivitySpaceTemporarilyHidden = true) }
+            delay(durationMs.milliseconds)
+            _uiState.update { it.copy(isActivitySpaceTemporarilyHidden = false) }
+        }
     }
 
     fun hideMainPanelTemporarily(durationMs: Long = DEFAULT_DELAY_MS) {
         hideMainPanelJob?.cancel()
-        hideMainPanelJob =
-            viewModelScope.launch {
-                _uiState.update { it.copy(isMainPanelTemporarilyHidden = true) }
-                delay(durationMs.milliseconds)
-                _uiState.update { it.copy(isMainPanelTemporarilyHidden = false) }
-            }
+        hideMainPanelJob = viewModelScope.launch {
+            _uiState.update { it.copy(isMainPanelTemporarilyHidden = true) }
+            delay(durationMs.milliseconds)
+            _uiState.update { it.copy(isMainPanelTemporarilyHidden = false) }
+        }
     }
 
     companion object {

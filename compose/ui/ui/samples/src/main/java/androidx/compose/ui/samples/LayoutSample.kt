@@ -162,15 +162,14 @@ fun LayoutTagChildrenUsage(header: @Composable () -> Unit, footer: @Composable (
         Box(Modifier.layoutId("header")) { header() }
         Box(Modifier.layoutId("footer")) { footer() }
     }) { measurables, constraints ->
-        val placeables =
-            measurables.map { measurable ->
-                when (measurable.layoutId) {
-                    // You should use appropriate constraints. Here we measure fake constraints.
-                    "header" -> measurable.measure(Constraints.fixed(100, 100))
-                    "footer" -> measurable.measure(constraints)
-                    else -> error("Unexpected tag")
-                }
+        val placeables = measurables.map { measurable ->
+            when (measurable.layoutId) {
+                // You should use appropriate constraints. Here we measure fake constraints.
+                "header" -> measurable.measure(Constraints.fixed(100, 100))
+                "footer" -> measurable.measure(constraints)
+                else -> error("Unexpected tag")
             }
+        }
         // Size should be derived from children measured sizes on placeables,
         // but this is simplified for the purposes of the example.
         layout(100, 100) { placeables.forEach { it.placeRelative(0, 0) } }

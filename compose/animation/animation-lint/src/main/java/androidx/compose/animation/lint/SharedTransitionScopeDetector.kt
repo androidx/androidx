@@ -91,14 +91,13 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
             val fixCandidate =
                 (lambdaArgument.body as? UBlockExpression)?.let { findCompatibleComposableCall(it) }
 
-            val quickFix =
-                fixCandidate?.let {
-                    buildUnusedSharedTransitionModifierQuickFix(
-                        context = context,
-                        node = fixCandidate,
-                        unusedModifierParameter = unreferencedParameter,
-                    )
-                }
+            val quickFix = fixCandidate?.let {
+                buildUnusedSharedTransitionModifierQuickFix(
+                    context = context,
+                    node = fixCandidate,
+                    unusedModifierParameter = unreferencedParameter,
+                )
+            }
 
             context.report(
                 issue = UnusedSharedTransitionModifierParameter,
@@ -192,8 +191,9 @@ class SharedTransitionScopeDetector : Detector(), SourceCodeScanner {
             return
         }
 
-        val itemsMethodPackage =
-            resolvedItemsCall.let { (it.containingFile as? PsiClassOwner)?.packageName }
+        val itemsMethodPackage = resolvedItemsCall.let {
+            (it.containingFile as? PsiClassOwner)?.packageName
+        }
 
         // There's several LazyList implementations in different packages, such as
         // `androidx.compose.foundation`, `androidx.tv.foundation`, `android.wear.compose`

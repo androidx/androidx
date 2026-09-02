@@ -313,14 +313,13 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
                         participantsMgr.participants.value.map { it.toParticipant() }
                 )
 
-            raiseHandExt =
-                participantsExt.addRaiseHandSupport { participantsWithHandsRaised ->
-                    Log.i(TAG, "[$callId] Raise Hand Update Received via Callback" + " hands up")
-                    participantsMgr.onRaisedHandStateChanged(participantsWithHandsRaised)
-                    updateCallDataInternal(callId) {
-                        it.copy(participants = participantsMgr.participants.value)
-                    }
+            raiseHandExt = participantsExt.addRaiseHandSupport { participantsWithHandsRaised ->
+                Log.i(TAG, "[$callId] Raise Hand Update Received via Callback" + " hands up")
+                participantsMgr.onRaisedHandStateChanged(participantsWithHandsRaised)
+                updateCallDataInternal(callId) {
+                    it.copy(participants = participantsMgr.participants.value)
                 }
+            }
 
             participantsExt.addKickParticipantSupport { participantToKick ->
                 Log.i(
@@ -696,20 +695,17 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
         // Schedule removal job (if the call exists in the list)
         if (_callDataList.value.any { it.callId == callId }) {
             Log.i(TAG, "[$callId] scheduling delayed removal from the call data list.")
-            val removalJob =
-                lifecycleScope.launch {
-                    delay(CALL_REMOVE_DELAY)
-                    Log.i(TAG, "[$callId] Removing CallData after delay.")
-                    _callDataList.update { list -> list.filterNot { it.callId == callId } }
-                    // Cancel the main call handling job associated with this callId
-                    // This stops the handleCallActions loop and collectors for this specific call.
-                    // It's safe to cancel even if already completing.
-                    mActiveCalls[callId]
-                        ?.job
-                        ?.cancel("Call disconnected, cleaning up controller job")
-                    mActiveCalls.remove(callId) // Clean up controller map
-                    mDelayedRemovalJobs.remove(callId) // Clean up self
-                }
+            val removalJob = lifecycleScope.launch {
+                delay(CALL_REMOVE_DELAY)
+                Log.i(TAG, "[$callId] Removing CallData after delay.")
+                _callDataList.update { list -> list.filterNot { it.callId == callId } }
+                // Cancel the main call handling job associated with this callId
+                // This stops the handleCallActions loop and collectors for this specific call.
+                // It's safe to cancel even if already completing.
+                mActiveCalls[callId]?.job?.cancel("Call disconnected, cleaning up controller job")
+                mActiveCalls.remove(callId) // Clean up controller map
+                mDelayedRemovalJobs.remove(callId) // Clean up self
+            }
             mDelayedRemovalJobs[callId] = removalJob
         } else {
             Log.i(

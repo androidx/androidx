@@ -190,8 +190,9 @@ private class FoldBoundsCalculator {
         view.getLocationInWindow(viewLocationInWindow)
         val x = viewLocationInWindow[0]
         val y = viewLocationInWindow[1]
-        val viewRect =
-            getFoldBoundsInViewTmpRect.apply { set(x, y, x + view.width, y + view.width) }
+        val viewRect = getFoldBoundsInViewTmpRect.apply {
+            set(x, y, x + view.width, y + view.width)
+        }
         val foldRectInView = outRect.apply { set(foldingFeature.bounds) }
         // Translate coordinate space of split from window coordinate space to current view
         // position in window
@@ -511,14 +512,13 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * [SPLIT_DIVIDER_POSITION_AUTO].
      */
     val visualDividerPosition: Int
-        get() =
-            visualDividerPositionWithoutOffset.let {
-                if (it < 0) {
-                    it
-                } else {
-                    it + dividerVisualOffsetHorizontal
-                }
+        get() = visualDividerPositionWithoutOffset.let {
+            if (it < 0) {
+                it
+            } else {
+                it + dividerVisualOffsetHorizontal
             }
+        }
 
     /**
      * The visual divider position without the [dividerVisualOffsetHorizontal] applied. It's used

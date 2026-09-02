@@ -100,19 +100,18 @@ fun KSDeclaration.ensureQualifiedName(): String {
  */
 fun KSDeclaration.toClassName(): ClassName {
     val packageName = this.packageName.asString()
-    val simpleNames =
-        buildList {
-                var currentDeclaration: KSDeclaration? = this@toClassName
-                while (currentDeclaration != null) {
-                    add(currentDeclaration.simpleName.asString())
-                    val parent = currentDeclaration.parentDeclaration
-                    if (parent == null || parent is KSFile) {
-                        break
-                    }
-                    currentDeclaration = parent
-                }
+    val simpleNames = buildList {
+        var currentDeclaration: KSDeclaration? = this@toClassName
+        while (currentDeclaration != null) {
+            add(currentDeclaration.simpleName.asString())
+            val parent = currentDeclaration.parentDeclaration
+            if (parent == null || parent is KSFile) {
+                break
             }
-            .reversed()
+            currentDeclaration = parent
+        }
+    }
+        .reversed()
     return ClassName(packageName, simpleNames)
 }
 

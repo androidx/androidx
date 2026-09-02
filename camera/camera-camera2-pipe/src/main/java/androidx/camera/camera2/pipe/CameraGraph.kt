@@ -822,16 +822,16 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
             filter: ((RequestMetadata) -> Boolean)? = null,
         ): Flow<LatestFrameMetadata> {
             return callbackFlow {
-                    val listener =
-                        RequestListeners.createLatestFrameMetadataListener(
-                            captureResultKeys = captureResultKeys,
-                            metadataKeys = metadataKeys,
-                            filter = filter,
-                            listener = { trySend(it) },
-                        )
-                    listeners.add(listener)
-                    awaitClose { listeners.remove(listener) }
-                }
+                val listener =
+                    RequestListeners.createLatestFrameMetadataListener(
+                        captureResultKeys = captureResultKeys,
+                        metadataKeys = metadataKeys,
+                        filter = filter,
+                        listener = { trySend(it) },
+                    )
+                listeners.add(listener)
+                awaitClose { listeners.remove(listener) }
+            }
                 .conflate()
         }
 

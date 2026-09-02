@@ -671,7 +671,9 @@ class ExposedDropdownMenuTest {
                         ExposedDropdownMenuDefaults.TrailingIcon(
                             expanded = expanded,
                             modifier =
-                                Modifier.menuAnchor(ExposedDropdownMenuAnchorType.SecondaryEditable),
+                                Modifier.menuAnchor(
+                                    ExposedDropdownMenuAnchorType.SecondaryEditable
+                                ),
                         )
                     },
                 )

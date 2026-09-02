@@ -547,7 +547,7 @@ class Camera2InteropV2DslIntegrationTest {
         val imageCapture = imageCapture {}
         val imageAnalysis =
             imageAnalysis {}
-                .apply { setAnalyzer(CameraXExecutors.highPriorityExecutor()) { it.close() } }
+            .apply { setAnalyzer(CameraXExecutors.highPriorityExecutor()) { it.close() } }
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
 
         val sessionConfig =

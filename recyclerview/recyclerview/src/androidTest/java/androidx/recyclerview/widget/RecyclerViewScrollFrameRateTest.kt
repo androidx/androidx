@@ -83,11 +83,10 @@ class RecyclerViewScrollFrameRateTest {
 
     private fun runOnDraw(view: View, setup: () -> Unit = {}, onDraw: () -> Unit) {
         val latch = CountDownLatch(1)
-        val onDrawListener =
-            ViewTreeObserver.OnDrawListener {
-                latch.countDown()
-                onDraw()
-            }
+        val onDrawListener = ViewTreeObserver.OnDrawListener {
+            latch.countDown()
+            onDraw()
+        }
         rule.runOnUiThread {
             view.viewTreeObserver.addOnDrawListener(onDrawListener)
             setup()

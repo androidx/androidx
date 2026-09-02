@@ -59,13 +59,12 @@ fun PullRefreshSample() {
     var refreshing by remember { mutableStateOf(false) }
     var itemCount by remember { mutableStateOf(15) }
 
-    fun refresh() =
-        refreshScope.launch {
-            refreshing = true
-            delay(1500)
-            itemCount += 5
-            refreshing = false
-        }
+    fun refresh() = refreshScope.launch {
+        refreshing = true
+        delay(1500)
+        itemCount += 5
+        refreshing = false
+    }
 
     val state = rememberPullRefreshState(refreshing, ::refresh)
 
@@ -96,13 +95,12 @@ fun CustomPullRefreshSample() {
 
     val progress = currentDistance / threshold
 
-    fun refresh() =
-        refreshScope.launch {
-            refreshing = true
-            delay(1500)
-            itemCount += 5
-            refreshing = false
-        }
+    fun refresh() = refreshScope.launch {
+        refreshing = true
+        delay(1500)
+        itemCount += 5
+        refreshing = false
+    }
 
     fun onPull(pullDelta: Float): Float =
         when {
@@ -163,13 +161,12 @@ fun PullRefreshIndicatorTransformSample() {
     var refreshing by remember { mutableStateOf(false) }
     var itemCount by remember { mutableStateOf(15) }
 
-    fun refresh() =
-        refreshScope.launch {
-            refreshing = true
-            delay(1500)
-            itemCount += 5
-            refreshing = false
-        }
+    fun refresh() = refreshScope.launch {
+        refreshing = true
+        delay(1500)
+        itemCount += 5
+        refreshing = false
+    }
 
     val state = rememberPullRefreshState(refreshing, ::refresh)
     val rotation = animateFloatAsState(state.progress * 120)

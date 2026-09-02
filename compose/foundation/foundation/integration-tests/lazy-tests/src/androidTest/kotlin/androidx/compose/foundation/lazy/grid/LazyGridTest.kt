@@ -955,12 +955,11 @@ class LazyGridTest(private val orientation: Orientation) :
     @Test
     fun recomposingWithNewComposedModifierObjectIsNotCausingRemeasure() {
         var remeasureCount = 0
-        val layoutModifier =
-            Modifier.layout { measurable, constraints ->
-                remeasureCount++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-            }
+        val layoutModifier = Modifier.layout { measurable, constraints ->
+            remeasureCount++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
         val counter = mutableStateOf(0)
 
         rule.setContentWithTestViewConfiguration {

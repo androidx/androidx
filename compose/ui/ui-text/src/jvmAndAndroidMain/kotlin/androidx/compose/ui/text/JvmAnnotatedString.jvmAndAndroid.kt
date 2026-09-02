@@ -42,8 +42,9 @@ internal actual fun AnnotatedString.transform(
         offsetMap.put(end, resultStr.length)
     }
     // The offset map must have mapping entry from all style start, end position.
-    val newAnnotations =
-        annotations?.fastMap { Range(it.item, offsetMap[it.start], offsetMap[it.end]) }
+    val newAnnotations = annotations?.fastMap {
+        Range(it.item, offsetMap[it.start], offsetMap[it.end])
+    }
 
     return AnnotatedString(text = resultStr, annotations = newAnnotations)
 }

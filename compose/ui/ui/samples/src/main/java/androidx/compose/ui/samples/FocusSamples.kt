@@ -87,10 +87,9 @@ fun CaptureFocusSample() {
     TextField(
         value = value,
         onValueChange = {
-            value =
-                it.apply {
-                    if (length > 5) focusRequester.captureFocus() else focusRequester.freeFocus()
-                }
+            value = it.apply {
+                if (length > 5) focusRequester.captureFocus() else focusRequester.freeFocus()
+            }
         },
         modifier =
             Modifier.border(2.dp, borderColor).focusRequester(focusRequester).onFocusChanged {

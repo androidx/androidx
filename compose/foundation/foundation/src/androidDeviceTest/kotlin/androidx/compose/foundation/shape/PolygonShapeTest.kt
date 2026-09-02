@@ -425,8 +425,10 @@ class PolygonShapeTest {
     @Test
     fun scopePolygonFactory_defaults() {
         // The count-based factory defaults: radius = minDimension / 2, center = container center.
-        val polygon =
-            PolygonShape { polygon(6) }.buildPolygon(size, LayoutDirection.Ltr, unitDensity)
+        val polygon = PolygonShape {
+            polygon(6)
+        }
+            .buildPolygon(size, LayoutDirection.Ltr, unitDensity)
         assertEquals(sizePx / 2f, polygon.centerX, 1e-2f)
         assertEquals(sizePx / 2f, polygon.centerY, 1e-2f)
         val bounds = polygon.calculateBounds(FloatArray(4), false)

@@ -133,11 +133,10 @@ class BoxWithConstraintsTest : LayoutTest() {
                 val outerModifier = Modifier.drawBehind { drawRect(model.outerColor) }
                 Layout(
                     content = {
-                        val innerModifier =
-                            Modifier.drawBehind {
-                                drawLatch.countDown()
-                                drawRect(model.innerColor)
-                            }
+                        val innerModifier = Modifier.drawBehind {
+                            drawLatch.countDown()
+                            drawRect(model.innerColor)
+                        }
                         Layout(content = {}, modifier = innerModifier) { measurables, constraints2
                             ->
                             layout(model.size, model.size) {}
@@ -447,12 +446,11 @@ class BoxWithConstraintsTest : LayoutTest() {
         show {
             val state = remember { mutableStateOf(false) }
             var lastLayoutValue: Boolean = false
-            val drawModifier =
-                Modifier.drawBehind {
-                    // this verifies the layout was remeasured before being drawn
-                    assertTrue(lastLayoutValue)
-                    drawlatch.countDown()
-                }
+            val drawModifier = Modifier.drawBehind {
+                // this verifies the layout was remeasured before being drawn
+                assertTrue(lastLayoutValue)
+                drawlatch.countDown()
+            }
             Layout(content = {}, modifier = drawModifier) { _, _ ->
                 lastLayoutValue = state.value
                 // this registers the value read

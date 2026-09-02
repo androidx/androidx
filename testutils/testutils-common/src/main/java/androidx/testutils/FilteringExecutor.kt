@@ -48,13 +48,12 @@ class FilteringExecutor(
     }
 
     private fun reEnqueueDeferred() {
-        val copy =
-            lock.withLock {
-                val copy = deferred.toMutableList()
-                deferred.clear()
-                deferredSize.value = 0
-                copy
-            }
+        val copy = lock.withLock {
+            val copy = deferred.toMutableList()
+            deferred.clear()
+            deferredSize.value = 0
+            copy
+        }
         copy.forEach(this::execute)
     }
 

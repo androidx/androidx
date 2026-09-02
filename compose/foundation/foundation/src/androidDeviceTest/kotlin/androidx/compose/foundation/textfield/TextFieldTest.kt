@@ -304,7 +304,8 @@ class TextFieldTest : FocusedWindowTest {
                     BasicTextField(
                         value = "",
                         onValueChange = {},
-                        modifier = Modifier.weight(1f).onGloballyPositioned { size = it.size.width },
+                        modifier =
+                            Modifier.weight(1f).onGloballyPositioned { size = it.size.width },
                     )
                     Box(Modifier.size(boxSize))
                 }

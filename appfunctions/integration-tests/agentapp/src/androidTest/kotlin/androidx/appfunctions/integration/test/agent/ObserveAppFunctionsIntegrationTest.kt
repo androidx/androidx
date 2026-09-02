@@ -142,11 +142,10 @@ class ObserveAppFunctionsIntegrationTest {
                 retryAssert {
                     // Drain all pending events in the channel at the time of assertion
                     drainEvents(eventChannel, receivedEvents)
-                    val hasTargetAppFunction =
-                        receivedEvents.any { event ->
-                            event is ObserveAppFunctionsEvent.StatesChanged &&
-                                event.changedFunctionNames.contains(enabledByDefaultFunction)
-                        }
+                    val hasTargetAppFunction = receivedEvents.any { event ->
+                        event is ObserveAppFunctionsEvent.StatesChanged &&
+                            event.changedFunctionNames.contains(enabledByDefaultFunction)
+                    }
                     assertThat(hasTargetAppFunction).isTrue()
                 }
             } finally {
@@ -184,11 +183,10 @@ class ObserveAppFunctionsIntegrationTest {
                 retryAssert {
                     // Drain all pending events in the channel at the time of assertion
                     drainEvents(eventChannel, receivedEvents)
-                    val hasTargetAppFunction =
-                        receivedEvents.any { event ->
-                            event is ObserveAppFunctionsEvent.StatesChanged &&
-                                event.changedFunctionNames.contains(enabledByDefaultFunction)
-                        }
+                    val hasTargetAppFunction = receivedEvents.any { event ->
+                        event is ObserveAppFunctionsEvent.StatesChanged &&
+                            event.changedFunctionNames.contains(enabledByDefaultFunction)
+                    }
                     assertThat(hasTargetAppFunction).isTrue()
                 }
             } finally {
@@ -227,11 +225,10 @@ class ObserveAppFunctionsIntegrationTest {
                 retryAssert {
                     // Drain all pending events in the channel at the time of assertion
                     drainEvents(eventChannel, receivedEvents)
-                    val hasTargetAppFunction =
-                        receivedEvents.any { event ->
-                            event is ObserveAppFunctionsEvent.StatesChanged &&
-                                event.changedFunctionNames.contains(disabledByDefaultFunction)
-                        }
+                    val hasTargetAppFunction = receivedEvents.any { event ->
+                        event is ObserveAppFunctionsEvent.StatesChanged &&
+                            event.changedFunctionNames.contains(disabledByDefaultFunction)
+                    }
                     assertThat(hasTargetAppFunction).isTrue()
                 }
 
@@ -293,11 +290,10 @@ class ObserveAppFunctionsIntegrationTest {
                 retryAssert {
                     // Drain all pending events in the channel at the time of assertion
                     drainEvents(eventChannel, receivedEvents)
-                    val hasTargetAppFunction =
-                        receivedEvents.any { event ->
-                            event is ObserveAppFunctionsEvent.StatesChanged &&
-                                event.changedFunctionNames.contains(disabledByDefaultFunction)
-                        }
+                    val hasTargetAppFunction = receivedEvents.any { event ->
+                        event is ObserveAppFunctionsEvent.StatesChanged &&
+                            event.changedFunctionNames.contains(disabledByDefaultFunction)
+                    }
                     assertThat(hasTargetAppFunction).isTrue()
                 }
 
@@ -601,11 +597,10 @@ class ObserveAppFunctionsIntegrationTest {
             val received = mutableListOf<ObserveAppFunctionsEvent>()
             retryAssert {
                 drainEvents(channel, received)
-                val hasSentinel =
-                    received.any { event ->
-                        event is ObserveAppFunctionsEvent.StatesChanged &&
-                            event.changedFunctionNames.contains(sentinelFunctionName)
-                    }
+                val hasSentinel = received.any { event ->
+                    event is ObserveAppFunctionsEvent.StatesChanged &&
+                        event.changedFunctionNames.contains(sentinelFunctionName)
+                }
                 assertThat(hasSentinel).isTrue()
             }
         }

@@ -46,12 +46,11 @@ class AlphaSampleScreenshotTest {
     private val gridScreenshotUI = GridScreenshotUI()
 
     @Test
-    fun alphaSample() =
-        composeTestRule.runScreenshotTest {
-            val tests =
-                listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
-                    "AlphaSample" to @RemoteComposable @Composable { AlphaSample() }
-                )
-            gridScreenshotUI.GridContent(tests)
-        }
+    fun alphaSample() = composeTestRule.runScreenshotTest {
+        val tests =
+            listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
+                "AlphaSample" to @RemoteComposable @Composable { AlphaSample() }
+            )
+        gridScreenshotUI.GridContent(tests)
+    }
 }

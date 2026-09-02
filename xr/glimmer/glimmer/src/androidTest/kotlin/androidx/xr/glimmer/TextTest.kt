@@ -183,7 +183,9 @@ class TextTest {
             Box(Modifier.fillMaxSize().background(Color.Blue).padding(20.dp)) {
                 Text(
                     testAnnotatedString,
-                    Modifier.background(Color.Blue).contentColorProvider(Color.Blue).testTag("test"),
+                    Modifier.background(Color.Blue)
+                        .contentColorProvider(Color.Blue)
+                        .testTag("test"),
                 )
             }
         }

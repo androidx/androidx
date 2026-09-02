@@ -84,18 +84,17 @@ object InMemoryTracing {
     /** Capture trace state, and return as a Trace(), which can be appended to a trace file. */
     fun commitToTrace(label: String): Trace {
         val capturedEvents = events.toList()
-        val capturedCounterDescriptors =
-            counterTracks.map { (name, uuid) ->
-                TracePacket(
-                    track_descriptor =
-                        TrackDescriptor(
-                            uuid = uuid,
-                            parent_uuid = UUID,
-                            name = name,
-                            counter = CounterDescriptor(),
-                        )
-                )
-            }
+        val capturedCounterDescriptors = counterTracks.map { (name, uuid) ->
+            TracePacket(
+                track_descriptor =
+                    TrackDescriptor(
+                        uuid = uuid,
+                        parent_uuid = UUID,
+                        name = name,
+                        counter = CounterDescriptor(),
+                    )
+            )
+        }
 
         clearEvents()
         return Trace(

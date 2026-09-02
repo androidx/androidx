@@ -61,15 +61,14 @@ public suspend fun createWebGpu(
     initLibrary()
 
     val instance = createInstance(instanceDescriptor)
-    val webgpuSurface =
-        surface?.let {
-            instance.createSurface(
-                GPUSurfaceDescriptor(
-                    surfaceSourceAndroidNativeWindow =
-                        GPUSurfaceSourceAndroidNativeWindow(windowFromSurface(it))
-                )
+    val webgpuSurface = surface?.let {
+        instance.createSurface(
+            GPUSurfaceDescriptor(
+                surfaceSourceAndroidNativeWindow =
+                    GPUSurfaceSourceAndroidNativeWindow(windowFromSurface(it))
             )
-        }
+        )
+    }
 
     val adapter = requestAdapter(instance, requestAdapterOptions)
     val device = requestDevice(adapter, deviceDescriptor)

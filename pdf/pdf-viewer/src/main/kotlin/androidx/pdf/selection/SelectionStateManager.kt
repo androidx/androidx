@@ -246,25 +246,24 @@ internal class SelectionStateManager(
         )
 
         val prevJob = setSelectionJob
-        setSelectionJob =
-            backgroundScope.launch {
-                prevJob?.cancelAndJoin()
+        setSelectionJob = backgroundScope.launch {
+            prevJob?.cancelAndJoin()
 
-                // Check for an image at this point.
-                ocrContext = null
-                if (selectImageOrImageTextAtPoint(pdfPoint.pageNum, pdfPoint)) {
-                    return@launch
-                }
-
-                // Check for a link at this point.
-                pageManager?.getPageLinks(pdfPoint.pageNum)?.let { links ->
-                    if (selectGoToLinkAtPoint(links.gotoLinks, pdfPoint)) return@launch
-                    if (selectExternalLinkAtPoint(links.externalLinks, pdfPoint)) return@launch
-                }
-
-                // Check for a text at this point.
-                updateTextSelection(pdfPoint, pdfPoint)
+            // Check for an image at this point.
+            ocrContext = null
+            if (selectImageOrImageTextAtPoint(pdfPoint.pageNum, pdfPoint)) {
+                return@launch
             }
+
+            // Check for a link at this point.
+            pageManager?.getPageLinks(pdfPoint.pageNum)?.let { links ->
+                if (selectGoToLinkAtPoint(links.gotoLinks, pdfPoint)) return@launch
+                if (selectExternalLinkAtPoint(links.externalLinks, pdfPoint)) return@launch
+            }
+
+            // Check for a text at this point.
+            updateTextSelection(pdfPoint, pdfPoint)
+        }
     }
 
     suspend fun selectImageOrImageTextAtPoint(pageNum: Int, point: PdfPoint): Boolean {

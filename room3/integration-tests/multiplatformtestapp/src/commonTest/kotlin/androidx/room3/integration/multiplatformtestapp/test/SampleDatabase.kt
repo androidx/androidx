@@ -251,7 +251,8 @@ interface SampleDao {
 
     data class Sample1AndMany(
         @Embedded val sample1: SampleEntity,
-        @Relation(parentColumns = ["pk"], entityColumns = ["pk2"]) val sample2s: List<SampleEntity2>,
+        @Relation(parentColumns = ["pk"], entityColumns = ["pk2"])
+        val sample2s: List<SampleEntity2>,
     )
 
     data class SampleManyAndMany(

@@ -1528,14 +1528,12 @@ private fun getMainWindowSize(session: Session): IntVolumeSize {
         }
     val mainView = (context as Activity).window.decorView
     DisposableEffect(Unit) {
-        val listener =
-            View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-                val newSize =
-                    getWindowBoundsInPixels(context).run { IntVolumeSize(width, height, 0) }
-                if (panelSize != newSize) {
-                    panelSize = newSize
-                }
+        val listener = View.OnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            val newSize = getWindowBoundsInPixels(context).run { IntVolumeSize(width, height, 0) }
+            if (panelSize != newSize) {
+                panelSize = newSize
             }
+        }
         mainView.addOnLayoutChangeListener(listener)
         onDispose { mainView.removeOnLayoutChangeListener(listener) }
     }

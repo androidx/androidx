@@ -43,12 +43,11 @@ open class FutureChain<V> : ListenableFuture<V> {
     }
 
     internal constructor() {
-        mDelegate =
-            CallbackToFutureAdapter.getFuture { completer ->
-                Preconditions.checkState(mCompleter == null, "The result can only set once!")
-                mCompleter = completer
-                "FutureChain[" + this@FutureChain + "]"
-            }
+        mDelegate = CallbackToFutureAdapter.getFuture { completer ->
+            Preconditions.checkState(mCompleter == null, "The result can only set once!")
+            mCompleter = completer
+            "FutureChain[" + this@FutureChain + "]"
+        }
     }
 
     override fun addListener(listener: Runnable, executor: Executor) {

@@ -55,8 +55,9 @@ class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private lateinit var fragmentManager: FragmentManager
     private var onBackStackChangedTimes: Int = 0
-    private val onBackStackChangedListener =
-        FragmentManager.OnBackStackChangedListener { onBackStackChangedTimes++ }
+    private val onBackStackChangedListener = FragmentManager.OnBackStackChangedListener {
+        onBackStackChangedTimes++
+    }
 
     @Before
     fun setup() {

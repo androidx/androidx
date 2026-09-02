@@ -55,18 +55,17 @@ public object AppFunctionExecutionDispatcher {
         callback: Consumer<ExecuteAppFunctionResponse>,
         block: suspend (Map<String, Any?>) -> Any?,
     ) {
-        val job =
-            coroutineScope.launch {
-                val response =
-                    try {
-                        executeAppFunction(inventory, request, block)
-                    } catch (e: AppFunctionException) {
-                        ExecuteAppFunctionResponse.Error(e)
-                    }
-                // We don't check isActive here since AppFunction implementation is expected
-                // to return ERROR_CANCELLED when the operation is caneled.
-                callback.accept(response)
-            }
+        val job = coroutineScope.launch {
+            val response =
+                try {
+                    executeAppFunction(inventory, request, block)
+                } catch (e: AppFunctionException) {
+                    ExecuteAppFunctionResponse.Error(e)
+                }
+            // We don't check isActive here since AppFunction implementation is expected
+            // to return ERROR_CANCELLED when the operation is caneled.
+            callback.accept(response)
+        }
         cancellationSignal.setOnCancelListener { job.cancel() }
     }
 

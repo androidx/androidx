@@ -182,15 +182,14 @@ public open class ProjectedSceneCoreServiceClient {
         val resolveInfoList: List<ResolveInfo> =
             context.packageManager.queryIntentServices(intent, PackageManager.GET_RESOLVED_FILTER)
 
-        val systemApps =
-            resolveInfoList.filter {
-                val appInfo =
-                    context.packageManager.getApplicationInfo(
-                        it.serviceInfo.packageName,
-                        /* flags= */ 0,
-                    )
-                (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-            }
+        val systemApps = resolveInfoList.filter {
+            val appInfo =
+                context.packageManager.getApplicationInfo(
+                    it.serviceInfo.packageName,
+                    /* flags= */ 0,
+                )
+            (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+        }
         check(systemApps.isNotEmpty()) {
             "System doesn't include a service supporting Projected XR devices."
         }

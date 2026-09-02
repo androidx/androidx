@@ -98,19 +98,18 @@ public fun <T> Flow<T>.asLiveData(
  * BackPressure: the returned flow is conflated. There is no mechanism to suspend an emission by
  * LiveData due to a slow collector, so collector always gets the most recent value emitted.
  */
-public fun <T> LiveData<T>.asFlow(): Flow<T> =
-    callbackFlow {
-            val observer = Observer<T> { trySend(it) }
-            try {
-                withContext(Dispatchers.Main.immediate) { observeForever(observer) }
-                awaitCancellation()
-            } finally {
-                withContext(Dispatchers.Main.immediate + NonCancellable) {
-                    removeObserver(observer)
-                }
-            }
+public fun <T> LiveData<T>.asFlow(): Flow<T> = callbackFlow {
+    val observer = Observer<T> { trySend(it) }
+    try {
+        withContext(Dispatchers.Main.immediate) { observeForever(observer) }
+        awaitCancellation()
+    } finally {
+        withContext(Dispatchers.Main.immediate + NonCancellable) {
+            removeObserver(observer)
         }
-        .conflate()
+    }
+}
+    .conflate()
 
 /**
  * Creates a LiveData that has values collected from the origin [Flow].

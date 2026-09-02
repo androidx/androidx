@@ -222,10 +222,9 @@ public interface WindowInfoTracker {
         internal val extensionBackend: WindowBackend? by lazy {
             try {
                 val loader = WindowInfoTracker::class.java.classLoader
-                val provider =
-                    loader?.let {
-                        SafeWindowLayoutComponentProvider(loader, ConsumerAdapter(loader))
-                    }
+                val provider = loader?.let {
+                    SafeWindowLayoutComponentProvider(loader, ConsumerAdapter(loader))
+                }
                 provider?.windowLayoutComponent?.let { component ->
                     ExtensionWindowBackend.newInstance(component, ConsumerAdapter(loader))
                 }

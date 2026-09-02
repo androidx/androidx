@@ -30,16 +30,14 @@ internal class PageAnnotationsProviderImpl(private val documentRenderer: PdfDocu
     override fun getPageAnnotations(pageNum: Int): List<ParcelableKeyedPdfAnnotation> {
         return documentRenderer.withPage(pageNum) { page ->
             val pageAnnotations = page.getPageAnnotations()
-            val result =
-                pageAnnotations.map { annotationData ->
-                    val aospId = annotationData.first.toString()
-                    val aospAnnotation = annotationData.second
-                    val converter =
-                        PdfAnnotationConvertersFactory.create<PdfAnnotation>(aospAnnotation)
-                    val jetpackAnnotation = converter.convert(aospAnnotation, pageNum)
+            val result = pageAnnotations.map { annotationData ->
+                val aospId = annotationData.first.toString()
+                val aospAnnotation = annotationData.second
+                val converter = PdfAnnotationConvertersFactory.create<PdfAnnotation>(aospAnnotation)
+                val jetpackAnnotation = converter.convert(aospAnnotation, pageNum)
 
-                    ParcelableKeyedPdfAnnotation(key = aospId, jetpackAnnotation)
-                }
+                ParcelableKeyedPdfAnnotation(key = aospId, jetpackAnnotation)
+            }
             return@withPage result
         } ?: emptyList()
     }

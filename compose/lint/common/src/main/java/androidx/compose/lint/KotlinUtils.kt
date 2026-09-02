@@ -78,22 +78,21 @@ private class LambdaParameterVisitor(private val lambda: KtLambdaExpression) {
 
         // Find lambdas that shadow this parameter name, to make sure that they aren't shadowing
         // the references we are looking through
-        val lambdasWithMatchingParameterName =
-            innerLambdas.filter { innerLambda ->
-                // If the lambda has an implicit it parameter, it will shadow the outer parameter if
-                // the outer parameter also has an implicit it parameter (its name is "it").
-                if (innerLambda.hasImplicitItParameter) {
-                    name == ItName
-                } else {
-                    // Otherwise look to see if any of the parameters on the inner lambda have the
-                    // same name
-                    innerLambda.valueParameters
-                        // Ignore parameters with a destructuring declaration instead of a named
-                        // parameter
-                        .filter { it.destructuringDeclaration == null }
-                        .any { it.name == name }
-                }
+        val lambdasWithMatchingParameterName = innerLambdas.filter { innerLambda ->
+            // If the lambda has an implicit it parameter, it will shadow the outer parameter if
+            // the outer parameter also has an implicit it parameter (its name is "it").
+            if (innerLambda.hasImplicitItParameter) {
+                name == ItName
+            } else {
+                // Otherwise look to see if any of the parameters on the inner lambda have the
+                // same name
+                innerLambda.valueParameters
+                    // Ignore parameters with a destructuring declaration instead of a named
+                    // parameter
+                    .filter { it.destructuringDeclaration == null }
+                    .any { it.name == name }
             }
+        }
 
         // The parameter is referenced if there is at least one reference that isn't shadowed by an
         // inner lambda

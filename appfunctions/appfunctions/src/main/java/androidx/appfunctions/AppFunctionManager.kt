@@ -544,16 +544,15 @@ public constructor(
             val executor = dispatcher?.asExecutor() ?: Executor { it.run() }
 
             suspendCancellableCoroutine<Nothing> { cont ->
-                val callbackRequests =
-                    requests.map { request ->
-                        val callbackAppFunction =
-                            request.appFunction.toCallbackAppFunction(this@coroutineScope)
-                        RegisterAppFunctionRequest(
-                            request.functionIdentifier,
-                            executor,
-                            callbackAppFunction,
-                        )
-                    }
+                val callbackRequests = requests.map { request ->
+                    val callbackAppFunction =
+                        request.appFunction.toCallbackAppFunction(this@coroutineScope)
+                    RegisterAppFunctionRequest(
+                        request.functionIdentifier,
+                        executor,
+                        callbackAppFunction,
+                    )
+                }
 
                 val registration = registerAppFunctions(callbackRequests)
 

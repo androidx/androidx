@@ -82,10 +82,10 @@ class TracingControllerActivity : AppCompatActivity() {
         tracingButton.setOnClickListener {
             if (tracingController.isTracing) {
                 runCatching {
-                        tracingButton.isEnabled = false
-                        val os = VerifyingFileOutputStream(getLogPath(), infoView, tracingButton)
-                        tracingController.stop(os, Executors.newSingleThreadExecutor())
-                    }
+                    tracingButton.isEnabled = false
+                    val os = VerifyingFileOutputStream(getLogPath(), infoView, tracingButton)
+                    tracingController.stop(os, Executors.newSingleThreadExecutor())
+                }
                     .onFailure { Log.i(TAG, it.toString()) }
             } else {
                 val config =

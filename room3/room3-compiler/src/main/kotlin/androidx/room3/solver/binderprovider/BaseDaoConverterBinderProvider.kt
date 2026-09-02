@@ -87,14 +87,13 @@ abstract class BaseDaoConverterBinderProvider(
                 declared.typeArguments[executeAndReturnLambda.rowAdapterTypeArgPosition].type
             }
 
-        val finalTypeArg =
-            initialTypeArg.let {
-                if (executeAndReturnLambda.hasNullableReturnType && !isCollectionOrOptional(it)) {
-                    it.makeNullable()
-                } else {
-                    it
-                }
+        val finalTypeArg = initialTypeArg.let {
+            if (executeAndReturnLambda.hasNullableReturnType && !isCollectionOrOptional(it)) {
+                it.makeNullable()
+            } else {
+                it
             }
+        }
 
         if (finalTypeArg.isVoidObject() && finalTypeArg.nullability == XNullability.NONNULL) {
             context.logger.e(ProcessorErrors.NONNULL_VOID)

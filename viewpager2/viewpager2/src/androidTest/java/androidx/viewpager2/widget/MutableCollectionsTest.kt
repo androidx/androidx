@@ -297,7 +297,8 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(AddItem(_position = 8, item = "88")),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7", "88", "8"),
+                        expectedEndItems =
+                            listOf("0", "1", "2", "3", "4", "5", "6", "7", "88", "8"),
                     )
 
                 result +=
@@ -307,7 +308,8 @@ private fun createTestSet(): List<TestConfig> {
                         adapterProvider = adapterProvider,
                         actions = listOf(AddItem(_position = 9, item = "99")),
                         orientation = orientation,
-                        expectedEndItems = listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "99"),
+                        expectedEndItems =
+                            listOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "99"),
                     )
 
                 result +=

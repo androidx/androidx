@@ -357,23 +357,22 @@ private abstract class BaseCircularWavyProgressNode(
             // Re-create animatable to ensure it picks up the latest offset state
             val startOffset = waveOffsetState.floatValue
             offsetAnimatable = Animatable(startOffset)
-            offsetAnimationJob =
-                coroutineScope.launch {
-                    val anim = offsetAnimatable ?: return@launch // Safety check
-                    // Update bounds relative to the current offset
-                    anim.updateBounds(startOffset, startOffset + 1f)
-                    anim.animateTo(
-                        targetValue = startOffset + 1f,
-                        animationSpec =
-                            infiniteRepeatable(
-                                animation = tween(durationMillis, easing = LinearEasing),
-                                repeatMode = RepeatMode.Restart,
-                            ),
-                    ) {
-                        // Update the state on each frame
-                        waveOffsetState.floatValue = value % 1f
-                    }
+            offsetAnimationJob = coroutineScope.launch {
+                val anim = offsetAnimatable ?: return@launch // Safety check
+                // Update bounds relative to the current offset
+                anim.updateBounds(startOffset, startOffset + 1f)
+                anim.animateTo(
+                    targetValue = startOffset + 1f,
+                    animationSpec =
+                        infiniteRepeatable(
+                            animation = tween(durationMillis, easing = LinearEasing),
+                            repeatMode = RepeatMode.Restart,
+                        ),
+                ) {
+                    // Update the state on each frame
+                    waveOffsetState.floatValue = value % 1f
                 }
+            }
         } else {
             // No speed or wavelength, snap offset to 0
             waveOffsetState.floatValue = 0f
@@ -583,27 +582,26 @@ private class DeterminateCircularWavyProgressNode(
                         (amplitudeAnimationJob == null ||
                             amplitudeAnimationJob?.isCompleted == true)
                 ) {
-                    amplitudeAnimationJob =
-                        coroutineScope.launch {
-                            val anim = amplitudeAnimatable ?: return@launch // Safety check
-                            anim.animateTo(
-                                targetValue = targetAmplitude,
-                                animationSpec =
-                                    if (anim.value < targetAmplitude) {
-                                        IncreasingAmplitudeAnimationSpec
-                                    } else {
-                                        DecreasingAmplitudeAnimationSpec
-                                    },
-                            ) {
-                                amplitudeState.floatValue = value
-                            }
-
-                            // Check if we need to stop the animation if the target amplitude is 0
-                            // at the end of the animation.
-                            if (targetAmplitude == 0f) {
-                                stopOffsetAnimation()
-                            }
+                    amplitudeAnimationJob = coroutineScope.launch {
+                        val anim = amplitudeAnimatable ?: return@launch // Safety check
+                        anim.animateTo(
+                            targetValue = targetAmplitude,
+                            animationSpec =
+                                if (anim.value < targetAmplitude) {
+                                    IncreasingAmplitudeAnimationSpec
+                                } else {
+                                    DecreasingAmplitudeAnimationSpec
+                                },
+                        ) {
+                            amplitudeState.floatValue = value
                         }
+
+                        // Check if we need to stop the animation if the target amplitude is 0
+                        // at the end of the animation.
+                        if (targetAmplitude == 0f) {
+                            stopOffsetAnimation()
+                        }
+                    }
                 }
 
                 // Pass stroke width for potentially calculating polygon radius accurately
@@ -747,48 +745,45 @@ private class IndeterminateCircularWavyProgressNode(
         progressSweepAnimatable =
             progressSweepAnimatable ?: Animatable(CircularIndeterminateMinProgress)
 
-        indeterminateAnimationsJob =
-            coroutineScope.launch {
-                // Launch all three indeterminate animations concurrently
-                launch {
-                    val globalRotationAnim =
-                        globalRotationAnimatable ?: return@launch // Safety check
-                    globalRotationAnim.animateTo(
-                        targetValue =
-                            globalRotationAnim.value + CircularGlobalRotationDegreesTarget,
-                        animationSpec = circularIndeterminateGlobalRotationAnimationSpec,
-                    ) {
-                        cacheDrawNode.invalidateDraw()
-                    }
-                }
-                launch {
-                    val additionalRotationAnim =
-                        additionalRotationAnimatable ?: return@launch // Safety check
-                    additionalRotationAnim.animateTo(
-                        targetValue =
-                            additionalRotationAnim.value + CircularAdditionalRotationDegreesTarget,
-                        animationSpec = circularIndeterminateRotationAnimationSpec,
-                    ) {
-                        cacheDrawNode.invalidateDraw()
-                    }
-                }
-                launch {
-                    val progressSweepAnim = progressSweepAnimatable ?: return@launch // Safety check
-                    progressSweepAnim.animateTo(
-                        targetValue =
-                            if (
-                                progressSweepAnim.value <
-                                    (CircularIndeterminateMinProgress +
-                                        CircularIndeterminateMaxProgress) / 2
-                            )
-                                CircularIndeterminateMaxProgress
-                            else CircularIndeterminateMinProgress,
-                        animationSpec = circularIndeterminateProgressAnimationSpec,
-                    ) {
-                        cacheDrawNode.invalidateDraw()
-                    }
+        indeterminateAnimationsJob = coroutineScope.launch {
+            // Launch all three indeterminate animations concurrently
+            launch {
+                val globalRotationAnim = globalRotationAnimatable ?: return@launch // Safety check
+                globalRotationAnim.animateTo(
+                    targetValue = globalRotationAnim.value + CircularGlobalRotationDegreesTarget,
+                    animationSpec = circularIndeterminateGlobalRotationAnimationSpec,
+                ) {
+                    cacheDrawNode.invalidateDraw()
                 }
             }
+            launch {
+                val additionalRotationAnim =
+                    additionalRotationAnimatable ?: return@launch // Safety check
+                additionalRotationAnim.animateTo(
+                    targetValue =
+                        additionalRotationAnim.value + CircularAdditionalRotationDegreesTarget,
+                    animationSpec = circularIndeterminateRotationAnimationSpec,
+                ) {
+                    cacheDrawNode.invalidateDraw()
+                }
+            }
+            launch {
+                val progressSweepAnim = progressSweepAnimatable ?: return@launch // Safety check
+                progressSweepAnim.animateTo(
+                    targetValue =
+                        if (
+                            progressSweepAnim.value <
+                                (CircularIndeterminateMinProgress +
+                                    CircularIndeterminateMaxProgress) / 2
+                        )
+                            CircularIndeterminateMaxProgress
+                        else CircularIndeterminateMinProgress,
+                    animationSpec = circularIndeterminateProgressAnimationSpec,
+                ) {
+                    cacheDrawNode.invalidateDraw()
+                }
+            }
+        }
     }
 
     private val cacheDrawNode =
@@ -994,7 +989,11 @@ private class CircularProgressDrawingCache {
             ) -> Path,
         trackPathProvider:
             (
-                amplitude: Float, wavelength: Float, strokeWidth: Float, size: Size, path: Path,
+                amplitude: Float,
+                wavelength: Float,
+                strokeWidth: Float,
+                size: Size,
+                path: Path,
             ) -> Path?,
         enableProgressMotion: Boolean,
         @FloatRange(from = 0.0, to = 1.0) startProgress: Float,
@@ -1071,7 +1070,11 @@ private class CircularProgressDrawingCache {
             ) -> Path,
         trackPathProvider:
             (
-                amplitude: Float, wavelength: Float, strokeWidth: Float, size: Size, path: Path,
+                amplitude: Float,
+                wavelength: Float,
+                strokeWidth: Float,
+                size: Size,
+                path: Path,
             ) -> Path?,
         enableProgressMotion: Boolean,
         @FloatRange(from = 0.0, to = 1.0) amplitude: Float,

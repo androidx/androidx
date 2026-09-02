@@ -111,6 +111,6 @@ internal object MaterialA2uiBasicCatalogV1Slider : A2uiBasicCatalogV1.Slider {
 private val SliderVerticalArrangement = Arrangement.spacedBy(4.dp)
 private val SliderHeaderRowModifier = Modifier.fillMaxWidth()
 private val SliderBottomPaddingModifier = Modifier.padding(bottom = 8.dp)
-private val EmptySliderTrack: DrawScope.(Offset, Color) -> Unit =
-    { _, _ -> /* no-op to hide step dots */
-    }
+private val EmptySliderTrack: DrawScope.(Offset, Color) -> Unit = { _, _ ->
+    /* no-op to hide step dots */
+}

@@ -104,26 +104,25 @@ internal class MultiInstanceInvalidationClient(
         if (stopped.compareAndSet(true, false)) {
             appContext.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
             val latch = CountDownLatch(1)
-            job =
-                coroutineScope.launch {
-                    invalidationTracker
-                        .createAllTablesFlow()
-                        .onStart { latch.countDown() }
-                        .collect { tables ->
-                            if (stopped.get()) {
-                                throw CancellationException()
-                            }
-
-                            try {
-                                invalidationService?.broadcastInvalidation(
-                                    clientId,
-                                    tables.toTypedArray(),
-                                )
-                            } catch (e: RemoteException) {
-                                Log.w(LOG_TAG, "Cannot broadcast invalidation", e)
-                            }
+            job = coroutineScope.launch {
+                invalidationTracker
+                    .createAllTablesFlow()
+                    .onStart { latch.countDown() }
+                    .collect { tables ->
+                        if (stopped.get()) {
+                            throw CancellationException()
                         }
-                }
+
+                        try {
+                            invalidationService?.broadcastInvalidation(
+                                clientId,
+                                tables.toTypedArray(),
+                            )
+                        } catch (e: RemoteException) {
+                            Log.w(LOG_TAG, "Cannot broadcast invalidation", e)
+                        }
+                    }
+            }
             // Await initialization of the all tables invalidation flow, if we do not wait, then
             // invalidation can be lost if the first interaction with the database is a write.
             if (!latch.await(200, TimeUnit.MILLISECONDS)) {

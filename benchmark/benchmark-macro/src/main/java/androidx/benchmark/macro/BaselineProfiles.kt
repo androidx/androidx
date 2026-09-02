@@ -282,15 +282,14 @@ private fun profmanGetProfileRules(apkPath: String, pathOptions: List<String>): 
     // When compiling with CompilationMode.SpeedProfile, ART stores the profile in one of
     // 2 locations. The `ref` profile path, or the `current` path.
     // The `current` path is eventually merged  into the `ref` path after background dexopt.
-    val profiles =
-        pathOptions.mapNotNull { currentPath ->
-            Log.d(TAG, "Using profile location: $currentPath")
-            val profile =
-                Shell.executeScriptCaptureStdout(
-                    "profman --dump-classes-and-methods --profile-file=$currentPath --apk=$apkPath"
-                )
-            profile.ifBlank { null }
-        }
+    val profiles = pathOptions.mapNotNull { currentPath ->
+        Log.d(TAG, "Using profile location: $currentPath")
+        val profile =
+            Shell.executeScriptCaptureStdout(
+                "profman --dump-classes-and-methods --profile-file=$currentPath --apk=$apkPath"
+            )
+        profile.ifBlank { null }
+    }
     if (profiles.isEmpty()) {
         Log.d(TAG, "No profiles found for $apkPath")
         return ""

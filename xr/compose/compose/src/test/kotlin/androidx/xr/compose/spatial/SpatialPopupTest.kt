@@ -1205,7 +1205,8 @@ class SpatialPopupTest {
                                             Text("Level: ${config.elevation}")
                                             Button(
                                                 onClick = { dismissed = true },
-                                                modifier = Modifier.testTag("dismiss_${config.tag}"),
+                                                modifier =
+                                                    Modifier.testTag("dismiss_${config.tag}"),
                                             ) {
                                                 Text("X")
                                             }

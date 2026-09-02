@@ -117,9 +117,8 @@ public fun AppScaffold(
 
         LaunchedEffect(scaffoldState) {
             snapshotFlow {
-                    scaffoldState.screenContent.currentActiveOrchestrator.value to
-                        showStatusBarOverlay
-                }
+                scaffoldState.screenContent.currentActiveOrchestrator.value to showStatusBarOverlay
+            }
                 .collect { (orchestrator, show) ->
                     if (show) orchestrator.show() else orchestrator.hide()
                 }

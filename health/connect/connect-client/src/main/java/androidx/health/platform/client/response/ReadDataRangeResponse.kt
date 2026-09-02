@@ -27,10 +27,9 @@ class ReadDataRangeResponse(override val proto: ResponseProto.ReadDataRangeRespo
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<ReadDataRangeResponse> =
-            ProtoParcelable.newCreator {
-                val proto = ResponseProto.ReadDataRangeResponse.parseFrom(it)
-                ReadDataRangeResponse(proto)
-            }
+        val CREATOR: Parcelable.Creator<ReadDataRangeResponse> = ProtoParcelable.newCreator {
+            val proto = ResponseProto.ReadDataRangeResponse.parseFrom(it)
+            ReadDataRangeResponse(proto)
+        }
     }
 }

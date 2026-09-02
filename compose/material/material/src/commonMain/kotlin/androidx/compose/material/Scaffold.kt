@@ -489,23 +489,22 @@ private fun ScaffoldLayout(
                 .fastMap { it.measure(looseConstraints) }
 
         val bottomBarHeight = bottomBarPlaceables.fastMaxBy { it.height }?.height
-        val fabOffsetFromBottom =
-            fabPlacement?.let {
-                if (bottomBarHeight == null) {
-                    it.height +
-                        FabSpacing.roundToPx() +
-                        contentWindowInsets.getBottom(this@SubcomposeLayout)
+        val fabOffsetFromBottom = fabPlacement?.let {
+            if (bottomBarHeight == null) {
+                it.height +
+                    FabSpacing.roundToPx() +
+                    contentWindowInsets.getBottom(this@SubcomposeLayout)
+            } else {
+                if (isFabDocked) {
+                    // Total height is the bottom bar height + half the FAB height
+                    bottomBarHeight + (it.height / 2)
                 } else {
-                    if (isFabDocked) {
-                        // Total height is the bottom bar height + half the FAB height
-                        bottomBarHeight + (it.height / 2)
-                    } else {
-                        // Total height is the bottom bar height + the FAB height + the padding
-                        // between the FAB and bottom bar
-                        bottomBarHeight + it.height + FabSpacing.roundToPx()
-                    }
+                    // Total height is the bottom bar height + the FAB height + the padding
+                    // between the FAB and bottom bar
+                    bottomBarHeight + it.height + FabSpacing.roundToPx()
                 }
             }
+        }
 
         val snackbarOffsetFromBottom =
             if (snackbarHeight != 0) {

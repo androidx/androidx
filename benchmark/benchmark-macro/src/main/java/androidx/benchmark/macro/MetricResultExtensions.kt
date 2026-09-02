@@ -124,21 +124,20 @@ internal fun List<Map<String, Double>>.mergeToSingleMetricResults(): List<Metric
     val setOfAllKeys = flatMap { it.keys }.toSet()
 
     // build Map<String, List<Long>>
-    val listResults: Map<String, List<Double>> =
-        setOfAllKeys.associateWith { key ->
-            mapIndexedNotNull { iteration, resultMap ->
-                if (resultMap.keys != setOfAllKeys) {
-                    // TODO: assert that metrics are always captured (b/193827052)
-                    Log.d(
-                        TAG,
-                        "Skipping results from iter $iteration, it didn't capture all metrics",
-                    )
-                    null
-                } else {
-                    resultMap[key] ?: error("Metric $key not observed in iteration")
-                }
+    val listResults: Map<String, List<Double>> = setOfAllKeys.associateWith { key ->
+        mapIndexedNotNull { iteration, resultMap ->
+            if (resultMap.keys != setOfAllKeys) {
+                // TODO: assert that metrics are always captured (b/193827052)
+                Log.d(
+                    TAG,
+                    "Skipping results from iter $iteration, it didn't capture all metrics",
+                )
+                null
+            } else {
+                resultMap[key] ?: error("Metric $key not observed in iteration")
             }
         }
+    }
 
     // transform to List<MetricResult>, sorted by metric name
     return listResults
@@ -151,13 +150,12 @@ internal fun List<Map<String, List<Double>>>.mergeToSampledMetricResults(): List
     val setOfAllKeys = flatMap { it.keys }.toSet()
 
     // build Map<String, List<List<Long>>>
-    val listResults =
-        setOfAllKeys.associateWith { key ->
-            mapIndexed { index: Int, iterationSamples: Map<String, List<Double>> ->
-                iterationSamples[key]
-                    ?: throw IllegalStateException("Iteration $index didn't capture metric $key")
-            }
+    val listResults = setOfAllKeys.associateWith { key ->
+        mapIndexed { index: Int, iterationSamples: Map<String, List<Double>> ->
+            iterationSamples[key]
+                ?: throw IllegalStateException("Iteration $index didn't capture metric $key")
         }
+    }
 
     // transform to List<MetricResult>, sorted by metric name
     return listResults

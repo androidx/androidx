@@ -46,6 +46,7 @@ constructor(
         onConfigurationChangeSemaphore.release()
     }
 
-    fun getLastConfigurationChangeAndClear(): Configuration? =
-        lastConfigurationChange.also { lastConfigurationChange = null }
+    fun getLastConfigurationChangeAndClear(): Configuration? = lastConfigurationChange.also {
+        lastConfigurationChange = null
+    }
 }

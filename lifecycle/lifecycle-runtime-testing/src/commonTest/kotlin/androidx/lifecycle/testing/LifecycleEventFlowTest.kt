@@ -43,61 +43,56 @@ class LifecycleEventFlowTest {
     }
 
     @Test
-    fun testLifecycleEventFlow() =
-        testScope.runTest {
-            val collectedEvents = mutableListOf<Lifecycle.Event>()
-            val lifecycleEventFlow = owner.lifecycle.eventFlow
-            backgroundScope.launch { lifecycleEventFlow.collect { collectedEvents.add(it) } }
-            owner.currentState = Lifecycle.State.CREATED
-            assertThat(collectedEvents)
-                .containsExactly(
-                    Lifecycle.Event.ON_CREATE,
-                    Lifecycle.Event.ON_START,
-                    Lifecycle.Event.ON_STOP,
-                )
-                .inOrder()
-        }
+    fun testLifecycleEventFlow() = testScope.runTest {
+        val collectedEvents = mutableListOf<Lifecycle.Event>()
+        val lifecycleEventFlow = owner.lifecycle.eventFlow
+        backgroundScope.launch { lifecycleEventFlow.collect { collectedEvents.add(it) } }
+        owner.currentState = Lifecycle.State.CREATED
+        assertThat(collectedEvents)
+            .containsExactly(
+                Lifecycle.Event.ON_CREATE,
+                Lifecycle.Event.ON_START,
+                Lifecycle.Event.ON_STOP,
+            )
+            .inOrder()
+    }
 
     @Test
-    fun testEventFlowStopsCollectingAfterDestroyed() =
-        testScope.runTest {
-            val collectedEvents = mutableListOf<Lifecycle.Event>()
-            val lifecycleEventFlow = owner.lifecycle.eventFlow
-            val job =
-                backgroundScope.launch { lifecycleEventFlow.collect { collectedEvents.add(it) } }
+    fun testEventFlowStopsCollectingAfterDestroyed() = testScope.runTest {
+        val collectedEvents = mutableListOf<Lifecycle.Event>()
+        val lifecycleEventFlow = owner.lifecycle.eventFlow
+        val job = backgroundScope.launch { lifecycleEventFlow.collect { collectedEvents.add(it) } }
 
-            owner.currentState = Lifecycle.State.CREATED
-            owner.currentState = Lifecycle.State.DESTROYED
+        owner.currentState = Lifecycle.State.CREATED
+        owner.currentState = Lifecycle.State.DESTROYED
 
-            assertThat(job.isCompleted).isTrue()
-            assertThat(collectedEvents)
-                .containsExactly(
-                    Lifecycle.Event.ON_CREATE,
-                    Lifecycle.Event.ON_START,
-                    Lifecycle.Event.ON_STOP,
-                    Lifecycle.Event.ON_DESTROY,
-                )
-                .inOrder()
-        }
+        assertThat(job.isCompleted).isTrue()
+        assertThat(collectedEvents)
+            .containsExactly(
+                Lifecycle.Event.ON_CREATE,
+                Lifecycle.Event.ON_START,
+                Lifecycle.Event.ON_STOP,
+                Lifecycle.Event.ON_DESTROY,
+            )
+            .inOrder()
+    }
 
     @Test
-    fun testEventFlowStopsCollectingAfterJobCancelled() =
-        testScope.runTest {
-            val collectedEvents = mutableListOf<Lifecycle.Event>()
-            val lifecycleEventFlow = owner.lifecycle.eventFlow
-            val job =
-                backgroundScope.launch { lifecycleEventFlow.collect { collectedEvents.add(it) } }
-            owner.currentState = Lifecycle.State.CREATED
-            assertThat(collectedEvents)
-                .containsExactly(
-                    Lifecycle.Event.ON_CREATE,
-                    Lifecycle.Event.ON_START,
-                    Lifecycle.Event.ON_STOP,
-                )
-                .inOrder()
-            collectedEvents.clear()
-            job.cancel()
-            owner.currentState = Lifecycle.State.RESUMED
-            assertThat(collectedEvents).isEmpty()
-        }
+    fun testEventFlowStopsCollectingAfterJobCancelled() = testScope.runTest {
+        val collectedEvents = mutableListOf<Lifecycle.Event>()
+        val lifecycleEventFlow = owner.lifecycle.eventFlow
+        val job = backgroundScope.launch { lifecycleEventFlow.collect { collectedEvents.add(it) } }
+        owner.currentState = Lifecycle.State.CREATED
+        assertThat(collectedEvents)
+            .containsExactly(
+                Lifecycle.Event.ON_CREATE,
+                Lifecycle.Event.ON_START,
+                Lifecycle.Event.ON_STOP,
+            )
+            .inOrder()
+        collectedEvents.clear()
+        job.cancel()
+        owner.currentState = Lifecycle.State.RESUMED
+        assertThat(collectedEvents).isEmpty()
+    }
 }

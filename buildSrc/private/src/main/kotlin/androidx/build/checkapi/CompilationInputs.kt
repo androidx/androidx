@@ -364,8 +364,9 @@ internal class MultiplatformCompilationInputs(
             return allKotlinSourceSets.zip(allCompilations) { sourceSets, allCompilations ->
                 sourceSets.mapNotNull { sourceSet ->
                     // Find the compilations that this source set is part of.
-                    val allAssociatedCompilations =
-                        allCompilations.filter { it.allKotlinSourceSets.contains(sourceSet) }
+                    val allAssociatedCompilations = allCompilations.filter {
+                        it.allKotlinSourceSets.contains(sourceSet)
+                    }
                     // Skip source sets which aren't part of any compilations (like mac source sets
                     // when running on a different operating system).
                     if (allAssociatedCompilations.isEmpty()) return@mapNotNull null

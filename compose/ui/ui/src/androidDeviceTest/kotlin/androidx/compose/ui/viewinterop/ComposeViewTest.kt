@@ -805,11 +805,9 @@ class ComposeViewTest {
     fun composeView_changeComposeViewContext() {
         rule.setContent { Box(Modifier.fillMaxSize()) }
 
-        val composeView =
-            rule.runOnUiThread {
-                rule.activity.findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
-                    as ComposeView
-            }
+        val composeView = rule.runOnUiThread {
+            rule.activity.findViewById<ViewGroup>(android.R.id.content).getChildAt(0) as ComposeView
+        }
 
         val originalComposeViewContext = composeView.findViewTreeComposeViewContext()
         assertNotNull(originalComposeViewContext)

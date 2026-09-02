@@ -64,8 +64,9 @@ fun TextOverflowedSelectionDemo() {
     var copiedText by remember { mutableStateOf("") }
 
     DisposableEffect(clipboardManager) {
-        val listener =
-            ClipboardManager.OnPrimaryClipChangedListener { copiedText = clipboardManager.read() }
+        val listener = ClipboardManager.OnPrimaryClipChangedListener {
+            copiedText = clipboardManager.read()
+        }
         clipboardManager.addPrimaryClipChangedListener(listener)
         onDispose { clipboardManager.removePrimaryClipChangedListener(listener) }
     }

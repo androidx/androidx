@@ -235,8 +235,9 @@ constructor(initialAnchorItemIndex: Int = -1, initialAnchorItemScrollOffset: Int
                 // Without read observation since this can be triggered from scroll - this will then
                 // cause us to recompose when the measure result changes. We don't care since the
                 // prefetch is best effort.
-                val constraints =
-                    Snapshot.withoutReadObservation { layoutInfoState.value.childConstraints }
+                val constraints = Snapshot.withoutReadObservation {
+                    layoutInfoState.value.childConstraints
+                }
                 return prefetchState.schedulePrecompositionAndPremeasure(index, constraints)
             }
         }

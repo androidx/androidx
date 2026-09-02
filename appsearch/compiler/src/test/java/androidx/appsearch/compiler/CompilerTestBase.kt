@@ -153,11 +153,10 @@ abstract class CompilerTestBase {
     fun checkDocumentMapEqualsGolden(roundIndex: Int) {
         val goldenResPath = "goldens/${testName.methodName}DocumentMap_${roundIndex}.JAVA"
         val actualPackageDir = File(genFilesDir, "com/example/appsearch")
-        val files: Array<File>? =
-            actualPackageDir.listFiles { _: File, name: String ->
-                name.startsWith("${IntrospectionHelper.GEN_CLASS_PREFIX}DocumentClassMap") &&
-                    name.endsWith("_$roundIndex.java")
-            }
+        val files: Array<File>? = actualPackageDir.listFiles { _: File, name: String ->
+            name.startsWith("${IntrospectionHelper.GEN_CLASS_PREFIX}DocumentClassMap") &&
+                name.endsWith("_$roundIndex.java")
+        }
         assertThat(files).isNotNull()
         assertThat(files).hasLength(1)
         checkEqualsGoldenHelper(goldenResPath, files!![0])

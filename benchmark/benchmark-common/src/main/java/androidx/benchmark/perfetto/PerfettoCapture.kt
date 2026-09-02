@@ -136,14 +136,12 @@ public class PerfettoCapture(
                 parseJsonMap = { jsonString: String ->
                     Log.d(BenchmarkState.TAG, "Handshake Result: $jsonString")
                     sequence {
-                            JsonReader(StringReader(jsonString)).use { reader ->
-                                reader.beginObject()
-                                while (reader.hasNext()) yield(
-                                    reader.nextName() to reader.nextString()
-                                )
-                                reader.endObject()
-                            }
+                        JsonReader(StringReader(jsonString)).use { reader ->
+                            reader.beginObject()
+                            while (reader.hasNext()) yield(reader.nextName() to reader.nextString())
+                            reader.endObject()
                         }
+                    }
                         .toMap()
                 },
                 executeShellCommand = { cmd ->
@@ -206,8 +204,8 @@ public class PerfettoCapture(
                     if (responseNoSideloading.resultCode == RESULT_CODE_ERROR_BINARY_MISSING) {
                         binaryMissingResponseString(
                             responseNoSideloading.requiredVersion,
-                            response
-                                .message, // note: we're using the error from the sideloading attempt
+                            response.message, // note: we're using the error from the sideloading
+                            // attempt
                         )
                     } else {
                         "Error: ${response.message}."

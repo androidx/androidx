@@ -74,14 +74,13 @@ internal class LazyLayoutScrollDeltaBetweenPasses {
             } else {
                 _scrollDeltaBetweenPasses = AnimationState(Float.VectorConverter, -delta)
             }
-            job =
-                coroutineScope.launch {
-                    _scrollDeltaBetweenPasses.animateTo(
-                        0f,
-                        spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = 0.5f),
-                        true,
-                    )
-                }
+            job = coroutineScope.launch {
+                _scrollDeltaBetweenPasses.animateTo(
+                    0f,
+                    spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = 0.5f),
+                    true,
+                )
+            }
         }
     }
 

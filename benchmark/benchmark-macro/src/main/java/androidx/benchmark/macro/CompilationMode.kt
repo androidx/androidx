@@ -163,14 +163,13 @@ sealed class CompilationMode {
         // Copy APKs to /data/local/temp
         val apkPaths = Shell.pmPath(packageName)
 
-        val tempApkPaths: List<String> =
-            apkPaths.mapIndexed { index, apkPath ->
-                val tempApkPath =
-                    "/data/local/tmp/$packageName-$index-${System.currentTimeMillis()}.apk"
-                Log.d(TAG, "Copying APK $apkPath to $tempApkPath")
-                Shell.cp(from = apkPath, to = tempApkPath)
-                tempApkPath
-            }
+        val tempApkPaths: List<String> = apkPaths.mapIndexed { index, apkPath ->
+            val tempApkPath =
+                "/data/local/tmp/$packageName-$index-${System.currentTimeMillis()}.apk"
+            Log.d(TAG, "Copying APK $apkPath to $tempApkPath")
+            Shell.cp(from = apkPath, to = tempApkPath)
+            tempApkPath
+        }
         return tempApkPaths.joinToString(" ")
     }
 

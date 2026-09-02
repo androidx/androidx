@@ -195,8 +195,9 @@ internal class PlatformAppFunctionManagerApi(
     override fun registerAppFunctions(
         requests: List<RegisterAppFunctionRequest>
     ): AppFunctionRegistration {
-        val platformRequests =
-            requests.map { it.toPlatformRegisterAppFunctionRequest(appFunctionReader) }
+        val platformRequests = requests.map {
+            it.toPlatformRegisterAppFunctionRequest(appFunctionReader)
+        }
         return appFunctionManager.registerAppFunctions(platformRequests)
     }
 

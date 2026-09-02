@@ -27,10 +27,9 @@ class ReadDataRangeRequest(override val proto: RequestProto.ReadDataRangeRequest
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<ReadDataRangeRequest> =
-            ProtoParcelable.newCreator {
-                val proto = RequestProto.ReadDataRangeRequest.parseFrom(it)
-                ReadDataRangeRequest(proto)
-            }
+        val CREATOR: Parcelable.Creator<ReadDataRangeRequest> = ProtoParcelable.newCreator {
+            val proto = RequestProto.ReadDataRangeRequest.parseFrom(it)
+            ReadDataRangeRequest(proto)
+        }
     }
 }

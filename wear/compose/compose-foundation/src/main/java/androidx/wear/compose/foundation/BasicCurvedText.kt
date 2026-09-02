@@ -344,18 +344,17 @@ internal class CurvedTextDelegate {
             this.lastLineHeightPx = lineHeightPx
 
             paint.textSize = fontSizePx
-            paint.letterSpacing =
-                letterSpacing.let {
-                    when (it.type) {
-                        TextUnitType.Em -> it.value
-                        TextUnitType.Sp -> {
-                            val emWidth = paint.textSize * paint.textScaleX
-                            if (emWidth == 0.0f) 0f else it.value * density / emWidth
-                        }
-                        // This includes the TextUnit.Unspecified case
-                        else -> 0f
+            paint.letterSpacing = letterSpacing.let {
+                when (it.type) {
+                    TextUnitType.Em -> it.value
+                    TextUnitType.Sp -> {
+                        val emWidth = paint.textSize * paint.textScaleX
+                        if (emWidth == 0.0f) 0f else it.value * density / emWidth
                     }
+                    // This includes the TextUnit.Unspecified case
+                    else -> 0f
                 }
+            }
 
             needsUpdate = true
         }

@@ -22,14 +22,14 @@ import kotlinx.coroutines.*
 @OptIn(DelicateCoroutinesApi::class)
 actual suspend fun testWithTimeout(timeoutMs: Long, block: suspend CoroutineScope.() -> Unit) {
     Promise { resolve, reject ->
-            GlobalScope.launch {
-                try {
-                    withTimeout(timeoutMs) { block() }
-                    resolve(Unit)
-                } catch (t: Throwable) {
-                    reject(t)
-                }
+        GlobalScope.launch {
+            try {
+                withTimeout(timeoutMs) { block() }
+                resolve(Unit)
+            } catch (t: Throwable) {
+                reject(t)
             }
         }
+    }
         .await()
 }

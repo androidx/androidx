@@ -1960,13 +1960,12 @@ class TextStyleTest {
     fun textStyle_allParamsMerge_nonDefaultWins() {
         val subject = TextStyle.Default
         val parameters = TextStyle::class.allConstructorParams()
-        val others =
-            parameters.map { (param, constructor) ->
-                val args =
-                    mapOf(param to subject.getNotEqualValueFor(param))
-                        .addPairwiseArgsToFix(parameters.map { it.first })
-                param to constructor.callBy(args)
-            }
+        val others = parameters.map { (param, constructor) ->
+            val args =
+                mapOf(param to subject.getNotEqualValueFor(param))
+                    .addPairwiseArgsToFix(parameters.map { it.first })
+            param to constructor.callBy(args)
+        }
         for ((param, other) in others) {
             val merged = subject.merge(other)
             val inverseMerged = other.merge(subject)

@@ -173,29 +173,26 @@ internal class VirtualCameraState(
             // recently).
             //
             // Relevant bug: b/269619541
-            job =
-                scope.launch {
-                    state.collect {
-                        synchronized(lock) {
-                            if (it is CameraStateOpen) {
-                                val virtualAndroidCamera =
-                                    VirtualAndroidCameraDevice(
-                                        it.cameraDevice as AndroidCameraDevice
-                                    )
-                                // The ordering here is important. We need to set the current
-                                // VirtualAndroidCameraDevice before emitting it out. Otherwise, the
-                                // capture session can be started while we still don't have the
-                                // current
-                                // VirtualAndroidCameraDevice to disconnect when
-                                // VirtualCameraState.disconnect() is called in parallel.
-                                currentVirtualAndroidCamera = virtualAndroidCamera
-                                emitState(CameraStateOpen(virtualAndroidCamera))
-                            } else {
-                                emitState(it)
-                            }
+            job = scope.launch {
+                state.collect {
+                    synchronized(lock) {
+                        if (it is CameraStateOpen) {
+                            val virtualAndroidCamera =
+                                VirtualAndroidCameraDevice(it.cameraDevice as AndroidCameraDevice)
+                            // The ordering here is important. We need to set the current
+                            // VirtualAndroidCameraDevice before emitting it out. Otherwise, the
+                            // capture session can be started while we still don't have the
+                            // current
+                            // VirtualAndroidCameraDevice to disconnect when
+                            // VirtualCameraState.disconnect() is called in parallel.
+                            currentVirtualAndroidCamera = virtualAndroidCamera
+                            emitState(CameraStateOpen(virtualAndroidCamera))
+                        } else {
+                            emitState(it)
                         }
                     }
                 }
+            }
             this@VirtualCameraState.wakelockToken = wakelockToken
         }
     }

@@ -1019,7 +1019,8 @@ class AnimatedContentTest {
                             modifier =
                                 Modifier.animateBounds(
                                         this@LookaheadScope,
-                                        if (!large) Modifier.size(200.dp) else Modifier.size(300.dp),
+                                        if (!large) Modifier.size(200.dp)
+                                        else Modifier.size(300.dp),
                                     )
                                     .layout { m, c ->
                                         m.measure(

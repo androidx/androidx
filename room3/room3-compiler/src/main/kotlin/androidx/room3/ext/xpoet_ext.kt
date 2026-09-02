@@ -426,15 +426,14 @@ fun InvokeWithLambdaParameter(
                 }
                 add(");\n")
             } else {
-                val adjustedArgsFormatString =
-                    buildList {
-                            addAll(argFormat)
-                            add("%L") // the anonymous function
-                            if (continuationParamName != null) {
-                                add("%L")
-                            }
-                        }
-                        .joinToString(separator = ", ")
+                val adjustedArgsFormatString = buildList {
+                    addAll(argFormat)
+                    add("%L") // the anonymous function
+                    if (continuationParamName != null) {
+                        add("%L")
+                    }
+                }
+                    .joinToString(separator = ", ")
                 val adjustedArgs = buildList {
                     addAll(args)
                     val functionTypeSpec =

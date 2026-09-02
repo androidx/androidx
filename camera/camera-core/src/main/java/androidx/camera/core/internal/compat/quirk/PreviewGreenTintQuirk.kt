@@ -59,11 +59,10 @@ public object PreviewGreenTintQuirk : Quirk {
         if (cameraId != "0" || appUseCases.size != 2) return false
 
         val hasPreview = appUseCases.any { it is Preview }
-        val hasVideoCapture =
-            appUseCases.any {
-                it.currentConfig.containsOption(UseCaseConfig.OPTION_CAPTURE_TYPE) &&
-                    it.currentConfig.captureType == UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE
-            }
+        val hasVideoCapture = appUseCases.any {
+            it.currentConfig.containsOption(UseCaseConfig.OPTION_CAPTURE_TYPE) &&
+                it.currentConfig.captureType == UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE
+        }
         return hasPreview && hasVideoCapture
     }
 }

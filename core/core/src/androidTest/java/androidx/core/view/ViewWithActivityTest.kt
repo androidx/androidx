@@ -87,14 +87,12 @@ class ViewWithActivityTest {
         assertEquals(1, calls)
     }
 
-    private fun addViewToWindow() =
-        rule.runOnUiThread {
-            val contentView = rule.activity.findViewById<ViewGroup>(android.R.id.content)
-            contentView.addView(view, WRAP_CONTENT, WRAP_CONTENT)
-        }
+    private fun addViewToWindow() = rule.runOnUiThread {
+        val contentView = rule.activity.findViewById<ViewGroup>(android.R.id.content)
+        contentView.addView(view, WRAP_CONTENT, WRAP_CONTENT)
+    }
 
-    private fun removeViewFromWindow() =
-        rule.runOnUiThread {
-            rule.activity.findViewById<ViewGroup>(android.R.id.content).removeView(view)
-        }
+    private fun removeViewFromWindow() = rule.runOnUiThread {
+        rule.activity.findViewById<ViewGroup>(android.R.id.content).removeView(view)
+    }
 }

@@ -32,11 +32,12 @@ import kotlinx.coroutines.launch
     level = DeprecationLevel.WARNING, // TODO: b/369332589 - Make hidden in a follow up cl
 )
 @Composable
-public fun rememberActiveFocusRequester(): FocusRequester =
-    remember { FocusRequester() }
-        .also { focusRequester ->
-            Box(Modifier.hierarchicalOnFocusChanged { if (it) focusRequester.requestFocus() })
-        }
+public fun rememberActiveFocusRequester(): FocusRequester = remember {
+    FocusRequester()
+}
+    .also { focusRequester ->
+        Box(Modifier.hierarchicalOnFocusChanged { if (it) focusRequester.requestFocus() })
+    }
 
 @Deprecated(
     "Replaced by Modifier.hierarchicalFocusGroup(), use that instead",

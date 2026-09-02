@@ -333,8 +333,9 @@ public fun PlanarEmbeddedSubspace(
     var subspaceContentPixelSize by remember { mutableStateOf(IntSize.Zero) }
     val parentSize = coreEntity.mutableSize.run { IntSize(width, height) }
     val density = LocalDensity.current
-    val placeholderDpSize =
-        subspaceContentPixelSize.run { with(density) { DpSize(width.toDp(), height.toDp()) } }
+    val placeholderDpSize = subspaceContentPixelSize.run {
+        with(density) { DpSize(width.toDp(), height.toDp()) }
+    }
     val view = LocalView.current
 
     // Render a Spacer in a Layout such that the measurable passed to the 2D layout has the same
@@ -353,19 +354,18 @@ public fun PlanarEmbeddedSubspace(
                 subspaceMeasurables,
                 _ ->
                 val volumeConstraints = view.findVolumeConstraints()
-                val placeables =
-                    subspaceMeasurables.map {
-                        it.measure(
-                            VolumeConstraints(
-                                minWidth = constraints.minWidth,
-                                maxWidth = constraints.maxWidth,
-                                minHeight = constraints.minHeight,
-                                maxHeight = constraints.maxHeight,
-                                minDepth = volumeConstraints?.minDepth ?: 0,
-                                maxDepth = volumeConstraints?.maxDepth ?: Int.MAX_VALUE,
-                            )
+                val placeables = subspaceMeasurables.map {
+                    it.measure(
+                        VolumeConstraints(
+                            minWidth = constraints.minWidth,
+                            maxWidth = constraints.maxWidth,
+                            minHeight = constraints.minHeight,
+                            maxHeight = constraints.maxHeight,
+                            minDepth = volumeConstraints?.minDepth ?: 0,
+                            maxDepth = volumeConstraints?.maxDepth ?: Int.MAX_VALUE,
                         )
-                    }
+                    )
+                }
                 val measuredContentVolume =
                     IntVolumeSize(
                             width = placeables.maxOf { it.width },

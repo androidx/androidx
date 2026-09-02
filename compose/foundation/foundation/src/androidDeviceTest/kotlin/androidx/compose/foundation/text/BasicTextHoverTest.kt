@@ -320,7 +320,10 @@ class BasicTextHoverTest {
         contentBlock:
             @Composable
             (
-                containerTag: String, textTag: String, boxModifier: Modifier, textModifier: Modifier,
+                containerTag: String,
+                textTag: String,
+                boxModifier: Modifier,
+                textModifier: Modifier,
             ) -> Unit,
     ) =
         with(PointerIconTestScope(rule)) {

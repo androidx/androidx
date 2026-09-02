@@ -194,7 +194,9 @@ val WearMaterial3Demos =
                     listOf(
                         ComposableDemo("Simple") { SimpleSwipeToDismissBox(it.navigateBack) },
                         ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
-                        ComposableDemo("Edge swipe") { EdgeSwipeForSwipeToDismiss(it.navigateBack) },
+                        ComposableDemo("Edge swipe") {
+                            EdgeSwipeForSwipeToDismiss(it.navigateBack)
+                        },
                     ),
                 ),
                 Material3DemoCategory(title = "Page Indicator", PageIndicatorDemos),

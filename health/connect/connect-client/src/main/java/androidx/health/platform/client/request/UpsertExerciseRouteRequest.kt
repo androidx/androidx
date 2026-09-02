@@ -37,11 +37,10 @@ class UpsertExerciseRouteRequest(val sessionUid: String, val route: DataProto.Da
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<UpsertExerciseRouteRequest> =
-            ProtoParcelable.newCreator {
-                val proto = RequestProto.UpsertExerciseRouteRequest.parseFrom(it)
-                fromProto(proto)
-            }
+        val CREATOR: Parcelable.Creator<UpsertExerciseRouteRequest> = ProtoParcelable.newCreator {
+            val proto = RequestProto.UpsertExerciseRouteRequest.parseFrom(it)
+            fromProto(proto)
+        }
 
         internal fun fromProto(
             proto: RequestProto.UpsertExerciseRouteRequest

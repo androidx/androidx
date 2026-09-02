@@ -211,7 +211,8 @@ class FocusableTest {
             Box {
                 BasicText(
                     "focusableText",
-                    modifier = Modifier.testTag(focusTag).focusRequester(focusRequester).focusable(),
+                    modifier =
+                        Modifier.testTag(focusTag).focusRequester(focusRequester).focusable(),
                 )
                 BasicText(
                     "otherFocusableText",

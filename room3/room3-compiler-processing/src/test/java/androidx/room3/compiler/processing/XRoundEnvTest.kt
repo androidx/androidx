@@ -257,15 +257,14 @@ class XRoundEnvTest {
             val annotatedElements =
                 testInvocation.roundEnv.getElementsAnnotatedWith(TopLevelAnnotation::class)
             assertThat(annotatedElements).hasSize(3)
-            val byName =
-                annotatedElements.associateBy {
-                    when (it) {
-                        is XMethodElement -> it.jvmName
-                        is XPropertyElement -> "property:${it.name}"
-                        is XFieldElement -> "field:${it.name}"
-                        else -> error("unexpected type $it")
-                    }
+            val byName = annotatedElements.associateBy {
+                when (it) {
+                    is XMethodElement -> it.jvmName
+                    is XPropertyElement -> "property:${it.name}"
+                    is XFieldElement -> "field:${it.name}"
+                    else -> error("unexpected type $it")
                 }
+            }
             val containerClassName = XClassName.get("foo.bar", "MyCustomClass")
             assertThat(byName.keys)
                 .containsExactly("getMyPropertyGetter", "setMyPropertySetter", "field:myField")

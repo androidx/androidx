@@ -95,12 +95,11 @@ class LayoutReuseTest {
 
     private fun assertNoRemeasureOnReuse(content: @Composable (Modifier) -> Unit) {
         var measureCount = 0
-        val layoutModifier =
-            Modifier.layout { measurable, constraints ->
-                measureCount++
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-            }
+        val layoutModifier = Modifier.layout { measurable, constraints ->
+            measureCount++
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        }
         var key by mutableStateOf(0)
         rule.setContent { ReusableContent(key = key) { content(layoutModifier) } }
         rule.runOnIdle {

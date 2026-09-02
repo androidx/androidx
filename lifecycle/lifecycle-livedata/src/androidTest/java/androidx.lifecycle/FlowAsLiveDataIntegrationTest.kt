@@ -52,13 +52,12 @@ class FlowAsLiveDataIntegrationTest {
             val (mediator, liveData) =
                 withContext(Dispatchers.Main) {
                     val mediator = MediatorLiveData<Int>()
-                    val liveData =
-                        channelFlow {
-                                send(1)
-                                // prevent block from ending
-                                stopChannelFlow.await()
-                            }
-                            .asLiveData()
+                    val liveData = channelFlow {
+                        send(1)
+                        // prevent block from ending
+                        stopChannelFlow.await()
+                    }
+                        .asLiveData()
                     mediator.addSource(liveData) {
                         mediator.removeSource(liveData)
                         mediator.value = -it

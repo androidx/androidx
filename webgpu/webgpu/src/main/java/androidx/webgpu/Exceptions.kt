@@ -89,7 +89,8 @@ public class UnknownException(message: String) : WebGpuRuntimeException(message)
 
 public class CompilationInfoRequestException(
     public val reason: String = "",
-    @CompilationInfoRequestStatus.Type public val status: Int = CompilationInfoRequestStatus.Success,
+    @CompilationInfoRequestStatus.Type
+    public val status: Int = CompilationInfoRequestStatus.Success,
 ) :
     Exception(
         (if (status != CompilationInfoRequestStatus.Success)

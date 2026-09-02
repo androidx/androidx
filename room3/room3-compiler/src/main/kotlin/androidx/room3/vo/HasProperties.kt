@@ -32,5 +32,6 @@ data class Properties(private val properties: List<Property> = emptyList()) :
 val HasProperties.columnNames
     get() = properties.columnNames
 
-fun HasProperties.findPropertyByColumnName(columnName: String) =
-    properties.find { it.columnName == columnName }
+fun HasProperties.findPropertyByColumnName(columnName: String) = properties.find {
+    it.columnName == columnName
+}

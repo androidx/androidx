@@ -238,12 +238,11 @@ class SnapshotStateExtensionsTests {
                 }
 
                 emitLatestValue()
-                val handle =
-                    Snapshot.registerApplyObserver { changed, _ ->
-                        if (changed.any { it in readSet }) {
-                            emitLatestValue()
-                        }
+                val handle = Snapshot.registerApplyObserver { changed, _ ->
+                    if (changed.any { it in readSet }) {
+                        emitLatestValue()
                     }
+                }
 
                 awaitClose { handle.dispose() }
             }

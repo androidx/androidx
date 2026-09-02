@@ -581,10 +581,11 @@ internal class SlotTable(
         }
 
     @Suppress("UNUSED") // Used during debugging
-    internal fun toDebugTree() =
-        sequence { traverseSiblings(root) { yield(DebugGroup(it)) } }
-            .toList()
-            .let { if (it.size == 1) it.first() else it }
+    internal fun toDebugTree() = sequence {
+        traverseSiblings(root) { yield(DebugGroup(it)) }
+    }
+        .toList()
+        .let { if (it.size == 1) it.first() else it }
 
     @Suppress("UNUSED", "MemberVisibilityCanBePrivate") // Used during debugging
     internal inner class DebugGroup(val address: GroupAddress) {
@@ -592,15 +593,13 @@ internal class SlotTable(
             get() = sequence { traverseChildren(address) { yield(DebugGroup(it)) } }.toList()
 
         val slots
-            get() =
-                sequence {
-                        val range = slotRange
-                        for (address in
-                            range.address + utilitySlotsCountForFlags(flags) until range.end) {
-                            yield(this@SlotTable.slots[address])
-                        }
-                    }
-                    .toList()
+            get() = sequence {
+                val range = slotRange
+                for (address in range.address + utilitySlotsCountForFlags(flags) until range.end) {
+                    yield(this@SlotTable.slots[address])
+                }
+            }
+                .toList()
 
         val key
             get() = groups.groupKey(address)

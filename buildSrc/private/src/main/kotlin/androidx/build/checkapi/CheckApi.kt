@@ -148,11 +148,10 @@ private fun getRequiredCompatibilityApiFileFromDir(
     }
 
     val stream = Files.newDirectoryStream(apiDir.toPath())
-    val versions =
-        stream.mapNotNull { path ->
-            val version = pathToVersion(path.name) ?: return@mapNotNull null
-            version to path
-        }
+    val versions = stream.mapNotNull { path ->
+        val version = pathToVersion(path.name) ?: return@mapNotNull null
+        version to path
+    }
     stream.close()
 
     val sortedVersions = versions.sortedBy { it.first }

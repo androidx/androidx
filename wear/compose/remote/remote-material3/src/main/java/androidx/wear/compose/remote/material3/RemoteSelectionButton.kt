@@ -185,7 +185,10 @@ internal fun RemoteCheckboxControl(
                 RemoteOffset(topCornerPx + halfStrokeWidthPx, topCornerPx + halfStrokeWidthPx),
             size = RemoteSize(boxSizePx - strokeWidthPx, boxSizePx - strokeWidthPx),
             cornerRadius =
-                RemoteOffset(cornerRadiusPx - halfStrokeWidthPx, cornerRadiusPx - halfStrokeWidthPx),
+                RemoteOffset(
+                    cornerRadiusPx - halfStrokeWidthPx,
+                    cornerRadiusPx - halfStrokeWidthPx,
+                ),
         )
 
         val fillPaint = RemotePaint {

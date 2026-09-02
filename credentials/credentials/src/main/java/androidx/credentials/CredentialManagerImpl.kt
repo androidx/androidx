@@ -337,7 +337,10 @@ internal class CredentialManagerImpl internal constructor(private val context: C
         request: SignalCredentialStateRequest,
         executor: Executor,
         callback:
-            CredentialManagerCallback<SignalCredentialStateResponse, SignalCredentialStateException>,
+            CredentialManagerCallback<
+                SignalCredentialStateResponse,
+                SignalCredentialStateException,
+            >,
     ) {
         if (request.origin != null && !isOriginAllowed(context)) {
             callback.onError(

@@ -1321,26 +1321,25 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
                             } else {
                                 @Suppress("UNCHECKED_CAST")
                                 val targetState = (visible as (Unit) -> Boolean).invoke(Unit)
-                                val transitionState =
-                                    remember {
-                                            val initialState =
-                                                if (sharedElement.enabledEntries.isEmpty()) {
-                                                    targetState
-                                                } else {
-                                                    // If there's already shared elements of the
-                                                    // same key
-                                                    // already declared, we likely will need to
-                                                    // animate.
-                                                    // Hence, set the initial state to be different
-                                                    // than
-                                                    // target. If no animation is needed, this will
-                                                    // finish
-                                                    // right away.
-                                                    !targetState
-                                                }
-                                            MutableTransitionState(initialState = initialState)
+                                val transitionState = remember {
+                                    val initialState =
+                                        if (sharedElement.enabledEntries.isEmpty()) {
+                                            targetState
+                                        } else {
+                                            // If there's already shared elements of the
+                                            // same key
+                                            // already declared, we likely will need to
+                                            // animate.
+                                            // Hence, set the initial state to be different
+                                            // than
+                                            // target. If no animation is needed, this will
+                                            // finish
+                                            // right away.
+                                            !targetState
                                         }
-                                        .also { it.targetState = targetState }
+                                    MutableTransitionState(initialState = initialState)
+                                }
+                                    .also { it.targetState = targetState }
                                 rememberTransition(transitionState)
                             }
                         val animation =
@@ -1390,31 +1389,30 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         clipInOverlayDuringTransition: OverlayClip,
         zIndexInOverlay: Float,
         renderInOverlayDuringTransition: Boolean,
-    ): SharedElementEntry =
-        remember {
-                SharedElementEntry(
-                    sharedElement,
-                    boundsAnimation,
-                    placeholderSize,
-                    renderOnlyWhenVisible = renderOnlyWhenVisible,
-                    userState = sharedContentState,
-                    overlayClip = clipInOverlayDuringTransition,
-                    zIndex = zIndexInOverlay,
-                    renderInOverlayDuringTransition = renderInOverlayDuringTransition,
-                )
-            }
-            .also {
-                sharedContentState.internalState = it
-                // Update the properties if any of them changes
-                it.sharedElement = sharedElement
-                it.renderOnlyWhenVisible = renderOnlyWhenVisible
-                it.boundsAnimation = boundsAnimation
-                it.placeholderSize = placeholderSize
-                it.overlayClip = clipInOverlayDuringTransition
-                it.zIndex = zIndexInOverlay
-                it.renderInOverlayDuringTransition = renderInOverlayDuringTransition
-                it.userState = sharedContentState
-            }
+    ): SharedElementEntry = remember {
+        SharedElementEntry(
+            sharedElement,
+            boundsAnimation,
+            placeholderSize,
+            renderOnlyWhenVisible = renderOnlyWhenVisible,
+            userState = sharedContentState,
+            overlayClip = clipInOverlayDuringTransition,
+            zIndex = zIndexInOverlay,
+            renderInOverlayDuringTransition = renderInOverlayDuringTransition,
+        )
+    }
+        .also {
+            sharedContentState.internalState = it
+            // Update the properties if any of them changes
+            it.sharedElement = sharedElement
+            it.renderOnlyWhenVisible = renderOnlyWhenVisible
+            it.boundsAnimation = boundsAnimation
+            it.placeholderSize = placeholderSize
+            it.overlayClip = clipInOverlayDuringTransition
+            it.zIndex = zIndexInOverlay
+            it.renderInOverlayDuringTransition = renderInOverlayDuringTransition
+            it.userState = sharedContentState
+        }
 
     internal var root: LayoutCoordinates
         get() =
@@ -1498,10 +1496,9 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         with(sharedElementEntry.sharedElement) {
             addEntry(sharedElementEntry)
             sharedElementEntry.updateTransitionActiveness()
-            val id =
-                renderers.indexOfFirst {
-                    (it as? SharedElementEntry)?.sharedElement == sharedElementEntry.sharedElement
-                }
+            val id = renderers.indexOfFirst {
+                (it as? SharedElementEntry)?.sharedElement == sharedElementEntry.sharedElement
+            }
             if (id == -1 || id >= renderers.size - 1) {
                 renderers += sharedElementEntry
             } else {

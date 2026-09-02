@@ -75,27 +75,24 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
     internal var text: AnnotatedString
 
     init {
-        text =
-            initialText.flatMapAnnotations {
-                // If link styles don't contain a non-null style for at least one of the states,
-                // we don't add any additional style to the list of annotations
-                if (
-                    it.item is LinkAnnotation && !(it.item as LinkAnnotation).styles.isNullOrEmpty()
-                ) {
-                    arrayListOf(
-                        // original link annotation
-                        it,
-                        // SpanStyle from the link styling object, or default SpanStyle otherwise
-                        AnnotatedString.Range(
-                            (it.item as LinkAnnotation).styles?.style ?: SpanStyle(),
-                            it.start,
-                            it.end,
-                        ),
-                    )
-                } else {
-                    arrayListOf(it)
-                }
+        text = initialText.flatMapAnnotations {
+            // If link styles don't contain a non-null style for at least one of the states,
+            // we don't add any additional style to the list of annotations
+            if (it.item is LinkAnnotation && !(it.item as LinkAnnotation).styles.isNullOrEmpty()) {
+                arrayListOf(
+                    // original link annotation
+                    it,
+                    // SpanStyle from the link styling object, or default SpanStyle otherwise
+                    AnnotatedString.Range(
+                        (it.item as LinkAnnotation).styles?.style ?: SpanStyle(),
+                        it.start,
+                        it.end,
+                    ),
+                )
+            } else {
+                arrayListOf(it)
             }
+        }
     }
 
     // Additional span style annotations applied to the AnnotatedString. These SpanStyles are coming
@@ -387,25 +384,24 @@ private class TextAnnotatorScope(private val initialText: AnnotatedString) {
 
     fun replaceStyle(linkRange: AnnotatedString.Range<LinkAnnotation>, newStyle: SpanStyle?) {
         var linkFound = false
-        styledText =
-            initialText.mapAnnotations {
-                // if we found a link annotation on previous iteration, we need to update the
-                // SpanStyle
-                // on this iteration. This SpanStyle with the same range as the link annotation
-                // coming right after the link annotation corresponds to the link styling
-                val annotation =
-                    if (
-                        linkFound &&
-                            it.item is SpanStyle &&
-                            it.start == linkRange.start &&
-                            it.end == linkRange.end
-                    ) {
-                        AnnotatedString.Range(newStyle ?: SpanStyle(), it.start, it.end)
-                    } else {
-                        it
-                    }
-                linkFound = linkRange == it
-                annotation
-            }
+        styledText = initialText.mapAnnotations {
+            // if we found a link annotation on previous iteration, we need to update the
+            // SpanStyle
+            // on this iteration. This SpanStyle with the same range as the link annotation
+            // coming right after the link annotation corresponds to the link styling
+            val annotation =
+                if (
+                    linkFound &&
+                        it.item is SpanStyle &&
+                        it.start == linkRange.start &&
+                        it.end == linkRange.end
+                ) {
+                    AnnotatedString.Range(newStyle ?: SpanStyle(), it.start, it.end)
+                } else {
+                    it
+                }
+            linkFound = linkRange == it
+            annotation
+        }
     }
 }

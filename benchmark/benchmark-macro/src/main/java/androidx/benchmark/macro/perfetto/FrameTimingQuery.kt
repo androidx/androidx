@@ -211,17 +211,16 @@ internal object FrameTimingQuery {
                 //     the complete end of frame is present, and we want to discard those. This
                 //     doesn't happen at front of trace, since we find actuals from the end.
                 if (uiSlice != null) {
-                    val actualSlice =
-                        actualSlicesPool.lastOrNull {
-                            // Use fixed offset since synthetic tracepoint for actual may start
-                            // after the
-                            // actual UI slice (have observed 2us in practice)
-                            it.ts < uiSlice.ts + 50_000 &&
-                                // ensure there's some overlap - if actual doesn't contain ui, may
-                                // just
-                                // be "abandoned" slice at beginning of trace
-                                it.contains(uiSlice.ts + (uiSlice.dur / 2))
-                        }
+                    val actualSlice = actualSlicesPool.lastOrNull {
+                        // Use fixed offset since synthetic tracepoint for actual may start
+                        // after the
+                        // actual UI slice (have observed 2us in practice)
+                        it.ts < uiSlice.ts + 50_000 &&
+                            // ensure there's some overlap - if actual doesn't contain ui, may
+                            // just
+                            // be "abandoned" slice at beginning of trace
+                            it.contains(uiSlice.ts + (uiSlice.dur / 2))
+                    }
                     actualSlicesPool.remove(actualSlice)
                     val expectedSlice =
                         actualSlice?.frameId?.run { expectedSlices.binarySearchFrameId(this) }

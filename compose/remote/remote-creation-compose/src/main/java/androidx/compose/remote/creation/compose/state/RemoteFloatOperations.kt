@@ -485,7 +485,14 @@ public fun cubicEasing(
     return RemoteFloatExpression(
         constantValueOrNull = null,
         cacheKey =
-            RemoteOperationCacheKey.create(RemoteFloat.OperationKey.Cubic, x1, y1, x2, y2, progress),
+            RemoteOperationCacheKey.create(
+                RemoteFloat.OperationKey.Cubic,
+                x1,
+                y1,
+                x2,
+                y2,
+                progress,
+            ),
     ) { creationState ->
         combineToFloatArray(
             creationState,

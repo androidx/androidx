@@ -291,23 +291,18 @@ internal constructor(
                 }
             } ?: emptyList()
 
-        val keysFromPrimaryKeyAnnotations =
-            properties.mapNotNull { property ->
-                if (
-                    property.element.hasAnnotationOnPropertyOrField(
-                        androidx.room3.PrimaryKey::class
-                    )
-                ) {
-                    PrimaryKey(
-                        declaredIn = property.element.enclosingElement,
-                        properties = Properties(property),
-                        autoGenerateId = true,
-                        algorithm = androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT,
-                    )
-                } else {
-                    null
-                }
+        val keysFromPrimaryKeyAnnotations = properties.mapNotNull { property ->
+            if (property.element.hasAnnotationOnPropertyOrField(androidx.room3.PrimaryKey::class)) {
+                PrimaryKey(
+                    declaredIn = property.element.enclosingElement,
+                    properties = Properties(property),
+                    autoGenerateId = true,
+                    algorithm = androidx.room3.PrimaryKey.Algorithm.AUTOINCREMENT,
+                )
+            } else {
+                null
             }
+        }
         val primaryKeys = keysFromEntityAnnotation + keysFromPrimaryKeyAnnotations
         if (primaryKeys.isEmpty()) {
             properties

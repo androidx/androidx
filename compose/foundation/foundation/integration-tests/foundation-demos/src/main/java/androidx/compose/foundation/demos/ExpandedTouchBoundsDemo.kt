@@ -306,7 +306,10 @@ internal class TouchDetectorWithExpandedBoundsNode(
                     ),
                 size = Size(width = minTouchTargetWidth, height = minTouchTargetHeight),
                 style =
-                    Stroke(width = 2f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f))),
+                    Stroke(
+                        width = 2f,
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f)),
+                    ),
             )
         }
         drawContent()

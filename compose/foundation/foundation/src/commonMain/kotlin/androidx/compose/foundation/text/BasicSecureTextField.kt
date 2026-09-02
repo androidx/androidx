@@ -254,8 +254,9 @@ internal class SecureTextFieldController(
         }
     }
 
-    val focusChangeModifier =
-        Modifier.onFocusChanged { if (!it.isFocused) passwordInputTransformation.hide() }
+    val focusChangeModifier = Modifier.onFocusChanged {
+        if (!it.isFocused) passwordInputTransformation.hide()
+    }
 
     private val resetTimerSignal = Channel<Unit>(Channel.UNLIMITED)
 

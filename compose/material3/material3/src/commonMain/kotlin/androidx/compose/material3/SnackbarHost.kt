@@ -122,16 +122,15 @@ public class SnackbarHostState {
      * @return [SnackbarResult.ActionPerformed] if option action has been clicked or
      *   [SnackbarResult.Dismissed] if snackbar has been dismissed via timeout or by the user
      */
-    public suspend fun showSnackbar(visuals: SnackbarVisuals): SnackbarResult =
-        mutex.withLock {
-            try {
-                return suspendCancellableCoroutine { continuation ->
-                    currentSnackbarData = SnackbarDataImpl(visuals, continuation)
-                }
-            } finally {
-                currentSnackbarData = null
+    public suspend fun showSnackbar(visuals: SnackbarVisuals): SnackbarResult = mutex.withLock {
+        try {
+            return suspendCancellableCoroutine { continuation ->
+                currentSnackbarData = SnackbarDataImpl(visuals, continuation)
             }
+        } finally {
+            currentSnackbarData = null
         }
+    }
 
     private class SnackbarVisualsImpl(
         override val message: String,

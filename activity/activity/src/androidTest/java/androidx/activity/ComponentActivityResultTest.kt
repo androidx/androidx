@@ -109,11 +109,10 @@ class ComponentActivityResultTest {
                 }
             }
 
-            val launchCountDownLatch =
-                scenario.withActivity {
-                    assertThat(exceptionThrown).isTrue()
-                    launchCount
-                }
+            val launchCountDownLatch = scenario.withActivity {
+                assertThat(exceptionThrown).isTrue()
+                launchCount
+            }
 
             assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
         }
@@ -131,11 +130,10 @@ class ComponentActivityResultTest {
                 }
             }
 
-            val launchCountDownLatch =
-                scenario.withActivity {
-                    assertThat(exceptionThrown).isTrue()
-                    launchCount
-                }
+            val launchCountDownLatch = scenario.withActivity {
+                assertThat(exceptionThrown).isTrue()
+                launchCount
+            }
 
             assertThat(launchCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
         }

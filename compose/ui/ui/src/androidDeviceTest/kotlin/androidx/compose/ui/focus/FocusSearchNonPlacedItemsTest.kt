@@ -454,15 +454,14 @@ class FocusSearchNonPlacedItemsTest {
         ) { measurables, constraints ->
             var width = 0
             var height = 0
-            val placeables =
-                measurables.map {
-                    it.measure(constraints).run {
-                        val offset = IntOffset(width, height)
-                        width += this.width
-                        height = maxOf(height, this.height)
-                        Pair(this, offset)
-                    }
+            val placeables = measurables.map {
+                it.measure(constraints).run {
+                    val offset = IntOffset(width, height)
+                    width += this.width
+                    height = maxOf(height, this.height)
+                    Pair(this, offset)
                 }
+            }
 
             layout(width, height) {
                 placeables.forEachIndexed { index, placeable ->
@@ -490,15 +489,14 @@ class FocusSearchNonPlacedItemsTest {
         ) { measurables, constraints ->
             var width = 0
             var height = 0
-            val placeables =
-                measurables.map {
-                    it.measure(constraints).run {
-                        val offset = IntOffset(width, height)
-                        width = maxOf(width, this.width)
-                        height += this.height
-                        Pair(this, offset)
-                    }
+            val placeables = measurables.map {
+                it.measure(constraints).run {
+                    val offset = IntOffset(width, height)
+                    width = maxOf(width, this.width)
+                    height += this.height
+                    Pair(this, offset)
                 }
+            }
 
             layout(width, height) {
                 placeables.forEachIndexed { index, placeable ->

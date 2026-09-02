@@ -35,25 +35,23 @@ private fun mergeAndVerifyMethods(
     // need to update parent methods like that because:
     // 1. visibility can be expanded
     // 2. we want to preserve order
-    val updatedParentMethods =
-        parentMethods.map { parentMethod ->
-            val overrideMethod =
-                classMethods.find { (method) ->
-                    processingEnv.elementUtils.overrides(method, parentMethod.method, type)
-                }
-            if (overrideMethod != null) {
-                if (overrideMethod.onLifecycleEvent != parentMethod.onLifecycleEvent) {
-                    processingEnv.messager.printMessage(
-                        Diagnostic.Kind.ERROR,
-                        ErrorMessages.INVALID_STATE_OVERRIDE_METHOD,
-                        overrideMethod.method,
-                    )
-                }
-                overrideMethod
-            } else {
-                parentMethod
-            }
+    val updatedParentMethods = parentMethods.map { parentMethod ->
+        val overrideMethod = classMethods.find { (method) ->
+            processingEnv.elementUtils.overrides(method, parentMethod.method, type)
         }
+        if (overrideMethod != null) {
+            if (overrideMethod.onLifecycleEvent != parentMethod.onLifecycleEvent) {
+                processingEnv.messager.printMessage(
+                    Diagnostic.Kind.ERROR,
+                    ErrorMessages.INVALID_STATE_OVERRIDE_METHOD,
+                    overrideMethod.method,
+                )
+            }
+            overrideMethod
+        } else {
+            parentMethod
+        }
+    }
     return updatedParentMethods + classMethods.filterNot { updatedParentMethods.contains(it) }
 }
 
@@ -139,14 +137,13 @@ fun transformToOutput(processingEnv: ProcessingEnvironment, world: InputModel): 
                 }
             }
             .map { (type, methods) ->
-                val calls =
-                    methods.map { eventMethod ->
-                        if (needsSyntheticAccess(type, eventMethod)) {
-                            EventMethodCall(eventMethod, eventMethod.type)
-                        } else {
-                            EventMethodCall(eventMethod)
-                        }
+                val calls = methods.map { eventMethod ->
+                    if (needsSyntheticAccess(type, eventMethod)) {
+                        EventMethodCall(eventMethod, eventMethod.type)
+                    } else {
+                        EventMethodCall(eventMethod)
                     }
+                }
                 calls
                     .filter { it.syntheticAccess != null }
                     .forEach { eventMethod ->

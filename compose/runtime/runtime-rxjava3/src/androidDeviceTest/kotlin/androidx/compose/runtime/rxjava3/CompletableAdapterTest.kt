@@ -68,14 +68,13 @@ private class CompletableStream {
 
     private val emitters = mutableListOf<CompletableEmitter>()
 
-    val completable =
-        Completable.create {
-            if (completed) {
-                it.onComplete()
-            } else {
-                emitters.add(it)
-            }
+    val completable = Completable.create {
+        if (completed) {
+            it.onComplete()
+        } else {
+            emitters.add(it)
         }
+    }
 
     private var completed = false
 

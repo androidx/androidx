@@ -86,11 +86,9 @@ class AnchoredDraggableDecayAnimationTest(testNewBehavior: Boolean) :
                     )
                 )
 
-            val offsetObservation =
-                scope.launch {
-                    snapshotFlow { state.offset }
-                        .collect { latestOffset -> offsets.add(latestOffset) }
-                }
+            val offsetObservation = scope.launch {
+                snapshotFlow { state.offset }.collect { latestOffset -> offsets.add(latestOffset) }
+            }
             assertThat(state.offset).isEqualTo(parameters.from)
 
             scope.launch {

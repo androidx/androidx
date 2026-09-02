@@ -59,12 +59,12 @@ class AndroidMovableContentTests : BaseComposeTest() {
         }
 
         compose {
-                if (state) {
-                    content(true)
-                } else {
-                    BoxWithConstraints { content(false) }
-                }
+            if (state) {
+                content(true)
+            } else {
+                BoxWithConstraints { content(false) }
             }
+        }
             .then {
                 phase("In initial composition").expect(lastSeen).toEqual(state)
                 state = true

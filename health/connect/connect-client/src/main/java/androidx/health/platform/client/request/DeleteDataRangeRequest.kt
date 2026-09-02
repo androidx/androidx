@@ -27,10 +27,9 @@ class DeleteDataRangeRequest(override val proto: RequestProto.DeleteDataRangeReq
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<DeleteDataRangeRequest> =
-            ProtoParcelable.newCreator {
-                val proto = RequestProto.DeleteDataRangeRequest.parseFrom(it)
-                DeleteDataRangeRequest(proto)
-            }
+        val CREATOR: Parcelable.Creator<DeleteDataRangeRequest> = ProtoParcelable.newCreator {
+            val proto = RequestProto.DeleteDataRangeRequest.parseFrom(it)
+            DeleteDataRangeRequest(proto)
+        }
     }
 }

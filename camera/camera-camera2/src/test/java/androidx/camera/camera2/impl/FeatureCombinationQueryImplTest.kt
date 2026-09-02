@@ -208,16 +208,16 @@ class FeatureCombinationQueryImplTest {
         hasJpegR: Boolean = false,
     ): SessionConfig {
         return map {
-                it.createUseCaseConfig(hasJpegR)
-                    .createSessionConfigBuilder(it.getResolution(), dynamicRange)
-                    .setExpectedFrameRateRange(fpsRange)
-                    .setPreviewStabilization(
-                        if (hasPreviewStabilization) StabilizationMode.ON
-                        else StabilizationMode.UNSPECIFIED
-                    )
-                    .build()
-                    .apply { createdSurfaces.addAll(this.surfaces) }
-            }
+            it.createUseCaseConfig(hasJpegR)
+                .createSessionConfigBuilder(it.getResolution(), dynamicRange)
+                .setExpectedFrameRateRange(fpsRange)
+                .setPreviewStabilization(
+                    if (hasPreviewStabilization) StabilizationMode.ON
+                    else StabilizationMode.UNSPECIFIED
+                )
+                .build()
+                .apply { createdSurfaces.addAll(this.surfaces) }
+        }
             .merge()
     }
 

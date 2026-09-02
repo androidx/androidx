@@ -620,14 +620,13 @@ internal suspend fun AppWidgetHostRule.waitForListViewChildCount(count: Int) {
  * Returns a flow that mirrors the original flow, but filters out values that are followed by the
  * newer values within the given timeout.
  */
-fun <T> Flow<T>.debounce(timeout: Duration): Flow<T> =
-    channelFlow {
-            collectLatest {
-                delay(timeout)
-                send(it)
-            }
-        }
-        .buffer(0)
+fun <T> Flow<T>.debounce(timeout: Duration): Flow<T> = channelFlow {
+    collectLatest {
+        delay(timeout)
+        send(it)
+    }
+}
+    .buffer(0)
 
 internal inline fun <reified T : View> ListView.getUnboxedListItem(position: Int): T {
     // Get adapter item at position

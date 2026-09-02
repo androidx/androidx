@@ -50,7 +50,10 @@ public interface ProviderEventsApiProvider {
         cancellationSignal: CancellationSignal?,
         executor: Executor,
         callback:
-            CredentialManagerCallback<ProviderImportCredentialsResponse, ImportCredentialsException>,
+            CredentialManagerCallback<
+                ProviderImportCredentialsResponse,
+                ImportCredentialsException,
+            >,
     )
 
     /**

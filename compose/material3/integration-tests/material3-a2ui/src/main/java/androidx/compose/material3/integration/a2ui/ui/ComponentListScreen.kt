@@ -80,7 +80,12 @@ fun ComponentListScreen(onComponentSelected: (UiComponent) -> Unit, modifier: Mo
                             color = categoryTitleColor,
                             modifier =
                                 Modifier.fillMaxWidth()
-                                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
+                                    .padding(
+                                        start = 16.dp,
+                                        end = 16.dp,
+                                        top = 16.dp,
+                                        bottom = 8.dp,
+                                    ),
                         )
                         Card(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),

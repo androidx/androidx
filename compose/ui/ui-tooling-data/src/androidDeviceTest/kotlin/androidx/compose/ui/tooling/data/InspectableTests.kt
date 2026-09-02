@@ -112,11 +112,10 @@ class InspectableTests : ToolingTest() {
 
         val tree = slotTableRecord.store.first().asTree()
         val list = tree.asList()
-        val parameters =
-            list.filter { group ->
-                group.parameters.isNotEmpty() &&
-                    group.location.let { it != null && it.sourceFile == "InspectableTests.kt" }
-            }
+        val parameters = list.filter { group ->
+            group.parameters.isNotEmpty() &&
+                group.location.let { it != null && it.sourceFile == "InspectableTests.kt" }
+        }
 
         val callCursor = parameters.listIterator()
         class ParameterValidationReceiver(val parameterCursor: Iterator<ParameterInformation>) {
@@ -326,12 +325,11 @@ class InspectableTests : ToolingTest() {
         show { Inspectable(slotTableRecord) { Text("Test") } }
         val tree = slotTableRecord.store.first().asTree()
         val list = tree.asList()
-        val parameters =
-            list.filter { group ->
-                group.parameters.isNotEmpty() &&
-                    group.name == "Text" &&
-                    group.location.let { it != null && it.sourceFile == "InspectableTests.kt" }
-            }
+        val parameters = list.filter { group ->
+            group.parameters.isNotEmpty() &&
+                group.name == "Text" &&
+                group.location.let { it != null && it.sourceFile == "InspectableTests.kt" }
+        }
         val names = parameters.first().parameters.map { it.name }
         assertEquals(
             "text, modifier, color, fontSize, fontStyle, fontWeight, fontFamily, " +
@@ -365,18 +363,17 @@ class InspectableTests : ToolingTest() {
         assertFalse(tables.isNullOrEmpty())
         assertTrue(tables.size > 1)
 
-        val calls =
-            activity.uiThread {
-                tables
-                    .flatMap { table ->
-                        if (!table.isEmpty) table.asTree().asList() else emptyList()
-                    }
-                    .filter {
-                        val location = it.location
-                        location != null && location.sourceFile == "InspectableTests.kt"
-                    }
-                    .map { it.name }
-            }
+        val calls = activity.uiThread {
+            tables
+                .flatMap { table ->
+                    if (!table.isEmpty) table.asTree().asList() else emptyList()
+                }
+                .filter {
+                    val location = it.location
+                    location != null && location.sourceFile == "InspectableTests.kt"
+                }
+                .map { it.name }
+        }
 
         assertTrue(calls.contains("Column"))
         assertTrue(calls.contains("Text"))

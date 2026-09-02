@@ -58,8 +58,9 @@ class OverlappingTest {
         assertThat(strings[withChildDrawModifiers[3].name]).isEqualTo("Text")
 
         // The system nodes with the draw nodes have those composables as ancestors:
-        val withDrawModifiers =
-            composables.filter { (it.flags and Flags.HAS_DRAW_MODIFIER_VALUE) != 0 }
+        val withDrawModifiers = composables.filter {
+            (it.flags and Flags.HAS_DRAW_MODIFIER_VALUE) != 0
+        }
         assertThat(withDrawModifiers).hasSize(4)
         assertThat(strings[withDrawModifiers[0].name]).isEqualTo("ReusableComposeNode")
         assertThat(strings[withDrawModifiers[1].name]).isEqualTo("ReusableComposeNode")

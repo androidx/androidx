@@ -34,11 +34,10 @@ class InsertDataResponse(val dataPointUids: List<String>) :
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<InsertDataResponse> =
-            ProtoParcelable.newCreator {
-                val proto = ResponseProto.InsertDataResponse.parseFrom(it)
-                fromProto(proto)
-            }
+        val CREATOR: Parcelable.Creator<InsertDataResponse> = ProtoParcelable.newCreator {
+            val proto = ResponseProto.InsertDataResponse.parseFrom(it)
+            fromProto(proto)
+        }
 
         internal fun fromProto(proto: ResponseProto.InsertDataResponse): InsertDataResponse {
             return InsertDataResponse(proto.dataPointUidList)

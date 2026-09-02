@@ -86,388 +86,373 @@ class CameraGraphSimulatorTest {
     }
 
     @Test
-    fun closingCameraGraphSimulatorShouldStopCameraGraph() =
-        testScope.runTest {
-            simulator.start()
-            simulator.initializeSurfaces()
-            simulator.simulateCameraStarted()
+    fun closingCameraGraphSimulatorShouldStopCameraGraph() = testScope.runTest {
+        simulator.start()
+        simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
 
-            simulator.close()
-            advanceUntilIdle()
+        simulator.close()
+        advanceUntilIdle()
 
-            assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
-        }
+        assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
+    }
 
     @Test
-    fun simulatorCanSimulateRepeatingFrames() =
-        testScope.runTest {
-            val stream = simulator.streams[streamConfig]!!
-            val listener = FakeRequestListener()
-            val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
-            simulator.acquireSession().use { it.startRepeating(request) }
-            simulator.start()
-            simulator.initializeSurfaces()
-            simulator.simulateCameraStarted()
+    fun simulatorCanSimulateRepeatingFrames() = testScope.runTest {
+        val stream = simulator.streams[streamConfig]!!
+        val listener = FakeRequestListener()
+        val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
+        simulator.acquireSession().use { it.startRepeating(request) }
+        simulator.start()
+        simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
 
-            val frame = simulator.simulateNextFrame()
+        val frame = simulator.simulateNextFrame()
 
-            assertThat(frame.request).isSameInstanceAs(request)
-            assertThat(frame.frameNumber.value).isGreaterThan(0)
-            assertThat(frame.timestampNanos).isGreaterThan(0)
+        assertThat(frame.request).isSameInstanceAs(request)
+        assertThat(frame.frameNumber.value).isGreaterThan(0)
+        assertThat(frame.timestampNanos).isGreaterThan(0)
 
-            val startEvent = listener.onStartedFlow.first()
-            assertThat(startEvent.frameNumber).isNotNull()
-            assertThat(startEvent.frameNumber).isEqualTo(frame.frameNumber)
-            assertThat(startEvent.timestamp).isNotNull()
-            assertThat(startEvent.timestamp.value).isGreaterThan(0)
-            assertThat(startEvent.requestMetadata.repeating).isTrue()
-            assertThat(startEvent.requestMetadata.request.streams).contains(stream.id)
-            assertThat(startEvent.requestMetadata.template).isEqualTo(graphConfig.defaultTemplate)
+        val startEvent = listener.onStartedFlow.first()
+        assertThat(startEvent.frameNumber).isNotNull()
+        assertThat(startEvent.frameNumber).isEqualTo(frame.frameNumber)
+        assertThat(startEvent.timestamp).isNotNull()
+        assertThat(startEvent.timestamp.value).isGreaterThan(0)
+        assertThat(startEvent.requestMetadata.repeating).isTrue()
+        assertThat(startEvent.requestMetadata.request.streams).contains(stream.id)
+        assertThat(startEvent.requestMetadata.template).isEqualTo(graphConfig.defaultTemplate)
 
-            val totalCaptureResultEvent =
-                withContext(Dispatchers.IO) {
-                    withTimeoutOrNull(50.milliseconds) { listener.onTotalCaptureResultFlow.first() }
-                }
-
-            assertThat(totalCaptureResultEvent).isNull()
-
-            // Launch the callbacks in a coroutine job to test the behavior of the simulator.
-            val simulateCallbacks = launch {
-                val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>()
-                // Simulate two partial capture results, and one total capture result.
-                resultMetadata[CaptureResult.LENS_STATE] = CaptureResult.LENS_STATE_MOVING
-                frame.simulatePartialCaptureResult(resultMetadata)
-                delay(10.milliseconds)
-
-                resultMetadata[CaptureResult.LENS_APERTURE] = 2.0f
-                frame.simulatePartialCaptureResult(resultMetadata)
-                delay(10.milliseconds)
-
-                resultMetadata[CaptureResult.FLASH_STATE] = CaptureResult.FLASH_STATE_FIRED
-                frame.simulateTotalCaptureResult(resultMetadata)
-                delay(10.milliseconds)
-
-                frame.simulateComplete(
-                    resultMetadata,
-                    extraMetadata = mapOf(CaptureResult.LENS_APERTURE to 4.0f),
-                )
+        val totalCaptureResultEvent =
+            withContext(Dispatchers.IO) {
+                withTimeoutOrNull(50.milliseconds) { listener.onTotalCaptureResultFlow.first() }
             }
 
-            val partialEvent1 = listener.onPartialCaptureResultFlow.first()
-            assertThat(partialEvent1.frameNumber).isEqualTo(frame.frameNumber)
-            assertThat(partialEvent1.frameMetadata.camera).isEqualTo(metadata.camera)
-            assertThat(partialEvent1.frameMetadata[CaptureResult.LENS_STATE]).isEqualTo(1)
-            assertThat(partialEvent1.frameMetadata[CaptureResult.LENS_APERTURE]).isNull()
-            assertThat(partialEvent1.frameMetadata[CaptureResult.FLASH_STATE]).isNull()
+        assertThat(totalCaptureResultEvent).isNull()
 
-            val partialEvent2 = listener.onPartialCaptureResultFlow.drop(1).first()
-            assertThat(partialEvent2.frameNumber).isEqualTo(frame.frameNumber)
-            assertThat(partialEvent2.frameMetadata.camera).isEqualTo(metadata.camera)
-            assertThat(partialEvent2.frameMetadata[CaptureResult.LENS_STATE]).isEqualTo(1)
-            assertThat(partialEvent2.frameMetadata[CaptureResult.LENS_APERTURE]).isEqualTo(2.0f)
-            assertThat(partialEvent2.frameMetadata[CaptureResult.FLASH_STATE]).isNull()
+        // Launch the callbacks in a coroutine job to test the behavior of the simulator.
+        val simulateCallbacks = launch {
+            val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>()
+            // Simulate two partial capture results, and one total capture result.
+            resultMetadata[CaptureResult.LENS_STATE] = CaptureResult.LENS_STATE_MOVING
+            frame.simulatePartialCaptureResult(resultMetadata)
+            delay(10.milliseconds)
 
-            val totalEvent = listener.onTotalCaptureResultFlow.first()
-            assertThat(totalEvent.frameNumber).isEqualTo(frame.frameNumber)
-            assertThat(totalEvent.frameInfo.camera).isEqualTo(metadata.camera)
-            assertThat(totalEvent.frameInfo.metadata[CaptureResult.LENS_STATE]).isEqualTo(1)
-            assertThat(totalEvent.frameInfo.metadata[CaptureResult.LENS_APERTURE]).isEqualTo(2.0f)
-            assertThat(totalEvent.frameInfo.metadata[CaptureResult.FLASH_STATE]).isEqualTo(3)
+            resultMetadata[CaptureResult.LENS_APERTURE] = 2.0f
+            frame.simulatePartialCaptureResult(resultMetadata)
+            delay(10.milliseconds)
 
-            val completedEvent = listener.onCompleteFlow.first()
-            assertThat(completedEvent.frameNumber).isEqualTo(frame.frameNumber)
-            assertThat(completedEvent.frameInfo.camera).isEqualTo(metadata.camera)
-            assertThat(completedEvent.frameInfo.metadata[CaptureResult.LENS_STATE]).isEqualTo(1)
-            assertThat(completedEvent.frameInfo.metadata[CaptureResult.LENS_APERTURE])
-                .isEqualTo(4.0f)
-            assertThat(completedEvent.frameInfo.metadata[CaptureResult.FLASH_STATE]).isEqualTo(3)
+            resultMetadata[CaptureResult.FLASH_STATE] = CaptureResult.FLASH_STATE_FIRED
+            frame.simulateTotalCaptureResult(resultMetadata)
+            delay(10.milliseconds)
 
-            simulateCallbacks.join()
+            frame.simulateComplete(
+                resultMetadata,
+                extraMetadata = mapOf(CaptureResult.LENS_APERTURE to 4.0f),
+            )
         }
 
+        val partialEvent1 = listener.onPartialCaptureResultFlow.first()
+        assertThat(partialEvent1.frameNumber).isEqualTo(frame.frameNumber)
+        assertThat(partialEvent1.frameMetadata.camera).isEqualTo(metadata.camera)
+        assertThat(partialEvent1.frameMetadata[CaptureResult.LENS_STATE]).isEqualTo(1)
+        assertThat(partialEvent1.frameMetadata[CaptureResult.LENS_APERTURE]).isNull()
+        assertThat(partialEvent1.frameMetadata[CaptureResult.FLASH_STATE]).isNull()
+
+        val partialEvent2 = listener.onPartialCaptureResultFlow.drop(1).first()
+        assertThat(partialEvent2.frameNumber).isEqualTo(frame.frameNumber)
+        assertThat(partialEvent2.frameMetadata.camera).isEqualTo(metadata.camera)
+        assertThat(partialEvent2.frameMetadata[CaptureResult.LENS_STATE]).isEqualTo(1)
+        assertThat(partialEvent2.frameMetadata[CaptureResult.LENS_APERTURE]).isEqualTo(2.0f)
+        assertThat(partialEvent2.frameMetadata[CaptureResult.FLASH_STATE]).isNull()
+
+        val totalEvent = listener.onTotalCaptureResultFlow.first()
+        assertThat(totalEvent.frameNumber).isEqualTo(frame.frameNumber)
+        assertThat(totalEvent.frameInfo.camera).isEqualTo(metadata.camera)
+        assertThat(totalEvent.frameInfo.metadata[CaptureResult.LENS_STATE]).isEqualTo(1)
+        assertThat(totalEvent.frameInfo.metadata[CaptureResult.LENS_APERTURE]).isEqualTo(2.0f)
+        assertThat(totalEvent.frameInfo.metadata[CaptureResult.FLASH_STATE]).isEqualTo(3)
+
+        val completedEvent = listener.onCompleteFlow.first()
+        assertThat(completedEvent.frameNumber).isEqualTo(frame.frameNumber)
+        assertThat(completedEvent.frameInfo.camera).isEqualTo(metadata.camera)
+        assertThat(completedEvent.frameInfo.metadata[CaptureResult.LENS_STATE]).isEqualTo(1)
+        assertThat(completedEvent.frameInfo.metadata[CaptureResult.LENS_APERTURE]).isEqualTo(4.0f)
+        assertThat(completedEvent.frameInfo.metadata[CaptureResult.FLASH_STATE]).isEqualTo(3)
+
+        simulateCallbacks.join()
+    }
+
     @Test
-    fun simulatorAbortsRequests() =
-        testScope.runTest {
-            val stream = simulator.streams[streamConfig]!!
-            val listener = FakeRequestListener()
-            val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
+    fun simulatorAbortsRequests() = testScope.runTest {
+        val stream = simulator.streams[streamConfig]!!
+        val listener = FakeRequestListener()
+        val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
 
-            simulator.acquireSession().use { it.submit(request = request) }
-            simulator.close()
+        simulator.acquireSession().use { it.submit(request = request) }
+        simulator.close()
 
-            val abortedEvent = listener.onAbortedFlow.first()
-            assertThat(abortedEvent.request).isSameInstanceAs(request)
+        val abortedEvent = listener.onAbortedFlow.first()
+        assertThat(abortedEvent.request).isSameInstanceAs(request)
+    }
+
+    @Test
+    fun simulatorCanIssueBufferLoss() = testScope.runTest {
+        val stream = simulator.streams[streamConfig]!!
+        val outputId = stream.outputs.single().id
+        val listener = FakeRequestListener()
+        val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
+
+        simulator.acquireSession().use { it.submit(request = request) }
+
+        simulator.start()
+        simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
+
+        val frame = simulator.simulateNextFrame()
+        assertThat(frame.request).isSameInstanceAs(request)
+
+        frame.simulateBufferLoss(stream.id, outputId)
+        val lossEvent = listener.onBufferLostFlow.first()
+        assertThat(lossEvent.frameNumber).isEqualTo(frame.frameNumber)
+        assertThat(lossEvent.requestMetadata.request).isSameInstanceAs(request)
+        assertThat(lossEvent.streamId).isEqualTo(stream.id)
+        assertThat(lossEvent.outputId).isEqualTo(outputId)
+    }
+
+    @Test
+    fun simulatorCanIssueMultipleFrames() = testScope.runTest {
+        val stream = simulator.streams[streamConfig]!!
+        val listener = FakeRequestListener()
+        val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
+
+        simulator.acquireSession().use { it.startRepeating(request = request) }
+        simulator.start()
+        simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
+
+        val frame1 = simulator.simulateNextFrame()
+        val frame2 = simulator.simulateNextFrame()
+        val frame3 = simulator.simulateNextFrame()
+
+        assertThat(frame1).isNotEqualTo(frame2)
+        assertThat(frame2).isNotEqualTo(frame3)
+        assertThat(frame1.request).isSameInstanceAs(request)
+        assertThat(frame2.request).isSameInstanceAs(request)
+        assertThat(frame3.request).isSameInstanceAs(request)
+
+        val simulateCallbacks = launch {
+            val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>()
+            resultMetadata[CaptureResult.LENS_STATE] = CaptureResult.LENS_STATE_MOVING
+            frame1.simulateTotalCaptureResult(resultMetadata)
+            frame1.simulateComplete(resultMetadata)
+
+            delay(15.milliseconds)
+            frame2.simulateTotalCaptureResult(resultMetadata)
+            frame2.simulateComplete(resultMetadata)
+
+            delay(15.milliseconds)
+            resultMetadata[CaptureResult.LENS_STATE] = CaptureResult.LENS_STATE_STATIONARY
+            frame3.simulateTotalCaptureResult(resultMetadata)
+            frame3.simulateComplete(resultMetadata)
         }
 
+        val startEvents = withTimeout(250.milliseconds) { listener.onStartedFlow.take(3).toList() }
+        assertThat(startEvents).hasSize(3)
+
+        val event1 = startEvents[0]
+        val event2 = startEvents[1]
+        val event3 = startEvents[2]
+
+        // Frame numbers are not equal
+        assertThat(event1.frameNumber).isNotEqualTo(event2.frameNumber)
+        assertThat(event2.frameNumber).isNotEqualTo(event3.frameNumber)
+
+        // Timestamps are in ascending order
+        assertThat(event3.timestamp.value).isGreaterThan(event2.timestamp.value)
+        assertThat(event2.timestamp.value).isGreaterThan(event1.timestamp.value)
+
+        // Metadata references the same request.
+        assertThat(event1.requestMetadata.repeating).isTrue()
+        assertThat(event2.requestMetadata.repeating).isTrue()
+        assertThat(event3.requestMetadata.repeating).isTrue()
+        assertThat(event1.requestMetadata.request).isSameInstanceAs(request)
+        assertThat(event2.requestMetadata.request).isSameInstanceAs(request)
+        assertThat(event3.requestMetadata.request).isSameInstanceAs(request)
+
+        val completeEvents =
+            withTimeout(250.milliseconds) { listener.onCompleteFlow.take(3).toList() }
+        assertThat(completeEvents).hasSize(3)
+
+        val completeEvent1 = completeEvents[0]
+        val completeEvent2 = completeEvents[1]
+        val completeEvent3 = completeEvents[2]
+
+        assertThat(completeEvent1.frameNumber).isEqualTo(event1.frameNumber)
+        assertThat(completeEvent2.frameNumber).isEqualTo(event2.frameNumber)
+        assertThat(completeEvent3.frameNumber).isEqualTo(event3.frameNumber)
+
+        assertThat(completeEvent1.frameInfo.metadata[CaptureResult.LENS_STATE])
+            .isEqualTo(CaptureResult.LENS_STATE_MOVING)
+        assertThat(completeEvent2.frameInfo.metadata[CaptureResult.LENS_STATE])
+            .isEqualTo(CaptureResult.LENS_STATE_MOVING)
+        assertThat(completeEvent3.frameInfo.metadata[CaptureResult.LENS_STATE])
+            .isEqualTo(CaptureResult.LENS_STATE_STATIONARY)
+
+        simulateCallbacks.join()
+    }
+
     @Test
-    fun simulatorCanIssueBufferLoss() =
-        testScope.runTest {
-            val stream = simulator.streams[streamConfig]!!
-            val outputId = stream.outputs.single().id
-            val listener = FakeRequestListener()
-            val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
+    fun simulatorCanSimulateGraphState() = testScope.runTest {
+        assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
 
-            simulator.acquireSession().use { it.submit(request = request) }
+        simulator.start()
+        assertThat(simulator.graphState.value).isEqualTo(GraphStateStarting)
 
-            simulator.start()
-            simulator.initializeSurfaces()
-            simulator.simulateCameraStarted()
+        simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
+        assertThat(simulator.graphState.value).isEqualTo(GraphStateStarted)
 
-            val frame = simulator.simulateNextFrame()
-            assertThat(frame.request).isSameInstanceAs(request)
+        simulator.stop()
+        assertThat(simulator.graphState.value).isEqualTo(GraphStateStopping)
 
-            frame.simulateBufferLoss(stream.id, outputId)
-            val lossEvent = listener.onBufferLostFlow.first()
-            assertThat(lossEvent.frameNumber).isEqualTo(frame.frameNumber)
-            assertThat(lossEvent.requestMetadata.request).isSameInstanceAs(request)
-            assertThat(lossEvent.streamId).isEqualTo(stream.id)
-            assertThat(lossEvent.outputId).isEqualTo(outputId)
-        }
+        simulator.simulateCameraStopped()
+        assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
+    }
 
     @Test
-    fun simulatorCanIssueMultipleFrames() =
-        testScope.runTest {
-            val stream = simulator.streams[streamConfig]!!
-            val listener = FakeRequestListener()
-            val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
+    fun simulatorCanSimulateGraphError() = testScope.runTest {
+        val error = GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
 
-            simulator.acquireSession().use { it.startRepeating(request = request) }
-            simulator.start()
-            simulator.initializeSurfaces()
-            simulator.simulateCameraStarted()
+        simulator.simulateCameraError(error)
+        // The CameraGraph is stopped at this point, so the errors should be ignored.
+        assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
 
-            val frame1 = simulator.simulateNextFrame()
-            val frame2 = simulator.simulateNextFrame()
-            val frame3 = simulator.simulateNextFrame()
+        simulator.start()
+        simulator.simulateCameraError(error)
+        val graphState = simulator.graphState.value
+        assertThat(graphState).isInstanceOf(GraphStateError::class.java)
+        val graphStateError = graphState as GraphStateError
+        assertThat(graphStateError.cameraError).isEqualTo(error.cameraError)
+        assertThat(graphStateError.willAttemptRetry).isEqualTo(error.willAttemptRetry)
 
-            assertThat(frame1).isNotEqualTo(frame2)
-            assertThat(frame2).isNotEqualTo(frame3)
-            assertThat(frame1.request).isSameInstanceAs(request)
-            assertThat(frame2.request).isSameInstanceAs(request)
-            assertThat(frame3.request).isSameInstanceAs(request)
+        simulator.initializeSurfaces()
+        simulator.simulateCameraStarted()
+        assertThat(simulator.graphState.value).isEqualTo(GraphStateStarted)
 
-            val simulateCallbacks = launch {
-                val resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any>()
-                resultMetadata[CaptureResult.LENS_STATE] = CaptureResult.LENS_STATE_MOVING
-                frame1.simulateTotalCaptureResult(resultMetadata)
-                frame1.simulateComplete(resultMetadata)
+        simulator.stop()
+        simulator.simulateCameraStopped()
+        simulator.simulateCameraError(error)
+        assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
+    }
 
-                delay(15.milliseconds)
-                frame2.simulateTotalCaptureResult(resultMetadata)
-                frame2.simulateComplete(resultMetadata)
+    @Test
+    fun simulatorWithImageSourceStreamCanBeStartedDirectly() = testScope.runTest {
+        val streamConfig =
+            CameraStream.Config.create(
+                Size(1280, 720),
+                StreamFormat.YUV_420_888,
+                imageSourceConfig = ImageSourceConfig(10),
+            )
+        val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+        val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
 
-                delay(15.milliseconds)
-                resultMetadata[CaptureResult.LENS_STATE] = CaptureResult.LENS_STATE_STATIONARY
-                frame3.simulateTotalCaptureResult(resultMetadata)
-                frame3.simulateComplete(resultMetadata)
+        // With all streams being ImageSource streams, initializeSurfaces shouldn't be needed.
+        simulator.simulateCameraStarted()
+        assertThat(simulator.graphState.value).isEqualTo(GraphStateStarted)
+
+        simulator.close()
+    }
+
+    @Test
+    fun simulatorShouldThrowWhenSurfacesArentInitialized() = testScope.runTest {
+        // No Surface initialization, and no Surfaces are set on the stream. Thus,
+        // simulateCameraStarted() should throw.
+        assertThrows<IllegalStateException> { simulator.simulateCameraStarted() }
+    }
+
+    @Test
+    fun externalSurfacesCanBeSetOnSimulator() = testScope.runTest {
+        val surfaceTexture = SurfaceTexture(0)
+        val fakeSurface = Surface(surfaceTexture)
+
+        simulator.setSurface(stream.id, fakeSurface)
+        // All Surfaces are set, no initializeSurfaces() call should be required.
+        simulator.simulateCameraStarted()
+
+        fakeSurface.release()
+        surfaceTexture.release()
+    }
+
+    @Test
+    fun simulatorCanBeStartedWithFakeImageReadersExternalSurfaces() = testScope.runTest {
+        val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
+        val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+        val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+        val cameraStream = checkNotNull(simulator.streams[streamConfig])
+        val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
+
+        simulator.setSurface(cameraStream.id, fakeImageReader.surface)
+        simulator.simulateCameraStarted()
+
+        simulator.close()
+    }
+
+    @Test
+    fun simulatorCanSimulateImagesWithFakeImageReadersExternalSurfaces() = testScope.runTest {
+        val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
+        val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+        val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+        val cameraStream = checkNotNull(simulator.streams[streamConfig])
+        val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
+
+        var lastStreamId: StreamId? = null
+        var lastOutputId: OutputId? = null
+        var lastImage: ImageWrapper? = null
+        fakeImageReader.onImageListener =
+            ImageReaderWrapper.OnImageListener { streamId, outputId, image ->
+                lastStreamId = streamId
+                lastOutputId = outputId
+                lastImage = image
             }
 
-            val startEvents =
-                withTimeout(250.milliseconds) { listener.onStartedFlow.take(3).toList() }
-            assertThat(startEvents).hasSize(3)
+        simulator.setSurface(cameraStream.id, fakeImageReader.surface)
+        simulator.simulateCameraStarted()
 
-            val event1 = startEvents[0]
-            val event2 = startEvents[1]
-            val event3 = startEvents[2]
+        val request = Request(listOf(cameraStream.id))
+        simulator.acquireSession().use { it.submit(request) }
 
-            // Frame numbers are not equal
-            assertThat(event1.frameNumber).isNotEqualTo(event2.frameNumber)
-            assertThat(event2.frameNumber).isNotEqualTo(event3.frameNumber)
+        val frame = simulator.simulateNextFrame()
+        frame.simulateImages()
+        frame.simulateComplete(emptyMap())
+        advanceUntilIdle()
 
-            // Timestamps are in ascending order
-            assertThat(event3.timestamp.value).isGreaterThan(event2.timestamp.value)
-            assertThat(event2.timestamp.value).isGreaterThan(event1.timestamp.value)
+        assertThat(lastStreamId).isEqualTo(cameraStream.id)
+        assertThat(lastOutputId).isEqualTo(cameraStream.outputs.single().id)
+        assertThat(lastImage).isNotNull()
 
-            // Metadata references the same request.
-            assertThat(event1.requestMetadata.repeating).isTrue()
-            assertThat(event2.requestMetadata.repeating).isTrue()
-            assertThat(event3.requestMetadata.repeating).isTrue()
-            assertThat(event1.requestMetadata.request).isSameInstanceAs(request)
-            assertThat(event2.requestMetadata.request).isSameInstanceAs(request)
-            assertThat(event3.requestMetadata.request).isSameInstanceAs(request)
-
-            val completeEvents =
-                withTimeout(250.milliseconds) { listener.onCompleteFlow.take(3).toList() }
-            assertThat(completeEvents).hasSize(3)
-
-            val completeEvent1 = completeEvents[0]
-            val completeEvent2 = completeEvents[1]
-            val completeEvent3 = completeEvents[2]
-
-            assertThat(completeEvent1.frameNumber).isEqualTo(event1.frameNumber)
-            assertThat(completeEvent2.frameNumber).isEqualTo(event2.frameNumber)
-            assertThat(completeEvent3.frameNumber).isEqualTo(event3.frameNumber)
-
-            assertThat(completeEvent1.frameInfo.metadata[CaptureResult.LENS_STATE])
-                .isEqualTo(CaptureResult.LENS_STATE_MOVING)
-            assertThat(completeEvent2.frameInfo.metadata[CaptureResult.LENS_STATE])
-                .isEqualTo(CaptureResult.LENS_STATE_MOVING)
-            assertThat(completeEvent3.frameInfo.metadata[CaptureResult.LENS_STATE])
-                .isEqualTo(CaptureResult.LENS_STATE_STATIONARY)
-
-            simulateCallbacks.join()
-        }
+        fakeImageReader.close()
+        simulator.close()
+    }
 
     @Test
-    fun simulatorCanSimulateGraphState() =
-        testScope.runTest {
-            assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
+    fun simulatorShouldThrowWhenDifferentExternalSurfaceIsSet() = testScope.runTest {
+        val fakeSurfaces = FakeSurfaces()
+        val fakeSurface = fakeSurfaces.createFakeSurface(Size(1280, 720))
 
-            simulator.start()
-            assertThat(simulator.graphState.value).isEqualTo(GraphStateStarting)
+        val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
+        val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
+        val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
+        val cameraStream = checkNotNull(simulator.streams[streamConfig])
+        val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
 
-            simulator.initializeSurfaces()
-            simulator.simulateCameraStarted()
-            assertThat(simulator.graphState.value).isEqualTo(GraphStateStarted)
-
-            simulator.stop()
-            assertThat(simulator.graphState.value).isEqualTo(GraphStateStopping)
-
-            simulator.simulateCameraStopped()
-            assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
+        // Since we already created a FakeImageReader with the stream, setting a different
+        // Surface creates an ambiguous situation and is thus not allowed.
+        assertThrows<IllegalStateException> {
+            simulator.setSurface(cameraStream.id, fakeSurface)
         }
 
-    @Test
-    fun simulatorCanSimulateGraphError() =
-        testScope.runTest {
-            val error = GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
-
-            simulator.simulateCameraError(error)
-            // The CameraGraph is stopped at this point, so the errors should be ignored.
-            assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
-
-            simulator.start()
-            simulator.simulateCameraError(error)
-            val graphState = simulator.graphState.value
-            assertThat(graphState).isInstanceOf(GraphStateError::class.java)
-            val graphStateError = graphState as GraphStateError
-            assertThat(graphStateError.cameraError).isEqualTo(error.cameraError)
-            assertThat(graphStateError.willAttemptRetry).isEqualTo(error.willAttemptRetry)
-
-            simulator.initializeSurfaces()
-            simulator.simulateCameraStarted()
-            assertThat(simulator.graphState.value).isEqualTo(GraphStateStarted)
-
-            simulator.stop()
-            simulator.simulateCameraStopped()
-            simulator.simulateCameraError(error)
-            assertThat(simulator.graphState.value).isEqualTo(GraphStateStopped)
-        }
-
-    @Test
-    fun simulatorWithImageSourceStreamCanBeStartedDirectly() =
-        testScope.runTest {
-            val streamConfig =
-                CameraStream.Config.create(
-                    Size(1280, 720),
-                    StreamFormat.YUV_420_888,
-                    imageSourceConfig = ImageSourceConfig(10),
-                )
-            val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
-            val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
-
-            // With all streams being ImageSource streams, initializeSurfaces shouldn't be needed.
-            simulator.simulateCameraStarted()
-            assertThat(simulator.graphState.value).isEqualTo(GraphStateStarted)
-
-            simulator.close()
-        }
-
-    @Test
-    fun simulatorShouldThrowWhenSurfacesArentInitialized() =
-        testScope.runTest {
-            // No Surface initialization, and no Surfaces are set on the stream. Thus,
-            // simulateCameraStarted() should throw.
-            assertThrows<IllegalStateException> { simulator.simulateCameraStarted() }
-        }
-
-    @Test
-    fun externalSurfacesCanBeSetOnSimulator() =
-        testScope.runTest {
-            val surfaceTexture = SurfaceTexture(0)
-            val fakeSurface = Surface(surfaceTexture)
-
-            simulator.setSurface(stream.id, fakeSurface)
-            // All Surfaces are set, no initializeSurfaces() call should be required.
-            simulator.simulateCameraStarted()
-
-            fakeSurface.release()
-            surfaceTexture.release()
-        }
-
-    @Test
-    fun simulatorCanBeStartedWithFakeImageReadersExternalSurfaces() =
-        testScope.runTest {
-            val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
-            val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
-            val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
-            val cameraStream = checkNotNull(simulator.streams[streamConfig])
-            val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
-
-            simulator.setSurface(cameraStream.id, fakeImageReader.surface)
-            simulator.simulateCameraStarted()
-
-            simulator.close()
-        }
-
-    @Test
-    fun simulatorCanSimulateImagesWithFakeImageReadersExternalSurfaces() =
-        testScope.runTest {
-            val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
-            val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
-            val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
-            val cameraStream = checkNotNull(simulator.streams[streamConfig])
-            val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
-
-            var lastStreamId: StreamId? = null
-            var lastOutputId: OutputId? = null
-            var lastImage: ImageWrapper? = null
-            fakeImageReader.onImageListener =
-                ImageReaderWrapper.OnImageListener { streamId, outputId, image ->
-                    lastStreamId = streamId
-                    lastOutputId = outputId
-                    lastImage = image
-                }
-
-            simulator.setSurface(cameraStream.id, fakeImageReader.surface)
-            simulator.simulateCameraStarted()
-
-            val request = Request(listOf(cameraStream.id))
-            simulator.acquireSession().use { it.submit(request) }
-
-            val frame = simulator.simulateNextFrame()
-            frame.simulateImages()
-            frame.simulateComplete(emptyMap())
-            advanceUntilIdle()
-
-            assertThat(lastStreamId).isEqualTo(cameraStream.id)
-            assertThat(lastOutputId).isEqualTo(cameraStream.outputs.single().id)
-            assertThat(lastImage).isNotNull()
-
-            fakeImageReader.close()
-            simulator.close()
-        }
-
-    @Test
-    fun simulatorShouldThrowWhenDifferentExternalSurfaceIsSet() =
-        testScope.runTest {
-            val fakeSurfaces = FakeSurfaces()
-            val fakeSurface = fakeSurfaces.createFakeSurface(Size(1280, 720))
-
-            val streamConfig = CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
-            val graphConfig = CameraGraph.Config(metadata.camera, listOf(streamConfig))
-            val simulator = CameraGraphSimulator.create(testScope, context, metadata, graphConfig)
-            val cameraStream = checkNotNull(simulator.streams[streamConfig])
-            val fakeImageReader = simulator.fakeImageReaders.create(cameraStream, 5)
-
-            // Since we already created a FakeImageReader with the stream, setting a different
-            // Surface creates an ambiguous situation and is thus not allowed.
-            assertThrows<IllegalStateException> {
-                simulator.setSurface(cameraStream.id, fakeSurface)
-            }
-
-            fakeSurfaces.close()
-            fakeImageReader.close()
-            simulator.close()
-        }
+        fakeSurfaces.close()
+        fakeImageReader.close()
+        simulator.close()
+    }
 }

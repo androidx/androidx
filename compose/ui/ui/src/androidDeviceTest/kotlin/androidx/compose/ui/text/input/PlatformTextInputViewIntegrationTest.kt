@@ -132,10 +132,9 @@ class PlatformTextInputViewIntegrationTest {
         rule.runOnIdle { assertThat(hostView.onCheckIsTextEditor()).isTrue() }
 
         // Handoff session to another node.
-        val sessionJob =
-            coroutineScope.launch {
-                node2.establishTextInputSession { startInputMethod(TestInputMethodRequest(view)) }
-            }
+        val sessionJob = coroutineScope.launch {
+            node2.establishTextInputSession { startInputMethod(TestInputMethodRequest(view)) }
+        }
 
         rule.runOnIdle {
             assertThat(hostView.onCheckIsTextEditor()).isTrue()
@@ -189,22 +188,21 @@ class PlatformTextInputViewIntegrationTest {
             assertThat(request2Texts).isEmpty()
         }
 
-        val sessionJob =
-            coroutineScope.launch {
-                node1.establishTextInputSession {
-                    startInputMethod(
-                        object : TestInputMethodRequest(view) {
-                            override fun commitText(
-                                text: CharSequence?,
-                                newCursorPosition: Int,
-                            ): Boolean {
-                                request2Texts += text.toString()
-                                return true
-                            }
+        val sessionJob = coroutineScope.launch {
+            node1.establishTextInputSession {
+                startInputMethod(
+                    object : TestInputMethodRequest(view) {
+                        override fun commitText(
+                            text: CharSequence?,
+                            newCursorPosition: Int,
+                        ): Boolean {
+                            request2Texts += text.toString()
+                            return true
                         }
-                    )
-                }
+                    }
+                )
             }
+        }
         rule.runOnIdle {
             val connection2 = hostView.onCreateInputConnection(editorInfo)
             assertNotNull(connection2)
@@ -268,28 +266,27 @@ class PlatformTextInputViewIntegrationTest {
         setupContent()
         // keep a strong reference to created InputConnection so it's not collected by GC
         var ic: InputConnection?
-        val sessionJob =
-            coroutineScope.launch {
-                try {
-                    node1.establishTextInputSession {
-                        try {
-                            startInputMethod(
-                                object : TestInputMethodRequest(view) {
-                                    override fun closeConnection() {
-                                        expect(1)
-                                    }
+        val sessionJob = coroutineScope.launch {
+            try {
+                node1.establishTextInputSession {
+                    try {
+                        startInputMethod(
+                            object : TestInputMethodRequest(view) {
+                                override fun closeConnection() {
+                                    expect(1)
                                 }
-                            )
-                        } catch (e: CancellationException) {
-                            expect(2)
-                            throw e
-                        }
+                            }
+                        )
+                    } catch (e: CancellationException) {
+                        expect(2)
+                        throw e
                     }
-                } catch (e: CancellationException) {
-                    expect(3)
-                    throw e
                 }
+            } catch (e: CancellationException) {
+                expect(3)
+                throw e
             }
+        }
         expect(0)
 
         rule.runOnIdle {
@@ -489,12 +486,11 @@ class PlatformTextInputViewIntegrationTest {
 
         setupContent()
         val connections = mutableListOf<TestConnection>()
-        val sessionJob =
-            coroutineScope.launch {
-                node1.establishTextInputSession {
-                    startInputMethod { TestConnection(view).also { connections += it } }
-                }
+        val sessionJob = coroutineScope.launch {
+            node1.establishTextInputSession {
+                startInputMethod { TestConnection(view).also { connections += it } }
             }
+        }
 
         rule.runOnIdle {
             assertThat(connections).isEmpty()
@@ -529,13 +525,12 @@ class PlatformTextInputViewIntegrationTest {
     fun innerSessionNotCanceled_whenIsolatedFromOuterSession_whenConnectionClosed() {
         setupContent()
         lateinit var innerJob: Job
-        val outerJob =
-            coroutineScope.launch {
-                node1.establishTextInputSession {
-                    innerJob = launch { startInputMethod(TestInputMethodRequest(view)) }
-                    awaitCancellation()
-                }
+        val outerJob = coroutineScope.launch {
+            node1.establishTextInputSession {
+                innerJob = launch { startInputMethod(TestInputMethodRequest(view)) }
+                awaitCancellation()
             }
+        }
 
         rule.runOnIdle {
             val connection = checkNotNull(hostView.onCreateInputConnection(EditorInfo()))
@@ -554,10 +549,9 @@ class PlatformTextInputViewIntegrationTest {
     @Test
     fun cancellationDoesNotPropagate_whenConnectionClosed() {
         setupContent()
-        val sessionJob =
-            coroutineScope.launch {
-                node1.establishTextInputSession { startInputMethod(TestInputMethodRequest(view)) }
-            }
+        val sessionJob = coroutineScope.launch {
+            node1.establishTextInputSession { startInputMethod(TestInputMethodRequest(view)) }
+        }
 
         rule.runOnIdle {
             val connection = checkNotNull(hostView.onCreateInputConnection(EditorInfo()))

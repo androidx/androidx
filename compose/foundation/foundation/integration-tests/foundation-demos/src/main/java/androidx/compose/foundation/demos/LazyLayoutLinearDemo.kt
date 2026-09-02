@@ -98,7 +98,8 @@ fun LinearLazyLayoutDemo() {
             Text(
                 text = "Item-$index",
                 style = MaterialTheme.typography.body1,
-                modifier = Modifier.background(Color.Yellow).border(1.dp, Color.Black).padding(8.dp),
+                modifier =
+                    Modifier.background(Color.Yellow).border(1.dp, Color.Black).padding(8.dp),
             )
         }
     }

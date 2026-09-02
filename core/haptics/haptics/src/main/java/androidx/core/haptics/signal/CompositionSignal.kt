@@ -207,8 +207,9 @@ public class CompositionSignal(
 
     override fun toVibration(): VibrationWrapper? = HapticSignalConverter.toVibration(this)
 
-    override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean =
-        atoms.all { it.isSupportedBy(deviceProfile) }
+    override fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean = atoms.all {
+        it.isSupportedBy(deviceProfile)
+    }
 
     /**
      * A [CompositionSignal.Atom] is a building block for creating a [CompositionSignal].

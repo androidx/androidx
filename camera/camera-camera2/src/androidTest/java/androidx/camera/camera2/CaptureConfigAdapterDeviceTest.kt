@@ -89,7 +89,9 @@ class CaptureConfigAdapterDeviceTest {
         camera =
             CameraUtil.createCameraUseCaseAdapter(
                     context,
-                    CameraSelector.Builder().requireLensFacing(DEFAULT_LENS_FACING_SELECTOR).build(),
+                    CameraSelector.Builder()
+                        .requireLensFacing(DEFAULT_LENS_FACING_SELECTOR)
+                        .build(),
                 )
                 .apply { withContext(Dispatchers.Main) { addUseCases(listOf(fakeUseCase)) } }
 

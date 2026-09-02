@@ -46,14 +46,14 @@ class SuspendingEffectsTests : BaseComposeTest() {
         // Used as a signal that LaunchedTask will await
         val ch = Channel<Unit>(Channel.CONFLATED)
         compose {
-                LaunchedEffect(Unit) {
-                    counter++
-                    ch.receive()
-                    counter++
-                    ch.receive()
-                    counter++
-                }
+            LaunchedEffect(Unit) {
+                counter++
+                ch.receive()
+                counter++
+                ch.receive()
+                counter++
             }
+        }
             .then {
                 assertEquals(1, counter)
                 ch.trySend(Unit)
@@ -70,14 +70,14 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var choreographerTime by mutableStateOf(Long.MIN_VALUE)
         var awaitFrameTime by mutableStateOf(Long.MAX_VALUE)
         compose {
-                LaunchedEffect(Unit) { withFrameNanos { awaitFrameTime = it } }
-                DisposableEffect(true) {
-                    Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
-                        choreographerTime = frameTimeNanos
-                    }
-                    onDispose {}
+            LaunchedEffect(Unit) { withFrameNanos { awaitFrameTime = it } }
+            DisposableEffect(true) {
+                Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
+                    choreographerTime = frameTimeNanos
                 }
+                onDispose {}
             }
+        }
             .then {
                 assertNotEquals(
                     choreographerTime,
@@ -102,15 +102,15 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var choreographerTime by mutableStateOf(Long.MIN_VALUE)
         var awaitFrameTime by mutableStateOf(Long.MAX_VALUE)
         compose {
-                val scope = rememberCoroutineScope()
-                DisposableEffect(true) {
-                    scope.launch { withFrameNanos { awaitFrameTime = it } }
-                    Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
-                        choreographerTime = frameTimeNanos
-                    }
-                    onDispose {}
+            val scope = rememberCoroutineScope()
+            DisposableEffect(true) {
+                scope.launch { withFrameNanos { awaitFrameTime = it } }
+                Choreographer.getInstance().postFrameCallback { frameTimeNanos ->
+                    choreographerTime = frameTimeNanos
                 }
+                onDispose {}
             }
+        }
             .then {
                 assertNotEquals(
                     choreographerTime,
@@ -146,10 +146,10 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var coroutineScope: CoroutineScope? = null
         var toggle by mutableStateOf(true)
         compose {
-                if (toggle) {
-                    coroutineScope = rememberCoroutineScope()
-                }
+            if (toggle) {
+                coroutineScope = rememberCoroutineScope()
             }
+        }
             .then {
                 assertTrue(
                     coroutineScope?.isActive == true,
@@ -173,14 +173,14 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var rememberCoroutineScopeFrameClock: MonotonicFrameClock? = null
 
         compose {
-                recomposerClock = currentComposer.applyCoroutineContext[MonotonicFrameClock]
-                LaunchedEffect(Unit) { launchedTaskClock = coroutineContext[MonotonicFrameClock] }
-                val rememberedScope = rememberCoroutineScope()
-                SideEffect {
-                    rememberCoroutineScopeFrameClock =
-                        rememberedScope.coroutineContext[MonotonicFrameClock]
-                }
+            recomposerClock = currentComposer.applyCoroutineContext[MonotonicFrameClock]
+            LaunchedEffect(Unit) { launchedTaskClock = coroutineContext[MonotonicFrameClock] }
+            val rememberedScope = rememberCoroutineScope()
+            SideEffect {
+                rememberCoroutineScopeFrameClock =
+                    rememberedScope.coroutineContext[MonotonicFrameClock]
             }
+        }
             .then {
                 assertNotNull(recomposerClock, "Recomposer frameClock")
                 assertSame(recomposerClock, launchedTaskClock, "LaunchedTask clock")
@@ -197,11 +197,11 @@ class SuspendingEffectsTests : BaseComposeTest() {
         var onCommitRan = false
         var launchRanAfter = false
         compose {
-                // Confirms that these run "out of order" with respect to one another because
-                // the launch runs dispatched.
-                LaunchedEffect(Unit) { launchRanAfter = onCommitRan }
-                SideEffect { onCommitRan = true }
-            }
+            // Confirms that these run "out of order" with respect to one another because
+            // the launch runs dispatched.
+            LaunchedEffect(Unit) { launchRanAfter = onCommitRan }
+            SideEffect { onCommitRan = true }
+        }
             .then {
                 assertTrue(launchRanAfter, "expected LaunchedTask to run after later onCommit")
             }

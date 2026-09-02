@@ -28,15 +28,14 @@ class KeyframeSplineAnimationTest {
     /** See [MonoSplineTest] to test the interpolation curves. */
     @Test
     fun interpolatedValues() {
-        val animation =
-            keyframesWithSpline {
-                    durationMillis = 500
+        val animation = keyframesWithSpline {
+            durationMillis = 500
 
-                    // At half the time, reach the final Y value (expected final value is Offset(2f,
-                    // 2f))
-                    Offset(1f, 2f) at 250
-                }
-                .vectorize(Offset.VectorConverter)
+            // At half the time, reach the final Y value (expected final value is Offset(2f,
+            // 2f))
+            Offset(1f, 2f) at 250
+        }
+            .vectorize(Offset.VectorConverter)
 
         // Test at a quarter of the time
         assertEquals(AnimationVector2D(0.5f, 1.25f), animation.valueAt(125))
@@ -138,18 +137,17 @@ class KeyframeSplineAnimationTest {
 
     @Test
     fun testMultipleEasing() {
-        val animation =
-            keyframesWithSpline {
-                    durationMillis = 300
+        val animation = keyframesWithSpline {
+            durationMillis = 300
 
-                    Offset(0f, 0f) at 0 using EaseInCubic
-                    Offset(1f, 1f) at 100 using EaseOutCubic
-                    Offset(2f, 2f) at 200 using LinearEasing
+            Offset(0f, 0f) at 0 using EaseInCubic
+            Offset(1f, 1f) at 100 using EaseOutCubic
+            Offset(2f, 2f) at 200 using LinearEasing
 
-                    // This easing is never applied since it's at the end
-                    Offset(3f, 3f) at 300 using LinearOutSlowInEasing
-                }
-                .vectorize(Offset.VectorConverter)
+            // This easing is never applied since it's at the end
+            Offset(3f, 3f) at 300 using LinearOutSlowInEasing
+        }
+            .vectorize(Offset.VectorConverter)
 
         // Initial and target values don't matter since they're overwritten
         var valueVector = animation.valueAt(50)
@@ -171,14 +169,13 @@ class KeyframeSplineAnimationTest {
 
     @Test
     fun possibleToOverrideStartAndEndValues() {
-        val animation =
-            keyframesWithSpline {
-                    durationMillis = 500
-                    Offset(0f, 0f) at 0 // Forcing start to 0f, 0f
-                    Offset(1f, 1f) at 250
-                    Offset(2f, 2f) at 500 // Forcing end to 2f, 2f
-                }
-                .vectorize(Offset.VectorConverter)
+        val animation = keyframesWithSpline {
+            durationMillis = 500
+            Offset(0f, 0f) at 0 // Forcing start to 0f, 0f
+            Offset(1f, 1f) at 250
+            Offset(2f, 2f) at 500 // Forcing end to 2f, 2f
+        }
+            .vectorize(Offset.VectorConverter)
 
         val startValue =
             animation.valueAt(
@@ -198,13 +195,12 @@ class KeyframeSplineAnimationTest {
 
     @Test
     fun initialVelocityIgnored() {
-        val animation =
-            keyframesWithSpline {
-                    durationMillis = 500
+        val animation = keyframesWithSpline {
+            durationMillis = 500
 
-                    Offset(1f, 1f) at 250
-                }
-                .vectorize(Offset.VectorConverter)
+            Offset(1f, 1f) at 250
+        }
+            .vectorize(Offset.VectorConverter)
 
         // Expected velocity is constant since we are interpolating linearly from 0,0 to 2,2
         val expectedVelocity = AnimationVector2D(4f, 4f)
@@ -222,14 +218,13 @@ class KeyframeSplineAnimationTest {
 
     @Test
     fun testDelay() {
-        val animation =
-            keyframesWithSpline {
-                    durationMillis = 500
-                    delayMillis = 100
+        val animation = keyframesWithSpline {
+            durationMillis = 500
+            delayMillis = 100
 
-                    Offset(1f, 1f) at 250
-                }
-                .vectorize(Offset.VectorConverter)
+            Offset(1f, 1f) at 250
+        }
+            .vectorize(Offset.VectorConverter)
 
         // Value should always be the initial value during the delay
         assertEquals(AnimationVector2D(0f, 0f), animation.valueAt(0L, start = Offset.Zero))

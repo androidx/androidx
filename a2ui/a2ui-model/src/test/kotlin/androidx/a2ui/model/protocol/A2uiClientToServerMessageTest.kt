@@ -257,7 +257,12 @@ class A2uiClientToServerMessageTest {
                     TEST_MESSAGE,
                     TEST_CONTEXT,
                 ),
-                A2uiClientErrorMessage(TEST_ERROR_CODE, TEST_SURFACE_ID, TEST_MESSAGE, TEST_CONTEXT),
+                A2uiClientErrorMessage(
+                    TEST_ERROR_CODE,
+                    TEST_SURFACE_ID,
+                    TEST_MESSAGE,
+                    TEST_CONTEXT,
+                ),
             )
             .addEqualityGroup(
                 A2uiClientErrorMessage(

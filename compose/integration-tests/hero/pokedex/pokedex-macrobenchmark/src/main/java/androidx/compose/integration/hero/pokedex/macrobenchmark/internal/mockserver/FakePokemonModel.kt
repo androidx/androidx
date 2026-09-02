@@ -100,8 +100,9 @@ fun fakePokemonResponse(
     pokemons: List<PokemonNetworkModel> = fakePokemonNetworkModels(AllPokemonNames)
 ) = PokemonResponse(count = pokemons.size, previous = null, next = null, results = pokemons)
 
-fun fakePokemonNetworkModels(pokemonNames: List<String>) =
-    pokemonNames.map { name -> PokemonNetworkModel(name) }
+fun fakePokemonNetworkModels(pokemonNames: List<String>) = pokemonNames.map { name ->
+    PokemonNetworkModel(name)
+}
 
 fun fakePokemonNames(limit: Int, offset: Int = 0): List<String> =
     inMemoryTrace("fakePokemonNames(limit=$limit, offset=$offset)") {

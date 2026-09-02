@@ -184,19 +184,18 @@ public fun MaterialScope.primaryLayoutWithOverrideIcon(
 ): LayoutElement {
     val screenWidth = deviceConfiguration.screenWidthDp
     val screenHeight = deviceConfiguration.screenHeightDp
-    val labelSlot: LayoutElement? =
-        labelForBottomSlot?.let {
-            withStyle(
-                defaultTextElementStyle =
-                    TextElementStyle(
-                        typography = Typography.TITLE_SMALL,
-                        color = theme.colorScheme.onSurface,
-                        importantForAccessibility = true,
-                    )
-            ) {
-                labelForBottomSlot()
-            }
+    val labelSlot: LayoutElement? = labelForBottomSlot?.let {
+        withStyle(
+            defaultTextElementStyle =
+                TextElementStyle(
+                    typography = Typography.TITLE_SMALL,
+                    color = theme.colorScheme.onSurface,
+                    importantForAccessibility = true,
+                )
+        ) {
+            labelForBottomSlot()
         }
+    }
 
     val modifiers =
         Modifiers.Builder()
@@ -230,19 +229,18 @@ public fun MaterialScope.primaryLayoutWithOverrideIcon(
                 )
             )
 
-    val bottomSlotValue =
-        bottomSlot?.let {
-            withStyle(
-                defaultTextElementStyle =
-                    TextElementStyle(
-                        typography = Typography.TITLE_MEDIUM,
-                        color = theme.colorScheme.onBackground,
-                        importantForAccessibility = true,
-                    )
-            ) {
-                it()
-            }
+    val bottomSlotValue = bottomSlot?.let {
+        withStyle(
+            defaultTextElementStyle =
+                TextElementStyle(
+                    typography = Typography.TITLE_MEDIUM,
+                    color = theme.colorScheme.onBackground,
+                    importantForAccessibility = true,
+                )
+        ) {
+            it()
         }
+    }
 
     val marginsValues: Padding =
         withStyleOnPadding(

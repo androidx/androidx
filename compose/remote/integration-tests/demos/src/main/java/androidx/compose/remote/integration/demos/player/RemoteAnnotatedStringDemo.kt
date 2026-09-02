@@ -163,10 +163,10 @@ fun TransformationsAndConcatSample() {
         append("• toUpperCase: ")
         append(
             buildRemoteAnnotatedString {
-                    withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
-                        append("lowercase to uppercase\n")
-                    }
+                withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
+                    append("lowercase to uppercase\n")
                 }
+            }
                 .toUpperCase()
         )
     }
@@ -175,10 +175,10 @@ fun TransformationsAndConcatSample() {
         append("• toLowerCase: ")
         append(
             buildRemoteAnnotatedString {
-                    withStyle(SpanStyle(color = Color(0xFF1E88E5))) {
-                        append("UPPERCASE TO LOWERCASE\n")
-                    }
+                withStyle(SpanStyle(color = Color(0xFF1E88E5))) {
+                    append("UPPERCASE TO LOWERCASE\n")
                 }
+            }
                 .toLowerCase()
         )
     }
@@ -187,10 +187,10 @@ fun TransformationsAndConcatSample() {
         append("• capitalize: ")
         append(
             buildRemoteAnnotatedString {
-                    withStyle(SpanStyle(color = Color(0xFF43A047), fontStyle = FontStyle.Italic)) {
-                        append("first letter capitalized\n")
-                    }
+                withStyle(SpanStyle(color = Color(0xFF43A047), fontStyle = FontStyle.Italic)) {
+                    append("first letter capitalized\n")
                 }
+            }
                 .capitalize()
         )
     }
@@ -199,10 +199,10 @@ fun TransformationsAndConcatSample() {
         append("• decapitalize: ")
         append(
             buildRemoteAnnotatedString {
-                    withStyle(SpanStyle(color = Color(0xFFD81B60))) {
-                        append("FIRST LETTER DECAPITALIZED\n")
-                    }
+                withStyle(SpanStyle(color = Color(0xFFD81B60))) {
+                    append("FIRST LETTER DECAPITALIZED\n")
                 }
+            }
                 .decapitalize()
         )
     }
@@ -213,20 +213,20 @@ fun TransformationsAndConcatSample() {
         append("• Unicode expansion: ")
         append(
             buildRemoteAnnotatedString {
-                    append("stra")
-                    withStyle(SpanStyle(color = Color(0xFFE53935), fontWeight = FontWeight.Bold)) {
-                        append("ß") // 'ß' (1 char) expands to "SS" (2 chars)
-                    }
-                    append("e: ")
-                    withStyle(
-                        SpanStyle(
-                            color = Color(0xFF1E88E5),
-                            textDecoration = TextDecoration.Underline,
-                        )
-                    ) {
-                        append("subsequent shifted style\n")
-                    }
+                append("stra")
+                withStyle(SpanStyle(color = Color(0xFFE53935), fontWeight = FontWeight.Bold)) {
+                    append("ß") // 'ß' (1 char) expands to "SS" (2 chars)
                 }
+                append("e: ")
+                withStyle(
+                    SpanStyle(
+                        color = Color(0xFF1E88E5),
+                        textDecoration = TextDecoration.Underline,
+                    )
+                ) {
+                    append("subsequent shifted style\n")
+                }
+            }
                 .toUpperCase()
         )
     }

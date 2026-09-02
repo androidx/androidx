@@ -131,28 +131,26 @@ constructor(
     private var cameraPrioritiesJob: Job? = null
 
     init {
-        cameraAvailabilityJob =
-            scope.launch {
-                cameraStatusMonitor.cameraAvailability.collect { cameraStatus ->
-                    when (cameraStatus) {
-                        is CameraStatus.CameraAvailable -> {
-                            check(cameraStatus.cameraId == cameraId)
-                            onCameraStatusChanged(cameraStatus)
-                        }
-                        is CameraStatus.CameraUnavailable -> {
-                            check(cameraStatus.cameraId == cameraId)
-                            onCameraStatusChanged(cameraStatus)
-                        }
+        cameraAvailabilityJob = scope.launch {
+            cameraStatusMonitor.cameraAvailability.collect { cameraStatus ->
+                when (cameraStatus) {
+                    is CameraStatus.CameraAvailable -> {
+                        check(cameraStatus.cameraId == cameraId)
+                        onCameraStatusChanged(cameraStatus)
+                    }
+                    is CameraStatus.CameraUnavailable -> {
+                        check(cameraStatus.cameraId == cameraId)
+                        onCameraStatusChanged(cameraStatus)
                     }
                 }
             }
+        }
 
-        cameraPrioritiesJob =
-            scope.launch {
-                cameraStatusMonitor.cameraPriorities.collect {
-                    onCameraStatusChanged(CameraStatus.CameraPrioritiesChanged)
-                }
+        cameraPrioritiesJob = scope.launch {
+            cameraStatusMonitor.cameraPriorities.collect {
+                onCameraStatusChanged(CameraStatus.CameraPrioritiesChanged)
             }
+        }
     }
 
     override fun start() {
@@ -191,22 +189,21 @@ constructor(
             if (graphConfig.flags.enableRestartDelays) RESTART_TIMEOUT_WHEN_ENABLED
             else 0.milliseconds
         restartJob?.cancel()
-        restartJob =
-            scope.launch {
-                delay(restartDelay)
-                synchronized(lock) {
-                    if (
-                        !isClosed() &&
-                            controllerState != ControllerState.STOPPING &&
-                            controllerState != ControllerState.STOPPED
-                    ) {
-                        Log.debug { "Restarting ${this@Camera2CameraController}..." }
-                        surfaceTracker.registerAllSurfaces()
-                        stopLocked()
-                        startLocked()
-                    }
+        restartJob = scope.launch {
+            delay(restartDelay)
+            synchronized(lock) {
+                if (
+                    !isClosed() &&
+                        controllerState != ControllerState.STOPPING &&
+                        controllerState != ControllerState.STOPPED
+                ) {
+                    Log.debug { "Restarting ${this@Camera2CameraController}..." }
+                    surfaceTracker.registerAllSurfaces()
+                    stopLocked()
+                    startLocked()
                 }
             }
+        }
     }
 
     @GuardedBy("lock")
@@ -445,11 +442,10 @@ constructor(
     @GuardedBy("lock")
     private fun detachSessionAndCamera(session: CaptureSessionState?, camera: VirtualCamera?) {
         camera2SystemState.onGraphStopped(cameraGraphId)
-        val job =
-            scope.launch {
-                session?.shutdown()
-                camera?.disconnect()
-            }
+        val job = scope.launch {
+            session?.shutdown()
+            camera?.disconnect()
+        }
         if (controllerState == ControllerState.CLOSING) {
             job.invokeOnCompletion {
                 synchronized(lock) {

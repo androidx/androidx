@@ -299,11 +299,10 @@ class MacrobenchmarkScopeTest {
         scope.startActivityAndWait(ConfigurableActivity.createIntent("InitialText"))
         assertTrue(scope.device.hasObject(By.text("InitialText")))
         val testOutputs = scope.stopMethodTracing()
-        val trace =
-            testOutputs.singleOrNull { file ->
-                file.outputRelativePath.endsWith(".trace") &&
-                    file.outputRelativePath.contains("-methodTracing-")
-            }
+        val trace = testOutputs.singleOrNull { file ->
+            file.outputRelativePath.endsWith(".trace") &&
+                file.outputRelativePath.contains("-methodTracing-")
+        }
         // One method trace should have been created
         assertNotNull(trace)
         assertTrue(trace.outputRelativePath.startsWith("TEST-UNIQUE-NAME-methodTracing-"))
@@ -322,11 +321,10 @@ class MacrobenchmarkScopeTest {
         scope.killProcess()
         val testOutputs = scope.stopMethodTracing()
         // We should have 2 method traces
-        val traces =
-            testOutputs.filter { file ->
-                file.outputRelativePath.endsWith(".trace") &&
-                    file.outputRelativePath.contains("-methodTracing-")
-            }
+        val traces = testOutputs.filter { file ->
+            file.outputRelativePath.endsWith(".trace") &&
+                file.outputRelativePath.contains("-methodTracing-")
+        }
         assertEquals(traces.size, 2)
     }
 

@@ -317,8 +317,9 @@ public class VertexLayout private constructor(public val buffers: List<VertexBuf
      * @throws IllegalArgumentException if the attribute is not present in the layout.
      */
     public fun getBufferIndex(attribute: VertexAttribute): Int {
-        val index =
-            buffers.indexOfFirst { layout -> layout.attributes.any { it.attribute == attribute } }
+        val index = buffers.indexOfFirst { layout ->
+            layout.attributes.any { it.attribute == attribute }
+        }
         require(index != -1) { "Attribute $attribute is not present in the layout." }
         return index
     }

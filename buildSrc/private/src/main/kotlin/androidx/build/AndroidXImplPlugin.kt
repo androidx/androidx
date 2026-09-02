@@ -313,10 +313,9 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                 minGranularity = 1000
             }
             val testTaskName = task.name
-            val capitalizedTestTaskName =
-                testTaskName.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-                }
+            val capitalizedTestTaskName = testTaskName.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+            }
             val xmlReport = task.reports.junitXml
             if (xmlReport.required.get()) {
                 val zipXmlTask =
@@ -430,13 +429,12 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         plugin: Any,
         androidXMultiplatformExtension: AndroidXMultiplatformExtension,
     ) {
-        val targetsAndroid =
-            project.provider {
-                project.plugins.hasPlugin(LibraryPlugin::class.java) ||
-                    project.plugins.hasPlugin(AppPlugin::class.java) ||
-                    project.plugins.hasPlugin(TestPlugin::class.java) ||
-                    project.plugins.hasPlugin(KotlinMultiplatformAndroidPlugin::class.java)
-            }
+        val targetsAndroid = project.provider {
+            project.plugins.hasPlugin(LibraryPlugin::class.java) ||
+                project.plugins.hasPlugin(AppPlugin::class.java) ||
+                project.plugins.hasPlugin(TestPlugin::class.java) ||
+                project.plugins.hasPlugin(KotlinMultiplatformAndroidPlugin::class.java)
+        }
         val defaultJavaTargetVersion =
             androidXExtension.type.map { getDefaultTargetJavaVersion(it, project.name).toString() }
         val defaultJvmTarget = defaultJavaTargetVersion.map { JvmTarget.fromTarget(it) }
@@ -475,8 +473,9 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
 
                     val jvmTargetEnum = resolvedJvmVersion.map { JvmTarget.fromTarget(it) }
 
-                    val jdkReleaseArgs =
-                        resolvedJvmVersion.map { version -> listOf("-Xjdk-release=$version") }
+                    val jdkReleaseArgs = resolvedJvmVersion.map { version ->
+                        listOf("-Xjdk-release=$version")
+                    }
 
                     target.compilations.configureEach { compilation ->
                         compilation.compileJavaTaskProvider?.configure { javaCompile ->
@@ -520,60 +519,58 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
             }
         }
         project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
-            val kotlinCompilerArgs =
-                project.provider {
-                    val args =
-                        mutableListOf(
-                            "-Xskip-metadata-version-check",
-                            "-jvm-default=no-compatibility",
-                            // Allow explicit APIs for projects that don't require explicit API mode
-                            "-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled",
-                            "-Xwarning-level=REDUNDANT_RETURN_UNIT_TYPE:disabled",
-                            "-Xwarning-level=REDUNDANT_SETTER_PARAMETER_TYPE:disabled",
-                            "-Xwarning-level=REDUNDANT_MODALITY_MODIFIER:disabled",
-                            // This warning has frequent false positives
-                            // (https://youtrack.jetbrains.com/issue/KT-85719)
-                            "-Xwarning-level=CAN_BE_VAL_LATEINIT:disabled",
+            val kotlinCompilerArgs = project.provider {
+                val args =
+                    mutableListOf(
+                        "-Xskip-metadata-version-check",
+                        "-jvm-default=no-compatibility",
+                        // Allow explicit APIs for projects that don't require explicit API mode
+                        "-Xwarning-level=REDUNDANT_VISIBILITY_MODIFIER:disabled",
+                        "-Xwarning-level=REDUNDANT_RETURN_UNIT_TYPE:disabled",
+                        "-Xwarning-level=REDUNDANT_SETTER_PARAMETER_TYPE:disabled",
+                        "-Xwarning-level=REDUNDANT_MODALITY_MODIFIER:disabled",
+                        // This warning has frequent false positives
+                        // (https://youtrack.jetbrains.com/issue/KT-85719)
+                        "-Xwarning-level=CAN_BE_VAL_LATEINIT:disabled",
+                    )
+                val softwareType = androidXExtension.type.get()
+                if (softwareType.targetsKotlinConsumersOnly) {
+                    // The Kotlin Compiler adds intrinsic assertions which are only relevant
+                    // when the code is consumed by Java users. Therefore we can turn this off
+                    // when code is being consumed by Kotlin users.
+
+                    // Additional Context:
+                    // https://github.com/JetBrains/kotlin/blob/master/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2JVMCompilerArguments.kt#L239
+                    // b/280633711
+                    args +=
+                        listOf(
+                            "-Xno-param-assertions",
+                            "-Xno-call-assertions",
+                            "-Xno-receiver-assertions",
                         )
-                    val softwareType = androidXExtension.type.get()
-                    if (softwareType.targetsKotlinConsumersOnly) {
-                        // The Kotlin Compiler adds intrinsic assertions which are only relevant
-                        // when the code is consumed by Java users. Therefore we can turn this off
-                        // when code is being consumed by Kotlin users.
-
-                        // Additional Context:
-                        // https://github.com/JetBrains/kotlin/blob/master/compiler/cli/cli-common/src/org/jetbrains/kotlin/cli/common/arguments/K2JVMCompilerArguments.kt#L239
-                        // b/280633711
-                        args +=
-                            listOf(
-                                "-Xno-param-assertions",
-                                "-Xno-call-assertions",
-                                "-Xno-receiver-assertions",
-                            )
-                    }
-                    if (
-                        softwareType == SoftwareType.SAMPLES ||
-                            softwareType == SoftwareType.BENCHMARK
-                    ) {
-                        // Allow unused variables in samples and benchmarks as this is a common
-                        // pattern.
-                        args +=
-                            listOf(
-                                "-Xwarning-level=UNUSED_VARIABLE:disabled",
-                                "-Xwarning-level=ASSIGNED_VALUE_IS_NEVER_READ:disabled",
-                                "-Xwarning-level=VARIABLE_NEVER_READ:disabled",
-                                "-Xwarning-level=UNUSED_EXPRESSION:disabled",
-                                "-Xwarning-level=UNUSED_ANONYMOUS_PARAMETER:disabled",
-                            )
-                    }
-                    // The `commonStubsMain` source sets use a pattern of throwing an exception for
-                    // all unimplemented APIs which is flagged as `UNREACHABLE_CODE`.
-                    if (task.name.endsWith("Stubs")) {
-                        args += listOf("-Xwarning-level=UNREACHABLE_CODE:disabled")
-                    }
-
-                    args
                 }
+                if (
+                    softwareType == SoftwareType.SAMPLES || softwareType == SoftwareType.BENCHMARK
+                ) {
+                    // Allow unused variables in samples and benchmarks as this is a common
+                    // pattern.
+                    args +=
+                        listOf(
+                            "-Xwarning-level=UNUSED_VARIABLE:disabled",
+                            "-Xwarning-level=ASSIGNED_VALUE_IS_NEVER_READ:disabled",
+                            "-Xwarning-level=VARIABLE_NEVER_READ:disabled",
+                            "-Xwarning-level=UNUSED_EXPRESSION:disabled",
+                            "-Xwarning-level=UNUSED_ANONYMOUS_PARAMETER:disabled",
+                        )
+                }
+                // The `commonStubsMain` source sets use a pattern of throwing an exception for
+                // all unimplemented APIs which is flagged as `UNREACHABLE_CODE`.
+                if (task.name.endsWith("Stubs")) {
+                    args += listOf("-Xwarning-level=UNREACHABLE_CODE:disabled")
+                }
+
+                args
+            }
             task.compilerOptions.freeCompilerArgs.addAll(kotlinCompilerArgs)
             task.compilerOptions.extraWarnings.set(true)
         }

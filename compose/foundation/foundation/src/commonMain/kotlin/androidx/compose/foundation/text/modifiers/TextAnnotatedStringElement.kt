@@ -48,7 +48,8 @@ internal class TextAnnotatedStringElement(
     private val selectionController: SelectionController? = null,
     private val color: ColorProducer? = null,
     private val autoSize: TextAutoSize? = null,
-    private val onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null,
+    private val onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? =
+        null,
 ) : ModifierNodeElement<TextAnnotatedStringNode>() {
 
     override fun create(): TextAnnotatedStringNode =

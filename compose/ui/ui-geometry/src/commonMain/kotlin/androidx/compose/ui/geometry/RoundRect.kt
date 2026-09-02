@@ -68,42 +68,39 @@ public data class RoundRect(
     private fun scaledRadiiRect(): RoundRect =
         _scaledRadiiRect
             ?: run {
-                    var scale = 1.0f
-                    scale =
-                        minRadius(scale, bottomLeftCornerRadius.y, topLeftCornerRadius.y, height)
-                    scale = minRadius(scale, topLeftCornerRadius.x, topRightCornerRadius.x, width)
-                    scale =
-                        minRadius(scale, topRightCornerRadius.y, bottomRightCornerRadius.y, height)
-                    scale =
-                        minRadius(scale, bottomRightCornerRadius.x, bottomLeftCornerRadius.x, width)
+                var scale = 1.0f
+                scale = minRadius(scale, bottomLeftCornerRadius.y, topLeftCornerRadius.y, height)
+                scale = minRadius(scale, topLeftCornerRadius.x, topRightCornerRadius.x, width)
+                scale = minRadius(scale, topRightCornerRadius.y, bottomRightCornerRadius.y, height)
+                scale = minRadius(scale, bottomRightCornerRadius.x, bottomLeftCornerRadius.x, width)
 
-                    RoundRect(
-                        left = left * scale,
-                        top = top * scale,
-                        right = right * scale,
-                        bottom = bottom * scale,
-                        topLeftCornerRadius =
-                            CornerRadius(
-                                topLeftCornerRadius.x * scale,
-                                topLeftCornerRadius.y * scale,
-                            ),
-                        topRightCornerRadius =
-                            CornerRadius(
-                                topRightCornerRadius.x * scale,
-                                topRightCornerRadius.y * scale,
-                            ),
-                        bottomRightCornerRadius =
-                            CornerRadius(
-                                bottomRightCornerRadius.x * scale,
-                                bottomRightCornerRadius.y * scale,
-                            ),
-                        bottomLeftCornerRadius =
-                            CornerRadius(
-                                bottomLeftCornerRadius.x * scale,
-                                bottomLeftCornerRadius.y * scale,
-                            ),
-                    )
-                }
+                RoundRect(
+                    left = left * scale,
+                    top = top * scale,
+                    right = right * scale,
+                    bottom = bottom * scale,
+                    topLeftCornerRadius =
+                        CornerRadius(
+                            topLeftCornerRadius.x * scale,
+                            topLeftCornerRadius.y * scale,
+                        ),
+                    topRightCornerRadius =
+                        CornerRadius(
+                            topRightCornerRadius.x * scale,
+                            topRightCornerRadius.y * scale,
+                        ),
+                    bottomRightCornerRadius =
+                        CornerRadius(
+                            bottomRightCornerRadius.x * scale,
+                            bottomRightCornerRadius.y * scale,
+                        ),
+                    bottomLeftCornerRadius =
+                        CornerRadius(
+                            bottomLeftCornerRadius.x * scale,
+                            bottomLeftCornerRadius.y * scale,
+                        ),
+                )
+            }
                 .also {
                     // This might happen racey on different threads, we don't care, it'll be the
                     // same results.

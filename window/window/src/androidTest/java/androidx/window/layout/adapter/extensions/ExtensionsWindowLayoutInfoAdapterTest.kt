@@ -147,10 +147,9 @@ class ExtensionsWindowLayoutInfoAdapterTest {
                     OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_HALF_OPENED)
                 }
 
-            val invalidFeatures =
-                source.mapNotNull { feature ->
-                    ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, feature)
-                }
+            val invalidFeatures = source.mapNotNull { feature ->
+                ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, feature)
+            }
 
             assertTrue(source.isNotEmpty())
             assertTrue(

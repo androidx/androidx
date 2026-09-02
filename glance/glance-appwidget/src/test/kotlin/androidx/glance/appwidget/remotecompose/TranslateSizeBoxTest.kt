@@ -39,72 +39,69 @@ import org.robolectric.annotation.Config
 @Config(sdk = [Config.TARGET_SDK])
 class TranslateSizeBoxTest : BaseRemoteComposeTest() {
     @Test
-    fun translateSingleSizeWidget() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
+    fun translateSingleSizeWidget() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Box(modifier = GlanceModifier.size(100.dp, 100.dp)) {
+                    // no content
+                }
+            }
+
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+
+        val box = getSimpleLeaf(doc) as BoxLayout
+
+        assertEquals(100f, box.width)
+        assertEquals(100f, box.height)
+    }
+
+    @Test
+    fun translateBox_100x100_100x200_sizeModeResponsive() = fakeCoroutineScope.runTest {
+        val responsiveSizeMode =
+            SizeMode.Responsive(setOf(DpSize(100.dp, 100.dp), DpSize(100.dp, 200.dp)))
+
+        val results: List<Pair<DpSize, GlanceToRemoteComposeTranslation.Single>> =
+            context.runAndTranslateMultiRoot {
+                ForEachSize(sizeMode = responsiveSizeMode, minSize = DpSize(100.dp, 100.dp)) {
                     Box(modifier = GlanceModifier.size(100.dp, 100.dp)) {
                         // no content
                     }
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        results.forEach {
+            (dpSize, translation): Pair<DpSize, GlanceToRemoteComposeTranslation.Single> ->
+            val doc =
+                makeCoreDocumentForDebug(
+                    wireBuffer = translation.remoteComposeContext.buffer.buffer
+                )
 
             val box = getSimpleLeaf(doc) as BoxLayout
 
             assertEquals(100f, box.width)
             assertEquals(100f, box.height)
         }
+    }
 
     @Test
-    fun translateBox_100x100_100x200_sizeModeResponsive() =
-        fakeCoroutineScope.runTest {
-            val responsiveSizeMode =
-                SizeMode.Responsive(setOf(DpSize(100.dp, 100.dp), DpSize(100.dp, 200.dp)))
+    fun translateBox_sizeModeResponsive_producesCorrectPairs() = fakeCoroutineScope.runTest {
+        val size100x100 = DpSize(100.dp, 100.dp)
+        val size100x200 = DpSize(100.dp, 200.dp)
 
-            val results: List<Pair<DpSize, GlanceToRemoteComposeTranslation.Single>> =
-                context.runAndTranslateMultiRoot {
-                    ForEachSize(sizeMode = responsiveSizeMode, minSize = DpSize(100.dp, 100.dp)) {
-                        Box(modifier = GlanceModifier.size(100.dp, 100.dp)) {
-                            // no content
-                        }
+        val responsiveSizeMode = SizeMode.Responsive(setOf(size100x100, size100x200))
+
+        val results: List<Pair<DpSize, GlanceToRemoteComposeTranslation.Single>> =
+            context.runAndTranslateMultiRoot {
+                ForEachSize(sizeMode = responsiveSizeMode, minSize = DpSize(100.dp, 100.dp)) {
+                    Box(modifier = GlanceModifier.size(1.dp, 1.dp)) {
+                        // no content
                     }
                 }
-
-            results.forEach {
-                (dpSize, translation): Pair<DpSize, GlanceToRemoteComposeTranslation.Single> ->
-                val doc =
-                    makeCoreDocumentForDebug(
-                        wireBuffer = translation.remoteComposeContext.buffer.buffer
-                    )
-
-                val box = getSimpleLeaf(doc) as BoxLayout
-
-                assertEquals(100f, box.width)
-                assertEquals(100f, box.height)
             }
-        }
 
-    @Test
-    fun translateBox_sizeModeResponsive_producesCorrectPairs() =
-        fakeCoroutineScope.runTest {
-            val size100x100 = DpSize(100.dp, 100.dp)
-            val size100x200 = DpSize(100.dp, 200.dp)
+        val sizes = results.map { pair -> pair.first }
 
-            val responsiveSizeMode = SizeMode.Responsive(setOf(size100x100, size100x200))
-
-            val results: List<Pair<DpSize, GlanceToRemoteComposeTranslation.Single>> =
-                context.runAndTranslateMultiRoot {
-                    ForEachSize(sizeMode = responsiveSizeMode, minSize = DpSize(100.dp, 100.dp)) {
-                        Box(modifier = GlanceModifier.size(1.dp, 1.dp)) {
-                            // no content
-                        }
-                    }
-                }
-
-            val sizes = results.map { pair -> pair.first }
-
-            assertContains(sizes, size100x100)
-            assertContains(sizes, size100x200)
-        }
+        assertContains(sizes, size100x100)
+        assertContains(sizes, size100x200)
+    }
 }

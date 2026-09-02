@@ -480,7 +480,8 @@ class ButtonTest {
             Button(
                 onClick = {},
                 contentPadding = PaddingValues(),
-                modifier = Modifier.requiredWidthIn(20.dp).requiredHeightIn(15.dp).testTag("button"),
+                modifier =
+                    Modifier.requiredWidthIn(20.dp).requiredHeightIn(15.dp).testTag("button"),
             ) {
                 Spacer(Modifier.requiredSize(10.dp))
             }
@@ -501,7 +502,8 @@ class ButtonTest {
                 onClick = {},
                 buttonSize = ButtonSize.Large,
                 contentPadding = PaddingValues(),
-                modifier = Modifier.requiredWidthIn(20.dp).requiredHeightIn(15.dp).testTag("button"),
+                modifier =
+                    Modifier.requiredWidthIn(20.dp).requiredHeightIn(15.dp).testTag("button"),
             ) {
                 Spacer(Modifier.requiredSize(10.dp))
             }

@@ -70,8 +70,9 @@ public class SoftwareKeyboardControllerCompatActivityTest {
         val container: View = scenario.withActivity { findViewById(R.id.container) }
         scenario.withActivity { findViewById<View>(R.id.edittext).requestFocus() }
 
-        val softwareKeyboardControllerCompat =
-            scenario.withActivity { SoftwareKeyboardControllerCompat(container) }
+        val softwareKeyboardControllerCompat = scenario.withActivity {
+            SoftwareKeyboardControllerCompat(container)
+        }
         container.doAndAwaitNextInsets(
             insetsPredicate = { !it.isVisible(WindowInsetsCompat.Type.ime()) }
         ) {
@@ -134,16 +135,15 @@ public class SoftwareKeyboardControllerCompatActivityTest {
 
     @Test
     public fun do_not_show_IME_if_TextView_in_dialog_not_focused() {
-        val dialog =
-            scenario.withActivity {
-                object : Dialog(this) {
-                        override fun onAttachedToWindow() {
-                            super.onAttachedToWindow()
-                            WindowCompat.setDecorFitsSystemWindows(window!!, false)
-                        }
+        val dialog = scenario.withActivity {
+            object : Dialog(this) {
+                    override fun onAttachedToWindow() {
+                        super.onAttachedToWindow()
+                        WindowCompat.setDecorFitsSystemWindows(window!!, false)
                     }
-                    .apply { setContentView(R.layout.insets_compat_activity) }
-            }
+                }
+                .apply { setContentView(R.layout.insets_compat_activity) }
+        }
 
         val editText = dialog.findViewById<TextView>(R.id.edittext)
 
@@ -163,16 +163,15 @@ public class SoftwareKeyboardControllerCompatActivityTest {
 
     @Test
     fun show_IME_fromEditText_in_dialog() {
-        val dialog =
-            scenario.withActivity {
-                object : Dialog(this) {
-                        override fun onAttachedToWindow() {
-                            super.onAttachedToWindow()
-                            WindowCompat.setDecorFitsSystemWindows(window!!, false)
-                        }
+        val dialog = scenario.withActivity {
+            object : Dialog(this) {
+                    override fun onAttachedToWindow() {
+                        super.onAttachedToWindow()
+                        WindowCompat.setDecorFitsSystemWindows(window!!, false)
                     }
-                    .apply { setContentView(R.layout.insets_compat_activity) }
-            }
+                }
+                .apply { setContentView(R.layout.insets_compat_activity) }
+        }
 
         val editText = dialog.findViewById<TextView>(R.id.edittext)
 

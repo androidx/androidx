@@ -432,7 +432,10 @@ private object TypographyScale {
             lineHeightSp = 32f,
             letterSpacingEm = 0f,
             typeface =
-                Typeface.create("sans-serif", Typeface.NORMAL), // Headline uses Regular (400) weight
+                Typeface.create(
+                    "sans-serif",
+                    Typeface.NORMAL,
+                ), // Headline uses Regular (400) weight
         )
 }
 

@@ -132,10 +132,9 @@ internal fun ToolBarLayout(
             title = if (ToolBarLayoutSize.canShowHeaderTitle()) appName else "",
         )
     }
-    val buttonItems: List<@Composable () -> Unit> =
-        buttons.map {
-            { FluidContentIconButton(it, filled = ToolBarLayoutSize.canUseFilledButtons()) }
-        }
+    val buttonItems: List<@Composable () -> Unit> = buttons.map {
+        { FluidContentIconButton(it, filled = ToolBarLayoutSize.canUseFilledButtons()) }
+    }
 
     when (val layoutSize = ToolBarLayoutSize.fromLocalSize()) {
         ToolBarLayoutSize.HorizontalRow,

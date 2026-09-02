@@ -32,8 +32,10 @@ fun loremIpsum(
     loremIpsumWords(language).joinToString(separator = separator, limit = wordCount, truncated = "")
 
 /** An infinite [Sequence] of words of Lorem Ipsum text. */
-fun loremIpsumWords(language: Language = Language.Latin): Sequence<String> =
-    generateSequence { language.words.asSequence() }.flatten()
+fun loremIpsumWords(language: Language = Language.Latin): Sequence<String> = generateSequence {
+    language.words.asSequence()
+}
+    .flatten()
 
 private val LatinLipsum =
     """

@@ -78,88 +78,80 @@ class WebStorageTest {
     }
 
     @Test
-    fun readEmptySessionStorage() =
-        testScope.runTest {
-            val data = testSessionStorage.createConnection().use { it.readData() }
-            assertThat(data).isEqualTo(0)
-        }
+    fun readEmptySessionStorage() = testScope.runTest {
+        val data = testSessionStorage.createConnection().use { it.readData() }
+        assertThat(data).isEqualTo(0)
+    }
 
     @Test
-    fun readEmptyLocalStorage() =
-        testScope.runTest {
-            val data = testLocalStorage.createConnection().use { it.readData() }
-            assertThat(data).isEqualTo(0)
-        }
+    fun readEmptyLocalStorage() = testScope.runTest {
+        val data = testLocalStorage.createConnection().use { it.readData() }
+        assertThat(data).isEqualTo(0)
+    }
 
     @Test
-    fun readAfterDisposeFailsSessionStorage() =
-        testScope.runTest {
-            testSessionStorage.createConnection().use {
-                it.writeScope { writeData(1) }
-                it.close()
-                assertThrows<IllegalStateException> { it.readData() }
-                    .hasMessageThat()
-                    .isEqualTo("StorageConnection has already been disposed.")
-            }
+    fun readAfterDisposeFailsSessionStorage() = testScope.runTest {
+        testSessionStorage.createConnection().use {
+            it.writeScope { writeData(1) }
+            it.close()
+            assertThrows<IllegalStateException> { it.readData() }
+                .hasMessageThat()
+                .isEqualTo("StorageConnection has already been disposed.")
         }
+    }
 
     @Test
-    fun readAfterDisposeFailsLocalStorage() =
-        testScope.runTest {
-            testLocalStorage.createConnection().use {
-                it.writeScope { writeData(1) }
-                it.close()
-                assertThrows<IllegalStateException> { it.readData() }
-                    .hasMessageThat()
-                    .isEqualTo("StorageConnection has already been disposed.")
-            }
+    fun readAfterDisposeFailsLocalStorage() = testScope.runTest {
+        testLocalStorage.createConnection().use {
+            it.writeScope { writeData(1) }
+            it.close()
+            assertThrows<IllegalStateException> { it.readData() }
+                .hasMessageThat()
+                .isEqualTo("StorageConnection has already been disposed.")
         }
+    }
 
     @Test
-    fun writeAfterDisposeFailsSessionStorage() =
-        testScope.runTest {
-            testSessionStorage.createConnection().use {
-                it.writeScope { writeData(1) }
-                it.close()
-                assertThrows<IllegalStateException> { it.writeScope { writeData(1) } }
-                    .hasMessageThat()
-                    .isEqualTo("StorageConnection has already been disposed.")
-            }
+    fun writeAfterDisposeFailsSessionStorage() = testScope.runTest {
+        testSessionStorage.createConnection().use {
+            it.writeScope { writeData(1) }
+            it.close()
+            assertThrows<IllegalStateException> { it.writeScope { writeData(1) } }
+                .hasMessageThat()
+                .isEqualTo("StorageConnection has already been disposed.")
         }
+    }
 
     @Test
-    fun writeAfterDisposeFailsLocalStorage() =
-        testScope.runTest {
-            testLocalStorage.createConnection().use {
-                it.writeScope { writeData(1) }
-                it.close()
-                assertThrows<IllegalStateException> { it.writeScope { writeData(1) } }
-                    .hasMessageThat()
-                    .isEqualTo("StorageConnection has already been disposed.")
-            }
+    fun writeAfterDisposeFailsLocalStorage() = testScope.runTest {
+        testLocalStorage.createConnection().use {
+            it.writeScope { writeData(1) }
+            it.close()
+            assertThrows<IllegalStateException> { it.writeScope { writeData(1) } }
+                .hasMessageThat()
+                .isEqualTo("StorageConnection has already been disposed.")
         }
+    }
 
     @Test
-    fun blockWithNoWriteSucceedsSessionStorage() =
-        testScope.runTest {
-            testSessionStorage.createConnection().use {
-                val count = AtomicInt(0)
-                it.writeScope { count.incrementAndGet() }
+    fun blockWithNoWriteSucceedsSessionStorage() = testScope.runTest {
+        testSessionStorage.createConnection().use {
+            val count = AtomicInt(0)
+            it.writeScope { count.incrementAndGet() }
 
-                assertThat(count.get()).isEqualTo(1)
-            }
+            assertThat(count.get()).isEqualTo(1)
         }
+    }
 
     @Test
-    fun blockWithNoWriteSucceedsLocalStorage() =
-        testScope.runTest {
-            testLocalStorage.createConnection().use {
-                val count = AtomicInt(0)
-                it.writeScope { count.incrementAndGet() }
+    fun blockWithNoWriteSucceedsLocalStorage() = testScope.runTest {
+        testLocalStorage.createConnection().use {
+            val count = AtomicInt(0)
+            it.writeScope { count.incrementAndGet() }
 
-                assertThat(count.get()).isEqualTo(1)
-            }
+            assertThat(count.get()).isEqualTo(1)
         }
+    }
 
     @Test
     fun testSessionStorage_writeThenRead() = runTest {

@@ -542,13 +542,13 @@ internal fun IndicatorImpl(
             // This snapshotFlow listens to changes in position, size and visibility
             // of ScrollIndicatorState and starts necessary animations if needed
             snapshotFlow {
-                    DisplayState(
-                        state.positionFraction,
-                        state.sizeFraction,
-                        arcLengthPx,
-                        state.jiggleAmount,
-                    )
-                }
+                DisplayState(
+                    state.positionFraction,
+                    state.sizeFraction,
+                    arcLengthPx,
+                    state.jiggleAmount,
+                )
+            }
                 .collectLatest {
                     // Workaround for b/315149417. When position and height are equal to 0,
                     // we consider that as non-initialized state.

@@ -102,11 +102,10 @@ class AndroidComposeViewWrapper(
 
     private fun View.hasHideFromInspectionTag(): Boolean {
         return runCatching {
-                getTag(R.id.hide_in_inspector_tag) != null ||
-                    getTag(
-                        androidx.compose.ui.graphics.R.id.hide_graphics_layer_in_inspector_tag
-                    ) != null
-            }
+            getTag(R.id.hide_in_inspector_tag) != null ||
+                getTag(androidx.compose.ui.graphics.R.id.hide_graphics_layer_in_inspector_tag) !=
+                    null
+        }
             .getOrNull() ?: false
     }
 }

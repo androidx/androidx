@@ -61,12 +61,11 @@ class ComposeViewSavedStateSizeTest {
             Box { repeat(childCount) { Box(Modifier.graphicsLayer()) } }
         }
 
-        val initialArray =
-            rule.runOnIdle {
-                val array = SparseArray<Parcelable>()
-                view.saveHierarchyState(array)
-                array
-            }
+        val initialArray = rule.runOnIdle {
+            val array = SparseArray<Parcelable>()
+            view.saveHierarchyState(array)
+            array
+        }
 
         childCount = 10
 

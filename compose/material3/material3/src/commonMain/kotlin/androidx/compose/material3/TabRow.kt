@@ -464,32 +464,31 @@ private fun TabRowImpl(
                 }
             )
 
-            val tabPlaceables =
-                tabMeasurables.fastMap {
-                    it.measure(
-                        constraints.copy(
-                            minWidth = tabWidth,
-                            maxWidth = tabWidth,
-                            minHeight = tabRowHeight,
-                            maxHeight = tabRowHeight,
-                        )
+            val tabPlaceables = tabMeasurables.fastMap {
+                it.measure(
+                    constraints.copy(
+                        minWidth = tabWidth,
+                        maxWidth = tabWidth,
+                        minHeight = tabRowHeight,
+                        maxHeight = tabRowHeight,
                     )
-                }
+                )
+            }
 
-            val dividerPlaceables =
-                dividerMeasurables.fastMap { it.measure(constraints.copy(minHeight = 0)) }
+            val dividerPlaceables = dividerMeasurables.fastMap {
+                it.measure(constraints.copy(minHeight = 0))
+            }
 
-            val indicatorPlaceables =
-                indicatorMeasurables.fastMap {
-                    it.measure(
-                        constraints.copy(
-                            minWidth = tabWidth,
-                            maxWidth = tabWidth,
-                            minHeight = 0,
-                            maxHeight = tabRowHeight,
-                        )
+            val indicatorPlaceables = indicatorMeasurables.fastMap {
+                it.measure(
+                    constraints.copy(
+                        minWidth = tabWidth,
+                        maxWidth = tabWidth,
+                        minHeight = 0,
+                        maxHeight = tabRowHeight,
                     )
-                }
+                )
+            }
 
             layout(tabRowWidth, tabRowHeight) {
                 tabPlaceables.fastForEachIndexed { index, placeable ->
@@ -614,17 +613,16 @@ private fun ScrollableTabRowImpl(
                     }
                 scope.setTabPositions(positions)
 
-                val indicatorPlaceables =
-                    indicatorMeasurables.fastMap {
-                        it.measure(
-                            constraints.copy(
-                                minWidth = 0,
-                                maxWidth = positions[selectedTabIndex].contentWidth.roundToPx(),
-                                minHeight = 0,
-                                maxHeight = layoutHeight,
-                            )
+                val indicatorPlaceables = indicatorMeasurables.fastMap {
+                    it.measure(
+                        constraints.copy(
+                            minWidth = 0,
+                            maxWidth = positions[selectedTabIndex].contentWidth.roundToPx(),
+                            minHeight = 0,
+                            maxHeight = layoutHeight,
                         )
-                    }
+                    )
+                }
 
                 layout(layoutWidth, layoutHeight) {
                     left = edgePadding
@@ -780,17 +778,16 @@ private fun TabRowWithSubcomposeImpl(
                     maxOf(curr.maxIntrinsicHeight(tabWidth), max)
                 }
 
-            val tabPlaceables =
-                tabMeasurables.fastMap {
-                    it.measure(
-                        constraints.copy(
-                            minWidth = tabWidth,
-                            maxWidth = tabWidth,
-                            minHeight = tabRowHeight,
-                            maxHeight = tabRowHeight,
-                        )
+            val tabPlaceables = tabMeasurables.fastMap {
+                it.measure(
+                    constraints.copy(
+                        minWidth = tabWidth,
+                        maxWidth = tabWidth,
+                        minHeight = tabRowHeight,
+                        maxHeight = tabRowHeight,
                     )
-                }
+                )
+            }
 
             val tabPositions =
                 List(tabCount) { index ->

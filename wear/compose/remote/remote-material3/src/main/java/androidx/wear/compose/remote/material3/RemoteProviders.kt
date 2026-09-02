@@ -68,15 +68,14 @@ internal fun <T> provideNullableScopeContent(
     textStyle: RemoteTextStyle,
     textConfiguration: TextConfiguration,
     content: (@Composable T.() -> Unit)?,
-): (@Composable T.() -> Unit)? =
-    content?.let {
-        {
-            CompositionLocalProvider(
-                LocalRemoteContentColor provides contentColor,
-                LocalRemoteTextStyle provides textStyle,
-                LocalTextConfiguration provides textConfiguration,
-            ) {
-                content()
-            }
+): (@Composable T.() -> Unit)? = content?.let {
+    {
+        CompositionLocalProvider(
+            LocalRemoteContentColor provides contentColor,
+            LocalRemoteTextStyle provides textStyle,
+            LocalTextConfiguration provides textConfiguration,
+        ) {
+            content()
         }
     }
+}

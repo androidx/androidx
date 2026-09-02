@@ -92,13 +92,12 @@ internal constructor(private val pollScopeOverride: CoroutineScope?) : IdlingRes
             !isPolling &&
                 areAllResourcesIdle().also { isIdle ->
                     if (!isIdle) {
-                        pollJob =
-                            pollScope.launch {
-                                do {
-                                    delay(20)
-                                } while (!areAllResourcesIdle())
-                                onIdle?.invoke()
-                            }
+                        pollJob = pollScope.launch {
+                            do {
+                                delay(20)
+                            } while (!areAllResourcesIdle())
+                            onIdle?.invoke()
+                        }
                     }
                 }
         }

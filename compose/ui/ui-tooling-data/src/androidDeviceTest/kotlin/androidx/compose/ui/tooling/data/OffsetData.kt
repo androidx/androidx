@@ -46,7 +46,8 @@ fun OffsetData() {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
                 text = "Hello",
-                style = TextStyle(color = Color.Magenta, background = Color.White, fontSize = 30.sp),
+                style =
+                    TextStyle(color = Color.Magenta, background = Color.White, fontSize = 30.sp),
             )
             Greeting("Android")
             Surface(color = Color.Blue, shape = MaterialTheme.shapes.small) {

@@ -585,21 +585,21 @@ public class SandboxedPdfDocument(
         if (types == PdfDocument.FORM_WIDGET_INCLUDE_ALL_TYPES) return intArrayOf()
 
         return buildList {
-                if (types and PdfDocument.FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE != 0L)
-                    add(FormWidgetInfo.WIDGET_TYPE_TEXTFIELD)
-                if (types and PdfDocument.FORM_WIDGET_INCLUDE_PUSHBUTTON_TYPE != 0L)
-                    add(FormWidgetInfo.WIDGET_TYPE_PUSHBUTTON)
-                if (types and PdfDocument.FORM_WIDGET_INCLUDE_RADIOBUTTON_TYPE != 0L)
-                    add(FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON)
-                if (types and PdfDocument.FORM_WIDGET_INCLUDE_CHECKBOX_TYPE != 0L)
-                    add(FormWidgetInfo.WIDGET_TYPE_CHECKBOX)
-                if (types and PdfDocument.FORM_WIDGET_INCLUDE_COMBOBOX_TYPE != 0L)
-                    add(FormWidgetInfo.WIDGET_TYPE_COMBOBOX)
-                if (types and PdfDocument.FORM_WIDGET_INCLUDE_LISTBOX_TYPE != 0L)
-                    add(FormWidgetInfo.WIDGET_TYPE_LISTBOX)
-                if (types and PdfDocument.FORM_WIDGET_INCLUDE_SIGNATURE_TYPE != 0L)
-                    add(FormWidgetInfo.WIDGET_TYPE_SIGNATURE)
-            }
+            if (types and PdfDocument.FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE != 0L)
+                add(FormWidgetInfo.WIDGET_TYPE_TEXTFIELD)
+            if (types and PdfDocument.FORM_WIDGET_INCLUDE_PUSHBUTTON_TYPE != 0L)
+                add(FormWidgetInfo.WIDGET_TYPE_PUSHBUTTON)
+            if (types and PdfDocument.FORM_WIDGET_INCLUDE_RADIOBUTTON_TYPE != 0L)
+                add(FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON)
+            if (types and PdfDocument.FORM_WIDGET_INCLUDE_CHECKBOX_TYPE != 0L)
+                add(FormWidgetInfo.WIDGET_TYPE_CHECKBOX)
+            if (types and PdfDocument.FORM_WIDGET_INCLUDE_COMBOBOX_TYPE != 0L)
+                add(FormWidgetInfo.WIDGET_TYPE_COMBOBOX)
+            if (types and PdfDocument.FORM_WIDGET_INCLUDE_LISTBOX_TYPE != 0L)
+                add(FormWidgetInfo.WIDGET_TYPE_LISTBOX)
+            if (types and PdfDocument.FORM_WIDGET_INCLUDE_SIGNATURE_TYPE != 0L)
+                add(FormWidgetInfo.WIDGET_TYPE_SIGNATURE)
+        }
             .toIntArray()
     }
 

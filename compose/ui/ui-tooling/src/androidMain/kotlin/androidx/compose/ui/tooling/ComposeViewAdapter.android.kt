@@ -334,30 +334,31 @@ internal class ComposeViewAdapter : FrameLayout {
     private fun findDesignInfoProviders() {
         val slotTrees = slotTableRecord.store.map { it.asTree() }
 
-        designInfoList =
-            slotTrees.flatMap { rootGroup ->
-                rootGroup
-                    .findAll { group ->
-                        (group.name != REMEMBER && group.hasDesignInfo()) ||
-                            group.children.any { child ->
-                                child.name == REMEMBER && child.hasDesignInfo()
-                            }
-                    }
-                    .mapNotNull { group ->
-                        // Get the DesignInfoProviders from the group or one of its children
-                        group.getDesignInfoOrNull(group.box)
-                            ?: group.children.firstNotNullOfOrNull {
-                                it.getDesignInfoOrNull(group.box)
-                            }
-                    }
-            }
+        designInfoList = slotTrees.flatMap { rootGroup ->
+            rootGroup
+                .findAll { group ->
+                    (group.name != REMEMBER && group.hasDesignInfo()) ||
+                        group.children.any { child ->
+                            child.name == REMEMBER && child.hasDesignInfo()
+                        }
+                }
+                .mapNotNull { group ->
+                    // Get the DesignInfoProviders from the group or one of its children
+                    group.getDesignInfoOrNull(group.box)
+                        ?: group.children.firstNotNullOfOrNull {
+                            it.getDesignInfoOrNull(group.box)
+                        }
+                }
+        }
     }
 
-    private fun Group.hasDesignInfo(): Boolean =
-        data.any { it?.getDesignInfoMethodOrNull() != null }
+    private fun Group.hasDesignInfo(): Boolean = data.any {
+        it?.getDesignInfoMethodOrNull() != null
+    }
 
-    private fun Group.getDesignInfoOrNull(box: IntRect): String? =
-        data.firstNotNullOfOrNull { it?.invokeGetDesignInfo(box.left, box.right) }
+    private fun Group.getDesignInfoOrNull(box: IntRect): String? = data.firstNotNullOfOrNull {
+        it?.invokeGetDesignInfo(box.left, box.right)
+    }
 
     /**
      * Check if the object supports the method call for [DESIGN_INFO_METHOD], which is expected to

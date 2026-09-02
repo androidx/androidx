@@ -226,7 +226,8 @@ class Rx3PagingSourceTest {
     private class RxPagingSourceImpl(
         private val baseSource: RxPagingSource<Int, PagingEntity>,
         private val initialLoadSingle: (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
-        private val nonInitialLoadSingle: (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
+        private val nonInitialLoadSingle:
+            (LoadParams<Int>) -> Single<LoadResult<Int, PagingEntity>>,
     ) : RxPagingSource<Int, PagingEntity>() {
 
         val singles = mutableListOf<Single<LoadResult<Int, PagingEntity>>>()

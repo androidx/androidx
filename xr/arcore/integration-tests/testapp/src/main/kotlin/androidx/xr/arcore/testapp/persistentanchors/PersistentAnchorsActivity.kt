@@ -175,30 +175,29 @@ class PersistentAnchorsActivity : ComponentActivity() {
                 session.scene.perceptionSpace,
             )
         val panelSizeInMeters = mainPanelEntity.size
-        val newStatus =
-            cameraStates.mapIndexed { index, cameraState ->
-                val isInView =
-                    isPanelInView(
-                        cameraPoseInPerceptionSpace = cameraState.pose,
-                        cameraFov =
-                            FieldOfView(
-                                cameraState.fieldOfView.angleLeft,
-                                cameraState.fieldOfView.angleRight,
-                                cameraState.fieldOfView.angleUp,
-                                cameraState.fieldOfView.angleDown,
-                            ),
-                        panelPoseInPerceptionSpace = panelPoseInPerceptionSpace,
-                        panelSizeInMeters = panelSizeInMeters,
-                    )
-                val cameraName =
-                    when {
-                        renderViewpoints.size == 1 -> "CameraView"
-                        index == 0 -> "Left Eye CameraView"
-                        index == 1 -> "Right Eye CameraView"
-                        else -> "CameraView ${index + 1}"
-                    }
-                cameraName to isInView
-            }
+        val newStatus = cameraStates.mapIndexed { index, cameraState ->
+            val isInView =
+                isPanelInView(
+                    cameraPoseInPerceptionSpace = cameraState.pose,
+                    cameraFov =
+                        FieldOfView(
+                            cameraState.fieldOfView.angleLeft,
+                            cameraState.fieldOfView.angleRight,
+                            cameraState.fieldOfView.angleUp,
+                            cameraState.fieldOfView.angleDown,
+                        ),
+                    panelPoseInPerceptionSpace = panelPoseInPerceptionSpace,
+                    panelSizeInMeters = panelSizeInMeters,
+                )
+            val cameraName =
+                when {
+                    renderViewpoints.size == 1 -> "CameraView"
+                    index == 0 -> "Left Eye CameraView"
+                    index == 1 -> "Right Eye CameraView"
+                    else -> "CameraView ${index + 1}"
+                }
+            cameraName to isInView
+        }
         panelInViewStatus.value = newStatus
     }
 

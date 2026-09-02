@@ -384,12 +384,11 @@ private class MarqueeModifierNode(
         val oldJob = animationJob
         oldJob?.cancel()
         if (isAttached) {
-            animationJob =
-                coroutineScope.launch {
-                    // Wait for the cancellation to finish.
-                    oldJob?.join()
-                    runAnimation()
-                }
+            animationJob = coroutineScope.launch {
+                // Wait for the cancellation to finish.
+                oldJob?.join()
+                runAnimation()
+            }
         }
     }
 
@@ -404,12 +403,12 @@ private class MarqueeModifierNode(
         // an extra CoroutineContext every time the flow emits.
         withContext(FixedMotionDurationScale) {
             snapshotFlow {
-                    // Don't animate if content fits. (Because coroutines, the int will get boxed
-                    // anyway.)
-                    if (contentWidth <= containerWidth) return@snapshotFlow null
-                    if (animationMode == WhileFocused && !hasFocus) return@snapshotFlow null
-                    (contentWidth + spacingPx).toFloat()
-                }
+                // Don't animate if content fits. (Because coroutines, the int will get boxed
+                // anyway.)
+                if (contentWidth <= containerWidth) return@snapshotFlow null
+                if (animationMode == WhileFocused && !hasFocus) return@snapshotFlow null
+                (contentWidth + spacingPx).toFloat()
+            }
                 .collectLatest { contentWithSpacingWidth ->
                     // Don't animate when the content fits.
                     if (contentWithSpacingWidth == null) return@collectLatest

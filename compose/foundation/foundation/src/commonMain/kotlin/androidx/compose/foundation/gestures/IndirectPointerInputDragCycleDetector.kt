@@ -145,18 +145,17 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
         initialTouchSlopPositionChange: Offset = Offset.Zero,
         verifyConsumptionInFinalPass: Boolean = false,
     ) {
-        currentDragState =
-            awaitTouchSlopState.apply {
-                this.initialDown = initialDown
-                this.pointerId = pointerId
-                if (touchSlopDetector == null) {
-                    touchSlopDetector = TouchSlopDetector(node.orientation)
-                } else {
-                    touchSlopDetector?.orientation = node.orientation
-                    touchSlopDetector?.reset(initialTouchSlopPositionChange)
-                }
-                this.verifyConsumptionInFinalPass = verifyConsumptionInFinalPass
+        currentDragState = awaitTouchSlopState.apply {
+            this.initialDown = initialDown
+            this.pointerId = pointerId
+            if (touchSlopDetector == null) {
+                touchSlopDetector = TouchSlopDetector(node.orientation)
+            } else {
+                touchSlopDetector?.orientation = node.orientation
+                touchSlopDetector?.reset(initialTouchSlopPositionChange)
             }
+            this.verifyConsumptionInFinalPass = verifyConsumptionInFinalPass
+        }
     }
 
     private fun moveToDraggingState(pointerId: PointerId) {
@@ -164,12 +163,11 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
     }
 
     private fun moveToAwaitDownState() {
-        currentDragState =
-            awaitDownState.apply {
-                awaitTouchSlop = DragDetectionState.AwaitDown.AwaitTouchSlop.NotInitialized
-                consumedOnInitial = false
-                hasSeenInitialEvent = false
-            }
+        currentDragState = awaitDownState.apply {
+            awaitTouchSlop = DragDetectionState.AwaitDown.AwaitTouchSlop.NotInitialized
+            consumedOnInitial = false
+            hasSeenInitialEvent = false
+        }
     }
 
     private fun moveToAwaitGesturePickupState(
@@ -177,12 +175,11 @@ internal class IndirectPointerInputDragCycleDetector(val node: DragGestureNode) 
         pointerId: PointerId,
         touchSlopDetector: TouchSlopDetector,
     ) {
-        currentDragState =
-            awaitGesturePickupState.apply {
-                this.initialDown = initialDown
-                this.pointerId = pointerId
-                this.touchSlopDetector = touchSlopDetector.also { it.reset() }
-            }
+        currentDragState = awaitGesturePickupState.apply {
+            this.initialDown = initialDown
+            this.pointerId = pointerId
+            this.touchSlopDetector = touchSlopDetector.also { it.reset() }
+        }
     }
 
     private fun processInitialDownState(

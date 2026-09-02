@@ -64,16 +64,15 @@ internal class Camera2CameraStatusMonitor(
     override val cameraPriorities: SharedFlow<Unit> = _cameraPriorities.asSharedFlow()
 
     private val cameraStatus = cameraStatusFlow()
-    private val cameraStatusJob =
-        scope.launch {
-            cameraStatus.collect { cameraStatus ->
-                when (cameraStatus) {
-                    is CameraStatus.CameraAvailable -> _cameraAvailability.emit(cameraStatus)
-                    is CameraStatus.CameraUnavailable -> _cameraAvailability.emit(cameraStatus)
-                    is CameraStatus.CameraPrioritiesChanged -> _cameraPriorities.emit(Unit)
-                }
+    private val cameraStatusJob = scope.launch {
+        cameraStatus.collect { cameraStatus ->
+            when (cameraStatus) {
+                is CameraStatus.CameraAvailable -> _cameraAvailability.emit(cameraStatus)
+                is CameraStatus.CameraUnavailable -> _cameraAvailability.emit(cameraStatus)
+                is CameraStatus.CameraPrioritiesChanged -> _cameraPriorities.emit(Unit)
             }
         }
+    }
 
     private fun cameraStatusFlow() = callbackFlow {
         val availabilityCallback =

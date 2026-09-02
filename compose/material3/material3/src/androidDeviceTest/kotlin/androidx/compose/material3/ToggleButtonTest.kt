@@ -209,7 +209,8 @@ class ToggleButtonTest {
                                 alpha = FilledButtonTokens.DisabledLabelTextOpacity
                             ),
                         checkedContainerColor = FilledButtonTokens.SelectedContainerColor.value,
-                        checkedContentColor = FilledButtonTokens.SelectedPressedLabelTextColor.value,
+                        checkedContentColor =
+                            FilledButtonTokens.SelectedPressedLabelTextColor.value,
                     )
                 )
         }

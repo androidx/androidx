@@ -48,5 +48,7 @@ public data class Slice(val name: String, val ts: Long, val dur: Long) {
  * for convenience.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun Sequence<Row>.toSlices(): List<Slice> =
-    map { Slice(name = it.string("name"), ts = it.long("ts"), dur = it.long("dur")) }.toList()
+public fun Sequence<Row>.toSlices(): List<Slice> = map {
+    Slice(name = it.string("name"), ts = it.long("ts"), dur = it.long("dur"))
+}
+    .toList()

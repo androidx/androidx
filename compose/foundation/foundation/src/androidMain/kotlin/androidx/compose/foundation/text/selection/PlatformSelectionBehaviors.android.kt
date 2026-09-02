@@ -306,22 +306,19 @@ internal class PlatformSelectionBehaviorsImpl(
         block: suspend TextClassifier.() -> T
     ): T? {
         return withContext(coroutineContext) {
-            val textClassificationSession =
-                mutex.withLock {
-                    val session = this@PlatformSelectionBehaviorsImpl.textClassificationSession
+            val textClassificationSession = mutex.withLock {
+                val session = this@PlatformSelectionBehaviorsImpl.textClassificationSession
 
-                    if (session == null || session.isDestroyed) {
-                        withTimeoutOrNull(
-                            TEXT_CLASSIFIER_INITIALIZATION_TIMEOUT_MILLIS.milliseconds
-                        ) {
-                            createTextClassificationSession(context, selectedTextType).also {
-                                this@PlatformSelectionBehaviorsImpl.textClassificationSession = it
-                            }
+                if (session == null || session.isDestroyed) {
+                    withTimeoutOrNull(TEXT_CLASSIFIER_INITIALIZATION_TIMEOUT_MILLIS.milliseconds) {
+                        createTextClassificationSession(context, selectedTextType).also {
+                            this@PlatformSelectionBehaviorsImpl.textClassificationSession = it
                         }
-                    } else {
-                        session
                     }
+                } else {
+                    session
                 }
+            }
             withTimeoutOrNull(TEXT_CLASSIFICATION_TIMEOUT_MILLIS.milliseconds) {
                 textClassificationSession?.block()
             }

@@ -47,23 +47,22 @@ actual internal object BrushTipNative {
         particleGapDistanceScale: Float,
         particleGapDurationMillis: Long,
         behaviorNativePointersArray: LongArray,
-    ): Long =
-        behaviorNativePointersArray.usePinned { pinned ->
-            BrushTipNative_create(
-                jni_env_pass_through = null,
-                scaleX,
-                scaleY,
-                cornerRounding,
-                slantDegrees,
-                pinch,
-                rotationDegrees,
-                particleGapDistanceScale,
-                particleGapDurationMillis,
-                if (behaviorNativePointersArray.isEmpty()) null else pinned.addressOf(0),
-                behaviorNativePointersArray.size,
-                throwForNonOkStatusCallback,
-            )
-        }
+    ): Long = behaviorNativePointersArray.usePinned { pinned ->
+        BrushTipNative_create(
+            jni_env_pass_through = null,
+            scaleX,
+            scaleY,
+            cornerRounding,
+            slantDegrees,
+            pinch,
+            rotationDegrees,
+            particleGapDistanceScale,
+            particleGapDurationMillis,
+            if (behaviorNativePointersArray.isEmpty()) null else pinned.addressOf(0),
+            behaviorNativePointersArray.size,
+            throwForNonOkStatusCallback,
+        )
+    }
 
     actual fun free(nativePointer: Long) = BrushTipNative_free(nativePointer)
 

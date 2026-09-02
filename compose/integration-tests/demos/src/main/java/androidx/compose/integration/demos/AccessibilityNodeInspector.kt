@@ -588,8 +588,10 @@ private fun InspectorNodeDetails(
     }
 }
 
-private fun NodeInfo.selfAndAncestorsToList() =
-    buildList { visitSelfAndAncestors(::add) }.asReversed()
+private fun NodeInfo.selfAndAncestorsToList() = buildList {
+    visitSelfAndAncestors(::add)
+}
+    .asReversed()
 
 @Composable
 private fun NodeHeader(node: NodeInfo) {

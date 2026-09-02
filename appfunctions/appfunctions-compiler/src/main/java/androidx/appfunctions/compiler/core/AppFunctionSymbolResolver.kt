@@ -58,8 +58,9 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
                             it.annotations.findAnnotation(AppFunctionAnnotation.CLASS_NAME) != null
                         }
                         .toList()
-                val appFunctions =
-                    appFunctionDeclarations.map { AnnotatedAppFunction(it, it.docString) }
+                val appFunctions = appFunctionDeclarations.map {
+                    AnnotatedAppFunction(it, it.docString)
+                }
                 AnnotatedAppFunctionServiceEntryPoint(declaration, appFunctions)
             }
             .toList()
@@ -287,8 +288,9 @@ class AppFunctionSymbolResolver(private val resolver: Resolver) {
             .entries
             .sortedBy { it.key.qualifiedName?.asString() }
             .map { (classDeclaration, appFunctionsDeclarations) ->
-                val docstringMap =
-                    filteredAppFunctionComponents.associate { it.qualifiedName to it.docString }
+                val docstringMap = filteredAppFunctionComponents.associate {
+                    it.qualifiedName to it.docString
+                }
                 AnnotatedAppFunctions(
                         classDeclaration,
                         appFunctionsDeclarations.map {

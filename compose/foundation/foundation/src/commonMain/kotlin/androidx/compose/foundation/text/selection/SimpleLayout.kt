@@ -32,13 +32,12 @@ internal fun SimpleLayout(modifier: Modifier = Modifier, content: @Composable ()
     Layout(modifier = modifier, content = content) { measurables, constraints ->
         var width = 0
         var height = 0
-        val placeables =
-            measurables.fastMap { measurable ->
-                val placeable = measurable.measure(constraints)
-                width = max(width, placeable.width)
-                height = max(height, placeable.height)
-                placeable
-            }
+        val placeables = measurables.fastMap { measurable ->
+            val placeable = measurable.measure(constraints)
+            width = max(width, placeable.width)
+            height = max(height, placeable.height)
+            placeable
+        }
         layout(width, height) { placeables.fastForEach { placeable -> placeable.place(0, 0) } }
     }
 }

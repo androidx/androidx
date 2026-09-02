@@ -361,8 +361,10 @@ class PlaceholderTest {
     @OptIn(ExperimentalWearMaterialApi::class)
     @Composable
     fun TestPlaceholderChip(contents: String?, currentState: StableRef<PlaceholderState?>) {
-        val placeholderState =
-            rememberPlaceholderState { contents != null }.also { currentState.value = it }
+        val placeholderState = rememberPlaceholderState {
+            contents != null
+        }
+            .also { currentState.value = it }
         Chip(
             modifier = Modifier.testTag("test-item").placeholderShimmer(placeholderState),
             content = {},

@@ -854,7 +854,9 @@ private inline fun UElement.anyParentMatches(
 
 /** Returns whether the package is annotated with the specified annotation. */
 private fun PsiPackage.isAnnotatedWith(annotationFqName: String): Boolean =
-    annotations.any { annotation -> annotation.hasQualifiedName(annotationFqName) }
+    annotations.any { annotation ->
+        annotation.hasQualifiedName(annotationFqName)
+    }
 
 /**
  * Returns whether the package is annotated with any of the specified opt-in annotations where the
@@ -863,16 +865,15 @@ private fun PsiPackage.isAnnotatedWith(annotationFqName: String): Boolean =
 private fun PsiPackage.isAnnotatedWithOptInOf(
     annotationFqName: String,
     optInFqNames: List<String>,
-): Boolean =
-    optInFqNames.any { optInFqName ->
-        annotations.any { annotation ->
-            annotation.hasQualifiedName(optInFqName) &&
-                ((annotation.toUElementOfType<UAnnotation>())?.hasMatchingAttributeValueClass(
-                    "markerClass",
-                    annotationFqName,
-                ) ?: false)
-        }
+): Boolean = optInFqNames.any { optInFqName ->
+    annotations.any { annotation ->
+        annotation.hasQualifiedName(optInFqName) &&
+            ((annotation.toUElementOfType<UAnnotation>())?.hasMatchingAttributeValueClass(
+                "markerClass",
+                annotationFqName,
+            ) ?: false)
     }
+}
 
 /**
  * Returns whether the element declaration is annotated with the specified annotation. If

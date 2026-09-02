@@ -64,17 +64,15 @@ internal actual class CopyOnWriteArrayList<T> : Iterable<T> {
         return data.iterator()
     }
 
-    actual fun add(value: T) =
-        lock.withLock {
-            data = data + value
-            true
-        }
+    actual fun add(value: T) = lock.withLock {
+        data = data + value
+        true
+    }
 
-    actual fun remove(value: T): Boolean =
-        lock.withLock {
-            val newList = data.toMutableList()
-            val result = newList.remove(value)
-            data = newList
-            result
-        }
+    actual fun remove(value: T): Boolean = lock.withLock {
+        val newList = data.toMutableList()
+        val result = newList.remove(value)
+        data = newList
+        result
+    }
 }

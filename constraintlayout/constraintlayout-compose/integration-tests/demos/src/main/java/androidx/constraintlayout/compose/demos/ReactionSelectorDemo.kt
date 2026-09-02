@@ -78,15 +78,14 @@ fun ReactionSelectorDemo() {
                 }
             }
         }
-        val ends =
-            titleIds.map {
-                constraintSet(extendConstraintSet = start1) {
-                    constrain(it) {
-                        scaleX = 1f
-                        alpha = 1f
-                    }
+        val ends = titleIds.map {
+            constraintSet(extendConstraintSet = start1) {
+                constrain(it) {
+                    scaleX = 1f
+                    alpha = 1f
                 }
             }
+        }
         ends.mapIndexed { index, end -> transition(start1, end, "transition$index") {} }
     }
     val progress = remember { Animatable(0f) }

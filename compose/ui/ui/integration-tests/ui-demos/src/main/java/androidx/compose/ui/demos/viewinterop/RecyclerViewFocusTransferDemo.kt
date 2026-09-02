@@ -69,12 +69,11 @@ private class DemoAdapter(val entries: List<String>) : Adapter<DemoAdapter.DemoV
                 this.isFocusableInTouchMode = true
                 val focusRequester = FocusRequester()
 
-                this.onFocusChangeListener =
-                    View.OnFocusChangeListener { _, hasFocus ->
-                        if (hasFocus) {
-                            focusRequester.requestFocus()
-                        }
+                this.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+                    if (hasFocus) {
+                        focusRequester.requestFocus()
                     }
+                }
 
                 setContent {
                     FocusableText(

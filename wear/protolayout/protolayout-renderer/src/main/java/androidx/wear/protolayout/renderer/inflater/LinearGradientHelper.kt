@@ -88,14 +88,13 @@ internal class LinearGradientHelper(
 
         colors = inputColorStops.map { it.color.argb }.toIntArray()
 
-        colorOffsets =
-            inputColorStops.let { stops ->
-                if (numOfOffsets > 0) {
-                    stops.map { it.offset.value }.toFloatArray()
-                } else {
-                    null
-                }
+        colorOffsets = inputColorStops.let { stops ->
+            if (numOfOffsets > 0) {
+                stops.map { it.offset.value }.toFloatArray()
+            } else {
+                null
             }
+        }
 
         inputColorStops.forEachIndexed { index, colorStop ->
             handleDynamicColorStop(colorStop, index, posId, pipelineMaker)

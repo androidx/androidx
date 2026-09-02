@@ -41,31 +41,30 @@ internal class SplitControllerTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
-    fun test_splitInfoListComesFromBackend() =
-        testScope.runTest {
-            val expected =
-                listOf(
-                    SplitInfo(
-                        ActivityStack(emptyList(), true),
-                        ActivityStack(emptyList(), true),
-                        SplitAttributes.Builder().build(),
-                    )
+    fun test_splitInfoListComesFromBackend() = testScope.runTest {
+        val expected =
+            listOf(
+                SplitInfo(
+                    ActivityStack(emptyList(), true),
+                    ActivityStack(emptyList(), true),
+                    SplitAttributes.Builder().build(),
                 )
-            doAnswer { invocationOnMock ->
-                    @Suppress("UNCHECKED_CAST")
-                    val listener = invocationOnMock.arguments.last() as Consumer<List<SplitInfo>>
-                    listener.accept(expected)
-                }
-                .whenever(mockBackend)
-                .addSplitListenerForActivity(any(), any(), any())
+            )
+        doAnswer { invocationOnMock ->
+                @Suppress("UNCHECKED_CAST")
+                val listener = invocationOnMock.arguments.last() as Consumer<List<SplitInfo>>
+                listener.accept(expected)
+            }
+            .whenever(mockBackend)
+            .addSplitListenerForActivity(any(), any(), any())
 
-            val mockActivity = mock<Activity>()
-            val actual = splitController.splitInfoList(mockActivity).take(1).toList().first()
+        val mockActivity = mock<Activity>()
+        val actual = splitController.splitInfoList(mockActivity).take(1).toList().first()
 
-            assertEquals(expected, actual)
-            verify(mockBackend).addSplitListenerForActivity(eq(mockActivity), any(), any())
-            verify(mockBackend).removeSplitListenerForActivity(any())
-        }
+        assertEquals(expected, actual)
+        verify(mockBackend).addSplitListenerForActivity(eq(mockActivity), any(), any())
+        verify(mockBackend).removeSplitListenerForActivity(any())
+    }
 
     @Test
     fun test_splitSupportStatus_delegates() {

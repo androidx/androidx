@@ -2515,15 +2515,14 @@ class ContextualFlowRowColumnTest {
                 }
             }
             xPositions.clear()
-            overflowState.value =
-                ContextualFlowRowOverflow.expandIndicator {
-                    Box(
-                        Modifier.size(20.dp).onGloballyPositioned {
-                            val positionInParent = it.positionInParent()
-                            seeMoreXPosition = positionInParent.x
-                        }
-                    )
-                }
+            overflowState.value = ContextualFlowRowOverflow.expandIndicator {
+                Box(
+                    Modifier.size(20.dp).onGloballyPositioned {
+                        val positionInParent = it.positionInParent()
+                        seeMoreXPosition = positionInParent.x
+                    }
+                )
+            }
         }
         advanceClock()
         rule.runOnIdle {
@@ -2682,15 +2681,14 @@ class ContextualFlowRowColumnTest {
                 }
             }
             yPositions.clear()
-            overflowState.value =
-                ContextualFlowColumnOverflow.expandIndicator {
-                    Box(
-                        Modifier.size(20.dp).onGloballyPositioned {
-                            val positionInParent = it.positionInParent()
-                            seeMoreYPosition = positionInParent.y
-                        }
-                    )
-                }
+            overflowState.value = ContextualFlowColumnOverflow.expandIndicator {
+                Box(
+                    Modifier.size(20.dp).onGloballyPositioned {
+                        val positionInParent = it.positionInParent()
+                        seeMoreYPosition = positionInParent.y
+                    }
+                )
+            }
         }
         // Continuing from the previous logic
         advanceClock()
@@ -2848,15 +2846,14 @@ class ContextualFlowRowColumnTest {
                 }
             }
             xPositions.clear()
-            overflowState.value =
-                ContextualFlowRowOverflow.expandIndicator {
-                    Box(
-                        Modifier.size(20.dp).onGloballyPositioned {
-                            val positionInParent = it.positionInParent()
-                            seeMoreXPosition = positionInParent.x
-                        }
-                    )
-                }
+            overflowState.value = ContextualFlowRowOverflow.expandIndicator {
+                Box(
+                    Modifier.size(20.dp).onGloballyPositioned {
+                        val positionInParent = it.positionInParent()
+                        seeMoreXPosition = positionInParent.x
+                    }
+                )
+            }
         }
         advanceClock()
         rule.runOnIdle {
@@ -3055,15 +3052,14 @@ class ContextualFlowRowColumnTest {
                 }
             }
             yPositions.clear()
-            overflowState.value =
-                ContextualFlowColumnOverflow.expandIndicator {
-                    Box(
-                        Modifier.size(20.dp).onGloballyPositioned {
-                            val positionInParent = it.positionInParent()
-                            seeMoreYPosition = positionInParent.y
-                        }
-                    )
-                }
+            overflowState.value = ContextualFlowColumnOverflow.expandIndicator {
+                Box(
+                    Modifier.size(20.dp).onGloballyPositioned {
+                        val positionInParent = it.positionInParent()
+                        seeMoreYPosition = positionInParent.y
+                    }
+                )
+            }
         }
         advanceClock()
         rule.runOnIdle {

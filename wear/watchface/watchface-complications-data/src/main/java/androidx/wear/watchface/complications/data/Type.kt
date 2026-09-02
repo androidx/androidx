@@ -109,8 +109,9 @@ public enum class ComplicationType(private val wireType: Int) {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        public fun fromWireTypeList(types: IntArray): List<ComplicationType> =
-            types.map { fromWireType(it) }
+        public fun fromWireTypeList(types: IntArray): List<ComplicationType> = types.map {
+            fromWireType(it)
+        }
     }
 }
 

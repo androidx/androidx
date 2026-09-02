@@ -65,59 +65,56 @@ class LifecycleRegistryTest {
     }
 
     @Test
-    fun getCurrentStateFlowWithReentranceNoObservers() =
-        testScope.runTest {
-            val stateFlow = lifecycleOwner.lifecycle.currentStateFlow
-            assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
-            assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
+    fun getCurrentStateFlowWithReentranceNoObservers() = testScope.runTest {
+        val stateFlow = lifecycleOwner.lifecycle.currentStateFlow
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
 
-            backgroundScope.launch {
-                stateFlow.collect { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE) }
-            }
-
-            assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.CREATED)
-            assertThat(stateFlow.value).isEqualTo(Lifecycle.State.CREATED)
+        backgroundScope.launch {
+            stateFlow.collect { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE) }
         }
+
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.CREATED)
+    }
 
     @Test
-    fun getCurrentStateFlowWithObserverReentrance() =
-        testScope.runTest {
-            val stateFlow = lifecycleOwner.lifecycle.currentStateFlow
-            assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
-            assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
+    fun getCurrentStateFlowWithObserverReentrance() = testScope.runTest {
+        val stateFlow = lifecycleOwner.lifecycle.currentStateFlow
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
 
-            lifecycleOwner.lifecycle.addObserver(
-                LifecycleEventObserver { owner, _ ->
-                    (owner.lifecycle as LifecycleRegistry).handleLifecycleEvent(
-                        Lifecycle.Event.ON_RESUME
-                    )
-                }
-            )
+        lifecycleOwner.lifecycle.addObserver(
+            LifecycleEventObserver { owner, _ ->
+                (owner.lifecycle as LifecycleRegistry).handleLifecycleEvent(
+                    Lifecycle.Event.ON_RESUME
+                )
+            }
+        )
 
-            backgroundScope.launch { stateFlow.collect {} }
+        backgroundScope.launch { stateFlow.collect {} }
 
-            lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.RESUMED)
-            assertThat(stateFlow.value).isEqualTo(Lifecycle.State.RESUMED)
-        }
+        lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.RESUMED)
+    }
 
     @Test
-    fun getCurrentStateFlowWithObserverWithFlowReentrance() =
-        testScope.runTest {
-            val stateFlow = lifecycleOwner.lifecycle.currentStateFlow
-            assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
-            assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
+    fun getCurrentStateFlowWithObserverWithFlowReentrance() = testScope.runTest {
+        val stateFlow = lifecycleOwner.lifecycle.currentStateFlow
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+        assertThat(stateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
 
-            lateinit var event: Lifecycle.Event
-            lifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, e -> event = e })
+        lateinit var event: Lifecycle.Event
+        lifecycleOwner.lifecycle.addObserver(LifecycleEventObserver { _, e -> event = e })
 
-            backgroundScope.launch {
-                stateFlow.collect { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE) }
-            }
-
-            assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.CREATED)
-            assertThat(event).isEqualTo(Lifecycle.Event.ON_CREATE)
+        backgroundScope.launch {
+            stateFlow.collect { lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE) }
         }
+
+        assertThat(lifecycleOwner.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(event).isEqualTo(Lifecycle.Event.ON_CREATE)
+    }
 
     @Test
     fun observerCount() {

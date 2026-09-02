@@ -119,17 +119,16 @@ internal class BaseWidgetDelegate(
                 }
 
                 // Match and filter against active installed providers before expensive composition
-                val validProviders =
-                    matchingComponents.mapNotNull { component ->
-                        providerMap[component]
-                            ?: run {
-                                Log.w(
-                                    TAG,
-                                    "Component $component is not an installed AppWidgetProvider",
-                                )
-                                null
-                            }
-                    }
+                val validProviders = matchingComponents.mapNotNull { component ->
+                    providerMap[component]
+                        ?: run {
+                            Log.w(
+                                TAG,
+                                "Component $component is not an installed AppWidgetProvider",
+                            )
+                            null
+                        }
+                }
                 if (validProviders.isEmpty()) return@withContext
 
                 val compositionResult =

@@ -4504,7 +4504,8 @@ class AppSearchCompilerTest : CompilerTestBase() {
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings()
         checkResultContains(
             "Gift.java",
-            "int documentClassMapConv = (int) genericDoc.getPropertyLong" + "(\"documentClassMap\")",
+            "int documentClassMapConv = (int) genericDoc.getPropertyLong" +
+                "(\"documentClassMap\")",
         )
         checkResultContains("Gift.java", "document.documentClassMap = documentClassMapConv")
         checkEqualsGolden("Gift.java")

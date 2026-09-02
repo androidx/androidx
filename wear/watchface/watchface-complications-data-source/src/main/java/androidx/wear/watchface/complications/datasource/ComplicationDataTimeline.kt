@@ -150,13 +150,12 @@ public class ComplicationDataTimeline(
     }
 
     internal fun asWireComplicationData(): WireComplicationData {
-        val wireTimelineEntries =
-            timelineEntries.map { timelineEntry ->
-                timelineEntry.complicationData.asWireComplicationData().apply {
-                    timelineStartEpochSecond = timelineEntry.validity.start.epochSecond
-                    timelineEndEpochSecond = timelineEntry.validity.end.epochSecond
-                }
+        val wireTimelineEntries = timelineEntries.map { timelineEntry ->
+            timelineEntry.complicationData.asWireComplicationData().apply {
+                timelineStartEpochSecond = timelineEntry.validity.start.epochSecond
+                timelineEndEpochSecond = timelineEntry.validity.end.epochSecond
             }
+        }
         return defaultComplicationData.asWireComplicationData().apply {
             setTimelineEntryCollection(wireTimelineEntries)
         }
@@ -164,17 +163,16 @@ public class ComplicationDataTimeline(
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     internal fun asWearSdkComplicationData(): WearSdkComplicationData {
-        val wireTimelineEntries =
-            timelineEntries.map { timelineEntry ->
-                WearSdkComplicationData.Builder(
-                        timelineEntry.complicationData.asWearSdkComplicationData()
-                    )
-                    .apply {
-                        setTimelineStartEpochSecond(timelineEntry.validity.start.epochSecond)
-                        setTimelineEndEpochSecond(timelineEntry.validity.end.epochSecond)
-                    }
-                    .build()
-            }
+        val wireTimelineEntries = timelineEntries.map { timelineEntry ->
+            WearSdkComplicationData.Builder(
+                    timelineEntry.complicationData.asWearSdkComplicationData()
+                )
+                .apply {
+                    setTimelineStartEpochSecond(timelineEntry.validity.start.epochSecond)
+                    setTimelineEndEpochSecond(timelineEntry.validity.end.epochSecond)
+                }
+                .build()
+        }
         return WearSdkComplicationData.Builder(defaultComplicationData.asWearSdkComplicationData())
             .setTimelineEntries(wireTimelineEntries)
             .build()

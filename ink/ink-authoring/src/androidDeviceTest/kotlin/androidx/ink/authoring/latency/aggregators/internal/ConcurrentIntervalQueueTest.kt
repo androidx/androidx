@@ -56,50 +56,49 @@ internal class ConcurrentIntervalQueueTest {
     }
 
     @Test
-    fun concurrentIntervalQueue_twoCoroutinesCanBothRecordAndRead() =
-        testScope.runTest {
-            val queue = ConcurrentIntervalQueue(numPreallocatedIntervals = 5)
+    fun concurrentIntervalQueue_twoCoroutinesCanBothRecordAndRead() = testScope.runTest {
+        val queue = ConcurrentIntervalQueue(numPreallocatedIntervals = 5)
 
-            launch {
-                // Record two samples in coroutine A.
-                delay(1.seconds)
-                queue.record(10, 20)
-                queue.record(20, 30)
+        launch {
+            // Record two samples in coroutine A.
+            delay(1.seconds)
+            queue.record(10, 20)
+            queue.record(20, 30)
 
-                // We can read the samples recorded in coroutine B over here in A.
-                delay(2.seconds)
-                assertThat(queue.size()).isEqualTo(2)
-                queue.applyToOldestAndRecycle() { interval ->
-                    assertThat(interval.startNanos).isEqualTo(30)
-                    assertThat(interval.endNanos).isEqualTo(40)
-                }
-                queue.applyToOldestAndRecycle() { interval ->
-                    assertThat(interval.startNanos).isEqualTo(40)
-                    assertThat(interval.endNanos).isEqualTo(50)
-                }
+            // We can read the samples recorded in coroutine B over here in A.
+            delay(2.seconds)
+            assertThat(queue.size()).isEqualTo(2)
+            queue.applyToOldestAndRecycle() { interval ->
+                assertThat(interval.startNanos).isEqualTo(30)
+                assertThat(interval.endNanos).isEqualTo(40)
             }
-
-            launch {
-                // We can read the samples recorded in coroutine A over here in B.
-                delay(2.seconds)
-                assertThat(queue.size()).isEqualTo(2)
-                queue.applyToOldestAndRecycle() { interval ->
-                    assertThat(interval.startNanos).isEqualTo(10)
-                    assertThat(interval.endNanos).isEqualTo(20)
-                }
-                queue.applyToOldestAndRecycle() { interval ->
-                    assertThat(interval.startNanos).isEqualTo(20)
-                    assertThat(interval.endNanos).isEqualTo(30)
-                }
-
-                // Now record samples in B.
-                queue.record(30, 40)
-                queue.record(40, 50)
-                delay(2.seconds)
+            queue.applyToOldestAndRecycle() { interval ->
+                assertThat(interval.startNanos).isEqualTo(40)
+                assertThat(interval.endNanos).isEqualTo(50)
             }
-
-            testScope.advanceTimeBy(5.seconds)
         }
+
+        launch {
+            // We can read the samples recorded in coroutine A over here in B.
+            delay(2.seconds)
+            assertThat(queue.size()).isEqualTo(2)
+            queue.applyToOldestAndRecycle() { interval ->
+                assertThat(interval.startNanos).isEqualTo(10)
+                assertThat(interval.endNanos).isEqualTo(20)
+            }
+            queue.applyToOldestAndRecycle() { interval ->
+                assertThat(interval.startNanos).isEqualTo(20)
+                assertThat(interval.endNanos).isEqualTo(30)
+            }
+
+            // Now record samples in B.
+            queue.record(30, 40)
+            queue.record(40, 50)
+            delay(2.seconds)
+        }
+
+        testScope.advanceTimeBy(5.seconds)
+    }
 
     @Test
     fun concurrentIntervalQueue_recordAllocatesNewIntervalsIfNotEnoughWerePreallocated() {

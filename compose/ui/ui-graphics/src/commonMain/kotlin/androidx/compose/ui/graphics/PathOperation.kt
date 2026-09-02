@@ -105,7 +105,10 @@ public value class PathOperation internal constructor(@Suppress("unused") privat
 
 @Deprecated(
     message = "Use PathOperation.Difference instead",
-    ReplaceWith("PathOperation.Difference", "androidx.compose.ui.graphics.PathOperation.Difference"),
+    ReplaceWith(
+        "PathOperation.Difference",
+        "androidx.compose.ui.graphics.PathOperation.Difference",
+    ),
 )
 public val PathOperation.Companion.difference: PathOperation
     get() = Difference

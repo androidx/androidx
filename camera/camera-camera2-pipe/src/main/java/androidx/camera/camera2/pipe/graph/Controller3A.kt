@@ -163,7 +163,8 @@ constructor(
         private val aePrecaptureAndAfCancelParams =
             mapOf<CaptureRequest.Key<*>, Any?>(
                 CONTROL_AF_TRIGGER to CONTROL_AF_TRIGGER_CANCEL,
-                CONTROL_AE_PRECAPTURE_TRIGGER to CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL,
+                CONTROL_AE_PRECAPTURE_TRIGGER to
+                    CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL,
             )
 
         private val unlock3APostCaptureAfUnlockedCondition =

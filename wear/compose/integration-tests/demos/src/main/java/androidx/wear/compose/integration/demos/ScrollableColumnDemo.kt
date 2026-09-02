@@ -61,6 +61,7 @@ private fun NotScrollableLabel(modifier: Modifier) {
         "Not scrollable",
         color = Color.Red,
         textAlign = TextAlign.Center,
-        modifier = modifier.fillMaxSize().background(Color.Red.copy(alpha = 0.1f)).wrapContentSize(),
+        modifier =
+            modifier.fillMaxSize().background(Color.Red.copy(alpha = 0.1f)).wrapContentSize(),
     )
 }

@@ -38,7 +38,8 @@ class StartupTimingQueryTest {
         @Suppress("SameParameterValue") api: Int,
         startupMode: StartupMode,
         expectedMetrics: StartupTimingQuery.SubMetrics?,
-        tracePrefix: String = "api${api}_startup_${startupMode.name.lowercase(Locale.getDefault())}",
+        tracePrefix: String =
+            "api${api}_startup_${startupMode.name.lowercase(Locale.getDefault())}",
     ) {
         // Our API 23 emulators seem to be misconfigured b/438214932
         assumeTrue(!isEmulator || SDK_INT != 23)

@@ -126,13 +126,13 @@ public abstract class BaseRoomConnectionManager {
         if (version != openDelegate.version) {
             connection.executeSQL("BEGIN EXCLUSIVE TRANSACTION")
             runCatching {
-                    if (version == 0) {
-                        onCreate(connection)
-                    } else {
-                        onMigrate(connection, version, openDelegate.version)
-                    }
-                    connection.executeSQL("PRAGMA user_version = ${openDelegate.version}")
+                if (version == 0) {
+                    onCreate(connection)
+                } else {
+                    onMigrate(connection, version, openDelegate.version)
                 }
+                connection.executeSQL("PRAGMA user_version = ${openDelegate.version}")
+            }
                 .onSuccess { connection.executeSQL("END TRANSACTION") }
                 .onFailure {
                     connection.executeSQL("ROLLBACK TRANSACTION")
@@ -313,18 +313,16 @@ public abstract class BaseRoomConnectionManager {
         } else {
             connection.executeSQL("BEGIN EXCLUSIVE TRANSACTION")
             runCatching {
-                    // No room_master_table, this might an a pre-populated DB, we must validate to
-                    // see
-                    // if it's suitable for usage.
-                    val result = openDelegate.onValidateSchema(connection)
-                    if (!result.isValid) {
-                        error(
-                            "Pre-packaged database has an invalid schema: ${result.expectedFoundMsg}"
-                        )
-                    }
-                    openDelegate.onPostMigrate(connection)
-                    updateIdentity(connection)
+                // No room_master_table, this might an a pre-populated DB, we must validate to
+                // see
+                // if it's suitable for usage.
+                val result = openDelegate.onValidateSchema(connection)
+                if (!result.isValid) {
+                    error("Pre-packaged database has an invalid schema: ${result.expectedFoundMsg}")
                 }
+                openDelegate.onPostMigrate(connection)
+                updateIdentity(connection)
+            }
                 .onSuccess { connection.executeSQL("END TRANSACTION") }
                 .onFailure {
                     connection.executeSQL("ROLLBACK TRANSACTION")

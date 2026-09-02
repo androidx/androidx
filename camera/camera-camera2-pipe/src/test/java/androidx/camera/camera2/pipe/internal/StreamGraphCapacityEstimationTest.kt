@@ -90,236 +90,230 @@ class StreamGraphCapacityEstimationTest {
     }
 
     @Test
-    fun streamGraphCapacityDecreasesWhenFramesAcquiredExternally() =
-        testScope.runTest {
-            val streamId = frameGraph.streams[streamConfigLarge]!!.id
-            val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
+    fun streamGraphCapacityDecreasesWhenFramesAcquiredExternally() = testScope.runTest {
+        val streamId = frameGraph.streams[streamConfigLarge]!!.id
+        val frameBuffer = frameGraph.captureWith(setOf(streamId), capacity = 5)
+        advanceUntilIdle()
 
-            // Initial availability should be 5, limited by ImageSourceConfig(capacity = 5)
-            assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
+        // Initial availability should be 5, limited by ImageSourceConfig(capacity = 5)
+        assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
 
-            val frame = frameGraph.simulateNextFrame()
-            advanceUntilIdle()
-            frame.simulateImage(streamId)
-            advanceUntilIdle()
+        val frame = frameGraph.simulateNextFrame()
+        advanceUntilIdle()
+        frame.simulateImage(streamId)
+        advanceUntilIdle()
 
-            // Frame is buffered internally, which means it is evictable.
-            // Because it can be safely evicted if needed, availability remains 5.
-            assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
+        // Frame is buffered internally, which means it is evictable.
+        // Because it can be safely evicted if needed, availability remains 5.
+        assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
 
-            // App acquires the frame (external usage)
-            val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
-            advanceUntilIdle()
+        // App acquires the frame (external usage)
+        val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
+        advanceUntilIdle()
 
-            // The frame is now held externally and is no longer evictable.
-            // The availability must drop to 4.
-            assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(4)
+        // The frame is now held externally and is no longer evictable.
+        // The availability must drop to 4.
+        assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(4)
 
-            acquiredFrame?.close()
-            advanceUntilIdle()
+        acquiredFrame?.close()
+        advanceUntilIdle()
 
-            // Frame closed -> slot and memory restored -> availability 5
-            assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
+        // Frame closed -> slot and memory restored -> availability 5
+        assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
 
-            frameBuffer.close()
-        }
-
-    @Test
-    fun streamGraphCapacityReflectsMemoryConstraints() =
-        testScope.runTest {
-            // Create a custom estimator with memory exactly for 3 large images
-            val tightEstimator = MemoryEstimator.create(largeImageSize * 3)
-            val tightSimulator = createSimulator(tightEstimator)
-            val tightGraph = createAndStartFrameGraph(tightSimulator)
-            val streamId = tightGraph.streams[streamConfigLarge]!!.id
-
-            // Even though the ImageSource config requests a capacity of 5, the memory limits it to
-            // 3
-            assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(3)
-
-            val frameBuffer = tightGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
-
-            val frame = tightGraph.simulateNextFrame()
-            advanceUntilIdle()
-            frame.simulateImage(streamId)
-            advanceUntilIdle()
-
-            // The frame is held internally in the buffer, meaning it is still evictable.
-            // Availability remains 3.
-            assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(3)
-
-            // Acquire externally
-            val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
-            advanceUntilIdle()
-
-            // Memory is no longer evictable, availability drops to 2
-            assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(2)
-
-            acquiredFrame?.close()
-            frameBuffer.close()
-            tightGraph.close()
-            tightSimulator.close()
-        }
+        frameBuffer.close()
+    }
 
     @Test
-    fun streamGraphCapacityWithMultipleStreamsReturnsMinimum() =
-        testScope.runTest {
-            val streamLarge = frameGraph.streams[streamConfigLarge]!!.id
-            val streamSmall = frameGraph.streams[streamConfigSmall]!!.id
+    fun streamGraphCapacityReflectsMemoryConstraints() = testScope.runTest {
+        // Create a custom estimator with memory exactly for 3 large images
+        val tightEstimator = MemoryEstimator.create(largeImageSize * 3)
+        val tightSimulator = createSimulator(tightEstimator)
+        val tightGraph = createAndStartFrameGraph(tightSimulator)
+        val streamId = tightGraph.streams[streamConfigLarge]!!.id
 
-            // Initial availability is 5 for both individually
-            assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamLarge))).isEqualTo(5)
-            assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamSmall))).isEqualTo(5)
+        // Even though the ImageSource config requests a capacity of 5, the memory limits it to
+        // 3
+        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(3)
 
-            // When queried together, the capacity should reflect the constraining factor
-            assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamLarge, streamSmall)))
-                .isEqualTo(5)
+        val frameBuffer = tightGraph.captureWith(setOf(streamId), capacity = 5)
+        advanceUntilIdle()
 
-            val bufferLarge = frameGraph.captureWith(setOf(streamLarge), capacity = 5)
-            advanceUntilIdle()
+        val frame = tightGraph.simulateNextFrame()
+        advanceUntilIdle()
+        frame.simulateImage(streamId)
+        advanceUntilIdle()
 
-            val frame = frameGraph.simulateNextFrame()
-            advanceUntilIdle()
-            frame.simulateImage(streamLarge)
-            advanceUntilIdle()
+        // The frame is held internally in the buffer, meaning it is still evictable.
+        // Availability remains 3.
+        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(3)
 
-            // Hide 1 large frame externally
-            val acquired = bufferLarge.peekFirstReference()?.tryAcquire()
-            advanceUntilIdle()
+        // Acquire externally
+        val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
+        advanceUntilIdle()
 
-            // Large stream's isolated capacity is now 4, Small stream is 5.
-            assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamLarge))).isEqualTo(4)
-            assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamSmall))).isEqualTo(5)
+        // Memory is no longer evictable, availability drops to 2
+        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(2)
 
-            // The combined estimated availability must be bound by the most restricted stream (4)
-            assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamLarge, streamSmall)))
-                .isEqualTo(4)
-
-            acquired?.close()
-            bufferLarge.close()
-        }
-
-    @Test
-    fun streamGraphCapacityWithUnboundedMemoryReliesOnImageSourceCapacity() =
-        testScope.runTest {
-            // 1. Create an unbounded memory estimator (Long.MAX_VALUE capacity)
-            val unboundedEstimator = MemoryEstimator.create()
-            val unboundedSimulator = createSimulator(unboundedEstimator)
-            val unboundedGraph = createAndStartFrameGraph(unboundedSimulator)
-            val streamId = unboundedGraph.streams[streamConfigLarge]!!.id
-
-            // 2. Initial availability should be 5, limited ONLY by ImageSourceConfig(capacity = 5)
-            // Even though memory is essentially infinite, the physical slots are capped.
-            assertThat(unboundedGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
-
-            val frameBuffer = unboundedGraph.captureWith(setOf(streamId), capacity = 5)
-            advanceUntilIdle()
-
-            val frame = unboundedGraph.simulateNextFrame()
-            advanceUntilIdle()
-            frame.simulateImage(streamId)
-            advanceUntilIdle()
-
-            // Frame is buffered internally (evictable).
-            assertThat(unboundedGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
-
-            // 3. Acquire externally to consume a physical ImageReader/ImageSource slot
-            val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
-            advanceUntilIdle()
-
-            // 4. The frame is now held externally, consuming 1 physical slot.
-            // Availability must drop to 4, driven entirely by physical slots, not memory.
-            assertThat(unboundedGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(4)
-
-            acquiredFrame?.close()
-            frameBuffer.close()
-            unboundedGraph.close()
-            unboundedSimulator.close()
-        }
+        acquiredFrame?.close()
+        frameBuffer.close()
+        tightGraph.close()
+        tightSimulator.close()
+    }
 
     @Test
-    fun streamGraphCapacityAccountsForExpectedOutputInMultiOutputStream() =
-        testScope.runTest {
-            // 1. Setup a multi-output stream config
-            val outputLarge = OutputStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
-            val outputSmall = OutputStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
-            val streamConfigMulti =
-                CameraStream.Config.create(
-                    outputs = listOf(outputLarge, outputSmall),
-                    imageSourceConfig =
-                        ImageSourceConfig(capacity = 5).apply { enableConcurrentOutputs = true },
-                )
+    fun streamGraphCapacityWithMultipleStreamsReturnsMinimum() = testScope.runTest {
+        val streamLarge = frameGraph.streams[streamConfigLarge]!!.id
+        val streamSmall = frameGraph.streams[streamConfigSmall]!!.id
 
-            val customGraphConfig =
-                CameraGraph.Config(camera = metadata.camera, streams = listOf(streamConfigMulti))
+        // Initial availability is 5 for both individually
+        assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamLarge))).isEqualTo(5)
+        assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamSmall))).isEqualTo(5)
 
-            // 2. Set memory budget to exactly 2 large images
-            // largeImageSize (1280x720) = 1,382,400 bytes
-            // smallImageSize (640x480) = 460,800 bytes
-            val tightEstimator = MemoryEstimator.create(largeImageSize * 2)
-            val tightSimulator =
-                CameraPipeSimulator.create(
-                    testScope = testScope,
-                    testContext = context,
-                    fakeCameras = listOf(metadata),
-                    memoryEstimator = tightEstimator,
-                )
-            val tightGraph = tightSimulator.createFrameGraph(FrameGraph.Config(customGraphConfig))
-            tightGraph.start()
-            tightGraph.initializeSurfaces()
-            tightGraph.simulateCameraStarted()
-            advanceUntilIdle()
+        // When queried together, the capacity should reflect the constraining factor
+        assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamLarge, streamSmall)))
+            .isEqualTo(5)
 
-            val streamId = tightGraph.streams[streamConfigMulti]!!.id
-            val outputIdSmall = tightGraph.streams[streamConfigMulti]!!.outputs[1].id
+        val bufferLarge = frameGraph.captureWith(setOf(streamLarge), capacity = 5)
+        advanceUntilIdle()
 
-            // 3. Initial availability should fall back to the first output (outputLarge)
-            // Since the budget is exactly 2 large images, availability should be 2.
-            assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(2)
+        val frame = frameGraph.simulateNextFrame()
+        advanceUntilIdle()
+        frame.simulateImage(streamLarge)
+        advanceUntilIdle()
 
-            // 4. Simulate an expected output event targeting the small output
-            // Use the simulator API to properly trigger the internal ImageReaderImageSource
-            // listener
-            tightGraph.simulateExpectedOutputs(
-                streamId,
-                123456789L, // simulated timestamp
-                setOf(outputIdSmall),
+        // Hide 1 large frame externally
+        val acquired = bufferLarge.peekFirstReference()?.tryAcquire()
+        advanceUntilIdle()
+
+        // Large stream's isolated capacity is now 4, Small stream is 5.
+        assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamLarge))).isEqualTo(4)
+        assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamSmall))).isEqualTo(5)
+
+        // The combined estimated availability must be bound by the most restricted stream (4)
+        assertThat(frameGraph.streams.estimateAvailableFrames(setOf(streamLarge, streamSmall)))
+            .isEqualTo(4)
+
+        acquired?.close()
+        bufferLarge.close()
+    }
+
+    @Test
+    fun streamGraphCapacityWithUnboundedMemoryReliesOnImageSourceCapacity() = testScope.runTest {
+        // 1. Create an unbounded memory estimator (Long.MAX_VALUE capacity)
+        val unboundedEstimator = MemoryEstimator.create()
+        val unboundedSimulator = createSimulator(unboundedEstimator)
+        val unboundedGraph = createAndStartFrameGraph(unboundedSimulator)
+        val streamId = unboundedGraph.streams[streamConfigLarge]!!.id
+
+        // 2. Initial availability should be 5, limited ONLY by ImageSourceConfig(capacity = 5)
+        // Even though memory is essentially infinite, the physical slots are capped.
+        assertThat(unboundedGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
+
+        val frameBuffer = unboundedGraph.captureWith(setOf(streamId), capacity = 5)
+        advanceUntilIdle()
+
+        val frame = unboundedGraph.simulateNextFrame()
+        advanceUntilIdle()
+        frame.simulateImage(streamId)
+        advanceUntilIdle()
+
+        // Frame is buffered internally (evictable).
+        assertThat(unboundedGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
+
+        // 3. Acquire externally to consume a physical ImageReader/ImageSource slot
+        val acquiredFrame = frameBuffer.peekFirstReference()?.tryAcquire()
+        advanceUntilIdle()
+
+        // 4. The frame is now held externally, consuming 1 physical slot.
+        // Availability must drop to 4, driven entirely by physical slots, not memory.
+        assertThat(unboundedGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(4)
+
+        acquiredFrame?.close()
+        frameBuffer.close()
+        unboundedGraph.close()
+        unboundedSimulator.close()
+    }
+
+    @Test
+    fun streamGraphCapacityAccountsForExpectedOutputInMultiOutputStream() = testScope.runTest {
+        // 1. Setup a multi-output stream config
+        val outputLarge = OutputStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
+        val outputSmall = OutputStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
+        val streamConfigMulti =
+            CameraStream.Config.create(
+                outputs = listOf(outputLarge, outputSmall),
+                imageSourceConfig =
+                    ImageSourceConfig(capacity = 5).apply { enableConcurrentOutputs = true },
             )
-            advanceUntilIdle()
 
-            // 5. Availability should now be based on outputSmall's memory footprint
-            // Budget allows: (1382400 * 2) / 460800 = 6 small images
-            // However, ImageSourceConfig capacity is strictly capped at 5.
-            assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
+        val customGraphConfig =
+            CameraGraph.Config(camera = metadata.camera, streams = listOf(streamConfigMulti))
 
-            tightGraph.close()
-            tightSimulator.close()
-        }
+        // 2. Set memory budget to exactly 2 large images
+        // largeImageSize (1280x720) = 1,382,400 bytes
+        // smallImageSize (640x480) = 460,800 bytes
+        val tightEstimator = MemoryEstimator.create(largeImageSize * 2)
+        val tightSimulator =
+            CameraPipeSimulator.create(
+                testScope = testScope,
+                testContext = context,
+                fakeCameras = listOf(metadata),
+                memoryEstimator = tightEstimator,
+            )
+        val tightGraph = tightSimulator.createFrameGraph(FrameGraph.Config(customGraphConfig))
+        tightGraph.start()
+        tightGraph.initializeSurfaces()
+        tightGraph.simulateCameraStarted()
+        advanceUntilIdle()
+
+        val streamId = tightGraph.streams[streamConfigMulti]!!.id
+        val outputIdSmall = tightGraph.streams[streamConfigMulti]!!.outputs[1].id
+
+        // 3. Initial availability should fall back to the first output (outputLarge)
+        // Since the budget is exactly 2 large images, availability should be 2.
+        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(2)
+
+        // 4. Simulate an expected output event targeting the small output
+        // Use the simulator API to properly trigger the internal ImageReaderImageSource
+        // listener
+        tightGraph.simulateExpectedOutputs(
+            streamId,
+            123456789L, // simulated timestamp
+            setOf(outputIdSmall),
+        )
+        advanceUntilIdle()
+
+        // 5. Availability should now be based on outputSmall's memory footprint
+        // Budget allows: (1382400 * 2) / 460800 = 6 small images
+        // However, ImageSourceConfig capacity is strictly capped at 5.
+        assertThat(tightGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
+
+        tightGraph.close()
+        tightSimulator.close()
+    }
 
     @Test
-    fun streamGraphCapacityAvoidsIntegerOverflowWithHugeMemory() =
-        testScope.runTest {
-            // Calculate a memory size that intentionally causes a 32-bit integer overflow
-            // when available slots are computed.
-            // Int.MAX_VALUE + 100 = 2147483747L
-            // Multiplied by the image size (1,382,400), this fits safely inside a 64-bit Long
-            // (approx. 2.9 quadrillion, well below Long.MAX_VALUE).
-            val slotsToForceOverflow = Int.MAX_VALUE.toLong() + 100L
-            val overflowMemorySize = slotsToForceOverflow * largeImageSize
+    fun streamGraphCapacityAvoidsIntegerOverflowWithHugeMemory() = testScope.runTest {
+        // Calculate a memory size that intentionally causes a 32-bit integer overflow
+        // when available slots are computed.
+        // Int.MAX_VALUE + 100 = 2147483747L
+        // Multiplied by the image size (1,382,400), this fits safely inside a 64-bit Long
+        // (approx. 2.9 quadrillion, well below Long.MAX_VALUE).
+        val slotsToForceOverflow = Int.MAX_VALUE.toLong() + 100L
+        val overflowMemorySize = slotsToForceOverflow * largeImageSize
 
-            val overflowEstimator = MemoryEstimator.create(overflowMemorySize)
-            val overflowSimulator = createSimulator(overflowEstimator)
-            val overflowGraph = createAndStartFrameGraph(overflowSimulator)
-            val streamId = overflowGraph.streams[streamConfigLarge]!!.id
+        val overflowEstimator = MemoryEstimator.create(overflowMemorySize)
+        val overflowSimulator = createSimulator(overflowEstimator)
+        val overflowGraph = createAndStartFrameGraph(overflowSimulator)
+        val streamId = overflowGraph.streams[streamConfigLarge]!!.id
 
-            // In case of no overflow the final estimate should be 5 instead of 0.
-            assertThat(overflowGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
+        // In case of no overflow the final estimate should be 5 instead of 0.
+        assertThat(overflowGraph.streams.estimateAvailableFrames(setOf(streamId))).isEqualTo(5)
 
-            overflowGraph.close()
-            overflowSimulator.close()
-        }
+        overflowGraph.close()
+        overflowSimulator.close()
+    }
 
     private fun createSimulator(memoryEstimator: MemoryEstimator): CameraPipeSimulator {
         return CameraPipeSimulator.create(

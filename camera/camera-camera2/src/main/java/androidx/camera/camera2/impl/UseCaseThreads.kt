@@ -191,7 +191,9 @@ public class UseCaseThreads(
      * @return A [Job] which is returned via [CoroutineScope.launch] used under-the-hood.
      */
     public inline fun confineLaunch(crossinline block: suspend () -> Unit): Job =
-        sequentialScope.launch { block() }
+        sequentialScope.launch {
+            block()
+        }
 
     // TODO - Add convenience function like confineAsync to mimic scope.async while still following
     //  the above pattern when being used for thread confinement. This will keep things clear if we

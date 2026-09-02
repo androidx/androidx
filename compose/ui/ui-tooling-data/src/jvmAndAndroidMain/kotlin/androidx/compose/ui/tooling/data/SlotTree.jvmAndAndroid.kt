@@ -610,8 +610,9 @@ private fun extractFromIndyLambdaFields(
     block: Any,
     metadata: List<ParameterSourceInformation>,
 ): List<ParameterInformation> {
-    val sortedFields =
-        fields.sortedBy { it.name.substringAfter("f$").toIntOrNull() ?: Int.MAX_VALUE }
+    val sortedFields = fields.sortedBy {
+        it.name.substringAfter("f$").toIntOrNull() ?: Int.MAX_VALUE
+    }
 
     val firstField = sortedFields.firstOrNull()
     val hasThis = firstField != null && block.javaClass.name.startsWith(firstField.type.name + "$")

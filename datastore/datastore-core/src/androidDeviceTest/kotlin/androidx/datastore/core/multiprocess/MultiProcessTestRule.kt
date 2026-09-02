@@ -66,16 +66,15 @@ class MultiProcessTestRule : TestWatcher() {
     }
 
     suspend fun createConnection(): TwoWayIpcConnection {
-        val connection =
-            connectionsMutex.withLock {
-                val klass =
-                    availableServiceClasses.removeFirstOrNull()
-                        ?: error(
-                            "Cannot create more services," +
-                                "you can declare more in the manifest if needed"
-                        )
-                TwoWayIpcConnection(context, klass).also { connections.add(it) }
-            }
+        val connection = connectionsMutex.withLock {
+            val klass =
+                availableServiceClasses.removeFirstOrNull()
+                    ?: error(
+                        "Cannot create more services," +
+                            "you can declare more in the manifest if needed"
+                    )
+            TwoWayIpcConnection(context, klass).also { connections.add(it) }
+        }
         connection.connect()
         return connection
     }

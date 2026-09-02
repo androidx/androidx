@@ -85,96 +85,92 @@ class State3AControlTest {
     }
 
     @Test
-    fun update_coalescesRapidRequests() =
-        testScope.runTest {
-            // 1. Clear any noise from the initialization update (which triggers automatically in
-            // setUp)
-            fakeRequestControl.addParameterCalls.clear()
+    fun update_coalescesRapidRequests() = testScope.runTest {
+        // 1. Clear any noise from the initialization update (which triggers automatically in
+        // setUp)
+        fakeRequestControl.addParameterCalls.clear()
 
-            // 2. Act: Fire off 3 rapid updates.
-            // Because we are using StandardTestDispatcher, these should just queue up.
-            val signal1 = state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_ON)
-            val signal2 = state3AControl.setTemplateAsync(CameraDevice.TEMPLATE_RECORD)
-            val signal3 = state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_OFF)
+        // 2. Act: Fire off 3 rapid updates.
+        // Because we are using StandardTestDispatcher, these should just queue up.
+        val signal1 = state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_ON)
+        val signal2 = state3AControl.setTemplateAsync(CameraDevice.TEMPLATE_RECORD)
+        val signal3 = state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_OFF)
 
-            // 3. Assert: The queue should effectively hold these tasks, so no parameters
-            // should have been submitted to the camera control yet.
-            assertThat(fakeRequestControl.addParameterCalls).isEmpty()
+        // 3. Assert: The queue should effectively hold these tasks, so no parameters
+        // should have been submitted to the camera control yet.
+        assertThat(fakeRequestControl.addParameterCalls).isEmpty()
 
-            // 4. Act: Run all queued tasks
-            testDispatcher.scheduler.advanceUntilIdle()
+        // 4. Act: Run all queued tasks
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // 5. Assert:
-            // - All user-facing signals must complete successfully
-            assertThat(signal1.isCompleted).isTrue()
-            assertThat(signal2.isCompleted).isTrue()
-            assertThat(signal3.isCompleted).isTrue()
+        // 5. Assert:
+        // - All user-facing signals must complete successfully
+        assertThat(signal1.isCompleted).isTrue()
+        assertThat(signal2.isCompleted).isTrue()
+        assertThat(signal3.isCompleted).isTrue()
 
-            // - Performance Check: Only ONE submission was made to the camera (the final one)
-            //   The intermediate ones (and the Init one if it was queued) were skipped by the
-            // revision check.
-            assertThat(fakeRequestControl.addParameterCalls).hasSize(1)
+        // - Performance Check: Only ONE submission was made to the camera (the final one)
+        //   The intermediate ones (and the Init one if it was queued) were skipped by the
+        // revision check.
+        assertThat(fakeRequestControl.addParameterCalls).hasSize(1)
 
-            // - Correctness Check: The parameters match the FINAL state
-            val params = fakeRequestControl.addParameterCalls.first()
-            // Note: FLASH_MODE_OFF usually maps to AE_MODE_ON (1)
-            // If FakeMetadata is minimal, checking consistency here is enough.
-            assertThat(params[CaptureRequest.CONTROL_AE_MODE]).isNotNull()
-        }
-
-    @Test
-    fun reset_completesPendingSignals() =
-        testScope.runTest {
-            // Arrange
-            val signal1 = state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_ON)
-
-            // Act: Reset immediately after setting flash
-            state3AControl.reset()
-
-            testDispatcher.scheduler.advanceUntilIdle()
-
-            // Assert: The original signal should complete (success), not hang or cancel
-            // because "reset" is treated as just another update that supersedes the previous one.
-            assertThat(signal1.isCompleted).isTrue()
-
-            // Assert: State is back to defaults
-            assertThat(state3AControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_OFF)
-        }
+        // - Correctness Check: The parameters match the FINAL state
+        val params = fakeRequestControl.addParameterCalls.first()
+        // Note: FLASH_MODE_OFF usually maps to AE_MODE_ON (1)
+        // If FakeMetadata is minimal, checking consistency here is enough.
+        assertThat(params[CaptureRequest.CONTROL_AE_MODE]).isNotNull()
+    }
 
     @Test
-    fun update_failsAllSignals_whenSubmissionFails() =
-        testScope.runTest {
-            // Arrange: Make the camera control fail
-            val expectedException = CameraControl.OperationCanceledException("Hardware Error")
-            fakeRequestControl.addParameterResult =
-                CompletableDeferred<Unit>().apply { completeExceptionally(expectedException) }
+    fun reset_completesPendingSignals() = testScope.runTest {
+        // Arrange
+        val signal1 = state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_ON)
 
-            // Act
-            val signal1 = state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_ON)
-            val signal2 = state3AControl.setTemplateAsync(CameraDevice.TEMPLATE_PREVIEW)
+        // Act: Reset immediately after setting flash
+        state3AControl.reset()
 
-            testDispatcher.scheduler.advanceUntilIdle()
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // Assert: Both signals fail with the same exception
-            assertThrows<CameraControl.OperationCanceledException> { signal1.awaitWithTimeout() }
-            assertThrows<CameraControl.OperationCanceledException> { signal2.awaitWithTimeout() }
-        }
+        // Assert: The original signal should complete (success), not hang or cancel
+        // because "reset" is treated as just another update that supersedes the previous one.
+        assertThat(signal1.isCompleted).isTrue()
+
+        // Assert: State is back to defaults
+        assertThat(state3AControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_OFF)
+    }
 
     @Test
-    fun valuesUpdatedImmediately_beforeAsyncWork() =
-        testScope.runTest {
-            // Arrange
-            assertThat(state3AControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_OFF)
+    fun update_failsAllSignals_whenSubmissionFails() = testScope.runTest {
+        // Arrange: Make the camera control fail
+        val expectedException = CameraControl.OperationCanceledException("Hardware Error")
+        fakeRequestControl.addParameterResult =
+            CompletableDeferred<Unit>().apply { completeExceptionally(expectedException) }
 
-            // Act: Call setter
-            state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_ON)
+        // Act
+        val signal1 = state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_ON)
+        val signal2 = state3AControl.setTemplateAsync(CameraDevice.TEMPLATE_PREVIEW)
 
-            // Assert: Value is updated immediately, even if the async work hasn't run yet
-            assertThat(state3AControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_ON)
+        testDispatcher.scheduler.advanceUntilIdle()
 
-            // Run work just to clean up
-            testDispatcher.scheduler.advanceUntilIdle()
-        }
+        // Assert: Both signals fail with the same exception
+        assertThrows<CameraControl.OperationCanceledException> { signal1.awaitWithTimeout() }
+        assertThrows<CameraControl.OperationCanceledException> { signal2.awaitWithTimeout() }
+    }
+
+    @Test
+    fun valuesUpdatedImmediately_beforeAsyncWork() = testScope.runTest {
+        // Arrange
+        assertThat(state3AControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_OFF)
+
+        // Act: Call setter
+        state3AControl.setFlashModeAsync(ImageCapture.FLASH_MODE_ON)
+
+        // Assert: Value is updated immediately, even if the async work hasn't run yet
+        assertThat(state3AControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_ON)
+
+        // Run work just to clean up
+        testDispatcher.scheduler.advanceUntilIdle()
+    }
 
     private suspend fun <T> Deferred<T>.awaitWithTimeout(
         timeMillis: Long = TimeUnit.SECONDS.toMillis(1)

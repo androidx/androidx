@@ -136,156 +136,140 @@ class CameraGraphParametersImplTest {
     }
 
     @Test
-    fun set_invokesUpdate() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
+    fun set_invokesUpdate() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
 
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
-            parameters[TEST_KEY] = 42
-            advanceUntilIdle()
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+        parameters[TEST_KEY] = 42
+        advanceUntilIdle()
 
-            // Check that the latest request with existing repeatingRequest has graphParameters
-            assertThat(csp1.events.size).isEqualTo(2)
-            assertThat(csp1.events[1].isRepeating).isTrue()
-            assertThat(csp1.events[1].graphParameters).containsExactly(TEST_KEY, 42)
-        }
+        // Check that the latest request with existing repeatingRequest has graphParameters
+        assertThat(csp1.events.size).isEqualTo(2)
+        assertThat(csp1.events[1].isRepeating).isTrue()
+        assertThat(csp1.events[1].graphParameters).containsExactly(TEST_KEY, 42)
+    }
 
     @Test
-    fun setMultipleTimes_invokesUpdate() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
+    fun setMultipleTimes_invokesUpdate() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
 
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters[TEST_KEY] = 1
-            parameters[TEST_KEY] = 2
-            parameters[TEST_KEY] = 3
+        parameters[TEST_KEY] = 1
+        parameters[TEST_KEY] = 2
+        parameters[TEST_KEY] = 3
 
-            advanceUntilIdle()
+        advanceUntilIdle()
 
-            // Verify that the final applied parameter is 3
-            val lastEvent = csp1.events.last()
-            assertThat(lastEvent.graphParameters[TEST_KEY]).isEqualTo(3)
-        }
+        // Verify that the final applied parameter is 3
+        val lastEvent = csp1.events.last()
+        assertThat(lastEvent.graphParameters[TEST_KEY]).isEqualTo(3)
+    }
 
     @Test
-    fun flush_applyUpdates() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
+    fun flush_applyUpdates() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
 
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
-            parameters[TEST_KEY] = 42
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+        parameters[TEST_KEY] = 42
 
-            parameters.flush()
+        parameters.flush()
 
-            advanceUntilIdle()
+        advanceUntilIdle()
 
-            assertThat(csp1.events.last().graphParameters[TEST_KEY]).isEqualTo(42)
-        }
+        assertThat(csp1.events.last().graphParameters[TEST_KEY]).isEqualTo(42)
+    }
 
     @Test
-    fun flush_updatesWithoutSessionLockToken() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
+    fun flush_updatesWithoutSessionLockToken() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
 
-            val lock = GraphSessionLock()
-            val token = lock.tryAcquireToken()!!
-            val parameters = CameraGraphParametersImpl(lock, graphProcessor, testScope)
+        val lock = GraphSessionLock()
+        val token = lock.tryAcquireToken()!!
+        val parameters = CameraGraphParametersImpl(lock, graphProcessor, testScope)
 
-            val eventsBeforeFlush = csp1.events.size
+        val eventsBeforeFlush = csp1.events.size
 
-            parameters[TEST_KEY] = 42
+        parameters[TEST_KEY] = 42
 
-            parameters.flush()
+        parameters.flush()
 
-            advanceUntilIdle()
+        advanceUntilIdle()
 
-            assertThat(csp1.events.size).isGreaterThan(eventsBeforeFlush)
-            assertThat(csp1.events.last().graphParameters[TEST_KEY]).isEqualTo(42)
+        assertThat(csp1.events.size).isGreaterThan(eventsBeforeFlush)
+        assertThat(csp1.events.last().graphParameters[TEST_KEY]).isEqualTo(42)
 
-            token.release()
-        }
-
-    @Test
-    fun applyRequestComplete_invokesCallback() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
-
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
-
-            val submitEvent =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
-            val requestListener =
-                submitEvent.captureSequence.listeners
-                    .filterIsInstance<ParameterUpdateRequestListener>()
-                    .last()
-            requestListener.onStarted(requestMetadata, frameNumber, timestamp)
-            assertThat(listener1.updateStarted).isTrue()
-
-            requestListener.onComplete(requestMetadata, frameNumber, frameInfo)
-            assertThat(listener1.updateCompleted).isTrue()
-        }
+        token.release()
+    }
 
     @Test
-    fun applyRequestFailedBeforeStarted_invokesSkippedCallback() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+    fun applyRequestComplete_invokesCallback() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
 
-            val submitEvent =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
-            val requestListener =
-                submitEvent.captureSequence.listeners
-                    .filterIsInstance<ParameterUpdateRequestListener>()
-                    .last()
+        val submitEvent = csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
+        val requestListener =
+            submitEvent.captureSequence.listeners
+                .filterIsInstance<ParameterUpdateRequestListener>()
+                .last()
+        requestListener.onStarted(requestMetadata, frameNumber, timestamp)
+        assertThat(listener1.updateStarted).isTrue()
 
-            requestListener.onFailed(requestMetadata, frameNumber, failure)
-            assertThat(listener1.updateSkipped).isTrue()
-        }
+        requestListener.onComplete(requestMetadata, frameNumber, frameInfo)
+        assertThat(listener1.updateCompleted).isTrue()
+    }
 
     @Test
-    fun applyRequestFailedAfterStarted_doesNotInvokeSkippedCallback() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+    fun applyRequestFailedBeforeStarted_invokesSkippedCallback() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
 
-            val submitEvent =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
-            val requestListener =
-                submitEvent.captureSequence.listeners
-                    .filterIsInstance<ParameterUpdateRequestListener>()
-                    .last()
-            requestListener.onStarted(requestMetadata, frameNumber, timestamp)
-            assertThat(listener1.updateStarted).isTrue()
+        val submitEvent = csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
+        val requestListener =
+            submitEvent.captureSequence.listeners
+                .filterIsInstance<ParameterUpdateRequestListener>()
+                .last()
 
-            requestListener.onFailed(requestMetadata, frameNumber, failure)
-            assertThat(listener1.updateSkipped).isFalse()
-        }
+        requestListener.onFailed(requestMetadata, frameNumber, failure)
+        assertThat(listener1.updateSkipped).isTrue()
+    }
+
+    @Test
+    fun applyRequestFailedAfterStarted_doesNotInvokeSkippedCallback() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
+
+        val submitEvent = csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
+        val requestListener =
+            submitEvent.captureSequence.listeners
+                .filterIsInstance<ParameterUpdateRequestListener>()
+                .last()
+        requestListener.onStarted(requestMetadata, frameNumber, timestamp)
+        assertThat(listener1.updateStarted).isTrue()
+
+        requestListener.onFailed(requestMetadata, frameNumber, failure)
+        assertThat(listener1.updateSkipped).isFalse()
+    }
 
     @Test
     fun apply_multipleListenersOnSameKeyDifferentValue_purgesPriorBeforeLastRequestComplete() =
@@ -318,199 +302,179 @@ class CameraGraphParametersImplTest {
         }
 
     @Test
-    fun apply_lateCallback_doesNotPurgeNewerListener() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+    fun apply_lateCallback_doesNotPurgeNewerListener() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
 
-            val submitEvent =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
-            val requestListener =
-                submitEvent.captureSequence.listeners
-                    .filterIsInstance<ParameterUpdateRequestListener>()
-                    .last()
+        val submitEvent = csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
+        val requestListener =
+            submitEvent.captureSequence.listeners
+                .filterIsInstance<ParameterUpdateRequestListener>()
+                .last()
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 43, listener2)
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 43, listener2)
+        advanceUntilIdle()
 
-            val submitEventsBeforeComplete =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().size
-            requestListener.onComplete(requestMetadata, frameNumber, frameInfo)
-            advanceUntilIdle()
-            val submitEventsAfterComplete =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().size
+        val submitEventsBeforeComplete =
+            csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().size
+        requestListener.onComplete(requestMetadata, frameNumber, frameInfo)
+        advanceUntilIdle()
+        val submitEventsAfterComplete =
+            csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().size
 
-            assertThat(listener2.updateSkipped).isFalse()
-            assertThat(submitEventsAfterComplete).isEqualTo(submitEventsBeforeComplete)
-            assertThat(listener1.updateCompleted).isTrue()
-        }
+        assertThat(listener2.updateSkipped).isFalse()
+        assertThat(submitEventsAfterComplete).isEqualTo(submitEventsBeforeComplete)
+        assertThat(listener1.updateCompleted).isTrue()
+    }
 
     @Test
-    fun apply_lateAbortAfterPurge_doesNotInvokeSkippedCallbackTwice() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+    fun apply_lateAbortAfterPurge_doesNotInvokeSkippedCallbackTwice() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
 
-            val firstSubmitEvent =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
-            val firstRequestListener =
-                firstSubmitEvent.captureSequence.listeners
-                    .filterIsInstance<ParameterUpdateRequestListener>()
-                    .last()
+        val firstSubmitEvent =
+            csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
+        val firstRequestListener =
+            firstSubmitEvent.captureSequence.listeners
+                .filterIsInstance<ParameterUpdateRequestListener>()
+                .last()
 
-            // Apply a new value for the same key.
-            parameters.apply(CAPTURE_REQUEST_KEY, 43, listener2)
-            advanceUntilIdle()
+        // Apply a new value for the same key.
+        parameters.apply(CAPTURE_REQUEST_KEY, 43, listener2)
+        advanceUntilIdle()
 
-            val secondSubmitEvent =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
-            val secondRequestListener =
-                secondSubmitEvent.captureSequence.listeners
-                    .filterIsInstance<ParameterUpdateRequestListener>()
-                    .last()
+        val secondSubmitEvent =
+            csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
+        val secondRequestListener =
+            secondSubmitEvent.captureSequence.listeners
+                .filterIsInstance<ParameterUpdateRequestListener>()
+                .last()
 
-            // Completing the second request triggers removeAndPurgePriors, which purges the first
-            // listener.
-            secondRequestListener.onComplete(requestMetadata, frameNumber, frameInfo)
+        // Completing the second request triggers removeAndPurgePriors, which purges the first
+        // listener.
+        secondRequestListener.onComplete(requestMetadata, frameNumber, frameInfo)
 
-            assertThat(listener1.updateSkipped).isTrue()
-            assertThat(listener1.updateSkippedCount).isEqualTo(1)
+        assertThat(listener1.updateSkipped).isTrue()
+        assertThat(listener1.updateSkippedCount).isEqualTo(1)
 
-            // Simulate a late onAborted callback from the framework for the first request.
-            firstRequestListener.onAborted(request1)
+        // Simulate a late onAborted callback from the framework for the first request.
+        firstRequestListener.onAborted(request1)
 
-            // Verify that onUpdateSkipped was NOT called a second time.
-            assertThat(listener1.updateSkippedCount).isEqualTo(1)
-        }
+        // Verify that onUpdateSkipped was NOT called a second time.
+        assertThat(listener1.updateSkippedCount).isEqualTo(1)
+    }
 
     @Test
-    fun apply_thenSet_doesNotPurgePriorListener() =
-        testScope.runTest {
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+    fun apply_thenSet_doesNotPurgePriorListener() = testScope.runTest {
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
-            parameters.set(CAPTURE_REQUEST_KEY, 43)
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
+        parameters.set(CAPTURE_REQUEST_KEY, 43)
+        advanceUntilIdle()
 
-            assertThat(listener1.updateSkipped).isFalse()
-        }
+        assertThat(listener1.updateSkipped).isFalse()
+    }
 
     @Test
-    fun apply_thenRemove_doesNotPurgePriorListener() =
-        testScope.runTest {
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+    fun apply_thenRemove_doesNotPurgePriorListener() = testScope.runTest {
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
-            parameters.remove(CAPTURE_REQUEST_KEY)
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
+        parameters.remove(CAPTURE_REQUEST_KEY)
+        advanceUntilIdle()
 
-            assertThat(listener1.updateSkipped).isFalse()
-        }
+        assertThat(listener1.updateSkipped).isFalse()
+    }
 
     @Test
-    fun apply_thenClear_doesNotPurgePriorListener() =
-        testScope.runTest {
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+    fun apply_thenClear_doesNotPurgePriorListener() = testScope.runTest {
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
-            parameters.clear()
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
+        parameters.clear()
+        advanceUntilIdle()
 
-            assertThat(listener1.updateSkipped).isFalse()
-        }
+        assertThat(listener1.updateSkipped).isFalse()
+    }
 
     @Test
-    fun applyRequestAbortedBeforeStarted_invokesSkippedCallback() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+    fun applyRequestAbortedBeforeStarted_invokesSkippedCallback() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
 
-            val submitEvent =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
-            val requestListener =
-                submitEvent.captureSequence.listeners
-                    .filterIsInstance<ParameterUpdateRequestListener>()
-                    .last()
+        val submitEvent = csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
+        val requestListener =
+            submitEvent.captureSequence.listeners
+                .filterIsInstance<ParameterUpdateRequestListener>()
+                .last()
 
-            requestListener.onAborted(request1)
-            assertThat(listener1.updateSkipped).isTrue()
-        }
+        requestListener.onAborted(request1)
+        assertThat(listener1.updateSkipped).isTrue()
+    }
 
     @Test
-    fun applyRequestAbortedAfterStarted_doesNotInvokeSkippedCallback() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+    fun applyRequestAbortedAfterStarted_doesNotInvokeSkippedCallback() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
 
-            val submitEvent =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
-            val requestListener =
-                submitEvent.captureSequence.listeners
-                    .filterIsInstance<ParameterUpdateRequestListener>()
-                    .last()
+        val submitEvent = csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
+        val requestListener =
+            submitEvent.captureSequence.listeners
+                .filterIsInstance<ParameterUpdateRequestListener>()
+                .last()
 
-            requestListener.onStarted(requestMetadata, frameNumber, timestamp)
-            assertThat(listener1.updateStarted).isTrue()
+        requestListener.onStarted(requestMetadata, frameNumber, timestamp)
+        assertThat(listener1.updateStarted).isTrue()
 
-            requestListener.onAborted(request1)
-            assertThat(listener1.updateSkipped).isFalse()
-        }
+        requestListener.onAborted(request1)
+        assertThat(listener1.updateSkipped).isFalse()
+    }
 
     @Test
-    fun applyRequestSequenceLifecycle_invokesCallbacks() =
-        testScope.runTest {
-            graphProcessor.onGraphStarted(grp1)
-            graphProcessor.repeatingRequest = request1
-            advanceUntilIdle()
-            val parameters =
-                CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
+    fun applyRequestSequenceLifecycle_invokesCallbacks() = testScope.runTest {
+        graphProcessor.onGraphStarted(grp1)
+        graphProcessor.repeatingRequest = request1
+        advanceUntilIdle()
+        val parameters = CameraGraphParametersImpl(GraphSessionLock(), graphProcessor, testScope)
 
-            parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
-            advanceUntilIdle()
+        parameters.apply(CAPTURE_REQUEST_KEY, 42, listener1)
+        advanceUntilIdle()
 
-            val submitEvent =
-                csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
-            val requestListener =
-                submitEvent.captureSequence.listeners
-                    .filterIsInstance<ParameterUpdateRequestListener>()
-                    .last()
+        val submitEvent = csp1.events.filterIsInstance<FakeCaptureSequenceProcessor.Submit>().last()
+        val requestListener =
+            submitEvent.captureSequence.listeners
+                .filterIsInstance<ParameterUpdateRequestListener>()
+                .last()
 
-            requestListener.onRequestSequenceCreated(requestMetadata)
-            assertThat(listener1.updateRequestCreated).isTrue()
+        requestListener.onRequestSequenceCreated(requestMetadata)
+        assertThat(listener1.updateRequestCreated).isTrue()
 
-            requestListener.onRequestSequenceSubmitted(requestMetadata)
-            assertThat(listener1.updateRequestSubmitted).isTrue()
-        }
+        requestListener.onRequestSequenceSubmitted(requestMetadata)
+        assertThat(listener1.updateRequestSubmitted).isTrue()
+    }
 
     private class FakeParameterUpdateListener(override val key: CaptureRequest.Key<*>) :
         ParameterUpdateListener {

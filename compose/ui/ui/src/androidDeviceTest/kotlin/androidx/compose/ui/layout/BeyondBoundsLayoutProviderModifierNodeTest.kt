@@ -54,13 +54,12 @@ class BeyondBoundsLayoutProviderModifierNodeTest {
         }
 
         // Act.
-        val returnValue =
-            rule.runOnIdle {
-                parent!!.layout(After) {
-                    blockInvoked = true
-                    OperationResult
-                }
+        val returnValue = rule.runOnIdle {
+            parent!!.layout(After) {
+                blockInvoked = true
+                OperationResult
             }
+        }
 
         // Assert.
         assertThat(blockInvoked).isFalse()
@@ -80,16 +79,15 @@ class BeyondBoundsLayoutProviderModifierNodeTest {
         }
 
         // Act.
-        val returnValue =
-            rule.runOnIdle {
-                assertThat(parent).isNotNull()
-                parent?.layout<Int>(After) {
-                    blockInvokeCount++
-                    // Always return null, to continue searching and indicate that
-                    // we didn't find the item we were looking for.
-                    null
-                }
+        val returnValue = rule.runOnIdle {
+            assertThat(parent).isNotNull()
+            parent?.layout<Int>(After) {
+                blockInvokeCount++
+                // Always return null, to continue searching and indicate that
+                // we didn't find the item we were looking for.
+                null
             }
+        }
 
         // Assert.
         assertThat(blockInvokeCount).isEqualTo(5)
@@ -110,15 +108,14 @@ class BeyondBoundsLayoutProviderModifierNodeTest {
         }
 
         // Act.
-        val returnValue =
-            rule.runOnIdle {
-                assertThat(parent).isNotNull()
-                parent?.layout(After) {
-                    val returnValue = if (hasMoreContent) null else OperationResult
-                    callMap[++iterationCount] = returnValue
-                    returnValue
-                }
+        val returnValue = rule.runOnIdle {
+            assertThat(parent).isNotNull()
+            parent?.layout(After) {
+                val returnValue = if (hasMoreContent) null else OperationResult
+                callMap[++iterationCount] = returnValue
+                returnValue
             }
+        }
 
         // Assert.
         assertThat(callMap)
@@ -140,14 +137,13 @@ class BeyondBoundsLayoutProviderModifierNodeTest {
         }
 
         // Act.
-        val returnValue =
-            rule.runOnIdle {
-                assertThat(parent).isNotNull()
-                parent?.layout(After) {
-                    // After the first item was added, we were able to perform our operation.
-                    OperationResult
-                }
+        val returnValue = rule.runOnIdle {
+            assertThat(parent).isNotNull()
+            parent?.layout(After) {
+                // After the first item was added, we were able to perform our operation.
+                OperationResult
             }
+        }
 
         // Assert.
         assertThat(returnValue).isEqualTo(OperationResult)
@@ -165,12 +161,11 @@ class BeyondBoundsLayoutProviderModifierNodeTest {
         }
 
         // Act.
-        val returnValue =
-            rule.runOnIdle {
-                assertThat(parent).isNotNull()
-                var iterationCount = 0
-                parent?.layout(After) { if (iterationCount++ < 3) null else OperationResult }
-            }
+        val returnValue = rule.runOnIdle {
+            assertThat(parent).isNotNull()
+            var iterationCount = 0
+            parent?.layout(After) { if (iterationCount++ < 3) null else OperationResult }
+        }
 
         // Assert.
         assertThat(returnValue).isEqualTo(OperationResult)

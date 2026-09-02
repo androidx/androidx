@@ -46,26 +46,25 @@ class InterProcessCompletableTest {
     }
 
     @Test
-    fun completeInRemoteProcess() =
-        multiProcess.runTest {
-            val subject = multiProcess.createConnection().createSubject(this)
-            val hostLatch = InterProcessCompletable<Value>()
-            val remoteLatch = InterProcessCompletable<Value>()
-            val remoteInvocation = async {
-                subject.invokeInRemoteProcess(
-                    Complete(
-                        hostLatch = hostLatch,
-                        remoteLatch = remoteLatch,
-                        hostValue = Value("host"),
-                        remoteValue = Value("remote"),
-                    )
+    fun completeInRemoteProcess() = multiProcess.runTest {
+        val subject = multiProcess.createConnection().createSubject(this)
+        val hostLatch = InterProcessCompletable<Value>()
+        val remoteLatch = InterProcessCompletable<Value>()
+        val remoteInvocation = async {
+            subject.invokeInRemoteProcess(
+                Complete(
+                    hostLatch = hostLatch,
+                    remoteLatch = remoteLatch,
+                    hostValue = Value("host"),
+                    remoteValue = Value("remote"),
                 )
-            }
-            yield()
-            // cannot complete, we didn't release the host latch
-            assertThat(remoteInvocation.isActive).isTrue()
-            hostLatch.complete(subject, Value("host"))
-            remoteInvocation.await()
-            assertThat(remoteLatch.await(subject)).isEqualTo(Value("remote"))
+            )
         }
+        yield()
+        // cannot complete, we didn't release the host latch
+        assertThat(remoteInvocation.isActive).isTrue()
+        hostLatch.complete(subject, Value("host"))
+        remoteInvocation.await()
+        assertThat(remoteLatch.await(subject)).isEqualTo(Value("remote"))
+    }
 }

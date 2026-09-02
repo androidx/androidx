@@ -176,7 +176,8 @@ class SupportedCameraOperationsTest {
     fun supportedCameraOperations_extensionStrengthIsEnabled() {
         testSupportedCameraOperation(
             supportedCaptureRequestKeys = listOf(CaptureRequest.EXTENSION_STRENGTH),
-            expectSupportedOperations = setOf(AdapterCameraInfo.CAMERA_OPERATION_EXTENSION_STRENGTH),
+            expectSupportedOperations =
+                setOf(AdapterCameraInfo.CAMERA_OPERATION_EXTENSION_STRENGTH),
         )
     }
 }

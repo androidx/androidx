@@ -2731,15 +2731,14 @@ class FlowRowColumnTest {
                 }
             }
             xPositions.clear()
-            overflowState.value =
-                FlowRowOverflow.expandIndicator {
-                    Box(
-                        Modifier.size(20.dp).onGloballyPositioned {
-                            val positionInParent = it.positionInParent()
-                            seeMoreXPosition = positionInParent.x
-                        }
-                    )
-                }
+            overflowState.value = FlowRowOverflow.expandIndicator {
+                Box(
+                    Modifier.size(20.dp).onGloballyPositioned {
+                        val positionInParent = it.positionInParent()
+                        seeMoreXPosition = positionInParent.x
+                    }
+                )
+            }
         }
         advanceClock()
         rule.runOnIdle {
@@ -2899,15 +2898,14 @@ class FlowRowColumnTest {
                 }
             }
             yPositions.clear()
-            overflowState.value =
-                FlowColumnOverflow.expandIndicator {
-                    Box(
-                        Modifier.size(20.dp).onGloballyPositioned {
-                            val positionInParent = it.positionInParent()
-                            seeMoreYPosition = positionInParent.y
-                        }
-                    )
-                }
+            overflowState.value = FlowColumnOverflow.expandIndicator {
+                Box(
+                    Modifier.size(20.dp).onGloballyPositioned {
+                        val positionInParent = it.positionInParent()
+                        seeMoreYPosition = positionInParent.y
+                    }
+                )
+            }
         }
         // Continuing from the previous logic
         advanceClock()
@@ -3066,15 +3064,14 @@ class FlowRowColumnTest {
                 }
             }
             xPositions.clear()
-            overflowState.value =
-                FlowRowOverflow.expandIndicator {
-                    Box(
-                        Modifier.size(20.dp).onGloballyPositioned {
-                            val positionInParent = it.positionInParent()
-                            seeMoreXPosition = positionInParent.x
-                        }
-                    )
-                }
+            overflowState.value = FlowRowOverflow.expandIndicator {
+                Box(
+                    Modifier.size(20.dp).onGloballyPositioned {
+                        val positionInParent = it.positionInParent()
+                        seeMoreXPosition = positionInParent.x
+                    }
+                )
+            }
         }
         advanceClock()
         rule.runOnIdle {
@@ -3275,15 +3272,14 @@ class FlowRowColumnTest {
                 }
             }
             yPositions.clear()
-            overflowState.value =
-                FlowColumnOverflow.expandIndicator {
-                    Box(
-                        Modifier.size(20.dp).onGloballyPositioned {
-                            val positionInParent = it.positionInParent()
-                            seeMoreYPosition = positionInParent.y
-                        }
-                    )
-                }
+            overflowState.value = FlowColumnOverflow.expandIndicator {
+                Box(
+                    Modifier.size(20.dp).onGloballyPositioned {
+                        val positionInParent = it.positionInParent()
+                        seeMoreYPosition = positionInParent.y
+                    }
+                )
+            }
         }
         advanceClock()
         rule.runOnIdle {
@@ -3986,8 +3982,9 @@ class FlowRowColumnTest {
             Truth.assertThat(height).isEqualTo(40)
             Truth.assertThat(width).isEqualTo(20)
             Truth.assertThat(itemShown).isEqualTo(2)
-            overflowState.value =
-                FlowColumnOverflow.expandIndicator { Box(Modifier.size(20.dp)) {} }
+            overflowState.value = FlowColumnOverflow.expandIndicator {
+                Box(Modifier.size(20.dp)) {}
+            }
         }
         advanceClock()
         rule.runOnIdle {
@@ -5218,8 +5215,9 @@ class FlowRowColumnTest {
             Truth.assertThat(height).isEqualTo(40)
             Truth.assertThat(width).isEqualTo(20)
             Truth.assertThat(itemShown).isEqualTo(2)
-            overflowState.value =
-                FlowColumnOverflow.expandIndicator { Box(Modifier.size(20.dp)) {} }
+            overflowState.value = FlowColumnOverflow.expandIndicator {
+                Box(Modifier.size(20.dp)) {}
+            }
         }
         advanceClock()
         rule.runOnIdle {
@@ -5399,8 +5397,9 @@ class FlowRowColumnTest {
             Truth.assertThat(height).isEqualTo(40)
             Truth.assertThat(width).isEqualTo(20)
             Truth.assertThat(itemShown).isEqualTo(2)
-            overflowState.value =
-                FlowColumnOverflow.expandIndicator { Box(Modifier.size(20.dp)) {} }
+            overflowState.value = FlowColumnOverflow.expandIndicator {
+                Box(Modifier.size(20.dp)) {}
+            }
         }
         advanceClock()
         rule.runOnIdle {

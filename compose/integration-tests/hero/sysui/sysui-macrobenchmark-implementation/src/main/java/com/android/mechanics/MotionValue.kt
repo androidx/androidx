@@ -489,14 +489,14 @@ private class ObservableComputations(
 
                 debugIsAnimating = false
                 snapshotFlow {
-                        val wakeup =
-                            !continueRunning() ||
-                                spec != capturedSegment.spec ||
-                                currentInput != capturedInput ||
-                                currentDirection != capturedDirection ||
-                                currentGestureDragOffset != capturedGestureDragOffset
-                        wakeup
-                    }
+                    val wakeup =
+                        !continueRunning() ||
+                            spec != capturedSegment.spec ||
+                            currentInput != capturedInput ||
+                            currentDirection != capturedDirection ||
+                            currentGestureDragOffset != capturedGestureDragOffset
+                    wakeup
+                }
                     .first { it }
                 debugIsAnimating = true
             }

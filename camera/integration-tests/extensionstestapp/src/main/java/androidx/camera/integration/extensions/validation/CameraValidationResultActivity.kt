@@ -107,39 +107,38 @@ class CameraValidationResultActivity : AppCompatActivity() {
 
             val listView = findViewById<ListView>(R.id.listView)
             listView.adapter = adapter
-            listView.onItemClickListener =
-                AdapterView.OnItemClickListener { _, _, position, _ ->
-                    val (testType, cameraId) = cameraExtensionResultMap.keys.elementAt(position)
-                    if (!isAnyExtensionModeSupported(testType, cameraId)) {
-                        Toast.makeText(
-                                this@CameraValidationResultActivity,
-                                "No extension mode is supported by the camera!",
-                                Toast.LENGTH_SHORT,
-                            )
-                            .show()
-                        return@OnItemClickListener
-                    }
-
-                    val intent =
-                        Intent(
+            listView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+                val (testType, cameraId) = cameraExtensionResultMap.keys.elementAt(position)
+                if (!isAnyExtensionModeSupported(testType, cameraId)) {
+                    Toast.makeText(
                             this@CameraValidationResultActivity,
-                            ExtensionValidationResultActivity::class.java,
+                            "No extension mode is supported by the camera!",
+                            Toast.LENGTH_SHORT,
                         )
-                    intent.putExtra(INTENT_EXTRA_KEY_TEST_TYPE, testType)
-                    intent.putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
-                    intent.putExtra(INTENT_EXTRA_KEY_LENS_FACING, cameraLensFacingMap[cameraId])
-                    intent.putExtra(
-                        INTENT_EXTRA_KEY_REQUEST_CODE,
-                        extensionValidationActivityRequestCode,
-                    )
-
-                    ActivityCompat.startActivityForResult(
-                        this@CameraValidationResultActivity,
-                        intent,
-                        extensionValidationActivityRequestCode,
-                        null,
-                    )
+                        .show()
+                    return@OnItemClickListener
                 }
+
+                val intent =
+                    Intent(
+                        this@CameraValidationResultActivity,
+                        ExtensionValidationResultActivity::class.java,
+                    )
+                intent.putExtra(INTENT_EXTRA_KEY_TEST_TYPE, testType)
+                intent.putExtra(INTENT_EXTRA_KEY_CAMERA_ID, cameraId)
+                intent.putExtra(INTENT_EXTRA_KEY_LENS_FACING, cameraLensFacingMap[cameraId])
+                intent.putExtra(
+                    INTENT_EXTRA_KEY_REQUEST_CODE,
+                    extensionValidationActivityRequestCode,
+                )
+
+                ActivityCompat.startActivityForResult(
+                    this@CameraValidationResultActivity,
+                    intent,
+                    extensionValidationActivityRequestCode,
+                    null,
+                )
+            }
         }
     }
 

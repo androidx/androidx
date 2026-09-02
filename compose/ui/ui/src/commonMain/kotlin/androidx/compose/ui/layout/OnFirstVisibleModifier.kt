@@ -191,11 +191,10 @@ private class OnFirstVisibleNode(
         if (minDurationMs == 0L) triggerCallback()
         else {
             job?.cancel()
-            job =
-                coroutineScope.launch {
-                    delay(minDurationMs)
-                    triggerCallback()
-                }
+            job = coroutineScope.launch {
+                delay(minDurationMs)
+                triggerCallback()
+            }
         }
     }
 

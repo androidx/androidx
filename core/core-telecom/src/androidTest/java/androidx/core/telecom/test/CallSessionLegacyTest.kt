@@ -252,8 +252,9 @@ class CallSessionLegacyTest : BaseTelecomTest() {
                 )
 
             // Assume the previous endpoint was the wired headset
-            val previousEndpoint =
-                endpoints.first { it.type == CallEndpointCompat.TYPE_WIRED_HEADSET }
+            val previousEndpoint = endpoints.first {
+                it.type == CallEndpointCompat.TYPE_WIRED_HEADSET
+            }
             // Assume the new endpoint is the earpiece
             val newEndpoint = endpoints.first { it.type == CallEndpointCompat.TYPE_EARPIECE }
 

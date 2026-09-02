@@ -405,7 +405,10 @@ interface MusicDao {
     fun getImageYearToArtistToAlbumsToSongsMultiMapColumn():
         Map<
             Image,
-            Map<Artist, Map<@MapColumn("mAlbumName") String, List<@MapColumn("mReleasedYear") Int>>>,
+            Map<
+                Artist,
+                Map<@MapColumn("mAlbumName") String, List<@MapColumn("mReleasedYear") Int>>,
+            >,
         >
 
     @RawQuery

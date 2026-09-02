@@ -165,10 +165,9 @@ class RobolectricCamerasTest {
 
     @Test
     fun fakeCamerasCanBeOpened() {
-        val fakeCameraId =
-            RobolectricCameras.create {
-                set(CameraCharacteristics.LENS_FACING, CameraCharacteristics.LENS_FACING_BACK)
-            }
+        val fakeCameraId = RobolectricCameras.create {
+            set(CameraCharacteristics.LENS_FACING, CameraCharacteristics.LENS_FACING_BACK)
+        }
         val fakeCamera = RobolectricCameras.open(fakeCameraId)
 
         assertThat(fakeCamera).isNotNull()

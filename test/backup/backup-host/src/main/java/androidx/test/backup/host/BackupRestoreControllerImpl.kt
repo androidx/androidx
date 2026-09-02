@@ -174,22 +174,21 @@ internal class BackupRestoreControllerImpl(
         )
 
         // 1. Put data for each storage domain (seeds the app sandbox)
-        val domainArgs =
-            storages.map { domain ->
-                val putArgs = getPutStorageArgs(domain)
-                logger.info("Seeding data on device via PopulateStorageAction for $domain...")
-                val putResult =
-                    runOnDevice(
-                        actionClassName = BackupRestoreController.ACTION_POPULATE_STORAGE,
-                        args = putArgs,
-                    )
-                if (putResult is BackupActionResult.Failure) {
-                    throw IOException(
-                        "PopulateStorageAction failed for $domain: ${putResult.errorMessage}"
-                    )
-                }
-                domain to putArgs
+        val domainArgs = storages.map { domain ->
+            val putArgs = getPutStorageArgs(domain)
+            logger.info("Seeding data on device via PopulateStorageAction for $domain...")
+            val putResult =
+                runOnDevice(
+                    actionClassName = BackupRestoreController.ACTION_POPULATE_STORAGE,
+                    args = putArgs,
+                )
+            if (putResult is BackupActionResult.Failure) {
+                throw IOException(
+                    "PopulateStorageAction failed for $domain: ${putResult.errorMessage}"
+                )
             }
+            domain to putArgs
+        }
 
         // 2. Stop App to ensure filesystem flushes
         stopApp()

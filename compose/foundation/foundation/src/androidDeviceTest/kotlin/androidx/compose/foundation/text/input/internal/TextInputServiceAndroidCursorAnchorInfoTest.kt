@@ -355,8 +355,9 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         )
     }
 
-    private fun getAndroidMatrix(offset: Offset) =
-        androidMatrix.apply { setTranslate(offset.x, offset.y) }
+    private fun getAndroidMatrix(offset: Offset) = androidMatrix.apply {
+        setTranslate(offset.x, offset.y)
+    }
 
     private open class TestLayoutCoordinates(
         val windowOffset: Offset = Offset.Zero,

@@ -231,21 +231,20 @@ class SimpleChannelFlowTest {
                 delay(100)
                 emit(13)
             }
-        val combinedFlow =
-            upstream.flatMapLatest { upstreamValue ->
-                createFlow<Int>(impl) {
-                    try {
-                        send(upstreamValue)
-                        delay(2000)
-                        send(upstreamValue * 2)
-                    } catch (th: Throwable) {
-                        if (producerException == null) {
-                            producerException = th
-                        }
-                        throw th
+        val combinedFlow = upstream.flatMapLatest { upstreamValue ->
+            createFlow<Int>(impl) {
+                try {
+                    send(upstreamValue)
+                    delay(2000)
+                    send(upstreamValue * 2)
+                } catch (th: Throwable) {
+                    if (producerException == null) {
+                        producerException = th
                     }
+                    throw th
                 }
             }
+        }
         testScope.runTest { assertThat(combinedFlow.toList()).containsExactly(5, 13, 26) }
         assertThat(producerException)
             .hasMessageThat()

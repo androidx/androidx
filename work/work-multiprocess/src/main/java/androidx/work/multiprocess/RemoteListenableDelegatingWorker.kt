@@ -110,7 +110,8 @@ public class RemoteListenableDelegatingWorker(
     private inline fun <T> executeRemote(
         crossinline block:
             (
-                iListenableWorkerImpl: IListenableWorkerImpl, callback: IWorkManagerImplCallback,
+                iListenableWorkerImpl: IListenableWorkerImpl,
+                callback: IWorkManagerImplCallback,
             ) -> Unit,
         crossinline transformation: (input: ByteArray) -> T,
     ): ListenableFuture<T> {

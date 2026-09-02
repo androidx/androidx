@@ -33,10 +33,9 @@ internal fun String.camelCase(): String {
             .split('.')
     var case = ""
     for (word in words) {
-        case +=
-            word.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-            }
+        case += word.replaceFirstChar {
+            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+        }
     }
     return case
 }

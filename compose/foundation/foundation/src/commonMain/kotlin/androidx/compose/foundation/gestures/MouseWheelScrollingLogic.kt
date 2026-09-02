@@ -115,19 +115,18 @@ private class MouseWheelScrollingLogicImpl<T>(
 
     override fun startReceivingEvents(coroutineScope: CoroutineScope) {
         if (receivingMouseWheelEventsJob == null) {
-            receivingMouseWheelEventsJob =
-                coroutineScope.launch {
-                    try {
-                        while (coroutineContext.isActive) {
-                            val scrollDelta = channel.receive()
-                            val threshold = with(density) { AnimationThreshold.toPx() }
-                            val speed = with(density) { AnimationSpeed.toPx() }
-                            dispatchMouseWheelScroll(scrollDelta, threshold, speed)
-                        }
-                    } finally {
-                        receivingMouseWheelEventsJob = null
+            receivingMouseWheelEventsJob = coroutineScope.launch {
+                try {
+                    while (coroutineContext.isActive) {
+                        val scrollDelta = channel.receive()
+                        val threshold = with(density) { AnimationThreshold.toPx() }
+                        val speed = with(density) { AnimationSpeed.toPx() }
+                        dispatchMouseWheelScroll(scrollDelta, threshold, speed)
                     }
+                } finally {
+                    receivingMouseWheelEventsJob = null
                 }
+            }
         }
     }
 

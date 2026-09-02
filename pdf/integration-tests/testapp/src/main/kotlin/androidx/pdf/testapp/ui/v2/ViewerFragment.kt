@@ -88,14 +88,13 @@ class ViewerFragment : Fragment(), OpCancellationHandler {
         val fragmentManager: FragmentManager = childFragmentManager
 
         // Fragment initialization
-        val fragmentType =
-            arguments?.let {
-                BundleCompat.getSerializable<FragmentType>(
-                    it,
-                    FRAGMENT_TYPE_KEY,
-                    FragmentType::class.java,
-                )
-            }
+        val fragmentType = arguments?.let {
+            BundleCompat.getSerializable<FragmentType>(
+                it,
+                FRAGMENT_TYPE_KEY,
+                FragmentType::class.java,
+            )
+        }
 
         pdfViewerFragment =
             when (fragmentType) {

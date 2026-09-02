@@ -59,7 +59,8 @@ fun BorderSampleWithBrush() {
     Text(
         "Text with gradient border",
         modifier =
-            Modifier.border(width = 2.dp, brush = gradientBrush, shape = CircleShape).padding(10.dp),
+            Modifier.border(width = 2.dp, brush = gradientBrush, shape = CircleShape)
+                .padding(10.dp),
     )
 }
 

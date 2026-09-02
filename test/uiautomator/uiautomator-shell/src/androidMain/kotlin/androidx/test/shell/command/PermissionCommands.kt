@@ -27,24 +27,22 @@ internal constructor(private val shell: Shell, private val packageName: String) 
      *
      * @param permissions one of more permissions from [android.Manifest.permission].
      */
-    public fun grant(vararg permissions: String): Unit =
-        permissions.forEach {
-            with(shell.command("pm grant $packageName $it")) {
-                stdOut.assertNoFailure()
-                stdErr.assertNoFailure()
-            }
+    public fun grant(vararg permissions: String): Unit = permissions.forEach {
+        with(shell.command("pm grant $packageName $it")) {
+            stdOut.assertNoFailure()
+            stdErr.assertNoFailure()
         }
+    }
 
     /**
      * Revokes the given permissions from the app.
      *
      * @param permissions one of more permissions from [android.Manifest.permission].
      */
-    public fun revoke(vararg permissions: String): Unit =
-        permissions.forEach {
-            with(shell.command("pm revoke $packageName $it")) {
-                stdOut.assertNoFailure()
-                stdErr.assertNoFailure()
-            }
+    public fun revoke(vararg permissions: String): Unit = permissions.forEach {
+        with(shell.command("pm revoke $packageName $it")) {
+            stdOut.assertNoFailure()
+            stdErr.assertNoFailure()
         }
+    }
 }

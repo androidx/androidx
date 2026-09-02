@@ -993,8 +993,7 @@ class KeepRuleDetector : Detector(), SourceCodeScanner {
                     // Other.methodName = "": we couldn't figure out the method name in analysis.
                     // If the annotation carried a specific name, we'll assume this has been
                     // manually analyzed to cover the specific intended target.
-                    &&
-                    other.methodName != ""
+                    && other.methodName != ""
             ) {
                 return false
             }

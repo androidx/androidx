@@ -94,16 +94,15 @@ internal class TrackpadScrollingLogicImpl<T>(
 
     override fun startReceivingEvents(coroutineScope: CoroutineScope) {
         if (receivingPanEventsJob == null) {
-            receivingPanEventsJob =
-                coroutineScope.launch {
-                    try {
-                        while (coroutineContext.isActive) {
-                            dispatchTrackpadScroll(channel.receive())
-                        }
-                    } finally {
-                        receivingPanEventsJob = null
+            receivingPanEventsJob = coroutineScope.launch {
+                try {
+                    while (coroutineContext.isActive) {
+                        dispatchTrackpadScroll(channel.receive())
                     }
+                } finally {
+                    receivingPanEventsJob = null
                 }
+            }
         }
     }
 

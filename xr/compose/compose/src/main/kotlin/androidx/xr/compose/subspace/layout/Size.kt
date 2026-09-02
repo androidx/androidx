@@ -801,57 +801,56 @@ private class SizeNode(
         measurable: SubspaceMeasurable,
         constraints: VolumeConstraints,
     ): SubspaceMeasureResult {
-        val wrappedConstraints =
-            targetConstraints.let {
-                if (enforceIncoming) {
-                    constraints.constrain(targetConstraints)
-                } else {
-                    val resolvedMinWidth =
-                        if (minWidth != Dp.Unspecified) {
-                            targetConstraints.minWidth
-                        } else {
-                            constraints.minWidth.coerceAtMost(targetConstraints.maxWidth)
-                        }
-                    val resolvedMaxWidth =
-                        if (maxWidth != Dp.Unspecified) {
-                            targetConstraints.maxWidth
-                        } else {
-                            constraints.maxWidth.coerceAtLeast(targetConstraints.minWidth)
-                        }
-                    val resolvedMinHeight =
-                        if (minHeight != Dp.Unspecified) {
-                            targetConstraints.minHeight
-                        } else {
-                            constraints.minHeight.coerceAtMost(targetConstraints.maxHeight)
-                        }
-                    val resolvedMaxHeight =
-                        if (maxHeight != Dp.Unspecified) {
-                            targetConstraints.maxHeight
-                        } else {
-                            constraints.maxHeight.coerceAtLeast(targetConstraints.minHeight)
-                        }
-                    val resolvedMinDepth =
-                        if (minDepth != Dp.Unspecified) {
-                            targetConstraints.minDepth
-                        } else {
-                            constraints.minDepth.coerceAtMost(targetConstraints.maxDepth)
-                        }
-                    val resolvedMaxDepth =
-                        if (maxDepth != Dp.Unspecified) {
-                            targetConstraints.maxDepth
-                        } else {
-                            constraints.maxDepth.coerceAtLeast(targetConstraints.minDepth)
-                        }
-                    VolumeConstraints(
-                        resolvedMinWidth,
-                        resolvedMaxWidth,
-                        resolvedMinHeight,
-                        resolvedMaxHeight,
-                        resolvedMinDepth,
-                        resolvedMaxDepth,
-                    )
-                }
+        val wrappedConstraints = targetConstraints.let {
+            if (enforceIncoming) {
+                constraints.constrain(targetConstraints)
+            } else {
+                val resolvedMinWidth =
+                    if (minWidth != Dp.Unspecified) {
+                        targetConstraints.minWidth
+                    } else {
+                        constraints.minWidth.coerceAtMost(targetConstraints.maxWidth)
+                    }
+                val resolvedMaxWidth =
+                    if (maxWidth != Dp.Unspecified) {
+                        targetConstraints.maxWidth
+                    } else {
+                        constraints.maxWidth.coerceAtLeast(targetConstraints.minWidth)
+                    }
+                val resolvedMinHeight =
+                    if (minHeight != Dp.Unspecified) {
+                        targetConstraints.minHeight
+                    } else {
+                        constraints.minHeight.coerceAtMost(targetConstraints.maxHeight)
+                    }
+                val resolvedMaxHeight =
+                    if (maxHeight != Dp.Unspecified) {
+                        targetConstraints.maxHeight
+                    } else {
+                        constraints.maxHeight.coerceAtLeast(targetConstraints.minHeight)
+                    }
+                val resolvedMinDepth =
+                    if (minDepth != Dp.Unspecified) {
+                        targetConstraints.minDepth
+                    } else {
+                        constraints.minDepth.coerceAtMost(targetConstraints.maxDepth)
+                    }
+                val resolvedMaxDepth =
+                    if (maxDepth != Dp.Unspecified) {
+                        targetConstraints.maxDepth
+                    } else {
+                        constraints.maxDepth.coerceAtLeast(targetConstraints.minDepth)
+                    }
+                VolumeConstraints(
+                    resolvedMinWidth,
+                    resolvedMaxWidth,
+                    resolvedMinHeight,
+                    resolvedMaxHeight,
+                    resolvedMinDepth,
+                    resolvedMaxDepth,
+                )
             }
+        }
 
         val placeable = measurable.measure(wrappedConstraints)
         return layout(placeable.width, placeable.height, placeable.depth) {

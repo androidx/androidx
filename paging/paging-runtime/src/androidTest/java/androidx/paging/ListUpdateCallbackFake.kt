@@ -28,14 +28,13 @@ class ListUpdateCallbackFake : ListUpdateCallback {
     val interactions
         get() = allEvents.size
 
-    fun itemCountFromEvents() =
-        allEvents.sumOf {
-            when (it) {
-                is OnInsertedEvent -> it.count
-                is OnRemovedEvent -> -it.count
-                else -> 0
-            }
+    fun itemCountFromEvents() = allEvents.sumOf {
+        when (it) {
+            is OnInsertedEvent -> it.count
+            is OnRemovedEvent -> -it.count
+            else -> 0
         }
+    }
 
     override fun onInserted(position: Int, count: Int) {
         OnInsertedEvent(position, count).let {

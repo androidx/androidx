@@ -53,29 +53,27 @@ fun getAugmentedObjects(session: Session, lifecycle: Lifecycle) {
                         // If an object doesn't exist in our set of active objects, set up a
                         // coroutine to respond to its state changes.
                         if (!activeObjects.contains(obj)) {
-                            val job =
-                                supervisorScope.launch {
-                                    obj.state.collect {
-                                        // if the object is not currently reporting as tracked, then
-                                        // we don't want to render it.
-                                        if (it.trackingState != TrackingState.TRACKING)
-                                            return@collect
+                            val job = supervisorScope.launch {
+                                obj.state.collect {
+                                    // if the object is not currently reporting as tracked, then
+                                    // we don't want to render it.
+                                    if (it.trackingState != TrackingState.TRACKING) return@collect
 
-                                        // Transform the pose from its original coordinate space to
-                                        // one suitable for rendering to the display.
-                                        val pose =
-                                            it.centerPose.let { p ->
-                                                session.scene.perceptionSpace.transformPoseTo(
-                                                    p,
-                                                    session.scene.activitySpace,
-                                                )
-                                            }
+                                    // Transform the pose from its original coordinate space to
+                                    // one suitable for rendering to the display.
+                                    val pose =
+                                        it.centerPose.let { p ->
+                                            session.scene.perceptionSpace.transformPoseTo(
+                                                p,
+                                                session.scene.activitySpace,
+                                            )
+                                        }
 
-                                        // This function is where you'll actually render the object
-                                        // to the display.
-                                        renderFunction(pose, it.extents, it.category)
-                                    }
+                                    // This function is where you'll actually render the object
+                                    // to the display.
+                                    renderFunction(pose, it.extents, it.category)
                                 }
+                            }
                             activeObjects[obj] = job
                         }
 

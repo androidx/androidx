@@ -298,12 +298,11 @@ class LayoutCoordinatesHelperTest {
             val size = 10
             var actualSize: Int = Int.MAX_VALUE
             var remeasureCount = 0
-            val layoutModifier =
-                Modifier.layout { measurable, constraints ->
-                    val placeable = measurable.measure(Constraints.fixed(size, size))
-                    remeasureCount++
-                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                }
+            val layoutModifier = Modifier.layout { measurable, constraints ->
+                val placeable = measurable.measure(Constraints.fixed(size, size))
+                remeasureCount++
+                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+            }
             var onPlacedModifier by mutableStateOf<Modifier>(Modifier)
             rule.setContent { Box(layoutModifier.then(onPlacedModifier)) }
 

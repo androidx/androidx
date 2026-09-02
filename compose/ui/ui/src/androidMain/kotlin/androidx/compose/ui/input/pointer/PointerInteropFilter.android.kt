@@ -219,10 +219,9 @@ internal class PointerInteropFilter : PointerInputModifier {
             ) {
                 val changes = pointerEvent.changes
 
-                val isMoveEvent =
-                    changes.fastAll {
-                        !it.changedToDownIgnoreConsumed() && !it.changedToUpIgnoreConsumed()
-                    }
+                val isMoveEvent = changes.fastAll {
+                    !it.changedToDownIgnoreConsumed() && !it.changedToUpIgnoreConsumed()
+                }
 
                 val hasUnconsumedMove = isMoveEvent && changes.fastAll { !it.isConsumed }
 

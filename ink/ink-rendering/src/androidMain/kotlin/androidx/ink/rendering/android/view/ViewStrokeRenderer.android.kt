@@ -125,11 +125,10 @@ public class ViewStrokeRenderer(
      */
     @PublishedApi
     internal fun obtainDrawScope(canvas: Canvas): StrokeDrawScope {
-        val viewToScreenTransform =
-            scratchMatrix.also {
-                it.reset()
-                ViewCompat.transformMatrixToGlobal(view, it)
-            }
+        val viewToScreenTransform = scratchMatrix.also {
+            it.reset()
+            ViewCompat.transformMatrixToGlobal(view, it)
+        }
         require(viewToScreenTransform.isAffine) { "View to screen transform must be affine." }
         val scope =
             recycledDrawScopes.removeFirstOrNull()

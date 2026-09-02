@@ -233,21 +233,20 @@ class NightModeTestCase(private val setMode: NightSetMode) {
     }
 
     @Test
-    fun testDialogCleansUpAutoMode() =
-        rule.runOnUiThread {
-            val dialog = AppCompatDialog(rule.activity)
-            val delegate = dialog.delegate as AppCompatDelegateImpl
+    fun testDialogCleansUpAutoMode() = rule.runOnUiThread {
+        val dialog = AppCompatDialog(rule.activity)
+        val delegate = dialog.delegate as AppCompatDelegateImpl
 
-            // Set the local night mode of the Dialog to be an AUTO mode
-            delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_AUTO_TIME
+        // Set the local night mode of the Dialog to be an AUTO mode
+        delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_AUTO_TIME
 
-            // Now show and dismiss the dialog
-            dialog.show()
-            dialog.dismiss()
+        // Now show and dismiss the dialog
+        dialog.show()
+        dialog.dismiss()
 
-            // Assert that the auto manager is destroyed (not listening)
-            assertFalse(delegate.autoTimeNightModeManager.isListening)
-        }
+        // Assert that the auto manager is destroyed (not listening)
+        assertFalse(delegate.autoTimeNightModeManager.isListening)
+    }
 
     @Test
     fun testOnConfigurationChangeNotCalled() {

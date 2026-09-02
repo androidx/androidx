@@ -56,548 +56,530 @@ class RemoteMediatorAccessorTest {
     }
 
     @Test
-    fun requestLoadIfRefreshAllowed_noop() =
-        testScope.runTest {
-            val remoteMediator =
-                RemoteMediatorMock(loadDelay = 100).apply {
-                    initializeResult = SKIP_INITIAL_REFRESH
-                }
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-            val pagingState = PagingState<Int, Int>(listOf(), null, PagingConfig(1), 0)
-
-            remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
-            advanceUntilIdle()
-            assertThat(remoteMediator.newLoadEvents).isEmpty()
-        }
-
-    @Test
-    fun requestLoadIfRefreshAllowed_simple() =
-        testScope.runTest {
-            val remoteMediator =
-                RemoteMediatorMock(loadDelay = 100).apply {
-                    initializeResult = LAUNCH_INITIAL_REFRESH
-                }
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-            val pagingState = PagingState<Int, Int>(listOf(), null, PagingConfig(1), 0)
-
-            remoteMediatorAccessor.allowRefresh()
-            remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
-            advanceUntilIdle()
-            assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(LoadEvent(loadType = REFRESH, state = pagingState))
-
-            // allowRefresh should only allow one successful request to go through.
-            remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
-            advanceUntilIdle()
-            assertThat(remoteMediator.newLoadEvents).isEmpty()
-        }
-
-    @Test
-    fun requestLoadIfRefreshAllowed_retry() =
-        testScope.runTest {
-            val remoteMediator =
-                RemoteMediatorMock(loadDelay = 100).apply {
-                    initializeResult = LAUNCH_INITIAL_REFRESH
-                }
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-            val pagingState = PagingState<Int, Int>(listOf(), null, PagingConfig(1), 0)
-
-            remoteMediator.loadCallback = { _, _ ->
-                RemoteMediator.MediatorResult.Error(Exception())
+    fun requestLoadIfRefreshAllowed_noop() = testScope.runTest {
+        val remoteMediator =
+            RemoteMediatorMock(loadDelay = 100).apply {
+                initializeResult = SKIP_INITIAL_REFRESH
             }
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+        val pagingState = PagingState<Int, Int>(listOf(), null, PagingConfig(1), 0)
 
-            remoteMediatorAccessor.allowRefresh()
-            remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
-            advanceUntilIdle()
-            assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(LoadEvent(loadType = REFRESH, state = pagingState))
+        remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents).isEmpty()
+    }
 
-            remoteMediator.loadCallback = { _, _ ->
-                RemoteMediator.MediatorResult.Success(endOfPaginationReached = false)
+    @Test
+    fun requestLoadIfRefreshAllowed_simple() = testScope.runTest {
+        val remoteMediator =
+            RemoteMediatorMock(loadDelay = 100).apply {
+                initializeResult = LAUNCH_INITIAL_REFRESH
             }
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+        val pagingState = PagingState<Int, Int>(listOf(), null, PagingConfig(1), 0)
 
-            remoteMediatorAccessor.retryFailed(pagingState)
-            advanceUntilIdle()
-            assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(LoadEvent(loadType = REFRESH, state = pagingState))
-        }
+        remoteMediatorAccessor.allowRefresh()
+        remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents)
+            .containsExactly(LoadEvent(loadType = REFRESH, state = pagingState))
 
-    @Test
-    fun requestLoad_queuesBoundaryBehindRefresh() =
-        testScope.runTest {
-            val remoteMediator = RemoteMediatorMock(loadDelay = 100)
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-            val firstState = createMockState()
-            val secondState = createMockState()
-
-            remoteMediatorAccessor.requestLoad(REFRESH, firstState)
-            advanceTimeBy(50) // Start remote refresh, but do not let it finish.
-            assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(REFRESH, firstState))
-            assertThat(remoteMediatorAccessor.state.value)
-                .isEqualTo(
-                    LoadStates(
-                        refresh = LoadState.Loading,
-                        prepend = LoadState.NotLoading.Incomplete,
-                        append = LoadState.NotLoading.Incomplete,
-                    )
-                )
-
-            // Queue a boundary requests, but it should not launch since refresh is running.
-            remoteMediatorAccessor.requestLoad(PREPEND, firstState)
-            remoteMediatorAccessor.requestLoad(APPEND, firstState)
-            assertThat(remoteMediator.newLoadEvents).isEmpty()
-            assertThat(remoteMediatorAccessor.state.value)
-                .isEqualTo(
-                    LoadStates(
-                        refresh = LoadState.Loading,
-                        prepend = LoadState.Loading,
-                        append = LoadState.Loading,
-                    )
-                )
-
-            // Queue more boundary requests, but with an updated PagingState.
-            remoteMediatorAccessor.requestLoad(PREPEND, secondState)
-            remoteMediatorAccessor.requestLoad(APPEND, secondState)
-            assertThat(remoteMediator.newLoadEvents).isEmpty()
-            assertThat(remoteMediatorAccessor.state.value)
-                .isEqualTo(
-                    LoadStates(
-                        refresh = LoadState.Loading,
-                        prepend = LoadState.Loading,
-                        append = LoadState.Loading,
-                    )
-                )
-
-            // Now wait until all queued requests finish running
-            advanceUntilIdle()
-            assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(LoadEvent(PREPEND, secondState), LoadEvent(APPEND, secondState))
-            assertThat(remoteMediatorAccessor.state.value)
-                .isEqualTo(
-                    LoadStates(
-                        refresh = LoadState.NotLoading.Incomplete,
-                        prepend = LoadState.NotLoading.Incomplete,
-                        append = LoadState.NotLoading.Incomplete,
-                    )
-                )
-        }
+        // allowRefresh should only allow one successful request to go through.
+        remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents).isEmpty()
+    }
 
     @Test
-    fun requestLoad_cancelledBoundaryRetriesAfterRefresh() =
-        testScope.runTest {
-            val remoteMediator =
-                RemoteMediatorMock(loadDelay = 100).apply {
-                    initializeResult = SKIP_INITIAL_REFRESH
-                }
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-            val firstState = createMockState()
-
-            // Launch boundary calls, but do not let them finish.
-            remoteMediatorAccessor.requestLoad(PREPEND, firstState)
-            // Single runner should prevent append from triggering, but it should still be queued.
-            remoteMediatorAccessor.requestLoad(APPEND, firstState)
-            advanceTimeBy(50)
-            assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(PREPEND, firstState))
-
-            // Launch refresh, which should cancel running boundary calls
-            remoteMediatorAccessor.requestLoad(REFRESH, firstState)
-            advanceTimeBy(50)
-            assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(REFRESH, firstState))
-
-            // Let refresh finish, retrying cancelled boundary calls
-            advanceUntilIdle()
-            assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(LoadEvent(PREPEND, firstState), LoadEvent(APPEND, firstState))
-        }
-
-    @Test
-    fun requestLoad_queuesBoundaryAfterRefreshFails() =
-        testScope.runTest {
-            val firstState = createMockState()
-            val secondState = createMockState()
-            val remoteMediator =
-                RemoteMediatorMock(loadDelay = 100).apply {
-                    initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
-                    loadCallback = { loadType, state ->
-                        // Only error out on first refresh.
-                        if (loadType == REFRESH && state == firstState) {
-                            RemoteMediator.MediatorResult.Error(throwable = LOAD_ERROR)
-                        } else {
-                            RemoteMediator.MediatorResult.Success(endOfPaginationReached = false)
-                        }
-                    }
-                }
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-
-            // Queue up some remote boundary calls, which will not run immediately because they
-            // depend on refresh.
-            remoteMediatorAccessor.requestLoad(PREPEND, firstState)
-            remoteMediatorAccessor.requestLoad(APPEND, firstState)
-
-            // Trigger refresh, letting it fail.
-            remoteMediatorAccessor.requestLoad(REFRESH, firstState)
-            advanceUntilIdle()
-            // Boundary calls should be queued, but not started.
-            assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(REFRESH, firstState))
-            // Although boundary calls are queued, they should not trigger or update LoadState since
-            // they are waiting for refresh to succeed.
-            assertThat(remoteMediatorAccessor.state.value)
-                .isEqualTo(
-                    LoadStates(
-                        refresh = LoadState.Error(LOAD_ERROR),
-                        prepend = LoadState.NotLoading.Incomplete,
-                        append = LoadState.NotLoading.Incomplete,
-                    )
-                )
-
-            // Let refresh finish, triggering queued boundary calls.
-            remoteMediatorAccessor.retryFailed(secondState)
-            advanceUntilIdle()
-            assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(
-                    LoadEvent(REFRESH, secondState),
-                    LoadEvent(PREPEND, firstState),
-                    LoadEvent(APPEND, firstState),
-                )
-            assertThat(remoteMediatorAccessor.state.value)
-                .isEqualTo(
-                    LoadStates(
-                        refresh = LoadState.NotLoading.Incomplete,
-                        prepend = LoadState.NotLoading.Incomplete,
-                        append = LoadState.NotLoading.Incomplete,
-                    )
-                )
-        }
-
-    @Test
-    fun requestLoad_refreshEndOfPaginationReachedClearsBoundaryCalls() =
-        testScope.runTest {
-            val remoteMediator =
-                RemoteMediatorMock(loadDelay = 100).apply {
-                    initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
-                    loadCallback = { _, _ ->
-                        RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
-                    }
-                }
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-            val firstState = createMockState()
-
-            // Queue up some remote boundary calls, which will not run immediately because they
-            // depend on refresh.
-            remoteMediatorAccessor.requestLoad(PREPEND, firstState)
-            remoteMediatorAccessor.requestLoad(APPEND, firstState)
-
-            // Trigger refresh and let it mark endOfPaginationReached
-            remoteMediatorAccessor.requestLoad(REFRESH, firstState)
-            advanceUntilIdle()
-
-            // Ensure boundary calls are not triggered since they should be cleared by
-            // endOfPaginationReached from refresh.
-            assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(REFRESH, firstState))
-            // Although boundary calls are queued, they should not trigger or update LoadState since
-            // they are waiting for refresh.
-            assertThat(remoteMediatorAccessor.state.value)
-                .isEqualTo(
-                    LoadStates(
-                        refresh = LoadState.NotLoading.Incomplete,
-                        prepend = LoadState.NotLoading.Complete,
-                        append = LoadState.NotLoading.Complete,
-                    )
-                )
-        }
-
-    @Test
-    fun load_reportsPrependLoadState() =
-        testScope.runTest {
-            val emptyState =
-                PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
-            val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-
-            // Assert initial state is NotLoading.Incomplete.
-            assertEquals(
-                LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Incomplete),
-                remoteMediatorAccessor.state.value,
-            )
-
-            // Start a PREPEND load.
-            remoteMediatorAccessor.requestLoad(loadType = PREPEND, pagingState = emptyState)
-
-            // Assert state is immediately set to Loading.
-            assertEquals(
-                LoadStates.IDLE.copy(prepend = LoadState.Loading),
-                remoteMediatorAccessor.state.value,
-            )
-
-            // Wait for load to finish.
-            advanceUntilIdle()
-
-            // Assert state is set to NotLoading.Incomplete.
-            assertEquals(
-                LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Incomplete),
-                remoteMediatorAccessor.state.value,
-            )
-
-            // Start a PREPEND load which results in endOfPaginationReached = true.
-            remoteMediator.loadCallback = { _, _ ->
-                RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
+    fun requestLoadIfRefreshAllowed_retry() = testScope.runTest {
+        val remoteMediator =
+            RemoteMediatorMock(loadDelay = 100).apply {
+                initializeResult = LAUNCH_INITIAL_REFRESH
             }
-            remoteMediatorAccessor.requestLoad(loadType = PREPEND, pagingState = emptyState)
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+        val pagingState = PagingState<Int, Int>(listOf(), null, PagingConfig(1), 0)
 
-            // Wait for load to finish.
-            advanceUntilIdle()
-
-            // Assert state is set to NotLoading.Incomplete.
-            assertEquals(
-                LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Complete),
-                remoteMediatorAccessor.state.value,
-            )
+        remoteMediator.loadCallback = { _, _ ->
+            RemoteMediator.MediatorResult.Error(Exception())
         }
 
-    @Test
-    fun load_reportsAppendLoadState() =
-        testScope.runTest {
-            val emptyState =
-                PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
-            val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
+        remoteMediatorAccessor.allowRefresh()
+        remoteMediatorAccessor.requestRefreshIfAllowed(pagingState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents)
+            .containsExactly(LoadEvent(loadType = REFRESH, state = pagingState))
 
-            // Assert initial state is NotLoading.Incomplete.
-            assertEquals(
-                LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Incomplete),
-                remoteMediatorAccessor.state.value,
-            )
-
-            // Start a APPEND load.
-            remoteMediatorAccessor.requestLoad(loadType = APPEND, pagingState = emptyState)
-
-            // Assert state is immediately set to Loading.
-            assertEquals(
-                LoadStates.IDLE.copy(append = LoadState.Loading),
-                remoteMediatorAccessor.state.value,
-            )
-
-            // Wait for load to finish.
-            advanceUntilIdle()
-
-            // Assert state is set to NotLoading.Incomplete.
-            assertEquals(
-                LoadStates.IDLE.copy(append = LoadState.NotLoading.Incomplete),
-                remoteMediatorAccessor.state.value,
-            )
-
-            // Start a APPEND load which results in endOfPaginationReached = true.
-            remoteMediator.loadCallback = { _, _ ->
-                RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
-            }
-            remoteMediatorAccessor.requestLoad(loadType = APPEND, pagingState = emptyState)
-
-            // Wait for load to finish.
-            advanceUntilIdle()
-
-            // Assert state is set to NotLoading.Incomplete.
-            assertEquals(
-                LoadStates.IDLE.copy(append = LoadState.NotLoading.Complete),
-                remoteMediatorAccessor.state.value,
-            )
+        remoteMediator.loadCallback = { _, _ ->
+            RemoteMediator.MediatorResult.Success(endOfPaginationReached = false)
         }
 
-    @Test
-    fun load_conflatesPrepend() =
-        testScope.runTest {
-            val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-
-            remoteMediatorAccessor.requestLoad(
-                loadType = PREPEND,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
-            )
-
-            remoteMediatorAccessor.requestLoad(
-                loadType = PREPEND,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
-            )
-
-            // Assert that exactly one load request was started.
-            assertEquals(1, remoteMediator.newLoadEvents.size)
-
-            // Fast-forward time until both load requests jobs complete.
-            advanceUntilIdle()
-
-            // Assert that the second load request was skipped since it was launched while the first
-            // load request was still running.
-            assertEquals(0, remoteMediator.newLoadEvents.size)
-        }
+        remoteMediatorAccessor.retryFailed(pagingState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents)
+            .containsExactly(LoadEvent(loadType = REFRESH, state = pagingState))
+    }
 
     @Test
-    fun load_conflatesAppend() =
-        testScope.runTest {
-            val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
+    fun requestLoad_queuesBoundaryBehindRefresh() = testScope.runTest {
+        val remoteMediator = RemoteMediatorMock(loadDelay = 100)
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+        val firstState = createMockState()
+        val secondState = createMockState()
 
-            remoteMediatorAccessor.requestLoad(
-                loadType = APPEND,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
-            )
-
-            remoteMediatorAccessor.requestLoad(
-                loadType = APPEND,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
-            )
-
-            // Assert that exactly one load request was started.
-            assertEquals(1, remoteMediator.newLoadEvents.size)
-
-            // Fast-forward time until both load requests jobs complete.
-            advanceUntilIdle()
-
-            // Assert that the second load request was skipped since it was launched while the first
-            // load request was still running.
-            assertEquals(0, remoteMediator.newLoadEvents.size)
-        }
-
-    @Test
-    fun load_conflatesRefresh() =
-        testScope.runTest {
-            val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-
-            remoteMediatorAccessor.requestLoad(
-                loadType = REFRESH,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
-            )
-
-            remoteMediatorAccessor.requestLoad(
-                loadType = REFRESH,
-                pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
-            )
-
-            // Assert that exactly one load request was started.
-            assertEquals(1, remoteMediator.newLoadEvents.size)
-
-            // Fast-forward time until both load requests jobs complete.
-            advanceUntilIdle()
-
-            // Assert that the second load request was skipped since it was launched while the first
-            // load request was still running.
-            assertEquals(0, remoteMediator.newLoadEvents.size)
-        }
-
-    @Test
-    fun load_concurrentInitializeJobCancelsBoundaryJobs() =
-        testScope.runTest {
-            val emptyState =
-                PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
-            val remoteMediator =
-                object : RemoteMediatorMock(loadDelay = 1000) {
-                    var loading = AtomicBoolean(false)
-
-                    override suspend fun load(
-                        loadType: LoadType,
-                        state: PagingState<Int, Int>,
-                    ): MediatorResult {
-                        if (!loading.compareAndSet(false, true)) fail("Concurrent load")
-
-                        return try {
-                            super.load(loadType, state)
-                        } finally {
-                            loading.set(false)
-                        }
-                    }
-                }
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
-
-            remoteMediatorAccessor.requestLoad(loadType = PREPEND, pagingState = emptyState)
-
-            remoteMediatorAccessor.requestLoad(loadType = APPEND, pagingState = emptyState)
-
-            // Start prependJob and appendJob, but do not let them finish.
-            advanceTimeBy(500)
-
-            // Assert that only the PREPEND RemoteMediator.load() call was made.
-            assertEquals(listOf(LoadEvent(PREPEND, emptyState)), remoteMediator.newLoadEvents)
-
-            // Start refreshJob
-            remoteMediatorAccessor.requestLoad(loadType = REFRESH, pagingState = emptyState)
-
-            // Give prependJob enough time to be cancelled and refresh started due to higher
-            // priority
-            advanceTimeBy(500)
-
-            assertEquals(listOf(LoadEvent(REFRESH, emptyState)), remoteMediator.newLoadEvents)
-            // assert that all of them are in loading state as we don't know if refresh will succeed
-            // if refresh fails, we would retry append / prepend
-            assertEquals(
+        remoteMediatorAccessor.requestLoad(REFRESH, firstState)
+        advanceTimeBy(50) // Start remote refresh, but do not let it finish.
+        assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(REFRESH, firstState))
+        assertThat(remoteMediatorAccessor.state.value)
+            .isEqualTo(
                 LoadStates(
                     refresh = LoadState.Loading,
-                    append = LoadState.Loading,
-                    prepend = LoadState.Loading,
-                ),
-                remoteMediatorAccessor.state.value,
+                    prepend = LoadState.NotLoading.Incomplete,
+                    append = LoadState.NotLoading.Incomplete,
+                )
             )
 
-            // Wait for all outstanding / queued jobs to finish.
-            advanceUntilIdle()
+        // Queue a boundary requests, but it should not launch since refresh is running.
+        remoteMediatorAccessor.requestLoad(PREPEND, firstState)
+        remoteMediatorAccessor.requestLoad(APPEND, firstState)
+        assertThat(remoteMediator.newLoadEvents).isEmpty()
+        assertThat(remoteMediatorAccessor.state.value)
+            .isEqualTo(
+                LoadStates(
+                    refresh = LoadState.Loading,
+                    prepend = LoadState.Loading,
+                    append = LoadState.Loading,
+                )
+            )
 
-            // Assert all outstanding / queued jobs finished.
-            assertEquals(
+        // Queue more boundary requests, but with an updated PagingState.
+        remoteMediatorAccessor.requestLoad(PREPEND, secondState)
+        remoteMediatorAccessor.requestLoad(APPEND, secondState)
+        assertThat(remoteMediator.newLoadEvents).isEmpty()
+        assertThat(remoteMediatorAccessor.state.value)
+            .isEqualTo(
+                LoadStates(
+                    refresh = LoadState.Loading,
+                    prepend = LoadState.Loading,
+                    append = LoadState.Loading,
+                )
+            )
+
+        // Now wait until all queued requests finish running
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents)
+            .containsExactly(LoadEvent(PREPEND, secondState), LoadEvent(APPEND, secondState))
+        assertThat(remoteMediatorAccessor.state.value)
+            .isEqualTo(
                 LoadStates(
                     refresh = LoadState.NotLoading.Incomplete,
-                    append = LoadState.NotLoading.Incomplete,
                     prepend = LoadState.NotLoading.Incomplete,
-                ),
-                remoteMediatorAccessor.state.value,
+                    append = LoadState.NotLoading.Incomplete,
+                )
             )
-
-            // Queued boundary requests should be triggered, even though they are out-of-date.
-            assertThat(remoteMediator.newLoadEvents)
-                .containsExactly(LoadEvent(PREPEND, emptyState), LoadEvent(APPEND, emptyState))
-        }
+    }
 
     @Test
-    fun load_concurrentBoundaryJobsRunsSerially() =
-        testScope.runTest {
-            val emptyState =
-                PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
-            val remoteMediator =
-                object : RemoteMediatorMock(loadDelay = 1000) {
-                    var loading = AtomicBoolean(false)
+    fun requestLoad_cancelledBoundaryRetriesAfterRefresh() = testScope.runTest {
+        val remoteMediator =
+            RemoteMediatorMock(loadDelay = 100).apply {
+                initializeResult = SKIP_INITIAL_REFRESH
+            }
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+        val firstState = createMockState()
 
-                    override suspend fun load(
-                        loadType: LoadType,
-                        state: PagingState<Int, Int>,
-                    ): MediatorResult {
-                        if (!loading.compareAndSet(false, true)) fail("Concurrent load")
+        // Launch boundary calls, but do not let them finish.
+        remoteMediatorAccessor.requestLoad(PREPEND, firstState)
+        // Single runner should prevent append from triggering, but it should still be queued.
+        remoteMediatorAccessor.requestLoad(APPEND, firstState)
+        advanceTimeBy(50)
+        assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(PREPEND, firstState))
 
-                        return try {
-                            super.load(loadType, state)
-                        } finally {
-                            loading.set(false)
-                        }
+        // Launch refresh, which should cancel running boundary calls
+        remoteMediatorAccessor.requestLoad(REFRESH, firstState)
+        advanceTimeBy(50)
+        assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(REFRESH, firstState))
+
+        // Let refresh finish, retrying cancelled boundary calls
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents)
+            .containsExactly(LoadEvent(PREPEND, firstState), LoadEvent(APPEND, firstState))
+    }
+
+    @Test
+    fun requestLoad_queuesBoundaryAfterRefreshFails() = testScope.runTest {
+        val firstState = createMockState()
+        val secondState = createMockState()
+        val remoteMediator =
+            RemoteMediatorMock(loadDelay = 100).apply {
+                initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+                loadCallback = { loadType, state ->
+                    // Only error out on first refresh.
+                    if (loadType == REFRESH && state == firstState) {
+                        RemoteMediator.MediatorResult.Error(throwable = LOAD_ERROR)
+                    } else {
+                        RemoteMediator.MediatorResult.Success(endOfPaginationReached = false)
                     }
                 }
+            }
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
 
-            val remoteMediatorAccessor = createAccessor(remoteMediator)
+        // Queue up some remote boundary calls, which will not run immediately because they
+        // depend on refresh.
+        remoteMediatorAccessor.requestLoad(PREPEND, firstState)
+        remoteMediatorAccessor.requestLoad(APPEND, firstState)
 
-            remoteMediatorAccessor.requestLoad(loadType = PREPEND, pagingState = emptyState)
+        // Trigger refresh, letting it fail.
+        remoteMediatorAccessor.requestLoad(REFRESH, firstState)
+        advanceUntilIdle()
+        // Boundary calls should be queued, but not started.
+        assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(REFRESH, firstState))
+        // Although boundary calls are queued, they should not trigger or update LoadState since
+        // they are waiting for refresh to succeed.
+        assertThat(remoteMediatorAccessor.state.value)
+            .isEqualTo(
+                LoadStates(
+                    refresh = LoadState.Error(LOAD_ERROR),
+                    prepend = LoadState.NotLoading.Incomplete,
+                    append = LoadState.NotLoading.Incomplete,
+                )
+            )
 
-            remoteMediatorAccessor.requestLoad(loadType = APPEND, pagingState = emptyState)
+        // Let refresh finish, triggering queued boundary calls.
+        remoteMediatorAccessor.retryFailed(secondState)
+        advanceUntilIdle()
+        assertThat(remoteMediator.newLoadEvents)
+            .containsExactly(
+                LoadEvent(REFRESH, secondState),
+                LoadEvent(PREPEND, firstState),
+                LoadEvent(APPEND, firstState),
+            )
+        assertThat(remoteMediatorAccessor.state.value)
+            .isEqualTo(
+                LoadStates(
+                    refresh = LoadState.NotLoading.Incomplete,
+                    prepend = LoadState.NotLoading.Incomplete,
+                    append = LoadState.NotLoading.Incomplete,
+                )
+            )
+    }
 
-            // Assert that only one job runs due to second job joining the first before starting.
-            assertEquals(1, remoteMediator.newLoadEvents.size)
+    @Test
+    fun requestLoad_refreshEndOfPaginationReachedClearsBoundaryCalls() = testScope.runTest {
+        val remoteMediator =
+            RemoteMediatorMock(loadDelay = 100).apply {
+                initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+                loadCallback = { _, _ ->
+                    RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
+                }
+            }
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+        val firstState = createMockState()
 
-            // Advance some time, but not enough to finish first load.
-            advanceTimeBy(500)
-            assertEquals(0, remoteMediator.newLoadEvents.size)
+        // Queue up some remote boundary calls, which will not run immediately because they
+        // depend on refresh.
+        remoteMediatorAccessor.requestLoad(PREPEND, firstState)
+        remoteMediatorAccessor.requestLoad(APPEND, firstState)
 
-            // Assert that second job starts after first finishes.
-            advanceTimeBy(500)
-            runCurrent()
-            assertEquals(1, remoteMediator.newLoadEvents.size)
+        // Trigger refresh and let it mark endOfPaginationReached
+        remoteMediatorAccessor.requestLoad(REFRESH, firstState)
+        advanceUntilIdle()
 
-            // Allow second job to finish.
-            advanceTimeBy(1000)
+        // Ensure boundary calls are not triggered since they should be cleared by
+        // endOfPaginationReached from refresh.
+        assertThat(remoteMediator.newLoadEvents).containsExactly(LoadEvent(REFRESH, firstState))
+        // Although boundary calls are queued, they should not trigger or update LoadState since
+        // they are waiting for refresh.
+        assertThat(remoteMediatorAccessor.state.value)
+            .isEqualTo(
+                LoadStates(
+                    refresh = LoadState.NotLoading.Incomplete,
+                    prepend = LoadState.NotLoading.Complete,
+                    append = LoadState.NotLoading.Complete,
+                )
+            )
+    }
+
+    @Test
+    fun load_reportsPrependLoadState() = testScope.runTest {
+        val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+        val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+
+        // Assert initial state is NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Incomplete),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Start a PREPEND load.
+        remoteMediatorAccessor.requestLoad(loadType = PREPEND, pagingState = emptyState)
+
+        // Assert state is immediately set to Loading.
+        assertEquals(
+            LoadStates.IDLE.copy(prepend = LoadState.Loading),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Wait for load to finish.
+        advanceUntilIdle()
+
+        // Assert state is set to NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Incomplete),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Start a PREPEND load which results in endOfPaginationReached = true.
+        remoteMediator.loadCallback = { _, _ ->
+            RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
         }
+        remoteMediatorAccessor.requestLoad(loadType = PREPEND, pagingState = emptyState)
+
+        // Wait for load to finish.
+        advanceUntilIdle()
+
+        // Assert state is set to NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Complete),
+            remoteMediatorAccessor.state.value,
+        )
+    }
+
+    @Test
+    fun load_reportsAppendLoadState() = testScope.runTest {
+        val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+        val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+
+        // Assert initial state is NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(prepend = LoadState.NotLoading.Incomplete),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Start a APPEND load.
+        remoteMediatorAccessor.requestLoad(loadType = APPEND, pagingState = emptyState)
+
+        // Assert state is immediately set to Loading.
+        assertEquals(
+            LoadStates.IDLE.copy(append = LoadState.Loading),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Wait for load to finish.
+        advanceUntilIdle()
+
+        // Assert state is set to NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(append = LoadState.NotLoading.Incomplete),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Start a APPEND load which results in endOfPaginationReached = true.
+        remoteMediator.loadCallback = { _, _ ->
+            RemoteMediator.MediatorResult.Success(endOfPaginationReached = true)
+        }
+        remoteMediatorAccessor.requestLoad(loadType = APPEND, pagingState = emptyState)
+
+        // Wait for load to finish.
+        advanceUntilIdle()
+
+        // Assert state is set to NotLoading.Incomplete.
+        assertEquals(
+            LoadStates.IDLE.copy(append = LoadState.NotLoading.Complete),
+            remoteMediatorAccessor.state.value,
+        )
+    }
+
+    @Test
+    fun load_conflatesPrepend() = testScope.runTest {
+        val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+
+        remoteMediatorAccessor.requestLoad(
+            loadType = PREPEND,
+            pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
+        )
+
+        remoteMediatorAccessor.requestLoad(
+            loadType = PREPEND,
+            pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
+        )
+
+        // Assert that exactly one load request was started.
+        assertEquals(1, remoteMediator.newLoadEvents.size)
+
+        // Fast-forward time until both load requests jobs complete.
+        advanceUntilIdle()
+
+        // Assert that the second load request was skipped since it was launched while the first
+        // load request was still running.
+        assertEquals(0, remoteMediator.newLoadEvents.size)
+    }
+
+    @Test
+    fun load_conflatesAppend() = testScope.runTest {
+        val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+
+        remoteMediatorAccessor.requestLoad(
+            loadType = APPEND,
+            pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
+        )
+
+        remoteMediatorAccessor.requestLoad(
+            loadType = APPEND,
+            pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
+        )
+
+        // Assert that exactly one load request was started.
+        assertEquals(1, remoteMediator.newLoadEvents.size)
+
+        // Fast-forward time until both load requests jobs complete.
+        advanceUntilIdle()
+
+        // Assert that the second load request was skipped since it was launched while the first
+        // load request was still running.
+        assertEquals(0, remoteMediator.newLoadEvents.size)
+    }
+
+    @Test
+    fun load_conflatesRefresh() = testScope.runTest {
+        val remoteMediator = RemoteMediatorMock(loadDelay = 1000)
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+
+        remoteMediatorAccessor.requestLoad(
+            loadType = REFRESH,
+            pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
+        )
+
+        remoteMediatorAccessor.requestLoad(
+            loadType = REFRESH,
+            pagingState = PagingState(listOf(), null, PagingConfig(10), COUNT_UNDEFINED),
+        )
+
+        // Assert that exactly one load request was started.
+        assertEquals(1, remoteMediator.newLoadEvents.size)
+
+        // Fast-forward time until both load requests jobs complete.
+        advanceUntilIdle()
+
+        // Assert that the second load request was skipped since it was launched while the first
+        // load request was still running.
+        assertEquals(0, remoteMediator.newLoadEvents.size)
+    }
+
+    @Test
+    fun load_concurrentInitializeJobCancelsBoundaryJobs() = testScope.runTest {
+        val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+        val remoteMediator =
+            object : RemoteMediatorMock(loadDelay = 1000) {
+                var loading = AtomicBoolean(false)
+
+                override suspend fun load(
+                    loadType: LoadType,
+                    state: PagingState<Int, Int>,
+                ): MediatorResult {
+                    if (!loading.compareAndSet(false, true)) fail("Concurrent load")
+
+                    return try {
+                        super.load(loadType, state)
+                    } finally {
+                        loading.set(false)
+                    }
+                }
+            }
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+
+        remoteMediatorAccessor.requestLoad(loadType = PREPEND, pagingState = emptyState)
+
+        remoteMediatorAccessor.requestLoad(loadType = APPEND, pagingState = emptyState)
+
+        // Start prependJob and appendJob, but do not let them finish.
+        advanceTimeBy(500)
+
+        // Assert that only the PREPEND RemoteMediator.load() call was made.
+        assertEquals(listOf(LoadEvent(PREPEND, emptyState)), remoteMediator.newLoadEvents)
+
+        // Start refreshJob
+        remoteMediatorAccessor.requestLoad(loadType = REFRESH, pagingState = emptyState)
+
+        // Give prependJob enough time to be cancelled and refresh started due to higher
+        // priority
+        advanceTimeBy(500)
+
+        assertEquals(listOf(LoadEvent(REFRESH, emptyState)), remoteMediator.newLoadEvents)
+        // assert that all of them are in loading state as we don't know if refresh will succeed
+        // if refresh fails, we would retry append / prepend
+        assertEquals(
+            LoadStates(
+                refresh = LoadState.Loading,
+                append = LoadState.Loading,
+                prepend = LoadState.Loading,
+            ),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Wait for all outstanding / queued jobs to finish.
+        advanceUntilIdle()
+
+        // Assert all outstanding / queued jobs finished.
+        assertEquals(
+            LoadStates(
+                refresh = LoadState.NotLoading.Incomplete,
+                append = LoadState.NotLoading.Incomplete,
+                prepend = LoadState.NotLoading.Incomplete,
+            ),
+            remoteMediatorAccessor.state.value,
+        )
+
+        // Queued boundary requests should be triggered, even though they are out-of-date.
+        assertThat(remoteMediator.newLoadEvents)
+            .containsExactly(LoadEvent(PREPEND, emptyState), LoadEvent(APPEND, emptyState))
+    }
+
+    @Test
+    fun load_concurrentBoundaryJobsRunsSerially() = testScope.runTest {
+        val emptyState = PagingState<Int, Int>(listOf(), null, PagingConfig(10), COUNT_UNDEFINED)
+        val remoteMediator =
+            object : RemoteMediatorMock(loadDelay = 1000) {
+                var loading = AtomicBoolean(false)
+
+                override suspend fun load(
+                    loadType: LoadType,
+                    state: PagingState<Int, Int>,
+                ): MediatorResult {
+                    if (!loading.compareAndSet(false, true)) fail("Concurrent load")
+
+                    return try {
+                        super.load(loadType, state)
+                    } finally {
+                        loading.set(false)
+                    }
+                }
+            }
+
+        val remoteMediatorAccessor = createAccessor(remoteMediator)
+
+        remoteMediatorAccessor.requestLoad(loadType = PREPEND, pagingState = emptyState)
+
+        remoteMediatorAccessor.requestLoad(loadType = APPEND, pagingState = emptyState)
+
+        // Assert that only one job runs due to second job joining the first before starting.
+        assertEquals(1, remoteMediator.newLoadEvents.size)
+
+        // Advance some time, but not enough to finish first load.
+        advanceTimeBy(500)
+        assertEquals(0, remoteMediator.newLoadEvents.size)
+
+        // Assert that second job starts after first finishes.
+        advanceTimeBy(500)
+        runCurrent()
+        assertEquals(1, remoteMediator.newLoadEvents.size)
+
+        // Allow second job to finish.
+        advanceTimeBy(1000)
+    }
 
     @Test
     fun ignoreAppendPrependWhenRefreshIsRequired() {

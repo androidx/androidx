@@ -95,12 +95,11 @@ fun rememberUpdatedStateSampleWithDisposableEffect() {
         // Event handlers are ordered and a new onEvent should not cause us to re-register,
         // losing our position in the dispatcher.
         DisposableEffect(dispatcher) {
-            val disposable =
-                dispatcher.addListener {
-                    // currentOnEvent will always refer to the latest onEvent function that
-                    // the EventHandler was recomposed with
-                    currentOnEvent()
-                }
+            val disposable = dispatcher.addListener {
+                // currentOnEvent will always refer to the latest onEvent function that
+                // the EventHandler was recomposed with
+                currentOnEvent()
+            }
             onDispose { disposable.dispose() }
         }
     }

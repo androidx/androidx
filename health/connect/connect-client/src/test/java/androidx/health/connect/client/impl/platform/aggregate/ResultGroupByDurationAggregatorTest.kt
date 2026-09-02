@@ -104,7 +104,8 @@ class ResultGroupByDurationAggregatorTest {
                             zoneOffset = ZoneOffset.ofHours(10),
                         ),
                     minTime =
-                        LocalDateTime.parse("2025-02-03T00:10:00").toInstant(ZoneOffset.ofHours(10)),
+                        LocalDateTime.parse("2025-02-03T00:10:00")
+                            .toInstant(ZoneOffset.ofHours(10)),
                 )
             )
     }

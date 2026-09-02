@@ -137,14 +137,13 @@ class SuspendingTransactionCancellationTest(driver: UseDriver) : TestDatabaseTes
             // room ktx transactions.
             val immediateMainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
             InstrumentationRegistry.getInstrumentation().runOnMainSync {
-                val toBeCancelled =
-                    immediateMainScope.launch {
-                        getBook {
-                            suspendCancellableCoroutine<Unit> {
-                                // infinite
-                            }
+                val toBeCancelled = immediateMainScope.launch {
+                    getBook {
+                        suspendCancellableCoroutine<Unit> {
+                            // infinite
                         }
                     }
+                }
                 toBeCancelled.cancel()
             }
             immediateMainScope.cancel()

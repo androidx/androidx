@@ -1186,8 +1186,9 @@ class NavControllerRouteTest {
                     bundle.putIntArray(key, array)
                 }
 
-                override fun serializeAsValues(value: List<CustomType>) =
-                    value.map { it.id.toString() }
+                override fun serializeAsValues(value: List<CustomType>) = value.map {
+                    it.id.toString()
+                }
 
                 override fun emptyCollection(): List<CustomType> = emptyList()
 

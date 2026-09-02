@@ -67,59 +67,56 @@ class CoroutineRunnableSchedulerTest {
     }
 
     @Test
-    fun testScheduleWithDelay_runsAfterDelay() =
-        testScope.runTest {
-            var ran = false
-            scheduler.scheduleWithDelay(100, Runnable { ran = true })
+    fun testScheduleWithDelay_runsAfterDelay() = testScope.runTest {
+        var ran = false
+        scheduler.scheduleWithDelay(100, Runnable { ran = true })
 
-            runCurrent()
-            assertThat(ran).isFalse()
+        runCurrent()
+        assertThat(ran).isFalse()
 
-            advanceTimeBy(100.milliseconds)
-            runCurrent()
-            assertThat(ran).isTrue()
-        }
-
-    @Test
-    fun testCancel_preventsExecution() =
-        testScope.runTest {
-            var ran = false
-            val runnable = Runnable { ran = true }
-            scheduler.scheduleWithDelay(100, runnable)
-
-            advanceTimeBy(50.milliseconds)
-            runCurrent()
-            scheduler.cancel(runnable)
-
-            advanceTimeBy(100.milliseconds)
-            runCurrent()
-            assertThat(ran).isFalse()
-        }
+        advanceTimeBy(100.milliseconds)
+        runCurrent()
+        assertThat(ran).isTrue()
+    }
 
     @Test
-    fun testScheduleTwice_cancelsPrevious() =
-        testScope.runTest {
-            var runCount = 0
-            val runnable = Runnable { runCount++ }
+    fun testCancel_preventsExecution() = testScope.runTest {
+        var ran = false
+        val runnable = Runnable { ran = true }
+        scheduler.scheduleWithDelay(100, runnable)
 
-            // Schedule first time for 100ms
-            scheduler.scheduleWithDelay(100, runnable)
+        advanceTimeBy(50.milliseconds)
+        runCurrent()
+        scheduler.cancel(runnable)
 
-            advanceTimeBy(50.milliseconds)
-            runCurrent()
+        advanceTimeBy(100.milliseconds)
+        runCurrent()
+        assertThat(ran).isFalse()
+    }
 
-            // Schedule again for 100ms (should run at 50 + 100 = 150ms total)
-            // This should cancel the first schedule (which would have run at 100ms)
-            scheduler.scheduleWithDelay(100, runnable)
+    @Test
+    fun testScheduleTwice_cancelsPrevious() = testScope.runTest {
+        var runCount = 0
+        val runnable = Runnable { runCount++ }
 
-            // Advance past 100ms (when first would have run). Since first is cancelled, count is 0
-            advanceTimeBy(50.milliseconds)
-            runCurrent()
-            assertThat(runCount).isEqualTo(0)
+        // Schedule first time for 100ms
+        scheduler.scheduleWithDelay(100, runnable)
 
-            // Advance past 150ms (when second runs)
-            advanceTimeBy(50.milliseconds)
-            runCurrent()
-            assertThat(runCount).isEqualTo(1)
-        }
+        advanceTimeBy(50.milliseconds)
+        runCurrent()
+
+        // Schedule again for 100ms (should run at 50 + 100 = 150ms total)
+        // This should cancel the first schedule (which would have run at 100ms)
+        scheduler.scheduleWithDelay(100, runnable)
+
+        // Advance past 100ms (when first would have run). Since first is cancelled, count is 0
+        advanceTimeBy(50.milliseconds)
+        runCurrent()
+        assertThat(runCount).isEqualTo(0)
+
+        // Advance past 150ms (when second runs)
+        advanceTimeBy(50.milliseconds)
+        runCurrent()
+        assertThat(runCount).isEqualTo(1)
+    }
 }

@@ -645,24 +645,23 @@ class ProducerModule(
             fileNamePart: String,
             label: String,
             useGsSchema: Boolean,
-        ) =
-            testNameToProfileLines.map {
+        ) = testNameToProfileLines.map {
 
-                // Write the fake profile with the given list of profile rules.
-                val profileFileName = "fake-$fileNamePart-${it.key}.txt"
-                val fakeProfileFile =
-                    File(profilesOutputDir, profileFileName).apply {
-                        writeText(it.value.joinToString(System.lineSeparator()))
-                    }
+            // Write the fake profile with the given list of profile rules.
+            val profileFileName = "fake-$fileNamePart-${it.key}.txt"
+            val fakeProfileFile =
+                File(profilesOutputDir, profileFileName).apply {
+                    writeText(it.value.joinToString(System.lineSeparator()))
+                }
 
-                // Creates an artifact for the test result proto. Note that this can be used
-                // both as a test result artifact and a global artifact.
-                val path = (if (useGsSchema) "gs://" else "") + fakeProfileFile.absolutePath
-                TestArtifactProto.Artifact.newBuilder()
-                    .setLabel(LabelProto.Label.newBuilder().setLabel(label).build())
-                    .setSourcePath(PathProto.Path.newBuilder().setPath(path).build())
-                    .build()
-            }
+            // Creates an artifact for the test result proto. Note that this can be used
+            // both as a test result artifact and a global artifact.
+            val path = (if (useGsSchema) "gs://" else "") + fakeProfileFile.absolutePath
+            TestArtifactProto.Artifact.newBuilder()
+                .setLabel(LabelProto.Label.newBuilder().setLabel(label).build())
+                .setSourcePath(PathProto.Path.newBuilder().setPath(path).build())
+                .build()
+        }
 
         // Baseline and startup profiles are added as test results artifacts.
         // For testing with FTL instead, we add the profile as global artifact.

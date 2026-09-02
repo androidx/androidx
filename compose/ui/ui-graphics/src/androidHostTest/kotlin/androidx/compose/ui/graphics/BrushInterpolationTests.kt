@@ -76,7 +76,10 @@ class BrushInterpolationTests {
                 start = lerp(a.start, b.start, 0.5f),
                 end = lerp(a.end, b.end, 0.5f),
                 colors =
-                    listOf(lerp(Color.Red, Color.Green, 0.5f), lerp(Color.Blue, Color.Yellow, 0.5f)),
+                    listOf(
+                        lerp(Color.Red, Color.Green, 0.5f),
+                        lerp(Color.Blue, Color.Yellow, 0.5f),
+                    ),
             )
         assertEquals(expected.start, result.start)
         assertEquals(expected.end, result.end)
@@ -109,7 +112,10 @@ class BrushInterpolationTests {
                 start = lerp(aAsLinear.start, bAsLinear.start, 0.5f),
                 end = lerp(aAsLinear.end, bAsLinear.end, 0.5f),
                 colors =
-                    listOf(lerp(Color.Red, Color.Green, 0.5f), lerp(Color.Blue, Color.Yellow, 0.5f)),
+                    listOf(
+                        lerp(Color.Red, Color.Green, 0.5f),
+                        lerp(Color.Blue, Color.Yellow, 0.5f),
+                    ),
             )
         assertEquals(expected.start, result.start)
         assertEquals(expected.end, result.end)
@@ -383,7 +389,10 @@ class BrushInterpolationTests {
                 center = lerp(a.center, b.center, 0.5f),
                 radius = lerp(a.radius, b.radius, 0.5f),
                 colors =
-                    listOf(lerp(Color.Red, Color.Green, 0.5f), lerp(Color.Blue, Color.Yellow, 0.5f)),
+                    listOf(
+                        lerp(Color.Red, Color.Green, 0.5f),
+                        lerp(Color.Blue, Color.Yellow, 0.5f),
+                    ),
             )
         assertEquals(expected.center, result.center)
         assertEquals(expected.radius, result.radius)
@@ -670,7 +679,10 @@ class BrushInterpolationTests {
             SweepGradient(
                 center = lerp(a.center, b.center, 0.5f),
                 colors =
-                    listOf(lerp(Color.Red, Color.Green, 0.5f), lerp(Color.Blue, Color.Yellow, 0.5f)),
+                    listOf(
+                        lerp(Color.Red, Color.Green, 0.5f),
+                        lerp(Color.Blue, Color.Yellow, 0.5f),
+                    ),
             )
         assertEquals(expected.center, result.center)
         assertEquals(expected.colors, result.colors)

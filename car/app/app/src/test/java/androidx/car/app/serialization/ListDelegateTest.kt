@@ -60,8 +60,9 @@ class ListDelegateTest {
         ListDelegateImpl(testList).let { assertEqual(it, it) }
 
     @Test
-    fun equalsAndHashCode_equivalentItems_areEqual() =
-        testList.let { assertEqual(ListDelegateImpl(it), ListDelegateImpl(it)) }
+    fun equalsAndHashCode_equivalentItems_areEqual() = testList.let {
+        assertEqual(ListDelegateImpl(it), ListDelegateImpl(it))
+    }
 
     @Test
     fun equalsAndHashCode_marshalledItem_areEqual() =

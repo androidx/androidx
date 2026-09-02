@@ -61,13 +61,12 @@ public class ExtensionAppFunctionService : ExtensionsAppFunctionService() {
         cancellationSignal: CancellationSignal,
         callback: Consumer<ExecuteAppFunctionResponse>,
     ) {
-        val job =
-            scope.launch {
-                val response = executeFunction(request)
-                // We don't check isActive here since AppFunction implementation is expected
-                // to return ERROR_CANCELLED when the operation is caneled.
-                callback.accept(response)
-            }
+        val job = scope.launch {
+            val response = executeFunction(request)
+            // We don't check isActive here since AppFunction implementation is expected
+            // to return ERROR_CANCELLED when the operation is caneled.
+            callback.accept(response)
+        }
         cancellationSignal.setOnCancelListener { job.cancel() }
     }
 

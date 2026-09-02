@@ -151,29 +151,28 @@ internal class BufferTransformHintResolver {
             width: Float,
             height: Float,
             @SurfaceControlCompat.Companion.BufferTransform transform: Int,
-        ): Matrix =
-            matrix.apply {
-                when (transform) {
-                    SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
-                        reset()
-                        setRotate(90f)
-                        postTranslate(width, 0f)
-                    }
-                    SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
-                        reset()
-                        setRotate(180f)
-                        postTranslate(width, height)
-                    }
-                    SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
-                        reset()
-                        setRotate(270f)
-                        postTranslate(0f, height)
-                    }
-                    else -> {
-                        reset()
-                    }
+        ): Matrix = matrix.apply {
+            when (transform) {
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
+                    reset()
+                    setRotate(90f)
+                    postTranslate(width, 0f)
+                }
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
+                    reset()
+                    setRotate(180f)
+                    postTranslate(width, height)
+                }
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
+                    reset()
+                    setRotate(270f)
+                    postTranslate(0f, height)
+                }
+                else -> {
+                    reset()
                 }
             }
+        }
     }
 }
 

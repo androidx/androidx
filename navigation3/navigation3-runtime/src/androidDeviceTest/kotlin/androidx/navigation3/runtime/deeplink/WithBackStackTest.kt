@@ -75,8 +75,9 @@ class WithBackStackTest {
         val matchers: List<BackStackMatcher<TestInterface, TestInterface>> =
             listOf(matcher1, matcher2)
         val request = DeepLinkRequest("https://www.test.com")
-        val results: List<BackStackMatchResult<TestInterface, TestInterface>?> =
-            matchers.map { it.match(request) }
+        val results: List<BackStackMatchResult<TestInterface, TestInterface>?> = matchers.map {
+            it.match(request)
+        }
 
         val firstResult = results.first()!!
         val backStack: List<TestInterface> = firstResult.backStack

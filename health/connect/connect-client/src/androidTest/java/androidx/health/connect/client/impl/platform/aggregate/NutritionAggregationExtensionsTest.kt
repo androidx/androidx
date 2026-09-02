@@ -536,7 +536,10 @@ class NutritionAggregationExtensionsTest {
                     emptySet(),
                     TimeRangeFilter.between(
                         LocalDateTime.ofInstant(START_TIME + 30.seconds, ZoneOffset.UTC),
-                        LocalDateTime.ofInstant(START_TIME + 6.minutes + 45.seconds, ZoneOffset.UTC),
+                        LocalDateTime.ofInstant(
+                            START_TIME + 6.minutes + 45.seconds,
+                            ZoneOffset.UTC,
+                        ),
                     ),
                     emptySet(),
                 )

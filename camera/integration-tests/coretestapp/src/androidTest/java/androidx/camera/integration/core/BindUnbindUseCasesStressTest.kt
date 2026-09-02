@@ -883,11 +883,10 @@ class BindUnbindUseCasesStressTest(
     private class ImageAnalysisImageAvailableMonitor {
         private var analyzerFrameCountDownLatch: CountDownLatch? = null
 
-        fun createAnalyzer() =
-            ImageAnalysis.Analyzer { image ->
-                image.close()
-                analyzerFrameCountDownLatch?.countDown()
-            }
+        fun createAnalyzer() = ImageAnalysis.Analyzer { image ->
+            image.close()
+            analyzerFrameCountDownLatch?.countDown()
+        }
 
         fun awaitAvailableFramesAndAssert(count: Int = 10, timeoutDurationMs: Long = 10000) {
             analyzerFrameCountDownLatch = CountDownLatch(count)

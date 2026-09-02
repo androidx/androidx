@@ -44,8 +44,9 @@ class GlanceNodeAssertionTest {
                         children.add(
                             EmittableText().apply {
                                 text = "another text"
-                                modifier =
-                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "existing-test-tag"
+                                }
                             }
                         )
                     },
@@ -67,8 +68,9 @@ class GlanceNodeAssertionTest {
                         children.add(
                             EmittableText().apply {
                                 text = "another text"
-                                modifier =
-                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "existing-test-tag"
+                                }
                             }
                         )
                     },
@@ -97,8 +99,9 @@ class GlanceNodeAssertionTest {
                         children.add(
                             EmittableText().apply {
                                 text = "another text"
-                                modifier =
-                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "existing-test-tag"
+                                }
                             }
                         )
                     },
@@ -120,8 +123,9 @@ class GlanceNodeAssertionTest {
                         children.add(
                             EmittableText().apply {
                                 text = "another text"
-                                modifier =
-                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "existing-test-tag"
+                                }
                             }
                         )
                     },
@@ -151,8 +155,9 @@ class GlanceNodeAssertionTest {
                         children.add(
                             EmittableText().apply {
                                 text = "another text"
-                                modifier =
-                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "existing-test-tag"
+                                }
                             }
                         )
                     },
@@ -174,8 +179,9 @@ class GlanceNodeAssertionTest {
                         children.add(
                             EmittableText().apply {
                                 text = "another text"
-                                modifier =
-                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "existing-test-tag"
+                                }
                             }
                         )
                     },
@@ -197,8 +203,9 @@ class GlanceNodeAssertionTest {
                         children.add(
                             EmittableText().apply {
                                 text = "another text"
-                                modifier =
-                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "existing-test-tag"
+                                }
                             }
                         )
                     },
@@ -230,8 +237,9 @@ class GlanceNodeAssertionTest {
                         children.add(
                             EmittableText().apply {
                                 text = "another text"
-                                modifier =
-                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "existing-test-tag"
+                                }
                             }
                         )
                     },

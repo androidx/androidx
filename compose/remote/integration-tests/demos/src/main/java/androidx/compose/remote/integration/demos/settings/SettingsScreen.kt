@@ -40,19 +40,19 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SettingsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val layoutDirection by
-        remember {
-                context.dataStore.data.map { it[LAYOUT_DIRECTION_PREF_KEY] ?: LAYOUT_DIRECTION_LTR }
-            }
-            .collectAsState(initial = LAYOUT_DIRECTION_LTR)
+    val layoutDirection by remember {
+        context.dataStore.data.map { it[LAYOUT_DIRECTION_PREF_KEY] ?: LAYOUT_DIRECTION_LTR }
+    }
+        .collectAsState(initial = LAYOUT_DIRECTION_LTR)
 
     val coroutineScope = rememberCoroutineScope()
 
     val isRtl = layoutDirection == LAYOUT_DIRECTION_RTL
 
-    val playerType by
-        remember { context.dataStore.data.map { it[PLAYER_TYPE_PREF_KEY] ?: PLAYER_TYPE_JAVA } }
-            .collectAsState(initial = PLAYER_TYPE_JAVA)
+    val playerType by remember {
+        context.dataStore.data.map { it[PLAYER_TYPE_PREF_KEY] ?: PLAYER_TYPE_JAVA }
+    }
+        .collectAsState(initial = PLAYER_TYPE_JAVA)
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         Text(

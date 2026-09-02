@@ -40,13 +40,12 @@ internal class KspMessager(private val logger: KSPLogger) : XMessager() {
 
         // In Javac, the Messager requires all preceding parameters to report an error.
         // In KSP, the KspLogger only needs the last so ignore the preceding parameters.
-        val nodes =
-            sequence {
-                    yield((annotationValue as? KspAnnotationValue)?.valueArgument)
-                    yield((annotation as? KspAnnotation)?.ksAnnotation)
-                    yield((element as? KspElement)?.declaration)
-                }
-                .filterNotNull()
+        val nodes = sequence {
+            yield((annotationValue as? KspAnnotationValue)?.valueArgument)
+            yield((annotation as? KspAnnotation)?.ksAnnotation)
+            yield((element as? KspElement)?.declaration)
+        }
+            .filterNotNull()
         val ksNode =
             nodes.firstOrNull {
                 // pick first node with a location, if possible

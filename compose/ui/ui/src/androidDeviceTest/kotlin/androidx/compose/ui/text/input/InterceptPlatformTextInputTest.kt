@@ -273,18 +273,17 @@ class InterceptPlatformTextInputTest {
         var interceptor by mutableStateOf(interceptor1)
         setContent { InterceptPlatformTextInput(interceptor) { FakeTextField() } }
 
-        val sessionJob =
-            rule.runOnIdle {
-                coroutineScope.launch {
-                    testNode.establishTextInputSession {
-                        try {
-                            startInputMethod(TaggedRequest())
-                        } finally {
-                            downstreamSessionCancelled = true
-                        }
+        val sessionJob = rule.runOnIdle {
+            coroutineScope.launch {
+                testNode.establishTextInputSession {
+                    try {
+                        startInputMethod(TaggedRequest())
+                    } finally {
+                        downstreamSessionCancelled = true
                     }
                 }
             }
+        }
 
         rule.runOnIdle {
             assertTrue(sessionJob.isActive)
@@ -447,15 +446,14 @@ class InterceptPlatformTextInputTest {
             }
         }
 
-        val testJob =
-            rule.runOnIdle {
-                coroutineScope.launch {
-                    testNode.establishTextInputSession {
-                        // This context should be propagated to startInputMethod.
-                        startInputMethod(TaggedRequest("root"))
-                    }
+        val testJob = rule.runOnIdle {
+            coroutineScope.launch {
+                testNode.establishTextInputSession {
+                    // This context should be propagated to startInputMethod.
+                    startInputMethod(TaggedRequest("root"))
                 }
             }
+        }
         // Let the session start.
         rule.runOnIdle { assertThat(requests).containsExactly("one wrapping root").inOrder() }
 
@@ -496,15 +494,14 @@ class InterceptPlatformTextInputTest {
                 InterceptPlatformTextInput(interceptor) { FakeTextField() }
             }
         }
-        val testJob =
-            rule.runOnIdle {
-                coroutineScope.launch {
-                    testNode.establishTextInputSession {
-                        // This context should be propagated to startInputMethod.
-                        startInputMethod(TaggedRequest("root"))
-                    }
+        val testJob = rule.runOnIdle {
+            coroutineScope.launch {
+                testNode.establishTextInputSession {
+                    // This context should be propagated to startInputMethod.
+                    startInputMethod(TaggedRequest("root"))
                 }
             }
+        }
         // Let the session start.
         rule.runOnIdle { assertThat(requests).isEmpty() }
 

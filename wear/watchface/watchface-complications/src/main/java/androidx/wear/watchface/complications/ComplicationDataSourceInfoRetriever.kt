@@ -208,10 +208,9 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
         val service: IProviderInfoService,
         var continuation: CancellableContinuation<ComplicationData?>?,
     ) : IPreviewComplicationDataCallback.Stub() {
-        val deathObserver: IBinder.DeathRecipient =
-            IBinder.DeathRecipient {
-                continuation?.resumeWithException(ServiceDisconnectedException())
-            }
+        val deathObserver: IBinder.DeathRecipient = IBinder.DeathRecipient {
+            continuation?.resumeWithException(ServiceDisconnectedException())
+        }
 
         init {
             service.asBinder().linkToDeath(deathObserver, 0)

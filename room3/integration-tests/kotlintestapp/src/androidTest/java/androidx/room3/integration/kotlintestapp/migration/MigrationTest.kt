@@ -454,16 +454,15 @@ class MigrationTest {
                     }
                 )
                 .build()
-        val tableNames: Set<String> =
-            db.useReaderConnection { connection ->
-                connection.usePrepared("SELECT name FROM sqlite_master") { stmt ->
-                    buildSet {
-                        while (stmt.step()) {
-                            add(stmt.getText(0))
-                        }
+        val tableNames: Set<String> = db.useReaderConnection { connection ->
+            connection.usePrepared("SELECT name FROM sqlite_master") { stmt ->
+                buildSet {
+                    while (stmt.step()) {
+                        add(stmt.getText(0))
                     }
                 }
             }
+        }
         db.close()
 
         // Extra table is no longer present
@@ -487,16 +486,15 @@ class MigrationTest {
                 .setDriver(AndroidSQLiteDriver())
                 .fallbackToDestructiveMigration(true)
                 .build()
-        val tableNames: Set<String> =
-            db.useReaderConnection { connection ->
-                connection.usePrepared("SELECT name FROM sqlite_master") { stmt ->
-                    buildSet {
-                        while (stmt.step()) {
-                            add(stmt.getText(0))
-                        }
+        val tableNames: Set<String> = db.useReaderConnection { connection ->
+            connection.usePrepared("SELECT name FROM sqlite_master") { stmt ->
+                buildSet {
+                    while (stmt.step()) {
+                        add(stmt.getText(0))
                     }
                 }
             }
+        }
         db.close()
 
         // Extra table is no longer present

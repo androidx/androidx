@@ -77,8 +77,9 @@ constructor(
     init {
         require(credentialOptions.isNotEmpty()) { "credentialOptions should not be empty" }
         if (credentialOptions.size > 1) {
-            val digitalCredentialOptionCount =
-                credentialOptions.count { it is GetDigitalCredentialOption }
+            val digitalCredentialOptionCount = credentialOptions.count {
+                it is GetDigitalCredentialOption
+            }
             if (
                 digitalCredentialOptionCount > 0 &&
                     digitalCredentialOptionCount != credentialOptions.size

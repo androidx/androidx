@@ -188,8 +188,9 @@ internal constructor(
         getMatchingUriFragment(deepLink.getFragment(), savedState, arguments)
 
         // Check that all required arguments are present in bundle
-        val missingRequiredArguments =
-            arguments.missingRequiredArguments { argName -> !savedState.read { contains(argName) } }
+        val missingRequiredArguments = arguments.missingRequiredArguments { argName ->
+            !savedState.read { contains(argName) }
+        }
         if (missingRequiredArguments.isNotEmpty()) return null
 
         return savedState

@@ -288,8 +288,9 @@ class AnimationSearchTest {
         var transitionSearchCallbacks = 0
         var animatedVisibilitySearchCallbacks = 0
         val transitionSearch = AnimationSearch.TransitionSearch { transitionSearchCallbacks++ }
-        val animatedVisibilitySearch =
-            AnimationSearch.AnimatedVisibilitySearch { animatedVisibilitySearchCallbacks++ }
+        val animatedVisibilitySearch = AnimationSearch.AnimatedVisibilitySearch {
+            animatedVisibilitySearchCallbacks++
+        }
         rule.addAnimations(transitionSearch, animatedVisibilitySearch) {
             TransitionAnimatedVisibilityPreview()
         }
@@ -442,8 +443,9 @@ class AnimationSearchTest {
         var transitionCallbacks = 0
         var animatedContentCallbacks = 0
         val transitionSearch = AnimationSearch.TransitionSearch { transitionCallbacks++ }
-        val animatedContentSearch =
-            AnimationSearch.AnimatedContentSearch { animatedContentCallbacks++ }
+        val animatedContentSearch = AnimationSearch.AnimatedContentSearch {
+            animatedContentCallbacks++
+        }
         rule.addAnimations(transitionSearch, animatedContentSearch) {
             AnimatedContentExtensionPreview()
         }

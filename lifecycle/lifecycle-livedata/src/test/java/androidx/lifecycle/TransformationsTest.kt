@@ -134,8 +134,9 @@ class TransformationsTest {
         val secondLiveData = MutableLiveData<String>()
         val observer = TestObserver<String>()
 
-        val switchLiveData =
-            sourceLiveData.switchMap { input -> if (input == 1) firstLiveData else secondLiveData }
+        val switchLiveData = sourceLiveData.switchMap { input ->
+            if (input == 1) firstLiveData else secondLiveData
+        }
         switchLiveData.observe(owner, observer)
 
         firstLiveData.value = "first"
@@ -231,8 +232,9 @@ class TransformationsTest {
         val anotherLiveData = MutableLiveData<String>()
         val observer = TestObserver<String>()
 
-        val switchMapLiveData =
-            sourceLiveData.switchMap { input: Int -> if (input == 1) anotherLiveData else null }
+        val switchMapLiveData = sourceLiveData.switchMap { input: Int ->
+            if (input == 1) anotherLiveData else null
+        }
         switchMapLiveData.observe(owner, observer)
 
         anotherLiveData.value = "first"

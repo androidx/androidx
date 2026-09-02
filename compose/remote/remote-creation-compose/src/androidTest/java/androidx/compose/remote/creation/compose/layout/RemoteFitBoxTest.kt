@@ -53,58 +53,54 @@ class RemoteFitBoxTest {
     private val gridScreenshotUI = GridScreenshotUI()
 
     @Test
-    fun grid() =
-        composeTestRule.runScreenshotTest {
-            val alignments =
-                listOf(
-                    RemoteAlignment.Start,
-                    RemoteAlignment.CenterHorizontally,
-                    RemoteAlignment.End,
-                )
-            gridScreenshotUI.GridContent(getLayoutAlignmentUIs(alignments))
-        }
-
-    @Test
-    fun rtl() =
-        composeTestRule.runScreenshotTest {
-            val alignments =
-                listOf(
-                    RemoteAlignment.Start,
-                    RemoteAlignment.CenterHorizontally,
-                    RemoteAlignment.End,
-                )
-            gridScreenshotUI.GridContent(
-                getLayoutAlignmentUIs(alignments),
-                layoutDirection = LayoutDirection.Rtl,
+    fun grid() = composeTestRule.runScreenshotTest {
+        val alignments =
+            listOf(
+                RemoteAlignment.Start,
+                RemoteAlignment.CenterHorizontally,
+                RemoteAlignment.End,
             )
-        }
+        gridScreenshotUI.GridContent(getLayoutAlignmentUIs(alignments))
+    }
 
     @Test
-    fun absoluteAlignment() =
-        composeTestRule.runScreenshotTest {
-            val alignments =
-                listOf(
-                    RemoteAbsoluteAlignment.Left,
-                    RemoteAlignment.CenterHorizontally,
-                    RemoteAbsoluteAlignment.Right,
-                )
-            gridScreenshotUI.GridContent(getLayoutAlignmentUIs(alignments))
-        }
-
-    @Test
-    fun rtlAbsoluteAlignment() =
-        composeTestRule.runScreenshotTest {
-            val alignments =
-                listOf(
-                    RemoteAbsoluteAlignment.Left,
-                    RemoteAlignment.CenterHorizontally,
-                    RemoteAbsoluteAlignment.Right,
-                )
-            gridScreenshotUI.GridContent(
-                getLayoutAlignmentUIs(alignments),
-                layoutDirection = LayoutDirection.Rtl,
+    fun rtl() = composeTestRule.runScreenshotTest {
+        val alignments =
+            listOf(
+                RemoteAlignment.Start,
+                RemoteAlignment.CenterHorizontally,
+                RemoteAlignment.End,
             )
-        }
+        gridScreenshotUI.GridContent(
+            getLayoutAlignmentUIs(alignments),
+            layoutDirection = LayoutDirection.Rtl,
+        )
+    }
+
+    @Test
+    fun absoluteAlignment() = composeTestRule.runScreenshotTest {
+        val alignments =
+            listOf(
+                RemoteAbsoluteAlignment.Left,
+                RemoteAlignment.CenterHorizontally,
+                RemoteAbsoluteAlignment.Right,
+            )
+        gridScreenshotUI.GridContent(getLayoutAlignmentUIs(alignments))
+    }
+
+    @Test
+    fun rtlAbsoluteAlignment() = composeTestRule.runScreenshotTest {
+        val alignments =
+            listOf(
+                RemoteAbsoluteAlignment.Left,
+                RemoteAlignment.CenterHorizontally,
+                RemoteAbsoluteAlignment.Right,
+            )
+        gridScreenshotUI.GridContent(
+            getLayoutAlignmentUIs(alignments),
+            layoutDirection = LayoutDirection.Rtl,
+        )
+    }
 
     private fun getLayoutAlignmentUIs(
         alignments: List<RemoteAlignment.Horizontal>
@@ -113,32 +109,32 @@ class RemoteFitBoxTest {
             listOf(RemoteArrangement.Top, RemoteArrangement.Center, RemoteArrangement.Bottom)
 
         return sequence {
-                for (arrangement in arrangements) {
-                    for (alignment in alignments) {
-                        yield(
-                            "${arrangement.propertyName()} ${alignment.propertyName()}" to
-                                @RemoteComposable @Composable {
-                                    RemoteFitBox(
-                                        modifier = RemoteModifier.fillMaxSize(),
-                                        horizontalAlignment = alignment,
-                                        verticalArrangement = arrangement,
-                                    ) {
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.size(48.rdp)
-                                                    .background(Color(0xFF6200EE).rc)
-                                        )
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.size(24.rdp)
-                                                    .background(Color(0xFF03DAC6).rc)
-                                        )
-                                    }
+            for (arrangement in arrangements) {
+                for (alignment in alignments) {
+                    yield(
+                        "${arrangement.propertyName()} ${alignment.propertyName()}" to
+                            @RemoteComposable @Composable {
+                                RemoteFitBox(
+                                    modifier = RemoteModifier.fillMaxSize(),
+                                    horizontalAlignment = alignment,
+                                    verticalArrangement = arrangement,
+                                ) {
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.size(48.rdp)
+                                                .background(Color(0xFF6200EE).rc)
+                                    )
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.size(24.rdp)
+                                                .background(Color(0xFF03DAC6).rc)
+                                    )
                                 }
-                        )
-                    }
+                            }
+                    )
                 }
             }
+        }
             .toList()
     }
 }

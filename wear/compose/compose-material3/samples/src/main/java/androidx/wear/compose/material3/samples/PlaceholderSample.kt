@@ -169,7 +169,9 @@ fun TextPlaceholder() {
         overflow = TextOverflow.Ellipsis,
         textAlign = TextAlign.Center,
         modifier =
-            Modifier.width(90.dp).placeholderShimmer(placeholderState).placeholder(placeholderState),
+            Modifier.width(90.dp)
+                .placeholderShimmer(placeholderState)
+                .placeholder(placeholderState),
     )
 
     // Simulate content loading

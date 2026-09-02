@@ -1366,7 +1366,8 @@ public object OutlinedToggleButtonDefaults {
                                 .copy(alpha = OutlinedButtonTokens.DisabledLabelTextOpacity),
                         checkedContainerColor =
                             fromToken(OutlinedButtonTokens.SelectedContainerColor),
-                        checkedContentColor = fromToken(OutlinedButtonTokens.SelectedLabelTextColor),
+                        checkedContentColor =
+                            fromToken(OutlinedButtonTokens.SelectedLabelTextColor),
                     )
                     .also { defaultOutlinedToggleButtonColorsCached = it }
         }

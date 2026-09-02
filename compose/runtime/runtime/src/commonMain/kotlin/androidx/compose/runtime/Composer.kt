@@ -1107,8 +1107,9 @@ internal var composeStackTraceMode = ComposeStackTraceMode.None
  */
 @OptIn(InternalComposeTracingApi::class)
 @ComposeCompilerApi
-public fun isTraceInProgress(): Boolean =
-    compositionTracer.let { it != null && it.isTraceInProgress() }
+public fun isTraceInProgress(): Boolean = compositionTracer.let {
+    it != null && it.isTraceInProgress()
+}
 
 @OptIn(InternalComposeTracingApi::class)
 @ComposeCompilerApi
@@ -1510,28 +1511,27 @@ internal fun extractMovableContentAtCurrent(
     // might be removed from the composition before the new composition can be composed to receive
     // it. When the new composition receives the state it must recompose over the state by calling
     // invokeMovableContentLambda.
-    val anchors =
-        slotTable.write { writer ->
-            writer.beginInsert()
+    val anchors = slotTable.write { writer ->
+        writer.beginInsert()
 
-            // This is the prefix created by invokeMovableContentLambda
-            writer.startGroup(movableContentKey, reference.content)
-            writer.markGroup()
-            writer.update(reference.parameter)
+        // This is the prefix created by invokeMovableContentLambda
+        writer.startGroup(movableContentKey, reference.content)
+        writer.markGroup()
+        writer.update(reference.parameter)
 
-            // Move the content into current location
-            val anchors = slots.moveTo(reference.anchor.asGapAnchor(), 1, writer)
+        // Move the content into current location
+        val anchors = slots.moveTo(reference.anchor.asGapAnchor(), 1, writer)
 
-            // skip the group that was just inserted.
-            writer.skipGroup()
+        // skip the group that was just inserted.
+        writer.skipGroup()
 
-            // End the group that represents the call to invokeMovableContentLambda
-            writer.endGroup()
+        // End the group that represents the call to invokeMovableContentLambda
+        writer.endGroup()
 
-            writer.endInsert()
+        writer.endInsert()
 
-            anchors
-        }
+        anchors
+    }
 
     val state = MovableContentState(slotTable)
     if (RecomposeScopeImpl.hasAnchoredRecomposeScopes(slotTable, anchors)) {

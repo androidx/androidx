@@ -51,71 +51,65 @@ class Camera2SystemStateTest {
     private val graphId1 = CameraGraphId.nextId()
 
     @Test
-    fun testCameraOpeningTriggersStarting() =
-        testScope.runTest {
-            camera2SystemState.onCameraOpening(cameraId0)
-            verify(cameraSystemCallbacks, times(1)).onCameraSystemStarting()
-        }
+    fun testCameraOpeningTriggersStarting() = testScope.runTest {
+        camera2SystemState.onCameraOpening(cameraId0)
+        verify(cameraSystemCallbacks, times(1)).onCameraSystemStarting()
+    }
 
     @Test
-    fun testMultipleCameraOpeningsTriggerStartingOnlyOnce() =
-        testScope.runTest {
-            camera2SystemState.onCameraOpening(cameraId0)
-            camera2SystemState.onCameraOpening(cameraId1)
-            verify(cameraSystemCallbacks, times(1)).onCameraSystemStarting()
-        }
+    fun testMultipleCameraOpeningsTriggerStartingOnlyOnce() = testScope.runTest {
+        camera2SystemState.onCameraOpening(cameraId0)
+        camera2SystemState.onCameraOpening(cameraId1)
+        verify(cameraSystemCallbacks, times(1)).onCameraSystemStarting()
+    }
 
     @Test
-    fun testCameraClosedTriggersStopped() =
-        testScope.runTest {
-            camera2SystemState.onCameraOpening(cameraId0)
-            camera2SystemState.onCameraClosed(cameraId0)
-            verify(cameraSystemCallbacks, times(1)).onCameraSystemStopped()
-        }
+    fun testCameraClosedTriggersStopped() = testScope.runTest {
+        camera2SystemState.onCameraOpening(cameraId0)
+        camera2SystemState.onCameraClosed(cameraId0)
+        verify(cameraSystemCallbacks, times(1)).onCameraSystemStopped()
+    }
 
     @Test
-    fun testStoppedIsDeferredIfGraphIsActive() =
-        testScope.runTest {
-            camera2SystemState.onCameraOpening(cameraId0)
-            camera2SystemState.onGraphStarting(graphId0)
+    fun testStoppedIsDeferredIfGraphIsActive() = testScope.runTest {
+        camera2SystemState.onCameraOpening(cameraId0)
+        camera2SystemState.onGraphStarting(graphId0)
 
-            camera2SystemState.onCameraClosed(cameraId0)
-            // System should still be active because graph0 is active.
-            verify(cameraSystemCallbacks, never()).onCameraSystemStopped()
+        camera2SystemState.onCameraClosed(cameraId0)
+        // System should still be active because graph0 is active.
+        verify(cameraSystemCallbacks, never()).onCameraSystemStopped()
 
-            camera2SystemState.onGraphStopped(graphId0)
-            advanceUntilIdle()
-            verify(cameraSystemCallbacks, times(1)).onCameraSystemStopped()
-        }
-
-    @Test
-    fun testStartingIsCalledBeforeStopped() =
-        testScope.runTest {
-            camera2SystemState.onCameraOpening(cameraId0)
-            camera2SystemState.onCameraClosed(cameraId0)
-
-            verify(cameraSystemCallbacks, times(1)).onCameraSystemStarting()
-            verify(cameraSystemCallbacks, times(1)).onCameraSystemStopped()
-        }
+        camera2SystemState.onGraphStopped(graphId0)
+        advanceUntilIdle()
+        verify(cameraSystemCallbacks, times(1)).onCameraSystemStopped()
+    }
 
     @Test
-    fun testConcurrentCamerasAndGraphs() =
-        testScope.runTest {
-            camera2SystemState.onCameraOpening(cameraId0)
-            camera2SystemState.onGraphStarting(graphId0)
-            camera2SystemState.onCameraOpening(cameraId1)
-            camera2SystemState.onGraphStarting(graphId1)
+    fun testStartingIsCalledBeforeStopped() = testScope.runTest {
+        camera2SystemState.onCameraOpening(cameraId0)
+        camera2SystemState.onCameraClosed(cameraId0)
 
-            verify(cameraSystemCallbacks, times(1)).onCameraSystemStarting()
+        verify(cameraSystemCallbacks, times(1)).onCameraSystemStarting()
+        verify(cameraSystemCallbacks, times(1)).onCameraSystemStopped()
+    }
 
-            camera2SystemState.onCameraClosed(cameraId0)
-            camera2SystemState.onGraphStopped(graphId0)
-            advanceUntilIdle()
-            verify(cameraSystemCallbacks, never()).onCameraSystemStopped()
+    @Test
+    fun testConcurrentCamerasAndGraphs() = testScope.runTest {
+        camera2SystemState.onCameraOpening(cameraId0)
+        camera2SystemState.onGraphStarting(graphId0)
+        camera2SystemState.onCameraOpening(cameraId1)
+        camera2SystemState.onGraphStarting(graphId1)
 
-            camera2SystemState.onCameraClosed(cameraId1)
-            camera2SystemState.onGraphStopped(graphId1)
-            advanceUntilIdle()
-            verify(cameraSystemCallbacks, times(1)).onCameraSystemStopped()
-        }
+        verify(cameraSystemCallbacks, times(1)).onCameraSystemStarting()
+
+        camera2SystemState.onCameraClosed(cameraId0)
+        camera2SystemState.onGraphStopped(graphId0)
+        advanceUntilIdle()
+        verify(cameraSystemCallbacks, never()).onCameraSystemStopped()
+
+        camera2SystemState.onCameraClosed(cameraId1)
+        camera2SystemState.onGraphStopped(graphId1)
+        advanceUntilIdle()
+        verify(cameraSystemCallbacks, times(1)).onCameraSystemStopped()
+    }
 }

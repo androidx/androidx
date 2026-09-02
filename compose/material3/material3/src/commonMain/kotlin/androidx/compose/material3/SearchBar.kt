@@ -3014,7 +3014,8 @@ public class SearchBarColors(
 ) {
     @Deprecated(
         message = "Use overload that takes `inputFieldColors`",
-        replaceWith = ReplaceWith("SearchBarColors(containerColor, dividerColor, inputFieldColors)"),
+        replaceWith =
+            ReplaceWith("SearchBarColors(containerColor, dividerColor, inputFieldColors)"),
     )
     public constructor(
         containerColor: Color,
@@ -3668,7 +3669,9 @@ private fun DockedSearchBarLayout(
                     enter =
                         slideIn(
                             animationSpec = slideInSpec,
-                            initialOffset = { IntOffset(x = 0, y = (-it.height / 2f).roundToInt()) },
+                            initialOffset = {
+                                IntOffset(x = 0, y = (-it.height / 2f).roundToInt())
+                            },
                         ),
                     exit =
                         slideOut(
@@ -3739,8 +3742,9 @@ private fun DockedSearchBarLayoutImpl(
                 )
             val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
-            val inputFieldPlaceables =
-                inputFieldMeasurables.fastMap { it.measure(looseConstraints) }
+            val inputFieldPlaceables = inputFieldMeasurables.fastMap {
+                it.measure(looseConstraints)
+            }
             val inputFieldWidth = inputFieldPlaceables.fastMaxOfOrNull { it.width } ?: 0
             val inputFieldHeight = inputFieldPlaceables.fastMaxOfOrNull { it.height } ?: 0
 
@@ -3779,24 +3783,26 @@ private fun FullScreenSearchBarLayout(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val backEvent by remember { derivedStateOf { predictiveBackState.value } }
-    val firstInProgressValue =
-        remember { mutableStateOf<BackEventProgress.InProgress?>(null) }
-            .apply {
-                when (val event = backEvent) {
-                    is BackEventProgress.InProgress -> if (value == null) value = event
-                    BackEventProgress.NotRunning -> value = null
-                    BackEventProgress.Completed -> Unit
-                }
+    val firstInProgressValue = remember {
+        mutableStateOf<BackEventProgress.InProgress?>(null)
+    }
+        .apply {
+            when (val event = backEvent) {
+                is BackEventProgress.InProgress -> if (value == null) value = event
+                BackEventProgress.NotRunning -> value = null
+                BackEventProgress.Completed -> Unit
             }
-    val lastInProgressValue =
-        remember { mutableStateOf<BackEventProgress.InProgress?>(null) }
-            .apply {
-                when (val event = backEvent) {
-                    is BackEventProgress.InProgress -> value = event
-                    BackEventProgress.NotRunning -> value = null
-                    BackEventProgress.Completed -> Unit
-                }
+        }
+    val lastInProgressValue = remember {
+        mutableStateOf<BackEventProgress.InProgress?>(null)
+    }
+        .apply {
+            when (val event = backEvent) {
+                is BackEventProgress.InProgress -> value = event
+                BackEventProgress.NotRunning -> value = null
+                BackEventProgress.Completed -> Unit
             }
+        }
 
     val density = LocalDensity.current
     val fullScreenShape = SearchBarDefaults.fullScreenShape

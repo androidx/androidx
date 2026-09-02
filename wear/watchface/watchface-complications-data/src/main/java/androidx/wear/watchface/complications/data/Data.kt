@@ -2933,14 +2933,13 @@ private fun WireComplicationData.parseTimeRange() =
         )
     }
 
-private fun WireComplicationData.parseIcon(placeholderAware: Boolean = false) =
-    icon?.let {
-        if (placeholderAware && it.isPlaceholder()) {
-            MonochromaticImage.PLACEHOLDER
-        } else {
-            MonochromaticImage.Builder(it).apply { setAmbientImage(burnInProtectionIcon) }.build()
-        }
+private fun WireComplicationData.parseIcon(placeholderAware: Boolean = false) = icon?.let {
+    if (placeholderAware && it.isPlaceholder()) {
+        MonochromaticImage.PLACEHOLDER
+    } else {
+        MonochromaticImage.Builder(it).apply { setAmbientImage(burnInProtectionIcon) }.build()
     }
+}
 
 private fun WireComplicationData.parseSmallImage(placeholderAware: Boolean = false) =
     smallImage?.let {

@@ -27,11 +27,14 @@ import androidx.xr.compose.platform.LocalSpatialCapabilities
 internal object XrStubsImpl : XrStubs {
     @Composable
     override fun horizontalOrbiterStub(): XrHorizontalOrbiterStub? =
-        XrHorizontalOrbiterStubImpl.takeIf { LocalSpatialCapabilities.current.isSpatialUiEnabled }
+        XrHorizontalOrbiterStubImpl.takeIf {
+            LocalSpatialCapabilities.current.isSpatialUiEnabled
+        }
 
     @Composable
-    override fun verticalOrbiterStub(): XrVerticalOrbiterStub? =
-        XrVerticalOrbiterStubImpl.takeIf { LocalSpatialCapabilities.current.isSpatialUiEnabled }
+    override fun verticalOrbiterStub(): XrVerticalOrbiterStub? = XrVerticalOrbiterStubImpl.takeIf {
+        LocalSpatialCapabilities.current.isSpatialUiEnabled
+    }
 }
 
 private object XrHorizontalOrbiterStubImpl : XrHorizontalOrbiterStub {

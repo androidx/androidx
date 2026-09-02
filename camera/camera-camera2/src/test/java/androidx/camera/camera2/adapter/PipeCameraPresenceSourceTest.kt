@@ -79,95 +79,90 @@ class PipeCameraPresenceSourceTest {
     }
 
     @Test
-    fun startMonitoring_collectsFlow_andUpdatesData() =
-        testScope.runTest {
-            val observer = FakeObserver()
-            try {
-                // Arrange
-                pipeCameraPresenceSource.addObserver(testDispatcher.asExecutor(), observer)
-                observer.awaitNextResult() // Consume initial empty set
-
-                // Act
-                `when`(mockCameraManager.cameraIdList).thenReturn(arrayOf(stringId1))
-                idFlow.emit(listOf(pipeId1))
-
-                // Assert
-                val result = observer.awaitNextResult()
-                assertThat(result.data).containsExactly(id1)
-
-                // Act: Emit another update
-                `when`(mockCameraManager.cameraIdList).thenReturn(arrayOf(stringId1, stringId2))
-                idFlow.emit(listOf(pipeId1, pipeId2))
-
-                // Assert
-                val result2 = observer.awaitNextResult()
-                assertThat(result2.data).containsExactly(id1, id2)
-            } finally {
-                pipeCameraPresenceSource.stopMonitoring()
-            }
-        }
-
-    @Test
-    fun startMonitoring_handlesErrorInFlow() =
-        testScope.runTest {
-            // Arrange: Create a new source with a flow that immediately throws an error
-            val testError = RuntimeException("Flow error")
-            val errorFlow = flow<List<CameraId>> { throw testError }
-            val errorSource =
-                PipeCameraPresenceSource(errorFlow, testScope, emptyList(), mockContext)
-            val observer = FakeObserver()
-
-            try {
-                // Act
-                errorSource.addObserver(testDispatcher.asExecutor(), observer)
-
-                // Assert
-                val errorResult = observer.awaitNextResult()
-                assertThat(errorResult.error).isEqualTo(testError)
-            } finally {
-                errorSource.stopMonitoring()
-            }
-        }
-
-    @Test
-    fun stopMonitoring_cancelsFlowCollection() =
-        testScope.runTest {
+    fun startMonitoring_collectsFlow_andUpdatesData() = testScope.runTest {
+        val observer = FakeObserver()
+        try {
             // Arrange
-            val observer = FakeObserver()
             pipeCameraPresenceSource.addObserver(testDispatcher.asExecutor(), observer)
-            observer.awaitNextResult()
+            observer.awaitNextResult() // Consume initial empty set
 
             // Act
-            pipeCameraPresenceSource.stopMonitoring()
+            `when`(mockCameraManager.cameraIdList).thenReturn(arrayOf(stringId1))
             idFlow.emit(listOf(pipeId1))
 
-            // Assert: No new data should be received after stopping.
-            observer.assertNoNewUpdate()
+            // Assert
+            val result = observer.awaitNextResult()
+            assertThat(result.data).containsExactly(id1)
+
+            // Act: Emit another update
+            `when`(mockCameraManager.cameraIdList).thenReturn(arrayOf(stringId1, stringId2))
+            idFlow.emit(listOf(pipeId1, pipeId2))
+
+            // Assert
+            val result2 = observer.awaitNextResult()
+            assertThat(result2.data).containsExactly(id1, id2)
+        } finally {
+            pipeCameraPresenceSource.stopMonitoring()
         }
+    }
 
     @Test
-    fun fetchData_succeeds() =
-        testScope.runTest {
-            // Arrange
-            `when`(mockCameraManager.cameraIdList).thenReturn(arrayOf("1", "2"))
-            val observer = FakeObserver()
-            try {
-                pipeCameraPresenceSource.addObserver(testDispatcher.asExecutor(), observer)
-                observer.awaitNextResult() // Consume initial
+    fun startMonitoring_handlesErrorInFlow() = testScope.runTest {
+        // Arrange: Create a new source with a flow that immediately throws an error
+        val testError = RuntimeException("Flow error")
+        val errorFlow = flow<List<CameraId>> { throw testError }
+        val errorSource = PipeCameraPresenceSource(errorFlow, testScope, emptyList(), mockContext)
+        val observer = FakeObserver()
 
-                // Act
-                val future = pipeCameraPresenceSource.fetchData()
+        try {
+            // Act
+            errorSource.addObserver(testDispatcher.asExecutor(), observer)
 
-                // Assert
-                val resultSet = future.get(1, TimeUnit.SECONDS)
-                assertThat(resultSet).containsExactly(id1, id2)
-
-                val observerResult = observer.awaitNextResult()
-                assertThat(observerResult.data).isEqualTo(resultSet)
-            } finally {
-                pipeCameraPresenceSource.stopMonitoring()
-            }
+            // Assert
+            val errorResult = observer.awaitNextResult()
+            assertThat(errorResult.error).isEqualTo(testError)
+        } finally {
+            errorSource.stopMonitoring()
         }
+    }
+
+    @Test
+    fun stopMonitoring_cancelsFlowCollection() = testScope.runTest {
+        // Arrange
+        val observer = FakeObserver()
+        pipeCameraPresenceSource.addObserver(testDispatcher.asExecutor(), observer)
+        observer.awaitNextResult()
+
+        // Act
+        pipeCameraPresenceSource.stopMonitoring()
+        idFlow.emit(listOf(pipeId1))
+
+        // Assert: No new data should be received after stopping.
+        observer.assertNoNewUpdate()
+    }
+
+    @Test
+    fun fetchData_succeeds() = testScope.runTest {
+        // Arrange
+        `when`(mockCameraManager.cameraIdList).thenReturn(arrayOf("1", "2"))
+        val observer = FakeObserver()
+        try {
+            pipeCameraPresenceSource.addObserver(testDispatcher.asExecutor(), observer)
+            observer.awaitNextResult() // Consume initial
+
+            // Act
+            val future = pipeCameraPresenceSource.fetchData()
+
+            // Assert
+            val resultSet = future.get(1, TimeUnit.SECONDS)
+            assertThat(resultSet).containsExactly(id1, id2)
+
+            val observerResult = observer.awaitNextResult()
+            assertThat(observerResult.data).isEqualTo(resultSet)
+        } finally {
+            pipeCameraPresenceSource.stopMonitoring()
+        }
+    }
 
     // Helper fake observer for testing
     internal class FakeObserver : Observable.Observer<List<CameraIdentifier>> {

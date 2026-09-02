@@ -247,25 +247,24 @@ private constructor(
         }
     }
 
-    override fun iterator(): Iterator<SnapshotId> =
-        sequence {
-                this@SnapshotIdSet.belowBound?.forEach { yield(it) }
-                if (lowerSet != 0L) {
-                    for (index in 0 until Long.SIZE_BITS) {
-                        if (lowerSet and (1L shl index) != 0L) {
-                            yield(lowerBound + index)
-                        }
-                    }
-                }
-                if (upperSet != 0L) {
-                    for (index in 0 until Long.SIZE_BITS) {
-                        if (upperSet and (1L shl index) != 0L) {
-                            yield(lowerBound + index + Long.SIZE_BITS)
-                        }
-                    }
+    override fun iterator(): Iterator<SnapshotId> = sequence {
+        this@SnapshotIdSet.belowBound?.forEach { yield(it) }
+        if (lowerSet != 0L) {
+            for (index in 0 until Long.SIZE_BITS) {
+                if (lowerSet and (1L shl index) != 0L) {
+                    yield(lowerBound + index)
                 }
             }
-            .iterator()
+        }
+        if (upperSet != 0L) {
+            for (index in 0 until Long.SIZE_BITS) {
+                if (upperSet and (1L shl index) != 0L) {
+                    yield(lowerBound + index + Long.SIZE_BITS)
+                }
+            }
+        }
+    }
+        .iterator()
 
     private inline fun fastFold(
         initial: SnapshotIdSet,

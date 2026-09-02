@@ -62,7 +62,12 @@ class EntityStatementConverterWriter(private val entity: Entity) :
                         name = indexVar,
                         typeName = XTypeName.PRIMITIVE_INT,
                         assignExpr =
-                            XCodeBlock.of("%M(%N, %S)", packageMember, stmtParamName, it.columnName),
+                            XCodeBlock.of(
+                                "%M(%N, %S)",
+                                packageMember,
+                                stmtParamName,
+                                it.columnName,
+                            ),
                     )
                     PropertyWithIndex(property = it, indexVar = indexVar, alwaysExists = false)
                 }

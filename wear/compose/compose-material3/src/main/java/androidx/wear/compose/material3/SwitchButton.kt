@@ -1938,7 +1938,9 @@ private fun Switch(
                             size = Size(size.width - strokeWidthPx, size.height - strokeWidthPx),
                             cornerRadius = CornerRadius((size.height - strokeWidthPx) / 2f),
                             style =
-                                androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidthPx),
+                                androidx.compose.ui.graphics.drawscope.Stroke(
+                                    width = strokeWidthPx
+                                ),
                         )
 
                         // Draw thumb and tick on top

@@ -262,7 +262,8 @@ class TypographyScreenshotTest {
                 text = "NumeralExtraSmall",
                 font = font,
                 style = MaterialTheme.typography.numeralExtraSmall,
-                variationSettings = TypographyVariableFontsTokens.NumeralExtraSmallVariationSettings,
+                variationSettings =
+                    TypographyVariableFontsTokens.NumeralExtraSmallVariationSettings,
             )
         }
     }
@@ -310,7 +311,8 @@ class TypographyScreenshotTest {
                 text = "NumeralExtraLarge123",
                 font = font,
                 style = MaterialTheme.typography.numeralExtraLarge,
-                variationSettings = TypographyVariableFontsTokens.NumeralExtraLargeVariationSettings,
+                variationSettings =
+                    TypographyVariableFontsTokens.NumeralExtraLargeVariationSettings,
             )
         }
     }

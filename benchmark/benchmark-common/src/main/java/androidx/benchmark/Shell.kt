@@ -806,8 +806,9 @@ internal constructor(
                         stdinPath = stdinFile?.absolutePath,
                     )
                 )
-            val stderrDescriptorFn =
-                stderrPath.run { { ShellImpl.executeCommandUnsafe("cat $stderrPath") } }
+            val stderrDescriptorFn = stderrPath.run {
+                { ShellImpl.executeCommandUnsafe("cat $stderrPath") }
+            }
 
             return@trace StartedShellScript(
                 stdoutDescriptor = stdoutDescriptor,

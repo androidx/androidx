@@ -406,14 +406,13 @@ public class AndroidRemotePaint(internal val frameworkPaint: android.graphics.Pa
         }
 
     override var filterQuality: FilterQuality
-        get() =
-            frameworkPaint.let {
-                if (it.isFilterBitmap) {
-                    FilterQuality.Low
-                } else {
-                    FilterQuality.None
-                }
+        get() = frameworkPaint.let {
+            if (it.isFilterBitmap) {
+                FilterQuality.Low
+            } else {
+                FilterQuality.None
             }
+        }
         set(value) {
             frameworkPaint.isFilterBitmap = value != FilterQuality.None
         }

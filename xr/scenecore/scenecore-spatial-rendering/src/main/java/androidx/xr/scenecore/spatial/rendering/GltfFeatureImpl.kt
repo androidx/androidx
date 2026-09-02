@@ -130,22 +130,21 @@ internal class GltfFeatureImpl(
     @MainThread
     override fun addOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
         if (boundsUpdateListeners.isEmpty()) {
-            val frameListener =
-                ImpSplitEngineRenderer.FrameListener {
-                    // Check if any animation is currently playing
-                    val isAnimationPlaying =
-                        animationFeatureList?.any {
-                            it.animationState == GltfEntity.AnimationState.PLAYING
-                        } == true
+            val frameListener = ImpSplitEngineRenderer.FrameListener {
+                // Check if any animation is currently playing
+                val isAnimationPlaying =
+                    animationFeatureList?.any {
+                        it.animationState == GltfEntity.AnimationState.PLAYING
+                    } == true
 
-                    if (isAnimationPlaying) {
-                        val boundingBox = getGltfModelBoundingBox()
-                        if (boundingBox != lastBoundingBox) {
-                            lastBoundingBox = boundingBox
-                            boundsUpdateListeners.forEach { it.accept(boundingBox) }
-                        }
+                if (isAnimationPlaying) {
+                    val boundingBox = getGltfModelBoundingBox()
+                    if (boundingBox != lastBoundingBox) {
+                        lastBoundingBox = boundingBox
+                        boundsUpdateListeners.forEach { it.accept(boundingBox) }
                     }
                 }
+            }
             renderer.frameListener = frameListener
         }
 

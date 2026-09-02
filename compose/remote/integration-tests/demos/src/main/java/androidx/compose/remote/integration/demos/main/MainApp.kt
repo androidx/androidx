@@ -80,19 +80,19 @@ import kotlinx.coroutines.flow.map
 @Composable
 fun MainApp(backDispatcher: OnBackPressedDispatcher) {
     val context = LocalContext.current
-    val layoutDirection by
-        remember {
-                context.dataStore.data
-                    .map { it[LAYOUT_DIRECTION_PREF_KEY] ?: LAYOUT_DIRECTION_LTR }
-                    .map {
-                        if (it == LAYOUT_DIRECTION_RTL) LayoutDirection.Rtl else LayoutDirection.Ltr
-                    }
+    val layoutDirection by remember {
+        context.dataStore.data
+            .map { it[LAYOUT_DIRECTION_PREF_KEY] ?: LAYOUT_DIRECTION_LTR }
+            .map {
+                if (it == LAYOUT_DIRECTION_RTL) LayoutDirection.Rtl else LayoutDirection.Ltr
             }
-            .collectAsState(initial = LayoutDirection.Ltr)
+    }
+        .collectAsState(initial = LayoutDirection.Ltr)
 
-    val playerType by
-        remember { context.dataStore.data.map { it[PLAYER_TYPE_PREF_KEY] ?: PLAYER_TYPE_JAVA } }
-            .collectAsState(initial = PLAYER_TYPE_JAVA)
+    val playerType by remember {
+        context.dataStore.data.map { it[PLAYER_TYPE_PREF_KEY] ?: PLAYER_TYPE_JAVA }
+    }
+        .collectAsState(initial = PLAYER_TYPE_JAVA)
 
     CompositionLocalProvider(
         LocalLayoutDirection provides layoutDirection,

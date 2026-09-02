@@ -96,13 +96,12 @@ class LiveDataAsFlowTest {
     fun dispatchMultiple() {
         val ld = MutableLiveData<Int>()
         val collected = mutableListOf<Int>()
-        val job =
-            testScope.launch {
-                ld.asFlow().collect {
-                    delay(100)
-                    collected.add(it)
-                }
+        val job = testScope.launch {
+            ld.asFlow().collect {
+                delay(100)
+                collected.add(it)
             }
+        }
         mainScope.launch {
             ld.value = 1
             delay(1000)
@@ -135,8 +134,9 @@ class LiveDataAsFlowTest {
         assertThat(ld.hasActiveObservers()).isFalse()
         assertThat(firstCollection.isCompleted).isTrue()
 
-        val secondCollection =
-            testScope.launch { assertThat(flow.take(2).toList()).isEqualTo(listOf(1, 2)) }
+        val secondCollection = testScope.launch {
+            assertThat(flow.take(2).toList()).isEqualTo(listOf(1, 2))
+        }
         scopes.triggerAllActions()
         assertThat(ld.hasActiveObservers()).isTrue()
         mainScope.launch { ld.value = 2 }

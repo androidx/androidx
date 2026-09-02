@@ -187,16 +187,14 @@ class InMemoryRingBufferTraceSinkTest {
             }
 
         val events = trace.packet - flushes.toSet()
-        val starts =
-            events.filter {
-                it.track_event?.type ==
-                    androidx.tracing.wire.protos.MutableTrackEvent.Type.TYPE_SLICE_BEGIN
-            }
-        val ends =
-            events.filter {
-                it.track_event?.type ==
-                    androidx.tracing.wire.protos.MutableTrackEvent.Type.TYPE_SLICE_END
-            }
+        val starts = events.filter {
+            it.track_event?.type ==
+                androidx.tracing.wire.protos.MutableTrackEvent.Type.TYPE_SLICE_BEGIN
+        }
+        val ends = events.filter {
+            it.track_event?.type ==
+                androidx.tracing.wire.protos.MutableTrackEvent.Type.TYPE_SLICE_END
+        }
 
         assertEquals(1, starts.size, "Should have exactly one start packet")
         assertEquals(1, ends.size, "Should have exactly one end packet")

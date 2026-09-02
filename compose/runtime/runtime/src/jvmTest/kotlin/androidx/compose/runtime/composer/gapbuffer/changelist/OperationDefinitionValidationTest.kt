@@ -136,12 +136,11 @@ internal class OperationDefinitionValidationTest<T : Operation>(private val oper
     ): List<String> {
         val errors = mutableListOf<String>()
 
-        val outOfRangeInts =
-            intParams.mapNotNull { (name, param) ->
-                name
-                    .takeIf { param < 0 || param >= intParams.size }
-                    ?.let { paramName -> "$paramName (offset = ${param})" }
-            }
+        val outOfRangeInts = intParams.mapNotNull { (name, param) ->
+            name
+                .takeIf { param < 0 || param >= intParams.size }
+                ?.let { paramName -> "$paramName (offset = ${param})" }
+        }
         if (outOfRangeInts.isNotEmpty()) {
             errors +=
                 "All int parameter offsets must be in the range of " +
@@ -149,12 +148,11 @@ internal class OperationDefinitionValidationTest<T : Operation>(private val oper
                     outOfRangeInts.joinToString()
         }
 
-        val outOfRangeObjects =
-            objParams.mapNotNull { (name, param) ->
-                name
-                    .takeIf { param.offset < 0 || param.offset >= objParams.size }
-                    ?.let { paramName -> "$paramName (offset = ${param.offset})" }
-            }
+        val outOfRangeObjects = objParams.mapNotNull { (name, param) ->
+            name
+                .takeIf { param.offset < 0 || param.offset >= objParams.size }
+                ?.let { paramName -> "$paramName (offset = ${param.offset})" }
+        }
         if (outOfRangeObjects.isNotEmpty()) {
             errors +=
                 "All object parameter offsets must be in the range of " +

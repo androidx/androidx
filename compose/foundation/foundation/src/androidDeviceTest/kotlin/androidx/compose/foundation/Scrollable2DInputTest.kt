@@ -281,13 +281,12 @@ abstract class Scrollable2DInputTest : AbstractScrollable2DTest() {
         rule
             .onNodeWithTag(scrollable2DBoxTag)
             .performScrollGesture(delta = Offset(100f, 100f), durationMillis = 100)
-        val prevTotal =
-            rule.runOnIdle {
-                assertThat(total.x).isGreaterThan(0f)
-                assertThat(total.y).isGreaterThan(0f)
-                enabled.value = false
-                total
-            }
+        val prevTotal = rule.runOnIdle {
+            assertThat(total.x).isGreaterThan(0f)
+            assertThat(total.y).isGreaterThan(0f)
+            enabled.value = false
+            total
+        }
         rule
             .onNodeWithTag(scrollable2DBoxTag)
             .performScrollGesture(delta = Offset(100f, 100f), durationMillis = 100)
@@ -484,16 +483,15 @@ abstract class Scrollable2DInputTest : AbstractScrollable2DTest() {
                 endVelocity = 0f,
                 durationMillis = 300,
             )
-        val lastEqualDrag =
-            rule.runOnIdle {
-                assertThat(innerDrag.x).isGreaterThan(0f)
-                assertThat(innerDrag.y).isGreaterThan(0f)
-                assertThat(outerDrag.x).isGreaterThan(0f)
-                assertThat(outerDrag.y).isGreaterThan(0f)
-                // we consumed half delta in child, so exactly half should go to the parent
-                assertThat(outerDrag).isEqualTo(innerDrag)
-                innerDrag
-            }
+        val lastEqualDrag = rule.runOnIdle {
+            assertThat(innerDrag.x).isGreaterThan(0f)
+            assertThat(innerDrag.y).isGreaterThan(0f)
+            assertThat(outerDrag.x).isGreaterThan(0f)
+            assertThat(outerDrag.y).isGreaterThan(0f)
+            // we consumed half delta in child, so exactly half should go to the parent
+            assertThat(outerDrag).isEqualTo(innerDrag)
+            innerDrag
+        }
         rule.runOnIdle {
             // values should be the same since no fling
             assertThat(innerDrag).isEqualTo(lastEqualDrag)

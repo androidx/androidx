@@ -416,14 +416,13 @@ class LazyStaggeredGridScrollIndicatorTest(private val orientation: Orientation)
     private fun LazyStaggeredGridLayoutInfo.visibleItemsAverageSize(): Int {
         val visibleItems = visibleItemsInfo
         if (visibleItems.isEmpty()) return 0
-        val itemSizeSum =
-            visibleItems.fastSumBy {
-                if (orientation == Orientation.Vertical) {
-                    it.size.height
-                } else {
-                    it.size.width
-                }
+        val itemSizeSum = visibleItems.fastSumBy {
+            if (orientation == Orientation.Vertical) {
+                it.size.height
+            } else {
+                it.size.width
             }
+        }
         return itemSizeSum / visibleItems.size + mainAxisItemSpacing
     }
 

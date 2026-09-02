@@ -36,11 +36,10 @@ class UpsertDataRequest(val dataPoints: List<DataProto.DataPoint>) :
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<UpsertDataRequest> =
-            ProtoParcelable.newCreator {
-                val proto = RequestProto.UpsertDataRequest.parseFrom(it)
-                fromProto(proto)
-            }
+        val CREATOR: Parcelable.Creator<UpsertDataRequest> = ProtoParcelable.newCreator {
+            val proto = RequestProto.UpsertDataRequest.parseFrom(it)
+            fromProto(proto)
+        }
 
         internal fun fromProto(proto: RequestProto.UpsertDataRequest): UpsertDataRequest {
             return UpsertDataRequest(proto.dataPointList)

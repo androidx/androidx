@@ -45,10 +45,9 @@ internal fun linearMap(xValues: FloatList, yValues: FloatList, x: Float): Float 
     val segmentEndIndex = (segmentStartIndex + 1) % xValues.size
     val segmentSizeX = positiveModulo(xValues[segmentEndIndex] - xValues[segmentStartIndex], 1f)
     val segmentSizeY = positiveModulo(yValues[segmentEndIndex] - yValues[segmentStartIndex], 1f)
-    val positionInSegment =
-        segmentSizeX.let {
-            if (it < 0.001f) 0.5f else positiveModulo(x - xValues[segmentStartIndex], 1f) / it
-        }
+    val positionInSegment = segmentSizeX.let {
+        if (it < 0.001f) 0.5f else positiveModulo(x - xValues[segmentStartIndex], 1f) / it
+    }
     return positiveModulo(yValues[segmentStartIndex] + segmentSizeY * positionInSegment, 1f)
 }
 

@@ -375,8 +375,8 @@ public abstract class ActivityResultRegistry {
      */
     private fun generateRandomNumber(): Int {
         return generateSequence {
-                nextInt(Int.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE + 1) + INITIAL_REQUEST_CODE_VALUE
-            }
+            nextInt(Int.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE + 1) + INITIAL_REQUEST_CODE_VALUE
+        }
             .first { number -> !rcToKey.containsKey(number) }
     }
 

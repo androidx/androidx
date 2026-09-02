@@ -83,79 +83,78 @@ internal open class RcScopeImpl(internal val writer: RemoteComposeWriter) : RcSc
         modifier: Modifier,
         content: RcScope.() -> Unit,
     ) {
-        val corePropList: List<Custom.CustomProperty> =
-            properties.map {
-                when (it.mDataType) {
-                    CustomProperty.INT_PROP ->
-                        Custom.CustomProperty(
-                            it.mType,
-                            Custom.CustomProperty.INT_PROP,
-                            it.mIntValue,
-                        )
+        val corePropList: List<Custom.CustomProperty> = properties.map {
+            when (it.mDataType) {
+                CustomProperty.INT_PROP ->
+                    Custom.CustomProperty(
+                        it.mType,
+                        Custom.CustomProperty.INT_PROP,
+                        it.mIntValue,
+                    )
 
-                    CustomProperty.STRING_PROP ->
-                        Custom.CustomProperty(
-                            it.mType,
-                            Custom.CustomProperty.STRING_PROP,
-                            it.mIntValue,
-                        )
+                CustomProperty.STRING_PROP ->
+                    Custom.CustomProperty(
+                        it.mType,
+                        Custom.CustomProperty.STRING_PROP,
+                        it.mIntValue,
+                    )
 
-                    CustomProperty.FLOAT_PROP ->
-                        Custom.CustomProperty(
-                            it.mType,
-                            Custom.CustomProperty.FLOAT_PROP,
-                            it.mFloatValue,
-                        )
+                CustomProperty.FLOAT_PROP ->
+                    Custom.CustomProperty(
+                        it.mType,
+                        Custom.CustomProperty.FLOAT_PROP,
+                        it.mFloatValue,
+                    )
 
-                    CustomProperty.FLOAT_RETURN ->
-                        Custom.CustomProperty(
-                            it.mType,
-                            Custom.CustomProperty.FLOAT_RETURN,
-                            it.mFloatValue,
-                        )
+                CustomProperty.FLOAT_RETURN ->
+                    Custom.CustomProperty(
+                        it.mType,
+                        Custom.CustomProperty.FLOAT_RETURN,
+                        it.mFloatValue,
+                    )
 
-                    CustomProperty.TEXT_RETURN ->
-                        Custom.CustomProperty(
-                            it.mType,
-                            Custom.CustomProperty.TEXT_RETURN,
-                            it.mIntValue,
-                        )
+                CustomProperty.TEXT_RETURN ->
+                    Custom.CustomProperty(
+                        it.mType,
+                        Custom.CustomProperty.TEXT_RETURN,
+                        it.mIntValue,
+                    )
 
-                    CustomProperty.INT_RETURN ->
-                        Custom.CustomProperty(
-                            it.mType,
-                            Custom.CustomProperty.INT_RETURN,
-                            it.mIntValue,
-                        )
-                    CustomProperty.COLOR_RETURN ->
-                        Custom.CustomProperty(
-                            it.mType,
-                            Custom.CustomProperty.COLOR_RETURN,
-                            it.mIntValue,
-                        )
-                    CustomProperty.COLOR_PROP ->
-                        Custom.CustomProperty(
-                            it.mType,
-                            Custom.CustomProperty.COLOR_PROP,
-                            it.mIntValue,
-                        )
-                    CustomProperty.COLOR_ID_PROP ->
-                        Custom.CustomProperty(
-                            it.mType,
-                            Custom.CustomProperty.COLOR_ID_PROP,
-                            it.mIntValue,
-                        )
-                    CustomProperty.INT_ID_PROP ->
-                        Custom.CustomProperty(
-                            it.mType,
-                            Custom.CustomProperty.INT_ID_PROP,
-                            it.mIntValue,
-                        )
-                    else -> {
-                        throw RuntimeException("UNKNOWN TYPE")
-                    }
+                CustomProperty.INT_RETURN ->
+                    Custom.CustomProperty(
+                        it.mType,
+                        Custom.CustomProperty.INT_RETURN,
+                        it.mIntValue,
+                    )
+                CustomProperty.COLOR_RETURN ->
+                    Custom.CustomProperty(
+                        it.mType,
+                        Custom.CustomProperty.COLOR_RETURN,
+                        it.mIntValue,
+                    )
+                CustomProperty.COLOR_PROP ->
+                    Custom.CustomProperty(
+                        it.mType,
+                        Custom.CustomProperty.COLOR_PROP,
+                        it.mIntValue,
+                    )
+                CustomProperty.COLOR_ID_PROP ->
+                    Custom.CustomProperty(
+                        it.mType,
+                        Custom.CustomProperty.COLOR_ID_PROP,
+                        it.mIntValue,
+                    )
+                CustomProperty.INT_ID_PROP ->
+                    Custom.CustomProperty(
+                        it.mType,
+                        Custom.CustomProperty.INT_ID_PROP,
+                        it.mIntValue,
+                    )
+                else -> {
+                    throw RuntimeException("UNKNOWN TYPE")
                 }
             }
+        }
         writer.startCustom(modifier.toRecordingModifier(), config, corePropList)
         RcScopeImpl(writer).content()
         writer.endCustom()

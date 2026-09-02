@@ -479,20 +479,19 @@ internal class LifecycleCoroutineScopeImpl(
 
 /** Creates a [Flow] of [Lifecycle.Event]s dispatched by this [Lifecycle]. */
 public val Lifecycle.eventFlow: Flow<Lifecycle.Event>
-    get() =
-        callbackFlow {
-                val observer = addObserver { _, event ->
-                    trySend(event)
+    get() = callbackFlow {
+        val observer = addObserver { _, event ->
+            trySend(event)
 
-                    // Completes the producer if lifecycle is `DESTROYED`.
-                    if (event == Lifecycle.Event.ON_DESTROY) {
-                        close()
-                    }
-                }
-
-                awaitClose { removeObserver(observer) }
+            // Completes the producer if lifecycle is `DESTROYED`.
+            if (event == Lifecycle.Event.ON_DESTROY) {
+                close()
             }
-            .flowOn(Dispatchers.Main.immediate)
+        }
+
+        awaitClose { removeObserver(observer) }
+    }
+        .flowOn(Dispatchers.Main.immediate)
 
 /**
  * Adds a [LifecycleObserver] to this [Lifecycle] using the provided [action].

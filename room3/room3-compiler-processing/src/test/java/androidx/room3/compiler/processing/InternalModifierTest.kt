@@ -110,17 +110,16 @@ class InternalModifierTest {
             append(returnType.toSignature())
         }
 
-        fun traverse(env: XProcessingEnv) =
-            buildList {
-                    listOf("main.Subject", "lib.Subject").flatMap {
-                        val subject = env.requireTypeElement(it)
-                        add(subject.name)
-                        add(subject.qualifiedName)
-                        subject.getDeclaredMethods().forEach { add(it.toSignature()) }
-                        subject.getAllFieldsIncludingPrivateSupers().map { add(it.toSignature()) }
-                    }
-                }
-                .sorted()
+        fun traverse(env: XProcessingEnv) = buildList {
+            listOf("main.Subject", "lib.Subject").flatMap {
+                val subject = env.requireTypeElement(it)
+                add(subject.name)
+                add(subject.qualifiedName)
+                subject.getDeclaredMethods().forEach { add(it.toSignature()) }
+                subject.getAllFieldsIncludingPrivateSupers().map { add(it.toSignature()) }
+            }
+        }
+            .sorted()
 
         var kaptResult: List<String>? = null
         var kspResult: List<String>? = null

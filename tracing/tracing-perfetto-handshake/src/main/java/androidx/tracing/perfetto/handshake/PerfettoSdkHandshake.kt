@@ -58,20 +58,19 @@ public class PerfettoSdkHandshake(
     @Suppress("MissingJvmstatic")
     public fun enableTracingImmediate(librarySource: LibrarySource? = null): Response =
         safeExecute {
-            val libPath =
-                librarySource?.run {
-                    when (this) {
-                        is LibrarySource.ZipLibrarySource -> {
-                            PerfettoSdkSideloader(targetPackage)
-                                .sideloadFromZipFile(
-                                    libraryZip,
-                                    tempDirectory,
-                                    executeShellCommand,
-                                    moveLibFileFromTmpDirToAppDir,
-                                )
-                        }
+            val libPath = librarySource?.run {
+                when (this) {
+                    is LibrarySource.ZipLibrarySource -> {
+                        PerfettoSdkSideloader(targetPackage)
+                            .sideloadFromZipFile(
+                                libraryZip,
+                                tempDirectory,
+                                executeShellCommand,
+                                moveLibFileFromTmpDirToAppDir,
+                            )
                     }
                 }
+            }
             sendTracingBroadcast(ACTION_ENABLE_TRACING, libPath)
         }
 
@@ -94,20 +93,19 @@ public class PerfettoSdkHandshake(
         librarySource: LibrarySource? = null,
     ): Response = safeExecute {
         // sideload the `libtracing_perfetto.so` file if applicable
-        val libPath =
-            librarySource?.run {
-                when (this) {
-                    is LibrarySource.ZipLibrarySource -> {
-                        PerfettoSdkSideloader(targetPackage)
-                            .sideloadFromZipFile(
-                                libraryZip,
-                                tempDirectory,
-                                executeShellCommand,
-                                moveLibFileFromTmpDirToAppDir,
-                            )
-                    }
+        val libPath = librarySource?.run {
+            when (this) {
+                is LibrarySource.ZipLibrarySource -> {
+                    PerfettoSdkSideloader(targetPackage)
+                        .sideloadFromZipFile(
+                            libraryZip,
+                            tempDirectory,
+                            executeShellCommand,
+                            moveLibFileFromTmpDirToAppDir,
+                        )
                 }
             }
+        }
 
         // ensure a clean start (e.g. in case tracing is already enabled)
         killAppProcess()

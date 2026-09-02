@@ -215,15 +215,14 @@ fun AnimatedVisibilityWithBooleanVisibleParamNoReceiver() {
 
             // As a part of the enter transition, the corner radius will be animated from 0.dp to
             // 50.dp.
-            val cornerRadius by
-                transition.animateDp {
-                    when (it) {
-                        EnterExitState.PreEnter -> 0.dp
-                        EnterExitState.Visible -> 50.dp
-                        // No corner radius change when exiting.
-                        EnterExitState.PostExit -> 50.dp
-                    }
+            val cornerRadius by transition.animateDp {
+                when (it) {
+                    EnterExitState.PreEnter -> 0.dp
+                    EnterExitState.Visible -> 50.dp
+                    // No corner radius change when exiting.
+                    EnterExitState.PostExit -> 50.dp
                 }
+            }
             Box(
                 Modifier.background(Color.Red, shape = RoundedCornerShape(cornerRadius))
                     .height(100.dp)
@@ -360,17 +359,16 @@ fun AVScopeAnimateEnterExit() {
     @Composable
     fun AnimatedVisibilityScope.Item(modifier: Modifier, backgroundColor: Color) {
         // Creates a custom enter/exit animation for scale property.
-        val scale by
-            transition.animateFloat { enterExitState ->
-                // Enter transition will be animating the scale from 0.9f to 1.0f
-                // (i.e. PreEnter -> Visible). Exit transition will be from 1.0f to
-                // 0.5f (i.e. Visible -> PostExit)
-                when (enterExitState) {
-                    EnterExitState.PreEnter -> 0.9f
-                    EnterExitState.Visible -> 1.0f
-                    EnterExitState.PostExit -> 0.5f
-                }
+        val scale by transition.animateFloat { enterExitState ->
+            // Enter transition will be animating the scale from 0.9f to 1.0f
+            // (i.e. PreEnter -> Visible). Exit transition will be from 1.0f to
+            // 0.5f (i.e. Visible -> PostExit)
+            when (enterExitState) {
+                EnterExitState.PreEnter -> 0.9f
+                EnterExitState.Visible -> 1.0f
+                EnterExitState.PostExit -> 0.5f
             }
+        }
 
         // Since we defined `Item` as an extension function on AnimatedVisibilityScope, we can use
         // the `animateEnterExit` modifier to produce an enter/exit animation for it. This will
@@ -473,18 +471,17 @@ fun AddAnimatedVisibilityToGenericTransitionSample() {
             // Creates a transition to animate visual changes when `selected` is changed.
             val selectionTransition = updateTransition(selected)
             // Animates the border color as a part of the transition
-            val borderColor by
-                selectionTransition.animateColor { isSelected ->
-                    if (isSelected) Color(0xff03a9f4) else Color.White
-                }
+            val borderColor by selectionTransition.animateColor { isSelected ->
+                if (isSelected) Color(0xff03a9f4) else Color.White
+            }
             // Animates the background color when selected state changes
-            val contentBackground by
-                selectionTransition.animateColor { isSelected ->
-                    if (isSelected) Color(0xffdbf0fe) else Color.White
-                }
+            val contentBackground by selectionTransition.animateColor { isSelected ->
+                if (isSelected) Color(0xffdbf0fe) else Color.White
+            }
             // Animates elevation as a part of the transition
-            val elevation by
-                selectionTransition.animateDp { isSelected -> if (isSelected) 10.dp else 2.dp }
+            val elevation by selectionTransition.animateDp { isSelected ->
+                if (isSelected) 10.dp else 2.dp
+            }
             Surface(
                 shape = RoundedCornerShape(10.dp),
                 border = BorderStroke(2.dp, borderColor),
@@ -598,8 +595,8 @@ fun AnimatedVisibilityLazyColumnSample() {
             // notify the model to prune the list.
             LaunchedEffect(model) {
                 snapshotFlow {
-                        model.items.firstOrNull { it.visible.isIdle && !it.visible.targetState }
-                    }
+                    model.items.firstOrNull { it.visible.isIdle && !it.visible.targetState }
+                }
                     .collect {
                         if (it != null) {
                             model.pruneItems()
@@ -640,15 +637,14 @@ fun AVColumnScopeWithMutableTransitionState() {
     Column {
         repeat(3) {
             AnimatedVisibility(
-                visibleState =
-                    remember {
-                            // This sets up the initial state of the AnimatedVisibility to false to
-                            // guarantee an initial enter transition. In contrast, initializing this
-                            // as
-                            // `MutableTransitionState(visible)` would result in no initial enter
-                            // transition.
-                            MutableTransitionState(initialState = false)
-                        }
+                visibleState = remember {
+                        // This sets up the initial state of the AnimatedVisibility to false to
+                        // guarantee an initial enter transition. In contrast, initializing this
+                        // as
+                        // `MutableTransitionState(visible)` would result in no initial enter
+                        // transition.
+                        MutableTransitionState(initialState = false)
+                    }
                         .apply {
                             // This changes the target state of the visible state. If it's different
                             // than

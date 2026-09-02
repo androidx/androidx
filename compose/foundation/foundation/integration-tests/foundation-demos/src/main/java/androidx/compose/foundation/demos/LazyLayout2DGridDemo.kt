@@ -156,10 +156,12 @@ private fun measure2dGrid(
     state: Lazy2DGridState,
     updateScrollPosition: (IntPosition, IntOffset, Offset) -> Unit,
 ): LazyLayoutMeasurePolicy = LazyLayoutMeasurePolicy { constraints ->
-    var currentFirstVisibleRowIndex =
-        Snapshot.withoutReadObservation { state.firstVisiblePosition.row }
-    var currentFirstVisibleRowScrollOffset =
-        Snapshot.withoutReadObservation { state.firstVisiblePositionScrollOffset.y }
+    var currentFirstVisibleRowIndex = Snapshot.withoutReadObservation {
+        state.firstVisiblePosition.row
+    }
+    var currentFirstVisibleRowScrollOffset = Snapshot.withoutReadObservation {
+        state.firstVisiblePositionScrollOffset.y
+    }
 
     if (currentFirstVisibleRowIndex >= rows) {
         // the data set has been updated and now we have less items that we were
@@ -186,10 +188,12 @@ private fun measure2dGrid(
 
     val maxOffset = constraints.maxHeight
 
-    val firstVisibleColumnIndex =
-        Snapshot.withoutReadObservation { state.firstVisiblePosition.column }
-    val firstVisibleColumnOffset =
-        Snapshot.withoutReadObservation { state.firstVisiblePositionScrollOffset.x }
+    val firstVisibleColumnIndex = Snapshot.withoutReadObservation {
+        state.firstVisiblePosition.column
+    }
+    val firstVisibleColumnOffset = Snapshot.withoutReadObservation {
+        state.firstVisiblePositionScrollOffset.x
+    }
 
     var maxWidthSize = 0
     // we had scrolled backward

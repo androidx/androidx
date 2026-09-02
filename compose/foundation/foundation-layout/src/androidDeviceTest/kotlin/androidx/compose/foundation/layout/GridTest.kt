@@ -958,7 +958,9 @@ class GridTest : LayoutTest() {
                     minIntrinsicWidth = itemMin,
                     maxIntrinsicWidth = itemMax,
                     modifier =
-                        Modifier.gridItem(1, 1).fillMaxSize().saveLayoutInfo(sizes[0], Ref(), latch),
+                        Modifier.gridItem(1, 1)
+                            .fillMaxSize()
+                            .saveLayoutInfo(sizes[0], Ref(), latch),
                 )
                 // Item 2 (MaxContent)
                 IntrinsicItem(
@@ -966,7 +968,9 @@ class GridTest : LayoutTest() {
                     minIntrinsicWidth = itemMin,
                     maxIntrinsicWidth = itemMax,
                     modifier =
-                        Modifier.gridItem(1, 2).fillMaxSize().saveLayoutInfo(sizes[1], Ref(), latch),
+                        Modifier.gridItem(1, 2)
+                            .fillMaxSize()
+                            .saveLayoutInfo(sizes[1], Ref(), latch),
                 )
                 // Item 3 (Auto)
                 IntrinsicItem(
@@ -974,7 +978,9 @@ class GridTest : LayoutTest() {
                     minIntrinsicWidth = itemMin,
                     maxIntrinsicWidth = itemMax,
                     modifier =
-                        Modifier.gridItem(1, 3).fillMaxSize().saveLayoutInfo(sizes[2], Ref(), latch),
+                        Modifier.gridItem(1, 3)
+                            .fillMaxSize()
+                            .saveLayoutInfo(sizes[2], Ref(), latch),
                 )
             }
         }
@@ -2084,7 +2090,8 @@ class GridTest : LayoutTest() {
                             gridSize.value = coordinates.size
                             positionedLatch.countDown()
                         },
-                ) { /* empty */
+                ) {
+                    /* empty */
                 }
             }
 
@@ -2120,7 +2127,8 @@ class GridTest : LayoutTest() {
                                 gridSize.value = coordinates.size
                                 positionedLatch.countDown()
                             },
-                    ) { /* empty */
+                    ) {
+                        /* empty */
                     }
                 }
             }

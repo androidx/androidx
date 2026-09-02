@@ -69,12 +69,11 @@ class MemoizedSequenceTest {
     fun noSuchElement_notEmpty() {
         val iterator = MemoizedSequence { sequenceOf(1, 2, 3) }.iterator()
         val collected = mutableListOf<Int>()
-        val result =
-            kotlin.runCatching {
-                while (true) {
-                    collected.add(iterator.next())
-                }
+        val result = kotlin.runCatching {
+            while (true) {
+                collected.add(iterator.next())
             }
+        }
         assertThat(result.exceptionOrNull()).isInstanceOf<NoSuchElementException>()
         assertThat(collected).containsExactly(1, 2, 3)
     }

@@ -131,10 +131,9 @@ class MulticastFileObserverTest {
         // create many folders and many files, ensure observers get the latest value and
         // we also cleanup properly
         val folders = (0 until 10).map { tmpFolder.newFolder() }
-        val files =
-            folders.flatMap { folder ->
-                (0 until 10).map { folder.resolve("f$it").also { it.writeText("init") } }
-            }
+        val files = folders.flatMap { folder ->
+            (0 until 10).map { folder.resolve("f$it").also { it.writeText("init") } }
+        }
         val updateCollectors = files.map { file -> UpdateCollector(testScope, file) }
         files
             .mapIndexed { fileIndex, file ->
@@ -159,16 +158,15 @@ class MulticastFileObserverTest {
         val subject = UpdateCollector(testScope, f1)
         subject.awaitValue("x")
         val blockedObserverReceivedValue = CompletableDeferred<Unit>()
-        val blockedObserver =
-            testScope.async {
-                MulticastFileObserver.observe(f1)
-                    .onEach {
-                        blockedObserverReceivedValue.complete(Unit)
-                        // suspend indefinitely
-                        suspendCancellableCoroutine {}
-                    }
-                    .collect()
-            }
+        val blockedObserver = testScope.async {
+            MulticastFileObserver.observe(f1)
+                .onEach {
+                    blockedObserverReceivedValue.complete(Unit)
+                    // suspend indefinitely
+                    suspendCancellableCoroutine {}
+                }
+                .collect()
+        }
         withTimeout(5.seconds) { blockedObserverReceivedValue.await() }
         repeat(10) { f1.modify("x$it") }
         subject.awaitValue("x9")

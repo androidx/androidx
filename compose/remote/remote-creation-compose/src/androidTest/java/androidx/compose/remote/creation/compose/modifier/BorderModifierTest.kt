@@ -55,90 +55,88 @@ class BorderModifierTest {
     private val gridScreenshotUI = GridScreenshotUI()
 
     @Test
-    fun grid() =
-        composeTestRule.runScreenshotTest {
-            val borders =
-                listOf<Pair<String, @Composable RemoteModifier.() -> RemoteModifier>>(
-                    "1dp" to { border(1.rdp, Color.Red.rc) },
-                    "2dp" to { border(2.rdp, Color.Red.rc) },
-                    "3dp" to { border(3.rdp, Color.Red.rc) },
-                    "color alpha" to { border(3.rdp, Color.Blue.rc.copy(alpha = 0.5f.rf)) },
-                    // Ensure a non constant color
-                    "color ref" to
-                        {
-                            border(3.rdp, Color.Blue.rc.copy(alpha = 0.5f.rf.createReference()))
-                        },
-                    "RemoteRectangleShape" to
-                        {
-                            border(
-                                width = 2.rdp,
-                                color = Color.Green.rc,
-                                shape = RemoteRectangleShape,
-                            )
-                        },
-                    "RemoteCircleShape" to
-                        {
-                            border(
-                                width = 2.rdp,
-                                color = Color.Magenta.rc,
-                                shape = RemoteCircleShape,
-                            )
-                        },
-                    "RemoteRoundedCornerShape" to
-                        {
-                            border(
-                                width = 2.rdp,
-                                color = Color.Cyan.rc,
-                                shape = RemoteRoundedCornerShape(size = 10.rf),
-                            )
-                        },
-                    //                     Not supported in BorderModifierOperation
-                    //                    {
-                    //                        border(
-                    //                            width = 2.rdp,
-                    //                            color = Color.Cyan.rc,
-                    //                            shape = RemoteRoundedCornerShape(size = 10.rdp),
-                    //                        )
-                    //                    },
-                    //                    {
-                    //                        border(
-                    //                            width = 2.rdp,
-                    //                            color = Color.Gray.rc,
-                    //                            shape = RemoteRoundedCornerShape(percent = 50),
-                    //                        )
-                    //                    },
-                    //                    {
-                    //                        border(
-                    //                            width = 2.rdp,
-                    //                            color = Color.Black.rc,
-                    //                            shape = RemoteRoundedCornerShape(
-                    //                                topStart =
-                    //                                    10.rdp, bottomEnd = 10.rdp
-                    //                            ),
-                    //                        )
-                    //                    },
-                )
-
-            gridScreenshotUI.GridContent(
-                sequence {
-                        for ((name, borderFn) in borders) {
-                            yield(
-                                name to
-                                    @RemoteComposable @Composable {
-                                        RemoteBox {
-                                            RemoteBox(
-                                                modifier =
-                                                    RemoteModifier.size(DefaultContainerSize)
-                                                        .borderFn()
-                                            )
-                                        }
-                                    }
-                            )
-                        }
-                    }
-                    .toList()
+    fun grid() = composeTestRule.runScreenshotTest {
+        val borders =
+            listOf<Pair<String, @Composable RemoteModifier.() -> RemoteModifier>>(
+                "1dp" to { border(1.rdp, Color.Red.rc) },
+                "2dp" to { border(2.rdp, Color.Red.rc) },
+                "3dp" to { border(3.rdp, Color.Red.rc) },
+                "color alpha" to { border(3.rdp, Color.Blue.rc.copy(alpha = 0.5f.rf)) },
+                // Ensure a non constant color
+                "color ref" to
+                    {
+                        border(3.rdp, Color.Blue.rc.copy(alpha = 0.5f.rf.createReference()))
+                    },
+                "RemoteRectangleShape" to
+                    {
+                        border(
+                            width = 2.rdp,
+                            color = Color.Green.rc,
+                            shape = RemoteRectangleShape,
+                        )
+                    },
+                "RemoteCircleShape" to
+                    {
+                        border(
+                            width = 2.rdp,
+                            color = Color.Magenta.rc,
+                            shape = RemoteCircleShape,
+                        )
+                    },
+                "RemoteRoundedCornerShape" to
+                    {
+                        border(
+                            width = 2.rdp,
+                            color = Color.Cyan.rc,
+                            shape = RemoteRoundedCornerShape(size = 10.rf),
+                        )
+                    },
+                //                     Not supported in BorderModifierOperation
+                //                    {
+                //                        border(
+                //                            width = 2.rdp,
+                //                            color = Color.Cyan.rc,
+                //                            shape = RemoteRoundedCornerShape(size = 10.rdp),
+                //                        )
+                //                    },
+                //                    {
+                //                        border(
+                //                            width = 2.rdp,
+                //                            color = Color.Gray.rc,
+                //                            shape = RemoteRoundedCornerShape(percent = 50),
+                //                        )
+                //                    },
+                //                    {
+                //                        border(
+                //                            width = 2.rdp,
+                //                            color = Color.Black.rc,
+                //                            shape = RemoteRoundedCornerShape(
+                //                                topStart =
+                //                                    10.rdp, bottomEnd = 10.rdp
+                //                            ),
+                //                        )
+                //                    },
             )
-        }
+
+        gridScreenshotUI.GridContent(
+            sequence {
+                for ((name, borderFn) in borders) {
+                    yield(
+                        name to
+                            @RemoteComposable @Composable {
+                                RemoteBox {
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.size(DefaultContainerSize).borderFn()
+                                    )
+                                }
+                            }
+                    )
+                }
+            }
+                .toList()
+        )
+    }
 
     @Test
     fun borderAndBackgroundSolid() {
@@ -175,56 +173,55 @@ class BorderModifierTest {
     }
 
     @Test
-    fun borderAndBackgroundGrid() =
-        composeTestRule.runScreenshotTest {
-            gridScreenshotUI.GridContent(
-                listOf(
-                    "Background (solid) > border" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(DefaultContainerSize)
-                                        .background(Color.Blue.rc)
-                                        .border(width = 4.rdp, color = Color.Red.rc)
-                            )
-                        },
-                    "Background (brush) > border" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(DefaultContainerSize)
-                                        .background(
-                                            RemoteBrush.verticalGradient(
-                                                listOf(Color.Blue.rc, Color.Cyan.rc)
-                                            )
+    fun borderAndBackgroundGrid() = composeTestRule.runScreenshotTest {
+        gridScreenshotUI.GridContent(
+            listOf(
+                "Background (solid) > border" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(DefaultContainerSize)
+                                    .background(Color.Blue.rc)
+                                    .border(width = 4.rdp, color = Color.Red.rc)
+                        )
+                    },
+                "Background (brush) > border" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(DefaultContainerSize)
+                                    .background(
+                                        RemoteBrush.verticalGradient(
+                                            listOf(Color.Blue.rc, Color.Cyan.rc)
                                         )
-                                        .border(width = 4.rdp, color = Color.Red.rc)
-                            )
-                        },
-                    "Empty" to {},
-                    "Border > background (solid)" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(DefaultContainerSize)
-                                        .border(width = 4.rdp, color = Color.Red.rc)
-                                        .background(Color.Blue.rc)
-                            )
-                        },
-                    "Border > background (brush)" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier =
-                                    RemoteModifier.size(DefaultContainerSize)
-                                        .border(width = 4.rdp, color = Color.Red.rc)
-                                        .background(
-                                            RemoteBrush.verticalGradient(
-                                                listOf(Color.Blue.rc, Color.Cyan.rc)
-                                            )
+                                    )
+                                    .border(width = 4.rdp, color = Color.Red.rc)
+                        )
+                    },
+                "Empty" to {},
+                "Border > background (solid)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(DefaultContainerSize)
+                                    .border(width = 4.rdp, color = Color.Red.rc)
+                                    .background(Color.Blue.rc)
+                        )
+                    },
+                "Border > background (brush)" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.size(DefaultContainerSize)
+                                    .border(width = 4.rdp, color = Color.Red.rc)
+                                    .background(
+                                        RemoteBrush.verticalGradient(
+                                            listOf(Color.Blue.rc, Color.Cyan.rc)
                                         )
-                            )
-                        },
-                )
+                                    )
+                        )
+                    },
             )
-        }
+        )
+    }
 }

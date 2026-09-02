@@ -41,26 +41,25 @@ import org.robolectric.annotation.Config
 class TranslateNestedLayoutsTest : BaseRemoteComposeTest() {
 
     @Test
-    fun translate_Row100x100_BoxWDefaultWeightHMatch() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Row(GlanceModifier.size(100.dp, 100.dp)) {
-                        Box(modifier = GlanceModifier.fillMaxHeight().defaultWeight()) {
-                            // no content
-                        }
+    fun translate_Row100x100_BoxWDefaultWeightHMatch() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Row(GlanceModifier.size(100.dp, 100.dp)) {
+                    Box(modifier = GlanceModifier.fillMaxHeight().defaultWeight()) {
+                        // no content
                     }
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val box = getSimpleLeaf(doc) as BoxLayout
-            val widthModifier = box.widthModifier!!
-            assertEquals(DimensionModifierOperation.Type.WEIGHT, widthModifier.type)
-            assertTrue(widthModifier.hasWeight())
-            assertEquals(1f, widthModifier.value)
-            assertEquals(DimensionModifierOperation.Type.FILL, box.heightModifier!!.type)
+        val box = getSimpleLeaf(doc) as BoxLayout
+        val widthModifier = box.widthModifier!!
+        assertEquals(DimensionModifierOperation.Type.WEIGHT, widthModifier.type)
+        assertTrue(widthModifier.hasWeight())
+        assertEquals(1f, widthModifier.value)
+        assertEquals(DimensionModifierOperation.Type.FILL, box.heightModifier!!.type)
 
-            debugPrintDoc(doc)
-        }
+        debugPrintDoc(doc)
+    }
 }

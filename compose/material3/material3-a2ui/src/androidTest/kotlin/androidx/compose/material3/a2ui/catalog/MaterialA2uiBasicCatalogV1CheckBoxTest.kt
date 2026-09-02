@@ -350,7 +350,10 @@ class MaterialA2uiBasicCatalogV1CheckBoxTest {
                             id = "root",
                             type = "CheckBox",
                             properties =
-                                mapOf("value" to mapOf("path" to "/form/agree"), "label" to "Agree"),
+                                mapOf(
+                                    "value" to mapOf("path" to "/form/agree"),
+                                    "label" to "Agree",
+                                ),
                         )
                     ),
             )

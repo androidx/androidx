@@ -32,7 +32,9 @@ package com.android.mechanics.spec
  */
 typealias OnChangeSegmentHandler =
     MotionSpec.(
-        currentSegment: SegmentData, newPosition: Float, newDirection: InputDirection,
+        currentSegment: SegmentData,
+        newPosition: Float,
+        newDirection: InputDirection,
     ) -> SegmentData?
 
 /** Generic change segment handlers. */

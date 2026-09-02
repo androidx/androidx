@@ -113,16 +113,16 @@ private fun Modifier.drawInOverlay(compositionContext: CompositionContext): Modi
 
 private fun Modifier.container(state: ContainerState): Modifier {
     return layout { measurable, constraints ->
-            val p = measurable.measure(constraints)
-            layout(p.width, p.height) {
-                val coords = coordinates
-                if (coords != null && !isLookingAhead) {
-                    state.lastCoords = coords
-                }
-
-                p.place(0, 0)
+        val p = measurable.measure(constraints)
+        layout(p.width, p.height) {
+            val coords = coordinates
+            if (coords != null && !isLookingAhead) {
+                state.lastCoords = coords
             }
+
+            p.place(0, 0)
         }
+    }
         .drawWithContent {
             drawContent()
             state.drawInOverlay(this)

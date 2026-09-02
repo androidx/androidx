@@ -160,7 +160,8 @@ suspend fun doTempRecording(
                 Log.i(
                     TAG,
                     "Recording finalized " +
-                        if (!finalize.hasError()) "successfully" else "with error ${finalize.error}",
+                        if (!finalize.hasError()) "successfully"
+                        else "with error ${finalize.error}",
                 )
             }
         }

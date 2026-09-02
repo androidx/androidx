@@ -108,20 +108,18 @@ internal fun translateComposition(
         // multi-sized RemoteViews (a RemoteViews that contains either landscape & portrait RVs or
         // multiple RVs mapped by size).
         val sizeMode = (children.first() as EmittableSizeBox).sizeMode
-        val views =
-            children.map { child ->
-                val size = (child as EmittableSizeBox).size
-                val remoteViewsInfo =
-                    createRootView(translationContext, child.modifier, rootViewIndex)
-                val rv =
-                    remoteViewsInfo.remoteViews.apply {
-                        translateChild(
-                            translationContext.forRootAndSize(root = remoteViewsInfo, size),
-                            child,
-                        )
-                    }
-                size.toSizeF() to rv
-            }
+        val views = children.map { child ->
+            val size = (child as EmittableSizeBox).size
+            val remoteViewsInfo = createRootView(translationContext, child.modifier, rootViewIndex)
+            val rv =
+                remoteViewsInfo.remoteViews.apply {
+                    translateChild(
+                        translationContext.forRootAndSize(root = remoteViewsInfo, size),
+                        child,
+                    )
+                }
+            size.toSizeF() to rv
+        }
         return when (sizeMode) {
             is SizeMode.Single -> views.single().second
             is SizeMode.Responsive,

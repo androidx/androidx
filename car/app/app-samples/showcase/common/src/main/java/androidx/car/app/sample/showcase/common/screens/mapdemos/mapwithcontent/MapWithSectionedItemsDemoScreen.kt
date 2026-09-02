@@ -175,32 +175,30 @@ class MapWithSectionedItemsDemoScreen(carContext: CarContext) :
     private fun makeChipSection(): ChipSection {
         val filterTitles = listOf("All", "Filter 1", "Filter 2", "Filter 3")
 
-        val chips =
-            filterTitles.mapIndexed { index, title ->
-                createChip(
-                    title = title,
-                    startIcon = if (index == 2) icPhotos else null,
-                    isSelected = (index == selectedChipIndex),
-                    clickListener = {
-                        selectedChipIndex = index
-                        invalidate()
-                    },
-                )
-            }
+        val chips = filterTitles.mapIndexed { index, title ->
+            createChip(
+                title = title,
+                startIcon = if (index == 2) icPhotos else null,
+                isSelected = (index == selectedChipIndex),
+                clickListener = {
+                    selectedChipIndex = index
+                    invalidate()
+                },
+            )
+        }
 
         return createChipSection(title = "Filters Section", items = chips)
     }
 
     private fun makeSpotlightSection(): SpotlightSection {
         val spotlightIcons = listOf(icMenu, icAndroid, icPhotos)
-        val items =
-            spotlightIcons.mapIndexed { i, icon ->
-                createCondensedItem(
-                    title = "Condensed Item ${i + 1}",
-                    text = "Spotlight item ${i + 1}",
-                    image = icon,
-                )
-            }
+        val items = spotlightIcons.mapIndexed { i, icon ->
+            createCondensedItem(
+                title = "Condensed Item ${i + 1}",
+                text = "Spotlight item ${i + 1}",
+                image = icon,
+            )
+        }
 
         return createSpotlightSection(image = icPhotos, title = "Spotlight Section", items = items)
     }

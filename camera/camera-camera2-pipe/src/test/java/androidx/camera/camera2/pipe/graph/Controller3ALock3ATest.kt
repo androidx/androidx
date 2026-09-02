@@ -170,13 +170,12 @@ internal class Controller3ALock3ATest {
     fun testAfImmediateAeAfterCurrentScan() = runTest {
         val globalScope = CoroutineScope(UnconfinedTestDispatcher())
 
-        val lock3AAsyncTask =
-            globalScope.async {
-                controller3A.lock3A(
-                    afLockBehavior = Lock3ABehavior.IMMEDIATE,
-                    aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
-                )
-            }
+        val lock3AAsyncTask = globalScope.async {
+            controller3A.lock3A(
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
+            )
+        }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
         // Launch a task to repeatedly invoke a given capture result.
         globalScope.launch {
@@ -255,13 +254,12 @@ internal class Controller3ALock3ATest {
     fun testAfImmediateAeAfterNewScan() = runTest {
         val globalScope = CoroutineScope(UnconfinedTestDispatcher())
 
-        val lock3AAsyncTask =
-            globalScope.async {
-                controller3A.lock3A(
-                    afLockBehavior = Lock3ABehavior.IMMEDIATE,
-                    aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
-                )
-            }
+        val lock3AAsyncTask = globalScope.async {
+            controller3A.lock3A(
+                afLockBehavior = Lock3ABehavior.IMMEDIATE,
+                aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+            )
+        }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
 
         globalScope.launch {
@@ -341,13 +339,12 @@ internal class Controller3ALock3ATest {
     fun testAfAfterCurrentScanAeImmediate() = runTest {
         val globalScope = CoroutineScope(UnconfinedTestDispatcher())
 
-        val lock3AAsyncTask =
-            globalScope.async {
-                controller3A.lock3A(
-                    afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
-                    aeLockBehavior = Lock3ABehavior.IMMEDIATE,
-                )
-            }
+        val lock3AAsyncTask = globalScope.async {
+            controller3A.lock3A(
+                afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
+                aeLockBehavior = Lock3ABehavior.IMMEDIATE,
+            )
+        }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
         globalScope.launch {
             while (true) {
@@ -423,13 +420,12 @@ internal class Controller3ALock3ATest {
     fun testAfAfterNewScanScanAeImmediate() = runTest {
         val globalScope = CoroutineScope(UnconfinedTestDispatcher())
 
-        val lock3AAsyncTask =
-            globalScope.async {
-                controller3A.lock3A(
-                    afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
-                    aeLockBehavior = Lock3ABehavior.IMMEDIATE,
-                )
-            }
+        val lock3AAsyncTask = globalScope.async {
+            controller3A.lock3A(
+                afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                aeLockBehavior = Lock3ABehavior.IMMEDIATE,
+            )
+        }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
         globalScope.launch {
             while (true) {
@@ -516,13 +512,12 @@ internal class Controller3ALock3ATest {
     fun testAfAfterCurrentScanAeAfterCurrentScan() = runTest {
         val globalScope = CoroutineScope(UnconfinedTestDispatcher())
 
-        val lock3AAsyncTask =
-            globalScope.async {
-                controller3A.lock3A(
-                    afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
-                    aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
-                )
-            }
+        val lock3AAsyncTask = globalScope.async {
+            controller3A.lock3A(
+                afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
+                aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
+            )
+        }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
         globalScope.launch {
             while (true) {
@@ -605,13 +600,12 @@ internal class Controller3ALock3ATest {
     @Test
     fun testAfAfterNewScanScanAeAfterNewScan() = runTest {
         val globalScope = CoroutineScope(UnconfinedTestDispatcher())
-        val lock3AAsyncTask =
-            globalScope.async {
-                controller3A.lock3A(
-                    afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
-                    aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
-                )
-            }
+        val lock3AAsyncTask = globalScope.async {
+            controller3A.lock3A(
+                afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+            )
+        }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
         globalScope.launch {
             while (true) {
@@ -1040,16 +1034,15 @@ internal class Controller3ALock3ATest {
     @Test
     fun testLock3AWithModesAndAfterNewScan() = runTest {
         val globalScope = CoroutineScope(UnconfinedTestDispatcher())
-        val lock3AAsyncTask =
-            globalScope.async {
-                controller3A.lock3A(
-                    aeMode = AeMode.ON,
-                    afMode = AfMode.CONTINUOUS_PICTURE,
-                    awbMode = AwbMode.AUTO,
-                    aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
-                    afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
-                )
-            }
+        val lock3AAsyncTask = globalScope.async {
+            controller3A.lock3A(
+                aeMode = AeMode.ON,
+                afMode = AfMode.CONTINUOUS_PICTURE,
+                awbMode = AwbMode.AUTO,
+                aeLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+                afLockBehavior = Lock3ABehavior.AFTER_NEW_SCAN,
+            )
+        }
         assertThat(lock3AAsyncTask.isCompleted).isFalse()
 
         // Verify that the graph state has been updated with the correct modes.

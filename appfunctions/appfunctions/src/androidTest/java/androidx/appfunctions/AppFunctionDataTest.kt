@@ -1639,7 +1639,10 @@ class AppFunctionDataTest {
                     mapOf(
                         "int" to AppFunctionIntTypeMetadata(isNullable = false),
                         "str" to
-                            AppFunctionStringTypeMetadata(isNullable = false, description = "desc2"),
+                            AppFunctionStringTypeMetadata(
+                                isNullable = false,
+                                description = "desc2",
+                            ),
                     ),
                 required = listOf("int", "str"),
                 qualifiedName = "TestName",

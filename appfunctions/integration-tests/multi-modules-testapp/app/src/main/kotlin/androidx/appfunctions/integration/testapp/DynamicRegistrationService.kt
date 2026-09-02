@@ -107,19 +107,18 @@ class DynamicRegistrationService : Service() {
 
             ACTION_REGISTER_LONG_RUNNING -> {
                 val appFunction = CallbackAppFunction { _, cancellationSignal, callback ->
-                    val job =
-                        scope.launch {
-                            try {
-                                delay(5000)
-                                callback.accept(buildSuccessResponse("long_running_result"))
-                            } catch (e: CancellationException) {
-                                callback.accept(
-                                    ExecuteAppFunctionResponse.Error(
-                                        AppFunctionCancelledException(e.message)
-                                    )
+                    val job = scope.launch {
+                        try {
+                            delay(5000)
+                            callback.accept(buildSuccessResponse("long_running_result"))
+                        } catch (e: CancellationException) {
+                            callback.accept(
+                                ExecuteAppFunctionResponse.Error(
+                                    AppFunctionCancelledException(e.message)
                                 )
-                            }
+                            )
                         }
+                    }
                     cancellationSignal.setOnCancelListener { job.cancel() }
                 }
                 registration =
@@ -135,12 +134,11 @@ class DynamicRegistrationService : Service() {
                     val b = request.functionParameters.getString("b")
                     buildSuccessResponse("suspend_result_${a}_${b}")
                 }
-                suspendRegistrationJob =
-                    scope.launch {
-                        appFunctionManager.handleAppFunction(
-                            HandleAppFunctionRequest(FORMAT_MESSAGE_FUNCTION_ID, appFunction)
-                        )
-                    }
+                suspendRegistrationJob = scope.launch {
+                    appFunctionManager.handleAppFunction(
+                        HandleAppFunctionRequest(FORMAT_MESSAGE_FUNCTION_ID, appFunction)
+                    )
+                }
             }
             ACTION_REGISTER_ADAPTER_ALL_PRIMITIVES -> {
                 val adapter =
@@ -177,8 +175,9 @@ class DynamicRegistrationService : Service() {
                             stringListValue == listOf("a", "b")
                     }
                 val request = adapter.adapt(implementation)
-                suspendRegistrationJob =
-                    scope.launch { appFunctionManager.handleAppFunction(request) }
+                suspendRegistrationJob = scope.launch {
+                    appFunctionManager.handleAppFunction(request)
+                }
             }
             ACTION_REGISTER_ADAPTER_COMPLEX_SERIALIZABLE -> {
                 val adapter =
@@ -199,8 +198,9 @@ class DynamicRegistrationService : Service() {
                     )
                 }
                 val request = adapter.adapt(implementation)
-                suspendRegistrationJob =
-                    scope.launch { appFunctionManager.handleAppFunction(request) }
+                suspendRegistrationJob = scope.launch {
+                    appFunctionManager.handleAppFunction(request)
+                }
             }
             ACTION_REGISTER_ADAPTER_VOID -> {
                 val adapter =
@@ -211,8 +211,9 @@ class DynamicRegistrationService : Service() {
                     // Do nothing, void return
                 }
                 val request = adapter.adapt(implementation)
-                suspendRegistrationJob =
-                    scope.launch { appFunctionManager.handleAppFunction(request) }
+                suspendRegistrationJob = scope.launch {
+                    appFunctionManager.handleAppFunction(request)
+                }
             }
             ACTION_REGISTER_ADAPTER_THROWING -> {
                 val adapter =
@@ -223,8 +224,9 @@ class DynamicRegistrationService : Service() {
                     throw AppFunctionInvalidArgumentException("Simulated adapter exception")
                 }
                 val request = adapter.adapt(implementation)
-                suspendRegistrationJob =
-                    scope.launch { appFunctionManager.handleAppFunction(request) }
+                suspendRegistrationJob = scope.launch {
+                    appFunctionManager.handleAppFunction(request)
+                }
             }
             ACTION_UNREGISTER -> {
                 registration?.unregister()
