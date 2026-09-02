@@ -17,7 +17,7 @@ import androidx.compose.runtime.external.kotlinx.collections.immutable.implement
 import androidx.compose.runtime.external.kotlinx.collections.immutable.implementations.persistentOrderedSet.PersistentOrderedSet
 import androidx.compose.runtime.external.kotlinx.collections.immutable.implementations.persistentOrderedSet.PersistentOrderedSetBuilder
 
-//@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+//@Suppress("INVISIBLE_MEMBER")
 //inline fun <T> @kotlin.internal.Exact ImmutableCollection<T>.mutate(mutator: (MutableCollection<T>) -> Unit): ImmutableCollection<T> = builder().apply(mutator).build()
 // it or this?
 /**
