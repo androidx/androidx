@@ -21,6 +21,7 @@ package androidx.wear.compose.remote.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.runtime.Composable
@@ -28,7 +29,6 @@ import androidx.compose.ui.tooling.preview.PreviewWrapper
 import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.RemoteIconButton
 import androidx.wear.compose.remote.material3.RemoteIconButtonDefaults
-import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 import androidx.wear.compose.remote.material3.previews.utils.RemoteComponentPreviewWrapper
 import androidx.wear.compose.remote.material3.previews.utils.TestImageVectors
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
@@ -38,21 +38,17 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @WearPreviewDevices
 @PreviewWrapper(RemoteComponentPreviewWrapper::class)
 fun RemoteIconButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
-    RemoteIconButton(testAction, modifier = modifier, colors = tonalColors) {
-        RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
+    RemoteIconButton(
+        testAction,
+        modifier = modifier,
+        colors = RemoteIconButtonDefaults.filledTonalIconButtonColors(),
+    ) {
+        RemoteIcon(
+            imageVector = TestImageVectors.VolumeUp,
+            contentDescription = null,
+            modifier = RemoteModifier.size(RemoteIconButtonDefaults.DefaultIconSize),
+        )
     }
 }
-
-private val tonalColors
-    @Composable
-    get() =
-        RemoteIconButtonDefaults.iconButtonColors()
-            .copy(
-                containerColor = RemoteMaterialTheme.colorScheme.primary,
-                contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
-                disabledContainerColor =
-                    RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
-                disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
-            )
 
 private val testAction = hostAction("testAction".rs, 1.rf)

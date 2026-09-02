@@ -24,7 +24,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -32,7 +32,6 @@ import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemoteContentPreview
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteIcon
 import androidx.wear.compose.remote.material3.RemoteIconButton
@@ -46,7 +45,11 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @RemoteComposable
 fun RemoteIconButtonEnabled() {
     RemoteIconButton(testAction, enabled = true.rb) {
-        RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
+        RemoteIcon(
+            imageVector = TestImageVectors.VolumeUp,
+            contentDescription = null,
+            modifier = RemoteModifier.size(RemoteIconButtonDefaults.DefaultIconSize),
+        )
     }
 }
 
@@ -58,9 +61,105 @@ private fun RemoteIconButtonEnabledPreview(
 
 @Composable
 @RemoteComposable
+fun RemoteIconButtonLarge() {
+    RemoteIconButton(
+        testAction,
+        modifier = RemoteModifier.size(RemoteIconButtonDefaults.LargeButtonSize),
+        enabled = true.rb,
+    ) {
+        RemoteIcon(
+            imageVector = TestImageVectors.VolumeUp,
+            contentDescription = null,
+            modifier = RemoteModifier.size(RemoteIconButtonDefaults.LargeIconSize),
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteIconButtonLargePreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteIconButtonLarge() } }
+
+@Composable
+@RemoteComposable
+fun RemoteIconButtonSmall() {
+    RemoteIconButton(
+        testAction,
+        modifier = RemoteModifier.size(RemoteIconButtonDefaults.SmallButtonSize),
+        enabled = true.rb,
+    ) {
+        RemoteIcon(
+            imageVector = TestImageVectors.VolumeUp,
+            contentDescription = null,
+            modifier = RemoteModifier.size(RemoteIconButtonDefaults.SmallIconSize),
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteIconButtonSmallPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteIconButtonSmall() } }
+
+@Composable
+@RemoteComposable
+fun RemoteIconButtonExtraSmall() {
+    RemoteIconButton(
+        testAction,
+        modifier = RemoteModifier.size(RemoteIconButtonDefaults.ExtraSmallButtonSize),
+        enabled = true.rb,
+    ) {
+        RemoteIcon(
+            imageVector = TestImageVectors.VolumeUp,
+            contentDescription = null,
+            modifier = RemoteModifier.size(RemoteIconButtonDefaults.SmallIconSize),
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteIconButtonExtraSmallPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteIconButtonExtraSmall() } }
+
+@Composable
+@RemoteComposable
+fun RemoteIconButtonFilled() {
+    RemoteIconButton(
+        testAction,
+        enabled = true.rb,
+        colors = RemoteIconButtonDefaults.filledIconButtonColors(),
+    ) {
+        RemoteIcon(
+            imageVector = TestImageVectors.VolumeUp,
+            contentDescription = null,
+            modifier = RemoteModifier.size(RemoteIconButtonDefaults.DefaultIconSize),
+        )
+    }
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteIconButtonFilledPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteIconButtonFilled() } }
+
+@Composable
+@RemoteComposable
 fun RemoteIconButtonTonal() {
-    RemoteIconButton(testAction, enabled = true.rb, colors = tonalColors) {
-        RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
+    RemoteIconButton(
+        testAction,
+        enabled = true.rb,
+        colors = RemoteIconButtonDefaults.filledTonalIconButtonColors(),
+    ) {
+        RemoteIcon(
+            imageVector = TestImageVectors.VolumeUp,
+            contentDescription = null,
+            modifier = RemoteModifier.size(RemoteIconButtonDefaults.DefaultIconSize),
+        )
     }
 }
 
@@ -78,9 +177,13 @@ fun RemoteIconButtonOutlined() {
         border = 1.rdp,
         borderColor = RemoteMaterialTheme.colorScheme.outline,
         enabled = true.rb,
-        colors = outlinedColors,
+        colors = RemoteIconButtonDefaults.outlinedIconButtonColors(),
     ) {
-        RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
+        RemoteIcon(
+            imageVector = TestImageVectors.VolumeUp,
+            contentDescription = null,
+            modifier = RemoteModifier.size(RemoteIconButtonDefaults.DefaultIconSize),
+        )
     }
 }
 
@@ -89,29 +192,6 @@ fun RemoteIconButtonOutlined() {
 private fun RemoteIconButtonOutlinedPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) = RemoteContentPreview(profile = profile) { Container { RemoteIconButtonOutlined() } }
-
-private val tonalColors
-    @Composable
-    get() =
-        RemoteIconButtonDefaults.iconButtonColors()
-            .copy(
-                containerColor = RemoteMaterialTheme.colorScheme.primary,
-                contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
-                disabledContainerColor =
-                    RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
-                disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
-            )
-
-private val outlinedColors
-    @Composable
-    get() =
-        RemoteIconButtonDefaults.iconButtonColors()
-            .copy(
-                containerColor = RemoteColor(Color.Transparent),
-                contentColor = RemoteMaterialTheme.colorScheme.onPrimary,
-                disabledContainerColor = RemoteColor(Color.Transparent),
-                disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
-            )
 
 @Composable
 @RemoteComposable
