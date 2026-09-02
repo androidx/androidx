@@ -488,7 +488,7 @@ private constructor(
             }
         }
 
-        /** Specifies what should happen when a texture animation repeats. */
+        /** Specifies what should happen when a brush paint animation repeats. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkAnimationApi
         public class AnimationRepeatMode
@@ -975,12 +975,12 @@ private constructor(
          *   the [animationFrames] frames in the texture (in which case each frame will be displayed
          *   for [animationDurationMillis] / [animationFrames] milliseconds on average), or zero to
          *   disable looping animations (in which case the animation frame is controlled solely by
-         *   any `TEXTURE_ANIMATION_PROGRESS_OFFSET` behavior targets). Must be between 0 and 2^24
+         *   any `PAINT_ANIMATION_PROGRESS_OFFSET` behavior targets). Must be between 0 and 2^24
          *   (inclusive). Ignored if [animationFrames] is 1 (its default value), because that
          *   indicates that animation is disabled.
-         * @param animationRepeatMode Specifies what should happen when a texture animation repeats.
-         *   Ignored if [animationFrames] is 1 (its default value), because that indicates that
-         *   animation is disabled.
+         * @param animationRepeatMode Specifies what should happen when this texture layer's
+         *   animation repeats. Ignored if [animationFrames] is 1 (its default value), because that
+         *   indicates that animation is disabled.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
         @ExperimentalInkAnimationApi
@@ -1218,7 +1218,7 @@ private constructor(
                 @IntRange(from = 0, to = 1 shl 24) animationDurationMillis: Long
             ): Builder = apply { this.animationDurationMillis = animationDurationMillis }
 
-            /** Sets what should happen when the texture animation repeats. */
+            /** Sets what should happen when this texture layer's animation repeats. */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
             @ExperimentalInkAnimationApi
             public fun setAnimationRepeatMode(animationRepeatMode: AnimationRepeatMode): Builder =

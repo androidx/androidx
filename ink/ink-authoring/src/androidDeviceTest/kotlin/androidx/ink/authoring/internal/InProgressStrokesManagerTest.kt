@@ -1821,7 +1821,7 @@ internal class InProgressStrokesManagerTest {
     }
 
     @Test
-    fun startAddAndFinishStroke_withTextureAnimation_shouldSendAnimationProgressToRenderer() {
+    fun startAddAndFinishStroke_withPaintAnimation_shouldSendAnimationProgressToRenderer() {
         val clock = FakeClock(321_000_000) // Clock's start time has to match the DOWN event time.
         val (manager, renderHelper, runUiThreadToEndOfFrame) =
             makeAsyncManagerAndHelper(LatencyDataRecorder(), clock)
@@ -1865,7 +1865,7 @@ internal class InProgressStrokesManagerTest {
     }
 
     @Test
-    fun finishStroke_withTextureAnimation_shouldCallStrokesFinishedListener() {
+    fun finishStroke_withPaintAnimation_shouldCallStrokesFinishedListener() {
         val clock = FakeClock(321_000_000)
         val (manager, renderHelper, runUiThreadToEndOfFrame) =
             makeAsyncManagerAndHelper(LatencyDataRecorder(), clock)
@@ -1906,7 +1906,7 @@ internal class InProgressStrokesManagerTest {
     }
 
     @Test
-    fun cancelStroke_withTextureAnimation_soonStopsDrawing() {
+    fun cancelStroke_withPaintAnimation_soonStopsDrawing() {
         val clock = FakeClock(321_000_000)
         val (manager, renderHelper, runUiThreadToEndOfFrame) =
             makeAsyncManagerAndHelper(LatencyDataRecorder(), clock)
