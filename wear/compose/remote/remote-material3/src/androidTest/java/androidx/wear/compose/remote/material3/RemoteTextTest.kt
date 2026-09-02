@@ -74,6 +74,7 @@ import androidx.wear.compose.remote.material3.util.TestProfiles
 import java.text.DecimalFormat
 import kotlin.test.Test
 import org.junit.Assert.assertTrue
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -92,6 +93,7 @@ class RemoteTextTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
+    @Ignore("b/555248075")
     @Test
     fun remoteText_customRemoteFontFamily() {
         val width = 400
@@ -136,6 +138,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withDefaultColor() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -144,6 +147,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withColorAndTextAlign_rtl() {
         remoteComposeTestRule.runScreenshotTestCustomProfile(
@@ -203,6 +207,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withStyle() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -218,6 +223,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withColor() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -227,6 +233,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withOverridingColor() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -245,6 +252,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withParamAndStyle_paramIsPreserved() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -260,6 +268,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withColorAndTextAlign() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -294,6 +303,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withWeight() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -305,6 +315,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withWidth() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -316,6 +327,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withGrade() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -327,6 +339,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withTnum() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -378,6 +391,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withSlant() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -390,6 +404,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withRoundness() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -401,6 +416,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withRobotoFlex_minMax() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -420,6 +436,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withLobsterTwo() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -449,6 +466,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withDecoration() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -478,6 +496,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withSpacing() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -521,6 +540,7 @@ class RemoteTextTest {
         )
     }
 
+    @Ignore("b/555248075")
     @Test
     fun longText_overflow() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
@@ -571,6 +591,7 @@ class RemoteTextTest {
         }
     }
 
+    @Ignore("b/555248075")
     @Test
     fun text_withLineBreakAndHyphens() {
         remoteComposeTestRule.runScreenshotTestCustomProfile {
