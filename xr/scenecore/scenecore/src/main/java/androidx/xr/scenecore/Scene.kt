@@ -229,7 +229,6 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY) public constructor() : 
         spatialVisibilityChangedListeners.clear()
         keyEntity = null
         clearSpaceChangedListener()
-        removeSceneFromCache(this)
     }
 
     /**
