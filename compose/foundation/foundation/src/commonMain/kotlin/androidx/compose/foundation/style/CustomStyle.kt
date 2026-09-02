@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Density
  * @see CommonStyleScope
  */
 @ExperimentalFoundationStyleApi
+@StyleScopeMarker
 public interface CustomStyleScope :
     Density, CompositionLocalAccessorScope, StylePropertyProviderScope
 
