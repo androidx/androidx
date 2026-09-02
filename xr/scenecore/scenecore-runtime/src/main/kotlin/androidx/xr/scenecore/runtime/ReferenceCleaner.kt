@@ -33,6 +33,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ReferenceCleaner {
 
+    /** Token representing a registered cleaning action that can be deregistered. */
+    public interface Cleanable {
+        /** Cancels reference tracking and prevents the cleaning action from running upon GC. */
+        public fun cancel()
+    }
+
     /**
      * Registers an object and a cleaning action to run when the object becomes phantom reachable.
      *
@@ -44,10 +50,12 @@ public abstract class ReferenceCleaner {
      * @param obj The object to monitor.
      * @param executor The executor to run the cleaning action on.
      * @param action The cleaning action to run.
+     * @return A [Cleanable] token that can be used to deregister cleanup.
      */
-    public abstract fun register(obj: Any, executor: Executor, action: Runnable)
+    public abstract fun register(obj: Any, executor: Executor, action: Runnable): Cleanable
 
     public companion object {
+        // TODO(b/556366910): Instead of process global, try making this Session lifecycle scoped.
         private val sInstance: ReferenceCleaner by lazy { ReferenceCleanerImpl() }
 
         /** Returns the singleton instance of [ReferenceCleaner]. */
@@ -80,15 +88,17 @@ private class ReferenceCleanerImpl : ReferenceCleaner() {
         thread.start()
     }
 
-    override fun register(obj: Any, executor: Executor, action: Runnable) {
-        xrPhantomReferences.add(XrPhantomReference(obj, queue, executor, action))
+    override fun register(obj: Any, executor: Executor, action: Runnable): Cleanable {
+        val xrPhantomReference =
+            XrPhantomReference(obj, queue, executor, action, xrPhantomReferences)
+        xrPhantomReferences.add(xrPhantomReference)
+        return xrPhantomReference
     }
 
     private fun processQueue() {
         while (true) {
             try {
-                val ref = queue.remove() as XrPhantomReference
-                xrPhantomReferences.remove(ref)
+                val ref = queue.remove() as? XrPhantomReference ?: continue
                 ref.cleanup()
             } catch (_: InterruptedException) {
                 Thread.currentThread().interrupt()
@@ -102,12 +112,38 @@ private class ReferenceCleanerImpl : ReferenceCleaner() {
         queue: ReferenceQueue<in Any>,
         val executor: Executor,
         val action: Runnable,
-    ) : PhantomReference<Any>(referent, queue) {
+        private val referenceSet: MutableSet<XrPhantomReference>,
+    ) : PhantomReference<Any>(referent, queue), Cleanable {
+        private val isCleaned = AtomicBoolean(false)
+
+        /**
+         * Invoked when the object being tracked is disposed(), either by the application directly
+         * or by the Session being shutdown.
+         */
+        override fun cancel() {
+            // compareAndSet ensures that cancel() and cleanup() are mutually exclusive even if
+            // called concurrently from different threads, without holding a lock across callbacks.
+            if (isCleaned.compareAndSet(false, true)) {
+                clear()
+                referenceSet.remove(this)
+            }
+        }
+
+        /**
+         * Entry point invoked by the ReferenceCleaner background thread when the tracked object is
+         * about to be garbage collected (phantom reachable).
+         */
         fun cleanup() {
-            try {
-                executor.execute(action)
-            } catch (_: Exception) {
-                // Ignore executor exceptions (e.g., if the executor is shut down).
+            // compareAndSet ensures that cancel() and cleanup() are mutually exclusive even if
+            // called concurrently from different threads, without holding a lock across callbacks.
+            if (isCleaned.compareAndSet(false, true)) {
+                clear()
+                referenceSet.remove(this)
+                try {
+                    executor.execute(action)
+                } catch (_: Exception) {
+                    // Ignore executor exceptions (e.g., if the executor is shut down).
+                }
             }
         }
     }
