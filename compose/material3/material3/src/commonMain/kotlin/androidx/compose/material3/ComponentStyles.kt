@@ -99,19 +99,40 @@ internal value class ComponentState(val mask: Int = 0) {
     }
 }
 
+internal interface StyleResolver {
+    fun resolve(block: () -> Unit)
+}
+
+private class StyleResolverImpl : StyleResolver {
+    private val pendingBlocks: MutableList<() -> Unit> = mutableListOf()
+    private var resolvingIndex = -1
+
+    override fun resolve(block: () -> Unit) {
+        pendingBlocks.add(block)
+        if (resolvingIndex == -1) {
+            resolvingIndex = 0
+            while (resolvingIndex < pendingBlocks.size) {
+                pendingBlocks[resolvingIndex++]()
+            }
+            pendingBlocks.clear()
+            resolvingIndex = -1
+        }
+    }
+}
+
 @Suppress("UNCHECKED_CAST") // Guaranteed by implementation
-internal interface StatefulStyleScope<T : StatefulStyleScope<T>> {
+internal interface StatefulStyleScope<T : StatefulStyleScope<T>> : StyleResolver {
     val state: ComponentState
 
     fun setState(state: Int, style: T.() -> Unit) {
         if (this.state has state) {
-            (this as T).style()
+            resolve { (this as T).style() }
         }
     }
 
     fun setNotState(state: Int, style: T.() -> Unit) {
         if (!(this.state has state)) {
-            (this as T).style()
+            resolve { (this as T).style() }
         }
     }
 }
@@ -195,18 +216,19 @@ internal interface InteractionState<T : StatefulStyleScope<T>> : StatefulStyleSc
 
 // Component style definitions start from here.
 
-@JvmInline
-internal value class CheckboxStyle
-private constructor(private val block: CheckboxStyleScope.() -> Unit) {
-    fun CheckboxStyleScope.applyStyle() {
-        block()
-    }
+internal fun <T : StyleResolver> T.resolve(style: ComponentStyle<T>): T {
+    resolve { with(style) { applyStyle() } }
+    return this
+}
 
-    infix fun then(other: CheckboxStyle): CheckboxStyle = then(other.block)
+internal fun interface ComponentStyle<T : StyleResolver> {
+    fun T.applyStyle()
+}
 
-    infix fun then(block: CheckboxStyleScope.() -> Unit) = CheckboxStyle {
-        applyStyle()
-        block()
+internal fun interface CheckboxStyle : ComponentStyle<CheckboxStyleScope> {
+    infix fun then(other: CheckboxStyle): CheckboxStyle = CheckboxStyle {
+        this.applyStyle()
+        with(other) { applyStyle() }
     }
 
     companion object {
@@ -288,7 +310,9 @@ internal class CheckboxStyleScope(
     IndeterminateState<CheckboxStyleScope>,
     DisabledState<CheckboxStyleScope>,
     AdaptiveStyleScope<CheckboxStyleScope>,
-    MaterialThemeAccessorScope {
+    MaterialThemeAccessorScope,
+    StyleResolver by StyleResolverImpl() {
+
     var checkmarkColor: Color = Color.Unspecified
         private set
 
@@ -344,10 +368,10 @@ internal class CheckboxStyleScope(
     }
 }
 
-@JvmInline
-internal value class RadioButtonStyle(private val block: RadioButtonStyleScope.() -> Unit) {
-    fun RadioButtonStyleScope.applyStyle() {
-        block()
+internal fun interface RadioButtonStyle : ComponentStyle<RadioButtonStyleScope> {
+    infix fun then(other: RadioButtonStyle): RadioButtonStyle = RadioButtonStyle {
+        this.applyStyle()
+        with(other) { applyStyle() }
     }
 
     companion object {
@@ -384,7 +408,8 @@ internal class RadioButtonStyleScope(
 ) :
     SelectedState<RadioButtonStyleScope>,
     DisabledState<RadioButtonStyleScope>,
-    MaterialThemeAccessorScope {
+    MaterialThemeAccessorScope,
+    StyleResolver by StyleResolverImpl() {
     var radioColor: Color = Color.Unspecified
         private set
 
