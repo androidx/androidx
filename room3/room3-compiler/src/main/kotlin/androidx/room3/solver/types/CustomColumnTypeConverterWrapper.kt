@@ -37,25 +37,44 @@ import javax.lang.model.element.Modifier
 class CustomColumnTypeConverterWrapper(val custom: CustomColumnTypeConverter) :
     SingleStatementTypeConverter(custom.from, custom.to) {
     override fun buildStatement(inputVarName: String, scope: CodeGenScope): XCodeBlock {
-        return if (custom.isEnclosingClassKotlinObject) {
-            XCodeBlock.of("%T.%L(%L)", custom.className, custom.function.name, inputVarName)
-        } else if (custom.isStatic) {
-            XCodeBlock.of("%T.%L(%L)", custom.className, custom.function.name, inputVarName)
-        } else {
-            if (custom.isProvidedConverter) {
-                XCodeBlock.of(
-                    "%N().%L(%L)",
-                    providedColumnTypeConverter(scope),
-                    custom.function.name,
-                    inputVarName,
-                )
-            } else {
-                XCodeBlock.of(
-                    "%N.%L(%L)",
-                    columnTypeConverter(scope),
-                    custom.function.name,
-                    inputVarName,
-                )
+        return when {
+            custom.isEnclosingClassKotlinObject || custom.isStatic -> {
+                if (custom.function.isExtensionFunction()) {
+                    XCodeBlock.of(
+                        "%T.run { %L.%L() }",
+                        custom.className,
+                        inputVarName,
+                        custom.function.name,
+                    )
+                } else {
+                    XCodeBlock.of("%T.%L(%L)", custom.className, custom.function.name, inputVarName)
+                }
+            }
+            custom.isProvidedConverter -> {
+                val converter = providedColumnTypeConverter(scope)
+                if (custom.function.isExtensionFunction()) {
+                    XCodeBlock.of(
+                        "%N().run { %L.%L() }",
+                        converter,
+                        inputVarName,
+                        custom.function.name,
+                    )
+                } else {
+                    XCodeBlock.of("%N().%L(%L)", converter, custom.function.name, inputVarName)
+                }
+            }
+            else -> {
+                val converter = columnTypeConverter(scope)
+                if (custom.function.isExtensionFunction()) {
+                    XCodeBlock.of(
+                        "%N.run { %L.%L() }",
+                        converter,
+                        inputVarName,
+                        custom.function.name,
+                    )
+                } else {
+                    XCodeBlock.of("%N.%L(%L)", converter, custom.function.name, inputVarName)
+                }
             }
         }
     }
