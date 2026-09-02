@@ -813,7 +813,7 @@ private constructor(
     }
 
     override fun setCustomMeshBoundingBox(customMesh: CustomMeshResource, bounds: BoundingBox) {
-        impressApi.setCustomMeshBoundingBox(
+        impressApi.setCustomMeshAabb(
             (customMesh as CustomMesh).nativeHandle,
             bounds.center.x,
             bounds.center.y,

@@ -1411,7 +1411,7 @@ public interface ImpressApi {
      * @param halfExtentY The half extent of the bounding box along the y axis.
      * @param halfExtentZ The half extent of the bounding box along the z axis.
      */
-    public fun setCustomMeshBoundingBox(
+    public fun setCustomMeshAabb(
         customMeshHandle: Long,
         centerX: Float,
         centerY: Float,
