@@ -74,6 +74,15 @@ public class A2uiCoreSchemaValidator(private val catalog: A2uiCoreCatalog? = nul
                 is A2uiSchemaKeyword.Not -> validateNot(payload, keyword.schema, path)
                 is A2uiSchemaKeyword.Enum -> validateEnum(payload, keyword.values, path)
                 is A2uiSchemaKeyword.Const -> validateConst(payload, keyword.value, path)
+                is A2uiSchemaKeyword.Format -> validateFormat(payload, keyword.format, path)
+                is A2uiSchemaKeyword.IfThen ->
+                    validateIfThen(
+                        payload = payload,
+                        ifSchema = keyword.ifSchema,
+                        thenSchema = keyword.thenSchema,
+                        elseSchema = keyword.elseSchema,
+                        path = path,
+                    )
                 is A2uiSchemaKeyword.Default -> {
                     /* default is an annotation keyword */
                 }
@@ -134,6 +143,53 @@ public class A2uiCoreSchemaValidator(private val catalog: A2uiCoreCatalog? = nul
                 "Expected a string, but instead got: $payload",
                 path,
             )
+        }
+    }
+
+    private fun validateFormat(payload: Any?, format: String, path: String) {
+        if (payload !is String) {
+            return
+        }
+        val isValid =
+            when (format) {
+                "date-time" -> DATE_TIME_REGEX.matches(payload)
+                "date" -> DATE_REGEX.matches(payload)
+                "time" -> TIME_REGEX.matches(payload)
+                else ->
+                    throw A2uiException.A2uiValidationException(
+                        "Unsupported format '$format'",
+                        path,
+                    )
+            }
+        if (!isValid) {
+            throw A2uiException.A2uiValidationException(
+                "String value '$payload' does not match format '$format'",
+                path,
+            )
+        }
+    }
+
+    private fun validateIfThen(
+        payload: Any?,
+        ifSchema: A2uiSchema,
+        thenSchema: A2uiSchema,
+        elseSchema: A2uiSchema?,
+        path: String,
+    ) {
+        var ifMatched = false
+        try {
+            validateSchemaInternal(payload, ifSchema, path)
+            ifMatched = true
+        } catch (_: A2uiException.A2uiValidationException) {
+            // Failing the 'if' condition is valid logic flow during conditional evaluation.
+            // An 'if' mismatch is not a schema failure, but determines whether execution branches
+            // to 'then' or 'else'.
+        }
+
+        if (ifMatched) {
+            validateSchemaInternal(payload, thenSchema, path)
+        } else if (elseSchema != null) {
+            validateSchemaInternal(payload, elseSchema, path)
         }
     }
 
@@ -418,5 +474,13 @@ public class A2uiCoreSchemaValidator(private val catalog: A2uiCoreCatalog? = nul
         private const val ANY_FUNCTION_FRAGMENT = "\$defs/anyFunction"
         private const val COMPONENTS_PREFIX = "components/"
         private const val FUNCTIONS_PREFIX = "functions/"
+
+        private val DATE_REGEX = Regex("""^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$""")
+        private val TIME_REGEX =
+            Regex("""^\d{2}:\d{2}(:\d{2}([.,]\d+)?)?([zZ]|[+-]\d{2}(?::\d{2})?)?$""")
+        private val DATE_TIME_REGEX =
+            Regex(
+                """^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])[tT ]\d{2}:\d{2}(:\d{2}([.,]\d+)?)?([zZ]|[+-]\d{2}(?::\d{2})?)?$"""
+            )
     }
 }
