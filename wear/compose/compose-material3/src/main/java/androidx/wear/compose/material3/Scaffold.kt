@@ -231,20 +231,20 @@ internal class ScreenContent(
     }
 
     /**
-     * Adds a screen to the top of the screen stack.
+     * Adds a screen to the top of the screen stack using reactive [State] handles.
      *
      * @param key The unique key identifying this screen.
-     * @param timeText The custom time text composable for this screen, or null to inherit.
-     * @param scrollInfoProvider The [ScrollInfoProvider] for scroll-driven effects, or null.
-     * @param statusBarMode The [StatusBarMode] configured for this screen.
-     * @param view The [View] associated with this screen, used to resolve its root window.
+     * @param view The [View] state associated with this screen, used to resolve its root window.
+     * @param timeText The custom time text composable state for this screen.
+     * @param scrollInfoProvider The [ScrollInfoProvider] state for scroll-driven effects.
+     * @param statusBarMode The [StatusBarMode] state configured for this screen.
      */
     fun addScreen(
         key: Any,
-        timeText: @Composable (() -> Unit)?,
-        scrollInfoProvider: ScrollInfoProvider? = null,
-        statusBarMode: StatusBarMode = StatusBarMode.Inherit,
-        view: View,
+        view: State<View>,
+        timeText: State<(@Composable () -> Unit)?> = mutableStateOf(null),
+        scrollInfoProvider: State<ScrollInfoProvider?> = mutableStateOf(null),
+        statusBarMode: State<StatusBarMode> = mutableStateOf(StatusBarMode.Inherit),
     ) {
         // If a screen with this key is already present, remove it first. This ensures no duplicate
         // entries exist in contentItems (which would cause removeScreen to orphan duplicate
@@ -258,39 +258,12 @@ internal class ScreenContent(
         contentItems.add(
             ScreenContentData(
                 key = key,
-                view = mutableStateOf(view),
-                scrollInfoProvider = mutableStateOf(scrollInfoProvider),
-                statusBarMode = mutableStateOf(statusBarMode),
-                timeText = mutableStateOf(timeText),
+                view = view,
+                scrollInfoProvider = scrollInfoProvider,
+                statusBarMode = statusBarMode,
+                timeText = timeText,
             )
         )
-    }
-
-    /**
-     * Updates an existing screen's metadata.
-     *
-     * @param key The unique key identifying this screen.
-     * @param timeText The updated custom time text composable, or null.
-     * @param scrollInfoProvider The updated [ScrollInfoProvider], or null.
-     * @param statusBarMode The updated [StatusBarMode].
-     * @param view The updated [View] associated with this screen.
-     */
-    fun updateIfNeeded(
-        key: Any,
-        timeText: @Composable (() -> Unit)?,
-        scrollInfoProvider: ScrollInfoProvider? = null,
-        statusBarMode: StatusBarMode = StatusBarMode.Inherit,
-        view: View,
-    ) {
-        contentItems
-            .toList()
-            .fastFirstOrNull { it.key == key }
-            ?.let {
-                it.timeText.value = timeText
-                it.scrollInfoProvider.value = scrollInfoProvider
-                it.statusBarMode.value = statusBarMode
-                it.view.value = view
-            }
     }
 
     /** Restores all registered window status bar states and clears all active orchestrators. */
@@ -376,10 +349,10 @@ internal class ScreenContent(
      */
     private class ScreenContentData(
         val key: Any,
-        val view: MutableState<View>,
-        val scrollInfoProvider: MutableState<ScrollInfoProvider?> = mutableStateOf(null),
-        val statusBarMode: MutableState<StatusBarMode> = mutableStateOf(StatusBarMode.Inherit),
-        val timeText: MutableState<(@Composable () -> Unit)?> = mutableStateOf(null),
+        val view: State<View>,
+        val scrollInfoProvider: State<ScrollInfoProvider?> = mutableStateOf(null),
+        val statusBarMode: State<StatusBarMode> = mutableStateOf(StatusBarMode.Inherit),
+        val timeText: State<(@Composable () -> Unit)?> = mutableStateOf(null),
     )
 }
 

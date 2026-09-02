@@ -26,7 +26,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -341,17 +343,8 @@ private fun PagerScaffoldImpl(
     val scaffoldState = LocalScaffoldState.current
     val key = remember { Any() }
 
-    // Update the timeText & scrollInfoProvider if there is a change and the screen is already
-    // present
-    scaffoldState
-        ?.screenContent
-        ?.updateIfNeeded(
-            key = key,
-            timeText = null,
-            scrollInfoProvider = scrollInfoProvider,
-            statusBarMode = StatusBarMode.Inherit,
-            view = currentView,
-        )
+    val scrollInfoProviderState = rememberUpdatedState(scrollInfoProvider)
+    val viewState = rememberUpdatedState(currentView)
 
     scaffoldState?.screenContent?.UpdateIdlingDetectorIfNeeded()
 
@@ -362,10 +355,10 @@ private fun PagerScaffoldImpl(
                 ?.screenContent
                 ?.addScreen(
                     key = key,
-                    timeText = null,
-                    scrollInfoProvider = scrollInfoProvider,
-                    statusBarMode = StatusBarMode.Inherit,
-                    view = currentView,
+                    view = viewState,
+                    timeText = mutableStateOf(null),
+                    scrollInfoProvider = scrollInfoProviderState,
+                    statusBarMode = mutableStateOf(StatusBarMode.Inherit),
                 )
         }
         onDispose { scaffoldState?.screenContent?.removeScreen(key) }
