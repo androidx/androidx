@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.remote.integration.demos.integration.DragPropagationDemo
 import androidx.compose.remote.integration.demos.integration.GesturePropagationDemo
 import androidx.compose.remote.integration.demos.integration.GesturePropagationViewDemo
+import androidx.compose.remote.integration.demos.integration.HorizontalDragPropagationDemo
 import androidx.compose.remote.integration.demos.layout.RemoteBoxAlignmentsDemo
 import androidx.compose.remote.integration.demos.layout.RemoteFlowRowDemo
 import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSharedElementsDemo
@@ -67,6 +68,7 @@ private object ScreenKeys {
     const val GESTURE_PROPAGATION = "GESTURE_PROPAGATION"
     const val GESTURE_PROPAGATION_VIEW = "GESTURE_PROPAGATION_VIEW"
     const val DRAG_PROPAGATION = "REMOTE_PLAYER_DRAG_PROPAGATION"
+    const val HORIZONTAL_DRAG_PROPAGATION = "REMOTE_PLAYER_HORIZONTAL_DRAG_PROPAGATION"
     const val SETTINGS = "SETTINGS"
 }
 
@@ -96,6 +98,7 @@ fun ComposableScreenNavigation(key: String, onNavigateUp: () -> Unit) {
         ScreenKeys.GESTURE_PROPAGATION -> GesturePropagationDemo()
         ScreenKeys.GESTURE_PROPAGATION_VIEW -> GesturePropagationViewDemo()
         ScreenKeys.DRAG_PROPAGATION -> DragPropagationDemo()
+        ScreenKeys.HORIZONTAL_DRAG_PROPAGATION -> HorizontalDragPropagationDemo()
         ScreenKeys.SETTINGS -> SettingsScreen()
         else -> Text("Unknown screen: $key")
     }
@@ -206,6 +209,10 @@ val Screens =
                             ComposableScreen(
                                 key = ScreenKeys.DRAG_PROPAGATION,
                                 title = "Drag Propagation",
+                            ),
+                            ComposableScreen(
+                                key = ScreenKeys.HORIZONTAL_DRAG_PROPAGATION,
+                                title = "Horizontal Drag Propagation",
                             ),
                         ),
                 ),
