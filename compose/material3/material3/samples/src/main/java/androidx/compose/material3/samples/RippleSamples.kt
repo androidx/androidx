@@ -100,18 +100,28 @@ fun DynamicColorRippleSample() {
 @Sampled
 @Composable
 fun RippleConfigurationOpacitySample() {
-    Column {
-        // Custom ripple color provided to a subtree via LocalRippleConfiguration
-        val customRippleConfiguration = RippleConfiguration(color = Color.Magenta)
-        CompositionLocalProvider(LocalRippleConfiguration provides customRippleConfiguration) {
-            Button(onClick = {}) { Text("Magenta Ripple Button") }
-        }
+    // Use opacity-based focus at theme level
+    CompositionLocalProvider(
+        LocalRippleThemeConfiguration provides RippleDefaults.OpacityFocusThemeConfiguration
+    ) {
+        Column {
+            // Custom ripple color provided to a subtree via LocalRippleConfiguration
+            val customRippleConfiguration =
+                RippleConfiguration(
+                    // explicit opacity focus configuration object
+                    focus = RippleConfiguration.Focus.Opacity,
+                    color = Color.Magenta,
+                )
+            CompositionLocalProvider(LocalRippleConfiguration provides customRippleConfiguration) {
+                Button(onClick = {}) { Text("Magenta Ripple Button") }
+            }
 
-        Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(16.dp))
 
-        // Disabling ripples entirely for a subtree by providing null
-        CompositionLocalProvider(LocalRippleConfiguration provides null) {
-            Button(onClick = {}) { Text("No Ripple Button") }
+            // Disabling ripples entirely for a subtree by providing null
+            CompositionLocalProvider(LocalRippleConfiguration provides null) {
+                Button(onClick = {}) { Text("No Ripple Button") }
+            }
         }
     }
 }
