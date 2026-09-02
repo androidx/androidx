@@ -29,6 +29,7 @@ class IntegralNodeTest {
     @Test
     fun integralNodeNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused =
                 IntegralNode(
                     ProgressDomain.TIME_IN_SECONDS,

@@ -30,6 +30,7 @@ class InterpolationNodeTest {
     @Test
     fun interpolationNodeNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused =
                 InterpolationNode(
                     Interpolation.LERP,

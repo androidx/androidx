@@ -33,16 +33,17 @@ class StockBrushesTest {
 
     @Test
     fun loadMarker() {
-        val unused = StockBrushes.marker(MarkerVersion.LATEST)
+        @Suppress("UNUSED_VARIABLE") val unused = StockBrushes.marker(MarkerVersion.LATEST)
     }
 
     @Test
     fun loadDashedLine() {
-        val unused = StockBrushes.dashedLine(DashedLineVersion.LATEST)
+        @Suppress("UNUSED_VARIABLE") val unused = StockBrushes.dashedLine(DashedLineVersion.LATEST)
     }
 
     @Test
     fun loadPressurePen() {
+        @Suppress("UNUSED_VARIABLE")
         val unused = StockBrushes.pressurePen(PressurePenVersion.LATEST)
     }
 

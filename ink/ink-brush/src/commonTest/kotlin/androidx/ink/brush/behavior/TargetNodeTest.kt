@@ -33,6 +33,7 @@ class TargetNodeTest {
     @Test
     fun targetNodeNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused = TargetNode(Target.WIDTH_MULTIPLIER, 0f, 1f, ConstantNode(0f))
         }
     }

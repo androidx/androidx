@@ -187,7 +187,7 @@ class EasingFunctionTest {
 
     @Test
     fun linearConstructor_allowsEmptyList() {
-        val unused = EasingFunction.Linear(emptyList())
+        @Suppress("UNUSED_VARIABLE") val unused = EasingFunction.Linear(emptyList())
     }
 
     @Test
@@ -374,6 +374,7 @@ class EasingFunctionTest {
         awaitNativePointerCleanupAfter {
             // The logic under test is in the private superclass constructor, just pick a subclass
             // arbitrarily.
+            @Suppress("UNUSED_VARIABLE")
             val unused = EasingFunction.CubicBezier(ImmutableVec(1f, 2f), ImmutableVec(0.3f, 4f))
         }
     }

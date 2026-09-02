@@ -16,24 +16,30 @@
 
 package androidx.ink.rendering.metal
 
-import androidx.annotation.ColorInt
-import androidx.ink.brush.Brush
-import androidx.ink.brush.BrushFamily
 import androidx.ink.brush.ExperimentalInkCrossPlatformRenderingApi
-import androidx.ink.brush.InputToolType
+import androidx.ink.brush.TextureImageStore
+import androidx.ink.geometry.AffineTransform
 import androidx.ink.geometry.ImmutableAffineTransform
+import androidx.ink.rendering.test.AbstractStrokeRendererTest
+import androidx.ink.storage.decode
 import androidx.ink.strokes.ImmutableStrokeInputBatch
 import androidx.ink.strokes.InProgressStroke
-import androidx.ink.strokes.MutableStrokeInputBatch
+import androidx.ink.strokes.Stroke
+import androidx.ink.strokes.StrokeInputBatch
 import androidx.kruth.assertThat
 import kotlin.test.Test
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.useContents
+import kotlinx.cinterop.usePinned
 import platform.CoreGraphics.CGAffineTransformMakeScale
 import platform.CoreGraphics.CGImageRelease
 import platform.CoreImage.CIContext
 import platform.CoreImage.CIImage
 import platform.CoreImage.createCGImage
+import platform.Foundation.NSBundle
+import platform.Foundation.NSData
+import platform.Foundation.dataWithContentsOfFile
 import platform.Metal.MTLClearColorMake
 import platform.Metal.MTLCreateSystemDefaultDevice
 import platform.Metal.MTLLoadActionClear
@@ -50,14 +56,56 @@ import platform.Metal.MTLTextureUsageRenderTarget
 import platform.Metal.MTLTextureUsageShaderRead
 import platform.UIKit.UIImage
 import platform.UIKit.UIImagePNGRepresentation
+import platform.posix.memcpy
 
 @OptIn(ExperimentalInkCrossPlatformRenderingApi::class, ExperimentalForeignApi::class)
-class MetalRendererTest {
+class MetalRendererTest : AbstractStrokeRendererTest() {
 
-    private val device = checkNotNull(MTLCreateSystemDefaultDevice())
-    private val commandQueue = checkNotNull(device.newCommandQueue())
+    override fun loadCursiveHelloInputs(): ImmutableStrokeInputBatch {
+        val path =
+            checkNotNull(findPathForResource("cursive_stylus", "inputbatch")) {
+                "Could not find cursive_stylus.inputbatch in the test bundle."
+            }
+        val nsData = checkNotNull(NSData.dataWithContentsOfFile(path))
+        val bytes = ByteArray(nsData.length.toInt())
+        if (bytes.isNotEmpty()) {
+            bytes.usePinned { pinned -> memcpy(pinned.addressOf(0), nsData.bytes, nsData.length) }
+        }
+        return StrokeInputBatch.decode(bytes)
+    }
+
+    private fun findPathForResource(name: String, type: String?): String? =
+        // The resources live in the test bundle, which is the only bundle ending with ".xctest".
+        // The
+        // more traditional way to access the test bundle is via the test class, but this doesn't
+        // work
+        // with a KMP test.
+        @Suppress("UNCHECKED_CAST") // Kotlin doesn't understand the type of NSBundle.allBundles
+        (NSBundle.allBundles as List<NSBundle>)
+            .firstOrNull { it.bundlePath.endsWith(".xctest") }
+            ?.pathForResource(name, ofType = type)
+
+    private val device =
+        checkNotNull(MTLCreateSystemDefaultDevice()) { "Could not create Metal device." }
+    private val commandQueue =
+        checkNotNull(device.newCommandQueue()) { "Could not create Metal command queue." }
+    private val checkerboardUIImage: UIImage? by lazy {
+        findPathForResource("checkerboard", "png")?.let { UIImage(contentsOfFile = it) }
+    }
+    private val textureStore = TextureImageStore { id ->
+        when (id) {
+            "checkerboard" -> checkerboardUIImage?.CGImage
+            else -> null
+        }
+    }
     private val renderer =
-        MetalRenderer(device, MTLPixelFormatBGRA8Unorm_sRGB, MTLPixelFormatDepth32Float_Stencil8)
+        MetalRenderer(
+            device,
+            MTLPixelFormatBGRA8Unorm_sRGB,
+            MTLPixelFormatDepth32Float_Stencil8,
+            sampleCount = null,
+            textureImageStore = textureStore,
+        )
 
     fun MTLTextureProtocol.toImage(): UIImage {
         val ciImage =
@@ -79,19 +127,6 @@ class MetalRendererTest {
         } finally {
             CGImageRelease(cgImage)
         }
-    }
-
-    fun testInProgressStroke(): InProgressStroke {
-        val brush = Brush.createWithColorIntArgb(BrushFamily(), AVOCADO_GREEN, 25F, 0.1F)
-        val inProgressStroke = InProgressStroke()
-        inProgressStroke.start(brush)
-        val inputs = MutableStrokeInputBatch()
-        inputs.add(type = InputToolType.STYLUS, x = 50.0f, y = 50.0f, elapsedTimeMillis = 0)
-        inputs.add(type = InputToolType.STYLUS, x = 150.0f, y = 150.0f, elapsedTimeMillis = 1000)
-        inProgressStroke.enqueueInputs(inputs, predictedInputs = ImmutableStrokeInputBatch.EMPTY)
-        inProgressStroke.finishInput()
-        inProgressStroke.updateShape(currentElapsedTimeMillis = 1000)
-        return inProgressStroke
     }
 
     fun screenCoordsToNormalized(width: Int, height: Int) =
@@ -144,7 +179,7 @@ class MetalRendererTest {
                     texture = colorTexture
                     loadAction = MTLLoadActionClear
                     storeAction = MTLStoreActionStore
-                    clearColor = MTLClearColorMake(red = 1.0, green = 1.0, blue = 1.0, alpha = 1.0)
+                    clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0)
                 }
                 stencilAttachment.apply {
                     this.texture = stencilTexture
@@ -172,59 +207,65 @@ class MetalRendererTest {
         return colorTexture.toImage()
     }
 
-    private val emptyImageData = UIImagePNGRepresentation(renderToImage(200, 200) {})!!
+    private val emptyImageData =
+        UIImagePNGRepresentation(renderToImage(width = 200, height = 200) {})!!
 
     @Test
     fun renderToImage_comparisonTest() {
         // Verifies that comparing the results of renderToImage works as expected.
-        val otherEmptyImageData = UIImagePNGRepresentation(renderToImage(200, 200) {})
+        val otherEmptyImageData =
+            UIImagePNGRepresentation(renderToImage(width = 200, height = 200) {})
         assertThat(emptyImageData).isEqualTo(otherEmptyImageData)
         assertThat(emptyImageData).isNotSameInstanceAs(otherEmptyImageData)
     }
 
-    @Test
-    fun drawInProgressStroke_shouldDraw() {
-        val width = 200
-        val height = 200
-        val inProgressStroke = testInProgressStroke()
+    override fun renderAndCompareToGolden(
+        stroke: Stroke,
+        transform: AffineTransform,
+        imageWidth: Int,
+        imageHeight: Int,
+        goldenName: String,
+    ) {
         val image =
-            renderToImage(width, height) { renderEncoder ->
-                renderer.draw(
-                    renderEncoder,
-                    inProgressStroke,
-                    projectionTransform = screenCoordsToNormalized(width, height),
-                )
-            }
-
-        // As a smoke-test that can deal with the lack of Jetpack image-diff test infra that works
-        // on Kotlin-native / iOS, we compare the rendered image to an empty image.
-        assertThat(UIImagePNGRepresentation(image)!!).isNotEqualTo(emptyImageData)
-
-        // TODO(b/542290747): Specific image-diff assertion is currently upstream only.
-    }
-
-    @Test
-    fun drawStroke_shouldDraw() {
-        val width = 200
-        val height = 200
-        val stroke = testInProgressStroke().toImmutable()
-        val image =
-            renderToImage(width, height) { renderEncoder ->
+            renderToImage(width = imageWidth, height = imageHeight) { renderEncoder ->
                 renderer.draw(
                     renderEncoder,
                     stroke,
-                    projectionTransform = screenCoordsToNormalized(width, height),
+                    viewTransform = transform,
+                    projectionTransform = screenCoordsToNormalized(imageWidth, imageHeight),
                 )
             }
+        assertImage(image, goldenName)
+    }
 
+    override fun renderAndCompareToGolden(
+        inProgressStroke: InProgressStroke,
+        transform: AffineTransform,
+        imageWidth: Int,
+        imageHeight: Int,
+        goldenName: String,
+    ) {
+        val image =
+            renderToImage(width = imageWidth, height = imageHeight) { renderEncoder ->
+                renderer.draw(
+                    renderEncoder,
+                    inProgressStroke,
+                    viewTransform = transform,
+                    projectionTransform = screenCoordsToNormalized(imageWidth, imageHeight),
+                )
+            }
+        assertImage(image, goldenName)
+    }
+
+    override fun assertLazyAssertsPass() {
+        // TODO(b/542290747): Specific image-diff assertion is currently upstream only.
+    }
+
+    private fun assertImage(image: UIImage, goldenName: String) {
         // As a smoke-test that can deal with the lack of Jetpack image-diff test infra that works
         // on Kotlin-native / iOS, we compare the rendered image to an empty image.
         assertThat(UIImagePNGRepresentation(image)!!).isNotEqualTo(emptyImageData)
 
         // TODO(b/542290747): Specific image-diff assertion is currently upstream only.
-    }
-
-    private companion object {
-        @ColorInt const val AVOCADO_GREEN = 0xff558b2f.toInt()
     }
 }

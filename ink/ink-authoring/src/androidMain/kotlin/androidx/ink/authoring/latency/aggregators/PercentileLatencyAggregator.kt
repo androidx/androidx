@@ -253,7 +253,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
             }
             scratchDurationsNanos.sort()
 
-            var report = obtainPercentileReportList()
+            val report = obtainPercentileReportList()
             percentilesToReport.forEachIndexed { i, percentile ->
                 report[i] = scratchDurationsNanos.getPercentile(percentile)
             }

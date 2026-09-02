@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Picture
 import android.os.Build
+import androidx.annotation.ColorInt
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 
@@ -39,10 +40,15 @@ internal object ImageDiffer {
      * Calls the given [block] on a new, white [Canvas] of the given [width] and [height], returning
      * a mutable [Bitmap] representing the result.
      */
-    fun createBitmap(width: Int, height: Int, block: (Canvas) -> Unit): Bitmap {
+    fun createBitmap(
+        width: Int,
+        height: Int,
+        @ColorInt backgroundColor: Int,
+        block: (Canvas) -> Unit,
+    ): Bitmap {
         val picture = Picture()
         val canvas = picture.beginRecording(width, height)
-        canvas.drawColor(TestColors.WHITE)
+        canvas.drawColor(backgroundColor)
         block(canvas)
         picture.endRecording()
         val bitmap =

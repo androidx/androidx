@@ -45,6 +45,7 @@ class StrokeInputBatchTest {
     @Test
     fun strokeInputBatchNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused =
                 MutableStrokeInputBatch().add(InputToolType.STYLUS, 1f, 2f, 3L).toImmutable()
         }

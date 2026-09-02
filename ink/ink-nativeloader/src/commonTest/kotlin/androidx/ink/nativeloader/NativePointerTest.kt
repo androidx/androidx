@@ -50,8 +50,8 @@ class NativePointerTest {
         val ex =
             assertFailsWith<IllegalStateException> {
                 awaitNativePointerCleanupAfter {
-                    val unused = NativePointer({ 1L }, {})
-                    val unused2 = NativePointer({ 1L }, {})
+                    @Suppress("UNUSED_VARIABLE") val unused = NativePointer({ 1L }, {})
+                    @Suppress("UNUSED_VARIABLE") val unused2 = NativePointer({ 1L }, {})
                 }
             }
         assertThat(ex).hasMessageThat().contains("The same pointer (1) was allocated twice.")
@@ -106,6 +106,7 @@ class NativePointerTest {
     fun nativePointer_isCleanedUpAfterGoingOutOfScope() {
         val freedPointers = mutableListOf<Long>()
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused = NativePointer({ 1L }, { freedPointers.add(it) })
         }
         assertThat(freedPointers).containsExactly(1L)
@@ -117,6 +118,7 @@ class NativePointerTest {
         val ex =
             assertFailsWith<IllegalStateException> {
                 awaitNativePointerCleanupAfter {
+                    @Suppress("UNUSED_VARIABLE")
                     val unused =
                         NativePointer(
                             // The native nullptr, which must result in an exception being thrown
@@ -145,6 +147,7 @@ class NativePointerTest {
         val ex =
             assertFailsWith<RuntimeException> {
                 awaitNativePointerCleanupAfter(onCleanup = { pointerCleanupsObserved.add(it) }) {
+                    @Suppress("UNUSED_VARIABLE")
                     val unused =
                         NativePointer(
                             { throw RuntimeException("Failure during allocation") },

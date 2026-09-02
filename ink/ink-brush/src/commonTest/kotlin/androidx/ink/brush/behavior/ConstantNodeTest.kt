@@ -29,7 +29,7 @@ class ConstantNodeTest {
     @Test
     fun constantNodeNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
-            val unused = ConstantNode(42f)
+            @Suppress("UNUSED_VARIABLE") val unused = ConstantNode(42f)
         }
     }
 
