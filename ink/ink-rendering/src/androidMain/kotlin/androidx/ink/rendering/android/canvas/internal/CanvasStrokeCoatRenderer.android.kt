@@ -43,7 +43,7 @@ internal interface CanvasStrokeCoatRenderer {
         coatIndex: Int,
         paintPreferenceIndex: Int,
         strokeToScreenTransform: Matrix,
-        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) textureAnimationProgress: Float,
+        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) paintAnimationProgress: Float,
     )
 
     /**
@@ -63,7 +63,7 @@ internal interface CanvasStrokeCoatRenderer {
         coatIndex: Int,
         paintPreferenceIndex: Int,
         strokeToScreenTransform: Matrix,
-        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) textureAnimationProgress: Float,
+        @FloatRange(from = 0.0, to = 1.0, toInclusive = false) paintAnimationProgress: Float,
     )
 }
 

@@ -207,7 +207,7 @@ internal class CanvasMeshRenderer(
         coatIndex: Int,
         paintPreferenceIndex: Int,
         strokeToScreenTransform: Matrix,
-        textureAnimationProgress: Float,
+        paintAnimationProgress: Float,
     ) {
         val meshes = stroke.shape.renderGroupMeshes(coatIndex)
         val inputCount = stroke.inputs.size
@@ -242,7 +242,7 @@ internal class CanvasMeshRenderer(
                 strokeToScreenTransform,
                 paint.applyColorFunctions(stroke.brush.internalColor),
                 textureMappingValue,
-                textureAnimationProgress,
+                paintAnimationProgress,
                 numTextureAnimationFrames,
                 numTextureAnimationRows,
                 numTextureAnimationColumns,
@@ -260,7 +260,7 @@ internal class CanvasMeshRenderer(
         meshToCanvasTransform: Matrix,
         brushColor: ComposeColor,
         textureMappingValue: Int,
-        textureAnimationProgress: Float,
+        paintAnimationProgress: Float,
         numTextureAnimationFrames: Int,
         numTextureAnimationRows: Int,
         numTextureAnimationColumns: Int,
@@ -281,7 +281,7 @@ internal class CanvasMeshRenderer(
                         !cachedMeshData.areUniformsEquivalent(
                             brushColor,
                             objectToCanvasLinearComponentScratch,
-                            textureAnimationProgress,
+                            paintAnimationProgress,
                             numTextureAnimationFrames,
                             numTextureAnimationRows,
                             numTextureAnimationColumns,
@@ -297,7 +297,7 @@ internal class CanvasMeshRenderer(
                     brushColor,
                     inkMesh.vertexAttributeUnpackingParams,
                     textureMappingValue,
-                    textureAnimationProgress,
+                    paintAnimationProgress,
                     numTextureAnimationFrames,
                     numTextureAnimationRows,
                     numTextureAnimationColumns,
@@ -308,7 +308,7 @@ internal class CanvasMeshRenderer(
                         newMesh,
                         brushColor,
                         objectToCanvasLinearComponentScratch,
-                        textureAnimationProgress,
+                        paintAnimationProgress,
                         numTextureAnimationFrames,
                         numTextureAnimationRows,
                         numTextureAnimationColumns,
@@ -329,7 +329,7 @@ internal class CanvasMeshRenderer(
                         brushColor,
                         inkMesh.vertexAttributeUnpackingParams,
                         textureMappingValue,
-                        textureAnimationProgress,
+                        paintAnimationProgress,
                         numTextureAnimationFrames,
                         numTextureAnimationRows,
                         numTextureAnimationColumns,
@@ -381,7 +381,7 @@ internal class CanvasMeshRenderer(
         coatIndex: Int,
         paintPreferenceIndex: Int,
         strokeToScreenTransform: Matrix,
-        textureAnimationProgress: Float,
+        paintAnimationProgress: Float,
     ) {
         val inputCount = inProgressStroke.getInputCount()
         if (
@@ -429,7 +429,7 @@ internal class CanvasMeshRenderer(
                 paint.applyColorFunctions(brush.internalColor),
                 attributeUnpackingParams = null,
                 textureMappingValue,
-                textureAnimationProgress,
+                paintAnimationProgress,
                 numTextureAnimationFrames,
                 numTextureAnimationRows,
                 numTextureAnimationColumns,
@@ -465,7 +465,7 @@ internal class CanvasMeshRenderer(
         brushColor: ComposeColor,
         attributeUnpackingParams: List<MeshAttributeUnpackingParams>?,
         textureMappingValue: Int,
-        textureAnimationProgress: Float,
+        paintAnimationProgress: Float,
         numTextureAnimationFrames: Int,
         numTextureAnimationRows: Int,
         numTextureAnimationColumns: Int,
@@ -559,7 +559,7 @@ internal class CanvasMeshRenderer(
         )
 
         androidMesh.setIntUniform(textureMappingName, textureMappingValue)
-        androidMesh.setFloatUniform(textureAnimationProgressName, textureAnimationProgress)
+        androidMesh.setFloatUniform(textureAnimationProgressName, paintAnimationProgress)
         androidMesh.setIntUniform(numTextureAnimationFramesName, numTextureAnimationFrames)
         androidMesh.setIntUniform(numTextureAnimationRowsName, numTextureAnimationRows)
         androidMesh.setIntUniform(numTextureAnimationColumnsName, numTextureAnimationColumns)

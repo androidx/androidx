@@ -139,7 +139,7 @@ class MutableAffineTransformTest {
             .isEqualTo(ImmutableAffineTransform.scaleY(2F))
 
         assertThat(MutableAffineTransform().apply { setValues(1F, 0F, 8F, 0F, 1F, 9F) })
-            .isEqualTo(ImmutableAffineTransform.translate(ImmutableVec(8F, 9F)))
+            .isEqualTo(ImmutableAffineTransform.translate(8F, 9F))
     }
 
     @Test
@@ -167,7 +167,7 @@ class MutableAffineTransformTest {
         assertThat(
                 MutableAffineTransform().apply { setValues(floatArrayOf(1F, 0F, 8F, 0F, 1F, 9F)) }
             )
-            .isEqualTo(ImmutableAffineTransform.translate(ImmutableVec(8F, 9F)))
+            .isEqualTo(ImmutableAffineTransform.translate(8F, 9F))
     }
 
     @Test
@@ -205,7 +205,16 @@ class MutableAffineTransformTest {
     }
 
     @Test
-    fun populateFromTranslate_correctlyPopulatesAffineTransform() {
+    fun populateFromTranslation_correctlyPopulatesAffineTransform() {
+        val transform = MutableAffineTransform(A, B, C, D, E, F)
+
+        transform.populateFromTranslation(x = 0.1f, y = 0.2f)
+
+        assertThat(transform.equals(MutableAffineTransform(1f, 0f, 0.1f, 0f, 1f, 0.2f))).isTrue()
+    }
+
+    @Test
+    fun populateFromTranslation_fromVec_correctlyPopulatesAffineTransform() {
         val transform = MutableAffineTransform(A, B, C, D, E, F)
 
         transform.populateFromTranslation(ImmutableVec(x = 0.1f, y = 0.2f))

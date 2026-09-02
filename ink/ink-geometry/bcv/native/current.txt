@@ -234,6 +234,7 @@ final class androidx.ink.geometry/ImmutableAffineTransform : androidx.ink.geomet
         final fun skewX(kotlin/Float): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.skewX|skewX(kotlin.Float){}[0]
         final fun skewY(kotlin/Float): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.skewY|skewY(kotlin.Float){}[0]
         final fun translate(androidx.ink.geometry/Vec): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.translate|translate(androidx.ink.geometry.Vec){}[0]
+        final fun translate(kotlin/Float, kotlin/Float): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/ImmutableAffineTransform.Companion.translate|translate(kotlin.Float;kotlin.Float){}[0]
     }
 }
 
@@ -366,6 +367,7 @@ final class androidx.ink.geometry/MutableAffineTransform : androidx.ink.geometry
     final fun populateFromSkewX(kotlin/Float): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromSkewX|populateFromSkewX(kotlin.Float){}[0]
     final fun populateFromSkewY(kotlin/Float): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromSkewY|populateFromSkewY(kotlin.Float){}[0]
     final fun populateFromTranslation(androidx.ink.geometry/Vec): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromTranslation|populateFromTranslation(androidx.ink.geometry.Vec){}[0]
+    final fun populateFromTranslation(kotlin/Float, kotlin/Float): androidx.ink.geometry/MutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.populateFromTranslation|populateFromTranslation(kotlin.Float;kotlin.Float){}[0]
     final fun setValues(kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float, kotlin/Float) // androidx.ink.geometry/MutableAffineTransform.setValues|setValues(kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float;kotlin.Float){}[0]
     final fun setValues(kotlin/FloatArray) // androidx.ink.geometry/MutableAffineTransform.setValues|setValues(kotlin.FloatArray){}[0]
     final fun toImmutable(): androidx.ink.geometry/ImmutableAffineTransform // androidx.ink.geometry/MutableAffineTransform.toImmutable|toImmutable(){}[0]

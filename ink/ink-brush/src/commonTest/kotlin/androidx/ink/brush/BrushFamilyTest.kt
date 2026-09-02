@@ -157,7 +157,7 @@ class BrushFamilyTest {
     }
 
     @Test
-    fun textureAnimationLoopDurationMillis_returnsExpectedValue() {
+    fun paintAnimationLoopDurationMillis_returnsExpectedValue() {
         fun makeAnimatedCoat(animationDurationMillis: Long) =
             BrushCoat(
                 BrushPaint(
@@ -184,7 +184,7 @@ class BrushFamilyTest {
             BrushFamily(
                 listOf(makeAnimatedCoat(1000L), makeAnimatedCoat(1500L), makeAnimatedCoat(600L))
             )
-        assertThat(brushFamily.textureAnimationLoopDurationMillis).isEqualTo(3000L)
+        assertThat(brushFamily.paintAnimationLoopDurationMillis).isEqualTo(3000L)
     }
 
     @OptIn(ExperimentalInkCustomBrushApi::class)

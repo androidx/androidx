@@ -16,7 +16,6 @@
 
 package androidx.ink.brush
 
-import androidx.annotation.RestrictTo
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.CoreGraphics.CGImageRef
 
@@ -24,7 +23,6 @@ import platform.CoreGraphics.CGImageRef
  * Interface for a callback to allow the caller to provide a particular [CGImageRef] corresponding
  * to a client-provided texture ID.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @OptIn(ExperimentalForeignApi::class)
 @ExperimentalInkCrossPlatformRenderingApi
 public fun interface TextureImageStore {

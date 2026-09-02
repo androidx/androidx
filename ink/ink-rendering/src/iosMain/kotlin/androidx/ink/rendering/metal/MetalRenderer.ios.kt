@@ -16,7 +16,6 @@
 
 package androidx.ink.rendering.metal
 
-import androidx.annotation.RestrictTo
 import androidx.ink.brush.ExperimentalInkCrossPlatformRenderingApi
 import androidx.ink.brush.TextureImageStore
 import androidx.ink.geometry.AffineTransform
@@ -52,8 +51,8 @@ import platform.Metal.MTLRenderCommandEncoderProtocol
  *   not being used, this should be `MTLPixelFormatInvalid`.
  * @param sampleCount The number of samples per pixel for MSAA. If unset or null, shader-based
  *   antialiasing will be used instead.
+ * @param textureImageStore An optional callback for retrieving texture images by ID.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // FutureJetpackApi
 @ExperimentalInkCrossPlatformRenderingApi
 @OptIn(InkInternalOnlyApi::class, ExperimentalForeignApi::class)
 public class MetalRenderer(
