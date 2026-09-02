@@ -314,14 +314,14 @@ internal fun StyleableTriStateCheckbox(
     val localTheme = LocalMaterialTheme.current
     val scope =
         CheckboxStyleScope(
-            theme = localTheme,
-            mediaQueryInfo = mediaQueryInfo(),
-            state =
-                ComponentState.enabled(enabled)
-                    .checked(state == ToggleableState.On)
-                    .indeterminate(state == ToggleableState.Indeterminate),
-        )
-    with(style ?: localTheme.componentProperties.checkboxProperties.style) { scope.applyStyle() }
+                theme = localTheme,
+                mediaQueryInfo = mediaQueryInfo(),
+                state =
+                    ComponentState.enabled(enabled)
+                        .checked(state == ToggleableState.On)
+                        .indeterminate(state == ToggleableState.Indeterminate),
+            )
+            .resolve(style ?: localTheme.componentProperties.checkboxProperties.style)
     CheckboxImpl(
         enabled = enabled,
         state = state,

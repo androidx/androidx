@@ -108,10 +108,10 @@ internal fun StyleableRadioButton(
     val localTheme = LocalMaterialTheme.current
     val scope =
         RadioButtonStyleScope(
-            theme = localTheme,
-            state = ComponentState.enabled(enabled).selected(selected),
-        )
-    with(style ?: localTheme.componentProperties.radioButtonProperties.style) { scope.applyStyle() }
+                theme = localTheme,
+                state = ComponentState.enabled(enabled).selected(selected),
+            )
+            .resolve(style ?: localTheme.componentProperties.radioButtonProperties.style)
 
     RadioButtonImpl(
         selected = selected,
