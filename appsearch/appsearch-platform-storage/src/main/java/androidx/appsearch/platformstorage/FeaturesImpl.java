@@ -119,22 +119,16 @@ final class FeaturesImpl implements Features {
             case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
                 // fall through
             case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
+                // fall through
+            case Features.SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT:
+                // fall through
+            case Features.SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE:
                 return BuildCompat.T_EXTENSION_INT
                         >= AppSearchVersionUtil.TExtensionVersions.V_BASE;
 
             // Android V features
             case Features.SCHEMA_ADD_PARENT_TYPE:
                 return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM;
-
-            // M-2024-08 Features
-            case Features.SEARCH_SPEC_RANKING_FUNCTION_MAX_MIN_OR_DEFAULT:
-                // fall through
-            case Features.SEARCH_SPEC_RANKING_FUNCTION_FILTER_BY_RANGE:
-                // For devices that receive mainline updates, this will be available in M-2024-08,
-                // and in V for devices that don't receive mainline updates.
-                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
-                        || AppSearchVersionUtil.getAppSearchVersionCode(mContext)
-                        >= AppSearchVersionUtil.APPSEARCH_V_BASE_VERSION_CODE;
 
             // M-2024-11 Features
             case Features.INDEXER_MOBILE_APPLICATIONS:
@@ -214,14 +208,7 @@ final class FeaturesImpl implements Features {
 
     @Override
     public int getMaxIndexedProperties() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            return 64;
-        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
-            // Sixty-four properties were enabled in mainline module of the U base version
-            return AppSearchVersionUtil.getAppSearchVersionCode(mContext)
-                    >= AppSearchVersionUtil.APPSEARCH_U_BASE_VERSION_CODE ? 64 : 16;
-        } else {
-            return 16;
-        }
+        return (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.U_BASE) ? 64
+                : 16;
     }
 }
