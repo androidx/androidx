@@ -158,21 +158,20 @@ internal class AnchorRenderer(
                 parent = session.scene.activitySpace,
             )
         entity.setScale(.1f)
-        val renderJob =
-            renderScope.launch {
-                anchor.state.collect { state ->
-                    if (state.trackingState == TrackingState.TRACKING) {
-                        entity.setPose(
-                            session.scene.perceptionSpace.transformPoseTo(
-                                state.pose,
-                                session.scene.activitySpace,
-                            )
+        val renderJob = renderScope.launch {
+            anchor.state.collect { state ->
+                if (state.trackingState == TrackingState.TRACKING) {
+                    entity.setPose(
+                        session.scene.perceptionSpace.transformPoseTo(
+                            state.pose,
+                            session.scene.activitySpace,
                         )
-                    } else if (state.trackingState == TrackingState.STOPPED) {
-                        entity.setEnabled(false)
-                    }
+                    )
+                } else if (state.trackingState == TrackingState.STOPPED) {
+                    entity.setEnabled(false)
                 }
             }
+        }
         return AnchorModel(anchor.hashCode(), anchor.state, entity, renderJob)
     }
 }

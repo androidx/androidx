@@ -707,20 +707,20 @@ internal fun RcPlayerChildren(
 }
 
 /** True if the op tree contains a particle loop (drives the frame-loop keepalive). */
-private fun containsParticles(operations: Collection<Operation>): Boolean =
-    operations.any { op ->
-        op is ParticlesLoop ||
-            op is ParticlesCompare ||
-            (op is Container && containsParticles(op.getList()))
-    }
+private fun containsParticles(operations: Collection<Operation>): Boolean = operations.any { op ->
+    op is ParticlesLoop ||
+        op is ParticlesCompare ||
+        (op is Container && containsParticles(op.getList()))
+}
 
 /**
  * True if the op tree contains a [WakeIn], which asks the runtime to repaint after a delay. The
  * embedded player has no one-shot scheduler, so we approximate by keeping the frame loop alive —
  * the content re-evaluates and redraws continuously, a superset of the requested single wake.
  */
-private fun containsWakeIn(operations: Collection<Operation>): Boolean =
-    operations.any { op -> op is WakeIn || (op is Container && containsWakeIn(op.getList())) }
+private fun containsWakeIn(operations: Collection<Operation>): Boolean = operations.any { op ->
+    op is WakeIn || (op is Container && containsWakeIn(op.getList()))
+}
 
 private fun findBitmaps(operations: Collection<Operation>, list: MutableList<BitmapData>) {
     for (op in operations) {

@@ -89,7 +89,9 @@ private fun Content2() {
         Button(
             text = "Activity",
             onClick =
-                actionStartActivity(Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))),
+                actionStartActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
+                ),
         )
 
         // start service action

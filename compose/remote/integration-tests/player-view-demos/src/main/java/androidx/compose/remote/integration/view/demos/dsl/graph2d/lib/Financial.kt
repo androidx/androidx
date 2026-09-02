@@ -157,16 +157,15 @@ public fun RcScope.bulletChart(
     theme: GraphTheme = GraphTheme.Light,
     modifier: Modifier = Modifier.fillMaxSize(),
 ) {
-    val rows =
-        items.map {
-            BulletRow(
-                it.label,
-                it.value.toFloat(),
-                it.target.toFloat(),
-                it.max.toFloat(),
-                FloatArray(it.ranges.size) { j -> it.ranges[j].toFloat() },
-            )
-        }
+    val rows = items.map {
+        BulletRow(
+            it.label,
+            it.value.toFloat(),
+            it.target.toFloat(),
+            it.max.toFloat(),
+            FloatArray(it.ranges.size) { j -> it.ranges[j].toFloat() },
+        )
+    }
     Canvas(modifier = modifier) {
         val topReserve = bgAndTitle(theme, title)
         renderBullets(rows, theme, topReserve)
@@ -193,11 +192,10 @@ public fun RcScope.paretoChart(
     val values = sorted.map { it.second.toFloat() }
     val total = values.sum().let { if (it <= 0f) 1f else it }
     var run = 0f
-    val cumPct =
-        values.map { v ->
-            run += v
-            run / total * 100f
-        }
+    val cumPct = values.map { v ->
+        run += v
+        run / total * 100f
+    }
     chart2d(title, theme, modifier) {
         xAxis { categories = labels }
         yAxis { this.title = yTitle }

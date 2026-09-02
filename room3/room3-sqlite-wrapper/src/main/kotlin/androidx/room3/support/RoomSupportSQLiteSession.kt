@@ -96,18 +96,17 @@ internal class RoomSupportSQLiteSession(val roomDatabase: RoomDatabase) {
     }
 
     fun beginTransaction(type: SQLiteTransactionType, listener: SQLiteTransactionListener? = null) {
-        val currentTransaction =
-            threadTransaction.getOrSet {
-                try {
-                    threadWaiters.incrementAndGet()
-                    ThreadTransaction.acquire(roomDatabase, type).also {
-                        threadTransaction.set(it)
-                        threadTransactionContext.set(it.getCoroutineContext())
-                    }
-                } finally {
-                    threadWaiters.decrementAndGet()
+        val currentTransaction = threadTransaction.getOrSet {
+            try {
+                threadWaiters.incrementAndGet()
+                ThreadTransaction.acquire(roomDatabase, type).also {
+                    threadTransaction.set(it)
+                    threadTransactionContext.set(it.getCoroutineContext())
                 }
+            } finally {
+                threadWaiters.decrementAndGet()
             }
+        }
         currentTransaction.begin(listener)
         try {
             currentTransaction.listener?.onBegin()
@@ -300,53 +299,52 @@ private constructor(
 
     companion object {
         fun acquire(db: RoomDatabase, type: SQLiteTransactionType): ThreadTransaction {
-            val transactionFuture =
-                CallbackToFutureAdapter.getFuture { completer ->
-                    // a latch to wait (blocking) for the coroutine to finish
-                    val completionLatch = CountDownLatch(1)
-                    val transactionBlock: suspend (Transactor) -> Unit = {
-                        it.withTransaction(type) {
-                            // a completable to commit or rollback the transaction
-                            val successSignal = CompletableDeferred<Boolean>()
-                            // the transaction object that will be stored in a thread local
-                            val threadTransaction =
-                                ThreadTransaction(
-                                    type = type,
-                                    connectionContext = currentCoroutineContext(),
-                                    completable =
-                                        TransactionCompletable(successSignal, completionLatch),
-                                )
-                            completer.set(threadTransaction)
-                            val success = successSignal.await()
-                            if (!success) {
-                                rollback(Unit)
-                            }
+            val transactionFuture = CallbackToFutureAdapter.getFuture { completer ->
+                // a latch to wait (blocking) for the coroutine to finish
+                val completionLatch = CountDownLatch(1)
+                val transactionBlock: suspend (Transactor) -> Unit = {
+                    it.withTransaction(type) {
+                        // a completable to commit or rollback the transaction
+                        val successSignal = CompletableDeferred<Boolean>()
+                        // the transaction object that will be stored in a thread local
+                        val threadTransaction =
+                            ThreadTransaction(
+                                type = type,
+                                connectionContext = currentCoroutineContext(),
+                                completable =
+                                    TransactionCompletable(successSignal, completionLatch),
+                            )
+                        completer.set(threadTransaction)
+                        val success = successSignal.await()
+                        if (!success) {
+                            rollback(Unit)
                         }
                     }
-                    // Launch a transaction coroutine that will be kept alive until the transaction
-                    // object ends. The usage of the Unconfined dispatcher is on-purpose and quite
-                    // delicate. It is to avoid thread hops on blocking wrapper APIs within a
-                    // transaction. The proper solution would be to use a single thread dispatcher
-                    // for drivers that are thread confined, but that kills performance. To avoid
-                    // issues that could occur due to a driver suspending and resuming on another
-                    // thread that does not have the active transaction, Room's
-                    // PassthroughConnectionPool validates that a driver used with this transaction
-                    // wrapper does not resume in a different thread during initialization. It is
-                    // not perfect, but it's the best we have so far.
-                    db.getCoroutineScope()
-                        .launch(Dispatchers.Unconfined + COROUTINE_NAME) {
-                            db.useConnection(
-                                isReadOnly = type == SQLiteTransactionType.DEFERRED,
-                                block = transactionBlock,
-                            )
-                        }
-                        .invokeOnCompletion { error ->
-                            if (error != null) {
-                                completer.setException(error)
-                            }
-                            completionLatch.countDown()
-                        }
                 }
+                // Launch a transaction coroutine that will be kept alive until the transaction
+                // object ends. The usage of the Unconfined dispatcher is on-purpose and quite
+                // delicate. It is to avoid thread hops on blocking wrapper APIs within a
+                // transaction. The proper solution would be to use a single thread dispatcher
+                // for drivers that are thread confined, but that kills performance. To avoid
+                // issues that could occur due to a driver suspending and resuming on another
+                // thread that does not have the active transaction, Room's
+                // PassthroughConnectionPool validates that a driver used with this transaction
+                // wrapper does not resume in a different thread during initialization. It is
+                // not perfect, but it's the best we have so far.
+                db.getCoroutineScope()
+                    .launch(Dispatchers.Unconfined + COROUTINE_NAME) {
+                        db.useConnection(
+                            isReadOnly = type == SQLiteTransactionType.DEFERRED,
+                            block = transactionBlock,
+                        )
+                    }
+                    .invokeOnCompletion { error ->
+                        if (error != null) {
+                            completer.setException(error)
+                        }
+                        completionLatch.countDown()
+                    }
+            }
             try {
                 // wait for the transaction coroutine to be started, this includes waiting for an
                 // available database connection to be acquired plus the start of the transaction

@@ -45,8 +45,9 @@ class SlotTableEditorTests {
         val table = SlotTable.build { group(100) { repeat(count) { group(200) } } }
         table.verifyWellFormed()
         val handles = mutableListOf<GroupHandle>()
-        val insertTable =
-            table.buildSubTable { repeat(count) { group(300) { handles.add(parentHandle) } } }
+        val insertTable = table.buildSubTable {
+            repeat(count) { group(300) { handles.add(parentHandle) } }
+        }
 
         table.edit {
             group { repeat(count) { group { insertGroupFrom(insertTable, handles[it]) } } }
@@ -86,8 +87,9 @@ class SlotTableEditorTests {
 
         fun insert() {
             val handles = mutableListOf<GroupHandle>()
-            val insertTable =
-                table.buildSubTable { repeat(count) { group(300) { handles.add(parentHandle) } } }
+            val insertTable = table.buildSubTable {
+                repeat(count) { group(300) { handles.add(parentHandle) } }
+            }
 
             table.edit {
                 group { repeat(count) { group { insertGroupFrom(insertTable, handles[it]) } } }
@@ -112,8 +114,9 @@ class SlotTableEditorTests {
 
     @Test
     fun canReorder() {
-        val table =
-            SlotTable.build { group(100) { repeat(count) { group(200 + it) { group(300) } } } }
+        val table = SlotTable.build {
+            group(100) { repeat(count) { group(200 + it) { group(300) } } }
+        }
 
         table.verifyWellFormed()
         table.read { group(100) { repeat(count) { group(200 + it) { group(300) } } } }
@@ -152,37 +155,36 @@ class SlotTableEditorTests {
                 block()
             }
         }
-        val table =
-            SlotTable.build {
-                g(1000) {
-                    g(1100) {
-                        g(1110) {
-                            g(1111)
-                            g(1112)
-                            g(1113)
-                        }
-                        g(1120) {
-                            g(1121)
-                            g(1122)
-                            g(1123)
-                        }
+        val table = SlotTable.build {
+            g(1000) {
+                g(1100) {
+                    g(1110) {
+                        g(1111)
+                        g(1112)
+                        g(1113)
                     }
-                }
-                g(2000) {
-                    g(2100) {
-                        g(2110) {
-                            g(2111)
-                            g(2112)
-                            g(2113)
-                        }
-                        g(2120) {
-                            g(2121)
-                            g(2122)
-                            g(2123)
-                        }
+                    g(1120) {
+                        g(1121)
+                        g(1122)
+                        g(1123)
                     }
                 }
             }
+            g(2000) {
+                g(2100) {
+                    g(2110) {
+                        g(2111)
+                        g(2112)
+                        g(2113)
+                    }
+                    g(2120) {
+                        g(2121)
+                        g(2122)
+                        g(2123)
+                    }
+                }
+            }
+        }
         data class ReaderState(val parent: Int, val previous: Int, val current: Int)
         val handles = mutableLongListOf()
         val states = mutableLongObjectMapOf<ReaderState>()
@@ -227,46 +229,44 @@ class SlotTableEditorTests {
 
     @Test
     fun testCoherenceOfHandlesWithSkipToEndGroup() {
-        val table =
-            SlotTable.build {
-                group(1000) {
-                    group(1100) {
-                        group(1110) {
-                            group(1111)
-                            group(1112)
-                            group(1113)
-                        }
-                        group(1120) {
-                            group(1121)
-                            group(1122)
-                            group(1123)
-                        }
+        val table = SlotTable.build {
+            group(1000) {
+                group(1100) {
+                    group(1110) {
+                        group(1111)
+                        group(1112)
+                        group(1113)
                     }
-                }
-                group(2000) {
-                    group(2100) {
-                        group(2110) {
-                            group(2111)
-                            group(2112)
-                            group(2113)
-                        }
-                        group(2120) {
-                            group(2121)
-                            group(2122)
-                            group(2123)
-                        }
+                    group(1120) {
+                        group(1121)
+                        group(1122)
+                        group(1123)
                     }
                 }
             }
+            group(2000) {
+                group(2100) {
+                    group(2110) {
+                        group(2111)
+                        group(2112)
+                        group(2113)
+                    }
+                    group(2120) {
+                        group(2121)
+                        group(2122)
+                        group(2123)
+                    }
+                }
+            }
+        }
         data class ReaderState(val parent: Int, val previous: Int, val current: Int)
-        val keys: IntList =
-            table.read {
-                val keys = mutableIntListOf()
-                table.addressSpace.traverseGroup(table.root, includeSiblingsOfStartGroup = true) {
-                    keys.add(this.groupKey(it))
-                }
-                keys
+        val keys: IntList = table.read {
+            val keys = mutableIntListOf()
+            table.addressSpace.traverseGroup(table.root, includeSiblingsOfStartGroup = true) {
+                keys.add(this.groupKey(it))
             }
+            keys
+        }
         val seen = mutableLongSetOf()
         keys.forEach { key ->
             val (handle, state) =
@@ -301,18 +301,17 @@ class SlotTableEditorTests {
 
     @Test
     fun canRemoveAndInsertAtTheEndOfAGroup() {
-        val table =
-            SlotTable.build {
-                group(1000) {
-                    group(1100) {
-                        group(1110) {
-                            group(1111)
-                            group(1112)
-                            group(1113)
-                        }
+        val table = SlotTable.build {
+            group(1000) {
+                group(1100) {
+                    group(1110) {
+                        group(1111)
+                        group(1112)
+                        group(1113)
                     }
                 }
             }
+        }
 
         val removeHandles = mutableListOf<GroupHandle>()
         val insertHandles = mutableListOf<GroupHandle>()
@@ -362,20 +361,19 @@ class SlotTableEditorTests {
     fun canMoveFromOneTableToAnother_sameAddressSpace() {
         // Build the source table
         var sourceHandle = NULL_GROUP_HANDLE
-        val sourceTable =
-            SlotTable.build {
-                group(1000) {
-                    group(100) {
-                        sourceHandle = parentHandle
-                        group(10) {
-                            group(1)
-                            group(2)
-                            group(3)
-                            group(4)
-                        }
+        val sourceTable = SlotTable.build {
+            group(1000) {
+                group(100) {
+                    sourceHandle = parentHandle
+                    group(10) {
+                        group(1)
+                        group(2)
+                        group(3)
+                        group(4)
                     }
                 }
             }
+        }
 
         // Verify the source table is what was expected.
         sourceTable.read {
@@ -426,20 +424,19 @@ class SlotTableEditorTests {
     fun canMoveFromOneTableToAnother_differentAddressSpaces() {
         // Build the source table
         var sourceHandle = NULL_GROUP_HANDLE
-        val sourceTable =
-            SlotTable.build {
-                group(1000) {
-                    group(100) {
-                        sourceHandle = parentHandle
-                        group(10) {
-                            group(1)
-                            group(2)
-                            group(3)
-                            group(4)
-                        }
+        val sourceTable = SlotTable.build {
+            group(1000) {
+                group(100) {
+                    sourceHandle = parentHandle
+                    group(10) {
+                        group(1)
+                        group(2)
+                        group(3)
+                        group(4)
                     }
                 }
             }
+        }
 
         // Verify the source table is what was expected.
         sourceTable.read {
@@ -490,20 +487,19 @@ class SlotTableEditorTests {
     fun canMoveFromOneTableToAnother_differentAddressSpaces_validateAnchors() {
         // Build the source table
         var sourceHandle = NULL_GROUP_HANDLE
-        val sourceTable =
-            SlotTable.build {
-                group(1000) {
-                    group(100) {
-                        sourceHandle = parentHandle
-                        group(10) {
-                            group(1)
-                            group(2)
-                            group(3)
-                            group(4)
-                        }
+        val sourceTable = SlotTable.build {
+            group(1000) {
+                group(100) {
+                    sourceHandle = parentHandle
+                    group(10) {
+                        group(1)
+                        group(2)
+                        group(3)
+                        group(4)
                     }
                 }
             }
+        }
 
         val anchors = mutableIntObjectMapOf<LinkAnchor>()
         // Verify the source table is what was expected.

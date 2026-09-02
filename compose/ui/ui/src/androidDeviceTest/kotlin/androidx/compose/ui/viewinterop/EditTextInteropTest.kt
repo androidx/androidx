@@ -51,10 +51,9 @@ class EditTextInteropTest {
         rule.runOnIdle { editText.requestFocus() }
 
         // Act.
-        val keyConsumed =
-            rule.runOnIdle {
-                ownerView.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_A))
-            }
+        val keyConsumed = rule.runOnIdle {
+            ownerView.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_A))
+        }
 
         // Assert.
         // TODO(b/171997891): Right now we just assert that we reach here without crashing. Once we

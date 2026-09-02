@@ -161,22 +161,20 @@ class CopyingSurfaceProcessor : SurfaceProcessor, AutoCloseable {
         }
     }
 
-    private fun SurfaceTexture.flowOnFrameAvailability() =
-        callbackFlow {
-                val frameCount = atomic(0)
-                setOnFrameAvailableListener { trySend(frameCount.incrementAndGet()) }
+    private fun SurfaceTexture.flowOnFrameAvailability() = callbackFlow {
+        val frameCount = atomic(0)
+        setOnFrameAvailableListener { trySend(frameCount.incrementAndGet()) }
 
-                awaitClose { setOnFrameAvailableListener(null) }
-            }
-            .buffer(capacity = CONFLATED)
+        awaitClose { setOnFrameAvailableListener(null) }
+    }
+        .buffer(capacity = CONFLATED)
 
-    private fun SurfaceRequest.flowOnTransformationInfo() =
-        callbackFlow {
-                setTransformationInfoListener(Runnable::run) { trySend(it) }
+    private fun SurfaceRequest.flowOnTransformationInfo() = callbackFlow {
+        setTransformationInfoListener(Runnable::run) { trySend(it) }
 
-                awaitClose { clearTransformationInfoListener() }
-            }
-            .buffer(capacity = CONFLATED)
+        awaitClose { clearTransformationInfoListener() }
+    }
+        .buffer(capacity = CONFLATED)
 
     private fun checkGlThread() {
         check(GL_THREAD_NAME == Thread.currentThread().name)

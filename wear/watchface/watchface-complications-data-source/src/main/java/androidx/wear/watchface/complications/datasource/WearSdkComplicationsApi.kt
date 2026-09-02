@@ -63,12 +63,11 @@ internal interface WearSdkComplicationsApi {
 
         override suspend fun getActiveConfigs(
             executor: Executor
-        ): Set<WearSdkActiveComplicationConfig> =
-            suspendForOutcomeReceiver { outcomeReceiver ->
-                    manager.getActiveComplicationConfigsAsync(executor, outcomeReceiver)
-                }
-                .map { WearSdkActiveComplicationConfig(it) }
-                .toSet()
+        ): Set<WearSdkActiveComplicationConfig> = suspendForOutcomeReceiver { outcomeReceiver ->
+            manager.getActiveComplicationConfigsAsync(executor, outcomeReceiver)
+        }
+            .map { WearSdkActiveComplicationConfig(it) }
+            .toSet()
 
         override suspend fun updateComplication(
             id: Int,

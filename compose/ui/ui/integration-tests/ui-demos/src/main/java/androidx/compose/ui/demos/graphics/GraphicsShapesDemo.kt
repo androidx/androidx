@@ -199,7 +199,10 @@ private fun ShapeEditorContent() {
                     polygon(
                         vertices.toInt(),
                         rounding =
-                            CornerRounding(percent = roundingPercent.toInt(), smoothing = smoothing),
+                            CornerRounding(
+                                percent = roundingPercent.toInt(),
+                                smoothing = smoothing,
+                            ),
                     )
                 }
             }

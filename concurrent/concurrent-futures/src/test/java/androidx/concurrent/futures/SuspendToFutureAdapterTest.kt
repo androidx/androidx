@@ -128,10 +128,9 @@ class SuspendToFutureAdapterTest {
 
     @Test
     fun mainDispatcherIsDefault() {
-        val future =
-            SuspendToFutureAdapter.launchFuture {
-                coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher
-            }
+        val future = SuspendToFutureAdapter.launchFuture {
+            coroutineContext[ContinuationInterceptor] as? CoroutineDispatcher
+        }
         assertWithMessage("observed dispatcher")
             .that(future.get())
             .isSameInstanceAs(Dispatchers.Main)

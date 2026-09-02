@@ -90,55 +90,53 @@ class HistogramLatencyAggregatorTest {
         }
 
     @Test
-    fun histogramLatencyAggregator_reportsOneBucketWhenSetUpWithNoBoundaries() =
-        testScope.runTest {
-            var numBuckets = -1
-            val unused =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf(), // No boundaries.
-                    scope = testScope.backgroundScope,
-                ) { bucketCounts: IntArray ->
-                    numBuckets = bucketCounts.size
-                }
+    fun histogramLatencyAggregator_reportsOneBucketWhenSetUpWithNoBoundaries() = testScope.runTest {
+        var numBuckets = -1
+        val unused =
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf(), // No boundaries.
+                scope = testScope.backgroundScope,
+            ) { bucketCounts: IntArray ->
+                numBuckets = bucketCounts.size
+            }
 
-            // Let it run for a while so that the report callback is called once.
-            testScope.advanceTimeBy(15.seconds)
+        // Let it run for a while so that the report callback is called once.
+        testScope.advanceTimeBy(15.seconds)
 
-            // There were no bucket boundaries, so it defines just a single bucket.
-            assertThat(numBuckets).isEqualTo(1)
-        }
+        // There were no bucket boundaries, so it defines just a single bucket.
+        assertThat(numBuckets).isEqualTo(1)
+    }
 
     @Test
-    fun histogramLatencyAggregator_lowerBoundsAreInclusive() =
-        testScope.runTest {
-            // Set up a histogram aggregator with buckets (-inf, 10), [10, 20), [20, +inf).
-            val countsUnder10 = mutableListOf<Int>()
-            val countsUnder20 = mutableListOf<Int>()
-            val counts20OrOver = mutableListOf<Int>()
-            val aggregator =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf(10L, 20L),
-                    scope = testScope.backgroundScope,
-                ) { bucketCounts: IntArray ->
-                    countsUnder10.add(bucketCounts[0])
-                    countsUnder20.add(bucketCounts[1])
-                    counts20OrOver.add(bucketCounts[2])
-                }
+    fun histogramLatencyAggregator_lowerBoundsAreInclusive() = testScope.runTest {
+        // Set up a histogram aggregator with buckets (-inf, 10), [10, 20), [20, +inf).
+        val countsUnder10 = mutableListOf<Int>()
+        val countsUnder20 = mutableListOf<Int>()
+        val counts20OrOver = mutableListOf<Int>()
+        val aggregator =
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf(10L, 20L),
+                scope = testScope.backgroundScope,
+            ) { bucketCounts: IntArray ->
+                countsUnder10.add(bucketCounts[0])
+                countsUnder20.add(bucketCounts[1])
+                counts20OrOver.add(bucketCounts[2])
+            }
 
-            aggregator.aggregate(0, 5)
-            aggregator.aggregate(0, 10) // Goes in the middle bucket.
-            aggregator.aggregate(0, 15)
-            aggregator.aggregate(0, 20) // Goes in the last bucket.
+        aggregator.aggregate(0, 5)
+        aggregator.aggregate(0, 10) // Goes in the middle bucket.
+        aggregator.aggregate(0, 15)
+        aggregator.aggregate(0, 20) // Goes in the last bucket.
 
-            // Let it run for a while so that the report callback is called once.
-            testScope.advanceTimeBy(15.seconds)
+        // Let it run for a while so that the report callback is called once.
+        testScope.advanceTimeBy(15.seconds)
 
-            assertThat(countsUnder10).containsExactly(1)
-            assertThat(countsUnder20).containsExactly(2)
-            assertThat(counts20OrOver).containsExactly(1)
-        }
+        assertThat(countsUnder10).containsExactly(1)
+        assertThat(countsUnder20).containsExactly(2)
+        assertThat(counts20OrOver).containsExactly(1)
+    }
 
     @Test
     fun histogramLatencyAggregator_countsCorrectlyAndReportsAtExpectedInterval() =
@@ -196,233 +194,228 @@ class HistogramLatencyAggregatorTest {
         }
 
     @Test
-    fun histogramLatencyAggregator_countsCorrectlyInTwoBuckets() =
-        testScope.runTest {
-            // Set up a histogram aggregator with one boundary, which produces two half-infinite
-            // buckets.
-            val countsUnder20 = mutableListOf<Int>()
-            val counts20OrOver = mutableListOf<Int>()
-            val aggregator =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf(20L),
-                    scope = testScope.backgroundScope,
-                ) { bucketCounts: IntArray ->
-                    countsUnder20.add(bucketCounts[0])
-                    counts20OrOver.add(bucketCounts[1])
-                }
-
-            // Feed input into the aggregator in a separate coroutine, so we can specify timing.
-            launch {
-                delay(1.seconds)
-
-                // First window: 2 vals in (-inf, 20), 1 in [20, +inf).
-                aggregator.aggregate(0, 5)
-                aggregator.aggregate(0, 25)
-                aggregator.aggregate(0, -20)
-                delay(10.seconds)
-
-                // Second window: 1 val in (-inf, 20), 2 in [20, +inf).
-                aggregator.aggregate(0, 19)
-                aggregator.aggregate(0, 30)
-                aggregator.aggregate(0, 20)
+    fun histogramLatencyAggregator_countsCorrectlyInTwoBuckets() = testScope.runTest {
+        // Set up a histogram aggregator with one boundary, which produces two half-infinite
+        // buckets.
+        val countsUnder20 = mutableListOf<Int>()
+        val counts20OrOver = mutableListOf<Int>()
+        val aggregator =
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf(20L),
+                scope = testScope.backgroundScope,
+            ) { bucketCounts: IntArray ->
+                countsUnder20.add(bucketCounts[0])
+                counts20OrOver.add(bucketCounts[1])
             }
 
-            // To report two windows, advance past the report time of the second one (t=20s).
-            testScope.advanceTimeBy(25.seconds)
+        // Feed input into the aggregator in a separate coroutine, so we can specify timing.
+        launch {
+            delay(1.seconds)
 
-            assertThat(countsUnder20).containsExactly(2, 1).inOrder()
-            assertThat(counts20OrOver).containsExactly(1, 2).inOrder()
+            // First window: 2 vals in (-inf, 20), 1 in [20, +inf).
+            aggregator.aggregate(0, 5)
+            aggregator.aggregate(0, 25)
+            aggregator.aggregate(0, -20)
+            delay(10.seconds)
+
+            // Second window: 1 val in (-inf, 20), 2 in [20, +inf).
+            aggregator.aggregate(0, 19)
+            aggregator.aggregate(0, 30)
+            aggregator.aggregate(0, 20)
         }
+
+        // To report two windows, advance past the report time of the second one (t=20s).
+        testScope.advanceTimeBy(25.seconds)
+
+        assertThat(countsUnder20).containsExactly(2, 1).inOrder()
+        assertThat(counts20OrOver).containsExactly(1, 2).inOrder()
+    }
 
     @Test
-    fun histogramLatencyAggregator_countsCorrectlyInOneBucket() =
-        testScope.runTest {
-            // Set up a histogram aggregator with no boundaries, which reduces to just counting the
-            // number
-            // of `aggregate` calls.
-            val counts = mutableListOf<Int>()
-            val aggregator =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf(),
-                    scope = testScope.backgroundScope,
-                ) { bucketCounts: IntArray ->
-                    counts.add(bucketCounts[0])
-                }
-
-            // Feed input into the aggregator in a separate coroutine, so we can specify timing.
-            launch {
-                delay(1.seconds)
-
-                // First window: 2 calls to `aggregate`.
-                aggregator.aggregate(0, 65)
-                aggregator.aggregate(0, -200)
-                delay(10.seconds)
-
-                // Second window: 3 calls to `aggregate`.
-                aggregator.aggregate(0, 14)
-                aggregator.aggregate(0, 8)
-                aggregator.aggregate(0, 9)
+    fun histogramLatencyAggregator_countsCorrectlyInOneBucket() = testScope.runTest {
+        // Set up a histogram aggregator with no boundaries, which reduces to just counting the
+        // number
+        // of `aggregate` calls.
+        val counts = mutableListOf<Int>()
+        val aggregator =
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf(),
+                scope = testScope.backgroundScope,
+            ) { bucketCounts: IntArray ->
+                counts.add(bucketCounts[0])
             }
 
-            // To report two windows, advance past the report time of the second one (t=20s).
-            testScope.advanceTimeBy(25.seconds)
+        // Feed input into the aggregator in a separate coroutine, so we can specify timing.
+        launch {
+            delay(1.seconds)
 
-            assertThat(counts).containsExactly(2, 3).inOrder()
+            // First window: 2 calls to `aggregate`.
+            aggregator.aggregate(0, 65)
+            aggregator.aggregate(0, -200)
+            delay(10.seconds)
+
+            // Second window: 3 calls to `aggregate`.
+            aggregator.aggregate(0, 14)
+            aggregator.aggregate(0, 8)
+            aggregator.aggregate(0, 9)
         }
+
+        // To report two windows, advance past the report time of the second one (t=20s).
+        testScope.advanceTimeBy(25.seconds)
+
+        assertThat(counts).containsExactly(2, 3).inOrder()
+    }
 
     @Test
-    fun histogramLatencyAggregator_reportsAllZeroWhenNoInput() =
-        testScope.runTest {
-            // Set up a histogram aggregator with buckets (-inf, 50), [50, +inf).
-            val countsUnder50 = mutableListOf<Int>()
-            val counts50OrOver = mutableListOf<Int>()
-            val aggregator =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf(50L),
-                    scope = testScope.backgroundScope,
-                ) { bucketCounts: IntArray ->
-                    countsUnder50.add(bucketCounts[0])
-                    counts50OrOver.add(bucketCounts[1])
-                }
-
-            // Feed input into the aggregator in a separate coroutine, so we can specify timing.
-            launch {
-                // Two windows pass by with no initial input.
-                delay(21.seconds)
-
-                // In the third window, there's input. 2 vals below 50, 1 val above.
-                aggregator.aggregate(0, 10)
-                aggregator.aggregate(0, 20)
-                aggregator.aggregate(0, 60)
-                delay(10.seconds)
-
-                // Two more windows pass with no input.
-                delay(20.seconds)
-
-                // In the sixth window, there's input. 1 val below 50, 2 vals above.
-                aggregator.aggregate(0, 30)
-                aggregator.aggregate(0, 80)
-                aggregator.aggregate(0, 90)
-
-                // Below we'll let enough time pass that a seventh window passes with no input.
+    fun histogramLatencyAggregator_reportsAllZeroWhenNoInput() = testScope.runTest {
+        // Set up a histogram aggregator with buckets (-inf, 50), [50, +inf).
+        val countsUnder50 = mutableListOf<Int>()
+        val counts50OrOver = mutableListOf<Int>()
+        val aggregator =
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf(50L),
+                scope = testScope.backgroundScope,
+            ) { bucketCounts: IntArray ->
+                countsUnder50.add(bucketCounts[0])
+                counts50OrOver.add(bucketCounts[1])
             }
 
-            // In 75 seconds, 7 windows should be reported.
-            testScope.advanceTimeBy(75.seconds)
+        // Feed input into the aggregator in a separate coroutine, so we can specify timing.
+        launch {
+            // Two windows pass by with no initial input.
+            delay(21.seconds)
 
-            assertThat(countsUnder50).containsExactly(0, 0, 2, 0, 0, 1, 0).inOrder()
-            assertThat(counts50OrOver).containsExactly(0, 0, 1, 0, 0, 2, 0).inOrder()
+            // In the third window, there's input. 2 vals below 50, 1 val above.
+            aggregator.aggregate(0, 10)
+            aggregator.aggregate(0, 20)
+            aggregator.aggregate(0, 60)
+            delay(10.seconds)
+
+            // Two more windows pass with no input.
+            delay(20.seconds)
+
+            // In the sixth window, there's input. 1 val below 50, 2 vals above.
+            aggregator.aggregate(0, 30)
+            aggregator.aggregate(0, 80)
+            aggregator.aggregate(0, 90)
+
+            // Below we'll let enough time pass that a seventh window passes with no input.
         }
+
+        // In 75 seconds, 7 windows should be reported.
+        testScope.advanceTimeBy(75.seconds)
+
+        assertThat(countsUnder50).containsExactly(0, 0, 2, 0, 0, 1, 0).inOrder()
+        assertThat(counts50OrOver).containsExactly(0, 0, 1, 0, 0, 2, 0).inOrder()
+    }
 
     @Test
-    fun histogramLatencyAggregator_reportSynchronouslyReportsSynchronously() =
-        testScope.runTest {
-            // Set up a histogram aggregator with no boundaries, which reduces to just counting the
-            // number
-            // of `aggregate` calls.
-            val counts = mutableListOf<Int>()
-            val aggregator =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf(),
-                    scope = testScope.backgroundScope,
-                ) { bucketCounts: IntArray ->
-                    counts.add(bucketCounts[0])
-                }
-
-            // Feed input into the aggregator in a separate coroutine, so we can specify timing.
-            launch {
-                delay(1.seconds)
-
-                // First window: 2 calls to `aggregate`.
-                aggregator.aggregate(0, 99)
-                aggregator.aggregate(0, 99)
-                delay(10.seconds)
-
-                // Second window: 3 calls to `aggregate`, spread out over time.
-                aggregator.aggregate(0, 99) // A. time=11
-                delay(4.seconds)
-                aggregator.aggregate(0, 99) // B. time=15
-                delay(4.seconds)
-                aggregator.aggregate(0, 99) // C. time=19
+    fun histogramLatencyAggregator_reportSynchronouslyReportsSynchronously() = testScope.runTest {
+        // Set up a histogram aggregator with no boundaries, which reduces to just counting the
+        // number
+        // of `aggregate` calls.
+        val counts = mutableListOf<Int>()
+        val aggregator =
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf(),
+                scope = testScope.backgroundScope,
+            ) { bucketCounts: IntArray ->
+                counts.add(bucketCounts[0])
             }
 
-            // Advance to time=12, partway into the second reporting window.
-            testScope.advanceTimeBy(12.seconds)
+        // Feed input into the aggregator in a separate coroutine, so we can specify timing.
+        launch {
+            delay(1.seconds)
 
-            // Since only the first reporting window has completed, we have only one result.
-            assertThat(counts).containsExactly(2)
+            // First window: 2 calls to `aggregate`.
+            aggregator.aggregate(0, 99)
+            aggregator.aggregate(0, 99)
+            delay(10.seconds)
 
-            aggregator.reportSynchronously()
-
-            // The manually-triggered report includes just call A.
-            assertThat(counts).containsExactly(2, 1).inOrder()
-
-            // Advance past the end of the second window.
-            testScope.advanceTimeBy(10.seconds)
-
-            // Calls B and C get included in the second window. Call A was already accounted for so
-            // it
-            // doesn't get double-counted.
-            assertThat(counts).containsExactly(2, 1, 2).inOrder()
+            // Second window: 3 calls to `aggregate`, spread out over time.
+            aggregator.aggregate(0, 99) // A. time=11
+            delay(4.seconds)
+            aggregator.aggregate(0, 99) // B. time=15
+            delay(4.seconds)
+            aggregator.aggregate(0, 99) // C. time=19
         }
+
+        // Advance to time=12, partway into the second reporting window.
+        testScope.advanceTimeBy(12.seconds)
+
+        // Since only the first reporting window has completed, we have only one result.
+        assertThat(counts).containsExactly(2)
+
+        aggregator.reportSynchronously()
+
+        // The manually-triggered report includes just call A.
+        assertThat(counts).containsExactly(2, 1).inOrder()
+
+        // Advance past the end of the second window.
+        testScope.advanceTimeBy(10.seconds)
+
+        // Calls B and C get included in the second window. Call A was already accounted for so
+        // it
+        // doesn't get double-counted.
+        assertThat(counts).containsExactly(2, 1, 2).inOrder()
+    }
 
     @Test
-    fun histogramLatencyAggregator_canStartTwoAggregatorsInSameCoroutine() =
-        testScope.runTest {
-            // Set up two histogram aggregators with buckets (-inf, 50), [50, +inf).
-            val countsUnder50 = mutableListOf<Int>()
-            val counts50OrOver = mutableListOf<Int>()
-            val othercountsUnder50 = mutableListOf<Int>()
-            val othercounts50OrOver = mutableListOf<Int>()
-            val aggregator =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf(50L),
-                    scope = testScope.backgroundScope,
-                ) { bucketCounts: IntArray ->
-                    countsUnder50.add(bucketCounts[0])
-                    counts50OrOver.add(bucketCounts[1])
-                }
-            val otherAggregator =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf(50L),
-                    scope = testScope.backgroundScope,
-                ) { bucketCounts: IntArray ->
-                    othercountsUnder50.add(bucketCounts[0])
-                    othercounts50OrOver.add(bucketCounts[1])
-                }
-
-            // Feed input into the aggregators in a separate coroutine, so we can specify timing.
-            launch {
-                delay(1.seconds)
-
-                // First window.
-                aggregator.aggregate(0, 10)
-                otherAggregator.aggregate(0, 60)
-                otherAggregator.aggregate(0, 70)
-                delay(10.seconds)
-
-                // Second window.
-                otherAggregator.aggregate(0, 20)
-                aggregator.aggregate(0, 60)
-                aggregator.aggregate(0, 70)
-                aggregator.aggregate(0, 80)
-                delay(10.seconds)
+    fun histogramLatencyAggregator_canStartTwoAggregatorsInSameCoroutine() = testScope.runTest {
+        // Set up two histogram aggregators with buckets (-inf, 50), [50, +inf).
+        val countsUnder50 = mutableListOf<Int>()
+        val counts50OrOver = mutableListOf<Int>()
+        val othercountsUnder50 = mutableListOf<Int>()
+        val othercounts50OrOver = mutableListOf<Int>()
+        val aggregator =
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf(50L),
+                scope = testScope.backgroundScope,
+            ) { bucketCounts: IntArray ->
+                countsUnder50.add(bucketCounts[0])
+                counts50OrOver.add(bucketCounts[1])
+            }
+        val otherAggregator =
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf(50L),
+                scope = testScope.backgroundScope,
+            ) { bucketCounts: IntArray ->
+                othercountsUnder50.add(bucketCounts[0])
+                othercounts50OrOver.add(bucketCounts[1])
             }
 
-            // In 25 seconds, 2 windows should be reported.
-            testScope.advanceTimeBy(25.seconds)
+        // Feed input into the aggregators in a separate coroutine, so we can specify timing.
+        launch {
+            delay(1.seconds)
 
-            assertThat(countsUnder50).containsExactly(1, 0).inOrder()
-            assertThat(counts50OrOver).containsExactly(0, 3).inOrder()
-            assertThat(othercountsUnder50).containsExactly(0, 1).inOrder()
-            assertThat(othercounts50OrOver).containsExactly(2, 0).inOrder()
+            // First window.
+            aggregator.aggregate(0, 10)
+            otherAggregator.aggregate(0, 60)
+            otherAggregator.aggregate(0, 70)
+            delay(10.seconds)
+
+            // Second window.
+            otherAggregator.aggregate(0, 20)
+            aggregator.aggregate(0, 60)
+            aggregator.aggregate(0, 70)
+            aggregator.aggregate(0, 80)
+            delay(10.seconds)
         }
+
+        // In 25 seconds, 2 windows should be reported.
+        testScope.advanceTimeBy(25.seconds)
+
+        assertThat(countsUnder50).containsExactly(1, 0).inOrder()
+        assertThat(counts50OrOver).containsExactly(0, 3).inOrder()
+        assertThat(othercountsUnder50).containsExactly(0, 1).inOrder()
+        assertThat(othercounts50OrOver).containsExactly(2, 0).inOrder()
+    }
 
     @Test
     fun histogramLatencyAggregator_canStopOneAggregatorWhileTheOtherContinues() =
@@ -490,50 +483,49 @@ class HistogramLatencyAggregatorTest {
         }
 
     @Test
-    fun histogramLatencyAggregator_cancelingScopeCancelsAggregator() =
-        testScope.runTest {
-            // Set up a histogram aggregator with buckets (-inf, 50), [50, +inf).
-            val countsUnder50 = mutableListOf<Int>()
-            val counts50OrOver = mutableListOf<Int>()
-            val aggregator =
-                HistogramLatencyAggregator.create(
-                    window = 10.seconds,
-                    inclusiveLowerBoundsNanos = listOf(50L),
-                    scope = testScope.backgroundScope,
-                ) { bucketCounts: IntArray ->
-                    countsUnder50.add(bucketCounts[0])
-                    counts50OrOver.add(bucketCounts[1])
-                }
-
-            // Feed input into the aggregator in a separate coroutine, so we can specify timing.
-            launch {
-                delay(1.seconds)
-
-                // First window.
-                aggregator.aggregate(0, 10)
-                aggregator.aggregate(0, 20)
-                aggregator.aggregate(0, 60)
-                delay(10.seconds)
-
-                // Below, we'll cancel otherAggregator's job before the second window ends.
-
-                // Second window.
-                aggregator.aggregate(0, 30)
-                aggregator.aggregate(0, 80)
-                aggregator.aggregate(0, 90)
+    fun histogramLatencyAggregator_cancelingScopeCancelsAggregator() = testScope.runTest {
+        // Set up a histogram aggregator with buckets (-inf, 50), [50, +inf).
+        val countsUnder50 = mutableListOf<Int>()
+        val counts50OrOver = mutableListOf<Int>()
+        val aggregator =
+            HistogramLatencyAggregator.create(
+                window = 10.seconds,
+                inclusiveLowerBoundsNanos = listOf(50L),
+                scope = testScope.backgroundScope,
+            ) { bucketCounts: IntArray ->
+                countsUnder50.add(bucketCounts[0])
+                counts50OrOver.add(bucketCounts[1])
             }
 
-            // Cancel the background scope before the second window ends.
-            testScope.advanceTimeBy(15.seconds)
-            testScope.backgroundScope.cancel()
+        // Feed input into the aggregator in a separate coroutine, so we can specify timing.
+        launch {
+            delay(1.seconds)
 
-            // Let 10 more seconds pass, for a total of 25: two full windows have passed.
-            testScope.advanceTimeBy(10.seconds)
+            // First window.
+            aggregator.aggregate(0, 10)
+            aggregator.aggregate(0, 20)
+            aggregator.aggregate(0, 60)
+            delay(10.seconds)
 
-            // The aggregator reported only on the first window.
-            assertThat(countsUnder50).containsExactly(2)
-            assertThat(counts50OrOver).containsExactly(1)
+            // Below, we'll cancel otherAggregator's job before the second window ends.
+
+            // Second window.
+            aggregator.aggregate(0, 30)
+            aggregator.aggregate(0, 80)
+            aggregator.aggregate(0, 90)
         }
+
+        // Cancel the background scope before the second window ends.
+        testScope.advanceTimeBy(15.seconds)
+        testScope.backgroundScope.cancel()
+
+        // Let 10 more seconds pass, for a total of 25: two full windows have passed.
+        testScope.advanceTimeBy(10.seconds)
+
+        // The aggregator reported only on the first window.
+        assertThat(countsUnder50).containsExactly(2)
+        assertThat(counts50OrOver).containsExactly(1)
+    }
 
     @Test
     fun histogramLatencyAggregator_allocatesMoreHistogramsIfReportLambdasTakeALongTime() =

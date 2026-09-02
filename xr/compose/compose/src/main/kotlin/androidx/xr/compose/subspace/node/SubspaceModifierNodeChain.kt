@@ -435,9 +435,9 @@ private fun SubspaceModifier.fillVector(
                 next.all(
                     predicate
                         ?: { element: SubspaceModifier ->
-                                result.add(element)
-                                true
-                            }
+                            result.add(element)
+                            true
+                        }
                             .also { predicate = it }
                 )
         }

@@ -287,13 +287,12 @@ class UseCaseSurfaceManagerDeviceTest {
         private val handlerThread: HandlerThread = HandlerThread(name).apply { start() }
 
         /** Image reader that unlocks the latch waiting for the first image data to appear. */
-        private val onImageAvailableListener =
-            ImageReader.OnImageAvailableListener { reader ->
-                reader.acquireNextImage()?.let { image ->
-                    image.close()
-                    repeatingOutputDataLatch.countDown()
-                }
+        private val onImageAvailableListener = ImageReader.OnImageAvailableListener { reader ->
+            reader.acquireNextImage()?.let { image ->
+                image.close()
+                repeatingOutputDataLatch.countDown()
             }
+        }
         private val imageReader: ImageReader =
             ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2).apply {
                 setOnImageAvailableListener(

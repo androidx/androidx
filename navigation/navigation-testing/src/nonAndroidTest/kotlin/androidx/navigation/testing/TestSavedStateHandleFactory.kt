@@ -286,8 +286,9 @@ private val testNavType =
 
 private val testCollectionNavType: NavType<List<TestType>> =
     object : CollectionNavType<List<TestType>>(false) {
-        override fun serializeAsValues(value: List<TestType>): List<String> =
-            value.map { "${it.id}.${it.name}" }
+        override fun serializeAsValues(value: List<TestType>): List<String> = value.map {
+            "${it.id}.${it.name}"
+        }
 
         override fun put(bundle: SavedState, key: String, value: List<TestType>) {
             bundle.write { putStringArray(key, serializeAsValues(value).toTypedArray()) }

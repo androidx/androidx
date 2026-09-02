@@ -108,8 +108,9 @@ abstract class FunctionProcessorDelegate(
 }
 
 fun FunctionProcessorDelegate.returnsDeferredType(): Boolean {
-    val deferredTypes =
-        DEFERRED_TYPES.mapNotNull { context.processingEnv.findType(it.canonicalName) }
+    val deferredTypes = DEFERRED_TYPES.mapNotNull {
+        context.processingEnv.findType(it.canonicalName)
+    }
     val returnType = extractReturnType()
     return deferredTypes.any { deferredType ->
         deferredType.rawType.isAssignableFrom(returnType.rawType)

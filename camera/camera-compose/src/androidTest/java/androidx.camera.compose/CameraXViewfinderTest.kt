@@ -567,17 +567,16 @@ class CameraXViewfinderTest(private val implName: String, private val cameraConf
                         .build()
 
                 val surfaceRequests = MutableStateFlow<SurfaceRequest?>(null)
-                val resetPreviewSurfaceProvider =
-                    suspend {
-                            withContext(Dispatchers.Main) {
-                                // Reset the surface provider to a new lambda that will continue to
-                                // publish to surfaceRequests
-                                preview.setSurfaceProvider { surfaceRequest ->
-                                    surfaceRequests.value = surfaceRequest
-                                }
-                            }
+                val resetPreviewSurfaceProvider = suspend {
+                    withContext(Dispatchers.Main) {
+                        // Reset the surface provider to a new lambda that will continue to
+                        // publish to surfaceRequests
+                        preview.setSurfaceProvider { surfaceRequest ->
+                            surfaceRequests.value = surfaceRequest
                         }
-                        .also { it.invoke() }
+                    }
+                }
+                    .also { it.invoke() }
 
                 val startCamera = suspend {
                     withContext(Dispatchers.Main) {

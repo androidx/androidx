@@ -1828,8 +1828,9 @@ class LazyStaggeredGridItemPlacementAnimationTest(private val config: Config) {
                     keySelector = { it.config[SemanticsProperties.TestTag] },
                     valueTransform = { IntRect(it.positionInRoot.round(), it.size) },
                 )
-        val actualPositions =
-            expected.map { it.first to actualBounds.getValue(it.first.toString()).topLeft }
+        val actualPositions = expected.map {
+            it.first to actualBounds.getValue(it.first.toString()).topLeft
+        }
         val subject =
             if (fraction == null) {
                 assertThat(actualPositions)
@@ -1862,13 +1863,12 @@ class LazyStaggeredGridItemPlacementAnimationTest(private val config: Config) {
             }
         )
         if (crossAxis != null) {
-            val actualCross =
-                expected.map {
-                    it.first to
-                        actualBounds.getValue(it.first.toString()).topLeft.let { offset ->
-                            if (isVertical) offset.x else offset.y
-                        }
-                }
+            val actualCross = expected.map {
+                it.first to
+                    actualBounds.getValue(it.first.toString()).topLeft.let { offset ->
+                        if (isVertical) offset.x else offset.y
+                    }
+            }
             Truth.assertWithMessage(
                     "CrossAxis" + if (fraction != null) "for fraction=$fraction" else ""
                 )

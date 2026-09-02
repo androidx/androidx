@@ -110,7 +110,9 @@ fun SettingsPage(
                     value = items[displayMode],
                     onValueChange = {},
                     readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
                 )
 
                 ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
@@ -151,7 +153,9 @@ fun SettingsPage(
                     value = items[camera.toInt()],
                     onValueChange = {},
                     readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    },
                 )
 
                 ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {

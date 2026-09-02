@@ -390,12 +390,11 @@ constructor(
     ) {
         autoCancelJob?.cancel()
 
-        autoCancelJob =
-            threads.confineLaunch {
-                delay(delayMillis)
-                Camera2Logger.debug { "triggerAutoCancel: auto-canceling after $delayMillis ms" }
-                cancelFocusAndMeteringNowAsync(requestControl, resultToCancel)
-            }
+        autoCancelJob = threads.confineLaunch {
+            delay(delayMillis)
+            Camera2Logger.debug { "triggerAutoCancel: auto-canceling after $delayMillis ms" }
+            cancelFocusAndMeteringNowAsync(requestControl, resultToCancel)
+        }
     }
 
     private fun triggerFocusTimeout(
@@ -404,15 +403,14 @@ constructor(
     ) {
         focusTimeoutJob?.cancel()
 
-        focusTimeoutJob =
-            threads.confineLaunch {
-                delay(delayMillis)
-                Camera2Logger.debug {
-                    "triggerFocusTimeout:" +
-                        " completing with focus result unsuccessful after $delayMillis ms"
-                }
-                resultToComplete.complete(FocusMeteringResult.create(false))
+        focusTimeoutJob = threads.confineLaunch {
+            delay(delayMillis)
+            Camera2Logger.debug {
+                "triggerFocusTimeout:" +
+                    " completing with focus result unsuccessful after $delayMillis ms"
             }
+            resultToComplete.complete(FocusMeteringResult.create(false))
+        }
     }
 
     private fun cancel3ALocksAndResetMode(

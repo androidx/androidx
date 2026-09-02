@@ -118,10 +118,10 @@ private data class TypeNameNode(
 ) {
     override fun toString(): String {
         return buildString {
-                appendLine(text)
-                bounds.forEach { appendLine(it.toString().prependIndent("> ")) }
-                typeArgs.forEach { appendLine(it.toString().prependIndent("| ")) }
-            }
+            appendLine(text)
+            bounds.forEach { appendLine(it.toString().prependIndent("> ")) }
+            typeArgs.forEach { appendLine(it.toString().prependIndent("| ")) }
+        }
             .trim()
     }
 }

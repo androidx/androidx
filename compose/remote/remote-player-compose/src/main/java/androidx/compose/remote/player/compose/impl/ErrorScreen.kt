@@ -49,7 +49,11 @@ internal fun ErrorScreen(errorMessage: String, modifier: Modifier = Modifier) {
                 BasicText(
                     text = errorMessage,
                     style =
-                        TextStyle(color = Color.Red, fontSize = 18.sp, textAlign = TextAlign.Center),
+                        TextStyle(
+                            color = Color.Red,
+                            fontSize = 18.sp,
+                            textAlign = TextAlign.Center,
+                        ),
                 )
             }
         }

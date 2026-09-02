@@ -485,11 +485,10 @@ class ModifierLocalSameLayoutNodeTest {
         val provider1 = Modifier.modifierLocalProvider(localString) { "ProvidedValue" }
         val provider2 = Modifier.modifierLocalProvider(localString) { "Another ProvidedValue" }
         var providerChoice by mutableStateOf(provider1)
-        val consumer =
-            Modifier.modifierLocalConsumer {
-                localString.current // read the value
-                calls++
-            }
+        val consumer = Modifier.modifierLocalConsumer {
+            localString.current // read the value
+            calls++
+        }
         rule.setContent { Box(providerChoice.then(consumer)) }
 
         rule.runOnIdle {

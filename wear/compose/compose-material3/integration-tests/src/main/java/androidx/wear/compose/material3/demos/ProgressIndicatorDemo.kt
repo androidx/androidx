@@ -149,7 +149,9 @@ val ProgressIndicatorDemos =
                 ComposableDemo("Linear Samples") {
                     Centralize { LinearProgressIndicatorSamples() }
                 },
-                ComposableDemo("Animation") { Centralize { LinearProgressIndicatorAnimatedDemo() } },
+                ComposableDemo("Animation") {
+                    Centralize { LinearProgressIndicatorAnimatedDemo() }
+                },
             ),
         ),
         Material3DemoCategory(

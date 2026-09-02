@@ -193,12 +193,11 @@ class LazyGridsReverseLayoutTest {
 
         rule.onNodeWithTag(ContainerTag).scrollBy(y = -itemSize * 0.5f, density = rule.density)
 
-        val scrolled =
-            rule.runOnIdle {
-                assertThat(state.firstVisibleItemScrollOffset).isGreaterThan(0)
-                assertThat(state.firstVisibleItemIndex).isEqualTo(0)
-                with(rule.density) { state.firstVisibleItemScrollOffset.toDp() }
-            }
+        val scrolled = rule.runOnIdle {
+            assertThat(state.firstVisibleItemScrollOffset).isGreaterThan(0)
+            assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+            with(rule.density) { state.firstVisibleItemScrollOffset.toDp() }
+        }
 
         rule.onNodeWithTag("2").assertTopPositionInRootIsEqualTo(-itemSize + scrolled)
         rule.onNodeWithTag("1").assertTopPositionInRootIsEqualTo(scrolled)

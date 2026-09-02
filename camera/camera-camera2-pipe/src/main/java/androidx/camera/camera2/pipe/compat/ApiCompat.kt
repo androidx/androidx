@@ -252,10 +252,9 @@ internal object Api31Compat {
             val inputData = inputConfigData.first()
             return InputConfiguration(inputData.width, inputData.height, inputData.format)
         }
-        val multiResolutionInput =
-            inputConfigData.map { input ->
-                MultiResolutionStreamInfo(input.width, input.height, cameraId)
-            }
+        val multiResolutionInput = inputConfigData.map { input ->
+            MultiResolutionStreamInfo(input.width, input.height, cameraId)
+        }
         return InputConfiguration(multiResolutionInput, inputConfigData.first().format)
     }
 

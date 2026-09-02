@@ -225,7 +225,9 @@ class RepeatableAnimationTest {
         for (playtimeMillis in 0..duration * 3 step 17) {
             assertEquals(
                 repeatable.getValueFromNanos(playtimeMillis * MillisToNanos),
-                fastForwardedRepeatable.getValueFromNanos((playtimeMillis - offset) * MillisToNanos),
+                fastForwardedRepeatable.getValueFromNanos(
+                    (playtimeMillis - offset) * MillisToNanos
+                ),
             )
         }
     }
@@ -283,7 +285,9 @@ class RepeatableAnimationTest {
         for (playtimeMillis in 0..duration * 3 step 17) {
             assertEquals(
                 repeatable.getValueFromNanos(playtimeMillis * MillisToNanos),
-                fastForwardedRepeatable.getValueFromNanos((playtimeMillis - offset) * MillisToNanos),
+                fastForwardedRepeatable.getValueFromNanos(
+                    (playtimeMillis - offset) * MillisToNanos
+                ),
             )
         }
     }

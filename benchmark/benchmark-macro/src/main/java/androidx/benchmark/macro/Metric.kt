@@ -1086,7 +1086,8 @@ constructor(
     private val subMetrics: List<SubMetric> =
         listOf(SubMetric.HeapSize, SubMetric.RssAnon, SubMetric.RssFile, SubMetric.Gpu),
     private val processNameSuffix: String = "",
-    private val metricNameSuffix: String = processNameSuffix.replace(oldValue = ":", newValue = "_"),
+    private val metricNameSuffix: String =
+        processNameSuffix.replace(oldValue = ":", newValue = "_"),
 ) : TraceMetric() {
     enum class Mode {
         /**
@@ -1186,7 +1187,8 @@ class MemoryCountersMetric
 @JvmOverloads
 constructor(
     private val processNameSuffix: String = "",
-    private val metricNameSuffix: String = processNameSuffix.replace(oldValue = ":", newValue = "_"),
+    private val metricNameSuffix: String =
+        processNameSuffix.replace(oldValue = ":", newValue = "_"),
 ) : TraceMetric() {
     override fun getMeasurements(
         captureInfo: CaptureInfo,

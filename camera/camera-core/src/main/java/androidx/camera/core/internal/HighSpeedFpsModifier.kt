@@ -81,8 +81,9 @@ public class HighSpeedFpsModifier {
         it.surface.isVideoSurface()
     }
 
-    private fun CaptureConfig.Builder.hasVideoSurface(): Boolean =
-        surfaces.any { it.isVideoSurface() }
+    private fun CaptureConfig.Builder.hasVideoSurface(): Boolean = surfaces.any {
+        it.isVideoSurface()
+    }
 
     private fun DeferrableSurface.isVideoSurface(): Boolean =
         containerClass == MediaCodec::class.java

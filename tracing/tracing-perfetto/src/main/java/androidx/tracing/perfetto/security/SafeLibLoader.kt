@@ -44,8 +44,9 @@ internal class SafeLibLoader(context: Context) {
      */
     private fun copyToSafeLocation(file: File): File {
         if (!file.exists()) throw FileNotFoundException("Cannot locate library file: $file")
-        val isInApprovedLocation =
-            approvedLocations.any { approvedLocation -> file.isDescendantOf(approvedLocation) }
+        val isInApprovedLocation = approvedLocations.any { approvedLocation ->
+            file.isDescendantOf(approvedLocation)
+        }
         return if (isInApprovedLocation) file
         else file.copyTo(approvedLocations.first().resolve(file.name), overwrite = true)
     }

@@ -122,38 +122,37 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
 
         // No need to cancel any previous job, the text input system ensures the previous session
         // will be cancelled.
-        job =
-            node.launchTextInputSession {
-                coroutineScope {
-                    val inputMethodManager = inputMethodManagerFactory(view)
-                    val request =
-                        LegacyTextInputMethodRequest(
-                            view = view,
-                            localToScreen = ::localToScreen,
-                            inputMethodManager = inputMethodManager,
-                        )
+        job = node.launchTextInputSession {
+            coroutineScope {
+                val inputMethodManager = inputMethodManagerFactory(view)
+                val request =
+                    LegacyTextInputMethodRequest(
+                        view = view,
+                        localToScreen = ::localToScreen,
+                        inputMethodManager = inputMethodManager,
+                    )
 
-                    if (isStylusHandwritingSupported) {
-                        launch {
-                            // When the editor is just focused, we need to wait for imm.startInput
-                            // before calling startStylusHandwriting. We need to wait for one frame
-                            // because TextInputService.startInput also waits for one frame before
-                            // actually calling imm.restartInput.
-                            withFrameMillis {}
-                            stylusHandwritingTrigger?.collect {
-                                inputMethodManager.startStylusHandwriting()
-                            }
+                if (isStylusHandwritingSupported) {
+                    launch {
+                        // When the editor is just focused, we need to wait for imm.startInput
+                        // before calling startStylusHandwriting. We need to wait for one frame
+                        // because TextInputService.startInput also waits for one frame before
+                        // actually calling imm.restartInput.
+                        withFrameMillis {}
+                        stylusHandwritingTrigger?.collect {
+                            inputMethodManager.startStylusHandwriting()
                         }
                     }
-                    initializeRequest?.invoke(request)
-                    currentRequest = request
-                    try {
-                        startInputMethod(request)
-                    } finally {
-                        currentRequest = null
-                    }
+                }
+                initializeRequest?.invoke(request)
+                currentRequest = request
+                try {
+                    startInputMethod(request)
+                } finally {
+                    currentRequest = null
                 }
             }
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

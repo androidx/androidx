@@ -424,32 +424,30 @@ internal class LruCacheTest {
 
         val scope = CoroutineScope(Dispatchers.Default)
 
-        val t0 =
-            scope.launch {
-                repeat(rounds) {
-                    if (cache[key] != null) {
-                        nonNullValues++
-                    } else {
-                        nullValues++
-                    }
+        val t0 = scope.launch {
+            repeat(rounds) {
+                if (cache[key] != null) {
+                    nonNullValues++
+                } else {
+                    nullValues++
                 }
             }
+        }
 
-        val t1 =
-            scope.launch {
-                repeat(rounds) { i ->
-                    if (i % 2 == 0) {
-                        if (cache.put(key, value) != null) {
-                            conflicts++
-                        } else {
-                            valuesPut++
-                        }
+        val t1 = scope.launch {
+            repeat(rounds) { i ->
+                if (i % 2 == 0) {
+                    if (cache.put(key, value) != null) {
+                        conflicts++
                     } else {
-                        cache.remove(key)
-                        removed++
+                        valuesPut++
                     }
+                } else {
+                    cache.remove(key)
+                    removed++
                 }
             }
+        }
 
         t0.join()
         t1.join()

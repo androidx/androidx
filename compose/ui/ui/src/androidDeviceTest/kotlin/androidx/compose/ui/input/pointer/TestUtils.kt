@@ -434,22 +434,21 @@ internal fun internalPointerEventOf(vararg changes: PointerInputChange): Interna
             MotionEventMove
         }
 
-    val pointers =
-        changes.map {
-            PointerInputEventData(
-                id = it.id,
-                uptime = it.uptimeMillis,
-                positionOnScreen = it.position,
-                position = it.position,
-                down = it.pressed,
-                pressure = it.pressure,
-                type = it.type,
-                activeHover = false,
-                historical = emptyList(),
-                scaleGestureFactor = 0f,
-                panGestureOffset = Offset.Zero,
-            )
-        }
+    val pointers = changes.map {
+        PointerInputEventData(
+            id = it.id,
+            uptime = it.uptimeMillis,
+            positionOnScreen = it.position,
+            position = it.position,
+            down = it.pressed,
+            pressure = it.pressure,
+            type = it.type,
+            activeHover = false,
+            historical = emptyList(),
+            scaleGestureFactor = 0f,
+            panGestureOffset = Offset.Zero,
+        )
+    }
     val pointerEvent = PointerInputEvent(0L, pointers, event)
     return InternalPointerEvent(changes.toLongSparseArray(), pointerEvent)
 }

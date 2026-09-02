@@ -179,8 +179,9 @@ class DemoTest {
     }
 }
 
-private val AllButIgnoredDemos =
-    WearComposeDemos.filter { path, demo -> demo.navigationTitle(path) !in ignoredDemos }
+private val AllButIgnoredDemos = WearComposeDemos.filter { path, demo ->
+    demo.navigationTitle(path) !in ignoredDemos
+}
 
 private fun Demo.navigationTitle(path: List<DemoCategory>): String {
     return path.plus(this).navigationTitle

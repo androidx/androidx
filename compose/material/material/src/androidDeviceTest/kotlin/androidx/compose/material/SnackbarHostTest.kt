@@ -69,15 +69,14 @@ class SnackbarHostTest {
                 }
             }
         }
-        val job =
-            scope.launch {
-                hostState.showSnackbar("1")
-                Truth.assertThat(resultedInvocation).isEqualTo("1")
-                hostState.showSnackbar("2")
-                Truth.assertThat(resultedInvocation).isEqualTo("12")
-                hostState.showSnackbar("3")
-                Truth.assertThat(resultedInvocation).isEqualTo("123")
-            }
+        val job = scope.launch {
+            hostState.showSnackbar("1")
+            Truth.assertThat(resultedInvocation).isEqualTo("1")
+            hostState.showSnackbar("2")
+            Truth.assertThat(resultedInvocation).isEqualTo("12")
+            hostState.showSnackbar("3")
+            Truth.assertThat(resultedInvocation).isEqualTo("123")
+        }
 
         rule.waitUntil { job.isCompleted }
     }
@@ -120,20 +119,18 @@ class SnackbarHostTest {
             scope = rememberCoroutineScope()
             SnackbarHost(hostState) { data -> Snackbar(data) }
         }
-        val job1 =
-            scope.launch {
-                val result = hostState.showSnackbar("1", actionLabel = "press")
-                Truth.assertThat(result).isEqualTo(SnackbarResult.ActionPerformed)
-            }
+        val job1 = scope.launch {
+            val result = hostState.showSnackbar("1", actionLabel = "press")
+            Truth.assertThat(result).isEqualTo(SnackbarResult.ActionPerformed)
+        }
         rule.onNodeWithText("press").performClick()
 
         rule.waitUntil { job1.isCompleted }
 
-        val job2 =
-            scope.launch {
-                val result = hostState.showSnackbar(message = "1", actionLabel = "do not press")
-                Truth.assertThat(result).isEqualTo(SnackbarResult.Dismissed)
-            }
+        val job2 = scope.launch {
+            val result = hostState.showSnackbar(message = "1", actionLabel = "do not press")
+            Truth.assertThat(result).isEqualTo(SnackbarResult.Dismissed)
+        }
 
         rule.mainClock.advanceTimeBy(5_000)
         rule.waitUntil { job2.isCompleted }
@@ -150,16 +147,14 @@ class SnackbarHostTest {
             }
             SnackbarHost(hostState) { data -> Snackbar(data) }
         }
-        val job1 =
-            scope.launch {
-                hostState.showSnackbar("1")
-                Truth.assertWithMessage("Result shouldn't happen due to cancellation").fail()
-            }
-        val job2 =
-            scope.launch {
-                delay(10)
-                switchState.value = false
-            }
+        val job1 = scope.launch {
+            hostState.showSnackbar("1")
+            Truth.assertWithMessage("Result shouldn't happen due to cancellation").fail()
+        }
+        val job2 = scope.launch {
+            delay(10)
+            switchState.value = false
+        }
 
         rule.waitUntil { job1.isCompleted && job2.isCompleted }
     }
@@ -174,11 +169,10 @@ class SnackbarHostTest {
             SnackbarHost(hostState) { data -> Snackbar(data) }
             paneTitle = getString(Strings.SnackbarPaneTitle)
         }
-        val job1 =
-            scope.launch {
-                val result = hostState.showSnackbar("1", actionLabel = "press")
-                Truth.assertThat(result).isEqualTo(SnackbarResult.Dismissed)
-            }
+        val job1 = scope.launch {
+            val result = hostState.showSnackbar("1", actionLabel = "press")
+            Truth.assertThat(result).isEqualTo(SnackbarResult.Dismissed)
+        }
         rule
             .onNodeWithText("1")
             .onParent()

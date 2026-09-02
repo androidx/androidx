@@ -44,10 +44,9 @@ internal fun Project.check(value: Boolean, isFatal: Boolean = false, lazyMessage
     }
 }
 
-private fun Project.isGradleSyncRunning() =
-    gradleSyncProps.any { property ->
-        providers.gradleProperty(property).map { it.toBoolean() }.orElse(false).get()
-    }
+private fun Project.isGradleSyncRunning() = gradleSyncProps.any { property ->
+    providers.gradleProperty(property).map { it.toBoolean() }.orElse(false).get()
+}
 
 private val gradleSyncProps by lazy {
     listOf(

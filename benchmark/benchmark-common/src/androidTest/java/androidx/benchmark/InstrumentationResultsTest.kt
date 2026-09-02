@@ -236,7 +236,10 @@ class InstrumentationResultsTest {
             InstrumentationResults.ideSummary(
                 testName = "foo",
                 measurements =
-                    Measurements(singleMetrics = listOf(metricResult), sampledMetrics = emptyList()),
+                    Measurements(
+                        singleMetrics = listOf(metricResult),
+                        sampledMetrics = emptyList(),
+                    ),
             )
         assertEquals(
             """

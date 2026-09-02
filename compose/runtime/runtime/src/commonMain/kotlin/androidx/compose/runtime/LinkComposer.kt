@@ -364,10 +364,9 @@ internal class LinkComposer(
         get() = childrenComposing > 0
 
     override val currentRecomposeScope: RecomposeScopeImpl?
-        get() =
-            invalidateStack.let {
-                if (childrenComposing == 0 && it.isNotEmpty()) it.peek() else null
-            }
+        get() = invalidateStack.let {
+            if (childrenComposing == 0 && it.isNotEmpty()) it.peek() else null
+        }
 
     /**
      * Returns the hash of the composite key calculated as a combination of the keys of all the

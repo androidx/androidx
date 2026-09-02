@@ -42,8 +42,9 @@ internal fun Stroke.toStampAnnotation(pageNum: Int): StampAnnotation {
         (0 until strokeMesh.getRenderGroupCount()).map { groupIndex ->
             strokeMesh.outlinesToPath(groupIndex)
         }
-    val pathInputs: List<PathPdfObject.PathInput> =
-        renderGroupPaths.flatMap { it.getPathInputsFromPath() }
+    val pathInputs: List<PathPdfObject.PathInput> = renderGroupPaths.flatMap {
+        it.getPathInputsFromPath()
+    }
 
     val pathPdfObject =
         PathPdfObject(brushColor = brush.colorIntArgb, brushWidth = brush.size, inputs = pathInputs)

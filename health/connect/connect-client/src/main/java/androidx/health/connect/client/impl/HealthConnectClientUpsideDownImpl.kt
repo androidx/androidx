@@ -250,17 +250,16 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             return fallbackResponse
         }
 
-        val platformResponse =
-            wrapPlatformException {
-                    suspendCancellableCoroutine { continuation ->
-                        healthConnectManager.aggregate(
-                            request.toPlatformRequest(),
-                            executor,
-                            continuation.asOutcomeReceiver(),
-                        )
-                    }
-                }
-                .toSdkResponse(platformSupportedMetrics)
+        val platformResponse = wrapPlatformException {
+            suspendCancellableCoroutine { continuation ->
+                healthConnectManager.aggregate(
+                    request.toPlatformRequest(),
+                    executor,
+                    continuation.asOutcomeReceiver(),
+                )
+            }
+        }
+            .toSdkResponse(platformSupportedMetrics)
 
         return platformResponse + fallbackResponse
     }
@@ -279,18 +278,17 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             return fallbackResponse
         }
 
-        val platformResponse =
-            wrapPlatformException {
-                    suspendCancellableCoroutine { continuation ->
-                        healthConnectManager.aggregateGroupByDuration(
-                            request.toPlatformRequest(),
-                            request.timeRangeSlicer,
-                            executor,
-                            continuation.asOutcomeReceiver(),
-                        )
-                    }
-                }
-                .map { it.toSdkResponse(platformSupportedMetrics) }
+        val platformResponse = wrapPlatformException {
+            suspendCancellableCoroutine { continuation ->
+                healthConnectManager.aggregateGroupByDuration(
+                    request.toPlatformRequest(),
+                    request.timeRangeSlicer,
+                    executor,
+                    continuation.asOutcomeReceiver(),
+                )
+            }
+        }
+            .map { it.toSdkResponse(platformSupportedMetrics) }
 
         return (fallbackResponse + platformResponse)
             .groupingBy { it.startTime }
@@ -320,44 +318,41 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             return fallbackResponse
         }
 
-        val platformResponse =
-            wrapPlatformException {
-                    suspendCancellableCoroutine { continuation ->
-                        healthConnectManager.aggregateGroupByPeriod(
-                            request.toPlatformRequest(),
-                            request.timeRangeSlicer,
-                            executor,
-                            continuation.asOutcomeReceiver(),
-                        )
-                    }
+        val platformResponse = wrapPlatformException {
+            suspendCancellableCoroutine { continuation ->
+                healthConnectManager.aggregateGroupByPeriod(
+                    request.toPlatformRequest(),
+                    request.timeRangeSlicer,
+                    executor,
+                    continuation.asOutcomeReceiver(),
+                )
+            }
+        }
+            .mapIndexed { index, response ->
+                if (
+                    SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10 ||
+                        (request.timeRangeSlicer.months == 0 && request.timeRangeSlicer.years == 0)
+                ) {
+                    response.toSdkResponse(platformSupportedMetrics)
+                } else {
+                    // Handle bug in the Platform for versions of mainline module before SDK
+                    // extension 10, where bucket endTime < bucket startTime (b/298290400)
+                    val requestTimeRangeFilter =
+                        request.timeRangeFilter.toPlatformLocalTimeRangeFilter()
+                    val bucketStartTime =
+                        requestTimeRangeFilter.startTime!! +
+                            request.timeRangeSlicer.multipliedBy(index)
+                    response.toSdkResponse(
+                        metrics = platformSupportedMetrics,
+                        bucketStartTime = bucketStartTime,
+                        bucketEndTime =
+                            minOf(
+                                bucketStartTime + request.timeRangeSlicer,
+                                requestTimeRangeFilter.endTime!!,
+                            ),
+                    )
                 }
-                .mapIndexed { index, response ->
-                    if (
-                        SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >=
-                            10 ||
-                            (request.timeRangeSlicer.months == 0 &&
-                                request.timeRangeSlicer.years == 0)
-                    ) {
-                        response.toSdkResponse(platformSupportedMetrics)
-                    } else {
-                        // Handle bug in the Platform for versions of mainline module before SDK
-                        // extension 10, where bucket endTime < bucket startTime (b/298290400)
-                        val requestTimeRangeFilter =
-                            request.timeRangeFilter.toPlatformLocalTimeRangeFilter()
-                        val bucketStartTime =
-                            requestTimeRangeFilter.startTime!! +
-                                request.timeRangeSlicer.multipliedBy(index)
-                        response.toSdkResponse(
-                            metrics = platformSupportedMetrics,
-                            bucketStartTime = bucketStartTime,
-                            bucketEndTime =
-                                minOf(
-                                    bucketStartTime + request.timeRangeSlicer,
-                                    requestTimeRangeFilter.endTime!!,
-                                ),
-                        )
-                    }
-                }
+            }
 
         return (fallbackResponse + platformResponse)
             .groupingBy { it.startTime }
@@ -378,14 +373,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
 
     override suspend fun getChangesToken(request: ChangesTokenRequest): String {
         return wrapPlatformException {
-                suspendCancellableCoroutine { continuation ->
-                    healthConnectManager.getChangeLogToken(
-                        request.toPlatformRequest(),
-                        executor,
-                        continuation.asOutcomeReceiver(),
-                    )
-                }
+            suspendCancellableCoroutine { continuation ->
+                healthConnectManager.getChangeLogToken(
+                    request.toPlatformRequest(),
+                    executor,
+                    continuation.asOutcomeReceiver(),
+                )
             }
+        }
             .token
     }
 
@@ -445,14 +440,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             "createMedicalDataSource(request: CreateMedicalDataSourceRequest)",
         ) {
             wrapPlatformException {
-                    suspendCancellableCoroutine { continuation ->
-                        healthConnectManager.createMedicalDataSource(
-                            request.platformCreateMedicalDataSourceRequest,
-                            executor,
-                            continuation.asOutcomeReceiver(),
-                        )
-                    }
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.createMedicalDataSource(
+                        request.platformCreateMedicalDataSourceRequest,
+                        executor,
+                        continuation.asOutcomeReceiver(),
+                    )
                 }
+            }
                 .toSdkMedicalDataSource()
         }
 
@@ -483,14 +478,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             "getMedicalDataSources(request: GetMedicalDataSourcesRequest)",
         ) {
             wrapPlatformException {
-                    suspendCancellableCoroutine { continuation ->
-                        healthConnectManager.getMedicalDataSources(
-                            request.platformGetMedicalDataSourcesRequest,
-                            executor,
-                            continuation.asOutcomeReceiver(),
-                        )
-                    }
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.getMedicalDataSources(
+                        request.platformGetMedicalDataSourcesRequest,
+                        executor,
+                        continuation.asOutcomeReceiver(),
+                    )
                 }
+            }
                 .map { it.toSdkMedicalDataSource() }
         }
 
@@ -499,14 +494,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     override suspend fun getMedicalDataSources(ids: List<String>): List<MedicalDataSource> =
         withPhrFeatureCheckSuspend(this::class, "getMedicalDataSources(ids: List<String>)") {
             wrapPlatformException {
-                    suspendCancellableCoroutine { continuation ->
-                        healthConnectManager.getMedicalDataSources(
-                            ids,
-                            executor,
-                            continuation.asOutcomeReceiver(),
-                        )
-                    }
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.getMedicalDataSources(
+                        ids,
+                        executor,
+                        continuation.asOutcomeReceiver(),
+                    )
                 }
+            }
                 .map { it.toSdkMedicalDataSource() }
         }
 
@@ -518,14 +513,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     ): List<MedicalResource> =
         withPhrFeatureCheckSuspend(this::class, "upsertMedicalResources()") {
             wrapPlatformException {
-                    suspendCancellableCoroutine { continuation ->
-                        healthConnectManager.upsertMedicalResources(
-                            requests.map { it.platformUpsertMedicalResourceRequest },
-                            executor,
-                            continuation.asOutcomeReceiver(),
-                        )
-                    }
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.upsertMedicalResources(
+                        requests.map { it.platformUpsertMedicalResourceRequest },
+                        executor,
+                        continuation.asOutcomeReceiver(),
+                    )
                 }
+            }
                 .map { it.toSdkMedicalResource() }
         }
 
@@ -539,14 +534,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             "readMedicalResources(request: ReadMedicalResourcesRequest)",
         ) {
             wrapPlatformException {
-                    suspendCancellableCoroutine { continuation ->
-                        healthConnectManager.readMedicalResources(
-                            request.platformReadMedicalResourcesRequest,
-                            executor,
-                            continuation.asOutcomeReceiver(),
-                        )
-                    }
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.readMedicalResources(
+                        request.platformReadMedicalResourcesRequest,
+                        executor,
+                        continuation.asOutcomeReceiver(),
+                    )
                 }
+            }
                 .let { platformResponse ->
                     ReadMedicalResourcesResponse(
                         platformResponse.medicalResources.map { it.toSdkMedicalResource() },
@@ -564,14 +559,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             "readMedicalResources(ids: List<MedicalResourceId>)",
         ) {
             wrapPlatformException {
-                    suspendCancellableCoroutine { continuation ->
-                        healthConnectManager.readMedicalResources(
-                            ids.map { it.platformMedicalResourceId },
-                            executor,
-                            continuation.asOutcomeReceiver(),
-                        )
-                    }
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.readMedicalResources(
+                        ids.map { it.platformMedicalResourceId },
+                        executor,
+                        continuation.asOutcomeReceiver(),
+                    )
                 }
+            }
                 .map { it.toSdkMedicalResource() }
         }
 
@@ -625,14 +620,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             "checkIfMatchmakingIsPossible(request: MatchmakingRequest)",
         ) {
             wrapPlatformException {
-                    suspendCancellableCoroutine { continuation ->
-                        healthConnectManager.isMatchmakingPossible(
-                            request.platformMatchmakingRequest,
-                            executor,
-                            continuation.asOutcomeReceiver(),
-                        )
-                    }
+                suspendCancellableCoroutine { continuation ->
+                    healthConnectManager.isMatchmakingPossible(
+                        request.platformMatchmakingRequest,
+                        executor,
+                        continuation.asOutcomeReceiver(),
+                    )
                 }
+            }
                 .toKtResponse()
         }
 

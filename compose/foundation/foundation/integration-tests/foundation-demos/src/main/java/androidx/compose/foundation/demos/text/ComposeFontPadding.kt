@@ -95,7 +95,9 @@ private fun Configuration() {
                     Text(
                         text,
                         style =
-                            style.copy(platformStyle = PlatformTextStyle(includeFontPadding = true)),
+                            style.copy(
+                                platformStyle = PlatformTextStyle(includeFontPadding = true)
+                            ),
                     )
                 }
             }

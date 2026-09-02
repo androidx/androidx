@@ -98,7 +98,8 @@ class NavigationBarBenchmark {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal class NavigationBarTestCase(
     private val isShortNavBar: Boolean = false,
-    private val shortNavBarIconPosition: NavigationItemIconPosition = NavigationItemIconPosition.Top,
+    private val shortNavBarIconPosition: NavigationItemIconPosition =
+        NavigationItemIconPosition.Top,
 ) : LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var selectedIndexState: MutableIntState
 

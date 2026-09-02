@@ -76,68 +76,66 @@ internal class CommonProcessorDelegate(
     fun processRound(roundEnv: XRoundEnv) {
         val previousRoundDeferredElementNames = deferredElementNames.toMutableSet()
         deferredElementNames.clear()
-        val currentElementsDeferredByStep =
-            steps.associateWith { step ->
-                // Previous round processor deferred elements, these need to be re-validated.
-                val previousRoundDeferredElementsByAnnotation =
-                    getStepElementsByAnnotation(step, previousRoundDeferredElementNames)
-                        .withDefault { emptySet() }
-                // Previous round step deferred elements, these don't need to be re-validated.
-                val stepDeferredElementsByAnnotation =
-                    getStepElementsByAnnotation(step, elementsDeferredBySteps[step] ?: emptySet())
-                        .withDefault { emptySet() }
-                val deferredElements = mutableSetOf<XElement>()
-                val elementsByAnnotation =
-                    step
-                        .annotations()
-                        .mapNotNull { annotation ->
-                            val annotatedElements =
-                                roundEnv.getElementsAnnotatedWith(annotation) +
-                                    previousRoundDeferredElementsByAnnotation.getValue(annotation)
-                            // Split between valid and invalid elements. Unlike auto-common,
-                            // validation is only
-                            // done in the annotated element from the round and not in the closest
-                            // enclosing
-                            // type element.
-                            val (validElements, invalidElements) =
-                                if (env.config.disableAnnotatedElementValidation) {
-                                    annotatedElements to emptySet<XElement>()
-                                } else {
-                                    annotatedElements.partition {
-                                        it.closestMemberContainer.validate()
-                                    }
-                                }
-                            deferredElements.addAll(invalidElements)
-                            (validElements + stepDeferredElementsByAnnotation.getValue(annotation))
-                                .let {
-                                    if (it.isNotEmpty()) {
-                                        annotation to it.toSet()
-                                    } else {
-                                        null
-                                    }
-                                }
-                        }
-                        .toMap()
-                // Store all processor deferred elements.
-                deferredElementNames.addAll(
-                    deferredElements.mapNotNull {
-                        (it.closestMemberContainer as? XTypeElement)?.qualifiedName
-                    }
-                )
-                // Only process the step if there are annotated elements found for this step, or the
-                // step supports processing all annotations "*".
-                val supportsAllAnnotations = step.annotations().any { it == "*" }
-                return@associateWith if (
-                    supportsAllAnnotations || elementsByAnnotation.isNotEmpty()
-                ) {
-                    step
-                        .process(env, elementsByAnnotation, false)
-                        .mapNotNull { (it.closestMemberContainer as? XTypeElement)?.qualifiedName }
-                        .toSet()
-                } else {
+        val currentElementsDeferredByStep = steps.associateWith { step ->
+            // Previous round processor deferred elements, these need to be re-validated.
+            val previousRoundDeferredElementsByAnnotation =
+                getStepElementsByAnnotation(step, previousRoundDeferredElementNames).withDefault {
                     emptySet()
                 }
+            // Previous round step deferred elements, these don't need to be re-validated.
+            val stepDeferredElementsByAnnotation =
+                getStepElementsByAnnotation(step, elementsDeferredBySteps[step] ?: emptySet())
+                    .withDefault { emptySet() }
+            val deferredElements = mutableSetOf<XElement>()
+            val elementsByAnnotation =
+                step
+                    .annotations()
+                    .mapNotNull { annotation ->
+                        val annotatedElements =
+                            roundEnv.getElementsAnnotatedWith(annotation) +
+                                previousRoundDeferredElementsByAnnotation.getValue(annotation)
+                        // Split between valid and invalid elements. Unlike auto-common,
+                        // validation is only
+                        // done in the annotated element from the round and not in the closest
+                        // enclosing
+                        // type element.
+                        val (validElements, invalidElements) =
+                            if (env.config.disableAnnotatedElementValidation) {
+                                annotatedElements to emptySet<XElement>()
+                            } else {
+                                annotatedElements.partition {
+                                    it.closestMemberContainer.validate()
+                                }
+                            }
+                        deferredElements.addAll(invalidElements)
+                        (validElements + stepDeferredElementsByAnnotation.getValue(annotation))
+                            .let {
+                                if (it.isNotEmpty()) {
+                                    annotation to it.toSet()
+                                } else {
+                                    null
+                                }
+                            }
+                    }
+                    .toMap()
+            // Store all processor deferred elements.
+            deferredElementNames.addAll(
+                deferredElements.mapNotNull {
+                    (it.closestMemberContainer as? XTypeElement)?.qualifiedName
+                }
+            )
+            // Only process the step if there are annotated elements found for this step, or the
+            // step supports processing all annotations "*".
+            val supportsAllAnnotations = step.annotations().any { it == "*" }
+            return@associateWith if (supportsAllAnnotations || elementsByAnnotation.isNotEmpty()) {
+                step
+                    .process(env, elementsByAnnotation, false)
+                    .mapNotNull { (it.closestMemberContainer as? XTypeElement)?.qualifiedName }
+                    .toSet()
+            } else {
+                emptySet()
             }
+        }
         // Store elements deferred by steps.
         elementsDeferredBySteps.clear()
         elementsDeferredBySteps.putAll(currentElementsDeferredByStep)

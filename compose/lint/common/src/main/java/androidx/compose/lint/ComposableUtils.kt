@@ -258,10 +258,9 @@ val UTypeReferenceExpression.isComposable: Boolean
 
 /** Returns whether this annotated declaration has a Composable annotation */
 private val KtAnnotated.hasComposableAnnotation: Boolean
-    get() =
-        annotationEntries.any {
-            (it.toUElement() as UAnnotation).qualifiedName == Names.Runtime.Composable.javaFqn
-        }
+    get() = annotationEntries.any {
+        (it.toUElement() as UAnnotation).qualifiedName == Names.Runtime.Composable.javaFqn
+    }
 
 /**
  * For a function invocation of the shape `fun <T> foo(..., () -> T): T`, this function returns

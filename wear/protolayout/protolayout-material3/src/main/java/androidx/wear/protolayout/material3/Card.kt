@@ -126,7 +126,8 @@ public fun MaterialScope.titleCard(
     style: TitleCardStyle = defaultTitleCardStyle(),
     contentPadding: Padding = style.innerPadding,
     @HorizontalAlignment
-    horizontalAlignment: Int = if (time == null) HORIZONTAL_ALIGN_CENTER else HORIZONTAL_ALIGN_START,
+    horizontalAlignment: Int =
+        if (time == null) HORIZONTAL_ALIGN_CENTER else HORIZONTAL_ALIGN_START,
 ): LayoutElement =
     card(
         onClick = onClick,
@@ -712,7 +713,9 @@ public fun MaterialScope.graphicDataCard(
                     defaultProgressIndicatorStyle =
                         ProgressIndicatorStyle(color = colors.graphicProgressIndicatorColors),
                     defaultIconStyle =
-                        IconStyle(tintColor = colors.graphicIconColor ?: defaultIconStyle.tintColor),
+                        IconStyle(
+                            tintColor = colors.graphicIconColor ?: defaultIconStyle.tintColor
+                        ),
                 ) {
                     graphic()
                 },

@@ -214,10 +214,9 @@ constructor(
         streams = streamSortedByVideo
         streamIds = streams.map { it.id }.toSet()
         _streamMap = streamMapBuilder
-        outputConfigs =
-            outputConfigListBuilder.sortedBy {
-                it.streams.minOf { stream -> streams.indexOf(stream) }
-            }
+        outputConfigs = outputConfigListBuilder.sortedBy {
+            it.streams.minOf { stream -> streams.indexOf(stream) }
+        }
         outputConfigMap = streamOutputConfigMap
         outputs = streams.flatMap { it.outputs }
 

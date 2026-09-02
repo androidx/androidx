@@ -83,17 +83,16 @@ class CaptureLimiterTest {
     }
 
     @Test
-    fun captureLimiterPermanentlyDisablesAfterClose() =
-        testScope.runTest {
-            simulateFrames(3)
-            assertThat(graphLoop.captureProcessingEnabled).isTrue()
+    fun captureLimiterPermanentlyDisablesAfterClose() = testScope.runTest {
+        simulateFrames(3)
+        assertThat(graphLoop.captureProcessingEnabled).isTrue()
 
-            // ACT
-            graphLoop.close()
-            assertThat(graphLoop.captureProcessingEnabled).isFalse()
-            simulateFrames(3)
-            assertThat(graphLoop.captureProcessingEnabled).isFalse()
-        }
+        // ACT
+        graphLoop.close()
+        assertThat(graphLoop.captureProcessingEnabled).isFalse()
+        simulateFrames(3)
+        assertThat(graphLoop.captureProcessingEnabled).isFalse()
+    }
 
     private fun simulateFrames(count: Long) {
         for (i in 1L..count) {

@@ -166,8 +166,9 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
                     if (receiverType != null && receiverType.hasParameters()) {
                         val receiver = (node.receiver as? USimpleNameReferenceExpression)?.resolve()
                         val variable = (receiver as? PsiVariable)
-                        val assignment =
-                            variable?.let { UastLintUtils.findLastAssignment(it, node) }
+                        val assignment = variable?.let {
+                            UastLintUtils.findLastAssignment(it, node)
+                        }
                         val constructorExpression = assignment?.sourcePsi as? KtCallExpression
                         constructorExpression?.typeArguments?.singleOrNull()?.typeReference
                     } else {

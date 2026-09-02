@@ -677,7 +677,8 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
                             value = it,
                             currentToken = token,
                             currentScope = scope,
-                            recordedValues = scopeToValues.getOrPut(scope) { MutableObjectIntMap() },
+                            recordedValues =
+                                scopeToValues.getOrPut(scope) { MutableObjectIntMap() },
                         )
                     }
                 }) {

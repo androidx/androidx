@@ -345,14 +345,13 @@ private fun OneRowSnackbar(text: @Composable () -> Unit, action: @Composable () 
             containerHeight = max(minContainerHeight, contentHeight)
             textPlaceY = (containerHeight - textPlaceable.height) / 2
             val buttonBaseline = buttonPlaceable[FirstBaseline]
-            buttonPlaceY =
-                buttonBaseline.let {
-                    if (it != AlignmentLine.Unspecified) {
-                        textPlaceY + firstTextBaseline - it
-                    } else {
-                        0
-                    }
+            buttonPlaceY = buttonBaseline.let {
+                if (it != AlignmentLine.Unspecified) {
+                    textPlaceY + firstTextBaseline - it
+                } else {
+                    0
                 }
+            }
         } else {
             val baselineOffset = HeightToFirstLine.roundToPx()
             textPlaceY = baselineOffset - firstTextBaseline

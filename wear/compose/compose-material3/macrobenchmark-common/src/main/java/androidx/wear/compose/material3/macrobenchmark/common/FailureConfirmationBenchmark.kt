@@ -48,7 +48,8 @@ object FailureConfirmationBenchmark : MacrobenchmarkScreen {
             ) {
                 Button(
                     onClick = { showDialog.value = true },
-                    modifier = Modifier.semantics { contentDescription = SHOW_FAILURE_CONFIRMATION },
+                    modifier =
+                        Modifier.semantics { contentDescription = SHOW_FAILURE_CONFIRMATION },
                 ) {
                     Text("Open")
                 }

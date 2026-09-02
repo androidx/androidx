@@ -247,8 +247,9 @@ class TwoDimensionalFocusTraversalEnterTest {
         val grandchild2Requester = FocusRequester()
         rule.setContentForTest {
             FocusableBox(focusedItem, 0, 0, 30, 30, initialFocus) {
-                val customEnter =
-                    Modifier.focusProperties { onEnter = { grandchild2Requester.requestFocus() } }
+                val customEnter = Modifier.focusProperties {
+                    onEnter = { grandchild2Requester.requestFocus() }
+                }
                 FocusableBox(child, 10, 10, 10, 10, deactivated = true, modifier = customEnter) {
                     FocusableBox(grandchild1, 10, 10, 10, 10)
                     FocusableBox(grandchild2, 10, 10, 10, 10, grandchild2Requester)

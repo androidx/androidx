@@ -489,11 +489,10 @@ constructor(
     fun clear() {
         if (isValid()) {
             mParams.clear()
-            val persistedCanvasRenderer =
-                mPersistedCanvasRenderer?.apply {
-                    cancelPending()
-                    clear()
-                }
+            val persistedCanvasRenderer = mPersistedCanvasRenderer?.apply {
+                cancelPending()
+                clear()
+            }
             val producerTransform = mProducerBufferTransform
             val consumerTransform = mConsumerBufferTransform
             val frontBufferSurfaceControl = mFrontBufferSurfaceControl

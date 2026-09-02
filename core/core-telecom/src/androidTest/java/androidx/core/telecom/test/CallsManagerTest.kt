@@ -470,8 +470,9 @@ class CallsManagerTest : BaseTelecomTest() {
             initialEndpointsJob.await()
             Log.i(TAG, "initialEndpointsJob COMPLETED")
             val initialEndpoints = initialEndpointsJob.getCompleted()
-            val earpieceEndpoint =
-                initialEndpoints.find { it.type == CallEndpointCompat.TYPE_EARPIECE }
+            val earpieceEndpoint = initialEndpoints.find {
+                it.type == CallEndpointCompat.TYPE_EARPIECE
+            }
             if (initialEndpoints.size > 1 && earpieceEndpoint != null) {
                 Log.i(TAG, "found 2 endpoints, including TYPE_EARPIECE")
                 mCallsManager.addCall(
@@ -493,11 +494,10 @@ class CallsManagerTest : BaseTelecomTest() {
                         val waitUntilEarpieceEndpointJob = CompletableDeferred<CallEndpointCompat>()
 
                         val flowsJob = launch {
-                            val earpieceFlow =
-                                currentCallEndpoint.filter {
-                                    Log.i(TAG, "currentCallEndpoint: e=[$it]")
-                                    it.type == CallEndpointCompat.TYPE_EARPIECE
-                                }
+                            val earpieceFlow = currentCallEndpoint.filter {
+                                Log.i(TAG, "currentCallEndpoint: e=[$it]")
+                                it.type == CallEndpointCompat.TYPE_EARPIECE
+                            }
 
                             earpieceFlow.collect {
                                 Log.i(TAG, "earpieceFlow.collect=[$it]")
@@ -547,8 +547,9 @@ class CallsManagerTest : BaseTelecomTest() {
                 val waitUntilSpeakerEndpointJob = CompletableDeferred<CallEndpointCompat>()
 
                 val flowsJob = launch {
-                    val speakerFlow =
-                        currentCallEndpoint.filter { it.type == CallEndpointCompat.TYPE_SPEAKER }
+                    val speakerFlow = currentCallEndpoint.filter {
+                        it.type == CallEndpointCompat.TYPE_SPEAKER
+                    }
 
                     speakerFlow.collect {
                         Log.i(TAG, "speakerFlow.collect=[$it]")

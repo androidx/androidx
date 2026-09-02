@@ -351,10 +351,9 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                         offset = defaultPreviousAnchorItem.offset,
                         key = defaultPreviousAnchorItem.key,
                     )
-                val info =
-                    Snapshot.withoutReadObservation {
-                        provider.getFirstLayoutItem(defaultCenterItemInfo)
-                    }
+                val info = Snapshot.withoutReadObservation {
+                    provider.getFirstLayoutItem(defaultCenterItemInfo)
+                }
                 if (info == defaultCenterItemInfo) {
                     defaultPreviousAnchorItem
                 } else {
@@ -522,8 +521,9 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
             }
             restoreLayoutIfNeeded()
 
-            actuallyVisibleItems =
-                visibleItems.fastFilter { it.isVisible() || (shouldAnimate && it.hasAnimations()) }
+            actuallyVisibleItems = visibleItems.fastFilter {
+                it.isVisible() || (shouldAnimate && it.hasAnimations())
+            }
         }
 
         // Determine index range of visible items to find items pinned outside visible bounds.

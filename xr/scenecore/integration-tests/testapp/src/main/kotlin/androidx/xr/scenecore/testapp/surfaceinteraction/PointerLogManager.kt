@@ -60,7 +60,8 @@ class PointerLogManager(context: Context, session: Session) {
             InputEvent.Pointer.DEFAULT to
                 PointerStateImpl(context, session, InputEvent.Pointer.DEFAULT),
             InputEvent.Pointer.LEFT to PointerStateImpl(context, session, InputEvent.Pointer.LEFT),
-            InputEvent.Pointer.RIGHT to PointerStateImpl(context, session, InputEvent.Pointer.RIGHT),
+            InputEvent.Pointer.RIGHT to
+                PointerStateImpl(context, session, InputEvent.Pointer.RIGHT),
         )
 
     fun update(inputEvent: InputEvent) {

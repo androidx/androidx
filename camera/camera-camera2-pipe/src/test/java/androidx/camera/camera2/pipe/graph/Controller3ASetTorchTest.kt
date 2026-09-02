@@ -136,19 +136,19 @@ internal class Controller3ASetTorchTest {
         val result = controller3A.setTorchOn()
 
         launch {
-                listener3A.onRequestSequenceCreated(
-                    FakeRequestMetadata(requestNumber = RequestNumber(1))
-                )
-                listener3A.onPartialCaptureResult(
-                    FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                    FrameNumber(101L),
-                    FakeFrameMetadata(
-                        frameNumber = FrameNumber(101L),
-                        resultMetadata =
-                            mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH),
-                    ),
-                )
-            }
+            listener3A.onRequestSequenceCreated(
+                FakeRequestMetadata(requestNumber = RequestNumber(1))
+            )
+            listener3A.onPartialCaptureResult(
+                FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                FrameNumber(101L),
+                FakeFrameMetadata(
+                    frameNumber = FrameNumber(101L),
+                    resultMetadata =
+                        mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH),
+                ),
+            )
+        }
             .join()
 
         assertThat(result.isCompleted).isFalse()
@@ -191,7 +191,8 @@ internal class Controller3ASetTorchTest {
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata = mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF),
+                    resultMetadata =
+                        mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF),
                 ),
             )
         }
@@ -206,19 +207,19 @@ internal class Controller3ASetTorchTest {
             val result = controller3A.setTorchOff(aeMode = AeMode.ON_AUTO_FLASH)
 
             launch {
-                    listener3A.onRequestSequenceCreated(
-                        FakeRequestMetadata(requestNumber = RequestNumber(1))
-                    )
-                    listener3A.onPartialCaptureResult(
-                        FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                        FrameNumber(101L),
-                        FakeFrameMetadata(
-                            frameNumber = FrameNumber(101L),
-                            resultMetadata =
-                                mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF),
-                        ),
-                    )
-                }
+                listener3A.onRequestSequenceCreated(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
+                listener3A.onPartialCaptureResult(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                    FrameNumber(101L),
+                    FakeFrameMetadata(
+                        frameNumber = FrameNumber(101L),
+                        resultMetadata =
+                            mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF),
+                    ),
+                )
+            }
                 .join()
 
             assertThat(result.isCompleted).isFalse()

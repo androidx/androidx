@@ -592,29 +592,27 @@ class RemoteComposeDemosTest {
                 (if (useFlat)
                     androidx.compose.remote.core.CoreDocument.OPTIMIZATION_FLAT_MEASURE_PASS
                 else 0)
-        val docs =
-            demoByteArrays.map { bytes ->
-                val doc =
-                    androidx.compose.remote.core.CoreDocument(
-                        androidx.compose.remote.core.SystemClock()
-                    )
-                doc.setOptimizationLevel(mask)
-                val buffer =
-                    androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(
-                        java.io.ByteArrayInputStream(bytes)
-                    )
-                doc.initFromBuffer(buffer)
-                doc
-            }
+        val docs = demoByteArrays.map { bytes ->
+            val doc =
+                androidx.compose.remote.core.CoreDocument(
+                    androidx.compose.remote.core.SystemClock()
+                )
+            doc.setOptimizationLevel(mask)
+            val buffer =
+                androidx.compose.remote.core.RemoteComposeBuffer.fromInputStream(
+                    java.io.ByteArrayInputStream(bytes)
+                )
+            doc.initFromBuffer(buffer)
+            doc
+        }
 
-        val contexts =
-            docs.map { doc ->
-                val debugContext = MockRemoteContext(doc)
-                debugContext.mWidth = 1000f
-                debugContext.mHeight = 1000f
-                doc.initializeContext(debugContext)
-                debugContext
-            }
+        val contexts = docs.map { doc ->
+            val debugContext = MockRemoteContext(doc)
+            debugContext.mWidth = 1000f
+            debugContext.mHeight = 1000f
+            doc.initializeContext(debugContext)
+            debugContext
+        }
 
         val widths = floatArrayOf(1000f, 800f, 1200f)
         val heights = floatArrayOf(1000f, 1200f, 800f)

@@ -344,8 +344,9 @@ internal class ThreePaneScaffoldScene<T : Any>(
     @Composable
     private fun SupportingPaneContent(scaffoldState: ThreePaneScaffoldState) {
         val lastMain = entries.findLast { getPaneRole(it) == SupportingPaneScaffoldRole.Main }
-        val lastSupporting =
-            entries.findLast { getPaneRole(it) == SupportingPaneScaffoldRole.Supporting }
+        val lastSupporting = entries.findLast {
+            getPaneRole(it) == SupportingPaneScaffoldRole.Supporting
+        }
         val lastExtra = entries.findLast { getPaneRole(it) == SupportingPaneScaffoldRole.Extra }
 
         SupportingPaneScaffold(

@@ -113,7 +113,8 @@ class WindowSizeClassTest {
         assertWidthClass(
             WindowWidthSizeClass.Medium,
             200.dp,
-            supportedSizeClasses = setOf(WindowWidthSizeClass.Medium, WindowWidthSizeClass.Expanded),
+            supportedSizeClasses =
+                setOf(WindowWidthSizeClass.Medium, WindowWidthSizeClass.Expanded),
         )
     }
 

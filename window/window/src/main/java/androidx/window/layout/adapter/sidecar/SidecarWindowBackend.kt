@@ -140,8 +140,9 @@ constructor(
      */
     @GuardedBy("globalLock")
     private fun callbackRemovedForActivity(activity: Activity) {
-        val hasRegisteredCallback =
-            windowLayoutChangeCallbacks.any { wrapper -> wrapper.activity == activity }
+        val hasRegisteredCallback = windowLayoutChangeCallbacks.any { wrapper ->
+            wrapper.activity == activity
+        }
         if (hasRegisteredCallback) {
             return
         }

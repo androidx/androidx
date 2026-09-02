@@ -1264,10 +1264,12 @@ class ConstraintLayoutTest {
         var first by mutableStateOf(true)
         var box1Position = Offset(-1f, -1f)
         var box2Position = Offset(-1f, -1f)
-        val box1PositionUpdater =
-            Modifier.onGloballyPositioned { box1Position = it.positionInRoot() }
-        val box2PositionUpdater =
-            Modifier.onGloballyPositioned { box2Position = it.positionInRoot() }
+        val box1PositionUpdater = Modifier.onGloballyPositioned {
+            box1Position = it.positionInRoot()
+        }
+        val box2PositionUpdater = Modifier.onGloballyPositioned {
+            box2Position = it.positionInRoot()
+        }
         rule.setContent {
             ConstraintLayout {
                 val (box1, box2) = createRefs()
@@ -1298,10 +1300,12 @@ class ConstraintLayoutTest {
         var first by mutableStateOf(true)
         var box1Position = Offset(-1f, -1f)
         var box2Position = Offset(-1f, -1f)
-        val box1PositionUpdater =
-            Modifier.onGloballyPositioned { box1Position = it.positionInRoot() }
-        val box2PositionUpdater =
-            Modifier.onGloballyPositioned { box2Position = it.positionInRoot() }
+        val box1PositionUpdater = Modifier.onGloballyPositioned {
+            box1Position = it.positionInRoot()
+        }
+        val box2PositionUpdater = Modifier.onGloballyPositioned {
+            box2Position = it.positionInRoot()
+        }
         rule.setContent {
             ConstraintLayout {
                 val (box1, box2) = createRefs()

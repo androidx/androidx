@@ -121,8 +121,9 @@ class SpringTensionHapticPlayer(private val density: Density, vibratorManager: V
     override fun getPlaybackIntervalNanos(): Long = 60_000L
 
     @RequiresPermission(Manifest.permission.VIBRATE)
-    private fun vibrate(vibrationEffect: VibrationEffect) =
-        executor.execute { vibrator.vibrate(vibrationEffect) }
+    private fun vibrate(vibrationEffect: VibrationEffect) = executor.execute {
+        vibrator.vibrate(vibrationEffect)
+    }
 
     companion object {
         private const val MAX_FORCE = 4f // In Newtons

@@ -145,6 +145,9 @@ interface CredentialProvider {
         request: SignalCredentialStateRequest,
         executor: Executor,
         callback:
-            CredentialManagerCallback<SignalCredentialStateResponse, SignalCredentialStateException>,
+            CredentialManagerCallback<
+                SignalCredentialStateResponse,
+                SignalCredentialStateException,
+            >,
     ) {}
 }

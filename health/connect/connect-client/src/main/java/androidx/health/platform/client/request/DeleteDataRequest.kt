@@ -38,11 +38,10 @@ class DeleteDataRequest(
 
     companion object {
         @JvmField
-        val CREATOR: Parcelable.Creator<DeleteDataRequest> =
-            ProtoParcelable.newCreator {
-                val proto = RequestProto.DeleteDataRequest.parseFrom(it)
-                fromProto(proto)
-            }
+        val CREATOR: Parcelable.Creator<DeleteDataRequest> = ProtoParcelable.newCreator {
+            val proto = RequestProto.DeleteDataRequest.parseFrom(it)
+            fromProto(proto)
+        }
 
         internal fun fromProto(proto: RequestProto.DeleteDataRequest): DeleteDataRequest {
             return DeleteDataRequest(proto.uidsList, proto.clientIdsList)

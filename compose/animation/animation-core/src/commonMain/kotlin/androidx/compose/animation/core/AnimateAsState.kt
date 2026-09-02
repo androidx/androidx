@@ -511,18 +511,17 @@ private class AnimateAsState<T, V : AnimationVector>(
     private fun resolveAnimationSpec(
         spec: AnimationSpec<T>,
         visibilityThreshold: T?,
-    ): AnimationSpec<T> =
-        spec.run {
-            if (
-                visibilityThreshold != null &&
-                    this is SpringSpec &&
-                    this.visibilityThreshold != visibilityThreshold
-            ) {
-                spring(dampingRatio, stiffness, visibilityThreshold)
-            } else {
-                this
-            }
+    ): AnimationSpec<T> = spec.run {
+        if (
+            visibilityThreshold != null &&
+                this is SpringSpec &&
+                this.visibilityThreshold != visibilityThreshold
+        ) {
+            spring(dampingRatio, stiffness, visibilityThreshold)
+        } else {
+            this
         }
+    }
 }
 
 @Deprecated(

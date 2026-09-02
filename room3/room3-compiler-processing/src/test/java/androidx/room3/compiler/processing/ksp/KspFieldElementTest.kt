@@ -250,14 +250,13 @@ class KspFieldElementTest {
     }
 
     private val XFieldElement.modifiers
-        get() =
-            sequence {
-                    if (isPrivate()) yield(PRIVATE)
-                    if (isProtected()) yield(PROTECTED)
-                    if (isPublic()) yield(PUBLIC)
-                    if (isFinal()) yield(FINAL)
-                }
-                .toList()
+        get() = sequence {
+            if (isPrivate()) yield(PRIVATE)
+            if (isProtected()) yield(PROTECTED)
+            if (isPublic()) yield(PUBLIC)
+            if (isFinal()) yield(FINAL)
+        }
+            .toList()
 
     private data class ModifierTestInput(
         val qName: String,

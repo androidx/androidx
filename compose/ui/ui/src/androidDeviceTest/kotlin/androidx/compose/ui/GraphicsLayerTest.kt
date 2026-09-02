@@ -140,11 +140,10 @@ class GraphicsLayerTest {
     @Test
     fun layerModifier_scaleChange() {
         val scale = mutableStateOf(1f)
-        val layerModifier =
-            Modifier.graphicsLayer {
-                scaleX = scale.value
-                scaleY = scale.value
-            }
+        val layerModifier = Modifier.graphicsLayer {
+            scaleX = scale.value
+            scaleY = scale.value
+        }
         rule.setContent {
             FixedSize(size = 30, modifier = Modifier.background(Color.Blue)) {
                 FixedSize(
@@ -211,7 +210,8 @@ class GraphicsLayerTest {
                 @Composable {
                     FixedSize(
                         size = 10,
-                        modifier = Modifier.graphicsLayer().padding(10).background(innerColor.value),
+                        modifier =
+                            Modifier.graphicsLayer().padding(10).background(innerColor.value),
                     ) {}
                 }
             }

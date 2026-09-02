@@ -252,76 +252,75 @@ private fun Modifier.handleKeyEvents(
     itemCount: Int,
     isLtr: Boolean,
     currentCarouselBoxFocusState: () -> FocusState?,
-): Modifier =
-    onKeyEvent {
-            fun showPreviousItem() {
-                carouselState.moveToPreviousItem(itemCount)
-                outerBoxFocusRequester.requestFocus()
-            }
+): Modifier = onKeyEvent {
+    fun showPreviousItem() {
+        carouselState.moveToPreviousItem(itemCount)
+        outerBoxFocusRequester.requestFocus()
+    }
 
-            fun showNextItem() {
-                carouselState.moveToNextItem(itemCount)
-                outerBoxFocusRequester.requestFocus()
-            }
+    fun showNextItem() {
+        carouselState.moveToNextItem(itemCount)
+        outerBoxFocusRequester.requestFocus()
+    }
 
-            fun updateItemBasedOnLayout(direction: FocusDirection, isLtr: Boolean) {
-                when (direction) {
-                    Left -> if (isLtr) showPreviousItem() else showNextItem()
-                    Right -> if (isLtr) showNextItem() else showPreviousItem()
-                }
-            }
+    fun updateItemBasedOnLayout(direction: FocusDirection, isLtr: Boolean) {
+        when (direction) {
+            Left -> if (isLtr) showPreviousItem() else showNextItem()
+            Right -> if (isLtr) showNextItem() else showPreviousItem()
+        }
+    }
 
-            fun handledHorizontalFocusMove(direction: FocusDirection): Boolean =
-                when {
-                    it.nativeKeyEvent.repeatCount > 0 ->
-                        // Ignore long press key event for manual scrolling
-                        KeyEventPropagation.StopPropagation
-                    currentCarouselBoxFocusState()?.isFocused == true ->
-                        // if carousel box has focus, do not trigger focus search as it can cause
-                        // focus to
-                        // move out of Carousel unintentionally.
-                        if (shouldFocusExitCarousel(direction, carouselState, itemCount, isLtr)) {
-                            KeyEventPropagation.ContinuePropagation
-                        } else {
-                            updateItemBasedOnLayout(direction, isLtr)
-                            KeyEventPropagation.StopPropagation
-                        }
-                    !focusManager.moveFocus(direction) &&
-                        currentCarouselBoxFocusState()?.hasFocus == true -> {
-                        // if focus search was unsuccessful, interpret as input for slide change
-                        updateItemBasedOnLayout(direction, isLtr)
-                        KeyEventPropagation.StopPropagation
-                    }
-                    else -> KeyEventPropagation.StopPropagation
-                }
-
-            when {
-                // Ignore KeyUp action type
-                it.type == KeyUp -> KeyEventPropagation.ContinuePropagation
-                it.key == Key.Back -> {
-                    focusManager.moveFocus(FocusDirection.Exit)
+    fun handledHorizontalFocusMove(direction: FocusDirection): Boolean =
+        when {
+            it.nativeKeyEvent.repeatCount > 0 ->
+                // Ignore long press key event for manual scrolling
+                KeyEventPropagation.StopPropagation
+            currentCarouselBoxFocusState()?.isFocused == true ->
+                // if carousel box has focus, do not trigger focus search as it can cause
+                // focus to
+                // move out of Carousel unintentionally.
+                if (shouldFocusExitCarousel(direction, carouselState, itemCount, isLtr)) {
                     KeyEventPropagation.ContinuePropagation
+                } else {
+                    updateItemBasedOnLayout(direction, isLtr)
+                    KeyEventPropagation.StopPropagation
                 }
-                it.key == Key.DirectionLeft -> handledHorizontalFocusMove(Left)
-                it.key == Key.DirectionRight -> handledHorizontalFocusMove(Right)
-                else -> KeyEventPropagation.ContinuePropagation
+            !focusManager.moveFocus(direction) &&
+                currentCarouselBoxFocusState()?.hasFocus == true -> {
+                // if focus search was unsuccessful, interpret as input for slide change
+                updateItemBasedOnLayout(direction, isLtr)
+                KeyEventPropagation.StopPropagation
+            }
+            else -> KeyEventPropagation.StopPropagation
+        }
+
+    when {
+        // Ignore KeyUp action type
+        it.type == KeyUp -> KeyEventPropagation.ContinuePropagation
+        it.key == Key.Back -> {
+            focusManager.moveFocus(FocusDirection.Exit)
+            KeyEventPropagation.ContinuePropagation
+        }
+        it.key == Key.DirectionLeft -> handledHorizontalFocusMove(Left)
+        it.key == Key.DirectionRight -> handledHorizontalFocusMove(Right)
+        else -> KeyEventPropagation.ContinuePropagation
+    }
+}
+    .focusProperties {
+        // allow exit along horizontal axis only for first and last slide.
+        // Suppressed the deprecation because onExit is not available in compose.ui 1.7.x
+        onExit = {
+            when {
+                shouldFocusExitCarousel(
+                    requestedFocusDirection,
+                    carouselState,
+                    itemCount,
+                    isLtr,
+                ) -> FocusRequester.Default
+                else -> FocusRequester.Cancel
             }
         }
-        .focusProperties {
-            // allow exit along horizontal axis only for first and last slide.
-            // Suppressed the deprecation because onExit is not available in compose.ui 1.7.x
-            onExit = {
-                when {
-                    shouldFocusExitCarousel(
-                        requestedFocusDirection,
-                        carouselState,
-                        itemCount,
-                        isLtr,
-                    ) -> FocusRequester.Default
-                    else -> FocusRequester.Cancel
-                }
-            }
-        }
+    }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
 private fun shouldFocusExitCarousel(

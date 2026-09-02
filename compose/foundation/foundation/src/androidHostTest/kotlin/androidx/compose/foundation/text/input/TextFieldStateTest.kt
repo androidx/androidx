@@ -750,12 +750,11 @@ class TextFieldStateTest {
         var oldValueCalled: TextFieldCharSequence? = null
         var newValueCalled: TextFieldCharSequence? = null
         var restartImeCalled: Boolean? = null
-        val listener =
-            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
-                oldValueCalled = oldValue
-                newValueCalled = newValue
-                restartImeCalled = restartIme
-            }
+        val listener = TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+            oldValueCalled = oldValue
+            newValueCalled = newValue
+            restartImeCalled = restartIme
+        }
         state.addNotifyImeListener(listener)
 
         state.edit { append(" World") }
@@ -773,12 +772,11 @@ class TextFieldStateTest {
         var oldValueCalled: TextFieldCharSequence? = null
         var newValueCalled: TextFieldCharSequence? = null
         var restartImeCalled: Boolean? = null
-        val listener =
-            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
-                oldValueCalled = oldValue
-                newValueCalled = newValue
-                restartImeCalled = restartIme
-            }
+        val listener = TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+            oldValueCalled = oldValue
+            newValueCalled = newValue
+            restartImeCalled = restartIme
+        }
         state.addNotifyImeListener(listener)
 
         state.edit { append(" World") }
@@ -796,12 +794,11 @@ class TextFieldStateTest {
         var oldValueCalled: TextFieldCharSequence? = null
         var newValueCalled: TextFieldCharSequence? = null
         var restartImeCalled: Boolean? = null
-        val listener =
-            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
-                oldValueCalled = oldValue
-                newValueCalled = newValue
-                restartImeCalled = restartIme
-            }
+        val listener = TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+            oldValueCalled = oldValue
+            newValueCalled = newValue
+            restartImeCalled = restartIme
+        }
         state.addNotifyImeListener(listener)
 
         state.edit {
@@ -824,12 +821,11 @@ class TextFieldStateTest {
         var oldValueCalled: TextFieldCharSequence? = null
         var newValueCalled: TextFieldCharSequence? = null
         var restartImeCalled: Boolean? = null
-        val listener =
-            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
-                oldValueCalled = oldValue
-                newValueCalled = newValue
-                restartImeCalled = restartIme
-            }
+        val listener = TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+            oldValueCalled = oldValue
+            newValueCalled = newValue
+            restartImeCalled = restartIme
+        }
         state.addNotifyImeListener(listener)
 
         DefaultImeEditCommandScope(TransformedTextFieldState(state)).setComposingText("World", 1)
@@ -847,12 +843,11 @@ class TextFieldStateTest {
         var oldValueCalled: TextFieldCharSequence? = null
         var newValueCalled: TextFieldCharSequence? = null
         var restartImeCalled: Boolean? = null
-        val listener =
-            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
-                oldValueCalled = oldValue
-                newValueCalled = newValue
-                restartImeCalled = restartIme
-            }
+        val listener = TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+            oldValueCalled = oldValue
+            newValueCalled = newValue
+            restartImeCalled = restartIme
+        }
         state.addNotifyImeListener(listener)
 
         state.undoState.undo() // should remove " World"
@@ -868,12 +863,11 @@ class TextFieldStateTest {
         var oldValueCalled: TextFieldCharSequence? = null
         var newValueCalled: TextFieldCharSequence? = null
         var restartImeCalled: Boolean? = null
-        val listener =
-            TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
-                oldValueCalled = oldValue
-                newValueCalled = newValue
-                restartImeCalled = restartIme
-            }
+        val listener = TextFieldState.NotifyImeListener { oldValue, newValue, restartIme ->
+            oldValueCalled = oldValue
+            newValueCalled = newValue
+            restartImeCalled = restartIme
+        }
         state.addNotifyImeListener(listener)
 
         state.editAsUser(null, restartImeIfContentChanges = true) { selection = TextRange.Zero }
@@ -962,11 +956,10 @@ class TextFieldStateTest {
     }
 
     private fun runTestWithSnapshotsThenCancelChildren(testBody: suspend TestScope.() -> Unit) {
-        val globalWriteObserverHandle =
-            Snapshot.registerGlobalWriteObserver {
-                // This is normally done by the compose runtime.
-                Snapshot.sendApplyNotifications()
-            }
+        val globalWriteObserverHandle = Snapshot.registerGlobalWriteObserver {
+            // This is normally done by the compose runtime.
+            Snapshot.sendApplyNotifications()
+        }
         try {
             runTest {
                 testBody()

@@ -191,14 +191,13 @@ internal constructor(
     // overhead of running through the animation pipeline instead of directly mutating the state.
     private val mutatorMutex = MutatorMutex()
 
-    private fun animateIndicatorTo(offset: Float) =
-        animationScope.launch {
-            mutatorMutex.mutate {
-                animate(initialValue = _position, targetValue = offset) { value, _ ->
-                    _position = value
-                }
+    private fun animateIndicatorTo(offset: Float) = animationScope.launch {
+        mutatorMutex.mutate {
+            animate(initialValue = _position, targetValue = offset) { value, _ ->
+                _position = value
             }
         }
+    }
 
     private fun calculateIndicatorPosition(): Float =
         when {

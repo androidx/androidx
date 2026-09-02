@@ -135,11 +135,10 @@ class CameraControllerTest {
 
     @Before
     fun setUp() {
-        val lifecycleCameraProviderFuture =
-            CallbackToFutureAdapter.getFuture { completer ->
-                lifecycleCameraProviderCompleter = completer
-                "CameraControllerTest.lifecycleCameraProviderFuture"
-            }
+        val lifecycleCameraProviderFuture = CallbackToFutureAdapter.getFuture { completer ->
+            lifecycleCameraProviderCompleter = completer
+            "CameraControllerTest.lifecycleCameraProviderFuture"
+        }
         controller = LifecycleCameraController(context, lifecycleCameraProviderFuture)
         controller.bindToLifecycle(FakeLifecycleOwner())
         controller.attachPreviewSurface({}, fakeViewPort)

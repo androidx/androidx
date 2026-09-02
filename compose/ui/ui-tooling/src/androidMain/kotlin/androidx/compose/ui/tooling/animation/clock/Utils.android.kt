@@ -212,7 +212,12 @@ internal fun <T> parseParametersToValue(currentValue: T, par1: Any, par2: Any?):
                             par1[2] as Float,
                             par1[3] as Float,
                         ),
-                        Rect(par2[0] as Float, par2[1] as Float, par2[2] as Float, par2[3] as Float),
+                        Rect(
+                            par2[0] as Float,
+                            par2[1] as Float,
+                            par2[2] as Float,
+                            par2[3] as Float,
+                        ),
                     )
                 is Color ->
                     TargetState(

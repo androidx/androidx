@@ -110,8 +110,9 @@ public fun <T> Transition<T>.Crossfade(
     }
     if (targetState !in contentMap) {
         // Replace target with the same key if any
-        val replacementId =
-            currentlyVisible.indexOfFirst { contentKey(it) == contentKey(targetState) }
+        val replacementId = currentlyVisible.indexOfFirst {
+            contentKey(it) == contentKey(targetState)
+        }
         if (replacementId == -1) {
             currentlyVisible.add(targetState)
         } else {

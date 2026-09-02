@@ -228,6 +228,7 @@ internal class ClearAndSetSemanticsElement(val properties: SemanticsPropertyRece
 private fun InspectorInfo.addSemanticsPropertiesFrom(
     semanticsConfiguration: SemanticsConfiguration
 ) {
-    properties["properties"] =
-        semanticsConfiguration.associate { (key, value) -> key.name to value }
+    properties["properties"] = semanticsConfiguration.associate { (key, value) ->
+        key.name to value
+    }
 }

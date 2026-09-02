@@ -94,13 +94,12 @@ internal class RoomSupportSQLiteDatabase(roomDatabase: RoomDatabase) : SupportSQ
     }
 
     override var version: Int
-        get() =
-            session.useReaderBlocking { connection ->
-                connection.usePrepared("PRAGMA user_version") { stmt ->
-                    stmt.step()
-                    stmt.getInt(0)
-                }
+        get() = session.useReaderBlocking { connection ->
+            connection.usePrepared("PRAGMA user_version") { stmt ->
+                stmt.step()
+                stmt.getInt(0)
             }
+        }
         set(value): Unit {
             check(value >= 1) { "Version must be >=1, was $value" }
             session.useWriterBlocking { connection ->
@@ -110,13 +109,12 @@ internal class RoomSupportSQLiteDatabase(roomDatabase: RoomDatabase) : SupportSQ
 
     override val maximumSize: Long
         get() {
-            val pageCount =
-                session.useWriterBlocking { connection ->
-                    connection.usePrepared("PRAGMA max_page_count") { stmt ->
-                        stmt.step()
-                        stmt.getLong(0)
-                    }
+            val pageCount = session.useWriterBlocking { connection ->
+                connection.usePrepared("PRAGMA max_page_count") { stmt ->
+                    stmt.step()
+                    stmt.getLong(0)
                 }
+            }
             return pageCount * pageSize
         }
 
@@ -126,33 +124,29 @@ internal class RoomSupportSQLiteDatabase(roomDatabase: RoomDatabase) : SupportSQ
         if (numBytes % currPageSize != 0L) {
             numPages++
         }
-        val newPageCount =
-            session.useWriterBlocking { connection ->
-                connection.usePrepared("PRAGMA max_page_count = $numPages") { stmt ->
-                    stmt.step()
-                    stmt.getLong(0)
-                }
+        val newPageCount = session.useWriterBlocking { connection ->
+            connection.usePrepared("PRAGMA max_page_count = $numPages") { stmt ->
+                stmt.step()
+                stmt.getLong(0)
             }
+        }
         return newPageCount * currPageSize
     }
 
     override var pageSize: Long
-        get() =
-            session.useWriterBlocking { connection ->
-                connection.usePrepared("PRAGMA page_size") { stmt ->
-                    stmt.step()
-                    stmt.getLong(0)
-                }
+        get() = session.useWriterBlocking { connection ->
+            connection.usePrepared("PRAGMA page_size") { stmt ->
+                stmt.step()
+                stmt.getLong(0)
             }
-        set(value) =
-            session.useWriterBlocking { connection ->
-                connection.executeSQL("PRAGMA page_size = $value")
-            }
-
-    override fun query(query: String): Cursor =
-        session.useReaderBlocking { connection ->
-            connection.usePrepared(query) { stmt -> stmt.toCursor() }
         }
+        set(value) = session.useWriterBlocking { connection ->
+            connection.executeSQL("PRAGMA page_size = $value")
+        }
+
+    override fun query(query: String): Cursor = session.useReaderBlocking { connection ->
+        connection.usePrepared(query) { stmt -> stmt.toCursor() }
+    }
 
     override fun query(query: String, bindArgs: Array<out Any?>): Cursor =
         session.useReaderBlocking { connection ->
@@ -265,8 +259,9 @@ internal class RoomSupportSQLiteDatabase(roomDatabase: RoomDatabase) : SupportSQ
         }
     }
 
-    override fun execSQL(sql: String): Unit =
-        session.useWriterBlocking { connection -> connection.executeSQL(sql) }
+    override fun execSQL(sql: String): Unit = session.useWriterBlocking { connection ->
+        connection.executeSQL(sql)
+    }
 
     override fun execSQL(sql: String, bindArgs: Array<out Any?>): Unit =
         session.useWriterBlocking { connection ->
@@ -318,39 +313,36 @@ internal class RoomSupportSQLiteDatabase(roomDatabase: RoomDatabase) : SupportSQ
     }
 
     override val isWriteAheadLoggingEnabled: Boolean
-        get() =
-            session.useReaderBlocking { connection ->
-                connection.usePrepared("PRAGMA journal_mode") { stmt ->
-                    stmt.step()
-                    stmt.getText(0).equals("wal", ignoreCase = true)
-                }
+        get() = session.useReaderBlocking { connection ->
+            connection.usePrepared("PRAGMA journal_mode") { stmt ->
+                stmt.step()
+                stmt.getText(0).equals("wal", ignoreCase = true)
             }
+        }
 
     override val attachedDbs: List<Pair<String, String>>?
-        get() =
-            session.useWriterBlocking { connection ->
-                connection.usePrepared("PRAGMA database_list") { stmt ->
-                    buildList {
-                        while (stmt.step()) {
-                            val name = stmt.getText(1)
-                            val path = stmt.getText(2)
-                            add(Pair(name, path))
-                        }
+        get() = session.useWriterBlocking { connection ->
+            connection.usePrepared("PRAGMA database_list") { stmt ->
+                buildList {
+                    while (stmt.step()) {
+                        val name = stmt.getText(1)
+                        val path = stmt.getText(2)
+                        add(Pair(name, path))
                     }
                 }
             }
+        }
 
     override val isDatabaseIntegrityOk: Boolean
-        get() =
-            session.useReaderBlocking { connection ->
-                connection.usePrepared("PRAGMA integrity_check") { stmt ->
-                    if (stmt.step()) {
-                        stmt.getText(0).equals("ok", ignoreCase = true)
-                    } else {
-                        false
-                    }
+        get() = session.useReaderBlocking { connection ->
+            connection.usePrepared("PRAGMA integrity_check") { stmt ->
+                if (stmt.step()) {
+                    stmt.getText(0).equals("ok", ignoreCase = true)
+                } else {
+                    false
                 }
             }
+        }
 
     override fun close() {
         session.close()

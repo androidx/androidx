@@ -92,13 +92,12 @@ internal class DefaultFeatureGroupResolver(private val cameraInfoInternal: Camer
             }
         }
 
-        val filteredPreferredFeatures =
-            orderedPreferredFeatures.filter { feature ->
-                // Filter out a feature if it's not supported by the use cases
-                feature.getMissingUseCase(useCases)?.also {
-                    Logger.d(TAG, "resolveFeatureGroup: filtered out preferred feature due to $it")
-                } == null
-            }
+        val filteredPreferredFeatures = orderedPreferredFeatures.filter { feature ->
+            // Filter out a feature if it's not supported by the use cases
+            feature.getMissingUseCase(useCases)?.also {
+                Logger.d(TAG, "resolveFeatureGroup: filtered out preferred feature due to $it")
+            } == null
+        }
 
         Logger.d(TAG, "resolveFeatureGroup: filteredPreferredFeatures = $filteredPreferredFeatures")
 
@@ -111,8 +110,9 @@ internal class DefaultFeatureGroupResolver(private val cameraInfoInternal: Camer
     private fun GroupableFeature.getMissingUseCase(useCases: List<UseCase>): UseCaseMissing? {
         val supportsImageFeature = useCases.any { it is ImageCapture }
         val supportsDynamicRangeFeature = useCases.any { it is Preview || it.isVideoCapture() }
-        val supportsStreamFeature =
-            useCases.any { it is Preview || it is ImageAnalysis || it.isVideoCapture() }
+        val supportsStreamFeature = useCases.any {
+            it is Preview || it is ImageAnalysis || it.isVideoCapture()
+        }
         val supportsVideoFeature = useCases.any { it.isVideoCapture() }
 
         val missingUseCaseString =

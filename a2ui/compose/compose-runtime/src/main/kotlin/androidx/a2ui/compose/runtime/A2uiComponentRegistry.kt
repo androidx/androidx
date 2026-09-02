@@ -72,8 +72,9 @@ internal class A2uiComponentRegistry : A2uiCoreComponentRegistry {
                     continue // Skip earlier payloads for an ID that was already processed
                 }
 
-                val state =
-                    registryLock.withLock { registry.getOrPut(payload.id) { mutableStateOf(null) } }
+                val state = registryLock.withLock {
+                    registry.getOrPut(payload.id) { mutableStateOf(null) }
+                }
                 val existing = state.value as? A2uiComponentRecord.Valid
 
                 if (

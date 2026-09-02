@@ -391,25 +391,23 @@ public abstract class AffineTransform internal constructor() {
                 first.m21 == second.m21
 
         /** Returns a hash code for [affineTransform] using its [AffineTransform] properties. */
-        internal fun hash(affineTransform: AffineTransform): Int =
-            affineTransform.run {
-                var result = m00.hashCode()
-                result = 31 * result + m10.hashCode()
-                result = 31 * result + m20.hashCode()
-                result = 31 * result + m01.hashCode()
-                result = 31 * result + m11.hashCode()
-                result = 31 * result + m21.hashCode()
-                return result
-            }
+        internal fun hash(affineTransform: AffineTransform): Int = affineTransform.run {
+            var result = m00.hashCode()
+            result = 31 * result + m10.hashCode()
+            result = 31 * result + m20.hashCode()
+            result = 31 * result + m01.hashCode()
+            result = 31 * result + m11.hashCode()
+            result = 31 * result + m21.hashCode()
+            return result
+        }
 
         /**
          * Returns a string representation for [affineTransform] using its [AffineTransform]
          * properties.
          */
-        internal fun string(affineTransform: AffineTransform): String =
-            affineTransform.run {
-                "AffineTransform(m00=$m00, m10=$m10, m20=$m20, m01=$m01, m11=$m11, m21=$m21)"
-            }
+        internal fun string(affineTransform: AffineTransform): String = affineTransform.run {
+            "AffineTransform(m00=$m00, m10=$m10, m20=$m20, m01=$m01, m11=$m11, m21=$m21)"
+        }
 
         /**
          * Multiplies the [lhs] transform by the [rhs] transform as matrices, and stores the result

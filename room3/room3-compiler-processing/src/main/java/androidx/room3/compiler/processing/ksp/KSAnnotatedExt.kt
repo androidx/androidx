@@ -19,8 +19,9 @@ package androidx.room3.compiler.processing.ksp
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 
-private fun KSAnnotated.hasAnnotationWithQName(qName: String) =
-    annotations.any { it.annotationType.resolve().declaration.qualifiedName?.asString() == qName }
+private fun KSAnnotated.hasAnnotationWithQName(qName: String) = annotations.any {
+    it.annotationType.resolve().declaration.qualifiedName?.asString() == qName
+}
 
 internal fun KSAnnotated.hasJvmStaticAnnotation() = hasAnnotationWithQName("kotlin.jvm.JvmStatic")
 

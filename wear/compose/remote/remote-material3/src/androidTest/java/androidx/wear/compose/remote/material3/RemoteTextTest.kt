@@ -481,7 +481,9 @@ class RemoteTextTest {
                     modifier = RemoteModifier.fillMaxWidth(),
                     fontSize = 32.rsp,
                     style =
-                        LocalRemoteTextStyle.current.copy(textDecoration = TextDecoration.Underline),
+                        LocalRemoteTextStyle.current.copy(
+                            textDecoration = TextDecoration.Underline
+                        ),
                 )
                 RemoteText(
                     text = "LineThrough".rs,

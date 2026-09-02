@@ -65,19 +65,17 @@ class TestRunnerTest {
                     .trimIndent(),
             )
 
-        val kspProcessorProvider =
-            SyntheticKspProcessor.Provider { invocation ->
-                if (invocation.processingEnv.findTypeElement("gen.GeneratedKotlin") == null) {
-                    invocation.processingEnv.filer.write(
-                        FileSpec.builder("gen", "KotlinGen")
-                            .addType(
-                                com.squareup.kotlinpoet.TypeSpec.classBuilder("GeneratedKotlin")
-                                    .build()
-                            )
-                            .build()
-                    )
-                }
+        val kspProcessorProvider = SyntheticKspProcessor.Provider { invocation ->
+            if (invocation.processingEnv.findTypeElement("gen.GeneratedKotlin") == null) {
+                invocation.processingEnv.filer.write(
+                    FileSpec.builder("gen", "KotlinGen")
+                        .addType(
+                            com.squareup.kotlinpoet.TypeSpec.classBuilder("GeneratedKotlin").build()
+                        )
+                        .build()
+                )
             }
+        }
 
         val javaProcessor = SyntheticJavacProcessor { invocation ->
             if (invocation.processingEnv.findTypeElement("gen.GeneratedJava") == null) {
@@ -484,7 +482,11 @@ class TestRunnerTest {
         // odd number of args
         KotlinCliRunner.getPluginOptions(
                 "org.jetbrains.kotlin.kapt3",
-                listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true", "-verbose"),
+                listOf(
+                    "-P",
+                    "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true",
+                    "-verbose",
+                ),
             )
             .let { options -> assertThat(options).containsExactly("correctErrorTypes", "true") }
 

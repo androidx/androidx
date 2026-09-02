@@ -31,15 +31,14 @@ internal class Recreator(private val owner: SavedStateRegistryOwner) : Lifecycle
 
         val registry = owner.savedStateRegistry
         val savedState = registry.consumeRestoredStateForKey(COMPONENT_KEY) ?: return
-        val classes =
-            savedState.read {
-                return@read getStringListOrNull(CLASSES_KEY)
-                    ?: error(
-                        "SavedState with restored state for the component " +
-                            "\"$COMPONENT_KEY\" must contain list of strings by the key " +
-                            "\"$CLASSES_KEY\""
-                    )
-            }
+        val classes = savedState.read {
+            return@read getStringListOrNull(CLASSES_KEY)
+                ?: error(
+                    "SavedState with restored state for the component " +
+                        "\"$COMPONENT_KEY\" must contain list of strings by the key " +
+                        "\"$CLASSES_KEY\""
+                )
+        }
         for (className: String in classes) {
             reflectiveNew(className)
         }

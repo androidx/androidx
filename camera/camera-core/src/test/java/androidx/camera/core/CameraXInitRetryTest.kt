@@ -411,8 +411,9 @@ class CameraXInitRetryTest {
             assertThat(cameraX.isInitialized).isFalse()
 
             // Assert. Verify that retry attempts occurred in sequential order.
-            val numAttemptList =
-                executionStateMutableList.map { executionState -> executionState.numOfAttempts }
+            val numAttemptList = executionStateMutableList.map { executionState ->
+                executionState.numOfAttempts
+            }
             assertThat(numAttemptList).isInOrder()
 
             // Assert. Ensure all errors encountered were specifically due to camera unavailability.
@@ -457,8 +458,9 @@ class CameraXInitRetryTest {
         assertThat(cameraX.isInitialized).isFalse()
 
         // Assert. Verify that retry attempts occurred in sequential order.
-        val numAttemptList =
-            executionStateMutableList.map { executionState -> executionState.numOfAttempts }
+        val numAttemptList = executionStateMutableList.map { executionState ->
+            executionState.numOfAttempts
+        }
         assertThat(numAttemptList).isInOrder()
 
         // Assert. Ensure all errors encountered were specifically due to camera unavailability.

@@ -57,8 +57,9 @@ public suspend fun Activity.trackPipAnimationHintView(view: View) {
                         trySend(v.positionInWindow())
                     }
                 }
-            val scrollChangeListener =
-                ViewTreeObserver.OnScrollChangedListener { trySend(view.positionInWindow()) }
+            val scrollChangeListener = ViewTreeObserver.OnScrollChangedListener {
+                trySend(view.positionInWindow())
+            }
             // When the view is attached, emit the current position and start listening for layout
             // changes to track movement.
             val attachStateChangeListener =

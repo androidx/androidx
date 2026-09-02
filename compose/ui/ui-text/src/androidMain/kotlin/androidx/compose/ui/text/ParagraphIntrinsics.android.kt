@@ -143,7 +143,8 @@ internal class AndroidParagraphIntrinsics(
                 style = style.toSpanStyle(),
                 resolveTypeface = resolveTypeface,
                 density = density,
-                requiresLetterSpacing = annotations.fastFirstOrNull { it.item is SpanStyle } != null,
+                requiresLetterSpacing =
+                    annotations.fastFirstOrNull { it.item is SpanStyle } != null,
             )
 
         val finalSpanStyles =

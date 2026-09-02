@@ -1665,26 +1665,25 @@ class DatabaseProcessorTest {
                     .first()
             val processor = DatabaseProcessor(invocation.context, database)
 
-            val list =
-                views.map { (viewName, names) ->
-                    DatabaseView(
-                        element = mock(XTypeElement::class.java),
-                        viewName = viewName,
-                        query =
-                            ParsedQuery(
-                                "",
-                                QueryType.SELECT,
-                                emptyList(),
-                                names.map { Table(it, it) }.toSet(),
-                                null,
-                                emptyList(),
-                            ),
-                        type = mock(XType::class.java),
-                        fields = emptyList(),
-                        embeddedProperties = emptyList(),
-                        constructor = null,
-                    )
-                }
+            val list = views.map { (viewName, names) ->
+                DatabaseView(
+                    element = mock(XTypeElement::class.java),
+                    viewName = viewName,
+                    query =
+                        ParsedQuery(
+                            "",
+                            QueryType.SELECT,
+                            emptyList(),
+                            names.map { Table(it, it) }.toSet(),
+                            null,
+                            emptyList(),
+                        ),
+                    type = mock(XType::class.java),
+                    fields = emptyList(),
+                    embeddedProperties = emptyList(),
+                    constructor = null,
+                )
+            }
             val resolvedViews = processor.resolveDatabaseViews(list)
             body(resolvedViews, invocation)
         }

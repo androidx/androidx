@@ -377,18 +377,17 @@ private class SingleSelectionLayout(
             info.shouldRecomputeSelection(other.info)
 
     override fun createSubSelections(selection: Selection): LongObjectMap<Selection> {
-        val finalSelection =
-            selection.run {
-                // uncross handles if necessary
-                if (
-                    (!handlesCrossed && start.offset > end.offset) ||
-                        (handlesCrossed && start.offset <= end.offset)
-                ) {
-                    copy(handlesCrossed = !handlesCrossed)
-                } else {
-                    this
-                }
+        val finalSelection = selection.run {
+            // uncross handles if necessary
+            if (
+                (!handlesCrossed && start.offset > end.offset) ||
+                    (handlesCrossed && start.offset <= end.offset)
+            ) {
+                copy(handlesCrossed = !handlesCrossed)
+            } else {
+                this
             }
+        }
         return longObjectMapOf(info.selectableId, finalSelection)
     }
 

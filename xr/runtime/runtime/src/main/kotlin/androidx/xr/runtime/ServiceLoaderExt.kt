@@ -136,7 +136,9 @@ private fun getVirtualDevice(context: Context) =
 
 /** Selects the first provider in [providers] satisfying the device's [features] requirements. */
 internal fun <S : Service> selectProvider(providers: List<S>, features: Set<Feature>): S? =
-    providers.firstOrNull { features.containsAll(it.requirements) }
+    providers.firstOrNull {
+        features.containsAll(it.requirements)
+    }
 
 private external fun nativeIsStub(): Boolean
 

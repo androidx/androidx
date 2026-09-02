@@ -44,8 +44,9 @@ val CellValue.valueType: Pair<Any?, String>
             else -> throw IllegalArgumentException()
         }
 
-fun GetSchemaResponse.toTableList(): List<Table> =
-    tablesList.map { t -> Table(t.name, t.columnsList.map { c -> Column(c.name, c.type) }) }
+fun GetSchemaResponse.toTableList(): List<Table> = tablesList.map { t ->
+    Table(t.name, t.columnsList.map { c -> Column(c.name, c.type) })
+}
 
 object MessageFactory {
     fun createTrackDatabasesCommand(): Command =

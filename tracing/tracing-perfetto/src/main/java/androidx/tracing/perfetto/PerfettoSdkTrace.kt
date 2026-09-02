@@ -145,8 +145,9 @@ public object PerfettoSdkTrace {
         if (isEnabled) PerfettoNative.nativeTraceEventEnd()
     }
 
-    private fun errorMessage(t: Throwable): String =
-        t.run { javaClass.name + if (message != null) ": $message" else "" }
+    private fun errorMessage(t: Throwable): String = t.run {
+        javaClass.name + if (message != null) ": $message" else ""
+    }
 
     internal fun Response(resultCode: Int, message: String? = null) =
         Response(resultCode, PerfettoNative.Metadata.version, message)

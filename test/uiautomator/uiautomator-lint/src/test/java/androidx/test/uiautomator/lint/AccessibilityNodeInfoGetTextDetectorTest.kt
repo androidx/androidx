@@ -37,132 +37,123 @@ class AccessibilityNodeInfoGetTextDetectorTest : LintDetectorTest() {
         mutableListOf(AccessibilityNodeInfoGetTextDetector.ISSUE)
 
     @Test
-    fun expectIssueOnProperty() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 1,
-                code =
-                    """
+    fun expectIssueOnProperty() = methods.forEach {
+        kotlinCode(
+            warnings = 1,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it { text == "Ok" }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectIssueOnProperty2() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 1,
-                code =
-                    """
+    fun expectIssueOnProperty2() = methods.forEach {
+        kotlinCode(
+            warnings = 1,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it { "Ok" == text }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectIssueOnPropertyWithToString() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 1,
-                code =
-                    """
+    fun expectIssueOnPropertyWithToString() = methods.forEach {
+        kotlinCode(
+            warnings = 1,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it { text.toString() == "Ok" }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectIssueOnPropertyInIfStatement() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 1,
-                code =
-                    """
+    fun expectIssueOnPropertyInIfStatement() = methods.forEach {
+        kotlinCode(
+            warnings = 1,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it { text == "Ok" }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectIssueOnPropertyUsedInFunction() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 1,
-                code =
-                    """
+    fun expectIssueOnPropertyUsedInFunction() = methods.forEach {
+        kotlinCode(
+            warnings = 1,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it { someFunction(text) }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectIssueOnPropertyUsedInThis() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 1,
-                code =
-                    """
+    fun expectIssueOnPropertyUsedInThis() = methods.forEach {
+        kotlinCode(
+            warnings = 1,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it { this.text == "Ok" }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectCleanOnAsStringProperty() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 0,
-                code =
-                    """
+    fun expectCleanOnAsStringProperty() = methods.forEach {
+        kotlinCode(
+            warnings = 0,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it { textAsString == "Ok" }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectCleanOnFunctionNamedText() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 0,
-                code =
-                    """
+    fun expectCleanOnFunctionNamedText() = methods.forEach {
+        kotlinCode(
+            warnings = 0,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it { text("something") == "Ok" }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectIssueIfOtherObjectIsAccessibilityNodeInfo() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 1,
-                code =
-                    """
+    fun expectIssueIfOtherObjectIsAccessibilityNodeInfo() = methods.forEach {
+        kotlinCode(
+            warnings = 1,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it {
@@ -171,31 +162,29 @@ class AccessibilityNodeInfoGetTextDetectorTest : LintDetectorTest() {
                     }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectCleanIfOtherObjectIsNotAccessibilityNodeInfo() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 0,
-                code =
-                    """
+    fun expectCleanIfOtherObjectIsNotAccessibilityNodeInfo() = methods.forEach {
+        kotlinCode(
+            warnings = 0,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it { SomeObject().text == "Ok" }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectIssueWithInnerScopesWhenReferringToAccessibilityNodeInfo() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 1,
-                code =
-                    """
+    fun expectIssueWithInnerScopesWhenReferringToAccessibilityNodeInfo() = methods.forEach {
+        kotlinCode(
+            warnings = 1,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it {
@@ -206,16 +195,15 @@ class AccessibilityNodeInfoGetTextDetectorTest : LintDetectorTest() {
                     }
                 }
             """,
-            )
-        }
+        )
+    }
 
     @Test
-    fun expectCleanWithInnerScopesWhenNotReferringToAccessibilityNodeInfo() =
-        methods.forEach {
-            kotlinCode(
-                warnings = 0,
-                code =
-                    """
+    fun expectCleanWithInnerScopesWhenNotReferringToAccessibilityNodeInfo() = methods.forEach {
+        kotlinCode(
+            warnings = 0,
+            code =
+                """
                 @Test
                 fun myTest() = uiAutomator {
                     $it {
@@ -226,8 +214,8 @@ class AccessibilityNodeInfoGetTextDetectorTest : LintDetectorTest() {
                     }
                 }
             """,
-            )
-        }
+        )
+    }
 
     private fun kotlinCode(warnings: Int, @Language("kotlin") code: String) {
         lint().files(kotlin(code), STUBS).run().expectWarningCount(warnings)

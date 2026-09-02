@@ -227,7 +227,8 @@ class PageIndicatorScreenshotTest {
         ScreenConfiguration(screenSize.size, isRound = true) {
             Box(
                 modifier = Modifier.testTag(TEST_TAG).fillMaxSize().background(Color.White),
-                contentAlignment = if (isHorizontal) Alignment.BottomCenter else Alignment.CenterEnd,
+                contentAlignment =
+                    if (isHorizontal) Alignment.BottomCenter else Alignment.CenterEnd,
             ) {
                 val pagerState =
                     rememberPagerState(

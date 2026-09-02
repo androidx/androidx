@@ -542,7 +542,10 @@ open class GlanceAppWidgetReceiverTest {
                 modifier =
                     GlanceModifier.fillMaxWidth()
                         .height(220.dp)
-                        .background(ImageProvider(R.drawable.oval), contentScale = ContentScale.Fit),
+                        .background(
+                            ImageProvider(R.drawable.oval),
+                            contentScale = ContentScale.Fit,
+                        ),
             )
         }
 
@@ -1309,12 +1312,11 @@ open class GlanceAppWidgetReceiverTest {
             // handling this event.
             blockableStateDefinition.dataStoreBlocksForever = true
             val sessionKey = AppWidgetId(mHostRule.appWidgetId).toSessionKey()
-            val originalSession =
-                GlanceSessionManager.runWithLock {
-                    val session = getSession(sessionKey) as AppWidgetSession
-                    session.updateGlance()
-                    session
-                }
+            val originalSession = GlanceSessionManager.runWithLock {
+                val session = getSession(sessionKey) as AppWidgetSession
+                session.updateGlance()
+                session
+            }
 
             // Send two lambda events. The first session will timeout before it can handle them, but
             // it should start a new session to handle the clicks.

@@ -68,17 +68,16 @@ internal actual fun SelectionHandle(
     // The left selection handle's top right is placed at the given position, and vice versa.
     val handleReferencePoint = if (isLeft) AbsoluteAlignment.TopRight else AbsoluteAlignment.TopLeft
 
-    val semanticsModifier =
-        modifier.semantics {
-            val position = offsetProvider.provide()
-            this[SelectionHandleInfoKey] =
-                SelectionHandleInfo(
-                    handle = if (isStartHandle) SelectionStart else SelectionEnd,
-                    position = position,
-                    anchor = if (isLeft) Left else Right,
-                    visible = position.isSpecified,
-                )
-        }
+    val semanticsModifier = modifier.semantics {
+        val position = offsetProvider.provide()
+        this[SelectionHandleInfoKey] =
+            SelectionHandleInfo(
+                handle = if (isStartHandle) SelectionStart else SelectionEnd,
+                position = position,
+                anchor = if (isLeft) Left else Right,
+                visible = position.isSpecified,
+            )
+    }
 
     // Propagate the view configuration to the popup.
     val viewConfiguration = LocalViewConfiguration.current

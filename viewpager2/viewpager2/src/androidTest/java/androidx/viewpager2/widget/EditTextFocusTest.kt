@@ -161,14 +161,13 @@ class EditTextFocusTest : BaseTest() {
         }
     }
 
-    private fun editTextForPage(page: View): EditText =
-        page.let {
-            when (it) {
-                is EditText -> it
-                is ViewGroup -> it.getChildAt(0) as EditText
-                else -> throw IllegalArgumentException()
-            }
+    private fun editTextForPage(page: View): EditText = page.let {
+        when (it) {
+            is EditText -> it
+            is ViewGroup -> it.getChildAt(0) as EditText
+            else -> throw IllegalArgumentException()
         }
+    }
 
     private fun pageForEditText(editText: EditText, wrapInViewGroup: Boolean): View =
         when (wrapInViewGroup) {

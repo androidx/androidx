@@ -466,16 +466,15 @@ fun RoundedPolygon(
 ): RoundedPolygon {
     require(features.size >= 2) { "Polygons must have at least 2 features" }
 
-    val vertices =
-        buildList {
-                for (feature in features) {
-                    for (cubic in feature.cubics) {
-                        add(cubic.anchor0X)
-                        add(cubic.anchor0Y)
-                    }
-                }
+    val vertices = buildList {
+        for (feature in features) {
+            for (cubic in feature.cubics) {
+                add(cubic.anchor0X)
+                add(cubic.anchor0Y)
             }
-            .toFloatArray()
+        }
+    }
+        .toFloatArray()
 
     val cX = if (centerX.isNaN()) calculateCenter(vertices).first else centerX
     val cY = if (centerY.isNaN()) calculateCenter(vertices).second else centerY

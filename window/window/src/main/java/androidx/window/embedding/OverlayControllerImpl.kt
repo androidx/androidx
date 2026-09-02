@@ -272,7 +272,10 @@ internal open class OverlayControllerImpl(
             .build()
 
     private fun List<ActivityStack>.getOverlayContainers(): List<ActivityStack> =
-        filter { activityStack -> activityStack.tag != null }.toList()
+        filter { activityStack ->
+            activityStack.tag != null
+        }
+        .toList()
 
     open fun addOverlayInfoCallback(
         overlayTag: String,
@@ -282,8 +285,9 @@ internal open class OverlayControllerImpl(
         globalLock.withLock {
             val callback =
                 Consumer2<List<ActivityStack>> { activityStacks ->
-                    val overlayInfoList =
-                        activityStacks.filter { activityStack -> activityStack.tag == overlayTag }
+                    val overlayInfoList = activityStacks.filter { activityStack ->
+                        activityStack.tag == overlayTag
+                    }
                     if (overlayInfoList.size > 1) {
                         throw IllegalStateException(
                             "There must be at most one overlay ActivityStack with $overlayTag"

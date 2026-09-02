@@ -387,8 +387,9 @@ private object ApplyActionApi31Impl {
 
 @RequiresApi(Build.VERSION_CODES.Q)
 internal object ApplyActionApi29Impl {
-    fun setIntentIdentifier(intent: Intent, viewId: String): Intent =
-        intent.apply { identifier = viewId }
+    fun setIntentIdentifier(intent: Intent, viewId: String): Intent = intent.apply {
+        identifier = viewId
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

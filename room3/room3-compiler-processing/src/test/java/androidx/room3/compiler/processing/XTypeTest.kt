@@ -2034,10 +2034,12 @@ class XTypeTest {
             invocation.processingEnv.requireType("foo.bar.Baz").let {
                 val superTypes = it.superTypes
                 assertThat(superTypes).hasSize(2)
-                val superClass =
-                    superTypes.first { type -> type.rawType.toString() == "foo.bar.AbstractClass" }
-                val superInterface =
-                    superTypes.first { type -> type.rawType.toString() == "foo.bar.MyInterface" }
+                val superClass = superTypes.first { type ->
+                    type.rawType.toString() == "foo.bar.AbstractClass"
+                }
+                val superInterface = superTypes.first { type ->
+                    type.rawType.toString() == "foo.bar.MyInterface"
+                }
                 assertThat(superClass.typeArguments).hasSize(1)
                 assertThat(superClass.typeArguments[0].asTypeName().java)
                     .isEqualTo(JClassName.get("java.lang", "String"))
@@ -2731,7 +2733,8 @@ class XTypeTest {
                 val fooFoo: XType = invocation.processingEnv.getDeclaredType(fooTypeElement, foo)
                 assertHasTypeName(
                     type = fooFoo,
-                    expectedTypeName = fooTypeName.parametrizedBy(fooTypeName.copy(nullable = true)),
+                    expectedTypeName =
+                        fooTypeName.parametrizedBy(fooTypeName.copy(nullable = true)),
                 )
 
                 val fooFooFoo: XType =

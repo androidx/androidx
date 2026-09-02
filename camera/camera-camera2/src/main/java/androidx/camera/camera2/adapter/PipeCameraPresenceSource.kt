@@ -117,19 +117,18 @@ public class PipeCameraPresenceSource(
             coroutineScope.launch {
                 try {
                     val systemCameraIds = cameraManager.cameraIdList
-                    val newIdentifiers =
-                        systemCameraIds.mapNotNull {
-                            try {
-                                CameraIdentifier.Factory.create(it)
-                            } catch (e: IllegalArgumentException) {
-                                Log.w(
-                                    TAG,
-                                    "Could not create CameraIdentifier for system ID: $it",
-                                    e,
-                                )
-                                null
-                            }
+                    val newIdentifiers = systemCameraIds.mapNotNull {
+                        try {
+                            CameraIdentifier.Factory.create(it)
+                        } catch (e: IllegalArgumentException) {
+                            Log.w(
+                                TAG,
+                                "Could not create CameraIdentifier for system ID: $it",
+                                e,
+                            )
+                            null
                         }
+                    }
 
                     Log.d(TAG, "[FetchData] Refreshed camera list from hardware: $newIdentifiers")
                     updateData(newIdentifiers) // Update state and notify

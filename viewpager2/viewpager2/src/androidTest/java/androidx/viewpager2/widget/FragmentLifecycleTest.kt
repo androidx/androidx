@@ -269,8 +269,9 @@ private data class FragmentInfo(
     val isMenuVisible: Boolean,
 )
 
-private fun fragmentStateToString(state: Int): String =
-    FRAGMENT_LIFECYCLE_STATES.first { getFragmentFieldValue<Int>(it, null) == state }
+private fun fragmentStateToString(state: Int): String = FRAGMENT_LIFECYCLE_STATES.first {
+    getFragmentFieldValue<Int>(it, null) == state
+}
 
 private val (Fragment).stateInt: Int
     get() = getFragmentFieldValue("mState", this)

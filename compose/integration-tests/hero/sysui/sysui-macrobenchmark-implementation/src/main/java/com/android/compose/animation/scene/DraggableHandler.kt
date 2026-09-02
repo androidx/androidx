@@ -156,7 +156,13 @@ internal class DraggableHandler(
             upOrLeft =
                 resolveSwipe(orientation, isUpOrLeft = true, fromSource, pointersDown, pointerType),
             downOrRight =
-                resolveSwipe(orientation, isUpOrLeft = false, fromSource, pointersDown, pointerType),
+                resolveSwipe(
+                    orientation,
+                    isUpOrLeft = false,
+                    fromSource,
+                    pointersDown,
+                    pointerType,
+                ),
         )
     }
 

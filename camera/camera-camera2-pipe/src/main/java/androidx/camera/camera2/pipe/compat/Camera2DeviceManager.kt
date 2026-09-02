@@ -658,8 +658,9 @@ constructor(
     }
 
     private suspend fun connectPendingRequestOpens(cameraIds: Set<CameraId>) {
-        val filteredPendingRequestOpens =
-            pendingRequestOpens.filter { cameraIds.contains(it.request.virtualCamera.cameraId) }
+        val filteredPendingRequestOpens = pendingRequestOpens.filter {
+            cameraIds.contains(it.request.virtualCamera.cameraId)
+        }
         for (pendingRequestOpen in filteredPendingRequestOpens) {
             val request = pendingRequestOpen.request
 

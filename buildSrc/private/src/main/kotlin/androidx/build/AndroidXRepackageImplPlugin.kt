@@ -107,12 +107,11 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
      * but the AGP transform depends on JavaCompile. We cannot make JavaCompile depend on the task
      * that creates the shadowed library as that would result in a circular dependency.
      */
-    private fun Project.forceJarUsageForAndroid() =
-        configurations.configureEach { configuration ->
-            if (configuration.name == "runtimeElements") {
-                configuration.outgoing.variants.removeIf { it.name == "classes" }
-            }
+    private fun Project.forceJarUsageForAndroid() = configurations.configureEach { configuration ->
+        if (configuration.name == "runtimeElements") {
+            configuration.outgoing.variants.removeIf { it.name == "classes" }
         }
+    }
 
     private fun Project.addArchiveToVariants(task: TaskProvider<ShadowJar>) =
         configurations.configureEach { configuration ->

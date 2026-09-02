@@ -207,7 +207,8 @@ public fun ExposedDropdownMenuBox(
                                 maxHeight = constraints.constrainHeight(menuMaxHeight),
                                 minWidth =
                                     if (matchAnchorWidth) menuWidth else constraints.minWidth,
-                                maxWidth = if (matchAnchorWidth) menuWidth else constraints.maxWidth,
+                                maxWidth =
+                                    if (matchAnchorWidth) menuWidth else constraints.maxWidth,
                             )
                         val placeable = measurable.measure(menuConstraints)
                         layout(placeable.width, placeable.height) { placeable.place(0, 0) }

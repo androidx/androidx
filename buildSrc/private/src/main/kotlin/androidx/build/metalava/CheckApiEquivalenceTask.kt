@@ -44,14 +44,13 @@ abstract class CheckApiEquivalenceTask : DefaultTask() {
     @PathSensitive(PathSensitivity.RELATIVE)
     fun getTaskInputs(): List<File> {
         val checkedInApiLocations = checkedInApis.get()
-        val checkedInApiFiles =
-            checkedInApiLocations.flatMap { checkedInApiLocation ->
-                listOf(
-                    checkedInApiLocation.publicApiFile,
-                    checkedInApiLocation.restrictedApiFile,
-                    checkedInApiLocation.multiplatformApiDirectory,
-                )
-            }
+        val checkedInApiFiles = checkedInApiLocations.flatMap { checkedInApiLocation ->
+            listOf(
+                checkedInApiLocation.publicApiFile,
+                checkedInApiLocation.restrictedApiFile,
+                checkedInApiLocation.multiplatformApiDirectory,
+            )
+        }
 
         val builtApiLocation = builtApi.get()
         val builtApiFiles =

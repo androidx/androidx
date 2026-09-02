@@ -1813,15 +1813,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (scrollableAncestor == null) {
             // there's no scrollable ancestor in the Compose hierarchy, let
             // AndroidComposeView handle it
-            val rect =
-                boundsInRoot.run {
-                    android.graphics.Rect(
-                        floor(left).toInt(),
-                        floor(top).toInt(),
-                        ceil(right).roundToInt(),
-                        ceil(bottom).roundToInt(),
-                    )
-                }
+            val rect = boundsInRoot.run {
+                android.graphics.Rect(
+                    floor(left).toInt(),
+                    floor(top).toInt(),
+                    ceil(right).roundToInt(),
+                    ceil(bottom).roundToInt(),
+                )
+            }
             return view.requestRectangleOnScreen(rect)
         }
 
@@ -3802,13 +3801,12 @@ private fun SemanticsNode.excludeLineAndPageGranularities(): Boolean {
         return true
 
     // text nodes that are part of the 'merged' text field, for example hint or label.
-    val ancestor =
-        layoutNode.findClosestParentNode {
-            // looking for text field merging node
-            val ancestorSemanticsConfiguration = it.semanticsConfiguration
-            ancestorSemanticsConfiguration?.isMergingSemanticsOfDescendants == true &&
-                ancestorSemanticsConfiguration.contains(SemanticsProperties.EditableText)
-        }
+    val ancestor = layoutNode.findClosestParentNode {
+        // looking for text field merging node
+        val ancestorSemanticsConfiguration = it.semanticsConfiguration
+        ancestorSemanticsConfiguration?.isMergingSemanticsOfDescendants == true &&
+            ancestorSemanticsConfiguration.contains(SemanticsProperties.EditableText)
+    }
     return ancestor != null &&
         ancestor.semanticsConfiguration?.getOrNull(SemanticsProperties.Focused) != true
 }

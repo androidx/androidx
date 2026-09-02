@@ -105,10 +105,9 @@ class FragmentTransactionCallbackTest : BaseTest() {
             )
 
             // when 2: current item changed to next page
-            val latch2 =
-                adapter.registerMaxLifecycleUpdatedLatch { fragment, maxLifecycleState ->
-                    fragment.name == "f0" && maxLifecycleState == Lifecycle.State.STARTED
-                }
+            val latch2 = adapter.registerMaxLifecycleUpdatedLatch { fragment, maxLifecycleState ->
+                fragment.name == "f0" && maxLifecycleState == Lifecycle.State.STARTED
+            }
             viewPager.setCurrentItemSync(1, true, 5, SECONDS)
             latch2.awaitStrict(5)
 

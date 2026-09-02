@@ -96,136 +96,130 @@ class WindowInfoTrackerImplTest {
     }
 
     @Test
-    fun testWindowLayoutInfo_activityAsListener() =
-        testScope.runTest {
-            activityScenario.scenario.onActivity { testActivity ->
-                Dispatchers.setMain(testDispatcher) // Needed for flowOn(Dispatchers.Main).
-                val collector = mutableListOf<WindowLayoutInfo>()
-                val job = Job()
-
-                testScope.launch(job) { tracker.windowLayoutInfo(testActivity).toList(collector) }
-                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
-
-                assertThat(collector).containsExactly(WindowLayoutInfo(emptyList()))
-                job.cancel()
-                assertThat(fakeBackend.consumers).isEmpty()
-            }
-        }
-
-    @Test
-    fun testWindowEngagementInfo_combinedFlow() =
-        testScope.runTest {
-            activityScenario.scenario.onActivity { testActivity ->
-                Dispatchers.setMain(testDispatcher)
-                val collector = mutableListOf<WindowEngagementInfo>()
-                val job = Job()
-
-                testScope.launch(job) {
-                    whenever(
-                            mEngagementModeBackend.addEngagementLayoutChangeCallback(
-                                any(),
-                                any(),
-                                any(),
-                            )
-                        )
-                        .thenAnswer { invocation ->
-                            val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
-                            engagementCallbacks.add(callback)
-                            Unit
-                        }
-                    tracker.windowEngagementInfo(testActivity).toList(collector)
-                }
-
-                // Simulate OEM backend emitting VISUALS_ON
-                @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
-                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
-
-                engagementCallbacks.forEach { callback ->
-                    callback.accept(EngagementMode.PRECISE_POINTER)
-                }
-
-                // EngagementModeBackend mock returns PRECISE_POINTER by default
-                assertThat(collector.last().engagementModes)
-                    .containsExactly(
-                        WindowEngagementInfo.EngagementMode.VISUALS_ON,
-                        EngagementMode.PRECISE_POINTER,
-                    )
-
-                job.cancel()
-            }
-        }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
-    fun testWindowLayoutInfo_contextAsListener() =
-        testScope.runTest {
-            assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
-            assumeAtLeastWindowExtensionVersion(2)
+    fun testWindowLayoutInfo_activityAsListener() = testScope.runTest {
+        activityScenario.scenario.onActivity { testActivity ->
             Dispatchers.setMain(testDispatcher) // Needed for flowOn(Dispatchers.Main).
             val collector = mutableListOf<WindowLayoutInfo>()
-            val windowContext = WindowTestUtils.createOverlayWindowContext()
             val job = Job()
 
-            testScope.launch(job) { tracker.windowLayoutInfo(windowContext).toList(collector) }
+            testScope.launch(job) { tracker.windowLayoutInfo(testActivity).toList(collector) }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
 
             assertThat(collector).containsExactly(WindowLayoutInfo(emptyList()))
             job.cancel()
             assertThat(fakeBackend.consumers).isEmpty()
         }
+    }
 
     @Test
-    fun testWindowLayoutInfo_multicastingWithActivity() =
-        testScope.runTest {
-            activityScenario.scenario.onActivity { testActivity ->
-                Dispatchers.setMain(testDispatcher) // Needed for flowOn(Dispatchers.Main).
-                val collector = mutableListOf<WindowLayoutInfo>()
-                val job = Job()
+    fun testWindowEngagementInfo_combinedFlow() = testScope.runTest {
+        activityScenario.scenario.onActivity { testActivity ->
+            Dispatchers.setMain(testDispatcher)
+            val collector = mutableListOf<WindowEngagementInfo>()
+            val job = Job()
 
-                launch(job) { tracker.windowLayoutInfo(testActivity).toList(collector) }
-                launch(job) { tracker.windowLayoutInfo(testActivity).toList(collector) }
-                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
-
-                assertThat(collector)
-                    .containsExactly(WindowLayoutInfo(emptyList()), WindowLayoutInfo(emptyList()))
+            testScope.launch(job) {
+                whenever(
+                        mEngagementModeBackend.addEngagementLayoutChangeCallback(
+                            any(),
+                            any(),
+                            any(),
+                        )
+                    )
+                    .thenAnswer { invocation ->
+                        val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
+                        engagementCallbacks.add(callback)
+                        Unit
+                    }
+                tracker.windowEngagementInfo(testActivity).toList(collector)
             }
+
+            // Simulate OEM backend emitting VISUALS_ON
+            @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
+            fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+
+            engagementCallbacks.forEach { callback ->
+                callback.accept(EngagementMode.PRECISE_POINTER)
+            }
+
+            // EngagementModeBackend mock returns PRECISE_POINTER by default
+            assertThat(collector.last().engagementModes)
+                .containsExactly(
+                    WindowEngagementInfo.EngagementMode.VISUALS_ON,
+                    EngagementMode.PRECISE_POINTER,
+                )
+
+            job.cancel()
         }
+    }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
-    fun testWindowLayoutInfo_multicastingWithContext() =
-        testScope.runTest {
-            assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
-            assumeAtLeastWindowExtensionVersion(2)
+    fun testWindowLayoutInfo_contextAsListener() = testScope.runTest {
+        assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
+        assumeAtLeastWindowExtensionVersion(2)
+        Dispatchers.setMain(testDispatcher) // Needed for flowOn(Dispatchers.Main).
+        val collector = mutableListOf<WindowLayoutInfo>()
+        val windowContext = WindowTestUtils.createOverlayWindowContext()
+        val job = Job()
+
+        testScope.launch(job) { tracker.windowLayoutInfo(windowContext).toList(collector) }
+        fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
+
+        assertThat(collector).containsExactly(WindowLayoutInfo(emptyList()))
+        job.cancel()
+        assertThat(fakeBackend.consumers).isEmpty()
+    }
+
+    @Test
+    fun testWindowLayoutInfo_multicastingWithActivity() = testScope.runTest {
+        activityScenario.scenario.onActivity { testActivity ->
             Dispatchers.setMain(testDispatcher) // Needed for flowOn(Dispatchers.Main).
             val collector = mutableListOf<WindowLayoutInfo>()
-            val windowContext = WindowTestUtils.createOverlayWindowContext()
             val job = Job()
 
-            launch(job) { tracker.windowLayoutInfo(windowContext).toList(collector) }
-            launch(job) { tracker.windowLayoutInfo(windowContext).toList(collector) }
+            launch(job) { tracker.windowLayoutInfo(testActivity).toList(collector) }
+            launch(job) { tracker.windowLayoutInfo(testActivity).toList(collector) }
             fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
 
             assertThat(collector)
                 .containsExactly(WindowLayoutInfo(emptyList()), WindowLayoutInfo(emptyList()))
         }
+    }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
-    fun testWindowLayoutInfo_nonUiContext_throwsError() =
-        testScope.runTest {
-            assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
-            assumeAtLeastWindowExtensionVersion(2)
-            Dispatchers.setMain(testDispatcher) // Needed for flowOn(Dispatchers.Main).
-            val context: Context = ApplicationProvider.getApplicationContext()
-            val tracker = WindowInfoTracker.getOrCreate(context)
+    fun testWindowLayoutInfo_multicastingWithContext() = testScope.runTest {
+        assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
+        assumeAtLeastWindowExtensionVersion(2)
+        Dispatchers.setMain(testDispatcher) // Needed for flowOn(Dispatchers.Main).
+        val collector = mutableListOf<WindowLayoutInfo>()
+        val windowContext = WindowTestUtils.createOverlayWindowContext()
+        val job = Job()
 
-            testScope.launch(Job()) {
-                assertFailsWith<IllegalArgumentException> {
-                    tracker.windowLayoutInfo(context).collect {}
-                }
+        launch(job) { tracker.windowLayoutInfo(windowContext).toList(collector) }
+        launch(job) { tracker.windowLayoutInfo(windowContext).toList(collector) }
+        fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
+
+        assertThat(collector)
+            .containsExactly(WindowLayoutInfo(emptyList()), WindowLayoutInfo(emptyList()))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun testWindowLayoutInfo_nonUiContext_throwsError() = testScope.runTest {
+        assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
+        assumeAtLeastWindowExtensionVersion(2)
+        Dispatchers.setMain(testDispatcher) // Needed for flowOn(Dispatchers.Main).
+        val context: Context = ApplicationProvider.getApplicationContext()
+        val tracker = WindowInfoTracker.getOrCreate(context)
+
+        testScope.launch(Job()) {
+            assertFailsWith<IllegalArgumentException> {
+                tracker.windowLayoutInfo(context).collect {}
             }
         }
+    }
 
     @Test
     fun testSupportedWindowPostures_throwsBeforeApi6() {
@@ -318,66 +312,63 @@ class WindowInfoTrackerImplTest {
     }
 
     @Test
-    fun testRegisterWindowLayoutInfoListener_activity() =
-        testScope.runTest {
-            activityScenario.scenario.onActivity { testActivity ->
-                Dispatchers.setMain(testDispatcher)
-                val receivedValues = mutableListOf<WindowLayoutInfo>()
-                val listener = Consumer<WindowLayoutInfo> { info -> receivedValues.add(info) }
-                // Use a direct executor to run the listener callback immediately.
-                val executor = Executor { command -> command.run() }
-
-                tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
-                val layoutInfo = WindowLayoutInfo(emptyList())
-                fakeBackend.triggerSignal(layoutInfo)
-
-                assertThat(receivedValues).containsExactly(layoutInfo)
-            }
-        }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
-    fun testRegisterWindowLayoutInfoListener_context() =
-        testScope.runTest {
-            assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
-            assumeAtLeastWindowExtensionVersion(2)
+    fun testRegisterWindowLayoutInfoListener_activity() = testScope.runTest {
+        activityScenario.scenario.onActivity { testActivity ->
             Dispatchers.setMain(testDispatcher)
             val receivedValues = mutableListOf<WindowLayoutInfo>()
             val listener = Consumer<WindowLayoutInfo> { info -> receivedValues.add(info) }
+            // Use a direct executor to run the listener callback immediately.
             val executor = Executor { command -> command.run() }
-            val windowContext = WindowTestUtils.createOverlayWindowContext()
 
-            tracker.registerWindowLayoutInfoListener(windowContext, executor, listener)
+            tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
             val layoutInfo = WindowLayoutInfo(emptyList())
             fakeBackend.triggerSignal(layoutInfo)
 
             assertThat(receivedValues).containsExactly(layoutInfo)
         }
+    }
 
     @Test
-    fun testUnregisterWindowLayoutInfoListener() =
-        testScope.runTest {
-            activityScenario.scenario.onActivity { testActivity ->
-                Dispatchers.setMain(testDispatcher)
-                val receivedValues = mutableListOf<WindowLayoutInfo>()
-                val listener = Consumer<WindowLayoutInfo> { info -> receivedValues.add(info) }
-                val executor = Executor { command -> command.run() }
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
+    fun testRegisterWindowLayoutInfoListener_context() = testScope.runTest {
+        assume().that(Build.VERSION.SDK_INT).isAtLeast(Build.VERSION_CODES.R)
+        assumeAtLeastWindowExtensionVersion(2)
+        Dispatchers.setMain(testDispatcher)
+        val receivedValues = mutableListOf<WindowLayoutInfo>()
+        val listener = Consumer<WindowLayoutInfo> { info -> receivedValues.add(info) }
+        val executor = Executor { command -> command.run() }
+        val windowContext = WindowTestUtils.createOverlayWindowContext()
 
-                tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
-                // Verify listener is active
-                val displayFeature: DisplayFeature =
-                    HardwareFoldingFeature(Bounds(0, 0, 100, 200), HINGE, FLAT)
-                val firstLayoutInfo = WindowLayoutInfo(listOf(displayFeature))
-                fakeBackend.triggerSignal(firstLayoutInfo)
-                assertThat(receivedValues).containsExactly(firstLayoutInfo)
+        tracker.registerWindowLayoutInfoListener(windowContext, executor, listener)
+        val layoutInfo = WindowLayoutInfo(emptyList())
+        fakeBackend.triggerSignal(layoutInfo)
 
-                tracker.unregisterWindowLayoutInfoListener(listener)
-                // Verify listener is removed and does not receive new values
-                val secondLayoutInfo = WindowLayoutInfo(emptyList())
-                fakeBackend.triggerSignal(secondLayoutInfo)
-                assertThat(receivedValues).containsExactly(firstLayoutInfo)
-            }
+        assertThat(receivedValues).containsExactly(layoutInfo)
+    }
+
+    @Test
+    fun testUnregisterWindowLayoutInfoListener() = testScope.runTest {
+        activityScenario.scenario.onActivity { testActivity ->
+            Dispatchers.setMain(testDispatcher)
+            val receivedValues = mutableListOf<WindowLayoutInfo>()
+            val listener = Consumer<WindowLayoutInfo> { info -> receivedValues.add(info) }
+            val executor = Executor { command -> command.run() }
+
+            tracker.registerWindowLayoutInfoListener(testActivity, executor, listener)
+            // Verify listener is active
+            val displayFeature: DisplayFeature =
+                HardwareFoldingFeature(Bounds(0, 0, 100, 200), HINGE, FLAT)
+            val firstLayoutInfo = WindowLayoutInfo(listOf(displayFeature))
+            fakeBackend.triggerSignal(firstLayoutInfo)
+            assertThat(receivedValues).containsExactly(firstLayoutInfo)
+
+            tracker.unregisterWindowLayoutInfoListener(listener)
+            // Verify listener is removed and does not receive new values
+            val secondLayoutInfo = WindowLayoutInfo(emptyList())
+            fakeBackend.triggerSignal(secondLayoutInfo)
+            assertThat(receivedValues).containsExactly(firstLayoutInfo)
         }
+    }
 
     @Test
     fun testRegisterWindowLayoutInfoListener_doesNotAddSameListenerTwice() {
@@ -394,123 +385,120 @@ class WindowInfoTrackerImplTest {
     }
 
     @Test
-    fun testRegisterWindowEngagementInfoListener_activity() =
-        testScope.runTest {
-            activityScenario.scenario.onActivity { testActivity ->
-                Dispatchers.setMain(testDispatcher)
-                val receivedValues = mutableListOf<WindowEngagementInfo>()
-                val listener = Consumer<WindowEngagementInfo> { info -> receivedValues.add(info) }
-                val executor = Executor { command -> command.run() }
-                whenever(
-                        mEngagementModeBackend.addEngagementLayoutChangeCallback(
-                            any(),
-                            any(),
-                            any(),
-                        )
+    fun testRegisterWindowEngagementInfoListener_activity() = testScope.runTest {
+        activityScenario.scenario.onActivity { testActivity ->
+            Dispatchers.setMain(testDispatcher)
+            val receivedValues = mutableListOf<WindowEngagementInfo>()
+            val listener = Consumer<WindowEngagementInfo> { info -> receivedValues.add(info) }
+            val executor = Executor { command -> command.run() }
+            whenever(
+                    mEngagementModeBackend.addEngagementLayoutChangeCallback(
+                        any(),
+                        any(),
+                        any(),
                     )
-                    .thenAnswer { invocation ->
-                        val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
-                        engagementCallbacks.add(callback)
-                        Unit
-                    }
-                tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
-
-                engagementCallbacks.forEach { callback ->
-                    callback.accept(EngagementMode.PRECISE_POINTER)
+                )
+                .thenAnswer { invocation ->
+                    val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
+                    engagementCallbacks.add(callback)
+                    Unit
                 }
-                receivedValues.clear()
+            tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
 
-                @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
-                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+            engagementCallbacks.forEach { callback ->
+                callback.accept(EngagementMode.PRECISE_POINTER)
+            }
+            receivedValues.clear()
 
-                assertThat(receivedValues)
-                    .containsExactly(
-                        WindowEngagementInfo(
-                            setOf(
-                                WindowEngagementInfo.EngagementMode.VISUALS_ON,
-                                EngagementMode.PRECISE_POINTER,
-                            )
+            @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
+            fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+
+            assertThat(receivedValues)
+                .containsExactly(
+                    WindowEngagementInfo(
+                        setOf(
+                            WindowEngagementInfo.EngagementMode.VISUALS_ON,
+                            EngagementMode.PRECISE_POINTER,
                         )
                     )
-            }
+                )
         }
+    }
 
     @Test
-    fun testUnregisterWindowEngagementInfoListener() =
-        testScope.runTest {
-            activityScenario.scenario.onActivity { testActivity ->
-                Dispatchers.setMain(testDispatcher)
-                val receivedValues = mutableListOf<WindowEngagementInfo>()
-                val listener = Consumer<WindowEngagementInfo> { info -> receivedValues.add(info) }
-                val executor = Executor { command -> command.run() }
-                whenever(
-                        mEngagementModeBackend.addEngagementLayoutChangeCallback(
-                            any(),
-                            any(),
-                            any(),
-                        )
+    fun testUnregisterWindowEngagementInfoListener() = testScope.runTest {
+        activityScenario.scenario.onActivity { testActivity ->
+            Dispatchers.setMain(testDispatcher)
+            val receivedValues = mutableListOf<WindowEngagementInfo>()
+            val listener = Consumer<WindowEngagementInfo> { info -> receivedValues.add(info) }
+            val executor = Executor { command -> command.run() }
+            whenever(
+                    mEngagementModeBackend.addEngagementLayoutChangeCallback(
+                        any(),
+                        any(),
+                        any(),
                     )
-                    .thenAnswer { invocation ->
-                        val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
-                        engagementCallbacks.add(callback)
-                        Unit
-                    }
-                tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
-
-                // Trigger engagement mode to satisfy CombineLatest
-                engagementCallbacks.forEach { callback ->
-                    callback.accept(EngagementMode.PRECISE_POINTER)
+                )
+                .thenAnswer { invocation ->
+                    val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
+                    engagementCallbacks.add(callback)
+                    Unit
                 }
+            tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
 
-                // Verify listener is active
-                @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
-                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
-                assertThat(receivedValues).hasSize(1)
-
-                tracker.unregisterWindowEngagementInfoListener(listener)
-
-                // Verify listener is removed and does not receive new values
-                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
-                assertThat(receivedValues).hasSize(1)
+            // Trigger engagement mode to satisfy CombineLatest
+            engagementCallbacks.forEach { callback ->
+                callback.accept(EngagementMode.PRECISE_POINTER)
             }
+
+            // Verify listener is active
+            @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
+            fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+            assertThat(receivedValues).hasSize(1)
+
+            tracker.unregisterWindowEngagementInfoListener(listener)
+
+            // Verify listener is removed and does not receive new values
+            fakeBackend.triggerSignal(WindowLayoutInfo(emptyList()))
+            assertThat(receivedValues).hasSize(1)
         }
+    }
 
     @Test
-    fun testRegisterWindowEngagementInfoListener_doesNotAddSameListenerTwice() =
-        testScope.runTest {
-            activityScenario.scenario.onActivity { testActivity ->
-                val receivedValues = mutableListOf<WindowEngagementInfo>()
-                val listener = Consumer<WindowEngagementInfo> { info -> receivedValues.add(info) }
-                val executor = Executor { command -> command.run() }
+    fun testRegisterWindowEngagementInfoListener_doesNotAddSameListenerTwice() = testScope.runTest {
+        activityScenario.scenario.onActivity { testActivity ->
+            val receivedValues = mutableListOf<WindowEngagementInfo>()
+            val listener = Consumer<WindowEngagementInfo> { info -> receivedValues.add(info) }
+            val executor = Executor { command -> command.run() }
 
-                whenever(
-                        mEngagementModeBackend.addEngagementLayoutChangeCallback(
-                            any(),
-                            any(),
-                            any(),
-                        )
+            whenever(
+                    mEngagementModeBackend.addEngagementLayoutChangeCallback(
+                        any(),
+                        any(),
+                        any(),
                     )
-                    .thenAnswer { invocation ->
-                        val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
-                        engagementCallbacks.add(callback)
-                        Unit
-                    }
-                tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
-                tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
-
-                tracker.unregisterWindowEngagementInfoListener(listener)
-
-                // Trigger engagement mode to satisfy CombineLatest
-                engagementCallbacks.forEach { callback ->
-                    callback.accept(EngagementMode.PRECISE_POINTER)
+                )
+                .thenAnswer { invocation ->
+                    val callback = invocation.getArgument<Consumer<EngagementMode>>(2)
+                    engagementCallbacks.add(callback)
+                    Unit
                 }
+            tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
+            tracker.registerWindowEngagementInfoListener(testActivity, executor, listener)
 
-                @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
-                fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+            tracker.unregisterWindowEngagementInfoListener(listener)
 
-                assertThat(receivedValues).isEmpty()
+            // Trigger engagement mode to satisfy CombineLatest
+            engagementCallbacks.forEach { callback ->
+                callback.accept(EngagementMode.PRECISE_POINTER)
             }
+
+            @Suppress("DEPRECATION") val legacyMode = WindowLayoutInfo.EngagementMode.VISUALS_ON
+            fakeBackend.triggerSignal(WindowLayoutInfo(emptyList(), setOf(legacyMode)))
+
+            assertThat(receivedValues).isEmpty()
         }
+    }
 
     private class FakeWindowBackend(
         override val supportedPostures: List<SupportedPosture> = emptyList(),

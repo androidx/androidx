@@ -21,39 +21,39 @@ import com.android.mechanics.haptics.SegmentHaptics
 /** Returns a string representation of the [MotionSpec] for debugging by humans. */
 fun MotionSpec.toDebugString(): String {
     return buildString {
-            if (minDirection == maxDirection) {
-                appendLine("unidirectional:")
-                appendLine(minDirection.toDebugString().prependIndent("  "))
-            } else {
-                appendLine("maxDirection:")
-                appendLine(maxDirection.toDebugString().prependIndent("  "))
-                appendLine("minDirection:")
-                appendLine(minDirection.toDebugString().prependIndent("  "))
-            }
+        if (minDirection == maxDirection) {
+            appendLine("unidirectional:")
+            appendLine(minDirection.toDebugString().prependIndent("  "))
+        } else {
+            appendLine("maxDirection:")
+            appendLine(maxDirection.toDebugString().prependIndent("  "))
+            appendLine("minDirection:")
+            appendLine(minDirection.toDebugString().prependIndent("  "))
+        }
 
-            if (segmentHandlers.isNotEmpty()) {
-                appendLine("segmentHandlers:")
-                segmentHandlers.keys.forEach {
-                    appendIndent(2)
-                    appendSegmentKey(it)
-                    appendLine()
-                }
+        if (segmentHandlers.isNotEmpty()) {
+            appendLine("segmentHandlers:")
+            segmentHandlers.keys.forEach {
+                appendIndent(2)
+                appendSegmentKey(it)
+                appendLine()
             }
         }
+    }
         .trim()
 }
 
 /** Returns a string representation of the [DirectionalMotionSpec] for debugging by humans. */
 fun DirectionalMotionSpec.toDebugString(): String {
     return buildString {
-            appendBreakpointLine(breakpoints.first())
-            for (i in mappings.indices) {
-                appendMappingLine(mappings[i], indent = 2)
-                appendSegmentHapticsLine(haptics[i], indent = 2)
-                semantics.forEach { appendSemanticsLine(it.key, it.values[i], indent = 4) }
-                appendBreakpointLine(breakpoints[i + 1])
-            }
+        appendBreakpointLine(breakpoints.first())
+        for (i in mappings.indices) {
+            appendMappingLine(mappings[i], indent = 2)
+            appendSegmentHapticsLine(haptics[i], indent = 2)
+            semantics.forEach { appendSemanticsLine(it.key, it.values[i], indent = 4) }
+            appendBreakpointLine(breakpoints[i + 1])
         }
+    }
         .trim()
 }
 

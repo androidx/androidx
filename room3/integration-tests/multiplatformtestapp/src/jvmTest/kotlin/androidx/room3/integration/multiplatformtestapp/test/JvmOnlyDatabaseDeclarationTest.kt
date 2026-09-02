@@ -37,13 +37,12 @@ class JvmOnlyDatabaseDeclarationTest {
     fun buildJvmOnlyRoomDatabase() = runTest {
         val database =
             Room.inMemoryDatabaseBuilder<TestDatabase>().setDriver(BundledSQLiteDriver()).build()
-        val dbVersion =
-            database.useReaderConnection { connection ->
-                connection.usePrepared("PRAGMA user_version") {
-                    it.step()
-                    it.getLong(0)
-                }
+        val dbVersion = database.useReaderConnection { connection ->
+            connection.usePrepared("PRAGMA user_version") {
+                it.step()
+                it.getLong(0)
             }
+        }
         assertThat(dbVersion).isEqualTo(1)
     }
 

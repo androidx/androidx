@@ -58,14 +58,13 @@ class FlowAsLiveDataTest {
 
     @Test
     fun removeObserverInBetween() {
-        val ld =
-            flow {
-                    emit(1)
-                    emit(2)
-                    delay(1000)
-                    emit(3)
-                }
-                .asLiveData(timeoutInMs = 10)
+        val ld = flow {
+            emit(1)
+            emit(2)
+            delay(1000)
+            emit(3)
+        }
+            .asLiveData(timeoutInMs = 10)
 
         ld.addObserver().apply {
             assertItems(1, 2)
@@ -85,17 +84,16 @@ class FlowAsLiveDataTest {
     @Test
     fun callbackFlow_cancelled() {
         var closeCalled = false
-        val ld =
-            callbackFlow {
-                    testScope.launch {
-                        trySend(1)
-                        trySend(2)
-                        delay(1000)
-                        trySend(3)
-                    }
-                    awaitClose { closeCalled = true }
-                }
-                .asLiveData(timeoutInMs = 10)
+        val ld = callbackFlow {
+            testScope.launch {
+                trySend(1)
+                trySend(2)
+                delay(1000)
+                trySend(3)
+            }
+            awaitClose { closeCalled = true }
+        }
+            .asLiveData(timeoutInMs = 10)
 
         ld.addObserver().apply {
             scopes.triggerAllActions()
@@ -117,14 +115,13 @@ class FlowAsLiveDataTest {
 
     @Test
     fun removeObserverInBetween_largeTimeout() {
-        val ld =
-            flow {
-                    emit(1)
-                    emit(2)
-                    delay(1000)
-                    emit(3)
-                }
-                .asLiveData(timeoutInMs = 10000)
+        val ld = flow {
+            emit(1)
+            emit(2)
+            delay(1000)
+            emit(3)
+        }
+            .asLiveData(timeoutInMs = 10000)
 
         ld.addObserver().apply {
             assertItems(1, 2)
@@ -146,17 +143,16 @@ class FlowAsLiveDataTest {
     @Test
     fun timeoutViaDuration() {
         val running = CompletableDeferred<Unit>()
-        val ld =
-            flow {
-                    try {
-                        emit(1)
-                        delay(5_001)
-                        emit(2)
-                    } finally {
-                        running.complete(Unit)
-                    }
-                }
-                .asLiveData(timeout = Duration.ofSeconds(5))
+        val ld = flow {
+            try {
+                emit(1)
+                delay(5_001)
+                emit(2)
+            } finally {
+                running.complete(Unit)
+            }
+        }
+            .asLiveData(timeout = Duration.ofSeconds(5))
 
         ld.addObserver().apply {
             assertItems(1)
@@ -185,15 +181,14 @@ class FlowAsLiveDataTest {
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
             exception.complete(throwable)
         }
-        val ld =
-            flow {
-                    if (exception.isActive) {
-                        throw IllegalArgumentException("i like to fail")
-                    } else {
-                        emit(3)
-                    }
-                }
-                .asLiveData(testScope.coroutineContext + exceptionHandler, 10)
+        val ld = flow {
+            if (exception.isActive) {
+                throw IllegalArgumentException("i like to fail")
+            } else {
+                emit(3)
+            }
+        }
+            .asLiveData(testScope.coroutineContext + exceptionHandler, 10)
         ld.addObserver().apply {
             scopes.triggerAllActions()
             assertItems()

@@ -80,12 +80,11 @@ constructor(
             "Attempted to issue a capture without surfaces using $captureConfig"
         }
 
-        val streamIdList =
-            surfaces.map {
-                checkNotNull(useCaseCameraContext.surfaceToStreamMap[it]) {
-                    "Attempted to issue a capture with an unrecognized surface: $it"
-                }
+        val streamIdList = surfaces.map {
+            checkNotNull(useCaseCameraContext.surfaceToStreamMap[it]) {
+                "Attempted to issue a capture with an unrecognized surface: $it"
             }
+        }
 
         val configOptions = captureConfig.implementationOptions
         val optionBuilder = Camera2ImplConfig.Builder()

@@ -99,11 +99,10 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
         }
         // Check providers
         val providers = element.getElementsByTagName("provider")
-        val provider =
-            providers.find { node ->
-                val name = node.attributes.getNamedItemNS(ANDROID_URI, ATTR_NAME)?.textContent
-                name == "androidx.startup.InitializationProvider"
-            }
+        val provider = providers.find { node ->
+            val name = node.attributes.getNamedItemNS(ANDROID_URI, ATTR_NAME)?.textContent
+            name == "androidx.startup.InitializationProvider"
+        }
         if (provider != null) {
             location = context.getLocation(provider)
             val remove = provider.attributes.getNamedItemNS(TOOLS_URI, ATTR_NODE)
@@ -113,11 +112,10 @@ class RemoveWorkManagerInitializerDetector : Detector(), SourceCodeScanner, XmlS
         }
         // Check metadata
         val metadataElements = element.getElementsByTagName("meta-data")
-        val metadata =
-            metadataElements.find { node ->
-                val name = node.attributes.getNamedItemNS(ANDROID_URI, ATTR_NAME)?.textContent
-                name == "androidx.work.WorkManagerInitializer"
-            }
+        val metadata = metadataElements.find { node ->
+            val name = node.attributes.getNamedItemNS(ANDROID_URI, ATTR_NAME)?.textContent
+            name == "androidx.work.WorkManagerInitializer"
+        }
         if (metadata != null && !removedDefaultInitializer) {
             location = context.getLocation(metadata)
             val remove = metadata.attributes.getNamedItemNS(TOOLS_URI, ATTR_NODE)

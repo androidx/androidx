@@ -100,19 +100,19 @@ internal object MaterialA2uiBasicCatalogV1Icon : A2uiBasicCatalogV1.Icon {
 private fun rememberVectorFromPath(pathData: String): ImageVector? =
     remember(pathData) {
         runCatching {
-                val viewportSize = 24f
-                val pathNodes = PathParser().parsePathString(pathData).toNodes()
+            val viewportSize = 24f
+            val pathNodes = PathParser().parsePathString(pathData).toNodes()
 
-                ImageVector.Builder(
-                        name = "SvgIcon",
-                        defaultWidth = viewportSize.dp,
-                        defaultHeight = viewportSize.dp,
-                        viewportWidth = viewportSize,
-                        viewportHeight = viewportSize,
-                    )
-                    .addPath(pathData = pathNodes, fill = DefaultSvgFill)
-                    .build()
-            }
+            ImageVector.Builder(
+                    name = "SvgIcon",
+                    defaultWidth = viewportSize.dp,
+                    defaultHeight = viewportSize.dp,
+                    viewportWidth = viewportSize,
+                    viewportHeight = viewportSize,
+                )
+                .addPath(pathData = pathNodes, fill = DefaultSvgFill)
+                .build()
+        }
             .getOrNull()
     }
 

@@ -217,7 +217,8 @@ private fun MaterialScope.graphicDataCardSample() =
                         segmentCount = 6,
                         startAngleDegrees = 200F,
                         endAngleDegrees = 520F,
-                        dynamicProgress = DynamicFloat.animate(0.0F, 1.5F, recommendedAnimationSpec),
+                        dynamicProgress =
+                            DynamicFloat.animate(0.0F, 1.5F, recommendedAnimationSpec),
                     )
                 },
                 iconContent = {

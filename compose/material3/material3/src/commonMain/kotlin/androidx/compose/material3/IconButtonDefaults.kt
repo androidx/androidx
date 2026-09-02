@@ -100,7 +100,9 @@ public object IconButtonDefaults {
                         contentColor = localContentColor,
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
-                            localContentColor.copy(alpha = StandardIconButtonTokens.DisabledOpacity),
+                            localContentColor.copy(
+                                alpha = StandardIconButtonTokens.DisabledOpacity
+                            ),
                     )
                     .also { defaultIconButtonColorsCached = it }
             }
@@ -571,7 +573,9 @@ public object IconButtonDefaults {
                         contentColor = localContentColor,
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
-                            localContentColor.copy(alpha = OutlinedIconButtonTokens.DisabledOpacity),
+                            localContentColor.copy(
+                                alpha = OutlinedIconButtonTokens.DisabledOpacity
+                            ),
                     )
                     .also { defaultOutlinedIconButtonColorsCached = it }
             }

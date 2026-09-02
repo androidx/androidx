@@ -87,16 +87,15 @@ internal fun doMapping(
 ): List<Pair<Float, Float>> {
     debugLog(LOG_TAG) { "Shape1 progresses: " + features1.map { it.progress }.joinToString() }
     debugLog(LOG_TAG) { "Shape2 progresses: " + features2.map { it.progress }.joinToString() }
-    val distanceVertexList =
-        buildList {
-                for (f1 in features1) {
-                    for (f2 in features2) {
-                        val d = featureDistSquared(f1.feature, f2.feature)
-                        if (d != Float.MAX_VALUE) add(DistanceVertex(d, f1, f2))
-                    }
-                }
+    val distanceVertexList = buildList {
+        for (f1 in features1) {
+            for (f2 in features2) {
+                val d = featureDistSquared(f1.feature, f2.feature)
+                if (d != Float.MAX_VALUE) add(DistanceVertex(d, f1, f2))
             }
-            .sortedBy { it.distance }
+        }
+    }
+        .sortedBy { it.distance }
 
     // Special cases.
     if (distanceVertexList.isEmpty()) return IdentityMapping

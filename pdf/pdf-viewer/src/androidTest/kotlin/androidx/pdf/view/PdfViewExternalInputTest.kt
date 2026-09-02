@@ -51,13 +51,12 @@ class PdfViewExternalInputTest {
 
     @Before
     fun setUp() {
-        val textContents =
-            FAKE_PAGE_TEXT.map { text ->
-                PdfPageTextContent(
-                    listOf(RectF(0f, 0f, 2000f, 4000f), RectF(0f, 0f, 100f, 100f)),
-                    text,
-                )
-            }
+        val textContents = FAKE_PAGE_TEXT.map { text ->
+            PdfPageTextContent(
+                listOf(RectF(0f, 0f, 2000f, 4000f), RectF(0f, 0f, 100f, 100f)),
+                text,
+            )
+        }
         val fakePdfDocument =
             FakePdfDocument(pages = List(10) { Point(2000, 4000) }, textContents = textContents)
         PdfViewTestActivity.onCreateCallback = { activity ->

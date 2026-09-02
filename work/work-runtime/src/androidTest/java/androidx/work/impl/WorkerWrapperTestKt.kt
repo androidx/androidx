@@ -319,15 +319,14 @@ class StopReasonAtCancellationWorker(appContext: Context, workerParams: WorkerPa
     val startWorkDeferred = CompletableDeferred<Unit>()
 
     @SuppressLint("NewApi")
-    override fun startWork(): ListenableFuture<Result> =
-        getFuture {
-                completer = it
-                "startWork"
-            }
-            .also {
-                it.addListener({ stopReasonAtCancellation = stopReason }, DirectExecutor.INSTANCE)
-                startWorkDeferred.complete(Unit)
-            }
+    override fun startWork(): ListenableFuture<Result> = getFuture {
+        completer = it
+        "startWork"
+    }
+        .also {
+            it.addListener({ stopReasonAtCancellation = stopReason }, DirectExecutor.INSTANCE)
+            startWorkDeferred.complete(Unit)
+        }
 }
 
 class TestForegroundWithStopWorker(appContext: Context, workerParams: WorkerParameters) :

@@ -140,27 +140,26 @@ internal class MetricsContainer(
      * Call exactly once at the end of a benchmark.
      */
     fun captureFinished(maxIterations: Int): List<MetricResult> {
-        val results =
-            names.mapIndexed { index, name ->
-                val metricData =
-                    List(repeatCount) {
-                        // convert to floats and divide by iter count here for efficiency
-                        data[it][index] / maxIterations.toDouble()
-                    }
-                metricData.chunked(10).forEachIndexed { chunkNum, chunk ->
-                    Log.d(
-                        BenchmarkState.TAG,
-                        name +
-                            "[%2d:%2d]: %s"
-                                .format(
-                                    chunkNum * 10,
-                                    (chunkNum + 1) * 10,
-                                    chunk.joinToString(" ") { it.toLong().toString() },
-                                ),
-                    )
+        val results = names.mapIndexed { index, name ->
+            val metricData =
+                List(repeatCount) {
+                    // convert to floats and divide by iter count here for efficiency
+                    data[it][index] / maxIterations.toDouble()
                 }
-                MetricResult(name, metricData)
+            metricData.chunked(10).forEachIndexed { chunkNum, chunk ->
+                Log.d(
+                    BenchmarkState.TAG,
+                    name +
+                        "[%2d:%2d]: %s"
+                            .format(
+                                chunkNum * 10,
+                                (chunkNum + 1) * 10,
+                                chunk.joinToString(" ") { it.toLong().toString() },
+                            ),
+                )
             }
+            MetricResult(name, metricData)
+        }
 
         val metricTraceLabels = (names + listOf("iterations")).map { "metric: $it" }
         for (i in 0..repeatTiming.lastIndex step 2) {

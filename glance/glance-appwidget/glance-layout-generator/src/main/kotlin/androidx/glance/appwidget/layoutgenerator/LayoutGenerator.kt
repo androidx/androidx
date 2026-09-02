@@ -253,76 +253,76 @@ internal class LayoutGenerator {
      */
     private fun generateComplexLayouts(outputLayoutDir: File): Set<File> =
         mapConfiguration { width, height ->
-                generateRes(outputLayoutDir, makeComplexResourceName(width, height)) {
-                    val root = createElement("RelativeLayout")
-                    appendChild(root)
-                    root.attributes.apply {
-                        setNamedItemNS(androidId("@id/relativeLayout"))
-                        setNamedItemNS(androidAttr("tag", "glanceComplexLayout"))
-                        setNamedItemNS(androidWidth(width))
-                        setNamedItemNS(androidHeight(height))
-                        if (width == ValidSize.Expand || height == ValidSize.Expand) {
-                            setNamedItemNS(androidWeight(1))
+            generateRes(outputLayoutDir, makeComplexResourceName(width, height)) {
+                val root = createElement("RelativeLayout")
+                appendChild(root)
+                root.attributes.apply {
+                    setNamedItemNS(androidId("@id/relativeLayout"))
+                    setNamedItemNS(androidAttr("tag", "glanceComplexLayout"))
+                    setNamedItemNS(androidWidth(width))
+                    setNamedItemNS(androidHeight(height))
+                    if (width == ValidSize.Expand || height == ValidSize.Expand) {
+                        setNamedItemNS(androidWeight(1))
+                    }
+                }
+
+                if (width == ValidSize.Fixed || height == ValidSize.Fixed) {
+                    // A sizing view is only required if the width or height are fixed.
+                    val sizeView = createElement("FrameLayout")
+                    root.appendChild(sizeView)
+                    sizeView.attributes.apply {
+                        setNamedItemNS(androidId("@id/sizeView"))
+                        setNamedItemNS(androidAttr("visibility", "invisible"))
+                        setNamedItemNS(androidWidth(ValidSize.Wrap))
+                        setNamedItemNS(androidHeight(ValidSize.Wrap))
+                    }
+                    val sizeViewStub = createElement("ViewStub")
+                    sizeView.appendChild(sizeViewStub)
+                    sizeViewStub.attributes.apply {
+                        setNamedItemNS(androidId("@id/sizeViewStub"))
+                        setNamedItemNS(androidWidth(ValidSize.Wrap))
+                        setNamedItemNS(androidHeight(ValidSize.Wrap))
+                    }
+                }
+
+                val glanceViewStub = createElement("ViewStub")
+                root.appendChild(glanceViewStub)
+                glanceViewStub.attributes.apply {
+                    setNamedItemNS(androidId("@id/glanceViewStub"))
+                    when (width) {
+                        ValidSize.Wrap -> setNamedItemNS(androidWidth(ValidSize.Wrap))
+                        ValidSize.Match,
+                        ValidSize.Expand -> {
+                            setNamedItemNS(androidWidth(ValidSize.Match))
+                        }
+                        ValidSize.Fixed -> {
+                            // If the view's height is fixed, its height is determined by
+                            // sizeView.
+                            // Use 0dp width for efficiency.
+                            setNamedItemNS(androidWidth(ValidSize.Expand))
+                            setNamedItemNS(androidAttr("layout_alignLeft", "@id/sizeView"))
+                            setNamedItemNS(androidAttr("layout_alignRight", "@id/sizeView"))
                         }
                     }
-
-                    if (width == ValidSize.Fixed || height == ValidSize.Fixed) {
-                        // A sizing view is only required if the width or height are fixed.
-                        val sizeView = createElement("FrameLayout")
-                        root.appendChild(sizeView)
-                        sizeView.attributes.apply {
-                            setNamedItemNS(androidId("@id/sizeView"))
-                            setNamedItemNS(androidAttr("visibility", "invisible"))
-                            setNamedItemNS(androidWidth(ValidSize.Wrap))
-                            setNamedItemNS(androidHeight(ValidSize.Wrap))
+                    when (height) {
+                        ValidSize.Wrap -> setNamedItemNS(androidHeight(ValidSize.Wrap))
+                        ValidSize.Match,
+                        ValidSize.Expand -> {
+                            setNamedItemNS(androidHeight(ValidSize.Match))
                         }
-                        val sizeViewStub = createElement("ViewStub")
-                        sizeView.appendChild(sizeViewStub)
-                        sizeViewStub.attributes.apply {
-                            setNamedItemNS(androidId("@id/sizeViewStub"))
-                            setNamedItemNS(androidWidth(ValidSize.Wrap))
-                            setNamedItemNS(androidHeight(ValidSize.Wrap))
-                        }
-                    }
-
-                    val glanceViewStub = createElement("ViewStub")
-                    root.appendChild(glanceViewStub)
-                    glanceViewStub.attributes.apply {
-                        setNamedItemNS(androidId("@id/glanceViewStub"))
-                        when (width) {
-                            ValidSize.Wrap -> setNamedItemNS(androidWidth(ValidSize.Wrap))
-                            ValidSize.Match,
-                            ValidSize.Expand -> {
-                                setNamedItemNS(androidWidth(ValidSize.Match))
-                            }
-                            ValidSize.Fixed -> {
-                                // If the view's height is fixed, its height is determined by
-                                // sizeView.
-                                // Use 0dp width for efficiency.
-                                setNamedItemNS(androidWidth(ValidSize.Expand))
-                                setNamedItemNS(androidAttr("layout_alignLeft", "@id/sizeView"))
-                                setNamedItemNS(androidAttr("layout_alignRight", "@id/sizeView"))
-                            }
-                        }
-                        when (height) {
-                            ValidSize.Wrap -> setNamedItemNS(androidHeight(ValidSize.Wrap))
-                            ValidSize.Match,
-                            ValidSize.Expand -> {
-                                setNamedItemNS(androidHeight(ValidSize.Match))
-                            }
-                            ValidSize.Fixed -> {
-                                // If the view's height is fixed, its height is determined by
-                                // sizeView.
-                                // Use 0dp width for efficiency.
-                                setNamedItemNS(androidHeight(ValidSize.Expand))
-                                setNamedItemNS(androidAttr("layout_alignTop", "@id/sizeView"))
-                                setNamedItemNS(androidAttr("layout_alignBottom", "@id/sizeView"))
-                            }
+                        ValidSize.Fixed -> {
+                            // If the view's height is fixed, its height is determined by
+                            // sizeView.
+                            // Use 0dp width for efficiency.
+                            setNamedItemNS(androidHeight(ValidSize.Expand))
+                            setNamedItemNS(androidAttr("layout_alignTop", "@id/sizeView"))
+                            setNamedItemNS(androidAttr("layout_alignBottom", "@id/sizeView"))
                         }
                     }
                 }
             }
-            .toSet()
+        }
+        .toSet()
 
     private fun generateRootElements(outputLayoutDir: File): Set<File> =
         mapInCrossProduct(StubSizes, StubSizes) { width, height ->

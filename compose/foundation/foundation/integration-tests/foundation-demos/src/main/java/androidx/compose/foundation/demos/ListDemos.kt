@@ -521,7 +521,8 @@ private fun LazyListArrangements() {
                 }
             Column(
                 verticalArrangement = Arrangements[arrangement],
-                modifier = Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
+                modifier =
+                    Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()),
             ) {
                 repeat(count) { item() }
             }

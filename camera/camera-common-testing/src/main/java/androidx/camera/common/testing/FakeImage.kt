@@ -308,7 +308,12 @@ private fun FakeImage.createYuvPlanes(
             pixelStride = 2,
             buffer = p1Buffer,
         ),
-        FakeImagePlane(rowStride = width, rowCount = height / 2, pixelStride = 2, buffer = p2Buffer),
+        FakeImagePlane(
+            rowStride = width,
+            rowCount = height / 2,
+            pixelStride = 2,
+            buffer = p2Buffer,
+        ),
     )
 }
 

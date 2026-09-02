@@ -294,8 +294,9 @@ public fun GestureScope.percentOffset(
 @Deprecated(
     message = "Replaced by TouchInjectionScope. Use `performTouchInput` instead of `performGesture`"
 )
-public fun GestureScope.click(position: Offset = center): Unit =
-    delegateScope.touch { click(position) }
+public fun GestureScope.click(position: Offset = center): Unit = delegateScope.touch {
+    click(position)
+}
 
 /**
  * Performs a long click gesture at the given [position] on the associated node, or in the center if
@@ -347,7 +348,9 @@ public fun GestureScope.doubleClick(
     message = "Replaced by TouchInjectionScope. Use `performTouchInput` instead of `performGesture`"
 )
 public fun GestureScope.swipe(start: Offset, end: Offset, durationMillis: Long = 200): Unit =
-    delegateScope.touch { swipe(start, end, durationMillis) }
+    delegateScope.touch {
+        swipe(start, end, durationMillis)
+    }
 
 /**
  * Performs a pinch gesture on the associated node.
@@ -566,8 +569,9 @@ private val GestureScope.bottomFuzzed: Float
 @Deprecated(
     message = "Replaced by TouchInjectionScope. Use `performTouchInput` instead of `performGesture`"
 )
-public fun GestureScope.down(pointerId: Int, position: Offset): Unit =
-    delegateScope.touch { down(pointerId, position) }
+public fun GestureScope.down(pointerId: Int, position: Offset): Unit = delegateScope.touch {
+    down(pointerId, position)
+}
 
 /**
  * Sends a down event for the default pointer at [position] on the associated node. The [position]
@@ -598,8 +602,9 @@ public fun GestureScope.down(position: Offset): Unit = delegateScope.touch { dow
 @Deprecated(
     message = "Replaced by TouchInjectionScope. Use `performTouchInput` instead of `performGesture`"
 )
-public fun GestureScope.moveTo(pointerId: Int, position: Offset): Unit =
-    delegateScope.touch { moveTo(pointerId, position) }
+public fun GestureScope.moveTo(pointerId: Int, position: Offset): Unit = delegateScope.touch {
+    moveTo(pointerId, position)
+}
 
 /**
  * Sends a move event on the associated node, with the position of the default pointer updated to
@@ -631,7 +636,9 @@ public fun GestureScope.moveTo(position: Offset): Unit = delegateScope.touch { m
     replaceWith = ReplaceWith("updatePointerTo(pointerId, position)"),
 )
 public fun GestureScope.movePointerTo(pointerId: Int, position: Offset): Unit =
-    delegateScope.touch { updatePointerTo(pointerId, position) }
+    delegateScope.touch {
+        updatePointerTo(pointerId, position)
+    }
 
 /**
  * Sends a move event on the associated node, with the position of the pointer with the given
@@ -647,8 +654,9 @@ public fun GestureScope.movePointerTo(pointerId: Int, position: Offset): Unit =
 @Deprecated(
     message = "Replaced by TouchInjectionScope. Use `performTouchInput` instead of `performGesture`"
 )
-public fun GestureScope.moveBy(pointerId: Int, delta: Offset): Unit =
-    delegateScope.touch { moveBy(pointerId, delta) }
+public fun GestureScope.moveBy(pointerId: Int, delta: Offset): Unit = delegateScope.touch {
+    moveBy(pointerId, delta)
+}
 
 /**
  * Sends a move event on the associated node, with the position of the default pointer moved by the
@@ -681,8 +689,9 @@ public fun GestureScope.moveBy(delta: Offset): Unit = delegateScope.touch { move
         "Replaced by TouchInjectionScope. Use `performTouchInput` instead of " + "`performGesture`",
     replaceWith = ReplaceWith("updatePointerBy(pointerId, delta)"),
 )
-public fun GestureScope.movePointerBy(pointerId: Int, delta: Offset): Unit =
-    delegateScope.touch { updatePointerBy(pointerId, delta) }
+public fun GestureScope.movePointerBy(pointerId: Int, delta: Offset): Unit = delegateScope.touch {
+    updatePointerBy(pointerId, delta)
+}
 
 /**
  * Sends a move event without updating any of the pointer positions. This can be useful when
@@ -724,5 +733,6 @@ public fun GestureScope.cancel(): Unit = delegateScope.touch { cancel() }
     message = "Replaced by TouchInjectionScope. Use `performTouchInput` instead of `performGesture`"
 )
 @ExperimentalTestApi
-public fun GestureScope.advanceEventTime(durationMillis: Long): Unit =
-    delegateScope.touch { advanceEventTime(durationMillis) }
+public fun GestureScope.advanceEventTime(durationMillis: Long): Unit = delegateScope.touch {
+    advanceEventTime(durationMillis)
+}

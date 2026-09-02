@@ -119,7 +119,8 @@ abstract class AnchoredDraggableBackwardsCompatibleTest(private val testNewBehav
             with(rule.density) { AnchoredDraggableMinFlingVelocity.toPx() }
         },
         snapAnimationSpec: AnimationSpec<Float> = AnchoredDraggableDefaults.SnapAnimationSpec,
-        decayAnimationSpec: DecayAnimationSpec<Float> = AnchoredDraggableDefaults.DecayAnimationSpec,
+        decayAnimationSpec: DecayAnimationSpec<Float> =
+            AnchoredDraggableDefaults.DecayAnimationSpec,
     ) =
         if (testNewBehavior) {
             val resolvedVelocityThreshold = velocityThreshold()

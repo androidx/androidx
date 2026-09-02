@@ -275,8 +275,9 @@ public open class RecordingCanvas(bitmap: Bitmap, public val enableOptimizations
         }
     }
 
-    internal fun snapshotPaint(paint: RemotePaint?): RemotePaint? =
-        paint?.let { StandardRemotePaint(it) }
+    internal fun snapshotPaint(paint: RemotePaint?): RemotePaint? = paint?.let {
+        StandardRemotePaint(it)
+    }
 
     internal fun snapshotPaint(paint: Paint?): RemotePaint? = paint?.asRemotePaint()
 

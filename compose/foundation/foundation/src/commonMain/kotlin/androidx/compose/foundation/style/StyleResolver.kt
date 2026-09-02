@@ -157,15 +157,14 @@ public class StyleResolver(
 
             override fun anySet(properties: Set<StyleProperty<*>>): Boolean {
                 var anyLocals = false
-                var result =
-                    properties.any {
-                        if (it.isLocal) {
-                            anyLocals = true
-                            it in resolvedLocals
-                        } else {
-                            it in resolvedProperties
-                        }
+                var result = properties.any {
+                    if (it.isLocal) {
+                        anyLocals = true
+                        it in resolvedLocals
+                    } else {
+                        it in resolvedProperties
                     }
+                }
                 if (!result && anyLocals) {
                     traverseAncestors { ancestor ->
                         result = properties.any { it in ancestor.resolvedLocals }

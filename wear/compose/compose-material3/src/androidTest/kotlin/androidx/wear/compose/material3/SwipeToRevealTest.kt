@@ -1172,8 +1172,9 @@ class SwipeToRevealTest {
             )
         }
 
-        val targetOffset =
-            rule.runOnIdle { revealState.anchoredDraggableState.anchors.positionOf(targetValue) }
+        val targetOffset = rule.runOnIdle {
+            revealState.anchoredDraggableState.anchors.positionOf(targetValue)
+        }
         assertFalse(targetOffset.isNaN())
 
         rule.mainClock.autoAdvance = false
@@ -2145,7 +2146,9 @@ class SwipeToRevealTest {
             null,
         actionsSuspended:
             (suspend (
-                revealStateOne: RevealState, revealStateTwo: RevealState, density: Float,
+                revealStateOne: RevealState,
+                revealStateTwo: RevealState,
+                density: Float,
             ) -> Unit)? =
             null,
         revealDirection: RevealDirection = RightToLeft,

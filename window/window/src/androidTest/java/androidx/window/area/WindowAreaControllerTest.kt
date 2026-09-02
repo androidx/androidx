@@ -41,36 +41,34 @@ class WindowAreaControllerTest {
     /** Verifies that [WindowAreaController.getOrCreate] returns the cached object */
     @RequiresApi(Build.VERSION_CODES.Q)
     @Test
-    fun testGetOrCreateReturnsSameInstance(): Unit =
-        testScope.runTest {
-            assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
-            assumeAtLeastWindowExtensionVersion(minVendorApiLevel)
-            val controller1 = WindowAreaController.getOrCreate()
+    fun testGetOrCreateReturnsSameInstance(): Unit = testScope.runTest {
+        assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
+        assumeAtLeastWindowExtensionVersion(minVendorApiLevel)
+        val controller1 = WindowAreaController.getOrCreate()
 
-            val controller2 = WindowAreaController.getOrCreate()
+        val controller2 = WindowAreaController.getOrCreate()
 
-            assertTrue(controller1 === controller2, "Objects returned are not the same object")
-        }
+        assertTrue(controller1 === controller2, "Objects returned are not the same object")
+    }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     @Test
-    fun testOverrideDecoratorUpdatesInstance(): Unit =
-        testScope.runTest {
-            assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
-            assumeAtLeastWindowExtensionVersion(minVendorApiLevel)
-            val controller1 = WindowAreaController.getOrCreate()
+    fun testOverrideDecoratorUpdatesInstance(): Unit = testScope.runTest {
+        assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
+        assumeAtLeastWindowExtensionVersion(minVendorApiLevel)
+        val controller1 = WindowAreaController.getOrCreate()
 
-            WindowAreaController.overrideDecorator(
-                object : WindowAreaControllerDecorator {
-                    override fun decorate(controller: WindowAreaController): WindowAreaController {
-                        return testController
-                    }
+        WindowAreaController.overrideDecorator(
+            object : WindowAreaControllerDecorator {
+                override fun decorate(controller: WindowAreaController): WindowAreaController {
+                    return testController
                 }
-            )
-            val controller2 = WindowAreaController.getOrCreate()
+            }
+        )
+        val controller2 = WindowAreaController.getOrCreate()
 
-            assertFalse(controller1 === controller2, "Objects returned are the same object")
-        }
+        assertFalse(controller1 === controller2, "Objects returned are the same object")
+    }
 
     companion object {
         val testController =

@@ -93,10 +93,9 @@ class MultiServiceIntegrationTest {
 
         val appFunctions: List<AppFunctionMetadata> =
             appFunctionManager.searchAppFunctions(searchFunctionSpec)
-        val targetFunction =
-            appFunctions.single {
-                it.id == "androidx.appfunctions.integration.testapp.CustomAppFunctionService#add"
-            }
+        val targetFunction = appFunctions.single {
+            it.id == "androidx.appfunctions.integration.testapp.CustomAppFunctionService#add"
+        }
         val response =
             appFunctionManager.executeAppFunction(
                 request =
@@ -123,11 +122,10 @@ class MultiServiceIntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
             appFunctionManager.searchAppFunctions(searchFunctionSpec)
-        val targetFunction =
-            appFunctions.single {
-                it.id ==
-                    "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#echoProxyTypes"
-            }
+        val targetFunction = appFunctions.single {
+            it.id ==
+                "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#echoProxyTypes"
+        }
         val value =
             MultiServiceProxyTypesWrapper(
                 localDateTime = LocalDateTime.of(2026, 4, 25, 22, 0),
@@ -180,11 +178,10 @@ class MultiServiceIntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
             appFunctionManager.searchAppFunctions(searchFunctionSpec)
-        val targetFunction =
-            appFunctions.single {
-                it.id ==
-                    "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#doThrow"
-            }
+        val targetFunction = appFunctions.single {
+            it.id ==
+                "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#doThrow"
+        }
 
         val response =
             appFunctionManager.executeAppFunction(
@@ -211,11 +208,10 @@ class MultiServiceIntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
             appFunctionManager.searchAppFunctions(searchFunctionSpec)
-        val targetFunction =
-            appFunctions.single {
-                it.id ==
-                    "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#enumValueFunction"
-            }
+        val targetFunction = appFunctions.single {
+            it.id ==
+                "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#enumValueFunction"
+        }
 
         val response =
             appFunctionManager.executeAppFunction(
@@ -241,11 +237,10 @@ class MultiServiceIntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
             appFunctionManager.searchAppFunctions(searchFunctionSpec)
-        val targetFunction =
-            appFunctions.single {
-                it.id ==
-                    "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#getFilesData"
-            }
+        val targetFunction = appFunctions.single {
+            it.id ==
+                "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#getFilesData"
+        }
 
         val response =
             appFunctionManager.executeAppFunction(
@@ -281,11 +276,10 @@ class MultiServiceIntegrationTest {
         val searchFunctionSpec = AppFunctionSearchSpec(packageNames = setOf(TARGET_APP_PACKAGE))
         val appFunctions: List<AppFunctionMetadata> =
             appFunctionManager.searchAppFunctions(searchFunctionSpec)
-        val targetFunction =
-            appFunctions.single {
-                it.id ==
-                    "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#createNote"
-            }
+        val targetFunction = appFunctions.single {
+            it.id ==
+                "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#createNote"
+        }
 
         val response =
             appFunctionManager.executeAppFunction(
@@ -328,11 +322,10 @@ class MultiServiceIntegrationTest {
         val appFunctions: List<AppFunctionMetadata> =
             appFunctionManager.searchAppFunctions(searchFunctionSpec)
 
-        val targetFunction =
-            appFunctions.single {
-                it.id ==
-                    "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#createNote"
-            }
+        val targetFunction = appFunctions.single {
+            it.id ==
+                "androidx.appfunctions.integration.testapp.BaseSimpleAppFunctionService#createNote"
+        }
 
         assertThat(targetFunction.description).isEqualTo("Multiservice to create note.")
         assertThat(targetFunction.response.description).isEqualTo("The multiservice node.")

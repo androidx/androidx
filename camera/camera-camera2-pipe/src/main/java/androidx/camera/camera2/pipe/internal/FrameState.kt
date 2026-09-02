@@ -114,17 +114,16 @@ internal class FrameState(
     }
 
     fun onFrameInfoComplete() {
-        val state =
-            state.updateAndGet { current ->
-                when (current) {
-                    STARTED -> FRAME_INFO_COMPLETE
-                    STREAM_RESULTS_COMPLETE -> COMPLETE
-                    else ->
-                        throw IllegalStateException(
-                            "Unexpected frame state for $this! State is $current "
-                        )
-                }
+        val state = state.updateAndGet { current ->
+            when (current) {
+                STARTED -> FRAME_INFO_COMPLETE
+                STREAM_RESULTS_COMPLETE -> COMPLETE
+                else ->
+                    throw IllegalStateException(
+                        "Unexpected frame state for $this! State is $current "
+                    )
             }
+        }
 
         for (listenerState in listenerStates) {
             listenerState.invokeOnFrameInfoAvailable(frameNumber, frameTimestamp)
@@ -139,17 +138,16 @@ internal class FrameState(
         val hasStreamsRemaining = remainingStreamCount.decrementAndGet() != 0
         if (hasStreamsRemaining) return
 
-        val state =
-            state.updateAndGet { current ->
-                when (current) {
-                    STARTED -> STREAM_RESULTS_COMPLETE
-                    FRAME_INFO_COMPLETE -> COMPLETE
-                    else ->
-                        throw IllegalStateException(
-                            "Unexpected frame state for $this! State is $current "
-                        )
-                }
+        val state = state.updateAndGet { current ->
+            when (current) {
+                STARTED -> STREAM_RESULTS_COMPLETE
+                FRAME_INFO_COMPLETE -> COMPLETE
+                else ->
+                    throw IllegalStateException(
+                        "Unexpected frame state for $this! State is $current "
+                    )
             }
+        }
 
         for (listenerState in listenerStates) {
             listenerState.invokeOnImagesAvailable(frameNumber, frameTimestamp)
@@ -184,14 +182,13 @@ internal class FrameState(
             get() = internalResult
 
         fun increment(): Boolean {
-            val current =
-                count.updateAndGet { current ->
-                    if (current <= 0) {
-                        0
-                    } else {
-                        current + 1
-                    }
+            val current = count.updateAndGet { current ->
+                if (current <= 0) {
+                    0
+                } else {
+                    current + 1
                 }
+            }
             return current != 0
         }
 

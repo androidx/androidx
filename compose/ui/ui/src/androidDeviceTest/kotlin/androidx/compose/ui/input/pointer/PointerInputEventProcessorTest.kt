@@ -151,24 +151,23 @@ class PointerInputEventProcessorTest {
 
         val offset = Offset(100f, 200f)
         val previousEvents = mutableListOf<PointerInputEventData>()
-        val events =
-            pointerTypes.mapIndexed { index, pointerType ->
-                previousEvents +=
-                    PointerInputEventData(
-                        id = PointerId(index.toLong()),
-                        uptime = index.toLong(),
-                        positionOnScreen = Offset(offset.x + index, offset.y + index),
-                        position = Offset(offset.x + index, offset.y + index),
-                        originalEventPosition = Offset(offset.x + index, offset.y + index),
-                        down = true,
-                        pressure = 1.0f,
-                        type = pointerType,
-                        scaleGestureFactor = 0f,
-                        panGestureOffset = Offset.Zero,
-                    )
-                val data = previousEvents.map { it.copy(uptime = index.toLong()) }
-                PointerInputEvent(index.toLong(), data)
-            }
+        val events = pointerTypes.mapIndexed { index, pointerType ->
+            previousEvents +=
+                PointerInputEventData(
+                    id = PointerId(index.toLong()),
+                    uptime = index.toLong(),
+                    positionOnScreen = Offset(offset.x + index, offset.y + index),
+                    position = Offset(offset.x + index, offset.y + index),
+                    originalEventPosition = Offset(offset.x + index, offset.y + index),
+                    down = true,
+                    pressure = 1.0f,
+                    type = pointerType,
+                    scaleGestureFactor = 0f,
+                    panGestureOffset = Offset.Zero,
+                )
+            val data = previousEvents.map { it.copy(uptime = index.toLong()) }
+            PointerInputEvent(index.toLong(), data)
+        }
 
         // Act
 

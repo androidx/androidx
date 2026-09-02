@@ -331,8 +331,9 @@ class FoldableCameraActivity : AppCompatActivity() {
 
     private fun View.moveToRightOf(foldingFeatureRect: Rect) {
         x = foldingFeatureRect.left.toFloat()
-        layoutParams =
-            layoutParams.apply { width = (parent as View).width - foldingFeatureRect.left }
+        layoutParams = layoutParams.apply {
+            width = (parent as View).width - foldingFeatureRect.left
+        }
     }
 
     private fun View.moveToTopOf(foldingFeatureRect: Rect) {
@@ -342,17 +343,17 @@ class FoldableCameraActivity : AppCompatActivity() {
 
     private fun View.moveToBottomOf(foldingFeatureRect: Rect) {
         y = foldingFeatureRect.top.toFloat()
-        layoutParams =
-            layoutParams.apply { height = (parent as View).height - foldingFeatureRect.top }
+        layoutParams = layoutParams.apply {
+            height = (parent as View).height - foldingFeatureRect.top
+        }
     }
 
     private fun View.restore() {
         // Restore to full view
-        layoutParams =
-            layoutParams.apply {
-                width = MATCH_PARENT
-                height = MATCH_PARENT
-            }
+        layoutParams = layoutParams.apply {
+            width = MATCH_PARENT
+            height = MATCH_PARENT
+        }
         y = 0f
         x = 0f
     }

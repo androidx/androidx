@@ -337,13 +337,12 @@ public open class PdfDocumentViewModel(
                 currentState.pdfDocument is EditablePdfDocument
         ) {
             val previousJob = formApplyEditJob
-            formApplyEditJob =
-                viewModelScope.launch {
-                    previousJob?.join()
-                    applyEditToDocument(currentState.pdfDocument, formEditInfo)
-                    formEditInfos.add(formEditInfo)
-                    state[FORM_EDIT_INFOS_KEY] = formEditInfos.toTypedArray<Parcelable>()
-                }
+            formApplyEditJob = viewModelScope.launch {
+                previousJob?.join()
+                applyEditToDocument(currentState.pdfDocument, formEditInfo)
+                formEditInfos.add(formEditInfo)
+                state[FORM_EDIT_INFOS_KEY] = formEditInfos.toTypedArray<Parcelable>()
+            }
         }
     }
 

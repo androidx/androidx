@@ -103,7 +103,10 @@ class RenderProcessGoneDetector : Detector(), SourceCodeScanner {
                     priority = 5,
                     severity = Severity.WARNING,
                     implementation =
-                        Implementation(RenderProcessGoneDetector::class.java, Scope.JAVA_FILE_SCOPE),
+                        Implementation(
+                            RenderProcessGoneDetector::class.java,
+                            Scope.JAVA_FILE_SCOPE,
+                        ),
                 )
                 .addMoreInfo(
                     "https://developer.android.com/develop/ui/views/layout/webapps/handle-termination"

@@ -430,7 +430,8 @@ class AppFunctionCompilerTest {
         compilationTestHelper.assertSuccessWithResourceContent(
             report = report,
             expectGeneratedResourceFileName = "app_functions_v2.xml",
-            goldenFileName = "xml/derivedSerializableInputFunctions_app_function_dynamic_schema.xml",
+            goldenFileName =
+                "xml/derivedSerializableInputFunctions_app_function_dynamic_schema.xml",
         )
     }
 
@@ -1211,7 +1212,8 @@ class AppFunctionCompilerTest {
             report = report,
             expectGeneratedSourceFileName =
                 "${'$'}FunctionWithEmptySerializable_AppFunctionInventory.kt",
-            goldenFileName = "inventory/${'$'}FunctionWithEmptySerializable_AppFunctionInventory.KT",
+            goldenFileName =
+                "inventory/${'$'}FunctionWithEmptySerializable_AppFunctionInventory.KT",
         )
         compilationTestHelper.assertSuccessWithResourceContent(
             report = report,

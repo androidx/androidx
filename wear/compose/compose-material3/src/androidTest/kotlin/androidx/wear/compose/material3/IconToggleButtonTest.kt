@@ -690,7 +690,12 @@ class IconToggleButtonTest {
                 onCheckedChange = { checked = !checked },
                 modifier = modifier,
                 shapes =
-                    IconToggleButtonShapes(uncheckedShape, checkedShape, pressedShape, pressedShape),
+                    IconToggleButtonShapes(
+                        uncheckedShape,
+                        checkedShape,
+                        pressedShape,
+                        pressedShape,
+                    ),
             ) {}
         }
     }

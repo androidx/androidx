@@ -433,7 +433,10 @@ class DialogTest {
             Dialog(
                 {},
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true),
+                    DialogProperties(
+                        usePlatformDefaultWidth = false,
+                        decorFitsSystemWindows = true,
+                    ),
             ) {
                 dialogView = LocalView.current
                 Box(Modifier.size(with(LocalDensity.current) { 100.toDp() }))
@@ -455,7 +458,10 @@ class DialogTest {
             Dialog(
                 {},
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = false),
+                    DialogProperties(
+                        usePlatformDefaultWidth = true,
+                        decorFitsSystemWindows = false,
+                    ),
             ) {
                 dialogView = LocalView.current
                 Box(Modifier.size(with(LocalDensity.current) { 100.toDp() }))
@@ -607,7 +613,10 @@ class DialogTest {
             Dialog(
                 onDismissRequest = { dismissed = true },
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true),
+                    DialogProperties(
+                        usePlatformDefaultWidth = false,
+                        decorFitsSystemWindows = true,
+                    ),
             ) {
                 composeView = LocalView.current
                 Box(Modifier.size(10.dp).testTag(clickBoxTag).clickable { clicked = true })

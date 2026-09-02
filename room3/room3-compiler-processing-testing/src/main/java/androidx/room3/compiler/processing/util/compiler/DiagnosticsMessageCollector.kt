@@ -39,10 +39,9 @@ internal class DiagnosticsMessageCollector(private val stepName: String) : Messa
     }
 
     /** Returns `true` if this collector has any warning messages. */
-    fun hasWarnings() =
-        diagnostics.any {
-            it.kind == Diagnostic.Kind.WARNING || it.kind == Diagnostic.Kind.MANDATORY_WARNING
-        }
+    fun hasWarnings() = diagnostics.any {
+        it.kind == Diagnostic.Kind.WARNING || it.kind == Diagnostic.Kind.MANDATORY_WARNING
+    }
 
     override fun hasErrors(): Boolean {
         return diagnostics.any { it.kind == Diagnostic.Kind.ERROR }

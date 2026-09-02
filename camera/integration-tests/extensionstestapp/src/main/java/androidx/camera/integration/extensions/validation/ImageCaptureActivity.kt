@@ -325,7 +325,8 @@ class ImageCaptureActivity : AppCompatActivity() {
             showEVToast(
                 String.format(
                     "EV: %.2f",
-                    range.upper * camera.cameraInfo.exposureState.exposureCompensationStep.toFloat(),
+                    range.upper *
+                        camera.cameraInfo.exposureState.exposureCompensationStep.toFloat(),
                 )
             )
         }
@@ -343,7 +344,8 @@ class ImageCaptureActivity : AppCompatActivity() {
             showEVToast(
                 String.format(
                     "EV: %.2f",
-                    range.lower * camera.cameraInfo.exposureState.exposureCompensationStep.toFloat(),
+                    range.lower *
+                        camera.cameraInfo.exposureState.exposureCompensationStep.toFloat(),
                 )
             )
         }

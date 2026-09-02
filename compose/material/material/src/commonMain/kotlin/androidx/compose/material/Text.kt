@@ -417,17 +417,16 @@ public fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
 private fun createTextWithLinkStyles(
     text: AnnotatedString,
     linkStyles: TextLinkStyles,
-): AnnotatedString =
-    text.mapAnnotations { range ->
-        val link = range.item
-        when {
-            link is LinkAnnotation.Url && link.styles == null ->
-                (range as Range<LinkAnnotation.Url>).copy(link.copy(styles = linkStyles))
-            link is LinkAnnotation.Clickable && link.styles == null ->
-                (range as Range<LinkAnnotation.Clickable>).copy(link.copy(styles = linkStyles))
-            else -> range
-        }
+): AnnotatedString = text.mapAnnotations { range ->
+    val link = range.item
+    when {
+        link is LinkAnnotation.Url && link.styles == null ->
+            (range as Range<LinkAnnotation.Url>).copy(link.copy(styles = linkStyles))
+        link is LinkAnnotation.Clickable && link.styles == null ->
+            (range as Range<LinkAnnotation.Clickable>).copy(link.copy(styles = linkStyles))
+        else -> range
     }
+}
 
 @Composable
 private fun rememberTextLinkStyles(): TextLinkStyles {

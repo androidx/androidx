@@ -847,43 +847,42 @@ private class SizeNode(
         measurable: Measurable,
         constraints: Constraints,
     ): MeasureResult {
-        val wrappedConstraints =
-            targetConstraints.let { targetConstraints ->
-                if (enforceIncoming) {
-                    constraints.constrain(targetConstraints)
-                } else {
-                    val resolvedMinWidth =
-                        if (minWidth.isSpecified) {
-                            targetConstraints.minWidth
-                        } else {
-                            constraints.minWidth.fastCoerceAtMost(targetConstraints.maxWidth)
-                        }
-                    val resolvedMaxWidth =
-                        if (maxWidth.isSpecified) {
-                            targetConstraints.maxWidth
-                        } else {
-                            constraints.maxWidth.fastCoerceAtLeast(targetConstraints.minWidth)
-                        }
-                    val resolvedMinHeight =
-                        if (minHeight.isSpecified) {
-                            targetConstraints.minHeight
-                        } else {
-                            constraints.minHeight.fastCoerceAtMost(targetConstraints.maxHeight)
-                        }
-                    val resolvedMaxHeight =
-                        if (maxHeight.isSpecified) {
-                            targetConstraints.maxHeight
-                        } else {
-                            constraints.maxHeight.fastCoerceAtLeast(targetConstraints.minHeight)
-                        }
-                    Constraints(
-                        resolvedMinWidth,
-                        resolvedMaxWidth,
-                        resolvedMinHeight,
-                        resolvedMaxHeight,
-                    )
-                }
+        val wrappedConstraints = targetConstraints.let { targetConstraints ->
+            if (enforceIncoming) {
+                constraints.constrain(targetConstraints)
+            } else {
+                val resolvedMinWidth =
+                    if (minWidth.isSpecified) {
+                        targetConstraints.minWidth
+                    } else {
+                        constraints.minWidth.fastCoerceAtMost(targetConstraints.maxWidth)
+                    }
+                val resolvedMaxWidth =
+                    if (maxWidth.isSpecified) {
+                        targetConstraints.maxWidth
+                    } else {
+                        constraints.maxWidth.fastCoerceAtLeast(targetConstraints.minWidth)
+                    }
+                val resolvedMinHeight =
+                    if (minHeight.isSpecified) {
+                        targetConstraints.minHeight
+                    } else {
+                        constraints.minHeight.fastCoerceAtMost(targetConstraints.maxHeight)
+                    }
+                val resolvedMaxHeight =
+                    if (maxHeight.isSpecified) {
+                        targetConstraints.maxHeight
+                    } else {
+                        constraints.maxHeight.fastCoerceAtLeast(targetConstraints.minHeight)
+                    }
+                Constraints(
+                    resolvedMinWidth,
+                    resolvedMaxWidth,
+                    resolvedMinHeight,
+                    resolvedMaxHeight,
+                )
             }
+        }
         val placeable = measurable.measure(wrappedConstraints)
         return layout(placeable.width, placeable.height) { placeable.placeRelative(0, 0) }
     }

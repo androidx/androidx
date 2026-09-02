@@ -159,10 +159,9 @@ private fun VerticalTextImpl(
     var textLayout by remember { mutableStateOf<VerticalTextLayout?>(null) }
     val clipModifier = if (overflow == TextOverflow.Clip) Modifier.clipToBounds() else Modifier
     val semanticsModifier = Modifier.semantics { this.text = AnnotatedString(semanticsText) }
-    val drawModifier =
-        Modifier.drawBehind {
-            drawIntoCanvas { canvas -> textLayout?.draw(canvas.nativeCanvas, size.width, 0f) }
-        }
+    val drawModifier = Modifier.drawBehind {
+        drawIntoCanvas { canvas -> textLayout?.draw(canvas.nativeCanvas, size.width, 0f) }
+    }
     val density = LocalDensity.current
     val resolver = LocalFontFamilyResolver.current
     val typeface by

@@ -45,13 +45,12 @@ internal object RootMeasurePolicy :
             else -> {
                 var maxWidth = 0
                 var maxHeight = 0
-                val placeables =
-                    measurables.fastMap {
-                        it.measure(constraints).apply {
-                            maxWidth = maxOf(width, maxWidth)
-                            maxHeight = maxOf(height, maxHeight)
-                        }
+                val placeables = measurables.fastMap {
+                    it.measure(constraints).apply {
+                        maxWidth = maxOf(width, maxWidth)
+                        maxHeight = maxOf(height, maxHeight)
                     }
+                }
                 layout(
                     constraints.constrainWidth(maxWidth),
                     constraints.constrainHeight(maxHeight),

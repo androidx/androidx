@@ -318,12 +318,11 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                 }
         }
 
-        val mainPanelCheckBoxListener =
-            CompoundButton.OnCheckedChangeListener { _, _ ->
-                updateMainPanelMovableComponent()
-                mainPanelMovableActive =
-                    session!!.scene.mainPanelEntity.addComponent(mainPanelMovableComponent)
-            }
+        val mainPanelCheckBoxListener = CompoundButton.OnCheckedChangeListener { _, _ ->
+            updateMainPanelMovableComponent()
+            mainPanelMovableActive =
+                session!!.scene.mainPanelEntity.addComponent(mainPanelMovableComponent)
+        }
 
         mainPanelSystemMovable.setOnCheckedChangeListener(mainPanelCheckBoxListener)
         mainPanelScaleInZ.setOnCheckedChangeListener(mainPanelCheckBoxListener)
@@ -493,11 +492,10 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                     }
             }
 
-            val checkBoxListener =
-                CompoundButton.OnCheckedChangeListener { _, _ ->
-                    updateMovablePanelComponent()
-                    movablePanelActive = movablePanelEntity.addComponent(movablePanelComponent)
-                }
+            val checkBoxListener = CompoundButton.OnCheckedChangeListener { _, _ ->
+                updateMovablePanelComponent()
+                movablePanelActive = movablePanelEntity.addComponent(movablePanelComponent)
+            }
 
             systemMovableCheckbox.setOnCheckedChangeListener(checkBoxListener)
             scaleInZCheckBox.setOnCheckedChangeListener(checkBoxListener)

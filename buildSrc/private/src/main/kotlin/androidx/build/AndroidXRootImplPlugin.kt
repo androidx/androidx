@@ -344,8 +344,9 @@ private fun Project.configureArtifactConfigurations(): RootArtifactCollection {
         dependencies.add(sbomProvider.name, dependencies.create(sub))
     }
 
-    val releaseView =
-        releaseProvider.map { conf -> conf.incoming.artifactView { it.lenient(true) } }
+    val releaseView = releaseProvider.map { conf ->
+        conf.incoming.artifactView { it.lenient(true) }
+    }
 
     val sbomView = sbomProvider.map { conf -> conf.incoming.artifactView { it.lenient(true) } }
     val releaseFiles = objects.fileCollection().from(releaseView.map { it.files })

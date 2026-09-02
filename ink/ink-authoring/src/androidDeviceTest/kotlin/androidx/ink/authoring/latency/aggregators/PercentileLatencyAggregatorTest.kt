@@ -46,185 +46,182 @@ class PercentileLatencyAggregatorTest {
     private val testScope = TestScope(testDispatcher)
 
     @Test
-    fun percentileLatencyAggregator_reportsCorrectValuesAtExpectedInterval() =
-        testScope.runTest {
-            // Set up an aggregator to report 50th and 75th percentile values, in 1-second reporting
-            // windows, of the latencies fed to it. Save all of its reports in lists, the contents
-            // of
-            // which we'll check at the end of the test.
+    fun percentileLatencyAggregator_reportsCorrectValuesAtExpectedInterval() = testScope.runTest {
+        // Set up an aggregator to report 50th and 75th percentile values, in 1-second reporting
+        // windows, of the latencies fed to it. Save all of its reports in lists, the contents
+        // of
+        // which we'll check at the end of the test.
 
-            val medianLatencies = mutableListOf<Long>()
-            val thirdQuartileLatencies = mutableListOf<Long>()
-            val sampleCounts = mutableListOf<Int>()
+        val medianLatencies = mutableListOf<Long>()
+        val thirdQuartileLatencies = mutableListOf<Long>()
+        val sampleCounts = mutableListOf<Int>()
 
-            val aggregator =
-                PercentileLatencyAggregator.create(
-                    window = 1.seconds,
-                    percentiles = listOf(50f, 75f),
-                    expectedSamplesPerSecond = 30,
-                    testScope.backgroundScope,
-                ) { latencyPercentileNanos: List<Long>, sampleCount: Int ->
-                    // Every time the aggregator reports new stats, record them in the lists.
-                    medianLatencies.add(latencyPercentileNanos[0])
-                    thirdQuartileLatencies.add(latencyPercentileNanos[1])
-                    sampleCounts.add(sampleCount)
-                }
-
-            // Feed input into the aggregator in a separate coroutine, so we can specify timing.
-            launch {
-                // 0.5s delay ensures that each batch falls right in the middle of a 1s aggregation
-                // window.
-                delay(0.5.seconds)
-                aggregator.aggregate(20, 30) // Latency: 10
-                aggregator.aggregate(25, 45) // Latency: 20
-                aggregator.aggregate(40, 45) // Latency: 5
-                aggregator.aggregate(42, 50) // Latency: 8
-                aggregator.aggregate(35, 70) // Latency: 35
-                // Latency: median = 10, 75th = 20
-
-                delay(1.seconds)
-                aggregator.aggregate(101, 110) // Latency: 9
-                aggregator.aggregate(119, 125) // Latency: 6
-                aggregator.aggregate(107, 125) // Latency: 18
-                aggregator.aggregate(115, 130) // Latency: 15
-                aggregator.aggregate(133, 150) // Latency: 17
-                aggregator.aggregate(127, 152) // Latency: 25
-                aggregator.aggregate(135, 156) // Latency: 21
-                aggregator.aggregate(148, 190) // Latency: 42
-                aggregator.aggregate(146, 207) // Latency: 61
-                // Latency: median = 18, 75th = 25
-
-                delay(1.seconds)
-                aggregator.aggregate(241, 250) // Latency: 9
-                aggregator.aggregate(247, 271) // Latency: 24
-                aggregator.aggregate(259, 271) // Latency: 12
-                // Latency: median = 12, 75th = 18
+        val aggregator =
+            PercentileLatencyAggregator.create(
+                window = 1.seconds,
+                percentiles = listOf(50f, 75f),
+                expectedSamplesPerSecond = 30,
+                testScope.backgroundScope,
+            ) { latencyPercentileNanos: List<Long>, sampleCount: Int ->
+                // Every time the aggregator reports new stats, record them in the lists.
+                medianLatencies.add(latencyPercentileNanos[0])
+                thirdQuartileLatencies.add(latencyPercentileNanos[1])
+                sampleCounts.add(sampleCount)
             }
 
-            // Let all the inputs and reports play out.
-            testScope.advanceTimeBy(10.seconds)
-
-            assertThat(medianLatencies).containsExactly(10L, 18L, 12L).inOrder()
-            assertThat(thirdQuartileLatencies).containsExactly(20L, 25L, 18L).inOrder()
-            assertThat(sampleCounts).containsExactly(5, 9, 3).inOrder()
-        }
-
-    @Test
-    fun histogramLatencyAggregator_reportSynchronouslyReportsSynchronously() =
-        testScope.runTest {
-            // Set up an aggregator to report medians, in 10-second reporting windows, of the
-            // latencies
-            // fed to it. In the middle of one window, trigger a synchronous report. Save all of the
-            // reports in lists, the contents of which we'll check at the end of the test.
-
-            val sampleCounts = mutableListOf<Int>()
-            val medianLatencies = mutableListOf<Long>()
-
-            val aggregator =
-                PercentileLatencyAggregator.create(
-                    window = 10.seconds,
-                    percentiles = listOf(50f),
-                    expectedSamplesPerSecond = 30,
-                    testScope.backgroundScope,
-                ) { latencyPercentileNanos: List<Long>, sampleCount: Int ->
-                    // Every time the aggregator reports new stats, record them in the lists.
-                    sampleCounts.add(sampleCount)
-                    medianLatencies.add(latencyPercentileNanos[0])
-                }
-
-            // Feed input into the aggregator in a separate coroutine, so we can specify timing.
-            launch {
-                // Offset partially into the first reporting window to avoid precision and timing
-                // issues.
-                delay(1.seconds)
-
-                // First window: 2 calls to `aggregate`; median=35.
-                aggregator.aggregate(0, 30)
-                aggregator.aggregate(0, 40)
-                delay(10.seconds)
-
-                // Second window: 5 calls to `aggregate`, spread out over time.
-                aggregator.aggregate(0, 50)
-                aggregator.aggregate(0, 60)
-                delay(4.seconds) // Now t=15, still in the middle of the second window.
-                aggregator.aggregate(0, 70)
-                aggregator.aggregate(0, 80)
-                aggregator.aggregate(0, 90)
-            }
-
-            // Advance to t=12, partway through the second reporting window.
-            testScope.advanceTimeBy(12.seconds)
-
-            // Since only the first reporting window has completed, we have only one result.
-            assertThat(sampleCounts).containsExactly(2)
-            assertThat(medianLatencies).containsExactly(35L)
-
-            aggregator.reportSynchronously()
-
-            // The manually-triggered report includes just the first two inputs in the second
+        // Feed input into the aggregator in a separate coroutine, so we can specify timing.
+        launch {
+            // 0.5s delay ensures that each batch falls right in the middle of a 1s aggregation
             // window.
-            assertThat(sampleCounts).containsExactly(2, 2).inOrder()
-            assertThat(medianLatencies).containsExactly(35L, 55L).inOrder()
+            delay(0.5.seconds)
+            aggregator.aggregate(20, 30) // Latency: 10
+            aggregator.aggregate(25, 45) // Latency: 20
+            aggregator.aggregate(40, 45) // Latency: 5
+            aggregator.aggregate(42, 50) // Latency: 8
+            aggregator.aggregate(35, 70) // Latency: 35
+            // Latency: median = 10, 75th = 20
 
-            // Advance past the end of the second window.
-            testScope.advanceTimeBy(10.seconds)
+            delay(1.seconds)
+            aggregator.aggregate(101, 110) // Latency: 9
+            aggregator.aggregate(119, 125) // Latency: 6
+            aggregator.aggregate(107, 125) // Latency: 18
+            aggregator.aggregate(115, 130) // Latency: 15
+            aggregator.aggregate(133, 150) // Latency: 17
+            aggregator.aggregate(127, 152) // Latency: 25
+            aggregator.aggregate(135, 156) // Latency: 21
+            aggregator.aggregate(148, 190) // Latency: 42
+            aggregator.aggregate(146, 207) // Latency: 61
+            // Latency: median = 18, 75th = 25
 
-            // The last three inputs get included in the report for the second window. The first two
-            // were
-            // already accounted for so they don't get double-counted.
-            assertThat(sampleCounts).containsExactly(2, 2, 3).inOrder()
-            assertThat(medianLatencies).containsExactly(35L, 55L, 80L).inOrder()
+            delay(1.seconds)
+            aggregator.aggregate(241, 250) // Latency: 9
+            aggregator.aggregate(247, 271) // Latency: 24
+            aggregator.aggregate(259, 271) // Latency: 12
+            // Latency: median = 12, 75th = 18
         }
+
+        // Let all the inputs and reports play out.
+        testScope.advanceTimeBy(10.seconds)
+
+        assertThat(medianLatencies).containsExactly(10L, 18L, 12L).inOrder()
+        assertThat(thirdQuartileLatencies).containsExactly(20L, 25L, 18L).inOrder()
+        assertThat(sampleCounts).containsExactly(5, 9, 3).inOrder()
+    }
 
     @Test
-    fun percentileLatencyAggregator_reportWindowsWithNoInputsProduceNoReport() =
-        testScope.runTest {
-            // Set up an aggregator to report median values, in 1-second reporting windows, of the
-            // latencies fed to it. We'll put a big time gap in the inputs. There should only be
-            // reports
-            // for the non-empty windows; empty windows should not produce reports.
+    fun histogramLatencyAggregator_reportSynchronouslyReportsSynchronously() = testScope.runTest {
+        // Set up an aggregator to report medians, in 10-second reporting windows, of the
+        // latencies
+        // fed to it. In the middle of one window, trigger a synchronous report. Save all of the
+        // reports in lists, the contents of which we'll check at the end of the test.
 
-            var numReports = 0
-            val medianLatencies = mutableListOf<Long>()
-            val sampleCounts = mutableListOf<Int>()
+        val sampleCounts = mutableListOf<Int>()
+        val medianLatencies = mutableListOf<Long>()
 
-            val aggregator =
-                PercentileLatencyAggregator.create(
-                    window = 1.seconds,
-                    percentiles = listOf(50f),
-                    expectedSamplesPerSecond = 30,
-                    testScope.backgroundScope,
-                ) { latencyPercentileNanos: List<Long>, sampleCount: Int ->
-                    // Every time the aggregator reports new stats, record them in the lists.
-                    numReports += 1
-                    medianLatencies.add(latencyPercentileNanos[0])
-                    sampleCounts.add(sampleCount)
-                }
-
-            // Feed input into the aggregator in a separate coroutine, so we can specify timing.
-            launch {
-                // 0.5s delay ensures that each batch falls right in the middle of a 1s aggregation
-                // window.
-                delay(0.5.seconds)
-                aggregator.aggregate(25, 60) // Latency: 35
-                // First reporting window: median latency = 35
-
-                delay(3.seconds)
-                // Second and third reporting windows have no input.
-
-                aggregator.aggregate(101, 110) // Latency: 9
-                // Fourth reporting window: median latency = 9
+        val aggregator =
+            PercentileLatencyAggregator.create(
+                window = 10.seconds,
+                percentiles = listOf(50f),
+                expectedSamplesPerSecond = 30,
+                testScope.backgroundScope,
+            ) { latencyPercentileNanos: List<Long>, sampleCount: Int ->
+                // Every time the aggregator reports new stats, record them in the lists.
+                sampleCounts.add(sampleCount)
+                medianLatencies.add(latencyPercentileNanos[0])
             }
 
-            // Let all the inputs and reports play out.
-            testScope.advanceTimeBy(10.seconds)
+        // Feed input into the aggregator in a separate coroutine, so we can specify timing.
+        launch {
+            // Offset partially into the first reporting window to avoid precision and timing
+            // issues.
+            delay(1.seconds)
 
-            // The reporting callback should only have been called twice, with the stats for the two
-            // non-empty reporting windows.
-            assertThat(numReports).isEqualTo(2)
-            assertThat(medianLatencies).containsExactly(35L, 9L).inOrder()
-            assertThat(sampleCounts).containsExactly(1, 1)
+            // First window: 2 calls to `aggregate`; median=35.
+            aggregator.aggregate(0, 30)
+            aggregator.aggregate(0, 40)
+            delay(10.seconds)
+
+            // Second window: 5 calls to `aggregate`, spread out over time.
+            aggregator.aggregate(0, 50)
+            aggregator.aggregate(0, 60)
+            delay(4.seconds) // Now t=15, still in the middle of the second window.
+            aggregator.aggregate(0, 70)
+            aggregator.aggregate(0, 80)
+            aggregator.aggregate(0, 90)
         }
+
+        // Advance to t=12, partway through the second reporting window.
+        testScope.advanceTimeBy(12.seconds)
+
+        // Since only the first reporting window has completed, we have only one result.
+        assertThat(sampleCounts).containsExactly(2)
+        assertThat(medianLatencies).containsExactly(35L)
+
+        aggregator.reportSynchronously()
+
+        // The manually-triggered report includes just the first two inputs in the second
+        // window.
+        assertThat(sampleCounts).containsExactly(2, 2).inOrder()
+        assertThat(medianLatencies).containsExactly(35L, 55L).inOrder()
+
+        // Advance past the end of the second window.
+        testScope.advanceTimeBy(10.seconds)
+
+        // The last three inputs get included in the report for the second window. The first two
+        // were
+        // already accounted for so they don't get double-counted.
+        assertThat(sampleCounts).containsExactly(2, 2, 3).inOrder()
+        assertThat(medianLatencies).containsExactly(35L, 55L, 80L).inOrder()
+    }
+
+    @Test
+    fun percentileLatencyAggregator_reportWindowsWithNoInputsProduceNoReport() = testScope.runTest {
+        // Set up an aggregator to report median values, in 1-second reporting windows, of the
+        // latencies fed to it. We'll put a big time gap in the inputs. There should only be
+        // reports
+        // for the non-empty windows; empty windows should not produce reports.
+
+        var numReports = 0
+        val medianLatencies = mutableListOf<Long>()
+        val sampleCounts = mutableListOf<Int>()
+
+        val aggregator =
+            PercentileLatencyAggregator.create(
+                window = 1.seconds,
+                percentiles = listOf(50f),
+                expectedSamplesPerSecond = 30,
+                testScope.backgroundScope,
+            ) { latencyPercentileNanos: List<Long>, sampleCount: Int ->
+                // Every time the aggregator reports new stats, record them in the lists.
+                numReports += 1
+                medianLatencies.add(latencyPercentileNanos[0])
+                sampleCounts.add(sampleCount)
+            }
+
+        // Feed input into the aggregator in a separate coroutine, so we can specify timing.
+        launch {
+            // 0.5s delay ensures that each batch falls right in the middle of a 1s aggregation
+            // window.
+            delay(0.5.seconds)
+            aggregator.aggregate(25, 60) // Latency: 35
+            // First reporting window: median latency = 35
+
+            delay(3.seconds)
+            // Second and third reporting windows have no input.
+
+            aggregator.aggregate(101, 110) // Latency: 9
+            // Fourth reporting window: median latency = 9
+        }
+
+        // Let all the inputs and reports play out.
+        testScope.advanceTimeBy(10.seconds)
+
+        // The reporting callback should only have been called twice, with the stats for the two
+        // non-empty reporting windows.
+        assertThat(numReports).isEqualTo(2)
+        assertThat(medianLatencies).containsExactly(35L, 9L).inOrder()
+        assertThat(sampleCounts).containsExactly(1, 1)
+    }
 
     @Test
     fun percentileLatencyAggregator_allocatesMoreSamplesIfMaxSamplesPerSecondIsTooLow() =
@@ -425,73 +422,72 @@ class PercentileLatencyAggregatorTest {
         }
 
     @Test
-    fun percentileLatencyAggregator_canStartTwoAggregatorsInSameCoroutine() =
-        testScope.runTest {
-            // Start two aggregators and collect their reports in separate lists. We'll feed
-            // different
-            // data to each of them. At the end we should see the expected reports on the different
-            // inputs
-            // they were given.
+    fun percentileLatencyAggregator_canStartTwoAggregatorsInSameCoroutine() = testScope.runTest {
+        // Start two aggregators and collect their reports in separate lists. We'll feed
+        // different
+        // data to each of them. At the end we should see the expected reports on the different
+        // inputs
+        // they were given.
 
-            val medianLatencies1 = mutableListOf<Long>()
-            val sampleCounts1 = mutableListOf<Int>()
-            val medianLatencies2 = mutableListOf<Long>()
-            val sampleCounts2 = mutableListOf<Int>()
+        val medianLatencies1 = mutableListOf<Long>()
+        val sampleCounts1 = mutableListOf<Int>()
+        val medianLatencies2 = mutableListOf<Long>()
+        val sampleCounts2 = mutableListOf<Int>()
 
-            val aggregator1 =
-                PercentileLatencyAggregator.create(
-                    window = 1.seconds,
-                    percentiles = listOf(50f),
-                    expectedSamplesPerSecond = 30,
-                    testScope.backgroundScope,
-                ) { latencyPercentileNanos: List<Long>, sampleCount: Int ->
-                    medianLatencies1.add(latencyPercentileNanos[0])
-                    sampleCounts1.add(sampleCount)
-                }
-            val aggregator2 =
-                PercentileLatencyAggregator.create(
-                    window = 1.seconds,
-                    percentiles = listOf(50f),
-                    expectedSamplesPerSecond = 30,
-                    testScope.backgroundScope,
-                ) { latencyPercentileNanos: List<Long>, sampleCount: Int ->
-                    medianLatencies2.add(latencyPercentileNanos[0])
-                    sampleCounts2.add(sampleCount)
-                }
-
-            val numBatches = 4
-            val sampleCountPerBatch = 9
-
-            // Feed input into the aggregators in a separate coroutine, so we can specify timing.
-            launch {
-                // 0.5s delay ensures that each batch falls right in the middle of a 1s aggregation
-                // window.
-                delay(0.5.seconds)
-
-                // Send input in identical batches, each 1s apart. Each batch should result in a
-                // separate
-                // report.
-                repeat(numBatches) {
-                    for (i in 1..sampleCountPerBatch) {
-                        aggregator1.aggregate(i.toLong(), (10 + 2 * i).toLong())
-                        aggregator2.aggregate((10 + i).toLong(), (40 + 2 * i).toLong())
-                    }
-                    // aggregator1: median latency = 15 (since the latency is 10+i)
-                    // aggregator2: median latency = 35 (since the latency is 30+i)
-                    delay(1.seconds)
-                }
+        val aggregator1 =
+            PercentileLatencyAggregator.create(
+                window = 1.seconds,
+                percentiles = listOf(50f),
+                expectedSamplesPerSecond = 30,
+                testScope.backgroundScope,
+            ) { latencyPercentileNanos: List<Long>, sampleCount: Int ->
+                medianLatencies1.add(latencyPercentileNanos[0])
+                sampleCounts1.add(sampleCount)
+            }
+        val aggregator2 =
+            PercentileLatencyAggregator.create(
+                window = 1.seconds,
+                percentiles = listOf(50f),
+                expectedSamplesPerSecond = 30,
+                testScope.backgroundScope,
+            ) { latencyPercentileNanos: List<Long>, sampleCount: Int ->
+                medianLatencies2.add(latencyPercentileNanos[0])
+                sampleCounts2.add(sampleCount)
             }
 
-            testScope.advanceTimeBy(30.seconds)
+        val numBatches = 4
+        val sampleCountPerBatch = 9
 
-            // We see the results of reports for all four batches for each aggregator.
-            assertThat(medianLatencies1).containsExactlyElementsIn(List(numBatches) { 15L })
-            assertThat(sampleCounts1)
-                .containsExactlyElementsIn(List(numBatches) { sampleCountPerBatch })
-            assertThat(medianLatencies2).containsExactlyElementsIn(List(numBatches) { 35L })
-            assertThat(sampleCounts2)
-                .containsExactlyElementsIn(List(numBatches) { sampleCountPerBatch })
+        // Feed input into the aggregators in a separate coroutine, so we can specify timing.
+        launch {
+            // 0.5s delay ensures that each batch falls right in the middle of a 1s aggregation
+            // window.
+            delay(0.5.seconds)
+
+            // Send input in identical batches, each 1s apart. Each batch should result in a
+            // separate
+            // report.
+            repeat(numBatches) {
+                for (i in 1..sampleCountPerBatch) {
+                    aggregator1.aggregate(i.toLong(), (10 + 2 * i).toLong())
+                    aggregator2.aggregate((10 + i).toLong(), (40 + 2 * i).toLong())
+                }
+                // aggregator1: median latency = 15 (since the latency is 10+i)
+                // aggregator2: median latency = 35 (since the latency is 30+i)
+                delay(1.seconds)
+            }
         }
+
+        testScope.advanceTimeBy(30.seconds)
+
+        // We see the results of reports for all four batches for each aggregator.
+        assertThat(medianLatencies1).containsExactlyElementsIn(List(numBatches) { 15L })
+        assertThat(sampleCounts1)
+            .containsExactlyElementsIn(List(numBatches) { sampleCountPerBatch })
+        assertThat(medianLatencies2).containsExactlyElementsIn(List(numBatches) { 35L })
+        assertThat(sampleCounts2)
+            .containsExactlyElementsIn(List(numBatches) { sampleCountPerBatch })
+    }
 
     @Test
     fun percentileLatencyAggregator_canStopOneAggregatorWhileTheOtherContinues() =
@@ -678,16 +674,15 @@ class PercentileLatencyAggregatorTest {
         }
 
     @Test
-    fun percentileLatencyAggregator_medianOfOddLengthListIsMiddle() =
-        testScope.runTest {
-            assertThat(
-                    useAggregatorToComputePercentiles(
-                        latencies = listOf(10, 23, 31, 33, 46, 61, 68),
-                        percentiles = listOf(50f),
-                    )
+    fun percentileLatencyAggregator_medianOfOddLengthListIsMiddle() = testScope.runTest {
+        assertThat(
+                useAggregatorToComputePercentiles(
+                    latencies = listOf(10, 23, 31, 33, 46, 61, 68),
+                    percentiles = listOf(50f),
                 )
-                .isEqualTo(listOf<Long>(33))
-        }
+            )
+            .isEqualTo(listOf<Long>(33))
+    }
 
     @Test
     fun percentileLatencyAggregator_medianOfEvenLengthListIsAverageOfMiddleTwo() =
@@ -702,17 +697,16 @@ class PercentileLatencyAggregatorTest {
         }
 
     @Test
-    fun percentileLatencyAggregator_medianOfEvenLengthListRoundsUpAverage() =
-        testScope.runTest {
-            assertThat(
-                    useAggregatorToComputePercentiles(
-                        latencies = listOf(10, 24, 31, 33),
-                        percentiles = listOf(50f),
-                    )
+    fun percentileLatencyAggregator_medianOfEvenLengthListRoundsUpAverage() = testScope.runTest {
+        assertThat(
+                useAggregatorToComputePercentiles(
+                    latencies = listOf(10, 24, 31, 33),
+                    percentiles = listOf(50f),
                 )
-                // Actual median is 27.5. It should round up.
-                .isEqualTo(listOf<Long>(28))
-        }
+            )
+            // Actual median is 27.5. It should round up.
+            .isEqualTo(listOf<Long>(28))
+    }
 
     @Test
     fun percentileLatencyAggregator_percentilesBetweenIndicesAreWeightedAveragesRoundedToInts() =
@@ -759,16 +753,15 @@ class PercentileLatencyAggregatorTest {
         }
 
     @Test
-    fun percentileLatencyAggregator_allPercentilesAreSameForSingletonList() =
-        testScope.runTest {
-            assertThat(
-                    useAggregatorToComputePercentiles(
-                        latencies = listOf(23),
-                        percentiles = listOf(0f, 10f, 5f / 7f * 100f, 100f),
-                    )
+    fun percentileLatencyAggregator_allPercentilesAreSameForSingletonList() = testScope.runTest {
+        assertThat(
+                useAggregatorToComputePercentiles(
+                    latencies = listOf(23),
+                    percentiles = listOf(0f, 10f, 5f / 7f * 100f, 100f),
                 )
-                .isEqualTo(listOf<Long>(23, 23, 23, 23))
-        }
+            )
+            .isEqualTo(listOf<Long>(23, 23, 23, 23))
+    }
 
     @Test
     fun percentileLatencyAggregator_percentilesAreWeightedAveragesForTwoElementList() =

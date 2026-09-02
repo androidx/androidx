@@ -69,143 +69,128 @@ class ImageTranslatorTest {
     }
 
     @Test
-    fun canTranslateImage_bitmap() =
-        fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(expectedBitmap),
-                        contentDescription = "2x1 bitmap",
-                    )
-                }
-            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-            assertThat(imageView.contentDescription).isEqualTo("2x1 bitmap")
-            assertThat(imageView.importantForAccessibility)
-                .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
-            val bitmapDrawable = assertIs<BitmapDrawable>(imageView.getDrawable())
-            assertThat(bitmapDrawable.bitmap.sameAs(expectedBitmap)).isTrue()
+    fun canTranslateImage_bitmap() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Image(
+                provider = ImageProvider(expectedBitmap),
+                contentDescription = "2x1 bitmap",
+            )
         }
+        val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+        assertThat(imageView.contentDescription).isEqualTo("2x1 bitmap")
+        assertThat(imageView.importantForAccessibility)
+            .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        val bitmapDrawable = assertIs<BitmapDrawable>(imageView.getDrawable())
+        assertThat(bitmapDrawable.bitmap.sameAs(expectedBitmap)).isTrue()
+    }
 
     @Test
-    fun canTranslateImage_drawableRes() =
-        fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(provider = ImageProvider(R.drawable.oval), contentDescription = "oval")
-                }
-
-            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-            assertThat(imageView.contentDescription).isEqualTo("oval")
-            assertThat(imageView.importantForAccessibility)
-                .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
-            val gradientDrawable = assertIs<GradientDrawable>(imageView.getDrawable())
-            assertThat(gradientDrawable.toBitmap().sameAs(expectedBitmap)).isTrue()
+    fun canTranslateImage_drawableRes() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Image(provider = ImageProvider(R.drawable.oval), contentDescription = "oval")
         }
+
+        val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+        assertThat(imageView.contentDescription).isEqualTo("oval")
+        assertThat(imageView.importantForAccessibility)
+            .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        val gradientDrawable = assertIs<GradientDrawable>(imageView.getDrawable())
+        assertThat(gradientDrawable.toBitmap().sameAs(expectedBitmap)).isTrue()
+    }
 
     @Test
-    fun canTranslateImage_uri() =
-        fakeCoroutineScope.runTest {
-            val uri =
-                with(context.resources) {
-                    Uri.Builder()
-                        .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
-                        .authority(getResourcePackageName(R.drawable.oval))
-                        .appendPath(getResourceTypeName(R.drawable.oval))
-                        .appendPath(getResourceEntryName(R.drawable.oval))
-                        .build()
-                }
-            val rv =
-                context.runAndTranslate {
-                    Image(provider = ImageProvider(uri), contentDescription = "")
-                }
-
-            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-            val gradientDrawable = assertIs<GradientDrawable>(imageView.drawable)
-            assertThat(gradientDrawable.toBitmap().sameAs(expectedBitmap)).isTrue()
+    fun canTranslateImage_uri() = fakeCoroutineScope.runTest {
+        val uri =
+            with(context.resources) {
+                Uri.Builder()
+                    .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                    .authority(getResourcePackageName(R.drawable.oval))
+                    .appendPath(getResourceTypeName(R.drawable.oval))
+                    .appendPath(getResourceEntryName(R.drawable.oval))
+                    .build()
+            }
+        val rv = context.runAndTranslate {
+            Image(provider = ImageProvider(uri), contentDescription = "")
         }
+
+        val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+        val gradientDrawable = assertIs<GradientDrawable>(imageView.drawable)
+        assertThat(gradientDrawable.toBitmap().sameAs(expectedBitmap)).isTrue()
+    }
 
     @Test
-    fun canTranslateImage_icon() =
-        fakeCoroutineScope.runTest {
-            val icon = Icon.createWithResource(context, R.drawable.oval)
-            val rv =
-                context.runAndTranslate {
-                    Image(provider = ImageProvider(icon), contentDescription = "")
-                }
-
-            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-            val gradientDrawable = assertIs<GradientDrawable>(imageView.getDrawable())
-            assertThat(gradientDrawable.toBitmap().sameAs(expectedBitmap)).isTrue()
+    fun canTranslateImage_icon() = fakeCoroutineScope.runTest {
+        val icon = Icon.createWithResource(context, R.drawable.oval)
+        val rv = context.runAndTranslate {
+            Image(provider = ImageProvider(icon), contentDescription = "")
         }
+
+        val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+        val gradientDrawable = assertIs<GradientDrawable>(imageView.getDrawable())
+        assertThat(gradientDrawable.toBitmap().sameAs(expectedBitmap)).isTrue()
+    }
 
     @Test
-    fun canTranslateImageContentScale_crop() =
-        fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(R.drawable.oval),
-                        contentDescription = "oval",
-                        contentScale = ContentScale.Crop,
-                    )
-                }
-
-            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-            assertThat(imageView.contentDescription).isEqualTo("oval")
-            assertThat(imageView.importantForAccessibility)
-                .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
-            assertThat(imageView.scaleType).isEqualTo(ImageView.ScaleType.CENTER_CROP)
+    fun canTranslateImageContentScale_crop() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = "oval",
+                contentScale = ContentScale.Crop,
+            )
         }
+
+        val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+        assertThat(imageView.contentDescription).isEqualTo("oval")
+        assertThat(imageView.importantForAccessibility)
+            .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        assertThat(imageView.scaleType).isEqualTo(ImageView.ScaleType.CENTER_CROP)
+    }
 
     @Test
-    fun canTranslateImageContentScale_fit() =
-        fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(R.drawable.oval),
-                        contentDescription = "oval",
-                        contentScale = ContentScale.Fit,
-                    )
-                }
-
-            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-            assertThat(imageView.contentDescription).isEqualTo("oval")
-            assertThat(imageView.importantForAccessibility)
-                .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
-            assertThat(imageView.scaleType).isEqualTo(ImageView.ScaleType.FIT_CENTER)
+    fun canTranslateImageContentScale_fit() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = "oval",
+                contentScale = ContentScale.Fit,
+            )
         }
+
+        val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+        assertThat(imageView.contentDescription).isEqualTo("oval")
+        assertThat(imageView.importantForAccessibility)
+            .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        assertThat(imageView.scaleType).isEqualTo(ImageView.ScaleType.FIT_CENTER)
+    }
 
     @Test
-    fun canTranslateImageContentScale_fillBounds() =
-        fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(R.drawable.oval),
-                        contentDescription = "oval",
-                        contentScale = ContentScale.FillBounds,
-                    )
-                }
-
-            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-            assertThat(imageView.contentDescription).isEqualTo("oval")
-            assertThat(imageView.importantForAccessibility)
-                .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
-            assertThat(imageView.scaleType).isEqualTo(ImageView.ScaleType.FIT_XY)
+    fun canTranslateImageContentScale_fillBounds() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = "oval",
+                contentScale = ContentScale.FillBounds,
+            )
         }
+
+        val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+        assertThat(imageView.contentDescription).isEqualTo("oval")
+        assertThat(imageView.importantForAccessibility)
+            .isEqualTo(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        assertThat(imageView.scaleType).isEqualTo(ImageView.ScaleType.FIT_XY)
+    }
 
     @Test
     fun translateImage_contentDescriptionFieldAndSemanticsSet_fieldPreferred() =
         fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(R.drawable.oval),
-                        contentDescription = "oval",
-                        modifier = GlanceModifier.semantics { contentDescription = "round" },
-                    )
-                }
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = "oval",
+                    modifier = GlanceModifier.semantics { contentDescription = "round" },
+                )
+            }
 
             val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
             assertThat(imageView.contentDescription).isEqualTo("oval")
@@ -216,10 +201,9 @@ class ImageTranslatorTest {
     @Test
     fun translateImage_contentDescriptionEmptyString_treatedAsDecorative() =
         fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(provider = ImageProvider(R.drawable.oval), contentDescription = "")
-                }
+            val rv = context.runAndTranslate {
+                Image(provider = ImageProvider(R.drawable.oval), contentDescription = "")
+            }
 
             val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
             assertThat(imageView.contentDescription).isEqualTo("")
@@ -230,14 +214,13 @@ class ImageTranslatorTest {
     @Test
     fun translateImage_contentDescriptionFieldNullAndSemanticsSet_setFromSemantics() =
         fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(R.drawable.oval),
-                        contentDescription = null,
-                        modifier = GlanceModifier.semantics { contentDescription = "round" },
-                    )
-                }
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                    modifier = GlanceModifier.semantics { contentDescription = "round" },
+                )
+            }
 
             val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
             assertThat(imageView.contentDescription).isEqualTo("round")
@@ -248,14 +231,13 @@ class ImageTranslatorTest {
     @Test
     fun translateImage_contentDescriptionFieldAndSemanticsNull_treatedAsDecorative() =
         fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(R.drawable.oval),
-                        contentDescription = null,
-                        modifier = GlanceModifier.semantics {},
-                    )
-                }
+            val rv = context.runAndTranslate {
+                Image(
+                    provider = ImageProvider(R.drawable.oval),
+                    contentDescription = null,
+                    modifier = GlanceModifier.semantics {},
+                )
+            }
 
             val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
             assertThat(imageView.contentDescription).isNull()
@@ -265,49 +247,43 @@ class ImageTranslatorTest {
 
     @Test
     @Config(sdk = [24, 31])
-    fun translateImage_colorFilter() =
-        fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(R.drawable.oval),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(ColorProvider(Color.Gray)),
-                    )
-                }
-
-            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-            assertThat(imageView).hasColorFilter(Color.Gray)
+    fun translateImage_colorFilter() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(ColorProvider(Color.Gray)),
+            )
         }
+
+        val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+        assertThat(imageView).hasColorFilter(Color.Gray)
+    }
 
     @Test
     @Config(sdk = [24, 31])
-    fun translateImage_colorFilterWithResource() =
-        fakeCoroutineScope.runTest {
-            val colorProvider = ColorProvider(R.color.my_color) as ResourceColorProvider
-            val rv =
-                context.runAndTranslate {
-                    Image(
-                        provider = ImageProvider(R.drawable.oval),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(colorProvider),
-                    )
-                }
-
-            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-            assertThat(imageView).hasColorFilter(colorProvider.getColor(context))
+    fun translateImage_colorFilterWithResource() = fakeCoroutineScope.runTest {
+        val colorProvider = ColorProvider(R.color.my_color) as ResourceColorProvider
+        val rv = context.runAndTranslate {
+            Image(
+                provider = ImageProvider(R.drawable.oval),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(colorProvider),
+            )
         }
+
+        val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+        assertThat(imageView).hasColorFilter(colorProvider.getColor(context))
+    }
 
     @Test
     @Config(sdk = [24, 31])
-    fun translateImage_noColorFilter() =
-        fakeCoroutineScope.runTest {
-            val rv =
-                context.runAndTranslate {
-                    Image(provider = ImageProvider(R.drawable.oval), contentDescription = null)
-                }
-
-            val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
-            assertThat(imageView.colorFilter).isNull()
+    fun translateImage_noColorFilter() = fakeCoroutineScope.runTest {
+        val rv = context.runAndTranslate {
+            Image(provider = ImageProvider(R.drawable.oval), contentDescription = null)
         }
+
+        val imageView = assertIs<ImageView>(context.applyRemoteViews(rv))
+        assertThat(imageView.colorFilter).isNull()
+    }
 }

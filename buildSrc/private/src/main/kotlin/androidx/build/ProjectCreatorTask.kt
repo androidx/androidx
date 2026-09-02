@@ -304,8 +304,9 @@ internal class GradleSettingsEditor(val settingsGradleFile: File) {
         val settingsLines = settingsGradleFile.readLines().toMutableList()
         val newLine = getNewSettingsGradleLine(spec)
 
-        val insertLine =
-            settingsLines.indexOfFirst { it.startsWith("includeProject") && it > newLine }
+        val insertLine = settingsLines.indexOfFirst {
+            it.startsWith("includeProject") && it > newLine
+        }
         if (insertLine != -1) {
             settingsLines.add(insertLine, newLine)
         } else {
@@ -459,17 +460,17 @@ internal class DocsTotBuildGradleEditor(val docsTotBuildGradleFile: File) {
         val newLine = spec.getNewDocsTotBuildGradleLine() ?: return
         val docLines = docsTotBuildGradleFile.readLines().toMutableList()
 
-        val dependenciesBlockStart =
-            docLines.indexOfFirst { it.trim().startsWith("dependencies {") }
+        val dependenciesBlockStart = docLines.indexOfFirst {
+            it.trim().startsWith("dependencies {")
+        }
         if (dependenciesBlockStart == -1) {
             error("Error: Could not find 'dependencies {' block in " + docsTotBuildGradleFile.path)
         }
 
         val newProjectPart = newLine.split("project")[1]
-        val insertLine =
-            docLines.indexOfFirst {
-                it.contains("project") && it.substringAfter("project") >= newProjectPart
-            }
+        val insertLine = docLines.indexOfFirst {
+            it.contains("project") && it.substringAfter("project") >= newProjectPart
+        }
 
         if (insertLine != -1) {
             docLines.add(insertLine, newLine)

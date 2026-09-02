@@ -70,7 +70,8 @@ fun SimpleInteractionSourceSample() {
         Modifier.clickable(
             interactionSource = interactionSource,
             indication = LocalIndication.current,
-        ) { /* update some business state here */
+        ) {
+            /* update some business state here */
         }
 
     // Observe changes to the binary state for these interactions
@@ -128,7 +129,8 @@ fun InteractionSourceFlowSample() {
             // just for clickable area. We set `null` indication here and provide an explicit
             // Modifier.indication instance later that will draw indication for the whole component.
             indication = null,
-        ) { /* update some business state here */
+        ) {
+            /* update some business state here */
         }
 
     // SnapshotStateList we will use to track incoming Interactions in the order they are emitted

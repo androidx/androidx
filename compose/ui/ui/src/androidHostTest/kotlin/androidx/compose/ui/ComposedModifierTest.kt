@@ -112,11 +112,10 @@ class ComposedModifierTest {
         var value = 0
         lateinit var scope: RecomposeScope
 
-        val sourceMod =
-            Modifier.composed {
-                scope = currentRecomposeScope
-                testTag("changing", value)
-            }
+        val sourceMod = Modifier.composed {
+            scope = currentRecomposeScope
+            testTag("changing", value)
+        }
 
         val frameClock = TestFrameClock()
         withContext(frameClock) {
@@ -146,12 +145,11 @@ class ComposedModifierTest {
     @Test
     fun rememberComposedModifier() = runBlocking {
         lateinit var scope: RecomposeScope
-        val sourceMod =
-            Modifier.composed {
-                scope = currentRecomposeScope
-                val state = remember { Any() }
-                testTag("remembered", state)
-            }
+        val sourceMod = Modifier.composed {
+            scope = currentRecomposeScope
+            val state = remember { Any() }
+            testTag("remembered", state)
+        }
 
         val frameClock = TestFrameClock()
 

@@ -181,7 +181,8 @@ class A2uiFormatStringFunctionTest {
             .containsExactly(
                 mapOf(
                     "call" to "formatDate",
-                    "args" to mapOf("value" to mapOf("path" to "/currentDate"), "format" to "MM-dd"),
+                    "args" to
+                        mapOf("value" to mapOf("path" to "/currentDate"), "format" to "MM-dd"),
                 )
             )
     }

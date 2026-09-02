@@ -315,51 +315,51 @@ sealed interface ObservableTransitionState {
  */
 fun SceneTransitionLayoutState.observableTransitionState(): Flow<ObservableTransitionState> {
     return snapshotFlow {
-            when (val state = transitionState) {
-                is TransitionState.Idle ->
-                    ObservableTransitionState.Idle(state.currentScene, state.currentOverlays)
-                is TransitionState.Transition.ChangeScene -> {
-                    ObservableTransitionState.Transition.ChangeScene(
-                        fromScene = state.fromScene,
-                        toScene = state.toScene,
-                        currentScene = snapshotFlow { state.currentScene },
-                        currentOverlays = state.currentOverlays,
-                        progress = snapshotFlow { state.progress },
-                        isInitiatedByUserInput = state.isInitiatedByUserInput,
-                        isUserInputOngoing = snapshotFlow { state.isUserInputOngoing },
-                        previewProgress = snapshotFlow { state.previewProgress },
-                        isInPreviewStage = snapshotFlow { state.isInPreviewStage },
-                    )
-                }
-                is TransitionState.Transition.ShowOrHideOverlay -> {
-                    check(state.fromOrToScene == state.currentScene)
-                    ObservableTransitionState.Transition.ShowOrHideOverlay(
-                        overlay = state.overlay,
-                        fromContent = state.fromContent,
-                        toContent = state.toContent,
-                        currentScene = state.currentScene,
-                        currentOverlays = snapshotFlow { state.currentOverlays },
-                        progress = snapshotFlow { state.progress },
-                        isInitiatedByUserInput = state.isInitiatedByUserInput,
-                        isUserInputOngoing = snapshotFlow { state.isUserInputOngoing },
-                        previewProgress = snapshotFlow { state.previewProgress },
-                        isInPreviewStage = snapshotFlow { state.isInPreviewStage },
-                    )
-                }
-                is TransitionState.Transition.ReplaceOverlay -> {
-                    ObservableTransitionState.Transition.ReplaceOverlay(
-                        fromOverlay = state.fromOverlay,
-                        toOverlay = state.toOverlay,
-                        currentScene = state.currentScene,
-                        currentOverlays = snapshotFlow { state.currentOverlays },
-                        progress = snapshotFlow { state.progress },
-                        isInitiatedByUserInput = state.isInitiatedByUserInput,
-                        isUserInputOngoing = snapshotFlow { state.isUserInputOngoing },
-                        previewProgress = snapshotFlow { state.previewProgress },
-                        isInPreviewStage = snapshotFlow { state.isInPreviewStage },
-                    )
-                }
+        when (val state = transitionState) {
+            is TransitionState.Idle ->
+                ObservableTransitionState.Idle(state.currentScene, state.currentOverlays)
+            is TransitionState.Transition.ChangeScene -> {
+                ObservableTransitionState.Transition.ChangeScene(
+                    fromScene = state.fromScene,
+                    toScene = state.toScene,
+                    currentScene = snapshotFlow { state.currentScene },
+                    currentOverlays = state.currentOverlays,
+                    progress = snapshotFlow { state.progress },
+                    isInitiatedByUserInput = state.isInitiatedByUserInput,
+                    isUserInputOngoing = snapshotFlow { state.isUserInputOngoing },
+                    previewProgress = snapshotFlow { state.previewProgress },
+                    isInPreviewStage = snapshotFlow { state.isInPreviewStage },
+                )
+            }
+            is TransitionState.Transition.ShowOrHideOverlay -> {
+                check(state.fromOrToScene == state.currentScene)
+                ObservableTransitionState.Transition.ShowOrHideOverlay(
+                    overlay = state.overlay,
+                    fromContent = state.fromContent,
+                    toContent = state.toContent,
+                    currentScene = state.currentScene,
+                    currentOverlays = snapshotFlow { state.currentOverlays },
+                    progress = snapshotFlow { state.progress },
+                    isInitiatedByUserInput = state.isInitiatedByUserInput,
+                    isUserInputOngoing = snapshotFlow { state.isUserInputOngoing },
+                    previewProgress = snapshotFlow { state.previewProgress },
+                    isInPreviewStage = snapshotFlow { state.isInPreviewStage },
+                )
+            }
+            is TransitionState.Transition.ReplaceOverlay -> {
+                ObservableTransitionState.Transition.ReplaceOverlay(
+                    fromOverlay = state.fromOverlay,
+                    toOverlay = state.toOverlay,
+                    currentScene = state.currentScene,
+                    currentOverlays = snapshotFlow { state.currentOverlays },
+                    progress = snapshotFlow { state.progress },
+                    isInitiatedByUserInput = state.isInitiatedByUserInput,
+                    isUserInputOngoing = snapshotFlow { state.isUserInputOngoing },
+                    previewProgress = snapshotFlow { state.previewProgress },
+                    isInPreviewStage = snapshotFlow { state.isInPreviewStage },
+                )
             }
         }
+    }
         .distinctUntilChanged()
 }

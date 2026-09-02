@@ -335,7 +335,8 @@ class ButtonScreenshotTest {
             onClick = {},
             modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
             label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
-            transformation = morphingSurfaceTransformation(heightProportion = 1f, contentAlpha = 0f),
+            transformation =
+                morphingSurfaceTransformation(heightProportion = 1f, contentAlpha = 0f),
         )
     }
 

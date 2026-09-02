@@ -53,24 +53,23 @@ class MultiProcessDataStoreIpcTest {
 
     @Test fun testSimpleUpdateData_okio() = testSimpleUpdateData(StorageVariant.OKIO)
 
-    private fun testSimpleUpdateData(storageVariant: StorageVariant) =
-        multiProcessRule.runTest {
-            val connection = multiProcessRule.createConnection()
-            val subject = connection.createSubject(this)
-            val file = tmpFolder.newFile()
-            val datastore =
-                createMultiProcessTestDatastore(
-                    filePath = file.canonicalPath,
-                    storageVariant = storageVariant,
-                    hostDatastoreScope = multiProcessRule.datastoreScope,
-                    subjects = arrayOf(subject),
-                )
-            subject.invokeInRemoteProcess(SetTextAction("abc"))
-            assertThat(datastore.data.first().text).isEqualTo("abc")
-            datastore.updateData { it.toBuilder().setText("hostValue").build() }
-            // read from remote process
-            assertThat(subject.invokeInRemoteProcess(ReadTextAction()).value).isEqualTo("hostValue")
-        }
+    private fun testSimpleUpdateData(storageVariant: StorageVariant) = multiProcessRule.runTest {
+        val connection = multiProcessRule.createConnection()
+        val subject = connection.createSubject(this)
+        val file = tmpFolder.newFile()
+        val datastore =
+            createMultiProcessTestDatastore(
+                filePath = file.canonicalPath,
+                storageVariant = storageVariant,
+                hostDatastoreScope = multiProcessRule.datastoreScope,
+                subjects = arrayOf(subject),
+            )
+        subject.invokeInRemoteProcess(SetTextAction("abc"))
+        assertThat(datastore.data.first().text).isEqualTo("abc")
+        datastore.updateData { it.toBuilder().setText("hostValue").build() }
+        // read from remote process
+        assertThat(subject.invokeInRemoteProcess(ReadTextAction()).value).isEqualTo("hostValue")
+    }
 
     @Test fun testConcurrentReadUpdate_file() = testConcurrentReadUpdate(StorageVariant.FILE)
 
@@ -262,41 +261,40 @@ class MultiProcessDataStoreIpcTest {
 
     private fun testUpdateDataExceptionUnblocksOtherProcessFromWriting(
         storageVariant: StorageVariant
-    ) =
-        multiProcessRule.runTest {
-            val connection = multiProcessRule.createConnection()
-            val subject = connection.createSubject(this)
-            val file = tmpFolder.newFile()
-            val dataStore =
-                createMultiProcessTestDatastore(
-                    filePath = file.canonicalPath,
-                    storageVariant = storageVariant,
-                    hostDatastoreScope = multiProcessRule.datastoreScope,
-                    subjects = arrayOf(subject),
-                )
-            val blockWrite = CompletableDeferred<Unit>()
-            val localWriteStarted = CompletableDeferred<Unit>()
+    ) = multiProcessRule.runTest {
+        val connection = multiProcessRule.createConnection()
+        val subject = connection.createSubject(this)
+        val file = tmpFolder.newFile()
+        val dataStore =
+            createMultiProcessTestDatastore(
+                filePath = file.canonicalPath,
+                storageVariant = storageVariant,
+                hostDatastoreScope = multiProcessRule.datastoreScope,
+                subjects = arrayOf(subject),
+            )
+        val blockWrite = CompletableDeferred<Unit>()
+        val localWriteStarted = CompletableDeferred<Unit>()
 
-            val write = async {
-                try {
-                    dataStore.updateData {
-                        localWriteStarted.complete(Unit)
-                        blockWrite.await()
-                        throw IOException("Something went wrong")
-                    }
-                } catch (_: IOException) {}
-            }
-            localWriteStarted.await()
-            val setTextAction = async {
-                subject.invokeInRemoteProcess(SetTextAction(value = "remoteValue"))
-            }
-            delay(100)
-            // cannot start since we are holding the lock
-            assertThat(setTextAction.isActive).isTrue()
-            blockWrite.complete(Unit)
-            listOf(write, setTextAction).awaitAll()
-            assertThat(dataStore.data.first().text).isEqualTo("remoteValue")
+        val write = async {
+            try {
+                dataStore.updateData {
+                    localWriteStarted.complete(Unit)
+                    blockWrite.await()
+                    throw IOException("Something went wrong")
+                }
+            } catch (_: IOException) {}
         }
+        localWriteStarted.await()
+        val setTextAction = async {
+            subject.invokeInRemoteProcess(SetTextAction(value = "remoteValue"))
+        }
+        delay(100)
+        // cannot start since we are holding the lock
+        assertThat(setTextAction.isActive).isTrue()
+        blockWrite.complete(Unit)
+        listOf(write, setTextAction).awaitAll()
+        assertThat(dataStore.data.first().text).isEqualTo("remoteValue")
+    }
 
     @Test
     fun testUpdateDataCancellationUnblocksOtherProcessFromWriting_file() =
@@ -308,43 +306,42 @@ class MultiProcessDataStoreIpcTest {
 
     private fun testUpdateDataCancellationUnblocksOtherProcessFromWriting(
         storageVariant: StorageVariant
-    ) =
-        multiProcessRule.runTest {
-            val connection = multiProcessRule.createConnection()
-            val subject = connection.createSubject(this)
-            val file = tmpFolder.newFile()
-            val localScope = CoroutineScope(Dispatchers.IO)
-            val dataStore =
-                createMultiProcessTestDatastore(
-                    filePath = file.canonicalPath,
-                    storageVariant = storageVariant,
-                    hostDatastoreScope = multiProcessRule.datastoreScope,
-                    subjects = arrayOf(subject),
-                )
-            val blockWrite = CompletableDeferred<Unit>()
-            val startedWrite = CompletableDeferred<Unit>()
+    ) = multiProcessRule.runTest {
+        val connection = multiProcessRule.createConnection()
+        val subject = connection.createSubject(this)
+        val file = tmpFolder.newFile()
+        val localScope = CoroutineScope(Dispatchers.IO)
+        val dataStore =
+            createMultiProcessTestDatastore(
+                filePath = file.canonicalPath,
+                storageVariant = storageVariant,
+                hostDatastoreScope = multiProcessRule.datastoreScope,
+                subjects = arrayOf(subject),
+            )
+        val blockWrite = CompletableDeferred<Unit>()
+        val startedWrite = CompletableDeferred<Unit>()
 
-            localScope.launch {
-                dataStore.updateData {
-                    startedWrite.complete(Unit)
-                    blockWrite.await()
-                    it.toBuilder().setInteger(3).build()
-                }
+        localScope.launch {
+            dataStore.updateData {
+                startedWrite.complete(Unit)
+                blockWrite.await()
+                it.toBuilder().setInteger(3).build()
             }
-            startedWrite.await()
-            val setTextAction = async {
-                subject.invokeInRemoteProcess(SetTextAction(value = "remoteValue"))
-            }
-            delay(100)
-            // cannot start since we are holding the lock
-            assertThat(setTextAction.isActive).isTrue()
-            // cancel the scope that is holding the write lock
-            localScope.cancel()
-            // wait for remote to finish
-            setTextAction.await()
-            assertThat(dataStore.data.first())
-                .isEqualTo(FooProto.getDefaultInstance().toBuilder().setText("remoteValue").build())
         }
+        startedWrite.await()
+        val setTextAction = async {
+            subject.invokeInRemoteProcess(SetTextAction(value = "remoteValue"))
+        }
+        delay(100)
+        // cannot start since we are holding the lock
+        assertThat(setTextAction.isActive).isTrue()
+        // cancel the scope that is holding the write lock
+        localScope.cancel()
+        // wait for remote to finish
+        setTextAction.await()
+        assertThat(dataStore.data.first())
+            .isEqualTo(FooProto.getDefaultInstance().toBuilder().setText("remoteValue").build())
+    }
 
     @Test fun testReadUpdateCorrupt_file() = testReadUpdateCorrupt(StorageVariant.FILE)
 
@@ -367,51 +364,51 @@ class MultiProcessDataStoreIpcTest {
         }
     }
 
-    private fun testReadUpdateCorrupt(storageVariant: StorageVariant) =
-        multiProcessRule.runTest {
-            val connection = multiProcessRule.createConnection()
-            val subject = connection.createSubject(this)
-            val file = tmpFolder.newFile()
-            // corrupt file
-            file.writeText("garbage")
-            // set a shared value so we can know which corruption handler did run
-            TestCorruptionHandler.inMainProcess = true
-            val dataStore =
-                createMultiProcessTestDatastore(
-                    filePath = file.canonicalPath,
-                    storageVariant = storageVariant,
-                    hostDatastoreScope = multiProcessRule.datastoreScope,
-                    corruptionHandler = TestCorruptionHandler::class.java,
-                    subjects = arrayOf(subject),
+    private fun testReadUpdateCorrupt(storageVariant: StorageVariant) = multiProcessRule.runTest {
+        val connection = multiProcessRule.createConnection()
+        val subject = connection.createSubject(this)
+        val file = tmpFolder.newFile()
+        // corrupt file
+        file.writeText("garbage")
+        // set a shared value so we can know which corruption handler did run
+        TestCorruptionHandler.inMainProcess = true
+        val dataStore =
+            createMultiProcessTestDatastore(
+                filePath = file.canonicalPath,
+                storageVariant = storageVariant,
+                hostDatastoreScope = multiProcessRule.datastoreScope,
+                corruptionHandler = TestCorruptionHandler::class.java,
+                subjects = arrayOf(subject),
+            )
+        val blockSetText = InterProcessCompletable<IpcUnit>()
+        val writeStarted = InterProcessCompletable<IpcUnit>()
+        val setTextAction = async {
+            subject.invokeInRemoteProcess(
+                SetTextAction(
+                    value = "remoteValue",
+                    commitTransactionLatch = blockSetText,
+                    transactionStartedLatch = writeStarted,
                 )
-            val blockSetText = InterProcessCompletable<IpcUnit>()
-            val writeStarted = InterProcessCompletable<IpcUnit>()
-            val setTextAction = async {
-                subject.invokeInRemoteProcess(
-                    SetTextAction(
-                        value = "remoteValue",
-                        commitTransactionLatch = blockSetText,
-                        transactionStartedLatch = writeStarted,
-                    )
-                )
-            }
-            writeStarted.await(subject)
-            // we read the corruption handler value since the write hasn't happened yet
-            // the write in the remote process already started, hence we'll read its recovery value
-            assertThat(dataStore.data.first())
-                .isEqualTo(TestCorruptionHandler.createRecoveryValue(mainProcess = false))
-            // version file should be ready at this point
-            val sharedCounter =
-                SharedCounter.create { file.parentFile!!.resolve("${file.name}.version") }
-            // only 1 write should be done to handle the corruption, so version is incremented by 1
-            assertThat(sharedCounter.getValue()).isEqualTo(1)
-            // unblock write
-            blockSetText.complete(subject, IpcUnit)
-            // wait for write to finish
-            setTextAction.await()
-            // now we can see the value written there
-            assertThat(dataStore.data.first().text).isEqualTo("remoteValue")
+            )
         }
+        writeStarted.await(subject)
+        // we read the corruption handler value since the write hasn't happened yet
+        // the write in the remote process already started, hence we'll read its recovery value
+        assertThat(dataStore.data.first())
+            .isEqualTo(TestCorruptionHandler.createRecoveryValue(mainProcess = false))
+        // version file should be ready at this point
+        val sharedCounter = SharedCounter.create {
+            file.parentFile!!.resolve("${file.name}.version")
+        }
+        // only 1 write should be done to handle the corruption, so version is incremented by 1
+        assertThat(sharedCounter.getValue()).isEqualTo(1)
+        // unblock write
+        blockSetText.complete(subject, IpcUnit)
+        // wait for write to finish
+        setTextAction.await()
+        // now we can see the value written there
+        assertThat(dataStore.data.first().text).isEqualTo("remoteValue")
+    }
 
     @Test
     fun testConcurrentUpdateNoDeadlock_file() = testConcurrentUpdateNoDeadlock(StorageVariant.FILE)

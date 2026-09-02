@@ -131,167 +131,155 @@ class GlanceSessionManagerTest {
     }
 
     @Test
-    fun startingSessionRunsComposition() =
-        testScope.runTest {
-            startSession()
+    fun startingSessionRunsComposition() = testScope.runTest {
+        startSession()
 
-            val text = assertIs<EmittableText>(testSession.uiTree.receive().children.single())
-            assertThat(text.text).isEqualTo("Hello World")
+        val text = assertIs<EmittableText>(testSession.uiTree.receive().children.single())
+        assertThat(text.text).isEqualTo("Hello World")
 
-            GlanceSessionManager.runWithLock { assertNotNull(getSession(testSession.key)).close() }
-            waitForWorkerSuccess()
-        }
-
-    @Test
-    fun sessionInitialTimeout() =
-        testScope.runTest {
-            startSession()
-
-            // Timeout starts after first successful composition
-            testSession.uiTree.receive()
-            val timeout = testTimeSource.measureTime { waitForWorkerTimeout() }
-            assertThat(timeout).isEqualTo(initialTimeout)
-        }
+        GlanceSessionManager.runWithLock { assertNotNull(getSession(testSession.key)).close() }
+        waitForWorkerSuccess()
+    }
 
     @Test
-    fun sessionDoesNotTimeoutBeforeFirstComposition() =
-        testScope.runTest {
-            startSession()
+    fun sessionInitialTimeout() = testScope.runTest {
+        startSession()
 
-            // The session is not subject to a timeout before the composition has been processed
-            // successfully for the first time.
-            delay(initialTimeout * 5)
-            GlanceSessionManager.runWithLock {
-                assertThat(isSessionRunning(context, testSession.key)).isTrue()
-            }
-
-            testSession.uiTree.receive()
-            val timeout = testTimeSource.measureTime { waitForWorkerTimeout() }
-            assertThat(timeout).isEqualTo(initialTimeout)
-        }
+        // Timeout starts after first successful composition
+        testSession.uiTree.receive()
+        val timeout = testTimeSource.measureTime { waitForWorkerTimeout() }
+        assertThat(timeout).isEqualTo(initialTimeout)
+    }
 
     @Test
-    fun sessionAddsTimeOnExternalEvents() =
-        testScope.runTest {
-            startSession()
+    fun sessionDoesNotTimeoutBeforeFirstComposition() = testScope.runTest {
+        startSession()
 
-            // Timeout starts after first successful composition, and is incremented every time an
-            // event is received.
-            testSession.uiTree.receive()
-            val timeout =
-                testTimeSource.measureTime {
-                    delay(initialTimeout - 1.milliseconds)
-                    GlanceSessionManager.runWithLock { testSession.sendEmptyEvent() }
-                    waitForWorkerTimeout()
-                }
-            assertThat(timeout).isEqualTo(initialTimeout + additionalTime)
+        // The session is not subject to a timeout before the composition has been processed
+        // successfully for the first time.
+        delay(initialTimeout * 5)
+        GlanceSessionManager.runWithLock {
+            assertThat(isSessionRunning(context, testSession.key)).isTrue()
         }
 
-    @Test
-    fun sessionDoesNotAddTimeOnExternalEventsIfThereIsEnoughTimeLeft() =
-        testScope.runTest {
-            startSession()
-
-            // Timeout starts after first successful composition. There is still enough time when
-            // events
-            // arrive, so the deadline will not be extended.
-            testSession.uiTree.receive()
-            val timeout =
-                testTimeSource.measureTime {
-                    repeat(5) { testSession.sendEmptyEvent() }
-                    waitForWorkerTimeout()
-                }
-            assertThat(timeout).isEqualTo(initialTimeout)
-        }
+        testSession.uiTree.receive()
+        val timeout = testTimeSource.measureTime { waitForWorkerTimeout() }
+        assertThat(timeout).isEqualTo(initialTimeout)
+    }
 
     @Test
-    fun sessionRestarts_IfItTimesOutWithPendingEvents() =
-        testScope.runTest {
-            startSession()
+    fun sessionAddsTimeOnExternalEvents() = testScope.runTest {
+        startSession()
 
-            testSession.uiTree.receive()
-
-            // Send an event that sends another event, and block until the timeout is reached so
-            // that
-            // the second event cannot be processed by this session.
-            testSession.sendRunnableEvent {
-                testSession.sendEmptyEvent()
-                delay(INFINITE)
-            }
-
-            // When restarting, the worker state remains RUNNING, so we run out the timer on the
-            // first
-            // session so that it restarts.
-            delay(initialTimeout + 1.milliseconds)
-
-            assertThat(testSession.isOpen).isFalse()
-
-            // Verify that a new session is running, with the event that was unprocessed.
-            GlanceSessionManager.runWithLock {
-                val newSession = assertNotNull(getSession(testSession.key))
-                assertThat(isSessionRunning(context, testSession.key)).isTrue()
-                assertThat(newSession).isNotSameInstanceAs(testSession)
-                assertThat(newSession.receiveAllPendingEvents())
-                    .containsExactly(TestSession.EmptyEvent)
-            }
-        }
-
-    @Test
-    fun sessionDoesNotRestart_IfItTimesOutWithNoPendingEvents() =
-        testScope.runTest {
-            startSession()
-
-            testSession.uiTree.receive()
-
-            // Send event that blocks until the timeout is reached.
-            testSession.sendRunnableEvent { delay(INFINITE) }
+        // Timeout starts after first successful composition, and is incremented every time an
+        // event is received.
+        testSession.uiTree.receive()
+        val timeout = testTimeSource.measureTime {
+            delay(initialTimeout - 1.milliseconds)
+            GlanceSessionManager.runWithLock { testSession.sendEmptyEvent() }
             waitForWorkerTimeout()
-
-            assertThat(testSession.isOpen).isFalse()
-
-            // Verify that a new session has not been enqueued.
-            GlanceSessionManager.runWithLock {
-                assertThat(isSessionRunning(context, testSession.key)).isFalse()
-                assertThat(getSession(testSession.key)).isNull()
-            }
         }
+        assertThat(timeout).isEqualTo(initialTimeout + additionalTime)
+    }
 
     @Test
-    fun sessionDoesNotRestart_IfItStopsDueToError() =
-        testScope.runTest {
-            startSession()
+    fun sessionDoesNotAddTimeOnExternalEventsIfThereIsEnoughTimeLeft() = testScope.runTest {
+        startSession()
 
-            testSession.uiTree.receive()
-
-            // Trigger an error, and wait for the worker to close
-            testSession.triggerCompositionError()
-            waitForWorkerFailure()
-
-            assertThat(testSession.isOpen).isFalse()
-
-            // Verify that a new session has not been enqueued.
-            GlanceSessionManager.runWithLock {
-                assertThat(isSessionRunning(context, testSession.key)).isFalse()
-                assertThat(getSession(testSession.key)).isNull()
-            }
+        // Timeout starts after first successful composition. There is still enough time when
+        // events
+        // arrive, so the deadline will not be extended.
+        testSession.uiTree.receive()
+        val timeout = testTimeSource.measureTime {
+            repeat(5) { testSession.sendEmptyEvent() }
+            waitForWorkerTimeout()
         }
+        assertThat(timeout).isEqualTo(initialTimeout)
+    }
 
     @Test
-    fun sessionDoesNotRestart_IfItIsClosed() =
-        testScope.runTest {
-            startSession()
+    fun sessionRestarts_IfItTimesOutWithPendingEvents() = testScope.runTest {
+        startSession()
 
-            testSession.uiTree.receive()
+        testSession.uiTree.receive()
 
-            GlanceSessionManager.runWithLock { closeSession(testSession.key) }
-            waitForWorkerSuccess()
-
-            // Verify that a new session has not been enqueued.
-            GlanceSessionManager.runWithLock {
-                assertThat(isSessionRunning(context, testSession.key)).isFalse()
-                assertThat(getSession(testSession.key)).isNull()
-            }
+        // Send an event that sends another event, and block until the timeout is reached so
+        // that
+        // the second event cannot be processed by this session.
+        testSession.sendRunnableEvent {
+            testSession.sendEmptyEvent()
+            delay(INFINITE)
         }
+
+        // When restarting, the worker state remains RUNNING, so we run out the timer on the
+        // first
+        // session so that it restarts.
+        delay(initialTimeout + 1.milliseconds)
+
+        assertThat(testSession.isOpen).isFalse()
+
+        // Verify that a new session is running, with the event that was unprocessed.
+        GlanceSessionManager.runWithLock {
+            val newSession = assertNotNull(getSession(testSession.key))
+            assertThat(isSessionRunning(context, testSession.key)).isTrue()
+            assertThat(newSession).isNotSameInstanceAs(testSession)
+            assertThat(newSession.receiveAllPendingEvents()).containsExactly(TestSession.EmptyEvent)
+        }
+    }
+
+    @Test
+    fun sessionDoesNotRestart_IfItTimesOutWithNoPendingEvents() = testScope.runTest {
+        startSession()
+
+        testSession.uiTree.receive()
+
+        // Send event that blocks until the timeout is reached.
+        testSession.sendRunnableEvent { delay(INFINITE) }
+        waitForWorkerTimeout()
+
+        assertThat(testSession.isOpen).isFalse()
+
+        // Verify that a new session has not been enqueued.
+        GlanceSessionManager.runWithLock {
+            assertThat(isSessionRunning(context, testSession.key)).isFalse()
+            assertThat(getSession(testSession.key)).isNull()
+        }
+    }
+
+    @Test
+    fun sessionDoesNotRestart_IfItStopsDueToError() = testScope.runTest {
+        startSession()
+
+        testSession.uiTree.receive()
+
+        // Trigger an error, and wait for the worker to close
+        testSession.triggerCompositionError()
+        waitForWorkerFailure()
+
+        assertThat(testSession.isOpen).isFalse()
+
+        // Verify that a new session has not been enqueued.
+        GlanceSessionManager.runWithLock {
+            assertThat(isSessionRunning(context, testSession.key)).isFalse()
+            assertThat(getSession(testSession.key)).isNull()
+        }
+    }
+
+    @Test
+    fun sessionDoesNotRestart_IfItIsClosed() = testScope.runTest {
+        startSession()
+
+        testSession.uiTree.receive()
+
+        GlanceSessionManager.runWithLock { closeSession(testSession.key) }
+        waitForWorkerSuccess()
+
+        // Verify that a new session has not been enqueued.
+        GlanceSessionManager.runWithLock {
+            assertThat(isSessionRunning(context, testSession.key)).isFalse()
+            assertThat(getSession(testSession.key)).isNull()
+        }
+    }
 
     private suspend fun startSession() {
         GlanceSessionManager.runWithLock {

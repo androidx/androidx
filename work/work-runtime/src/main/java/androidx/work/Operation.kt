@@ -42,21 +42,20 @@ internal fun launchOperation(
     block: () -> Unit,
 ): Operation {
     val liveData = MutableLiveData<Operation.State>(Operation.IN_PROGRESS)
-    val future =
-        CallbackToFutureAdapter.getFuture { completer ->
-            executor.execute {
-                tracer.traced(label) {
-                    try {
-                        block()
-                        liveData.postValue(Operation.SUCCESS)
-                        completer.set(Operation.SUCCESS)
-                    } catch (t: Throwable) {
-                        liveData.postValue(Operation.State.FAILURE(t))
-                        completer.setException(t)
-                    }
+    val future = CallbackToFutureAdapter.getFuture { completer ->
+        executor.execute {
+            tracer.traced(label) {
+                try {
+                    block()
+                    liveData.postValue(Operation.SUCCESS)
+                    completer.set(Operation.SUCCESS)
+                } catch (t: Throwable) {
+                    liveData.postValue(Operation.State.FAILURE(t))
+                    completer.setException(t)
                 }
             }
         }
+    }
     return OperationImpl(liveData, future)
 }
 

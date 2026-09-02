@@ -479,11 +479,10 @@ class SurfaceEdgeTest {
     fun setSourceSurfaceFutureAndProvide_surfaceIsPropagated() {
         // Arrange: set a ListenableFuture<Surface> as the source.
         var completer: CallbackToFutureAdapter.Completer<Surface>? = null
-        val surfaceFuture =
-            CallbackToFutureAdapter.getFuture {
-                completer = it
-                return@getFuture null
-            }
+        val surfaceFuture = CallbackToFutureAdapter.getFuture {
+            completer = it
+            return@getFuture null
+        }
         surfaceEdge.setProvider(
             object : DeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE) {
                 override fun provideSurface(): ListenableFuture<Surface> {

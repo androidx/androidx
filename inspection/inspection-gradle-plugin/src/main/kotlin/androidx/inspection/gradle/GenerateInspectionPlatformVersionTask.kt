@@ -58,11 +58,10 @@ abstract class GenerateInspectionPlatformVersionTask : DefaultTask() {
     @Input
     fun getVersion(): String {
         val artifacts = compileClasspath.artifacts
-        val projectDep =
-            artifacts.any {
-                (it.id.componentIdentifier as? ProjectComponentIdentifier)?.projectPath ==
-                    ":inspection:inspection"
-            }
+        val projectDep = artifacts.any {
+            (it.id.componentIdentifier as? ProjectComponentIdentifier)?.projectPath ==
+                ":inspection:inspection"
+        }
 
         val prebuiltVersion =
             artifacts

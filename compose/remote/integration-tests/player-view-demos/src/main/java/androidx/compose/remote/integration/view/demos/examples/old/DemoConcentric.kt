@@ -141,7 +141,13 @@ fun concentric(): RemoteComposeContext {
                     val secondsAngle =
                         floatExpression(
                             exp(RemoteContext.FLOAT_TIME_IN_SEC, 60f, MOD, -6f, MUL),
-                            anim(1f, RemoteComposeBuffer.EASING_CUBIC_LINEAR, null, Float.NaN, 360f),
+                            anim(
+                                1f,
+                                RemoteComposeBuffer.EASING_CUBIC_LINEAR,
+                                null,
+                                Float.NaN,
+                                360f,
+                            ),
                         )
                     val minuteAngle =
                         floatExpression(

@@ -236,28 +236,28 @@ open class FeatureGroupTestBase(
 
         coroutineScope {
             map {
-                    async {
-                        when {
-                            it == HDR_HLG10 -> {
-                                // Reaching this stage before API 33 means query API didn't work
-                                // correctly
-                                require(Build.VERSION.SDK_INT >= 33)
-                                verifyHlg10Hdr(useCases, cameraInfo)
-                            }
-                            it == FPS_60 -> verify60Fps(cameraInfo)
-                            it == PREVIEW_STABILIZATION ->
-                                verifyPreviewStabilization(cameraInfo as CameraInfoInternal)
-                            it == IMAGE_ULTRA_HDR -> {
-                                // Reaching this stage before API 34 means query API didn't work
-                                // correctly
-                                require(Build.VERSION.SDK_INT >= 34)
-                                verifyUltraHdr(useCases, cameraInfo)
-                            }
-                            it.featureTypeInternal == FeatureTypeInternal.RECORDING_QUALITY ->
-                                verifyRecordingQuality(useCases, it, aspectRatio)
+                async {
+                    when {
+                        it == HDR_HLG10 -> {
+                            // Reaching this stage before API 33 means query API didn't work
+                            // correctly
+                            require(Build.VERSION.SDK_INT >= 33)
+                            verifyHlg10Hdr(useCases, cameraInfo)
                         }
+                        it == FPS_60 -> verify60Fps(cameraInfo)
+                        it == PREVIEW_STABILIZATION ->
+                            verifyPreviewStabilization(cameraInfo as CameraInfoInternal)
+                        it == IMAGE_ULTRA_HDR -> {
+                            // Reaching this stage before API 34 means query API didn't work
+                            // correctly
+                            require(Build.VERSION.SDK_INT >= 34)
+                            verifyUltraHdr(useCases, cameraInfo)
+                        }
+                        it.featureTypeInternal == FeatureTypeInternal.RECORDING_QUALITY ->
+                            verifyRecordingQuality(useCases, it, aspectRatio)
                     }
                 }
+            }
                 .awaitAll()
         }
     }
@@ -304,27 +304,26 @@ open class FeatureGroupTestBase(
         val startTime = AtomicLong(0L)
         val currentFps = AtomicReference(0.0)
 
-        val result =
-            sessionCaptureCallback.verify { _, captureResult ->
-                val currentFrame = captureResult.frameNumber
-                if (lastFrameNumber.getAndSet(currentFrame) != currentFrame) {
-                    frameCount.incrementAndGet()
-                }
-
-                val currentTime = SystemClock.elapsedRealtime()
-                if (startTime.compareAndSet(0L, currentTime)) {
-                    // Start counting from the first observed frame in the window
-                    frameCount.set(0)
-                }
-
-                val timeDiff = currentTime - startTime.get()
-                if (timeDiff >= 3000) { // Calculate over a 3-second window
-                    currentFps.set((frameCount.get() * 1000.0) / timeDiff)
-                    true // Complete verification
-                } else {
-                    false
-                }
+        val result = sessionCaptureCallback.verify { _, captureResult ->
+            val currentFrame = captureResult.frameNumber
+            if (lastFrameNumber.getAndSet(currentFrame) != currentFrame) {
+                frameCount.incrementAndGet()
             }
+
+            val currentTime = SystemClock.elapsedRealtime()
+            if (startTime.compareAndSet(0L, currentTime)) {
+                // Start counting from the first observed frame in the window
+                frameCount.set(0)
+            }
+
+            val timeDiff = currentTime - startTime.get()
+            if (timeDiff >= 3000) { // Calculate over a 3-second window
+                currentFps.set((frameCount.get() * 1000.0) / timeDiff)
+                true // Complete verification
+            } else {
+                false
+            }
+        }
 
         val isCompleted = result.awaitUntil(timeoutMillis = 5000)
         assertWithMessage("Test failed to complete FPS verification in time")
@@ -411,11 +410,10 @@ open class FeatureGroupTestBase(
         expectedValue: T,
     ) {
         var lastSubmittedValue: T? = null
-        val result =
-            sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[captureKey]?.let { lastSubmittedValue = it }
-                captureRequest[captureKey] == expectedValue
-            }
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[captureKey]?.let { lastSubmittedValue = it }
+            captureRequest[captureKey] == expectedValue
+        }
 
         val isCompleted = result.awaitUntil(timeoutMillis = 10000)
         assertWithMessage(

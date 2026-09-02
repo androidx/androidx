@@ -33,14 +33,14 @@ class AlignmentCombineTest {
     private val space = IntSize(200, 200)
 
     /** A custom, non-[BiasAlignment] horizontal alignment implementation. */
-    private fun inverseHorizontal(bias: Float) =
-        Alignment.Horizontal { size, space, ld ->
-            BiasAlignment.Horizontal(-bias).align(size, space, ld)
-        }
+    private fun inverseHorizontal(bias: Float) = Alignment.Horizontal { size, space, ld ->
+        BiasAlignment.Horizontal(-bias).align(size, space, ld)
+    }
 
     /** A custom, non-[BiasAlignment] vertical alignment implementation. */
-    private fun inverseVertical(bias: Float) =
-        Alignment.Vertical { size, space -> BiasAlignment.Vertical(-bias).align(size, space) }
+    private fun inverseVertical(bias: Float) = Alignment.Vertical { size, space ->
+        BiasAlignment.Vertical(-bias).align(size, space)
+    }
 
     @Test
     fun testCombineHorizontalAndVertical() {

@@ -457,15 +457,14 @@ class LazyColumnTest(val useLookaheadScope: Boolean) {
     fun nestedLazyRowChildrenAreReused() {
         lateinit var state: LazyListState
         var remeasuresCount = 0
-        val measureModifier =
-            Modifier.layout { _, constraints ->
-                if (!isLookingAhead) {
-                    // Track the post-lookahead measurement count to avoid double counting when
-                    // lookahead is used.
-                    remeasuresCount++
-                }
-                layout(constraints.maxWidth, constraints.maxHeight) {}
+        val measureModifier = Modifier.layout { _, constraints ->
+            if (!isLookingAhead) {
+                // Track the post-lookahead measurement count to avoid double counting when
+                // lookahead is used.
+                remeasuresCount++
             }
+            layout(constraints.maxWidth, constraints.maxHeight) {}
+        }
         rule.setContentWithTestViewConfiguration {
             state = rememberLazyListState()
             LazyColumn(Modifier.fillMaxWidth().height(10.dp), state = state) {
@@ -494,15 +493,14 @@ class LazyColumnTest(val useLookaheadScope: Boolean) {
     fun nestedLazyRowChildrenWithDifferentContentTypeAreReused() {
         lateinit var state: LazyListState
         var remeasuresCount = 0
-        val measureModifier =
-            Modifier.layout { _, constraints ->
-                if (!isLookingAhead) {
-                    // Track the post-lookahead measurement count to avoid double counting when
-                    // lookahead is used.
-                    remeasuresCount++
-                }
-                layout(constraints.maxWidth, constraints.maxHeight) {}
+        val measureModifier = Modifier.layout { _, constraints ->
+            if (!isLookingAhead) {
+                // Track the post-lookahead measurement count to avoid double counting when
+                // lookahead is used.
+                remeasuresCount++
             }
+            layout(constraints.maxWidth, constraints.maxHeight) {}
+        }
         rule.setContentWithTestViewConfiguration {
             state = rememberLazyListState()
             LazyColumn(Modifier.fillMaxWidth().height(10.dp), state = state) {

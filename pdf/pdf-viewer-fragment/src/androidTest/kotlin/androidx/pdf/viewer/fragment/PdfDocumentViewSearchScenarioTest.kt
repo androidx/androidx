@@ -577,10 +577,9 @@ class PdfDocumentViewSearchScenarioTest {
         advanceUntilIdle()
 
         // Assert that we NEVER actually started searching for "a"
-        val searchedForA =
-            emittedStates.any {
-                it is SearchViewUiState.Active && it.query == "a" && it.isSearching
-            }
+        val searchedForA = emittedStates.any {
+            it is SearchViewUiState.Active && it.query == "a" && it.isSearching
+        }
         assertFalse(searchedForA)
 
         val activeState = pdfDocumentViewModel.searchViewUiState.value as SearchViewUiState.Active

@@ -136,10 +136,9 @@ internal fun SearchToolBarLayout(
                 filled = SearchToolBarLayoutSize.canUseFilledButtons(),
             )
     }
-    val trailingButtonItems: List<@Composable () -> Unit> =
-        trailingButtons.map {
-            { TrailingButton(button = it, filled = SearchToolBarLayoutSize.canUseFilledButtons()) }
-        }
+    val trailingButtonItems: List<@Composable () -> Unit> = trailingButtons.map {
+        { TrailingButton(button = it, filled = SearchToolBarLayoutSize.canUseFilledButtons()) }
+    }
 
     Scaffold(
         modifier = GlanceModifier.padding(vertical = SearchToolBarLayoutDimens.widgetPadding),

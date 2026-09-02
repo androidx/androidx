@@ -74,12 +74,11 @@ constructor(private val execOperations: ExecOperations) : DefaultTask() {
     }
 
     private fun requireXcodeBuild() {
-        val result =
-            execOperations.exec { spec ->
-                spec.commandLine = listOf("which", "xcodebuild")
-                // Ignore exit value here to return a better exception message
-                spec.isIgnoreExitValue = true
-            }
+        val result = execOperations.exec { spec ->
+            spec.commandLine = listOf("which", "xcodebuild")
+            // Ignore exit value here to return a better exception message
+            spec.isIgnoreExitValue = true
+        }
         require(result.exitValue == 0) { "xcodebuild is missing on this machine." }
     }
 }

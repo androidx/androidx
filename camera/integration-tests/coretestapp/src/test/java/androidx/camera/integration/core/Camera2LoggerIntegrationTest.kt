@@ -125,12 +125,9 @@ class Camera2LoggerIntegrationTest {
 
         // Assert: Check that the specific integration-layer log is PRESENT
         val allLogs = ShadowLog.getLogs()
-        val attachLogFound =
-            allLogs.any {
-                it.tag == CXCP_TAG &&
-                    it.type == Log.DEBUG &&
-                    it.msg.contains(INTEGRATION_LOG_MARKER)
-            }
+        val attachLogFound = allLogs.any {
+            it.tag == CXCP_TAG && it.type == Log.DEBUG && it.msg.contains(INTEGRATION_LOG_MARKER)
+        }
 
         assertWithMessage("Expected integration-layer '$INTEGRATION_LOG_MARKER' log to be visible")
             .that(attachLogFound)
@@ -149,12 +146,9 @@ class Camera2LoggerIntegrationTest {
 
         // Assert: Check that the specific integration-layer log is ABSENT
         val allLogs = ShadowLog.getLogs()
-        val attachLogFound =
-            allLogs.any {
-                it.tag == CXCP_TAG &&
-                    it.type == Log.DEBUG &&
-                    it.msg.contains(INTEGRATION_LOG_MARKER)
-            }
+        val attachLogFound = allLogs.any {
+            it.tag == CXCP_TAG && it.type == Log.DEBUG && it.msg.contains(INTEGRATION_LOG_MARKER)
+        }
 
         assertWithMessage("Expected integration-layer '$INTEGRATION_LOG_MARKER' log to be hidden")
             .that(attachLogFound)
@@ -174,12 +168,9 @@ class Camera2LoggerIntegrationTest {
         // Assert: Check that the specific integration-layer log is PRESENT
         // The default level is DEBUG, so DEBUG logs should be visible.
         val allLogs = ShadowLog.getLogs()
-        val attachLogFound =
-            allLogs.any {
-                it.tag == CXCP_TAG &&
-                    it.type == Log.DEBUG &&
-                    it.msg.contains(INTEGRATION_LOG_MARKER)
-            }
+        val attachLogFound = allLogs.any {
+            it.tag == CXCP_TAG && it.type == Log.DEBUG && it.msg.contains(INTEGRATION_LOG_MARKER)
+        }
 
         assertWithMessage(
                 "Expected integration-layer '$INTEGRATION_LOG_MARKER' DEBUG log to be visible by default"

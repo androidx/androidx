@@ -916,8 +916,8 @@ public fun ScreenScaffold(
                 edgeButtonHeightAnimationThresholdPx,
             ) {
                 snapshotFlow {
-                        Pair(scrollInfoProvider.isScrollInProgress, currentEdgeButtonTargetHeight)
-                    }
+                    Pair(scrollInfoProvider.isScrollInProgress, currentEdgeButtonTargetHeight)
+                }
                     .collectLatest { (isScrollInProgress, edgeButtonTargetHeight) ->
                         if (isScrollInProgress) {
                             // During a scroll, we add no animations, just keep the animated height

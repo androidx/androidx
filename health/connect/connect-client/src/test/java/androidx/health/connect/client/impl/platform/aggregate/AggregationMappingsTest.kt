@@ -59,12 +59,11 @@ class AggregationMappingsTest {
     @Test
     fun allAggregateMetrics_areAddedToAggregationMaps() {
         val recordClasses = RECORDS_CLASS_NAME_MAP.keys
-        val aggregateMetrics =
-            recordClasses.flatMap { recordClass ->
-                recordClass.java.fields
-                    .filter { it.isAggregateMetric() }
-                    .map { it.get(null) as AggregateMetric<*> }
-            }
+        val aggregateMetrics = recordClasses.flatMap { recordClass ->
+            recordClass.java.fields
+                .filter { it.isAggregateMetric() }
+                .map { it.get(null) as AggregateMetric<*> }
+        }
 
         val allMappedMetrics = allAggregationMaps.flatMap { it.keys }
         val missingMetrics = aggregateMetrics.filter { !allMappedMetrics.contains(it) }

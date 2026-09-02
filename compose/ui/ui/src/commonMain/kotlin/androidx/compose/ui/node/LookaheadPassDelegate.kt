@@ -210,7 +210,9 @@ internal class LookaheadPassDelegate(
         private set
 
     private inline fun forEachChildDelegate(block: (LookaheadPassDelegate) -> Unit) =
-        layoutNode.forEachChild { block(it.layoutDelegate.lookaheadPassDelegate!!) }
+        layoutNode.forEachChild {
+            block(it.layoutDelegate.lookaheadPassDelegate!!)
+        }
 
     private val layoutChildrenBlock = {
         clearPlaceOrder()

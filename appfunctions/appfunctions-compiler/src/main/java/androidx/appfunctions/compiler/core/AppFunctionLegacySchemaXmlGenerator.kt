@@ -70,12 +70,11 @@ class AppFunctionLegacySchemaXmlGenerator(
         resolvedAnnotatedSerializableProxies: ResolvedAnnotatedSerializableProxies,
         exportLocation: String?,
     ) {
-        val appFunctionMetadataList =
-            appFunctionsByClass.flatMap { annotatedAppFunctions ->
-                annotatedAppFunctions
-                    .createAppFunctionMetadataList(resolvedAnnotatedSerializableProxies)
-                    .map { it.toAppFunctionMetadataDocument() }
-            }
+        val appFunctionMetadataList = appFunctionsByClass.flatMap { annotatedAppFunctions ->
+            annotatedAppFunctions
+                .createAppFunctionMetadataList(resolvedAnnotatedSerializableProxies)
+                .map { it.toAppFunctionMetadataDocument() }
+        }
         writeXmlFile(
             appFunctionMetadataList,
             Dependencies(

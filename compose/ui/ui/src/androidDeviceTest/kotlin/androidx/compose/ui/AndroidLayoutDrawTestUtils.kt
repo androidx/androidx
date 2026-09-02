@@ -240,13 +240,12 @@ fun SimpleRow(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Layout(modifier = modifier, content = content) { measurables, constraints ->
         var width = 0
         var height = 0
-        val placeables =
-            measurables.map { measurable ->
-                measurable.measure(constraints.copy(maxWidth = constraints.maxWidth - width)).also {
-                    width += it.width
-                    height = max(height, it.height)
-                }
+        val placeables = measurables.map { measurable ->
+            measurable.measure(constraints.copy(maxWidth = constraints.maxWidth - width)).also {
+                width += it.width
+                height = max(height, it.height)
             }
+        }
         layout(width, height) {
             var currentWidth = 0
             placeables.forEach {
@@ -422,11 +421,10 @@ fun AndroidComposeTestRule<*, *>.waitAndScreenShot(
     srcRect.offset(offset[0], offset[1])
     val latch = CountDownLatch(1)
     var copyResult = 0
-    val onCopyFinished =
-        PixelCopy.OnPixelCopyFinishedListener { result ->
-            copyResult = result
-            latch.countDown()
-        }
+    val onCopyFinished = PixelCopy.OnPixelCopyFinishedListener { result ->
+        copyResult = result
+        latch.countDown()
+    }
     PixelCopy.request(activity.window, srcRect, dest, onCopyFinished, handler!!)
     assertTrue("Pixel copy latch timed out", latch.await(1, TimeUnit.SECONDS))
     assertEquals(PixelCopy.SUCCESS, copyResult)
@@ -496,11 +494,10 @@ fun androidx.test.rule.ActivityTestRule<*>.waitAndScreenShot(
     srcRect.offset(offset[0], offset[1])
     val latch = CountDownLatch(1)
     var copyResult = 0
-    val onCopyFinished =
-        PixelCopy.OnPixelCopyFinishedListener { result ->
-            copyResult = result
-            latch.countDown()
-        }
+    val onCopyFinished = PixelCopy.OnPixelCopyFinishedListener { result ->
+        copyResult = result
+        latch.countDown()
+    }
     PixelCopy.request(activity.window, srcRect, dest, onCopyFinished, handler!!)
     assertTrue("Pixel copy latch timed out", latch.await(1, TimeUnit.SECONDS))
     assertEquals(PixelCopy.SUCCESS, copyResult)

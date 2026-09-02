@@ -57,7 +57,10 @@ class ArgumentInjectingApplication : Application() {
                 // TODO: consider moving default directory to files dir.
                 putString(
                     "additionalTestOutputDir",
-                    InstrumentationRegistry.getInstrumentation().targetContext.filesDir.absolutePath,
+                    InstrumentationRegistry.getInstrumentation()
+                        .targetContext
+                        .filesDir
+                        .absolutePath,
                 )
                 // these extra payload values are validated in the ResultWriterTest to ensure
                 // they are passed into the output.

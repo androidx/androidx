@@ -108,10 +108,9 @@ internal class SyntheticProcessorImpl(handlers: List<(XTestInvocation) -> Unit>)
         }
         val handler = nextRunHandlers.removeAt(0)
         invocationInstances.add(invocation)
-        result =
-            kotlin.runCatching {
-                handler(invocation)
-                invocation.dispose()
-            }
+        result = kotlin.runCatching {
+            handler(invocation)
+            invocation.dispose()
+        }
     }
 }

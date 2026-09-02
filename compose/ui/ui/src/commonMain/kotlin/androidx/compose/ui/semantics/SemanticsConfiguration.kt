@@ -86,8 +86,9 @@ public class SemanticsConfiguration :
         return props.containsKey(key)
     }
 
-    internal fun containsImportantForAccessibility() =
-        props.any { key, _ -> key.isImportantForAccessibility }
+    internal fun containsImportantForAccessibility() = props.any { key, _ ->
+        key.isImportantForAccessibility
+    }
 
     /**
      * Whether the semantic information provided by the owning component and all of its descendants

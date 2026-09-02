@@ -367,11 +367,10 @@ class MemoryLeakTest {
 
         private suspend fun waitForIdle() {
             suspendCancellableCoroutine { c ->
-                val idleHandler =
-                    MessageQueue.IdleHandler {
-                        c.resumeWith(Result.success(Unit))
-                        false
-                    }
+                val idleHandler = MessageQueue.IdleHandler {
+                    c.resumeWith(Result.success(Unit))
+                    false
+                }
                 if (Looper.getMainLooper().queue.isIdle) {
                     c.resumeWith(Result.success(Unit))
                 } else {

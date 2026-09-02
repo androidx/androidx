@@ -1989,17 +1989,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             currentSelection !is ImageSelection && selectionActionModeCallback?.actionMode == null
         ) {
             val previousJob = selectionMenuJob
-            selectionMenuJob =
-                backgroundScope.launch {
-                    previousJob?.cancelAndJoin()
-                    val menuItems =
-                        selectionMenuManager.getSelectionMenuItems(localCurrentSelection)
-                    selectionActionModeCallback =
-                        SelectionActionModeCallback(this@PdfView, menuItems)
-                    withContext(mainDispatcher) {
-                        startActionMode(selectionActionModeCallback, ActionMode.TYPE_FLOATING)
-                    }
+            selectionMenuJob = backgroundScope.launch {
+                previousJob?.cancelAndJoin()
+                val menuItems = selectionMenuManager.getSelectionMenuItems(localCurrentSelection)
+                selectionActionModeCallback = SelectionActionModeCallback(this@PdfView, menuItems)
+                withContext(mainDispatcher) {
+                    startActionMode(selectionActionModeCallback, ActionMode.TYPE_FLOATING)
                 }
+            }
         }
     }
 

@@ -27,13 +27,13 @@ internal class AndroidStringDelegate : PlatformStringDelegate {
     override fun toLowerCase(string: String, locale: Locale): String =
         string.lowercase(locale.platformLocale)
 
-    override fun capitalize(string: String, locale: Locale): String =
-        string.replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(locale.platformLocale) else it.toString()
-        }
+    override fun capitalize(string: String, locale: Locale): String = string.replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(locale.platformLocale) else it.toString()
+    }
 
-    override fun decapitalize(string: String, locale: Locale): String =
-        string.replaceFirstChar { it.lowercase(locale.platformLocale) }
+    override fun decapitalize(string: String, locale: Locale): String = string.replaceFirstChar {
+        it.lowercase(locale.platformLocale)
+    }
 }
 
 internal actual fun ActualStringDelegate(): PlatformStringDelegate = AndroidStringDelegate()

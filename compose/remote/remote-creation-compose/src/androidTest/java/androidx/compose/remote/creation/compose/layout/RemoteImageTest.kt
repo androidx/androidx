@@ -177,7 +177,8 @@ class RemoteImageTest {
                 val dummyImage =
                     rememberNamedRemoteImageBitmap(
                         name = "dummy",
-                        url = "android.resource://androidx.compose.remote.foundation/drawable/dummy",
+                        url =
+                            "android.resource://androidx.compose.remote.foundation/drawable/dummy",
                     )
                 RemoteImage(
                     dummyImage,

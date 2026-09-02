@@ -67,13 +67,12 @@ class PassthroughConnectionPoolTest {
             Room.inMemoryDatabaseBuilder<TestDatabase>(instrumentation.targetContext)
                 .setDriver(AndroidSQLiteDriver())
                 .build()
-        val connectionOne =
-            db.useReaderConnection { connectionOne ->
-                db.useReaderConnection { reusedConnection ->
-                    assertThat(connectionOne).isSameInstanceAs(reusedConnection)
-                }
-                connectionOne
+        val connectionOne = db.useReaderConnection { connectionOne ->
+            db.useReaderConnection { reusedConnection ->
+                assertThat(connectionOne).isSameInstanceAs(reusedConnection)
             }
+            connectionOne
+        }
         val connectionTwo = db.useReaderConnection { it }
         assertThat(connectionOne).isNotSameInstanceAs(connectionTwo)
         db.close()

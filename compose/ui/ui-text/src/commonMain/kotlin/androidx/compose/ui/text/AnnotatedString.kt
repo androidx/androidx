@@ -1003,10 +1003,9 @@ internal constructor(
         internal fun flatMapAnnotations(
             transform: (Range<out Annotation>) -> List<Range<out Annotation>>
         ) {
-            val replacedAnnotations =
-                annotations.fastFlatMap { annotation ->
-                    transform(annotation.toRange()).fastMap { MutableRange.fromRange(it) }
-                }
+            val replacedAnnotations = annotations.fastFlatMap { annotation ->
+                transform(annotation.toRange()).fastMap { MutableRange.fromRange(it) }
+            }
             annotations.clear()
             annotations.addAll(replacedAnnotations)
         }

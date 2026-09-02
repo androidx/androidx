@@ -308,11 +308,11 @@ internal class AppearanceNode(var block: AppearanceScope.() -> Unit) :
                 brush = brush,
                 borderLayerProvider
                     ?: {
-                            borderLayer
-                                ?: requireGraphicsContext().createGraphicsLayer().also {
-                                    borderLayer = it
-                                }
-                        }
+                        borderLayer
+                            ?: requireGraphicsContext().createGraphicsLayer().also {
+                                borderLayer = it
+                            }
+                    }
                         .also { borderLayerProvider = it },
                 outline = outline,
             )

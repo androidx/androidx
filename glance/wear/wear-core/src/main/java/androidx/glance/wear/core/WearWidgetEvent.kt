@@ -81,14 +81,12 @@ public class WearWidgetEventBatch(public val events: List<WearWidgetEvent>) {
 
     /** Convert this request to [WearWidgetEventBatchParcel]. */
     public fun toParcel(): WearWidgetEventBatchParcel {
-        val protoEvents =
-            events.mapNotNull { event ->
-                when (event) {
-                    is WearWidgetVisibleEvent ->
-                        WearWidgetEventProto(visible_event = event.toProto())
-                    else -> null
-                }
+        val protoEvents = events.mapNotNull { event ->
+            when (event) {
+                is WearWidgetVisibleEvent -> WearWidgetEventProto(visible_event = event.toProto())
+                else -> null
             }
+        }
         val batchProto = WearWidgetEventBatchProto(events = protoEvents)
         return WearWidgetEventBatchParcel().apply { payload = batchProto.encode() }
     }

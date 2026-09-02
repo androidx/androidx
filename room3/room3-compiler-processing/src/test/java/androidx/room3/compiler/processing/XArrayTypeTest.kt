@@ -286,7 +286,9 @@ class XArrayTypeTest {
                     Container(
                         "boxedShortArray",
                         JArrayTypeName.of(JTypeName.SHORT.box()),
-                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.SHORT),
+                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(
+                            com.squareup.kotlinpoet.SHORT
+                        ),
                     ),
                     Container(
                         "boxedIntArray",
@@ -306,7 +308,9 @@ class XArrayTypeTest {
                     Container(
                         "boxedFloatArray",
                         JArrayTypeName.of(JTypeName.FLOAT.box()),
-                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(com.squareup.kotlinpoet.FLOAT),
+                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(
+                            com.squareup.kotlinpoet.FLOAT
+                        ),
                     ),
                     Container(
                         "boxedDoubleArray",

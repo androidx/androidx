@@ -543,8 +543,11 @@ internal fun WorkSpecDao.getWorkInfos(ids: List<String>): List<WorkInfo> =
 
 internal fun Flow<List<WorkSpec.WorkInfoPojo>>.dedup(
     dispatcher: CoroutineDispatcher
-): Flow<List<WorkInfo>> =
-    map { list -> list.map { pojo -> pojo.toWorkInfo() } }.distinctUntilChanged().flowOn(dispatcher)
+): Flow<List<WorkInfo>> = map { list ->
+    list.map { pojo -> pojo.toWorkInfo() }
+}
+    .distinctUntilChanged()
+    .flowOn(dispatcher)
 
 private const val WORK_INFO_COLUMNS =
     "id, state, output, run_attempt_count, generation" +

@@ -68,7 +68,10 @@ private val dialogDemos =
             Dialog(
                 onDismissRequest = onNavigateUp,
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = true),
+                    DialogProperties(
+                        usePlatformDefaultWidth = false,
+                        decorFitsSystemWindows = true,
+                    ),
             ) {
                 SingleTextFieldDialog()
             }
@@ -77,7 +80,10 @@ private val dialogDemos =
             Dialog(
                 onDismissRequest = onNavigateUp,
                 properties =
-                    DialogProperties(usePlatformDefaultWidth = true, decorFitsSystemWindows = false),
+                    DialogProperties(
+                        usePlatformDefaultWidth = true,
+                        decorFitsSystemWindows = false,
+                    ),
             ) {
                 SingleTextFieldDialog()
             }

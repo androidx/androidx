@@ -50,20 +50,18 @@ internal class DefaultSpecialEffectsController(container: ViewGroup) :
         }
         // Shared element transitions are done between the first fragment leaving and
         // the last fragment coming in. Finding these operations is the first priority
-        val firstOut =
-            operations.firstOrNull { operation ->
-                val currentState = operation.fragment.mView.asOperationState()
-                // The firstOut Operation is the first Operation moving from VISIBLE
-                currentState == Operation.State.VISIBLE &&
-                    operation.finalState != Operation.State.VISIBLE
-            }
-        val lastIn =
-            operations.lastOrNull { operation ->
-                val currentState = operation.fragment.mView.asOperationState()
-                // The last Operation that moves to VISIBLE is the lastIn Operation
-                currentState != Operation.State.VISIBLE &&
-                    operation.finalState == Operation.State.VISIBLE
-            }
+        val firstOut = operations.firstOrNull { operation ->
+            val currentState = operation.fragment.mView.asOperationState()
+            // The firstOut Operation is the first Operation moving from VISIBLE
+            currentState == Operation.State.VISIBLE &&
+                operation.finalState != Operation.State.VISIBLE
+        }
+        val lastIn = operations.lastOrNull { operation ->
+            val currentState = operation.fragment.mView.asOperationState()
+            // The last Operation that moves to VISIBLE is the lastIn Operation
+            currentState != Operation.State.VISIBLE &&
+                operation.finalState == Operation.State.VISIBLE
+        }
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(FragmentManager.TAG, "Executing operations from $firstOut to $lastIn")
         }

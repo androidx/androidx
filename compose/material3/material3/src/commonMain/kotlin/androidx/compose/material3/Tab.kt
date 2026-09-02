@@ -99,16 +99,13 @@ public fun Tab(
     unselectedContentColor: Color = selectedContentColor,
     interactionSource: MutableInteractionSource? = null,
 ) {
-    val styledText: @Composable (() -> Unit)? =
-        text?.let {
-            @Composable {
-                val style =
-                    PrimaryNavigationTabTokens.LabelTextFont.value.copy(
-                        textAlign = TextAlign.Center
-                    )
-                ProvideTextStyle(style, content = text)
-            }
+    val styledText: @Composable (() -> Unit)? = text?.let {
+        @Composable {
+            val style =
+                PrimaryNavigationTabTokens.LabelTextFont.value.copy(textAlign = TextAlign.Center)
+            ProvideTextStyle(style, content = text)
         }
+    }
     Tab(
         modifier = modifier.badgeBounds(),
         selected = selected,
@@ -307,20 +304,20 @@ private fun TabBaselineLayout(text: @Composable (() -> Unit)?, icon: @Composable
             Box(Modifier.layoutId("icon")) { icon() }
         }
     }) { measurables, constraints ->
-        val textPlaceable =
-            text?.let {
-                measurables
-                    .fastFirst { it.layoutId == "text" }
-                    .measure(
-                        // Measure with loose constraints for height as we don't want the text to
-                        // take up more
-                        // space than it needs
-                        constraints.copy(minHeight = 0)
-                    )
-            }
+        val textPlaceable = text?.let {
+            measurables
+                .fastFirst { it.layoutId == "text" }
+                .measure(
+                    // Measure with loose constraints for height as we don't want the text to
+                    // take up more
+                    // space than it needs
+                    constraints.copy(minHeight = 0)
+                )
+        }
 
-        val iconPlaceable =
-            icon?.let { measurables.fastFirst { it.layoutId == "icon" }.measure(constraints) }
+        val iconPlaceable = icon?.let {
+            measurables.fastFirst { it.layoutId == "icon" }.measure(constraints)
+        }
 
         val tabWidth = max(textPlaceable?.width ?: 0, iconPlaceable?.width ?: 0)
 

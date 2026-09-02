@@ -118,9 +118,9 @@ class TakePictureTest(private val implName: String) {
 
                 // Act. continuously take 5 photos.
                 withActivity {
-                        cleanTakePictureErrorMessage()
-                        resetImageSavedIdlingLatch(5)
-                    }
+                    cleanTakePictureErrorMessage()
+                    resetImageSavedIdlingLatch(5)
+                }
                     .apply {
                         for (i in 5 downTo 1) {
                             onView(withId(R.id.Picture)).perform(click())
@@ -130,9 +130,9 @@ class TakePictureTest(private val implName: String) {
 
                 // Assert, there's no error message.
                 withActivity {
-                        deleteSessionImages()
-                        lastTakePictureErrorMessage ?: ""
-                    }
+                    deleteSessionImages()
+                    lastTakePictureErrorMessage ?: ""
+                }
                     .let { errorMessage ->
                         assertWithMessage("Fail to take picture: $errorMessage")
                             .that(errorMessage)

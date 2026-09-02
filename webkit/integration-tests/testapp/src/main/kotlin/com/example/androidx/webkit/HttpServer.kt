@@ -113,25 +113,25 @@ class HttpServer(
 
         init {
             runCatching {
-                    socket.soTimeout = TIMEOUT_MILLIS
-                    reader = BufferedReader(InputStreamReader(socket.getInputStream(), UTF_8))
-                    writer = BufferedWriter(OutputStreamWriter(socket.getOutputStream(), UTF_8))
-                }
+                socket.soTimeout = TIMEOUT_MILLIS
+                reader = BufferedReader(InputStreamReader(socket.getInputStream(), UTF_8))
+                writer = BufferedWriter(OutputStreamWriter(socket.getOutputStream(), UTF_8))
+            }
                 .onFailure { it.printStackTrace() }
         }
 
         override fun run() {
             runCatching {
-                    // we could probably use reader.readText() instead of a StringBuilder
-                    // here, but it was returning an empty string? I have no idea why.
-                    val stringBuild = StringBuilder()
-                    var s = reader.readLine()
-                    while (!s.isNullOrEmpty()) {
-                        stringBuild.append(s).append("\n")
-                        s = reader.readLine()
-                    }
-                    writeResponse(stringBuild.toString(), writer)
+                // we could probably use reader.readText() instead of a StringBuilder
+                // here, but it was returning an empty string? I have no idea why.
+                val stringBuild = StringBuilder()
+                var s = reader.readLine()
+                while (!s.isNullOrEmpty()) {
+                    stringBuild.append(s).append("\n")
+                    s = reader.readLine()
                 }
+                writeResponse(stringBuild.toString(), writer)
+            }
                 .onFailure { it.printStackTrace() }
         }
 

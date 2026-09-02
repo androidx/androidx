@@ -128,7 +128,9 @@ fun NavHostWithDeepLink() {
                 arguments = listOf(navArgument(DEEP_LINK_ID_ARG) { type = NavType.IntType }),
                 // The deepLink is now primarily for external entry.
                 deepLinks =
-                    listOf(navDeepLink { uriPattern = "$DEEP_LINK_URI/detail/{$DEEP_LINK_ID_ARG}" }),
+                    listOf(
+                        navDeepLink { uriPattern = "$DEEP_LINK_URI/detail/{$DEEP_LINK_ID_ARG}" }
+                    ),
             ) { backStackEntry ->
                 val itemId = backStackEntry.arguments?.getInt(DEEP_LINK_ID_ARG) ?: 0
                 Column(

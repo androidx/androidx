@@ -428,20 +428,20 @@ internal constructor(
                 if (primaryKeyColumns.isEmpty()) {
                     emptyList()
                 } else {
-                    val properties =
-                        primaryKeyColumns.mapNotNull { pKeyColumnName ->
-                            val property =
-                                availableProperties.firstOrNull { it.columnName == pKeyColumnName }
-                            context.checker.check(
-                                property != null,
-                                typeElement,
-                                ProcessorErrors.primaryKeyColumnDoesNotExist(
-                                    pKeyColumnName,
-                                    availableProperties.map { it.columnName },
-                                ),
-                            )
-                            property
+                    val properties = primaryKeyColumns.mapNotNull { pKeyColumnName ->
+                        val property = availableProperties.firstOrNull {
+                            it.columnName == pKeyColumnName
                         }
+                        context.checker.check(
+                            property != null,
+                            typeElement,
+                            ProcessorErrors.primaryKeyColumnDoesNotExist(
+                                pKeyColumnName,
+                                availableProperties.map { it.columnName },
+                            ),
+                        )
+                        property
+                    }
                     listOf(
                         PrimaryKey(
                             declaredIn = typeElement,
@@ -457,8 +457,9 @@ internal constructor(
         val superPKeys =
             if (mySuper != null && mySuper.isNotNone() && mySuper.isNotError()) {
                 // my super cannot see my properties so remove them.
-                val remainingProperties =
-                    availableProperties.filterNot { it.element.enclosingElement == typeElement }
+                val remainingProperties = availableProperties.filterNot {
+                    it.element.enclosingElement == typeElement
+                }
                 collectPrimaryKeysFromEntityAnnotations(mySuper.typeElement!!, remainingProperties)
             } else {
                 emptyList()
@@ -537,44 +538,43 @@ internal constructor(
         dataClass: DataClass,
     ): List<Index> {
         // check for columns
-        val indices =
-            inputs.mapNotNull { input ->
-                context.checker.check(
-                    input.columnNames.isNotEmpty(),
-                    element,
-                    INDEX_COLUMNS_CANNOT_BE_EMPTY,
-                )
-                val properties =
-                    input.columnNames.mapNotNull { columnName ->
-                        val property = dataClass.findPropertyByColumnName(columnName)
-                        context.checker.check(
-                            property != null,
-                            element,
-                            ProcessorErrors.indexColumnDoesNotExist(
-                                columnName,
-                                dataClass.columnNames,
-                            ),
-                        )
-                        property
-                    }
-                if (input.orders.isNotEmpty()) {
+        val indices = inputs.mapNotNull { input ->
+            context.checker.check(
+                input.columnNames.isNotEmpty(),
+                element,
+                INDEX_COLUMNS_CANNOT_BE_EMPTY,
+            )
+            val properties =
+                input.columnNames.mapNotNull { columnName ->
+                    val property = dataClass.findPropertyByColumnName(columnName)
                     context.checker.check(
-                        input.columnNames.size == input.orders.size,
+                        property != null,
                         element,
-                        INVALID_INDEX_ORDERS_SIZE,
+                        ProcessorErrors.indexColumnDoesNotExist(
+                            columnName,
+                            dataClass.columnNames,
+                        ),
                     )
+                    property
                 }
-                if (properties.isEmpty()) {
-                    null
-                } else {
-                    Index(
-                        name = input.name,
-                        unique = input.unique,
-                        properties = Properties(properties),
-                        orders = input.orders,
-                    )
-                }
+            if (input.orders.isNotEmpty()) {
+                context.checker.check(
+                    input.columnNames.size == input.orders.size,
+                    element,
+                    INVALID_INDEX_ORDERS_SIZE,
+                )
             }
+            if (properties.isEmpty()) {
+                null
+            } else {
+                Index(
+                    name = input.name,
+                    unique = input.unique,
+                    properties = Properties(properties),
+                    orders = input.orders,
+                )
+            }
+        }
 
         // check for duplicate indices
         indices

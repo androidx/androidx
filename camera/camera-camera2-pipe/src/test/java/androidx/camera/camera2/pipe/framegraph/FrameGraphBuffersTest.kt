@@ -77,113 +77,108 @@ class FrameGraphBuffersTest {
     }
 
     @Test
-    fun attachActualChange_repeatingRequestUpdated() =
-        testScope.runTest {
+    fun attachActualChange_repeatingRequestUpdated() = testScope.runTest {
+        frameGraphBuffers.attach(
+            setOf(streamId1, streamId2),
+            mapOf(CAPTURE_REQUEST_KEY to 2, TEST_KEY to 5),
+            1,
+        )
+
+        val frame = simulator.simulateNextFrame()
+        val parameters: Map<CaptureRequest.Key<*>, Any?> = mapOf(CAPTURE_REQUEST_KEY to 2)
+        val extras: Map<Metadata.Key<*>, Any?> = mapOf(TEST_KEY to 5)
+        assertThat(frame.request.streams).isEqualTo(listOf(streamId1, streamId2))
+        assertThat(frame.request.parameters).isEqualTo(parameters)
+        assertThat(frame.request.extras).isEqualTo(extras)
+    }
+
+    @Test
+    fun detachActualChange_repeatingRequestUpdated() = testScope.runTest {
+        val frameBuffer1 =
             frameGraphBuffers.attach(
-                setOf(streamId1, streamId2),
+                setOf(streamId1),
                 mapOf(CAPTURE_REQUEST_KEY to 2, TEST_KEY to 5),
                 1,
             )
+        val frameBuffer2 =
+            frameGraphBuffers.attach(setOf(streamId2), mapOf(TEST_NULLABLE_KEY to 42), 1)
+        var parameters: Map<CaptureRequest.Key<*>, Any?> =
+            mapOf(CAPTURE_REQUEST_KEY to 2, TEST_NULLABLE_KEY to 42)
+        val extras: Map<Metadata.Key<*>, Any?> = mapOf(TEST_KEY to 5)
 
-            val frame = simulator.simulateNextFrame()
-            val parameters: Map<CaptureRequest.Key<*>, Any?> = mapOf(CAPTURE_REQUEST_KEY to 2)
-            val extras: Map<Metadata.Key<*>, Any?> = mapOf(TEST_KEY to 5)
-            assertThat(frame.request.streams).isEqualTo(listOf(streamId1, streamId2))
-            assertThat(frame.request.parameters).isEqualTo(parameters)
-            assertThat(frame.request.extras).isEqualTo(extras)
-        }
+        assertThat(simulator.simulateNextFrame().request.streams)
+            .isEqualTo(listOf(streamId1, streamId2))
+        assertThat(simulator.simulateNextFrame().request.parameters).isEqualTo(parameters)
+        assertThat(simulator.simulateNextFrame().request.extras).isEqualTo(extras)
 
-    @Test
-    fun detachActualChange_repeatingRequestUpdated() =
-        testScope.runTest {
-            val frameBuffer1 =
-                frameGraphBuffers.attach(
-                    setOf(streamId1),
-                    mapOf(CAPTURE_REQUEST_KEY to 2, TEST_KEY to 5),
-                    1,
-                )
-            val frameBuffer2 =
-                frameGraphBuffers.attach(setOf(streamId2), mapOf(TEST_NULLABLE_KEY to 42), 1)
-            var parameters: Map<CaptureRequest.Key<*>, Any?> =
-                mapOf(CAPTURE_REQUEST_KEY to 2, TEST_NULLABLE_KEY to 42)
-            val extras: Map<Metadata.Key<*>, Any?> = mapOf(TEST_KEY to 5)
+        frameBuffer1.close()
 
-            assertThat(simulator.simulateNextFrame().request.streams)
-                .isEqualTo(listOf(streamId1, streamId2))
-            assertThat(simulator.simulateNextFrame().request.parameters).isEqualTo(parameters)
-            assertThat(simulator.simulateNextFrame().request.extras).isEqualTo(extras)
+        parameters = mapOf(TEST_NULLABLE_KEY to 42)
+        assertThat(simulator.simulateNextFrame().request.streams).isEqualTo(listOf(streamId2))
+        assertThat(simulator.simulateNextFrame().request.parameters).isEqualTo(parameters)
+        assertThat(simulator.simulateNextFrame().request.extras)
+            .isEqualTo(emptyMap<Metadata.Key<*>, Any?>())
 
-            frameBuffer1.close()
-
-            parameters = mapOf(TEST_NULLABLE_KEY to 42)
-            assertThat(simulator.simulateNextFrame().request.streams).isEqualTo(listOf(streamId2))
-            assertThat(simulator.simulateNextFrame().request.parameters).isEqualTo(parameters)
-            assertThat(simulator.simulateNextFrame().request.extras)
-                .isEqualTo(emptyMap<Metadata.Key<*>, Any?>())
-
-            frameBuffer2.close()
-        }
+        frameBuffer2.close()
+    }
 
     @Test
-    fun trimAll_drainsAssociatedBuffers() =
-        testScope.runTest {
-            val buffer1 = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 10)
-            val buffer2 = frameGraphBuffers.attach(setOf(streamId2), emptyMap(), 10)
-            advanceUntilIdle()
-            // Produce 5 frames. Each frame will be added to both buffers.
-            repeat(5) {
-                val frame = createTestFrame(it.toLong())
-                frameGraphBuffers.onFrameStarted(frame)
-            }
-            advanceUntilIdle()
-            assertThat(buffer1.size.value).isEqualTo(5)
-            assertThat(buffer2.size.value).isEqualTo(5)
-
-            frameGraphBuffers.trimAll(streamId1)
-            advanceUntilIdle()
-
-            assertThat(buffer1.size.value).isEqualTo(0)
-            assertThat(buffer2.size.value).isEqualTo(5)
-
-            frameGraphBuffers.trimAll(streamId2)
-            advanceUntilIdle()
-
-            assertThat(buffer1.size.value).isEqualTo(0)
-            assertThat(buffer2.size.value).isEqualTo(0)
+    fun trimAll_drainsAssociatedBuffers() = testScope.runTest {
+        val buffer1 = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 10)
+        val buffer2 = frameGraphBuffers.attach(setOf(streamId2), emptyMap(), 10)
+        advanceUntilIdle()
+        // Produce 5 frames. Each frame will be added to both buffers.
+        repeat(5) {
+            val frame = createTestFrame(it.toLong())
+            frameGraphBuffers.onFrameStarted(frame)
         }
+        advanceUntilIdle()
+        assertThat(buffer1.size.value).isEqualTo(5)
+        assertThat(buffer2.size.value).isEqualTo(5)
+
+        frameGraphBuffers.trimAll(streamId1)
+        advanceUntilIdle()
+
+        assertThat(buffer1.size.value).isEqualTo(0)
+        assertThat(buffer2.size.value).isEqualTo(5)
+
+        frameGraphBuffers.trimAll(streamId2)
+        advanceUntilIdle()
+
+        assertThat(buffer1.size.value).isEqualTo(0)
+        assertThat(buffer2.size.value).isEqualTo(0)
+    }
 
     @Test
-    fun trimAll_noMatchingBuffer_doesNotTrimAll() =
-        testScope.runTest {
-            val buffer1 = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 10)
-            advanceUntilIdle()
-            // Produce 3 frames. These will be added to buffer1.
-            repeat(3) {
-                val frame = createTestFrame(it.toLong())
-                frameGraphBuffers.onFrameStarted(frame)
-            }
-            advanceUntilIdle()
-            assertThat(buffer1.size.value).isEqualTo(3)
-
-            frameGraphBuffers.trimAll(streamId2)
-            advanceUntilIdle()
-
-            // buffer1 should be unaffected.
-            assertThat(buffer1.size.value).isEqualTo(3)
+    fun trimAll_noMatchingBuffer_doesNotTrimAll() = testScope.runTest {
+        val buffer1 = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 10)
+        advanceUntilIdle()
+        // Produce 3 frames. These will be added to buffer1.
+        repeat(3) {
+            val frame = createTestFrame(it.toLong())
+            frameGraphBuffers.onFrameStarted(frame)
         }
+        advanceUntilIdle()
+        assertThat(buffer1.size.value).isEqualTo(3)
+
+        frameGraphBuffers.trimAll(streamId2)
+        advanceUntilIdle()
+
+        // buffer1 should be unaffected.
+        assertThat(buffer1.size.value).isEqualTo(3)
+    }
 
     @Test
-    fun trimAll_matchingBufferWithZeroFrames_doesNothing() =
-        testScope.runTest {
-            val buffer1 = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 10)
-            advanceUntilIdle()
-            assertThat(buffer1.size.value).isEqualTo(0)
+    fun trimAll_matchingBufferWithZeroFrames_doesNothing() = testScope.runTest {
+        val buffer1 = frameGraphBuffers.attach(setOf(streamId1), emptyMap(), 10)
+        advanceUntilIdle()
+        assertThat(buffer1.size.value).isEqualTo(0)
 
-            frameGraphBuffers.trimAll(streamId1)
-            advanceUntilIdle()
+        frameGraphBuffers.trimAll(streamId1)
+        advanceUntilIdle()
 
-            assertThat(buffer1.size.value).isEqualTo(0)
-        }
+        assertThat(buffer1.size.value).isEqualTo(0)
+    }
 
     @After
     fun cleanup() {
@@ -215,24 +210,23 @@ class FrameGraphBuffersTest {
     }
 
     @Test
-    fun attachActualChange_arrayValuesWithSameContent_doesNotThrow() =
-        testScope.runTest {
-            val array1 = arrayOf(MeteringRectangle(0, 0, 100, 100, 100))
-            val array2 = arrayOf(MeteringRectangle(0, 0, 100, 100, 100))
+    fun attachActualChange_arrayValuesWithSameContent_doesNotThrow() = testScope.runTest {
+        val array1 = arrayOf(MeteringRectangle(0, 0, 100, 100, 100))
+        val array2 = arrayOf(MeteringRectangle(0, 0, 100, 100, 100))
 
-            frameGraphBuffers.attach(
-                setOf(streamId1),
-                mapOf(CaptureRequest.CONTROL_AE_REGIONS to array1),
-                1,
-            )
+        frameGraphBuffers.attach(
+            setOf(streamId1),
+            mapOf(CaptureRequest.CONTROL_AE_REGIONS to array1),
+            1,
+        )
 
-            // This should not throw an exception because of deep equality.
-            frameGraphBuffers.attach(
-                setOf(streamId2),
-                mapOf(CaptureRequest.CONTROL_AE_REGIONS to array2),
-                1,
-            )
-        }
+        // This should not throw an exception because of deep equality.
+        frameGraphBuffers.attach(
+            setOf(streamId2),
+            mapOf(CaptureRequest.CONTROL_AE_REGIONS to array2),
+            1,
+        )
+    }
 
     companion object {
         private val CAPTURE_REQUEST_KEY = CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION

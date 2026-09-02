@@ -32,24 +32,23 @@ class RemoteStateVisitorTest {
     ): S {
         if (replacements.isEmpty()) return this
 
-        val unwrappedReplacements =
-            replacements.map { (target, rep) ->
-                val unwrappedTarget =
-                    when (target) {
-                        is RemoteBoolean -> target.intValue
-                        is RemoteDp -> target.value
-                        is RemoteEnum<*> -> target.intValue
-                        else -> target
-                    }
-                val unwrappedRep =
-                    when (rep) {
-                        is RemoteBoolean -> rep.intValue
-                        is RemoteDp -> rep.value
-                        is RemoteEnum<*> -> rep.intValue
-                        else -> rep
-                    }
-                unwrappedTarget to unwrappedRep
-            }
+        val unwrappedReplacements = replacements.map { (target, rep) ->
+            val unwrappedTarget =
+                when (target) {
+                    is RemoteBoolean -> target.intValue
+                    is RemoteDp -> target.value
+                    is RemoteEnum<*> -> target.intValue
+                    else -> target
+                }
+            val unwrappedRep =
+                when (rep) {
+                    is RemoteBoolean -> rep.intValue
+                    is RemoteDp -> rep.value
+                    is RemoteEnum<*> -> rep.intValue
+                    else -> rep
+                }
+            unwrappedTarget to unwrappedRep
+        }
 
         return transform { node ->
             for ((target, replacement) in unwrappedReplacements) {
@@ -301,11 +300,10 @@ class RemoteStateVisitorTest {
         val c = RemoteFloat.createNamedRemoteFloat("c", 3f)
         val expr = (a + b) * c
 
-        val names =
-            expr.accept { key, _, visitedArgs ->
-                val fromArgs = visitedArgs.flatten().toSet()
-                if (key is RemoteNamedCacheKey) fromArgs + key.name else fromArgs
-            }
+        val names = expr.accept { key, _, visitedArgs ->
+            val fromArgs = visitedArgs.flatten().toSet()
+            if (key is RemoteNamedCacheKey) fromArgs + key.name else fromArgs
+        }
         assertThat(names).containsExactly("a", "b", "c")
     }
 
@@ -314,11 +312,10 @@ class RemoteStateVisitorTest {
         val a = RemoteFloat.createNamedRemoteFloat("a", 1f)
         val expr = a + 10f.rf
 
-        val result =
-            expr.transform { node ->
-                val value = node.constantValueOrNull
-                if (value is Float) RemoteFloat(value * 2f) else null
-            }
+        val result = expr.transform { node ->
+            val value = node.constantValueOrNull
+            if (value is Float) RemoteFloat(value * 2f) else null
+        }
         val evaluated = result.replaceNamedVariables(mapOf(a to 5f.rf))
         assertThat(evaluated.hasConstantValue).isTrue()
         assertThat(evaluated.constantValue).isEqualTo(25f)
@@ -417,25 +414,23 @@ class RemoteStateVisitorTest {
         val tweenColor = tween(0xFFFF0000.toInt(), 0xFF00FF00.toInt(), tweenProgress)
 
         // 1. Replace only 'from' with a RemoteColor
-        val resultFrom =
-            tweenColor.transform { node ->
-                if (node.constantValueOrNull == 0xFFFF0000.toInt()) {
-                    Color.Blue.rc
-                } else {
-                    null
-                }
+        val resultFrom = tweenColor.transform { node ->
+            if (node.constantValueOrNull == 0xFFFF0000.toInt()) {
+                Color.Blue.rc
+            } else {
+                null
             }
+        }
         assertThat(resultFrom).isNotNull()
 
         // 2. Replace only 'to' with a RemoteColor
-        val resultTo =
-            tweenColor.transform { node ->
-                if (node.constantValueOrNull == 0xFF00FF00.toInt()) {
-                    Color.Yellow.rc
-                } else {
-                    null
-                }
+        val resultTo = tweenColor.transform { node ->
+            if (node.constantValueOrNull == 0xFF00FF00.toInt()) {
+                Color.Yellow.rc
+            } else {
+                null
             }
+        }
         assertThat(resultTo).isNotNull()
 
         // 3. Replace progress and evaluate

@@ -54,29 +54,27 @@ fun getPlanes(session: Session, lifecycle: Lifecycle) {
                         // If a plane doesn't exist in our set of active planes, set up a
                         // coroutine to respond to its state changes.
                         if (!activePlanes.contains(plane)) {
-                            val job =
-                                supervisorScope.launch {
-                                    plane.state.collect {
-                                        // if the plane is not currently reporting as tracked, then
-                                        // we don't want to render it.
-                                        if (it.trackingState != TrackingState.TRACKING)
-                                            return@collect
+                            val job = supervisorScope.launch {
+                                plane.state.collect {
+                                    // if the plane is not currently reporting as tracked, then
+                                    // we don't want to render it.
+                                    if (it.trackingState != TrackingState.TRACKING) return@collect
 
-                                        // Transform the pose from its original coordinate space to
-                                        // one suitable for rendering to the display.
-                                        val pose =
-                                            it.centerPose.let { p ->
-                                                session.scene.perceptionSpace.transformPoseTo(
-                                                    p,
-                                                    session.scene.activitySpace,
-                                                )
-                                            }
+                                    // Transform the pose from its original coordinate space to
+                                    // one suitable for rendering to the display.
+                                    val pose =
+                                        it.centerPose.let { p ->
+                                            session.scene.perceptionSpace.transformPoseTo(
+                                                p,
+                                                session.scene.activitySpace,
+                                            )
+                                        }
 
-                                        // This function is where you'll actually render the plane
-                                        // to the display.
-                                        renderFunction(pose, it.extents, it.vertices, it.label)
-                                    }
+                                    // This function is where you'll actually render the plane
+                                    // to the display.
+                                    renderFunction(pose, it.extents, it.vertices, it.label)
                                 }
+                            }
                             activePlanes[plane] = job
                         }
 

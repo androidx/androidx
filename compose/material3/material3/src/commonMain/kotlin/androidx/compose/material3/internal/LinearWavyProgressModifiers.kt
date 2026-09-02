@@ -303,24 +303,23 @@ private abstract class BaseLinearWavyProgressNode(
                 ((wavelength / waveSpeed) * 1000)
                     .fastRoundToInt()
                     .coerceAtLeast(MinAnimationDuration)
-            offsetAnimationJob =
-                coroutineScope.launch {
-                    // Start from current offset
-                    val startValue = waveOffset.floatValue
-                    val offsetAnimatable = Animatable(startValue)
-                    val endValue = startValue + 1f
-                    offsetAnimatable.updateBounds(startValue, endValue)
-                    offsetAnimatable.animateTo(
-                        targetValue = endValue,
-                        animationSpec =
-                            infiniteRepeatable(
-                                animation = tween(durationMillis, easing = LinearEasing),
-                                repeatMode = RepeatMode.Restart,
-                            ),
-                    ) {
-                        waveOffset.floatValue = value % 1f
-                    }
+            offsetAnimationJob = coroutineScope.launch {
+                // Start from current offset
+                val startValue = waveOffset.floatValue
+                val offsetAnimatable = Animatable(startValue)
+                val endValue = startValue + 1f
+                offsetAnimatable.updateBounds(startValue, endValue)
+                offsetAnimatable.animateTo(
+                    targetValue = endValue,
+                    animationSpec =
+                        infiniteRepeatable(
+                            animation = tween(durationMillis, easing = LinearEasing),
+                            repeatMode = RepeatMode.Restart,
+                        ),
+                ) {
+                    waveOffset.floatValue = value % 1f
                 }
+            }
         } else {
             // No speed or wavelength, so we ensure that the offset is snapped to 0
             waveOffset.floatValue = 0f
@@ -342,18 +341,17 @@ private abstract class BaseLinearWavyProgressNode(
                 currentAmplitudeAnimatable.targetValue != targetAmplitudePx &&
                 (amplitudeAnimationJob == null || amplitudeAnimationJob?.isCompleted == true)
         ) {
-            amplitudeAnimationJob =
-                coroutineScope.launch {
-                    currentAmplitudeAnimatable.animateTo(
-                        targetValue = targetAmplitudePx,
-                        animationSpec =
-                            if (currentAmplitudeAnimatable.value < targetAmplitudePx) {
-                                IncreasingAmplitudeAnimationSpec
-                            } else {
-                                DecreasingAmplitudeAnimationSpec
-                            },
-                    )
-                }
+            amplitudeAnimationJob = coroutineScope.launch {
+                currentAmplitudeAnimatable.animateTo(
+                    targetValue = targetAmplitudePx,
+                    animationSpec =
+                        if (currentAmplitudeAnimatable.value < targetAmplitudePx) {
+                            IncreasingAmplitudeAnimationSpec
+                        } else {
+                            DecreasingAmplitudeAnimationSpec
+                        },
+                )
+            }
         }
     }
 

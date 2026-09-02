@@ -90,7 +90,6 @@ public interface Applier<N> {
      * where the node `B` is being inserted into the tree at `R`. Top-down building of the tree
      * first inserts `B` into `R`, then inserts `A` into `B` followed by inserting `C` into B`. For
      * example,
-     *
      *  ```
      *      1           2           3
      *      R           R           R

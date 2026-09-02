@@ -258,10 +258,9 @@ constructor(
                     layer = null
                 }
                 if (reverseLayout) {
-                    offset =
-                        offset.copy { mainAxisOffset ->
-                            mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
-                        }
+                    offset = offset.copy { mainAxisOffset ->
+                        mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
+                    }
                 }
                 offset += visualOffset
                 if (!isLookingAhead) {

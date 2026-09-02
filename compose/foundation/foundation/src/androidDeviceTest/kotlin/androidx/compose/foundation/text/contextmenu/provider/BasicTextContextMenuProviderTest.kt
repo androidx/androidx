@@ -345,7 +345,8 @@ private fun InnerBox() {
 private fun ProvideTestBasicTextContextMenu(
     onContextMenuComposition:
         (
-            session: TextContextMenuSession?, anchorLayoutCoordinates: () -> LayoutCoordinates,
+            session: TextContextMenuSession?,
+            anchorLayoutCoordinates: () -> LayoutCoordinates,
         ) -> Unit,
     content: @Composable () -> Unit,
 ) {

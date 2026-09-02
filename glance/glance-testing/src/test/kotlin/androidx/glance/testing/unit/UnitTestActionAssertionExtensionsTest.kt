@@ -359,7 +359,8 @@ class UnitTestActionAssertionExtensionsTest {
                                 .clickable(
                                     actionStartActivity(
                                         componentName = TEST_COMPONENT_NAME,
-                                        parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to -1),
+                                        parameters =
+                                            actionParametersOf(TEST_ACTION_PARAM_KEY to -1),
                                     )
                                 )
                     },

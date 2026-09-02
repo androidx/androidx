@@ -44,14 +44,13 @@ class AndroidSnapshotTests : BaseComposeTest() {
             }
             .start()
         try {
-            val unregister =
-                Snapshot.registerApplyObserver { changed, _ ->
-                    // Try to catch a concurrent modification exception
-                    val iterator = changed.iterator()
-                    while (iterator.hasNext()) {
-                        iterator.next()
-                    }
+            val unregister = Snapshot.registerApplyObserver { changed, _ ->
+                // Try to catch a concurrent modification exception
+                val iterator = changed.iterator()
+                while (iterator.hasNext()) {
+                    iterator.next()
                 }
+            }
             try {
                 repeat(100) { activityRule.activity.uiThread { Snapshot.sendApplyNotifications() } }
             } finally {

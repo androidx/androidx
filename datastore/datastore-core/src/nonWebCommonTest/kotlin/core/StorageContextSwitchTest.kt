@@ -39,12 +39,11 @@ class StorageContextSwitchTest {
             assertEquals("Initial Value", store.data.first().value)
 
             @Suppress("UNUSED_VARIABLE")
-            val unused =
-                store.updateData {
-                    assertEquals(TestElement1("caller_key_1"), currentCoroutineContext()[TestKey1])
-                    assertEquals(TestElement3("caller_key_3"), currentCoroutineContext()[TestKey3])
-                    TestData("updated")
-                }
+            val unused = store.updateData {
+                assertEquals(TestElement1("caller_key_1"), currentCoroutineContext()[TestKey1])
+                assertEquals(TestElement3("caller_key_3"), currentCoroutineContext()[TestKey3])
+                TestData("updated")
+            }
         }
 }
 

@@ -107,12 +107,11 @@ internal class OutsideClickNode(var enabled: Boolean, var onClickOutside: () -> 
             return
         }
         if (enabled && (job == null || job?.isCompleted == true)) {
-            job =
-                coroutineScope.launch {
-                    // Wait a short time for the onPointerEvent to possibly cancel this operation.
-                    delay(CLICK_OUTSIDE_DEBOUNCE_MILLISECONDS)
-                    onClickOutside()
-                }
+            job = coroutineScope.launch {
+                // Wait a short time for the onPointerEvent to possibly cancel this operation.
+                delay(CLICK_OUTSIDE_DEBOUNCE_MILLISECONDS)
+                onClickOutside()
+            }
         }
     }
 

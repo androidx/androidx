@@ -80,10 +80,9 @@ class LifecycleCameraProviderTest(
     private val preview =
         Preview.Builder().build().apply {
             instrumentation.runOnMainSync {
-                surfaceProvider =
-                    SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
-                        frameAvailableSemaphore.release()
-                    }
+                surfaceProvider = SurfaceTextureProvider.createAutoDrainingSurfaceTextureProvider {
+                    frameAvailableSemaphore.release()
+                }
             }
         }
     private val imageAnalysis =

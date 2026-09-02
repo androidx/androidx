@@ -89,10 +89,10 @@ class GroupSizeTests : BaseComposeTest() {
     ) {
         var compositionData: CompositionData? = null
         compose {
-                compositionData = currentComposer.compositionData
-                currentComposer.disableSourceInformation()
-                Marker { content() }
-            }
+            compositionData = currentComposer.compositionData
+            currentComposer.disableSourceInformation()
+            Marker { content() }
+        }
             .then {
                 val group = findMarkerGroup(compositionData!!)
                 val receivedGroups = group.groupSize

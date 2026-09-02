@@ -934,7 +934,10 @@ class PendingIntentHandler {
             fun setCreateCredentialException(intent: Intent, exception: CreateCredentialException) {
                 intent.putExtra(
                     CredentialProviderService.EXTRA_CREATE_CREDENTIAL_EXCEPTION,
-                    android.credentials.CreateCredentialException(exception.type, exception.message),
+                    android.credentials.CreateCredentialException(
+                        exception.type,
+                        exception.message,
+                    ),
                 )
             }
         }

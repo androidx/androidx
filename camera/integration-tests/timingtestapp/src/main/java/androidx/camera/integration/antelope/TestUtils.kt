@@ -757,8 +757,8 @@ fun getMainCamera(activity: MainActivity, allTestResults: ArrayList<TestResults>
     for (param in MainActivity.cameraParams) {
         if (!param.value.isFront && !param.value.isExternal)
 
-        // If only logical cameras, first rear-facing is fine
-        if (PrefHelper.getOnlyLogical(activity)) {
+            // If only logical cameras, first rear-facing is fine
+            if (PrefHelper.getOnlyLogical(activity)) {
                 logd("The MAIN camera id is:" + param.value.id)
                 return param.value.id
 

@@ -79,55 +79,53 @@ class GlanceAppWidgetDemoActivity : ComponentActivity() {
         updateView()
     }
 
-    private fun updateWidgetPreviews() =
-        lifecycleScope.launch {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                return@launch
-            }
-            val previewClasses =
-                listOf(
-                    ActionAppWidgetReceiver::class,
-                    BackgroundTintWidgetBroadcastReceiver::class,
-                    ButtonsWidgetBroadcastReceiver::class,
-                    CompoundButtonAppWidgetReceiver::class,
-                    ContentDescriptionAppWidgetReceiver::class,
-                    DefaultColorsAppWidgetReceiver::class,
-                    DefaultStateAppWidgetReceiver::class,
-                    ErrorUiAppWidgetReceiver::class,
-                    FontDemoAppWidgetReceiver::class,
-                    ImageAppWidgetReceiver::class,
-                    ProgressIndicatorAppWidgetReceiver::class,
-                    RemoteViewsWidgetReceiver::class,
-                    ResizingAppWidgetReceiver::class,
-                    ResponsiveAppWidgetReceiver::class,
-                    RippleAppWidgetReceiver::class,
-                    ScrollableAppWidgetReceiver::class,
-                    TitleBarWidgetBroadcastReceiver::class,
-                    TypographyDemoAppWidgetReceiver::class,
-                    VerticalGridAppWidgetReceiver::class,
-                )
-            try {
-                for (receiver in previewClasses) {
-                    if (
-                        receiver.hasPreviewForCategory(
-                            this@GlanceAppWidgetDemoActivity,
-                            WIDGET_CATEGORY_HOME_SCREEN,
-                        )
-                    ) {
-                        Log.i(TAG, "Skipped updating previews for $receiver")
-                        continue
-                    }
-                    if (
-                        manager.setWidgetPreviews(receiver) ==
-                            SET_WIDGET_PREVIEWS_RESULT_RATE_LIMITED
-                    ) {
-                        Log.e(TAG, "Failed to set previews for $receiver, probably rate limited")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "error thrown when calling setWidgetPreview", e)
-            }
+    private fun updateWidgetPreviews() = lifecycleScope.launch {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return@launch
         }
+        val previewClasses =
+            listOf(
+                ActionAppWidgetReceiver::class,
+                BackgroundTintWidgetBroadcastReceiver::class,
+                ButtonsWidgetBroadcastReceiver::class,
+                CompoundButtonAppWidgetReceiver::class,
+                ContentDescriptionAppWidgetReceiver::class,
+                DefaultColorsAppWidgetReceiver::class,
+                DefaultStateAppWidgetReceiver::class,
+                ErrorUiAppWidgetReceiver::class,
+                FontDemoAppWidgetReceiver::class,
+                ImageAppWidgetReceiver::class,
+                ProgressIndicatorAppWidgetReceiver::class,
+                RemoteViewsWidgetReceiver::class,
+                ResizingAppWidgetReceiver::class,
+                ResponsiveAppWidgetReceiver::class,
+                RippleAppWidgetReceiver::class,
+                ScrollableAppWidgetReceiver::class,
+                TitleBarWidgetBroadcastReceiver::class,
+                TypographyDemoAppWidgetReceiver::class,
+                VerticalGridAppWidgetReceiver::class,
+            )
+        try {
+            for (receiver in previewClasses) {
+                if (
+                    receiver.hasPreviewForCategory(
+                        this@GlanceAppWidgetDemoActivity,
+                        WIDGET_CATEGORY_HOME_SCREEN,
+                    )
+                ) {
+                    Log.i(TAG, "Skipped updating previews for $receiver")
+                    continue
+                }
+                if (
+                    manager.setWidgetPreviews(receiver) == SET_WIDGET_PREVIEWS_RESULT_RATE_LIMITED
+                ) {
+                    Log.e(TAG, "Failed to set previews for $receiver, probably rate limited")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "error thrown when calling setWidgetPreview", e)
+        }
+    }
 
     private fun updateView() {
         lifecycleScope.launch {
@@ -137,28 +135,26 @@ class GlanceAppWidgetDemoActivity : ComponentActivity() {
                 appWidgetManager.installedProviders
                     .filter { it.provider.packageName == packageName }
                     .map { it.provider.className }
-            val data =
-                receivers.mapNotNull { receiverName ->
-                    val receiverClass = Class.forName(receiverName)
-                    if (!GlanceAppWidgetReceiver::class.java.isAssignableFrom(receiverClass)) {
-                        return@mapNotNull null
-                    }
-                    val receiver =
-                        receiverClass.getDeclaredConstructor().newInstance()
-                            as GlanceAppWidgetReceiver
-                    val provider = receiver.glanceAppWidget.javaClass
-                    ProviderData(
-                        provider = provider,
-                        receiver = receiver.javaClass,
-                        appWidgets =
-                            manager.getGlanceIds(provider).map { id ->
-                                AppWidgetDesc(
-                                    appWidgetId = id,
-                                    sizes = manager.getAppWidgetSizes(id),
-                                )
-                            },
-                    )
+            val data = receivers.mapNotNull { receiverName ->
+                val receiverClass = Class.forName(receiverName)
+                if (!GlanceAppWidgetReceiver::class.java.isAssignableFrom(receiverClass)) {
+                    return@mapNotNull null
                 }
+                val receiver =
+                    receiverClass.getDeclaredConstructor().newInstance() as GlanceAppWidgetReceiver
+                val provider = receiver.glanceAppWidget.javaClass
+                ProviderData(
+                    provider = provider,
+                    receiver = receiver.javaClass,
+                    appWidgets =
+                        manager.getGlanceIds(provider).map { id ->
+                            AppWidgetDesc(
+                                appWidgetId = id,
+                                sizes = manager.getAppWidgetSizes(id),
+                            )
+                        },
+                )
+            }
 
             setContent {
                 val scope = rememberCoroutineScope()

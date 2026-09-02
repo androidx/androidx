@@ -273,31 +273,29 @@ class ScrollToNodeTest(private val config: TestConfig) {
 
     private fun DpRect.toPx(): Rect = with(rule.density) { toRect() }
 
-    private fun rowModifier(): Modifier =
-        Modifier.composed {
-            with(LocalDensity.current) {
-                Modifier.testTag(containerTag)
-                    .then(
-                        if (config.hasNestedScrollConsumer)
-                            Modifier.nestedScroll(horizontalNestedScrollConsumer)
-                        else Modifier
-                    )
-                    .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
-            }
+    private fun rowModifier(): Modifier = Modifier.composed {
+        with(LocalDensity.current) {
+            Modifier.testTag(containerTag)
+                .then(
+                    if (config.hasNestedScrollConsumer)
+                        Modifier.nestedScroll(horizontalNestedScrollConsumer)
+                    else Modifier
+                )
+                .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
         }
+    }
 
-    private fun columnModifier(): Modifier =
-        Modifier.composed {
-            with(LocalDensity.current) {
-                Modifier.testTag(containerTag)
-                    .then(
-                        if (config.hasNestedScrollConsumer)
-                            Modifier.nestedScroll(verticalNestedScrollConsumer)
-                        else Modifier
-                    )
-                    .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
-            }
+    private fun columnModifier(): Modifier = Modifier.composed {
+        with(LocalDensity.current) {
+            Modifier.testTag(containerTag)
+                .then(
+                    if (config.hasNestedScrollConsumer)
+                        Modifier.nestedScroll(verticalNestedScrollConsumer)
+                    else Modifier
+                )
+                .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
         }
+    }
 
     private fun LazyListScope.Boxes() {
         items(itemsAround) { ClickableTestBox(color = if (it % 2 == 0) Color.Blue else Color.Red) }

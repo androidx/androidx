@@ -190,21 +190,20 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
             val result =
                 withTimeoutOrNull(INIT_TIMEOUT_MS) {
                     suspendCancellableCoroutine { continuation ->
-                        val callback =
-                            RangingManager.RangingCapabilitiesCallback { capabilities ->
-                                Log.d(TAG, " Ranging capabilities $capabilities")
-                                val availabilities: Map<out Any?, Any?> =
-                                    capabilities.technologyAvailability
-                                mTechnologyAvailability.putAll(availabilities)
-                                mRangingCapabilities.set(capabilities)
-                                val uwbStatus = availabilities[RangingManager.UWB]
-                                if (uwbStatus != android.ranging.RangingCapabilities.ENABLED) {
-                                    Log.v("Ranging", "UWB is not available. Status: $uwbStatus")
-                                }
-                                if (continuation.isActive) {
-                                    continuation.resume(Unit)
-                                }
+                        val callback = RangingManager.RangingCapabilitiesCallback { capabilities ->
+                            Log.d(TAG, " Ranging capabilities $capabilities")
+                            val availabilities: Map<out Any?, Any?> =
+                                capabilities.technologyAvailability
+                            mTechnologyAvailability.putAll(availabilities)
+                            mRangingCapabilities.set(capabilities)
+                            val uwbStatus = availabilities[RangingManager.UWB]
+                            if (uwbStatus != android.ranging.RangingCapabilities.ENABLED) {
+                                Log.v("Ranging", "UWB is not available. Status: $uwbStatus")
                             }
+                            if (continuation.isActive) {
+                                continuation.resume(Unit)
+                            }
+                        }
                         mRangingManager?.registerCapabilitiesCallback(mExecutor!!, callback)
                     }
                 }
@@ -251,7 +250,8 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                         platformCapabilities.supportedRangingUpdateRates.toSet(),
                     isRangingIntervalReconfigureSupported =
                         platformCapabilities.isRangingIntervalReconfigurationSupported,
-                    isBackgroundRangingSupported = platformCapabilities.isBackgroundRangingSupported,
+                    isBackgroundRangingSupported =
+                        platformCapabilities.isBackgroundRangingSupported,
                 )
 
             val localAddress = UwbAddress(createRandomShortAddress().addressBytes)
@@ -339,25 +339,24 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
             val aospLocalAddress = uwbClient!!.localAddress
             val aospRangingCapabilities = uwbClient.rangingCapabilities
             val localAddress = aospLocalAddress?.address?.let { UwbAddress(it) }
-            val rangingCapabilities =
-                aospRangingCapabilities?.let {
-                    RangingCapabilities(
-                        it.supportsDistance,
-                        it.supportsAzimuthalAngle,
-                        it.supportsElevationAngle,
-                        it.minRangingInterval,
-                        it.supportedChannels.toSet(),
-                        it.supportedNtfConfigs.toSet(),
-                        it.supportedConfigIds
-                            .toMutableList()
-                            .filter { it in PUBLIC_AVAILABLE_CONFIG_IDS }
-                            .toSet(),
-                        it.supportedSlotDurations.toSet(),
-                        it.supportedRangingUpdateRates.toSet(),
-                        it.supportsRangingIntervalReconfigure,
-                        it.hasBackgroundRangingSupport,
-                    )
-                }
+            val rangingCapabilities = aospRangingCapabilities?.let {
+                RangingCapabilities(
+                    it.supportsDistance,
+                    it.supportsAzimuthalAngle,
+                    it.supportsElevationAngle,
+                    it.minRangingInterval,
+                    it.supportedChannels.toSet(),
+                    it.supportedNtfConfigs.toSet(),
+                    it.supportedConfigIds
+                        .toMutableList()
+                        .filter { it in PUBLIC_AVAILABLE_CONFIG_IDS }
+                        .toSet(),
+                    it.supportedSlotDurations.toSet(),
+                    it.supportedRangingUpdateRates.toSet(),
+                    it.supportsRangingIntervalReconfigure,
+                    it.hasBackgroundRangingSupport,
+                )
+            }
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel
                 UwbControllerSessionScopeAospImpl(

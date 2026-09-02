@@ -135,11 +135,9 @@ public object GlanceState : ConfigManager {
         context: Context,
         definition: GlanceStateDefinition<T>,
         fileKey: String,
-    ): DataStore<T> =
-        mutex.withLock {
-            dataStores.getOrPut(fileKey) { definition.getDataStore(context, fileKey) }
-                as DataStore<T>
-        }
+    ): DataStore<T> = mutex.withLock {
+        dataStores.getOrPut(fileKey) { definition.getDataStore(context, fileKey) } as DataStore<T>
+    }
 
     private val mutex = Mutex()
 

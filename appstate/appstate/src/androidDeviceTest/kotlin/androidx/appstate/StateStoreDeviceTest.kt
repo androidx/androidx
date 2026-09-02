@@ -43,7 +43,9 @@ class StateStoreDeviceTest {
         StateStoreKey<String>(
             "default",
             autoClearKey = StringKey,
-            shouldClearState = { stateStore -> stateStore.getState(StringKey, "").value == "clear" },
+            shouldClearState = { stateStore ->
+                stateStore.getState(StringKey, "").value == "clear"
+            },
         )
 
     @Test
@@ -52,10 +54,9 @@ class StateStoreDeviceTest {
         var receivedValue: String? = null
 
         stateStore.setState(StringKey, "initial")
-        val job =
-            backgroundScope.launch {
-                listener(testDispatcher) { receivedValue = stateStore.getState(StringKey).value }
-            }
+        val job = backgroundScope.launch {
+            listener(testDispatcher) { receivedValue = stateStore.getState(StringKey).value }
+        }
 
         // Wait for first composition
         runRecomposition()

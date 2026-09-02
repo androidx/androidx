@@ -132,7 +132,9 @@ private fun MessageCard(message: Message) {
                 message.content,
                 fontSize = 20.sp,
                 modifier =
-                    Modifier.testTag(if (message.isReceived) "message_received" else "message_sent"),
+                    Modifier.testTag(
+                        if (message.isReceived) "message_received" else "message_sent"
+                    ),
             )
             Spacer(modifier = Modifier.height(16.dp))
         }

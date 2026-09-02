@@ -119,12 +119,11 @@ internal class ImageAnalysisTest(
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @GuardedBy("analysisResultLock") private val analysisResults = mutableSetOf<ImageProperties>()
-    private val analyzer =
-        ImageAnalysis.Analyzer { image ->
-            synchronized(analysisResultLock) { analysisResults.add(ImageProperties(image)) }
-            analysisResultsSemaphore.release()
-            image.close()
-        }
+    private val analyzer = ImageAnalysis.Analyzer { image ->
+        synchronized(analysisResultLock) { analysisResults.add(ImageProperties(image)) }
+        analysisResultsSemaphore.release()
+        image.close()
+    }
     private lateinit var analysisResultsSemaphore: Semaphore
     private lateinit var handlerThread: HandlerThread
     private lateinit var handler: Handler

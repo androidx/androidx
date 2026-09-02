@@ -68,10 +68,9 @@ public object WorkDatabasePathHelper {
     public fun migrationPaths(context: Context): Map<File, File> {
         val databasePath = getDefaultDatabasePath(context)
         val migratedPath = getDatabasePath(context)
-        val map =
-            DATABASE_EXTRA_FILES.associate { extra ->
-                File(databasePath.path + extra) to File(migratedPath.path + extra)
-            }
+        val map = DATABASE_EXTRA_FILES.associate { extra ->
+            File(databasePath.path + extra) to File(migratedPath.path + extra)
+        }
         return map + (databasePath to migratedPath)
     }
 

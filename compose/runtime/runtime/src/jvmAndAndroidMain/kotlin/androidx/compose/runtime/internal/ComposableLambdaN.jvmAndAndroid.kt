@@ -168,8 +168,10 @@ public fun rememberComposableLambdaN(
     tracked: Boolean,
     arity: Int,
     block: Any,
-): ComposableLambdaN =
-    remember { ComposableLambdaNImpl(key, tracked, arity) }.also { it.update(block) }
+): ComposableLambdaN = remember {
+    ComposableLambdaNImpl(key, tracked, arity)
+}
+    .also { it.update(block) }
 
 @Suppress("unused")
 @ComposeCompilerApi

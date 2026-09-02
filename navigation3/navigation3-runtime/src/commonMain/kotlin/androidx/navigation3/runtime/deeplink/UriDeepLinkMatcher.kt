@@ -693,10 +693,9 @@ internal object UriRequestParser {
                 var inputParamValues = requestedUri.getQueryParameters(paramName)
                 // Get unnamed inputs and flags (no extra named params)
                 if (paramPattern.isUnnamedParams) {
-                    inputParamValues =
-                        splitInputParams.fastFilter { part ->
-                            !part.contains('=') && part !in namedParamPatterns
-                        }
+                    inputParamValues = splitInputParams.fastFilter { part ->
+                        !part.contains('=') && part !in namedParamPatterns
+                    }
                 }
                 // Process each value (handles repeated query parameters like ?arg=1&arg=2)
                 inputParamValues.fastForEachOrForEach { inputParamValue ->

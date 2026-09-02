@@ -110,12 +110,11 @@ class CustomColumnConverterProcessor(val context: Context, val element: XTypeEle
                 .values
                 .forEach { possiblyDuplicateConverters ->
                     possiblyDuplicateConverters.forEach { converter ->
-                        val duplicates =
-                            possiblyDuplicateConverters.filter { duplicate ->
-                                duplicate !== converter &&
-                                    duplicate.from.isSameType(converter.from) &&
-                                    duplicate.to.isSameType(converter.to)
-                            }
+                        val duplicates = possiblyDuplicateConverters.filter { duplicate ->
+                            duplicate !== converter &&
+                                duplicate.from.isSameType(converter.from) &&
+                                duplicate.to.isSameType(converter.to)
+                        }
                         if (duplicates.isNotEmpty()) {
                             context.logger.e(
                                 converter.function,

@@ -142,11 +142,10 @@ private class RetainContentPresenceIndicator(
         }
 
     override fun onRemembered() {
-        enterCompositionCancellationHandle =
-            composer.scheduleFrameEndCallback {
-                didEnterComposition = true
-                store.onContentEnteredComposition()
-            }
+        enterCompositionCancellationHandle = composer.scheduleFrameEndCallback {
+            didEnterComposition = true
+            store.onContentEnteredComposition()
+        }
     }
 
     override fun onForgotten() {

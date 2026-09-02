@@ -116,9 +116,7 @@ fun SplitSelectableChipWithRadioButton() {
                 // and the secondary label should have max 2 lines of text.
                 Text("Secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
             },
-            onContainerClick = {
-                /* Do something */
-            },
+            onContainerClick = { /* Do something */ },
             enabled = true,
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -134,9 +132,7 @@ fun SplitSelectableChipWithRadioButton() {
                 // and the secondary label should have max 2 lines of text.
                 Text("Alternative secondary", maxLines = 2, overflow = TextOverflow.Ellipsis)
             },
-            onContainerClick = {
-                /* Do something */
-            },
+            onContainerClick = { /* Do something */ },
             enabled = true,
         )
     }

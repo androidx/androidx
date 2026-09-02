@@ -155,11 +155,10 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
         // the text inside; as merge semantics is not supported in Glance. Similar to #1, on
         // navigating to the CircleIconButton, its content description will be read out.
         if (setTopLevelContentDescription) {
-            modifier =
-                modifier.semantics {
-                    contentDescription =
-                        "This is an explicit content description set on the container of ${book.title}"
-                }
+            modifier = modifier.semantics {
+                contentDescription =
+                    "This is an explicit content description set on the container of ${book.title}"
+            }
         }
 
         Column(modifier = modifier) {

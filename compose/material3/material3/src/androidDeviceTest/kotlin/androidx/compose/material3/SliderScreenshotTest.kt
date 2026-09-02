@@ -182,7 +182,9 @@ class SliderScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 Slider(
                     state = remember { SliderState(0.5f) },
-                    track = { SliderDefaults.Track(sliderState = it, trackInsideCornerSize = 0.dp) },
+                    track = {
+                        SliderDefaults.Track(sliderState = it, trackInsideCornerSize = 0.dp)
+                    },
                 )
             }
         }

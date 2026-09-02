@@ -344,13 +344,12 @@ class BackdropScaffoldTest {
             )
         }
 
-        val revealedOffset =
-            rule.runOnIdle {
-                assertThat(scaffoldState?.currentValue).isEqualTo(Revealed)
-                // state change changes the anchors, causing the recalculation
-                increasedAnchor.value = true
-                scaffoldState?.requireOffset()
-            }
+        val revealedOffset = rule.runOnIdle {
+            assertThat(scaffoldState?.currentValue).isEqualTo(Revealed)
+            // state change changes the anchors, causing the recalculation
+            increasedAnchor.value = true
+            scaffoldState?.requireOffset()
+        }
 
         rule.runOnIdle {
             assertThat(scaffoldState?.requireOffset()).isNotEqualTo(revealedOffset)

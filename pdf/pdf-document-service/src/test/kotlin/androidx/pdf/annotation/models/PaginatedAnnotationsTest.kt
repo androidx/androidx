@@ -33,8 +33,9 @@ class PaginatedAnnotationsTest {
         // Arrange
         val mockIds =
             listOf("first", "second").map { AnnotationHandleIdGenerator.composeAnnotationId(0, it) }
-        val mockPageAnnotationDataList =
-            mockIds.map { createDummyKeyedPdfAnnotation(pageNum = 0, id = it) }
+        val mockPageAnnotationDataList = mockIds.map {
+            createDummyKeyedPdfAnnotation(pageNum = 0, id = it)
+        }
         val original =
             PaginatedAnnotations(
                 mockPageAnnotationDataList,

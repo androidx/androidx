@@ -246,8 +246,9 @@ class ViewFollowingSubspaceActivity : ComponentActivity() {
                 // To-Do List Card
                 SpatialColumn(SubspaceModifier.width(250.dp)) {
                     TodoListCard(todoItems) { updatedItem ->
-                        val index =
-                            todoItems.indexOfFirst { it.description == updatedItem.description }
+                        val index = todoItems.indexOfFirst {
+                            it.description == updatedItem.description
+                        }
                         if (index != -1) {
                             todoItems[index] =
                                 updatedItem.copy(isCompleted = !updatedItem.isCompleted)

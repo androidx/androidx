@@ -46,15 +46,14 @@ internal class InvalidateCallbackTracker<T>(
             return
         }
 
-        val callImmediately =
-            lock.withLock {
-                if (invalid) {
-                    true // call immediately
-                } else {
-                    callbacks.add(callback)
-                    false // don't call, not invalid yet.
-                }
+        val callImmediately = lock.withLock {
+            if (invalid) {
+                true // call immediately
+            } else {
+                callbacks.add(callback)
+                false // don't call, not invalid yet.
             }
+        }
 
         if (callImmediately) {
             callbackInvoker(callback)
@@ -68,13 +67,12 @@ internal class InvalidateCallbackTracker<T>(
     internal fun invalidate(): Boolean {
         if (invalid) return false
 
-        val callbacksToInvoke =
-            lock.withLock {
-                if (invalid) return false
+        val callbacksToInvoke = lock.withLock {
+            if (invalid) return false
 
-                invalid = true
-                callbacks.toList().also { callbacks.clear() }
-            }
+            invalid = true
+            callbacks.toList().also { callbacks.clear() }
+        }
 
         callbacksToInvoke.forEach(callbackInvoker)
         return true

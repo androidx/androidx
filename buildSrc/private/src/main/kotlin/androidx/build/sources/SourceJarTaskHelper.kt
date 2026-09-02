@@ -297,11 +297,10 @@ private fun KotlinSourceSet.transitiveDependsOn(): Set<KotlinSourceSet> {
 private fun Project.registerSamplesLibraries(
     samplesProjects: MutableCollection<Project>,
     publishingVariants: List<PublishingVariant>,
-) =
-    samplesProjects.forEach { sampleProject ->
-        dependencies.add("samples", sampleProject)
-        updateCopySampleSourceJarsTaskWithVariant(publishingVariants.map { it.name })
-    }
+) = samplesProjects.forEach { sampleProject ->
+    dependencies.add("samples", sampleProject)
+    updateCopySampleSourceJarsTaskWithVariant(publishingVariants.map { it.name })
+}
 
 /**
  * Updates the published variants with the output of [LazyInputsCopyTask]. This function must be

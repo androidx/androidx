@@ -130,14 +130,13 @@ class ErrorUiAppWidgetConfigurationRepo(val context: Context, glanceId: GlanceId
     }
 
     fun observeOnErrorBehavior(onChange: (OnErrorBehavior) -> Unit) {
-        val listener =
-            SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-                if (key != prefsKey) {
-                    return@OnSharedPreferenceChangeListener
-                } else {
-                    onChange(getOnErrorBehavior(prefs))
-                }
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+            if (key != prefsKey) {
+                return@OnSharedPreferenceChangeListener
+            } else {
+                onChange(getOnErrorBehavior(prefs))
             }
+        }
 
         this.listener = listener
         sharedPreferences.registerOnSharedPreferenceChangeListener(listener)

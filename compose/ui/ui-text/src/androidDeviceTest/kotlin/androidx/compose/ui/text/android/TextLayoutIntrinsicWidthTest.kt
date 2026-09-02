@@ -61,36 +61,33 @@ class TextLayoutIntrinsicWidthTest {
 
     @Test
     fun intrinsicWidth_with_letterSpacing_and_lineHeight_createsOneLine() {
-        val text =
-            defaultText.apply {
-                setLineHeight(lineHeight)
-                setSpan(LetterSpacingSpanPx(letterSpacingPx))
-            }
+        val text = defaultText.apply {
+            setLineHeight(lineHeight)
+            setSpan(LetterSpacingSpanPx(letterSpacingPx))
+        }
 
         assertLineCount(text)
     }
 
     @Test
     fun intrinsicWidth_with_letterSpacing_and_lineHeight_createsOneLine_multipleSpans() {
-        val text =
-            defaultText.apply {
-                for (i in 0..8) {
-                    val end = i + 1
-                    setLineHeight(lineHeight, i, end)
-                    setSpan(LetterSpacingSpanPx(letterSpacingPx), i, end)
-                }
+        val text = defaultText.apply {
+            for (i in 0..8) {
+                val end = i + 1
+                setLineHeight(lineHeight, i, end)
+                setSpan(LetterSpacingSpanPx(letterSpacingPx), i, end)
             }
+        }
 
         assertLineCount(text)
     }
 
     @Test
     fun intrinsicWidth_with_letterSpacingEm_and_lineHeight_createsOneLine() {
-        val text =
-            defaultText.apply {
-                setLineHeight(lineHeight)
-                setSpan(LetterSpacingSpanEm(letterSpacingEm))
-            }
+        val text = defaultText.apply {
+            setLineHeight(lineHeight)
+            setSpan(LetterSpacingSpanEm(letterSpacingEm))
+        }
 
         assertLineCount(text)
     }

@@ -249,16 +249,16 @@ class TracingTest {
             tracer.traceCoroutine(category = "category", name = "service") {
                 coroutineScope {
                     async {
-                            tracer.traceCoroutine(category = "category", name = "method1") {
-                                delay(timeMillis = 10)
-                            }
+                        tracer.traceCoroutine(category = "category", name = "method1") {
+                            delay(timeMillis = 10)
                         }
+                    }
                         .await()
                     async {
-                            tracer.traceCoroutine(category = "category", name = "method2") {
-                                delay(timeMillis = 40)
-                            }
+                        tracer.traceCoroutine(category = "category", name = "method2") {
+                            delay(timeMillis = 40)
                         }
+                    }
                         .await()
                 }
             }
@@ -378,10 +378,10 @@ class TracingTest {
             tracer.traceCoroutine(category = "category", name = "service") {
                 coroutineScope {
                     async {
-                            tracer.traceCoroutine(category = "category", name = "method1") {
-                                delay(10L.milliseconds)
-                            }
+                        tracer.traceCoroutine(category = "category", name = "method1") {
+                            delay(10L.milliseconds)
                         }
+                    }
                         .await()
                 }
             }

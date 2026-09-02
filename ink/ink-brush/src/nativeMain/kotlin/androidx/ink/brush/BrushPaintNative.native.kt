@@ -80,22 +80,21 @@ actual internal object BrushPaintNative {
         textureLayerNativePointers: LongArray,
         colorFunctionNativePointers: LongArray,
         selfOverlapInt: Int,
-    ): Long =
-        textureLayerNativePointers.usePinned { pinnedTextureLayers ->
-            colorFunctionNativePointers.usePinned { pinnedColorFunctions ->
-                BrushPaintNative_create(
-                    jni_env_pass_through = null,
-                    if (textureLayerNativePointers.isEmpty()) null
-                    else pinnedTextureLayers.addressOf(0),
-                    textureLayerNativePointers.size,
-                    if (colorFunctionNativePointers.isEmpty()) null
-                    else pinnedColorFunctions.addressOf(0),
-                    colorFunctionNativePointers.size,
-                    selfOverlapInt,
-                    throwForNonOkStatusCallback,
-                )
-            }
+    ): Long = textureLayerNativePointers.usePinned { pinnedTextureLayers ->
+        colorFunctionNativePointers.usePinned { pinnedColorFunctions ->
+            BrushPaintNative_create(
+                jni_env_pass_through = null,
+                if (textureLayerNativePointers.isEmpty()) null
+                else pinnedTextureLayers.addressOf(0),
+                textureLayerNativePointers.size,
+                if (colorFunctionNativePointers.isEmpty()) null
+                else pinnedColorFunctions.addressOf(0),
+                colorFunctionNativePointers.size,
+                selfOverlapInt,
+                throwForNonOkStatusCallback,
+            )
         }
+    }
 
     actual fun free(nativePointer: Long) = BrushPaintNative_free(nativePointer)
 

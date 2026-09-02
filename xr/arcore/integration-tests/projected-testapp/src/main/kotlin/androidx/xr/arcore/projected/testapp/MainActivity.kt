@@ -273,7 +273,8 @@ class MainActivity : ComponentActivity() {
 
                     startActivity(
                         intent,
-                        ProjectedContext.createProjectedActivityOptions(projectedContext).toBundle(),
+                        ProjectedContext.createProjectedActivityOptions(projectedContext)
+                            .toBundle(),
                     )
                 }
             ) {

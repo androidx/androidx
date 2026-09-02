@@ -396,10 +396,9 @@ class AppFunctionRuntimeRegistrationTest {
     fun testRegisterAppFunction_runsOnProvidedExecutor() {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
-        val executor =
-            Executors.newSingleThreadExecutor { runnable ->
-                Thread(runnable, "my-custom-test-executor-thread")
-            }
+        val executor = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "my-custom-test-executor-thread")
+        }
 
         runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
             val executionThreadNameDeferred = CompletableDeferred<String>()
@@ -665,10 +664,9 @@ class AppFunctionRuntimeRegistrationTest {
     fun testHandleAppFunction_runsInCallerScope() {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
-        val executor =
-            Executors.newSingleThreadExecutor { runnable ->
-                Thread(runnable, "my-test-executor-thread")
-            }
+        val executor = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "my-test-executor-thread")
+        }
         val customDispatcher = executor.asCoroutineDispatcher()
 
         val suspendAppFunction = SuspendingAppFunction { _ ->
@@ -731,16 +729,15 @@ class AppFunctionRuntimeRegistrationTest {
             }
 
             val scope = CoroutineScope(Job())
-            val handleJob =
-                scope.launch {
-                    handleThreadDeferred.complete(Thread.currentThread().name)
-                    activityAppFunctionManager.handleAppFunction(
-                        HandleAppFunctionRequest(
-                            functionIdentifier = functionId,
-                            appFunction = suspendAppFunction,
-                        )
+            val handleJob = scope.launch {
+                handleThreadDeferred.complete(Thread.currentThread().name)
+                activityAppFunctionManager.handleAppFunction(
+                    HandleAppFunctionRequest(
+                        functionIdentifier = functionId,
+                        appFunction = suspendAppFunction,
                     )
-                }
+                )
+            }
 
             try {
                 val request =
@@ -774,10 +771,9 @@ class AppFunctionRuntimeRegistrationTest {
     fun testHandleAppFunction_cancelledBeforeDispatch_doesNotHang() {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
-        val executor =
-            Executors.newSingleThreadExecutor { runnable ->
-                Thread(runnable, "my-custom-test-executor-thread")
-            }
+        val executor = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "my-custom-test-executor-thread")
+        }
         val customDispatcher = executor.asCoroutineDispatcher()
 
         runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
@@ -850,10 +846,9 @@ class AppFunctionRuntimeRegistrationTest {
     fun testRegisterAppFunction_cancelledBeforeDispatch_doesNotHang() {
         val functionId =
             AppFunctionMetadataTestHelper.FunctionIds.DYNAMIC_REGISTRATION_RETURN_SUCCESS
-        val executor =
-            Executors.newSingleThreadExecutor { runnable ->
-                Thread(runnable, "my-custom-test-executor-thread")
-            }
+        val executor = Executors.newSingleThreadExecutor { runnable ->
+            Thread(runnable, "my-custom-test-executor-thread")
+        }
 
         runWithActivityAppFunctionManager { _, activityAppFunctionManager ->
             val callbackAppFunction = CallbackAppFunction { _, _, callback ->
@@ -948,7 +943,8 @@ class AppFunctionRuntimeRegistrationTest {
     private fun runWithActivityAppFunctionManager(
         block:
             suspend CoroutineScope.(
-                activity: TestActivity, activityAppFunctionManager: AppFunctionManager,
+                activity: TestActivity,
+                activityAppFunctionManager: AppFunctionManager,
             ) -> Unit
     ) {
         val intent =

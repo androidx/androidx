@@ -143,15 +143,14 @@ private fun RcCanvasScope.renderChart(scope: ChartScope, title: String?) {
     // A lone bar series keeps color=null → per-category palette coloring (the classic bar chart).
     val specs = scope.seriesSpecs()
     var colorIdx = 0
-    val resolved =
-        specs.map { s ->
-            val idx = colorIdx++
-            when {
-                s.color != null -> s
-                s.kind == SeriesKind.Bar && specs.size == 1 -> s
-                else -> s.withColor(theme.seriesColor(idx))
-            }
+    val resolved = specs.map { s ->
+        val idx = colorIdx++
+        when {
+            s.color != null -> s
+            s.kind == SeriesKind.Bar && specs.size == 1 -> s
+            else -> s.withColor(theme.seriesColor(idx))
         }
+    }
     val barSpecs = resolved.filter { it.kind == SeriesKind.Bar }
     require(barSpecs.none { it.secondary }) { "graph2d: only line/area series can be secondary" }
     val lineSpecs = resolved.filter { it.kind != SeriesKind.Bar && !it.secondary }

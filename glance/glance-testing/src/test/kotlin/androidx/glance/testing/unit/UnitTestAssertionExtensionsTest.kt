@@ -247,8 +247,9 @@ class UnitTestAssertionExtensionsTest {
                         children.add(
                             EmittableText().apply {
                                 text = "test text"
-                                modifier =
-                                    GlanceModifier.semantics { testTag = "existing-test-tag" }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "existing-test-tag"
+                                }
                             }
                         )
                     },
@@ -274,11 +275,10 @@ class UnitTestAssertionExtensionsTest {
                         children.add(
                             EmittableText().apply {
                                 text = "test text"
-                                modifier =
-                                    GlanceModifier.semantics {
-                                        testTag = "test-tag"
-                                        contentDescription = "test text description"
-                                    }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "test-tag"
+                                    contentDescription = "test text description"
+                                }
                             }
                         )
                     },
@@ -297,11 +297,10 @@ class UnitTestAssertionExtensionsTest {
                         children.add(
                             EmittableText().apply {
                                 text = "test text"
-                                modifier =
-                                    GlanceModifier.semantics {
-                                        testTag = "test-tag"
-                                        contentDescription = "test text description"
-                                    }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "test-tag"
+                                    contentDescription = "test text description"
+                                }
                             }
                         )
                     },
@@ -352,11 +351,10 @@ class UnitTestAssertionExtensionsTest {
                         children.add(
                             EmittableText().apply {
                                 text = "test text"
-                                modifier =
-                                    GlanceModifier.semantics {
-                                        testTag = "test-tag"
-                                        contentDescription = "test text description"
-                                    }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "test-tag"
+                                    contentDescription = "test text description"
+                                }
                             }
                         )
                     },
@@ -388,11 +386,10 @@ class UnitTestAssertionExtensionsTest {
                         children.add(
                             EmittableText().apply {
                                 text = "test text"
-                                modifier =
-                                    GlanceModifier.semantics {
-                                        testTag = "test-tag"
-                                        contentDescription = "test text description"
-                                    }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "test-tag"
+                                    contentDescription = "test text description"
+                                }
                             }
                         )
                     },
@@ -411,11 +408,10 @@ class UnitTestAssertionExtensionsTest {
                         children.add(
                             EmittableText().apply {
                                 text = "test text"
-                                modifier =
-                                    GlanceModifier.semantics {
-                                        testTag = "test-tag"
-                                        contentDescription = "test text description"
-                                    }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "test-tag"
+                                    contentDescription = "test text description"
+                                }
                             }
                         )
                     },
@@ -464,11 +460,10 @@ class UnitTestAssertionExtensionsTest {
                         children.add(
                             EmittableText().apply {
                                 text = "test text"
-                                modifier =
-                                    GlanceModifier.semantics {
-                                        testTag = "test-tag"
-                                        contentDescription = "text"
-                                    }
+                                modifier = GlanceModifier.semantics {
+                                    testTag = "test-tag"
+                                    contentDescription = "text"
+                                }
                             }
                         )
                     },

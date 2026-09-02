@@ -145,7 +145,8 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                     colors =
                         RadioButtonDefaults.colors(
                             checkedColor = ColorProvider(day = Color.Red, night = Color.Cyan),
-                            uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta),
+                            uncheckedColor =
+                                ColorProvider(day = Color.Green, night = Color.Magenta),
                         ),
                 )
                 RadioButton(

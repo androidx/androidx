@@ -312,14 +312,13 @@ class SessionWorkerTest {
         }
 
         val runError = mutableStateOf(false)
-        val resultFlow =
-            sessionManager.runWithLock {
-                this as TestSessionManager.TestSessionManagerScope
-                startSession(context) {
-                    Text("Hello")
-                    if (runError.value) throw Throwable()
-                }
+        val resultFlow = sessionManager.runWithLock {
+            this as TestSessionManager.TestSessionManagerScope
+            startSession(context) {
+                Text("Hello")
+                if (runError.value) throw Throwable()
             }
+        }
         resultFlow.first { it.isSuccess }
 
         // Start the error within the lock
@@ -351,7 +350,9 @@ class TestSessionManager : SessionManager {
     private val mutex = Mutex()
 
     override suspend fun <T> runWithLock(block: suspend SessionManagerScope.() -> T): T =
-        mutex.withLock { scope.block() }
+        mutex.withLock {
+            scope.block()
+        }
 
     class TestSessionManagerScope : SessionManagerScope {
         private val sessions = mutableMapOf<String, Session>()

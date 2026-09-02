@@ -40,73 +40,69 @@ import org.robolectric.annotation.Config
 class TranslateRowTest : BaseRemoteComposeTest() {
 
     @Test
-    fun translateRow_100x100() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Row(modifier = GlanceModifier.size(100.dp, 100.dp)) {
-                        // no content
-                    }
+    fun translateRow_100x100() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Row(modifier = GlanceModifier.size(100.dp, 100.dp)) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val row = getSimpleLeaf(doc) as RowLayout
-            assertEquals(100f, row.width)
-            assertEquals(100f, row.height)
-        }
+        val row = getSimpleLeaf(doc) as RowLayout
+        assertEquals(100f, row.width)
+        assertEquals(100f, row.height)
+    }
 
     @Test
-    fun translateRow_MatchWidth_100dpHeight() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Row(modifier = GlanceModifier.fillMaxWidth().height(100.dp)) {
-                        // no content
-                    }
+    fun translateRow_MatchWidth_100dpHeight() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Row(modifier = GlanceModifier.fillMaxWidth().height(100.dp)) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val row = getSimpleLeaf(doc) as RowLayout
+        val row = getSimpleLeaf(doc) as RowLayout
 
-            assertEquals(DimensionModifierOperation.Type.FILL, row.widthModifier!!.type)
-            assertEquals(100f, row.height)
-        }
+        assertEquals(DimensionModifierOperation.Type.FILL, row.widthModifier!!.type)
+        assertEquals(100f, row.height)
+    }
 
     @Test
-    fun translateRow_FillMaxSize() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Row(modifier = GlanceModifier.fillMaxSize()) {
-                        // no content
-                    }
+    fun translateRow_FillMaxSize() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Row(modifier = GlanceModifier.fillMaxSize()) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val row = getSimpleLeaf(doc) as RowLayout
+        val row = getSimpleLeaf(doc) as RowLayout
 
-            assertEquals(DimensionModifierOperation.Type.FILL, row.widthModifier!!.type)
-            assertEquals(DimensionModifierOperation.Type.FILL, row.heightModifier!!.type)
-        }
+        assertEquals(DimensionModifierOperation.Type.FILL, row.widthModifier!!.type)
+        assertEquals(DimensionModifierOperation.Type.FILL, row.heightModifier!!.type)
+    }
 
     @Test
-    fun translateRow_wrapContent() =
-        fakeCoroutineScope.runTest {
-            val (_, wireBuffer: WireBuffer) =
-                context.runAndTranslateSingleRoot {
-                    Row(modifier = GlanceModifier.fillMaxSize()) {
-                        // no content
-                    }
+    fun translateRow_wrapContent() = fakeCoroutineScope.runTest {
+        val (_, wireBuffer: WireBuffer) =
+            context.runAndTranslateSingleRoot {
+                Row(modifier = GlanceModifier.fillMaxSize()) {
+                    // no content
                 }
+            }
 
-            val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
+        val doc = makeCoreDocumentForDebug(wireBuffer = wireBuffer)
 
-            val row = getSimpleLeaf(doc) as RowLayout
+        val row = getSimpleLeaf(doc) as RowLayout
 
-            assertEquals(DimensionModifierOperation.Type.FILL, row.widthModifier!!.type)
-            assertEquals(DimensionModifierOperation.Type.FILL, row.heightModifier!!.type)
-        }
+        assertEquals(DimensionModifierOperation.Type.FILL, row.widthModifier!!.type)
+        assertEquals(DimensionModifierOperation.Type.FILL, row.heightModifier!!.type)
+    }
 } // end tests

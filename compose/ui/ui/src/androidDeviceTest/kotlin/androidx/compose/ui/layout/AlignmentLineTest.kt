@@ -1155,12 +1155,11 @@ class AlignmentLineTest {
     ) {
         Layout(content, modifier) { measurables, constraints ->
             onMeasure()
-            val placeables =
-                measurables.map {
-                    it.measure(constraints).also {
-                        if (readDuringMeasure()) assertEquals(linePosition, it[TestLine])
-                    }
+            val placeables = measurables.map {
+                it.measure(constraints).also {
+                    if (readDuringMeasure()) assertEquals(linePosition, it[TestLine])
                 }
+            }
             layout(constraints.maxWidth, constraints.maxHeight) {
                 onLayout()
                 placeables.forEach { placeable ->

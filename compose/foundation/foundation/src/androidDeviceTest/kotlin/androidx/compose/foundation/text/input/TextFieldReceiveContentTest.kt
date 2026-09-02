@@ -313,14 +313,13 @@ class TextFieldReceiveContentTest {
     @Test
     fun semanticsPasteContent_pastesLeftOverText() = runTest {
         val clipboard = FakeClipboard()
-        val clipEntry =
-            createClipData {
-                    addText("some text")
-                    addUri()
-                    addIntent()
-                    addText("more text")
-                }
-                .toClipEntry()
+        val clipEntry = createClipData {
+            addText("some text")
+            addUri()
+            addIntent()
+            addText("more text")
+        }
+            .toClipEntry()
         clipboard.setClipEntry(clipEntry)
         val state = TextFieldState()
         rule.setContent {
@@ -346,14 +345,13 @@ class TextFieldReceiveContentTest {
     @Test
     fun semanticsPasteContent_goesFromChildToParent() = runTest {
         val clipboard = FakeClipboard()
-        val clipEntry =
-            createClipData {
-                    addText("a")
-                    addText("b")
-                    addText("c")
-                    addText("d")
-                }
-                .toClipEntry()
+        val clipEntry = createClipData {
+            addText("a")
+            addText("b")
+            addText("c")
+            addText("d")
+        }
+            .toClipEntry()
         clipboard.setClipEntry(clipEntry)
 
         lateinit var transferableContent1: TransferableContent

@@ -49,106 +49,90 @@ class WrapContentModifierScreenshotTest {
     private val gridScreenshotUI = GridScreenshotUI()
 
     @Test
-    fun grid() =
-        composeTestRule.runScreenshotTest {
-            val tests =
-                listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
-                    "wrapContentSize" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.wrapContentSize().background(Color.Green.rc)
-                                ) {
-                                    RemoteBox(
-                                        modifier =
-                                            RemoteModifier.size(20.rdp).background(Color.Blue.rc)
-                                    )
-                                }
-                            }
-                        },
-                    "wrapContentWidth" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.height(60.rdp)
-                                            .wrapContentWidth()
-                                            .background(Color.Green.rc)
-                                ) {
-                                    RemoteBox(
-                                        modifier =
-                                            RemoteModifier.size(20.rdp).background(Color.Blue.rc)
-                                    )
-                                }
-                            }
-                        },
-                    "wrapContentHeight" to
-                        @RemoteComposable @Composable {
-                            RemoteBox(
-                                modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)
-                            ) {
-                                RemoteBox(
-                                    modifier =
-                                        RemoteModifier.width(60.rdp)
-                                            .wrapContentHeight()
-                                            .background(Color.Green.rc)
-                                ) {
-                                    RemoteBox(
-                                        modifier =
-                                            RemoteModifier.size(20.rdp).background(Color.Blue.rc)
-                                    )
-                                }
-                            }
-                        },
-                    "fillMaxWidth + wrapContentHeight" to
-                        @RemoteComposable @Composable {
+    fun grid() = composeTestRule.runScreenshotTest {
+        val tests =
+            listOf<Pair<String, @RemoteComposable @Composable () -> Unit>>(
+                "wrapContentSize" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)) {
                             RemoteBox(
                                 modifier =
-                                    RemoteModifier.width(80.rdp)
-                                        .height(60.rdp)
-                                        .background(Color.Red.rc)
+                                    RemoteModifier.wrapContentSize().background(Color.Green.rc)
                             ) {
                                 RemoteBox(
-                                    modifier =
-                                        RemoteModifier.fillMaxWidth()
-                                            .wrapContentHeight()
-                                            .background(Color.Green.rc)
-                                ) {
-                                    RemoteBox(
-                                        modifier =
-                                            RemoteModifier.size(30.rdp).background(Color.Blue.rc)
-                                    )
-                                }
+                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                )
                             }
-                        },
-                    "fillMaxHeight + wrapContentWidth" to
-                        @RemoteComposable @Composable {
+                        }
+                    },
+                "wrapContentWidth" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)) {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.height(60.rdp)
+                                        .wrapContentWidth()
+                                        .background(Color.Green.rc)
+                            ) {
+                                RemoteBox(
+                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                )
+                            }
+                        }
+                    },
+                "wrapContentHeight" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(modifier = RemoteModifier.size(60.rdp).background(Color.Red.rc)) {
                             RemoteBox(
                                 modifier =
                                     RemoteModifier.width(60.rdp)
-                                        .height(80.rdp)
-                                        .background(Color.Red.rc)
+                                        .wrapContentHeight()
+                                        .background(Color.Green.rc)
                             ) {
                                 RemoteBox(
-                                    modifier =
-                                        RemoteModifier.fillMaxHeight()
-                                            .wrapContentWidth()
-                                            .background(Color.Green.rc)
-                                ) {
-                                    RemoteBox(
-                                        modifier =
-                                            RemoteModifier.size(30.rdp).background(Color.Blue.rc)
-                                    )
-                                }
+                                    modifier = RemoteModifier.size(20.rdp).background(Color.Blue.rc)
+                                )
                             }
-                        },
-                )
+                        }
+                    },
+                "fillMaxWidth + wrapContentHeight" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.width(80.rdp).height(60.rdp).background(Color.Red.rc)
+                        ) {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.fillMaxWidth()
+                                        .wrapContentHeight()
+                                        .background(Color.Green.rc)
+                            ) {
+                                RemoteBox(
+                                    modifier = RemoteModifier.size(30.rdp).background(Color.Blue.rc)
+                                )
+                            }
+                        }
+                    },
+                "fillMaxHeight + wrapContentWidth" to
+                    @RemoteComposable @Composable {
+                        RemoteBox(
+                            modifier =
+                                RemoteModifier.width(60.rdp).height(80.rdp).background(Color.Red.rc)
+                        ) {
+                            RemoteBox(
+                                modifier =
+                                    RemoteModifier.fillMaxHeight()
+                                        .wrapContentWidth()
+                                        .background(Color.Green.rc)
+                            ) {
+                                RemoteBox(
+                                    modifier = RemoteModifier.size(30.rdp).background(Color.Blue.rc)
+                                )
+                            }
+                        }
+                    },
+            )
 
-            gridScreenshotUI.GridContent(tests)
-        }
+        gridScreenshotUI.GridContent(tests)
+    }
 }

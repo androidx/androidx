@@ -250,7 +250,8 @@ class ComplicationDataEvaluatorTest {
                 listOf(
                     mapOf(
                         AppDataKey<DynamicString>("valid") to DynamicDataValue.fromString("Valid"),
-                        AppDataKey<DynamicString>("invalid") to DynamicDataValue.fromString("Valid"),
+                        AppDataKey<DynamicString>("invalid") to
+                            DynamicDataValue.fromString("Valid"),
                     ),
                     mapOf(
                         AppDataKey<DynamicString>("valid") to DynamicDataValue.fromString("Valid")

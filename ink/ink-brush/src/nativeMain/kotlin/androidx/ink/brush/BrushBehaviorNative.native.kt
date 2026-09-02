@@ -35,16 +35,15 @@ actual internal object BrushBehaviorNative {
     actual fun createFromOrderedNodes(
         orderdNodeNativePointers: LongArray,
         developerComment: String,
-    ): Long =
-        orderdNodeNativePointers.usePinned { pinned ->
-            BrushBehaviorNative_createFromOrderedNodes(
-                jni_env_pass_through = null,
-                if (orderdNodeNativePointers.isEmpty()) null else pinned.addressOf(0),
-                orderdNodeNativePointers.size,
-                developerComment,
-                throwForNonOkStatusCallback,
-            )
-        }
+    ): Long = orderdNodeNativePointers.usePinned { pinned ->
+        BrushBehaviorNative_createFromOrderedNodes(
+            jni_env_pass_through = null,
+            if (orderdNodeNativePointers.isEmpty()) null else pinned.addressOf(0),
+            orderdNodeNativePointers.size,
+            developerComment,
+            throwForNonOkStatusCallback,
+        )
+    }
 
     actual fun free(nativePointer: Long) = BrushBehaviorNative_free(nativePointer)
 

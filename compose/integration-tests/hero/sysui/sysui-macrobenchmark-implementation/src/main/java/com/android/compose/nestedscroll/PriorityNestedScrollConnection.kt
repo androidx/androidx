@@ -311,10 +311,10 @@ class PriorityNestedScrollConnection(
         return coroutineScope {
             try {
                 async {
-                        with(controller) {
-                            OnStopScopeImpl(controller = controller).onStop(velocity)
-                        }
+                    with(controller) {
+                        OnStopScopeImpl(controller = controller).onStop(velocity)
                     }
+                }
                     // Allows others to interrupt the job.
                     .also { stoppingJob = it }
                     // Note: this can be cancelled by [interruptStopping]

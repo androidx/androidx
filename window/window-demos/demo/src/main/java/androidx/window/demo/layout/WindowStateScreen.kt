@@ -259,7 +259,8 @@ private fun WindowStateSummary(state: WindowState, lastState: WindowState) {
         buildAnnotatedString {
             rotationString(
                 state.applicationDisplayRotation,
-                highlight = state.applicationDisplayRotation != lastState.applicationDisplayRotation,
+                highlight =
+                    state.applicationDisplayRotation != lastState.applicationDisplayRotation,
             )
             append(" / ")
             rotationString(

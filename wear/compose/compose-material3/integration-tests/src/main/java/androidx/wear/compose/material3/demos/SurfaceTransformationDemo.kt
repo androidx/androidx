@@ -211,9 +211,7 @@ fun SurfaceTransformationDemo() {
                 checked = checked,
                 onCheckedChange = { checked = it },
                 toggleContentDescription = "Split Checkbox Button Sample",
-                onContainerClick = {
-                    /* Do something */
-                },
+                onContainerClick = { /* Do something */ },
                 containerClickLabel = "click",
                 enabled = true,
                 transformation = SurfaceTransformation(transformationSpec),
@@ -246,9 +244,7 @@ fun SurfaceTransformationDemo() {
                 selected = selectedButton == 0,
                 onSelectionClick = { selectedButton = 0 },
                 selectionContentDescription = "First",
-                onContainerClick = {
-                    /* Do something */
-                },
+                onContainerClick = { /* Do something */ },
                 containerClickLabel = "click",
                 enabled = true,
                 transformation = SurfaceTransformation(transformationSpec),
@@ -281,9 +277,7 @@ fun SurfaceTransformationDemo() {
                 checked = checked,
                 onCheckedChange = { checked = it },
                 toggleContentDescription = "Split Switch Button Sample",
-                onContainerClick = {
-                    /* Do something */
-                },
+                onContainerClick = { /* Do something */ },
                 enabled = true,
                 transformation = SurfaceTransformation(transformationSpec),
                 modifier = Modifier.transformedHeight(this, transformationSpec),

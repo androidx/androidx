@@ -239,7 +239,9 @@ class ComposeInFragmentTest {
                             PointerProperties(bottomBoxEventId).also {
                                 it.toolType = TOOL_TYPE_FINGER
                             },
-                            PointerProperties(topBoxEventId).also { it.toolType = TOOL_TYPE_FINGER },
+                            PointerProperties(topBoxEventId).also {
+                                it.toolType = TOOL_TYPE_FINGER
+                            },
                         ),
                     pointerCoords =
                         arrayOf(
@@ -270,7 +272,9 @@ class ComposeInFragmentTest {
                             PointerProperties(bottomBoxEventId).also {
                                 it.toolType = TOOL_TYPE_FINGER
                             },
-                            PointerProperties(topBoxEventId).also { it.toolType = TOOL_TYPE_FINGER },
+                            PointerProperties(topBoxEventId).also {
+                                it.toolType = TOOL_TYPE_FINGER
+                            },
                         ),
                     pointerCoords =
                         arrayOf(

@@ -493,10 +493,9 @@ internal constructor(internal val annotations: List<Range<Annotation>>?, public 
         }
 
         internal fun flatMapAnnotations(transform: (Range<Annotation>) -> List<Range<Annotation>>) {
-            val replacedAnnotations =
-                annotations.fastFlatMap { annotation ->
-                    transform(annotation.toRange()).fastMap { MutableRange.fromRange(it) }
-                }
+            val replacedAnnotations = annotations.fastFlatMap { annotation ->
+                transform(annotation.toRange()).fastMap { MutableRange.fromRange(it) }
+            }
             annotations.clear()
             annotations.addAll(replacedAnnotations)
         }
@@ -703,15 +702,14 @@ internal fun RemoteAnnotatedString.transform(
         resultStr.append(transform(text, start, end))
         offsetMap.put(end, resultStr.length)
     }
-    val newAnnotations =
-        annotations?.fastMap {
-            RemoteAnnotatedString.Range(
-                item = it.item,
-                start = offsetMap[it.start],
-                end = offsetMap[it.end],
-                tag = it.tag,
-            )
-        }
+    val newAnnotations = annotations?.fastMap {
+        RemoteAnnotatedString.Range(
+            item = it.item,
+            start = offsetMap[it.start],
+            end = offsetMap[it.end],
+            tag = it.tag,
+        )
+    }
 
     return RemoteAnnotatedString(
         text = resultStr.toString(),

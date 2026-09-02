@@ -73,20 +73,19 @@ internal class CurvedRowChild(
     ): PartialLayoutInfo {
         // position children, sum angles.
         @Suppress("ListIterator")
-        val totalSweep =
-            children.sumOf { child ->
-                var childRadialPosition = parentOuterRadius
-                var childThickness = parentThickness
-                if (radialAlignment != null) {
-                    childRadialPosition =
-                        parentOuterRadius -
-                            radialAlignment.ratio * (parentThickness - child.estimatedThickness)
-                    childThickness = child.estimatedThickness
-                }
-
-                child.radialPosition(childRadialPosition, childThickness)
-                child.sweepRadians
+        val totalSweep = children.sumOf { child ->
+            var childRadialPosition = parentOuterRadius
+            var childThickness = parentThickness
+            if (radialAlignment != null) {
+                childRadialPosition =
+                    parentOuterRadius -
+                        radialAlignment.ratio * (parentThickness - child.estimatedThickness)
+                childThickness = child.estimatedThickness
             }
+
+            child.radialPosition(childRadialPosition, childThickness)
+            child.sweepRadians
+        }
 
         return PartialLayoutInfo(
             totalSweep,
@@ -102,10 +101,9 @@ internal class CurvedRowChild(
         parentSweepRadians: Float,
         centerOffset: Offset,
     ): Float {
-        val weights =
-            childrenInLayoutOrder.fastMap { node ->
-                (node.computeParentData() as? CurvedScopeParentData)?.weight ?: 0f
-            }
+        val weights = childrenInLayoutOrder.fastMap { node ->
+            (node.computeParentData() as? CurvedScopeParentData)?.weight ?: 0f
+        }
         val sumWeights = weights.sum()
         val extraSpace =
             parentSweepRadians -

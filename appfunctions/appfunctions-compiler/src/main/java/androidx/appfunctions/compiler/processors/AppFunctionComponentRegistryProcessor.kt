@@ -136,26 +136,25 @@ class AppFunctionComponentRegistryProcessor(private val codeGenerator: CodeGener
     private fun generateFunctionComponentRegistry(resolver: Resolver) {
         val annotatedAppFunctions =
             AppFunctionSymbolResolver(resolver).resolveAnnotatedAppFunctions()
-        val functionComponents =
-            annotatedAppFunctions.flatMap { annotatedAppFunction ->
-                buildList {
-                    for (appFunction in annotatedAppFunction.appFunctions) {
-                        val function = appFunction.appFunctionDeclaration
-                        add(
-                            AppFunctionComponent(
-                                qualifiedName = function.ensureQualifiedName(),
-                                sourceFiles = annotatedAppFunction.getSourceFiles(),
-                                docString =
-                                    if (appFunction.isDescribedByKDoc) {
-                                        function.docString ?: ""
-                                    } else {
-                                        ""
-                                    },
-                            )
+        val functionComponents = annotatedAppFunctions.flatMap { annotatedAppFunction ->
+            buildList {
+                for (appFunction in annotatedAppFunction.appFunctions) {
+                    val function = appFunction.appFunctionDeclaration
+                    add(
+                        AppFunctionComponent(
+                            qualifiedName = function.ensureQualifiedName(),
+                            sourceFiles = annotatedAppFunction.getSourceFiles(),
+                            docString =
+                                if (appFunction.isDescribedByKDoc) {
+                                    function.docString ?: ""
+                                } else {
+                                    ""
+                                },
                         )
-                    }
+                    )
                 }
             }
+        }
 
         AppFunctionComponentRegistryGenerator(codeGenerator)
             .generateRegistry(

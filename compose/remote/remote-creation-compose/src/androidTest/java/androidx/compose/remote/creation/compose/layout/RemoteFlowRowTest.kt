@@ -361,72 +361,65 @@ class RemoteFlowRowTest {
 
     private fun getLayoutAlignmentUIs(
         horizontalArrangements: List<RemoteArrangement.Horizontal> = this.horizontalArrangements
-    ): List<Pair<String, @RemoteComposable @Composable () -> Unit>> =
-        sequence {
-                for (verticalArrangement in verticalArrangements) {
-                    for (horizontalArrangement in horizontalArrangements) {
-                        yield(
-                            "${verticalArrangement.propertyName()} ${horizontalArrangement.propertyName()}" to
-                                @RemoteComposable @Composable {
-                                    RemoteFlowRow(
-                                        modifier = RemoteModifier.fillMaxSize(),
-                                        horizontalArrangement = horizontalArrangement,
-                                        verticalArrangement = verticalArrangement,
-                                    ) {
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.size(48.rdp)
-                                                    .background(Color(0xFF6200EE).rc)
-                                        )
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.size(24.rdp)
-                                                    .background(Color(0xFF03DAC6).rc)
-                                        )
-                                    }
-                                }
-                        )
-                    }
-                }
+    ): List<Pair<String, @RemoteComposable @Composable () -> Unit>> = sequence {
+        for (verticalArrangement in verticalArrangements) {
+            for (horizontalArrangement in horizontalArrangements) {
+                yield(
+                    "${verticalArrangement.propertyName()} ${horizontalArrangement.propertyName()}" to
+                        @RemoteComposable @Composable {
+                            RemoteFlowRow(
+                                modifier = RemoteModifier.fillMaxSize(),
+                                horizontalArrangement = horizontalArrangement,
+                                verticalArrangement = verticalArrangement,
+                            ) {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(48.rdp).background(Color(0xFF6200EE).rc)
+                                )
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(24.rdp).background(Color(0xFF03DAC6).rc)
+                                )
+                            }
+                        }
+                )
             }
-            .toList()
+        }
+    }
+        .toList()
 
     private fun getLayoutAlignmentWrapUIs(
         horizontalArrangements: List<RemoteArrangement.Horizontal> = this.horizontalArrangements
-    ): List<Pair<String, @RemoteComposable @Composable () -> Unit>> =
-        sequence {
-                for (verticalArrangement in verticalArrangements) {
-                    for (horizontalArrangement in horizontalArrangements) {
-                        yield(
-                            "${verticalArrangement.propertyName()} ${horizontalArrangement.propertyName()}" to
-                                @RemoteComposable @Composable {
-                                    RemoteFlowRow(
-                                        modifier = RemoteModifier.fillMaxSize(),
-                                        horizontalArrangement = horizontalArrangement,
-                                        verticalArrangement = verticalArrangement,
-                                    ) {
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.size(40.rdp)
-                                                    .background(Color(0xFF6200EE).rc)
-                                        )
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.size(40.rdp)
-                                                    .background(Color(0xFF03DAC6).rc)
-                                        )
-                                        RemoteBox(
-                                            modifier =
-                                                RemoteModifier.size(40.rdp)
-                                                    .background(Color(0xFFBB86FC).rc)
-                                        )
-                                    }
-                                }
-                        )
-                    }
-                }
+    ): List<Pair<String, @RemoteComposable @Composable () -> Unit>> = sequence {
+        for (verticalArrangement in verticalArrangements) {
+            for (horizontalArrangement in horizontalArrangements) {
+                yield(
+                    "${verticalArrangement.propertyName()} ${horizontalArrangement.propertyName()}" to
+                        @RemoteComposable @Composable {
+                            RemoteFlowRow(
+                                modifier = RemoteModifier.fillMaxSize(),
+                                horizontalArrangement = horizontalArrangement,
+                                verticalArrangement = verticalArrangement,
+                            ) {
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(40.rdp).background(Color(0xFF6200EE).rc)
+                                )
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(40.rdp).background(Color(0xFF03DAC6).rc)
+                                )
+                                RemoteBox(
+                                    modifier =
+                                        RemoteModifier.size(40.rdp).background(Color(0xFFBB86FC).rc)
+                                )
+                            }
+                        }
+                )
             }
-            .toList()
+        }
+    }
+        .toList()
 
     @RemoteComposable
     @Composable
@@ -533,7 +526,10 @@ class RemoteFlowRowTest {
                         {
                             TestVerticalArrangementWrap(3, RemoteArrangement.Center)
                         },
-                    "Bottom no wrap" to { TestVerticalArrangementWrap(3, RemoteArrangement.Bottom) },
+                    "Bottom no wrap" to
+                        {
+                            TestVerticalArrangementWrap(3, RemoteArrangement.Bottom)
+                        },
                 )
             )
         }

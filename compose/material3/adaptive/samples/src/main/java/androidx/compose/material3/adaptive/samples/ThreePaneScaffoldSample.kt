@@ -880,7 +880,9 @@ private fun DetailPaneContent(
         backButton = {
             BackButton(
                 visible = !scaffoldNavigator.isExpanded(ListDetailPaneScaffoldRole.List),
-                onClick = { coroutineScope.launch { scaffoldNavigator.navigateBack(backBehavior) } },
+                onClick = {
+                    coroutineScope.launch { scaffoldNavigator.navigateBack(backBehavior) }
+                },
             )
         },
     ) {
@@ -1008,7 +1010,9 @@ private fun ExtraPaneContent(
         backButton = {
             BackButton(
                 visible = scaffoldNavigator.canNavigateBack(backBehavior),
-                onClick = { coroutineScope.launch { scaffoldNavigator.navigateBack(backBehavior) } },
+                onClick = {
+                    coroutineScope.launch { scaffoldNavigator.navigateBack(backBehavior) }
+                },
             )
         },
     ) {

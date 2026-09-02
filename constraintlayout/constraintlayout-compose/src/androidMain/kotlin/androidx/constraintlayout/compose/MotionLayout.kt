@@ -371,7 +371,8 @@ inline fun MotionLayout(
     debugFlags: DebugFlags = DebugFlags.None,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
     invalidationStrategy: InvalidationStrategy = InvalidationStrategy.DefaultInvalidationStrategy,
-    @Suppress("HiddenTypeParameter") crossinline content: @Composable (MotionLayoutScope.() -> Unit),
+    @Suppress("HiddenTypeParameter")
+    crossinline content: @Composable (MotionLayoutScope.() -> Unit),
 ) {
     /**
      * MutableState used to track content recompositions. It's reassigned at the content's
@@ -1068,16 +1069,15 @@ internal fun Modifier.motionDebug(
         debugModifier = debugModifier.scale(scaleFactor)
     }
     if (showBounds || showKeyPositions || showPaths) {
-        debugModifier =
-            debugModifier.drawBehind {
-                with(measurer) {
-                    drawDebug(
-                        drawBounds = showBounds,
-                        drawPaths = showPaths,
-                        drawKeyPositions = showKeyPositions,
-                    )
-                }
+        debugModifier = debugModifier.drawBehind {
+            with(measurer) {
+                drawDebug(
+                    drawBounds = showBounds,
+                    drawPaths = showPaths,
+                    drawKeyPositions = showKeyPositions,
+                )
             }
+        }
     }
     return debugModifier
 }
@@ -1626,17 +1626,16 @@ class InvalidationStrategy(
      *
      * Returns null to indicate that there's no user logic to handle this type of invalidation.
      */
-    internal val shouldInvalidate: ShouldInvalidateCallback? =
-        kotlin.run {
-            if (onIncomingConstraints == null) {
-                // Nothing to invalidate with, let MotionMeasurer decide
-                null
-            } else {
-                ShouldInvalidateCallback { old, new ->
-                    onIncomingConstraints.let { lambda -> scope.lambda(old, new) }
-                }
+    internal val shouldInvalidate: ShouldInvalidateCallback? = kotlin.run {
+        if (onIncomingConstraints == null) {
+            // Nothing to invalidate with, let MotionMeasurer decide
+            null
+        } else {
+            ShouldInvalidateCallback { old, new ->
+                onIncomingConstraints.let { lambda -> scope.lambda(old, new) }
             }
         }
+    }
 
     companion object {
         /**

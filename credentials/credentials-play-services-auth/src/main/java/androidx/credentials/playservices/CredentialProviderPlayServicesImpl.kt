@@ -326,7 +326,10 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         request: SignalCredentialStateRequest,
         executor: Executor,
         callback:
-            CredentialManagerCallback<SignalCredentialStateResponse, SignalCredentialStateException>,
+            CredentialManagerCallback<
+                SignalCredentialStateResponse,
+                SignalCredentialStateException,
+            >,
     ) {
         if (!isAvailableOnDevice(MIN_GMS_APK_VERSION_SIGNAL_API)) {
             executor.execute {

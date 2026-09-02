@@ -1659,21 +1659,20 @@ private inline fun <T> computePreviewTransformationValue(
             )
         }
 
-    val targetValueOrNull =
-        transformationWithRange?.let { transformation ->
-            with(
-                transformation.transformation.requireInterpolated(element, transition) {
-                    "Custom transformations are not allowed for properties with a preview"
-                }
-            ) {
-                layoutImpl.propertyTransformationScope.transform(
-                    transformationContentKey,
-                    element.key,
-                    transition,
-                    idleValue,
-                )
+    val targetValueOrNull = transformationWithRange?.let { transformation ->
+        with(
+            transformation.transformation.requireInterpolated(element, transition) {
+                "Custom transformations are not allowed for properties with a preview"
             }
+        ) {
+            layoutImpl.propertyTransformationScope.transform(
+                transformationContentKey,
+                element.key,
+                transition,
+                idleValue,
+            )
         }
+    }
 
     // Make sure we don't read progress if values are the same and we don't need to interpolate,
     // so we don't invalidate the phase where this is read.

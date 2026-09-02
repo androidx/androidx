@@ -258,7 +258,8 @@ class ChipBehaviourTest {
                 border = ChipDefaults.chipBorder(),
                 onClick = {},
                 colors = ChipDefaults.primaryChipColors(),
-            ) { /* omit content to allow us to validate the shape by pixel checking */
+            ) {
+                /* omit content to allow us to validate the shape by pixel checking */
             }
         }
 
@@ -270,7 +271,8 @@ class ChipBehaviourTest {
                 border = ChipDefaults.chipBorder(),
                 onClick = {},
                 colors = ChipDefaults.primaryChipColors(),
-            ) { /* omit content to allow us to validate the shape by pixel checking */
+            ) {
+                /* omit content to allow us to validate the shape by pixel checking */
             }
         }
 }

@@ -43,13 +43,12 @@ public class DrawerBackHandlingTest {
     @SmallTest
     public fun testBackPress() {
         val listener = ObservableDrawerListener()
-        val drawerLayout =
-            activityScenarioRule.withActivity {
-                val drawerLayout = findViewById<DrawerLayout>(R.id.drawer)
-                drawerLayout.addDrawerListener(listener)
-                drawerLayout.open()
-                drawerLayout
-            }
+        val drawerLayout = activityScenarioRule.withActivity {
+            val drawerLayout = findViewById<DrawerLayout>(R.id.drawer)
+            drawerLayout.addDrawerListener(listener)
+            drawerLayout.open()
+            drawerLayout
+        }
 
         // Wait until the animation ends. We disable animations on test
         // devices, but this is useful when running on a local device.
