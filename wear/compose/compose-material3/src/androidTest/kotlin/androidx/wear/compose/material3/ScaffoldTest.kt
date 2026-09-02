@@ -1105,13 +1105,25 @@ class ScaffoldTest {
 
         rule.runOnIdle {
             val content = screenContent!!
-            val currentView = view!!
+            val currentView = mutableStateOf(view!!)
             // Screen 1: Disabled
-            content.addScreen(key1, null, null, StatusBarMode.Disabled, currentView)
+            content.addScreen(
+                key1,
+                view = currentView,
+                statusBarMode = mutableStateOf(StatusBarMode.Disabled),
+            )
             // Screen 2: Inherit
-            content.addScreen(key2, null, null, StatusBarMode.Inherit, currentView)
+            content.addScreen(
+                key2,
+                view = currentView,
+                statusBarMode = mutableStateOf(StatusBarMode.Inherit),
+            )
             // Screen 3: Enabled
-            content.addScreen(key3, null, null, StatusBarMode.Enabled, currentView)
+            content.addScreen(
+                key3,
+                view = currentView,
+                statusBarMode = mutableStateOf(StatusBarMode.Enabled),
+            )
 
             // Screen 3 is Enabled -> true
             assertThat(content.resolveShowStatusBarForScreen(key3, StatusBarMode.Enabled)).isTrue()
