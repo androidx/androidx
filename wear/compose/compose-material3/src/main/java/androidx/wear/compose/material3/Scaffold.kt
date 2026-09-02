@@ -125,11 +125,12 @@ internal class ScreenContent(
     }
 
     /**
-     * Evaluates status bar visibility by scanning down the screen stack for the nearest explicit
-     * mode ([StatusBarMode.Enabled] or [StatusBarMode.Disabled]), falling back to
-     * [appShowStatusBar] if all active screens specify [StatusBarMode.Inherit].
+     * Evaluates status bar visibility for the active top-most screen on the stack by scanning down
+     * the screen stack for the nearest explicit mode ([StatusBarMode.Enabled] or
+     * [StatusBarMode.Disabled]), falling back to [appShowStatusBar] if all active screens specify
+     * [StatusBarMode.Inherit].
      */
-    val currentShowStatusBar: State<Boolean> = derivedStateOf {
+    val currentScreenShowStatusBar: State<Boolean> = derivedStateOf {
         if (!isStatusBarSupported.value) {
             return@derivedStateOf false
         }
@@ -139,6 +140,31 @@ internal class ScreenContent(
                 StatusBarMode.Enabled -> return@derivedStateOf true
                 StatusBarMode.Disabled -> return@derivedStateOf false
                 StatusBarMode.Inherit -> {}
+            }
+        }
+        appShowStatusBar.value
+    }
+
+    /**
+     * Evaluates status bar visibility specifically for the root App Window by scanning down the
+     * screen stack for screens belonging to [appWindowView], falling back to [appShowStatusBar].
+     *
+     * Used by [AppScaffold] to determine if the local [TimeText] should be rendered in the App View
+     * hierarchy.
+     */
+    val shouldAppWindowShowStatusBar: State<Boolean> = derivedStateOf {
+        if (!isStatusBarSupported.value) {
+            return@derivedStateOf false
+        }
+
+        val appView = appWindowView.value
+        contentItems.toList().fastForEachReversed {
+            if (appView.isSameWindow(it.view.value)) {
+                when (it.statusBarMode.value) {
+                    StatusBarMode.Enabled -> return@derivedStateOf true
+                    StatusBarMode.Disabled -> return@derivedStateOf false
+                    StatusBarMode.Inherit -> {}
+                }
             }
         }
         appShowStatusBar.value
