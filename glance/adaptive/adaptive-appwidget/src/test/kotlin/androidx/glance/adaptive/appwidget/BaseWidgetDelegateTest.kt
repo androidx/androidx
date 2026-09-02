@@ -22,8 +22,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.IntentFilter
 import android.os.Bundle
-import androidx.glance.adaptive.core.TemplateRegistry
-import androidx.glance.adaptive.core.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.TemplateRegistry
+import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -49,8 +49,12 @@ class BaseWidgetDelegateTest {
     @Before
     fun setUp() {
         mockRenderer = mock()
-        TemplateRegistry.reset()
-        TemplateRegistry.register(TestTemplate::class.java) { template -> mockRenderer(template) }
+        TemplateRegistry.resetForTesting()
+        TemplateRegistry.register(
+            TestTemplate::class.java,
+            selectArchetype = { _, _, _ -> "ARCHETYPE" },
+            renderArchetype = { template, _ -> mockRenderer(template) },
+        )
     }
 
     @Test

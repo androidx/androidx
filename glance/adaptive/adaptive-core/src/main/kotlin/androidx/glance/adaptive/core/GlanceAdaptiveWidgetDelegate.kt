@@ -17,7 +17,7 @@
 package androidx.glance.adaptive.core
 
 import androidx.annotation.RestrictTo
-import androidx.glance.adaptive.core.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 
 /** Internal interface abstracting underlying framework vs compat widget operations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
