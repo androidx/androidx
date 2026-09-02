@@ -422,13 +422,19 @@ class DynamicRegistrationIntegrationTest {
 
     @Test
     fun getHandleAppFunctionRequestAdapter_adapterNotFound_throwsException() = doBlocking {
-        val exception =
+        val exceptionFromReified =
+            assertThrows(IllegalArgumentException::class.java) {
+                appFunctionManager.getHandleAppFunctionRequestAdapter<UnadaptedSignature>()
+            }
+        assertThat(exceptionFromReified.message).contains("@AppFunctionSignature")
+
+        val exceptionFromClass =
             assertThrows(IllegalArgumentException::class.java) {
                 appFunctionManager.getHandleAppFunctionRequestAdapter(
                     UnadaptedSignature::class.java
                 )
             }
-        assertThat(exception.message).contains("@AppFunctionSignature")
+        assertThat(exceptionFromClass.message).contains("@AppFunctionSignature")
     }
 
     private interface UnadaptedSignature
