@@ -192,6 +192,7 @@ import androidx.compose.ui.layout.WindowInsetsRulerProvider
 import androidx.compose.ui.layout.WindowInsetsRulersProvider
 import androidx.compose.ui.layout.WindowInsetsWatcher
 import androidx.compose.ui.layout.WindowWindowInsetsAnimationValues
+import androidx.compose.ui.layout.areWindowInsetsRulersEnabled
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.provideWindowInsetsRulers
