@@ -17,9 +17,11 @@
 package androidx.photopicker.activity
 
 import android.os.Build
+import android.os.Bundle
 import android.os.ext.SdkExtensions
 import android.provider.MediaStore
 import android.widget.photopicker.PhotoPickerSelectionParams
+import android.widget.photopicker.PhotoPickerUiCustomizationParams
 import androidx.annotation.RequiresExtension
 import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities
 import androidx.photopicker.activity.PickVisualMedia.MediaCapabilities.Companion.TYPE_HDR10
@@ -29,6 +31,8 @@ import androidx.photopicker.activity.params.HighlightAlbumParams
 import androidx.photopicker.activity.params.HighlightSearchResultsParams
 import androidx.photopicker.activity.params.HighlightType
 import androidx.photopicker.activity.params.SelectionParams
+import androidx.photopicker.activity.params.UiCustomizationParams
+import androidx.photopicker.activity.params.UiCustomizationParams.Companion.ASPECT_RATIO_PORTRAIT_9_16
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -408,6 +412,67 @@ class PickVisualMediaRequestTest {
     }
 
     @Test
+    fun testPickVisualMediaRequest_uiCustomizationParams() {
+        val params =
+            UiCustomizationParams.Builder().setAspectRatio(ASPECT_RATIO_PORTRAIT_9_16).build()
+
+        val request = PickVisualMediaRequest.Builder().setUiCustomizationParams(params).build()
+
+        assertThat(request.uiCustomizationParams).isNotNull()
+        assertThat(request.uiCustomizationParams?.aspectRatio).isEqualTo(ASPECT_RATIO_PORTRAIT_9_16)
+    }
+
+    @Test
+    @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 22)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun testPickVisualMedia_createIntent_uiCustomizationParams() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val params =
+            UiCustomizationParams.Builder().setAspectRatio(ASPECT_RATIO_PORTRAIT_9_16).build()
+
+        val request = PickVisualMediaRequest.Builder().setUiCustomizationParams(params).build()
+
+        val intent = PickVisualMedia().createIntent(context, request)
+        if (PickVisualMedia.isSystemPickerAvailable()) {
+            if (PickVisualMedia.arePhotoPickerUiCustomizationParamsAvailable()) {
+                assertThat(intent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS))
+                    .isTrue()
+                val parcelable =
+                    intent.getParcelableExtra(
+                        MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS,
+                        PhotoPickerUiCustomizationParams::class.java,
+                    )
+                assertThat(parcelable).isNotNull()
+                assertThat(parcelable?.aspectRatio)
+                    .isEqualTo(PhotoPickerUiCustomizationParams.ASPECT_RATIO_PORTRAIT_9_16)
+            } else {
+                assertThat(intent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS))
+                    .isFalse()
+            }
+        } else if (PickVisualMedia.isSystemFallbackPickerAvailable(context)) {
+            assertThat(
+                    intent.hasExtra(
+                        PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS
+                    )
+                )
+                .isTrue()
+            val bundle =
+                intent.getParcelableExtra(
+                    PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS,
+                    Bundle::class.java,
+                )
+            assertThat(bundle).isNotNull()
+            assertThat(
+                    bundle?.getInt(
+                        PickVisualMedia
+                            .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS_ASPECT_RATIO
+                    )
+                )
+                .isEqualTo(PickVisualMedia.SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_PORTRAIT_9_16)
+        }
+    }
+
+    @Test
     fun testPickMultipleVisualMedia_createIntent_locationMetadataAccess() {
         val context = InstrumentationRegistry.getInstrumentation().context
 
@@ -652,6 +717,55 @@ class PickVisualMediaRequestTest {
                 assertThat(intentMultiple.hasExtra(MediaStore.EXTRA_PICK_IMAGES_SELECTION_PARAMS))
                     .isFalse()
             }
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 22)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun testPickMultipleVisualMedia_createIntent_uiCustomizationParams() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val params =
+            UiCustomizationParams.Builder().setAspectRatio(ASPECT_RATIO_PORTRAIT_9_16).build()
+
+        val request = PickVisualMediaRequest.Builder().setUiCustomizationParams(params).build()
+
+        val intent = PickMultipleVisualMedia().createIntent(context, request)
+        if (PickVisualMedia.isSystemPickerAvailable()) {
+            if (PickVisualMedia.arePhotoPickerUiCustomizationParamsAvailable()) {
+                assertThat(intent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS))
+                    .isTrue()
+                val parcelable =
+                    intent.getParcelableExtra(
+                        MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS,
+                        PhotoPickerUiCustomizationParams::class.java,
+                    )
+                assertThat(parcelable).isNotNull()
+                assertThat(parcelable?.aspectRatio)
+                    .isEqualTo(PhotoPickerUiCustomizationParams.ASPECT_RATIO_PORTRAIT_9_16)
+            } else {
+                assertThat(intent.hasExtra(MediaStore.EXTRA_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS))
+                    .isFalse()
+            }
+        } else if (PickVisualMedia.isSystemFallbackPickerAvailable(context)) {
+            assertThat(
+                    intent.hasExtra(
+                        PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS
+                    )
+                )
+                .isTrue()
+            val bundle =
+                intent.getParcelableExtra(
+                    PickVisualMedia.EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS,
+                    Bundle::class.java,
+                )
+            assertThat(bundle).isNotNull()
+            assertThat(
+                    bundle?.getInt(
+                        PickVisualMedia
+                            .EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS_ASPECT_RATIO
+                    )
+                )
+                .isEqualTo(PickVisualMedia.SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_PORTRAIT_9_16)
         }
     }
 }

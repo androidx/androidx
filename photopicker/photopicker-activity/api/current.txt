@@ -27,9 +27,13 @@ package androidx.photopicker.activity {
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB = "androidx.activity.result.contract.extra.PICK_IMAGES_LAUNCH_TAB";
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX = "androidx.activity.result.contract.extra.PICK_IMAGES_MAX";
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS = "androidx.activity.result.contract.extra.PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS";
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS = "androidx.activity.result.contract.extra.PICK_IMAGES_UI_CUSTOMIZATION_PARAMS";
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS_ASPECT_RATIO = "androidx.activity.result.contract.extra.PICK_IMAGES_UI_CUSTOMIZATION_PARAMS_ASPECT_RATIO";
     field public static final String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_ID = "androidx.activity.result.contract.key.PICK_IMAGES_HIGHLIGHT_ALBUM_ID";
     field public static final String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_SEARCH_TEXT_QUERY = "androidx.activity.result.contract.key.PICK_IMAGES_HIGHLIGHT_SEARCH_TEXT_QUERY";
     field public static final String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE = "androidx.activity.result.contract.key.PICK_IMAGES_HIGHLIGHT_TYPE";
+    field public static final int SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_PORTRAIT_9_16 = 1; // 0x1
+    field public static final int SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_SQUARE_1_1 = 0; // 0x0
     field public static final String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_CAMERA = "androidx.activity.result.contract.album.CAMERA";
     field public static final String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_DOWNLOADS = "androidx.activity.result.contract.album.DOWNLOADS";
     field public static final String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_FAVORITES = "androidx.activity.result.contract.album.FAVORITES";
@@ -50,9 +54,13 @@ package androidx.photopicker.activity {
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB;
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX;
     property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_REQUEST_LOCATION_METADATA_ACCESS;
+    property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS;
+    property public static String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_UI_CUSTOMIZATION_PARAMS_ASPECT_RATIO;
     property public static String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_ID;
     property public static String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_SEARCH_TEXT_QUERY;
     property public static String KEY_SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_TYPE;
+    property public static int SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_PORTRAIT_9_16;
+    property public static int SYSTEM_FALLBACK_PICK_IMAGES_ASPECT_RATIO_SQUARE_1_1;
     property public static String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_CAMERA;
     property public static String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_DOWNLOADS;
     property public static String SYSTEM_FALLBACK_PICK_IMAGES_HIGHLIGHT_ALBUM_FAVORITES;
@@ -132,6 +140,7 @@ package androidx.photopicker.activity {
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? getMediaCapabilitiesForTranscoding();
     method @InaccessibleFromKotlin public androidx.photopicker.activity.PickVisualMedia.VisualMediaType getMediaType();
     method @InaccessibleFromKotlin @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=22) public androidx.photopicker.activity.params.SelectionParams? getSelectionParams();
+    method @InaccessibleFromKotlin public androidx.photopicker.activity.params.UiCustomizationParams? getUiCustomizationParams();
     method @InaccessibleFromKotlin public boolean isCustomAccentColorApplied();
     method @InaccessibleFromKotlin public boolean isCustomDefaultTabApplied();
     method @InaccessibleFromKotlin public boolean isLocationMetadataAccessRequested();
@@ -148,6 +157,7 @@ package androidx.photopicker.activity {
     property public androidx.photopicker.activity.PickVisualMedia.MediaCapabilities? mediaCapabilitiesForTranscoding;
     property public androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType;
     property @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=22) public androidx.photopicker.activity.params.SelectionParams? selectionParams;
+    property public androidx.photopicker.activity.params.UiCustomizationParams? uiCustomizationParams;
   }
 
   public static final class PickVisualMediaRequest.Builder {
@@ -163,6 +173,7 @@ package androidx.photopicker.activity {
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setMediaType(androidx.photopicker.activity.PickVisualMedia.VisualMediaType mediaType);
     method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setOrderedSelection(boolean isOrderedSelection);
     method @RequiresExtension(extension=android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version=22) public androidx.photopicker.activity.PickVisualMediaRequest.Builder setSelectionParams(androidx.photopicker.activity.params.SelectionParams? selectionParams);
+    method public androidx.photopicker.activity.PickVisualMediaRequest.Builder setUiCustomizationParams(androidx.photopicker.activity.params.UiCustomizationParams? uiCustomizationParams);
   }
 
   public final class PickVisualMediaRequestKt {
@@ -271,6 +282,27 @@ package androidx.photopicker.activity.params {
     method public androidx.photopicker.activity.params.SelectionParams.Builder setMimeTypes(java.util.List<java.lang.String> mimeTypes);
     method public androidx.photopicker.activity.params.SelectionParams.Builder setMinMediaItemResolutionInPixels(long minMediaItemResolutionInPixels);
     method public androidx.photopicker.activity.params.SelectionParams.Builder setMinVideoDuration(java.time.Duration minVideoDuration);
+  }
+
+  public final class UiCustomizationParams {
+    method @InaccessibleFromKotlin public int getAspectRatio();
+    property public int aspectRatio;
+    field public static final int ASPECT_RATIO_PORTRAIT_9_16 = 1; // 0x1
+    field public static final int ASPECT_RATIO_SQUARE_1_1 = 0; // 0x0
+    field public static final int ASPECT_RATIO_UNDEFINED = -1; // 0xffffffff
+    field public static final androidx.photopicker.activity.params.UiCustomizationParams.Companion Companion;
+  }
+
+  public static final class UiCustomizationParams.Builder {
+    ctor public UiCustomizationParams.Builder();
+    method public androidx.photopicker.activity.params.UiCustomizationParams build();
+    method public androidx.photopicker.activity.params.UiCustomizationParams.Builder setAspectRatio(int aspectRatio);
+  }
+
+  public static final class UiCustomizationParams.Companion {
+    property public static int ASPECT_RATIO_PORTRAIT_9_16;
+    property public static int ASPECT_RATIO_SQUARE_1_1;
+    property public static int ASPECT_RATIO_UNDEFINED;
   }
 
 }
