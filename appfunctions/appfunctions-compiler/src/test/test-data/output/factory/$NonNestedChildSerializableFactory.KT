@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -24,16 +25,22 @@ public class `$NonNestedChildSerializableFactory` : AppFunctionSerializableFacto
     return resultNonNestedChildSerializable
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: NonNestedChildSerializable): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: NonNestedChildSerializable): AppFunctionData {
     val nonNestedChildSerializable_appFunctionSerializable = appFunctionSerializable
     val nestedBaseSerializableFactory = `$NestedBaseSerializableFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.NonNestedChildSerializable")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.NonNestedChildSerializable")
     val stringBaseName = nonNestedChildSerializable_appFunctionSerializable.stringBaseName
     builder.setString("stringBaseName", stringBaseName)
     val nestedBase = nonNestedChildSerializable_appFunctionSerializable.nestedBase
     if (nestedBase != null) {
-      builder.setAppFunctionData("nestedBase", nestedBaseSerializableFactory.toAppFunctionData(nestedBase))
+      builder.setAppFunctionData(
+        "nestedBase",
+        nestedBaseSerializableFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("nestedBase", checkNotNull(nestedBase::class.java.canonicalName)),
+          nestedBase
+        )
+      )
     }
     val longBaseValue = nonNestedChildSerializable_appFunctionSerializable.longBaseValue
     builder.setLong("longBaseValue", longBaseValue)

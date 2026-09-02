@@ -1071,7 +1071,10 @@ internal constructor(
             componentMetadata: AppFunctionComponentsMetadata,
         ) : this(AppFunctionDataSpec.create(responseMetadata, componentMetadata))
 
-        private constructor(spec: AppFunctionDataSpec) {
+        // This constructor cannot be internal because the generated factory that does not live
+        // in the same module need to use it for data serialization/deserialization.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public constructor(spec: AppFunctionDataSpec) {
             this.spec = spec
             this.qualifiedName = spec.objectQualifiedName
             genericDocumentBuilder =
@@ -1589,7 +1592,8 @@ internal constructor(
         ): AppFunctionData {
             return try {
                 val factory = getSerializableFactory(serializableClass)
-                factory.toAppFunctionData(serializable)
+                // TODO(b/446606781): Provide spec from API
+                factory.toAppFunctionData(null, serializable)
             } catch (e: Exception) {
                 Log.d(
                     APP_FUNCTIONS_TAG,

@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 import kotlin.String
@@ -46,7 +47,7 @@ public class `$UpdateNoteParamsFactory` : AppFunctionSerializableFactory<UpdateN
     return resultUpdateNoteParams
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: UpdateNoteParams): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: UpdateNoteParams): AppFunctionData {
     val updateNoteParams_appFunctionSerializable = appFunctionSerializable
     val setFieldKotlinStringFactory = `$SetFieldFactory`<String>(
       AppFunctionSerializableFactory.TypeParameter.PrimitiveTypeParameter(String::class.java))
@@ -57,22 +58,46 @@ public class `$UpdateNoteParamsFactory` : AppFunctionSerializableFactory<UpdateN
     val setFieldKotlinCollectionsListComTestdataAttachmentNullableFactory = `$SetFieldFactory`<List<Attachment>?>(
       AppFunctionSerializableFactory.TypeParameter.SerializableListTypeParameter(Attachment::class.java, `$AttachmentFactory`()))
 
-    val builder = getAppFunctionDataBuilder("com.testdata.UpdateNoteParams")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.UpdateNoteParams")
     val title = updateNoteParams_appFunctionSerializable.title
     if (title != null) {
-      builder.setAppFunctionData("title", setFieldKotlinStringFactory.toAppFunctionData(title))
+      builder.setAppFunctionData(
+        "title",
+        setFieldKotlinStringFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("title", checkNotNull(title::class.java.canonicalName)),
+          title
+        )
+      )
     }
     val nullableTitle = updateNoteParams_appFunctionSerializable.nullableTitle
     if (nullableTitle != null) {
-      builder.setAppFunctionData("nullableTitle", setFieldKotlinStringNullableFactory.toAppFunctionData(nullableTitle))
+      builder.setAppFunctionData(
+        "nullableTitle",
+        setFieldKotlinStringNullableFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("nullableTitle", checkNotNull(nullableTitle::class.java.canonicalName)),
+          nullableTitle
+        )
+      )
     }
     val attachments = updateNoteParams_appFunctionSerializable.attachments
     if (attachments != null) {
-      builder.setAppFunctionData("attachments", setFieldKotlinCollectionsListComTestdataAttachmentFactory.toAppFunctionData(attachments))
+      builder.setAppFunctionData(
+        "attachments",
+        setFieldKotlinCollectionsListComTestdataAttachmentFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("attachments", checkNotNull(attachments::class.java.canonicalName)),
+          attachments
+        )
+      )
     }
     val nullableAttachments = updateNoteParams_appFunctionSerializable.nullableAttachments
     if (nullableAttachments != null) {
-      builder.setAppFunctionData("nullableAttachments", setFieldKotlinCollectionsListComTestdataAttachmentNullableFactory.toAppFunctionData(nullableAttachments))
+      builder.setAppFunctionData(
+        "nullableAttachments",
+        setFieldKotlinCollectionsListComTestdataAttachmentNullableFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("nullableAttachments", checkNotNull(nullableAttachments::class.java.canonicalName)),
+          nullableAttachments
+        )
+      )
     }
 
     return builder.build()

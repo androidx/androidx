@@ -2,6 +2,7 @@ package androidx.appfunctions.`internal`.serializableproxies
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import java.time.LocalDateTime
 import javax.`annotation`.processing.Generated
@@ -24,10 +25,10 @@ public class `$LocalDateTimeFactory` : AppFunctionSerializableFactory<LocalDateT
     return resultAppFunctionLocalDateTime.toLocalDateTime()
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: LocalDateTime): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: LocalDateTime): AppFunctionData {
     val appFunctionLocalDateTime_appFunctionSerializable = AppFunctionLocalDateTime.fromLocalDateTime(appFunctionSerializable)
 
-    val builder = getAppFunctionDataBuilder("androidx.appfunctions.internal.serializableproxies.AppFunctionLocalDateTime")
+    val builder = getAppFunctionDataBuilder(spec, "androidx.appfunctions.internal.serializableproxies.AppFunctionLocalDateTime")
     val year = appFunctionLocalDateTime_appFunctionSerializable.year
     builder.setInt("year", year)
     val month = appFunctionLocalDateTime_appFunctionSerializable.month

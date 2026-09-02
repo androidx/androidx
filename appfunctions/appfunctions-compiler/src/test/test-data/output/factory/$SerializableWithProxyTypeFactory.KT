@@ -3,6 +3,7 @@ package com.testdata
 import android.net.Uri
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import androidx.appfunctions.`internal`.serializableproxies.`$LocalDateFactory`
 import androidx.appfunctions.`internal`.serializableproxies.`$LocalDateTimeFactory`
@@ -76,59 +77,122 @@ public class `$SerializableWithProxyTypeFactory` : AppFunctionSerializableFactor
     return resultSerializableWithProxyType
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: SerializableWithProxyType): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: SerializableWithProxyType): AppFunctionData {
     val serializableWithProxyType_appFunctionSerializable = appFunctionSerializable
     val appFunctionLocalDateTimeFactory = `$LocalDateTimeFactory`()
     val appFunctionUriFactory = `$UriFactory`()
     val appFunctionLocalDateFactory = `$LocalDateFactory`()
     val appFunctionLocalTimeFactory = `$LocalTimeFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.SerializableWithProxyType")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.SerializableWithProxyType")
     val localDateTime = serializableWithProxyType_appFunctionSerializable.localDateTime
-    builder.setAppFunctionData("localDateTime", appFunctionLocalDateTimeFactory.toAppFunctionData(localDateTime))
+    builder.setAppFunctionData(
+      "localDateTime",
+      appFunctionLocalDateTimeFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("localDateTime", checkNotNull(localDateTime::class.java.canonicalName)),
+        localDateTime
+      )
+    )
     val localDateTimeList = serializableWithProxyType_appFunctionSerializable.localDateTimeList
     builder.setAppFunctionDataList("localDateTimeList", localDateTimeList.map{ appFunctionLocalDateTime ->
-      appFunctionLocalDateTimeFactory.toAppFunctionData(appFunctionLocalDateTime)
+      appFunctionLocalDateTimeFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("localDateTimeList",checkNotNull(appFunctionLocalDateTime::class.java.canonicalName)),
+        appFunctionLocalDateTime
+      )
     })
     val localDateTimeNullable = serializableWithProxyType_appFunctionSerializable.localDateTimeNullable
     if (localDateTimeNullable != null) {
-      builder.setAppFunctionData("localDateTimeNullable", appFunctionLocalDateTimeFactory.toAppFunctionData(localDateTimeNullable))
+      builder.setAppFunctionData(
+        "localDateTimeNullable",
+        appFunctionLocalDateTimeFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("localDateTimeNullable", checkNotNull(localDateTimeNullable::class.java.canonicalName)),
+          localDateTimeNullable
+        )
+      )
     }
     val androidUri = serializableWithProxyType_appFunctionSerializable.androidUri
-    builder.setAppFunctionData("androidUri", appFunctionUriFactory.toAppFunctionData(androidUri))
+    builder.setAppFunctionData(
+      "androidUri",
+      appFunctionUriFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("androidUri", checkNotNull(androidUri::class.java.canonicalName)),
+        androidUri
+      )
+    )
     val androidUriList = serializableWithProxyType_appFunctionSerializable.androidUriList
     builder.setAppFunctionDataList("androidUriList", androidUriList.map{ appFunctionUri ->
-      appFunctionUriFactory.toAppFunctionData(appFunctionUri)
+      appFunctionUriFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("androidUriList",checkNotNull(appFunctionUri::class.java.canonicalName)),
+        appFunctionUri
+      )
     })
     val androidUriNullable = serializableWithProxyType_appFunctionSerializable.androidUriNullable
     if (androidUriNullable != null) {
-      builder.setAppFunctionData("androidUriNullable", appFunctionUriFactory.toAppFunctionData(androidUriNullable))
+      builder.setAppFunctionData(
+        "androidUriNullable",
+        appFunctionUriFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("androidUriNullable", checkNotNull(androidUriNullable::class.java.canonicalName)),
+          androidUriNullable
+        )
+      )
     }
     val androidUriListNullable = serializableWithProxyType_appFunctionSerializable.androidUriListNullable
     if (androidUriListNullable != null) {
       builder.setAppFunctionDataList("androidUriListNullable", androidUriListNullable.map{ appFunctionUri ->
-        appFunctionUriFactory.toAppFunctionData(appFunctionUri)
+        appFunctionUriFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("androidUriListNullable",checkNotNull(appFunctionUri::class.java.canonicalName)),
+          appFunctionUri
+        )
       })
     }
     val localDate = serializableWithProxyType_appFunctionSerializable.localDate
-    builder.setAppFunctionData("localDate", appFunctionLocalDateFactory.toAppFunctionData(localDate))
+    builder.setAppFunctionData(
+      "localDate",
+      appFunctionLocalDateFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("localDate", checkNotNull(localDate::class.java.canonicalName)),
+        localDate
+      )
+    )
     val localDateList = serializableWithProxyType_appFunctionSerializable.localDateList
     builder.setAppFunctionDataList("localDateList", localDateList.map{ appFunctionLocalDate ->
-      appFunctionLocalDateFactory.toAppFunctionData(appFunctionLocalDate)
+      appFunctionLocalDateFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("localDateList",checkNotNull(appFunctionLocalDate::class.java.canonicalName)),
+        appFunctionLocalDate
+      )
     })
     val localDateNullable = serializableWithProxyType_appFunctionSerializable.localDateNullable
     if (localDateNullable != null) {
-      builder.setAppFunctionData("localDateNullable", appFunctionLocalDateFactory.toAppFunctionData(localDateNullable))
+      builder.setAppFunctionData(
+        "localDateNullable",
+        appFunctionLocalDateFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("localDateNullable", checkNotNull(localDateNullable::class.java.canonicalName)),
+          localDateNullable
+        )
+      )
     }
     val localTime = serializableWithProxyType_appFunctionSerializable.localTime
-    builder.setAppFunctionData("localTime", appFunctionLocalTimeFactory.toAppFunctionData(localTime))
+    builder.setAppFunctionData(
+      "localTime",
+      appFunctionLocalTimeFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("localTime", checkNotNull(localTime::class.java.canonicalName)),
+        localTime
+      )
+    )
     val localTimeList = serializableWithProxyType_appFunctionSerializable.localTimeList
     builder.setAppFunctionDataList("localTimeList", localTimeList.map{ appFunctionLocalTime ->
-      appFunctionLocalTimeFactory.toAppFunctionData(appFunctionLocalTime)
+      appFunctionLocalTimeFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("localTimeList",checkNotNull(appFunctionLocalTime::class.java.canonicalName)),
+        appFunctionLocalTime
+      )
     })
     val localTimeNullable = serializableWithProxyType_appFunctionSerializable.localTimeNullable
     if (localTimeNullable != null) {
-      builder.setAppFunctionData("localTimeNullable", appFunctionLocalTimeFactory.toAppFunctionData(localTimeNullable))
+      builder.setAppFunctionData(
+        "localTimeNullable",
+        appFunctionLocalTimeFactory.toAppFunctionData(
+          spec?.getPropertyObjectSpec("localTimeNullable", checkNotNull(localTimeNullable::class.java.canonicalName)),
+          localTimeNullable
+        )
+      )
     }
 
     return builder.build()

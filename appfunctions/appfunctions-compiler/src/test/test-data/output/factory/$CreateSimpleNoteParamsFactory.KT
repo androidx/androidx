@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -23,11 +24,11 @@ public class `$CreateSimpleNoteParamsFactory` : AppFunctionSerializableFactory<C
     return resultCreateSimpleNoteParams
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: CreateSimpleNoteParams): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: CreateSimpleNoteParams): AppFunctionData {
     val createSimpleNoteParams_appFunctionSerializable = appFunctionSerializable
     val simpleNoteSimpleAttachmentFactory = `$SimpleNote$SimpleAttachmentFactory`()
 
-    val builder = getAppFunctionDataBuilder("com.testdata.CreateSimpleNoteParams")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.CreateSimpleNoteParams")
     val title = createSimpleNoteParams_appFunctionSerializable.title
     builder.setString("title", title)
     val content = createSimpleNoteParams_appFunctionSerializable.content
@@ -36,7 +37,10 @@ public class `$CreateSimpleNoteParamsFactory` : AppFunctionSerializableFactory<C
     }
     val attachments = createSimpleNoteParams_appFunctionSerializable.attachments
     builder.setAppFunctionDataList("attachments", attachments.map{ simpleNoteSimpleAttachment ->
-      simpleNoteSimpleAttachmentFactory.toAppFunctionData(simpleNoteSimpleAttachment)
+      simpleNoteSimpleAttachmentFactory.toAppFunctionData(
+        spec?.getPropertyObjectSpec("attachments",checkNotNull(simpleNoteSimpleAttachment::class.java.canonicalName)),
+        simpleNoteSimpleAttachment
+      )
     })
 
     return builder.build()

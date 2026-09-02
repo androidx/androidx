@@ -2,6 +2,7 @@ package com.testdata
 
 import androidx.`annotation`.RequiresApi
 import androidx.appfunctions.AppFunctionData
+import androidx.appfunctions.AppFunctionDataSpec
 import androidx.appfunctions.`internal`.AppFunctionSerializableFactory
 import javax.`annotation`.processing.Generated
 
@@ -18,10 +19,10 @@ public class `$SimpleNote$SimpleAttachmentFactory` : AppFunctionSerializableFact
     return resultSimpleAttachment
   }
 
-  override fun toAppFunctionData(appFunctionSerializable: SimpleNote.SimpleAttachment): AppFunctionData {
+  override fun toAppFunctionData(spec: AppFunctionDataSpec?, appFunctionSerializable: SimpleNote.SimpleAttachment): AppFunctionData {
     val simpleAttachment_appFunctionSerializable = appFunctionSerializable
 
-    val builder = getAppFunctionDataBuilder("com.testdata.SimpleNote${'$'}SimpleAttachment")
+    val builder = getAppFunctionDataBuilder(spec, "com.testdata.SimpleNote${'$'}SimpleAttachment")
     val displayName = simpleAttachment_appFunctionSerializable.displayName
     builder.setString("displayName", displayName)
     val mimeType = simpleAttachment_appFunctionSerializable.mimeType
