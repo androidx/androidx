@@ -20,6 +20,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -33,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.LightGray
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -41,8 +41,8 @@ import androidx.compose.ui.window.PopupProperties
 @Composable
 fun FocusInPopupDemo() {
     var showPopup by remember { mutableStateOf(false) }
-    var mainText by remember { mutableStateOf(TextFieldValue("Enter Value")) }
-    var popupText by remember { mutableStateOf(TextFieldValue("Enter Value")) }
+    val mainTextState = rememberTextFieldState("Enter Value")
+    val popupTextState = rememberTextFieldState("Enter Value")
     val windowInfo = LocalWindowInfo.current
 
     Column(Modifier.background(if (windowInfo.isWindowFocused) White else LightGray)) {
@@ -53,7 +53,7 @@ fun FocusInPopupDemo() {
         Spacer(Modifier.requiredHeight(50.dp))
 
         Text("Click this text field to bring the main app in focus.")
-        TextField(value = mainText, onValueChange = { mainText = it })
+        TextField(mainTextState)
         FocusStatus()
 
         if (showPopup) {
@@ -64,7 +64,7 @@ fun FocusInPopupDemo() {
             ) {
                 Column(Modifier.background(White)) {
                     Text("Click this text field to bring the popup in focus")
-                    TextField(value = popupText, onValueChange = { popupText = it })
+                    TextField(popupTextState)
                     FocusStatus()
                 }
             }

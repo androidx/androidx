@@ -18,12 +18,11 @@ package androidx.compose.foundation.demos.text
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,10 +30,6 @@ import androidx.compose.ui.unit.dp
 /** Demonstrates b/237190748. */
 @Composable
 fun FullScreenTextFieldDemo() {
-    var value by remember { mutableStateOf(loremIpsum()) }
-    TextField(
-        value,
-        onValueChange = { value = it },
-        modifier = Modifier.border(3.dp, MaterialTheme.colors.primary).fillMaxSize(),
-    )
+    val state = rememberTextFieldState(loremIpsum())
+    TextField(state, modifier = Modifier.border(3.dp, MaterialTheme.colors.primary).fillMaxSize())
 }

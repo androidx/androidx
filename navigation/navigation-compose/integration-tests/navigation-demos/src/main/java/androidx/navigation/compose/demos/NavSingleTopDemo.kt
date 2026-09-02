@@ -19,12 +19,11 @@ package androidx.navigation.compose.demos
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -38,15 +37,13 @@ import kotlinx.serialization.Serializable
 @Composable
 fun NavSingleTopDemo() {
     val navController = rememberNavController()
-    val query = rememberSaveable { mutableStateOf("") }
+    val textFieldState = rememberTextFieldState()
     Column(Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        TextField(
-            value = query.value,
-            onValueChange = { query.value = it },
-            placeholder = { Text("Search") },
-        )
+        TextField(state = textFieldState, placeholder = { Text("Search") })
         NavigateButton("Search") {
-            navController.navigate(SearchScreen(query.value)) { launchSingleTop = true }
+            navController.navigate(SearchScreen(textFieldState.text.toString())) {
+                launchSingleTop = true
+            }
         }
         NavHost(navController, startDestination = StartScreen::class) {
             composable<StartScreen> { StartScreen() }

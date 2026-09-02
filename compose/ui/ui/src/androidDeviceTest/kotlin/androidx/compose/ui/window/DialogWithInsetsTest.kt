@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.TextField
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -124,8 +125,7 @@ class DialogWithInsetsTest {
                 Box(Modifier.fillMaxSize().background(Color.White).imePadding()) {
                     Box(Modifier.fillMaxSize().onSizeChanged { dialogSize = it }) {
                         TextField(
-                            value = "Hello World",
-                            onValueChange = {},
+                            rememberTextFieldState("Hello World"),
                             modifier =
                                 Modifier.focusRequester(focusRequester).align(Alignment.Center),
                         )
@@ -211,8 +211,7 @@ class DialogWithInsetsTest {
                             .safeDrawingPadding()
                     ) {
                         TextField(
-                            value = "Hello",
-                            onValueChange = {},
+                            rememberTextFieldState("Hello"),
                             Modifier.align(Alignment.BottomStart).testTag("textField").onPlaced {
                                 layoutCoordinates ->
                                 textTop = layoutCoordinates.positionInRoot().y.roundToInt()
@@ -293,8 +292,7 @@ class DialogWithInsetsTest {
                     val height = with(LocalDensity.current) { maxOf(0, fullHeight - 34).toDp() }
                     Box(Modifier.fillMaxWidth().height(height)) {
                         TextField(
-                            "Hello World",
-                            onValueChange = {},
+                            rememberTextFieldState("Hello World"),
                             Modifier.focusRequester(focusRequester).safeDrawingPadding(),
                         )
                         AndroidView(

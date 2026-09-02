@@ -814,8 +814,7 @@ class DialogTest {
                     }
                 ) {
                     TextField(
-                        "Hello World",
-                        onValueChange = {},
+                        rememberTextFieldState("Hello World"),
                         Modifier.align(Alignment.BottomStart).focusRequester(focusRequester),
                     )
                 }

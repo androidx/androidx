@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenuItem
@@ -245,13 +246,13 @@ class RobolectricComposeTest {
     @Test
     fun testTextFieldInteraction() = runComposeUiTest {
         val text = "a"
-        var updatedText = ""
-        setContent { TextField(value = text, onValueChange = { updatedText = it }) }
+        val state = TextFieldState(text)
+        setContent { TextField(state) }
         onNodeWithText(text).assertIsDisplayed()
         // If selection isn't set on initial state, it will be 0.
         onNodeWithText(text).performTextInputSelection(TextRange(1))
         onNodeWithText(text).performTextInput("b")
-        runOnIdle { assertThat(updatedText).isEqualTo("ab") }
+        runOnIdle { assertThat(state.text).isEqualTo("ab") }
     }
 
     /**

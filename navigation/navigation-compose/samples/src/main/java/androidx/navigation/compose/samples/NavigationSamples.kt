@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/556234973
+
 package androidx.navigation.compose.samples
 
 import android.net.Uri

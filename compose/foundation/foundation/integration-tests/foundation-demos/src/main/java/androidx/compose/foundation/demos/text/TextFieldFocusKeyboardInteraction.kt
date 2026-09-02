@@ -34,15 +34,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -86,22 +85,17 @@ fun TextFieldFocusKeyboardInteraction() {
 @Composable
 private fun FocusableFieldRow() {
     Row(horizontalArrangement = spacedBy(4.dp)) {
-        var text1 by remember { mutableStateOf("") }
-        var text2 by remember { mutableStateOf("") }
-        var text3 by remember { mutableStateOf("") }
         TextField(
-            text1,
-            onValueChange = { text1 = it },
+            state = rememberTextFieldState(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.weight(1f),
         )
         TextField(
-            text2,
-            onValueChange = { text2 = it },
+            state = rememberTextFieldState(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.weight(1f),
         )
-        TextField(text3, onValueChange = { text3 = it }, modifier = Modifier.weight(1f))
+        TextField(state = rememberTextFieldState(), modifier = Modifier.weight(1f))
 
         val interactionSource = remember { MutableInteractionSource() }
         val isButtonFocused by interactionSource.collectIsFocusedAsState()

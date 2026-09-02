@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -76,7 +77,7 @@ class TextFieldAccessibilityBenchmark(
 
         measureRepeatedOnUiThread(
             content = {
-                TextField(modifier = Modifier.testTag("tag"), value = "abc", onValueChange = {})
+                TextField(modifier = Modifier.testTag("tag"), state = rememberTextFieldState("abc"))
             },
             benchmark = {
                 runWithMeasurementDisabled {
@@ -95,8 +96,11 @@ class TextFieldAccessibilityBenchmark(
         measureRepeatedOnUiThread(
             content = {
                 Column {
-                    TextField(modifier = Modifier.testTag("tag"), value = "abc", onValueChange = {})
-                    repeat(9) { TextField(value = "abc", onValueChange = {}) }
+                    TextField(
+                        modifier = Modifier.testTag("tag"),
+                        state = rememberTextFieldState("abc"),
+                    )
+                    repeat(9) { TextField(state = rememberTextFieldState("abc")) }
                 }
             },
             benchmark = {
@@ -119,7 +123,7 @@ class TextFieldAccessibilityBenchmark(
 
         measureRepeatedOnUiThread(
             content = {
-                TextField(modifier = Modifier.testTag("tag"), value = "abc", onValueChange = {})
+                TextField(modifier = Modifier.testTag("tag"), state = rememberTextFieldState("abc"))
             },
             benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) },
         )
@@ -136,8 +140,11 @@ class TextFieldAccessibilityBenchmark(
         measureRepeatedOnUiThread(
             content = {
                 Column {
-                    TextField(modifier = Modifier.testTag("tag"), value = "abc", onValueChange = {})
-                    repeat(9) { TextField(value = "abc", onValueChange = {}) }
+                    TextField(
+                        modifier = Modifier.testTag("tag"),
+                        state = rememberTextFieldState("abc"),
+                    )
+                    repeat(9) { TextField(state = rememberTextFieldState("abc")) }
                 }
             },
             benchmark = { nodeProvider.createAccessibilityNodeInfo(HOST_VIEW_ID) },
@@ -154,7 +161,7 @@ class TextFieldAccessibilityBenchmark(
                     @Composable
                     override fun Content() {
                         setupAccessibility()
-                        Column { if (include) TextField(value = "abc", onValueChange = {}) }
+                        Column { if (include) TextField(state = rememberTextFieldState("abc")) }
                     }
 
                     override fun toggleState() {
@@ -178,7 +185,7 @@ class TextFieldAccessibilityBenchmark(
                         setupAccessibility()
                         Column {
                             if (include) {
-                                repeat(10) { TextField(value = "abc", onValueChange = {}) }
+                                repeat(10) { TextField(state = rememberTextFieldState("abc")) }
                             }
                         }
                     }
@@ -203,7 +210,9 @@ class TextFieldAccessibilityBenchmark(
                     @Composable
                     override fun Content() {
                         setupAccessibility()
-                        Column { repeat(count) { TextField(value = "abc", onValueChange = {}) } }
+                        Column {
+                            repeat(count) { TextField(state = rememberTextFieldState("abc")) }
+                        }
                     }
 
                     override fun toggleState() {
@@ -226,7 +235,7 @@ class TextFieldAccessibilityBenchmark(
                     @Composable
                     override fun Content() {
                         setupAccessibility()
-                        TextField(value = if (initialValue) "abc" else "def", onValueChange = {})
+                        TextField(rememberTextFieldState(if (initialValue) "abc" else "def"))
                     }
 
                     override fun toggleState() {
@@ -250,15 +259,15 @@ class TextFieldAccessibilityBenchmark(
                     override fun Content() {
                         setupAccessibility()
                         Column {
-                            TextField(if (initialValue) "abc" else "ABC", {})
-                            TextField(if (initialValue) "def" else "DEF", {})
-                            TextField(if (initialValue) "ghi" else "GHI", {})
-                            TextField(if (initialValue) "jkl" else "JKL", {})
-                            TextField(if (initialValue) "lmn" else "MNO", {})
-                            TextField(if (initialValue) "opq" else "OPQ", {})
-                            TextField(if (initialValue) "rst" else "RST", {})
-                            TextField(if (initialValue) "uvw" else "UVW", {})
-                            TextField(if (initialValue) "xyz" else "XYZ", {})
+                            TextField(rememberTextFieldState(if (initialValue) "abc" else "ABC"))
+                            TextField(rememberTextFieldState(if (initialValue) "def" else "DEF"))
+                            TextField(rememberTextFieldState(if (initialValue) "ghi" else "GHI"))
+                            TextField(rememberTextFieldState(if (initialValue) "jkl" else "JKL"))
+                            TextField(rememberTextFieldState(if (initialValue) "lmn" else "MNO"))
+                            TextField(rememberTextFieldState(if (initialValue) "opq" else "OPQ"))
+                            TextField(rememberTextFieldState(if (initialValue) "rst" else "RST"))
+                            TextField(rememberTextFieldState(if (initialValue) "uvw" else "UVW"))
+                            TextField(rememberTextFieldState(if (initialValue) "xyz" else "XYZ"))
                         }
                     }
 
@@ -283,14 +292,14 @@ class TextFieldAccessibilityBenchmark(
                     override fun Content() {
                         setupAccessibility()
                         Column {
-                            TextField("abc", {})
-                            TextField("def", {})
-                            TextField("ghi", {})
-                            TextField(if (initialValue) "jkl" else "JKL", {})
-                            TextField("opq", {})
-                            TextField("rst", {})
-                            TextField("uvw", {})
-                            TextField("xyz", {})
+                            TextField(rememberTextFieldState("abc"))
+                            TextField(rememberTextFieldState("def"))
+                            TextField(rememberTextFieldState("ghi"))
+                            TextField(rememberTextFieldState(if (initialValue) "jkl" else "JKL"))
+                            TextField(rememberTextFieldState("opq"))
+                            TextField(rememberTextFieldState("rst"))
+                            TextField(rememberTextFieldState("uvw"))
+                            TextField(rememberTextFieldState("xyz"))
                         }
                     }
 
@@ -320,8 +329,7 @@ class TextFieldAccessibilityBenchmark(
                         LazyColumn(Modifier.height(600.dp), state) {
                             items(300) {
                                 TextField(
-                                    value = "item $it",
-                                    onValueChange = {},
+                                    state = rememberTextFieldState("item $it"),
                                     modifier = Modifier.height(100.dp),
                                 )
                             }

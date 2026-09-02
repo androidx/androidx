@@ -307,6 +307,7 @@ private fun AndroidViewDemo() {
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 private fun LegacyTextFieldInScrollableDemo() {
     LazyColumn(Modifier.fillMaxSize().imePadding()) {
@@ -336,6 +337,7 @@ private fun LegacyTextFieldInScrollableDemo() {
     }
 }
 
+@Suppress("DEPRECATION")
 @Composable
 fun LegacySingleGiantTextFieldDemo() {
     var text by remember { mutableStateOf("") }

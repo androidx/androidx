@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -83,11 +85,10 @@ private fun CommonSearchBar(modifier: Modifier, outlined: Boolean, borderOrBackg
                         "Search..."
                     }
             },
-        value = "",
-        onValueChange = { _ -> },
+        state = rememberTextFieldState(),
         placeholder = { Text(text = placeholder, maxLines = 1, overflow = TextOverflow.Clip) },
         trailingIcon = { Icon(imageVector = Icons.Default.Search, contentDescription = null) },
-        singleLine = true,
+        lineLimits = TextFieldLineLimits.SingleLine,
         colors =
             TextFieldDefaults.textFieldColors(
                 focusedIndicatorColor = Color.Transparent,
