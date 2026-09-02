@@ -941,6 +941,169 @@ class A2UiCoreSchemaValidatorTest {
         assertThat(ex.message).contains("must belong to the catalog.json namespace or be relative")
     }
 
+    @Test
+    fun validateSchema_formatDateWithValidDateString_succeeds() {
+        val schema = A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date")))
+        validator.validateSchema("2026-03-30", schema)
+    }
+
+    @Test
+    fun validateSchema_formatDateWithInvalidString_throwsValidationException() {
+        val schema = A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date")))
+        val ex =
+            assertFailsWith<A2uiException.A2uiValidationException> {
+                validator.validateSchema("invalid-date", schema)
+            }
+        assertThat(ex.context["path"]).isEqualTo("/")
+    }
+
+    @Test
+    fun validateSchema_formatTimeWithValidTimeString_succeeds() {
+        val schema = A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("time")))
+        validator.validateSchema("17:00:00", schema)
+        validator.validateSchema("17:00", schema)
+        validator.validateSchema("17:00:00.123Z", schema)
+        validator.validateSchema("17:00:00-08:00", schema)
+    }
+
+    @Test
+    fun validateSchema_formatTimeWithInvalidString_throwsValidationException() {
+        val schema = A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("time")))
+        val ex =
+            assertFailsWith<A2uiException.A2uiValidationException> {
+                validator.validateSchema("invalid-time", schema)
+            }
+        assertThat(ex.context["path"]).isEqualTo("/")
+    }
+
+    @Test
+    fun validateSchema_formatDateTimeWithValidDateTimeString_succeeds() {
+        val schema = A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date-time")))
+        validator.validateSchema("2026-03-30T17:00:00Z", schema)
+        validator.validateSchema("2026-03-30T17:00:00", schema)
+        validator.validateSchema("2026-03-30T17:00:00+05:30", schema)
+    }
+
+    @Test
+    fun validateSchema_formatDateTimeWithInvalidString_throwsValidationException() {
+        val schema = A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date-time")))
+        val ex =
+            assertFailsWith<A2uiException.A2uiValidationException> {
+                validator.validateSchema("2026-03-30", schema) // Missing time
+            }
+        assertThat(ex.context["path"]).isEqualTo("/")
+    }
+
+    @Test
+    fun validateSchema_formatWithNonStringPayload_succeeds() {
+        val schema = A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date-time")))
+        validator.validateSchema(12345, schema) // Format constraint ignores non-string payloads
+        validator.validateSchema(mapOf("path" to "/date"), schema)
+    }
+
+    @Test
+    fun validateSchema_formatWithUnsupportedFormat_throwsValidationException() {
+        val schema =
+            A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("unsupported_format")))
+        assertFailsWith<A2uiException.A2uiValidationException> {
+            validator.validateSchema("test", schema)
+        }
+    }
+
+    @Test
+    fun validateSchema_ifThen_whenIfMatchesAndThenMatches_succeeds() {
+        val schema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.IfThen(
+                            ifSchema = A2uiStringSchema(),
+                            thenSchema =
+                                A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date"))),
+                        )
+                    )
+            )
+        validator.validateSchema("2026-03-30", schema)
+    }
+
+    @Test
+    fun validateSchema_ifThen_whenIfMatchesAndThenFails_throwsValidationException() {
+        val schema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.IfThen(
+                            ifSchema = A2uiStringSchema(),
+                            thenSchema =
+                                A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date"))),
+                        )
+                    )
+            )
+        val ex =
+            assertFailsWith<A2uiException.A2uiValidationException> {
+                validator.validateSchema("not-a-date", schema)
+            }
+        assertThat(ex.context["path"]).isEqualTo("/")
+    }
+
+    @Test
+    fun validateSchema_ifThen_whenIfFailsAndNoElse_succeeds() {
+        val schema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.IfThen(
+                            ifSchema = A2uiStringSchema(),
+                            thenSchema =
+                                A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date"))),
+                            elseSchema = null,
+                        )
+                    )
+            )
+        validator.validateSchema(
+            mapOf("path" to "/data"),
+            schema,
+        ) // Object fails 'if', passes without else
+    }
+
+    @Test
+    fun validateSchema_ifThen_whenIfFailsAndElseMatches_succeeds() {
+        val schema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.IfThen(
+                            ifSchema = A2uiStringSchema(),
+                            thenSchema =
+                                A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date"))),
+                            elseSchema = A2uiNumberSchema(),
+                        )
+                    )
+            )
+        validator.validateSchema(123, schema) // If string fails, number matches else
+    }
+
+    @Test
+    fun validateSchema_ifThen_whenIfFailsAndElseFails_throwsValidationException() {
+        val schema =
+            A2uiAnySchema(
+                keywords =
+                    listOf(
+                        A2uiSchemaKeyword.IfThen(
+                            ifSchema = A2uiStringSchema(),
+                            thenSchema =
+                                A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date"))),
+                            elseSchema = A2uiNumberSchema(),
+                        )
+                    )
+            )
+        val ex =
+            assertFailsWith<A2uiException.A2uiValidationException> {
+                validator.validateSchema(true, schema) // If string fails, boolean fails else
+            }
+        assertThat(ex.context["path"]).isEqualTo("/")
+    }
+
     companion object {
         private val OBJECT_SCHEMA =
             A2uiObjectSchema(

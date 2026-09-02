@@ -220,7 +220,13 @@ private fun collectLocalDefinitionsFromSchema(
             }
             is A2uiSchemaKeyword.Default<*>,
             is A2uiSchemaKeyword.Enum<*>,
+            is A2uiSchemaKeyword.Format,
             is A2uiSchemaKeyword.Const<*> -> {}
+            is A2uiSchemaKeyword.IfThen -> {
+                collectLocalDefinitionsFromSchema(keyword.ifSchema, result, visited)
+                collectLocalDefinitionsFromSchema(keyword.thenSchema, result, visited)
+                keyword.elseSchema?.let { collectLocalDefinitionsFromSchema(it, result, visited) }
+            }
         }
     }
 
