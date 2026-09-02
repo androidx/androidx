@@ -32,16 +32,35 @@ import java.nio.ByteBuffer
  *
  * @property meshBuffer The [MeshBuffer] containing the vertex and index data for this mesh.
  * @property subsets The list of [MeshSubsets][MeshSubset] defining the parts of the mesh.
- * @property bounds The bounding box of the mesh, used for culling.
+ * @property bounds The bounding box of the mesh, used for culling. It is an axis-aligned bounding
+ *   box in the mesh's local coordinate space. It does not need to be tightly fit to the mesh, but
+ *   tighter bounds will result in more efficient culling.
  */
 public class CustomMesh
 private constructor(
     private val resource: RtCustomMeshResource,
     public val meshBuffer: MeshBuffer,
     public val subsets: List<MeshSubset>,
-    public val bounds: BoundingBox,
+    bounds: BoundingBox,
     private val session: Session,
 ) : AutoCloseable {
+
+    /**
+     * The bounding box of the mesh, used for culling.
+     *
+     * It is an axis-aligned bounding box in the mesh's local coordinate space. It does not need to
+     * be tightly fit to the mesh, but tighter bounds will result in more efficient culling.
+     *
+     * The setter for this property must be called on the main thread.
+     *
+     * @throws IllegalStateException if the property is set after this mesh has been closed.
+     */
+    public var bounds: BoundingBox = bounds
+        @MainThread
+        set(value) {
+            field = value
+            session.renderingRuntime.setCustomMeshBoundingBox(resource, value)
+        }
 
     /**
      * Closes the given [CustomMesh].
@@ -156,6 +175,10 @@ private constructor(
 
         /**
          * Sets an optional user-supplied bounding box for culling.
+         *
+         * The bounding box does not need to be perfectly tight, but tighter bounds will result in
+         * more efficient culling. It is an axis-aligned bounding box in the mesh's local coordinate
+         * space.
          *
          * If not provided, the auto-computed bounding box of the entire [MeshBuffer] will be used.
          */
@@ -347,7 +370,12 @@ private constructor(
         /**
          * Sets an optional user-supplied bounding box for culling.
          *
-         * If not provided, the auto-computed bounding box of the entire [MeshBuffer] will be used.
+         * The bounding box does not need to be perfectly tight, but tighter bounds will result in
+         * more efficient culling. It is an axis-aligned bounding box in the mesh's local coordinate
+         * space.
+         *
+         * If not provided, an auto-computed bounding box for the supplied vertex and index data
+         * will be used.
          */
         public fun setBounds(bounds: BoundingBox): BuilderFromMeshData = apply {
             this.boundingBox = bounds
