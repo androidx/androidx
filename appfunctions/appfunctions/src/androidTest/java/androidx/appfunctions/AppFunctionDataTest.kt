@@ -32,6 +32,7 @@ import androidx.appfunctions.Note.Companion.NOTE_OBJECT_TYPE_METADATA
 import androidx.appfunctions.internal.AppFunctionUriGrantTestInventory.Companion.TEST_APP_FUNCTION_URI_GRANT_HOLDER_OBJECT_METADATA
 import androidx.appfunctions.internal.AppFunctionUriGrantTestInventory.Companion.TEST_COMPONENT_METADATA
 import androidx.appfunctions.internal.AppFunctionUriGrantTestInventory.Companion.TEST_NESTED_APP_FUNCTION_URI_GRANT_OBJECT_METADATA
+import androidx.appfunctions.internal.AppFunctionUriGrantTestInventory.Companion.URI_GRANT_OBJECT_TYPE_METADATA
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionBooleanTypeMetadata
@@ -1103,26 +1104,6 @@ class AppFunctionDataTest {
     }
 
     @Test
-    fun testSerialize() {
-        val note = Note(title = "Test Title", attachment = Attachment(uri = "Test Uri"))
-
-        val data = AppFunctionData.serialize(note, Note::class.java)
-
-        assertThat(data.getString("title")).isEqualTo("Test Title")
-        assertThat(data.getAppFunctionData("attachment")?.getString("uri")).isEqualTo("Test Uri")
-    }
-
-    @Test
-    fun testSerialize_withQualifiedName() {
-        val note = Note(title = "Test Title", attachment = Attachment(uri = "Test Uri"))
-
-        val data = AppFunctionData.serialize(note, "androidx.appfunctions.Note")
-
-        assertThat(data.getString("title")).isEqualTo("Test Title")
-        assertThat(data.getAppFunctionData("attachment")?.getString("uri")).isEqualTo("Test Uri")
-    }
-
-    @Test
     fun testDeserialize() {
         val data =
             AppFunctionData.Builder(
@@ -1190,15 +1171,6 @@ class AppFunctionDataTest {
 
         assertThat(note.title).isEqualTo("Test Title")
         assertThat(note.attachment.uri).isEqualTo("Test Uri")
-    }
-
-    @Test
-    fun testSerialize_missingFactory() {
-        val missingFactoryClass = MissingFactoryClass("test")
-
-        assertFailsWith(IllegalArgumentException::class) {
-            AppFunctionData.serialize(missingFactoryClass, MissingFactoryClass::class.java)
-        }
     }
 
     @Test
@@ -1363,6 +1335,8 @@ class AppFunctionDataTest {
                 .setAppFunctionData(
                     "firstGrant",
                     AppFunctionData.serialize(
+                        URI_GRANT_OBJECT_TYPE_METADATA,
+                        TEST_COMPONENT_METADATA,
                         AppFunctionUriGrant(
                             uri = Uri.parse("content://com.example/1"),
                             modeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION,
@@ -1379,6 +1353,8 @@ class AppFunctionDataTest {
                         .setAppFunctionData(
                             "secondGrant",
                             AppFunctionData.serialize(
+                                URI_GRANT_OBJECT_TYPE_METADATA,
+                                TEST_COMPONENT_METADATA,
                                 AppFunctionUriGrant(
                                     uri = Uri.parse("content://com.example/2"),
                                     modeFlags = Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
@@ -1392,6 +1368,8 @@ class AppFunctionDataTest {
                     "thirdGrants",
                     listOf(
                         AppFunctionData.serialize(
+                            URI_GRANT_OBJECT_TYPE_METADATA,
+                            TEST_COMPONENT_METADATA,
                             AppFunctionUriGrant(
                                 uri = Uri.parse("content://com.example/3-1"),
                                 modeFlags =
@@ -1401,6 +1379,8 @@ class AppFunctionDataTest {
                             AppFunctionUriGrant::class.java,
                         ),
                         AppFunctionData.serialize(
+                            URI_GRANT_OBJECT_TYPE_METADATA,
+                            TEST_COMPONENT_METADATA,
                             AppFunctionUriGrant(
                                 uri = Uri.parse("content://com.example/3-2"),
                                 modeFlags =
@@ -1519,32 +1499,6 @@ class AppFunctionDataTest {
         assertThat(data.getString("title")).isEqualTo("test")
         assertThat(data.getAppFunctionData("attachment")?.getString("uri")).isEqualTo("test")
         assertThat(data.getParcelable<PendingIntent>("intentToOpen")).isNotNull()
-    }
-
-    @Test
-    fun serializeAllOfTypeObject_allRequiredField_success() {
-        val data =
-            AppFunctionData.serialize(
-                OpenableNote(
-                    title = "test",
-                    attachment = Attachment(uri = "test"),
-                    intentToOpen =
-                        PendingIntent.getActivity(
-                            context,
-                            0,
-                            Intent(),
-                            PendingIntent.FLAG_IMMUTABLE,
-                        ),
-                ),
-                OpenableNote::class.java,
-            )
-
-        assertThat(data.getString("title")).isEqualTo("test")
-        assertThat(data.getAppFunctionData("attachment")?.getString("uri")).isEqualTo("test")
-        assertThat(data.getParcelable<PendingIntent>("intentToOpen")).isNotNull()
-        // Also ensure that read validation is applied
-        // TODO(b/446606781): Enable when migrating to new API
-        //        assertFailsWith<IllegalArgumentException> { data.getInt("intentToOpen") }
     }
 
     @Test

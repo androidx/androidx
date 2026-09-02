@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.util.Log
 import androidx.annotation.IntDef
+import androidx.annotation.RestrictTo
 import androidx.appfunctions.internal.Constants.APP_FUNCTIONS_TAG
 import androidx.appsearch.annotation.Document
 import java.util.Objects
@@ -346,7 +347,10 @@ constructor(
     }
 
     /** Gets a pseudo [AppFunctionObjectTypeMetadata] by merging the [matchAll] data types. */
-    internal fun getPseudoObjectTypeMetadata(
+    // This cannot be internal since integration-test needs to use it to verify the AllOf type
+    // serialization validation.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun getPseudoObjectTypeMetadata(
         componentsMetadata: AppFunctionComponentsMetadata
     ): AppFunctionObjectTypeMetadata {
         val allProperties = mutableMapOf<String, AppFunctionDataTypeMetadata>()
@@ -529,15 +533,49 @@ constructor(
         return "AppFunctionOneOfTypeMetadata(matchOneOf=$matchOneOf, isNullable=$isNullable, description=$description)"
     }
 
-    internal fun getObjectMetadataForOneOfType(qualifiedName: String): AppFunctionDataTypeMetadata {
-        return matchOneOf.singleOrNull {
-            when (it) {
-                is AppFunctionObjectTypeMetadata -> it.qualifiedName == qualifiedName
-                is AppFunctionReferenceTypeMetadata -> it.referenceDataType == qualifiedName
-                is AppFunctionAllOfTypeMetadata -> it.qualifiedName == qualifiedName
-                else -> throw IllegalArgumentException("Unexpected data type $it for one of type")
+    internal fun getObjectMetadataForOneOfType(
+        qualifiedName: String,
+        componentsMetadata: AppFunctionComponentsMetadata,
+    ): AppFunctionObjectTypeMetadata {
+        fun resolveObjectType(
+            dataTypeMetadata: AppFunctionDataTypeMetadata
+        ): AppFunctionObjectTypeMetadata {
+            return when (dataTypeMetadata) {
+                is AppFunctionObjectTypeMetadata -> {
+                    dataTypeMetadata
+                }
+                is AppFunctionReferenceTypeMetadata -> {
+                    val resolved =
+                        componentsMetadata.dataTypes[dataTypeMetadata.referenceDataType]
+                            ?: throw IllegalArgumentException(
+                                "Unable to resolve ${dataTypeMetadata.referenceDataType}"
+                            )
+                    resolveObjectType(resolved)
+                }
+                is AppFunctionAllOfTypeMetadata -> {
+                    dataTypeMetadata.getPseudoObjectTypeMetadata(componentsMetadata)
+                }
+                else ->
+                    throw IllegalArgumentException(
+                        "Unable to resolve $dataTypeMetadata to object type"
+                    )
             }
-        } ?: throw IllegalArgumentException("$qualifiedName does not match any of the oneOf types")
+        }
+
+        val target =
+            matchOneOf.singleOrNull {
+                when (it) {
+                    is AppFunctionObjectTypeMetadata -> it.qualifiedName == qualifiedName
+                    is AppFunctionReferenceTypeMetadata -> it.referenceDataType == qualifiedName
+                    is AppFunctionAllOfTypeMetadata -> it.qualifiedName == qualifiedName
+                    else ->
+                        throw IllegalArgumentException("Unexpected data type $it for one of type")
+                }
+            }
+                ?: throw IllegalArgumentException(
+                    "$qualifiedName does not match any of the oneOf types"
+                )
+        return resolveObjectType(target)
     }
 
     override fun internalRequireSemanticallyEquivalentTo(

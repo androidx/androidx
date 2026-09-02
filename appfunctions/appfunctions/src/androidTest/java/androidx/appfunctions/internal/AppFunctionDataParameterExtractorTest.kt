@@ -30,6 +30,7 @@ import androidx.appfunctions.metadata.AppFunctionDataTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionDoubleTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import androidx.test.filters.SdkSuppress
@@ -564,7 +565,12 @@ class AppFunctionDataParameterExtractorTest {
             AppFunctionData.Builder("")
                 .setAppFunctionData(
                     "object",
-                    AppFunctionData.serialize(grant, AppFunctionUriGrant::class.java.name),
+                    AppFunctionData.serialize(
+                        URI_GRANT_OBJECT_TYPE_METADATA,
+                        AppFunctionComponentsMetadata(),
+                        grant,
+                        AppFunctionUriGrant::class.java,
+                    ),
                 )
                 .build()
         val spec =
@@ -589,7 +595,12 @@ class AppFunctionDataParameterExtractorTest {
             AppFunctionData.Builder("")
                 .setAppFunctionData(
                     "reference",
-                    AppFunctionData.serialize(grant, AppFunctionUriGrant::class.java.name),
+                    AppFunctionData.serialize(
+                        URI_GRANT_OBJECT_TYPE_METADATA,
+                        AppFunctionComponentsMetadata(),
+                        grant,
+                        AppFunctionUriGrant::class.java,
+                    ),
                 )
                 .build()
         val spec =
@@ -789,7 +800,14 @@ class AppFunctionDataParameterExtractorTest {
             AppFunctionData.Builder("")
                 .setAppFunctionDataList(
                     "objectList",
-                    listOf(AppFunctionData.serialize(grant, AppFunctionUriGrant::class.java.name)),
+                    listOf(
+                        AppFunctionData.serialize(
+                            URI_GRANT_OBJECT_TYPE_METADATA,
+                            AppFunctionComponentsMetadata(),
+                            grant,
+                            AppFunctionUriGrant::class.java,
+                        )
+                    ),
                 )
                 .build()
         val spec =
@@ -816,7 +834,14 @@ class AppFunctionDataParameterExtractorTest {
             AppFunctionData.Builder("")
                 .setAppFunctionDataList(
                     "referenceList",
-                    listOf(AppFunctionData.serialize(grant, AppFunctionUriGrant::class.java.name)),
+                    listOf(
+                        AppFunctionData.serialize(
+                            URI_GRANT_OBJECT_TYPE_METADATA,
+                            AppFunctionComponentsMetadata(),
+                            grant,
+                            AppFunctionUriGrant::class.java,
+                        )
+                    ),
                 )
                 .build()
         val spec =
@@ -1030,5 +1055,32 @@ class AppFunctionDataParameterExtractorTest {
                 itemType = AppFunctionDataTypeMetadata.TYPE_REFERENCE,
             )
         }
+    }
+
+    private companion object {
+        val URI_OBJECT_TYPE_METADATA =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "uri" to AppFunctionStringTypeMetadata(isNullable = false, description = "")
+                    ),
+                required = listOf("uri"),
+                qualifiedName = "androidx.appfunctions.internal.serializableproxies.AppFunctionUri",
+                isNullable = false,
+                description = "",
+            )
+        val URI_GRANT_OBJECT_TYPE_METADATA =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "uri" to URI_OBJECT_TYPE_METADATA,
+                        "modeFlags" to
+                            AppFunctionIntTypeMetadata(isNullable = false, description = ""),
+                    ),
+                required = listOf("uri", "modeFlags"),
+                qualifiedName = "androidx.appfunctions.AppFunctionUriGrant",
+                isNullable = false,
+                description = "",
+            )
     }
 }

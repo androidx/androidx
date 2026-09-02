@@ -127,7 +127,12 @@ class ExecuteAppFunctionResponseTest {
                 )
                 .setAppFunctionData(
                     "uriGrant",
-                    AppFunctionData.serialize(uriGrant, AppFunctionUriGrant::class.java),
+                    AppFunctionData.serialize(
+                        URI_GRANT_OBJECT_METADATA,
+                        AppFunctionComponentsMetadata(),
+                        uriGrant,
+                        AppFunctionUriGrant::class.java,
+                    ),
                 )
                 .build()
 
@@ -154,6 +159,26 @@ class ExecuteAppFunctionResponseTest {
     }
 
     companion object {
+        private val URI_GRANT_OBJECT_METADATA =
+            AppFunctionObjectTypeMetadata(
+                properties =
+                    mapOf(
+                        "uri" to
+                            AppFunctionObjectTypeMetadata(
+                                properties =
+                                    mapOf(
+                                        "uri" to AppFunctionStringTypeMetadata(isNullable = false)
+                                    ),
+                                required = listOf("uri"),
+                                isNullable = false,
+                                qualifiedName = "android.net.Uri",
+                            ),
+                        "modeFlags" to AppFunctionIntTypeMetadata(isNullable = false),
+                    ),
+                required = listOf("uri", "modeFlags"),
+                qualifiedName = "androidx.appfunctions.AppFunctionUriGrant",
+                isNullable = true,
+            )
         private val TEST_APP_FUNCTION_URI_GRANT_METADATA =
             AppFunctionMetadata(
                 name =
@@ -167,22 +192,7 @@ class ExecuteAppFunctionResponseTest {
                         AppFunctionParameterMetadata(
                             name = "uriGrant",
                             isRequired = false,
-                            dataType =
-                                AppFunctionObjectTypeMetadata(
-                                    properties =
-                                        mapOf(
-                                            "uri" to
-                                                AppFunctionStringTypeMetadata(
-                                                    isNullable = false,
-                                                    format = "uri",
-                                                ),
-                                            "modeFlags" to
-                                                AppFunctionIntTypeMetadata(isNullable = false),
-                                        ),
-                                    required = listOf("uri", "modeFlags"),
-                                    qualifiedName = "androidx.appfunctions.AppFunctionUriGrant",
-                                    isNullable = true,
-                                ),
+                            dataType = URI_GRANT_OBJECT_METADATA,
                         )
                     ),
                 response = AppFunctionResponseMetadata(AppFunctionUnitTypeMetadata(false)),

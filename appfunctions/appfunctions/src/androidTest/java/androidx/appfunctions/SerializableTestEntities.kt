@@ -132,13 +132,17 @@ class `$NoteFactory` : AppFunctionSerializableFactory<Note> {
         spec: AppFunctionDataSpec?,
         appFunctionSerializable: Note,
     ): AppFunctionData {
+        val attachmentFactory = `$AttachmentFactory`()
         return getAppFunctionDataBuilder(spec, "androidx.appfunctions.Note")
             .setString("title", appFunctionSerializable.title)
             .setAppFunctionData(
                 "attachment",
-                AppFunctionData.serialize(
+                attachmentFactory.toAppFunctionData(
+                    spec?.getPropertyObjectSpec(
+                        "attachment",
+                        checkNotNull(Attachment::class.java.canonicalName),
+                    ),
                     appFunctionSerializable.attachment,
-                    Attachment::class.java,
                 ),
             )
             .build()
@@ -161,13 +165,17 @@ class `$OpenableNoteFactory` : AppFunctionSerializableFactory<OpenableNote> {
         spec: AppFunctionDataSpec?,
         appFunctionSerializable: OpenableNote,
     ): AppFunctionData {
+        val attachmentFactory = `$AttachmentFactory`()
         return getAppFunctionDataBuilder(spec, "androidx.appfunctions.OpenableNote")
             .setString("title", appFunctionSerializable.title)
             .setAppFunctionData(
                 "attachment",
-                AppFunctionData.serialize(
+                attachmentFactory.toAppFunctionData(
+                    spec?.getPropertyObjectSpec(
+                        "attachment",
+                        checkNotNull(Attachment::class.java.canonicalName),
+                    ),
                     appFunctionSerializable.attachment,
-                    Attachment::class.java,
                 ),
             )
             .setParcelable("intentToOpen", appFunctionSerializable.intentToOpen)
