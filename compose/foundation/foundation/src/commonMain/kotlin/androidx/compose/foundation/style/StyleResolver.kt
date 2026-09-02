@@ -16,9 +16,13 @@
 
 package androidx.compose.foundation.style
 
+import androidx.collection.MutableObjectList
+import androidx.collection.ScatterSet
+import androidx.collection.mutableObjectListOf
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalAccessorScope
 import androidx.compose.runtime.RememberObserver
+import androidx.compose.runtime.snapshots.SnapshotStateSet
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.traverseAncestors
@@ -57,9 +61,10 @@ public class StyleResolver(
     private var _node: StyleResolverNode? = null
     private var resolvedAtLeastOnce: Boolean = false
     private val collector = StylePropertyCollector()
+    private var nestedStyleKeys = SnapshotStateSet<NestedStyleKey>()
 
     // Testing hooks. This hook allows testing local resolution without an attached node.
-    private var _resolveParentLocal: ((local: StyleProperty<Any>) -> Any?)? = null
+    private var parentOverride: StyleResolver? = null
 
     private val node: StyleResolverNode
         get() =
@@ -107,8 +112,13 @@ public class StyleResolver(
         _node = node
     }
 
+    internal fun bindParent(parent: StyleResolver) {
+        parentOverride = parent
+    }
+
     internal fun unbind() {
         _node = null
+        parentOverride = null
     }
 
     private val _accessorScope: StyleResolverScope =
@@ -128,9 +138,8 @@ public class StyleResolver(
                             true
                         } else {
                             var result = false
-                            node.traverseAncestors(StyleResolverNodeKey) {
-                                if (it !is StyleResolverNode) return@traverseAncestors true
-                                result = this@isSet in it.styleResolver.resolvedLocals
+                            traverseAncestors {
+                                result = this@isSet in it.resolvedLocals
                                 !result
                             }
                             result
@@ -158,9 +167,8 @@ public class StyleResolver(
                         }
                     }
                 if (!result && anyLocals) {
-                    node.traverseAncestors(StyleResolverNodeKey) { ancestor ->
-                        if (ancestor !is StyleResolverNode) return@traverseAncestors true
-                        result = properties.any { it in ancestor.styleResolver.resolvedLocals }
+                    traverseAncestors { ancestor ->
+                        result = properties.any { it in ancestor.resolvedLocals }
                         !result
                     }
                 }
@@ -201,31 +209,40 @@ public class StyleResolver(
         collector.collect(style, node, density)
     }
 
-    internal fun collectForTests(
-        density: Density,
-        resolveParentLocal: ((local: StyleProperty<Any>) -> Any?)? = null,
-    ) {
-        _resolveParentLocal = resolveParentLocal ?: { null }
+    internal fun collectForTests(density: Density) {
         collector.collect(style, node, density)
         node.markResolvedForTesting()
     }
 
     @Suppress("UNCHECKED_CAST")
     internal fun <T> resolveLocal(local: StyleProperty<T>): T? {
-        _resolveParentLocal?.let {
-            return it(local as StyleProperty<Any>) as T?
-        }
         var result: T? = null
-        node.traverseAncestors(StyleResolverNodeKey) {
-            if (it !is StyleResolverNode) return@traverseAncestors true
-            result = it.styleResolver.resolvedLocals.getOrNull(local)
+        traverseAncestors {
+            result = it.resolvedLocals.getOrNull(local)
             result == null
         }
         return result
     }
 
-    internal fun updateProperties(properties: StyleProperties) {
+    internal fun traverseAncestors(block: (StyleResolver) -> Boolean) {
+        var parentOverride = parentOverride
+        if (parentOverride != null) {
+            while (parentOverride != null) {
+                if (!block(parentOverride)) return
+                parentOverride = parentOverride.parentOverride
+            }
+            return
+        }
+        node.traverseAncestors(StyleResolverNodeKey) {
+            if (it !is StyleResolverNode) return@traverseAncestors true
+            block(it.styleResolver)
+        }
+    }
 
+    internal fun updateProperties(
+        properties: StyleProperties,
+        newNestedStyleKeys: ScatterSet<NestedStyleKey>?,
+    ) {
         // Update all the properties that are now resolved
         properties.forEach { property, value ->
             @Suppress("UNCHECKED_CAST")
@@ -237,7 +254,81 @@ public class StyleResolver(
             }
         }
 
+        if (newNestedStyleKeys == null || newNestedStyleKeys.isEmpty()) {
+            nestedStyleKeys.clear()
+        } else {
+            if (
+                nestedStyleKeys.size == 1 &&
+                    newNestedStyleKeys.size == 1 &&
+                    newNestedStyleKeys.first() !in nestedStyleKeys
+            ) {
+                // This avoids an `asSet()` allocation if both sets only have one element.
+                nestedStyleKeys.clear()
+                nestedStyleKeys.add(newNestedStyleKeys.first())
+            } else {
+                // This pattern ensures that nestedStyleKeys is not modified when
+                // newNestedStyleKeys has the same keys. addAll() does not modify the set if no
+                // new elements are added and retainAll() doesn't modify the set if no elements are
+                // removed. This pattern requires two allocations for the `asSet()` and the
+                // enumerator, but it is worth it to avoid changing nestedStyleKeys as changing
+                // it will invalidate all styles that read it. There are special cases for sizes 0
+                // and 1 to avoid the additional allocations in common cases.
+                @Suppress("AsCollectionCall") nestedStyleKeys.addAll(newNestedStyleKeys.asSet())
+                nestedStyleKeys.retainAll { it in newNestedStyleKeys }
+            }
+        }
+
         resolvedAtLeastOnce = true
+    }
+
+    internal fun resolveNestedStyle(
+        key: NestedStyleKey,
+        block: (style: CommonStyle, state: StyleState) -> Unit,
+    ) {
+        // Mostly, there will only be one parent that contributes to the list of styles to
+        // evaluate, so this avoids allocating a list until we really need one. This value is
+        // null if no parents have this key, StyleResolver if only one parent contains this
+        // key, or a MutableObjectList<StyleResolver> if more than one contains this key.
+        var resolvers: Any? = null
+        traverseAncestors { resolver ->
+            // This serves two purposes. First, it ensures we are not running any style that does
+            // not have a local style defined that we are interested in. Second, if the local style
+            // is conditionally provided by the parent, then the child will invalidate when the
+            // set of nested styles changes.
+            if (key !in resolver.nestedStyleKeys) return@traverseAncestors true
+            resolvers =
+                // This avoids allocating a list if we only have one parent (the expected case)
+                // that provides the style key.
+                when (val r = resolvers) {
+                    is StyleResolver -> mutableObjectListOf(r, resolver)
+                    is MutableObjectList<*> -> {
+                        // This cast is safe as the list is created in the previous case with this
+                        // type.
+                        @Suppress("UNCHECKED_CAST")
+                        r as MutableObjectList<StyleResolver>
+                        r.add(resolver)
+                        r
+                    }
+                    else -> resolver
+                }
+            true
+        }
+
+        when (val r = resolvers) {
+            is StyleResolver -> {
+                block(r.style, r.styleState)
+            }
+            is MutableObjectList<*> -> {
+                // Iterate the nodes backwards. The nodes are added from nearest parent to
+                // furthest, but should be executed from the furthest to the nearest.
+                @Suppress("UNCHECKED_CAST")
+                r as MutableObjectList<StyleResolver>
+                for (index in r.indices.reversed()) {
+                    val resolver = r[index]
+                    block(resolver.style, resolver.styleState)
+                }
+            }
+        }
     }
 
     internal fun discardUnneededProperties(current: StyleProperties, previous: StyleProperties) {

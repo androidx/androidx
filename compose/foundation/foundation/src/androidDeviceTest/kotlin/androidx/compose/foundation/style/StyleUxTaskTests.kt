@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationStyleApi::class)
+
 package androidx.compose.foundation.style
 
 import androidx.compose.animation.core.Spring.StiffnessHigh
@@ -21,7 +23,6 @@ import androidx.compose.animation.core.Spring.StiffnessMediumLow
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -46,6 +47,7 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,6 +77,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import java.time.LocalDateTime
 import kotlin.test.Test
 import kotlinx.coroutines.delay
 import org.junit.Rule
@@ -82,7 +86,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationStyleApi::class)
 class StyleUxTaskTests {
     @get:Rule val rule = createComposeRule()
 
@@ -1126,11 +1129,18 @@ class StyleUxTaskTests {
         }
     }
 
+    @Test
+    fun design_system_date_picker() {
+        interactiveTask {
+            val datePickerState = remember { DesignSystemDatePickerState() }
+            DesignSystemDatePicker(datePickerState)
+        }
+    }
+
     private fun task(content: @Composable () -> Unit) {
         rule.setContent(content)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     private fun interactiveTask(isDone: Boolean = true, content: @Composable () -> Unit) {
         var done = isDone
         rule.setContent {
@@ -1179,7 +1189,7 @@ private fun Text_n(
         softWrap = softWrap,
         maxLines = maxLines,
         minLines = minLines,
-        color = { styleResolver.resolve { contentFillLocal.value.asColor() } },
+        color = { styleResolver.resolve { contentColor } },
         autoSize = autoSize,
     )
 }
@@ -1406,4 +1416,269 @@ private fun StyleScope.loading(block: () -> Unit) {
 @OptIn(ExperimentalFoundationStyleApi::class)
 private fun StyleScope.error(block: () -> Unit) {
     state(SampleLoadingStateKey, block) { key, state -> state[key] == SampleLoadingState.Error }
+}
+
+private interface DesignSystemStyleScope : CommonStyleScope
+
+private fun interface DesignSystemStyle : CustomStyle<DesignSystemStyleScope> {
+    companion object : DesignSystemStyle {
+        override fun DesignSystemStyleScope.applyStyle() {}
+    }
+}
+
+private infix fun DesignSystemStyle.then(other: DesignSystemStyle) =
+    when {
+        this === DesignSystemStyle -> other
+        other === DesignSystemStyle -> this
+        else ->
+            DesignSystemStyle {
+                with(this) { applyStyle() }
+                with(other) { applyStyle() }
+            }
+    }
+
+private fun DesignSystemStyle.toCommonStyle() =
+    when {
+        this === DesignSystemStyle -> CommonStyle
+        else ->
+            CommonStyle {
+                val scope = object : DesignSystemStyleScope, CommonStyleScope by this {}
+                with(scope) { applyStyle() }
+            }
+    }
+
+private interface DesignSystemDatePickerStyleScope : DesignSystemStyleScope
+
+private fun interface DesignSystemDatePickerStyle : CustomStyle<DesignSystemDatePickerStyleScope>
+
+private fun DesignSystemDatePickerStyle.toCommonStyle() = CommonStyle {
+    val scope = object : DesignSystemDatePickerStyleScope, CommonStyleScope by this {}
+    with(scope) { applyStyle() }
+}
+
+private val backgroundProperty = stylePropertyOf("background") { Fill.None }
+
+private fun DesignSystemStyleScope.background(color: Color) {
+    backgroundProperty.provide(Fill(color))
+}
+
+private val borderWidthProperty = stylePropertyOf("borderWidth") { 0.dp }
+
+private fun DesignSystemStyleScope.borderWidth(value: Dp) {
+    borderWidthProperty.provide(value)
+}
+
+private val borderFillProperty = stylePropertyOf("borderFill") { Fill.None }
+
+private fun DesignSystemStyleScope.borderColor(color: Color) {
+    borderFillProperty.provide(Fill(color))
+}
+
+private fun DesignSystemStyleScope.border(color: Color, width: Dp) {
+    borderWidth(width)
+    borderColor(color)
+}
+
+private val contentFillLocal = styleLocalOf("contentFill") { Fill.None }
+
+private fun DesignSystemStyleScope.contentColor(color: Color) {
+    contentFillLocal.provide(Fill(color))
+}
+
+private val datePickerNestedTitleKey = NestedStyleKey("title")
+
+private fun DesignSystemDatePickerStyleScope.title(style: DesignSystemStyle) {
+    provideNestedStyle(datePickerNestedTitleKey, style.toCommonStyle())
+}
+
+private val datePickerNestedHeadlineKey = NestedStyleKey("headline")
+
+private fun DesignSystemDatePickerStyleScope.headline(style: DesignSystemStyle) {
+    provideNestedStyle(datePickerNestedHeadlineKey, style.toCommonStyle())
+}
+
+private val datePickerNestedDateFieldKey = NestedStyleKey("dateField")
+
+private fun DesignSystemDatePickerStyleScope.dateField(style: DesignSystemStyle) {
+    provideNestedStyle(datePickerNestedDateFieldKey, style.toCommonStyle())
+}
+
+private val defaultDatePickerStyle = DesignSystemDatePickerStyle {
+    background(Color.Blue)
+    contentColor(Color.Yellow)
+    title {
+        background(Color.Green)
+        contentColor(Color.White)
+        focused { animate { background(Color.Blue) } }
+    }
+    headline {
+        background(Color.Red)
+        contentColor(Color.White)
+        focused { background(Color.Cyan) }
+    }
+    focused { background(Color.Green) }
+    dateField {
+        background(Color.Gray)
+        contentColor(Color.Black)
+        focused { background(Color.LightGray) }
+    }
+}
+
+private val defaultDatePickerTitleStyle = DesignSystemStyle {
+    applyNestedStyle(datePickerNestedTitleKey)
+}
+
+private val defaultDatePickerHeadlineStyle = DesignSystemStyle {
+    applyNestedStyle(datePickerNestedHeadlineKey)
+}
+
+private fun Modifier.designSystemSurface(
+    styleResolver: StyleResolver,
+    onClick: (() -> Unit)? = null,
+    interactionSource: MutableInteractionSource? = null,
+): Modifier =
+    this.appearance {
+            styleResolver.resolve {
+                background = backgroundProperty.value
+                borderWidth = borderWidthProperty.value
+                border = borderFillProperty.value
+            }
+        }
+        .modifierIfNonNull(onClick) { onClick ->
+            this.clickable(onClick = onClick, enabled = true, interactionSource = interactionSource)
+        }
+
+private inline fun <T> Modifier.modifierIfNonNull(
+    value: T?,
+    block: Modifier.(T) -> Modifier,
+): Modifier = if (value != null) this.block(value) else this
+
+@Composable
+private fun DesignSystemText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: DesignSystemStyle = DesignSystemStyle,
+) {
+    val styleResolver = remember { StyleResolver(style.toCommonStyle()) }
+    BasicText(
+        text = text,
+        modifier = modifier.styleResolver(styleResolver).designSystemSurface(styleResolver),
+        color = { styleResolver.resolve { contentFillLocal.value.asColor() } },
+    )
+}
+
+private val defaultButtonStyle = DesignSystemStyle {
+    background(Color.Blue)
+    contentColor(Color.White)
+    border(Color.Black, 2.dp)
+    animate { pressed { background(Color.Green) } }
+    disabled { background(Color.Gray) }
+}
+
+@Composable
+private fun DesignSystemButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    style: DesignSystemStyle = DesignSystemStyle,
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val mutableInteractionSource = remember { MutableInteractionSource() }
+    val styleState = rememberUpdatedStyleState(mutableInteractionSource) { it.isEnabled = enabled }
+    val styleResolver = remember {
+        StyleResolver(defaultButtonStyle.toCommonStyle() then style.toCommonStyle(), styleState)
+    }
+    Row(
+        modifier =
+            modifier
+                .styleResolver(styleResolver)
+                .designSystemSurface(
+                    styleResolver,
+                    onClick = onClick,
+                    interactionSource = mutableInteractionSource,
+                ),
+        content = content,
+    )
+}
+
+@Stable
+private interface DesignSystemDatePickerState {
+    val day: Int
+    val month: Int
+    val year: Int
+
+    fun nextDay()
+
+    fun previousDay()
+}
+
+@SdkSuppress(minSdkVersion = 26)
+private fun DesignSystemDatePickerState(): DesignSystemDatePickerState =
+    object : DesignSystemDatePickerState {
+        private var dateTime by mutableStateOf(LocalDateTime.now())
+
+        override val day: Int
+            get() = dateTime.dayOfMonth
+
+        override val month: Int
+            get() = dateTime.monthValue
+
+        override val year: Int
+            get() = dateTime.year
+
+        override fun nextDay() {
+            this.dateTime = dateTime.plusDays(1)
+        }
+
+        override fun previousDay() {
+            this.dateTime = dateTime.minusDays(1)
+        }
+    }
+
+@Composable
+private fun DesignSystemDatePickerHeader(
+    message: String,
+    modifier: Modifier = Modifier,
+    style: DesignSystemStyle = DesignSystemStyle,
+) {
+    DesignSystemText(
+        text = message,
+        modifier = modifier,
+        style = defaultDatePickerHeadlineStyle then style,
+    )
+}
+
+@Composable
+private fun DesignSystemDatePicker(
+    state: DesignSystemDatePickerState,
+    modifier: Modifier = Modifier,
+    style: DesignSystemStyle = DesignSystemStyle,
+) {
+    val styleResolver = remember {
+        StyleResolver(defaultDatePickerStyle.toCommonStyle() then style.toCommonStyle())
+    }
+    Column(modifier = modifier.styleResolver(styleResolver).designSystemSurface(styleResolver)) {
+        DesignSystemDatePickerHeader(
+            message = "Pick a date",
+            style = defaultDatePickerTitleStyle then style,
+        )
+        Row {
+            Column {
+                DesignSystemText("Month:")
+                DesignSystemText("Day:")
+                DesignSystemText("Year:")
+            }
+            Column {
+                DesignSystemText("${state.month}")
+                DesignSystemText("${state.day}")
+                DesignSystemText("${state.year}")
+            }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(modifier.padding(10.dp)) {
+            DesignSystemButton({ state.nextDay() }) { DesignSystemText("Next") }
+            Spacer(modifier = Modifier.width(10.dp))
+            DesignSystemButton({ state.previousDay() }) { DesignSystemText("Previous") }
+        }
+    }
 }
