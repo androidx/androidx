@@ -369,8 +369,17 @@
   <string name="tab_title_grid">Grid Tab with Long Tab Title</string>
   <string name="tab_title_search">Search Tab</string>
   <string name="tab_title_loading">Loading Tab</string>
+  <string name="tab_title_template_style_1">Template Style 1</string>
+  <string name="tab_title_template_style_2">Template Style 2</string>
+  <string name="tab_title_overridden_style">Overridden Style</string>
+  <string name="tab_title_failing_style">Failing Style</string>
   <string name="tab_template_loading_demo_title">Tab Template Loading Demo</string>
   <string name="tab_template_no_tabs_demo_title">Tab Template No Tabs Demo</string>
+  <string name="tab_template_style_demo_title">Tab Template Style Demo</string>
+  <string name="msg_tab_template_style_1_text">Tab Template Style (Tab 1)\nInherits template-level styling</string>
+  <string name="msg_tab_template_style_2_text">Tab Template Style (Tab 2)\nInherits template-level styling</string>
+  <string name="msg_tab_overridden_style_text">Tab Overridden Style\nOverrides template style with custom blue colors</string>
+  <string name="msg_tab_failing_style_text">Tab Failing Style\nRed icon on red background</string>
 
   <!-- ContentProviderIconsDemoScreen -->
   <string name="images_unknown_host_error">Images cannot be displayed for an unknown host</string>
