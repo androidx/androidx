@@ -37,6 +37,7 @@ import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.MediaBlendingM
 import androidx.xr.scenecore.spatial.rendering.impress.ImpressApi.StereoMode
 import com.google.ar.imp.view.View
 import java.io.IOException
+import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 import java.nio.IntBuffer
 import kotlin.coroutines.resume
@@ -1717,6 +1718,63 @@ public class ImpressApiImpl : ImpressApi {
         nGetCustomMeshAabb(getViewNativeHandle(view), customMeshHandle, outAabb)
     }
 
+    override fun updateMeshBufferVertexData(
+        meshBufferHandle: Long,
+        bufferIndex: Int,
+        vertexData: ByteBuffer,
+        vertexDataOffset: Int,
+        vertexDataSize: Int,
+        destOffsetInBytes: Int,
+    ) {
+        nUpdateMeshBufferVertexData(
+            getViewNativeHandle(view),
+            meshBufferHandle,
+            bufferIndex,
+            destOffsetInBytes,
+            vertexData,
+            vertexDataOffset,
+            vertexDataSize,
+        )
+    }
+
+    override fun updateMeshBufferIndexData(
+        meshBufferHandle: Long,
+        indexData: ByteBuffer,
+        indexDataOffset: Int,
+        indexDataSize: Int,
+        destOffsetInBytes: Int,
+    ) {
+        nUpdateMeshBufferIndexData(
+            getViewNativeHandle(view),
+            meshBufferHandle,
+            destOffsetInBytes,
+            indexData,
+            indexDataOffset,
+            indexDataSize,
+        )
+    }
+
+    override fun setCustomMeshBoundingBox(
+        customMeshHandle: Long,
+        centerX: Float,
+        centerY: Float,
+        centerZ: Float,
+        halfExtentX: Float,
+        halfExtentY: Float,
+        halfExtentZ: Float,
+    ) {
+        nUpdateCustomMeshAabb(
+            getViewNativeHandle(view),
+            customMeshHandle,
+            centerX,
+            centerY,
+            centerZ,
+            halfExtentX,
+            halfExtentY,
+            halfExtentZ,
+        )
+    }
+
     override fun destroyCustomMesh(customMeshHandle: Long): Unit =
         nDestroyCustomMesh(getViewNativeHandle(view), customMeshHandle)
 
@@ -2570,5 +2628,35 @@ public class ImpressApiImpl : ImpressApi {
         nodeId: Int,
         offset: Int,
         transforms: FloatArray,
+    )
+
+    private external fun nUpdateMeshBufferVertexData(
+        view: Long,
+        meshBufferHandle: Long,
+        bufferIndex: Int,
+        destOffsetInBytes: Int,
+        vertexData: ByteBuffer,
+        vertexDataOffset: Int,
+        vertexDataSize: Int,
+    )
+
+    private external fun nUpdateMeshBufferIndexData(
+        view: Long,
+        meshBufferHandle: Long,
+        destOffsetInBytes: Int,
+        indexData: ByteBuffer,
+        indexDataOffset: Int,
+        indexDataSize: Int,
+    )
+
+    private external fun nUpdateCustomMeshAabb(
+        view: Long,
+        customMeshHandle: Long,
+        centerX: Float,
+        centerY: Float,
+        centerZ: Float,
+        halfExtentX: Float,
+        halfExtentY: Float,
+        halfExtentZ: Float,
     )
 }

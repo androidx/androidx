@@ -146,6 +146,7 @@ package androidx.xr.scenecore {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox getBounds();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.MeshBuffer getMeshBuffer();
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.MeshSubset> getSubsets();
+    method @InaccessibleFromKotlin @MainThread public void setBounds(androidx.xr.runtime.math.BoundingBox);
     property public androidx.xr.runtime.math.BoundingBox bounds;
     property public androidx.xr.scenecore.MeshBuffer meshBuffer;
     property public java.util.List<androidx.xr.scenecore.MeshSubset> subsets;
@@ -1460,6 +1461,8 @@ package androidx.xr.scenecore {
   }
 
   public final class VertexLayout {
+    method public int getBufferIndex(androidx.xr.scenecore.VertexAttribute attribute);
+    method public int getBufferIndex(androidx.xr.scenecore.VertexBufferLayout bufferLayout);
     method @InaccessibleFromKotlin public java.util.List<androidx.xr.scenecore.VertexBufferLayout> getBuffers();
     property public java.util.List<androidx.xr.scenecore.VertexBufferLayout> buffers;
   }

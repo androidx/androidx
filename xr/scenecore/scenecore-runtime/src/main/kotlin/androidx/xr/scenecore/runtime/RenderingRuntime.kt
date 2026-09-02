@@ -667,6 +667,44 @@ public interface RenderingRuntime : JxrRuntime {
     public fun destroyMeshBuffer(meshBuffer: MeshBufferResource)
 
     /**
+     * Dynamically updates vertex data for a specific buffer index in the MeshBuffer.
+     *
+     * @param meshBuffer The MeshBuffer resource to update.
+     * @param bufferIndex The index of the vertex buffer to update.
+     * @param vertexData The ByteBuffer containing the new vertex data.
+     * @param vertexDataOffset The starting offset in the ByteBuffer.
+     * @param vertexDataSize The size of the data in the ByteBuffer to update.
+     * @param destOffsetInBytes The starting offset in bytes in the target buffer where the data
+     *   should be written.
+     */
+    public fun updateMeshBufferVertexData(
+        meshBuffer: MeshBufferResource,
+        bufferIndex: Int,
+        vertexData: ByteBuffer,
+        vertexDataOffset: Int,
+        vertexDataSize: Int,
+        destOffsetInBytes: Int,
+    )
+
+    /**
+     * Dynamically updates index data in the MeshBuffer.
+     *
+     * @param meshBuffer The MeshBuffer resource to update.
+     * @param indexData The ByteBuffer containing the new index data.
+     * @param indexDataOffset The starting offset in the ByteBuffer.
+     * @param indexDataSize The size of the data in the ByteBuffer to update.
+     * @param destOffsetInBytes The starting offset in bytes in the target buffer where the data
+     *   should be written.
+     */
+    public fun updateMeshBufferIndexData(
+        meshBuffer: MeshBufferResource,
+        indexData: ByteBuffer,
+        indexDataOffset: Int,
+        indexDataSize: Int,
+        destOffsetInBytes: Int,
+    )
+
+    /**
      * Creates a CustomMesh resource.
      *
      * @param meshBuffer The MeshBuffer resource.
@@ -695,12 +733,20 @@ public interface RenderingRuntime : JxrRuntime {
     ): CustomMeshResource
 
     /**
-     * Gets the bounding box of the given CustomMesh resource.
+     * Gets the axis-aligned bounding box of the given CustomMesh resource.
      *
      * @param customMesh The CustomMesh resource.
      * @return The BoundingBox of the CustomMesh.
      */
     public fun getCustomMeshBoundingBox(customMesh: CustomMeshResource): BoundingBox
+
+    /**
+     * Sets the axis-aligned bounding box of the given CustomMesh resource.
+     *
+     * @param customMesh The CustomMesh resource.
+     * @param bounds The new BoundingBox of the CustomMesh.
+     */
+    public fun setCustomMeshBoundingBox(customMesh: CustomMeshResource, bounds: BoundingBox)
 
     /**
      * Destroys the given CustomMesh resource.

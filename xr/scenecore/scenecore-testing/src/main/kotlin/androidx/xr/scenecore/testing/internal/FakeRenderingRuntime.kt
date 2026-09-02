@@ -585,6 +585,23 @@ internal class FakeRenderingRuntime(
 
     override fun destroyMeshBuffer(meshBuffer: MeshBufferResource) {}
 
+    override fun updateMeshBufferVertexData(
+        meshBuffer: MeshBufferResource,
+        bufferIndex: Int,
+        vertexData: ByteBuffer,
+        vertexDataOffset: Int,
+        vertexDataSize: Int,
+        destOffsetInBytes: Int,
+    ) {}
+
+    override fun updateMeshBufferIndexData(
+        meshBuffer: MeshBufferResource,
+        indexData: ByteBuffer,
+        indexDataOffset: Int,
+        indexDataSize: Int,
+        destOffsetInBytes: Int,
+    ) {}
+
     override fun createCustomMesh(
         meshBuffer: MeshBufferResource,
         subsetOffsets: IntArray,
@@ -600,6 +617,8 @@ internal class FakeRenderingRuntime(
 
     override fun getCustomMeshBoundingBox(customMesh: CustomMeshResource): BoundingBox =
         BoundingBox.fromMinMax(Vector3(0f, 0f, 0f), Vector3(0f, 0f, 0f))
+
+    override fun setCustomMeshBoundingBox(customMesh: CustomMeshResource, bounds: BoundingBox) {}
 
     override fun destroyCustomMesh(customMesh: CustomMeshResource) {}
 

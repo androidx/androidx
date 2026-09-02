@@ -359,4 +359,58 @@ class VertexLayoutTest {
                 "stride (20) must be at least the minimum byte stride required to encompass all attributes in the buffer (24)."
             )
     }
+
+    @Test
+    fun getBufferIndex_byAttribute_returnsCorrectIndex() {
+        val layout =
+            VertexLayout.Builder()
+                .addAttribute(VertexAttribute.POSITION, VertexAttributeType.FLOAT3)
+                .startNextBuffer()
+                .addAttribute(VertexAttribute.NORMAL, VertexAttributeType.FLOAT3)
+                .addAttribute(VertexAttribute.UV0, VertexAttributeType.FLOAT2)
+                .build()
+
+        assertThat(layout.getBufferIndex(VertexAttribute.POSITION)).isEqualTo(0)
+        assertThat(layout.getBufferIndex(VertexAttribute.NORMAL)).isEqualTo(1)
+        assertThat(layout.getBufferIndex(VertexAttribute.UV0)).isEqualTo(1)
+
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                layout.getBufferIndex(VertexAttribute.COLOR)
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Attribute COLOR is not present in the layout.")
+    }
+
+    @Test
+    fun getBufferIndex_byLayout_returnsCorrectIndex() {
+        val layout =
+            VertexLayout.Builder()
+                .addAttribute(VertexAttribute.POSITION, VertexAttributeType.FLOAT3)
+                .startNextBuffer()
+                .addAttribute(VertexAttribute.NORMAL, VertexAttributeType.FLOAT3)
+                .addAttribute(VertexAttribute.UV0, VertexAttributeType.FLOAT2)
+                .build()
+
+        assertThat(layout.getBufferIndex(layout.buffers[0])).isEqualTo(0)
+        assertThat(layout.getBufferIndex(layout.buffers[1])).isEqualTo(1)
+
+        val unboundLayout =
+            VertexBufferLayout(
+                listOf(
+                    VertexAttributeDescriptor(
+                        VertexAttribute.COLOR,
+                        VertexAttributeType.UBYTE4_NORM,
+                    )
+                )
+            )
+        val exception =
+            assertThrows(IllegalArgumentException::class.java) {
+                layout.getBufferIndex(unboundLayout)
+            }
+        assertThat(exception)
+            .hasMessageThat()
+            .contains("Buffer layout $unboundLayout is not present in the layout.")
+    }
 }
