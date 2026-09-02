@@ -29,6 +29,7 @@ class NoiseNodeTest {
     @Test
     fun noiseNodeNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused = NoiseNode(12345, ProgressDomain.TIME_IN_SECONDS, 1f)
         }
     }

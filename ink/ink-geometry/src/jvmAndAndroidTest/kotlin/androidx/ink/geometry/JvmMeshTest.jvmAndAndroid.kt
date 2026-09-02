@@ -59,7 +59,7 @@ class JvmMeshTest {
     @Test
     fun rawVertexData_retainsWeakReferenceToMeshFromOriginalDirectBuffer() {
         val mesh = Mesh()
-        val unused = mesh.getRawVertexBuffer()
+        @Suppress("UNUSED_VARIABLE") val unused = mesh.getRawVertexBuffer()
         assertThat(meshesReferencedByBuffers).isInstanceOf<WeakHashMap<*, *>>()
         // Unfortunately, we need to map from the _original_ direct buffer to the mesh, not the
         // wrapped
@@ -81,7 +81,7 @@ class JvmMeshTest {
     @Test
     fun rawIndexData_retainsWeakReferenceToMeshFromOriginalDirectBuffer() {
         val mesh = Mesh()
-        val unused = mesh.getRawTriangleIndexBuffer()
+        @Suppress("UNUSED_VARIABLE") val unused = mesh.getRawTriangleIndexBuffer()
         assertThat(meshesReferencedByBuffers).isInstanceOf<WeakHashMap<*, *>>()
         // See comment above about why this entry maps to the original direct buffer, not the
         // wrapped

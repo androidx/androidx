@@ -36,6 +36,7 @@ class BrushTest {
     @Test
     fun brushNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused = Brush.createWithColorIntArgb(family, color.toArgb(), size, epsilon)
         }
     }

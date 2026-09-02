@@ -40,6 +40,7 @@ class BrushCoatTest {
     @Test
     fun brushCoatNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused =
                 BrushCoat(
                     tip = createParallelogramBrushTip(),
