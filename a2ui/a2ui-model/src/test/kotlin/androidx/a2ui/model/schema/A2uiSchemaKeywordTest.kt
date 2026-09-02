@@ -17,7 +17,10 @@
 package androidx.a2ui.model.schema
 
 import com.google.common.testing.EqualsTester
+import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -58,6 +61,48 @@ class A2uiSchemaKeywordTest {
             .addEqualityGroup(A2uiSchemaKeyword.Enum(listOf("value2")))
             .addEqualityGroup(A2uiSchemaKeyword.Const("value1"), A2uiSchemaKeyword.Const("value1"))
             .addEqualityGroup(A2uiSchemaKeyword.Const("value2"))
+            .addEqualityGroup(
+                A2uiSchemaKeyword.Format("date-time"),
+                A2uiSchemaKeyword.Format("date-time"),
+            )
+            .addEqualityGroup(A2uiSchemaKeyword.Format("date"))
+            .addEqualityGroup(
+                A2uiSchemaKeyword.IfThen(ifSchema = schema1, thenSchema = schema2),
+                A2uiSchemaKeyword.IfThen(ifSchema = schema1, thenSchema = schema2),
+            )
+            .addEqualityGroup(
+                A2uiSchemaKeyword.IfThen(
+                    ifSchema = schema1,
+                    thenSchema = schema2,
+                    elseSchema = schema1,
+                )
+            )
             .testEquals()
+    }
+
+    @Test
+    fun addToJsonObject_format_serializesCorrectly() {
+        val keyword = A2uiSchemaKeyword.Format("date-time")
+        val jsonObject = buildJsonObject { keyword.addToJsonObject(this) }
+        assertThat(jsonObject).isEqualTo(buildJsonObject { put("format", "date-time") })
+    }
+
+    @Test
+    fun addToJsonObject_ifThen_serializesCorrectly() {
+        val keyword =
+            A2uiSchemaKeyword.IfThen(
+                ifSchema = A2uiStringSchema(),
+                thenSchema = A2uiAnySchema(keywords = listOf(A2uiSchemaKeyword.Format("date"))),
+                elseSchema = A2uiNumberSchema(),
+            )
+        val jsonObject = buildJsonObject { keyword.addToJsonObject(this) }
+        assertThat(jsonObject)
+            .isEqualTo(
+                buildJsonObject {
+                    put("if", buildJsonObject { put("type", "string") })
+                    put("then", buildJsonObject { put("format", "date") })
+                    put("else", buildJsonObject { put("type", "number") })
+                }
+            )
     }
 }
