@@ -22,12 +22,15 @@ import androidx.compose.remote.creation.compose.action.hostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberNamedRemoteImageBitmap
 import androidx.compose.remote.creation.compose.state.rf
@@ -41,6 +44,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.wear.compose.remote.material3.RemoteButton
 import androidx.wear.compose.remote.material3.RemoteButtonDefaults
 import androidx.wear.compose.remote.material3.RemoteIcon
+import androidx.wear.compose.remote.material3.RemoteMaterialTheme
 import androidx.wear.compose.remote.material3.RemoteText
 import androidx.wear.compose.remote.material3.buttonSizeModifier
 import androidx.wear.compose.remote.material3.previews.utils.ProfilePreviewParameterProvider
@@ -274,6 +278,31 @@ fun RemoteButtonWithShape() {
 private fun RemoteButtonWithShapePreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
 ) = RemoteContentPreview(profile = profile) { Container { RemoteButtonWithShape() } }
+
+@Composable
+@RemoteComposable
+fun RemoteButtonCustomConfig() {
+    RemoteButton(
+        onClick = testAction,
+        modifier = RemoteModifier.height(20.rdp),
+        shape = RemoteRoundedCornerShape(10.rdp),
+        colors =
+            RemoteButtonDefaults.buttonColors(
+                containerColor = Color(0xFF29303D).rc,
+                contentColor = Color(0xFFC2C6D2).rc,
+            ),
+        contentPadding = RemotePaddingValues(horizontal = 10.rdp, vertical = 2.rdp),
+        content = {
+            RemoteText("Outdoor run".rs, style = RemoteMaterialTheme.typography.labelSmall)
+        },
+    )
+}
+
+@WearPreviewDevices
+@Composable
+private fun RemoteButtonCustomConfigPreview(
+    @PreviewParameter(ProfilePreviewParameterProvider::class) profile: Profile
+) = RemoteContentPreview(profile = profile) { Container { RemoteButtonCustomConfig() } }
 
 @Composable
 @RemoteComposable

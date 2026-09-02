@@ -25,10 +25,15 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteCreationDisplayInfo
+import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.util.TestRemoteComposeBuffer
+import androidx.compose.remote.creation.modifiers.HeightInModifier as CoreHeightInModifier
 import androidx.compose.remote.creation.modifiers.HeightModifier as CoreHeightModifier
+import androidx.compose.remote.creation.modifiers.WidthInModifier as CoreWidthInModifier
 import androidx.compose.remote.creation.modifiers.WidthModifier as CoreWidthModifier
 import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -123,5 +128,197 @@ class SizeModifierTest {
                 "addHeightModifierOperation(${Type.WRAP.ordinal}, 1.0)",
             )
             .inOrder()
+    }
+
+    @Test
+    fun testDefaultMinSize_unconstrained() {
+        val modifier = RemoteModifier.defaultMinSize(minWidth = 50.rdp, minHeight = 60.rdp)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(2)
+        val widthElement = recordingModifier.list[0] as CoreWidthInModifier
+        val heightElement = recordingModifier.list[1] as CoreHeightInModifier
+        assertThat(widthElement.min).isEqualTo(50f)
+        assertThat(heightElement.min).isEqualTo(60f)
+
+        for (element in recordingModifier.list) {
+            element.write(creationState.document)
+        }
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addWidthInModifierOperation(50.0, ${Float.MAX_VALUE})",
+                "addHeightInModifierOperation(60.0, ${Float.MAX_VALUE})",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefaultMinSize_withExplicitWidth() {
+        val modifier =
+            RemoteModifier.width(100.rdp).defaultMinSize(minWidth = 50.rdp, minHeight = 60.rdp)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(2)
+        val widthElement = recordingModifier.list[0] as CoreWidthModifier
+        val heightElement = recordingModifier.list[1] as CoreHeightInModifier
+        assertThat(widthElement.type).isEqualTo(Type.EXACT_DP)
+        assertThat(widthElement.value).isEqualTo(100f)
+        assertThat(heightElement.min).isEqualTo(60f)
+
+        for (element in recordingModifier.list) {
+            element.write(creationState.document)
+        }
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addWidthModifierOperation(${Type.EXACT_DP.ordinal}, 100.0)",
+                "addHeightInModifierOperation(60.0, ${Float.MAX_VALUE})",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefaultMinSize_withExplicitHeight() {
+        val modifier =
+            RemoteModifier.height(20.rdp).defaultMinSize(minWidth = 50.rdp, minHeight = 60.rdp)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(2)
+        val heightElement = recordingModifier.list[0] as CoreHeightModifier
+        val widthElement = recordingModifier.list[1] as CoreWidthInModifier
+        assertThat(heightElement.type).isEqualTo(Type.EXACT_DP)
+        assertThat(heightElement.value).isEqualTo(20f)
+        assertThat(widthElement.min).isEqualTo(50f)
+
+        for (element in recordingModifier.list) {
+            element.write(creationState.document)
+        }
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addHeightModifierOperation(${Type.EXACT_DP.ordinal}, 20.0)",
+                "addWidthInModifierOperation(50.0, ${Float.MAX_VALUE})",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefaultMinSize_withExplicitSize() {
+        val modifier =
+            RemoteModifier.size(30.rdp).defaultMinSize(minWidth = 50.rdp, minHeight = 60.rdp)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(2)
+        val widthElement = recordingModifier.list[0] as CoreWidthModifier
+        val heightElement = recordingModifier.list[1] as CoreHeightModifier
+        assertThat(widthElement.type).isEqualTo(Type.EXACT_DP)
+        assertThat(widthElement.value).isEqualTo(30f)
+        assertThat(heightElement.type).isEqualTo(Type.EXACT_DP)
+        assertThat(heightElement.value).isEqualTo(30f)
+
+        for (element in recordingModifier.list) {
+            element.write(creationState.document)
+        }
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addWidthModifierOperation(${Type.EXACT_DP.ordinal}, 30.0)",
+                "addHeightModifierOperation(${Type.EXACT_DP.ordinal}, 30.0)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefaultMinSize_withFillMaxWidth() {
+        val modifier =
+            RemoteModifier.fillMaxWidth().defaultMinSize(minWidth = 50.rdp, minHeight = 60.rdp)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(2)
+        val widthElement = recordingModifier.list[0] as CoreWidthModifier
+        val heightElement = recordingModifier.list[1] as CoreHeightInModifier
+        assertThat(widthElement.type).isEqualTo(Type.FILL)
+        assertThat(widthElement.value).isEqualTo(1f)
+        assertThat(heightElement.min).isEqualTo(60f)
+
+        for (element in recordingModifier.list) {
+            element.write(creationState.document)
+        }
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addWidthModifierOperation(${Type.FILL.ordinal}, 1.0)",
+                "addHeightInModifierOperation(60.0, ${Float.MAX_VALUE})",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefaultMinSize_appliedBeforeOtherModifiers() {
+        val modifier =
+            RemoteModifier.defaultMinSize(minWidth = 50.rdp, minHeight = 60.rdp).width(100.rdp)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        assertThat(recordingModifier.list).hasSize(3)
+        val widthInElement = recordingModifier.list[0] as CoreWidthInModifier
+        val heightInElement = recordingModifier.list[1] as CoreHeightInModifier
+        val widthElement = recordingModifier.list[2] as CoreWidthModifier
+        assertThat(widthInElement.min).isEqualTo(50f)
+        assertThat(heightInElement.min).isEqualTo(60f)
+        assertThat(widthElement.type).isEqualTo(Type.EXACT_DP)
+        assertThat(widthElement.value).isEqualTo(100f)
+
+        for (element in recordingModifier.list) {
+            element.write(creationState.document)
+        }
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addWidthInModifierOperation(50.0, ${Float.MAX_VALUE})",
+                "addHeightInModifierOperation(60.0, ${Float.MAX_VALUE})",
+                "addWidthModifierOperation(${Type.EXACT_DP.ordinal}, 100.0)",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefaultMinSize_appliedTwice() {
+        val modifier =
+            RemoteModifier.defaultMinSize(minWidth = 50.rdp, minHeight = 60.rdp)
+                .defaultMinSize(minWidth = 80.rdp, minHeight = 90.rdp)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        // The second defaultMinSize is a no-op because width and height are already constrained by
+        // the first defaultMinSize.
+        assertThat(recordingModifier.list).hasSize(2)
+        val widthElement = recordingModifier.list[0] as CoreWidthInModifier
+        val heightElement = recordingModifier.list[1] as CoreHeightInModifier
+        assertThat(widthElement.min).isEqualTo(50f)
+        assertThat(heightElement.min).isEqualTo(60f)
+
+        for (element in recordingModifier.list) {
+            element.write(creationState.document)
+        }
+        assertThat(fakeBuffer.calls)
+            .containsExactly(
+                "addWidthInModifierOperation(50.0, ${Float.MAX_VALUE})",
+                "addHeightInModifierOperation(60.0, ${Float.MAX_VALUE})",
+            )
+            .inOrder()
+    }
+
+    @Test
+    fun testDefaultMinSize_appliedTwice_withPaddingAndBackground() {
+        val modifier =
+            RemoteModifier.defaultMinSize(minWidth = 40.rdp, minHeight = 40.rdp)
+                .background(Color.Gray.rc)
+                .padding(10.rdp)
+                .defaultMinSize(minWidth = 70.rdp, minHeight = 70.rdp)
+                .background(Color.Red.rc)
+        val recordingModifier = creationState.toRecordingModifier(modifier)
+
+        // The second defaultMinSize is a no-op because width and height are already constrained by
+        // the first defaultMinSize.
+        val widthInElements = recordingModifier.list.filterIsInstance<CoreWidthInModifier>()
+        val heightInElements = recordingModifier.list.filterIsInstance<CoreHeightInModifier>()
+        assertThat(widthInElements).hasSize(1)
+        assertThat(heightInElements).hasSize(1)
+        assertThat(widthInElements[0].min).isEqualTo(40f)
+        assertThat(heightInElements[0].min).isEqualTo(40f)
     }
 }

@@ -48,6 +48,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.remote.material3.previews.RemoteButtonCustomConfig
 import androidx.wear.compose.remote.material3.previews.RemoteButtonEnabled
 import androidx.wear.compose.remote.material3.previews.RemoteButtonTwoLineText
 import androidx.wear.compose.remote.material3.previews.RemoteButtonWithBorder
@@ -92,6 +93,16 @@ class RemoteButtonTest {
             remoteCreationDisplayInfo = creationDisplayInfo,
         ) {
             ComponentContainer { RemoteButtonEnabled() }
+        }
+    }
+
+    @Test
+    fun button_with_custom_config() {
+        remoteComposeTestRule.runScreenshotTest(
+            profile = TestProfiles.wearWidgetsWithCoreText,
+            remoteCreationDisplayInfo = creationDisplayInfo,
+        ) {
+            ComponentContainer { RemoteButtonCustomConfig() }
         }
     }
 

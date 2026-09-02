@@ -31,10 +31,10 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.clickable
 import androidx.compose.remote.creation.compose.modifier.clip
+import androidx.compose.remote.creation.compose.modifier.defaultMinSize
 import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
-import androidx.compose.remote.creation.compose.modifier.heightIn
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.role
 import androidx.compose.remote.creation.compose.modifier.semantics
@@ -268,7 +268,7 @@ public fun RemoteButton(
     shape: RemoteShape = RemoteButtonDefaults.shape,
     contentPadding: RemotePaddingValues = RemoteButtonDefaults.ContentPadding,
     label: @Composable @RemoteComposable RemoteRowScope.() -> Unit,
-): Unit =
+) {
     RemoteButtonImpl(
         onClick = onClick,
         modifier = modifier.buttonSizeModifier(),
@@ -309,6 +309,7 @@ public fun RemoteButton(
                 content = label,
             ),
     )
+}
 
 /**
  * A Wear Material3 [RemoteCompactButton] that offers two slots and a specific layout for an icon
@@ -1113,7 +1114,10 @@ private fun RemoteDrawScope.drawSolidColorShape(shape: RemoteShape, color: Remot
  * minimums.
  */
 public fun RemoteModifier.buttonSizeModifier(): RemoteModifier =
-    this.heightIn(min = RemoteButtonDefaults.Height).widthIn(min = RemoteButtonDefaults.Width)
+    this.defaultMinSize(
+        minWidth = RemoteButtonDefaults.Width,
+        minHeight = RemoteButtonDefaults.Height,
+    )
 
 private fun RemoteModifier.compactButtonModifier(): RemoteModifier {
     return this.height(RemoteButtonDefaults.CompactButtonHeight)
