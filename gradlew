@@ -203,6 +203,7 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
        -Pandroidx.summarizeStderr\
        -Pandroidx.enableAffectedModuleDetection\
        -Pandroidx.printTimestamps\
+       -Pandroid.experimental.forceDeterministicApk=true\
        --no-watch-fs\
        -Pandroidx.highMemory"
     fi
