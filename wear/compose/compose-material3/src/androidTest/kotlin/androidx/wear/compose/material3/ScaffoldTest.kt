@@ -17,6 +17,7 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
@@ -1065,7 +1067,7 @@ class ScaffoldTest {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(isStatusBarEnabled = true) {
-                    screenContent = LocalScaffoldState.current.screenContent
+                    screenContent = LocalScaffoldState.current?.screenContent
                     // Even with a disabled screen registered on the stack
                     ScreenScaffold(statusBarMode = StatusBarMode.Disabled) {}
                 }
@@ -1087,6 +1089,7 @@ class ScaffoldTest {
     @Test
     fun resolveShowStatusBarForScreen_inheritMode_scansDownwardFromCallingScreen() {
         var screenContent: ScreenContent? = null
+        var view: View? = null
         val key1 = Any()
         val key2 = Any()
         val key3 = Any()
@@ -1094,19 +1097,21 @@ class ScaffoldTest {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(isStatusBarEnabled = true) {
-                    screenContent = LocalScaffoldState.current.screenContent
+                    screenContent = LocalScaffoldState.current?.screenContent
+                    view = LocalView.current
                 }
             }
         }
 
         rule.runOnIdle {
             val content = screenContent!!
+            val currentView = view!!
             // Screen 1: Disabled
-            content.addScreen(key1, null, null, StatusBarMode.Disabled, null)
+            content.addScreen(key1, null, null, StatusBarMode.Disabled, currentView)
             // Screen 2: Inherit
-            content.addScreen(key2, null, null, StatusBarMode.Inherit, null)
+            content.addScreen(key2, null, null, StatusBarMode.Inherit, currentView)
             // Screen 3: Enabled
-            content.addScreen(key3, null, null, StatusBarMode.Enabled, null)
+            content.addScreen(key3, null, null, StatusBarMode.Enabled, currentView)
 
             // Screen 3 is Enabled -> true
             assertThat(content.resolveShowStatusBarForScreen(key3, StatusBarMode.Enabled)).isTrue()
@@ -1130,7 +1135,7 @@ class ScaffoldTest {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides true) {
                 AppScaffold(isStatusBarEnabled = appShowStatusBar) {
-                    screenContent = LocalScaffoldState.current.screenContent
+                    screenContent = LocalScaffoldState.current?.screenContent
                     ScreenScaffold(statusBarMode = StatusBarMode.Inherit) {}
                 }
             }
@@ -1160,7 +1165,7 @@ class ScaffoldTest {
         rule.setContentWithTheme {
             CompositionLocalProvider(LocalStatusBarEnabledForTest provides false) {
                 AppScaffold(isStatusBarEnabled = true) {
-                    screenContent = LocalScaffoldState.current.screenContent
+                    screenContent = LocalScaffoldState.current?.screenContent
                     ScreenScaffold(statusBarMode = StatusBarMode.Enabled) {}
                 }
             }

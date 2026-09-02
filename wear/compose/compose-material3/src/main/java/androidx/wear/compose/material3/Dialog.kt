@@ -109,7 +109,7 @@ public fun Dialog(
                     .collectLatest {
                         val scale = lerp(BackgroundMinScale, BackgroundMaxScale, it / screenWidthPx)
                         if (transitionState.currentState == DialogVisibility.Display) {
-                            scaffoldState.parentScale.floatValue = scale
+                            scaffoldState?.parentScale?.floatValue = scale
                             backgroundAnimatable.snapTo(scale)
                         }
                     }
@@ -121,7 +121,7 @@ public fun Dialog(
                         if (it) BackgroundMinScale else BackgroundMaxScale,
                         backgroundAnimationSpec,
                     ) {
-                        scaffoldState.parentScale.floatValue = value
+                        scaffoldState?.parentScale?.floatValue = value
                     }
                 }
         }
@@ -198,7 +198,7 @@ public fun Dialog(
     }
 
     // We want to be sure that background is scaled back to 1f after dialog is disposed.
-    DisposableEffect(Unit) { onDispose { scaffoldState.parentScale.floatValue = 1f } }
+    DisposableEffect(Unit) { onDispose { scaffoldState?.parentScale?.floatValue = 1f } }
 }
 
 @Composable

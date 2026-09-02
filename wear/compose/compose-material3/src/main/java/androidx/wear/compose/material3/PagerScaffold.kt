@@ -343,28 +343,32 @@ private fun PagerScaffoldImpl(
 
     // Update the timeText & scrollInfoProvider if there is a change and the screen is already
     // present
-    scaffoldState.screenContent.updateIfNeeded(
-        key = key,
-        timeText = null,
-        scrollInfoProvider = scrollInfoProvider,
-        statusBarMode = StatusBarMode.Inherit,
-        view = currentView,
-    )
+    scaffoldState
+        ?.screenContent
+        ?.updateIfNeeded(
+            key = key,
+            timeText = null,
+            scrollInfoProvider = scrollInfoProvider,
+            statusBarMode = StatusBarMode.Inherit,
+            view = currentView,
+        )
 
-    scaffoldState.screenContent.UpdateIdlingDetectorIfNeeded()
+    scaffoldState?.screenContent?.UpdateIdlingDetectorIfNeeded()
 
     val screenIsActive = LocalScreenIsActive.current
     DisposableEffect(screenIsActive, scaffoldState) {
         if (screenIsActive) {
-            scaffoldState.screenContent.addScreen(
-                key = key,
-                timeText = null,
-                scrollInfoProvider = scrollInfoProvider,
-                statusBarMode = StatusBarMode.Inherit,
-                view = currentView,
-            )
+            scaffoldState
+                ?.screenContent
+                ?.addScreen(
+                    key = key,
+                    timeText = null,
+                    scrollInfoProvider = scrollInfoProvider,
+                    statusBarMode = StatusBarMode.Inherit,
+                    view = currentView,
+                )
         }
-        onDispose { scaffoldState.screenContent.removeScreen(key) }
+        onDispose { scaffoldState?.screenContent?.removeScreen(key) }
     }
 
     Box(modifier) {
@@ -372,8 +376,8 @@ private fun PagerScaffoldImpl(
 
         AnimatedIndicator(
             isVisible = {
-                scaffoldState.screenContent.screenStage.value != ScreenStage.Idle ||
-                    pagerState.isScrollInProgress
+                (scaffoldState?.screenContent?.screenStage?.value ?: ScreenStage.New) !=
+                    ScreenStage.Idle || pagerState.isScrollInProgress
             },
             animationSpec = pageIndicatorAnimationSpec,
             modifier = Modifier.align(pageIndicatorAlignment),
