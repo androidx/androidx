@@ -16,8 +16,8 @@
 
 package androidx.compose.runtime.tracing.test
 
-import androidx.compose.runtime.tracing.BLOCK_CAPACITY
-import androidx.compose.runtime.tracing.Stack
+import androidx.compose.runtime.tracing.stack.BLOCK_CAPACITY
+import androidx.compose.runtime.tracing.stack.Stack
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

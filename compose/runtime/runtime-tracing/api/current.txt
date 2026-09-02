@@ -7,5 +7,24 @@ package androidx.compose.runtime.tracing {
     method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<? extends java.lang.Object?>>> dependencies();
   }
 
+  public final class RecompositionTracingReceiver extends android.content.BroadcastReceiver {
+    ctor public RecompositionTracingReceiver();
+    method public void onReceive(android.content.Context? context, android.content.Intent? intent);
+    field public static final String ACTION_START = "androidx.compose.tracing.action.START_RECOMPOSE_TRACING";
+    field public static final String ACTION_STOP = "androidx.compose.tracing.action.STOP_RECOMPOSE_TRACING";
+    field public static final androidx.compose.runtime.tracing.RecompositionTracingReceiver.Companion Companion;
+    field public static final int RESULT_CODE_ALREADY_IN_PROGRESS = 2; // 0x2
+    field public static final int RESULT_CODE_FAILURE = 3; // 0x3
+    field public static final int RESULT_CODE_SUCCESS = 1; // 0x1
+  }
+
+  public static final class RecompositionTracingReceiver.Companion {
+    property public static String ACTION_START;
+    property public static String ACTION_STOP;
+    property public static int RESULT_CODE_ALREADY_IN_PROGRESS;
+    property public static int RESULT_CODE_FAILURE;
+    property public static int RESULT_CODE_SUCCESS;
+  }
+
 }
 
