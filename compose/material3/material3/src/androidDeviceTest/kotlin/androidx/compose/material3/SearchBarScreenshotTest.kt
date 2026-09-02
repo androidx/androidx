@@ -26,7 +26,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -42,6 +44,7 @@ import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -915,6 +918,34 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
         assertAgainstGolden("appBarWithSearch_withScrolledContainerColor_${scheme.name}")
     }
 
+    @Test
+    fun searchBar_withStyle() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            val searchBarState = rememberSearchBarState()
+            StyleableSearchBar(
+                modifier = Modifier.testTag(testTag),
+                state = searchBarState,
+                inputField = { TestInputField(searchBarState) },
+            )
+        }
+        assertAgainstGolden("searchBar_withStyle_${scheme.name}")
+    }
+
+    @Test
+    fun appBarWithSearchBar_withStyle() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            val searchBarState = rememberSearchBarState()
+            StyleableAppBarWithSearch(
+                modifier = Modifier.testTag(testTag),
+                state = searchBarState,
+                inputField = { TestInputField(searchBarState) },
+                navigationIcon = { Icon(Icons.Filled.Menu, contentDescription = null) },
+                actions = { Icon(Icons.Filled.Settings, contentDescription = null) },
+            )
+        }
+        assertAgainstGolden("appBarWithSearchBar_withStyle_${scheme.name}")
+    }
+
     private fun assertAgainstGolden(goldenName: String, threshold: Double = 0.98) {
         rule
             .onNodeWithTag(testTag, useUnmergedTree = true)
@@ -940,6 +971,26 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
         override fun toString(): String {
             return name
         }
+    }
+
+    @Composable
+    private fun TestInputField(searchBarState: SearchBarState) {
+        SearchBarDefaults.InputField(
+            textFieldState = rememberTextFieldState(),
+            searchBarState = searchBarState,
+            onSearch = {},
+            placeholder = { Text(modifier = Modifier.clearAndSetSemantics {}, text = "Search") },
+            leadingIcon = {
+                IconButton(onClick = {}) {
+                    Icon(imageVector = Icons.Filled.Search, contentDescription = null)
+                }
+            },
+            trailingIcon = {
+                IconButton(onClick = {}) {
+                    Icon(imageVector = Icons.Filled.Person, contentDescription = null)
+                }
+            },
+        )
     }
 
     @Suppress("DEPRECATION")
