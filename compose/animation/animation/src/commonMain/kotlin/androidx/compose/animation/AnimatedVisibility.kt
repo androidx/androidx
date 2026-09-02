@@ -25,6 +25,7 @@ import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.createChildTransition
+import androidx.compose.animation.core.rememberDeferredTransition
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.internal.JvmDefaultWithCompatibility
@@ -618,8 +619,8 @@ public fun <T> Transition<T>.AnimatedVisibility(
  *
  * [mutableTransform] A block to control the visual transformations during the deferred phase (e.g.,
  * for predictive back gestures) before the main transition begins. This is only active if the
- * [Transition] was created using [rememberTransition] with [DeferredTransitionState]. By default,
- * this is `null`, meaning no manual transformations are applied. This phase starts when
+ * [Transition] was created using [rememberDeferredTransition] with [DeferredTransitionState]. By
+ * default, this is `null`, meaning no manual transformations are applied. This phase starts when
  * [DeferredTransitionState.defer] is called and ends when [DeferredTransitionState.animateTo] is
  * called to start the automatic transition. During this phase, you can manually manipulate the
  * content's transformations (like [TransformScope.alpha], [TransformScope.scale],
