@@ -298,6 +298,56 @@ constructor(
 public class VertexLayout private constructor(public val buffers: List<VertexBufferLayout>) {
 
     /**
+     * Returns the index of the [VertexBufferLayout] containing the specified [VertexAttribute] in
+     * the [buffers] list.
+     *
+     * This is a convenience method that allows for chained, shorter syntax.
+     *
+     * **Example:**
+     *
+     * ```
+     * meshBuffer.updateVertexData(
+     *     bufferIndex = vertexLayout.getBufferIndex(VertexAttribute.POSITION),
+     *     vertexData = positionData
+     * )
+     * ```
+     *
+     * @param attribute The [VertexAttribute] to find.
+     * @return The 0-based index of the buffer containing the attribute.
+     * @throws IllegalArgumentException if the attribute is not present in the layout.
+     */
+    public fun getBufferIndex(attribute: VertexAttribute): Int {
+        val index =
+            buffers.indexOfFirst { layout -> layout.attributes.any { it.attribute == attribute } }
+        require(index != -1) { "Attribute $attribute is not present in the layout." }
+        return index
+    }
+
+    /**
+     * Returns the index of the specified [VertexBufferLayout] in the [buffers] list.
+     *
+     * This is a convenience method that allows for chained, shorter syntax.
+     *
+     * **Example:**
+     *
+     * ```
+     * meshBuffer.updateVertexData(
+     *     bufferIndex = vertexLayout.getBufferIndex(bufferLayout),
+     *     vertexData = bufferData
+     * )
+     * ```
+     *
+     * @param bufferLayout The [VertexBufferLayout] to find.
+     * @return The 0-based index of the buffer layout.
+     * @throws IllegalArgumentException if the buffer layout is not present in the layout.
+     */
+    public fun getBufferIndex(bufferLayout: VertexBufferLayout): Int {
+        val index = buffers.indexOf(bufferLayout)
+        require(index != -1) { "Buffer layout $bufferLayout is not present in the layout." }
+        return index
+    }
+
+    /**
      * Builder for [VertexLayout].
      *
      * This builder is capable of building a layout where vertex attributes are spread across

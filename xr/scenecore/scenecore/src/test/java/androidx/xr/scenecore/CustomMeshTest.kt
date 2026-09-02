@@ -317,4 +317,23 @@ class CustomMeshTest {
             .hasMessageThat()
             .contains("CustomMesh requires either subsets or a single topology, but not both")
     }
+
+    @Test
+    fun setBounds_updatesRuntime() {
+        val builder =
+            CustomMesh.BuilderFromMeshData(session, vertexLayout)
+                .addVertexData(vertexBufferRegion)
+                .setIndexData(indexBufferRegion)
+                .setTopology(MeshSubsetTopology.TRIANGLES)
+
+        val customMesh = builder.build()
+
+        val newBounds =
+            androidx.xr.runtime.math.BoundingBox.fromCenterAndHalfExtents(
+                androidx.xr.runtime.math.Vector3(1f, 2f, 3f),
+                androidx.xr.runtime.math.FloatSize3d(4f, 5f, 6f),
+            )
+        customMesh.bounds = newBounds
+        assertThat(customMesh.bounds).isEqualTo(newBounds)
+    }
 }
