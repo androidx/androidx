@@ -101,6 +101,7 @@ class ContextMenuWithTextFieldInDialogTest {
     }
 
     @Composable
+    @Suppress("DEPRECATION")
     fun TextField1TestCase() {
         var dialogText by remember { mutableStateOf(TextFieldValue("Dialog TextField")) }
         var textFieldCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }

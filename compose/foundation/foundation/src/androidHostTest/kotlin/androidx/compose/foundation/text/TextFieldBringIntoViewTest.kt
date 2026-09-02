@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/552879150
+
 package androidx.compose.foundation.text
 
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -44,7 +46,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyBlocking
 import org.mockito.kotlin.whenever
 
-@OptIn(InternalFoundationTextApi::class)
 @RunWith(JUnit4::class)
 class TextFieldBringIntoViewTest {
 

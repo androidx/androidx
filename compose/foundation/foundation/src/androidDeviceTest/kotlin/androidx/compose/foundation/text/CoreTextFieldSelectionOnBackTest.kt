@@ -64,6 +64,7 @@ class CoreTextFieldSelectionOnBackTest : FocusedWindowTest {
     fun whenBackPressed_andReleased_coreTextFieldClearsSelection() {
         var textFieldValue by mutableStateOf(TextFieldValue("hello"))
         rule.setTextFieldTestContent {
+            @Suppress("DEPRECATION") // b/552879150
             BasicTextField(
                 value = textFieldValue,
                 onValueChange = { textFieldValue = it },
@@ -93,6 +94,7 @@ class CoreTextFieldSelectionOnBackTest : FocusedWindowTest {
         var softwareKeyboardController: SoftwareKeyboardController? = null
         rule.setTextFieldTestContent {
             softwareKeyboardController = LocalSoftwareKeyboardController.current
+            @Suppress("DEPRECATION") // b/552879150
             BasicTextField(
                 "hello world",
                 onValueChange = {},

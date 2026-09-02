@@ -58,6 +58,7 @@ private fun TextFieldWithFocusRequesters(
     val state = rememberSaveable { mutableStateOf("Focus Transition Test") }
     var color by remember { mutableStateOf(Black) }
 
+    @Suppress("DEPRECATION") // b/552879150
     BasicTextField(
         value = state.value,
         modifier =

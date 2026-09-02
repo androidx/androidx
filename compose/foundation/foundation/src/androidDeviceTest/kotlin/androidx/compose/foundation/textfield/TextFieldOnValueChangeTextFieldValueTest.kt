@@ -53,6 +53,7 @@ class TextFieldOnValueChangeTextFieldValueTest {
     fun setUp() {
         inputMethodInterceptor.setContent {
             val state = remember { mutableStateOf(TextFieldValue("abcde", TextRange.Zero)) }
+            @Suppress("DEPRECATION") // b/552879150
             BasicTextField(
                 value = state.value,
                 onValueChange = {

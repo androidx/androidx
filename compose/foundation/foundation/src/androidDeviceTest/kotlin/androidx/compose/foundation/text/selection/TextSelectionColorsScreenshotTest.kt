@@ -159,6 +159,7 @@ private fun TextTestContent(textSelectionColors: TextSelectionColors) {
 }
 
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 private fun TextFieldTestContent(textSelectionColors: TextSelectionColors) {
     CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
         Box(Modifier.testTag(Tag)) { BasicTextField(value = TextFieldText, onValueChange = {}) }

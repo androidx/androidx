@@ -69,6 +69,7 @@ internal fun TextWithMetrics(
 }
 
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 internal fun TextFieldWithMetrics(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,

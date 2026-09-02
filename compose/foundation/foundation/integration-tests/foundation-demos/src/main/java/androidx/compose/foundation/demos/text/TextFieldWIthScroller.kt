@@ -44,6 +44,7 @@ fun ScrollableTextFieldDemo() {
     }
 }
 
+@Suppress("DEPRECATION") // b/552879150
 @Preview
 @Composable
 fun MultilineTextField() {
@@ -57,6 +58,7 @@ fun MultilineTextField() {
     )
 }
 
+@Suppress("DEPRECATION") // b/552879150
 @Preview
 @Composable
 fun SingleLineTextField() {

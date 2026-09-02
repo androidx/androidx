@@ -189,6 +189,7 @@ private fun SingleLineToggle(checked: Boolean, onCheckedChange: ((Boolean) -> Un
 }
 
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 private fun DemoTextField(
     initText: String,
     multiLine: Boolean,

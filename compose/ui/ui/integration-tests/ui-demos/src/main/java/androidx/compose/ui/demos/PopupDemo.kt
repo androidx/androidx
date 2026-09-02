@@ -462,6 +462,7 @@ private fun ClickableTextWithBackground(
 }
 
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 private fun EditLine(
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,

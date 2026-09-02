@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/553995833
+
 package androidx.compose.material3.a2ui
 
 import androidx.a2ui.compose.runtime.A2uiComponentProperties

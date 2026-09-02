@@ -100,12 +100,14 @@ fun BasicTextFieldValueCallbackDemo() {
 }
 
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 private fun SimpleValueCallbackDemo() {
     var text by remember { mutableStateOf("") }
     BasicTextField(value = text, onValueChange = { text = it }, modifier = demoTextFieldModifiers)
 }
 
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 private fun CapitalizeValueCallbackDemo() {
     var text by remember { mutableStateOf("") }
     BasicTextField(
