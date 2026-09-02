@@ -23,59 +23,50 @@ import java.nio.file.Path
 import java.time.Duration
 
 /**
- * Orchestrates on-device backup, restore, and verification workflows.
+ * Controls backup, restore, and verification workflows for a test device.
  *
- * Provides a fluent Kotlin DSL for on-device setup, backup execution, restore triggering, and
- * validation, as well as explicit interface method overloads for Java test suites.
- *
- * Exposes core primitive operations ([runOnDevice], [performBackup], [performRestore],
- * [clearAppData], [pullFile], [installApk], [launchApp], [stopApp]) for fine-grained manual
- * control.
- *
- * This controller is completely framework-agnostic. While the optional `BackupRestoreExtension`
- * provides integration with JUnit 5 out of the box, `BackupRestoreController` itself has no
- * compile-time or run-time dependencies on any particular testing framework, and can be manually
- * instantiated and used within JUnit 4 tests, custom test runners, or main JVM orchestrations.
+ * Provides operations to seed test data with [runOnDevice], run backups with [performBackup], wipe
+ * app data with [clearAppData], and restore data with [performRestore].
  */
 public interface BackupRestoreController : AutoCloseable {
     public companion object {
-        /** Default package installation options. */
+        /**
+         * Default package installation flags: reinstall, allow test, grant all runtime permissions.
+         */
         @JvmField public val DEFAULT_INSTALL_OPTIONS: List<String> = listOf("-r", "-t", "-g")
 
-        /** Fully-qualified class name of the prebuilt populate storage action. */
+        /** Class name of the prebuilt action that seeds test data into app storage. */
         @JvmField
         public val ACTION_POPULATE_STORAGE: String =
             "androidx.test.backup.actions.PopulateStorageAction"
 
-        /** Fully-qualified class name of the prebuilt assert storage action. */
+        /** Class name of the prebuilt action that verifies restored data in app storage. */
         @JvmField
         public val ACTION_ASSERT_STORAGE: String =
             "androidx.test.backup.actions.AssertStorageAction"
     }
 
-    /** Closes any open resources, such as ADB sessions. */
+    /** Closes open resources, including ADB connections. */
     @Throws(IOException::class) override fun close()
 
-    /** The serial number of this device/emulator. */
+    /** Serial number of this device or emulator. */
     public val serialNumber: String
 
-    /** The SDK API level of this device/emulator (e.g. 31, 34). */
+    /** SDK API level of this device or emulator. */
     public val apiLevel: Int
 
-    /** The application ID (package name) of the target application being tested. */
+    /** Application ID of the target package under test. */
     public val applicationId: String
 
     /**
-     * Executes a specific `BackupDeviceAction` inside the application's process on this device.
+     * Runs an on-device action inside the target application process.
      *
-     * @param actionClassName Fully-qualified class name of the `BackupDeviceAction` implementation.
-     * @param args Key-value pair arguments to pass to the payload. Defaults to `emptyMap()`.
-     * @param timeout Maximum time to wait for the action execution to complete on the device.
-     *   Defaults to 1 minute.
-     * @param waitForDebugger If true, the runner on the device waits for a debugger to attach
-     *   before executing. Defaults to `false`.
-     * @return A [BackupActionResult] enclosing the execution outcome and serialized return data.
-     * @throws IOException if a communication error occurs with the device.
+     * @param actionClassName class name of the [androidx.test.backup.BackupDeviceAction] to run
+     * @param args arguments to pass to the action
+     * @param timeout maximum duration to wait for the action to complete
+     * @param waitForDebugger whether the runner waits for a debugger to attach before running
+     * @return result of the action execution
+     * @throws IOException if communicating with the device fails
      */
     @Throws(IOException::class)
     public suspend fun runOnDevice(
@@ -85,60 +76,54 @@ public interface BackupRestoreController : AutoCloseable {
         waitForDebugger: Boolean = false,
     ): BackupActionResult
 
-    // TODO(b/551659754): Update to PopulateStorageAction to link to public API
     /**
-     * Executes a declarative, zero-boilerplate backup and restore flow. Maps the provided [storage]
-     * domain properties to arguments, executes the PopulateStorageAction prebuilt (TODO: Update to
-     * a link once PopulateStorageAction is available as public API), performs the backup, clears
-     * the app sandbox, performs the restore, and runs AssertStorageAction (TODO: Update to a link
-     * once AssertStorageAction is available as public API) to assert restored values are identical
-     * to the seeded values.
+     * Runs a full backup and restore flow for a single storage domain.
      *
-     * @param storage The strongly-typed storage domain specifying key-values to seed and assert.
-     * @param outputDir The local directory where the generated .backup ZIP should be written.
-     * @param mode The transport mode to emulate.
-     * @return This [BackupRestoreController] orchestration instance.
-     * @throws IOException if any step in the orchestration pipeline fails.
+     * Seeds test data into [storage] using [ACTION_POPULATE_STORAGE], runs a backup to [outputDir]
+     * using [mode], clears app data, restores the backup archive, and verifies data integrity using
+     * [ACTION_ASSERT_STORAGE].
+     *
+     * @param storage storage domain to seed and verify
+     * @param outputDir directory where the generated backup file is saved
+     * @param mode transport mode to test
+     * @return this controller instance
+     * @throws IOException if any step fails
      */
     @Throws(IOException::class)
-    public suspend fun runStandardBackupRestoreFlow(
+    public suspend fun runBackupRestoreFlow(
         storage: StorageDomain,
         outputDir: Path,
         mode: BackupTransportMode,
     ): BackupRestoreController
 
     /**
-     * Executes a declarative, zero-boilerplate backup and restore flow across multiple [storages]
-     * domains. For each domain, seeds the data, then stops the app, performs the backup, clears the
-     * app sandbox, performs the restore, and verifies each storage domain individually.
+     * Runs a full backup and restore flow for multiple storage domains.
      *
-     * @param storages The list of strongly-typed storage domains to seed and assert.
-     * @param outputDir The local directory where the generated .backup ZIP should be written.
-     * @param mode The transport mode to emulate.
-     * @return This [BackupRestoreController] orchestration instance.
-     * @throws IOException if any step in the orchestration pipeline fails.
+     * Seeds each domain in [storages] using [ACTION_POPULATE_STORAGE], runs a backup to [outputDir]
+     * using [mode], clears app data, restores the backup archive, and verifies each domain using
+     * [ACTION_ASSERT_STORAGE].
+     *
+     * @param storages storage domains to seed and verify
+     * @param outputDir directory where the generated backup file is saved
+     * @param mode transport mode to test
+     * @return this controller instance
+     * @throws IOException if any step fails
      */
     @Throws(IOException::class)
-    public suspend fun runStandardBackupRestoreFlow(
+    public suspend fun runBackupRestoreFlow(
         storages: List<StorageDomain>,
         outputDir: Path,
         mode: BackupTransportMode,
     ): BackupRestoreController
 
     /**
-     * Triggers a host-driven backup operation for the application on this device.
+     * Captures an application backup archive using the specified transport mode.
      *
-     * Captures the application data stream according to the specified transport [mode] and saves
-     * the generated archive into [outputDir].
-     *
-     * @param mode The transport mode to emulate (e.g. [BackupTransportMode.DEVICE_TO_DEVICE],
-     *   [BackupTransportMode.CLOUD_ENCRYPTED]).
-     * @param outputDir The local directory where the generated .backup ZIP should be written.
-     * @param timeout Maximum time to wait for the backup operation to complete. Defaults to 5
-     *   minutes.
-     * @return The local [Path] referencing the generated backup zip file created within
-     *   [outputDir].
-     * @throws IOException if the backup operation fails or the device is unreachable.
+     * @param mode transport mode to test
+     * @param outputDir directory where the backup archive is saved
+     * @param timeout maximum duration to wait for the backup to complete
+     * @return path to the generated backup archive
+     * @throws IOException if the backup operation fails
      */
     @Throws(IOException::class)
     public suspend fun performBackup(
@@ -148,15 +133,12 @@ public interface BackupRestoreController : AutoCloseable {
     ): Path
 
     /**
-     * Triggers a host-driven restore operation for the application on this device.
+     * Restores application data from a backup archive.
      *
-     * Ingests the provided [backupFile] and restores the application sandbox data on the device.
-     *
-     * @param backupFile The local backup ZIP file generated by [performBackup].
-     * @param timeout Maximum time to wait for the restore operation to complete. Defaults to 5
-     *   minutes.
-     * @return This [BackupRestoreController] orchestration instance.
-     * @throws IOException if the restore operation fails or the device is unreachable.
+     * @param backupFile backup archive generated by [performBackup]
+     * @param timeout maximum duration to wait for the restore to complete
+     * @return this controller instance
+     * @throws IOException if the restore operation fails
      */
     @Throws(IOException::class)
     public suspend fun performRestore(
@@ -165,14 +147,12 @@ public interface BackupRestoreController : AutoCloseable {
     ): BackupRestoreController
 
     /**
-     * Extracts device logcat entries. Streams logs directly to a local file on the host.
+     * Saves recent device logcat entries to a local file.
      *
-     * @param destinationPath The local file path on the host filesystem where the retrieved logs
-     *   will be written.
-     * @param duration Duration of historical logs to look back from the current timestamp. Defaults
-     *   to 30 seconds.
-     * @return This [BackupRestoreController] orchestration instance.
-     * @throws IOException if the logcat stream cannot be read or written.
+     * @param destinationPath local file path where logs will be written
+     * @param duration time window of historical logs to capture
+     * @return this controller instance
+     * @throws IOException if capturing logs fails
      */
     @Throws(IOException::class)
     public suspend fun fetchDeviceLogs(
@@ -181,46 +161,39 @@ public interface BackupRestoreController : AutoCloseable {
     ): BackupRestoreController
 
     /**
-     * Clears the device's logcat buffer (via logcat -c).
+     * Clears the device logcat buffer via `logcat -c`.
      *
-     * Useful at the beginning of a test or step to ensure subsequent calls to [fetchDeviceLogs]
-     * capture only the relevant execution window without background noise or history.
-     *
-     * @return This [BackupRestoreController] orchestration instance.
-     * @throws IOException if the clear command fails or the device is unreachable.
+     * @return this controller instance
+     * @throws IOException if clearing the logcat buffer fails
      */
     @Throws(IOException::class) public suspend fun clearDeviceLogs(): BackupRestoreController
 
     /**
-     * Manually clears the target application's sandbox data (via pm clear).
+     * Clears application sandbox data on the device via `pm clear`.
      *
-     * @return This [BackupRestoreController] orchestration instance.
-     * @throws IOException if the shell command fails.
+     * @return this controller instance
+     * @throws IOException if clearing application data fails
      */
     @Throws(IOException::class) public suspend fun clearAppData(): BackupRestoreController
 
     /**
-     * Pulls an accessible file from the target device to the host filesystem.
+     * Copies a file from the device to the host machine via `adb pull`.
      *
-     * @param devicePath The absolute path to the file on the device.
-     * @param hostDestination The local file path on the host filesystem where the pulled file will
-     *   be written.
-     * @return This [BackupRestoreController] orchestration instance.
-     * @throws IOException if the file cannot be pulled.
+     * @param devicePath path to the file on the device
+     * @param hostDestination path to write the file on the host
+     * @return this controller instance
+     * @throws IOException if copying the file fails
      */
     @Throws(IOException::class)
     public suspend fun pullFile(devicePath: String, hostDestination: Path): BackupRestoreController
 
     /**
-     * Installs a specific APK file from the host workstation onto the target device. Useful for
-     * performing multi-version upgrade and migration testing (e.g. seeding v1, backing up,
-     * installing v2, restoring).
+     * Installs an APK from the host onto the device via `pm install`.
      *
-     * @param apkFile The local APK file on the host workstation.
-     * @param options Additional pm install options/flags to pass (defaults to
-     *   [DEFAULT_INSTALL_OPTIONS]).
-     * @return This [BackupRestoreController] orchestration instance.
-     * @throws IOException if the APK installation fails.
+     * @param apkFile path to the APK on the host
+     * @param options installation flags to pass to package manager
+     * @return this controller instance
+     * @throws IOException if package installation fails
      */
     @Throws(IOException::class)
     public suspend fun installApk(
@@ -229,20 +202,13 @@ public interface BackupRestoreController : AutoCloseable {
     ): BackupRestoreController
 
     /**
-     * Launches the target application on this device.
+     * Starts the target application on the device via `am start`.
      *
-     * Supports custom target activity class names, intent action strings, and key-value string
-     * intent extras.
-     *
-     * @param activityClass The fully-qualified or relative (starting with dot) Activity class name
-     *   to launch, or `null` to use the application's default launcher activity. Defaults to
-     *   `null`.
-     * @param intentExtras Key-value string pairs to pass as intent extras (use `emptyMap()` if
-     *   passing no extras). Defaults to `emptyMap()`.
-     * @param action The intent action string to launch with, or `null` to default to
-     *   `android.intent.action.MAIN`. Defaults to `null`.
-     * @return This [BackupRestoreController] orchestration instance.
-     * @throws IOException if the launch command fails.
+     * @param activityClass activity class to launch, or null for default launcher activity
+     * @param intentExtras key-value pairs to pass as intent extras
+     * @param action intent action string to launch with, or null for MAIN
+     * @return this controller instance
+     * @throws IOException if starting the application fails
      */
     @Throws(IOException::class)
     public suspend fun launchApp(
@@ -252,34 +218,28 @@ public interface BackupRestoreController : AutoCloseable {
     ): BackupRestoreController
 
     /**
-     * Force-stops the target application on this device.
+     * Force-stops the target application on the device via `am force-stop`.
      *
-     * @return This [BackupRestoreController] orchestration instance.
-     * @throws IOException if the stop command fails.
+     * @return this controller instance
+     * @throws IOException if stopping the application fails
      */
     @Throws(IOException::class) public suspend fun stopApp(): BackupRestoreController
 
     /**
-     * Executes a specific `BackupDeviceAction` inside the application's process on this device.
+     * Runs an on-device action asynchronously inside the target application process.
      *
-     * Java-compatible asynchronous alternative to `runOnDevice` returning a [ListenableFuture].
-     *
-     * @param actionClassName Fully-qualified class name of the `BackupDeviceAction` implementation.
-     * @return A [ListenableFuture] wrapping the [BackupActionResult] enclosing the execution
-     *   outcome and serialized return data.
+     * @param actionClassName class name of the [androidx.test.backup.BackupDeviceAction] to run
+     * @return a [ListenableFuture] with the action result
      */
     @CheckResult
     public fun runOnDeviceAsync(actionClassName: String): ListenableFuture<BackupActionResult>
 
     /**
-     * Executes a specific `BackupDeviceAction` inside the application's process on this device.
+     * Runs an on-device action asynchronously inside the target application process.
      *
-     * Java-compatible asynchronous alternative to `runOnDevice` returning a [ListenableFuture].
-     *
-     * @param actionClassName Fully-qualified class name of the `BackupDeviceAction` implementation.
-     * @param args Key-value pair arguments to pass to the payload.
-     * @return A [ListenableFuture] wrapping the [BackupActionResult] enclosing the execution
-     *   outcome and serialized return data.
+     * @param actionClassName class name of the [androidx.test.backup.BackupDeviceAction] to run
+     * @param args arguments to pass to the action
+     * @return a [ListenableFuture] with the action result
      */
     @CheckResult
     public fun runOnDeviceAsync(
@@ -288,15 +248,12 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupActionResult>
 
     /**
-     * Executes a specific `BackupDeviceAction` inside the application's process on this device.
+     * Runs an on-device action asynchronously inside the target application process.
      *
-     * Java-compatible asynchronous alternative to `runOnDevice` returning a [ListenableFuture].
-     *
-     * @param actionClassName Fully-qualified class name of the `BackupDeviceAction` implementation.
-     * @param args Key-value pair arguments to pass to the payload.
-     * @param timeout Maximum time to wait for the action execution to complete on the device.
-     * @return A [ListenableFuture] wrapping the [BackupActionResult] enclosing the execution
-     *   outcome and serialized return data.
+     * @param actionClassName class name of the [androidx.test.backup.BackupDeviceAction] to run
+     * @param args arguments to pass to the action
+     * @param timeout maximum duration to wait for the action to complete
+     * @return a [ListenableFuture] with the action result
      */
     @CheckResult
     public fun runOnDeviceAsync(
@@ -306,16 +263,13 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupActionResult>
 
     /**
-     * Executes a specific `BackupDeviceAction` inside the application's process on this device.
+     * Runs an on-device action asynchronously inside the target application process.
      *
-     * Java-compatible asynchronous alternative to `runOnDevice` returning a [ListenableFuture].
-     *
-     * @param actionClassName Fully-qualified class name of the `BackupDeviceAction` implementation.
-     * @param args Key-value pair arguments to pass to the payload.
-     * @param timeout Maximum time to wait for the action execution to complete on the device.
-     * @param waitForDebugger If true, the runner on the device waits for a debugger to attach.
-     * @return A [ListenableFuture] wrapping the [BackupActionResult] enclosing the execution
-     *   outcome and serialized return data.
+     * @param actionClassName class name of the [androidx.test.backup.BackupDeviceAction] to run
+     * @param args arguments to pass to the action
+     * @param timeout maximum duration to wait for the action to complete
+     * @param waitForDebugger whether the runner waits for a debugger to attach before running
+     * @return a [ListenableFuture] with the action result
      */
     @CheckResult
     public fun runOnDeviceAsync(
@@ -326,53 +280,41 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupActionResult>
 
     /**
-     * Executes a declarative, zero-boilerplate backup and restore flow. Maps the provided `storage`
-     * domain properties to arguments, executes the PopulateStorageAction prebuilt, performs the
-     * backup, clears the app sandbox, performs the restore, and runs AssertStorageAction to assert
-     * restored values are identical to the seeded values.
+     * Runs a full backup and restore flow asynchronously for a single storage domain.
      *
-     * Java-compatible asynchronous alternative to `runStandardBackupRestoreFlow` returning a
-     * [ListenableFuture].
-     *
-     * @param storage The strongly-typed storage domain specifying key-values to seed and assert.
-     * @param outputDir The local directory where the generated .backup ZIP should be written.
-     * @param mode The transport mode to emulate.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param storage storage domain to seed and verify
+     * @param outputDir directory where the generated backup file is saved
+     * @param mode transport mode to test
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
-    public fun runStandardBackupRestoreFlowAsync(
+    public fun runBackupRestoreFlowAsync(
         storage: StorageDomain,
         outputDir: Path,
         mode: BackupTransportMode,
     ): ListenableFuture<BackupRestoreController>
 
     /**
-     * Executes a declarative, zero-boilerplate backup and restore flow across multiple `storages`
-     * domains.
+     * Runs a full backup and restore flow asynchronously for multiple storage domains.
      *
-     * Java-compatible asynchronous alternative to `runStandardBackupRestoreFlow` returning a
-     * [ListenableFuture].
-     *
-     * @param storages The list of strongly-typed storage domains to seed and assert.
-     * @param outputDir The local directory where the generated .backup ZIP should be written.
-     * @param mode The transport mode to emulate.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param storages storage domains to seed and verify
+     * @param outputDir directory where the generated backup file is saved
+     * @param mode transport mode to test
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
-    public fun runStandardBackupRestoreFlowAsync(
+    public fun runBackupRestoreFlowAsync(
         storages: List<StorageDomain>,
         outputDir: Path,
         mode: BackupTransportMode,
     ): ListenableFuture<BackupRestoreController>
 
     /**
-     * Triggers a host-driven backup operation of the application on this device.
+     * Captures an application backup archive asynchronously using the specified transport mode.
      *
-     * Java-compatible asynchronous alternative to `performBackup` returning a [ListenableFuture].
-     *
-     * @param mode The transport mode to emulate.
-     * @param outputDir The local directory where the generated .backup ZIP should be written.
-     * @return A [ListenableFuture] wrapping the local [Path] referencing the generated backup zip.
+     * @param mode transport mode to test
+     * @param outputDir directory where the backup archive is saved
+     * @return a [ListenableFuture] with the generated backup path
      */
     @CheckResult
     public fun performBackupAsync(
@@ -381,14 +323,12 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<Path>
 
     /**
-     * Triggers a host-driven backup operation of the application on this device.
+     * Captures an application backup archive asynchronously using the specified transport mode.
      *
-     * Java-compatible asynchronous alternative to `performBackup` returning a [ListenableFuture].
-     *
-     * @param mode The transport mode to emulate.
-     * @param outputDir The local directory where the generated .backup ZIP should be written.
-     * @param timeout Maximum time to wait for the backup operation to complete.
-     * @return A [ListenableFuture] wrapping the local [Path] referencing the generated backup zip.
+     * @param mode transport mode to test
+     * @param outputDir directory where the backup archive is saved
+     * @param timeout maximum duration to wait for the backup to complete
+     * @return a [ListenableFuture] with the generated backup path
      */
     @CheckResult
     public fun performBackupAsync(
@@ -398,24 +338,20 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<Path>
 
     /**
-     * Triggers a host-driven restore operation of the application on this device.
+     * Restores application data asynchronously from a backup archive.
      *
-     * Java-compatible asynchronous alternative to `performRestore` returning a [ListenableFuture].
-     *
-     * @param backupFile The local backup ZIP file generated by `performBackup`.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param backupFile backup archive generated by [performBackup]
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
     public fun performRestoreAsync(backupFile: Path): ListenableFuture<BackupRestoreController>
 
     /**
-     * Triggers a host-driven restore operation of the application on this device.
+     * Restores application data asynchronously from a backup archive.
      *
-     * Java-compatible asynchronous alternative to `performRestore` returning a [ListenableFuture].
-     *
-     * @param backupFile The local backup ZIP file generated by `performBackup`.
-     * @param timeout Maximum time to wait for the restore operation to complete.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param backupFile backup archive generated by [performBackup]
+     * @param timeout maximum duration to wait for the restore to complete
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
     public fun performRestoreAsync(
@@ -424,13 +360,10 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupRestoreController>
 
     /**
-     * Extracts device logcat entries. Streams logs directly to a local file on the host.
+     * Saves recent device logcat entries asynchronously to a local file.
      *
-     * Java-compatible asynchronous alternative to `fetchDeviceLogs` returning a [ListenableFuture].
-     *
-     * @param destinationPath The local file path on the host filesystem where the retrieved logs
-     *   will be written.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param destinationPath local file path where logs will be written
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
     public fun fetchDeviceLogsAsync(
@@ -438,14 +371,11 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupRestoreController>
 
     /**
-     * Extracts device logcat entries. Streams logs directly to a local file on the host.
+     * Saves recent device logcat entries asynchronously to a local file.
      *
-     * Java-compatible asynchronous alternative to `fetchDeviceLogs` returning a [ListenableFuture].
-     *
-     * @param destinationPath The local file path on the host filesystem where the retrieved logs
-     *   will be written.
-     * @param duration Duration of historical logs to look back from the current timestamp.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param destinationPath local file path where logs will be written
+     * @param duration time window of historical logs to capture
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
     public fun fetchDeviceLogsAsync(
@@ -454,32 +384,25 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupRestoreController>
 
     /**
-     * Clears the device's logcat buffer (via logcat -c).
+     * Clears the device logcat buffer asynchronously.
      *
-     * Java-compatible asynchronous alternative to `clearDeviceLogs` returning a [ListenableFuture].
-     *
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult public fun clearDeviceLogsAsync(): ListenableFuture<BackupRestoreController>
 
     /**
-     * Manually clears the target application's sandbox data (via pm clear).
+     * Clears application sandbox data asynchronously on the device.
      *
-     * Java-compatible asynchronous alternative to `clearAppData` returning a [ListenableFuture].
-     *
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult public fun clearAppDataAsync(): ListenableFuture<BackupRestoreController>
 
     /**
-     * Pulls an accessible file from the target device to the host filesystem.
+     * Copies a file asynchronously from the device to the host machine.
      *
-     * Java-compatible asynchronous alternative to `pullFile` returning a [ListenableFuture].
-     *
-     * @param devicePath The absolute path to the file on the device.
-     * @param hostDestination The local file path on the host filesystem where the pulled file will
-     *   be written.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param devicePath path to the file on the device
+     * @param hostDestination path to write the file on the host
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
     public fun pullFileAsync(
@@ -488,24 +411,20 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupRestoreController>
 
     /**
-     * Installs a specific APK file from the host workstation onto the target device.
+     * Installs an APK asynchronously from the host onto the device.
      *
-     * Java-compatible asynchronous alternative to `installApk` returning a [ListenableFuture].
-     *
-     * @param apkFile The local APK file on the host workstation.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param apkFile path to the APK on the host
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
     public fun installApkAsync(apkFile: Path): ListenableFuture<BackupRestoreController>
 
     /**
-     * Installs a specific APK file from the host workstation onto the target device.
+     * Installs an APK asynchronously from the host onto the device.
      *
-     * Java-compatible asynchronous alternative to `installApk` returning a [ListenableFuture].
-     *
-     * @param apkFile The local APK file on the host workstation.
-     * @param options Additional pm install options/flags to pass.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param apkFile path to the APK on the host
+     * @param options installation flags to pass to package manager
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
     public fun installApkAsync(
@@ -514,33 +433,27 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupRestoreController>
 
     /**
-     * Launches the target application on this device.
+     * Starts the target application asynchronously on the device.
      *
-     * Java-compatible asynchronous alternative to `launchApp` returning a [ListenableFuture].
-     *
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult public fun launchAppAsync(): ListenableFuture<BackupRestoreController>
 
     /**
-     * Launches the target application on this device.
+     * Starts the target application asynchronously on the device.
      *
-     * Java-compatible asynchronous alternative to `launchApp` returning a [ListenableFuture].
-     *
-     * @param activityClass The fully-qualified or relative Activity class name to launch.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param activityClass activity class to launch, or null for default launcher activity
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
     public fun launchAppAsync(activityClass: String?): ListenableFuture<BackupRestoreController>
 
     /**
-     * Launches the target application on this device.
+     * Starts the target application asynchronously on the device.
      *
-     * Java-compatible asynchronous alternative to `launchApp` returning a [ListenableFuture].
-     *
-     * @param activityClass The fully-qualified or relative Activity class name to launch.
-     * @param intentExtras Key-value string pairs to pass as intent extras.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param activityClass activity class to launch, or null for default launcher activity
+     * @param intentExtras key-value pairs to pass as intent extras
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
     public fun launchAppAsync(
@@ -549,14 +462,12 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupRestoreController>
 
     /**
-     * Launches the target application on this device.
+     * Starts the target application asynchronously on the device.
      *
-     * Java-compatible asynchronous alternative to `launchApp` returning a [ListenableFuture].
-     *
-     * @param activityClass The fully-qualified or relative Activity class name to launch.
-     * @param intentExtras Key-value string pairs to pass as intent extras.
-     * @param action The intent action string to launch with.
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @param activityClass activity class to launch, or null for default launcher activity
+     * @param intentExtras key-value pairs to pass as intent extras
+     * @param action intent action string to launch with
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult
     public fun launchAppAsync(
@@ -566,11 +477,9 @@ public interface BackupRestoreController : AutoCloseable {
     ): ListenableFuture<BackupRestoreController>
 
     /**
-     * Force-stops the target application on this device.
+     * Force-stops the target application asynchronously on the device.
      *
-     * Java-compatible asynchronous alternative to `stopApp` returning a [ListenableFuture].
-     *
-     * @return A [ListenableFuture] wrapping the [BackupRestoreController] orchestration instance.
+     * @return a [ListenableFuture] with this controller instance
      */
     @CheckResult public fun stopAppAsync(): ListenableFuture<BackupRestoreController>
 }

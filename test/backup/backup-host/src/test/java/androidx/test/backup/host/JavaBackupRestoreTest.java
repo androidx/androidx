@@ -101,8 +101,14 @@ public class JavaBackupRestoreTest {
     public void testBackupRestoreControllerAsyncCompilation() {
         BackupRestoreController device = org.mockito.Mockito.mock(BackupRestoreController.class);
         ListenableFuture<BackupRestoreController> future = device.stopAppAsync();
-        // Simply asserting that stopAppAsync compiles and exists on the interface for
-        // Java consumers.
+        ListenableFuture<BackupRestoreController> flowFuture =
+                device.runBackupRestoreFlowAsync(
+                        new StorageDomain.Preference("prefs", "key", "val"),
+                        java.nio.file.Paths.get("/tmp"),
+                        BackupTransportMode.LOCAL);
+        // Simply asserting that stopAppAsync and runBackupRestoreFlowAsync compile and exist on the
+        // interface for Java consumers.
         org.junit.Assert.assertNull(future);
+        org.junit.Assert.assertNull(flowFuture);
     }
 }

@@ -1,15 +1,92 @@
 // Signature format: 4.0
 package androidx.test.backup {
 
-  public enum ActionPhase {
-    enum_constant public static final androidx.test.backup.ActionPhase POPULATE;
-    enum_constant public static final androidx.test.backup.ActionPhase VERIFY;
-  }
-
   public interface BackupDeviceAction {
     method public androidx.test.backup.BackupDeviceActionResult execute(android.content.Context context, androidx.test.backup.BackupDeviceActionArgs args);
-    method @InaccessibleFromKotlin public androidx.test.backup.ActionPhase getPhase();
-    property public abstract androidx.test.backup.ActionPhase phase;
+    method @InaccessibleFromKotlin public int getPhase();
+    property public abstract int phase;
+    field public static final androidx.test.backup.BackupDeviceAction.Companion Companion;
+    field public static final String KEY_DB_NAME = "db_name";
+    field public static final String KEY_ERROR = "error";
+    field public static final String KEY_EXPECTED = "expected";
+    field public static final String KEY_EXPECTED_COL = "expected_col";
+    field public static final String KEY_EXPECTED_VAL = "expected_val";
+    field public static final String KEY_EXPECT_NULL = "expect_null";
+    field public static final String KEY_IS_BINARY = "is_binary";
+    field public static final String KEY_IS_DEVICE_PROTECTED = "is_device_protected";
+    field public static final String KEY_KEY_COL = "key_col";
+    field public static final String KEY_KEY_VAL = "key_val";
+    field public static final String KEY_PATH = "path";
+    field public static final String KEY_PREF_KEY = "pref_key";
+    field public static final String KEY_PREF_NAME = "pref_name";
+    field public static final String KEY_STATUS = "status";
+    field public static final String KEY_STORAGE_TYPE = "storage_type";
+    field public static final String KEY_TABLE = "table";
+    field public static final String KEY_VALUE = "value";
+    field public static final String KEY_VALUES = "values";
+    field public static final String KEY_VALUE_TYPE = "value_type";
+    field public static final int PHASE_POPULATE = 1; // 0x1
+    field public static final int PHASE_VERIFY = 2; // 0x2
+    field public static final String STATUS_FAILURE = "failure";
+    field public static final String STATUS_SUCCESS = "success";
+    field public static final String STORAGE_TYPE_DATABASE = "DATABASE";
+    field public static final String STORAGE_TYPE_FILES = "FILES";
+    field public static final String STORAGE_TYPE_PREFS = "PREFS";
+  }
+
+  public static final class BackupDeviceAction.Companion {
+    property public static String KEY_DB_NAME;
+    property public static String KEY_ERROR;
+    property public static String KEY_EXPECTED;
+    property public static String KEY_EXPECTED_COL;
+    property public static String KEY_EXPECTED_VAL;
+    property public static String KEY_EXPECT_NULL;
+    property public static String KEY_IS_BINARY;
+    property public static String KEY_IS_DEVICE_PROTECTED;
+    property public static String KEY_KEY_COL;
+    property public static String KEY_KEY_VAL;
+    property public static String KEY_PATH;
+    property public static String KEY_PREF_KEY;
+    property public static String KEY_PREF_NAME;
+    property public static String KEY_STATUS;
+    property public static String KEY_STORAGE_TYPE;
+    property public static String KEY_TABLE;
+    property public static String KEY_VALUE;
+    property public static String KEY_VALUES;
+    property public static String KEY_VALUE_TYPE;
+    property public static int PHASE_POPULATE;
+    property public static int PHASE_VERIFY;
+    property public static String STATUS_FAILURE;
+    property public static String STATUS_SUCCESS;
+    property public static String STORAGE_TYPE_DATABASE;
+    property public static String STORAGE_TYPE_FILES;
+    property public static String STORAGE_TYPE_PREFS;
+    field public static final String KEY_DB_NAME = "db_name";
+    field public static final String KEY_ERROR = "error";
+    field public static final String KEY_EXPECTED = "expected";
+    field public static final String KEY_EXPECTED_COL = "expected_col";
+    field public static final String KEY_EXPECTED_VAL = "expected_val";
+    field public static final String KEY_EXPECT_NULL = "expect_null";
+    field public static final String KEY_IS_BINARY = "is_binary";
+    field public static final String KEY_IS_DEVICE_PROTECTED = "is_device_protected";
+    field public static final String KEY_KEY_COL = "key_col";
+    field public static final String KEY_KEY_VAL = "key_val";
+    field public static final String KEY_PATH = "path";
+    field public static final String KEY_PREF_KEY = "pref_key";
+    field public static final String KEY_PREF_NAME = "pref_name";
+    field public static final String KEY_STATUS = "status";
+    field public static final String KEY_STORAGE_TYPE = "storage_type";
+    field public static final String KEY_TABLE = "table";
+    field public static final String KEY_VALUE = "value";
+    field public static final String KEY_VALUES = "values";
+    field public static final String KEY_VALUE_TYPE = "value_type";
+    field public static final int PHASE_POPULATE = 1; // 0x1
+    field public static final int PHASE_VERIFY = 2; // 0x2
+    field public static final String STATUS_FAILURE = "failure";
+    field public static final String STATUS_SUCCESS = "success";
+    field public static final String STORAGE_TYPE_DATABASE = "DATABASE";
+    field public static final String STORAGE_TYPE_FILES = "FILES";
+    field public static final String STORAGE_TYPE_PREFS = "PREFS";
   }
 
   public final class BackupDeviceActionArgs {
@@ -39,69 +116,15 @@ package androidx.test.backup.actions {
   public final class AssertStorageAction implements androidx.test.backup.BackupDeviceAction {
     ctor public AssertStorageAction();
     method public androidx.test.backup.BackupDeviceActionResult execute(android.content.Context context, androidx.test.backup.BackupDeviceActionArgs args);
-    method @InaccessibleFromKotlin public androidx.test.backup.ActionPhase getPhase();
-    property public androidx.test.backup.ActionPhase phase;
-    field public static final androidx.test.backup.actions.AssertStorageAction.Companion Companion;
-    field public static final String KEY_EXPECTED = "expected";
-    field public static final String KEY_EXPECTED_COL = "expected_col";
-    field public static final String KEY_EXPECTED_VAL = "expected_val";
-    field public static final String KEY_EXPECT_NULL = "expect_null";
-    field public static final String KEY_KEY_COL = "key_col";
-    field public static final String KEY_KEY_VAL = "key_val";
-  }
-
-  public static final class AssertStorageAction.Companion {
-    property public static String KEY_EXPECTED;
-    property public static String KEY_EXPECTED_COL;
-    property public static String KEY_EXPECTED_VAL;
-    property public static String KEY_EXPECT_NULL;
-    property public static String KEY_KEY_COL;
-    property public static String KEY_KEY_VAL;
+    method @InaccessibleFromKotlin public int getPhase();
+    property public int phase;
   }
 
   public final class PopulateStorageAction implements androidx.test.backup.BackupDeviceAction {
     ctor public PopulateStorageAction();
     method public androidx.test.backup.BackupDeviceActionResult execute(android.content.Context context, androidx.test.backup.BackupDeviceActionArgs args);
-    method @InaccessibleFromKotlin public androidx.test.backup.ActionPhase getPhase();
-    property public androidx.test.backup.ActionPhase phase;
-    field public static final androidx.test.backup.actions.PopulateStorageAction.Companion Companion;
-    field public static final String KEY_DB_NAME = "db_name";
-    field public static final String KEY_IS_BINARY = "is_binary";
-    field public static final String KEY_IS_DEVICE_PROTECTED = "is_device_protected";
-    field public static final String KEY_PATH = "path";
-    field public static final String KEY_PREF_KEY = "pref_key";
-    field public static final String KEY_PREF_NAME = "pref_name";
-    field public static final String KEY_STATUS = "status";
-    field public static final String KEY_STORAGE_TYPE = "storage_type";
-    field public static final String KEY_TABLE = "table";
-    field public static final String KEY_VALUE = "value";
-    field public static final String KEY_VALUES = "values";
-    field public static final String KEY_VALUE_TYPE = "value_type";
-    field public static final String STATUS_FAILURE = "failure";
-    field public static final String STATUS_SUCCESS = "success";
-    field public static final String STORAGE_TYPE_DATABASE = "DATABASE";
-    field public static final String STORAGE_TYPE_FILES = "FILES";
-    field public static final String STORAGE_TYPE_PREFS = "PREFS";
-  }
-
-  public static final class PopulateStorageAction.Companion {
-    property public static String KEY_DB_NAME;
-    property public static String KEY_IS_BINARY;
-    property public static String KEY_IS_DEVICE_PROTECTED;
-    property public static String KEY_PATH;
-    property public static String KEY_PREF_KEY;
-    property public static String KEY_PREF_NAME;
-    property public static String KEY_STATUS;
-    property public static String KEY_STORAGE_TYPE;
-    property public static String KEY_TABLE;
-    property public static String KEY_VALUE;
-    property public static String KEY_VALUES;
-    property public static String KEY_VALUE_TYPE;
-    property public static String STATUS_FAILURE;
-    property public static String STATUS_SUCCESS;
-    property public static String STORAGE_TYPE_DATABASE;
-    property public static String STORAGE_TYPE_FILES;
-    property public static String STORAGE_TYPE_PREFS;
+    method @InaccessibleFromKotlin public int getPhase();
+    property public int phase;
   }
 
 }

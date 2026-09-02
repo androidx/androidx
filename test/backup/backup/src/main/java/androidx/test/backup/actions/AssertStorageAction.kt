@@ -19,6 +19,30 @@ package androidx.test.backup.actions
 import android.content.Context
 import androidx.test.backup.ActionPhase
 import androidx.test.backup.BackupDeviceAction
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_DB_NAME
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_ERROR
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_EXPECTED
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_EXPECTED_COL
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_EXPECTED_VAL
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_EXPECT_NULL
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_IS_BINARY
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_IS_DEVICE_PROTECTED
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_KEY_COL
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_KEY_VAL
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_PATH
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_PREF_KEY
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_PREF_NAME
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_STATUS
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_STORAGE_TYPE
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_TABLE
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_VALUE
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_VALUES
+import androidx.test.backup.BackupDeviceAction.Companion.KEY_VALUE_TYPE
+import androidx.test.backup.BackupDeviceAction.Companion.STATUS_FAILURE
+import androidx.test.backup.BackupDeviceAction.Companion.STATUS_SUCCESS
+import androidx.test.backup.BackupDeviceAction.Companion.STORAGE_TYPE_DATABASE
+import androidx.test.backup.BackupDeviceAction.Companion.STORAGE_TYPE_FILES
+import androidx.test.backup.BackupDeviceAction.Companion.STORAGE_TYPE_PREFS
 import androidx.test.backup.BackupDeviceActionArgs
 import androidx.test.backup.BackupDeviceActionResult
 import java.io.File
@@ -28,31 +52,28 @@ import java.io.File
  *
  * Parses the configuration from [BackupDeviceActionArgs] and verifies
  * [android.content.SharedPreferences], SQLite databases, or raw file contents in
- * credential-encrypted or device-protected storage matching seeded criteria.
+ * credential-encrypted or device-protected storage.
  */
 public class AssertStorageAction : BackupDeviceAction {
-    override val phase: ActionPhase = ActionPhase.VERIFY
+    @get:ActionPhase override val phase: Int = BackupDeviceAction.PHASE_VERIFY
 
     override fun execute(context: Context, args: BackupDeviceActionArgs): BackupDeviceActionResult {
         val payload = args.payload
-        val isDeviceProtected =
-            payload[PopulateStorageAction.KEY_IS_DEVICE_PROTECTED]?.toBoolean() ?: false
+        val isDeviceProtected = payload[KEY_IS_DEVICE_PROTECTED]?.toBoolean() ?: false
         val targetContext =
             if (isDeviceProtected) {
                 context.createDeviceProtectedStorageContext()
             } else {
                 context
             }
-        val storageTypeStr =
-            payload[PopulateStorageAction.KEY_STORAGE_TYPE]
-                ?: PopulateStorageAction.STORAGE_TYPE_PREFS
+        val storageTypeStr = payload[KEY_STORAGE_TYPE] ?: STORAGE_TYPE_PREFS
 
         return try {
             when (storageTypeStr) {
-                PopulateStorageAction.STORAGE_TYPE_PREFS -> {
-                    val prefName = payload[PopulateStorageAction.KEY_PREF_NAME] ?: "default_prefs"
+                STORAGE_TYPE_PREFS -> {
+                    val prefName = payload[KEY_PREF_NAME] ?: "default_prefs"
                     val key =
-                        payload[PopulateStorageAction.KEY_PREF_KEY]
+                        payload[KEY_PREF_KEY]
                             ?: return errorResult(
                                 "Missing 'pref_key' argument for PREFS verification."
                             )
@@ -60,7 +81,7 @@ public class AssertStorageAction : BackupDeviceAction {
                     val expectNull = payload[KEY_EXPECT_NULL]?.toBoolean() ?: false
                     val sharedPrefs =
                         targetContext.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-                    val valueType = payload[PopulateStorageAction.KEY_VALUE_TYPE] ?: "STRING"
+                    val valueType = payload[KEY_VALUE_TYPE] ?: "STRING"
 
                     val actual =
                         if (!sharedPrefs.contains(key)) {
@@ -77,12 +98,7 @@ public class AssertStorageAction : BackupDeviceAction {
 
                     if (expectNull) {
                         if (actual == null) {
-                            BackupDeviceActionResult(
-                                mapOf(
-                                    PopulateStorageAction.KEY_STATUS to
-                                        PopulateStorageAction.STATUS_SUCCESS
-                                )
-                            )
+                            BackupDeviceActionResult(mapOf(KEY_STATUS to STATUS_SUCCESS))
                         } else {
                             errorResult(
                                 "Expected preference '$key' to be absent (null), but found '$actual'"
@@ -91,31 +107,26 @@ public class AssertStorageAction : BackupDeviceAction {
                     } else {
                         val expected =
                             payload[KEY_EXPECTED]
-                                ?: payload[PopulateStorageAction.KEY_VALUE]
+                                ?: payload[KEY_VALUE]
                                 ?: return errorResult(
                                     "Missing 'expected' or 'value' argument for PREFS verification."
                                 )
                         if (actual == expected) {
-                            BackupDeviceActionResult(
-                                mapOf(
-                                    PopulateStorageAction.KEY_STATUS to
-                                        PopulateStorageAction.STATUS_SUCCESS
-                                )
-                            )
+                            BackupDeviceActionResult(mapOf(KEY_STATUS to STATUS_SUCCESS))
                         } else {
                             errorResult("Expected '$expected' but found '$actual'")
                         }
                     }
                 }
 
-                PopulateStorageAction.STORAGE_TYPE_DATABASE -> {
+                STORAGE_TYPE_DATABASE -> {
                     val dbName =
-                        payload[PopulateStorageAction.KEY_DB_NAME]
+                        payload[KEY_DB_NAME]
                             ?: return errorResult(
                                 "Missing 'db_name' argument for DATABASE verification."
                             )
                     val table =
-                        payload[PopulateStorageAction.KEY_TABLE]
+                        payload[KEY_TABLE]
                             ?: return errorResult(
                                 "Missing 'table' argument for DATABASE verification."
                             )
@@ -129,9 +140,7 @@ public class AssertStorageAction : BackupDeviceAction {
                     // Otherwise, rely on separate 'expected_col' and 'expected_val' arguments.
                     val expectedCol: String
                     val expectedVal: String
-                    val values =
-                        payload[PopulateStorageAction.KEY_VALUES]
-                            ?: payload[PopulateStorageAction.KEY_VALUE]
+                    val values = payload[KEY_VALUES] ?: payload[KEY_VALUE]
                     if ((values != null) && values.contains("=")) {
                         val pair = values.split("&").firstOrNull { it.contains("=") } ?: ""
                         val parts = pair.split("=", limit = 2)
@@ -160,12 +169,7 @@ public class AssertStorageAction : BackupDeviceAction {
                         cursor.close()
 
                         if (actual == expectedVal) {
-                            BackupDeviceActionResult(
-                                mapOf(
-                                    PopulateStorageAction.KEY_STATUS to
-                                        PopulateStorageAction.STATUS_SUCCESS
-                                )
-                            )
+                            BackupDeviceActionResult(mapOf(KEY_STATUS to STATUS_SUCCESS))
                         } else {
                             errorResult(
                                 "Expected column '$expectedCol' to be '$expectedVal' but was '$actual'"
@@ -174,13 +178,13 @@ public class AssertStorageAction : BackupDeviceAction {
                     }
                 }
 
-                PopulateStorageAction.STORAGE_TYPE_FILES -> {
+                STORAGE_TYPE_FILES -> {
                     val path =
-                        payload[PopulateStorageAction.KEY_PATH]
+                        payload[KEY_PATH]
                             ?: return errorResult("Missing 'path' argument for FILES verification.")
                     val expected =
                         payload[KEY_EXPECTED]
-                            ?: payload[PopulateStorageAction.KEY_VALUE]
+                            ?: payload[KEY_VALUE]
                             ?: return errorResult(
                                 "Missing 'expected' or 'value' argument for FILES verification."
                             )
@@ -197,31 +201,20 @@ public class AssertStorageAction : BackupDeviceAction {
                         return errorResult("File not found at path: ${file.absolutePath}")
                     }
 
-                    val isBinary =
-                        payload[PopulateStorageAction.KEY_IS_BINARY]?.toBoolean() ?: false
+                    val isBinary = payload[KEY_IS_BINARY]?.toBoolean() ?: false
                     if (isBinary) {
                         val actualBytes = file.readBytes()
                         val expectedBytes =
                             android.util.Base64.decode(expected, android.util.Base64.DEFAULT)
                         if (actualBytes.contentEquals(expectedBytes)) {
-                            BackupDeviceActionResult(
-                                mapOf(
-                                    PopulateStorageAction.KEY_STATUS to
-                                        PopulateStorageAction.STATUS_SUCCESS
-                                )
-                            )
+                            BackupDeviceActionResult(mapOf(KEY_STATUS to STATUS_SUCCESS))
                         } else {
                             errorResult("Binary file contents did not match expected.")
                         }
                     } else {
                         val actual = file.readText()
                         if (actual == expected) {
-                            BackupDeviceActionResult(
-                                mapOf(
-                                    PopulateStorageAction.KEY_STATUS to
-                                        PopulateStorageAction.STATUS_SUCCESS
-                                )
-                            )
+                            BackupDeviceActionResult(mapOf(KEY_STATUS to STATUS_SUCCESS))
                         } else {
                             errorResult("Expected file content '$expected' but was '$actual'")
                         }
@@ -236,56 +229,6 @@ public class AssertStorageAction : BackupDeviceAction {
     }
 
     private fun errorResult(message: String): BackupDeviceActionResult {
-        return BackupDeviceActionResult(
-            mapOf(
-                PopulateStorageAction.KEY_STATUS to PopulateStorageAction.STATUS_FAILURE,
-                "error" to message,
-            )
-        )
-    }
-
-    public companion object {
-        /**
-         * The payload key specifying whether to assert complete absence of a preference.
-         *
-         * The corresponding value must be a string representation of a boolean: `"true"` or
-         * `"false"`.
-         */
-        public const val KEY_EXPECT_NULL: String = "expect_null"
-
-        /**
-         * The payload key specifying the expected value to verify, formatted as a string.
-         *
-         * Since instrumentation arguments are restricted to strings, primitive values (such as
-         * integers or booleans) must be passed as their string representations, which are parsed
-         * internally to match the target preference type. For binary files, the value represents
-         * the Base64-encoded string of the expected file content.
-         */
-        public const val KEY_EXPECTED: String = "expected"
-
-        /** The payload key specifying the key column name in SQL query verification. */
-        public const val KEY_KEY_COL: String = "key_col"
-
-        /**
-         * The payload key specifying the key column value to filter on in SQL verification.
-         *
-         * Must be passed as a string representation of the primitive key column value (e.g.,
-         * `"123"` for numerical IDs).
-         */
-        public const val KEY_KEY_VAL: String = "key_val"
-
-        /**
-         * The payload key specifying the column containing the expected value in SQL verification.
-         */
-        public const val KEY_EXPECTED_COL: String = "expected_col"
-
-        /**
-         * The payload key specifying the expected value within the target column in SQL
-         * verification.
-         *
-         * Must be passed as a string representation of the expected column value (e.g., `"true"` or
-         * `"false"` for SQLite booleans, or `"text"` for strings).
-         */
-        public const val KEY_EXPECTED_VAL: String = "expected_val"
+        return BackupDeviceActionResult(mapOf(KEY_STATUS to STATUS_FAILURE, KEY_ERROR to message))
     }
 }
