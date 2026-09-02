@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @file:OptIn(ExperimentalMaterial3Api::class)
+@file:Suppress("DEPRECATION") // b/552879150
 
 package androidx.compose.material3
 

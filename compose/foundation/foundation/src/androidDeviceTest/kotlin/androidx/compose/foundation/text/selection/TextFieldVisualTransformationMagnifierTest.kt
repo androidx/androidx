@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/552879150
+
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.layout.fillMaxSize

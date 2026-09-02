@@ -65,6 +65,7 @@ class TextFieldsSemanticAutofillTest {
 
     @Test
     @SmallTest
+    @Suppress("DEPRECATION") // b/552879150
     fun performAutofill_credentials_BTF() {
         // Arrange.
         lateinit var view: View

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/553982004
+
 package androidx.compose.material3
 
 import androidx.compose.foundation.layout.PaddingValues

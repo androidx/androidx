@@ -23,12 +23,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -44,13 +43,12 @@ fun SoftwareKeyboardControllerSample() {
 
     // used to ensure a TextField is focused when showing keyboard
     val focusRequester = remember { FocusRequester() }
-    val (text, setText) = remember { mutableStateOf("Close keyboard on done ime action (blue ✔️)") }
+    val state = rememberTextFieldState("Close keyboard on done ime action (blue ✔️)")
     Column(Modifier.padding(16.dp)) {
         BasicTextField(
-            text,
-            setText,
+            state,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+            onKeyboardAction = { keyboardController?.hide() },
             modifier = Modifier.focusRequester(focusRequester).fillMaxWidth(),
         )
         Spacer(Modifier.height(16.dp))

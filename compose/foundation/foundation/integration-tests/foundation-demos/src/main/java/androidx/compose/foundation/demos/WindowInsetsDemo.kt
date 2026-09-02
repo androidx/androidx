@@ -56,6 +56,7 @@ fun WindowInsetsDemo() {
 
         Spacer(Modifier.weight(1f))
 
+        @Suppress("DEPRECATION") // b/552879150
         BasicTextField(
             value = "Click to show keyboard",
             onValueChange = {},

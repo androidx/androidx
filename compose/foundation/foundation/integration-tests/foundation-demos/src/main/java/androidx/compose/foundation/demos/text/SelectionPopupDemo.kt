@@ -47,6 +47,7 @@ private val text = loremIpsum(wordCount = 50)
 private val modifier = Modifier.background(textBackgroundColor)
 
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 fun SelectionPopupDemo() {
     Box(modifier = Modifier.fillMaxSize().background(boxColor)) {
         Popup(alignment = Alignment.Center) {

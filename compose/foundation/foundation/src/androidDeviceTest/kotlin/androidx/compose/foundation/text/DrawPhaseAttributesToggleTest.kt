@@ -226,6 +226,7 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
     }
 
     @Test
+    @Suppress("DEPRECATION") // b/552879150
     fun basicTextField() {
         var style by mutableStateOf(config.initializeStyle(TextStyle(color = Color.Black)))
 

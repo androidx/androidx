@@ -52,6 +52,7 @@ private fun Item(keyboardType: KeyboardType) {
 }
 
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 private fun HintLocaleDemo(localeList: LocaleList) {
     Column {
         TagLine(tag = "Hints IME Locale: $localeList")

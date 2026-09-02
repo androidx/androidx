@@ -148,6 +148,7 @@ class TextFieldSingleLineHeightTest : FocusedWindowTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // b/552879150
     fun legacy_maxLines1_hasSameHeightAsSingleLine_withTallText() {
         var reportedSizeMaxLines1: IntSize = IntSize.Zero
         var reportedSizeSingleLine: IntSize = IntSize.Zero

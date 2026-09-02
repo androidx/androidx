@@ -31,6 +31,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 
+@Suppress("DEPRECATION") // b/552879150
 @Preview
 @Composable
 fun TextFieldValueDemo() {

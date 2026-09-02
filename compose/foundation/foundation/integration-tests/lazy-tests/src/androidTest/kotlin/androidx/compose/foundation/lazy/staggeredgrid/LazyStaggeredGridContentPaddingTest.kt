@@ -359,6 +359,7 @@ class LazyStaggeredGridContentPaddingTest(orientation: Orientation) :
                 ) {
                     item {
                         LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                        @Suppress("DEPRECATION") // b/552879150
                         BasicTextField(
                             "Test",
                             onValueChange = {},

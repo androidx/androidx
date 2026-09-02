@@ -44,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -148,8 +147,8 @@ private fun AutoFocusTextFieldDialog() {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
+@Suppress("DEPRECATION") // b/552879150
 internal fun materialTextFieldDecorator(
     state: TextFieldState,
     enabled: Boolean = true,
@@ -161,7 +160,7 @@ internal fun materialTextFieldDecorator(
         innerTextField = it,
         enabled = enabled,
         singleLine = lineLimits == TextFieldLineLimits.SingleLine,
-        visualTransformation = VisualTransformation.None,
+        visualTransformation = androidx.compose.ui.text.input.VisualTransformation.None,
         interactionSource = interactionSource,
     )
 }
