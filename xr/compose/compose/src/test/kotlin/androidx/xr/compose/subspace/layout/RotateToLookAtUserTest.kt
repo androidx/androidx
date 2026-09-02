@@ -21,11 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.xr.arcore.testing.ArCoreTestRule
 import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.spatial.LocalSubspaceRootNode
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
@@ -64,28 +64,23 @@ import org.robolectric.android.controller.ActivityController
 @RunWith(AndroidJUnit4::class)
 class RotateToLookAtUserTest {
     private val testDispatcher = StandardTestDispatcher()
-    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
-    // available starting with v1.11.0.
-    // See API docs for details.
-    @Suppress("DEPRECATION")
-    @get:Rule
-    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    @get:Rule val arCoreTestRule = ArCoreTestRule()
+
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
 
     @Before
-    @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun setUp() {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    // TODO: b/494305963 Remove references to arcore-testing Fakes
     fun rotateToLookAtUser_userTranslationChanges_contentTurnsTowardsUser() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
 
             composeTestRule.setContent {
                 Subspace {
@@ -102,9 +97,8 @@ class RotateToLookAtUserTest {
             val watcherEntity = composeTestRule.getTaggedEntity("TheWatcher")
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -121,7 +115,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_withGravityAligned_ignoresPitchRotation_andContentTurnsTowardsUser() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
 
             composeTestRule.setContent {
                 Subspace {
@@ -150,9 +144,8 @@ class RotateToLookAtUserTest {
                 )
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -169,7 +162,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_withRotation_retainsOffset() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
             val fixedRotateOffset = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
 
             composeTestRule.setContent {
@@ -191,9 +184,8 @@ class RotateToLookAtUserTest {
                 .assertRotationInRootIsEqualTo(fixedRotateOffset)
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -212,7 +204,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_withGravityAlignedAndRotation_retainsOffset() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
             val fixedRotateOffset = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
 
             composeTestRule.setContent {
@@ -237,9 +229,8 @@ class RotateToLookAtUserTest {
                 .assertRotationInRootIsEqualTo(fixedRotateOffset)
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -257,7 +248,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_precededByRotation_ignoresRotation() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
             val localRotation = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
 
             composeTestRule.setContent {
@@ -279,9 +270,8 @@ class RotateToLookAtUserTest {
                 .assertRotationInRootIsEqualTo(Quaternion.Identity)
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -298,13 +288,12 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_withRotatedParent_ignoresParentRotation() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
             val parentRotation = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             composeTestRule.setContent {
                 Subspace {
@@ -333,15 +322,14 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_withTranslatedRoot_calculatesCorrectLookDirection() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
 
             val userLocation = Vector3(x = 1F, y = 0F, z = 3F)
 
             // Pre-initialize before composition to ensure the first tracking tick captures the
             // target geometry and avoids simulation deadlock.
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             composeTestRule.setContent {
                 val density = LocalDensity.current
@@ -385,7 +373,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_withOffset_contentTurnsTowardsUser() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
             val offsetDp = 500.dp
 
             composeTestRule.setContent {
@@ -403,9 +391,8 @@ class RotateToLookAtUserTest {
             val watcherEntity = composeTestRule.getTaggedEntity("TheWatcher")
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -422,7 +409,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_withOffsetParent_contentTurnsTowardsUser() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
             val parentOffsetDp = 300.dp
 
             composeTestRule.setContent {
@@ -440,9 +427,8 @@ class RotateToLookAtUserTest {
             val watcherEntity = composeTestRule.getTaggedEntity("TheWatcherChild")
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -459,13 +445,12 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_userDirectlyAbove_handlesSingularityWithoutCrash() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
 
             // Place the user directly above the root origin to trigger the singularity.
             val userLocation = Vector3(x = 0F, y = 3F, z = 0F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             val customRootNode =
                 Entity.create(
@@ -502,7 +487,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_whenYawDisabled_doesNotTurnOnYAxis() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
 
             composeTestRule.setContent {
                 Subspace {
@@ -521,9 +506,8 @@ class RotateToLookAtUserTest {
 
             // Move the user horizontally, which would normally trigger a yaw rotation.
             val userLocation: Vector3 = Vector3(x = 2F, y = 0F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -537,7 +521,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_whenPitchDisabled_doesNotTurnOnXAxis() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
 
             composeTestRule.setContent {
                 Subspace {
@@ -556,9 +540,8 @@ class RotateToLookAtUserTest {
 
             // Move the user vertically, which would normally trigger a pitch rotation.
             val userLocation: Vector3 = Vector3(x = 0F, y = 3F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -572,7 +555,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_whenPitchLimited_onlyRotatesThatMuch() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
 
             composeTestRule.setContent {
                 Subspace {
@@ -597,9 +580,8 @@ class RotateToLookAtUserTest {
             // User is at (0, 3, 3)
             // This would normally result in a pitch rotation of 45 degrees.
             val userLocation: Vector3 = Vector3(x = 0F, y = 3F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -616,7 +598,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_whenUserAtNodeLocation_fallsBackToIdentityTargetRotation() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
 
             composeTestRule.setContent {
                 Subspace {
@@ -634,9 +616,8 @@ class RotateToLookAtUserTest {
             val watcherWorldPose: Pose = watcherEntity.getPose(Space.ACTIVITY)
 
             // Position the user exactly at the watcher's location.
-            fakePerceptionManager.arDevice.apply {
-                devicePose = Pose(watcherWorldPose.translation, Quaternion.Identity)
-            }
+            arCoreTestRule.deviceTester.pose =
+                Pose(watcherWorldPose.translation, Quaternion.Identity)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -651,7 +632,7 @@ class RotateToLookAtUserTest {
     @Test
     fun rotateToLookAtUser_unconstrainedPitchAndYaw_matchesTargetLookRotation() =
         runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
+            createSession()
 
             composeTestRule.setContent {
                 Subspace {
@@ -669,9 +650,8 @@ class RotateToLookAtUserTest {
 
             val watcherEntity = composeTestRule.getTaggedEntity("TheWatcher")
             val userLocation = Vector3(x = 2F, y = 3F, z = 4F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
+            arCoreTestRule.deviceTester.pose =
+                arCoreTestRule.deviceTester.pose.translate(translation = userLocation)
 
             testDispatcher.scheduler.advanceUntilIdle()
             composeTestRule.waitForIdle()
@@ -738,12 +718,9 @@ class RotateToLookAtUserTest {
             .isEqualTo("PitchLimits(minimumPitch=-10.0, maximumPitch=20.0)")
     }
 
-    @Suppress("DEPRECATION")
-    // TODO: b/494305963 Remove references to arcore-testing Fakes
-    private fun createSessionAndGetPerceptionManager():
-        androidx.xr.arcore.testing.FakePerceptionManager {
+    private fun createSession() {
         val sessionCreateResult = runBlocking {
-            Session.create(composeTestRule.activity, testDispatcher)
+            Session.create(context = composeTestRule.activity, coroutineContext = testDispatcher)
         }
         assertThat(sessionCreateResult).isInstanceOf(SessionCreateSuccess::class.java)
         val session = (sessionCreateResult as SessionCreateSuccess).session
@@ -751,11 +728,6 @@ class RotateToLookAtUserTest {
             Config.Builder(session.config).setDeviceTracking(DeviceTrackingMode.SPATIAL).build()
         )
         composeTestRule.session = session
-        val fakeRuntime =
-            session.runtimes
-                .filterIsInstance<androidx.xr.arcore.testing.FakePerceptionRuntime>()
-                .first()
-        return fakeRuntime.perceptionManager
     }
 
     private fun AndroidComposeTestRule<*, *>.getTaggedEntity(tag: String): Entity {
