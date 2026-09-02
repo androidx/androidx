@@ -32,7 +32,7 @@ class SourceNodeTest {
     @Test
     fun sourceNodeNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
-            val unused = SourceNode(Source.NORMALIZED_PRESSURE, 0f, 1f)
+            @Suppress("UNUSED_VARIABLE") val unused = SourceNode(Source.NORMALIZED_PRESSURE, 0f, 1f)
         }
     }
 
@@ -183,8 +183,8 @@ class SourceNodeTest {
                     sourceValueRangeEnd = Float.NaN, // Not finite.
                 )
             }
-        assertThat(sourceValueRangeStartError.message).contains("source")
-        assertThat(sourceValueRangeStartError.message).contains("finite")
+        assertThat(sourceValueRangeEndError.message).contains("source")
+        assertThat(sourceValueRangeEndError.message).contains("finite")
 
         // sourceValueRangeEnd == sourceValueRangeEnd
         val sourceValueRangeError =

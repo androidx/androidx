@@ -30,6 +30,7 @@ class BinaryOpNodeTest {
     @Test
     fun binaryOpNodeNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused = BinaryOpNode(BinaryOp.SUM, ConstantNode(0f), ConstantNode(1f))
         }
     }

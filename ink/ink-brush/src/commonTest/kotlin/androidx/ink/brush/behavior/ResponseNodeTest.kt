@@ -33,7 +33,7 @@ class ResponseNodeTest {
         // are cleaned up.
         val easingFunction = EasingFunction.Predefined.EASE
         awaitNativePointerCleanupAfter {
-            val unused = ResponseNode(easingFunction, ConstantNode(0f))
+            @Suppress("UNUSED_VARIABLE") val unused = ResponseNode(easingFunction, ConstantNode(0f))
         }
     }
 

@@ -620,14 +620,14 @@ class CanvasStrokeRendererTest {
 
         // Generate bitmaps and diff them against goldens
         val wet =
-            ImageDiffer.createBitmap(width, height) { canvas ->
+            ImageDiffer.createBitmap(width, height, TestColors.WHITE) { canvas ->
                 drawStroke(canvas, stroke, transform)
             }
         assertMatchesGolden(wet, name + "_wet")
 
         val dryStroke = stroke.toImmutable()
         val dry =
-            ImageDiffer.createBitmap(width, height) { canvas ->
+            ImageDiffer.createBitmap(width, height, TestColors.WHITE) { canvas ->
                 drawStroke(canvas, dryStroke, transform)
             }
         assertMatchesGolden(dry, name + "_dry")
@@ -636,7 +636,8 @@ class CanvasStrokeRendererTest {
     private val textureStore = TextureBitmapStore { id ->
         when (id) {
             TEXTURE_ID_AIRPLANE_EMOJI -> R.drawable.airplane_emoji
-            TEXTURE_ID_CHECKERBOARD -> R.drawable.checkerboard_black_and_transparent
+            TEXTURE_ID_CHECKERBOARD ->
+                androidx.ink.rendering.test.R.drawable.checkerboard_black_and_transparent
             TEXTURE_ID_CIRCLE -> R.drawable.circle
             TEXTURE_ID_POOP_EMOJI -> R.drawable.poop_emoji
             else -> null

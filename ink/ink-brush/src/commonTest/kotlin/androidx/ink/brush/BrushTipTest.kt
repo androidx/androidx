@@ -36,7 +36,7 @@ class BrushTipTest {
     @Test
     fun brushTipNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
-            val unused = BrushTip(behaviors = listOf(customBehavior))
+            @Suppress("UNUSED_VARIABLE") val unused = BrushTip(behaviors = listOf(customBehavior))
         }
     }
 

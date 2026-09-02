@@ -33,6 +33,7 @@ class BrushPaintTest {
     @Test
     fun brushPaintNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused =
                 BrushPaint(
                     textureLayers = listOf(makeTestTextureLayer()),

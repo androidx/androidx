@@ -29,7 +29,7 @@ class PartitionedMeshTest {
     @Test
     fun partitionedMeshNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
-            val unused = PartitionedMesh()
+            @Suppress("UNUSED_VARIABLE") val unused = PartitionedMesh()
         }
     }
 

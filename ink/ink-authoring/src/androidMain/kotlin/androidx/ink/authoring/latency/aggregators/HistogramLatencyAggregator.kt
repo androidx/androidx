@@ -209,7 +209,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          * to it constantly, but [reportAndResetHistogram] swaps it out for a new one from time to
          * time.
          */
-        private var currentHistogramMutex = Mutex()
+        private val currentHistogramMutex = Mutex()
 
         /**
          * Pool of recycled arrays for storing and reporting latency histograms. After initial
@@ -257,7 +257,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
         private suspend fun continuallyIncrementBucketCounts() {
             // As latencies come in on the channel, increment the appropriate bucket for each one.
             while (true) {
-                var bucketIndex = getBucketIndex(latencyNanosChannel.receive())
+                val bucketIndex = getBucketIndex(latencyNanosChannel.receive())
                 currentHistogramMutex.withLock { currentHistogram[bucketIndex] += 1 }
             }
         }

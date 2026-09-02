@@ -30,6 +30,7 @@ class ToolTypeFilterNodeTest {
     @Test
     fun toolTypeFilterNodeNativePointers_cleanedUpWhenOutOfScope() {
         awaitNativePointerCleanupAfter {
+            @Suppress("UNUSED_VARIABLE")
             val unused = ToolTypeFilterNode(setOf(InputToolType.STYLUS), ConstantNode(0f))
         }
     }
