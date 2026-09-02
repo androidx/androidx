@@ -100,18 +100,18 @@ class RecordingCanvasTest {
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
     private val recordingBuffer = RecordingRemoteComposeBuffer()
+    private val profileMask = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL
     private val profile =
-        Profile(
-            CoreDocument.DOCUMENT_API_LEVEL,
-            RcProfiles.PROFILE_ANDROIDX,
-            AndroidxRcPlatformServices(),
-        ) { creationDisplayInfo, profile, callback ->
+        Profile(CoreDocument.DOCUMENT_API_LEVEL, profileMask, AndroidxRcPlatformServices()) {
+            creationDisplayInfo,
+            profile,
+            callback ->
             RemoteComposeWriter(
                 profile,
                 recordingBuffer,
                 RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
                 RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
-                RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
+                RemoteComposeWriter.hTag(Header.DOC_PROFILES, profileMask),
             )
         }
 
@@ -861,6 +861,44 @@ class RecordingCanvasTest {
 
         val document = constructDocument()
         assertScreenshot(document, "testNestedOffscreenMask_golden")
+    }
+
+    @Test
+    fun patternCrossGrid_golden() {
+        val paint = Paint().apply { color = Color.BLUE }
+        val crossPattern =
+            recordingCanvas.definePattern { x: RemoteFloat, y: RemoteFloat, size: RemoteFloat ->
+                val halfSize = size * 0.5f
+                val halfBar = size * 0.15f
+                val radius = halfSize
+
+                // Horizontal rect intersecting circle
+                recordingCanvas.save()
+                recordingCanvas.clipRect(x - halfSize, y - halfBar, x + halfSize, y + halfBar)
+                recordingCanvas.drawCircle(x, y, radius, paint)
+                recordingCanvas.restore()
+
+                // Vertical rect intersecting circle
+                recordingCanvas.save()
+                recordingCanvas.clipRect(x - halfBar, y - halfSize, x + halfBar, y + halfSize)
+                recordingCanvas.drawCircle(x, y, radius, paint)
+                recordingCanvas.restore()
+            }
+
+        val baseSize = 28f
+        for (row in 0 until 10) {
+            for (col in 0 until 10) {
+                val x = 20f + col * 40f
+                val y = 20f + row * 40f
+                // +/- 25% size variation across the grid
+                val variation = -0.25f + 0.5f * ((row + col) % 5) / 4f
+                val size = baseSize * (1f + variation)
+                crossPattern(x.rf, y.rf, size.rf)
+            }
+        }
+
+        val document = constructDocument()
+        assertScreenshot(document, "patternCrossGrid_golden")
     }
 
     private fun constructDocument() =
