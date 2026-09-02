@@ -188,7 +188,6 @@ internal fun LazyGrid(
                     reverseScrolling = reverseLayout,
                 )
                 .then(beyondBoundsModifier)
-                .lazyLayoutItemAnimator(state.itemAnimator)
                 .scrollableArea(
                     state = state,
                     orientation = orientation,
@@ -198,7 +197,8 @@ internal fun LazyGrid(
                     interactionSource = state.internalInteractionSource,
                     overscrollEffect = overscrollEffect,
                     bringIntoViewSpec = bringIntoViewSpec,
-                ),
+                )
+                .lazyLayoutItemAnimator(state.itemAnimator),
         prefetchState = prefetchState,
         measurePolicy = measurePolicy,
         itemProvider = itemProviderLambda,

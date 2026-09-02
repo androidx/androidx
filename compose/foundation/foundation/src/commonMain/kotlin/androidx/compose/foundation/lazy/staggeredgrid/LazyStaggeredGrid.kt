@@ -129,7 +129,6 @@ internal fun LazyStaggeredGrid(
                     reverseScrolling = reverseLayout,
                 )
                 .then(beyondBoundsModifier)
-                .lazyLayoutItemAnimator(state.itemAnimator)
                 .scrollableArea(
                     state = state,
                     orientation = orientation,
@@ -138,7 +137,8 @@ internal fun LazyStaggeredGrid(
                     flingBehavior = flingBehavior,
                     interactionSource = state.mutableInteractionSource,
                     overscrollEffect = overscrollEffect,
-                ),
+                )
+                .lazyLayoutItemAnimator(state.itemAnimator),
         prefetchState = state.prefetchState,
         itemProvider = itemProviderLambda,
         measurePolicy = measurePolicy,
