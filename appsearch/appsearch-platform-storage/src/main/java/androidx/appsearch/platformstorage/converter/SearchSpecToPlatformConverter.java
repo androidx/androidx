@@ -106,9 +106,7 @@ public final class SearchSpecToPlatformConverter {
         // Only translate projection for versions after Android U.
         // Projection will be manually applied for earlier versions in SearchResultsImpl.
         // This is a workaround in Jetpack code for a pre-existing projection bug.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-                || AppSearchVersionUtil.getAppSearchVersionCode(context)
-                >= AppSearchVersionUtil.APPSEARCH_U_BASE_VERSION_CODE) {
+        if (BuildCompat.T_EXTENSION_INT >= AppSearchVersionUtil.TExtensionVersions.U_BASE) {
             for (Map.Entry<String, List<String>> projection :
                     jetpackSearchSpec.getProjections().entrySet()) {
                 platformBuilder.addProjection(projection.getKey(), projection.getValue());
