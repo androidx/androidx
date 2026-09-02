@@ -24,8 +24,8 @@ import android.os.Build
 import android.util.Log
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.adaptive.core.GlanceAdaptiveWidgetDelegate
-import androidx.glance.adaptive.core.TemplateRegistry
-import androidx.glance.adaptive.core.templates.AdaptiveGlanceTemplate
+import androidx.glance.adaptive.core.ui.TemplateRegistry
+import androidx.glance.adaptive.core.ui.templates.AdaptiveGlanceTemplate
 import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
 import kotlinx.coroutines.CancellationException
