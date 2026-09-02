@@ -241,6 +241,7 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
     }
 
     /** Returns whether the component has horizontal scrolling enabled. */
+    @Override
     public boolean hasHorizontalScroll() {
         return mComponentModifiers.hasHorizontalScroll();
     }
@@ -256,6 +257,7 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
     }
 
     /** Returns whether the component has vertical scrolling enabled. */
+    @Override
     public boolean hasVerticalScroll() {
         return mComponentModifiers.hasVerticalScroll();
     }
