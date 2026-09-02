@@ -72,10 +72,14 @@ public constructor(
     override fun toString(): String = "Immutable${string(this)}"
 
     public companion object {
+        /** Returns a transformation that translates by the given [x] and [y] components. */
+        @JvmStatic
+        public fun translate(x: Float, y: Float): ImmutableAffineTransform =
+            ImmutableAffineTransform(1f, 0f, x, 0f, 1f, y)
+
         /** Returns a transformation that translates by the given [offset] vector. */
         @JvmStatic
-        public fun translate(offset: Vec): ImmutableAffineTransform =
-            ImmutableAffineTransform(1f, 0f, offset.x, 0f, 1f, offset.y)
+        public fun translate(offset: Vec): ImmutableAffineTransform = translate(offset.x, offset.y)
 
         /**
          * Returns a transformation that scales in both the x- and y-direction by the given pair of

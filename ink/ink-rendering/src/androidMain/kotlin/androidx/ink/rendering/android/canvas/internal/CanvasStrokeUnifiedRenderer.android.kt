@@ -104,11 +104,11 @@ internal class CanvasStrokeUnifiedRenderer(
                     )
                 ) {
                     val paint = coat.paintPreferences[paintPreferenceIndex]
-                    val textureAnimationProgress =
+                    val paintAnimationProgress =
                         StrokePaintAnimationClock.calculateCurrentPhaseForPaint(
                             clockStateMillis = animatorClockStateMillis,
                             strokeAnimationLoopDurationMillis =
-                                stroke.brush.family.textureAnimationLoopDurationMillis,
+                                stroke.brush.family.paintAnimationLoopDurationMillis,
                             paintAnimationLoopDurationMillis =
                                 TextureAnimationProgressHelper.getAnimationDurationMillis(paint),
                             strokeBasePhase = stroke.inputs.getBaseAnimationPhase(),
@@ -119,7 +119,7 @@ internal class CanvasStrokeUnifiedRenderer(
                         coatIndex = coatIndex,
                         paintPreferenceIndex = paintPreferenceIndex,
                         strokeToScreenTransform = strokeToScreenTransform,
-                        textureAnimationProgress = textureAnimationProgress,
+                        paintAnimationProgress = paintAnimationProgress,
                     )
                     return
                 }
@@ -182,11 +182,11 @@ internal class CanvasStrokeUnifiedRenderer(
                     )
                 ) {
                     val paint = coat.paintPreferences[paintPreferenceIndex]
-                    val textureAnimationProgress =
+                    val paintAnimationProgress =
                         StrokePaintAnimationClock.calculateCurrentPhaseForPaint(
                             clockStateMillis = animatorClockStateMillis,
                             strokeAnimationLoopDurationMillis =
-                                brush.family.textureAnimationLoopDurationMillis,
+                                brush.family.paintAnimationLoopDurationMillis,
                             paintAnimationLoopDurationMillis =
                                 TextureAnimationProgressHelper.getAnimationDurationMillis(paint),
                             strokeBasePhase = inProgressStroke.getBaseAnimationPhase(),
@@ -197,7 +197,7 @@ internal class CanvasStrokeUnifiedRenderer(
                         coatIndex = coatIndex,
                         paintPreferenceIndex = paintPreferenceIndex,
                         strokeToScreenTransform = strokeToScreenTransform,
-                        textureAnimationProgress = textureAnimationProgress,
+                        paintAnimationProgress = paintAnimationProgress,
                     )
                     return
                 }

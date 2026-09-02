@@ -82,7 +82,7 @@ public constructor(private val animationClock: StrokePaintAnimationClock) :
         if (!shouldPreserveNoiseSeed) {
             this.noiseSeed = Random.Default.nextInt()
         }
-        val paintAnimationLoopDurationMillis = shapeSpec.family.textureAnimationLoopDurationMillis
+        val paintAnimationLoopDurationMillis = shapeSpec.family.paintAnimationLoopDurationMillis
         val baseAnimationPhase =
             StrokePaintAnimationClock.calculateBasePhaseForNewStroke(
                 clockStateMillis = animationClock.getClockStateMillis(),

@@ -190,15 +190,16 @@ private constructor(
             public val POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE: Target =
                 Target(10, "POSITION_OFFSET_LATERAL_IN_MULTIPLES_OF_BRUSH_SIZE")
             /**
-             * Adds the target modifier to the initial texture animation progress value of the
-             * current particle (which is relevant only for strokes with an animated texture). The
-             * final progress offset is not clamped, but is effectively normalized (mod 1). If
-             * multiple behaviors have this target, they stack additively.
+             * Adds the target modifier to the initial brush paint animation progress value of the
+             * current particle (which is relevant only for strokes with an animated `BrushPaint`).
+             * The final progress offset is not clamped, but is effectively normalized (mod 2, to
+             * account for potential use of `AnimationRepeatMode.REVERSE`). If multiple behaviors
+             * have this target, they stack additively.
              */
             @ExperimentalInkAnimationApi
             @JvmField
-            public val TEXTURE_ANIMATION_PROGRESS_OFFSET: Target =
-                Target(11, "TEXTURE_ANIMATION_PROGRESS_OFFSET")
+            public val PAINT_ANIMATION_PROGRESS_OFFSET: Target =
+                Target(11, "PAINT_ANIMATION_PROGRESS_OFFSET")
 
             // The following are targets for tip color adjustments, including opacity. Renderers can
             // apply

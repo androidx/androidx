@@ -100,7 +100,7 @@ class CanvasMeshRendererScreenshotTestActivity : Activity() {
                 coatIndex = 0,
                 paintPreferenceIndex = 0,
                 strokeToScreenTransform = Matrix.IDENTITY_MATRIX,
-                textureAnimationProgress = 0F,
+                paintAnimationProgress = 0F,
             )
 
             // Expected result: pink stroke on left, large green rotated stroke on right.
@@ -119,7 +119,7 @@ class CanvasMeshRendererScreenshotTestActivity : Activity() {
                     coatIndex = 0,
                     paintPreferenceIndex = 0,
                     strokeToScreenTransform = transform,
-                    textureAnimationProgress = 0F,
+                    paintAnimationProgress = 0F,
                 )
             }
 
@@ -139,7 +139,7 @@ class CanvasMeshRendererScreenshotTestActivity : Activity() {
                     coatIndex = 0,
                     paintPreferenceIndex = 0,
                     strokeToScreenTransform = transform2,
-                    textureAnimationProgress = 0F,
+                    paintAnimationProgress = 0F,
                 )
             }
         }

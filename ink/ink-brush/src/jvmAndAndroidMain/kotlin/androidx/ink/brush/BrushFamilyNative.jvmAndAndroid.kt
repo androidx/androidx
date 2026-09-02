@@ -43,8 +43,7 @@ actual internal object BrushFamilyNative {
 
     @UsedByNative actual external fun getDeveloperComment(nativePointer: Long): String
 
-    @UsedByNative
-    actual external fun getTextureAnimationLoopDurationMillis(nativePointer: Long): Long
+    @UsedByNative actual external fun getPaintAnimationLoopDurationMillis(nativePointer: Long): Long
 
     @UsedByNative actual external fun calculateMinimumRequiredVersion(nativePointer: Long): Int
 
