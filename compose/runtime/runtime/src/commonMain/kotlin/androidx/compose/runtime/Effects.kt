@@ -57,7 +57,6 @@ import kotlinx.coroutines.launch
 @Composable
 @NonRestartableComposable
 @ExplicitGroupsComposable
-@OptIn(InternalComposeApi::class)
 public fun SideEffect(effect: () -> Unit) {
     currentComposer.recordSideEffectWithTracing(effect)
 }
@@ -84,7 +83,6 @@ public fun SideEffect(effect: () -> Unit) {
  */
 @Composable
 @NonRestartableComposable
-@OptIn(InternalComposeApi::class)
 public fun SideEffect(key1: Any?, effect: () -> Unit) {
     if (currentComposer.changed(key1)) {
         currentComposer.recordSideEffectWithTracing(effect)
@@ -115,7 +113,6 @@ public fun SideEffect(key1: Any?, effect: () -> Unit) {
  */
 @Composable
 @NonRestartableComposable
-@OptIn(InternalComposeApi::class)
 public fun SideEffect(key1: Any?, key2: Any?, effect: () -> Unit) {
     if (currentComposer.changed(key1) or currentComposer.changed(key2)) {
         currentComposer.recordSideEffectWithTracing(effect)
@@ -148,12 +145,51 @@ public fun SideEffect(key1: Any?, key2: Any?, effect: () -> Unit) {
  */
 @Composable
 @NonRestartableComposable
-@OptIn(InternalComposeApi::class)
 public fun SideEffect(key1: Any?, key2: Any?, key3: Any?, effect: () -> Unit) {
     if (
         currentComposer.changed(key1) or
             currentComposer.changed(key2) or
             currentComposer.changed(key3)
+    ) {
+        currentComposer.recordSideEffectWithTracing(effect)
+    }
+}
+
+/**
+ * Schedule [effect] to run as a side effect for any new unique value of [key1], [key2], [key3] or
+ * [key4].
+ *
+ * A [SideEffect]'s _keys_ are values that defines the identity of the [SideEffect]. When a
+ * [SideEffect] recomposes, its [effect] will only execute if any of its keys differ from their
+ * previously provided value.
+ *
+ * When using the overload of this function that doesn't accept keys, the [effect] will execute on
+ * every recomposition. This overload is preferred when you have one-shot work that doesn't require
+ * the coroutine afforded by [LaunchedEffect], or the disposal afforded by [DisposableEffect].
+ *
+ * **Note:** For all overloads of [SideEffect], the [effect] is executed _after_ all
+ * [DisposableEffect] and [RememberObserver] callbacks are dispatched. Effects are executed in the
+ * order that they appear in the composition hierarchy (following an in-order traversal).
+ *
+ * @param key1 A key input; if recomposed with a new value from the previous key, [effect] will be
+ *   scheduled.
+ * @param key2 A second key input; if recomposed with a new value from the previous key, [effect]
+ *   will be scheduled.
+ * @param key3 A third key input; if recomposed with a new value from the previous key, [effect]
+ *   will be scheduled.
+ * @param key4 A fourth key input; if recomposed with a new value from the previous key, [effect]
+ *   will be scheduled.
+ * @param effect The effect that will execute when this composition completes successfully and is
+ *   applying changes.
+ */
+@Composable
+@NonRestartableComposable
+public fun SideEffect(key1: Any?, key2: Any?, key3: Any?, key4: Any?, effect: () -> Unit) {
+    if (
+        currentComposer.changed(key1) or
+            currentComposer.changed(key2) or
+            currentComposer.changed(key3) or
+            currentComposer.changed(key4)
     ) {
         currentComposer.recordSideEffectWithTracing(effect)
     }
@@ -180,7 +216,6 @@ public fun SideEffect(key1: Any?, key2: Any?, key3: Any?, effect: () -> Unit) {
  */
 @Composable
 @NonRestartableComposable
-@OptIn(InternalComposeApi::class)
 public fun SideEffect(vararg keys: Any?, effect: () -> Unit) {
     var invalid = currentComposer.changed(keys.size)
     for (key in keys) invalid = invalid or currentComposer.changed(key)
@@ -380,6 +415,45 @@ public fun DisposableEffect(
 }
 
 /**
+ * A side effect of composition that must run for any new unique value of [key1], [key2], [key3] or
+ * [key4] and must be reversed or cleaned up if [key1], [key2], [key3] or [key4] changes, or if the
+ * [DisposableEffect] leaves the composition.
+ *
+ * A [DisposableEffect]'s _key_ is a value that defines the identity of the [DisposableEffect]. If a
+ * key changes, the [DisposableEffect] must [dispose][DisposableEffectScope.onDispose] its current
+ * [effect] and reset by calling [effect] again. Examples of keys include:
+ * * Observable objects that the effect subscribes to
+ * * Unique request parameters to an operation that must cancel and retry if those parameters change
+ *
+ * [DisposableEffect] may be used to initialize or subscribe to a key and reinitialize when a
+ * different key is provided, performing cleanup for the old operation before initializing the new.
+ * For example:
+ *
+ * @sample androidx.compose.runtime.samples.disposableEffectSample
+ *
+ * A [DisposableEffect] **must** include an [onDispose][DisposableEffectScope.onDispose] clause as
+ * the final statement in its [effect] block. If your operation does not require disposal it might
+ * be a [SideEffect] instead, or a [LaunchedEffect] if it launches a coroutine that should be
+ * managed by the composition.
+ *
+ * There is guaranteed to be one call to [dispose][DisposableEffectScope.onDispose] for every call
+ * to [effect]. Both [effect] and [dispose][DisposableEffectScope.onDispose] will always be run on
+ * the composition's apply dispatcher and appliers are never run concurrent with themselves, one
+ * another, applying changes to the composition tree, or running [RememberObserver] event callbacks.
+ */
+@Composable
+@NonRestartableComposable
+public fun DisposableEffect(
+    key1: Any?,
+    key2: Any?,
+    key3: Any?,
+    key4: Any?,
+    effect: DisposableEffectScope.() -> DisposableEffectResult,
+) {
+    remember(key1, key2, key3, key4) { DisposableEffectImpl(effect) }
+}
+
+/**
  * A side effect of composition that must run for any new unique value of [keys] and must be
  * reversed or cleaned up if any [keys] change or if the [DisposableEffect] leaves the composition.
  *
@@ -535,6 +609,31 @@ public fun LaunchedEffect(
 ) {
     val applyContext = currentComposer.applyCoroutineContext
     remember(key1, key2, key3) { LaunchedEffectImpl(applyContext, block) }
+}
+
+/**
+ * When [LaunchedEffect] enters the composition it will launch [block] into the composition's
+ * [CoroutineContext]. The coroutine will be [cancelled][Job.cancel] and **re-launched** when
+ * [LaunchedEffect] is recomposed with a different [key1], [key2], [key3] or [key4]. The coroutine
+ * will be [cancelled][Job.cancel] when the [LaunchedEffect] leaves the composition.
+ *
+ * This function should **not** be used to (re-)launch ongoing tasks in response to callback events
+ * by way of storing callback data in [MutableState] passed to [key]. Instead, see
+ * [rememberCoroutineScope] to obtain a [CoroutineScope] that may be used to launch ongoing jobs
+ * scoped to the composition in response to event callbacks.
+ */
+@Composable
+@NonRestartableComposable
+@OptIn(InternalComposeApi::class)
+public fun LaunchedEffect(
+    key1: Any?,
+    key2: Any?,
+    key3: Any?,
+    key4: Any?,
+    block: suspend CoroutineScope.() -> Unit,
+) {
+    val applyContext = currentComposer.applyCoroutineContext
+    remember(key1, key2, key3, key4) { LaunchedEffectImpl(applyContext, block) }
 }
 
 /**
