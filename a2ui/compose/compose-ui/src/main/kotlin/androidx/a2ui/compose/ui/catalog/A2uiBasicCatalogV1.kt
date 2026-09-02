@@ -58,6 +58,7 @@ import java.util.TimeZone
  * @property text The [Text] component implementation.
  * @property image The [Image] component implementation.
  * @property icon The [Icon] component implementation.
+ * @property video The [Video] component implementation.
  * @property audioPlayer The [AudioPlayer] component implementation.
  * @property card The [Card] component implementation.
  * @property row The [Row] component implementation.
@@ -77,6 +78,7 @@ public class A2uiBasicCatalogV1(
     public val text: Text,
     public val image: Image,
     public val icon: Icon,
+    public val video: Video,
     public val audioPlayer: AudioPlayer,
     public val card: Card,
     public val row: Row,
@@ -104,6 +106,7 @@ public class A2uiBasicCatalogV1(
             text,
             image,
             icon,
+            video,
             audioPlayer,
             card,
             row,
@@ -649,6 +652,61 @@ public class A2uiBasicCatalogV1(
             accessibility: AccessibilityAttributes?,
             modifier: Modifier,
         )
+    }
+
+    /**
+     * The A2UI `"Video"` component for displaying a video from a URL.
+     *
+     * **Schema Properties:**
+     * * `url` (Dynamic String, required): The URL of the video to display.
+     */
+    public interface Video : A2uiComponent {
+        override val name: String
+            get() = "Video"
+
+        override val description: String
+            get() = "Displays a video from a URL."
+
+        public companion object {
+            /** The [A2uiProperty] for the `"url"` property of a [Video]. */
+            public val UrlProperty: DynamicA2uiProperty<String> =
+                A2uiProperty.dynamicString(
+                    key = "url",
+                    required = true,
+                    description = "The URL of the video to display.",
+                )
+
+            internal val ComponentProperties: kotlin.collections.List<A2uiProperty<*>> =
+                listOf(WeightProperty, UrlProperty)
+        }
+
+        override val properties: kotlin.collections.List<A2uiProperty<*>>
+            get() = ComponentProperties
+
+        @Composable
+        override fun A2uiComponentScope.isReady(properties: A2uiComponentProperties): Boolean =
+            properties.bind(UrlProperty) != null
+
+        @Composable
+        override fun A2uiComponentScope.Content(
+            properties: A2uiComponentProperties,
+            modifier: Modifier,
+        ) {
+            val url =
+                checkNotNull(properties.bind(UrlProperty)) {
+                    "Required property '${UrlProperty.key}' is missing."
+                }
+
+            TypedContent(url = url, modifier = modifier)
+        }
+
+        /**
+         * Renders the [Video] with its resolved [url] property.
+         *
+         * @param url The URL of the video to display.
+         * @param modifier [Modifier] to apply to the layout.
+         */
+        @Composable public fun A2uiComponentScope.TypedContent(url: String, modifier: Modifier)
     }
 
     /**
