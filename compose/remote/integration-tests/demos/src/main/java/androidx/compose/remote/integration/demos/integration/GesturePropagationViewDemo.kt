@@ -71,6 +71,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.UiComposable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -83,6 +84,7 @@ private const val REMOTE_COMPOSE_LONG_CLICK = "remote_compose_long_click"
     "RestrictedApiAndroidX"
 ) // Referring to RemoteText, combinedClickable, remote-core, remote-creation-core
 @Composable
+@UiComposable
 fun GesturePropagationViewDemo() {
     val experimentalProfile =
         Profile(
@@ -200,6 +202,7 @@ private fun GesturePropagationViewDemoContent(applyVerticalScroll: Boolean) {
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
+@UiComposable
 private fun RemoteFrameLayoutDemo(
     modifier: Modifier = Modifier,
     profile: Profile = RcPlatformProfiles.ANDROIDX,

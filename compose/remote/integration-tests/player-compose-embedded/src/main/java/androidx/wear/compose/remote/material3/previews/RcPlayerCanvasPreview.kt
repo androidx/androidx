@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("RestrictedApiAndroidX")
+
 package androidx.wear.compose.remote.material3.previews
 
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -40,7 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 
 // Individual-feature confirmation previews (tranche: P5 RemoteCanvas draw primitives) for the
-// embedded RcPlayer vs the legacy player. Parameterized over PlayerImpl.
+// embedded RcPlayer vs the View player. Parameterized over PlayerImpl.
 
 private fun fill(argb: Long) = RemotePaint { color = Color(argb).rc }
 

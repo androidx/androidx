@@ -35,7 +35,7 @@ import kotlinx.coroutines.runBlocking
 
 /**
  * Displays a Remote Compose Composable in the Android Studio Preview. Dispatches to either the
- * production legacy player or the experimental embedded Compose player.
+ * production View player or the experimental embedded Compose player.
  */
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
 @Composable
