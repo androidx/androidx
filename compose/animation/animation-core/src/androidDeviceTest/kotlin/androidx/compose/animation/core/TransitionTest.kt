@@ -948,4 +948,44 @@ class TransitionTest {
         assertEquals(AnimStates.From, transitionState.currentState)
         rule.onNodeWithTag("text").assertTextEquals("2.5")
     }
+
+    @Test
+    fun testLazyChildTransitionLabel() {
+        lateinit var parentWithoutLabel: Transition<Int>
+        lateinit var defaultChildOfUnlabeledParent: Transition<Boolean>
+        lateinit var customChildOfUnlabeledParent: Transition<Boolean>
+        lateinit var parentWithLabel: Transition<Int>
+        lateinit var defaultChildOfLabeledParent: Transition<Boolean>
+        lateinit var customChildOfLabeledParent: Transition<Boolean>
+        lateinit var grandchild: Transition<Boolean>
+
+        rule.setContent {
+            parentWithoutLabel = updateTransition(1)
+            defaultChildOfUnlabeledParent = parentWithoutLabel.createChildTransition { it == 1 }
+            customChildOfUnlabeledParent =
+                parentWithoutLabel.createChildTransition("CustomChild") { it == 1 }
+
+            parentWithLabel = updateTransition(1, label = "Parent")
+            defaultChildOfLabeledParent = parentWithLabel.createChildTransition { it == 1 }
+            customChildOfLabeledParent =
+                parentWithLabel.createChildTransition("CustomChild") { it == 1 }
+            grandchild = customChildOfLabeledParent.createChildTransition("Grandchild") { it }
+        }
+
+        rule.runOnIdle {
+            // Parent without label
+            assertThat(parentWithoutLabel.label).isNull()
+            // Child of parent without label should not have "null > " prefix
+            assertThat(defaultChildOfUnlabeledParent.label).isEqualTo("ChildTransition")
+            assertThat(customChildOfUnlabeledParent.label).isEqualTo("CustomChild")
+
+            // Parent with label
+            assertThat(parentWithLabel.label).isEqualTo("Parent")
+            assertThat(defaultChildOfLabeledParent.label).isEqualTo("Parent > ChildTransition")
+            assertThat(customChildOfLabeledParent.label).isEqualTo("Parent > CustomChild")
+
+            // Grandchild
+            assertThat(grandchild.label).isEqualTo("Parent > CustomChild > Grandchild")
+        }
+    }
 }
