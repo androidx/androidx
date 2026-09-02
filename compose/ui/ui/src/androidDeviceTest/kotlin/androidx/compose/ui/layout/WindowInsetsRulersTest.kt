@@ -46,12 +46,9 @@ import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requestRemeasure
 import androidx.compose.ui.platform.AndroidComposeView
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.areWindowInsetsRulersEnabled
-import androidx.compose.ui.platform.disableWindowInsetsRulers
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntRect
@@ -1197,7 +1194,7 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
 
     @Test
     fun disableWindowInsetsRulers() {
-        ComposeView.disableWindowInsetsRulers()
+        WindowInsetsRulers.disable()
         var left = 0f
         var top = 0f
         var right = 0f
@@ -1251,7 +1248,7 @@ class WindowInsetsRulersTest(private val isDelayedWindowInsetsRulersEnabled: Boo
         rule.waitForIdle()
 
         // Disable window insets rulers directly after applying insets
-        ComposeView.disableWindowInsetsRulers()
+        WindowInsetsRulers.disable()
         rule.runOnIdle {
             composeView.root.requestRemeasure(forceRequest = true)
             composeView.root.requestRelayout(forceRequest = true)

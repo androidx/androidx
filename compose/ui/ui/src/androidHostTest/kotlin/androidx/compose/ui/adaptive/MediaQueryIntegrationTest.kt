@@ -31,11 +31,11 @@ import androidx.compose.ui.UiMediaScope.PointerPrecision
 import androidx.compose.ui.UiMediaScope.ViewingDistance
 import androidx.compose.ui.layout.WindowInsetsRulers
 import androidx.compose.ui.layout.WindowInsetsRulersProvider
+import androidx.compose.ui.layout.areWindowInsetsRulersEnabled
 import androidx.compose.ui.mediaQuery
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.platform.areWindowInsetsRulersEnabled
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.WindowSize
