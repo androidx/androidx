@@ -194,7 +194,6 @@ internal fun LazyList(
                     reverseScrolling = reverseLayout,
                 )
                 .then(beyondBoundsModifier)
-                .lazyLayoutItemAnimator(state.itemAnimator)
                 .scrollableArea(
                     state = state,
                     orientation = orientation,
@@ -204,7 +203,8 @@ internal fun LazyList(
                     interactionSource = state.internalInteractionSource,
                     overscrollEffect = overscrollEffect,
                     bringIntoViewSpec = bringIntoViewSpec,
-                ),
+                )
+                .lazyLayoutItemAnimator(state.itemAnimator),
         prefetchState = prefetchState,
         measurePolicy = measurePolicy,
         itemProvider = itemProviderLambda,
