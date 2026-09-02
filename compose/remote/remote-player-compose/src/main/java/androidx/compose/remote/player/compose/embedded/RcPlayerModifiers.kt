@@ -19,9 +19,16 @@
 package androidx.compose.remote.player.compose.embedded
 
 import androidx.annotation.RestrictTo
+import androidx.compose.animation.BoundsTransform
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope.ResizeMode
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.operations.layout.ClickModifierOperation
 import androidx.compose.remote.core.operations.layout.Component
+import androidx.compose.remote.core.operations.layout.LayoutComponent
+import androidx.compose.remote.core.operations.layout.animation.AnimationSpec
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BackgroundModifierOperation
 import androidx.compose.remote.core.operations.layout.modifiers.BorderModifierOperation
@@ -67,6 +74,7 @@ import androidx.compose.remote.player.compose.embedded.state.rememberRemoteIntAs
 import androidx.compose.remote.player.compose.embedded.state.rememberRemoteStringAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.graphicsLayer
@@ -80,6 +88,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 
 @Composable
@@ -142,6 +151,7 @@ public fun ComponentModifiers.toModifier(drawOpsList: List<Operation>? = null): 
                 // player doesn't support — consume both rather than warn.
                 is CollapsiblePriorityModifierOperation -> modifier
                 is LayoutComputeOperation -> modifier
+                is AnimationSpec -> modifier
                 else -> {
                     println("Warning: Unsupported modifier $op")
                     modifier
@@ -220,5 +230,44 @@ private fun AccessibleComponent.Role.toComposeRole(): Role {
         AccessibleComponent.Role.PICKER -> Role.Button
         AccessibleComponent.Role.CAROUSEL -> Role.Button
         else -> Role.Button
+    }
+}
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+internal fun Modifier.sharedElementTransition(component: Component): Modifier {
+    val sharedTransitionScope = LocalSharedTransitionScope.current ?: return this
+    val animatedVisibilityScope = LocalAnimatedVisibilityScope.current ?: return this
+
+    val animationId = component.animationId
+    if (animationId == -1 || animationId == 0) return this
+
+    val layout = component as? LayoutComponent
+    val spec =
+        layout?.componentModifiers?.list?.fastFirstOrNull { it is AnimationSpec } as? AnimationSpec
+            ?: component.animationSpecReflection
+            ?: AnimationSpec.DEFAULT
+
+    val motionDuration = spec.motionDuration.toInt()
+    val motionEasing = mapEasing(spec.motionEasingType)
+
+    val boundsTransform =
+        remember(motionDuration, motionEasing) {
+            BoundsTransform { _, _ ->
+                if (motionDuration <= 0) {
+                    snap()
+                } else {
+                    tween(durationMillis = motionDuration, easing = motionEasing)
+                }
+            }
+        }
+
+    with(sharedTransitionScope) {
+        return this@sharedElementTransition.sharedBounds(
+            sharedContentState = rememberSharedContentState(key = animationId),
+            animatedVisibilityScope = animatedVisibilityScope,
+            boundsTransform = boundsTransform,
+            resizeMode = ResizeMode.RemeasureToBounds,
+        )
     }
 }

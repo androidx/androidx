@@ -120,6 +120,7 @@ class CoreReflectionGuardTest {
             "$ops.ConditionalOperations" to listOf("mVarAOut", "mVarBOut", "mType"),
             "$ops.layout.LoopOperation" to
                 listOf("mFromOut", "mUntilOut", "mStepOut", "mIndexVariableId"),
+            "$ops.layout.Component" to listOf("mAnimationSpec"),
             "$ops.FloatFunctionCall" to listOf("mFunction", "mOutArgs"),
             "$managers.CoreText" to
                 listOf(

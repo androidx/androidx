@@ -613,7 +613,6 @@ internal fun RcPlayerRootLayoutComponent(size: IntSize) {
 @Composable
 internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifier) {
     if (component is LayoutComponent) {
-        val remoteContext = LocalRemoteContext.current
         val componentValueMap = LocalComponentValueMap.current
         val componentValueStateMap = LocalComponentValueStateMap.current
 
@@ -628,8 +627,12 @@ internal fun RcPlayerComponent(component: Component, modifier: Modifier = Modifi
         }
 
         var modifier =
-            component.componentModifiers
-                .toModifier(component.getDrawContentOperationsListReflection())
+            Modifier.sharedElementTransition(component)
+                .then(
+                    component.componentModifiers.toModifier(
+                        component.getDrawContentOperationsListReflection()
+                    )
+                )
                 .then(modifier)
 
         // Publish the component's measured WIDTH/HEIGHT (read by ComponentValue expressions) from
