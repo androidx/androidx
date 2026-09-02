@@ -22,6 +22,7 @@ import androidx.compose.remote.integration.demos.integration.GesturePropagationD
 import androidx.compose.remote.integration.demos.integration.GesturePropagationViewDemo
 import androidx.compose.remote.integration.demos.integration.HorizontalDragPropagationDemo
 import androidx.compose.remote.integration.demos.layout.RemoteBoxAlignmentsDemo
+import androidx.compose.remote.integration.demos.layout.RemoteFitBoxSharedElementsDemo
 import androidx.compose.remote.integration.demos.layout.RemoteFlowRowDemo
 import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSharedElementsDemo
 import androidx.compose.remote.integration.demos.layout.RemoteStateLayoutSimpleDemo
@@ -49,6 +50,7 @@ private object ScreenKeys {
     const val REMOTE_FLOW_ROW = "REMOTE_FLOW_ROW"
     const val REMOTE_STATE_LAYOUT = "REMOTE_STATE_LAYOUT"
     const val REMOTE_STATE_LAYOUT_SHARED_ELEMENTS = "REMOTE_STATE_LAYOUT_SHARED_ELEMENTS"
+    const val REMOTE_FIT_BOX_SHARED_ELEMENTS = "REMOTE_FIT_BOX_SHARED_ELEMENTS"
     const val CLICKABLE = "CLICKABLE"
     const val COMBINED_CLICKABLE = "COMBINED_CLICKABLE"
     const val PADDING = "PADDING"
@@ -79,6 +81,7 @@ fun ComposableScreenNavigation(key: String, onNavigateUp: () -> Unit) {
         ScreenKeys.REMOTE_FLOW_ROW -> RemoteFlowRowDemo()
         ScreenKeys.REMOTE_STATE_LAYOUT -> RemoteStateLayoutSimpleDemo()
         ScreenKeys.REMOTE_STATE_LAYOUT_SHARED_ELEMENTS -> RemoteStateLayoutSharedElementsDemo()
+        ScreenKeys.REMOTE_FIT_BOX_SHARED_ELEMENTS -> RemoteFitBoxSharedElementsDemo()
         ScreenKeys.PADDING -> PaddingDemo()
         ScreenKeys.ALPHA -> AlphaDemo()
         ScreenKeys.ROTATE -> RotateDemo()
@@ -130,6 +133,10 @@ val Screens =
                             ComposableScreen(
                                 key = ScreenKeys.REMOTE_STATE_LAYOUT_SHARED_ELEMENTS,
                                 title = "RemoteStateLayout Shared Elements",
+                            ),
+                            ComposableScreen(
+                                key = ScreenKeys.REMOTE_FIT_BOX_SHARED_ELEMENTS,
+                                title = "RemoteFitBox Shared Elements",
                             ),
                         ),
                 ),

@@ -113,6 +113,7 @@ class CoreReflectionGuardTest {
             "$modifiers.DimensionModifierOperation" to listOf("mValue"),
             "$managers.RowLayout" to listOf("mSpacedBy"),
             "$managers.ColumnLayout" to listOf("mSpacedBy"),
+            "$managers.FitBoxLayout" to listOf("mHorizontalPositioning", "mVerticalPositioning"),
             "$managers.Custom" to listOf("mConfig", "mConfigId", "mProperties"),
             // Particle rendering is bridged to the core paint() implementations; only the
             // loop's source is read reflectively (for the once-per-document seeding).
