@@ -2327,6 +2327,25 @@ class LayoutNodeTest {
 
     private fun ZeroSizedLayoutNode() = LayoutNode(0, 0, 0, 0)
 
+    @Test
+    fun deactivatedNode_removedFromMeasureAndLayoutDelegate() {
+        val root = LayoutNode()
+        val delegate = MeasureAndLayoutDelegate(root)
+        val owner =
+            object : MockOwner() {
+                override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {
+                    delegate.onNodeDeactivated(layoutNode)
+                }
+            }
+        root.attach(owner)
+        delegate.updateRootConstraints(Constraints.fixed(100, 100))
+        assertTrue(delegate.hasPendingMeasureOrLayout)
+
+        root.onDeactivate()
+
+        assertFalse(delegate.hasPendingMeasureOrLayout)
+    }
+
     private class PointerInputModifierImpl(override val pointerInputFilter: PointerInputFilter) :
         PointerInputModifier
 }
@@ -2341,7 +2360,7 @@ private class EmptyLayoutModifier : LayoutModifier {
     }
 }
 
-internal class MockOwner(
+internal open class MockOwner(
     private val position: IntOffset = IntOffset.Zero,
     override val root: LayoutNode = LayoutNode(),
     override val semanticsOwner: SemanticsOwner =
