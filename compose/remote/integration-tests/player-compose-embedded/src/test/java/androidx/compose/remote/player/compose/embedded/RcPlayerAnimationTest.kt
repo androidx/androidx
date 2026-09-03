@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.action.valueChange
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
+import androidx.compose.remote.creation.compose.layout.RemoteFitBox
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteStateLayout
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -53,6 +54,9 @@ import androidx.compose.remote.creation.compose.state.rememberMutableRemoteInt
 import androidx.compose.remote.creation.compose.state.remoteTween
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -972,6 +976,113 @@ class RcPlayerAnimationTest {
             val endNode = rule.onNodeWithContentDescription("snapBox_end")
             val width = endNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
             assertThat(width).isWithin(2f).of(90f)
+        }
+    }
+
+    @Test
+    fun fitBox_sharedElementTransition_interpolatesSizeAcrossConstraintsChange() {
+        runBlocking {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val bytes =
+                captureSingleRemoteDocument(
+                        context = context,
+                        content = {
+                            RemoteFitBox(
+                                modifier =
+                                    RemoteModifier.animationSpec(
+                                        animationId = 1,
+                                        motionDuration = 1000f,
+                                        motionEasingType = GeneralEasing.CUBIC_LINEAR,
+                                        visibilityDuration = 1000f,
+                                        visibilityEasingType = GeneralEasing.CUBIC_LINEAR,
+                                        enterAnimation = AnimationSpec.ANIMATION.FADE_IN,
+                                        exitAnimation = AnimationSpec.ANIMATION.FADE_OUT,
+                                    )
+                            ) {
+                                // Wide child (250dp) fits when width >= 250dp
+                                RemoteBox(modifier = RemoteModifier.width(250.rdp).height(80.rdp)) {
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.semantics {
+                                                    contentDescription = "fitSharedItem_wide".rs
+                                                }
+                                                .animationSpec(
+                                                    animationId = 400,
+                                                    motionDuration = 1000f,
+                                                    motionEasingType = GeneralEasing.CUBIC_LINEAR,
+                                                    visibilityDuration = 1000f,
+                                                    visibilityEasingType =
+                                                        GeneralEasing.CUBIC_LINEAR,
+                                                    enterAnimation =
+                                                        AnimationSpec.ANIMATION.FADE_IN,
+                                                    exitAnimation =
+                                                        AnimationSpec.ANIMATION.FADE_OUT,
+                                                )
+                                                .size(80.rdp)
+                                                .background(Color.Red.rc)
+                                    )
+                                }
+
+                                // Narrow child (120dp) fits when width < 250dp
+                                RemoteBox(modifier = RemoteModifier.width(120.rdp).height(80.rdp)) {
+                                    RemoteBox(
+                                        modifier =
+                                            RemoteModifier.semantics {
+                                                    contentDescription = "fitSharedItem_narrow".rs
+                                                }
+                                                .animationSpec(
+                                                    animationId = 400,
+                                                    motionDuration = 1000f,
+                                                    motionEasingType = GeneralEasing.CUBIC_LINEAR,
+                                                    visibilityDuration = 1000f,
+                                                    visibilityEasingType =
+                                                        GeneralEasing.CUBIC_LINEAR,
+                                                    enterAnimation =
+                                                        AnimationSpec.ANIMATION.FADE_IN,
+                                                    exitAnimation =
+                                                        AnimationSpec.ANIMATION.FADE_OUT,
+                                                )
+                                                .size(40.rdp)
+                                                .background(Color.Blue.rc)
+                                    )
+                                }
+                            }
+                        },
+                    )
+                    .bytes
+
+            val document = loadDocument(bytes)
+            var containerWidth by mutableStateOf(300.dp)
+            rule.mainClock.autoAdvance = false
+            rule.setContent {
+                Box(modifier = Modifier.size(width = containerWidth, height = 200.dp)) {
+                    RcPlayer(document = document)
+                }
+            }
+
+            // Initially wide (300dp container): child 0 fits, shared item has width 80dp
+            val initialNode = rule.onNodeWithContentDescription("fitSharedItem_wide")
+            val initialWidth =
+                initialNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
+            assertThat(initialWidth).isWithin(2f).of(80f)
+
+            // Resize container to 150dp: child 0 (250dp) no longer fits, child 1 (120dp) fits
+            containerWidth = 150.dp
+            rule.mainClock.advanceTimeByFrame()
+
+            // Halfway (500ms into 1000ms linear interpolation): (80 + 40) / 2 = 60dp
+            rule.mainClock.advanceTimeBy(500)
+            val midNode = rule.onNodeWithContentDescription("fitSharedItem_narrow")
+            val midWidth = midNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
+            assertThat(midWidth).isWithin(10f).of(60f)
+
+            // Full completion (1000ms): reaches 40dp
+            rule.mainClock.advanceTimeBy(500)
+            rule.mainClock.advanceTimeByFrame()
+            val endNode = rule.onNodeWithContentDescription("fitSharedItem_narrow")
+            val finalWidth =
+                endNode.getUnclippedBoundsInRoot().let { it.right.value - it.left.value }
+            assertThat(finalWidth).isWithin(2f).of(40f)
         }
     }
 }
